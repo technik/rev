@@ -1,0 +1,11 @@
+// ------------------------- Engine TODO ------------------------------------ //
+
+// --- Leaks and house-keeping ---
+-The linux video driver, based on X11 does not execute any cleaning code at
+	exit.
+
+// --- code tools ---
+- Add a profiler.
+
+// --- Investigate, read, learn, explore ---
+- Investigate global new/delete operators overloading.

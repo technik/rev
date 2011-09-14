@@ -1,0 +1,2 @@
+set solib-search-path /home/technik/programming/rev/revsdk/src/gameClient/project/android/obj/local/armeabi
+directory /home/technik/programming/android/android-ndk-r6/platforms/android-8/arch-arm/usr/include /home/technik/programming/android/android-ndk-r6/sources/cxx-stl/gnu-libstdc++ /home/technik/programming/android/android-ndk-r6/sources/cxx-stl/gnu-libstdc++/include /home/technik/programming/android/android-ndk-r6/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include /home/technik/programming/rev/revsdk/src/gameClient/project/android/jni/../../../code

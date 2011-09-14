@@ -1,0 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Revolution Engine, revolution template library
+// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// Created on August 22nd, 2011
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// base types
+
+#ifndef _REV_RTL_BASETYPES_H_
+#define _REV_RTL_BASETYPES_H_
+
+namespace rev { namespace rtl
+{
+
+typedef	unsigned int	indexT;
+typedef unsigned int	sizeT;
+
+}	// namespace rtl
+}	// namespace rev
+
+#endif // _REV_RTL_BASETYPES_H_
