@@ -10,7 +10,7 @@
 
 namespace rev	{
 
-#if defined(_linux) || defined(ANDROID)
+#if defined(_linux) || defined(ANDROID) || defined (WIN32)
 typedef		float		TReal;
 #endif // _linux64
 

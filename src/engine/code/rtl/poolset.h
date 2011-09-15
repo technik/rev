@@ -10,7 +10,7 @@
 #ifndef _REV_RTL_POOLSET_H_
 #define _REV_RTL_POOLSET_H_
 
-#if defined(_linux) || defined(ANDROID)
+#if defined(_linux) || defined(ANDROID) || defined(WIN32)
 // Note: GCC requires the inclusion of <new> in order to use placement new operator.
 #include <new>
 #endif
@@ -117,7 +117,7 @@ poolset<_T>::node::node(const _T& _element):
 
 //----------------------------------------------------------------------------------------------------------------------
 template<typename _T>
-poolset<_T>::node::node(const poolset<_T>::node& _node):
+poolset<_T>::node::node(const typename poolset<_T>::node& _node):
 	mElement(_node.mElement)
 {
 	// Note: Never should a node be constructed as a copy of root node, so mParent is granted to be different from 0
@@ -148,7 +148,7 @@ inline const _T& poolset<_T>::node::element() const
 
 //----------------------------------------------------------------------------------------------------------------------
 template<typename _T>
-inline void poolset<_T>::node::setHigher(node * _higher)
+inline void poolset<_T>::node::setHigher(typename poolset<_T>::node * _higher)
 {
 	mHigher = _higher;
 	_higher->setParent(this);
@@ -163,7 +163,7 @@ inline typename poolset<_T>::node * poolset<_T>::node::higher() const
 
 //----------------------------------------------------------------------------------------------------------------------
 template<typename _T>
-inline void poolset<_T>::node::setLower(node * _lower)
+inline void poolset<_T>::node::setLower(typename poolset<_T>::node * _lower)
 {
 	mLower = _lower;
 	_lower->setParent(this);
@@ -178,7 +178,7 @@ inline typename poolset<_T>::node * poolset<_T>::node::lower() const
 
 //----------------------------------------------------------------------------------------------------------------------
 template<typename _T>
-inline void poolset<_T>::node::setParent(node *_parent)
+inline void poolset<_T>::node::setParent(typename poolset<_T>::node *_parent)
 {
 	mParent = _parent;
 }
@@ -209,7 +209,7 @@ inline const _T& poolset<_T>::const_iterator::operator *()
 
 //----------------------------------------------------------------------------------------------------------------------
 template< typename _T>
-inline bool poolset<_T>::const_iterator::operator !=(const const_iterator& i)
+inline bool poolset<_T>::const_iterator::operator !=(const typename poolset<_T>::const_iterator& i)
 {
 	return mElement != i.mElement;
 }

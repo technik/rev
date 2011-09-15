@@ -24,7 +24,7 @@ namespace rev
 	public:
 		// Constructor & destructor
 		CEntity();
-		~CEntity();
+		virtual ~CEntity();
 		// Update
 		virtual	void	update	();
 		// Components

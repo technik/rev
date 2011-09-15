@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="revCore">
+      <UniqueIdentifier>{67b129b7-c261-47f4-8eb1-17eb7953a1bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\file">
+      <UniqueIdentifier>{92b1e1e2-cf9d-41c7-b1cf-b588b54d7756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\codeTools">
+      <UniqueIdentifier>{a35d589c-27d2-4786-b3b8-015325cf4bb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\codeTools\assert">
+      <UniqueIdentifier>{01908627-9eec-43d8-a50c-4c36341fb2a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\codeTools\log">
+      <UniqueIdentifier>{cc4bed24-d4ba-4521-adfd-e312387e0dd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\component">
+      <UniqueIdentifier>{f22ad650-851f-46dd-ab0b-3ddab951f6eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\entity">
+      <UniqueIdentifier>{7627b4f7-fbb0-48f6-aa5c-cdbc18dd4ddd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\memory">
+      <UniqueIdentifier>{61136653-92e2-4916-987b-dcd75f5bf673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\time">
+      <UniqueIdentifier>{2b8725b3-1a64-49b7-afa7-144122d428b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo">
+      <UniqueIdentifier>{7454d7e1-836a-4881-aa58-373374574f53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\camera">
+      <UniqueIdentifier>{cbd03912-c56d-4ccd-9821-435a1bc91ce3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\color">
+      <UniqueIdentifier>{fc34b04f-84a1-4d97-b4f7-1bdc1db2c1db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\renderer">
+      <UniqueIdentifier>{f93a585f-a348-4064-943c-b3119fdbd1eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\videoDriver">
+      <UniqueIdentifier>{539722de-bd5a-440b-bab5-c64c2a7ef6d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\renderer\directRenderer">
+      <UniqueIdentifier>{948ab0f8-cfe7-4cd7-b50f-7c0983faa45f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\videoDriver\android">
+      <UniqueIdentifier>{a5d178e9-9835-4261-b9e8-1d3c43c2f193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\videoDriver\opengl">
+      <UniqueIdentifier>{7701f3ce-f29f-44aa-a21f-e407686f8388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\videoDriver\opengl\linux">
+      <UniqueIdentifier>{20f47d10-533f-4f82-ac65-c0806d3aa7cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame">
+      <UniqueIdentifier>{8589cad3-668a-4d0c-b88c-b37c4d7e8664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revInput">
+      <UniqueIdentifier>{abacc97d-f6dc-4c86-b31f-d18323c83a6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\gameclient">
+      <UniqueIdentifier>{fcf89a08-4593-4c87-b7ef-71015ce0f628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rtl">
+      <UniqueIdentifier>{41002e51-ef2e-4d19-9c99-b2289c778f93}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\code\revCore\types.h">
+      <Filter>revCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\file\file.h">
+      <Filter>revCore\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h">
+      <Filter>revCore\codeTools\assert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\codeTools\log\log.h">
+      <Filter>revCore\codeTools\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\component\component.h">
+      <Filter>revCore\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\entity\entity.h">
+      <Filter>revCore\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\entity\entityManager.h">
+      <Filter>revCore\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\memory\memory.h">
+      <Filter>revCore\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\time\time.h">
+      <Filter>revCore\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\video.h">
+      <Filter>revVideo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\camera\ICamera.h">
+      <Filter>revVideo\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\color\color.h">
+      <Filter>revVideo\color</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\renderer\renderer3d.h">
+      <Filter>revVideo\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.h">
+      <Filter>revVideo\renderer\directRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\videoDriver.h">
+      <Filter>revVideo\videoDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.h">
+      <Filter>revVideo\videoDriver\android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\glext.h">
+      <Filter>revVideo\videoDriver\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.h">
+      <Filter>revVideo\videoDriver\opengl\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revInput\input.h">
+      <Filter>revInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h">
+      <Filter>revGame\gameclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\baseTypes.h">
+      <Filter>rtl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\map.h">
+      <Filter>rtl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\poolset.h">
+      <Filter>rtl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\vector.h">
+      <Filter>rtl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\code\revCore\file\file.cpp">
+      <Filter>revCore\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp">
+      <Filter>revCore\codeTools\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\component\component.cpp">
+      <Filter>revCore\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\entity\entity.cpp">
+      <Filter>revCore\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\entity\entityManager.cpp">
+      <Filter>revCore\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\time\time.cpp">
+      <Filter>revCore\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\video.cpp">
+      <Filter>revVideo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\color\color.cpp">
+      <Filter>revVideo\color</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.cpp">
+      <Filter>revVideo\renderer\directRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp">
+      <Filter>revVideo\videoDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.cpp">
+      <Filter>revVideo\videoDriver\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.cpp">
+      <Filter>revVideo\videoDriver\opengl\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp">
+      <Filter>revGame\gameclient</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
