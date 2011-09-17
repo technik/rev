@@ -25,6 +25,7 @@ REVCORE_SRC:=$(REVCORE_DIR)/codeTools/log/log.cpp \
              $(REVCORE_DIR)/component/component.cpp\
              $(REVCORE_DIR)/entity/entity.cpp\
              $(REVCORE_DIR)/entity/entityManager.cpp\
+			 $(REVCORE_DIR)/file/file.cpp\
              $(REVCORE_DIR)/time/time.cpp
 
 REVGAME_DIR:=$(REV_CODE_DIR)/revGame
@@ -33,7 +34,9 @@ REVGAME_SRC:=$(REVGAME_DIR)/gameClient/gameClient.cpp
 REVVIDEO_DIR:=$(REV_CODE_DIR)/revVideo
 REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/color/color.cpp\
-			  $(REVVIDEO_DIR)/driver/android/videoDriverAndroid.cpp
+			  $(REVVIDEO_DIR)/renderer/directRenderer/directRenderer.cpp\
+			  $(REVVIDEO_DIR)/videoDriver/videoDriver.cpp\
+			  $(REVVIDEO_DIR)/videoDriver/android/videoDriverAndroid.cpp
 
 REV_SRC_FILES:=$(REVCORE_SRC) $(REVGAME_SRC) $(REVVIDEO_SRC)
 

@@ -116,7 +116,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::deleteShader(int /*_id*/)
+	void IVideoDriverOpenGL::deleteShader(const int /*_id*/)
 	{
 		// TODO: _solve leaks!
 	}

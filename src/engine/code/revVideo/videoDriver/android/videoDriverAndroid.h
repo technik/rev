@@ -9,7 +9,7 @@
 #define REV_REVVIDEO_DRIVER_ANDROID_VIDEODRIVERANDROID_H_
 
 // Engine headers
-#include "revVideo/driver/driver.h"
+#include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev { namespace video
 {
@@ -29,9 +29,20 @@ namespace rev { namespace video
 		void	setBackgroundColor	(const CColor& _color);
 		void	setScreenSize		(const unsigned int _width,
 									const unsigned int _height);
+
+		// ---- Render tasks ---
+		virtual void	setShader		(const int _shader);
+		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
+		virtual void	drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip);
+
 	private:
-		unsigned int mScreenWidth;
-		unsigned int mScreenHeight;
+		virtual int 	loadShader		(const char * _vtxName, const char * _pxlName);
+		virtual	void	deleteShader	(const int _id);
+		void			bindAttributes			(int _shader);
+	private:
+		int				mCurShader;
+		unsigned int 	mScreenWidth;
+		unsigned int 	mScreenHeight;
 	};
 
 }	// namespace video

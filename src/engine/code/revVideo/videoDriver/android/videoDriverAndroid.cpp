@@ -13,16 +13,17 @@
 // Engine headers
 #include "videoDriverAndroid.h"
 
+#include "revCore/file/file.h"
 #include "revVideo/color/color.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
 	CVideoDriverAndroid::CVideoDriverAndroid():
+		mCurShader(-1),
 		mScreenWidth(640),
 		mScreenHeight(800)
 	{
-		glClearColor(0.f, 0.f, 0.f, 1.f);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -49,6 +50,67 @@ namespace rev { namespace video
 	{
 		mScreenWidth = _width;
 		mScreenHeight = _height;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setShader(const int _shader)
+	{
+		if(mCurShader != _shader)
+		{
+			mCurShader = _shader;
+			glUseProgram(_shader);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer)
+	{
+	    glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, GL_FALSE, 0, _buffer);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip)
+	{
+		glDrawElements(_strip?GL_TRIANGLE_STRIP:GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int CVideoDriverAndroid::loadShader		(const char * _vtxName, const char * _pxlName)
+	{
+		// Create the program
+		int program = glCreateProgram();
+		// Vertex shader
+		unsigned vtxShader = glCreateShader(GL_VERTEX_SHADER);
+		const char * fileBuffer = bufferFromFile(_vtxName);
+		glShaderSource(vtxShader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(vtxShader); // Compile
+		delete[] fileBuffer;
+		// Pixel shader
+		unsigned pxlShader = glCreateShader(GL_FRAGMENT_SHADER);
+		fileBuffer = bufferFromFile(_pxlName);
+		glShaderSource(pxlShader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(pxlShader); // Compile
+		delete[] fileBuffer;
+		// Complete shader
+		glAttachShader(program, vtxShader);
+		glAttachShader(program, pxlShader);
+		// bind attributes before linking the shader
+		bindAttributes(program);
+		// Link the program and load it
+		glLinkProgram(program);
+		return program;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::deleteShader(const int /*_shader*/)
+	{
+		// TODO: _solve leaks!
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::bindAttributes(int _shader)
+	{
+		glBindAttribLocation(_shader, eVertex, "vertex");
 	}
 
 }	// namespace video

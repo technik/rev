@@ -30,8 +30,7 @@ namespace rev { namespace video
 		mScreenWidth(800),
 		mScreenHeight(480)
 	{
-		createWindow();
-		initOpenGL();
+		createOpenGLWindow(mScreenWidth, mScreenHeight);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -80,7 +79,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverLinux::createOpenGLWindow()
+	void CVideoDriverLinux::createOpenGLWindow(const unsigned int _width, const unsigned int _height)
 	{
 		// Initialise the display
 		m_pDisplay = XOpenDisplay(NULL); // Open a conection to the X server
@@ -101,7 +100,7 @@ namespace rev { namespace video
 		xSWA.event_mask = KeyPressMask    | ExposureMask
 				 | ButtonPressMask | StructureNotifyMask;
 		m_window = XCreateWindow(m_pDisplay, RootWindow(m_pDisplay, m_pXVisual->screen), 0, 0,
-					  mScreenWidth, mScreenHeight, 0, m_pXVisual->depth, InputOutput, m_pXVisual->visual,
+				_width, _height, 0, m_pXVisual->depth, InputOutput, m_pXVisual->visual,
 					  CWBorderPixel | CWColormap | CWEventMask, &xSWA);
 		XSetStandardProperties(m_pDisplay, m_window, "main", "main", None,
 						 NULL, 0, NULL);
