@@ -67,6 +67,9 @@
     <Filter Include="rtl">
       <UniqueIdentifier>{41002e51-ef2e-4d19-9c99-b2289c778f93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revVideo\videoDriver\opengl\windows">
+      <UniqueIdentifier>{d7d96672-5eaa-427e-9f02-5ecb57b84918}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\revCore\types.h">
@@ -141,6 +144,12 @@
     <ClInclude Include="..\..\code\rtl\vector.h">
       <Filter>rtl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.h">
+      <Filter>revVideo\videoDriver\opengl\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.h">
+      <Filter>revVideo\videoDriver\opengl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\file\file.cpp">
@@ -181,6 +190,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp">
       <Filter>revGame\gameclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.cpp">
+      <Filter>revVideo\videoDriver\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp">
+      <Filter>revVideo\videoDriver\opengl\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

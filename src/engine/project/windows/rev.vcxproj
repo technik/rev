@@ -42,6 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\technik\programacion\revsdk\src\engine\code;$(IncludePath)</IncludePath>
+    <OutDir>..\..\..\..\lib\windows</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -63,6 +64,9 @@
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -79,6 +83,9 @@
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -105,6 +112,8 @@
     <ClInclude Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\glext.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.h" />
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.h" />
+    <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\videoDriver.h" />
     <ClInclude Include="..\..\code\rtl\baseTypes.h" />
     <ClInclude Include="..\..\code\rtl\map.h" />
@@ -124,6 +133,8 @@
     <ClCompile Include="..\..\code\revVideo\video.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.cpp" />
+    <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.cpp" />
+    <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

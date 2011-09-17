@@ -17,8 +17,6 @@
 
 namespace rev{	namespace video
 {
-	class CColor;
-
 	class CVideoDriverLinux : public IVideoDriverOpenGL
 	{
 	public:
@@ -30,12 +28,10 @@ namespace rev{	namespace video
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Per frame tasks
-		void	beginFrame	();
 		void	endFrame	();
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Accessor methods
-		void	setBackgroundColor	(const CColor& _color);
 		void	setScreenSize		(const unsigned int _width, const unsigned int _height);
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -46,8 +42,8 @@ namespace rev{	namespace video
 	private:
 		//--------------------------------------------------------------------------------------------------------------
 		// Initialization tasks
-		void	createWindow	();					///< Creates the aplication window
-		void	initOpenGL		();
+		void	createOpenGLWindow	(const unsigned int _width, const unsigned int _heihgt);
+
 		//--------------------------------------------------------------------------------------------------------------
 		// Private data
 		Display *		m_pDisplay;	///< X11 display interface

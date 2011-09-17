@@ -20,6 +20,10 @@
 #ifdef ANDROID
 #include "revVideo/videoDriver/android/videoDriverAndroid.h"
 #endif // ANDROID
+#ifdef WIN32
+#include "revVideo/videoDriver/opengl/windows/videoDriverOGLWindows.h"
+#endif // WIN32
+
 #include "revVideo/renderer/renderer3d.h"
 #ifdef REV_USE_DIRECT_RENDERER
 #include "revVideo/renderer/directRenderer/directRenderer.h"
@@ -90,10 +94,15 @@ namespace rev	{	namespace	video
 	{
 #ifdef _linux
 		m_pDriver = new CVideoDriverLinux();
+		reinterpret_cast<IVideoDriverOpenGL*>(m_pDriver)->initOpenGL();
 #endif // _linux
 #ifdef ANDROID
 		m_pDriver = new CVideoDriverAndroid();
 #endif // ANDROID
+#ifdef WIN32
+		m_pDriver = new CVideoDriverOGLWindows();
+		reinterpret_cast<IVideoDriverOpenGL*>(m_pDriver)->initOpenGL();
+#endif // WIN32
 		// Assert some platform created a driver
 		revAssert(m_pDriver);
 	}

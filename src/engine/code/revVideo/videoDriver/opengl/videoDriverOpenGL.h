@@ -12,6 +12,9 @@
 #ifdef _linux
 #define GL_GLEXT_PROTOTYPES
 #endif // _linux
+#ifdef WIN32
+#include <Windows.h>
+#endif // WIN32
 #include <GL/gl.h>
 #ifdef _linux
 #include <GL/glx.h>		// GL-X dependency
@@ -24,6 +27,9 @@
 
 namespace rev { namespace video
 {
+	// Forward declarations
+	class CColor;
+
 	class IVideoDriverOpenGL: public IVideoDriver
 	{
 	public:
@@ -35,8 +41,15 @@ namespace rev { namespace video
 		void	setShader	(const int _shader);
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
 		void	drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip);
+		
+		void	setBackgroundColor	(const CColor& _color);
 
+		virtual void	beginFrame	();
+		void			initOpenGL				();
 	private:
+		// -- OpenGL specifics --
+		virtual void	createOpenGLWindow		(const unsigned int _width, const unsigned int _heihgt) = 0;
+
 		// Shaders internal management
 		virtual int 	loadShader				(const char * _vtxName, const char * _pxlName);
 		virtual	void	deleteShader			(const int _id);
@@ -57,10 +70,13 @@ namespace rev { namespace video
 		void			glBindAttribLocation	(unsigned _program, unsigned _index, const char * _name);
 		void			glVertexAttribPointer	(unsigned _idx, int _size, unsigned _type, bool _normalized,
 												int _stride, const void * _pointer);
+		void			glEnableVertexAttribArray(unsigned _idx);
 
 	private:
 		// --- Internal state --- //
-		int		mCurShader;
+		int				mCurShader;
+		unsigned int	mScreenWidth;
+		unsigned int	mScreenHeight;
 
 	private:
 		// ---- pointers to openGL extensions ----
@@ -77,6 +93,7 @@ namespace rev { namespace video
 		// Data binding
 		PFNGLBINDATTRIBLOCATIONPROC m_bindAttribLocation;
 		PFNGLVERTEXATTRIBPOINTERPROC m_vertexAttribPointer;
+		PFNGLENABLEVERTEXATTRIBARRAYPROC m_enableVertexAttribArray;
 	};
 }	// namespace video
 }	// namespace rev

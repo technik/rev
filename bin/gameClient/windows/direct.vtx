@@ -1,0 +1,10 @@
+attribute vec3 vertex;
+
+void main ( void )
+{
+	vec4 position;
+	position.xy = vertex.xy;
+	position.z = 0.0;
+	position.w = 1.0;
+	gl_Position = position;
+}

@@ -10,10 +10,14 @@
 
 #include "revCore/codeTools/assert/assert.h"
 #include "revCore/file/file.h"
+#include "revVideo/color/color.h"
 
 #ifdef _linux
 #define loadExtension( a ) glXGetProcAddressARB((const GLubyte*) (a))
 #endif // _linux
+#ifdef WIN32
+#define loadExtension( a ) wglGetProcAddress( a )
+#endif // WIN32
 
 using namespace rev::codeTools;
 
@@ -22,9 +26,10 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	IVideoDriverOpenGL::IVideoDriverOpenGL():
 		// Internal state and caches
-		mCurShader(-1)
+		mCurShader(-1),
+		mScreenWidth(800),
+		mScreenHeight(480)
 	{
-		loadOpenGLExtensions();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -46,8 +51,9 @@ namespace rev { namespace video
 		revAssert(_attribId >= 0); // Valid id
 		revAssert(_buffer); // Non-null buffer
 		// Pass array to OpenGL
-#if defined (_linux) || defined (ANDROID)
+#if defined (_linux) || defined (ANDROID) || defined (WIN32)
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
+		glEnableVertexAttribArray(_attribId);
 #else
 		revAssert(false); // Does current platform use GL_FLOAT for TReal?
 #endif
@@ -56,8 +62,30 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::drawIndexBuffer(const int _nIndices, const unsigned short int * _indices, const bool _strip)
 	{
-
 		glDrawElements(_strip?GL_TRIANGLE_STRIP:GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setBackgroundColor(const CColor& _color)
+	{
+		glClearColor(_color.r(), _color.g(), _color.b(), _color.a());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::beginFrame()
+	{
+		// Clear current buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, mScreenWidth, mScreenHeight);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::initOpenGL()
+	{
+		// Load required openGL extensions
+		loadOpenGLExtensions();
+		// Configure the OpenGL context for rendering
+		glClearColor(0.0, 0.0, 0.0, 0.0);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -113,6 +141,7 @@ namespace rev { namespace video
 		m_linkProgram = (PFNGLLINKPROGRAMPROC)loadExtension("glLinkProgram");
 		m_bindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)loadExtension("glBindAttribLocation");
 		m_vertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)loadExtension("glVertexAttribPointer");
+		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -180,6 +209,12 @@ namespace rev { namespace video
 													int _stride, const void * _pointer)
 	{
 		m_vertexAttribPointer(_idx, _size, _type, _normalized, _stride, _pointer);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glEnableVertexAttribArray(unsigned _idx)
+	{
+		m_enableVertexAttribArray(_idx);
 	}
 
 }	// namespace video

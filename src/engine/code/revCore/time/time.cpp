@@ -7,7 +7,9 @@
 
 // Standard headers
 #if defined(_linux) || defined(ANDROID)
-#include <sys/time.h>
+	#include <sys/time.h>
+#elif defined (WIN32)
+	#include <Windows.h>
 #endif // _linux
 
 // Engine headers
@@ -57,8 +59,17 @@ namespace rev
 			mFrameTime += 1.f;
 		}
 		mLastTime = usecTime;
-	#else
-		revAssert(false); // Unimplemented functionality!!!
+	#elif defined (WIN32)
+		// Get current time
+		LARGE_INTEGER largeTicks;
+		QueryPerformanceCounter(&largeTicks);
+		unsigned currTime = largeTicks.LowPart;
+		// Convert time difference to seconds
+		LARGE_INTEGER frequency;
+		QueryPerformanceFrequency(&frequency);
+		mFrameTime =  (TReal(currTime-mLastTime)/TReal(frequency.LowPart));
+		// Replace last time
+		mLastTime = currTime;
 	#endif // _linux
 	}
 
@@ -71,6 +82,11 @@ namespace rev
 		timeval currentTime;
 		gettimeofday(&currentTime, 0);
 		mLastTime = currentTime.tv_usec;
+	#elif defined (WIN32)
+		// Get initial time
+		LARGE_INTEGER largeTicks;
+		QueryPerformanceCounter(&largeTicks);
+		mLastTime = largeTicks.LowPart;
 	#endif
 	}
 

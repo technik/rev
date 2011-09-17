@@ -14,7 +14,6 @@
 #include "videoDriverLinux.h"
 
 #include "revCore/codeTools/assert/assert.h"
-#include "revVideo/color/color.h"
 
 // Used namespaces
 using namespace rev::codeTools;
@@ -43,25 +42,10 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverLinux::beginFrame()
-	{
-		// Clear current buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, mScreenWidth, mScreenHeight);
-		// Draw a triangle
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverLinux::endFrame()
 	{
 		// Swap buffers
 		glXSwapBuffers(m_pDisplay, m_window);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverLinux::setBackgroundColor(const CColor& _color)
-	{
-		glClearColor(_color.r(), _color.g(), _color.b(), _color.a());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -96,7 +80,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverLinux::createWindow()
+	void CVideoDriverLinux::createOpenGLWindow()
 	{
 		// Initialise the display
 		m_pDisplay = XOpenDisplay(NULL); // Open a conection to the X server
@@ -122,19 +106,12 @@ namespace rev { namespace video
 		XSetStandardProperties(m_pDisplay, m_window, "main", "main", None,
 						 NULL, 0, NULL);
 		XMapWindow(m_pDisplay, m_window);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverLinux::initOpenGL()
-	{
+		
 		// Create an OpenGL rendering context
 		GLXContext renderContext = glXCreateContext(m_pDisplay, m_pXVisual, None, GL_TRUE);
 		revAssert(NULL != renderContext);
 		// Bind the rendering context and the window
 		glXMakeCurrent(m_pDisplay, m_window, renderContext);
-		// Configure the OpenGL context for rendering
-		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glViewport(0, 0, mScreenWidth, mScreenHeight);
 	}
 
 }	// namespace video
