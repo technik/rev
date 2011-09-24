@@ -17,7 +17,7 @@
 #include <android/log.h>
 #define LOG_ANDROID(...) __android_log_print(ANDROID_LOG_INFO, "REV_LOG", __VA_ARGS__)
 #else // !(ANDROID && _DEBUG)
-#define LOG_ANDROID(...) (__VA_ARGS__)
+#define LOG_ANDROID( a )
 #endif // ANDROID && _DEBUG
 
 namespace rev	{	namespace codeTools

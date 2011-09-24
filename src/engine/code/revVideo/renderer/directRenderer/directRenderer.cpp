@@ -18,6 +18,7 @@ namespace rev { namespace video
 	CDirectRenderer::CDirectRenderer()
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
+		driver->setBackgroundColor(CColor::BLACK);
 		mShader = driver->getShader("direct.vtx", "direct.pxl");
 
 		mVertices[0] = 1.f;
@@ -43,7 +44,6 @@ namespace rev { namespace video
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 
-		driver->setBackgroundColor(CColor::GREEN);
 		driver->setShader(mShader);
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 2, mVertices);
 		driver->drawIndexBuffer(3, mIndices, false);

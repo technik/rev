@@ -22,8 +22,8 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CVideoDriverAndroid::CVideoDriverAndroid():
 		mCurShader(-1),
-		mScreenWidth(640),
-		mScreenHeight(800)
+		mScreenWidth(800),
+		mScreenHeight(480)
 	{
 	}
 
