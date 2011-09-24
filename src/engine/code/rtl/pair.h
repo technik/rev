@@ -13,6 +13,11 @@ namespace rev { namespace rtl
 	template<typename _T1, typename _T2>
 	class pair
 	{
+	public:
+		pair(_T1 _first, _T2 _second): first(_first), second(_second)
+		{
+		}
+
 		_T1 first;
 		_T2 second;
 	};

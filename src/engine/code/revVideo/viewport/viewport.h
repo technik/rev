@@ -18,21 +18,49 @@ namespace rev { namespace video
 	class CViewport
 	{
 	public:
+		typedef rtl::multimap<TReal, CViewport*>	TViewportContainer;
+	public:
 		CViewport(const CVec2& _pos, const CVec2& _size, const TReal layer);
 		~CViewport();
 
 		// -- Accessor methods
 		const CVec2&	pos		()	const;
 		const CVec2&	size	()	const;
-		TReal			mLayer	()	const;
+		TReal			layer	()	const;
+
+		static TViewportContainer&	viewports();
 
 	private:
 		CVec2	mPos;
 		CVec2	mSize;
 		TReal	mLayer;
 
-		static rtl::multimap<TReal, CViewport*>	sViewports;
+		static TViewportContainer	sViewports;
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline const CVec2& CViewport::pos() const
+	{
+		return mPos;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline const CVec2& CViewport::size() const
+	{
+		return mSize;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline TReal CViewport::layer() const
+	{
+		return mLayer;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CViewport::TViewportContainer& CViewport::viewports()
+	{
+		return sViewports;
+	}
 
 }	// namespace video
 }	// namespace rev

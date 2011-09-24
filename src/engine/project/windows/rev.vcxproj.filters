@@ -215,5 +215,8 @@
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp">
       <Filter>revVideo\videoDriver\opengl\windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp">
+      <Filter>revVideo\viewport</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
