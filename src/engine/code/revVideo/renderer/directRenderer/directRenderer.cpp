@@ -8,6 +8,7 @@
 #include "directRenderer.h"
 
 // TODO: Remove me
+#include "revVideo/color/color.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
@@ -42,6 +43,7 @@ namespace rev { namespace video
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 
+		driver->setBackgroundColor(CColor::GREEN);
 		driver->setShader(mShader);
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 2, mVertices);
 		driver->drawIndexBuffer(3, mIndices, false);

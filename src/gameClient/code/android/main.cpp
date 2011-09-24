@@ -21,8 +21,8 @@ CGameClient * g_gameClient = 0;
 // Method declarations
 //----------------------------------------------------------------------------------------------------------------------
 extern "C" {
-	JNIEXPORT void JNICALL Java_com_rev_gameclient_gameClient_initGameClient(JNIEnv* _env, jobject _obj);
-	JNIEXPORT void JNICALL Java_com_rev_gameclient_gameClient_endGameClient(JNIEnv* _env, jobject _obj);
+	JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_initGameClient(JNIEnv* _env, jobject _obj);
+	JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_endGameClient(JNIEnv* _env, jobject _obj);
 	JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_updateGameClient(JNIEnv* _env, jobject _obj);
 	JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_setScreenSize(JNIEnv* _env, jobject _obj);
 }
@@ -32,14 +32,14 @@ extern "C" {
 //----------------------------------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_com_rev_gameclient_gameClient_initGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
+JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_initGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
 {
 	g_gameClient = new CGameClient();
 	g_gameClient->init();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_com_rev_gameclient_gameClient_endGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
+JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_endGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
 {
 	g_gameClient->end();
 	delete g_gameClient;

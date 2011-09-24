@@ -8,9 +8,17 @@
 #ifndef _REV_REVCORE_CODETOOLS_LOG_LOG_H_
 #define _REV_REVCORE_CODETOOLS_LOG_LOG_H_
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
 #include <iostream>
-#endif
+#endif // _DEBUG
+
+
+#if defined(ANDROID) && defined(_DEBUG)
+#include <android/log.h>
+#define LOG_ANDROID(...) __android_log_print(ANDROID_LOG_INFO, "REV_LOG", __VA_ARGS__)
+#else // !(ANDROID && _DEBUG)
+#define LOG_ANDROID(...) (__VA_ARGS__)
+#endif // ANDROID && _DEBUG
 
 namespace rev	{	namespace codeTools
 {

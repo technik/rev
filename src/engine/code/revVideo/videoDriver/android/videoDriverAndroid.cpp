@@ -13,6 +13,7 @@
 // Engine headers
 #include "videoDriverAndroid.h"
 
+#include "revCore/codeTools/log/log.h"
 #include "revCore/file/file.h"
 #include "revVideo/color/color.h"
 

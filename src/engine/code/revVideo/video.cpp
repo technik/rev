@@ -46,7 +46,7 @@ namespace rev	{	namespace	video
 	{
 		revAssert(0 == s_pVideo);
 		s_pVideo = new SVideo();
-		//s_pVideo->createRenderer();
+		s_pVideo->createRenderer();
 	}
 
 	//--------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace rev	{	namespace	video
 		// Begin frame
 		m_pDriver->beginFrame();
 		// Render the frame
-		//m_pRenderer->renderFrame();
+		m_pRenderer->renderFrame();
 		// End frame
 		m_pDriver->endFrame();
 	}
@@ -78,8 +78,6 @@ namespace rev	{	namespace	video
 	{
 		// Create the video driver and renderer
 		createDriver();
-		// Set initial configuration
-		m_pDriver->setBackgroundColor(CColor::BLUE);
 	}
 
 	//--------------------------------------------------------------------------
@@ -115,7 +113,6 @@ namespace rev	{	namespace	video
 #endif // REV_USE_DIRECT_RENDERER
 		// Assert renderer exists
 		revAssert(m_pRenderer);
-		m_pRenderer->setDriver(m_pDriver);
 	}
 
 }	// namespace video
