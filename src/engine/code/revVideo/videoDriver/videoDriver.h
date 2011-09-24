@@ -18,7 +18,8 @@ namespace rev	{	namespace	video
 	public:
 		enum EAttribTypes
 		{
-			eVertex = 0
+			eVertex = 0,
+			eColor
 		};
 	public:
 		// Virtual destructor

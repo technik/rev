@@ -70,6 +70,12 @@
     <Filter Include="revVideo\videoDriver\opengl\windows">
       <UniqueIdentifier>{d7d96672-5eaa-427e-9f02-5ecb57b84918}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revVideo\viewport">
+      <UniqueIdentifier>{7005c901-5c6b-46a6-8b8b-6dae474e6e9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\math">
+      <UniqueIdentifier>{bacd533e-5f1a-4a1b-a1e8-c911637610cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\revCore\types.h">
@@ -149,6 +155,18 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.h">
       <Filter>revVideo\videoDriver\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\viewport\viewport.h">
+      <Filter>revVideo\viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\math\vector.h">
+      <Filter>revCore\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\pair.h">
+      <Filter>rtl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\rtl\multimap.h">
+      <Filter>rtl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

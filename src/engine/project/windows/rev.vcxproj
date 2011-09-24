@@ -99,6 +99,7 @@
     <ClInclude Include="..\..\code\revCore\entity\entity.h" />
     <ClInclude Include="..\..\code\revCore\entity\entityManager.h" />
     <ClInclude Include="..\..\code\revCore\file\file.h" />
+    <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
     <ClInclude Include="..\..\code\revCore\time\time.h" />
     <ClInclude Include="..\..\code\revCore\types.h" />
@@ -115,8 +116,11 @@
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\videoDriver.h" />
+    <ClInclude Include="..\..\code\revVideo\viewport\viewport.h" />
     <ClInclude Include="..\..\code\rtl\baseTypes.h" />
     <ClInclude Include="..\..\code\rtl\map.h" />
+    <ClInclude Include="..\..\code\rtl\multimap.h" />
+    <ClInclude Include="..\..\code\rtl\pair.h" />
     <ClInclude Include="..\..\code\rtl\poolset.h" />
     <ClInclude Include="..\..\code\rtl\vector.h" />
   </ItemGroup>
