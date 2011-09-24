@@ -66,7 +66,8 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer)
 	{
-	    glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, GL_FALSE, 0, _buffer);
+		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
+		glEnableVertexAttribArray(_attribId);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

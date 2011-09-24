@@ -51,7 +51,7 @@ namespace rev { namespace video
 		revAssert(_attribId >= 0); // Valid id
 		revAssert(_buffer); // Non-null buffer
 		// Pass array to OpenGL
-#if defined (_linux) || defined (ANDROID) || defined (WIN32)
+#if defined (_linux) || defined (WIN32)
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
 		glEnableVertexAttribArray(_attribId);
 #else
