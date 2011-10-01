@@ -9,7 +9,6 @@
 
 // --- Engine headers -----------
 #include "revCore/codeTools/log/log.h"
-#include "revCore/entity/entityManager.h"
 #include "revCore/time/time.h"
 #include "revVideo/video.h"
 
@@ -26,8 +25,6 @@ namespace rev { namespace game
 		// Init log system
 		SLog::init();
 		SLog::log("CGameClient::init()");
-		// Init entity manager
-		SEntityManager::init();
 		// Init time system
 		STime::init();
 		// Init video system
@@ -41,8 +38,6 @@ namespace rev { namespace game
 	{
 		// Update time system
 		STime::get()->update();
-		// Update entities
-		SEntityManager::get()->updateEntities();
 		// Update video system and render
 		SVideo::get()->update();
 		return true;
@@ -57,8 +52,6 @@ namespace rev { namespace game
 		SVideo::end();
 		// End time system
 		STime::end();
-		// End entity manager
-		SEntityManager::end();
 		// End log system
 		SLog::log("CGameClient::end()");
 		SLog::end();

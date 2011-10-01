@@ -19,9 +19,6 @@ namespace rev { namespace rtl
 	template<typename _keyT, typename _valueT, typename valueT = pair<_keyT, _valueT> >
 	class multimap
 	{
-	public:
-		//class valueT: public pair<_keyT, _valueT>
-		//{};
 
 	private:
 		class node
@@ -46,6 +43,7 @@ namespace rev { namespace rtl
 			bool		operator!=	(const iterator& i) const;
 			void		operator++	();
 			valueT&		operator*	() const;
+			iterator	(): mNode(0)	{}
 		private:
 			iterator(node * _node);
 			node * mNode;
@@ -59,6 +57,7 @@ namespace rev { namespace rtl
 			bool		operator!=	(const reverse_iterator& i) const;
 			void		operator--	();
 			valueT&		operator*	() const;
+			reverse_iterator(): mNode(0)	{}
 		private:
 			reverse_iterator(node * _node);
 			node * mNode;
@@ -101,6 +100,7 @@ namespace rev { namespace rtl
 	inline multimap<_keyT, _valueT, valueT>::node::node(const valueT& _value):
 		mHigher(0),
 		mLower(0),
+		mParent(0),
 		mValue(_value)
 	{
 	}
@@ -121,7 +121,7 @@ namespace rev { namespace rtl
 			node * parent = mParent;
 			while(mParent)
 			{
-				if(mValue.first < parent->mValue.first)
+				if(!(parent->mValue.first < mValue.first))
 					return parent;
 				else
 					parent = parent->mParent;
@@ -314,11 +314,13 @@ namespace rev { namespace rtl
 	{
 		// Create a node from value
 		node * newNode = new node(_value);
-		if(mHighestNode->mValue.first < _value.first)
+		if((0 == mHighestNode) || (mHighestNode->mValue.first < _value.first))
 			mHighestNode = newNode;
-		if(!(mLowestNode->mValue.first < _value.first))
+		if((0 == mLowestNode) || !(mLowestNode->mValue.first < _value.first))
 			mLowestNode = newNode;
-		mRootNode->addChild(newNode);
+		if(0 != mRootNode)
+			mRootNode->addChild(newNode);
+		else mRootNode = newNode;
 		return iterator(newNode);
 	}
 
@@ -381,6 +383,23 @@ namespace rev { namespace rtl
 		mHighestNode = 0;
 		mRootNode = 0;
 		mSize = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _valueT, typename valueT>
+	typename multimap<_keyT, _valueT, valueT>::iterator multimap<_keyT, _valueT, valueT>::find(const _keyT& _key)
+	{
+		node * n = mRootNode;
+		iterator i;
+		while(0 != n)
+		{
+			if(_key < n->mValue.first)
+				n = n->mHigher;
+			else if ( n->mValue.first < _key)
+				n = n->mLower;
+			else return iterator(n);
+		}
+		return i;
 	}
 
 }	// namespace rtl

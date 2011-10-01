@@ -76,6 +76,9 @@
     <Filter Include="revCore\math">
       <UniqueIdentifier>{bacd533e-5f1a-4a1b-a1e8-c911637610cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\transform">
+      <UniqueIdentifier>{326afd82-1f6c-4512-a243-34fbee12aa10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\revCore\types.h">
@@ -96,9 +99,6 @@
     <ClInclude Include="..\..\code\revCore\entity\entity.h">
       <Filter>revCore\entity</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\entity\entityManager.h">
-      <Filter>revCore\entity</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\revCore\memory\memory.h">
       <Filter>revCore\memory</Filter>
     </ClInclude>
@@ -107,9 +107,6 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\video.h">
       <Filter>revVideo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revVideo\camera\ICamera.h">
-      <Filter>revVideo\camera</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\color\color.h">
       <Filter>revVideo\color</Filter>
@@ -168,6 +165,24 @@
     <ClInclude Include="..\..\code\rtl\multimap.h">
       <Filter>rtl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\math\matrix.h">
+      <Filter>revCore\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\time\timeSrc.h">
+      <Filter>revCore\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\transform\transformSrc.h">
+      <Filter>revCore\transform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\math\quaternion.h">
+      <Filter>revCore\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\camera\camera.h">
+      <Filter>revVideo\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h">
+      <Filter>revVideo\camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\file\file.cpp">
@@ -180,9 +195,6 @@
       <Filter>revCore\component</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\entity\entity.cpp">
-      <Filter>revCore\entity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revCore\entity\entityManager.cpp">
       <Filter>revCore\entity</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\time\time.cpp">
@@ -217,6 +229,15 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp">
       <Filter>revVideo\viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp">
+      <Filter>revCore\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\math\vector.cpp">
+      <Filter>revCore\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\camera\camera.cpp">
+      <Filter>revVideo\camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

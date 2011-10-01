@@ -9,6 +9,7 @@
 #define _REV_REVVIDEO_RENDERER_DIRECTRENDERER_DIRECTRENDERER_H_
 
 #include "revVideo/renderer/renderer3d.h"
+#include "revCore/math/matrix.h"
 
 namespace rev { namespace video
 {
@@ -27,6 +28,7 @@ namespace rev { namespace video
 		int mShader;
 		float mVertices[6];
 		unsigned short mIndices[3];
+		CMat4	mMVP;
 	};
 }
 }

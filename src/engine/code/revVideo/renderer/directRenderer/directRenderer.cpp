@@ -11,6 +11,7 @@
 #include "revVideo/color/color.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
+#include "revVideo/viewport/viewport.h"
 
 namespace rev { namespace video
 {
@@ -20,6 +21,8 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setBackgroundColor(CColor::BLACK);
 		mShader = driver->getShader("direct.vtx", "direct.pxl");
+
+		mMVP = CMat4::identity();
 
 		mVertices[0] = 1.f;
 		mVertices[1] = -1.f;
@@ -31,6 +34,8 @@ namespace rev { namespace video
 		mIndices[0] = 0;
 		mIndices[1] = 1;
 		mIndices[2] = 2;
+
+		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -46,7 +51,17 @@ namespace rev { namespace video
 
 		driver->setShader(mShader);
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 2, mVertices);
-		driver->drawIndexBuffer(3, mIndices, false);
+
+		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
+			i != CViewport::viewports().end(); ++i)
+		{
+			CVec2 position = (*i).second->pos();
+			mMVP.m[0][3] = position.x;
+			mMVP.m[1][3] = position.y;
+			driver->setUniform(IVideoDriver::eMVP, mMVP);
+			driver->drawIndexBuffer(3, mIndices, false);
+		}
+
 	}
 }	// namespace video
 }	// namespace rev

@@ -38,9 +38,11 @@ namespace rev { namespace video
 		virtual ~IVideoDriverOpenGL()	{}
 
 		// ---- Render tasks ---- //
-		void	setShader	(const int _shader);
+		void	setShader			(const int _shader);
+		int		getUniformId		(const char * _name) const;
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
-		void	drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip);
+		void	setUniform			(EUniform _id, const CMat4& _value);
+		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 		
 		void	setBackgroundColor	(const CColor& _color);
 
@@ -68,15 +70,19 @@ namespace rev { namespace video
 		void			glAttachShader			(unsigned _program, unsigned _shader);
 		void			glLinkProgram			(unsigned _program);
 		void			glBindAttribLocation	(unsigned _program, unsigned _index, const char * _name);
+		int				glGetUniformLocation	(unsigned _program, const char* _name) const;
 		void			glVertexAttribPointer	(unsigned _idx, int _size, unsigned _type, bool _normalized,
 												int _stride, const void * _pointer);
 		void			glEnableVertexAttribArray(unsigned _idx);
+		void			glUniformMatrix4fv		(unsigned _location, int _count, bool _transpose, const float *_value);
 
 	private:
 		// --- Internal state --- //
 		int				mCurShader;
 		unsigned int	mScreenWidth;
 		unsigned int	mScreenHeight;
+
+		int				mUniformIds[eUniformCount];
 
 	private:
 		// ---- pointers to openGL extensions ----
@@ -92,8 +98,10 @@ namespace rev { namespace video
 		PFNGLLINKPROGRAMPROC m_linkProgram;
 		// Data binding
 		PFNGLBINDATTRIBLOCATIONPROC m_bindAttribLocation;
+		PFNGLGETUNIFORMLOCATIONPROC m_getUniformLocation;
 		PFNGLVERTEXATTRIBPOINTERPROC m_vertexAttribPointer;
 		PFNGLENABLEVERTEXATTRIBARRAYPROC m_enableVertexAttribArray;
+		PFNGLUNIFORMMATRIX4FVPROC m_uniformMatrix4fv;
 	};
 }	// namespace video
 }	// namespace rev

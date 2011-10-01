@@ -113,6 +113,7 @@ namespace rev { namespace video
 	void CVideoDriverAndroid::bindAttributes(int _shader)
 	{
 		glBindAttribLocation(_shader, eVertex, "vertex");
+		glBindAttribLocation(_shader, eColor, "color");
 	}
 
 }	// namespace video

@@ -21,10 +21,16 @@ namespace rev { namespace rtl
 		class iterator
 		{
 		public:
-			iterator(unsigned int _index):m_index(_index)	{}
-			void operator++	()	{	m_index++;	}
+			void operator++	()	{	mIndex++;	}
+			bool operator==	(const iterator& _i) const	{ return mIndex == _i.mIndex;	}
+			bool operator!= (const iterator& _i) const	{ return mIndex != _i.mIndex;	}
+			_dataT&	operator *	() const				{ return *mIndex;				}
+			_dataT* operator->	() const				{ return mIndex;				}
+
 		private:
-			unsigned int m_index;
+			iterator(_dataT* _index):mIndex(_index)	{}
+			_dataT* mIndex;
+			friend class vector<_dataT>;
 		};
 		class const_iterator: public iterator {};
 	public:
@@ -68,14 +74,15 @@ namespace rev { namespace rtl
 		m_capacity(0),
 		m_pData(0)
 	{
-		m_pData = new _dataT[m_capacity];
+		m_pData = 0;// new _dataT[m_capacity];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _dataT>
 	inline vector<_dataT>::~vector()
 	{
-		delete[] m_pData;
+		if(m_pData)
+			delete[] m_pData;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -96,21 +103,21 @@ namespace rev { namespace rtl
 	template<typename _dataT>
 	inline typename vector<_dataT>::iterator vector<_dataT>::begin()
 	{
-		return iterator(0);
+		return iterator(m_pData);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _dataT>
 	inline typename vector<_dataT>::const_iterator vector<_dataT>::begin() const
 	{
-		return const_iterator(0);
+		return const_iterator(m_pData);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _dataT>
 	inline typename vector<_dataT>::iterator vector<_dataT>::end()
 	{
-		return iterator(m_size - 1);
+		return iterator(0);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -162,7 +169,8 @@ namespace rev { namespace rtl
 				new(&newArray[i]) _dataT(m_pData[i]);
 			}
 			// delete old data
-			delete[] reinterpret_cast<char*>(m_pData);
+			if(m_pData)
+				delete[] reinterpret_cast<char*>(m_pData);
 			// array substitution
 			m_pData = newArray;
 			// Update capacity

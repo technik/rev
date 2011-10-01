@@ -8,19 +8,12 @@
 #include "entity.h"
 
 #include "revCore/component/component.h"
-#include "revCore/entity/entityManager.h"
 #include "revCore/time/time.h"
+#include "revCore/time/timeSrc.h"
 
 using namespace rev::rtl;
 
 namespace rev {
-
-//----------------------------------------------------------------------------------------------------------------------
-CEntity::CEntity()
-{
-	// Register this entity in the entity manager
-	SEntityManager::get()->registerEntity(this);
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 CEntity::~CEntity()
@@ -30,20 +23,12 @@ CEntity::~CEntity()
 	{
 		(*i)->deattach();
 	}
-	// Unregister this entity from the entity manager
-	SEntityManager::get()->unregisterEntity(this);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void CEntity::update()
+TReal CEntity::deltaTime() const
 {
-	// Update time
-	TReal frameTime = STime::get()->frameTime();
-	// Update components
-	for(poolset<IComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); ++i)
-	{
-		(*i)->update(frameTime);
-	}
+	return mTimeSrc?mTimeSrc->deltaTime():STime::get()->frameTime();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 
 #include "revCore/codeTools/assert/assert.h"
 #include "revCore/file/file.h"
+#include "revCore/math/matrix.h"
 #include "revVideo/color/color.h"
 
 #ifdef _linux
@@ -40,7 +41,15 @@ namespace rev { namespace video
 		{
 			mCurShader = _shader;
 			glUseProgram(unsigned(mCurShader));
+
+			mUniformIds[eMVP] = getUniformId("modelViewProj");
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int IVideoDriverOpenGL::getUniformId(const char * _name) const
+	{
+		return glGetUniformLocation(mCurShader, _name);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -49,7 +58,7 @@ namespace rev { namespace video
 		// Assert incomming data si valid
 		revAssert(_nComponents && (_nComponents < 5)); // [0,4] reals per buffer element
 		revAssert(_attribId >= 0); // Valid id
-		revAssert(_buffer); // Non-null buffer
+		revAssert(0 != _buffer); // Non-null buffer
 		// Pass array to OpenGL
 #if defined (_linux) || defined (WIN32)
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
@@ -57,6 +66,12 @@ namespace rev { namespace video
 #else
 		revAssert(false); // Does current platform use GL_FLOAT for TReal?
 #endif
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setUniform(EUniform _id, const CMat4& _value)
+	{
+		m_uniformMatrix4fv(mUniformIds[_id], 4, true, reinterpret_cast<const float*>(_value.m));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -142,7 +157,9 @@ namespace rev { namespace video
 		m_linkProgram = (PFNGLLINKPROGRAMPROC)loadExtension("glLinkProgram");
 		m_bindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)loadExtension("glBindAttribLocation");
 		m_vertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)loadExtension("glVertexAttribPointer");
+		m_getUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)loadExtension("glGetUniformLocation");
 		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
+		m_uniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)loadExtension("glUniformMatrix4fv");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -213,9 +230,21 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	int IVideoDriverOpenGL::glGetUniformLocation(unsigned _program, const char* _name) const
+	{
+		return m_getUniformLocation(_program, _name);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::glEnableVertexAttribArray(unsigned _idx)
 	{
 		m_enableVertexAttribArray(_idx);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glUniformMatrix4fv(unsigned _location, int _count, bool _transpose, const float *_value)
+	{
+		m_uniformMatrix4fv(_location, _count, _transpose, _value);
 	}
 
 }	// namespace video

@@ -14,6 +14,7 @@
 
 namespace rev { namespace video
 {
+	class CCamera;
 	//------------------------------------------------------------------------------------------------------------------
 	class CViewport
 	{
@@ -24,16 +25,19 @@ namespace rev { namespace video
 		~CViewport();
 
 		// -- Accessor methods
-		const CVec2&	pos		()	const;
-		const CVec2&	size	()	const;
-		TReal			layer	()	const;
+		const CVec2&	pos			()	const;
+		const CVec2&	size		()	const;
+		TReal			layer		()	const;
+		CCamera *		camera		()	const;
+		void			setCamera	(CCamera * _camera);
 
 		static TViewportContainer&	viewports();
 
 	private:
-		CVec2	mPos;
-		CVec2	mSize;
-		TReal	mLayer;
+		CVec2		mPos;
+		CVec2		mSize;
+		TReal		mLayer;
+		CCamera*	mCamera;
 
 		static TViewportContainer	sViewports;
 	};
@@ -57,7 +61,19 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CViewport::TViewportContainer& CViewport::viewports()
+	inline CCamera* CViewport::camera() const
+	{
+		return mCamera;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline void CViewport::setCamera(CCamera* _camera)
+	{
+		mCamera = _camera;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline CViewport::TViewportContainer& CViewport::viewports()
 	{
 		return sViewports;
 	}

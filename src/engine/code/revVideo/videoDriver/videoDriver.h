@@ -8,18 +8,32 @@
 #ifndef _REV_REVVIDEO_DRIVER_DRIVER_H_
 #define _REV_REVVIDEO_DRIVER_DRIVER_H_
 
-namespace rev	{	namespace	video
+#include "revCore/math/matrix.h"
+
+namespace rev	{
+
+	namespace	video
 {
+	// Forward declarations
 	class CColor;
 	class CShader;
 
 	class IVideoDriver
 	{
 	public:
-		enum EAttribTypes
+		enum EAttribType
 		{
 			eVertex = 0,
-			eColor
+			eColor,
+
+			eAttribCount
+		};
+
+		enum EUniform
+		{
+			eMVP = 0,	// Model-view-projection matrix
+
+			eUniformCount
 		};
 	public:
 		// Virtual destructor
@@ -34,12 +48,13 @@ namespace rev	{	namespace	video
 											const unsigned int _height) = 0;
 
 		// ---- Render related ---- //
-		virtual void	setShader		(const int _shader) = 0;
-		//virtual int		getUniformId	(const char * const _name) const = 0;
+		virtual void	setShader			(const int _shader) = 0;
+		virtual int		getUniformId		(const char * _name) const = 0;
 		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setIntAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setUniform		(const int _uniformId, const TReal _value) = 0;
-		virtual void	drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
+		virtual	void	setUniform			(EUniform _id, const CMat4& _value) = 0;
+		virtual void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
 
 		// --- Shader management -- //
 		int 	getShader		(const char * _vtxShaderName, const char * _pxlShadeName);

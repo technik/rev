@@ -62,7 +62,7 @@ namespace rev	{	namespace	video
 	void SVideo::update()
 	{
 		// assert we have a driver
-		revAssert(m_pDriver);
+		revAssert(0 != m_pDriver);
 		// Begin frame
 		m_pDriver->beginFrame();
 		// Render the frame
@@ -102,7 +102,7 @@ namespace rev	{	namespace	video
 		reinterpret_cast<IVideoDriverOpenGL*>(m_pDriver)->initOpenGL();
 #endif // WIN32
 		// Assert some platform created a driver
-		revAssert(m_pDriver);
+		revAssert(0 != m_pDriver);
 	}
 
 	//--------------------------------------------------------------------------
@@ -112,7 +112,7 @@ namespace rev	{	namespace	video
 		m_pRenderer = new CDirectRenderer();
 #endif // REV_USE_DIRECT_RENDERER
 		// Assert renderer exists
-		revAssert(m_pRenderer);
+		revAssert(0 != m_pRenderer);
 	}
 
 }	// namespace video
