@@ -8,6 +8,7 @@
 #include "directRenderer.h"
 
 // TODO: Remove me
+#include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
@@ -36,6 +37,8 @@ namespace rev { namespace video
 		mIndices[2] = 2;
 
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
+		v1->setCamera(cam1);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -55,11 +58,14 @@ namespace rev { namespace video
 		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
 			i != CViewport::viewports().end(); ++i)
 		{
-			CVec2 position = (*i).second->pos();
-			mMVP.m[0][3] = position.x;
-			mMVP.m[1][3] = position.y;
-			driver->setUniform(IVideoDriver::eMVP, mMVP);
-			driver->drawIndexBuffer(3, mIndices, false);
+			CViewport * viewport = (*i).second;
+			if(viewport->camera())
+			{
+				CVec2 position = (*i).second->pos();
+				mMVP = viewport->camera()->projMatrix();
+				driver->setUniform(IVideoDriver::eMVP, mMVP);
+				driver->drawIndexBuffer(3, mIndices, false);
+			}
 		}
 
 	}

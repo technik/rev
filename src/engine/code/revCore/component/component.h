@@ -20,9 +20,6 @@ namespace rev {
 		IComponent	();
 		virtual	~IComponent	();
 
-		// -- Interface --
-		virtual	void	update		(const TReal _time)	= 0;
-
 		// -- attach and deattach --
 		virtual	void	attachTo	(CEntity * _entity);
 		virtual void	deattach	();

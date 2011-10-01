@@ -22,12 +22,11 @@ namespace rev { namespace video
 	class COrthoCamera: public ICamera
 	{
 	public:
-		const CMat4&	projMatrix		()	const;
-		const CScene*	scene			()	const;
+		COrthoCamera(const CVec2& _apperture, TReal _zMin, TReal _zMax);
 
 		// Accessors
-		CVec2			apperture		()	const;
 		void			setApperture	(const CVec2& _apperture);
+		void			setZRange		(TReal _min, TReal _max);
 	};
 }	// namespace video
 }	// namespace rev

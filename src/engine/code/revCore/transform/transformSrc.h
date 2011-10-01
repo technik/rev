@@ -51,19 +51,19 @@ namespace rev
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
-	const CVec3& ITransformSrc::position() const
+	inline const CVec3& ITransformSrc::position() const
 	{
 		return mWorldPos;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	const CQuat& ITransformSrc::rotation() const
+	inline const CQuat& ITransformSrc::rotation() const
 	{
 		return mWorldRot;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	const CMat34& ITransformSrc::transform() const
+	inline const CMat34& ITransformSrc::transform() const
 	{
 		return mWorldTrans;
 	}
@@ -75,20 +75,20 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ITransformSrc::setLocalPos(const CVec3& _pos)
+	inline void ITransformSrc::setLocalPos(const CVec3& _pos)
 	{
 		mLocalPos = _pos;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ITransformSrc::setWorldRot(const CQuat& _rot)
+	inline void ITransformSrc::setWorldRot(const CQuat& _rot)
 	{
 		mWorldRot = _rot;
 		mWorldTrans = CMat34(_rot, mWorldPos);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ITransformSrc::setLocalRot(const CQuat& _rot)
+	inline void ITransformSrc::setLocalRot(const CQuat& _rot)
 	{
 		mLocalRot = _rot;
 	}

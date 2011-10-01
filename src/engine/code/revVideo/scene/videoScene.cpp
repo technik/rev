@@ -3,52 +3,34 @@
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // Created on October 1st, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// camera
+// renderable scene
 
-// Engine headers
-#include "camera.h"
-
-#include "revCore/entity/entity.h"
-#include "revVideo/scene/videoScene.h"
+#include "videoScene.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	ICamera::ICamera():mScene(CVideoScene::defaultScene())
+	// Static data definitions
+	CVideoScene * CVideoScene::sDefaultScene = 0;
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVideoScene * CVideoScene::defaultScene()
 	{
+		if(!sDefaultScene)
+			sDefaultScene = new CVideoScene();
+		return sDefaultScene;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CMat4 ICamera::viewProj	()	const
+	void CVideoScene::addRenderable(IRenderable * _renderable)
 	{
-		if(getEntity() && getEntity()->transformSource())
-		{
-			CMat34 invParentWorld;
-			this->getEntity()->transformSource()->transform().inverse(invParentWorld);
-			return mProjection * invParentWorld;
-		}
-		else
-		{
-			return mProjection;
-		}
+		mRenderables.push(_renderable);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	const CMat4& ICamera::projMatrix() const
+	void CVideoScene::removeRenderable(IRenderable * _renderable)
 	{
-		return mProjection;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	const CVideoScene* ICamera::scene() const
-	{
-		return mScene;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void ICamera::setScene(const CVideoScene* _scn)
-	{
-		mScene = _scn;
+		mRenderables.erase(_renderable);
 	}
 }	// namespace video
 }	// namespace rev

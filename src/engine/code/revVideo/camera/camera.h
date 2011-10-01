@@ -14,41 +14,25 @@
 namespace rev { namespace video
 {
 	// Forward declarations
-	class CScene;
+	class CVideoScene;
 
 	class ICamera: public IComponent
 	{
 	public:
 		// Virtual destructor
-		ICamera();
 		virtual ~ICamera()	{}
 		// Camera interface
 		const CMat4&	projMatrix	()	const;
 		CMat4			viewProj	()	const;	///< Returns view-projection matrix.
-		const CScene*	scene		()	const;
-		void			setScene	(const CScene* _scn);
-	private:
+		const CVideoScene*	scene	()	const;
+		void			setScene	(const CVideoScene* _scn);
+	protected:
+		// Protected constructor prevents base class instantiations
+		ICamera();
 		CMat4			mProjection;
-		const CScene*	mScene;
+	private:
+		const CVideoScene*	mScene;
 	};
-
-	//------------------------------------------------------------------------------------------------------------------
-	const CMat4& ICamera::projMatrix() const
-	{
-		return mProjection;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	const CScene* ICamera::scene() const
-	{
-		return mScene;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void ICamera::setScene(const CScene* _scn)
-	{
-		mScene = _scn;
-	}
 
 }	// namespace video
 }	// namespace rev

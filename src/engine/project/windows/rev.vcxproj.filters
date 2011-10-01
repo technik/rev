@@ -79,6 +79,9 @@
     <Filter Include="revCore\transform">
       <UniqueIdentifier>{326afd82-1f6c-4512-a243-34fbee12aa10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revVideo\scene">
+      <UniqueIdentifier>{0f3e5f2a-5269-448d-8f65-bd94a097a566}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\revCore\types.h">
@@ -183,6 +186,9 @@
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h">
       <Filter>revVideo\camera</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\videoScene.h">
+      <Filter>revVideo\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\file\file.cpp">
@@ -237,6 +243,12 @@
       <Filter>revCore\math</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp">
+      <Filter>revVideo\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\videoScene.cpp">
+      <Filter>revVideo\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp">
       <Filter>revVideo\camera</Filter>
     </ClCompile>
   </ItemGroup>

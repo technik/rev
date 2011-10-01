@@ -14,7 +14,7 @@
 
 namespace rev { namespace video
 {
-	class CCamera;
+	class ICamera;
 	//------------------------------------------------------------------------------------------------------------------
 	class CViewport
 	{
@@ -28,8 +28,8 @@ namespace rev { namespace video
 		const CVec2&	pos			()	const;
 		const CVec2&	size		()	const;
 		TReal			layer		()	const;
-		CCamera *		camera		()	const;
-		void			setCamera	(CCamera * _camera);
+		ICamera *		camera		()	const;
+		void			setCamera	(ICamera * _camera);
 
 		static TViewportContainer&	viewports();
 
@@ -37,7 +37,7 @@ namespace rev { namespace video
 		CVec2		mPos;
 		CVec2		mSize;
 		TReal		mLayer;
-		CCamera*	mCamera;
+		ICamera*	mCamera;
 
 		static TViewportContainer	sViewports;
 	};
@@ -61,13 +61,13 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline CCamera* CViewport::camera() const
+	inline ICamera* CViewport::camera() const
 	{
 		return mCamera;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline void CViewport::setCamera(CCamera* _camera)
+	inline void CViewport::setCamera(ICamera* _camera)
 	{
 		mCamera = _camera;
 	}
