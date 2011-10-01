@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\technik\programacion\revsdk\src\engine\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\..\..\..\..\src\engine\code;$(IncludePath)</IncludePath>
     <OutDir>..\..\..\..\lib\windows</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
