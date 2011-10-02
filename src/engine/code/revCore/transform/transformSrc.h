@@ -19,12 +19,18 @@ namespace rev
 	class ITransformSrc
 	{
 	public:
+		// Constructor and virtual destructor
+		ITransformSrc():mParent(0)	{}
+		virtual ~ITransformSrc()	{}
+
+		// Accessors
 		const	CVec3&	position	()	const;
 		const	CQuat&	rotation	()	const;
 		const	CMat34&	transform	()	const;
 
 		ITransformSrc*	parent		()	const;
 		void			attachTo	(ITransformSrc* _parent);
+
 	protected:
 		void			setPosition	(const CVec3& _position);
 		void			setRotation	(const CQuat& _rotation);

@@ -17,7 +17,6 @@ namespace rev {
 	
 //------------------------------------------------------------------------------------------------------------------
 CEntity::CEntity():
-	mTransformSrc(0),
 	mTimeSrc(0)
 {
 }
@@ -25,7 +24,7 @@ CEntity::CEntity():
 //----------------------------------------------------------------------------------------------------------------------
 CEntity::~CEntity()
 {
-	// Delete all my components
+	// Deattach all my components
 	for(poolset<IComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); ++i)
 	{
 		(*i)->deattach();

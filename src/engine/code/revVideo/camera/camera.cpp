@@ -21,10 +21,10 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CMat4 ICamera::viewProj	()	const
 	{
-		if(getEntity() && getEntity()->transformSource())
+		if(getEntity())
 		{
 			CMat34 invParentWorld;
-			this->getEntity()->transformSource()->transform().inverse(invParentWorld);
+			getEntity()->transform().inverse(invParentWorld);
 			return mProjection * invParentWorld;
 		}
 		else

@@ -76,11 +76,11 @@ namespace rev { namespace video
 				{
 					CEntity  * entity = (*i)->getEntity();
 					if(entity)
+					{
 						mMVP = viewProj * entity->transform();
-					else
-						mMVP = viewProj;
-					driver->setUniform(IVideoDriver::eMVP, mMVP);
-					driver->drawIndexBuffer(3, mIndices, false);
+						driver->setUniform(IVideoDriver::eMVP, mMVP);
+						driver->drawIndexBuffer(3, mIndices, false);
+					}
 				}
 			}
 		}
