@@ -33,6 +33,7 @@ namespace rev
 		// Accessors
 		TReal			deltaTime			()	const;
 		const CVec3&	position			()	const;
+		const CMat34&	transform			()	const;
 
 		// Components
 		void			addComponent		(IComponent * _component);
@@ -61,6 +62,15 @@ namespace rev
 			return mTransformSrc->position();
 		else
 			return CVec3::zero;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline const CMat34& CEntity::transform() const
+	{
+		if(mTransformSrc)
+			return mTransformSrc->transform();
+		else
+			return CMat34::identity;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

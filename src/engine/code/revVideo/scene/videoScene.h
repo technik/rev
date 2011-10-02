@@ -18,16 +18,19 @@ namespace rev { namespace video
 	class CVideoScene
 	{
 	public:
+		typedef rtl::poolset<IRenderable*>	TRenderableContainer;
+	public:
 		// -- Default scene
 		static CVideoScene* defaultScene();
-		// -- Add renderable
+		// --  renderables
 		void addRenderable		(IRenderable * _renderable);
 		void removeRenderable	(IRenderable * _renderable);
+
+		TRenderableContainer&	renderables() { return mRenderables;	}
 	private:
 		// -- Default scene
 		static CVideoScene* sDefaultScene;
 		// Scene renderables
-		typedef rtl::poolset<IRenderable*>	TRenderableContainer;
 		
 		TRenderableContainer	mRenderables;
 	};

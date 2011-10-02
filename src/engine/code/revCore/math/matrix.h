@@ -51,24 +51,23 @@ public:
 			}
 		}
 	}
-	TMat34(const TQuaternion<_T>& _q, const TVec3<_T>& _v);
-
-	// Identity
-	static TMat34<_T> identity()
+	TMat34(const TVec3<_T>& _diagonal)
 	{
-		TMat4 mtx;
 		for(unsigned int row = 0; row < 3; ++row)
 		{
 			for(unsigned int column = 0; column < 4; ++column)
 			{
-				if(column == row)
-					mtx.m[row][column] = 1.f;
-				else
-					mtx.m[row][column] = 0.f;
+				m[row][column] = 0.f;
 			}
 		}
-		return mtx;
+		m[0][0] = _diagonal.x;
+		m[1][1] = _diagonal.y;
+		m[2][2] = _diagonal.z;
 	}
+	TMat34(const TQuaternion<_T>& _q, const TVec3<_T>& _v);
+
+	// Identity
+	static TMat34<_T> identity;
 
 	// Mathematical operations
 	TMat34<_T> operator * (const TMat34& _b) const
@@ -149,7 +148,7 @@ public:
 									+ m[row][1] * _b.m[1][column]
 									+ m[row][2] * _b.m[2][column];
 			}
-			dst.m[row][4] += m[row][4];
+			dst.m[row][3] += m[row][3];
 		}
 		return dst;
 	}

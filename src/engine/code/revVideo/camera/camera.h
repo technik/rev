@@ -24,14 +24,14 @@ namespace rev { namespace video
 		// Camera interface
 		const CMat4&	projMatrix	()	const;
 		CMat4			viewProj	()	const;	///< Returns view-projection matrix.
-		const CVideoScene*	scene	()	const;
-		void			setScene	(const CVideoScene* _scn);
+		CVideoScene*	scene		()	const;
+		void			setScene	(CVideoScene* _scn);
 	protected:
 		// Protected constructor prevents base class instantiations
 		ICamera();
 		CMat4			mProjection;
 	private:
-		const CVideoScene*	mScene;
+		CVideoScene*	mScene;
 	};
 
 }	// namespace video

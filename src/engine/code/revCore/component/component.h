@@ -24,7 +24,7 @@ namespace rev {
 		virtual	void	attachTo	(CEntity * _entity);
 		virtual void	deattach	();
 
-	protected:
+	public:
 		CEntity * getEntity() const;
 
 	private:

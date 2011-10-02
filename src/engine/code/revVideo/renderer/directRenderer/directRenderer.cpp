@@ -8,8 +8,11 @@
 #include "directRenderer.h"
 
 // TODO: Remove me
+#include "revCore/entity/entity.h"
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
+#include "revVideo/scene/renderable.h"
+#include "revVideo/scene/videoScene.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/viewport/viewport.h"
@@ -39,6 +42,9 @@ namespace rev { namespace video
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
 		v1->setCamera(cam1);
+		IRenderable * tri1 = new IRenderable();
+		CEntity * ent1 = new CEntity;
+		tri1->attachTo(ent1);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -59,12 +65,23 @@ namespace rev { namespace video
 			i != CViewport::viewports().end(); ++i)
 		{
 			CViewport * viewport = (*i).second;
-			if(viewport->camera())
+			ICamera * cam = viewport->camera();
+			if(cam)
 			{
 				CVec2 position = (*i).second->pos();
-				mMVP = viewport->camera()->projMatrix();
-				driver->setUniform(IVideoDriver::eMVP, mMVP);
-				driver->drawIndexBuffer(3, mIndices, false);
+				CMat4 viewProj = cam->projMatrix();
+				CVideoScene * scn = cam->scene();
+				CVideoScene::TRenderableContainer& renderables = scn->renderables();
+				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
+				{
+					CEntity  * entity = (*i)->getEntity();
+					if(entity)
+						mMVP = viewProj * entity->transform();
+					else
+						mMVP = viewProj;
+					driver->setUniform(IVideoDriver::eMVP, mMVP);
+					driver->drawIndexBuffer(3, mIndices, false);
+				}
 			}
 		}
 

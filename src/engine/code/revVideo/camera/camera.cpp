@@ -40,13 +40,13 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	const CVideoScene* ICamera::scene() const
+	CVideoScene* ICamera::scene() const
 	{
 		return mScene;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ICamera::setScene(const CVideoScene* _scn)
+	void ICamera::setScene(CVideoScene* _scn)
 	{
 		mScene = _scn;
 	}

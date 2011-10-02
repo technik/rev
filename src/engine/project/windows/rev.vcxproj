@@ -113,6 +113,7 @@
     <ClInclude Include="..\..\code\revVideo\color\color.h" />
     <ClInclude Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.h" />
     <ClInclude Include="..\..\code\revVideo\renderer\renderer3d.h" />
+    <ClInclude Include="..\..\code\revVideo\scene\renderable.h" />
     <ClInclude Include="..\..\code\revVideo\scene\videoScene.h" />
     <ClInclude Include="..\..\code\revVideo\video.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="..\..\code\revCore\component\component.cpp" />
     <ClCompile Include="..\..\code\revCore\entity\entity.cpp" />
     <ClCompile Include="..\..\code\revCore\file\file.cpp" />
+    <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
     <ClCompile Include="..\..\code\revCore\math\vector.cpp" />
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
