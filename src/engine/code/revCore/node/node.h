@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Entity
 
-#ifndef _REV_REVCORE_ENTITY_ENTITY_H_
-#define _REV_REVCORE_ENTITY_ENTITY_H_
+#ifndef _REV_REVCORE_NODE_NODE_H_
+#define _REV_REVCORE_NODE_NODE_H_
 
 #include "revCore/math/vector.h"
 #include "revCore/transform/transformSrc.h"
@@ -23,12 +23,12 @@ namespace rev
 	// You can attach components to an entity
 	// You can attach an entity to a transform source (nodes, animations, rigid bodies, etc...)
 	// You can subscribe an entity to a time source
-	class CEntity: public ITransformSrc
+	class CNode: public ITransformSrc
 	{
 	public:
 		// Constructor & destructor
-		CEntity();
-		virtual ~CEntity();
+		CNode();
+		virtual ~CNode();
 
 		// Accessors
 		TReal			deltaTime			()	const;
@@ -50,18 +50,18 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline ITimeSrc* CEntity::timeSource() const
+	inline ITimeSrc* CNode::timeSource() const
 	{
 		return mTimeSrc;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline void CEntity::setTimeSource(ITimeSrc* _source)
+	inline void CNode::setTimeSource(ITimeSrc* _source)
 	{
 		mTimeSrc = _source;
 	}
 
 }	// namespace rev
 
-#endif // _REV_REVCORE_ENTITY_ENTITY_H_
+#endif // _REV_REVCORE_NODE_NODE_H_
 

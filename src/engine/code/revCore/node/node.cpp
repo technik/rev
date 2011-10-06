@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Entity
 
-#include "entity.h"
+#include "node.h"
 
 #include "revCore/component/component.h"
 #include "revCore/time/time.h"
@@ -16,13 +16,13 @@ using namespace rev::rtl;
 namespace rev {
 	
 //------------------------------------------------------------------------------------------------------------------
-CEntity::CEntity():
+CNode::CNode():
 	mTimeSrc(0)
 {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-CEntity::~CEntity()
+CNode::~CNode()
 {
 	// Deattach all my components
 	for(poolset<IComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); ++i)
@@ -32,19 +32,19 @@ CEntity::~CEntity()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-TReal CEntity::deltaTime() const
+TReal CNode::deltaTime() const
 {
 	return mTimeSrc?mTimeSrc->deltaTime():STime::get()->frameTime();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void CEntity::addComponent(IComponent * _component)
+void CNode::addComponent(IComponent * _component)
 {
 	mComponents.push(_component);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void CEntity::removeComponent(IComponent *_component)
+void CNode::removeComponent(IComponent *_component)
 {
 	mComponents.erase(_component);
 }

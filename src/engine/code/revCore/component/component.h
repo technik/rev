@@ -11,7 +11,7 @@
 #include "revCore/types.h"
 
 namespace rev {
-	class CEntity;
+	class CNode;
 
 	class IComponent
 	{
@@ -21,26 +21,26 @@ namespace rev {
 		virtual	~IComponent	();
 
 		// -- attach and deattach --
-		virtual	void	attachTo	(CEntity * _entity);
+		virtual	void	attachTo	(CNode * _node);
 		virtual void	deattach	();
 
 	public:
-		CEntity * getEntity() const;
+		CNode * node() const;
 
 	private:
-		CEntity * mEntity;
+		CNode * mNode;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
 	inline IComponent::IComponent():
-		mEntity(0)
+		mNode(0)
 	{
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline CEntity * IComponent::getEntity() const
+	inline CNode * IComponent::node() const
 	{
-		return mEntity;
+		return mNode;
 	}
 
 }	// namespace rev

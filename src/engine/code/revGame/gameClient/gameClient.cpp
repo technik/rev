@@ -18,7 +18,7 @@
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/scene/model/staticModel.h"
 #include "revVideo/scene/model/staticModelInstance.h"
-#include "revCore/entity/entity.h"
+#include "revCore/node/node.h"
 
 // --- Active namespaces --------
 using namespace rev;
@@ -49,8 +49,8 @@ namespace rev { namespace game
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
 		v1->setCamera(cam1);
 		IRenderable * tri1 = new CStaticModelInstance(new CStaticModel());
-		CEntity * ent1 = new CEntity;
-		tri1->attachTo(ent1);
+		CNode * node1 = new CNode;
+		tri1->attachTo(node1);
 	}
 
 	//--------------------------------------------------------------------------

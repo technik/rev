@@ -8,7 +8,7 @@
 #include "component.h"
 
 #include "revCore/codeTools/assert/assert.h"
-#include "revCore/entity/entity.h"
+#include "revCore/node/node.h"
 
 // Active namespaces
 using namespace rev::codeTools;
@@ -18,7 +18,7 @@ namespace rev {
 //----------------------------------------------------------------------------------------------------------------------
 IComponent::~IComponent()
 {
-	if(0 != mEntity) // If this component is still attached to some entity
+	if(0 != mNode) // If this component is still attached to some entity
 	{
 		// deattach it
 		deattach();
@@ -26,22 +26,22 @@ IComponent::~IComponent()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void IComponent::attachTo(CEntity *_entity)
+void IComponent::attachTo(CNode *_node)
 {
-	if(0 != mEntity) // deattach from previous owner
+	if(0 != mNode) // deattach from previous owner
 	{
 		deattach();
 	}
-	mEntity = _entity;
-	_entity->addComponent(this);
+	mNode = _node;
+	_node->addComponent(this);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void IComponent::deattach()
 {
-	revAssert(0 != mEntity);
-	mEntity->removeComponent(this);
-	mEntity = 0;
+	revAssert(0 != mNode);
+	mNode->removeComponent(this);
+	mNode = 0;
 }
 
 }	// namespace rev

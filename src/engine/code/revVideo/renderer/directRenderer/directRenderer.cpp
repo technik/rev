@@ -8,7 +8,7 @@
 // Engine headers
 #include "directRenderer.h"
 
-#include "revCore/entity/entity.h"
+#include "revCore/node/node.h"
 #include "revVideo/camera/camera.h"
 #include "revVideo/color/color.h"
 #include "revVideo/scene/renderable.h"
@@ -56,10 +56,10 @@ namespace rev { namespace video
 				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
 				{
 					IRenderable * renderable = *i;
-					CEntity * entity = renderable->getEntity();
-					if(entity)
+					CNode * node = renderable->node();
+					if(node)
 					{
-						mMVP = viewProj * entity->transform();
+						mMVP = viewProj * node->transform();
 						driver->setUniform(IVideoDriver::eMVP, mMVP);
 						driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, renderable->vertices());
 						driver->drawIndexBuffer(3*renderable->nTriangles(), renderable->triangles(), false);

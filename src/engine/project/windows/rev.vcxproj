@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\technik\programacion\revsdk\src\engine\code;$(IncludePath)</IncludePath>
-    <OutDir>..\..\..\..\lib\windows</OutDir>
+    <OutDir>..\..\..\..\lib\windows\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -96,12 +96,12 @@
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\log\log.h" />
     <ClInclude Include="..\..\code\revCore\component\component.h" />
-    <ClInclude Include="..\..\code\revCore\entity\entity.h" />
     <ClInclude Include="..\..\code\revCore\file\file.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
+    <ClInclude Include="..\..\code\revCore\node\node.h" />
     <ClInclude Include="..\..\code\revCore\time\time.h" />
     <ClInclude Include="..\..\code\revCore\time\timeSrc.h" />
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
@@ -135,11 +135,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp" />
     <ClCompile Include="..\..\code\revCore\component\component.cpp" />
-    <ClCompile Include="..\..\code\revCore\entity\entity.cpp" />
     <ClCompile Include="..\..\code\revCore\file\file.cpp" />
     <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />
     <ClCompile Include="..\..\code\revCore\math\vector.cpp" />
+    <ClCompile Include="..\..\code\revCore\node\node.cpp" />
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />

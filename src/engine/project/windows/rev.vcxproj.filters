@@ -19,9 +19,6 @@
     <Filter Include="revCore\component">
       <UniqueIdentifier>{f22ad650-851f-46dd-ab0b-3ddab951f6eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revCore\entity">
-      <UniqueIdentifier>{7627b4f7-fbb0-48f6-aa5c-cdbc18dd4ddd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="revCore\memory">
       <UniqueIdentifier>{61136653-92e2-4916-987b-dcd75f5bf673}</UniqueIdentifier>
     </Filter>
@@ -85,6 +82,9 @@
     <Filter Include="revVideo\scene\model">
       <UniqueIdentifier>{cf1d434e-d578-4cee-b724-58732073959a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\node">
+      <UniqueIdentifier>{485460ae-1619-4657-a85d-86832ce1a046}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\revCore\types.h">
@@ -101,9 +101,6 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\component\component.h">
       <Filter>revCore\component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revCore\entity\entity.h">
-      <Filter>revCore\entity</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\memory\memory.h">
       <Filter>revCore\memory</Filter>
@@ -201,6 +198,9 @@
     <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h">
       <Filter>revVideo\scene\model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\node\node.h">
+      <Filter>revCore\node</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\file\file.cpp">
@@ -211,9 +211,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\component\component.cpp">
       <Filter>revCore\component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revCore\entity\entity.cpp">
-      <Filter>revCore\entity</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\time\time.cpp">
       <Filter>revCore\time</Filter>
@@ -274,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp">
       <Filter>revCore\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\node\node.cpp">
+      <Filter>revCore\node</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

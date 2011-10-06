@@ -8,7 +8,7 @@
 // Engine headers
 #include "camera.h"
 
-#include "revCore/entity/entity.h"
+#include "revCore/node/node.h"
 #include "revVideo/scene/videoScene.h"
 
 namespace rev { namespace video
@@ -21,10 +21,10 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CMat4 ICamera::viewProj	()	const
 	{
-		if(getEntity())
+		if(node())
 		{
 			CMat34 invParentWorld;
-			getEntity()->transform().inverse(invParentWorld);
+			node()->transform().inverse(invParentWorld);
 			return mProjection * invParentWorld;
 		}
 		else
