@@ -5,11 +5,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // direct renderer
 
+// Engine headers
 #include "directRenderer.h"
 
-// TODO: Remove me
 #include "revCore/entity/entity.h"
-#include "revVideo/camera/orthoCamera.h"
+#include "revVideo/camera/camera.h"
 #include "revVideo/color/color.h"
 #include "revVideo/scene/renderable.h"
 #include "revVideo/scene/videoScene.h"
@@ -27,24 +27,6 @@ namespace rev { namespace video
 		mShader = driver->getShader("direct.vtx", "direct.pxl");
 
 		mMVP = CMat4::identity();
-
-		mVertices[0] = 1.f;
-		mVertices[1] = -1.f;
-		mVertices[2] = 0.f;
-		mVertices[3] = 1.f;
-		mVertices[4] = -1.f;
-		mVertices[5] = -1.f;
-
-		mIndices[0] = 0;
-		mIndices[1] = 1;
-		mIndices[2] = 2;
-
-		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
-		v1->setCamera(cam1);
-		IRenderable * tri1 = new IRenderable();
-		CEntity * ent1 = new CEntity;
-		tri1->attachTo(ent1);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -59,7 +41,6 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 
 		driver->setShader(mShader);
-		driver->setRealAttribBuffer(IVideoDriver::eVertex, 2, mVertices);
 
 		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
 			i != CViewport::viewports().end(); ++i)
@@ -74,12 +55,14 @@ namespace rev { namespace video
 				CVideoScene::TRenderableContainer& renderables = scn->renderables();
 				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
 				{
-					CEntity  * entity = (*i)->getEntity();
+					IRenderable * renderable = *i;
+					CEntity * entity = renderable->getEntity();
 					if(entity)
 					{
 						mMVP = viewProj * entity->transform();
 						driver->setUniform(IVideoDriver::eMVP, mMVP);
-						driver->drawIndexBuffer(3, mIndices, false);
+						driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, renderable->vertices());
+						driver->drawIndexBuffer(3*renderable->nTriangles(), renderable->triangles(), false);
 					}
 				}
 			}

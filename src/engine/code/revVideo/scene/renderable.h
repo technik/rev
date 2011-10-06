@@ -20,6 +20,14 @@ namespace rev { namespace video
 		{
 			CVideoScene::defaultScene()->addRenderable(this);
 		}
+
+		// Buffers
+		virtual float*			vertices	() const = 0;
+		// Indices
+		virtual unsigned short*	triangles	() const = 0;
+		virtual int				nTriangles	() const = 0;
+		virtual unsigned short* triStrip	() const = 0;
+		virtual int				stripLength	() const = 0;
 	};
 }	// namespace video
 }	// namespace rev

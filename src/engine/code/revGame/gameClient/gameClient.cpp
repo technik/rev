@@ -12,6 +12,14 @@
 #include "revCore/time/time.h"
 #include "revVideo/video.h"
 
+
+// TODO: Remove?
+#include "revVideo/viewport/viewport.h"
+#include "revVideo/camera/orthoCamera.h"
+#include "revVideo/scene/model/staticModel.h"
+#include "revVideo/scene/model/staticModelInstance.h"
+#include "revCore/entity/entity.h"
+
 // --- Active namespaces --------
 using namespace rev;
 using namespace rev::codeTools;
@@ -31,6 +39,18 @@ namespace rev { namespace game
 		SVideo::init();
 		// Init audio system
 		// Init input system
+
+
+
+
+		
+
+		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
+		v1->setCamera(cam1);
+		IRenderable * tri1 = new CStaticModelInstance(new CStaticModel());
+		CEntity * ent1 = new CEntity;
+		tri1->attachTo(ent1);
 	}
 
 	//--------------------------------------------------------------------------

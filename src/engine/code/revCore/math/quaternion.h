@@ -8,7 +8,11 @@
 #ifndef _REV_REVCORE_MATH_QUATERION_H_
 #define _REV_REVCORE_MATH_QUATERION_H_
 
+// Standard headers
 #include <cmath>
+
+// Engine headers
+#include "revCore/types.h"
 
 namespace rev {
 
@@ -33,6 +37,9 @@ public:
 	// Other operations
 	TVec3<_T>		rotate		(const TVec3<_T>& _v) const;
 	TQuaternion<_T>	inverse		() const;
+
+	// Useful quaternions
+	static TQuaternion<_T>	identity;
 
 	_T x;
 	_T y;

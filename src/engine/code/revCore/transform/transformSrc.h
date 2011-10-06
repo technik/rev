@@ -20,7 +20,11 @@ namespace rev
 	{
 	public:
 		// Constructor and virtual destructor
-		ITransformSrc():mParent(0)	{}
+		ITransformSrc():mParent(0)
+		{
+			setPosition(CVec3::zero);
+			setRotation(CQuat::identity);
+		}
 		virtual ~ITransformSrc()	{}
 
 		// Accessors

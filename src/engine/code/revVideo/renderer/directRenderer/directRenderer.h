@@ -26,8 +26,6 @@ namespace rev { namespace video
 	private:
 		// Render data
 		int mShader;
-		float mVertices[6];
-		unsigned short mIndices[3];
 		CMat4	mMVP;
 	};
 }
