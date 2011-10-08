@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine
-// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// by Carmelo J. Fernï¿½ndez-Agï¿½era Tortosa (a.k.a. Technik)
 // Created on September 26th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // quaternion
@@ -11,5 +11,6 @@ namespace rev
 {
 	//------------------------------------------------------------------------------------------------------------------
 	// Static data definitions
+	template<>
 	CQuat CQuat::identity = CQuat(0.f, 0.f, 0.f, 1.f);
 }	// namespace rev

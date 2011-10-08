@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine, revolution template library
-// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// by Carmelo J. Fernï¿½ndez-Agï¿½era Tortosa (a.k.a. Technik)
 // Created on September 17th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // multimap
@@ -19,7 +19,6 @@ namespace rev { namespace rtl
 	template<typename _keyT, typename _valueT, typename valueT = pair<_keyT, _valueT> >
 	class multimap
 	{
-
 	private:
 		class node
 		{
@@ -39,8 +38,8 @@ namespace rev { namespace rtl
 		class iterator
 		{
 		public:
-			bool		operator==	(const iterator& i) const;
-			bool		operator!=	(const iterator& i) const;
+			bool		operator==	(const iterator& _i) const	{ return mNode == _i.mNode;	}
+			bool		operator!=	(const iterator& _i) const	{ return mNode != _i.mNode;	}
 			void		operator++	();
 			valueT&		operator*	() const;
 			iterator	(): mNode(0)	{}
@@ -53,8 +52,8 @@ namespace rev { namespace rtl
 		class reverse_iterator
 		{
 		public:
-			bool		operator==	(const reverse_iterator& i) const;
-			bool		operator!=	(const reverse_iterator& i) const;
+			bool		operator==	(const reverse_iterator& _i) const	{ return mNode == _i.mNode;	}
+			bool		operator!=	(const reverse_iterator& _i) const	{ return mNode != _i.mNode;	}
 			void		operator--	();
 			valueT&		operator*	() const;
 			reverse_iterator(): mNode(0)	{}
@@ -157,6 +156,7 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	void multimap<_keyT, _valueT, valueT>::node::addChild(typename multimap<_keyT, _valueT, valueT>::node * _child)
 	{
 		if(mValue.first < _child->mValue.first)
@@ -187,20 +187,7 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
-	bool multimap<_keyT, _valueT, valueT>::iterator::operator==(typename const multimap<_keyT, _valueT, valueT>::iterator& i) const
-	{
-		return mNode == i.mNode;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<typename _keyT, typename _valueT, typename valueT>
-	bool multimap<_keyT, _valueT, valueT>::iterator::operator!=(typename const multimap<_keyT, _valueT, valueT>::iterator& i) const
-	{
-		return mNode != i.mNode;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	void multimap<_keyT, _valueT, valueT>::iterator::operator++()
 	{
 		if(mNode)
@@ -209,6 +196,7 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	valueT& multimap<_keyT, _valueT, valueT>::iterator::operator*() const
 	{
 		return mNode->mValue;
@@ -216,26 +204,11 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	multimap<_keyT, _valueT, valueT>::iterator::iterator( typename multimap<_keyT, _valueT, valueT>::node * _node):
 		mNode(_node)
 	{
 		// Intentionally blank
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<typename _keyT, typename _valueT, typename valueT>
-	bool multimap<_keyT, _valueT, valueT>::reverse_iterator::operator==(
-		typename const multimap<_keyT, _valueT, valueT>::reverse_iterator& i) const
-	{
-		return mNode == i.mNode;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<typename _keyT, typename _valueT, typename valueT>
-	bool multimap<_keyT, _valueT, valueT>::reverse_iterator::operator!=(
-		typename const multimap<_keyT, _valueT, valueT>::reverse_iterator& i) const
-	{
-		return mNode != i.mNode;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -310,7 +283,8 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
-	typename multimap<_keyT, _valueT, valueT>::iterator multimap<_keyT, _valueT, valueT>::insert(typename const valueT& _value)
+	inline
+	typename multimap<_keyT, _valueT, valueT>::iterator multimap<_keyT, _valueT, valueT>::insert(const valueT& _value)
 	{
 		// Create a node from value
 		node * newNode = new node(_value);
@@ -326,7 +300,8 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
-	void multimap<_keyT, _valueT, valueT>::erase(typename const multimap<_keyT, _valueT, valueT>::iterator _i)
+	inline
+	void multimap<_keyT, _valueT, valueT>::erase(const typename multimap<_keyT, _valueT, valueT>::iterator _i)
 	{
 		node * n = _i.mNode;
 		// Update tree boundaries
@@ -369,6 +344,7 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	void multimap<_keyT, _valueT, valueT>::clear()
 	{
 		node * n = mLowestNode;
@@ -387,6 +363,7 @@ namespace rev { namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _valueT, typename valueT>
+	inline
 	typename multimap<_keyT, _valueT, valueT>::iterator multimap<_keyT, _valueT, valueT>::find(const _keyT& _key)
 	{
 		node * n = mRootNode;

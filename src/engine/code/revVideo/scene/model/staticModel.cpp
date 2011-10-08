@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine
-// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// by Carmelo J. Fernï¿½ndez-Agï¿½era Tortosa (a.k.a. Technik)
 // Created on October 3rd, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static model
@@ -8,6 +8,7 @@
 #include "staticModel.h"
 
 #include "revCore/file/file.h"
+#include "revCore/codeTools/assert/assert.h"
 
 namespace rev { namespace video
 {
@@ -39,6 +40,8 @@ namespace rev { namespace video
 		// Read the header
 		unsigned short minEngineVersion = ((unsigned short*)buffer)[0];
 		unsigned short nMeshes = ((unsigned short*)buffer)[1];
+
+		rev::codeTools::revAssert(nMeshes == 1 && minEngineVersion <= 1);
 
 		mNVertices = ((unsigned short*)buffer)[2];
 		mNTriangles = ((unsigned short*)buffer)[3];
