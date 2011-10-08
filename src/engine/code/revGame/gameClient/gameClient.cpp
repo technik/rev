@@ -46,10 +46,11 @@ namespace rev { namespace game
 		
 
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(20.f, 20.f), -1.f, 1.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(3000.f, 2000.f), -5000.f, 5000.f);
 		v1->setCamera(cam1);
-		IRenderable * tri1 = new CStaticModelInstance(new CStaticModel());
+		IRenderable * tri1 = new CStaticModelInstance(new CStaticModel("buggy.rmd"));
 		CNode * node1 = new CNode;
+		
 		tri1->attachTo(node1);
 	}
 

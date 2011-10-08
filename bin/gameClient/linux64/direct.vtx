@@ -1,10 +1,11 @@
+uniform mat4 modelViewProj;
 attribute vec3 vertex;
+attribute vec4 color;
 
 void main ( void )
 {
-	vec4 position;
-	position.xy = vertex.xy;
-	position.z = 0.0;
-	position.w = 1.0;
-	gl_Position = position;
+	vec4 vertexPos;
+	vertexPos.xyz = vertex.xyz;
+	vertexPos.w = 1.0;
+	gl_Position = modelViewProj * vertexPos;
 }

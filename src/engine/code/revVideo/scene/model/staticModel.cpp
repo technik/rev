@@ -7,34 +7,69 @@
 
 #include "staticModel.h"
 
+#include "revCore/file/file.h"
+
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CStaticModel::CStaticModel()
+	CStaticModel::CStaticModel():
+		mVertices(0),
+		mNormals(0),
+		mUVs(0),
+		mTriangles(0),
+		mNTriangles(0),
+		mTriStrip(0),
+		mStripLength(0)
 	{
-		mNTriangles = 1;
-		mStripLength = 0;
-		mTriangles = new unsigned short[3];
-		mTriangles[0] = 0;
-		mTriangles[1] = 1;
-		mTriangles[2] = 2;
-		mTriStrip = 0;
-		mVertices = new float[3*3];
-		mVertices[0] = 0.f;
-		mVertices[1] = 1.f;
-		mVertices[2] = 0.f;
-		mVertices[3] = 1.f;
-		mVertices[4] = -1.f;
-		mVertices[5] = 0.f;
-		mVertices[6] = -1.f;
-		mVertices[7] = -1.f;
-		mVertices[8] = 0.f;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CStaticModel::CStaticModel(const char * _fileName):
+		mVertices(0),
+		mNormals(0),
+		mUVs(0),
+		mTriangles(0),
+		mNTriangles(0),
+		mTriStrip(0),
+		mStripLength(0)
+	{
+		// Open the file
+		char * buffer = bufferFromFile(_fileName);
+		char * pointer;
+		// Read the header
+		unsigned short minEngineVersion = ((unsigned short*)buffer)[0];
+		unsigned short nMeshes = ((unsigned short*)buffer)[1];
+
+		mNVertices = ((unsigned short*)buffer)[2];
+		mNTriangles = ((unsigned short*)buffer)[3];
+		pointer = buffer + 4*sizeof(unsigned short);
+
+		mVertices = new float[mNVertices * 3];
+		float * vBuffer = reinterpret_cast<float*>(pointer);
+		for(unsigned i = 0; i < mNVertices * 3; ++i)
+		{
+			mVertices[i] = vBuffer[i];
+		}
+
+		pointer += 3 * mNVertices * sizeof(float);
+
+		mTriangles = new unsigned short[mNTriangles * 3];
+		unsigned short * idxBuffer = reinterpret_cast<unsigned short*>(pointer);
+		for(unsigned i = 0; i < mNTriangles * 3; ++i)
+		{
+			mTriangles[i] = idxBuffer[i];
+		}
+		// Clean
+		delete buffer;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CStaticModel::~CStaticModel()
 	{
-		delete mTriangles;
+		if(mVertices)
+			delete mVertices;
+		if(mTriangles)
+			delete mTriangles;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -44,15 +79,35 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	unsigned short CStaticModel::nVertices() const
+	{
+		return mNVertices;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CStaticModel::setVertices(unsigned short _nVertices, float * _vertices)
+	{
+		mNVertices = _nVertices;
+		mVertices = _vertices;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	unsigned short* CStaticModel::triangles() const
 	{
 		return mTriangles;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	int CStaticModel::nTriangles() const
+	unsigned int CStaticModel::nTriangles() const
 	{
 		return mNTriangles;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CStaticModel::setTriangles(unsigned int _nTriangles, unsigned short * _triangles)
+	{
+		mNTriangles = _nTriangles;
+		mTriangles = _triangles;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

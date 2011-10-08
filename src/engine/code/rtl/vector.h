@@ -21,7 +21,7 @@ namespace rev { namespace rtl
 		class iterator
 		{
 		public:
-			void operator++	()	{	mIndex++;	}
+			void operator++	()							{ mIndex = &mIndex[1];			}
 			bool operator==	(const iterator& _i) const	{ return mIndex == _i.mIndex;	}
 			bool operator!= (const iterator& _i) const	{ return mIndex != _i.mIndex;	}
 			_dataT&	operator *	() const				{ return *mIndex;				}

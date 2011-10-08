@@ -56,6 +56,8 @@ namespace rev { namespace video
 				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
 				{
 					IRenderable * renderable = *i;
+					if(0 == renderable->triangles())
+						continue;
 					CNode * node = renderable->node();
 					if(node)
 					{
@@ -67,7 +69,6 @@ namespace rev { namespace video
 				}
 			}
 		}
-
 	}
 }	// namespace video
 }	// namespace rev
