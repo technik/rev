@@ -13,5 +13,5 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	// Static definitions
 	template<>
-	TMat34<TReal> TMat34<TReal>::identity = TMat34<TReal>(TVec3<TReal>(1.f,1.f,1.f));
+	TMat34<TReal> TMat34<TReal>::identity = TMat34<TReal>(CVec3(1.f,1.f,1.f));
 }	// namespace rev

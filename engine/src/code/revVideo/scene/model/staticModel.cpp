@@ -49,7 +49,7 @@ namespace rev { namespace video
 
 		mVertices = new float[mNVertices * 3];
 		float * vBuffer = reinterpret_cast<float*>(pointer);
-		for(unsigned i = 0; i < mNVertices * 3; ++i)
+		for(unsigned i = 0; i < mNVertices * unsigned(3); ++i)
 		{
 			mVertices[i] = vBuffer[i];
 		}
@@ -58,7 +58,7 @@ namespace rev { namespace video
 
 		mTriangles = new unsigned short[mNTriangles * 3];
 		unsigned short * idxBuffer = reinterpret_cast<unsigned short*>(pointer);
-		for(unsigned i = 0; i < mNTriangles * 3; ++i)
+		for(unsigned i = 0; i < mNTriangles * unsigned(3); ++i)
 		{
 			mTriangles[i] = idxBuffer[i];
 		}

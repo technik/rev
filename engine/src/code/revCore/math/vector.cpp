@@ -10,9 +10,12 @@ namespace rev
 {
 //----------------------------------------------------------------------------------------------------------------------
 // Static definitions
-template<>
-const TVec3<float> TVec3<float>::zero = TVec3<float>(0.f, 0.f, 0.f);
-template<>
-const TVec3<double> TVec3<double>::zero = TVec3<double>(0.0, 0.0, 0.0);
+	const CVec3 CVec3::zero = CVec3(0.f, 0.f, 0.f);
+
+	//---------------------------------------------------------------------------------------------------------------------
+	CVec3 CVec3::operator+ (const CVec3& _v) const
+	{
+		return CVec3(x+_v.x, y+_v.y, z+_v.z);
+	}
 
 }	// namespace rev

@@ -108,7 +108,7 @@ char * bufferFromFile(const char * _fileName)
 	zip_fclose(file);
 	delete fullName;
 	return buffer;
-#else // !ANDROID
+#else // ! ANDROID
 	fstream file;
 	// Open the file
 	file.open(_fileName, ios_base::binary|ios_base::in);

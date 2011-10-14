@@ -9,6 +9,7 @@
 #define _REV_REVCORE_MATH_MATRIX_H_
 
 #include "revCore/types.h"
+#include "vector.h"
 
 namespace rev
 {
@@ -16,7 +17,7 @@ namespace rev
 // Forward declarations
 template <typename _T> class TMat34;
 template <typename _T> class TQuaternion;
-template <typename _T> class TVec3;
+class CVec3;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Matrix 3x3
@@ -51,7 +52,7 @@ public:
 			}
 		}
 	}
-	TMat34(const TVec3<_T>& _diagonal)
+	TMat34(const CVec3& _diagonal)
 	{
 		for(unsigned int row = 0; row < 3; ++row)
 		{
@@ -64,7 +65,7 @@ public:
 		m[1][1] = _diagonal.y;
 		m[2][2] = _diagonal.z;
 	}
-	TMat34(const TQuaternion<_T>& _q, const TVec3<_T>& _v);
+	TMat34(const TQuaternion<_T>& _q, const CVec3& _v);
 
 	// Identity
 	static TMat34<_T> identity;
@@ -88,9 +89,9 @@ public:
 		return ab;
 	}
 
-	TVec3<_T> operator * (const TVec3<_T>& _b) const
+	CVec3 operator * (const CVec3& _b) const
 	{
-		return TVec3<_T>(
+		return CVec3(
 			m[0][0] * _b.x + m[0][1] * _b.y + m[0][2] * _b.z + m[0][3],
 			m[1][0] * _b.x + m[1][1] * _b.y + m[1][2] * _b.z + m[1][3],
 			m[2][0] * _b.x + m[2][1] * _b.y + m[2][2] * _b.z + m[2][3]
@@ -213,7 +214,7 @@ TMat3<_T>::TMat3(const TMat34<_T>& _m)
 
 //----------------------------------------------------------------------------------------------------------------------
 template<typename _T>
-TMat34<_T>::TMat34(const TQuaternion<_T>& _q, const TVec3<_T>& _v)
+TMat34<_T>::TMat34(const TQuaternion<_T>& _q, const CVec3& _v)
 {
 	// Rotation
 	_T a2 = _q.w*_q.w;
