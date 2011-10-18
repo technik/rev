@@ -13,7 +13,7 @@
 #include <windows.h>
 
 // Engine headers
-#include "revGame/gameClient/gameClient.h"
+#include <revGame/gameClient/gameClient.h>
 
 using namespace rev::game;
 
