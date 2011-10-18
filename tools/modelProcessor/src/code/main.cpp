@@ -9,11 +9,11 @@
 #include <fstream>
 
 // Engine headers
-#include "revCore/codeTools/assert/assert.h"
-#include "revCore/file/file.h"
-#include "revCore/math/vector.h"
-#include "revVideo/scene/model/staticModel.h"
-#include "rtl/vector.h"
+#include <revCore/codeTools/assert/assert.h>
+#include <revCore/file/file.h>
+#include <revCore/math/vector.h>
+#include <revVideo/scene/model/staticModel.h>
+#include <rtl/vector.h>
 
 enum EInputArguments
 {
@@ -162,8 +162,8 @@ namespace modelProcessor
 		// Create the model
 		CStaticModel * model = new CStaticModel();
 		// Fill the data
-		model->setVertices(vertices.size(), bufferFromVector(vertices));
-		model->setTriangles(faces.size() / 3, bufferFromVector(faces));
+		model->setVertices(unsigned short(vertices.size()), bufferFromVector(vertices));
+		model->setTriangles(unsigned short(faces.size() / 3), bufferFromVector(faces));
 		// Clean
 		delete buffer;
 		return model;

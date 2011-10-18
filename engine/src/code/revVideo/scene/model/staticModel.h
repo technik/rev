@@ -29,7 +29,7 @@ namespace rev { namespace video {
 		void			setUVs		(float* _uvs);
 		// Indices
 		unsigned short*	triangles	() const;
-		unsigned int	nTriangles	() const;
+		unsigned short	nTriangles	() const;
 		void			setTriangles(unsigned short _nTriangles, unsigned short* _indices);
 		unsigned short* triStrip	() const;
 		int				stripLength	() const;

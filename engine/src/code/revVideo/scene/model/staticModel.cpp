@@ -101,7 +101,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	unsigned int CStaticModel::nTriangles() const
+	unsigned short CStaticModel::nTriangles() const
 	{
 		return mNTriangles;
 	}
