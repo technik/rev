@@ -115,9 +115,9 @@ char * bufferFromFile(const char * _fileName)
 	revAssert(file.is_open());
 	// Meassure it's size
 	file.seekg(0, ios::end);
-	int size = file.tellg();
+	int size = int(file.tellg());
 	file.seekg(0, ios::beg);
-	int begin = file.tellg();
+	int begin = int(file.tellg());
 	size -= begin;
 	// Allocate the buffer
 	char * buffer = new char[size+1];

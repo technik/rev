@@ -107,7 +107,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStaticModel::setTriangles(unsigned int _nTriangles, unsigned short * _triangles)
+	void CStaticModel::setTriangles(unsigned short _nTriangles, unsigned short * _triangles)
 	{
 		mNTriangles = _nTriangles;
 		mTriangles = _triangles;

@@ -117,14 +117,13 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 // Matrix 4x4
-template<typename _T>
-class TMat4
+class CMat4
 {
 public:
 	// Identity
-	static TMat4 identity()
+	static CMat4 identity()
 	{
-		TMat4 mtx;
+		CMat4 mtx;
 		for(unsigned int row = 0; row < 4; ++row)
 		{
 			for(unsigned int column = 0; column < 4; ++column)
@@ -138,9 +137,9 @@ public:
 		return mtx;
 	}
 
-	TMat4<_T> operator * (const TMat34<_T>& _b) const
+	CMat4 operator * (const TMat34<TReal>& _b) const
 	{
-		TMat4<_T> dst;
+		CMat4 dst;
 		for(unsigned row = 0; row < 4; ++row)
 		{
 			for(unsigned column = 0; column < 4; ++column)
@@ -155,7 +154,7 @@ public:
 	}
 
 public:
-	_T m[4][4];
+	TReal m[4][4];
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -167,10 +166,6 @@ typedef TMat3<double>	CMat3d;
 typedef TMat34<TReal>	CMat34;
 typedef TMat34<float>	CMat34f;
 typedef TMat34<double>	CMat34d;
-
-typedef TMat4<TReal>	CMat4;
-typedef TMat4<float>	CMat4f;
-typedef TMat4<double>	CMat4d;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Inline implementations
