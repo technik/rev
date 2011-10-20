@@ -132,6 +132,8 @@
     <ClInclude Include="..\..\code\rtl\pair.h" />
     <ClInclude Include="..\..\code\rtl\poolset.h" />
     <ClInclude Include="..\..\code\rtl\vector.h" />
+    <ClInclude Include="..\..\core\revInput\touchInput\touchInput.h" />
+    <ClInclude Include="..\..\core\revInput\touchInput\windows\touchInputWin32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp" />
@@ -158,6 +160,7 @@
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp" />
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp" />
+    <ClCompile Include="..\..\core\revInput\touchInput\touchInput.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

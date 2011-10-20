@@ -82,6 +82,15 @@
     <Filter Include="revCore\codeTools\log">
       <UniqueIdentifier>{1d525a5b-f450-4e3e-960b-e274fb105911}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revInput">
+      <UniqueIdentifier>{7af4bf2a-8380-4837-8219-a2fe0a104021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revInput\touchInput">
+      <UniqueIdentifier>{ecc2f7d5-bb01-40b9-be0a-bc59f068b984}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revInput\touchInput\windows">
+      <UniqueIdentifier>{af11a0bf-c954-42aa-8033-de68debb3ede}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -195,6 +204,12 @@
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h">
       <Filter>revCore\transform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\core\revInput\touchInput\touchInput.h">
+      <Filter>revInput\touchInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\revInput\touchInput\windows\touchInputWin32.h">
+      <Filter>revInput\touchInput\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -268,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp">
       <Filter>revCore\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\revInput\touchInput\touchInput.cpp">
+      <Filter>revInput\touchInput</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
