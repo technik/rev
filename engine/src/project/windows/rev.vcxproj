@@ -109,6 +109,8 @@
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
     <ClInclude Include="..\..\code\revCore\types.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
+    <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
+    <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
     <ClInclude Include="..\..\code\revVideo\color\color.h" />
@@ -132,8 +134,6 @@
     <ClInclude Include="..\..\code\rtl\pair.h" />
     <ClInclude Include="..\..\code\rtl\poolset.h" />
     <ClInclude Include="..\..\code\rtl\vector.h" />
-    <ClInclude Include="..\..\core\revInput\touchInput\touchInput.h" />
-    <ClInclude Include="..\..\core\revInput\touchInput\windows\touchInputWin32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp" />
@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
+    <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\color\color.cpp" />
@@ -160,7 +161,6 @@
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp" />
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp" />
-    <ClCompile Include="..\..\core\revInput\touchInput\touchInput.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

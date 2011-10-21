@@ -24,16 +24,16 @@ namespace rev { namespace input
 		~CTouchInputWin32();
 
 		// Inherited interface
-		unsigned	nActiveTouches	() const;
+		unsigned	nActiveTouches	        () const;
 
-		bool		pressed			(unsigned _touch = 0) const;
-		bool		held			(unsigned _touch = 0) const;
-		bool		released		(unsigned _touch = 0) const;
+		bool		pressed			        (unsigned _touch = 0) const;
+		bool		held			        (unsigned _touch = 0) const;
+		bool		released		        (unsigned _touch = 0) const;
 
-		TVec2		touchPos		(unsigned _touch = 0) const;
+		CVec2		touchPos		        (unsigned _touch = 0) const;
 
 		// Platform-specific interface
-		//
+	    bool        processWindowsMessage   (MSG _message);
 	};
 }	// namespace input
 }	// namespace rev

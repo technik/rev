@@ -8,6 +8,8 @@
 #ifndef _REV_REVINPUT_TOUCHINPUT_TOUCHINPUT_H_
 #define _REV_REVINPUT_TOUCHINPUT_TOUCHINPUT_H_
 
+#include "revCore/math/vector.h"
+
 namespace rev { namespace input
 {
 	class STouchInput
@@ -25,7 +27,7 @@ namespace rev { namespace input
 		virtual bool			held		(unsigned _touch = 0) const = 0; // Is the given touch held?
 		virtual bool			released	(unsigned _touch = 0) const = 0; // Has the given touch just been released?
 
-		virtual	TVec2			touchPos	(unsigned _touch = 0) const = 0; // Current position of the given touch
+		virtual	CVec2			touchPos	(unsigned _touch = 0) const = 0; // Current position of the given touch
 	protected:
 		STouchInput()			{}
 		virtual ~STouchInput()	{}

@@ -14,8 +14,10 @@
 
 // Engine headers
 #include <revGame/gameClient/gameClient.h>
+#include <revInput/touchInput/windows/touchInputWin32.h>
 
 using namespace rev::game;
+using namespace rev::input;
 
 int main (int /*_argc*/, const char ** /*_argv*/)
 {
@@ -36,6 +38,9 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 			}
 			else
 			{
+                // Tell touch input to process OS messages
+                CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
+                touchInputSystem->processWindowsMessage(msg);
 				TranslateMessage(&msg);	// Translate The Message
 				DispatchMessage(&msg);
 			}
