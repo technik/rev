@@ -67,10 +67,16 @@ namespace rev { namespace game
 		// Update video system and render
 		SVideo::get()->update();
 
+		// Exit the game on touch releases
+		STouchInput* touchInput = STouchInput::get();
+		if(touchInput->released())
+			return false;
 
-
-		TReal time = buggy->deltaTime();
-		buggy->rotate(CVec3(0.f, 1.f, 0.f), time);
+		if(touchInput->held())
+		{
+			TReal time = buggy->deltaTime();
+			buggy->rotate(CVec3(0.f, 1.f, 0.f), time);
+		}
 		return true;
 	}
 

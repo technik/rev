@@ -27,7 +27,6 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 	bool bExitGame = false;
 	while(!bExitGame)
 	{
-		gameClient->update();
 		// Access the mouse
 		CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
 		// This prevents the application from hanging and makes it responsive to Windows events
@@ -47,9 +46,8 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 				DispatchMessage(&msg);
 			}
 		}
-		// Exit on mouse release
-		if(touchInputSystem->released())
-			bExitGame = true;
+		// Update the game client
+		bExitGame = bExitGame || !gameClient->update();
 	}
 
 	gameClient->end();
