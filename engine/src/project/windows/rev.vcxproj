@@ -147,6 +147,7 @@
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
+    <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\color\color.cpp" />

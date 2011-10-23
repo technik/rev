@@ -28,6 +28,8 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 	while(!bExitGame)
 	{
 		gameClient->update();
+		// Access the mouse
+		CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
 		// This prevents the application from hanging and makes it responsive to Windows events
 		MSG msg;
 		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
@@ -39,14 +41,15 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 			else
 			{
                 // Tell touch input to process OS messages
-                CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
+				touchInputSystem->refresh();
                 touchInputSystem->processWindowsMessage(msg);
 				TranslateMessage(&msg);	// Translate The Message
 				DispatchMessage(&msg);
 			}
 		}
-		//if(SInput::get()->keyboard()->pressed(0x1B))
-		//	bExitGame = true;
+		// Exit on mouse release
+		if(touchInputSystem->released())
+			bExitGame = true;
 	}
 
 	gameClient->end();

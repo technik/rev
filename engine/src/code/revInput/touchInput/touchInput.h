@@ -21,7 +21,7 @@ namespace rev { namespace input
 		static	STouchInput*	get		();
 
 		// Public interface for touch input
-		virtual unsigned		nActiveTouches	() const = 0;	// The number of points currently "touching" the screen
+		virtual unsigned		nMaxTouches	() const = 0;	// The number of points currently "touching" the screen
 
 		virtual bool			pressed		(unsigned _touch = 0) const = 0; // The given touch just pressed?
 		virtual bool			held		(unsigned _touch = 0) const = 0; // Is the given touch held?

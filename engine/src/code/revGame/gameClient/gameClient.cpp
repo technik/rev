@@ -10,6 +10,7 @@
 // --- Engine headers -----------
 #include "revCore/codeTools/log/log.h"
 #include "revCore/time/time.h"
+#include "revInput/touchInput/touchInput.h"
 #include "revVideo/video.h"
 
 
@@ -23,6 +24,7 @@
 // --- Active namespaces --------
 using namespace rev;
 using namespace rev::codeTools;
+using namespace rev::input;
 using namespace rev::video;
 
 namespace rev { namespace game
@@ -40,6 +42,7 @@ namespace rev { namespace game
 		SVideo::init();
 		// Init audio system
 		// Init input system
+		STouchInput::init();
 
 
 

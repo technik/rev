@@ -287,5 +287,8 @@
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp">
       <Filter>revInput\touchInput</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp">
+      <Filter>revInput\touchInput\windows</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

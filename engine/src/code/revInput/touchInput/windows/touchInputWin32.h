@@ -5,6 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Touch input for windows
 
+#ifdef _WIN32
+
 #ifndef _REV_REVINPUT_TOUCHINPUT_WINDOWS_TOUCHINPUTWIN32_H_
 #define _REV_REVINPUT_TOUCHINPUT_WINDOWS_TOUCHINPUTWIN32_H_
 
@@ -24,7 +26,7 @@ namespace rev { namespace input
 		~CTouchInputWin32();
 
 		// Inherited interface
-		unsigned	nActiveTouches	        () const;
+		unsigned	nMaxTouches				() const;
 
 		bool		pressed			        (unsigned _touch = 0) const;
 		bool		held			        (unsigned _touch = 0) const;
@@ -34,8 +36,16 @@ namespace rev { namespace input
 
 		// Platform-specific interface
 	    bool        processWindowsMessage   (MSG _message);
+		void		refresh					();
+	private:
+		bool	mbPressed;
+		bool	mbHeld;
+		bool	mbReleased;
+		CVec2	mMousePos;
 	};
 }	// namespace input
 }	// namespace rev
 
 #endif // _REV_REVINPUT_TOUCHINPUT_WINDOWS_TOUCHINPUTWIN32_H_
+
+#endif // _WIN32

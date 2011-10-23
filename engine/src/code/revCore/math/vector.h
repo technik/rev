@@ -14,14 +14,16 @@ namespace rev
 {
 	//--------------------------------------------------------------------------
 	// 2 components vector
-	template<typename _T>
-	class TVec2
+	class CVec2
 	{
 	public:
-		TVec2()	{}
-		TVec2(_T _x, _T _y): x(_x), y(_y)	{}
-		_T	x;
-		_T	y;
+		CVec2()	{}
+		CVec2(TReal _x, TReal _y): x(_x), y(_y)	{}
+		TReal	x;
+		TReal	y;
+
+		// Useful vectors
+		static const CVec2 zero;
 	};
 
 	//--------------------------------------------------------------------------
@@ -44,10 +46,6 @@ namespace rev
 		TReal y;
 		TReal z;
 	};
-
-	typedef TVec2<TReal>	CVec2;
-	typedef TVec2<float>	CVec2f;
-	typedef TVec2<double>	CVec2d;
 
 }	//namespace rev
 
