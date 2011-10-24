@@ -29,6 +29,7 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 	{
 		// Access the mouse
 		CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
+		touchInputSystem->refresh();
 		// This prevents the application from hanging and makes it responsive to Windows events
 		MSG msg;
 		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
@@ -40,7 +41,6 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 			else
 			{
                 // Tell touch input to process OS messages
-				touchInputSystem->refresh();
                 touchInputSystem->processWindowsMessage(msg);
 				TranslateMessage(&msg);	// Translate The Message
 				DispatchMessage(&msg);

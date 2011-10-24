@@ -15,10 +15,12 @@
 
 
 // TODO: Remove?
-#include "revVideo/viewport/viewport.h"
 #include "revVideo/camera/orthoCamera.h"
+#include "revVideo/color/color.h"
 #include "revVideo/scene/model/staticModel.h"
 #include "revVideo/scene/model/staticModelInstance.h"
+#include "revVideo/videoDriver/videoDriver.h"
+#include "revVideo/viewport/viewport.h"
 #include "revCore/node/node.h"
 
 // --- Active namespaces --------
@@ -69,9 +71,12 @@ namespace rev { namespace game
 
 		// Exit the game on touch releases
 		STouchInput* touchInput = STouchInput::get();
-		if(touchInput->released())
-			return false;
-
+		if(touchInput->pressed())
+		{
+			static bool bBlue = false;
+			SVideo::get()->driver()->setBackgroundColor(bBlue?CColor::BLUE: CColor::GREEN);
+			bBlue = !bBlue;
+		}
 		if(touchInput->held())
 		{
 			TReal time = buggy->deltaTime();
