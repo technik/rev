@@ -5,8 +5,9 @@
 ################################################################################
 
 # Local directory, root for searching sources
-GC_ROOT_DIR:=../../..
-GC_CODE_DIR:=$(GC_ROOT_DIR)/code
+GC_ROOT_DIR:=../../../..
+GC_CODE_DIR:=$(GC_ROOT_DIR)/src/code
+REV_CODE_DIR:=../../../../engine/src/code
 
 LOCAL_PATH:=$(call my-dir)/$(GC_CODE_DIR)
 
@@ -14,7 +15,7 @@ LOCAL_PATH:=$(call my-dir)/$(GC_CODE_DIR)
 
 include $(CLEAR_VARS)
 
-LIBZIP_DIR:=../../libraries/android/libzip
+LIBZIP_DIR:=$(REV_CODE_DIR)/libs/android/libzip
 
 LOCAL_MODULE    := libzip
 LOCAL_SRC_FILES :=\
@@ -85,28 +86,39 @@ LOCAL_MODULE:=nativeGameClient
 #-------------------------------------------------------------------------------
 # Engine files
 #-------------------------------------------------------------------------------
-REV_CODE_DIR:=../../engine/code
 
 # Rev Core
 REVCORE_DIR:=$(REV_CODE_DIR)/revCore
 REVCORE_SRC:=$(REVCORE_DIR)/codeTools/log/log.cpp \
-             $(REVCORE_DIR)/component/component.cpp\
-             $(REVCORE_DIR)/entity/entity.cpp\
-             $(REVCORE_DIR)/entity/entityManager.cpp\
+			 $(REVCORE_DIR)/component/component.cpp\
 			 $(REVCORE_DIR)/file/file.cpp\
-             $(REVCORE_DIR)/time/time.cpp
+			 $(REVCORE_DIR)/math/matrix.cpp\
+			 $(REVCORE_DIR)/math/quaternion.cpp\
+			 $(REVCORE_DIR)/math/vector.cpp\
+			 $(REVCORE_DIR)/node/node.cpp\
+			 $(REVCORE_DIR)/time/time.cpp\
+			 $(REVCORE_DIR)/transform/transformSrc.cpp
 
 REVGAME_DIR:=$(REV_CODE_DIR)/revGame
 REVGAME_SRC:=$(REVGAME_DIR)/gameClient/gameClient.cpp
 
+REVINPUT_DIR:=$(REV_CODE_DIR)/revInput
+REVINPUT_SRC:=$(REVINPUT_DIR)/touchInput/touchInput.cpp
+
 REVVIDEO_DIR:=$(REV_CODE_DIR)/revVideo
 REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
+			  $(REVVIDEO_DIR)/camera/camera.cpp\
+			  $(REVVIDEO_DIR)/camera/orthoCamera.cpp\
 			  $(REVVIDEO_DIR)/color/color.cpp\
 			  $(REVVIDEO_DIR)/renderer/directRenderer/directRenderer.cpp\
+			  $(REVVIDEO_DIR)/scene/videoScene.cpp\
+			  $(REVVIDEO_DIR)/scene/model/staticModel.cpp\
+			  $(REVVIDEO_DIR)/scene/model/staticModelInstance.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/videoDriver.cpp\
-			  $(REVVIDEO_DIR)/videoDriver/android/videoDriverAndroid.cpp
+			  $(REVVIDEO_DIR)/videoDriver/android/videoDriverAndroid.cpp\
+			  $(REVVIDEO_DIR)/viewport/viewport.cpp
 
-REV_SRC_FILES:=$(REVCORE_SRC) $(REVGAME_SRC) $(REVVIDEO_SRC)
+REV_SRC_FILES:=$(REVCORE_SRC) $(REVGAME_SRC) $(REVINPUT_SRC) $(REVVIDEO_SRC)
 
 # - Build the engine library
 
