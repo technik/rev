@@ -6,6 +6,7 @@
 // Matrix
 
 #include "matrix.h"
+#include "quaternion.h"
 #include "vector.h"
 
 namespace rev
@@ -45,7 +46,7 @@ namespace rev
 		{
 			for(unsigned column = 0; column < 4; ++column)
 			{
-				m[row][column] = m[row][column];
+				m[row][column] = _m.m[row][column];
 			}
 		}
 	}

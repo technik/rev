@@ -28,7 +28,7 @@ public:
 	// Constructors
 	CQuat	()	{}
 	CQuat	(TReal _x, TReal _y, TReal _z, TReal _w): x(_x), y(_y), z(_z), w(_w)	{}
-	CQuat	(const CVec3& _axis, const _T _radians);
+	CQuat	(const CVec3& _axis, const TReal _radians);
 	CQuat	(const CMat3& _matrix);
 	CQuat	(const CMat34& _matrix);
 

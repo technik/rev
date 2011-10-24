@@ -16,7 +16,7 @@ namespace rev
 	CQuat CQuat::identity = CQuat(0.f, 0.f, 0.f, 1.f);
 
 	//------------------------------------------------------------------------------------------------------------------
-	CQuat::CQuat(const CVec3& _axis, const _T _radians)
+	CQuat::CQuat(const CVec3& _axis, const TReal _radians)
 	{
 		w = cos(_radians * 0.5f);
 		TReal sinus = sin(_radians * 0.5f);
@@ -29,52 +29,52 @@ namespace rev
 	CQuat::CQuat(const CMat3& _m)
 	{
 		// Find the largest diagonal element of _m
-		if(_m[0][0] > _m[1][1])
+		if(_m.m[0][0] > _m.m[1][1])
 		{
-			if(_m[0][0] > _m[2][2]) // _m00 is the largest diagonal element
+			if(_m.m[0][0] > _m.m[2][2]) // _m00 is the largest diagonal element
 			{
-				TReal r = sqrt( 1 + _m[0][0] - _m[1][1] - _m[2][2] );
+				TReal r = sqrt( 1 + _m.m[0][0] - _m.m[1][1] - _m.m[2][2] );
 				TReal inv2r = 0.5f / r;
-				w = (_m[2][1] - _m[1][2]) * inv2r;
+				w = (_m.m[2][1] - _m.m[1][2]) * inv2r;
 				x = 0.5f * r;
-				y = (_m[0][1] + _m[1][0]) * inv2r;
-				z = (_m[2][0] + _m[0][2]) * inv2r;
+				y = (_m.m[0][1] + _m.m[1][0]) * inv2r;
+				z = (_m.m[2][0] + _m.m[0][2]) * inv2r;
 			}
 			else // _m22 is the largest diagonal element
 			{
-				TReal r = sqrt( 1 + _m[2][2] - _m[0][0] - _m[1][1] );
+				TReal r = sqrt( 1 + _m.m[2][2] - _m.m[0][0] - _m.m[1][1] );
 				TReal inv2r = 0.5f / r;
-				w = (_m[1][0] - _m[0][1]) * inv2r;
+				w = (_m.m[1][0] - _m.m[0][1]) * inv2r;
 				z = 0.5f * r;
-				x = (_m[2][0] + _m[0][2]) * inv2r;
-				y = (_m[1][2] + _m[2][1]) * inv2r;
+				x = (_m.m[2][0] + _m.m[0][2]) * inv2r;
+				y = (_m.m[1][2] + _m.m[2][1]) * inv2r;
 			}
 		}
 		else
 		{
-			if(_m[1][1] > _m[2][2]) // _m11 is the largest diagonal element
+			if(_m.m[1][1] > _m.m[2][2]) // _m11 is the largest diagonal element
 			{
-				TReal r = sqrt( 1 + _m[1][1] - _m[2][2] - _m[0][0] );
+				TReal r = sqrt( 1 + _m.m[1][1] - _m.m[2][2] - _m.m[0][0] );
 				TReal inv2r = 0.5f / r;
-				w = (_m[0][1] - _m[1][0]) * inv2r;
+				w = (_m.m[0][1] - _m.m[1][0]) * inv2r;
 				y = 0.5f * r;
-				z = (_m[1][2] + _m[2][1]) * inv2r;
-				x = (_m[0][1] + _m[1][0]) * inv2r;
+				z = (_m.m[1][2] + _m.m[2][1]) * inv2r;
+				x = (_m.m[0][1] + _m.m[1][0]) * inv2r;
 			}
 			else // _m22 is the largest diagonal element
 			{
-				TReal r = sqrt( 1 + _m[2][2] - _m[0][0] - _m[1][1] );
+				TReal r = sqrt( 1 + _m.m[2][2] - _m.m[0][0] - _m.m[1][1] );
 				TReal inv2r = 0.5f / r;
-				w = (_m[1][0] - _m[0][1]) * inv2r;
+				w = (_m.m[1][0] - _m.m[0][1]) * inv2r;
 				z = 0.5f * r;
-				x = (_m[2][0] + _m[0][2]) * inv2r;
-				y = (_m[1][2] + _m[2][1]) * inv2r;
+				x = (_m.m[2][0] + _m.m[0][2]) * inv2r;
+				y = (_m.m[1][2] + _m.m[2][1]) * inv2r;
 			}
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CQuat::CQuat(const TMat34<_T>& _m)
+	CQuat::CQuat(const CMat34& _m)
 	{
 		// Find the largest diagonal element of _m
 		if(_m.m[0][0] > _m.m[1][1])

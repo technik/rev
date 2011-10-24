@@ -9,7 +9,6 @@
 #define _REV_REVCORE_MATH_MATRIX_H_
 
 #include "revCore/types.h"
-#include "vector.h"
 
 namespace rev
 {
@@ -17,6 +16,7 @@ namespace rev
 // Forward declarations
 class CMat34;
 class CQuat;
+class CVec3;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Matrix 3x3
@@ -79,7 +79,7 @@ public:
 		return mtx;
 	}
 
-	CMat4 operator * (const TMat34<TReal>& _b) const
+	CMat4 operator * (const CMat34& _b) const
 	{
 		CMat4 dst;
 		for(unsigned row = 0; row < 4; ++row)
