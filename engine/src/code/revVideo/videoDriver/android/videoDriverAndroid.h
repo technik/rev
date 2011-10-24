@@ -22,8 +22,8 @@ namespace rev { namespace video
 		CVideoDriverAndroid();
 
 		// ---- Per frame tasks ---- //
-		virtual	void	beginFrame	();
-		virtual	void	endFrame	();
+		void	beginFrame	();
+		void	endFrame	();
 
 		// ---- Accessor methods ---- //
 		void	setBackgroundColor	(const CColor& _color);
@@ -31,18 +31,23 @@ namespace rev { namespace video
 									const unsigned int _height);
 
 		// ---- Render tasks ---
-		virtual void	setShader		(const int _shader);
-		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
-		virtual void	drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip);
+		void	setShader			(const int _shader);
+		int		getUniformId		(const char * _name) const;
+		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
+		void	setUniform			(EUniform _id, const CMat4& _value);
+		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 
 	private:
-		virtual int 	loadShader		(const char * _vtxName, const char * _pxlName);
-		virtual	void	deleteShader	(const int _id);
-		void			bindAttributes			(int _shader);
+		int 	loadShader			(const char * _vtxName, const char * _pxlName);
+		void	deleteShader		(const int _id);
+		void	bindAttributes		(int _shader);
+
 	private:
 		int				mCurShader;
 		unsigned int 	mScreenWidth;
 		unsigned int 	mScreenHeight;
+
+		int				mUniformIds[eUniformCount];
 	};
 
 }	// namespace video
