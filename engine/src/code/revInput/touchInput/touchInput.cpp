@@ -11,6 +11,9 @@
 #ifdef _WIN32
 #include "windows/touchInputWin32.h"
 #endif // _WIN32
+#ifdef ANDROID
+#include "android/touchInputWin32.h"
+#endif // ANDROID
 
 namespace rev { namespace input
 {
@@ -25,6 +28,9 @@ namespace rev { namespace input
 #ifdef _WIN32
 			sTouchInput = new CTouchInputWin32();
 #endif // _WIN32
+#ifdef ANDROID
+			sTouchInput = new CTouchInputAndroid();
+#endif // ANDROID
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

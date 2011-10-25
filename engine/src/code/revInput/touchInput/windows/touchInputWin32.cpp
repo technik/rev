@@ -85,7 +85,6 @@ namespace rev { namespace input
 				mMousePos = CVec2(point.x, point.y);
 				mbReleased = true;
 				mbHeld = false;
-				// TODO:
 				return true;
 			}
 		case WM_MOUSEMOVE:
@@ -93,7 +92,6 @@ namespace rev { namespace input
 				POINTS point;
 				point = MAKEPOINTS(_message.lParam);
 				mMousePos = CVec2(point.x, point.y);
-				// TODO:
 				return true;
 			}
 		}

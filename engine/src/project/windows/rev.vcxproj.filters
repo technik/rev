@@ -91,6 +91,9 @@
     <Filter Include="revInput\touchInput\windows">
       <UniqueIdentifier>{9aa7ec57-27dc-4ed0-9c60-14fb12d4642a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revInput\touchInput\android">
+      <UniqueIdentifier>{75d805e0-bf43-4767-9a55-493d2edce879}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -209,6 +212,9 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h">
       <Filter>revInput\touchInput\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h">
+      <Filter>revInput\touchInput\android</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

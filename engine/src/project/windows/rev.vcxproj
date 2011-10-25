@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
     <ClInclude Include="..\..\code\revCore\types.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
+    <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
