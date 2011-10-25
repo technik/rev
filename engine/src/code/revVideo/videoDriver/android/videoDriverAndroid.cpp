@@ -64,10 +64,22 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	int CVideoDriverAndroid::getUniformId(const char * _name) const
+	{
+		return glGetUniformLocation(mCurShader, _name);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer)
 	{
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
 		glEnableVertexAttribArray(_attribId);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setUniform(EUniform _id, const CMat4& _value)
+	{
+		glUniformMatrix4fv(mUniformIds[_id], 4, true, reinterpret_cast<const float*>(_value.m));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
