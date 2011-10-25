@@ -95,6 +95,17 @@ public:
 		return dst;
 	}
 
+	void transpose(CMat4& _transpose) const
+	{
+		for(unsigned i = 0; i < 4; ++i)
+		{
+			for(unsigned j = 0; j < 4; ++j)
+			{
+				_transpose.m[i][j] = m[j][i];
+			}
+		}
+	}
+
 public:
 	TReal m[4][4];
 };

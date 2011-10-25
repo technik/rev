@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Touch input for android
 
-#ifndef ANDROID
+#ifdef ANDROID
 
 #ifndef _REV_REVINPUT_TOUCHINPUT_ANDROID_TOUCHINPUTANDROID_H_
 #define _REV_REVINPUT_TOUCHINPUT_ANDROID_TOUCHINPUTANDROID_H_
@@ -14,7 +14,7 @@
 
 namespace rev { namespace input
 {
-	class CTouchInputAndroid: public STouchInputAndroid
+	class CTouchInputAndroid: public STouchInput
 	{
 	public:
 		unsigned	nMaxTouches	() const	{return 1;}
@@ -22,7 +22,7 @@ namespace rev { namespace input
 		bool		held		(unsigned /*_touchIdx = 0*/) const {return true;}
 		bool		released	(unsigned /*_touchIdx = 0*/) const {return false;}
 
-		CVec2		touchPos	(unsigned _touchIdx = 0) const {return CVec2::zero;}
+		CVec2		touchPos	(unsigned /*_touchIdx = 0*/) const {return CVec2::zero;}
 	private:
 		//
 	};

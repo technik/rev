@@ -12,7 +12,7 @@
 #include "windows/touchInputWin32.h"
 #endif // _WIN32
 #ifdef ANDROID
-#include "android/touchInputWin32.h"
+#include "android/touchInputAndroid.h"
 #endif // ANDROID
 
 namespace rev { namespace input

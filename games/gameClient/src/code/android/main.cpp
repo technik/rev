@@ -41,8 +41,11 @@ JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_initGameClient(JNIEnv
 //----------------------------------------------------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_endGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
 {
-	g_gameClient->end();
-	delete g_gameClient;
+	if(g_gameClient)
+	{
+		g_gameClient->end();
+		delete g_gameClient;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
