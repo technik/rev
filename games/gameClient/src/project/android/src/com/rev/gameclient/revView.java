@@ -13,8 +13,16 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+
 class revView extends GLSurfaceView
 {
+	// Native input management
+	public static native void nativeTouchPress(int _d, float _x, float _y);
+	public static native void nativeTouchMove(int _d, float _x, float _y);
+	public static native void nativeTouchRelease(int _d, float _x, float _y);
+
 	private revRenderer mRevRenderer;
 	
 	public revView(Context context)
@@ -31,6 +39,45 @@ class revView extends GLSurfaceView
 	public void destroyGame()
 	{
 		mRevRenderer.destroyGame();
+	}
+
+	// --- Input management ---
+	@Override
+	public boolean onTouchEvent(MotionEvent _event)
+	{
+		final int action = _event.getAction();
+		switch(action & MotionEvent.ACTION_MASK)
+		{
+		case MotionEvent.ACTION_DOWN:
+		{
+			nativeTouchPress(_event.getPointerId(0), _event.getX(), _event.getY());
+		}
+		//case MotionEvent.ACTION_POINTER_DOWN:
+		//{
+		//	nativeTouchPress(_event.getPointerId(0), _event.getX(), _event.getY());
+		//}
+		case MotionEvent.ACTION_MOVE:
+		{
+			nativeTouchMove(_event.getPointerId(0), _event.getX(), _event.getY());
+		}
+		case MotionEvent.ACTION_UP:
+		{
+			nativeTouchRelease(_event.getPointerId(0), _event.getX(), _event.getY());
+		}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean onKeyUp (int keyCode, KeyEvent event)
+	{
+		return false;
 	}
 }
 

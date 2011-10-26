@@ -103,7 +103,8 @@ REVGAME_DIR:=$(REV_CODE_DIR)/revGame
 REVGAME_SRC:=$(REVGAME_DIR)/gameClient/gameClient.cpp
 
 REVINPUT_DIR:=$(REV_CODE_DIR)/revInput
-REVINPUT_SRC:=$(REVINPUT_DIR)/touchInput/touchInput.cpp
+REVINPUT_SRC:=$(REVINPUT_DIR)/touchInput/touchInput.cpp\
+			  $(REVINPUT_DIR)/touchInput/android/touchInputAndroid.cpp
 
 REVVIDEO_DIR:=$(REV_CODE_DIR)/revVideo
 REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\

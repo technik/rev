@@ -14,25 +14,36 @@
 namespace rev { namespace input
 {
 	//------------------------------------------------------------------------------------------------------------------
-	bool CTouchInputAndroid::pressed(unsigned _touchIdx)
+	CTouchInputAndroid::CTouchInputAndroid()
+	{
+		mPressed[0] = false;
+		mPressed[1] = false;
+		mHeld[0] = false;
+		mHeld[1] = false;
+		mReleased[0] = false;
+		mReleased[1] = false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool CTouchInputAndroid::pressed(unsigned _touchIdx) const
 	{
 		return mPressed[_touchIdx];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool CTouchInputAndroid::held(unsigned _touchIdx)
+	bool CTouchInputAndroid::held(unsigned _touchIdx) const
 	{
 		return mHeld[_touchIdx];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool CTouchInputAndroid::released(unsigned _touchIdx)
+	bool CTouchInputAndroid::released(unsigned _touchIdx) const
 	{
 		return mHeld[_touchIdx];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CVec2 CTouchInputAndroid::touchPos(unsigned _touchIdx)
+	CVec2 CTouchInputAndroid::touchPos(unsigned _touchIdx) const
 	{
 		return mTouchPos[_touchIdx];
 	}
@@ -51,9 +62,9 @@ namespace rev { namespace input
 			idx = 1;
 		}else
 			return; // No available slot to process this touch
-		mTouchId[_idx] = _id;
-		mPressed[_idx] = true;
-		mTouchPos[_idx] = _pos;
+		mTouchId[idx] = _id;
+		mPressed[idx] = true;
+		mTouchPos[idx] = _pos;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -82,7 +93,7 @@ namespace rev { namespace input
 			return;
 
 		mTouchPos[_idx] = _pos;
-		mRelease[_idx] = true;
+		mReleased[_idx] = true;
 		mHeld[_idx] = false;
 	}
 
@@ -118,26 +129,26 @@ extern "C" {
 
 //----------------------------------------------------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_com_rev_gameclient_revView_nativeTouchPress(JNIEnv* /*_env*/, jobject /*_obj*/,
-							jint _id, jfloat _x, jfloat _y);
+							jint _id, jfloat _x, jfloat _y)
 {
-	CTouchInputAndroid * input = static_cast<CTouchInputAndroid*>(STouchInput::get());
-	input->touchPress(_id, CVec2(_x, _y));
+	rev::input::CTouchInputAndroid * input = static_cast<rev::input::CTouchInputAndroid*>(rev::input::STouchInput::get());
+	input->touchPress(_id, rev::CVec2(_x, _y));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_com_rev_gameclient_revView_nativeTouchMove(JNIEnv* /*_env*/, jobject /*_obj*/,
-							jint _id, jfloat _x, jfloat _y);
+							jint _id, jfloat _x, jfloat _y)
 {
-	CTouchInputAndroid * input = static_cast<CTouchInputAndroid*>(STouchInput::get());
-	input->touchMove(_id, CVec2(_x, _y));
+	rev::input::CTouchInputAndroid * input = static_cast<rev::input::CTouchInputAndroid*>(rev::input::STouchInput::get());
+	input->touchMove(_id, rev::CVec2(_x, _y));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_com_rev_gameclient_revView_nativeTouchPress(JNIEnv* /*_env*/, jobject /*_obj*/,
-							jint _id, jfloat _x, jfloat _y);
+JNIEXPORT void JNICALL Java_com_rev_gameclient_revView_nativeTouchRelease(JNIEnv* /*_env*/, jobject /*_obj*/,
+							jint _id, jfloat _x, jfloat _y)
 {
-	CTouchInputAndroid * input = static_cast<CTouchInputAndroid*>(STouchInput::get());
-	input->touchMove(_id, CVec2(_x, _y));
+	rev::input::CTouchInputAndroid * input = static_cast<rev::input::CTouchInputAndroid*>(rev::input::STouchInput::get());
+	input->touchMove(_id, rev::CVec2(_x, _y));
 }
 
 #endif // ANDROID
