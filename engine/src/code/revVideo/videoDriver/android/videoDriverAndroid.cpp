@@ -13,6 +13,7 @@
 // Engine headers
 #include "videoDriverAndroid.h"
 
+#include "revCore/codeTools/assert/assert.h"
 #include "revCore/codeTools/log/log.h"
 #include "revCore/file/file.h"
 #include "revVideo/color/color.h"
@@ -32,6 +33,8 @@ namespace rev { namespace video
 	{
 		glViewport(0, 0, mScreenWidth, mScreenHeight);
 		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -44,6 +47,8 @@ namespace rev { namespace video
 	void CVideoDriverAndroid::setBackgroundColor(const CColor &_color)
 	{
 		glClearColor(_color.r(), _color.g(), _color.b(), _color.a());
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -60,32 +65,65 @@ namespace rev { namespace video
 		{
 			mCurShader = _shader;
 			glUseProgram(_shader);
+
+			mUniformIds[eMVP] = getUniformId("modelViewProj");
+
+			codeTools::revAssert(glGetError() == GL_NO_ERROR);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	int CVideoDriverAndroid::getUniformId(const char * _name) const
 	{
-		return glGetUniformLocation(mCurShader, _name);
+		int ret = glGetUniformLocation(mCurShader, _name);
+
+		LOG_ANDROID("glGetUniformLocation \"%s\" = %d", _name, ret);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
+		return ret;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer)
 	{
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
 		glEnableVertexAttribArray(_attribId);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setUniform(EUniform _id, const CMat4& _value)
 	{
-		glUniformMatrix4fv(mUniformIds[_id], 4, true, reinterpret_cast<const float*>(_value.m));
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
+		// Given OpenGLES doesn't support transpose matrices, this must be done manually
+		CMat4 transposeMtx;
+		_value.transpose(transposeMtx);
+
+		glUniformMatrix4fv(mUniformIds[_id], 1, false, reinterpret_cast<const float*>(transposeMtx.m));
+
+		GLenum error = glGetError();
+		if(GL_INVALID_OPERATION == error)
+		{
+			LOG_ANDROID("setUniform _id=%d, GL_INVALID_OPERATION", mUniformIds[_id]);
+		}
+		codeTools::revAssert(GL_INVALID_VALUE != error);
+		codeTools::revAssert(GL_NO_ERROR == error);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip)
 	{
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
 		glDrawElements(_strip?GL_TRIANGLE_STRIP:GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -112,6 +150,9 @@ namespace rev { namespace video
 		bindAttributes(program);
 		// Link the program and load it
 		glLinkProgram(program);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
 		return program;
 	}
 
@@ -125,7 +166,12 @@ namespace rev { namespace video
 	void CVideoDriverAndroid::bindAttributes(int _shader)
 	{
 		glBindAttribLocation(_shader, eVertex, "vertex");
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+
 		glBindAttribLocation(_shader, eColor, "color");
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 }	// namespace video
