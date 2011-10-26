@@ -26,12 +26,14 @@ namespace rev { namespace input
 		bool		held		(unsigned _touchIdx = 0) const;
 		bool		released	(unsigned _touchIdx = 0) const;
 
-		CVec2		touchPos	(unsigned /*_touchIdx = 0*/) const {return CVec2::zero;}
+		CVec2		touchPos	(unsigned _touchIdx = 0) const;
 
 		// Platform specific interface
-		void		touchPress	(int _id, const CVec2& _pos);
-		void		touchMove	(int _id, const CVec2& _pos);
-		void		touchRelease(int _id, const CVec2& _pos);
+		void		touchPress	(int _idx, const CVec2& _pos);
+		void		touchMove	(int _idx, const CVec2& _pos);
+		void		touchRelease(int _idx, const CVec2& _pos);
+
+		void		refresh		();
 
 	private:
 		bool		mPressed	[2];
