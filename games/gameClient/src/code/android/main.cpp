@@ -10,9 +10,11 @@
 
 // Engine header files
 #include <revGame/gameClient/gameClient.h>
+#include <revInput/touchInput/android/touchInputAndroid.h>
 
 // Active namespaces
 using namespace rev::game;
+using namespace rev::input;
 
 // Global data
 CGameClient * g_gameClient = 0;
@@ -51,7 +53,12 @@ JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_endGameClient(JNIEnv*
 //----------------------------------------------------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_com_rev_gameclient_revRenderer_updateGameClient(JNIEnv* /*_env*/, jobject /*_obj*/)
 {
+	// Update game client
 	g_gameClient->update();
+
+	// Refresh input
+	CTouchInputAndroid * touchInput = static_cast<CTouchInputAndroid*>(STouchInput::get());
+	touchInput->refresh();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
