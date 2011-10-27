@@ -51,6 +51,7 @@ class revView extends GLSurfaceView
 		case MotionEvent.ACTION_DOWN:
 		{
 			nativeTouchPress(_event.getPointerId(0), _event.getX(), _event.getY());
+			break;
 		}
 		//case MotionEvent.ACTION_POINTER_DOWN:
 		//{
@@ -59,10 +60,12 @@ class revView extends GLSurfaceView
 		case MotionEvent.ACTION_MOVE:
 		{
 			nativeTouchMove(_event.getPointerId(0), _event.getX(), _event.getY());
+			break;
 		}
 		case MotionEvent.ACTION_UP:
 		{
 			nativeTouchRelease(_event.getPointerId(0), _event.getX(), _event.getY());
+			break;
 		}
 		}
 		return true;

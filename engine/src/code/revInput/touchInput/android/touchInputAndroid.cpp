@@ -11,6 +11,8 @@
 
 #include "touchInputAndroid.h"
 
+#include "revCore/codeTools/log/log.h"
+
 namespace rev { namespace input
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -51,6 +53,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void CTouchInputAndroid::touchPress(int _id, const CVec2& _pos)
 	{
+		// LOG_ANDROID("TouchPress( %d, CVec2(%f, %f)", _id, _pos.x, _pos.y);
 		// Retrieve a valid index for this click
 		int idx;
 		if(!(mPressed[0] || mHeld[0]))
@@ -70,6 +73,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void CTouchInputAndroid::touchMove(int _id, const CVec2& _pos)
 	{
+		// LOG_ANDROID("TouchMove( %d, CVec2(%f, %f)", _id, _pos.x, _pos.y);
 		if(mTouchId[0] == _id)
 		{
 			mTouchPos[0] = _pos;
@@ -82,6 +86,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void CTouchInputAndroid::touchRelease(int _id, const CVec2& _pos)
 	{
+		// LOG_ANDROID("TouchRelease( %d, CVec2(%f, %f)", _id, _pos.x, _pos.y);
 		int _idx;
 		if(mTouchId[0] == _id)
 		{
@@ -148,7 +153,7 @@ JNIEXPORT void JNICALL Java_com_rev_gameclient_revView_nativeTouchRelease(JNIEnv
 							jint _id, jfloat _x, jfloat _y)
 {
 	rev::input::CTouchInputAndroid * input = static_cast<rev::input::CTouchInputAndroid*>(rev::input::STouchInput::get());
-	input->touchMove(_id, rev::CVec2(_x, _y));
+	input->touchRelease(_id, rev::CVec2(_x, _y));
 }
 
 #endif // ANDROID
