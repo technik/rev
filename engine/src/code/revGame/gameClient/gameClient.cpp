@@ -52,9 +52,9 @@ namespace rev { namespace game
 
 
 		
-		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor::RED);
+		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor(1.f,1.f,1.f,0.8f));
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(1200.f, 800.f), -1000.f, 1000.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(900.f, 600.f), -800.f, 800.f);
 		v1->setCamera(cam1);
 		IRenderable * buggyModelInstance = new CStaticModelInstance(new CStaticModel("buggy.rmd"),
 						new IMaterialInstance(buggyMaterial));
@@ -72,19 +72,8 @@ namespace rev { namespace game
 		// Update video system and render
 		SVideo::get()->update();
 
-		// Exit the game on touch releases
-		STouchInput* touchInput = STouchInput::get();
-		if(touchInput->pressed())
-		{
-			static bool bBlue = false;
-			SVideo::get()->driver()->setBackgroundColor(bBlue?CColor::BLUE: CColor::GREEN);
-			bBlue = !bBlue;
-		}
-		if(touchInput->held())
-		{
-			TReal time = buggy->deltaTime();
-			buggy->rotate(CVec3(0.f, 1.f, 0.f), time);
-		}
+		TReal time = buggy->deltaTime();
+		buggy->rotate(CVec3(0.f, 1.f, 0.f), time);
 		return true;
 	}
 
