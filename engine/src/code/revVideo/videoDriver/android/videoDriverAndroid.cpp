@@ -20,6 +20,37 @@
 #include "revVideo/videoDriver/shader/pxlShader.h"
 #include "revVideo/videoDriver/shader/vtxShader.h"
 
+#define ASSERT_GL( ... ) \
+{int errorCode = glGetError();\
+if(GL_NO_ERROR != errorCode) \
+{\
+	switch(errorCode)\
+	{\
+		case GL_INVALID_OPERATION:\
+		{\
+			LOG_ANDROID("GL_INVALID_OPERATION");\
+			break;\
+		}\
+		case GL_INVALID_VALUE:\
+		{\
+			LOG_ANDROID("GL_INVALID_VALUE");\
+			break;\
+		}\
+		case GL_INVALID_ENUM:\
+		{\
+			LOG_ANDROID("GL_INVALID_ENUM");\
+			break;\
+		}\
+		default:\
+		{\
+			LOG_ANDROID("GL_OTHER");\
+			break;\
+		}\
+	}\
+	LOG_ANDROID( __VA_ARGS__ );\
+	codeTools::revAssert(false);\
+}}
+
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -36,7 +67,7 @@ namespace rev { namespace video
 		glViewport(0, 0, mScreenWidth, mScreenHeight);
 		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glViewport");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -50,7 +81,7 @@ namespace rev { namespace video
 	{
 		glClearColor(_color.r(), _color.g(), _color.b(), _color.a());
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glClearColor");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -67,13 +98,18 @@ namespace rev { namespace video
 		{
 			mCurShader = _shader;
 			glUseProgram(_shader);
+			ASSERT_GL("glUseProgram %d", _shader);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	int CVideoDriverAndroid::getUniformId(const char * _name) const
 	{
-		return glGetUniformLocation(mCurShader, _name);
+		int ret = glGetUniformLocation(mCurShader, _name);
+
+		ASSERT_GL("glGetUniformLocation shader=%d, name=\"%s\"", mCurShader, _name);
+
+		return ret;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -102,6 +138,8 @@ namespace rev { namespace video
 	void CVideoDriverAndroid::setUniform(int _id, const CColor& _value)
 	{
 		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -122,6 +160,8 @@ namespace rev { namespace video
 		glAttachShader(program, _pxl->id());
 		bindAttributes(program);
 		glLinkProgram(program);
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 		return program;
 	}
 
@@ -132,6 +172,8 @@ namespace rev { namespace video
 		const char * fileBuffer = bufferFromFile(_name);
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 		delete[] fileBuffer;
 		return int(shader);
 	}
@@ -143,6 +185,8 @@ namespace rev { namespace video
 		const char * fileBuffer = bufferFromFile(_name);
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
+
+		codeTools::revAssert(glGetError() == GL_NO_ERROR);
 		delete[] fileBuffer;
 		return int(shader);
 	}

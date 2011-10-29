@@ -28,7 +28,6 @@ namespace rev { namespace video
 
 	private:
 		CColor	mColor;
-		int		mColorUniformId;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------

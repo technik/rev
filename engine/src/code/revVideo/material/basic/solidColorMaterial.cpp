@@ -16,13 +16,13 @@ namespace rev { namespace video
 	CSolidColorMaterial::CSolidColorMaterial(const CColor& _color): mColor(_color)
 	{
 		mShader = CPxlShader::manager()->get("solidColor.pxl");
-		mColorUniformId = SVideo::get()->driver()->getUniformId("color");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CSolidColorMaterial::setEnviroment() const
 	{
-		SVideo::get()->driver()->setUniform(mColorUniformId, mColor);
+		int colorUniformId = SVideo::get()->driver()->getUniformId("color");
+		SVideo::get()->driver()->setUniform(colorUniformId, mColor);
 	}
 }	// namespace video
 }	// namespace rev
