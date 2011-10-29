@@ -104,6 +104,8 @@
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
     <ClInclude Include="..\..\code\revCore\node\node.h" />
+    <ClInclude Include="..\..\code\revCore\resourceManager\resource.h" />
+    <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h" />
     <ClInclude Include="..\..\code\revCore\time\time.h" />
     <ClInclude Include="..\..\code\revCore\time\timeSrc.h" />
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
@@ -115,6 +117,9 @@
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
     <ClInclude Include="..\..\code\revVideo\color\color.h" />
+    <ClInclude Include="..\..\code\revVideo\material\basic\solidColorMaterial.h" />
+    <ClInclude Include="..\..\code\revVideo\material\material.h" />
+    <ClInclude Include="..\..\code\revVideo\material\materialInstance.h" />
     <ClInclude Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.h" />
     <ClInclude Include="..\..\code\revVideo\renderer\renderer3d.h" />
     <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h" />
@@ -127,6 +132,9 @@
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.h" />
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\pxlShader.h" />
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\shader.h" />
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\vtxShader.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\videoDriver.h" />
     <ClInclude Include="..\..\code\revVideo\viewport\viewport.h" />
     <ClInclude Include="..\..\code\rtl\baseTypes.h" />
@@ -152,16 +160,19 @@
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\color\color.cpp" />
+    <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp" />
-    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstace.cpp" />
+    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\videoScene.cpp" />
     <ClCompile Include="..\..\code\revVideo\video.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\linux\videoDriverLinux.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\videoDriverOpenGL.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\opengl\windows\videoDriverOGLWindows.cpp" />
-    <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp" />
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\pxlShader.cpp" />
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\shader.cpp" />
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\vtxShader.cpp" />
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

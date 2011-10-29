@@ -11,7 +11,7 @@
 #include "pair.h"
 #include "vector.h"
 
-namespace rev { namespace rtl
+namespace rtl
 {
 	//------------------------------------------------------------------------------------------------------------------
 	// map class declaration
@@ -380,6 +380,5 @@ namespace rev { namespace rtl
 	}
 
 }	// namespace rtl
-}	// namespace rev
 
 #endif // _REV_RTL_MULTIMAP_H_

@@ -17,6 +17,8 @@
 // TODO: Remove?
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
+#include "revVideo/material/basic/solidColorMaterial.h"
+#include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/staticModel.h"
 #include "revVideo/scene/model/staticModelInstance.h"
 #include "revVideo/videoDriver/videoDriver.h"
@@ -50,11 +52,12 @@ namespace rev { namespace game
 
 
 		
-
+		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor::WHITE);
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(3000.f, 2000.f), -5000.f, 5000.f);
 		v1->setCamera(cam1);
-		IRenderable * buggyModelInstance = new CStaticModelInstance(new CStaticModel("buggy.rmd"));
+		IRenderable * buggyModelInstance = new CStaticModelInstance(new CStaticModel("buggy.rmd"),
+						new IMaterialInstance(buggyMaterial));
 		buggy = new CNode;
 		
 		buggyModelInstance->attachTo(buggy);

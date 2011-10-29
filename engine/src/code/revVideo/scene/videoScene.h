@@ -10,6 +10,8 @@
 
 #include "rtl/poolset.h"
 
+using rtl::poolset;
+
 namespace rev { namespace video
 {
 	// Forward references
@@ -18,7 +20,7 @@ namespace rev { namespace video
 	class CVideoScene
 	{
 	public:
-		typedef rtl::poolset<IRenderable*>	TRenderableContainer;
+		typedef poolset<IRenderable*>	TRenderableContainer;
 	public:
 		// -- Default scene
 		static CVideoScene* defaultScene();

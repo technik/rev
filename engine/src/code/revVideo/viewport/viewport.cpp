@@ -7,7 +7,7 @@
 
 #include "viewport.h"
 
-using namespace rev::rtl;
+using rtl::pair;
 
 namespace rev { namespace video
 {

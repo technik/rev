@@ -111,11 +111,14 @@ REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/camera/camera.cpp\
 			  $(REVVIDEO_DIR)/camera/orthoCamera.cpp\
 			  $(REVVIDEO_DIR)/color/color.cpp\
+			  $(REVVIDEO_DIR)/material/basic/solidColorMaterial.cpp\
 			  $(REVVIDEO_DIR)/renderer/directRenderer/directRenderer.cpp\
 			  $(REVVIDEO_DIR)/scene/videoScene.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModel.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModelInstance.cpp\
-			  $(REVVIDEO_DIR)/videoDriver/videoDriver.cpp\
+			  $(REVVIDEO_DIR)/videoDriver/shader/pxlShader.cpp\
+			  $(REVVIDEO_DIR)/videoDriver/shader/shader.cpp\
+			  $(REVVIDEO_DIR)/videoDriver/shader/vtxShader.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/android/videoDriverAndroid.cpp\
 			  $(REVVIDEO_DIR)/viewport/viewport.cpp
 

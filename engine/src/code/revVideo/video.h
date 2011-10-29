@@ -66,7 +66,7 @@ namespace rev	{	namespace	video
 	//--------------------------------------------------------------------------
 	inline IVideoDriver * SVideo::driver() const
 	{
-		return get()->m_pDriver;
+		return m_pDriver;
 	}
 }	// namespace video
 }	// namespace rev

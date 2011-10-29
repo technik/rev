@@ -12,6 +12,8 @@
 #include "revCore/file/file.h"
 #include "revCore/math/matrix.h"
 #include "revVideo/color/color.h"
+#include "revVideo/videoDriver/shader/pxlShader.h"
+#include "revVideo/videoDriver/shader/vtxShader.h"
 
 #ifdef _linux
 #define loadExtension( a ) glXGetProcAddressARB((const GLubyte*) (a))
@@ -42,7 +44,7 @@ namespace rev { namespace video
 			mCurShader = _shader;
 			glUseProgram(unsigned(mCurShader));
 
-			mUniformIds[eMVP] = getUniformId("modelViewProj");
+			mUniformIds[eMVP] = getUniformId("modelViewProj"); // TODO: This can be done in shader compile time
 		}
 	}
 
@@ -71,7 +73,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(EUniform _id, const CMat4& _value)
 	{
-		m_uniformMatrix4fv(mUniformIds[_id], 4, true, reinterpret_cast<const float*>(_value.m));
+		m_uniformMatrix4fv(mUniformIds[_id], 1, true, reinterpret_cast<const float*>(_value.m));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -104,36 +106,36 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	int IVideoDriverOpenGL::loadShader(const char  * _vtxName, const char * _pxlName)
+	int IVideoDriverOpenGL::linkShader(CVtxShader * _vtx, CPxlShader * _pxl)
 	{
-		// Create the program
 		int program = glCreateProgram();
-		// Vertex shader
-		unsigned vtxShader = glCreateShader(GL_VERTEX_SHADER);
-		const char * fileBuffer = bufferFromFile(_vtxName);
-		glShaderSource(vtxShader, 1, &fileBuffer, 0); // Attach source
-		glCompileShader(vtxShader); // Compile
-		delete[] fileBuffer;
-		// Pixel shader
-		unsigned pxlShader = glCreateShader(GL_FRAGMENT_SHADER);
-		fileBuffer = bufferFromFile(_pxlName);
-		glShaderSource(pxlShader, 1, &fileBuffer, 0); // Attach source
-		glCompileShader(pxlShader); // Compile
-		delete[] fileBuffer;
-		// Complete shader
-		glAttachShader(program, vtxShader);
-		glAttachShader(program, pxlShader);
-		// bind attributes before linking the shader
+		glAttachShader(program, _vtx->id());
+		glAttachShader(program, _pxl->id());
 		bindAttributes(program);
-		// Link the program and load it
 		glLinkProgram(program);
 		return program;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::deleteShader(const int /*_id*/)
+	int IVideoDriverOpenGL::loadVtxShader(const char * _name)
 	{
-		// TODO: _solve leaks!
+		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
+		const char * fileBuffer = bufferFromFile(_name);
+		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(shader); // Compile
+		delete[] fileBuffer;
+		return int(shader);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int IVideoDriverOpenGL::loadPxlShader(const char * _name)
+	{
+		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char * fileBuffer = bufferFromFile(_name);
+		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(shader); // Compile
+		delete[] fileBuffer;
+		return int(shader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

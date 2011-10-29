@@ -8,11 +8,20 @@
 #ifndef _REV_REVCORE_TYPES_H_
 #define _REV_REVCORE_TYPES_H_
 
-namespace rev	{
+// Standard headers
+#if defined(_linux) || defined(ANDROID) || defined (WIN32)
+#include <string>
+#endif // _linux || ANDROID || WIN32
+
+namespace rev
+{
 
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
+
+using std::string;
 typedef		float		TReal;
-#endif // _linux64
+
+#endif // _linux || ANDROID || WIN32
 
 }	// namespace rev
 

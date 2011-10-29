@@ -13,6 +13,7 @@
 #include "revCore/types.h"
 #include "rtl/poolset.h"
 
+using rtl::poolset;
 namespace rev
 {
 	// -- Forward references --
@@ -44,7 +45,7 @@ namespace rev
 		void			setTimeSource		(ITimeSrc* _source);
 
 	private:
-		rtl::poolset<IComponent*>	mComponents;
+		poolset<IComponent*>	mComponents;
 		ITimeSrc*					mTimeSrc;
 	};
 

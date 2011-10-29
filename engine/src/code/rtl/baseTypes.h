@@ -8,13 +8,13 @@
 #ifndef _REV_RTL_BASETYPES_H_
 #define _REV_RTL_BASETYPES_H_
 
-namespace rev { namespace rtl
+namespace rtl
 {
 
+typedef unsigned int	size_type;
 typedef	unsigned int	indexT;
 typedef unsigned int	sizeT;
 
 }	// namespace rtl
-}	// namespace rev
 
 #endif // _REV_RTL_BASETYPES_H_

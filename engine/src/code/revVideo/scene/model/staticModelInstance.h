@@ -14,11 +14,12 @@ namespace rev { namespace video
 {
 	// Forward declarations
 	class CStaticModel;
+	class IMaterialInstance;
 
 	class CStaticModelInstance: public IRenderable
 	{
 	public:
-		CStaticModelInstance(CStaticModel* _model);
+		CStaticModelInstance(CStaticModel* _model, IMaterialInstance * _material);
 		~CStaticModelInstance();
 		// TODO: Add a constructor that recieves the name of the model
 		// TODO: Manage ownership of the model
@@ -29,8 +30,17 @@ namespace rev { namespace video
 		unsigned short* triStrip	() const;
 		int				stripLength	() const;
 	private:
+		IMaterialInstance * material() const;
+	private:
 		CStaticModel* mModel;
+		IMaterialInstance * mMaterial;
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline IMaterialInstance * CStaticModelInstance::material() const
+	{
+		return mMaterial;
+	}
 }	// namespace video
 }	// namespace rev
 

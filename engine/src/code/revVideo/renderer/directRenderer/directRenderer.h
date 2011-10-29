@@ -8,11 +8,15 @@
 #ifndef _REV_REVVIDEO_RENDERER_DIRECTRENDERER_DIRECTRENDERER_H_
 #define _REV_REVVIDEO_RENDERER_DIRECTRENDERER_DIRECTRENDERER_H_
 
-#include "revVideo/renderer/renderer3d.h"
 #include "revCore/math/matrix.h"
+#include "revVideo/renderer/renderer3d.h"
+#include "revVideo/videoDriver/shader/vtxShader.h"
 
 namespace rev { namespace video
 {
+	// Forward declaration
+	class CVtxShader;
+
 	class CDirectRenderer: public IRenderer3d
 	{
 	public:
@@ -25,7 +29,7 @@ namespace rev { namespace video
 
 	private:
 		// Render data
-		int mShader;
+		CVtxShader * mVtxShader;
 		CMat4	mMVP;
 	};
 }

@@ -11,11 +11,19 @@
 #include "revCore/node/node.h"
 #include "revVideo/camera/camera.h"
 #include "revVideo/color/color.h"
+#include "revVideo/material/material.h"
+#include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/renderable.h"
 #include "revVideo/scene/videoScene.h"
 #include "revVideo/video.h"
+#include "revVideo/videoDriver/shader/pxlShader.h"
+#include "revVideo/videoDriver/shader/shader.h"
+#include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/viewport/viewport.h"
+#include "rtl/pair.h"
+
+using rtl::pair;
 
 namespace rev { namespace video
 {
@@ -24,8 +32,7 @@ namespace rev { namespace video
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setBackgroundColor(CColor::BLACK);
-		mShader = driver->getShader("direct.vtx", "direct.pxl");
-
+		mVtxShader = CVtxShader::manager()->get("direct.vtx");
 		mMVP = CMat4::identity();
 	}
 
@@ -39,8 +46,8 @@ namespace rev { namespace video
 	void CDirectRenderer::renderFrame()
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
-
-		driver->setShader(mShader);
+		CPxlShader * currentPxlShader = 0;
+		CShader * currentShader = 0;
 
 		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
 			i != CViewport::viewports().end(); ++i)
@@ -58,6 +65,23 @@ namespace rev { namespace video
 					IRenderable * renderable = *i;
 					if(0 == renderable->triangles())
 						continue;
+					
+					const IMaterialInstance * materialInstance = renderable->material();
+					if(0 == materialInstance)
+						continue;
+					else
+					{
+						const IMaterial * material = materialInstance->material();
+						CPxlShader * pxlShader = material->shader();
+						if(pxlShader != currentPxlShader)
+						{
+							currentPxlShader = pxlShader;
+							currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(mVtxShader,currentPxlShader));
+							currentShader->setEnviroment();
+						}
+						material->setEnviroment();
+						materialInstance->setEnviroment();
+					}
 					CNode * node = renderable->node();
 					if(node)
 					{

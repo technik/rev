@@ -13,6 +13,8 @@
 
 namespace rev { namespace video
 {
+	class IMaterialInstance;
+
 	class IRenderable: public IComponent
 	{
 	public:
@@ -20,6 +22,7 @@ namespace rev { namespace video
 		{
 			CVideoScene::defaultScene()->addRenderable(this);
 		}
+		virtual ~IRenderable() { /* TODO: Remove from scene */ }
 
 		// Buffers
 		virtual float*			vertices	() const = 0;
@@ -28,6 +31,9 @@ namespace rev { namespace video
 		virtual int				nTriangles	() const = 0;
 		virtual unsigned short* triStrip	() const = 0;
 		virtual int				stripLength	() const = 0;
+
+		// Material instance
+		virtual IMaterialInstance * material() const = 0;
 	};
 }	// namespace video
 }	// namespace rev

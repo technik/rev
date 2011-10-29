@@ -38,8 +38,10 @@ namespace rev { namespace video
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 
 	private:
-		int 	loadShader			(const char * _vtxName, const char * _pxlName);
-		void	deleteShader		(const int _id);
+		// --- Shader management -- //
+		int		linkShader			(CVtxShader* _vtx, CPxlShader* _pxl);
+		int		loadVtxShader		(const char * _name);
+		int		loadPxlShader		(const char * _name);
 		void	bindAttributes		(int _shader);
 
 	private:

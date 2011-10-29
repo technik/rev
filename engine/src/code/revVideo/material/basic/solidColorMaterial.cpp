@@ -1,25 +1,24 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Revolution engine
-// Created by Carmelo J. FernÃ¡ndez-AgÃ¼era Tortosa (a.k.a. Technik)
-// on September 11th, 2011
+// Revolution Engine, time
+// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// Created on October 28th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// video driver
+// Solid color material
 
-#include "videoDriver.h"
+#include "solidColorMaterial.h"
+#include "revVideo/videoDriver/shader/pxlShader.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	int IVideoDriver::getShader(const char * _vtxName, const char * _pxlName)
+	CSolidColorMaterial::CSolidColorMaterial(const CColor& _color): mColor(_color)
 	{
-		return loadShader(_vtxName, _pxlName);
+		mShader = CPxlShader::manager()->get("direct.pxl");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriver::releaseShader(int _shader)
+	void CSolidColorMaterial::setEnviroment() const
 	{
-		deleteShader(_shader);
 	}
-
 }	// namespace video
 }	// namespace rev

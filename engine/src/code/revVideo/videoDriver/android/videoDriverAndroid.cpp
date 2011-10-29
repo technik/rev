@@ -17,6 +17,8 @@
 #include "revCore/codeTools/log/log.h"
 #include "revCore/file/file.h"
 #include "revVideo/color/color.h"
+#include "revVideo/videoDriver/shader/pxlShader.h"
+#include "revVideo/videoDriver/shader/vtxShader.h"
 
 namespace rev { namespace video
 {
@@ -127,33 +129,36 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	int CVideoDriverAndroid::loadShader		(const char * _vtxName, const char * _pxlName)
+	int CVideoDriverAndroid::linkShader(CVtxShader * _vtx, CPxlShader * _pxl)
 	{
-		// Create the program
 		int program = glCreateProgram();
-		// Vertex shader
-		unsigned vtxShader = glCreateShader(GL_VERTEX_SHADER);
-		const char * fileBuffer = bufferFromFile(_vtxName);
-		glShaderSource(vtxShader, 1, &fileBuffer, 0); // Attach source
-		glCompileShader(vtxShader); // Compile
-		delete[] fileBuffer;
-		// Pixel shader
-		unsigned pxlShader = glCreateShader(GL_FRAGMENT_SHADER);
-		fileBuffer = bufferFromFile(_pxlName);
-		glShaderSource(pxlShader, 1, &fileBuffer, 0); // Attach source
-		glCompileShader(pxlShader); // Compile
-		delete[] fileBuffer;
-		// Complete shader
-		glAttachShader(program, vtxShader);
-		glAttachShader(program, pxlShader);
-		// bind attributes before linking the shader
+		glAttachShader(program, _vtx->id());
+		glAttachShader(program, _pxl->id());
 		bindAttributes(program);
-		// Link the program and load it
 		glLinkProgram(program);
-
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
-
 		return program;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int CVideoDriverAndroid::loadVtxShader(const char * _name)
+	{
+		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
+		const char * fileBuffer = bufferFromFile(_name);
+		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(shader); // Compile
+		delete[] fileBuffer;
+		return int(shader);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int CVideoDriverAndroid::loadPxlShader(const char * _name)
+	{
+		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
+		const char * fileBuffer = bufferFromFile(_name);
+		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		glCompileShader(shader); // Compile
+		delete[] fileBuffer;
+		return int(shader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

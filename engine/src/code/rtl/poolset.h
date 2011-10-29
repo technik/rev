@@ -17,7 +17,7 @@
 
 #include "baseTypes.h"
 
-namespace rev	{	namespace rtl
+namespace rtl
 {
 	template< typename _T> // _T type must define default ctor, copy ctor, dtor and operator <
 	class poolset
@@ -482,7 +482,6 @@ void poolset<_T>::ensureCapacity(const sizeT _n)
 	reserve(newSize);
 }
 
-}	// namespace rtl
 }	// namespace rtl
 
 #endif // _REV_RTL_POOLSET_H_

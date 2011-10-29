@@ -11,8 +11,9 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model):
-		mModel(_model)
+	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model, IMaterialInstance * _material):
+		mModel(_model),
+		mMaterial(_material)
 	{
 	}
 

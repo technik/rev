@@ -9,6 +9,7 @@
 #define _REV_REVVIDEO_DRIVER_DRIVER_H_
 
 #include "revCore/math/matrix.h"
+#include "revCore/resourceManager/resourceManager.h"
 
 namespace rev	{
 
@@ -16,7 +17,9 @@ namespace rev	{
 {
 	// Forward declarations
 	class CColor;
+	class CPxlShader;
 	class CShader;
+	class CVtxShader;
 
 	class IVideoDriver
 	{
@@ -48,7 +51,7 @@ namespace rev	{
 											const unsigned int _height) = 0;
 
 		// ---- Render related ---- //
-		virtual void	setShader			(const int _shader) = 0;
+		virtual void	setShader			(const int _shaderId) = 0;
 		virtual int		getUniformId		(const char * _name) const = 0;
 		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setIntAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
@@ -57,12 +60,9 @@ namespace rev	{
 		virtual void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
 
 		// --- Shader management -- //
-		int 	getShader		(const char * _vtxShaderName, const char * _pxlShadeName);
-		void	releaseShader	(const int _shader);
-
-	private:
-		virtual int 	loadShader		(const char * _vtxName, const char * _pxlName) = 0;
-		virtual	void	deleteShader	(const int _id) = 0;
+		virtual int		linkShader			(CVtxShader* _vtx, CPxlShader* _pxl) = 0;
+		virtual int		loadVtxShader		(const char * _name) = 0;
+		virtual int		loadPxlShader		(const char * _name) = 0;
 	};
 
 }	// namespace video

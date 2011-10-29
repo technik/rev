@@ -51,10 +51,11 @@ namespace rev { namespace video
 	private:
 		// -- OpenGL specifics --
 		virtual void	createOpenGLWindow		(const unsigned int _width, const unsigned int _heihgt) = 0;
-
-		// Shaders internal management
-		virtual int 	loadShader				(const char * _vtxName, const char * _pxlName);
-		virtual	void	deleteShader			(const int _id);
+		
+		// --- Shader management -- //
+		int				linkShader			(CVtxShader* _vtx, CPxlShader* _pxl);
+		int				loadVtxShader		(const char * _name);
+		int				loadPxlShader		(const char * _name);
 		void			bindAttributes			(int _shader);
 
 		// -- Extensions

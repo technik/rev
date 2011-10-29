@@ -12,6 +12,8 @@
 #include "revCore/math/vector.h"
 #include "rtl/multimap.h"
 
+using rtl::multimap;
+
 namespace rev { namespace video
 {
 	class ICamera;
@@ -19,7 +21,7 @@ namespace rev { namespace video
 	class CViewport
 	{
 	public:
-		typedef rtl::multimap<TReal, CViewport*>	TViewportContainer;
+		typedef multimap<TReal, CViewport*>	TViewportContainer;
 	public:
 		CViewport(const CVec2& _pos, const CVec2& _size, const TReal layer);
 		~CViewport();

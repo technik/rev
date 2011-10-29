@@ -94,6 +94,18 @@
     <Filter Include="revInput\touchInput\android">
       <UniqueIdentifier>{75d805e0-bf43-4767-9a55-493d2edce879}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revVideo\material">
+      <UniqueIdentifier>{625763e2-c8c4-4331-bb98-33e4a78f5deb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\material\basic">
+      <UniqueIdentifier>{32c3015c-27b5-4200-8033-cdf381e71041}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\resourceManager">
+      <UniqueIdentifier>{84197a30-7fdb-47ce-91f1-8e251b7374d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\videoDriver\shader">
+      <UniqueIdentifier>{a4908071-c452-40f3-9f8f-ea84dc4b84e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -216,6 +228,30 @@
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h">
       <Filter>revInput\touchInput\android</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\materialInstance.h">
+      <Filter>revVideo\material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\material.h">
+      <Filter>revVideo\material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\resourceManager\resource.h">
+      <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h">
+      <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\shader.h">
+      <Filter>revVideo\videoDriver\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\vtxShader.h">
+      <Filter>revVideo\videoDriver\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\videoDriver\shader\pxlShader.h">
+      <Filter>revVideo\videoDriver\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\basic\solidColorMaterial.h">
+      <Filter>revVideo\material\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -238,12 +274,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp">
       <Filter>revVideo\scene\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstace.cpp">
-      <Filter>revVideo\scene\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\videoDriver\videoDriver.cpp">
-      <Filter>revVideo\videoDriver</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.cpp">
       <Filter>revVideo\videoDriver\android</Filter>
@@ -295,6 +325,21 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp">
       <Filter>revInput\touchInput\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp">
+      <Filter>revVideo\scene\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp">
+      <Filter>revVideo\material\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\shader.cpp">
+      <Filter>revVideo\videoDriver\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\vtxShader.cpp">
+      <Filter>revVideo\videoDriver\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\videoDriver\shader\pxlShader.cpp">
+      <Filter>revVideo\videoDriver\shader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
