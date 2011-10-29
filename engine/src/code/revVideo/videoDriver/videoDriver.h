@@ -32,12 +32,6 @@ namespace rev	{
 			eAttribCount
 		};
 
-		enum EUniform
-		{
-			eMVP = 0,	// Model-view-projection matrix
-
-			eUniformCount
-		};
 	public:
 		// Virtual destructor
 		virtual ~IVideoDriver() {}
@@ -56,7 +50,8 @@ namespace rev	{
 		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setIntAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setUniform		(const int _uniformId, const TReal _value) = 0;
-		virtual	void	setUniform			(EUniform _id, const CMat4& _value) = 0;
+		virtual	void	setUniform			(int _id, const CMat4& _value) = 0;
+		virtual	void	setUniform			(int _id, const CColor& _value) = 0;
 		virtual void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
 
 		// --- Shader management -- //

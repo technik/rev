@@ -43,8 +43,6 @@ namespace rev { namespace video
 		{
 			mCurShader = _shader;
 			glUseProgram(unsigned(mCurShader));
-
-			mUniformIds[eMVP] = getUniformId("modelViewProj"); // TODO: This can be done in shader compile time
 		}
 	}
 
@@ -71,9 +69,15 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::setUniform(EUniform _id, const CMat4& _value)
+	void IVideoDriverOpenGL::setUniform(int _id, const CMat4& _value)
 	{
-		m_uniformMatrix4fv(mUniformIds[_id], 1, true, reinterpret_cast<const float*>(_value.m));
+		m_uniformMatrix4fv(_id, 1, true, reinterpret_cast<const float*>(_value.m));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setUniform(int _id, const CColor& _value)
+	{
+		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -162,6 +166,7 @@ namespace rev { namespace video
 		m_getUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)loadExtension("glGetUniformLocation");
 		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
 		m_uniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)loadExtension("glUniformMatrix4fv");
+		m_uniform4f = (PFNGLUNIFORM4FPROC)loadExtension("glUniform4f");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -247,6 +252,12 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::glUniformMatrix4fv(unsigned _location, int _count, bool _transpose, const float *_value)
 	{
 		m_uniformMatrix4fv(_location, _count, _transpose, _value);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glUniform4f(unsigned _location, float _f0, float _f1, float _f2, float _f3)
+	{
+		m_uniform4f(_location, _f0, _f1, _f2, _f3);
 	}
 
 }	// namespace video

@@ -99,23 +99,19 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverAndroid::setUniform(EUniform _id, const CMat4& _value)
+	void CVideoDriverAndroid::setUniform(int _id, const CMat4& _value)
 	{
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
-
 		// Given OpenGLES doesn't support transpose matrices, this must be done manually
 		CMat4 transposeMtx;
 		_value.transpose(transposeMtx);
 
-		glUniformMatrix4fv(mUniformIds[_id], 1, false, reinterpret_cast<const float*>(transposeMtx.m));
+		glUniformMatrix4fv(_id, 1, false, reinterpret_cast<const float*>(transposeMtx.m));
+	}
 
-		GLenum error = glGetError();
-		if(GL_INVALID_OPERATION == error)
-		{
-			LOG_ANDROID("setUniform _id=%d, GL_INVALID_OPERATION", mUniformIds[_id]);
-		}
-		codeTools::revAssert(GL_INVALID_VALUE != error);
-		codeTools::revAssert(GL_NO_ERROR == error);
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setUniform(int _id, const CColor& _value)
+	{
+		glUniform4f(_id, _value.r, _value.g, _value.b, _value.a);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

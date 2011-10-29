@@ -52,9 +52,9 @@ namespace rev { namespace game
 
 
 		
-		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor::WHITE);
+		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor::RED);
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(3000.f, 2000.f), -5000.f, 5000.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(1200.f, 800.f), -1000.f, 1000.f);
 		v1->setCamera(cam1);
 		IRenderable * buggyModelInstance = new CStaticModelInstance(new CStaticModel("buggy.rmd"),
 						new IMaterialInstance(buggyMaterial));

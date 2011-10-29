@@ -41,7 +41,8 @@ namespace rev { namespace video
 		void	setShader			(const int _shader);
 		int		getUniformId		(const char * _name) const;
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
-		void	setUniform			(EUniform _id, const CMat4& _value);
+		void	setUniform			(int _id, const CMat4& _value);
+		void	setUniform			(int _id, const CColor& _value);
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 		
 		void	setBackgroundColor	(const CColor& _color);
@@ -76,14 +77,13 @@ namespace rev { namespace video
 												int _stride, const void * _pointer);
 		void			glEnableVertexAttribArray(unsigned _idx);
 		void			glUniformMatrix4fv		(unsigned _location, int _count, bool _transpose, const float *_value);
+		void			glUniform4f				(unsigned _location, float _f0, float _f1, float _f2, float _f3);
 
 	private:
 		// --- Internal state --- //
 		int				mCurShader;
 		unsigned int	mScreenWidth;
 		unsigned int	mScreenHeight;
-
-		int				mUniformIds[eUniformCount];
 
 	private:
 		// ---- pointers to openGL extensions ----
@@ -103,6 +103,7 @@ namespace rev { namespace video
 		PFNGLVERTEXATTRIBPOINTERPROC m_vertexAttribPointer;
 		PFNGLENABLEVERTEXATTRIBARRAYPROC m_enableVertexAttribArray;
 		PFNGLUNIFORMMATRIX4FVPROC m_uniformMatrix4fv;
+		PFNGLUNIFORM4FPROC m_uniform4f;
 	};
 }	// namespace video
 }	// namespace rev

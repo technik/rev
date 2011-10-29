@@ -48,6 +48,7 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		CPxlShader * currentPxlShader = 0;
 		CShader * currentShader = 0;
+		int mvpUniformId = 0;
 
 		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
 			i != CViewport::viewports().end(); ++i)
@@ -78,6 +79,7 @@ namespace rev { namespace video
 							currentPxlShader = pxlShader;
 							currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(mVtxShader,currentPxlShader));
 							currentShader->setEnviroment();
+							mvpUniformId = driver->getUniformId("modelViewProj");
 						}
 						material->setEnviroment();
 						materialInstance->setEnviroment();
@@ -86,7 +88,7 @@ namespace rev { namespace video
 					if(node)
 					{
 						mMVP = viewProj * node->transform();
-						driver->setUniform(IVideoDriver::eMVP, mMVP);
+						driver->setUniform(mvpUniformId, mMVP);
 						driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, renderable->vertices());
 						driver->drawIndexBuffer(3*renderable->nTriangles(), renderable->triangles(), false);
 					}

@@ -27,7 +27,8 @@ namespace rev { namespace video
 		void setEnviroment() const;
 
 	private:
-		CColor mColor;
+		CColor	mColor;
+		int		mColorUniformId;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------

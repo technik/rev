@@ -35,6 +35,7 @@ namespace rev { namespace video
 		int		getUniformId		(const char * _name) const;
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
 		void	setUniform			(EUniform _id, const CMat4& _value);
+		void	setUniform			(EUniform _id, const CColor& _value);
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 
 	private:
