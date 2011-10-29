@@ -134,14 +134,14 @@ namespace rtl
 					return;
 				else
 				{
-					if(_array[idx].mElement.first < mElement.first)
+					if(_array[_childIdx].mElement.first < mElement.first)
 					{
 						if(0xffFFffFF != mLowChildIdx)
 							_array[mLowChildIdx].insertChild(mLowChildIdx, _array, _childIdx);
 						else
 						{
 							mLowChildIdx = _childIdx;
-							_arrat[_childIdx].mParentIdx = _myIdx;
+							_array[_childIdx].mParentIdx = _myIdx;
 						}
 					}else
 					{
@@ -150,7 +150,7 @@ namespace rtl
 						else
 						{
 							mHighChildIdx = _childIdx;
-							_arrat[_childIdx].mParentIdx = _myIdx;
+							_array[_childIdx].mParentIdx = _myIdx;
 						}
 					}
 				}
@@ -198,7 +198,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::const_iterator& map<_keyT,_T>::const_iterator::operator++()
 	{
-		mIndex = mMap->mArray[mIdx].nextElementIdx();
+		mIdx = mMap->mArray[mIdx].nextElementIdx();
 		return *this;
 	}
 
@@ -206,7 +206,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::const_iterator map<_keyT,_T>::const_iterator::operator++(int)
 	{
-		mIndex = mMap->mArray[mIdx].nextElementIdx();
+		mIdx = mMap->mArray[mIdx].nextElementIdx();
 		return *this;
 	}
 
@@ -214,7 +214,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::const_iterator& map<_keyT,_T>::const_iterator::operator--()
 	{
-		mIndex = mMap->mArray[mIdx].prevElementIdx();
+		mIdx = mMap->mArray[mIdx].prevElementIdx();
 		return *this;
 	}
 
@@ -222,7 +222,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::const_iterator map<_keyT,_T>::const_iterator::operator--(int)
 	{
-		mIndex = mMap->mArray[mIdx].prevElementIdx();
+		mIdx = mMap->mArray[mIdx].prevElementIdx();
 		return *this;
 	}
 
@@ -230,7 +230,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline bool map<_keyT,_T>::const_iterator::operator==(const const_iterator& _i) const
 	{
-		return mIndex == _i.mIndex;
+		return mIdx == _i.mIndex;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator++()
 	{
-		mIndex = mMap->mArray[mIdx].nextElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx();
 		return *this;
 	}
 
@@ -278,7 +278,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator map<_keyT,_T>::iterator::operator++(int)
 	{
-		mIndex = mMap->mArray[mIdx].nextElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx();
 		return *this;
 	}
 
@@ -286,7 +286,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator--()
 	{
-		mIndex = mMap->mArray[mIdx].prevElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx();
 		return *this;
 	}
 
@@ -294,7 +294,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator map<_keyT,_T>::iterator::operator--(int)
 	{
-		mIndex = mMap->mArray[mIdx].prevElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx();
 		return *this;
 	}
 
@@ -567,14 +567,14 @@ namespace rtl
 			// Delete root node
 			if(0xffFFffFF != element->mHighNodeIdx)
 			{
-				mRootNodeIdx = element->mHighNodeIdx;
+				mRootIdx = element->mHighNodeIdx;
 				mArray[mRootIdx].insertChild(mRootIdx, mArray, element->mLowNodeIdx);
 			}
 			else mRootIdx = element->mLowNodeIdx;
 			
 			if(0xffFFffFF != mRootIdx)
 			{
-				mArray[mRootNodeIdx].mParentIdx == 0xffFFffFF;
+				mArray[mRootIdx].mParentIdx == 0xffFFffFF;
 			}
 			// Update map metrics
 			if(idx == mLowestIdx)
@@ -618,7 +618,11 @@ namespace rtl
 	{
 		pair<iterator, bool> result = find(_key);
 		if(result.second)
+		{
 			erase(result.first);
+			return 1;
+		}
+		else return 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

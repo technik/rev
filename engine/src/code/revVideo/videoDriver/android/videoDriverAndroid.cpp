@@ -162,12 +162,6 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverAndroid::deleteShader(const int /*_shader*/)
-	{
-		// TODO: _solve leaks!
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::bindAttributes(int _shader)
 	{
 		glBindAttribLocation(_shader, eVertex, "vertex");

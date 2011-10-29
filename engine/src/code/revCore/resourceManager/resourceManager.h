@@ -36,7 +36,7 @@ namespace rev
 	template<class _resourceT, typename _keyT>
 	_resourceT* TResourceManager<_resourceT, _keyT>::get(_keyT _key)
 	{
-		resourceMapT::iterator searchResult = mResources.find(_key);
+		typename resourceMapT::iterator searchResult = mResources.find(_key);
 		_resourceT * resource;
 		if(mResources.end() != searchResult) // We found it!
 		{
@@ -69,7 +69,7 @@ namespace rev
 	template<class _resourceT, typename _keyT>
 	void TResourceManager<_resourceT, _keyT>::release(_resourceT * _resource)
 	{
-		TResource<_resourceT> * baseResource = static_cast<TResource<_resoutceT,_keyT>*>(_resource);
+		TResource<_resourceT, _keyT> * baseResource = static_cast<TResource<_resourceT,_keyT>*>(_resource);
 		// Decrease references
 		--baseResource->mReferences;
 		if(0 == baseResource->mReferences) // No one owns this resource anymore
