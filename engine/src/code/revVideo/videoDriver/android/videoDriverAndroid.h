@@ -34,8 +34,8 @@ namespace rev { namespace video
 		void	setShader			(const int _shader);
 		int		getUniformId		(const char * _name) const;
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
-		void	setUniform			(EUniform _id, const CMat4& _value);
-		void	setUniform			(EUniform _id, const CColor& _value);
+		void	setUniform			(int _id, const CMat4& _value);
+		void	setUniform			(int _id, const CColor& _value);
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 
 	private:
@@ -49,8 +49,6 @@ namespace rev { namespace video
 		int				mCurShader;
 		unsigned int 	mScreenWidth;
 		unsigned int 	mScreenHeight;
-
-		int				mUniformIds[eUniformCount];
 	};
 
 }	// namespace video

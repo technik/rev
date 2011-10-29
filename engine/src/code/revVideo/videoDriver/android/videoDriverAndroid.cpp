@@ -67,23 +67,13 @@ namespace rev { namespace video
 		{
 			mCurShader = _shader;
 			glUseProgram(_shader);
-
-			mUniformIds[eMVP] = getUniformId("modelViewProj");
-
-			codeTools::revAssert(glGetError() == GL_NO_ERROR);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	int CVideoDriverAndroid::getUniformId(const char * _name) const
 	{
-		int ret = glGetUniformLocation(mCurShader, _name);
-
-		LOG_ANDROID("glGetUniformLocation \"%s\" = %d", _name, ret);
-
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
-
-		return ret;
+		return glGetUniformLocation(mCurShader, _name);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -111,7 +101,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setUniform(int _id, const CColor& _value)
 	{
-		glUniform4f(_id, _value.r, _value.g, _value.b, _value.a);
+		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
