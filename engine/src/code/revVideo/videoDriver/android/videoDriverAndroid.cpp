@@ -20,6 +20,14 @@
 #include "revVideo/videoDriver/shader/pxlShader.h"
 #include "revVideo/videoDriver/shader/vtxShader.h"
 
+#define GL_SHADER_VERBOSE
+//#define GL_VERBOSE
+#ifdef GL_VERBOSE
+#define GL_LOG( ... ) LOG_ANDROID( __VA_ARGS__ )
+#else
+#define GL_LOG( ... )
+#endif
+
 #define ASSERT_GL( ... ) \
 {int errorCode = glGetError();\
 if(GL_NO_ERROR != errorCode) \
@@ -96,6 +104,16 @@ namespace rev { namespace video
 	{
 		if(mCurShader != _shader)
 		{
+			GL_LOG("glUseProgram %d", _shader);
+#ifdef GL_VERBOSE
+			char log[512];
+			GLsizei logLength;
+			glGetProgramInfoLog(_shader,
+								512,
+								&logLength,
+								log);
+			LOG_ANDROID("program log:%s", log);
+#endif
 			mCurShader = _shader;
 			glUseProgram(_shader);
 			ASSERT_GL("glUseProgram %d", _shader);
@@ -107,7 +125,8 @@ namespace rev { namespace video
 	{
 		int ret = glGetUniformLocation(mCurShader, _name);
 
-		ASSERT_GL("glGetUniformLocation shader=%d, name=\"%s\"", mCurShader, _name);
+		GL_LOG("%d = getUniformId %s", ret, _name);
+		ASSERT_GL("glGetUniformLocation curShader=%d, name=\"%s\"", mCurShader, _name);
 
 		return ret;
 	}
@@ -115,53 +134,66 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer)
 	{
+		GL_LOG("setRealAttribBuffer id=%d", _attribId);
 		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glVertexAttribPointer attrib=%d, components=\%d", _attribId, _nComponents);
 
 		glEnableVertexAttribArray(_attribId);
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glEnableVertexAttribArray attrib=%d", _attribId);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setUniform(int _id, const CMat4& _value)
 	{
+		GL_LOG("setUnifrom(CMat4) id=%d", _id);
 		// Given OpenGLES doesn't support transpose matrices, this must be done manually
 		CMat4 transposeMtx;
 		_value.transpose(transposeMtx);
 
 		glUniformMatrix4fv(_id, 1, false, reinterpret_cast<const float*>(transposeMtx.m));
+
+		ASSERT_GL("glUniformMatrix4fv attrib=%d", _id);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setUniform(int _id, const CColor& _value)
 	{
+		GL_LOG("setUniform(CColor) id=%d", _id);
 		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glUniform4f attrib=%d", _id);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::drawIndexBuffer	(const int _nIndices, const unsigned short * _indices, const bool _strip)
 	{
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
-
+		GL_LOG("drawIndexBuffer nIndixes=%d", _nIndices);
 		glDrawElements(_strip?GL_TRIANGLE_STRIP:GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glDrawElements nIndices=%d", _nIndices);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	int CVideoDriverAndroid::linkShader(CVtxShader * _vtx, CPxlShader * _pxl)
 	{
 		int program = glCreateProgram();
-		glAttachShader(program, _vtx->id());
-		glAttachShader(program, _pxl->id());
+		glAttachShader(program, _vtx->id());ASSERT_GL("glAttachShader program=%d, shader=%d", program, _vtx->id());
+		glAttachShader(program, _pxl->id());ASSERT_GL("glAttachShader program=%d, shader=%d", program, _pxl->id());
 		bindAttributes(program);
 		glLinkProgram(program);
-
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		GL_LOG("%d = link shader, %d %d", program, _vtx->id(), _pxl->id());
+#if defined(GL_VERBOSE) || defined(GL_SHADER_VERBOSE)
+			char log[512];
+			GLsizei logLength;
+			glGetProgramInfoLog(program,
+								512,
+								&logLength,
+								log);
+			LOG_ANDROID("program log:%s", log);
+#endif
+		ASSERT_GL("glLinkProgram program=%d", program);
 		return program;
 	}
 
@@ -173,7 +205,18 @@ namespace rev { namespace video
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		GL_LOG("%d = loadVtxShader \"%s\"", int(shader), _name);
+#if defined(GL_VERBOSE) || defined(GL_SHADER_VERBOSE)
+			LOG_ANDROID("shaderCode:\n%s",fileBuffer);
+			char log[512];
+			GLsizei logLength;
+			glGetShaderInfoLog(shader,
+								512,
+								&logLength,
+								log);
+			LOG_ANDROID("shader log:%s", log);
+#endif
+		ASSERT_GL("glCompileShader shader=%d", shader);
 		delete[] fileBuffer;
 		return int(shader);
 	}
@@ -182,11 +225,35 @@ namespace rev { namespace video
 	int CVideoDriverAndroid::loadPxlShader(const char * _name)
 	{
 		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
-		const char * fileBuffer = bufferFromFile(_name);
-		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		char * fileBuffer = bufferFromFile(_name);
+		const char * constFileBuffer = fileBuffer;
+		// -------- HACKY CODE --------
+		// This forces correct file ending in shaders
+		int bufferSize = 0;
+		while(0 != fileBuffer[bufferSize])
+		{
+			++bufferSize;
+		}
+		for(int i = 0; i < bufferSize - 2; ++i)
+		{
+			if((fileBuffer[i] == '/') && (fileBuffer[i+1] == '/') && (fileBuffer[i+2] == '#'))
+			fileBuffer[i] = 0;
+		}
+		// ------ HACKY CODE END ------
+		glShaderSource(shader, 1, &constFileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		GL_LOG("%d = loadPxlShader \"%s\"", int(shader), _name);
+#if defined(GL_VERBOSE) || defined(GL_SHADER_VERBOSE)
+			LOG_ANDROID("shaderCode:\n%s",fileBuffer);
+			char log[512];
+			GLsizei logLength;
+			glGetShaderInfoLog(shader,
+								512,
+								&logLength,
+								log);
+			LOG_ANDROID("shader log:%s", log);
+#endif
 		delete[] fileBuffer;
 		return int(shader);
 	}
@@ -194,13 +261,14 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::bindAttributes(int _shader)
 	{
+		GL_LOG("binfAttributes shader=%d", _shader);
 		glBindAttribLocation(_shader, eVertex, "vertex");
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glBindAttribLocation shader=%d, attrib=%s", _shader, "vertex");
 
 		glBindAttribLocation(_shader, eColor, "color");
 
-		codeTools::revAssert(glGetError() == GL_NO_ERROR);
+		ASSERT_GL("glBindAttribLocation shader=%d, attrib=%s", _shader, "color");
 	}
 
 }	// namespace video
