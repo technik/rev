@@ -23,6 +23,9 @@ namespace rev
 		// Constructor
 		TResource();
 		virtual ~TResource();
+
+		// Public
+		void	get() {++mReferences;}	// Gives you ownership on this resource
 	private:
 		unsigned	mReferences;
 		_keyT		mKey;

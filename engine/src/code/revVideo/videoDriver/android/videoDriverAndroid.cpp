@@ -67,6 +67,7 @@ namespace rev { namespace video
 		mScreenWidth(800),
 		mScreenHeight(480)
 	{
+		glEnable(GL_TEXTURE_2D);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

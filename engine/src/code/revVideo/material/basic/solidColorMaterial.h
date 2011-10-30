@@ -19,6 +19,7 @@ namespace rev { namespace video
 	public:
 		// Constructor
 		CSolidColorMaterial(const CColor& _color);
+		~CSolidColorMaterial();
 
 		// Accessor methods
 		void setColor(const CColor& _color);

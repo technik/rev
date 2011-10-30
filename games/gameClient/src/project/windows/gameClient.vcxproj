@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)..\..\..\..\..\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\technik\programacion\revsdk\engine\src\libs\windows;$(SolutionDir)..\..\..\..\..\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\..\..\..\engine\src\code;$(ProjectDir)\..\..\code;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)..\..\..\..\..\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\technik\programacion\revsdk\engine\src\libs\windows;$(SolutionDir)..\..\..\..\..\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\..\..\..\engine\src\code;$(ProjectDir)\..\..\code;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -68,7 +68,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>rev.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rev.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -17,10 +17,11 @@
 // TODO: Remove?
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
-#include "revVideo/material/basic/solidColorMaterial.h"
+#include "revVideo/material/basic/plainTextureMaterial.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/staticModel.h"
 #include "revVideo/scene/model/staticModelInstance.h"
+#include "revVideo/texture/texture.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/viewport/viewport.h"
 #include "revCore/node/node.h"
@@ -50,9 +51,12 @@ namespace rev { namespace game
 
 
 
+		// Texture and material
+		CTexture * buggyTexture = CTexture::manager()->get("buggy.png");
+		CPlainTextureMaterial * buggyMaterial = new CPlainTextureMaterial(buggyTexture);
+		// buggy material now owns the texture, so we don't care about it anymore.
+		CTexture::manager()->release(buggyTexture);
 
-		
-		CSolidColorMaterial * buggyMaterial = new CSolidColorMaterial(CColor(1.f,1.f,1.f,0.8f));
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(900.f, 600.f), -800.f, 800.f);
 		v1->setCamera(cam1);

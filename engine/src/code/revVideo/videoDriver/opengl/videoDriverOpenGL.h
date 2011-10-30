@@ -43,6 +43,7 @@ namespace rev { namespace video
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
 		void	setUniform			(int _id, const CMat4& _value);
 		void	setUniform			(int _id, const CColor& _value);
+		void	setUniform			(int _id, int _slot, const CTexture * _value);
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 		
 		void	setBackgroundColor	(const CColor& _color);
@@ -78,6 +79,9 @@ namespace rev { namespace video
 		void			glEnableVertexAttribArray(unsigned _idx);
 		void			glUniformMatrix4fv		(unsigned _location, int _count, bool _transpose, const float *_value);
 		void			glUniform4f				(unsigned _location, float _f0, float _f1, float _f2, float _f3);
+		void			glUniform1i				(unsigned _location, int _i);
+
+		void			glActiveTexture			(GLenum aTexture);
 
 	private:
 		// --- Internal state --- //
@@ -104,6 +108,8 @@ namespace rev { namespace video
 		PFNGLENABLEVERTEXATTRIBARRAYPROC m_enableVertexAttribArray;
 		PFNGLUNIFORMMATRIX4FVPROC m_uniformMatrix4fv;
 		PFNGLUNIFORM4FPROC m_uniform4f;
+		PFNGLUNIFORM1IPROC m_uniform1i;
+		PFNGLACTIVETEXTUREPROC m_activeTexture;
 	};
 }	// namespace video
 }	// namespace rev

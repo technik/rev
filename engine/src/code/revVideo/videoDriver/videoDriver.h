@@ -9,7 +9,6 @@
 #define _REV_REVVIDEO_DRIVER_DRIVER_H_
 
 #include "revCore/math/matrix.h"
-#include "revCore/resourceManager/resourceManager.h"
 
 namespace rev	{
 
@@ -19,6 +18,7 @@ namespace rev	{
 	class CColor;
 	class CPxlShader;
 	class CShader;
+	class CTexture;
 	class CVtxShader;
 
 	class IVideoDriver
@@ -51,6 +51,7 @@ namespace rev	{
 		//virtual void	setUniform		(const int _uniformId, const TReal _value) = 0;
 		virtual	void	setUniform			(int _id, const CMat4& _value) = 0;
 		virtual	void	setUniform			(int _id, const CColor& _value) = 0;
+		virtual void	setUniform			(int _id, int _slot, const CTexture * _value) = 0;
 		virtual void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
 
 		// --- Shader management -- //

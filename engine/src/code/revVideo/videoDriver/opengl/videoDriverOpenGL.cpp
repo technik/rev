@@ -12,6 +12,7 @@
 #include "revCore/file/file.h"
 #include "revCore/math/matrix.h"
 #include "revVideo/color/color.h"
+#include "revVideo/texture/texture.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
 #include "revVideo/videoDriver/shader/vtxShader.h"
 
@@ -33,6 +34,7 @@ namespace rev { namespace video
 		mScreenWidth(800),
 		mScreenHeight(480)
 	{
+		glEnable(GL_TEXTURE_2D);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -78,6 +80,19 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::setUniform(int _id, const CColor& _value)
 	{
 		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setUniform(int _id, int _slot, const CTexture * _value)
+	{
+		if(0 == _slot)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glUniform1i(_id, 0);
+		}
+		else codeTools::revAssert(false); // Unimplemented: Check how many slots are available
+		//
+		glBindTexture(GL_TEXTURE_2D, _value->id());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -166,6 +181,8 @@ namespace rev { namespace video
 		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
 		m_uniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)loadExtension("glUniformMatrix4fv");
 		m_uniform4f = (PFNGLUNIFORM4FPROC)loadExtension("glUniform4f");
+		m_uniform1i = (PFNGLUNIFORM1IPROC)loadExtension("glUniform1i");
+		m_activeTexture = (PFNGLACTIVETEXTUREPROC)loadExtension("glActiveTexture");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -257,6 +274,18 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::glUniform4f(unsigned _location, float _f0, float _f1, float _f2, float _f3)
 	{
 		m_uniform4f(_location, _f0, _f1, _f2, _f3);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glUniform1i(unsigned _location, int _i)
+	{
+		m_uniform1i(_location, _i);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glActiveTexture(GLenum _texture)
+	{
+		m_activeTexture(_texture);
 	}
 
 }	// namespace video

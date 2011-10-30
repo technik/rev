@@ -33,8 +33,6 @@ namespace rev { namespace video
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setBackgroundColor(CColor::BLACK);
-		mVtxShader = CVtxShader::manager()->get("direct.vtx");
-		mMVP = CMat4::identity();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -26,11 +26,6 @@ namespace rev { namespace video
 
 		// public interface
 		void	renderFrame	();
-
-	private:
-		// Render data
-		CVtxShader * mVtxShader;
-		CMat4	mMVP;
 	};
 }
 }

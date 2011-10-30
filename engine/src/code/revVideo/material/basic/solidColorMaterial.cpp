@@ -15,7 +15,16 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CSolidColorMaterial::CSolidColorMaterial(const CColor& _color): mColor(_color)
 	{
-		mShader = CPxlShader::manager()->get("solidColor.pxl");
+		if(0 == mShader)
+			mShader = CPxlShader::manager()->get("solidColor.pxl");
+		else
+			mShader->get();
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+	CSolidColorMaterial::~CSolidColorMaterial()
+	{
+		CPxlShader::manager()->release(mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
