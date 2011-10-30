@@ -9,23 +9,17 @@
 
 #include "revCore/file/file.h"
 #include "revCore/codeTools/assert/assert.h"
+#include "revVideo/video.h"
+#include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CStaticModel::CStaticModel():
-		mVertices(0),
-		mNormals(0),
-		mUVs(0),
-		mTriangles(0),
-		mNTriangles(0),
-		mTriStrip(0),
-		mStripLength(0)
-	{
-	}
+	// Static data
+	CStaticModel::managerT * CStaticModel::sManager = 0;
 
 	//------------------------------------------------------------------------------------------------------------------
-	CStaticModel::CStaticModel(const char * _fileName):
+	CStaticModel::CStaticModel(const string& _fileName):
 		mVertices(0),
 		mNormals(0),
 		mUVs(0),
@@ -35,7 +29,7 @@ namespace rev { namespace video
 		mStripLength(0)
 	{
 		// Open the file
-		char * buffer = bufferFromFile(_fileName);
+		char * buffer = bufferFromFile(_fileName.c_str());
 		char * pointer;
 		// Read the header
 		unsigned short minEngineVersion = ((unsigned short*)buffer)[0];
@@ -71,58 +65,24 @@ namespace rev { namespace video
 	{
 		if(mVertices)
 			delete mVertices;
+		if(mNormals)
+			delete mNormals;
 		if(mTriangles)
 			delete mTriangles;
+		if(mTriStrip)
+			delete mTriStrip;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	float* CStaticModel::vertices() const
+	void CStaticModel::setEnviroment() const
 	{
-		return mVertices;
+		SVideo::get()->driver()->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	unsigned short CStaticModel::nVertices() const
+	void CStaticModel::render() const
 	{
-		return mNVertices;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CStaticModel::setVertices(unsigned short _nVertices, float * _vertices)
-	{
-		mNVertices = _nVertices;
-		mVertices = _vertices;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned short* CStaticModel::triangles() const
-	{
-		return mTriangles;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned short CStaticModel::nTriangles() const
-	{
-		return mNTriangles;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CStaticModel::setTriangles(unsigned short _nTriangles, unsigned short * _triangles)
-	{
-		mNTriangles = _nTriangles;
-		mTriangles = _triangles;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned short* CStaticModel::triStrip() const
-	{
-		return mTriStrip;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	int CStaticModel::stripLength() const
-	{
-		return mStripLength;
+		SVideo::get()->driver()->drawIndexBuffer(3*mNTriangles, mTriangles, false);
 	}
 
 }	// namespace video

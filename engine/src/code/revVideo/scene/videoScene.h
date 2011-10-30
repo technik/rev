@@ -15,18 +15,18 @@ using rtl::poolset;
 namespace rev { namespace video
 {
 	// Forward references
-	class IRenderable;
+	class IRenderableInstance;
 
 	class CVideoScene
 	{
 	public:
-		typedef poolset<IRenderable*>	TRenderableContainer;
+		typedef poolset<IRenderableInstance*>	TRenderableContainer;
 	public:
 		// -- Default scene
 		static CVideoScene* defaultScene();
 		// --  renderables
-		void addRenderable		(IRenderable * _renderable);
-		void removeRenderable	(IRenderable * _renderable);
+		void addRenderable		(IRenderableInstance * _renderable);
+		void removeRenderable	(IRenderableInstance * _renderable);
 
 		TRenderableContainer&	renderables() { return mRenderables;	}
 	private:

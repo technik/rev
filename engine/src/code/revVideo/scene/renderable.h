@@ -8,32 +8,17 @@
 #ifndef _REV_REVVIDEO_SCENE_RENDERABLE_H_
 #define _REV_REVVIDEO_SCENE_RENDERABLE_H_
 
-#include "revCore/component/component.h"
-#include "revVideo/scene/videoScene.h"
-
 namespace rev { namespace video
 {
 	class IMaterialInstance;
 
-	class IRenderable: public IComponent
+	class IRenderable
 	{
 	public:
-		IRenderable()
-		{
-			CVideoScene::defaultScene()->addRenderable(this);
-		}
-		virtual ~IRenderable() { /* TODO: Remove from scene */ }
+		virtual ~IRenderable() {}
 
-		// Buffers
-		virtual float*			vertices	() const = 0;
-		// Indices
-		virtual unsigned short*	triangles	() const = 0;
-		virtual int				nTriangles	() const = 0;
-		virtual unsigned short* triStrip	() const = 0;
-		virtual int				stripLength	() const = 0;
-
-		// Material instance
-		virtual IMaterialInstance * material() const = 0;
+		virtual void setEnviroment	() const = 0;
+		virtual void render			() const = 0;
 	};
 }	// namespace video
 }	// namespace rev

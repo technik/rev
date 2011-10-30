@@ -22,13 +22,13 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoScene::addRenderable(IRenderable * _renderable)
+	void CVideoScene::addRenderable(IRenderableInstance * _renderable)
 	{
 		mRenderables.push(_renderable);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoScene::removeRenderable(IRenderable * _renderable)
+	void CVideoScene::removeRenderable(IRenderableInstance * _renderable)
 	{
 		mRenderables.erase(_renderable);
 	}

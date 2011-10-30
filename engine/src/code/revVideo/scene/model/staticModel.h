@@ -8,32 +8,28 @@
 #ifndef _REV_REVVIDEO_SCENE_MODEL_STATICMODEL_H_
 #define _REV_REVVIDEO_SCENE_MODEL_STATICMODEL_H_
 
+#include "revCore/resourceManager/resource.h"
+#include "revCore/resourceManager/resourceManager.h"
+#include "revCore/types.h"
+#include "revVideo/scene/renderable.h"
+
 namespace rev { namespace video {
 	
-	class CStaticModel
+	class CStaticModel: public IRenderable, public TResource<CStaticModel, string>
 	{
 	public:
+		typedef TResourceManager<CStaticModel, string> managerT;
+	public:
+		static managerT * manager();
 		// -- Constructors & virtual destructor --
-		CStaticModel();
-		CStaticModel(const char * fileName);
-		virtual ~CStaticModel();
+		CStaticModel(const string& fileName);
+		~CStaticModel();
 
-		// --- Accessor methods ---
-		// Buffers
-		float*			vertices	() const;
-		unsigned short	nVertices	() const;
-		void			setVertices	(unsigned short _nVertices, float* _vertices);
-		float*			normals		() const;
-		void			setNormals	(float* _normals);
-		float*			uvs			() const;
-		void			setUVs		(float* _uvs);
-		// Indices
-		unsigned short*	triangles	() const;
-		unsigned short	nTriangles	() const;
-		void			setTriangles(unsigned short _nTriangles, unsigned short* _indices);
-		unsigned short* triStrip	() const;
-		int				stripLength	() const;
-	protected:
+		void	setEnviroment	() const;
+		void	render			() const;
+	private:
+		static managerT * sManager;
+	private:
 		float*			mVertices;
 		unsigned short	mNVertices;
 		float*			mNormals;
@@ -43,6 +39,14 @@ namespace rev { namespace video {
 		unsigned short*	mTriStrip;
 		unsigned short	mStripLength;
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline CStaticModel::managerT * CStaticModel::manager()
+	{
+		if (0 == sManager)
+			sManager = new managerT();
+		return sManager;
+	}
 }	// namespace video
 }	// namespace rev
 

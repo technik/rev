@@ -8,36 +8,33 @@
 #ifndef _REV_REVVIDEO_SCENE_MODEL_STATICMODELINSTANCE_H_
 #define _REV_REVVIDEO_SCENE_MODEL_STATICMODELINSTANCE_H_
 
-#include "revVideo/scene/renderable.h"
+#include "revVideo/scene/renderableInstance.h"
 
 namespace rev { namespace video
 {
 	// Forward declarations
 	class CStaticModel;
+	class ICamera;
 	class IMaterialInstance;
 
-	class CStaticModelInstance: public IRenderable
+	class CStaticModelInstance: public IRenderableInstance
 	{
 	public:
-		CStaticModelInstance(CStaticModel* _model, IMaterialInstance * _material);
+		CStaticModelInstance(const char * _modelName, IMaterialInstance * _material);
 		~CStaticModelInstance();
-		// TODO: Add a constructor that recieves the name of the model
-		// TODO: Manage ownership of the model
 
-		float*			vertices	() const;
-		unsigned short*	triangles	() const;
-		int				nTriangles	() const;
-		unsigned short* triStrip	() const;
-		int				stripLength	() const;
+		void setEnviroment (const ICamera * _cam) const;
+
 	private:
-		IMaterialInstance * material() const;
+		IMaterialInstance * materialInstance() const;
+
 	private:
 		CStaticModel* mModel;
 		IMaterialInstance * mMaterial;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
-	inline IMaterialInstance * CStaticModelInstance::material() const
+	inline IMaterialInstance * CStaticModelInstance::materialInstance() const
 	{
 		return mMaterial;
 	}

@@ -56,7 +56,7 @@ namespace rev { namespace game
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(900.f, 600.f), -800.f, 800.f);
 		v1->setCamera(cam1);
-		IRenderable * buggyModelInstance = new CStaticModelInstance(new CStaticModel("buggy.rmd"),
+		CStaticModelInstance * buggyModelInstance = new CStaticModelInstance("buggy.rmd",
 						new IMaterialInstance(buggyMaterial));
 		buggy = new CNode;
 		

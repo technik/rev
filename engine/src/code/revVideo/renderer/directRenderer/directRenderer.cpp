@@ -14,6 +14,7 @@
 #include "revVideo/material/material.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/renderable.h"
+#include "revVideo/scene/renderableInstance.h"
 #include "revVideo/scene/videoScene.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
@@ -45,10 +46,10 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CDirectRenderer::renderFrame()
 	{
-		IVideoDriver * driver = SVideo::get()->driver();
 		CPxlShader * currentPxlShader = 0;
 		CShader * currentShader = 0;
-		int mvpUniformId = 0;
+		const IRenderable * currentRenderable = 0;
+		const IMaterial * currentMaterial = 0;
 
 		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
 			i != CViewport::viewports().end(); ++i)
@@ -57,41 +58,48 @@ namespace rev { namespace video
 			ICamera * cam = viewport->camera();
 			if(cam)
 			{
-				CVec2 position = (*i).second->pos();
-				CMat4 viewProj = cam->projMatrix();
 				CVideoScene * scn = cam->scene();
 				CVideoScene::TRenderableContainer& renderables = scn->renderables();
 				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
 				{
-					IRenderable * renderable = *i;
-					if(0 == renderable->triangles())
-						continue;
+					IRenderableInstance * renderableInstance = *i;
+					codeTools::revAssert(0 != renderableInstance);
+										
+					const IMaterialInstance * materialInstance = renderableInstance->materialInstance();
+					codeTools::revAssert(0 != materialInstance);
 					
-					const IMaterialInstance * materialInstance = renderable->material();
-					if(0 == materialInstance)
-						continue;
-					else
+					const IMaterial * material = materialInstance->material();
+					codeTools::revAssert(0 != material);
+
+					const IRenderable * renderable = renderableInstance->renderable();
+					codeTools::revAssert(0 != renderable);
+					// Shader cache
+					CPxlShader * pxlShader = material->shader();
+					if(pxlShader != currentPxlShader)
 					{
-						const IMaterial * material = materialInstance->material();
-						CPxlShader * pxlShader = material->shader();
-						if(pxlShader != currentPxlShader)
-						{
-							currentPxlShader = pxlShader;
-							currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(mVtxShader,currentPxlShader));
-							currentShader->setEnviroment();
-							mvpUniformId = driver->getUniformId("modelViewProj");
-						}
+						currentPxlShader = pxlShader;
+						currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(mVtxShader,currentPxlShader));
+						currentShader->setEnviroment();
+						// Invalidate cache
+						currentMaterial = 0;
+						currentRenderable = 0;
+					}
+					// Renderable cache
+					if(renderable != currentRenderable)
+					{
+						currentRenderable = renderable;
+						renderable->setEnviroment();
+					}
+					// Material cache
+					if(currentMaterial != material)
+					{
+						currentMaterial = material;
 						material->setEnviroment();
-						materialInstance->setEnviroment();
 					}
-					CNode * node = renderable->node();
-					if(node)
-					{
-						mMVP = viewProj * node->transform();
-						driver->setUniform(mvpUniformId, mMVP);
-						driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, renderable->vertices());
-						driver->drawIndexBuffer(3*renderable->nTriangles(), renderable->triangles(), false);
-					}
+					// Actual render
+					materialInstance->setEnviroment();
+					renderableInstance->setEnviroment(cam);
+					renderable->render();
 				}
 			}
 		}

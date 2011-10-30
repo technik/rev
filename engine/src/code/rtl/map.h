@@ -565,16 +565,16 @@ namespace rtl
 		if( mRootIdx == idx )
 		{
 			// Delete root node
-			if(0xffFFffFF != element->mHighNodeIdx)
+			if(0xffFFffFF != element->mHighChildIdx)
 			{
-				mRootIdx = element->mHighNodeIdx;
-				mArray[mRootIdx].insertChild(mRootIdx, mArray, element->mLowNodeIdx);
+				mRootIdx = element->mHighChildIdx;
+				mArray[mRootIdx].insertChild(mRootIdx, mArray, element->mLowChildIdx);
 			}
-			else mRootIdx = element->mLowNodeIdx;
+			else mRootIdx = element->mLowChildIdx;
 			
 			if(0xffFFffFF != mRootIdx)
 			{
-				mArray[mRootIdx].mParentIdx == 0xffFFffFF;
+				mArray[mRootIdx].mParentIdx = 0xffFFffFF;
 			}
 			// Update map metrics
 			if(idx == mLowestIdx)
@@ -589,7 +589,7 @@ namespace rtl
 			elementT * parent = &mArray[element->mParentIdx];
 			if(idx == parent->mHighChildIdx)
 				parent->mHighChildIdx = 0xffFFffFF;
-			else parent->mLowChidIdx = 0xffFFffFF;
+			else parent->mLowChildIdx = 0xffFFffFF;
 
 			// Move children into parent
 			parent->insertChild(element->mParentIdx, mArray, element->mHighChildIdx);
@@ -616,10 +616,10 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	size_type map<_keyT,_T>::erase(const _keyT& _key)
 	{
-		pair<iterator, bool> result = find(_key);
-		if(result.second)
+		iterator iter = find(_key);
+		if(iter != end())
 		{
-			erase(result.first);
+			erase(iter);
 			return 1;
 		}
 		else return 0;

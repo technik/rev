@@ -252,6 +252,9 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\solidColorMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\renderableInstance.h">
+      <Filter>revVideo\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">

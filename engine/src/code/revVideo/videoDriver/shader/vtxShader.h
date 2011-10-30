@@ -20,9 +20,14 @@ namespace rev { namespace video
 		typedef TResourceManager<CVtxShader, string> managerT;
 
 	public:
+		// Manager
 		static managerT * manager();
+
+		// Constructor
 		CVtxShader(const string& _name);
-		int		id() const	{	return mId;	}
+
+		// Other methods
+		int				id() const	{	return mId;	}
 	private:
 		static managerT* sManager;
 		int mId;

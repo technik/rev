@@ -125,6 +125,7 @@
     <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h" />
     <ClInclude Include="..\..\code\revVideo\scene\model\staticModelInstance.h" />
     <ClInclude Include="..\..\code\revVideo\scene\renderable.h" />
+    <ClInclude Include="..\..\code\revVideo\scene\renderableInstance.h" />
     <ClInclude Include="..\..\code\revVideo\scene\videoScene.h" />
     <ClInclude Include="..\..\code\revVideo\video.h" />
     <ClInclude Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.h" />
