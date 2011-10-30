@@ -47,6 +47,7 @@ namespace rev { namespace video
 	void CDirectRenderer::renderFrame()
 	{
 		CPxlShader * currentPxlShader = 0;
+		CVtxShader * currentVtxShader = 0;
 		CShader * currentShader = 0;
 		const IRenderable * currentRenderable = 0;
 		const IMaterial * currentMaterial = 0;
@@ -74,11 +75,13 @@ namespace rev { namespace video
 					const IRenderable * renderable = renderableInstance->renderable();
 					codeTools::revAssert(0 != renderable);
 					// Shader cache
+					CVtxShader * vtxShader = renderable->shader();
 					CPxlShader * pxlShader = material->shader();
-					if(pxlShader != currentPxlShader)
+					if((pxlShader != currentPxlShader) || (vtxShader != currentVtxShader))
 					{
 						currentPxlShader = pxlShader;
-						currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(mVtxShader,currentPxlShader));
+						currentVtxShader = vtxShader;
+						currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(vtxShader,pxlShader));
 						currentShader->setEnviroment();
 						// Invalidate cache
 						currentMaterial = 0;

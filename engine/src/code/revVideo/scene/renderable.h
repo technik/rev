@@ -10,6 +10,7 @@
 
 namespace rev { namespace video
 {
+	class CVtxShader;
 	class IMaterialInstance;
 
 	class IRenderable
@@ -17,6 +18,7 @@ namespace rev { namespace video
 	public:
 		virtual ~IRenderable() {}
 
+		virtual CVtxShader * shader	() const = 0;
 		virtual void setEnviroment	() const = 0;
 		virtual void render			() const = 0;
 	};

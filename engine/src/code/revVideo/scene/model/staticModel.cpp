@@ -10,6 +10,7 @@
 #include "revCore/file/file.h"
 #include "revCore/codeTools/assert/assert.h"
 #include "revVideo/video.h"
+#include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev { namespace video
@@ -17,6 +18,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	// Static data
 	CStaticModel::managerT * CStaticModel::sManager = 0;
+	CVtxShader * CStaticModel::sShader = 0;
 
 	//------------------------------------------------------------------------------------------------------------------
 	CStaticModel::CStaticModel(const string& _fileName):
@@ -28,6 +30,9 @@ namespace rev { namespace video
 		mTriStrip(0),
 		mStripLength(0)
 	{
+		// Cache static model shader
+		if(0 == sShader)
+			sShader = CVtxShader::manager()->get("staticModel.vtx");
 		// Open the file
 		char * buffer = bufferFromFile(_fileName.c_str());
 		char * pointer;

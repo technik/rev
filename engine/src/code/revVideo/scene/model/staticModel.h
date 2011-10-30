@@ -14,6 +14,9 @@
 #include "revVideo/scene/renderable.h"
 
 namespace rev { namespace video {
+
+	// Forward declaration
+	class CVtxShader;
 	
 	class CStaticModel: public IRenderable, public TResource<CStaticModel, string>
 	{
@@ -25,9 +28,11 @@ namespace rev { namespace video {
 		CStaticModel(const string& fileName);
 		~CStaticModel();
 
+		CVtxShader * shader		() const { return sShader; }
 		void	setEnviroment	() const;
 		void	render			() const;
 	private:
+		static CVtxShader * sShader;
 		static managerT * sManager;
 	private:
 		float*			mVertices;
