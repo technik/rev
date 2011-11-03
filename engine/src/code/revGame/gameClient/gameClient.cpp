@@ -17,7 +17,7 @@
 // TODO: Remove?
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
-#include "revVideo/material/basic/plainTextureMaterial.h"
+#include "revVideo/material/basic/solidColorMaterial.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/quad.h"
 #include "revVideo/scene/model/staticModel.h"
@@ -35,7 +35,6 @@ using namespace rev::video;
 
 namespace rev { namespace game
 {
-	CNode * buggy;
 	//--------------------------------------------------------------------------
 	void CGameClient::init()
 	{
@@ -52,28 +51,13 @@ namespace rev { namespace game
 
 
 		CQuad * testQuad = new CQuad(CVec2(100.f, 100.f));
-		CTexture * buggyTexture = CTexture::manager()->get("buggy.png");
-		CPlainTextureMaterial * quadMaterial = new CPlainTextureMaterial(buggyTexture);
-		// buggy material now owns the texture, so we don't care about it anymore.
-		CTexture::manager()->release(buggyTexture);
-
-		IRenderableInstance * quadInstance = new IRenderableInstance(testQuad, new IMaterialInstance(quadMaterial));
-		CNode * quad = new CNode();
-		quad->setPos(CVec3(200.f, 200.f, 0.f));
-		quadInstance->attachTo(quad);
-
-		// Texture and material
-		CPlainTextureMaterial * buggyMaterial = new CPlainTextureMaterial(buggyTexture);
+		CSolidColorMaterial * material = new CSolidColorMaterial(CColor::WHITE);
+		IRenderableInstance * instance = new IRenderableInstance(testQuad, new IMaterialInstance(material));
+		instance->attachTo(new CNode());
 
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(900.f, 600.f), -800.f, 800.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(100.f, 100.f), -100.f, 100.f);
 		v1->setCamera(cam1);
-		CStaticModelInstance * buggyModelInstance = new CStaticModelInstance("buggy.rmd",
-						new IMaterialInstance(buggyMaterial));
-		buggy = new CNode;
-		
-		buggyModelInstance->attachTo(buggy);
-		buggy->rotate(CVec3(1.f,0.f,0.f), -1.57f);
 	}
 
 	//--------------------------------------------------------------------------
@@ -83,9 +67,6 @@ namespace rev { namespace game
 		STime::get()->update();
 		// Update video system and render
 		SVideo::get()->update();
-
-		TReal time = buggy->deltaTime();
-		buggy->rotate(CVec3(0.f, 1.f, 0.f), time);
 		return true;
 	}
 
