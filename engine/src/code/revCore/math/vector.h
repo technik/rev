@@ -22,6 +22,8 @@ namespace rev
 		TReal	x;
 		TReal	y;
 
+		CVec2	operator * (TReal _k) const { return CVec2(x*_k, y*_k);}
+
 		// Useful vectors
 		static const CVec2 zero;
 	};

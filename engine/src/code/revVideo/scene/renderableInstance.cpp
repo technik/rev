@@ -1,34 +1,27 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Revolution Engine
+// Revolution Engine, cameras
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
-// Created on October 3rd, 2011
+// Created on October 30th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Static model instance
+// renderable scene
 
-#include "staticModelInstance.h"
-#include "staticModel.h"
+#include "renderableInstance.h"
 
 #include "revCore/node/node.h"
 #include "revVideo/camera/camera.h"
-#include "revVideo/scene/renderableInstance.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CStaticModelInstance::CStaticModelInstance(const char * _modelName, IMaterialInstance * _material)
+	void IRenderableInstance::setEnviroment	(const ICamera * _cam) const
 	{
-		mModel = CStaticModel::manager()->get(string(_modelName));
-		IRenderableInstance::setRenderable(mModel);
-		mMaterialInstance = _material;
+		// Set model-view-projection matrix
+		IVideoDriver * driver = SVideo::get()->driver();
+		int mvpUniformId = driver->getUniformId("modelViewProj");
+		CMat4 viewProj = _cam->projMatrix();
+		driver->setUniform(mvpUniformId, viewProj * node()->transform());
 	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	CStaticModelInstance::~CStaticModelInstance()
-	{
-		CStaticModel::manager()->release(mModel);
-	}
-
 }	// namespace video
 }	// namespace rev

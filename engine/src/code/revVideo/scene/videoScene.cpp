@@ -24,7 +24,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoScene::addRenderable(IRenderableInstance * _renderable)
 	{
-		mRenderables.push(_renderable);
+		mRenderables.insert(_renderable);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -264,6 +264,9 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\plainTextureMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\model\quad.h">
+      <Filter>revVideo\scene\model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -358,6 +361,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\plainTextureMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\renderableInstance.cpp">
+      <Filter>revVideo\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp">
+      <Filter>revVideo\scene\model</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

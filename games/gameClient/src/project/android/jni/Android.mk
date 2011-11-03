@@ -114,8 +114,10 @@ REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/material/basic/solidColorMaterial.cpp\
 			  $(REVVIDEO_DIR)/renderer/directRenderer/directRenderer.cpp\
 			  $(REVVIDEO_DIR)/scene/videoScene.cpp\
+			  $(REVVIDEO_DIR)/scene/model/quad.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModel.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModelInstance.cpp\
+			  $(REVVIDEO_DIR)/scene/renderableInstance.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/pxlShader.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/shader.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/vtxShader.cpp\

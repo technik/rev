@@ -18,10 +18,7 @@ namespace rev { namespace video
 	CPlainTextureMaterial::CPlainTextureMaterial(CTexture * _texture)
 		:mTexture(_texture)
 	{
-		if(0 == mShader)
-			mShader = CPxlShader::manager()->get("plainTexture.pxl");
-		else
-			mShader->get();
+		mShader = CPxlShader::manager()->get("plainTexture.pxl");
 		if(0 != _texture)
 			_texture->get();
 	}

@@ -22,22 +22,26 @@ namespace rev { namespace video
 	{
 	public:
 		// Constructor and destructor
-		inline IRenderableInstance(IRenderable * _renderable = 0):mRenderable(_renderable)
+		inline IRenderableInstance			(IRenderable * _renderable = 0, IMaterialInstance * _material = 0)
+			:mRenderable(_renderable)
+			,mMaterialInstance(_material)
 		{
 			CVideoScene::defaultScene()->addRenderable(this);
 			mScene = CVideoScene::defaultScene();
 		}
-		virtual ~IRenderableInstance()
+		virtual ~IRenderableInstance		()
 		{
 			mScene->removeRenderable(this);
 		}
 
 		// Interface
-		inline IRenderable *		renderable			() const { return mRenderable; }
-		virtual void				setEnviroment		(const ICamera * _cam) const = 0;
-		virtual IMaterialInstance * materialInstance	() const = 0;
+		inline IRenderable*	renderable		() const { return mRenderable; }
+		virtual void		setEnviroment	(const ICamera * _cam) const;
+		IMaterialInstance*	materialInstance() const { return mMaterialInstance; }
 	protected:
-		inline void					setRenderable		(IRenderable * _renderable) { mRenderable = _renderable; }
+		void				setRenderable	(IRenderable * _renderable) { mRenderable = _renderable; }
+
+		IMaterialInstance*	mMaterialInstance;
 	private:
 		IRenderable * mRenderable;
 		CVideoScene * mScene;

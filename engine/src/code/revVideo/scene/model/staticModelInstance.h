@@ -23,21 +23,10 @@ namespace rev { namespace video
 		CStaticModelInstance(const char * _modelName, IMaterialInstance * _material);
 		~CStaticModelInstance();
 
-		void setEnviroment (const ICamera * _cam) const;
-
-	private:
-		IMaterialInstance * materialInstance() const;
-
 	private:
 		CStaticModel* mModel;
-		IMaterialInstance * mMaterial;
 	};
 
-	//------------------------------------------------------------------------------------------------------------------
-	inline IMaterialInstance * CStaticModelInstance::materialInstance() const
-	{
-		return mMaterial;
-	}
 }	// namespace video
 }	// namespace rev
 

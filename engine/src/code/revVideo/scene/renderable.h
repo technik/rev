@@ -11,7 +11,6 @@
 namespace rev { namespace video
 {
 	class CVtxShader;
-	class IMaterialInstance;
 
 	class IRenderable
 	{

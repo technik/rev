@@ -19,6 +19,7 @@
 #include "revVideo/color/color.h"
 #include "revVideo/material/basic/plainTextureMaterial.h"
 #include "revVideo/material/materialInstance.h"
+#include "revVideo/scene/model/quad.h"
 #include "revVideo/scene/model/staticModel.h"
 #include "revVideo/scene/model/staticModelInstance.h"
 #include "revVideo/texture/texture.h"
@@ -50,12 +51,19 @@ namespace rev { namespace game
 		STouchInput::init();
 
 
-
-		// Texture and material
+		CQuad * testQuad = new CQuad(CVec2(100.f, 100.f));
 		CTexture * buggyTexture = CTexture::manager()->get("buggy.png");
-		CPlainTextureMaterial * buggyMaterial = new CPlainTextureMaterial(buggyTexture);
+		CPlainTextureMaterial * quadMaterial = new CPlainTextureMaterial(buggyTexture);
 		// buggy material now owns the texture, so we don't care about it anymore.
 		CTexture::manager()->release(buggyTexture);
+
+		IRenderableInstance * quadInstance = new IRenderableInstance(testQuad, new IMaterialInstance(quadMaterial));
+		CNode * quad = new CNode();
+		quad->setPos(CVec3(200.f, 200.f, 0.f));
+		quadInstance->attachTo(quad);
+
+		// Texture and material
+		CPlainTextureMaterial * buggyMaterial = new CPlainTextureMaterial(buggyTexture);
 
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
 		COrthoCamera * cam1 = new COrthoCamera(CVec2(900.f, 600.f), -800.f, 800.f);

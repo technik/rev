@@ -18,7 +18,7 @@ namespace rtl
 	{
 	public:
 		typedef pair<_keyT, _T>	valueT;
-		// Iterators
+		// Iterator classes
 		class const_iterator
 		{
 		public:
@@ -268,6 +268,15 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _T>
+	typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator=(const iterator& _i)
+	{
+		mMap = _i.mMap;
+		mIdx = _i.mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator++()
 	{
 		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx();
@@ -317,7 +326,7 @@ namespace rtl
 		mLowestIdx(_map.mLowestIdx),
 		mHighestIdx(_map.mHighestIdx),
 		mSize(_map.mSize),
-		mCapacity(_map.mCapacity)
+		mCapacity(_map.mSize)
 	{
 		// Memcopy
 		mArray = new elementT[mSize];
@@ -345,7 +354,7 @@ namespace rtl
 		mLowestIdx = _map.mLowestIdx;
 		mHighestIdx = _map.mHighestIdx;
 		mSize = _map.mSize;
-		mCapacity = _map.mCapacity;
+		mCapacity = _map.mSize;
 		// Copy the array
 		mArray = new elementT[mSize];
 		for(size_type i = 0; i < mSize; ++i)
@@ -527,13 +536,9 @@ namespace rtl
 			if(mArray[lastIdx].mElement.first < _x.first)
 			{
 				mArray[lastIdx].mHighChildIdx = idx;
-				if(mHighestIdx == lastIdx)
-					mHighestIdx = idx;
 			}else
 			{
 				mArray[lastIdx].mLowChildIdx = idx;
-				if(mLowestIdx == lastIdx)
-					mLowestIdx = idx;
 			}
 			element->mHighChildIdx = 0xffFFffFF;
 			element->mLowChildIdx = 0xffFFffFF;
@@ -595,8 +600,23 @@ namespace rtl
 			parent->insertChild(element->mParentIdx, mArray, element->mHighChildIdx);
 			parent->insertChild(element->mParentIdx, mArray, element->mLowChildIdx);
 
-			// Actual erase
+			// Update metrics
+			if(idx == mLowestIdx)
+			{
+				if(element->mHighChildIdx != 0xffFFffFF)
+					mLowestIdx = element->mHighChildIdx;
+				else
+					mLowestIdx = element->mParentIdx;
+			}
+			if(idx == mHighestIdx)
+			{
+				if(element->mLowChildIdx != 0xffFFffFF)
+					mHighestIdx = element->mLowChildIdx;
+				else
+					mHighestIdx = element->mParentIdx;
+			}
 			--mSize; // Decrese size
+			// Actual erase
 			// Always delete from the back of the queue to keep elements packed
 			if(mSize == idx) // If we're trying to delete the last element
 			{

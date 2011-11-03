@@ -1,487 +1,655 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine, revolution template library
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
-// Created on August 22nd, 2011
+// Created on November 1st, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // pool set
 // pool set allows you to store elements, access them in logarithmic time, add elements in amortized constant time
 // and iterate them and delete them in constant time. It can be seen as a two dimensional pool where you can iterate on
 // elements "vertically" as if it was a map or "horizontally" as if it was a vector
-#ifndef _REV_RTL_POOLSET_H_
-#define _REV_RTL_POOLSET_H_
+#ifndef _RTL_POOLSET_H_
+#define _RTL_POOLSET_H_
 
-#if defined(_linux) || defined(ANDROID) || defined(WIN32)
-// Note: GCC requires the inclusion of <new> in order to use placement new operator.
-#include <new>
-#endif
+#if defined(_WIN32) || defined(ANDROID) || defined(_linux)
+#include <new.h>
+#endif // defined(_WIN32) || defined(ANDROID) || defined(_linux)
 
 #include "baseTypes.h"
+#include "pair.h"
 
 namespace rtl
 {
-	template< typename _T> // _T type must define default ctor, copy ctor, dtor and operator <
+	template<typename _T>
 	class poolset
 	{
-	private:
-		//--------------------------------------------------------------------------------------------------------------
-		// classes for internal use
-		//--------------------------------------------------------------------------------------------------------------
-		// -- Node -----------------------------------------------------------------------------------------------------
-		// Each node of the tree stores a value plus the indices for its lower and higher nodes in the tree.
-		class node
+	public:
+		// Iterator classes
+		class const_iterator
 		{
 		public:
-			// -- Constructor
-			node(const _T& _element);
-			node(const node& _node);
-			~node();
-			// -- Accessors
-			const _T&	element		()	const;
-			void		setHigher	(node* _higher);
-			node*		higher		()	const;
-			void		setLower	(node* _lower);
-			node*		lower		()	const;
-			void		setParent	(node* _parent);
-			node*		parent		()	const;
-		private:
-			node*	mHigher;
-			node*	mLower;
-			node*	mParent;
-			_T		mElement;
-		};
+			// Construction and copy
+			const_iterator();
+			const_iterator(const const_iterator& _i);
+			const_iterator& operator=(const const_iterator& _i);
+			
+			// Increment and decrement
+			const_iterator& operator++();
+			const_iterator	operator++(int);
+			const_iterator& operator--();
+			const_iterator	operator--(int);
 
+			// Equality, inequality
+			bool	operator==(const const_iterator& _i) const;
+			bool	operator!=(const const_iterator& _i) const;
+			// Dereferencing
+			_T&		operator*();
+			_T*		operator->();
+		protected:
+			poolset<_T>*	mPool;
+			size_type		mIdx;
+
+			friend class poolset<_T>;
+		};
+		class iterator: public const_iterator
+		{
+		public:
+			// Construction and copy
+			iterator();
+			iterator(const iterator& _i);
+			iterator& operator=(const iterator& _i);
+			
+			// Increment and decrement
+			iterator&	operator++();
+			iterator	operator++(int);
+			iterator&	operator--();
+			iterator	operator--(int);
+
+			friend class poolset<_T>;
+		};
 	public:
-		//--------------------------------------------------------------------------------------------------------------
+		// Construction, copy and destruction
+		poolset();
+		poolset(const poolset<_T>& _other);
+		~poolset();
+		poolset<_T>& operator = (const poolset<_T>& _other);
+
 		// Iterators
-		class const_iterator								///< Iterator that can modify pool content.
-		{
-		public:
-					void	operator++	();
-			const	_T&		operator*	();
-					bool	operator!=	(const const_iterator& i);
-			//
-		private:
-			const node * mElement;
-		friend class poolset<_T>;
-		};
-
-		class iterator: public const_iterator {};	///< Iterator that can not modify pool content.
-
-	public:
-		// -- Constructor and destructor --
-		poolset		();
-		~poolset	();
-
-		// -- Elements management --
-		void	push	(const _T& _element);		///< Pushes given element into the pool.
-		void	erase	(const _T& _element);		///< removes given element from the pool.
-		void	clear	();							///< Erases all content from the pool.
-
-		// -- Horizontally traverse the pool --
+		// Since iteration in poolsets doesn't commit to any specific order of iteration,
+		// it makes no sense to distinguish between forward iteration or backward iteration
 		iterator		begin	();
-		const_iterator	begin	()	const;
-
+		const_iterator	begin	() const;
 		iterator		end		();
-		const_iterator	end		()	const;
+		const_iterator	end		() const;
 
-		// -- Size management --
-		sizeT			size	()	const;			///< Returns current size of the pool.
-		sizeT			capacity()	const;			///< Returns current allocated capacity of the pool.
-		void			reserve	(const sizeT _n);	///< Allocates space for at least _n elements inside the pool.
+		// Capacity
+		bool			empty	() const;
+		size_type		size	() const;
+		//size_type		max_size() const;
+
+		// Modifiers
+		pair<iterator, bool>	insert	(const _T& _x);
+		//iterator				insert	(iterator _position, const _T& _x);
+		//template<class _inputIteratorT>
+		//iterator				insert(_inputIteratorT _first, _inputIteratorT _last);
+		void					erase	(iterator _position);
+		size_type				erase	(const _T& _x);
+		//void					erase	(iterator _first, iterator _last);
+		void					clear	();
+
+		// Operations
+		iterator				find	(const _T& _x);
+		const_iterator			find	(const _T& _x) const;
+		//size_type				count	(const _T& _x) const;
+		//iterator				lower_bound (const _T& _x) const;
+		//iterator				upper_bound (const _T& _x) const;
+		//pair<iterator, iterator> equal_range(const _T& _x) const;
 
 	private:
-		void			ensureCapacity	(const sizeT _n);	///< Ensure there is enough capacity to store _n elements.
-															///< Grow if necessary.
-	private:
-		//--------------------------------------------------------------------------------------------------------------
-		// Internal data
-		//--------------------------------------------------------------------------------------------------------------
-		sizeT		mSize;
-		sizeT		mCapacity;
-		node*		mRootNode;
-		node*		mElements;
-	};
-
-//----------------------------------------------------------------------------------------------------------------------
-// Implementation : Node
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-poolset<_T>::node::node(const _T& _element):
-	mHigher(0),
-	mLower(0),
-	mParent(0),
-	mElement(_element)
-{
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-poolset<_T>::node::node(const typename poolset<_T>::node& _node):
-	mElement(_node.mElement)
-{
-	// Note: Never should a node be constructed as a copy of root node, so mParent is granted to be different from 0
-	if(_node.mParent->higher() == &_node)
-	{
-		_node.mParent->setHigher(this);
-	}
-	else
-	{
-		_node.mParent->setLower(this);
-	}
-	setHigher(_node.mHigher);
-	setLower(_node.mLower);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-poolset<_T>::node::~node()
-{
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline const _T& poolset<_T>::node::element() const
-{
-	return mElement;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline void poolset<_T>::node::setHigher(typename poolset<_T>::node * _higher)
-{
-	mHigher = _higher;
-	_higher->setParent(this);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline typename poolset<_T>::node * poolset<_T>::node::higher() const
-{
-	return mHigher;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline void poolset<_T>::node::setLower(typename poolset<_T>::node * _lower)
-{
-	mLower = _lower;
-	_lower->setParent(this);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline typename poolset<_T>::node * poolset<_T>::node::lower() const
-{
-	return mLower;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-inline void poolset<_T>::node::setParent(typename poolset<_T>::node *_parent)
-{
-	mParent = _parent;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-inline typename poolset<_T>::node * poolset<_T>::node::parent() const
-{
-	return mParent;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-// Implementation : Iterators
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-inline void poolset<_T>::const_iterator::operator ++()
-{
-	mElement = &mElement[1]; // Advance 1 element
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-inline const _T& poolset<_T>::const_iterator::operator *()
-{
-	return mElement->element();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-inline bool poolset<_T>::const_iterator::operator !=(const typename poolset<_T>::const_iterator& i)
-{
-	return mElement != i.mElement;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-// Implementation : Poolset
-//----------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-poolset<_T>::poolset():
-	mSize(0),
-	mCapacity(0),
-	mRootNode(0),
-	mElements(0)
-{
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T>
-poolset<_T>::~poolset()
-{
-	// Erase all content
-	clear();
-	// Free all memory
-	if(mCapacity)
-	{
-		delete[] reinterpret_cast<unsigned char*>(mElements); // Free memory without calling destructors
-	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template<typename _T> void poolset<_T>::push(const _T& _element)
-{
-	// First step: find lower node.
-	if(0 != mRootNode)
-	{
-		node* nodeA = mRootNode;
-		bool bInserted = false;
-		while(!bInserted)
+		struct elementT
 		{
-			// Test against A node
-			if(nodeA->element() < _element)
+			elementT() {}
+			elementT(const elementT& _x)
+				:mElement(_x.mElement)
+				,mParentIdx(_x.mParentIdx)
+				,mHighChildIdx(_x.mHighChildIdx)
+				,mLowChildIdx(_x.mLowChildIdx)
+			{}
+			~elementT(){}
+
+			_T			mElement;
+			size_type	mParentIdx;
+			size_type	mHighChildIdx;
+			size_type	mLowChildIdx;
+			
+			void		insertChild(size_type _myIdx, elementT * _array, size_type _childIdx)
 			{
-				if(0 != nodeA->higher()) // Exists a higher node of A
+				if(0xffFFffFF == _childIdx)
+					return;
+				else
 				{
-					nodeA = nodeA->higher();
-				}
-				else // given element must be set as A's higher
-				{
-					// Ensure there is capacity in the pool to store one more element
-					ensureCapacity(mSize+1);
-					// Initialize last node to given element
-					new(&mElements[mSize]) node(_element);
-					// Set new node as A's higher
-					nodeA->setHigher(&mElements[mSize]);
-					// Grow 1 element
-					++mSize;
-					// End the loop
-					bInserted = true;
+					if(_array[_childIdx].mElement < mElement)
+					{
+						if(0xffFFffFF != mLowChildIdx)
+							_array[mLowChildIdx].insertChild(mLowChildIdx, _array, _childIdx);
+						else
+						{
+							mLowChildIdx = _childIdx;
+							_array[_childIdx].mParentIdx = _myIdx;
+						}
+					}else
+					{
+						if(0xffFFffFF != mHighChildIdx)
+							_array[mHighChildIdx].insertChild(mHighChildIdx, _array, _childIdx);
+						else
+						{
+							mHighChildIdx = _childIdx;
+							_array[_childIdx].mParentIdx = _myIdx;
+						}
+					}
 				}
 			}
-			else if (_element < nodeA->element())
+		};
+	private:
+		void enforceMinSize(size_type _size);
+
+	private:
+		elementT *	mArray;
+		size_type	mRootIdx;
+		size_type	mSize;
+		size_type	mCapacity;
+
+		friend class const_iterator;
+	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Inline implementation
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline poolset<_T>::const_iterator::const_iterator():mPool(0), mIdx(0)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline poolset<_T>::const_iterator::const_iterator(const typename poolset<_T>::const_iterator& _i):
+		mPool(_i.mPool), mIdx(_i.mIdx)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::const_iterator&
+		poolset<_T>::const_iterator::operator=(const typename poolset<_T>::const_iterator& _i)
+	{
+		mPool = _i.mPool;
+		mIdx = _i.mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline typename poolset<_T>::const_iterator& poolset<_T>::const_iterator::operator++()
+	{
+		++mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline typename poolset<_T>::const_iterator poolset<_T>::const_iterator::operator++(int)
+	{
+		++mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline typename poolset<_T>::const_iterator& poolset<_T>::const_iterator::operator--()
+	{
+		--mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline typename poolset<_T>::const_iterator poolset<_T>::const_iterator::operator--(int)
+	{
+		--mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline bool poolset<_T>::const_iterator::operator==(const typename poolset<_T>::const_iterator& _other) const
+	{
+		return mIdx == _other.mIdx;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	bool poolset<_T>::const_iterator::operator != (const typename poolset<_T>::const_iterator& _other) const
+	{
+		return mIdx != _other.mIdx;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	_T& poolset<_T>::const_iterator::operator*()
+	{
+		return mPool->mArray[mIdx].mElement;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	_T* poolset<_T>::const_iterator::operator->()
+	{
+		return &(mPool->mArray[mIdx].mElement);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>::iterator::iterator(): const_iterator()
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>::iterator::iterator(const typename poolset<_T>::iterator& _iter):const_iterator(_iter)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::iterator& poolset<_T>::iterator::operator=(const typename poolset<_T>::iterator& _i)
+	{
+		const_iterator::mIdx = _i.mIdx;
+		const_iterator::mPool = _i.mPool;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename inline poolset<_T>::iterator& poolset<_T>::iterator::operator++()
+	{
+		++const_iterator::mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename inline poolset<_T>::iterator poolset<_T>::iterator::operator++(int)
+	{
+		++const_iterator::mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename inline poolset<_T>::iterator& poolset<_T>::iterator::operator--()
+	{
+		--const_iterator::mIdx;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename inline poolset<_T>::iterator poolset<_T>::iterator::operator--(int)
+	{
+		--const_iterator::mIdx;
+		return *this;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Map
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>::poolset()
+		:mArray(0)
+		,mSize(0)
+		,mCapacity(0)
+		,mRootIdx(0)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>::poolset(const poolset<_T>& _other)
+		:mSize(_other.mSize)
+		,mCapacity(_other.mSize)
+		,mRootIdx(_other.mRootIdx)
+	{
+		// Memcopy
+		mArray = new elementT[mSize];
+		for(size_type i = 0; i < mSize; ++i)
+			mArray[i] = _map.mArray[i];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>::~poolset()
+	{
+		if(mCapacity)
+			delete reinterpret_cast<unsigned char*>(mArray);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	poolset<_T>& poolset<_T>::operator=(const poolset<_T>& _other)
+	{
+		// Delete previous content
+		if(mCapacity)
+			delete mArray;
+		// Copy indices and metrics
+		mRootIdx = _other.mRootIdx;
+		mSize = _other.mSize;
+		mCapacity = _other.mSize;
+		// Copy the array
+		mArray = new elementT[mSize];
+		for(size_type i = 0; i < mSize; ++i)
+			mArray[i] = _map.mArray[i];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::iterator poolset<_T>::begin()
+	{
+		iterator iter;
+		iter.mPool = this;
+		iter.mIdx = 0;
+		return iter;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::const_iterator poolset<_T>::begin() const
+	{
+		const_iterator iter;
+		iter.mPool = this;
+		iter.mIdx = 0;
+		return iter;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::iterator poolset<_T>::end()
+	{
+		iterator iter;
+		iter.mPool = this;
+		iter.mIdx = mSize;
+		return iter;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::const_iterator poolset<_T>::end() const
+	{
+		const_iterator iter;
+		iter.mPool = this;
+		iter.mIdx = mSize;
+		return iter;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline bool poolset<_T>::empty () const
+	{
+		return 0 == mSize;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	inline size_type poolset<_T>::size () const
+	{
+		return mSize;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	pair<typename poolset<_T>::iterator, bool> poolset<_T>::insert(const _T& _x)
+	{
+		if(0 == mSize)
+		{
+			// Reserve an array for at least two elements
+			enforceMinSize(2);
+			// Initialize first element
+			elementT * element = new(&mArray[0]) elementT;
+			element->mHighChildIdx = 0xffFFffFF;
+			element->mLowChildIdx = 0xffFFffFF;
+			element->mParentIdx = 0xffFFffFF;
+			element->mElement = _x;
+			// Update map metrics
+			mSize = 1;
+			mRootIdx = 0;
+			return pair<iterator, bool>(begin(), true);
+		}
+		else
+		{
+			size_type lastIdx = 0xffFFffFF;
+			size_type idx = mRootIdx;
+			while(0xffFFffFF != idx)
 			{
-				if(0 != nodeA->lower()) // Exists a lower node of A
+				lastIdx = idx;
+				if(mArray[idx].mElement < _x)
 				{
-					nodeA = nodeA->lower();
+					idx = mArray[idx].mHighChildIdx;
 				}
-				else // given element must be set as A's higher
+				else if( _x < mArray[idx].mElement)
 				{
-					// Ensure there is capacity in the pool to store one more element
-					ensureCapacity(mSize+1);
-					// Initialize last node to given element
-					new(&mElements[mSize]) node(_element);
-					// Set new node as A's higher
-					nodeA->setLower(&mElements[mSize]);
-					// Grow 1 element
-					++mSize;
-					// End the loop
-					bInserted = true;
+					idx = mArray[idx].mLowChildIdx;
 				}
+				else // Equal, so we've found the node we were looking for
+				{
+					mArray[idx].mElement = _x;
+					iterator iter;
+					iter.mIdx = idx;
+					iter.mPool = this;
+					return pair<iterator, bool>(iter, false);
+				}
+			}
+			// If we get here, it means we've found no node, so we have to create one
+			idx = mSize; // New nodes are always inserted at the end of the array
+			++mSize;
+			enforceMinSize(mSize);
+			elementT * element = new(&mArray[idx]) elementT(); // Construct the node
+			// Update hierarchy and map metrics
+			element->mParentIdx = lastIdx;
+			if(mArray[lastIdx].mElement < _x)
+			{
+				mArray[lastIdx].mHighChildIdx = idx;
+			}else
+			{
+				mArray[lastIdx].mLowChildIdx = idx;
+			}
+			element->mHighChildIdx = 0xffFFffFF;
+			element->mLowChildIdx = 0xffFFffFF;
+			// Update element key
+			element->mElement = _x;
+			// Build the return pair
+			iterator iter;
+			iter.mIdx = idx;
+			iter.mPool = this;
+			return pair<iterator, bool>(iter, true);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	void poolset<_T>::erase(typename poolset<_T>::iterator _pos)
+	{
+		// We assume the given iterator is valid
+		// This assumption will save us some branching
+		size_type idx = _pos.mIdx;
+		elementT * element = &mArray[idx]; // This is the element we want to erase
+		if( mRootIdx == idx )
+		{
+			// Delete root node
+			if(0xffFFffFF != element->mHighChildIdx)
+			{
+				mRootIdx = element->mHighChildIdx;
+				mArray[mRootIdx].insertChild(mRootIdx, mArray, element->mLowChildIdx);
+			}
+			else mRootIdx = element->mLowChildIdx;
+			
+			if(0xffFFffFF != mRootIdx)
+			{
+				mArray[mRootIdx].mParentIdx = 0xffFFffFF;
+			}
+			// Update map metrics
+			--mSize;
+		}
+		else
+		{
+			// Delete reference from parent node
+			elementT * parent = &mArray[element->mParentIdx];
+			if(idx == parent->mHighChildIdx)
+				parent->mHighChildIdx = 0xffFFffFF;
+			else parent->mLowChildIdx = 0xffFFffFF;
+
+			// Move children into parent
+			parent->insertChild(element->mParentIdx, mArray, element->mHighChildIdx);
+			parent->insertChild(element->mParentIdx, mArray, element->mLowChildIdx);
+
+			// Actual erase
+			--mSize; // Decrese size
+			// Always delete from the back of the queue to keep elements packed
+			if(mSize == idx) // If we're trying to delete the last element
+			{
+				element->~elementT(); // Mamually call destructor to avoid memory deallocation
 			}
 			else
 			{
-				// If !(a<element) && !(element<a) then element equals a, so element is alredy inserted
-				bInserted = true;
+				// Copy the last element into the slot of the element we want to erase
+				*element = mArray[mSize];
+				// Delete the last element in the queue
+				mArray[mSize].~elementT();
 			}
 		}
 	}
-	else // No elements stored yet
-	{
-		ensureCapacity(1);
-		new(&mElements[0]) node(_element);
-		mRootNode = &mElements[0];
-		mSize = 1;
-	}
-}
 
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-void poolset<_T>::erase(const _T& _element)
-{
-	// Find requested node
-	node * nodeA = mRootNode;
-	while(0 != nodeA)
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	size_type poolset<_T>::erase(const _T& _x)
 	{
-		if(nodeA->element() < _element)
-			nodeA = nodeA->higher();
-		else if (_element < nodeA->element())
-			nodeA = nodeA->lower();
-		else break; // Node found
-	}
-	if(0 != nodeA) // If we found the requested node
-	{
-		// Remove requested node from the tree
-		if(mRootNode != nodeA)
+		iterator iter = find(_x);
+		if(iter != end())
 		{
-			if(nodeA->higher())
+			erase(iter);
+			return 1;
+		}
+		else return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	void poolset<_T>::clear()
+	{
+		// Call destructors of all elements (keep memory allocated)
+		for(size_type i = 0; i < mSize; ++i)
+		{
+			mArray[i].~elementT();
+		}
+		// Resize to 0
+		mSize = 0;
+		// Update map metrics
+		mRootIdx = 0xffFFffFF;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::iterator poolset<_T>::find(const _T& _x)
+	{
+		if(0 == mSize)
+		{
+			return begin();
+		}
+		else
+		{
+			size_type idx = mRootIdx;
+			while(0xffFFffFF != idx)
 			{
-				nodeA->parent()->setHigher(nodeA->higher());
-				if(nodeA->lower())
+				if(mArray[idx].mElement < _x)
 				{
-					if(nodeA->parent()->lower())
-					{
-						node * nodeB = nodeA->parent()->lower();
-						while( 0 != nodeB->higher())
-						{
-							nodeB = nodeB->higher();
-						}
-						nodeB->setHigher(nodeA->lower());
-					}
-					else nodeA->parent()->setLower(nodeA->lower());
+					idx = mArray[idx].mHighChildIdx;
+				}else if(_x < mArray[idx].mElement)
+				{
+					idx = mArray[idx].mLowChildIdx;
+				}else // Equal, we've found what we were looking for
+				{
+					iterator iter;
+					iter.mPool = this;
+					iter.mIdx = idx;
+					return iter;
 				}
 			}
-			else if (nodeA->lower())
-			{
-				nodeA->parent()->setLower(nodeA->lower());
-			}
+			// Not found
+			return end();
 		}
-		else // nodeA == rootNode
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	typename poolset<_T>::const_iterator poolset<_T>::find(const _T& _x) const
+	{
+		if(0 == mSize)
 		{
-			if(nodeA->higher())
+			return begin();
+		}
+		else
+		{
+			size_type idx = mRootIdx;
+			while(0xffFFffFF != idx)
 			{
-				mRootNode = nodeA->higher();
-				if(nodeA->lower())
+				if(mArray[idx].mElement < _x)
 				{
-					if(mRootNode->lower())
-					{
-						node * nodeB = mRootNode->lower();
-						while( 0 != nodeB->higher())
-						{
-							nodeB = nodeB->higher();
-						}
-						nodeB->setHigher(nodeA->lower());
-					}
-					else mRootNode->setLower(nodeA->lower());
+					idx = mArray[idx].mHighChildIdx;
+				}else if(_x < mArray[idx].mElement)
+				{
+					idx = mArray[idx].mLowChildIdx;
+				}else // Equal, we've found what we were looking for
+				{
+					const_iterator iter;
+					iter.mPool = this;
+					iter.mIdx = idx;
+					return iter;
 				}
 			}
-			else if (nodeA->lower())
+			// Not found
+			return end();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _T>
+	void poolset<_T>::enforceMinSize(size_type _size)
+	{
+		if(mCapacity < _size)
+		{
+			if(0 == mCapacity)
 			{
-				mRootNode = nodeA->lower();
+				mCapacity = _size;
+				// Simple reserve space for requested elements
+				mArray = reinterpret_cast<elementT*>(new unsigned char[mCapacity*sizeof(elementT)]);
 			}
-			mRootNode->setParent(0);
+			else
+			{
+				// Compute new size
+				mCapacity = mCapacity * 2;
+				// Allocate new memory
+				elementT * bigArray = reinterpret_cast<elementT*>(new unsigned char[mCapacity * sizeof(elementT)]);
+				// Copy elements (and delete old ones at the same time)
+				for(size_type i = 0; i < mSize; ++i)
+				{
+					new(&bigArray[i]) elementT(mArray[i]);
+					mArray[i].~elementT();
+				}
+				// Deallocate old elements
+				delete reinterpret_cast<unsigned char*>(mArray);
+				mArray = bigArray;
+			}
 		}
-		// Copy last node into removed node
-		new(nodeA) node(mElements[mSize-1]);
-		// Delete last node
-		mElements[mSize-1].~node();
-		--mSize;
 	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-void poolset<_T>::clear()
-{
-	// Destroy all stored elements
-	for(indexT i = 0; i < mSize; ++i)
-	{
-		mElements[i].~node();
-	}
-	mSize = 0;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-typename poolset<_T>::iterator poolset<_T>::begin()
-{
-	iterator i;
-	i.mElement = &(mElements[0]);
-	return i;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-typename poolset<_T>::const_iterator poolset<_T>::begin() const
-{
-	const_iterator i;
-	i.mElement = &(mElements[0]);
-	return i;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template< typename _T>
-typename poolset<_T>::iterator poolset<_T>::end()
-{
-	iterator i;
-	i.mElement = &(mElements[mSize]);
-	return i;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-typename poolset<_T>::const_iterator poolset<_T>::end() const
-{
-	const_iterator i;
-	i.mElement = &(mElements[mSize]);
-	return i;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-inline sizeT poolset<_T>::size() const
-{
-	return mSize;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-inline sizeT poolset<_T>::capacity() const
-{
-	return mCapacity;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-void poolset<_T>::reserve(const sizeT _n)
-{
-	// If requested capacity is bigger than current capacity, get some more storage space
-	if(mCapacity < _n)
-	{
-		// Allocate new memory
-		node * newArray = reinterpret_cast<node*> (new unsigned char[_n * sizeof(node)]);
-		// Copy stored elements and destroy old copies of them
-		for(indexT i = 0; i < mSize; ++i)
-		{
-			new(&newArray[i]) node(mElements[i]); // Copy
-			mElements[i].~node(); // destroy
-		}
-		// Release old array, if it existed
-		if(0 != mElements)
-		{
-			delete[] reinterpret_cast<unsigned char*>(mElements);
-		}
-		// Set the new array
-		mElements = newArray;
-		mCapacity = _n;
-	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-template < typename _T>
-void poolset<_T>::ensureCapacity(const sizeT _n)
-{
-	sizeT newSize = mCapacity;
-	while(newSize < _n)
-	{
-		// Compute new size
-		newSize = (0 == newSize) ? 1 : (2 * newSize);
-	}
-	reserve(newSize);
-}
 
 }	// namespace rtl
 
-#endif // _REV_RTL_POOLSET_H_
+#endif //_RTL_POOLSET_H_
