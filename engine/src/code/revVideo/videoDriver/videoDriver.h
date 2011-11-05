@@ -48,7 +48,7 @@ namespace rev	{
 		virtual int		getUniformId		(const char * _name) const = 0;
 		virtual void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
 		//virtual void	setIntAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer) = 0;
-		//virtual void	setUniform		(const int _uniformId, const TReal _value) = 0;
+		virtual void	setUniform			(int _id, float _value) = 0;
 		virtual	void	setUniform			(int _id, const CMat4& _value) = 0;
 		virtual	void	setUniform			(int _id, const CColor& _value) = 0;
 		virtual void	setUniform			(int _id, int _slot, const CTexture * _value) = 0;

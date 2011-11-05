@@ -267,6 +267,9 @@
     <ClInclude Include="..\..\code\revVideo\scene\model\quad.h">
       <Filter>revVideo\scene\model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h">
+      <Filter>revVideo\material\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -367,6 +370,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp">
       <Filter>revVideo\scene\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp">
+      <Filter>revVideo\material\basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

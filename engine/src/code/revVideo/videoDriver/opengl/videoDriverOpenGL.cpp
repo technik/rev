@@ -71,6 +71,12 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setUniform(int _id, float _value)
+	{
+		glUniform1f(_id, _value);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, const CMat4& _value)
 	{
 		m_uniformMatrix4fv(_id, 1, true, reinterpret_cast<const float*>(_value.m));
@@ -179,6 +185,7 @@ namespace rev { namespace video
 		m_vertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)loadExtension("glVertexAttribPointer");
 		m_getUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)loadExtension("glGetUniformLocation");
 		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
+		m_uniform1f = (PFNGLUNIFORM1FPROC)loadExtension("glUniform1f");
 		m_uniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)loadExtension("glUniformMatrix4fv");
 		m_uniform4f = (PFNGLUNIFORM4FPROC)loadExtension("glUniform4f");
 		m_uniform1i = (PFNGLUNIFORM1IPROC)loadExtension("glUniform1i");
@@ -268,6 +275,12 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::glUniformMatrix4fv(unsigned _location, int _count, bool _transpose, const float *_value)
 	{
 		m_uniformMatrix4fv(_location, _count, _transpose, _value);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glUniform1f(unsigned _location, float _f)
+	{
+		m_uniform1f(_location, _f);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

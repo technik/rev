@@ -17,7 +17,7 @@
 // TODO: Remove?
 #include "revVideo/camera/orthoCamera.h"
 #include "revVideo/color/color.h"
-#include "revVideo/material/basic/solidColorMaterial.h"
+#include "revVideo/material/basic/raymarchingMaterial.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/quad.h"
 #include "revVideo/scene/model/staticModel.h"
@@ -51,7 +51,7 @@ namespace rev { namespace game
 
 
 		CQuad * testQuad = new CQuad(CVec2(100.f, 100.f));
-		CSolidColorMaterial * material = new CSolidColorMaterial(CColor::WHITE);
+		CRaymarchingMaterial * material = new CRaymarchingMaterial();
 		IRenderableInstance * instance = new IRenderableInstance(testQuad, new IMaterialInstance(material));
 		instance->attachTo(new CNode());
 

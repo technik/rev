@@ -41,6 +41,7 @@ namespace rev { namespace video
 		void	setShader			(const int _shader);
 		int		getUniformId		(const char * _name) const;
 		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
+		void	setUniform			(int _id, float _value);
 		void	setUniform			(int _id, const CMat4& _value);
 		void	setUniform			(int _id, const CColor& _value);
 		void	setUniform			(int _id, int _slot, const CTexture * _value);
@@ -78,6 +79,7 @@ namespace rev { namespace video
 												int _stride, const void * _pointer);
 		void			glEnableVertexAttribArray(unsigned _idx);
 		void			glUniformMatrix4fv		(unsigned _location, int _count, bool _transpose, const float *_value);
+		void			glUniform1f				(unsigned _location, float _f);
 		void			glUniform4f				(unsigned _location, float _f0, float _f1, float _f2, float _f3);
 		void			glUniform1i				(unsigned _location, int _i);
 
@@ -107,6 +109,7 @@ namespace rev { namespace video
 		PFNGLVERTEXATTRIBPOINTERPROC m_vertexAttribPointer;
 		PFNGLENABLEVERTEXATTRIBARRAYPROC m_enableVertexAttribArray;
 		PFNGLUNIFORMMATRIX4FVPROC m_uniformMatrix4fv;
+		PFNGLUNIFORM1FPROC m_uniform1f;
 		PFNGLUNIFORM4FPROC m_uniform4f;
 		PFNGLUNIFORM1IPROC m_uniform1i;
 		PFNGLACTIVETEXTUREPROC m_activeTexture;
