@@ -15,17 +15,9 @@
 
 
 // TODO: Remove?
+#include "revGame/gui/panel.h"
 #include "revVideo/camera/orthoCamera.h"
-#include "revVideo/color/color.h"
-#include "revVideo/material/basic/raymarchingMaterial.h"
-#include "revVideo/material/materialInstance.h"
-#include "revVideo/scene/model/quad.h"
-#include "revVideo/scene/model/staticModel.h"
-#include "revVideo/scene/model/staticModelInstance.h"
-#include "revVideo/texture/texture.h"
-#include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/viewport/viewport.h"
-#include "revCore/node/node.h"
 
 // --- Active namespaces --------
 using namespace rev;
@@ -49,14 +41,12 @@ namespace rev { namespace game
 		// Init input system
 		STouchInput::init();
 
-
-		CQuad * testQuad = new CQuad(CVec2(100.f, 100.f));
-		CRaymarchingMaterial * material = new CRaymarchingMaterial();
-		IRenderableInstance * instance = new IRenderableInstance(testQuad, new IMaterialInstance(material));
-		instance->attachTo(new CNode());
+		// Create a panel
+		new CPanel("buggy.png", CVec3::zero);
 
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(100.f, 100.f), -100.f, 100.f);
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(800.f, 480.f), -100.f, 100.f);
+		cam1->setScene(IGuiElement::guiScene());
 		v1->setCamera(cam1);
 	}
 

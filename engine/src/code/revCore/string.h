@@ -1,22 +1,27 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine, types
-// by Carmelo J. FernÃ¡ndez-AgÃ¼era Tortosa (a.k.a. Technik)
-// Created on August 22nd, 2011
+// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// Created on November 10th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// basic types
+// strings
 
-#ifndef _REV_REVCORE_TYPES_H_
-#define _REV_REVCORE_TYPES_H_
+#ifndef _REV_REVCORE_STRING_H_
+#define _REV_REVCORE_STRING_H_
+
+// Standard headers
+#if defined(_linux) || defined(ANDROID) || defined (WIN32)
+#include <string>
+#endif // _linux || ANDROID || WIN32
 
 namespace rev
 {
 
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
 
-typedef		float		TReal;
+using std::string;
 
 #endif // _linux || ANDROID || WIN32
 
 }	// namespace rev
 
-#endif // _REV_REVCORE_TYPES_H_
+#endif // _REV_REVCORE_STRING_H_

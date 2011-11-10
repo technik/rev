@@ -10,7 +10,7 @@
 
 #include "revCore/resourceManager/resource.h"
 #include "revCore/resourceManager/resourceManager.h"
-#include "revCore/types.h"
+#include "revCore/string.h"
 #include "revVideo/scene/renderable.h"
 
 namespace rev { namespace video {

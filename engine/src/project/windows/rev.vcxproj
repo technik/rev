@@ -64,6 +64,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4701</DisableSpecificWarnings>
       <StringPooling>true</StringPooling>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -108,11 +109,14 @@
     <ClInclude Include="..\..\code\revCore\node\node.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resource.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h" />
+    <ClInclude Include="..\..\code\revCore\string.h" />
     <ClInclude Include="..\..\code\revCore\time\time.h" />
     <ClInclude Include="..\..\code\revCore\time\timeSrc.h" />
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
     <ClInclude Include="..\..\code\revCore\types.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
+    <ClInclude Include="..\..\code\revGame\gui\guiElement.h" />
+    <ClInclude Include="..\..\code\revGame\gui\panel.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
@@ -162,6 +166,8 @@
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\panel.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />

@@ -109,6 +109,9 @@
     <Filter Include="revVideo\texture">
       <UniqueIdentifier>{e83bcdbd-9dc6-46ff-ac4b-f7021b553cf8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui">
+      <UniqueIdentifier>{eb742640-eb33-4b75-9208-cfaad3f195c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -270,6 +273,15 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\panel.h">
+      <Filter>revGame\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\guiElement.h">
+      <Filter>revGame\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\string.h">
+      <Filter>revCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -373,6 +385,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\panel.cpp">
+      <Filter>revGame\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp">
+      <Filter>revGame\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

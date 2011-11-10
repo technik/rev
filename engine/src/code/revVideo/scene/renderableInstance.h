@@ -34,6 +34,15 @@ namespace rev { namespace video
 			mScene->removeRenderable(this);
 		}
 
+		// Scene management
+		void				setScene(CVideoScene * _scn)
+		{
+			if( 0 != mScene)
+				mScene->removeRenderable(this);
+			_scn->addRenderable(this);
+			mScene = _scn;
+		}
+
 		// Interface
 		inline IRenderable*	renderable		() const { return mRenderable; }
 		virtual void		setEnviroment	(const ICamera * _cam) const;
