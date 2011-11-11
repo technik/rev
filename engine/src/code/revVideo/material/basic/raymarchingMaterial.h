@@ -23,6 +23,8 @@ namespace rev { namespace video
 		void	resetTime();
 	private:
 		mutable TReal mTime;
+		mutable TReal mProf;
+		mutable TReal mFrames;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------

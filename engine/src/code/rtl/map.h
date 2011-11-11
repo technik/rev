@@ -270,8 +270,8 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator=(const iterator& _i)
 	{
-		mMap = _i.mMap;
-		mIdx = _i.mIdx;
+		const_iterator::mMap = _i.mMap;
+		const_iterator::mIdx = _i.mIdx;
 		return *this;
 	}
 
