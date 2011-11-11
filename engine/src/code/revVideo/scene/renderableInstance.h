@@ -23,8 +23,8 @@ namespace rev { namespace video
 	public:
 		// Constructor and destructor
 		inline IRenderableInstance			(IRenderable * _renderable = 0, IMaterialInstance * _material = 0)
-			:mRenderable(_renderable)
-			,mMaterialInstance(_material)
+			:mMaterialInstance(_material)
+			,mRenderable(_renderable)
 		{
 			CVideoScene::defaultScene()->addRenderable(this);
 			mScene = CVideoScene::defaultScene();

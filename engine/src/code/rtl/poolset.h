@@ -10,9 +10,12 @@
 #ifndef _RTL_POOLSET_H_
 #define _RTL_POOLSET_H_
 
-#if defined(_WIN32) || defined(ANDROID) || defined(_linux)
+#if defined(_WIN32) || defined(_linux)
 #include <new.h>
-#endif // defined(_WIN32) || defined(ANDROID) || defined(_linux)
+#endif // defined(_WIN32)
+#if defined(_linx) || defined (ANDROID)
+#include <new>
+#endif
 
 #include "baseTypes.h"
 #include "pair.h"
@@ -268,7 +271,7 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _T>
-	typename inline poolset<_T>::iterator& poolset<_T>::iterator::operator++()
+	inline typename poolset<_T>::iterator& poolset<_T>::iterator::operator++()
 	{
 		++const_iterator::mIdx;
 		return *this;
@@ -276,7 +279,7 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _T>
-	typename inline poolset<_T>::iterator poolset<_T>::iterator::operator++(int)
+	inline typename poolset<_T>::iterator poolset<_T>::iterator::operator++(int)
 	{
 		++const_iterator::mIdx;
 		return *this;
@@ -284,7 +287,7 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _T>
-	typename inline poolset<_T>::iterator& poolset<_T>::iterator::operator--()
+	inline typename poolset<_T>::iterator& poolset<_T>::iterator::operator--()
 	{
 		--const_iterator::mIdx;
 		return *this;
@@ -292,7 +295,7 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _T>
-	typename inline poolset<_T>::iterator poolset<_T>::iterator::operator--(int)
+	inline typename poolset<_T>::iterator poolset<_T>::iterator::operator--(int)
 	{
 		--const_iterator::mIdx;
 		return *this;
@@ -306,9 +309,9 @@ namespace rtl
 	template<typename _T>
 	poolset<_T>::poolset()
 		:mArray(0)
+		,mRootIdx(0)
 		,mSize(0)
 		,mCapacity(0)
-		,mRootIdx(0)
 	{
 	}
 
@@ -322,7 +325,7 @@ namespace rtl
 		// Memcopy
 		mArray = new elementT[mSize];
 		for(size_type i = 0; i < mSize; ++i)
-			mArray[i] = _map.mArray[i];
+			mArray[i] = _other.mArray[i];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -347,7 +350,7 @@ namespace rtl
 		// Copy the array
 		mArray = new elementT[mSize];
 		for(size_type i = 0; i < mSize; ++i)
-			mArray[i] = _map.mArray[i];
+			mArray[i] = _other.mArray[i];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

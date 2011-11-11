@@ -67,7 +67,6 @@ namespace rev { namespace video
 		mScreenWidth(800),
 		mScreenHeight(480)
 	{
-		glEnable(GL_TEXTURE_2D);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -88,6 +87,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setBackgroundColor(const CColor &_color)
 	{
+		LOG_ANDROID("setBackgroundColor");
 		glClearColor(_color.r(), _color.g(), _color.b(), _color.a());
 
 		ASSERT_GL("glClearColor");
@@ -143,6 +143,12 @@ namespace rev { namespace video
 		glEnableVertexAttribArray(_attribId);
 
 		ASSERT_GL("glEnableVertexAttribArray attrib=%d", _attribId);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setUniform(int _id, float _f)
+	{
+		glUniform1f(_id, _f);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -266,10 +272,6 @@ namespace rev { namespace video
 		glBindAttribLocation(_shader, eVertex, "vertex");
 
 		ASSERT_GL("glBindAttribLocation shader=%d, attrib=%s", _shader, "vertex");
-
-		glBindAttribLocation(_shader, eColor, "color");
-
-		ASSERT_GL("glBindAttribLocation shader=%d, attrib=%s", _shader, "color");
 	}
 
 }	// namespace video
