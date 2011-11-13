@@ -17,6 +17,7 @@
 #include "revCore/codeTools/log/log.h"
 #include "revCore/file/file.h"
 #include "revVideo/color/color.h"
+#include "revVideo/texture/texture.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
 #include "revVideo/videoDriver/shader/vtxShader.h"
 
@@ -165,6 +166,19 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void CVideoDriverAndroid::setUniform(int _id, int _slot, const CTexture* _texture)
+	{
+		if(0 == _slot)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glUniform1i(_id, 0);
+		}
+		else codeTools::revAssert(false); // Unimplemented: Check how many slots are available
+
+		glBindTexture(GL_TEXTURE_2D, _texture->id());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverAndroid::setUniform(int _id, const CColor& _value)
 	{
 		GL_LOG("setUniform(CColor) id=%d", _id);
@@ -208,8 +222,22 @@ namespace rev { namespace video
 	int CVideoDriverAndroid::loadVtxShader(const char * _name)
 	{
 		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
-		const char * fileBuffer = bufferFromFile(_name);
-		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		char * fileBuffer = bufferFromFile(_name);
+		const char * constFileBuffer = fileBuffer;
+		// -------- HACKY CODE --------
+		// This forces correct file ending in shaders
+		int bufferSize = 0;
+		while(0 != fileBuffer[bufferSize])
+		{
+			++bufferSize;
+		}
+		for(int i = 0; i < bufferSize - 2; ++i)
+		{
+			if((fileBuffer[i] == '/') && (fileBuffer[i+1] == '/') && (fileBuffer[i+2] == '#'))
+			fileBuffer[i] = 0;
+		}
+		// ------ HACKY CODE END ------
+		glShaderSource(shader, 1, &constFileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
 
 		GL_LOG("%d = loadVtxShader \"%s\"", int(shader), _name);

@@ -78,6 +78,36 @@ LOCAL_LDLIBS := -lz
 include $(BUILD_STATIC_LIBRARY)
 
 # ----------- End of zip -----------------------------
+# ----------- Lib png --------------------------------
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libpng
+
+LIBPNG_DIR := $(REV_CODE_DIR)/libs/android/libpng
+
+LOCAL_SRC_FILES := \
+	$(LIBPNG_DIR)/png.c \
+	$(LIBPNG_DIR)/pngerror.c \
+	$(LIBPNG_DIR)/pngget.c \
+	$(LIBPNG_DIR)/pngmem.c \
+	$(LIBPNG_DIR)/pngpread.c \
+	$(LIBPNG_DIR)/pngread.c \
+	$(LIBPNG_DIR)/pngrio.c \
+	$(LIBPNG_DIR)/pngrtran.c \
+	$(LIBPNG_DIR)/pngrutil.c \
+	$(LIBPNG_DIR)/pngset.c \
+	$(LIBPNG_DIR)/pngtrans.c \
+	$(LIBPNG_DIR)/pngwio.c \
+	$(LIBPNG_DIR)/pngwrite.c \
+	$(LIBPNG_DIR)/pngwtran.c \
+	$(LIBPNG_DIR)/pngwutil.c
+
+LOCAL_LDLIBS := -lz
+
+include $(BUILD_STATIC_LIBRARY)
+
+# ----------- End of lib png -------------------------
 
 include $(CLEAR_VARS)
 
@@ -100,7 +130,9 @@ REVCORE_SRC:=$(REVCORE_DIR)/codeTools/log/log.cpp \
 			 $(REVCORE_DIR)/transform/transformSrc.cpp
 
 REVGAME_DIR:=$(REV_CODE_DIR)/revGame
-REVGAME_SRC:=$(REVGAME_DIR)/gameClient/gameClient.cpp
+REVGAME_SRC:=$(REVGAME_DIR)/gameClient/gameClient.cpp\
+			 $(REVGAME_DIR)/gui/guiElement.cpp\
+			 $(REVGAME_DIR)/gui/panel.cpp
 
 REVINPUT_DIR:=$(REV_CODE_DIR)/revInput
 REVINPUT_SRC:=$(REVINPUT_DIR)/touchInput/touchInput.cpp\
@@ -111,6 +143,7 @@ REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/camera/camera.cpp\
 			  $(REVVIDEO_DIR)/camera/orthoCamera.cpp\
 			  $(REVVIDEO_DIR)/color/color.cpp\
+			  $(REVVIDEO_DIR)/material/basic/plainTextureMaterial.cpp\
 			  $(REVVIDEO_DIR)/material/basic/raymarchingMaterial.cpp\
 			  $(REVVIDEO_DIR)/material/basic/solidColorMaterial.cpp\
 			  $(REVVIDEO_DIR)/renderer/directRenderer/directRenderer.cpp\
@@ -119,6 +152,8 @@ REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModel.cpp\
 			  $(REVVIDEO_DIR)/scene/model/staticModelInstance.cpp\
 			  $(REVVIDEO_DIR)/scene/renderableInstance.cpp\
+			  $(REVVIDEO_DIR)/texture/texture.cpp\
+			  $(REVVIDEO_DIR)/texture/android/androidpngutils.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/pxlShader.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/shader.cpp\
 			  $(REVVIDEO_DIR)/videoDriver/shader/vtxShader.cpp\
@@ -135,6 +170,6 @@ LOCAL_CFLAGS:=-D_DEBUG -Wall -Werror -Wextra -iquote $(LOCAL_PATH) -I$(LOCAL_PAT
 
 LOCAL_LDLIBS    := -lGLESv2 -lz -llog
 
-LOCAL_STATIC_LIBRARIES:=libzip
+LOCAL_STATIC_LIBRARIES:=libzip libpng
 
 include $(BUILD_SHARED_LIBRARY)

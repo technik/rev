@@ -37,7 +37,7 @@ namespace rev { namespace video
 		void	setUniform			(int _id, float _f);
 		void	setUniform			(int _id, const CMat4& _value);
 		void	setUniform			(int _id, const CColor& _value);
-		void	setUniform			(int /*_id*/, int /*_slot*/, const CTexture* /*_texture*/) {}
+		void	setUniform			(int _id, int _slot, const CTexture* _texture);
 		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
 
 	private:

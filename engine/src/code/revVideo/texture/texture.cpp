@@ -13,7 +13,55 @@
 #include "libs/windows/freeImage.h"
 #endif // _WIn32
 
+#ifdef ANDROID
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#include "android/androidpngutils.h"
+#include "revCore/file/file.h"
+
+#define GL_VERBOSE
+#ifdef GL_VERBOSE
+#define GL_LOG( ... ) LOG_ANDROID( __VA_ARGS__ )
+#else
+#define GL_LOG( ... )
+#endif
+
+#define ASSERT_GL( ... ) \
+{int errorCode = glGetError();\
+if(GL_NO_ERROR != errorCode) \
+{\
+	switch(errorCode)\
+	{\
+		case GL_INVALID_OPERATION:\
+		{\
+			LOG_ANDROID("GL_INVALID_OPERATION");\
+			break;\
+		}\
+		case GL_INVALID_VALUE:\
+		{\
+			LOG_ANDROID("GL_INVALID_VALUE");\
+			break;\
+		}\
+		case GL_INVALID_ENUM:\
+		{\
+			LOG_ANDROID("GL_INVALID_ENUM");\
+			break;\
+		}\
+		default:\
+		{\
+			LOG_ANDROID("GL_OTHER");\
+			break;\
+		}\
+	}\
+	LOG_ANDROID( __VA_ARGS__ );\
+	codeTools::revAssert(false);\
+}}
+
+#endif // ANDROID
+
 #include "revCore/codeTools/assert/assert.h"
+#include "revCore/codeTools/log/log.h"
 
 namespace rev { namespace video
 {
@@ -24,6 +72,44 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::CTexture(const string& _name)
 	{
+#ifdef ANDROID
+		char * fileBuffer = bufferFromFile(_name.c_str());
+
+		mBuffer = imageFromPngBuffer(fileBuffer, mWidth, mHeight);
+
+		codeTools::revAssert(0 != mBuffer);
+		LOG_ANDROID("Texture %s successfuly loaded into buffer", _name.c_str());
+
+		delete [] fileBuffer;
+
+		LOG_ANDROID("Before glGenTextures");
+		// Get an openGL texture ID for this texture
+		glGenTextures(1, &mId);
+		LOG_ANDROID("After glGenTextures");
+
+		ASSERT_GL("glGenTextures");
+		// Load the image to the graphic card
+		glBindTexture(GL_TEXTURE_2D, mId);
+		LOG_ANDROID("After glBindTexture");
+
+		ASSERT_GL("glBindTexture");
+		// Basic texture configuration
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		LOG_ANDROID("After glTexParameteri");
+
+		ASSERT_GL("glTexParameteri");
+		//store the texture data for OpenGL use
+		LOG_ANDROID("b4 glTexImage2D w=%d, h=%d", mWidth, mHeight);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight,
+			0, GL_RGBA, GL_UNSIGNED_BYTE, mBuffer);
+		LOG_ANDROID("After glTexImage2D");
+
+		ASSERT_GL("glTexImage2D");
+		LOG_ANDROID("Texture successfuly created");
+#endif // ANDROID
 #ifdef _WIN32
 		// ---- try to load the texture from a file ----
 		// -- Check file extension --
@@ -68,6 +154,7 @@ namespace rev { namespace video
 		FreeImage_Unload(pFIBitmap); // Release FreeImage's copy of the data
 		// Construct a texture using the data we just loaded
 		mBuffer = pixels;
+
 		// Get an openGL texture ID for this texture
 		glGenTextures(1, &mId);
 		// Load the image to the graphic card
@@ -86,8 +173,12 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::~CTexture()
 	{
-		delete mBuffer;
 		// TODO: Solve GL Leak
+#ifdef ANDROID
+		delete reinterpret_cast<unsigned char *>(mBuffer);
+#else // !ANDROID
+		delete mBuffer;
+#endif // !ANDROID
 	}
 
 }	// namespace video
