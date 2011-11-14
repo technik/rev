@@ -16,7 +16,7 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CRaymarchingMaterial::CRaymarchingMaterial():mTime(0.f), mProf(0.f), mFrames(0)
+	CRaymarchingMaterial::CRaymarchingMaterial():mTime(0.f)
 	{
 		mShader = CPxlShader::manager()->get("raymarching.pxl");
 	}
@@ -34,13 +34,9 @@ namespace rev { namespace video
 		mTime +=dt;
 		while(mTime > 4.f)
 			mTime -= 4.f;
-		mProf+=dt;
-		++mFrames;
-		if(mFrames == 100)
-			LOG_ANDROID("100 frames take %f seconds", mProf);
 		IVideoDriver * driver = SVideo::get()->driver();
 		int uniformId = driver->getUniformId("time");
-		float clampTime = 0.5f*mTime - 1.0;
+		float clampTime = 0.5f*mTime - 1.0f;
 		clampTime = clampTime > 0.f ? clampTime : -clampTime;
 		driver->setUniform(uniformId, 2.f*clampTime-1.f);
 	}

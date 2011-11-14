@@ -27,11 +27,29 @@ namespace rev { namespace game
 	public:
 		CPanel(const char * _texture, const CVec3& _pos);
 		~CPanel();
+
+		// Accessor methods
+		const CVec2&	size	() const;
+		void			setSize	(const CVec2& _size);
 	private:
 		video::CPlainTextureMaterial * mMaterial;
 		video::CQuad * mQuad;
 		CVec2 mSize;
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Inline implementations
+	//------------------------------------------------------------------------------------------------------------------
+	inline const CVec2& CPanel::size() const
+	{
+		return mSize;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline void CPanel::setSize(const CVec2& _size)
+	{
+		mSize = _size;
+	}
 
 }	// namespace game
 }	// namespace rev

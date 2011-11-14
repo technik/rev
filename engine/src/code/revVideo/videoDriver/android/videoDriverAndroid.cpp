@@ -298,6 +298,7 @@ namespace rev { namespace video
 	{
 		GL_LOG("binfAttributes shader=%d", _shader);
 		glBindAttribLocation(_shader, eVertex, "vertex");
+		glBindAttribLocation(_shader, eTexCoord, "texCoord");
 
 		ASSERT_GL("glBindAttribLocation shader=%d, attrib=%s", _shader, "vertex");
 	}

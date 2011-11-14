@@ -58,12 +58,12 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::setRealAttribBuffer(const int _attribId, const unsigned _nComponents, const void * const _buffer)
 	{
 		// Assert incomming data si valid
-		revAssert(_nComponents && (_nComponents < 5)); // [0,4] reals per buffer element
+		revAssert((_nComponents > 0) && (_nComponents < 5)); // [1,4] reals per buffer element
 		revAssert(_attribId >= 0); // Valid id
 		revAssert(0 != _buffer); // Non-null buffer
 		// Pass array to OpenGL
 #if defined (_linux) || defined (WIN32)
-		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, false, 0, _buffer);
+		glVertexAttribPointer(unsigned(_attribId), _nComponents, GL_FLOAT, false, 0, _buffer);
 		glEnableVertexAttribArray(_attribId);
 #else
 		revAssert(false); // Does current platform use GL_FLOAT for TReal?
@@ -167,6 +167,7 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::bindAttributes(int _shader)
 	{
 		glBindAttribLocation(_shader, eVertex, "vertex");
+		glBindAttribLocation(_shader, eVertex, "texCoord");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
