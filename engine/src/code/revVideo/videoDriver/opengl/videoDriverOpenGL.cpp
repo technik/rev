@@ -167,7 +167,7 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::bindAttributes(int _shader)
 	{
 		glBindAttribLocation(_shader, eVertex, "vertex");
-		glBindAttribLocation(_shader, eVertex, "texCoord");
+		glBindAttribLocation(_shader, eTexCoord, "texCoord");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

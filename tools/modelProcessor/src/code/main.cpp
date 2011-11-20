@@ -15,6 +15,9 @@
 #include <revVideo/scene/model/staticModel.h>
 #include <rtl/vector.h>
 
+// Project headers
+#include "vertexInfo.h"
+
 enum EInputArguments
 {
 #ifdef _WIN32
@@ -119,6 +122,7 @@ namespace modelProcessor
 		rtl::vector<CVec3>	vertices;
 		rtl::vector<CVec2>	texCoords;
 		rtl::vector<unsigned short> faces;
+		CVtxInfoQueue		vtxQueue;
 		// Parse the buffer
 		while(line)
 		{
@@ -152,6 +156,7 @@ namespace modelProcessor
 				
 				sscanf(line, "f %hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu",
 							&v1, &t1, &n1, &v2, &t2, &n2, &v3, &t3, &n3);
+				addVertex(
 				// Only vertices suported
 				faces.push_back(v1-1);
 				faces.push_back(v2-1);
