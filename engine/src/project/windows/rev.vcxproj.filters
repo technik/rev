@@ -282,6 +282,9 @@
     <ClInclude Include="..\..\code\revCore\string.h">
       <Filter>revCore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.h">
+      <Filter>revVideo\material\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -391,6 +394,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp">
       <Filter>revGame\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp">
+      <Filter>revVideo\material\basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

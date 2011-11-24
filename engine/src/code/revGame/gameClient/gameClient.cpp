@@ -17,6 +17,9 @@
 // TODO: Remove?
 #include "revGame/gui/panel.h"
 #include "revVideo/camera/orthoCamera.h"
+#include "revVideo/material/basic/diffuseTextureMaterial.h"
+#include "revVideo/material/materialInstance.h"
+#include "revVideo/scene/model/staticModelInstance.h"
 #include "revVideo/viewport/viewport.h"
 
 // --- Active namespaces --------
@@ -41,12 +44,17 @@ namespace rev { namespace game
 		// Init input system
 		STouchInput::init();
 
-		// Create a panel
-		new CPanel("buggy.png", CVec3::zero);
+		// Create the buggy material
+		CDiffuseTextureMaterial * buggyMaterial = new CDiffuseTextureMaterial("buggy.png");
+		IMaterialInstance * buggyMaterialInstance = new IMaterialInstance(buggyMaterial);
+		CStaticModelInstance * buggyModel = new CStaticModelInstance("buggy.rmd", buggyMaterialInstance);
+		CNode * buggyNode = new CNode();
+		buggyModel->attachTo(buggyNode);
 
+		// Viewport and camera
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(800.f, 480.f), -100.f, 100.f);
-		cam1->setScene(IGuiElement::guiScene());
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(1600.f, 960.f), -1000.f, 1000.f);
+		// cam1->setScene(IGuiElement::guiScene());
 		v1->setCamera(cam1);
 	}
 

@@ -65,34 +65,41 @@ namespace rev { namespace video
 		// Read vertex positions
 		mVertices = new float[mNVertices * 3];
 		float * vBuffer = reinterpret_cast<float*>(pointer);
-		for(unsigned i = 0; i < mNVertices * unsigned(3); ++i)
+		for(unsigned i = 0; i < mNVertices; ++i)
 		{
-			mVertices[i] = vBuffer[i];
+			mVertices[3*i+0] = vBuffer[3*i+0];
+			mVertices[3*i+1] = vBuffer[3*i+1];
+			mVertices[3*i+2] = vBuffer[3*i+2];
 		}
 		pointer += 3 * mNVertices * sizeof(float);
 		// Read vertex normals
 		mNormals = new float[mNVertices * 3];
 		vBuffer = reinterpret_cast<float*>(pointer);
-		for(unsigned i = 0; i < mNVertices * unsigned(3); ++i)
+		for(unsigned i = 0; i < mNVertices; ++i)
 		{
-			mNormals[i] = vBuffer[i];
+			mNormals[3*i+0] = vBuffer[3*i+0];
+			mNormals[3*i+1] = vBuffer[3*i+1];
+			mNormals[3*i+2] = vBuffer[3*i+2];
 		}
 		pointer += 3 * mNVertices * sizeof(float);
 		// Read vertex texture coordinates
-		mUVs = new float[mNVertices * 3];
+		mUVs = new float[mNVertices * 2];
 		vBuffer = reinterpret_cast<float*>(pointer);
-		for(unsigned i = 0; i < mNVertices * unsigned(3); ++i)
+		for(unsigned i = 0; i < mNVertices ; ++i)
 		{
-			mUVs[i] = vBuffer[i];
+			mUVs[2*i+0] = vBuffer[2*i];
+			mUVs[2*i+1] = vBuffer[2*i+1];
 		}
 		pointer += 2 * mNVertices * sizeof(float);
 
 		// Read face indices
 		mTriangles = new unsigned short[mNTriangles * 3];
 		unsigned short * idxBuffer = reinterpret_cast<unsigned short*>(pointer);
-		for(unsigned i = 0; i < mNTriangles * unsigned(3); ++i)
+		for(unsigned i = 0; i < mNTriangles; ++i)
 		{
-			mTriangles[i] = idxBuffer[i];
+			mTriangles[3*i+0] = idxBuffer[3*i+0];
+			mTriangles[3*i+1] = idxBuffer[3*i+1];
+			mTriangles[3*i+2] = idxBuffer[3*i+2];
 		}
 		// Clean
 		delete buffer;
@@ -102,19 +109,24 @@ namespace rev { namespace video
 	CStaticModel::~CStaticModel()
 	{
 		if(mVertices)
-			delete mVertices;
+			delete[] mVertices;
 		if(mNormals)
-			delete mNormals;
+			delete[] mNormals;
+		if(mUVs)
+			delete[] mUVs;
 		if(mTriangles)
-			delete mTriangles;
+			delete[] mTriangles;
 		if(mTriStrip)
-			delete mTriStrip;
+			delete[] mTriStrip;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CStaticModel::setEnviroment() const
 	{
-		SVideo::get()->driver()->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);
+		IVideoDriver * driver = SVideo::get()->driver();
+		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);
+		driver->setRealAttribBuffer(IVideoDriver::eNormal, 3, mNormals);
+		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 2, mUVs);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

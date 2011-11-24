@@ -27,6 +27,7 @@ namespace rev	{
 		enum EAttribType
 		{
 			eVertex = 0,
+			eNormal,
 			eTexCoord,
 
 			eAttribCount

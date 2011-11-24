@@ -123,6 +123,7 @@
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
     <ClInclude Include="..\..\code\revVideo\color\color.h" />
+    <ClInclude Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\plainTextureMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\solidColorMaterial.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\color\color.cpp" />
+    <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\plainTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp" />
