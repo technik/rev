@@ -16,7 +16,7 @@
 #include <rtl/vector.h>
 
 // Project headers
-#include "vertexInfo.h"
+#include "geometry.h"
 
 enum EInputArguments
 {
@@ -118,11 +118,7 @@ namespace modelProcessor
 		char * buffer = bufferFromFile(_fileName);
 		// ---------------- Read the data from the buffer ------------------------
 		char * line = buffer;
-		rtl::vector<CVec3>	normals;
-		rtl::vector<CVec3>	vertices;
-		rtl::vector<CVec2>	texCoords;
-		rtl::vector<unsigned short> faces;
-		CVtxInfoQueue		vtxQueue;
+		CGeometry geometry;
 		// Parse the buffer
 		while(line)
 		{
@@ -133,43 +129,40 @@ namespace modelProcessor
 				{
 					CVec3 normal;
 					sscanf(line, "vn %f %f %f", &normal.x, &normal.y, &normal.z);
-					normals.push_back(normal);
+					geometry.addNormal(normal);
 				}
 				else if(line[1] == 't') // Texture coordinate
 				{
 					CVec2 uv;
 					sscanf(line, "vt %f %f", &uv.x, &uv.y);
-					texCoords.push_back(uv);
+					geometry.addTexCoord(uv);
 				}
 				else // Vertex position
 				{
 					CVec3 vertex;
 					sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-					vertices.push_back(vertex);
+					geometry.addVertexPos(vertex);
 				}
 			}else if(line[0] == 'f') // Face
 			{
 				// Read the triangle
-				unsigned short v1, v2, v3;
-				unsigned short n1, n2, n3;
-				unsigned short t1, t2, t3;
+				TVertexInfo v1, v2, v3;
 				
 				sscanf(line, "f %hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu",
-							&v1, &t1, &n1, &v2, &t2, &n2, &v3, &t3, &n3);
-				addVertex(
-				// Only vertices suported
-				faces.push_back(v1-1);
-				faces.push_back(v2-1);
-				faces.push_back(v3-1);
+							&v1.mVIdx, &v1.mTIdx, &v1.mNIdx,
+							&v2.mVIdx, &v2.mTIdx, &v2.mNIdx,
+							&v3.mVIdx, &v3.mTIdx, &v3.mNIdx);
+				geometry.addFace(v1, v2, v3);
 			}
 			line = nextLine(line);
 		}
 		// Create the model
 		CStaticModel * model = new CStaticModel();
 		// Fill the data
-		model->setVertices(unsigned short(vertices.size()), bufferFromVector(vertices));
-		model->setTriangles(unsigned short(faces.size() / 3), bufferFromVector(faces));
-		// Clean
+		geometry.fillModel(model);
+		// model->setVertices(unsigned short(vertices.size()), bufferFromVector(vertices));
+		// model->setTriangles(unsigned short(faces.size() / 3), bufferFromVector(faces));
+		// Clean memory
 		delete buffer;
 		return model;
 	}
@@ -196,6 +189,8 @@ namespace modelProcessor
 		file.write((const char*)&nTriangles, sizeof(unsigned short));
 		//	Buffers
 		file.write((const char*)_model->vertices(), 3 * _model->nVertices() * sizeof(float));
+		file.write((const char*)_model->normals(), 3 * _model->nVertices() * sizeof(float));
+		file.write((const char*)_model->uvs(), 2 * _model->nVertices() * sizeof(float));
 		//	Indices
 		file.write((const char*)_model->triangles(), 3 * _model->nTriangles() * sizeof(unsigned short));
 		// Clear

@@ -10,10 +10,7 @@
 #ifndef _RTL_POOLSET_H_
 #define _RTL_POOLSET_H_
 
-#if defined(_WIN32) || defined(_linux)
-#include <new.h>
-#endif // defined(_WIN32)
-#if defined(_linx) || defined (ANDROID)
+#if defined(_WIN32) || defined(_linux) || defined (ANDROID)
 #include <new>
 #endif
 

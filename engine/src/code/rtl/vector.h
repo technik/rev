@@ -5,10 +5,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // vector
 
-#ifndef _REV_RTL_VECTOR_H_
-#define _REV_RTL_VECTOR_H_
+#ifndef _RTL_VECTOR_H_
+#define _RTL_VECTOR_H_
 
-namespace rev { namespace rtl
+#if defined(_WIN32) || defined(_linux) || defined (ANDROID)
+#include <new>
+#endif
+
+namespace rtl
 {
 	//------------------------------------------------------------------------------------------------------------------
 	// vector class declaration
@@ -47,6 +51,9 @@ namespace rev { namespace rtl
 
 		iterator		end			();
 		// TODO: const_iterator	end			()	const;
+		_dataT&			operator[]	(unsigned int _idx)			{ return m_pData[_idx];	}
+		const _dataT&	operator[]	(unsigned int _idx) const	{ return m_pData[_idx];	}
+
 
 		// TODO: rbegin rend
 
@@ -179,6 +186,5 @@ namespace rev { namespace rtl
 	}
 
 }	// namespace rtl
-}	// namespace rev
 
-#endif // _REV_RTL_VECTOR_H_
+#endif // _RTL_VECTOR_H_

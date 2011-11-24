@@ -11,7 +11,7 @@
 #include "revCore/time/time.h"
 #include "revCore/time/timeSrc.h"
 
-using namespace rev::rtl;
+using namespace rtl;
 
 namespace rev {
 	

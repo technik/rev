@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // pair
 
-#ifndef _REV_RTL_PAIR_H_
-#define _REV_RTL_PAIR_H_
+#ifndef _RTL_PAIR_H_
+#define _RTL_PAIR_H_
 
 namespace rtl
 {
@@ -34,4 +34,4 @@ namespace rtl
 
 }	// namespace rtl
 
-#endif // _REV_RTL_PAIR_H_
+#endif // _RTL_PAIR_H_
