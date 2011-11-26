@@ -30,6 +30,7 @@ using namespace rev::video;
 
 namespace rev { namespace game
 {
+	CNode * buggyNode;
 	//--------------------------------------------------------------------------
 	void CGameClient::init()
 	{
@@ -43,18 +44,23 @@ namespace rev { namespace game
 		// Init audio system
 		// Init input system
 		STouchInput::init();
-
+		
+		/*CPanel * panel1 = new CPanel("rocks.png", CVec3(0.f, 0.f, 1.0));
+		panel1->setSize(CVec2(50.f, 100.f));
+		CPanel * panel0 = new CPanel("buggy.png", CVec3::zero);
+		panel0->setSize(CVec2(100.f, 50.f));*/
 		// Create the buggy material
 		CDiffuseTextureMaterial * buggyMaterial = new CDiffuseTextureMaterial("buggy.png");
 		IMaterialInstance * buggyMaterialInstance = new IMaterialInstance(buggyMaterial);
 		CStaticModelInstance * buggyModel = new CStaticModelInstance("buggy.rmd", buggyMaterialInstance);
-		CNode * buggyNode = new CNode();
+		buggyNode = new CNode();
 		buggyModel->attachTo(buggyNode);
-
+		buggyNode->rotate(CVec3(1.f, 0.f, 0.f), -1.5708f);
+		
 		// Viewport and camera
 		CViewport * v1 = new CViewport(CVec2(0.f, 0.f), CVec2(1.f, 1.0f), 0.f);
-		COrthoCamera * cam1 = new COrthoCamera(CVec2(1600.f, 960.f), -1000.f, 1000.f);
-		// cam1->setScene(IGuiElement::guiScene());
+		COrthoCamera * cam1 = new COrthoCamera(CVec2(800.f, 480.f), -250.f, 250.f);
+		//cam1->setScene(IGuiElement::guiScene());
 		v1->setCamera(cam1);
 	}
 
@@ -65,6 +71,9 @@ namespace rev { namespace game
 		STime::get()->update();
 		// Update video system and render
 		SVideo::get()->update();
+
+		
+		buggyNode->rotate(CVec3(0.f, 1.f, 0.f), 0.2f*STime::get()->frameTime());
 		return true;
 	}
 

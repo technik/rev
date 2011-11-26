@@ -34,7 +34,6 @@ namespace rev { namespace video
 		mScreenWidth(800),
 		mScreenHeight(480)
 	{
-		glEnable(GL_TEXTURE_2D);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -128,6 +127,7 @@ namespace rev { namespace video
 		loadOpenGLExtensions();
 		// Configure the OpenGL context for rendering
 		glClearColor(0.0, 0.0, 0.0, 0.0);
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
