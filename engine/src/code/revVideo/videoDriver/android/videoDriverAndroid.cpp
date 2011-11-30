@@ -76,6 +76,8 @@ namespace rev { namespace video
 		glViewport(0, 0, mScreenWidth, mScreenHeight);
 		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+		glEnable(GL_DEPTH_TEST);
+
 		ASSERT_GL("glViewport");
 	}
 

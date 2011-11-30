@@ -87,8 +87,12 @@ namespace rev { namespace video
 		vBuffer = reinterpret_cast<float*>(pointer);
 		for(unsigned i = 0; i < mNVertices ; ++i)
 		{
-			mUVs[2*i+0] = vBuffer[2*i];
-			mUVs[2*i+1] = vBuffer[2*i+1];
+			mUVs[2*i+0] = vBuffer[2*i]; // U
+#ifdef ANDROID
+			mUVs[2*i+1] = 1.f - vBuffer[2*i+1]; // V
+#else
+			mUVs[2*i+1] = vBuffer[2*i+1]; // V
+#endif
 		}
 		pointer += 2 * mNVertices * sizeof(float);
 

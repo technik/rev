@@ -143,6 +143,7 @@ REVVIDEO_SRC:=$(REVVIDEO_DIR)/video.cpp\
 			  $(REVVIDEO_DIR)/camera/camera.cpp\
 			  $(REVVIDEO_DIR)/camera/orthoCamera.cpp\
 			  $(REVVIDEO_DIR)/color/color.cpp\
+			  $(REVVIDEO_DIR)/material/basic/diffuseTextureMaterial.cpp\
 			  $(REVVIDEO_DIR)/material/basic/plainTextureMaterial.cpp\
 			  $(REVVIDEO_DIR)/material/basic/raymarchingMaterial.cpp\
 			  $(REVVIDEO_DIR)/material/basic/solidColorMaterial.cpp\
