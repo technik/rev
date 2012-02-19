@@ -7,6 +7,7 @@
 
 #include "panel.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/material/basic/plainTextureMaterial.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/quad.h"

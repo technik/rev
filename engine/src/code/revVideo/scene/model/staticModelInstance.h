@@ -15,12 +15,11 @@ namespace rev { namespace video
 	// Forward declarations
 	class CStaticModel;
 	class ICamera;
-	class IMaterialInstance;
 
 	class CStaticModelInstance: public IRenderableInstance
 	{
 	public:
-		CStaticModelInstance(const char * _modelName, IMaterialInstance * _material);
+		CStaticModelInstance(const char * _modelName, const char * _material);
 		~CStaticModelInstance();
 
 	private:

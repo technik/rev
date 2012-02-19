@@ -9,7 +9,6 @@
 #define _REV_REVVIDEO_SCENE_MODEL_STATICMODEL_H_
 
 #include "revCore/resourceManager/resource.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "revCore/string.h"
 #include "revVideo/scene/renderable.h"
 
@@ -21,11 +20,6 @@ namespace rev { namespace video {
 	class CStaticModel: public IRenderable, public TResource<CStaticModel, string>
 	{
 	public:
-		typedef TResourceManager<CStaticModel, string> managerT;
-	public:
-		// -- Model manager --------------------------------------------------------------------------------------------
-		static managerT * manager();
-
 		// -- Constructors & virtual destructor ------------------------------------------------------------------------
 		CStaticModel ();						///< Empty constructor.
 		CStaticModel (const string& fileName);	///< Create model from filename.
@@ -56,7 +50,6 @@ namespace rev { namespace video {
 
 	private:
 		static CVtxShader * sShader;
-		static managerT * sManager;
 	private:
 		float*			mVertices;
 		unsigned short	mNVertices;
@@ -70,14 +63,6 @@ namespace rev { namespace video {
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
-	//------------------------------------------------------------------------------------------------------------------
-	inline CStaticModel::managerT * CStaticModel::manager()
-	{
-		if (0 == sManager)
-			sManager = new managerT();
-		return sManager;
-	}
-
 	//------------------------------------------------------------------------------------------------------------------
 	inline CVtxShader*				CStaticModel::shader	() const	{	return sShader;		}
 	inline unsigned short			CStaticModel::nVertices	() const	{	return mNVertices;	}

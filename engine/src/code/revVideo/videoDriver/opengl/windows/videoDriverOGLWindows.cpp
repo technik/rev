@@ -37,9 +37,9 @@ namespace rev { namespace video
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverOGLWindows::setScreenSize(const unsigned int /*_width*/, const unsigned int /*_height*/)
+	void CVideoDriverOGLWindows::setScreenSize(const unsigned int _width, const unsigned int _height)
 	{
-		/// TODO: Unimplemented functionality
+		mScreenSize = CVec2(TReal(_width), TReal(_height));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

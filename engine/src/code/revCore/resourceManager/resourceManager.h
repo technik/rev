@@ -21,9 +21,9 @@ namespace rev
 	class TResourceManager
 	{
 	public:
-		_resourceT *	get					(_keyT _key);
+		_resourceT *	get					(const _keyT& _key);
 		// Notice you have ownership of all resources you manually register
-		void			registerResource	(_resourceT * _resource, _keyT _key);
+		void			registerResource	(_resourceT * _resource, const _keyT& _key);
 		void			release				(_resourceT * _resource);
 		void			clear				()	{	mResources.clear();	}
 	protected:
@@ -34,7 +34,7 @@ namespace rev
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class _resourceT, typename _keyT>
-	_resourceT* TResourceManager<_resourceT, _keyT>::get(_keyT _key)
+	_resourceT* TResourceManager<_resourceT, _keyT>::get(const _keyT& _key)
 	{
 		typename resourceMapT::iterator searchResult = mResources.find(_key);
 		_resourceT * resource;
@@ -57,7 +57,7 @@ namespace rev
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class _resourceT, typename _keyT>
-	void TResourceManager<_resourceT, _keyT>::registerResource(_resourceT * _resource, _keyT _key)
+	void TResourceManager<_resourceT, _keyT>::registerResource(_resourceT * _resource, const _keyT& _key)
 	{
 		mResources[_key] = _resource;
 		TResource<_resourceT,_keyT>* baseResource = static_cast<TResource<_resourceT,_keyT>*>(_resource);

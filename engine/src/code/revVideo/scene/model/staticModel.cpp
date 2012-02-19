@@ -13,11 +13,13 @@
 #include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
-namespace rev { namespace video
+namespace rev {
+
+	TResource<video::CStaticModel, string>::managerT * TResource<video::CStaticModel, string>::sManager = 0;
+namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
 	// Static data
-	CStaticModel::managerT * CStaticModel::sManager = 0;
 	CVtxShader * CStaticModel::sShader = 0;
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -9,6 +9,8 @@
 #define _REV_REVVIDEO_MATERIAL_MATERIAL_H_
 
 #include "revCore/codeTools/assert/assert.h"
+#include "revCore/string.h"
+#include "revCore/resourceManager/passiveResource.h"
 
 namespace rev { namespace video
 {
@@ -16,17 +18,20 @@ namespace rev { namespace video
 	class CPxlShader;
 
 	// Material base class
-	class IMaterial
+	class IMaterial: public TPassiveResource<IMaterial>
 	{
 	public:
 		IMaterial():mShader(0){}
 		~IMaterial()	{}
 		CPxlShader*		shader			() const;	// Returns material's pixel shader
 		virtual	void	setEnviroment	() const = 0;
+
 	protected:
 		CPxlShader * mShader;
 	};
 
+	//------------------------------------------------------------------------------------------------------------------
+	// Inline implementations
 	//------------------------------------------------------------------------------------------------------------------
 	inline CPxlShader * IMaterial::shader() const
 	{

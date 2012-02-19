@@ -14,13 +14,13 @@ namespace rev	{	namespace game
 	class CGameClient
 	{
 	public:
-		//--------------------------------------------------------------------------
-		// Basic interface
-		//--------------------------------------------------------------------------
-		virtual	void	init	();	// Initialise the game
+		/// Constructor: Initializes basic game services
+		CGameClient			();
+		virtual ~CGameClient	(); ///< Destroy the application
+
+
 		virtual	bool	update	();	// Update the game, returns false when the
 									// The game requests exit
-		virtual	void	end		();	// End the game
 	};
 
 }	// namespace game

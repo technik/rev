@@ -70,7 +70,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,6 +107,8 @@
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
     <ClInclude Include="..\..\code\revCore\node\node.h" />
+    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResource.h" />
+    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResourceManager.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resource.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h" />
     <ClInclude Include="..\..\code\revCore\string.h" />
@@ -117,11 +119,13 @@
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
     <ClInclude Include="..\..\code\revGame\gui\guiElement.h" />
     <ClInclude Include="..\..\code\revGame\gui\panel.h" />
+    <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
+    <ClInclude Include="..\..\code\revVideo\camera\perspectiveCamera.h" />
     <ClInclude Include="..\..\code\revVideo\color\color.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\plainTextureMaterial.h" />
@@ -169,15 +173,18 @@
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\panel.cpp" />
+    <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
+    <ClCompile Include="..\..\code\revVideo\camera\perspectiveCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\color\color.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\plainTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp" />
+    <ClCompile Include="..\..\code\revVideo\material\material.cpp" />
     <ClCompile Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp" />
@@ -194,6 +201,7 @@
     <ClCompile Include="..\..\code\revVideo\videoDriver\shader\shader.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\shader\vtxShader.cpp" />
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp" />
+    <ClCompile Include="staticObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

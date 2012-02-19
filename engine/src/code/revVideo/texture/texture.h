@@ -10,18 +10,13 @@
 
 #include "revCore/math/vector.h"
 #include "revCore/resourceManager/resource.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "revCore/string.h"
 
 namespace rev { namespace video
 {
 	class CTexture: public TResource<CTexture, string>
-	{
+	{		
 	public:
-		typedef TResourceManager<CTexture, string> managerT;
-		
-	public:
-		static managerT * manager();
 		// Constructor and destructor
 		CTexture(const string& _name);
 		~CTexture();
@@ -31,21 +26,11 @@ namespace rev { namespace video
 		unsigned	id	() const;
 
 	private:
-		static managerT * sManager;
-
 		int			mWidth;
 		int			mHeight;
 		unsigned	mId;
 		void*		mBuffer;
 	};
-
-	//------------------------------------------------------------------------------------------------------------------
-	inline CTexture::managerT * CTexture::manager()
-	{
-		if(0 == sManager)
-			sManager = new managerT();
-		return sManager;
-	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	inline CVec2 CTexture::size() const

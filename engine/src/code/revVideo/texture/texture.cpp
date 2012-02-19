@@ -63,11 +63,12 @@ if(GL_NO_ERROR != errorCode) \
 #include "revCore/codeTools/assert/assert.h"
 #include "revCore/codeTools/log/log.h"
 
-namespace rev { namespace video
-{
+namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
-	// Static data
-	CTexture::managerT * CTexture::sManager = 0;
+	// Static data definition
+	TResource<video::CTexture, string>::managerT * TResource<video::CTexture, string>::sManager = 0;
+namespace video
+{
 
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::CTexture(const string& _name)

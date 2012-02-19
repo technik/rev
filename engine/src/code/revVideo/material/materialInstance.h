@@ -22,7 +22,7 @@ namespace rev { namespace video
 		const IMaterial *	material		() const;
 		virtual	void		setEnviroment	() const {}
 	private:
-		const IMaterial * mMaterial;
+		const IMaterial *	mMaterial;
 	};
 	
 	//------------------------------------------------------------------------------------------------------------------

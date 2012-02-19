@@ -7,6 +7,7 @@
 
 #ifdef WIN32
 
+#include "revCore/math/vector.h"
 #include "revVideo/videoDriver/opengl/videoDriverOpenGL.h"
 
 namespace rev { namespace video
@@ -27,12 +28,22 @@ namespace rev { namespace video
 		//--------------------------------------------------------------------------------------------------------------
 		// Accessor methods
 		void	setScreenSize		(const unsigned int _width, const unsigned int _height);
+		const CVec2& screenSize		() const;
 
 	private:
 		//--------------------------------------------------------------------------------------------------------------
 		// For internal use
 		void	createOpenGLWindow(const unsigned int _width, const unsigned int _height);
+		CVec2	mScreenSize;
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Inline implementations
+	//------------------------------------------------------------------------------------------------------------------
+	inline const CVec2& CVideoDriverOGLWindows::screenSize() const
+	{
+		return mScreenSize;
+	}
 
 }	// namespace video
 }	// namespace rev

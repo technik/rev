@@ -112,6 +112,12 @@
     <Filter Include="revGame\gui">
       <UniqueIdentifier>{eb742640-eb33-4b75-9208-cfaad3f195c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\scene">
+      <UniqueIdentifier>{4e54138b-7a49-4d1f-bbcd-2472d9a982d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\scene\object">
+      <UniqueIdentifier>{6252cc83-2466-4704-9e6a-bd979058f23f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -285,6 +291,18 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\camera\perspectiveCamera.h">
+      <Filter>revVideo\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h">
+      <Filter>revGame\scene\object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResourceManager.h">
+      <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResource.h">
+      <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -397,6 +415,16 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\camera\perspectiveCamera.cpp">
+      <Filter>revVideo\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="staticObject.cpp" />
+    <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp">
+      <Filter>revGame\scene\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\material\material.cpp">
+      <Filter>revVideo\material</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

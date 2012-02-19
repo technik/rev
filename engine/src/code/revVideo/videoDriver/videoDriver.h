@@ -11,6 +11,7 @@
 #include "revCore/math/matrix.h"
 
 namespace rev	{
+	class CVec2;
 
 	namespace	video
 {
@@ -44,6 +45,7 @@ namespace rev	{
 		virtual void	setBackgroundColor	(const CColor& _color) = 0;
 		virtual void	setScreenSize		(const unsigned int _width,
 											const unsigned int _height) = 0;
+		virtual const CVec2& screenSize		() const = 0;
 
 		// ---- Render related ---- //
 		virtual void	setShader			(const int _shaderId) = 0;
