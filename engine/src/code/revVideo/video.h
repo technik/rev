@@ -32,6 +32,7 @@ namespace rev	{	namespace	video
 		// Video system interface
 		//----------------------------------------------------------------------
 		IVideoDriver *	driver		()	const;	///< Returs video driver.
+		static IVideoDriver * getDriver() { return get()->driver(); }
 
 	private:
 		//----------------------------------------------------------------------

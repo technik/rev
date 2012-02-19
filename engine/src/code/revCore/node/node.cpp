@@ -40,7 +40,11 @@ TReal CNode::deltaTime() const
 //----------------------------------------------------------------------------------------------------------------------
 void CNode::addComponent(IComponent * _component)
 {
-	mComponents.insert(_component);
+	if(_component->node() != this)
+	{
+		_component->attachTo(this);
+		mComponents.insert(_component);
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------

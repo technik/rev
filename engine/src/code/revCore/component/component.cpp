@@ -28,12 +28,15 @@ IComponent::~IComponent()
 //----------------------------------------------------------------------------------------------------------------------
 void IComponent::attachTo(CNode *_node)
 {
-	if(0 != mNode) // deattach from previous owner
+	if(mNode != _node)
 	{
-		deattach();
+		if(0 != mNode) // deattach from previous owner
+		{
+			deattach();
+		}
+		mNode = _node;
+		_node->addComponent(this);
 	}
-	mNode = _node;
-	_node->addComponent(this);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

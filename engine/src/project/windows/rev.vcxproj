@@ -201,7 +201,6 @@
     <ClCompile Include="..\..\code\revVideo\videoDriver\shader\shader.cpp" />
     <ClCompile Include="..\..\code\revVideo\videoDriver\shader\vtxShader.cpp" />
     <ClCompile Include="..\..\code\revVideo\viewport\viewport.cpp" />
-    <ClCompile Include="staticObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

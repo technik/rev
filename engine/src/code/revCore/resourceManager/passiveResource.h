@@ -9,6 +9,7 @@
 #define _REV_REVCORE_RESOURCEMANAGER_PASSIVERESOURCE_H_
 
 #include "revCore/codeTools/assert/assert.h"
+#include "revCore/string.h"
 
 namespace rev
 {

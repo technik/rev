@@ -419,7 +419,6 @@
     <ClCompile Include="..\..\code\revVideo\camera\perspectiveCamera.cpp">
       <Filter>revVideo\camera</Filter>
     </ClCompile>
-    <ClCompile Include="staticObject.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp">
       <Filter>revGame\scene\object</Filter>
     </ClCompile>

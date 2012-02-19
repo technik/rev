@@ -26,7 +26,8 @@ namespace rev { namespace game
 	{
 	public:
 		CStaticObject(const char * _model, const char * _material, const CVec3& _pos = CVec3::zero);
-		CStaticObject(const CStaticObject& _other); // Copy constructor
+
+		CNode * node () { return mNode; }
 
 	private:
 		CNode * mNode;

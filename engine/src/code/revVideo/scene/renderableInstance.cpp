@@ -20,7 +20,7 @@ namespace rev { namespace video
 		// Set model-view-projection matrix
 		IVideoDriver * driver = SVideo::get()->driver();
 		int mvpUniformId = driver->getUniformId("modelViewProj");
-		CMat4 viewProj = _cam->projMatrix();
+		CMat4 viewProj = _cam->viewProj(); // _cam->projMatrix();
 		driver->setUniform(mvpUniformId, viewProj * node()->transform());
 	}
 }	// namespace video
