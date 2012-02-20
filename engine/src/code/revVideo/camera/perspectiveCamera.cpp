@@ -16,7 +16,7 @@ namespace rev { namespace video
 	CPerspectiveCamera::CPerspectiveCamera (TReal _fov, TReal _invRatio, const CVec2& _clipDistances)
 	{
 		// Precomputations
-		TReal horFactor = 1.f / cos(180.f * _fov / 3.14159f); // One over cosine of the field of view
+		TReal horFactor = 1.f / cos(3.14159f * _fov / 180.f); // One over cosine of the field of view
 		TReal verFactor = horFactor * _invRatio;
 		TReal invDepthRange = 1.f / (_clipDistances.y - _clipDistances.x);
 		// Row 0
