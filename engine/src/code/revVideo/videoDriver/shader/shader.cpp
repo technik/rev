@@ -13,8 +13,8 @@
 namespace rev {
 //------------------------------------------------------------------------------------------------------------------
 // Static data definitions
-TResource<video::CShader*, pair<video::CVtxShader*,video::CPxlShader*> >::managerT*
-	TResource<video::CShader*, pair<video::CVtxShader*,video::CPxlShader*> >::sManager = 0;
+TResource<video::CShader, pair<video::CVtxShader*,video::CPxlShader*> >::managerT*
+	TResource<video::CShader, pair<video::CVtxShader*,video::CPxlShader*> >::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

@@ -7,6 +7,7 @@
 
 #include "plainTextureMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/texture/texture.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"

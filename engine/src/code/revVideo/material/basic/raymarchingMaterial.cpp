@@ -7,6 +7,7 @@
 
 #include "raymarchingMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revCore/codeTools/log/log.h"
 #include "revCore/time/time.h"
 #include "revVideo/video.h"

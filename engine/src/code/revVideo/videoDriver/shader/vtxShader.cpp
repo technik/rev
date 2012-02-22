@@ -13,7 +13,7 @@
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// static data
-	TResource<video::CVtxShader*, string>::managerT * TResource<video::CVtxShader*, string>::sManager = 0;
+	TResource<video::CVtxShader, string>::managerT * TResource<video::CVtxShader, string>::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

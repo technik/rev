@@ -9,6 +9,7 @@
 #include "directRenderer.h"
 
 #include "revCore/node/node.h"
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/camera/camera.h"
 #include "revVideo/color/color.h"
 #include "revVideo/material/material.h"

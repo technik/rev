@@ -6,6 +6,8 @@
 // Solid color material
 
 #include "solidColorMaterial.h"
+
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"

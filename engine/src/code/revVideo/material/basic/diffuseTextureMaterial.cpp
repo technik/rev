@@ -7,6 +7,7 @@
 
 #include "diffuseTextureMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/renderer/renderer3d.h"
 #include "revVideo/texture/texture.h"
 #include "revVideo/video.h"

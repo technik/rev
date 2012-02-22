@@ -8,6 +8,7 @@
 #include "quad.h"
 
 #include "revCore/math/vector.h"
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
