@@ -88,6 +88,12 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setUniform(int _id, const CVec3& _value)
+	{
+		glUniform3f(_id, _value.x, _value.y, _value.z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, int _slot, const CTexture * _value)
 	{
 		if(0 == _slot)
@@ -189,6 +195,7 @@ namespace rev { namespace video
 		m_enableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)loadExtension("glEnableVertexAttribArray");
 		m_uniform1f = (PFNGLUNIFORM1FPROC)loadExtension("glUniform1f");
 		m_uniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)loadExtension("glUniformMatrix4fv");
+		m_uniform3f = (PFNGLUNIFORM3FPROC)loadExtension("glUniform3f");
 		m_uniform4f = (PFNGLUNIFORM4FPROC)loadExtension("glUniform4f");
 		m_uniform1i = (PFNGLUNIFORM1IPROC)loadExtension("glUniform1i");
 		m_activeTexture = (PFNGLACTIVETEXTUREPROC)loadExtension("glActiveTexture");
@@ -283,6 +290,12 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::glUniform1f(unsigned _location, float _f)
 	{
 		m_uniform1f(_location, _f);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glUniform3f(unsigned _location, float _f0, float _f1, float _f2)
+	{
+		m_uniform3f(_location, _f0, _f1, _f2);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

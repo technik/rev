@@ -10,20 +10,15 @@
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
+namespace rev {
+//------------------------------------------------------------------------------------------------------------------
+// Static data definitions
+TResource<video::CShader*, pair<video::CVtxShader*,video::CPxlShader*> >::managerT*
+	TResource<video::CShader*, pair<video::CVtxShader*,video::CPxlShader*> >::sManager = 0;
+}	// namespace rev
+
 namespace rev { namespace video
 {
-	//------------------------------------------------------------------------------------------------------------------
-	// Static data definitions
-	CShader::managerT * CShader::sManager = 0;
-
-	//------------------------------------------------------------------------------------------------------------------
-	CShader::managerT * CShader::manager()
-	{
-		if(0 == sManager)
-			sManager = new managerT();
-		return sManager;
-	}
-
 	//------------------------------------------------------------------------------------------------------------------
 	CShader::CShader(pair<CVtxShader*, CPxlShader*> _baseShaders)
 		:mVtx(_baseShaders.first)

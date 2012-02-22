@@ -31,8 +31,9 @@ namespace rev	{	namespace	video
 		//----------------------------------------------------------------------
 		// Video system interface
 		//----------------------------------------------------------------------
-		IVideoDriver *	driver		()	const;	///< Returs video driver.
+		IVideoDriver *	driver		()	const;	///< Returns video driver.
 		static IVideoDriver * getDriver() { return get()->driver(); }
+		IRenderer3d *	renderer	()	const;	///< Returns current renderer
 
 	private:
 		//----------------------------------------------------------------------
@@ -68,6 +69,12 @@ namespace rev	{	namespace	video
 	inline IVideoDriver * SVideo::driver() const
 	{
 		return m_pDriver;
+	}
+
+	//--------------------------------------------------------------------------
+	inline IRenderer3d * SVideo::renderer() const
+	{
+		return m_pRenderer;
 	}
 }	// namespace video
 }	// namespace rev

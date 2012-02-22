@@ -9,19 +9,21 @@
 
 #include "revCore/node/node.h"
 #include "revVideo/camera/camera.h"
+#include "revVideo/renderer/renderer3d.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	void IRenderableInstance::setEnviroment	(const ICamera * _cam) const
+	void IRenderableInstance::setEnviroment() const
 	{
 		// Set model-view-projection matrix
 		IVideoDriver * driver = SVideo::get()->driver();
 		int mvpUniformId = driver->getUniformId("modelViewProj");
-		CMat4 viewProj = _cam->viewProj(); // _cam->projMatrix();
-		driver->setUniform(mvpUniformId, viewProj * node()->transform());
+		IRenderer3d * renderer = SVideo::get()->renderer();
+		renderer->setModelMatrix(node()->transform());
+		driver->setUniform(mvpUniformId, renderer->viewProjMatrix() * node()->transform());
 	}
 }	// namespace video
 }	// namespace rev

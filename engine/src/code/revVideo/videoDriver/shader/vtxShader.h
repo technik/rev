@@ -9,7 +9,6 @@
 #define _REV_REVVIDEO_SHADER_VTXSHADER_H_
 
 #include "revCore/resourceManager/resource.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "revCore/string.h"
 
 namespace rev { namespace video
@@ -17,19 +16,12 @@ namespace rev { namespace video
 	class CVtxShader: public TResource<CVtxShader, string>
 	{
 	public:
-		typedef TResourceManager<CVtxShader, string> managerT;
-
-	public:
-		// Manager
-		static managerT * manager();
-
 		// Constructor
 		CVtxShader(const string& _name);
 
 		// Other methods
 		int				id() const	{	return mId;	}
 	private:
-		static managerT* sManager;
 		int mId;
 	};
 }	// namespace video

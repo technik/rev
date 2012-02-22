@@ -22,6 +22,7 @@ namespace rev { namespace video
 		// Virtual destructor
 		virtual ~ICamera()	{}
 		// Camera interface
+		CMat34			viewMatrix	()	const;
 		const CMat4&	projMatrix	()	const;
 		CMat4			viewProj	()	const;	///< Returns view-projection matrix.
 		CVideoScene*	scene		()	const;

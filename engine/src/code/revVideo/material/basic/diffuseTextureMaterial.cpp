@@ -7,6 +7,7 @@
 
 #include "diffuseTextureMaterial.h"
 
+#include "revVideo/renderer/renderer3d.h"
 #include "revVideo/texture/texture.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
@@ -34,6 +35,11 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		int textureUniformId = driver->getUniformId("texture");
 		driver->setUniform(textureUniformId, 0, mTexture); // Set my texture into texture slot 0
+		int lightUniformId = driver->getUniformId("light0Dir");
+		IRenderer3d * renderer = SVideo::get()->renderer();
+		CMat34 invModel;
+		renderer->modelMatrix().inverse(invModel);
+		driver->setUniform(lightUniformId, (invModel * renderer->viewMatrix()) * CVec3(1.f, 0.f, 0.f));
 	}
 
 }	// namespace video

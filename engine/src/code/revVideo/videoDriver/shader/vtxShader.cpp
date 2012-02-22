@@ -10,20 +10,14 @@
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
-namespace rev { namespace video
-{
+namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// static data
-	CVtxShader::managerT * CVtxShader::sManager = 0;
+	TResource<video::CVtxShader*, string>::managerT * TResource<video::CVtxShader*, string>::sManager = 0;
+}	// namespace rev
 
-	//------------------------------------------------------------------------------------------------------------------
-	CVtxShader::managerT * CVtxShader::manager()
-	{
-		if( 0 == sManager)
-			sManager = new managerT();
-		return sManager;
-	}
-
+namespace rev { namespace video
+{
 	//------------------------------------------------------------------------------------------------------------------
 	CVtxShader::CVtxShader(const string& _name)
 	{

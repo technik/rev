@@ -10,20 +10,14 @@
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
-namespace rev { namespace video
-{
+namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// static data
-	CPxlShader::managerT * CPxlShader::sManager = 0;
+	TResource<video::CPxlShader*, string>::managerT * TResource<video::CPxlShader*, string>::sManager = 0;
+}	// namespace rev
 
-	//------------------------------------------------------------------------------------------------------------------
-	CPxlShader::managerT * CPxlShader::manager()
-	{
-		if( 0 == sManager)
-			sManager = new managerT();
-		return sManager;
-	}
-
+namespace rev { namespace video
+{
 	//------------------------------------------------------------------------------------------------------------------
 	CPxlShader::CPxlShader(const string& _name)
 	{

@@ -55,6 +55,7 @@ namespace rev	{
 		virtual void	setUniform			(int _id, float _value) = 0;
 		virtual	void	setUniform			(int _id, const CMat4& _value) = 0;
 		virtual	void	setUniform			(int _id, const CColor& _value) = 0;
+		virtual void	setUniform			(int _id, const CVec3& _value) = 0;
 		virtual void	setUniform			(int _id, int _slot, const CTexture * _value) = 0;
 		virtual void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip) = 0;
 

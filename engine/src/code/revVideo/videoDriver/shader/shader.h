@@ -9,7 +9,6 @@
 #define _REV_REVVIDEO_VIDEODRIVER_SHADER_SHADER_H_
 
 #include "revCore/resourceManager/resource.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "rtl/pair.h"
 
 using rtl::pair;
@@ -22,16 +21,9 @@ namespace rev { namespace video
 	class CShader: public TResource<CShader, pair<CVtxShader*,CPxlShader*> >
 	{
 	public:
-		typedef TResourceManager<CShader, pair<CVtxShader*,CPxlShader*> > managerT;
-
-	public:
-		static	managerT*	manager();
 		CShader(pair<CVtxShader*,CPxlShader*> _baseShaders);
 		void	setEnviroment() const;
-	private:
-		// Shader manager
-		static managerT * sManager;
-		
+	private:		
 		CVtxShader * mVtx;
 		CPxlShader * mPxl;
 		int		mId;

@@ -57,6 +57,9 @@ namespace rev { namespace video
 			ICamera * cam = viewport->camera();
 			if(cam)
 			{
+				// Set environment
+				setViewMatrix(cam->viewMatrix());
+				setProjectionMatrix(cam->projMatrix());
 				CVideoScene * scn = cam->scene();
 				CVideoScene::TRenderableContainer& renderables = scn->renderables();
 				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
@@ -99,7 +102,7 @@ namespace rev { namespace video
 					}
 					// Actual render
 					materialInstance->setEnviroment();
-					renderableInstance->setEnviroment(cam);
+					renderableInstance->setEnviroment();
 					renderable->render();
 				}
 			}
