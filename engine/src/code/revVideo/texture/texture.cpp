@@ -180,6 +180,7 @@ namespace video
 #else // !ANDROID
 		delete mBuffer;
 #endif // !ANDROID
+		glDeleteTextures(1, &mId);
 	}
 
 }	// namespace video

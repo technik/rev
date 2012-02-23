@@ -8,6 +8,7 @@
 #include "pxlShader.h"
 
 #include "revVideo/video.h"
+#include "revVideo/videoDriver/shader/shader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
 namespace rev {
@@ -22,6 +23,12 @@ namespace rev { namespace video
 	CPxlShader::CPxlShader(const string& _name)
 	{
 		mId = SVideo::get()->driver()->loadPxlShader(_name.c_str());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CPxlShader::~CPxlShader()
+	{
+		SVideo::get()->driver()->releaseShader(mId);
 	}
 }	// namespace video
 }	// namespace rev

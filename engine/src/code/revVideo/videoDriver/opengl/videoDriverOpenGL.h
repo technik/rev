@@ -60,7 +60,8 @@ namespace rev { namespace video
 		int				linkShader			(CVtxShader* _vtx, CPxlShader* _pxl);
 		int				loadVtxShader		(const char * _name);
 		int				loadPxlShader		(const char * _name);
-		void			bindAttributes			(int _shader);
+		void			releaseShader		(int _id);
+		void			bindAttributes		(int _shader);
 
 		// -- Extensions
 		void			loadOpenGLExtensions	();

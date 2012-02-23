@@ -40,6 +40,9 @@ namespace rev
 	class TResourceManager<_resourceT, string>
 	{
 	public:
+#ifdef WIN32
+		void			reload				(const string& _key);
+#endif // WIN32
 		_resourceT *	get					(const string& _key);
 		// Notice you have ownership of all resources you manually register
 		void			registerResource	(_resourceT * _resource, const string& _key);
@@ -103,6 +106,21 @@ namespace rev
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Specialized implementation
+	//------------------------------------------------------------------------------------------------------------------
+	template<class _resourceT>
+	void TResourceManager<_resourceT, string>::reload(const string& _key)
+	{
+		typename resourceMapT::iterator searchResult = mResources.find(_key);
+		if(mResources.end() != searchResult) // Resource found, let's reload it
+		{
+			_resourceT * res = *searchResult;
+			unsigned int nRefs = static_cast<TResource<_resourceT, string>*>(res)->mReferences;
+			res->~_resourceT(); // Destroy but not deallocate
+			new(res)_resourceT(_key); // Recreate in the same memory location
+			static_cast<TResource<_resourceT, string>*>(res)->mReferences = nRefs;
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	template<class _resourceT>
 	_resourceT * TResourceManager<_resourceT, string>::get(const string& _key)

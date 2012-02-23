@@ -17,6 +17,7 @@ namespace rev { namespace video
 	{
 	public:
 		CPxlShader(const string& _name);
+		~CPxlShader();
 		int		id() const	{	return mId;	}
 
 	private:

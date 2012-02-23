@@ -60,7 +60,7 @@ namespace rev
 	template<typename _derivedResT, typename _keyT>
 	inline TResource<_derivedResT, _keyT>::~TResource()
 	{
-		codeTools::revAssert(0 == mReferences);
+		//codeTools::revAssert(0 == mReferences);
 	}
 
 }	// namespace rev
