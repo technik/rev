@@ -61,6 +61,7 @@ namespace rev	{
 
 		// --- Shader management -- //
 		virtual int		linkShader			(CVtxShader* _vtx, CPxlShader* _pxl) = 0;
+		virtual void	destroyShader		(int _id) = 0;
 		virtual int		loadVtxShader		(const char * _name) = 0;
 		virtual int		loadPxlShader		(const char * _name) = 0;
 		virtual void	releaseShader		(int _id) = 0;

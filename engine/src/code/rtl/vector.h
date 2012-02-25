@@ -25,7 +25,9 @@ namespace rtl
 		class iterator
 		{
 		public:
-			void operator++	()							{ mIndex = &mIndex[1];			}
+			iterator(): mIndex(0) {}
+			iterator& operator++	()					{ mIndex = &mIndex[1];	return *this; }
+			iterator  operator++	(int)				{ mIndex = &mIndex[1];	return *this; }
 			bool operator==	(const iterator& _i) const	{ return mIndex == _i.mIndex;	}
 			bool operator!= (const iterator& _i) const	{ return mIndex != _i.mIndex;	}
 			_dataT&	operator *	() const				{ return *mIndex;				}
@@ -40,7 +42,19 @@ namespace rtl
 	public:
 		// --- Default constructor and destructor ---
 		vector();
+		vector(const vector<_dataT>& _x);
 		~vector();
+		vector<_dataT>& operator= (const vector<_dataT>& _x)
+		{
+			m_size = _x.m_size;
+			m_capacity = m_size;
+			m_pData = reinterpret_cast<_dataT*>(new char[m_size * sizeof(_dataT)]);
+			for(unsigned i = 0; i < m_size; ++i)
+			{
+				new(&m_pData[i]) _dataT(_x[i]);
+			}
+			return *this;
+		}
 
 		// --- accessors and parsing ---
 		unsigned int	size		()	const;
@@ -59,6 +73,31 @@ namespace rtl
 
 		// --- modifiers ---
 		void			push_back	(const _dataT& _data);
+		void			clear		()
+		{
+			for(unsigned i = 0; i < m_size; ++i)
+			{
+				m_pData[i].~_dataT(); // Destroy data
+			}
+			m_size = 0;
+		}
+		void			erase		(iterator _position)
+		{
+			if(_position == end())
+				return;
+			m_size--;
+			iterator i = _position;
+			iterator j;
+			j++;
+			while(j != end())
+			{
+				*i = *j;
+				++i;
+				++j;
+			}
+			m_pData[m_size].~_dataT();
+			m_size--;
+		}
 		// TODO: pop_back
 
 		void			resize		(const unsigned int _size);
@@ -83,7 +122,19 @@ namespace rtl
 	{
 		m_pData = 0;// new _dataT[m_capacity];
 	}
-
+	
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _dataT>
+	inline vector<_dataT>::vector(const vector<_dataT>& _x)
+	{
+		m_size = _x.m_size;
+		m_capacity = m_size;
+		m_pData = reinterpret_cast<_dataT*>(new char[m_size * sizeof(_dataT)]);
+		for(unsigned i = 0; i < m_size; ++i)
+		{
+			new(&m_pData[i]) _dataT(_x[i]);
+		}
+	}
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _dataT>
 	inline vector<_dataT>::~vector()
@@ -124,7 +175,7 @@ namespace rtl
 	template<typename _dataT>
 	inline typename vector<_dataT>::iterator vector<_dataT>::end()
 	{
-		return iterator(0);
+		return iterator(&m_pData[m_size]);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -157,8 +208,8 @@ namespace rtl
 				// Call approipate constructor
 				new(&m_pData[i]) _dataT;
 			}
+			m_size = _size;
 		}
-		m_size = _size;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

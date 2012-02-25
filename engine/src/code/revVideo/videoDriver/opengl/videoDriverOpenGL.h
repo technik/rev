@@ -58,6 +58,7 @@ namespace rev { namespace video
 		
 		// --- Shader management -- //
 		int				linkShader			(CVtxShader* _vtx, CPxlShader* _pxl);
+		void			destroyShader		(int _id);
 		int				loadVtxShader		(const char * _name);
 		int				loadPxlShader		(const char * _name);
 		void			releaseShader		(int _id);

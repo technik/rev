@@ -148,6 +148,12 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::destroyShader(int _id)
+	{
+		glDeleteProgram(_id);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	int IVideoDriverOpenGL::loadVtxShader(const char * _name)
 	{
 		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
@@ -188,7 +194,7 @@ namespace rev { namespace video
 	{
 		m_useProgram = (PFNGLUSEPROGRAMPROC)loadExtension("glUseProgram");
 		m_createProgram = (PFNGLCREATEPROGRAMPROC)loadExtension("glCreateProgram");
-		m_deleteProgram = (PFNGLDELETEPROGRAMPROC)loadExtension("glDelteProgram");
+		m_deleteProgram = (PFNGLDELETEPROGRAMPROC)loadExtension("glDeleteProgram");
 		m_createShader = (PFNGLCREATESHADERPROC)loadExtension("glCreateShader");
 		m_deleteShader = (PFNGLDELETESHADERPROC)loadExtension("glDeleteShader");
 		m_shaderSource = (PFNGLSHADERSOURCEPROC)loadExtension("glShaderSource");

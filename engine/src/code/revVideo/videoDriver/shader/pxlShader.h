@@ -10,18 +10,26 @@
 
 #include "revCore/resourceManager/resource.h"
 #include "revCore/string.h"
+#include <rtl/vector.h>
 
 namespace rev { namespace video
 {
+	// Forward declarations
+	class CShader;
+
 	class CPxlShader: public TResource<CPxlShader, string>
 	{
 	public:
 		CPxlShader(const string& _name);
 		~CPxlShader();
 		int		id() const	{	return mId;	}
+		rtl::vector<CShader*>& users () { return mUsers; }
 
 	private:
 		int mId;
+		rtl::vector<CShader*>	mUsers;	///< Shaders that use this pixel shader
+
+		static rtl::vector<CShader*> tempUserStorage;
 	};
 }	// namespace video
 }	// namespace rev

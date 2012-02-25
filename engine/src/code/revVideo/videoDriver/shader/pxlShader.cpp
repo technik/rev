@@ -19,16 +19,33 @@ namespace rev {
 
 namespace rev { namespace video
 {
+	// Static data
+	rtl::vector<CShader*> CPxlShader::tempUserStorage;
+
 	//------------------------------------------------------------------------------------------------------------------
 	CPxlShader::CPxlShader(const string& _name)
 	{
 		mId = SVideo::get()->driver()->loadPxlShader(_name.c_str());
+		if( 0 != tempUserStorage.size())
+		{
+			mUsers = tempUserStorage;
+			rtl::vector<CShader*>::iterator i = tempUserStorage.begin();
+			rtl::vector<CShader*>::iterator e = tempUserStorage.end();
+			//for(rtl::vector<CShader*>::iterator i = tempUserStorage.begin(); i != tempUserStorage.end(); ++i)
+			while(i != e)
+			{
+				(*i)->refresh();
+				++i;
+			}
+			tempUserStorage.clear();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CPxlShader::~CPxlShader()
 	{
 		SVideo::get()->driver()->releaseShader(mId);
+		tempUserStorage = mUsers;
 	}
 }	// namespace video
 }	// namespace rev
