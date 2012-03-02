@@ -27,19 +27,26 @@ namespace rev { namespace video
 		,mPxl(_baseShaders.second)
 	{
 		mPxl->users().push_back(this);
+		mVtx->users().push_back(this);
 		mId = SVideo::get()->driver()->linkShader(mVtx, mPxl);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CShader::~CShader()
 	{
-		rtl::vector<CShader*>& users = mPxl->users();
-		rtl::vector<CShader*>::iterator i = users.begin();
-		while(i != users.end())
+		unregisterAsUser(mVtx->users());
+		unregisterAsUser(mPxl->users());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CShader::unregisterAsUser(rtl::vector<CShader*>& _userList)
+	{
+		rtl::vector<CShader*>::iterator i = _userList.begin();
+		while(i != _userList.end())
 		{
 			if(*i == this)
 			{
-				users.erase(i);
+				_userList.erase(i);
 				break;
 			}
 			++i;

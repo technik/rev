@@ -10,19 +10,27 @@
 
 #include "revCore/resourceManager/resource.h"
 #include "revCore/string.h"
+#include "rtl/vector.h"
 
 namespace rev { namespace video
 {
+	class CShader;
+
 	class CVtxShader: public TResource<CVtxShader, string>
 	{
 	public:
-		// Constructor
+		// Constructor and destructor
 		CVtxShader(const string& _name);
+		~CVtxShader();
 
 		// Other methods
 		int				id() const	{	return mId;	}
+		rtl::vector<CShader*>& users() { return mUsers; }
 	private:
 		int mId;
+		rtl::vector<CShader*> mUsers;
+
+		static rtl::vector<CShader*> tempUserStorage;
 	};
 }	// namespace video
 }	// namespace rev

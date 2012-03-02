@@ -40,7 +40,7 @@ namespace rev { namespace video
 		IRenderer3d * renderer = SVideo::get()->renderer();
 		CMat34 invModel;
 		renderer->modelMatrix().inverse(invModel);
-		driver->setUniform(lightUniformId, (invModel * renderer->viewMatrix()) * CVec3(1.f, 0.f, 0.f));
+		driver->setUniform(lightUniformId, invModel * CVec3(1.f, 0.f, 0.f));
 	}
 
 }	// namespace video

@@ -10,6 +10,7 @@
 
 #include "revCore/resourceManager/resource.h"
 #include "rtl/pair.h"
+#include "rtl/vector.h"
 
 using rtl::pair;
 
@@ -26,7 +27,8 @@ namespace rev { namespace video
 		void	setEnviroment() const;
 
 		void	refresh();
-	private:		
+	private:
+		void unregisterAsUser(rtl::vector<CShader*>& _userList);
 		CVtxShader * mVtx;
 		CPxlShader * mPxl;
 		int		mId;
