@@ -12,7 +12,7 @@
 #include "revCore/math/matrix.h"
 #include "revCore/math/quaternion.h"
 #include "revCore/math/vector.h"
-#include "rtl/vector.h"
+#include <vector.h>
 
 namespace rev
 {

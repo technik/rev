@@ -118,6 +118,9 @@
     <Filter Include="revGame\scene\object">
       <UniqueIdentifier>{6252cc83-2466-4704-9e6a-bd979058f23f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="stl">
+      <UniqueIdentifier>{81fd40f0-624f-4bd1-b190-495483a2475f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -129,13 +132,7 @@
     <ClInclude Include="..\..\code\rtl\multimap.h">
       <Filter>rtl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\rtl\pair.h">
-      <Filter>rtl</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\rtl\poolset.h">
-      <Filter>rtl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\rtl\vector.h">
       <Filter>rtl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\video.h">
@@ -302,6 +299,24 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\resourceManager\passiveResource.h">
       <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\iterator.h">
+      <Filter>stl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\iterator_traits.h">
+      <Filter>stl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\iterator_tags.h">
+      <Filter>stl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\utility.h">
+      <Filter>stl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\memory.h">
+      <Filter>stl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\vector.h">
+      <Filter>stl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

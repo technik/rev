@@ -9,8 +9,7 @@
 #define _REV_REVVIDEO_VIDEODRIVER_SHADER_SHADER_H_
 
 #include "revCore/resourceManager/resource.h"
-#include "rtl/pair.h"
-#include "rtl/vector.h"
+#include <vector.h>
 
 using rtl::pair;
 

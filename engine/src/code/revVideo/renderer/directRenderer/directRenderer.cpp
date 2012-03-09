@@ -23,7 +23,6 @@
 #include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/viewport/viewport.h"
-#include "rtl/pair.h"
 
 using rtl::pair;
 

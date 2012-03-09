@@ -10,7 +10,7 @@
 
 #include "revCore/resourceManager/resource.h"
 #include "revCore/string.h"
-#include <rtl/vector.h>
+#include <vector.h>
 
 namespace rev { namespace video
 {

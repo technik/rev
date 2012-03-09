@@ -9,7 +9,7 @@
 #define _RTL_MAP_H_
 
 #include "baseTypes.h"
-#include "pair.h"
+#include <utility.h>
 
 namespace rtl
 {
@@ -17,7 +17,7 @@ namespace rtl
 	class map
 	{
 	public:
-		typedef pair<_keyT, _T>	valueT;
+		typedef rtl::pair<_keyT, _T>	valueT;
 		// Iterator classes
 		class const_iterator
 		{
@@ -230,7 +230,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline bool map<_keyT,_T>::const_iterator::operator==(const const_iterator& _i) const
 	{
-		return mIdx == _i.mIndex;
+		return mIdx == _i.mIdx;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
