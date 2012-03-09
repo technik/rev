@@ -29,7 +29,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CRaymarchingMaterial::setEnviroment() const
+	void CRaymarchingMaterial::setEnvironment() const
 	{
 		float dt = STime::get()->frameTime();
 		mTime +=dt;

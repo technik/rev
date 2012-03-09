@@ -19,7 +19,7 @@ namespace rev { namespace video
 		CRaymarchingMaterial();
 		~CRaymarchingMaterial();
 
-		void	setEnviroment () const;
+		void	setEnvironment () const;
 		void	resetTime();
 	private:
 		mutable TReal mTime;

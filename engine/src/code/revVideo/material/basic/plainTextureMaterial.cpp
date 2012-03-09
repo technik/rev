@@ -41,7 +41,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CPlainTextureMaterial::setEnviroment() const
+	void CPlainTextureMaterial::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		int textureUniformId = driver->getUniformId("texture");

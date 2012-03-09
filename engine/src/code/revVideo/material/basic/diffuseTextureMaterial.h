@@ -23,7 +23,7 @@ namespace rev { namespace video
 		~CDiffuseTextureMaterial();
 
 	private:
-		void setEnviroment() const;
+		void setEnvironment() const;
 
 	private:
 		CTexture*	mTexture;

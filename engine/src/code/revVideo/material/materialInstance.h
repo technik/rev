@@ -20,7 +20,7 @@ namespace rev { namespace video
 		~IMaterialInstance() {}
 		// Public interface
 		const IMaterial *	material		() const;
-		virtual	void		setEnviroment	() const {}
+		virtual	void		setEnvironment	() const {}
 	private:
 		const IMaterial *	mMaterial;
 	};

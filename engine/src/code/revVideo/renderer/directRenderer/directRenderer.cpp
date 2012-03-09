@@ -98,10 +98,10 @@ namespace rev { namespace video
 					if(currentMaterial != material)
 					{
 						currentMaterial = material;
-						material->setEnviroment();
+						material->setEnvironment();
 					}
 					// Actual render
-					materialInstance->setEnviroment();
+					materialInstance->setEnvironment();
 					renderableInstance->setEnviroment();
 					renderable->render();
 				}

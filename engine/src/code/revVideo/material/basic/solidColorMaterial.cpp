@@ -30,7 +30,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CSolidColorMaterial::setEnviroment() const
+	void CSolidColorMaterial::setEnvironment() const
 	{
 		int colorUniformId = SVideo::get()->driver()->getUniformId("color");
 		SVideo::get()->driver()->setUniform(colorUniformId, mColor);

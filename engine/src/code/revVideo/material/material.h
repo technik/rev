@@ -24,7 +24,7 @@ namespace rev { namespace video
 		IMaterial():mShader(0){}
 		~IMaterial()	{}
 		CPxlShader*		shader			() const;	// Returns material's pixel shader
-		virtual	void	setEnviroment	() const = 0;
+		virtual	void	setEnvironment	() const = 0;
 
 	protected:
 		CPxlShader * mShader;

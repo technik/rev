@@ -31,7 +31,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CDiffuseTextureMaterial::setEnviroment() const
+	void CDiffuseTextureMaterial::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		int textureUniformId = driver->getUniformId("texture");

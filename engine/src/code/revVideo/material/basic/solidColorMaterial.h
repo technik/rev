@@ -25,7 +25,7 @@ namespace rev { namespace video
 		void setColor(const CColor& _color);
 		const CColor& color () const;
 	private:
-		void setEnviroment() const;
+		void setEnvironment() const;
 
 	private:
 		CColor	mColor;

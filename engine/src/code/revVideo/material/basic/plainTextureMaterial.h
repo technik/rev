@@ -26,7 +26,7 @@ namespace rev { namespace video
 		void setTexture (CTexture * _texture);
 
 	private:
-		void setEnviroment () const;
+		void setEnvironment () const;
 
 	private:
 		CTexture * mTexture;
