@@ -25,7 +25,7 @@ namespace rev { namespace video
 	{
 		mModel = CStaticModel::manager()->get(string(_modelName));
 		IRenderableInstance::setRenderable(mModel);
-		mMaterialInstance = new IMaterialInstance(IMaterial::manager()->get(string(_material)));
+		mMaterialInstance = new CMaterialInstance(IMaterial::manager()->get(string(_material)));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

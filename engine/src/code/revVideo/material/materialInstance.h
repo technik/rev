@@ -12,21 +12,21 @@ namespace rev { namespace video
 {
 	class IMaterial;
 
-	class IMaterialInstance
+	class CMaterialInstance
 	{
 	public:
 		// Constructor and virtual destructor
-		IMaterialInstance(const IMaterial * _material):mMaterial(_material) {}
-		~IMaterialInstance() {}
+		CMaterialInstance(IMaterial * _material);
+		~CMaterialInstance();
 		// Public interface
 		const IMaterial *	material		() const;
 		virtual	void		setEnvironment	() const {}
 	private:
-		const IMaterial *	mMaterial;
+		IMaterial *	mMaterial;
 	};
 	
 	//------------------------------------------------------------------------------------------------------------------
-	inline const IMaterial * IMaterialInstance::material() const
+	inline const IMaterial * CMaterialInstance::material() const
 	{
 		return mMaterial;
 	}

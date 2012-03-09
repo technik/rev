@@ -17,6 +17,17 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
+	void CDiffuseTextureMaterialInstance::setEnvironment() const
+	{
+		IVideoDriver * driver = SVideo::get()->driver();
+		int lightUniformId = driver->getUniformId("light0Dir");
+		IRenderer3d * renderer = SVideo::get()->renderer();
+		CMat34 invModel;
+		renderer->modelMatrix().inverse(invModel);
+		driver->setUniform(lightUniformId, invModel * CVec3(1.f, 0.f, 0.f));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CDiffuseTextureMaterial::CDiffuseTextureMaterial(const char * _textureName)
 	{
 		mShader = CPxlShader::manager()->get("perPixelDiffuse.pxl");
@@ -36,11 +47,6 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		int textureUniformId = driver->getUniformId("texture");
 		driver->setUniform(textureUniformId, 0, mTexture); // Set my texture into texture slot 0
-		int lightUniformId = driver->getUniformId("light0Dir");
-		IRenderer3d * renderer = SVideo::get()->renderer();
-		CMat34 invModel;
-		renderer->modelMatrix().inverse(invModel);
-		driver->setUniform(lightUniformId, invModel * CVec3(1.f, 0.f, 0.f));
 	}
 
 }	// namespace video

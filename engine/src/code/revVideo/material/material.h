@@ -11,6 +11,7 @@
 #include "revCore/codeTools/assert/assert.h"
 #include "revCore/string.h"
 #include "revCore/resourceManager/passiveResource.h"
+#include "revVideo/material/materialInstance.h"
 
 namespace rev { namespace video
 {
@@ -25,6 +26,8 @@ namespace rev { namespace video
 		~IMaterial()	{}
 		CPxlShader*		shader			() const;	// Returns material's pixel shader
 		virtual	void	setEnvironment	() const = 0;
+
+		virtual CMaterialInstance * getInstance() { return new CMaterialInstance(this); }
 
 	protected:
 		CPxlShader * mShader;

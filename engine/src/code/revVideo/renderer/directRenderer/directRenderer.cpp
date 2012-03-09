@@ -67,7 +67,7 @@ namespace rev { namespace video
 					IRenderableInstance * renderableInstance = *i;
 					codeTools::revAssert(0 != renderableInstance);
 										
-					const IMaterialInstance * materialInstance = renderableInstance->materialInstance();
+					const CMaterialInstance * materialInstance = renderableInstance->materialInstance();
 					codeTools::revAssert(0 != materialInstance);
 					
 					const IMaterial * material = materialInstance->material();

@@ -15,14 +15,14 @@ namespace rev { namespace video
 {
 	// Forward declaration
 	class ICamera;
-	class IMaterialInstance;
+	class CMaterialInstance;
 	class IRenderable;
 
 	class IRenderableInstance: public IComponent
 	{
 	public:
 		// Constructor and destructor
-		inline IRenderableInstance			(IRenderable * _renderable = 0, IMaterialInstance * _material = 0)
+		inline IRenderableInstance			(IRenderable * _renderable = 0, CMaterialInstance * _material = 0)
 			:mMaterialInstance(_material)
 			,mRenderable(_renderable)
 		{
@@ -31,6 +31,7 @@ namespace rev { namespace video
 		}
 		virtual ~IRenderableInstance		()
 		{
+			setMaterialInstance(0);
 			mScene->removeRenderable(this);
 		}
 
@@ -46,12 +47,15 @@ namespace rev { namespace video
 		// Interface
 		inline IRenderable*	renderable		() const { return mRenderable; }
 		virtual void		setEnviroment	() const;
-		IMaterialInstance*	materialInstance() const { return mMaterialInstance; }
+		CMaterialInstance*	materialInstance() const { return mMaterialInstance; }
 	protected:
 		void				setRenderable	(IRenderable * _renderable) { mRenderable = _renderable; }
+		void				setMaterial		(IMaterial * _material);
+		void				setMaterialInstance (CMaterialInstance * _instance);
 
-		IMaterialInstance*	mMaterialInstance;
 	private:
+
+		CMaterialInstance*	mMaterialInstance;
 		IRenderable * mRenderable;
 		CVideoScene * mScene;
 	};

@@ -13,9 +13,7 @@
 namespace rev { namespace video
 {
 	// Forward declarations
-	class CPlainTextureMaterial;
 	class CQuad;
-	class CTexture;
 }	// namespace video
 }	// namespace rev
 
@@ -32,7 +30,6 @@ namespace rev { namespace game
 		const CVec2&	size	() const;
 		void			setSize	(const CVec2& _size);
 	private:
-		video::CPlainTextureMaterial * mMaterial;
 		video::CQuad * mQuad;
 		CVec2 mSize;
 	};

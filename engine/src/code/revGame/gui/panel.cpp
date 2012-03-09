@@ -7,8 +7,10 @@
 
 #include "panel.h"
 
+#include "revCore/resourceManager/passiveResourceManager.h"
 #include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/material/basic/plainTextureMaterial.h"
+#include "revVideo/material/material.h"
 #include "revVideo/material/materialInstance.h"
 #include "revVideo/scene/model/quad.h"
 #include "revVideo/texture/texture.h"
@@ -16,6 +18,7 @@
 using rev::video::CPlainTextureMaterial;
 using rev::video::CQuad;
 using rev::video::CTexture;
+using rev::video::IMaterial;
 
 namespace rev { namespace game
 {
@@ -24,9 +27,14 @@ namespace rev { namespace game
 	{
 		// Create a material using the given texture
 		CTexture * texture = CTexture::manager()->get(_texture);	// Retrieve texture from the manager
-		mMaterial = new CPlainTextureMaterial(texture);	// Create a material with this texture
-		CTexture::manager()->release(texture); // So we don't have ownership of this texture and mMaterial manages it.
-		mMaterialInstance = new video::IMaterialInstance(mMaterial);	// Instantiate the material
+		IMaterial * material = IMaterial::manager()->get(_texture);
+		if(0 == material)
+		{
+			material = new CPlainTextureMaterial(texture);
+			IMaterial::manager()->registerResource(material, _texture);
+		}
+		CTexture::manager()->release(texture); // So we don't have ownership of this texture.
+		setMaterial(material);	// Create a material with this texture
 
 		// Create a quad model with the size of the texture
 		mQuad = new CQuad(texture->size());
@@ -41,8 +49,6 @@ namespace rev { namespace game
 	{
 		// Free all resources we allocated
 		delete mQuad;
-		delete mMaterialInstance;
-		delete mMaterial;
 	}
 
 }	// namespace video
