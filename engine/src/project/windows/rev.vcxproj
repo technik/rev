@@ -193,6 +193,7 @@
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\material.cpp" />
+    <ClCompile Include="..\..\code\revVideo\material\materialInstance.cpp" />
     <ClCompile Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp" />

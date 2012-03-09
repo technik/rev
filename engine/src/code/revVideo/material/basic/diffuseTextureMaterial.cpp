@@ -17,6 +17,12 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
+	CDiffuseTextureMaterialInstance::CDiffuseTextureMaterialInstance( CDiffuseTextureMaterial * material )
+			: CMaterialInstance(material)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CDiffuseTextureMaterialInstance::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();

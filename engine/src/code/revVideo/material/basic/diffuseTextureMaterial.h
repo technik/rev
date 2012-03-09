@@ -21,9 +21,7 @@ namespace rev { namespace video
 	class CDiffuseTextureMaterialInstance : public CMaterialInstance
 	{
 	public:
-		CDiffuseTextureMaterialInstance( CDiffuseTextureMaterial * material )
-			: CMaterialInstance(material)
-		{}
+		CDiffuseTextureMaterialInstance( CDiffuseTextureMaterial * material );
 		void setEnvironment() const;
 	};
 

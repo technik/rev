@@ -12,9 +12,7 @@
 
 namespace rev { namespace video
 {
-	// Forward declarations
 	class CStaticModel;
-	class ICamera;
 
 	class CStaticModelInstance: public IRenderableInstance
 	{
@@ -23,7 +21,7 @@ namespace rev { namespace video
 		~CStaticModelInstance();
 
 	private:
-		CStaticModel* mModel;
+		CStaticModel * mModel;
 	};
 
 }	// namespace video

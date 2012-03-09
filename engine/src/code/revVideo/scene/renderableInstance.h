@@ -14,8 +14,9 @@
 namespace rev { namespace video
 {
 	// Forward declaration
-	class ICamera;
 	class CMaterialInstance;
+	class ICamera;
+	class IMaterial;
 	class IRenderable;
 
 	class IRenderableInstance: public IComponent
