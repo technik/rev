@@ -12,11 +12,4 @@ namespace rev
 // Static definitions
 	const CVec2 CVec2::zero(0.f, 0.f);
 	const CVec3 CVec3::zero = CVec3(0.f, 0.f, 0.f);
-
-	//---------------------------------------------------------------------------------------------------------------------
-	CVec3 CVec3::operator+ (const CVec3& _v) const
-	{
-		return CVec3(x+_v.x, y+_v.y, z+_v.z);
-	}
-
 }	// namespace rev

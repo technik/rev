@@ -33,6 +33,9 @@ namespace video
 		,mTriStrip(0)
 		,mStripLength(0)
 	{
+		// Cache static model shader
+		if(0 == sShader)
+			sShader = CVtxShader::manager()->get("staticModel.vtx");
 		// Empty constructor. Use only if you're going to fill data in manually
 	}
 

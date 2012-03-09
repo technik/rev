@@ -38,7 +38,22 @@ namespace rev
 		CVec3(TReal _x, TReal _y, TReal _z): x(_x), y(_y), z(_z) {}
 
 		// Mathematical operators
-		CVec3 operator + (const CVec3& _v) const;
+		CVec3 operator + (const CVec3& _v) const
+		{
+			return CVec3(x+_v.x,y+_v.y,z+_v.z);
+		}
+		CVec3 operator - (const CVec3& _v) const
+		{
+			return CVec3(x-_v.x,y-_v.y,z-_v.z);
+		}
+		CVec3 operator * (const TReal k) const { return CVec3(x*k, y*k, z*k); }
+		CVec3 operator ^ (const CVec3& b) const 
+		{
+			return CVec3(
+				y*b.z - z*b.y,
+				z*b.x - x*b.z,
+				x*b.y - y*b.x);
+		}
 
 		// Common vectors
 		static const CVec3 zero;

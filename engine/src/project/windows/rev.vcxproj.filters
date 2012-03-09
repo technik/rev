@@ -121,6 +121,9 @@
     <Filter Include="stl">
       <UniqueIdentifier>{81fd40f0-624f-4bd1-b190-495483a2475f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\scene\mesh">
+      <UniqueIdentifier>{04247098-38f9-45a7-9d9e-353ef2dee5cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -318,6 +321,9 @@
     <ClInclude Include="..\..\..\..\..\stl\vector.h">
       <Filter>stl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h">
+      <Filter>revGame\scene\mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -439,6 +445,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\material.cpp">
       <Filter>revVideo\material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp">
+      <Filter>revGame\scene\mesh</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
