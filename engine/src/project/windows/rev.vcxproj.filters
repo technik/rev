@@ -124,6 +124,12 @@
     <Filter Include="revVideo\scene\model">
       <UniqueIdentifier>{087f7760-412d-47d3-a766-bf87fa86df48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revInput\keyboardInput">
+      <UniqueIdentifier>{c96ce2ed-9d22-4f0d-bf40-5f69241e5caa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revInput\keyboardInput\windows">
+      <UniqueIdentifier>{70853000-b5b3-4cc7-8680-24df52044f54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -324,6 +330,12 @@
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h">
       <Filter>revGame\scene\meshGenerator</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revInput\keyboardInput\keyboardInput.h">
+      <Filter>revInput\keyboardInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.h">
+      <Filter>revInput\keyboardInput\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -451,6 +463,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp">
       <Filter>revGame\scene\meshGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revInput\keyboardInput\keyboardInput.cpp">
+      <Filter>revInput\keyboardInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.cpp">
+      <Filter>revInput\keyboardInput\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

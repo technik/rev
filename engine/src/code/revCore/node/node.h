@@ -56,7 +56,7 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	inline void CNode::move(const CVec3& _translation)
 	{
-		setPosition(position() + _translation);
+		setPosition(position() + transform().rotate(_translation));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
