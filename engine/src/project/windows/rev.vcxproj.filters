@@ -31,9 +31,6 @@
     <Filter Include="revVideo\renderer\directRenderer">
       <UniqueIdentifier>{1087ffba-491d-44cc-bc87-1e788471333b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revVideo\scene\model">
-      <UniqueIdentifier>{a3917e8c-c92a-4e2f-8868-37b9ca1c6fa6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="revVideo\videoDriver\opengl">
       <UniqueIdentifier>{1d7a984d-bed5-457f-be2a-7c73ca26fd83}</UniqueIdentifier>
     </Filter>
@@ -121,6 +118,12 @@
     <Filter Include="stl">
       <UniqueIdentifier>{81fd40f0-624f-4bd1-b190-495483a2475f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\scene\meshGenerator">
+      <UniqueIdentifier>{1f9c731b-09cc-4e35-a86d-1fd74f426abe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revVideo\scene\model">
+      <UniqueIdentifier>{087f7760-412d-47d3-a766-bf87fa86df48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -158,12 +161,6 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\scene\videoScene.h">
       <Filter>revVideo\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h">
-      <Filter>revVideo\scene\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revVideo\scene\model\staticModelInstance.h">
-      <Filter>revVideo\scene\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\videoDriver\videoDriver.h">
       <Filter>revVideo\videoDriver</Filter>
@@ -270,9 +267,6 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\plainTextureMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revVideo\scene\model\quad.h">
-      <Filter>revVideo\scene\model</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h">
       <Filter>revVideo\material\basic</Filter>
     </ClInclude>
@@ -318,7 +312,18 @@
     <ClInclude Include="..\..\..\..\..\stl\vector.h">
       <Filter>stl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
+    <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h">
+      <Filter>revVideo\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\model\staticModelInstance.h">
+      <Filter>revGame\scene\meshGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\model\quad.h">
+      <Filter>revVideo\scene\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h">
+      <Filter>revVideo\scene\model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -338,9 +343,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\videoScene.cpp">
       <Filter>revVideo\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp">
-      <Filter>revVideo\scene\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\videoDriver\android\videoDriverAndroid.cpp">
       <Filter>revVideo\videoDriver\android</Filter>
@@ -393,9 +395,6 @@
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp">
       <Filter>revInput\touchInput\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp">
-      <Filter>revVideo\scene\model</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
     </ClCompile>
@@ -416,9 +415,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\renderableInstance.cpp">
       <Filter>revVideo\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp">
-      <Filter>revVideo\scene\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
@@ -441,9 +437,20 @@
     <ClCompile Include="..\..\code\revVideo\material\material.cpp">
       <Filter>revVideo\material</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\materialInstance.cpp">
       <Filter>revVideo\material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp">
+      <Filter>revVideo\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp">
+      <Filter>revGame\scene\meshGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp">
+      <Filter>revVideo\scene\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp">
+      <Filter>revVideo\scene\model</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
