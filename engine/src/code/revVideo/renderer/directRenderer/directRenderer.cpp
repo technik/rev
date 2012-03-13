@@ -101,8 +101,8 @@ namespace rev { namespace video
 						material->setEnvironment();
 					}
 					// Actual render
-					materialInstance->setEnvironment();
 					renderableInstance->setEnviroment();
+					materialInstance->setEnvironment();
 					renderable->render();
 				}
 			}

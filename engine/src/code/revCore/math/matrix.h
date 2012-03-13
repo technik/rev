@@ -50,6 +50,7 @@ public:
 	CMat34 operator * (const CMat34& _b) const;
 
 	CVec3 operator * (const CVec3& _b) const;
+	CVec3 rotate (const CVec3& _b) const;
 
 	void inverse(CMat34& _dst) const;
 
