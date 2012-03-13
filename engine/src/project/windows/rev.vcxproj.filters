@@ -312,17 +312,17 @@
     <ClInclude Include="..\..\..\..\..\stl\vector.h">
       <Filter>stl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h">
-      <Filter>revVideo\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revVideo\scene\model\staticModelInstance.h">
-      <Filter>revGame\scene\meshGenerator</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\revVideo\scene\model\quad.h">
       <Filter>revVideo\scene\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\scene\model\staticModel.h">
       <Filter>revVideo\scene\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scene\model\staticModelInstance.h">
+      <Filter>revVideo\scene\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h">
+      <Filter>revGame\scene\meshGenerator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -440,17 +440,17 @@
     <ClCompile Include="..\..\code\revVideo\material\materialInstance.cpp">
       <Filter>revVideo\material</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp">
-      <Filter>revVideo\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp">
-      <Filter>revGame\scene\meshGenerator</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp">
       <Filter>revVideo\scene\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp">
       <Filter>revVideo\scene\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp">
+      <Filter>revVideo\scene\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp">
+      <Filter>revGame\scene\meshGenerator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
