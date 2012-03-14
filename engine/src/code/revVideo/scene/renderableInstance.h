@@ -55,7 +55,6 @@ namespace rev { namespace video
 		void				setMaterialInstance (CMaterialInstance * _instance);
 
 	private:
-
 		CMaterialInstance*	mMaterialInstance;
 		IRenderable * mRenderable;
 		CVideoScene * mScene;

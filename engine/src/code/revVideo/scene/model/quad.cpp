@@ -75,7 +75,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CQuad::render() const
 	{
-		SVideo::get()->driver()->drawIndexBuffer(4, mIndices, true);
+		SVideo::get()->driver()->drawIndexBuffer(4, mIndices, IVideoDriver::eTriStrip);
 	}
 
 }	// namespace video

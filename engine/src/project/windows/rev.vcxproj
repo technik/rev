@@ -129,6 +129,7 @@
     <ClInclude Include="..\..\code\revGame\gui\panel.h" />
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
     <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h" />
+    <ClInclude Include="..\..\code\revGame\tools\dataVisualizer.h" />
     <ClInclude Include="..\..\code\revInput\keyboardInput\keyboardInput.h" />
     <ClInclude Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="..\..\code\revGame\gui\panel.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp" />
+    <ClCompile Include="..\..\code\revGame\tools\dataVisualizer.cpp" />
     <ClCompile Include="..\..\code\revInput\keyboardInput\keyboardInput.cpp" />
     <ClCompile Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />

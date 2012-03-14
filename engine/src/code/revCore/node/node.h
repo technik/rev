@@ -3,7 +3,7 @@
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // Created on September 2nd, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Entity
+// Node
 
 #ifndef _REV_REVCORE_NODE_NODE_H_
 #define _REV_REVCORE_NODE_NODE_H_
@@ -20,10 +20,10 @@ namespace rev
 	class IComponent;
 	class ITimeSrc;
 
-	// Entities are containers of components that share the same transform and time source
-	// You can attach components to an entity
-	// You can attach an entity to a transform source (nodes, animations, rigid bodies, etc...)
-	// You can subscribe an entity to a time source
+	// Nodes are containers of components that share the same transform and time source
+	// You can attach components to a node
+	// You can attach a node to a transform source (nodes, animations, rigid bodies, etc...)
+	// You can subscribe a node to a time source
 	class CNode: public ITransformSrc
 	{
 	public:

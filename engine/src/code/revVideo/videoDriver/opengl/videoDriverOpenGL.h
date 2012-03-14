@@ -46,7 +46,8 @@ namespace rev { namespace video
 		void	setUniform			(int _id, const CColor& _value);
 		void	setUniform			(int _id, const CVec3& _value);
 		void	setUniform			(int _id, int _slot, const CTexture * _value);
-		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices, const bool _strip);
+		void	drawIndexBuffer		(const int _nIndices, const unsigned short * _indices,
+									IVideoDriver::EPrimitiveType _primitive);
 		
 		void	setBackgroundColor	(const CColor& _color);
 

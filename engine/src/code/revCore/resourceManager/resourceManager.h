@@ -99,7 +99,9 @@ namespace rev
 		if(0 == baseResource->mReferences) // No one owns this resource anymore
 		{
 			// Delete the resource
-			mResources.erase(baseResource->mKey);
+			typename resourceMapT::iterator iter = mResources.find(baseResource->mKey);
+			if(iter != mResources.end())
+				mResources.erase(iter);
 			delete _resource;
 		}
 	}
@@ -164,7 +166,12 @@ namespace rev
 		if(0 == baseResource->mReferences) // No one owns this resource anymore
 		{
 			// Delete the resource
-			mResources.erase(baseResource->mKey);
+			if(!baseResource->mKey.empty()) // Registered resource
+			{
+				typename resourceMapT::iterator iter = mResources.find(baseResource->mKey);
+				codeTools::revAssert(mResources.end() != iter);
+				mResources.erase(iter);
+			}
 			delete _resource;
 		}
 	}

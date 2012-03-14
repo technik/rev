@@ -130,6 +130,9 @@
     <Filter Include="revInput\keyboardInput\windows">
       <UniqueIdentifier>{70853000-b5b3-4cc7-8680-24df52044f54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\tools">
+      <UniqueIdentifier>{1eef496e-c55b-4dc4-894b-72b2aa598438}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -336,6 +339,9 @@
     <ClInclude Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.h">
       <Filter>revInput\keyboardInput\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\tools\dataVisualizer.h">
+      <Filter>revGame\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -469,6 +475,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.cpp">
       <Filter>revInput\keyboardInput\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\tools\dataVisualizer.cpp">
+      <Filter>revGame\tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

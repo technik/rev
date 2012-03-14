@@ -107,9 +107,26 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::drawIndexBuffer(const int _nIndices, const unsigned short int * _indices, const bool _strip)
+	void IVideoDriverOpenGL::drawIndexBuffer(const int _nIndices, const unsigned short int * _indices,
+		EPrimitiveType _primitive)
 	{
-		glDrawElements(_strip?GL_TRIANGLE_STRIP:GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+		switch(_primitive)
+		{
+		case eTriangle:
+			glDrawElements(GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			break;
+		case eTriStrip:
+			glDrawElements(GL_TRIANGLE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			break;
+		case eLine:
+			glDrawElements(GL_LINES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			break;
+		case eLineStrip:
+			glDrawElements(GL_LINE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			break;
+		default:
+			codeTools::revAssert(false);	// Unsupported
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

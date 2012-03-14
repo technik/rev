@@ -142,7 +142,7 @@ namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CStaticModel::render() const
 	{
-		SVideo::get()->driver()->drawIndexBuffer(3*mNTriangles, mTriangles, false);
+		SVideo::get()->driver()->drawIndexBuffer(3*mNTriangles, mTriangles);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
