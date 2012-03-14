@@ -14,6 +14,7 @@
 #include <revVideo/material/material.h>
 #include <revVideo/scene/renderable.h>
 #include <revVideo/scene/renderableInstance.h>
+#include <vector.h>
 
 namespace rev { namespace game
 {
@@ -29,12 +30,11 @@ namespace rev { namespace game
 		};
 	public:
 		// Life cycle
-		CDataVisualizer(const CVec2& _size, EZeroAlignment _align = eCenter);
+		CDataVisualizer(const CVec2& _size, unsigned _capacity = 100, EZeroAlignment _align = eCenter);
 		~CDataVisualizer();
 
 		// Channels management
-		int		addChannel		(const video::CColor& _clr, TReal _min, TReal _max, TReal _offset);
-		void	deleteChannel	(int _channelId);
+		int		addChannel		(const video::CColor& _clr, float _min, float _max);
 
 		// Data
 		void	resetChannel	(int _channel, float _value = 0.f);
@@ -44,15 +44,35 @@ namespace rev { namespace game
 		void	setMargins		(const CVec2& _margins);
 
 	private:
+		class CChannel
+		{
+		public:
+			CChannel(const video::CColor& _color, unsigned _capacity, float _min, float _max, const CVec2& _canvasSize);
 
-	private:
+			const CVec3*			data	()			{ return mData.data();		}
+			const unsigned short*	indices	() const	{ return mIndices.data();	}
+
+			void reset	(float _resetValue);
+
+		private:
+			float	mFactor;
+			float	mOffset;
+			video::CColor	mColor;
+			rtl::vector<CVec3>			mData;
+			rtl::vector<unsigned short>	mIndices;
+		};
+
 		class CRenderable : public video::IRenderable
 		{
 		public:
-			CRenderable(const CVec2& _size);
+			CRenderable(const CVec2& _size, const rtl::vector<CChannel*>& _channels);
 			~CRenderable();
 
 		private:
+			CRenderable& operator=(const CRenderable&) {}
+
+			typedef rtl::vector<CChannel*>	channelArrayT;
+
 			video::CVtxShader * shader	() const;
 			void		setEnviroment	() const;
 			void		render			() const;
@@ -61,9 +81,8 @@ namespace rev { namespace game
 			video::CVtxShader * mShader;
 			CVec3*	mBGVertices;
 			unsigned short * mIndices;
+			const channelArrayT& mChannels;
 		};
-
-		CRenderable*	mRenderable;
 
 		class CMaterial : public video::IMaterial
 		{
@@ -73,6 +92,12 @@ namespace rev { namespace game
 		private:
 			void	setEnvironment	() const;
 		};
+
+	private:
+		CRenderable*			mRenderable;
+		CVec2					mSize;
+		unsigned				mCapacity;
+		rtl::vector<CChannel*>	mChannels;
 	};
 }	// namespace game
 }	// namespace rev

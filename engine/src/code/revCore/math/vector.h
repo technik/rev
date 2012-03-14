@@ -36,7 +36,7 @@ namespace rev
 		// Constructors
 		CVec3()	{}
 		CVec3(TReal _x, TReal _y, TReal _z): x(_x), y(_y), z(_z) {}
-
+		~CVec3(){}
 		// Mathematical operators
 		CVec3 operator + (const CVec3& _v) const
 		{

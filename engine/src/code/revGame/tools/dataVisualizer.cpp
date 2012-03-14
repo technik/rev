@@ -19,9 +19,11 @@ using namespace rev::video;
 namespace rev { namespace game
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CDataVisualizer::CDataVisualizer(const CVec2& _size, EZeroAlignment _align)
+	CDataVisualizer::CDataVisualizer(const CVec2& _size, unsigned _capacity, EZeroAlignment _align)
+		:mSize(_size)
+		,mCapacity(_capacity)
 	{
-		mRenderable = new CRenderable(_size);
+		mRenderable = new CRenderable(_size, mChannels);
 		setRenderable(mRenderable);
 		setMaterial(new CMaterial());
 		attachTo(new CNode());
@@ -37,33 +39,31 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	int CDataVisualizer::addChannel(const video::CColor& _clr, float _min, float _max, float _offset)
+	int CDataVisualizer::addChannel(const video::CColor& _clr, float _min, float _max)
 	{
-		_clr;
-		_min;
-		_max;
-		_offset;
-		return -1;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CDataVisualizer::deleteChannel(int _channelId)
-	{
-		_channelId;
+		
+		mChannels.push_back(new CChannel(_clr, mCapacity, _min, _max, mSize));
+		return int(mChannels.size()) - 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CDataVisualizer::resetChannel(int _channelId, float _data)
 	{
-		_channelId;
-		_data;
+		codeTools::revAssert(_channelId > 0 && unsigned(_channelId) < mChannels.size() );
+		mChannels[_channelId]->reset(_data);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CDataVisualizer::pushData(int _channelId, float _data)
 	{
-		_channelId;
-		_data;
+		codeTools::revAssert(_channelId > 0 && unsigned(_channelId) < mChannels.size() );
+		unsigned i = 0;
+		CChannel& channel = *mChannels[_channelId];
+		for(; i < mChannels.size() -1; ++i)
+		{
+			channel.data()[i].z = mChannels[_channelId]->data()[i+1].z;
+		}
+		channel.data()[i].z = _data;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -73,7 +73,32 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CDataVisualizer::CRenderable::CRenderable(const CVec2& _size):mSize(_size)
+	CDataVisualizer::CChannel::CChannel(const video::CColor& _color, unsigned _capacity, float _min, float _max,
+		const CVec2& _canvasSize)
+		:mColor(_color)
+	{
+		mFactor = _canvasSize.y / (_max-_min);
+		mOffset = ((_max+_min) * 0.5f) * mFactor + (_canvasSize.y * 0.5f);
+		for (unsigned short i = 0; i < _capacity; ++i)
+		{
+			mData.push_back(CVec3(0.f+(_canvasSize.x / (_capacity-1)) * i, 0.f, _canvasSize.y * 0.5f));
+			mIndices.push_back(i);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CDataVisualizer::CChannel::reset(float _value)
+	{
+		for(unsigned i = 0; i < mData.size(); ++i)
+		{
+			mData[i].z = mOffset + _value * mFactor;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CDataVisualizer::CRenderable::CRenderable(const CVec2& _size, const rtl::vector<CChannel*>& _channels)
+		:mSize(_size)
+		,mChannels(_channels)
 	{
 		mShader = CVtxShader::manager()->get("dataGraph.vtx");
 		mBGVertices = new CVec3[4];
@@ -111,10 +136,18 @@ namespace rev { namespace game
 	void CDataVisualizer::CRenderable::render() const
 	{
 		IVideoDriver * driver = SVideo::getDriver();
+		// Draw background
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mBGVertices);
 		int colorUniform = driver->getUniformId("color");
-		driver->setUniform(colorUniform, CColor::WHITE);
+		driver->setUniform(colorUniform, CColor(1.f,1.f,1.f,0.4f));
 		driver->drawIndexBuffer(4, mIndices, IVideoDriver::eTriStrip);
+		// Draw data channels
+		for(unsigned i = 0; i < mChannels.size(); ++i)
+		{
+			driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mChannels[i]->data());
+			driver->setUniform(colorUniform, CColor::RED);
+			driver->drawIndexBuffer(100, mChannels[i]->indices(), IVideoDriver::eLineStrip);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
