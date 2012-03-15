@@ -56,14 +56,15 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	void CDataVisualizer::pushData(int _channelId, float _data)
 	{
-		codeTools::revAssert(_channelId > 0 && unsigned(_channelId) < mChannels.size() );
+		codeTools::revAssert(_channelId >= 0 && unsigned(_channelId) < mChannels.size() );
 		unsigned i = 0;
-		CChannel& channel = *mChannels[_channelId];
-		for(; i < mChannels.size() -1; ++i)
+		CChannel& channel = *(mChannels[_channelId]);
+		CVec3 * data = channel.data();
+		for(; i < mCapacity-1; ++i)
 		{
-			channel.data()[i].z = mChannels[_channelId]->data()[i+1].z;
+			data[i].z = data[i+1].z;
 		}
-		channel.data()[i].z = _data;
+		data[i].z = channel.normalizeData(_data);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -139,7 +140,7 @@ namespace rev { namespace game
 		// Draw background
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mBGVertices);
 		int colorUniform = driver->getUniformId("color");
-		driver->setUniform(colorUniform, CColor(1.f,1.f,1.f,0.4f));
+		driver->setUniform(colorUniform, CColor(1.f,1.f,1.f,0.2f));
 		driver->drawIndexBuffer(4, mIndices, IVideoDriver::eTriStrip);
 		// Draw data channels
 		for(unsigned i = 0; i < mChannels.size(); ++i)

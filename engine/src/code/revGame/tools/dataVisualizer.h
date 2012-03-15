@@ -49,10 +49,11 @@ namespace rev { namespace game
 		public:
 			CChannel(const video::CColor& _color, unsigned _capacity, float _min, float _max, const CVec2& _canvasSize);
 
-			const CVec3*			data	()			{ return mData.data();		}
-			const unsigned short*	indices	() const	{ return mIndices.data();	}
+					CVec3*			data	()			{ return mData.data();		}
+			const	unsigned short*	indices	() const	{ return mIndices.data();	}
 
-			void reset	(float _resetValue);
+			void	reset	(float _resetValue);
+			float	normalizeData	(float _data)	{ return mFactor * _data + mOffset; }
 
 		private:
 			float	mFactor;
