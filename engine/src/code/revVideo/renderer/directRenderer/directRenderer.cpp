@@ -46,6 +46,7 @@ namespace rev { namespace video
 		// Clean render cache
 		invalidateRenderableCache();
 
+		rtl::vector<IRenderableInstance*> alphaInstances;
 		// Render
 		for(CViewport::TViewportContainer::iterator vp = CViewport::viewports().begin();
 			vp != CViewport::viewports().end(); ++vp)
@@ -53,13 +54,23 @@ namespace rev { namespace video
 			ICamera * cam = (*vp).second->camera();
 			if(cam)
 			{
+				alphaInstances.clear();
 				// Set environment
 				setViewMatrix(cam->viewMatrix());
 				setProjectionMatrix(cam->projMatrix());
 				CVideoScene::TRenderableContainer& renderables = cam->scene()->renderables();
+				// Render solid objects, defer objects with alpha
 				for(CVideoScene::TRenderableContainer::iterator iter = renderables.begin(); iter != renderables.end(); ++iter)
 				{
-					renderElement(*iter);
+					if(! (*iter)->materialInstance()->material()->usesAlpha())
+						renderElement(*iter);
+					else
+						alphaInstances.push_back(*iter);
+				}
+				// Render objects with alpha
+				for(rtl::vector<IRenderableInstance*>::iterator iter = alphaInstances.begin(); iter != alphaInstances.end(); ++iter)
+				{
+						renderElement(*iter);
 				}
 			}
 		}
