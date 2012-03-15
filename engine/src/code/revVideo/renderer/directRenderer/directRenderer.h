@@ -10,12 +10,16 @@
 
 #include "revCore/math/matrix.h"
 #include "revVideo/renderer/renderer3d.h"
-#include "revVideo/videoDriver/shader/vtxShader.h"
 
 namespace rev { namespace video
 {
 	// Forward declaration
+	class CPxlShader;
+	class CShader;
 	class CVtxShader;
+	class IRenderable;
+	class IMaterial;
+	class IRenderableInstance;
 
 	class CDirectRenderer: public IRenderer3d
 	{
@@ -26,6 +30,18 @@ namespace rev { namespace video
 
 		// public interface
 		void	renderFrame	();
+
+	private:
+		void	invalidateRenderableCache	();
+		void	setShaders					(CVtxShader * _vtx, CPxlShader * _pxl);
+		void	renderElement				( IRenderableInstance * _x );
+
+		// Renderable cache
+		CPxlShader*			mCurrentPxlShader;
+		CVtxShader*			mCurrentVtxShader;
+		CShader*			mCurrentShader;
+		const IRenderable*	mCurrentRenderable;
+		const IMaterial*	mCurrentMaterial;
 	};
 }
 }

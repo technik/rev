@@ -43,69 +43,80 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CDirectRenderer::renderFrame()
 	{
-		CPxlShader * currentPxlShader = 0;
-		CVtxShader * currentVtxShader = 0;
-		CShader * currentShader = 0;
-		const IRenderable * currentRenderable = 0;
-		const IMaterial * currentMaterial = 0;
+		// Clean render cache
+		invalidateRenderableCache();
 
-		for(CViewport::TViewportContainer::iterator i = CViewport::viewports().begin();
-			i != CViewport::viewports().end(); ++i)
+		// Render
+		for(CViewport::TViewportContainer::iterator vp = CViewport::viewports().begin();
+			vp != CViewport::viewports().end(); ++vp)
 		{
-			CViewport * viewport = (*i).second;
-			ICamera * cam = viewport->camera();
+			ICamera * cam = (*vp).second->camera();
 			if(cam)
 			{
 				// Set environment
 				setViewMatrix(cam->viewMatrix());
 				setProjectionMatrix(cam->projMatrix());
-				CVideoScene * scn = cam->scene();
-				CVideoScene::TRenderableContainer& renderables = scn->renderables();
-				for(CVideoScene::TRenderableContainer::iterator i = renderables.begin(); i != renderables.end(); ++i)
+				CVideoScene::TRenderableContainer& renderables = cam->scene()->renderables();
+				for(CVideoScene::TRenderableContainer::iterator iter = renderables.begin(); iter != renderables.end(); ++iter)
 				{
-					IRenderableInstance * renderableInstance = *i;
-					codeTools::revAssert(0 != renderableInstance);
-										
-					const CMaterialInstance * materialInstance = renderableInstance->materialInstance();
-					codeTools::revAssert(0 != materialInstance);
-					
-					const IMaterial * material = materialInstance->material();
-					codeTools::revAssert(0 != material);
-
-					const IRenderable * renderable = renderableInstance->renderable();
-					codeTools::revAssert(0 != renderable);
-					// Shader cache
-					CVtxShader * vtxShader = renderable->shader();
-					CPxlShader * pxlShader = material->shader();
-					if((pxlShader != currentPxlShader) || (vtxShader != currentVtxShader))
-					{
-						currentPxlShader = pxlShader;
-						currentVtxShader = vtxShader;
-						currentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(vtxShader,pxlShader));
-						currentShader->setEnviroment();
-						// Invalidate cache
-						currentMaterial = 0;
-						currentRenderable = 0;
-					}
-					// Renderable cache
-					if(renderable != currentRenderable)
-					{
-						currentRenderable = renderable;
-						renderable->setEnviroment();
-					}
-					// Material cache
-					if(currentMaterial != material)
-					{
-						currentMaterial = material;
-						material->setEnvironment();
-					}
-					// Actual render
-					renderableInstance->setEnviroment();
-					materialInstance->setEnvironment();
-					renderable->render();
+					renderElement(*iter);
 				}
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CDirectRenderer::invalidateRenderableCache()
+	{
+		mCurrentVtxShader = 0;
+		mCurrentPxlShader = 0;
+		mCurrentShader = 0;
+		mCurrentRenderable = 0;
+		mCurrentMaterial = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CDirectRenderer::setShaders(CVtxShader * _vtx, CPxlShader * _pxl)
+	{
+		if((_pxl != mCurrentPxlShader) || (_vtx != mCurrentVtxShader))
+		{
+			invalidateRenderableCache();
+			mCurrentVtxShader = _vtx;
+			mCurrentPxlShader = _pxl;
+			mCurrentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(_vtx,_pxl));
+			mCurrentShader->setEnviroment();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CDirectRenderer::renderElement( IRenderableInstance * _x )
+	{
+		codeTools::revAssert(0 != _x);
+		const CMaterialInstance * materialInstance = _x->materialInstance();
+		codeTools::revAssert(0 != materialInstance);
+		const IMaterial * material = materialInstance->material();
+		codeTools::revAssert(0 != material);
+		const IRenderable * renderable = _x->renderable();
+		codeTools::revAssert(0 != renderable);
+
+		// Update shader cache
+		setShaders(renderable->shader(), material->shader());
+		// Renderable cache
+		if(renderable != mCurrentRenderable)
+		{
+			mCurrentRenderable = renderable;
+			renderable->setEnviroment();
+		}
+		// Material cache
+		if(mCurrentMaterial != material)
+		{
+			mCurrentMaterial = material;
+			material->setEnvironment();
+		}
+		// Actual render
+		_x->setEnviroment();
+		materialInstance->setEnvironment();
+		renderable->render();
 	}
 }	// namespace video
 }	// namespace rev

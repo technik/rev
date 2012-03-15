@@ -25,9 +25,10 @@ namespace rev { namespace video
 		IMaterial():mShader(0){}
 		~IMaterial()	{}
 		CPxlShader*		shader			() const;	// Returns material's pixel shader
+		virtual bool	usesAlpha		() const { return false; }
 		virtual	void	setEnvironment	() const = 0;
 
-		virtual CMaterialInstance * getInstance() { return new CMaterialInstance(this); }
+		virtual CMaterialInstance * getInstance () { return new CMaterialInstance(this); }
 
 	protected:
 		CPxlShader * mShader;

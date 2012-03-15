@@ -90,6 +90,8 @@ namespace rev { namespace game
 		public:
 			CMaterial();
 			~CMaterial();
+
+			bool	usesAlpha		() const { return true; }
 		private:
 			void	setEnvironment	() const;
 		};
