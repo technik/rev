@@ -11,15 +11,38 @@
 namespace rev
 {
 	//------------------------------------------------------------------------------------------------------------------
-	inline void ITransformSrc::attachTo(ITransformSrc * _parent)
+	void ITransformSrc::attachTo(ITransformSrc * _parent)
 	{
+		deattach();
 		mParent = _parent;
 		if(!mParent)
 			return;
 		CMat34 parentInvTransform;
 		mParent->mWorldTrans.inverse(parentInvTransform);
 		mLocalPos = parentInvTransform * mWorldPos;
-		mLocalRot = mParent->mWorldRot * mWorldRot;
+		mLocalRot = mParent->mWorldRot.inverse().rotate(mWorldRot);
+		mParent->mChildren.push_back(this);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void ITransformSrc::deattach()
+	{
+		if(0 != mParent)
+		{
+			for(rtl::vector<ITransformSrc*>::iterator i = mParent->mChildren.begin(); i != mParent->mChildren.end(); ++i)
+			{
+				if((*i)==this)
+				{
+					mParent->mChildren.erase(i);
+					break;
+				}
+			}
+			ITransformSrc * parent = mParent;
+			mParent = 0;
+			CMat34 parentTrans = parent->mWorldTrans;
+			setPosition(parent->mWorldTrans * mLocalPos);
+			setRotation(parent->mWorldRot.rotate(mLocalRot));
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -32,6 +55,7 @@ namespace rev
 			mParent->mWorldTrans.inverse(parentInvTransform);
 			setLocalPos(parentInvTransform * _pos);
 		}
+		refreshChildren();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -40,6 +64,7 @@ namespace rev
 		setWorldRot(_rotation);
 		if(mParent)
 			setLocalRot(mParent->mWorldRot.inverse() * _rotation);
+		refreshChildren();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -48,17 +73,23 @@ namespace rev
 		mWorldTrans = _transform;
 		setPosition(CVec3(_transform.m[0][3], _transform.m[1][3], _transform.m[2][3]));
 		setRotation(CQuat(_transform));
+		refreshChildren();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ITransformSrc::refreshChildren()
+	void ITransformSrc::refreshChildren() const
 	{
-		for(TChildren::iterator i = mChildren.begin(); i != mChildren.end(); ++i)
+		for(TChildren::const_iterator i = mChildren.begin(); i != mChildren.end(); ++i)
 		{
-			ITransformSrc * child = *i;
-			child->setPosition(child->mWorldPos);
-			child->setRotation(child->mWorldRot);
+			(*i)->refreshWorld();
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void ITransformSrc::refreshWorld()
+	{
+		setWorldPos(mParent->mWorldTrans * mLocalPos);
+		setWorldRot(mParent->mWorldRot.rotate(mLocalRot));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

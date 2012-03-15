@@ -11,8 +11,6 @@
 #include "revCore/time/time.h"
 #include "revCore/time/timeSrc.h"
 
-using namespace rtl;
-
 namespace rev {
 	
 //------------------------------------------------------------------------------------------------------------------
@@ -25,7 +23,7 @@ CNode::CNode():
 CNode::~CNode()
 {
 	// Deattach all my components
-	for(poolset<IComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); ++i)
+	for(rtl::poolset<IComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); ++i)
 	{
 		(*i)->deattach();
 	}

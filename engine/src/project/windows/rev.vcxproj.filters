@@ -133,6 +133,15 @@
     <Filter Include="revGame\tools">
       <UniqueIdentifier>{1eef496e-c55b-4dc4-894b-72b2aa598438}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revPhysics">
+      <UniqueIdentifier>{7bfa7447-3c24-49ae-9b64-d9d6b32903be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revPhysics\world">
+      <UniqueIdentifier>{8d0a3dbd-3142-4bd2-a73e-9dc2e8c4f043}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revPhysics\rigidBody">
+      <UniqueIdentifier>{0798d7e4-7087-48a6-88e1-ae783113c754}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -342,6 +351,15 @@
     <ClInclude Include="..\..\code\revGame\tools\dataVisualizer.h">
       <Filter>revGame\tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h">
+      <Filter>revPhysics\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBodiy\rigidBody.h">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h">
+      <Filter>stl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -478,6 +496,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\tools\dataVisualizer.cpp">
       <Filter>revGame\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\rigidBodiy\rigidBody.cpp">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp">
+      <Filter>revPhysics\world</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

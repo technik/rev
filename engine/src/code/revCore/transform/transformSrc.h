@@ -34,6 +34,7 @@ namespace rev
 
 		ITransformSrc*	parent		()	const;
 		void			attachTo	(ITransformSrc* _parent);
+		void			deattach	();
 
 	protected:
 		void			setPosition	(const CVec3& _position);
@@ -44,7 +45,8 @@ namespace rev
 		typedef rtl::vector<ITransformSrc*>	TChildren;
 	private:
 		// Methods for internal use
-		void			refreshChildren		();
+		void			refreshChildren		() const;
+		void			refreshWorld		();
 		void			setWorldPos			(const CVec3& _pos);
 		void			setLocalPos			(const CVec3& _pos);
 		void			setWorldRot			(const CQuat& _rot);

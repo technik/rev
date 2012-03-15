@@ -26,6 +26,18 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	CQuat::CQuat(const CVec3& _rotation)
+	{
+		float halfRadians = _rotation.norm() * 0.5f;
+		CVec3 axis  = _rotation.normalized();
+		w = cos(halfRadians);
+		TReal sinus = sin(halfRadians);
+		x = axis.x * sinus;
+		y = axis.y * sinus;
+		z = axis.z * sinus;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CQuat::CQuat(const CMat3& _m)
 	{
 		// Find the largest diagonal element of _m

@@ -105,6 +105,7 @@
     <ClInclude Include="..\..\..\..\..\stl\iterator_traits.h" />
     <ClInclude Include="..\..\..\..\..\stl\memory.h" />
     <ClInclude Include="..\..\..\..\..\stl\utility.h" />
+    <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h" />
     <ClInclude Include="..\..\..\..\..\stl\vector.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\log\log.h" />
@@ -135,6 +136,8 @@
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBodiy\rigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h" />
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\perspectiveCamera.h" />
@@ -190,6 +193,8 @@
     <ClCompile Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\rigidBodiy\rigidBody.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\perspectiveCamera.cpp" />
