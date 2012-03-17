@@ -11,5 +11,8 @@ namespace rev
 //----------------------------------------------------------------------------------------------------------------------
 // Static definitions
 	const CVec2 CVec2::zero(0.f, 0.f);
-	const CVec3 CVec3::zero = CVec3(0.f, 0.f, 0.f);
+	const CVec3 CVec3::zero(0.f, 0.f, 0.f);
+	const CVec3 CVec3::xAxis(1.f, 0.f, 0.f);
+	const CVec3 CVec3::yAxis(0.f, 1.f, 0.f);
+	const CVec3 CVec3::zAxis(0.f, 0.f, 1.f);
 }	// namespace rev
