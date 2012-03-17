@@ -25,8 +25,10 @@ namespace rev { namespace physics
 
 		// Forces, torques and impulses (in global coordinates)
 		void	applyForce			(const CVec3& _f, const CVec3& _pos);
+		void	applyForce			(const CVec3& _f);
 		void	applyTorque			(const CVec3& _t);
 		void	applyImpulse		(const CVec3& _i, const CVec3& _pos);
+		void	applyImpulse		(const CVec3& _i);
 		void	applyTorqueImpulse	(const CVec3& _t);
 		void	clearForces			();
 		void	clearTorques		();
@@ -40,6 +42,9 @@ namespace rev { namespace physics
 		void			setMass			(float _mass);
 		void			setPosition		(const CVec3& _pos);
 		void			setRotation		(const CQuat& _rot);
+
+	private:
+		void	applyFriction	();
 
 	private:
 		CVec3	mLinearVelocity;

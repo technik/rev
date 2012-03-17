@@ -34,7 +34,7 @@ namespace rev { namespace physics
 	void CRigidBody::integrate( float _time )
 	{
 		// Apply forces
-		applyImpulse(mForce * _time, position());
+		applyImpulse(mForce * _time);
 		// Apply friction
 		applyFriction();
 		// Integrate motion
@@ -54,6 +54,12 @@ namespace rev { namespace physics
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
+	void CRigidBody::applyForce(const CVec3& _f)
+	{
+		mForce = mForce + _f;
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyTorque(const CVec3& _t)
 	{
 		mTorque = mTorque + _t;
@@ -69,6 +75,12 @@ namespace rev { namespace physics
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
+	void CRigidBody::applyImpulse(const CVec3& _i)
+	{
+		mLinearVelocity = mLinearVelocity + _i*mInvMass;
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyTorqueImpulse(const CVec3& _t)
 	{
 		_t;
@@ -78,6 +90,12 @@ namespace rev { namespace physics
 	void CRigidBody::setMass(float _mass)
 	{
 		mInvMass = _mass==0.f? 0.f : (1.f / _mass);
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	void CRigidBody::applyFriction()
+	{
+		// TODO
 	}
 
 }	// namespace physics
