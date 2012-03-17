@@ -38,10 +38,6 @@ public:
 
 	// Other operations
 	CVec3	rotate		(const CVec3& _v) const;
-	CQuat	rotate		(const CQuat& _q) const
-	{
-		return (*this) * _q * inverse();
-	}
 	CQuat	inverse		() const;
 
 	// Useful quaternions

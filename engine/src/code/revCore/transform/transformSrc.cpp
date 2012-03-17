@@ -20,7 +20,7 @@ namespace rev
 		CMat34 parentInvTransform;
 		mParent->mWorldTrans.inverse(parentInvTransform);
 		mLocalPos = parentInvTransform * mWorldPos;
-		mLocalRot = mParent->mWorldRot.inverse().rotate(mWorldRot);
+		mLocalRot = mParent->mWorldRot.inverse() * mWorldRot;
 		mParent->mChildren.push_back(this);
 	}
 
@@ -41,7 +41,7 @@ namespace rev
 			mParent = 0;
 			CMat34 parentTrans = parent->mWorldTrans;
 			setPosition(parent->mWorldTrans * mLocalPos);
-			setRotation(parent->mWorldRot.rotate(mLocalRot));
+			setRotation(parent->mWorldRot * mLocalRot);
 		}
 	}
 
@@ -89,7 +89,7 @@ namespace rev
 	void ITransformSrc::refreshWorld()
 	{
 		setWorldPos(mParent->mWorldTrans * mLocalPos);
-		setWorldRot(mParent->mWorldRot.rotate(mLocalRot));
+		setWorldRot(mParent->mWorldRot * mLocalRot);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

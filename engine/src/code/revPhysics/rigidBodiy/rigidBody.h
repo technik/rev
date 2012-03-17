@@ -17,30 +17,53 @@ namespace rev { namespace physics
 	class CRigidBody : public ITransformSrc
 	{
 	public:
-		CRigidBody();
+		CRigidBody(float _mass = 0.f);
 		~CRigidBody();
 
 		// integrate
 		void	integrate	(float _time);
 
+		// Forces, torques and impulses (in global coordinates)
+		void	applyForce			(const CVec3& _f, const CVec3& _pos);
+		void	applyTorque			(const CVec3& _t);
+		void	applyImpulse		(const CVec3& _i, const CVec3& _pos);
+		void	applyTorqueImpulse	(const CVec3& _t);
+		void	clearForces			();
+		void	clearTorques		();
+
 		// Accessors
-				CVec3&	linearSpeed		();
-		const	CVec3&	linearSpeed		() const;
-				CVec3&	angularSpeed	();
-		const	CVec3&	angularSpeed	() const;
+				CVec3&	linearVelocity	();
+		const	CVec3&	linearVelocity	() const;
+				CVec3&	angularVelocity	();
+		const	CVec3&	angularVelocity	() const;
+
+		void			setMass			(float _mass);
+		void			setPosition		(const CVec3& _pos);
+		void			setRotation		(const CQuat& _rot);
 
 	private:
-		CVec3	mLinearSpeed;
-		CVec3	mAngularSpeed;
+		CVec3	mLinearVelocity;
+		CVec3	mAngularVelocity;
+
+		float	mInvMass;
+		CVec3	mInertia;
+
+		CVec3	mForce;	// Forces applied at the center of mass
+		CVec3	mTorque;	// Applied torques
 
 		static CPhysicsWorld * defaultWorld;
 	};
 
 	// Inline implementations
-	inline			CVec3& CRigidBody::linearSpeed	()			{ return mLinearSpeed;	}
-	inline	const	CVec3& CRigidBody::linearSpeed	() const	{ return mLinearSpeed;	}
-	inline			CVec3& CRigidBody::angularSpeed	()			{ return mAngularSpeed;	}
-	inline	const	CVec3& CRigidBody::angularSpeed	() const	{ return mAngularSpeed; }
+	inline			CVec3&	CRigidBody::linearVelocity	()			{ return mLinearVelocity;	}
+	inline	const	CVec3&	CRigidBody::linearVelocity	() const	{ return mLinearVelocity;	}
+	inline			CVec3&	CRigidBody::angularVelocity	()			{ return mAngularVelocity;	}
+	inline	const	CVec3&	CRigidBody::angularVelocity	() const	{ return mAngularVelocity;	}
+	inline	void			CRigidBody::clearForces		()			{ mForce = CVec3::zero;		}
+	inline	void			CRigidBody::clearTorques	()			{ mTorque = CVec3::zero;	}
+	inline	void			CRigidBody::setPosition		(const CVec3& _pos)	{	ITransformSrc::setPosition(_pos);	}
+	inline	void			CRigidBody::setRotation		(const CQuat& _rot)	{	ITransformSrc::setRotation(_rot);	}
+
 }	// namespace physics
 }	// namespace rev
 

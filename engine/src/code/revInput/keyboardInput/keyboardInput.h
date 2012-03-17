@@ -20,8 +20,26 @@ namespace rev { namespace input
 		enum EKeyCode
 		{
 #ifdef WIN32
-			eKeyLeft = VK_LEFT,
+			eBackSpace = VK_BACK,
 #endif // WIN32
+			eTab,
+#ifdef WIN32
+			eEnter = VK_RETURN,
+			eShift = VK_SHIFT,
+#endif // WIN32
+			eControl,
+			eAlt,
+			ePause,
+			eCapsLock,
+#ifdef WIN32
+			eEscape = VK_ESCAPE,
+			eSpace = VK_SPACE,
+#endif // WIN32
+			ePageUp,
+			ePageDown,
+			eEnd,
+			eHome,
+			eKeyLeft,
 			eKeyUp,
 			eKeyRight,
 			eKeyDown,
