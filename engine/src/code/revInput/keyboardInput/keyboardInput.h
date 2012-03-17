@@ -56,6 +56,8 @@ namespace rev { namespace input
 		virtual bool held		(EKeyCode _key) const = 0;
 		virtual bool released	(EKeyCode _key) const = 0;
 
+		virtual void refresh	() = 0;
+
 	protected:
 		SKeyboardInput() {}
 		virtual ~SKeyboardInput() {}

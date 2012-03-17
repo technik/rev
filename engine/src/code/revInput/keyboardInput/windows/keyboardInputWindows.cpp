@@ -17,6 +17,7 @@ namespace rev { namespace input
 		for (int key = 0; key < eMaxKeyCode; ++key)
 		{
 			keyState[key] = 0;
+			oldKeyState[key] = 0;
 		}
 	}
 
@@ -28,19 +29,28 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	bool CKeyboardInputWindows::pressed(EKeyCode _key) const
 	{
-		return keyState[_key] != 0;
+		return keyState[_key] == 1 && oldKeyState[_key] == 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool CKeyboardInputWindows::held(EKeyCode _key) const
 	{
-		return keyState[_key] != 0;
+		return keyState[_key] == 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool CKeyboardInputWindows::released(EKeyCode _key) const
 	{
 		return keyState[_key] == 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CKeyboardInputWindows::refresh()
+	{
+		for (int key = 0; key < eMaxKeyCode; ++key)
+		{
+			oldKeyState[key] = keyState[key];
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

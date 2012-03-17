@@ -6,20 +6,21 @@
 // basic game client
 #ifdef WIN32
 #include <Windows.h>
-#include "revCore/resourceManager/resourceManager.h"
-#include "revVideo/texture/texture.h"
-#include "revVideo/videoDriver/shader/vtxShader.h"
-#include "revVideo/videoDriver/shader/pxlShader.h"
+#include <revCore/resourceManager/resourceManager.h>
+#include <revVideo/texture/texture.h>
+#include <revVideo/videoDriver/shader/vtxShader.h>
+#include <revVideo/videoDriver/shader/pxlShader.h>
 #endif // WIN32
 
 #include "gameClient.h"
 
 // --- Engine headers -----------
-#include "revCore/codeTools/log/log.h"
-#include "revCore/string.h"
-#include "revCore/time/time.h"
-#include "revInput/touchInput/touchInput.h"
-#include "revVideo/video.h"
+#include <revCore/codeTools/log/log.h>
+#include <revCore/string.h>
+#include <revCore/time/time.h>
+#include <revInput/keyboardInput/keyboardInput.h>
+#include <revInput/touchInput/touchInput.h>
+#include <revVideo/video.h>
 
 // --- Active namespaces --------
 using namespace rev;
@@ -50,6 +51,7 @@ namespace rev { namespace game
 		// Init audio system
 		// Init input system
 		STouchInput::init();
+		SKeyboardInput::init();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -73,6 +75,8 @@ namespace rev { namespace game
 		STime::get()->update();
 		// Update video system and render
 		SVideo::get()->update();
+		// Update input
+		SKeyboardInput::get()->refresh();
 
 		// Run time reloading of modified files
 #ifdef WIN32

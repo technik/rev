@@ -19,6 +19,8 @@ namespace rev { namespace physics
 		:mInvMass(0.f)
 		,mLinearVelocity(CVec3::zero)
 		,mAngularVelocity(CVec3::zero)
+		,mForce(CVec3::zero)
+		,mTorque(CVec3::zero)
 	{
 		setMass(_mass);
 	}
@@ -31,6 +33,11 @@ namespace rev { namespace physics
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::integrate( float _time )
 	{
+		// Apply forces
+		applyImpulse(mForce * _time, position());
+		// Apply friction
+		applyFriction();
+		// Integrate motion
 		setPosition(position() + mLinearVelocity * _time);
 		if(!(mAngularVelocity == CVec3::zero))
 		{

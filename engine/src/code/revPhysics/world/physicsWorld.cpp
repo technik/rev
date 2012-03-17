@@ -16,7 +16,10 @@ namespace rev { namespace physics
 	{
 		for(rtl::vector<CRigidBody*>::iterator i = mBodies.begin(); i != mBodies.end(); ++i)
 		{
-			(*i)->integrate(_time);
+			CRigidBody * body = *i;
+			body->integrate(_time);
+			body->clearForces();
+			body->clearTorques();
 		}
 	}
 

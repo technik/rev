@@ -25,10 +25,13 @@ namespace rev { namespace input
 		bool held		(EKeyCode _key) const;
 		bool released	(EKeyCode _key) const;
 
+		void refresh	();
+
 		bool processWindowsMessage(MSG _msg);	// Returns true if the message was processed.
 
 	private:
 		int keyState[eMaxKeyCode];
+		int oldKeyState[eMaxKeyCode];
 	};
 }	// namespace input
 }	// namespace rev
