@@ -48,42 +48,41 @@ namespace rev { namespace physics
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyForce(const CVec3& _f, const CVec3& _pos)
 	{
-		mForce = mForce + _f;
+		mForce += _f;
 		CVec3 distanceToG = _pos - position();
-		mTorque = mTorque + (_f ^ distanceToG);
+		mTorque += _f ^ distanceToG;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyForce(const CVec3& _f)
 	{
-		mForce = mForce + _f;
+		mForce += _f;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyTorque(const CVec3& _t)
 	{
-		mTorque = mTorque + _t;
+		mTorque += _t;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyImpulse(const CVec3& _i, const CVec3& _pos)
 	{
-		mLinearVelocity = mLinearVelocity + _i*mInvMass;
-		_pos;
-		// CVec3 distanceToG = _pos - position();
-		// mAngularVelocity = mAngularVelocity + (_i ^ distanceToG).componentProduct(mInvInertia)
+		mLinearVelocity += _i*mInvMass;
+		CVec3 distanceToG = _pos - position();
+		mAngularVelocity +=(_i ^ distanceToG) | mInvInertia;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyImpulse(const CVec3& _i)
 	{
-		mLinearVelocity = mLinearVelocity + _i*mInvMass;
+		mLinearVelocity += _i*mInvMass;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::applyTorqueImpulse(const CVec3& _t)
 	{
-		_t;
+		mAngularVelocity += _t | mInvInertia;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------

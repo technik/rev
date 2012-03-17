@@ -51,7 +51,7 @@ namespace rev { namespace physics
 		CVec3	mAngularVelocity;
 
 		float	mInvMass;
-		CVec3	mInertia;
+		CVec3	mInvInertia;
 
 		CVec3	mForce;	// Forces applied at the center of mass
 		CVec3	mTorque;	// Applied torques

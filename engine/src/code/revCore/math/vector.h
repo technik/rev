@@ -56,20 +56,17 @@ namespace rev
 		CVec3	operator-	(const CVec3& _v) const;	///< Substraction operator
 		CVec3&	operator-=	(const CVec3& _v);			///< Self substraction operator
 
-
-
-
-		CVec3	operator * (TReal k) const { return CVec3(x*k, y*k, z*k); }
-		TReal	operator * (const CVec3& _x) const { return x*_x.x+y*_x.y+z*_x.z; }
-		CVec3	operator ^ (const CVec3& b) const 
-		{
-			return CVec3(
-				y*b.z - z*b.y,
-				z*b.x - x*b.z,
-				x*b.y - y*b.x);
-		}
+		// Products
+		CVec3	operator *	(TReal _k) const;			///< Scalar product
+		CVec3&	operator *=	(TReal _k);					///< Scalar product
+		CVec3	operator /	(TReal _k) const;			///< Division by scalar
+		CVec3&	operator /=	(TReal _k);					///< Division by scalar
+		TReal	operator *	(const CVec3& _x) const;	///< Dot product
+		CVec3	operator ^	(const CVec3& _x) const;	///< Vector product
+		CVec3	operator |	(const CVec3& _x) const;	///< Per component product
 
 		TReal norm() const { return sqrt((*this)*(*this)); }
+		TReal sqNorm() const;
 		CVec3 normalized() const { return *this * (1.f/norm()); }
 
 		// Common vectors
@@ -176,6 +173,22 @@ namespace rev
 		z-=_v.z;
 		return *this;
 	}
+
+	//--------------------------------------------------------------------------
+	inline CVec3 CVec3::operator * (TReal k) const
+	{
+		return CVec3(x*k, y*k, z*k);
+	}
+
+
+		TReal	operator * (const CVec3& _x) const { return x*_x.x+y*_x.y+z*_x.z; }
+		CVec3	operator ^ (const CVec3& b) const 
+		{
+			return CVec3(
+				y*b.z - z*b.y,
+				z*b.x - x*b.z,
+				x*b.y - y*b.x);
+		}
 
 }	//namespace rev
 
