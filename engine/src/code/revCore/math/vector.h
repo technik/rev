@@ -55,6 +55,7 @@ namespace rev
 		CVec3&	operator+=	(const CVec3& _v);			///< Self addition operator
 		CVec3	operator-	(const CVec3& _v) const;	///< Substraction operator
 		CVec3&	operator-=	(const CVec3& _v);			///< Self substraction operator
+		CVec3	operator-	() const;					///< Return the opposite of this vector
 
 		// Products
 		CVec3	operator *	(TReal _k) const;			///< Scalar product
@@ -65,9 +66,15 @@ namespace rev
 		CVec3	operator ^	(const CVec3& _x) const;	///< Vector product
 		CVec3	operator |	(const CVec3& _x) const;	///< Per component product
 
-		TReal norm() const { return sqrt((*this)*(*this)); }
-		TReal sqNorm() const;
-		CVec3 normalized() const { return *this * (1.f/norm()); }
+		// Matrix like component accessors
+		TReal&		operator()	(unsigned _i);			///< Per component accessor
+		TReal		operator()	(unsigned _i) const;	///< Per component const accessor
+
+		// Vector norm and normalization
+		TReal	norm		() const;					///< Vector norm
+		TReal	sqNorm		() const;					///< Vector square norm
+		CVec3	normalized	() const;					///< Returns a normalized version of the vector
+		CVec3&	normalize	();							///< Normalizes the vector
 
 		// Common vectors
 		static const CVec3 zero;
@@ -80,6 +87,10 @@ namespace rev
 		TReal y;
 		TReal z;
 	};
+
+	// Specialized algorithms and operators
+	CVec3	operator *	(TReal _k, const CVec3& _v);
+	void	swap		(CVec3& _a, CVec3& _b);
 
 	//--------------------------------------------------------------------------
 	// CVec3 Inline implementation
@@ -175,20 +186,69 @@ namespace rev
 	}
 
 	//--------------------------------------------------------------------------
+	inline CVec3 CVec3::operator-() const
+	{
+		return CVec3(-x,-y,-z);
+	}
+
+	//--------------------------------------------------------------------------
 	inline CVec3 CVec3::operator * (TReal k) const
 	{
 		return CVec3(x*k, y*k, z*k);
 	}
 
+	//--------------------------------------------------------------------------
+	inline CVec3& CVec3::operator*= (TReal _k)
+	{
+		x*=_k;
+		y*=_k;
+		z*=_k;
+	}
 
-		TReal	operator * (const CVec3& _x) const { return x*_x.x+y*_x.y+z*_x.z; }
-		CVec3	operator ^ (const CVec3& b) const 
-		{
-			return CVec3(
-				y*b.z - z*b.y,
-				z*b.x - x*b.z,
-				x*b.y - y*b.x);
-		}
+	//--------------------------------------------------------------------------
+	inline CVec3 CVec3::operator/ (TReal _k) const
+	{
+		return operator*(1.f/_k);
+	}
+
+	//--------------------------------------------------------------------------
+	inline CVec3& CVec3::operator/= (TReal _k)
+	{
+		return operator*=(1.f/_k);
+	}
+
+	//--------------------------------------------------------------------------
+	TReal CVec3::operator * (const CVec3& _x) const
+	{
+		return x*_x.x+y*_x.y+z*_x.z;
+	}
+
+	//--------------------------------------------------------------------------
+	CVec3 CVec3::operator ^ (const CVec3& b) const 
+	{
+		return CVec3(
+			y*b.z - z*b.y,
+			z*b.x - x*b.z,
+			x*b.y - y*b.x);
+	}
+
+	//--------------------------------------------------------------------------
+	CVec3 CVec3::operator| (const CVec3& _v) const
+	{
+		return CVec3(x*_v.x, y*_v.y, z*_v.z);
+	}
+
+	//--------------------------------------------------------------------------
+	TReal& CVec3::operator() ( unsigned _i )
+	{
+		return (reinterpret_cast<TReal*>(this))[_i];
+	}
+
+	//--------------------------------------------------------------------------
+	TReal CVec3::operator() ( unsigned _i ) const
+	{
+		return (reinterpret_cast<TReal*>(this))[_i];
+	}
 
 }	//namespace rev
 
