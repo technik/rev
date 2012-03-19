@@ -35,6 +35,7 @@ namespace rev { namespace physics
 	{
 		// Apply forces
 		applyImpulse(mForce * _time);
+		applyTorqueImpulse(mTorque * _time);
 		// Apply friction
 		applyFriction();
 		// Integrate motion
@@ -89,6 +90,7 @@ namespace rev { namespace physics
 	void CRigidBody::setMass(float _mass)
 	{
 		mInvMass = _mass==0.f? 0.f : (1.f / _mass);
+		mInvInertia = CVec3(5.f*mInvMass/2.f); // Assuming unitary radius sphere
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------

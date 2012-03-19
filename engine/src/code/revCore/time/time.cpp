@@ -68,6 +68,8 @@ namespace rev
 		LARGE_INTEGER frequency;
 		QueryPerformanceFrequency(&frequency);
 		mFrameTime =  (TReal(currTime-mLastTime)/TReal(frequency.LowPart));
+		// --- Force minimun frame rate, so that time wont stall while debugging
+		mFrameTime = mFrameTime < 0.1f? mFrameTime : 0.1f;
 		// Replace last time
 		mLastTime = currTime;
 	#endif // _linux
