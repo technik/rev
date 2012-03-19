@@ -10,6 +10,9 @@
 
 namespace rev	{	namespace game
 {
+#ifdef WIN32
+	class CWindowsHandler;
+#endif // WIN32
 
 	class CGameClient
 	{
@@ -21,6 +24,10 @@ namespace rev	{	namespace game
 
 		virtual	bool	update	();	// Update the game, returns false when the
 									// The game requests exit
+	private:
+#ifdef WIN32
+		CWindowsHandler * mWindowsHandler;
+#endif // WIN32
 	};
 
 }	// namespace game

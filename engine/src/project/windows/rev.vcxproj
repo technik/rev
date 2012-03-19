@@ -126,6 +126,7 @@
     <ClInclude Include="..\..\code\revCore\transform\transformSrc.h" />
     <ClInclude Include="..\..\code\revCore\types.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
+    <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h" />
     <ClInclude Include="..\..\code\revGame\gui\guiElement.h" />
     <ClInclude Include="..\..\code\revGame\gui\panel.h" />
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
+    <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\panel.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />

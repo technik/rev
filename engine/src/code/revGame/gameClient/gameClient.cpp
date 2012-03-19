@@ -7,6 +7,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <revCore/resourceManager/resourceManager.h>
+#include <revGame/gameClient/windows/windowsHandler.h>
 #include <revVideo/texture/texture.h>
 #include <revVideo/videoDriver/shader/vtxShader.h>
 #include <revVideo/videoDriver/shader/pxlShader.h>
@@ -44,6 +45,9 @@ namespace rev { namespace game
 		// Init log system
 		SLog::init();
 		SLog::log("----- Creating base game client -----");
+#ifdef WIN32
+		mWindowsHandler = new CWindowsHandler();
+#endif // WIN32
 		// Init time system
 		STime::init();
 		// Init video system
@@ -63,6 +67,9 @@ namespace rev { namespace game
 		SVideo::end();
 		// End time system
 		STime::end();
+#ifdef WIN32
+		delete mWindowsHandler;
+#endif // WIN32
 		// End log system
 		SLog::log("----- Base game client destroyed -----");
 		SLog::end();
@@ -71,6 +78,9 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	bool CGameClient::update()
 	{
+#ifdef WIN32
+		mWindowsHandler->update();
+#endif // WIN32
 		// Update time system
 		STime::get()->update();
 		// Update video system and render

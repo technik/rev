@@ -142,6 +142,9 @@
     <Filter Include="revPhysics\rigidBody">
       <UniqueIdentifier>{0798d7e4-7087-48a6-88e1-ae783113c754}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gameClient\windows">
+      <UniqueIdentifier>{600a64f5-285e-4bbd-9174-d078eebb6abd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -360,6 +363,9 @@
     <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h">
       <Filter>stl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h">
+      <Filter>revGame\gameClient\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -502,6 +508,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp">
       <Filter>revPhysics\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp">
+      <Filter>revGame\gameClient\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
