@@ -276,6 +276,7 @@ namespace rev
 		x*=factor;
 		y*=factor;
 		z*=factor;
+		return *this;
 	}
 
 }	//namespace rev

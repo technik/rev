@@ -30,7 +30,11 @@ namespace rev { namespace video
 		IRenderer3d * renderer = SVideo::get()->renderer();
 		CMat34 invModel;
 		renderer->modelMatrix().inverse(invModel);
-		driver->setUniform(lightUniformId, invModel.rotate(CVec3(1.f, 0.f, 0.f)));
+		driver->setUniform(lightUniformId, invModel.rotate(CVec3(1.f, 0.f, -0.4f)).normalize());
+		int viewDirUniformId = driver->getUniformId("viewPos");
+		CMat34 invModelView;
+		(renderer->modelMatrix() * renderer->viewMatrix()).inverse(invModelView);
+		driver->setUniform(viewDirUniformId, invModelView * CVec3::zero);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
