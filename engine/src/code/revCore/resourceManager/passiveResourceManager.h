@@ -26,6 +26,7 @@ namespace rev
 		// Notice you have ownership of all resources you manually register
 		void			registerResource	(_resourceT * _resource, const string& _key);
 		void			release				(_resourceT * _resource);
+		void			release				(const string& _key);
 		void			clear				()	{ mResources.clear();	}
 	protected:
 		typedef map<string, _resourceT*>	resourceMapT;
@@ -77,6 +78,22 @@ namespace rev
 				mResources.erase(iter);
 			}
 			delete _resource;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class _resourceT>
+	void TPassiveResourceManager<_resourceT>::release(const string& _key)
+	{
+		typename resourceMapT::iterator iter = mResources.find(_key);
+		TPassiveResource<_resourceT> * baseResource = (*iter);
+		// Decrease references
+		--baseResource->mReferences;
+		if(0 == baseResource->mReferences) // No one owns this resource anymore
+		{
+			// Delete the resource
+			mResources.erase(iter);
+			delete baseResource;
 		}
 	}
 

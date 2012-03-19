@@ -26,6 +26,7 @@ namespace rev
 		// Notice you have ownership of all resources you manually register
 		void			registerResource	(_resourceT * _resource, const _keyT& _key);
 		void			release				(_resourceT * _resource);
+		void			release				(const _keyT& _key);
 		void			clear				()	{	mResources.clear();	}
 	protected:
 		typedef map<_keyT, _resourceT*>	resourceMapT;
@@ -47,6 +48,7 @@ namespace rev
 		// Notice you have ownership of all resources you manually register
 		void			registerResource	(_resourceT * _resource, const string& _key);
 		void			release				(_resourceT * _resource);
+		void			release				(const string& _key);
 		void			clear				()	{	mResources.clear();	}
 	protected:
 		typedef map<string, _resourceT*>	resourceMapT;
@@ -103,6 +105,22 @@ namespace rev
 			if(iter != mResources.end())
 				mResources.erase(iter);
 			delete _resource;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class _resourceT, typename _keyT>
+	void TResourceManager<_resourceT, _keyT>::release(const _keyT& _key)
+	{
+		typename resourceMapT::iterator iter = mResources.find(_key);
+		TResource<_resourceT, _keyT> * baseResource = (*iter);
+		// Decrease references
+		--baseResource->mReferences;
+		if(0 == baseResource->mReferences) // No one owns this resource anymore
+		{
+			// Delete the resource
+			mResources.erase(iter);
+			delete baseResource;
 		}
 	}
 
@@ -173,6 +191,22 @@ namespace rev
 				mResources.erase(iter);
 			}
 			delete _resource;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class _resourceT>
+	void TResourceManager<_resourceT, string>::release(const string& _key)
+	{
+		typename resourceMapT::iterator iter = mResources.find(_key);
+		TResource<_resourceT, string> * baseResource = (*iter);
+		// Decrease references
+		--baseResource->mReferences;
+		if(0 == baseResource->mReferences) // No one owns this resource anymore
+		{
+			// Delete the resource
+			mResources.erase(iter);
+			delete baseResource;
 		}
 	}
 
