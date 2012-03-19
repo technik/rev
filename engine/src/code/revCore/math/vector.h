@@ -218,13 +218,13 @@ namespace rev
 	}
 
 	//--------------------------------------------------------------------------
-	TReal CVec3::operator * (const CVec3& _x) const
+	inline TReal CVec3::operator * (const CVec3& _x) const
 	{
 		return x*_x.x+y*_x.y+z*_x.z;
 	}
 
 	//--------------------------------------------------------------------------
-	CVec3 CVec3::operator ^ (const CVec3& b) const 
+	inline CVec3 CVec3::operator ^ (const CVec3& b) const 
 	{
 		return CVec3(
 			y*b.z - z*b.y,
@@ -233,21 +233,49 @@ namespace rev
 	}
 
 	//--------------------------------------------------------------------------
-	CVec3 CVec3::operator| (const CVec3& _v) const
+	inline CVec3 CVec3::operator| (const CVec3& _v) const
 	{
 		return CVec3(x*_v.x, y*_v.y, z*_v.z);
 	}
 
 	//--------------------------------------------------------------------------
-	TReal& CVec3::operator() ( unsigned _i )
+	inline TReal& CVec3::operator() ( unsigned _i )
 	{
 		return (reinterpret_cast<TReal*>(this))[_i];
 	}
 
 	//--------------------------------------------------------------------------
-	TReal CVec3::operator() ( unsigned _i ) const
+	inline TReal CVec3::operator() ( unsigned _i ) const
 	{
-		return (reinterpret_cast<TReal*>(this))[_i];
+		return (reinterpret_cast<const TReal*>(this))[_i];
+	}
+
+	//--------------------------------------------------------------------------
+	inline TReal CVec3::norm() const
+	{
+		return sqrt(sqNorm());
+	}
+
+	//--------------------------------------------------------------------------
+	inline TReal CVec3::sqNorm() const
+	{
+		return x*x + y*y + z*z;
+	}
+
+	//--------------------------------------------------------------------------
+	inline CVec3 CVec3::normalized() const
+	{
+		TReal factor = 1.f/norm();
+		return CVec3(x*factor, y*factor, z*factor);
+	}
+
+	//--------------------------------------------------------------------------
+	inline CVec3& CVec3::normalize()
+	{
+		TReal factor = 1.f/norm();
+		x*=factor;
+		y*=factor;
+		z*=factor;
 	}
 
 }	//namespace rev
