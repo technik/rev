@@ -78,16 +78,15 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	bool CGameClient::update()
 	{
-#ifdef WIN32
-		mWindowsHandler->update();
-#endif // WIN32
 		// Update time system
 		STime::get()->update();
 		// Update video system and render
 		SVideo::get()->update();
 		// Update input
-		SKeyboardInput::get()->refresh();
-
+		SKeyboardInput::get()->refresh();	// Input must be refreshed before we handle os messages. Otherways key presses
+#ifdef WIN32								// be missinterpreted as key holdings
+		mWindowsHandler->update();
+#endif // WIN32
 		// Run time reloading of modified files
 #ifdef WIN32
 		static bool registeredForModifications = false;

@@ -38,9 +38,11 @@ namespace rev { namespace game
                 // Tell touch input to process OS messages
 				CKeyboardInputWindows * keyboard = static_cast<CKeyboardInputWindows*>(SKeyboardInput::get());
 				bool processed = keyboard->processWindowsMessage(msg);
-				CTouchInputWin32 * touch = static_cast<CTouchInputWin32*>(STouchInput::get());
 				if (!processed)
+				{
+					CTouchInputWin32 * touch = static_cast<CTouchInputWin32*>(STouchInput::get());
 					processed = touch->processWindowsMessage(msg);
+				}
 				if(!processed)
 				{
 					TranslateMessage(&msg);	// Translate The Message
