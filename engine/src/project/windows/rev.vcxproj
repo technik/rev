@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\technik\programacion\revsdk\engine\src\libs\windows;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,10 +96,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\stl\dictionary.h" />
     <ClInclude Include="..\..\..\..\..\stl\iterator.h" />
     <ClInclude Include="..\..\..\..\..\stl\iterator_tags.h" />
     <ClInclude Include="..\..\..\..\..\stl\iterator_traits.h" />
@@ -120,6 +121,9 @@
     <ClInclude Include="..\..\code\revCore\resourceManager\passiveResourceManager.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resource.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h" />
+    <ClInclude Include="..\..\code\revCore\script\CScript.h" />
+    <ClInclude Include="..\..\code\revCore\script\CScriptMachine.h" />
+    <ClInclude Include="..\..\code\revCore\script\CVariant.h" />
     <ClInclude Include="..\..\code\revCore\string.h" />
     <ClInclude Include="..\..\code\revCore\time\time.h" />
     <ClInclude Include="..\..\code\revCore\time\timeSrc.h" />
@@ -182,6 +186,7 @@
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />
     <ClCompile Include="..\..\code\revCore\math\vector.cpp" />
     <ClCompile Include="..\..\code\revCore\node\node.cpp" />
+    <ClCompile Include="..\..\code\revCore\script\CVariant.cpp" />
     <ClCompile Include="..\..\code\revCore\time\time.cpp" />
     <ClCompile Include="..\..\code\revCore\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />

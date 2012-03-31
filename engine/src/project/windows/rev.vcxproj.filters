@@ -145,6 +145,9 @@
     <Filter Include="revGame\gameClient\windows">
       <UniqueIdentifier>{600a64f5-285e-4bbd-9174-d078eebb6abd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\script">
+      <UniqueIdentifier>{eef1e225-a29d-47f0-b771-49aa87d065d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -366,6 +369,18 @@
     <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h">
       <Filter>revGame\gameClient\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\script\CVariant.h">
+      <Filter>revCore\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\script\CScript.h">
+      <Filter>revCore\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\script\CScriptMachine.h">
+      <Filter>revCore\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\stl\dictionary.h">
+      <Filter>stl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -511,6 +526,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp">
       <Filter>revGame\gameClient\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\script\CVariant.cpp">
+      <Filter>revCore\script</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
