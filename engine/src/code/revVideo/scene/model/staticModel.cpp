@@ -53,24 +53,25 @@ namespace video
 		if(0 == sShader)
 			sShader = CVtxShader::manager()->get("staticModel.vtx");
 		// Open the file
-		char * buffer = bufferFromFile(_fileName.c_str());
-		char * pointer;
+		CFile file(_fileName);
+		const char * buffer = reinterpret_cast<const char*>(file.buffer());
+		const char * pointer;
 		// Read the header
-		unsigned short minEngineVersion = ((unsigned short*)buffer)[0];
-		unsigned short nMeshes = ((unsigned short*)buffer)[1];
+		unsigned short minEngineVersion = reinterpret_cast<const unsigned short*>(buffer)[0];
+		unsigned short nMeshes = reinterpret_cast<const unsigned short*>(buffer)[1];
 
 		// Validate model header
 		rev::codeTools::revAssert(nMeshes == 1 && minEngineVersion <= 1);
 
 		// Read model metrics from header
-		mNVertices = ((unsigned short*)buffer)[2];
-		mNTriangles = ((unsigned short*)buffer)[3];
+		mNVertices = reinterpret_cast<const unsigned short*>(buffer)[2];
+		mNTriangles = reinterpret_cast<const unsigned short*>(buffer)[3];
 		// Move on from the header
 		pointer = buffer + 4*sizeof(unsigned short);
 
 		// Read vertex positions
 		mVertices = new float[mNVertices * 3];
-		float * vBuffer = reinterpret_cast<float*>(pointer);
+		const float * vBuffer = reinterpret_cast<const float*>(pointer);
 		for(unsigned i = 0; i < mNVertices; ++i)
 		{
 			mVertices[3*i+0] = vBuffer[3*i+0];
@@ -80,7 +81,7 @@ namespace video
 		pointer += 3 * mNVertices * sizeof(float);
 		// Read vertex normals
 		mNormals = new float[mNVertices * 3];
-		vBuffer = reinterpret_cast<float*>(pointer);
+		vBuffer = reinterpret_cast<const float*>(pointer);
 		for(unsigned i = 0; i < mNVertices; ++i)
 		{
 			mNormals[3*i+0] = vBuffer[3*i+0];
@@ -90,7 +91,7 @@ namespace video
 		pointer += 3 * mNVertices * sizeof(float);
 		// Read vertex texture coordinates
 		mUVs = new float[mNVertices * 2];
-		vBuffer = reinterpret_cast<float*>(pointer);
+		vBuffer = reinterpret_cast<const float*>(pointer);
 		for(unsigned i = 0; i < mNVertices ; ++i)
 		{
 			mUVs[2*i+0] = vBuffer[2*i]; // U
@@ -104,15 +105,13 @@ namespace video
 
 		// Read face indices
 		mTriangles = new unsigned short[mNTriangles * 3];
-		unsigned short * idxBuffer = reinterpret_cast<unsigned short*>(pointer);
+		const unsigned short * idxBuffer = reinterpret_cast<const unsigned short*>(pointer);
 		for(unsigned i = 0; i < mNTriangles; ++i)
 		{
 			mTriangles[3*i+0] = idxBuffer[3*i+0];
 			mTriangles[3*i+1] = idxBuffer[3*i+1];
 			mTriangles[3*i+2] = idxBuffer[3*i+2];
 		}
-		// Clean
-		delete buffer;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

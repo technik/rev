@@ -12,26 +12,13 @@ namespace rev
 {
 	class CVariant;
 
-	class CScriptMachine
+	class CScript
 	{
 	public:
-		typedef void(*TScriptFunction)(const CVariant&,CVariant&);
-		
-	public:
-		static void				init	();
-		static void				end		();
-		static CScriptMachine*	get		();
+		CScript(const char * _filename);
+		~CScript();
 
-		///\ Registers a function to the script machine
-		void	addFunction		(TScriptFunction _fn, const char * _name);
-		///\ Evaluates an expression
-		void	eval			(const char * _expression);
-		///\ Evaluates an expression and stores the result in _dst variant
-		void	eval			(const char * _expression, CVariant& _dst);
-
-	private:
-		CScriptMachine();
-		~CScriptMachine();
+		void run(const CVariant& _res);
 	};
 }	// rev
 

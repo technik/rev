@@ -70,6 +70,35 @@ JNIEXPORT void JNICALL Java_com_rev_gameclient_revFileManager_initFileSystem(JNI
 namespace rev
 {
 
+//----------------------------------------------------------------------------------------------------------------------
+CFile::CFile(const string& _filename)
+	:mFileName(_filename)
+{
+	fstream file;
+	// Open the file
+	file.open(_filename.c_str(), ios_base::binary|ios_base::in);
+	revAssert(file.is_open());
+	// Meassure it's size
+	file.seekg(0, ios::end);
+	mSize = int(file.tellg());
+	file.seekg(0, ios::beg);
+	int begin = int(file.tellg());
+	mSize -= begin;
+	// Allocate the buffer
+	mBuffer = new char[mSize+1];
+	// Fill the buffer with the contents of the file
+	file.read((char*)mBuffer, mSize);
+	((char*)mBuffer)[mSize] = '\0';
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+CFile::~CFile()
+{
+	delete reinterpret_cast<char*>(mBuffer);
+}
+
+#ifdef ANDROID
+//----------------------------------------------------------------------------------------------------------------------
 int stringSize(const char * _string)
 {
 	int size = 0;
@@ -80,9 +109,9 @@ int stringSize(const char * _string)
 	return size;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 char * bufferFromFile(const char * _fileName)
 {
-#ifdef ANDROID
 	// Add the "assets/prefix"
 	// Measure filename size
 	int fileNameSize = rev::stringSize(_fileName);
@@ -108,25 +137,7 @@ char * bufferFromFile(const char * _fileName)
 	zip_fclose(file);
 	delete fullName;
 	return buffer;
-#else // ! ANDROID
-	fstream file;
-	// Open the file
-	file.open(_fileName, ios_base::binary|ios_base::in);
-	revAssert(file.is_open());
-	// Meassure it's size
-	file.seekg(0, ios::end);
-	int size = int(file.tellg());
-	file.seekg(0, ios::beg);
-	int begin = int(file.tellg());
-	size -= begin;
-	// Allocate the buffer
-	char * buffer = new char[size+1];
-	// Fill the buffer with the contents of the file
-	file.read(buffer, size);
-	buffer[size] = '\0';
-	// return the buffer
-	return buffer;
-#endif // !ANDROID
 }
+#endif // !ANDROID
 
 }	// namespace rev

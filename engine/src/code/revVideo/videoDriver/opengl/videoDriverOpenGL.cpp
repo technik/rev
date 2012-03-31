@@ -179,10 +179,10 @@ namespace rev { namespace video
 	int IVideoDriverOpenGL::loadVtxShader(const char * _name)
 	{
 		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
-		const char * fileBuffer = bufferFromFile(_name);
+		CFile file(_name);
+		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
-		delete[] fileBuffer;
 		return int(shader);
 	}
 
@@ -190,10 +190,10 @@ namespace rev { namespace video
 	int IVideoDriverOpenGL::loadPxlShader(const char * _name)
 	{
 		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
-		const char * fileBuffer = bufferFromFile(_name);
+		CFile file(_name);
+		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
-		delete[] fileBuffer;
 		return int(shader);
 	}
 

@@ -48,11 +48,14 @@ namespace rev
 	{
 		mType = _x.mType;
 		mData = _x.mData;
+		return *this;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator=(int _x)
 	{
-		mType = 
+		mType = eInteger;
+		mData.i = _x;
+		return *this;
 	}
 }	// namespace rev
