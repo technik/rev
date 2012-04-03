@@ -87,6 +87,11 @@ namespace rev { namespace script
 				_tokenList.push_back(createToken(CScriptToken::eSemicolon, &_code[cursor], 1));
 				++cursor;
 			}
+			else if(currentChar == ',')
+			{
+				_tokenList.push_back(createToken(CScriptToken::eComma, &_code[cursor], 1));
+				++cursor;
+			}
 			else if(currentChar == '(')
 			{
 				_tokenList.push_back(createToken(CScriptToken::eOpenPar, &_code[cursor], 1));
@@ -105,6 +110,16 @@ namespace rev { namespace script
 			else if(currentChar == '}')
 			{
 				_tokenList.push_back(createToken(CScriptToken::eCloseCBraces, &_code[cursor], 1));
+				++cursor;
+			}
+			else if(currentChar == '[')
+			{
+				_tokenList.push_back(createToken(CScriptToken::eOpenBraces, &_code[cursor], 1));
+				++cursor;
+			}
+			else if(currentChar == ']')
+			{
+				_tokenList.push_back(createToken(CScriptToken::eCloseBraces, &_code[cursor], 1));
 				++cursor;
 			}
 			else

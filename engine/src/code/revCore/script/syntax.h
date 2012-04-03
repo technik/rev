@@ -33,6 +33,27 @@ namespace rev { namespace script
 		CVariant mConstant;
 	};
 
+	class CListExpression : public IExpression
+	{
+	public:
+		void evaluate(CVariant& _result) const
+		{
+			_result.setNill();
+			CVariant _tmp;
+			for(unsigned i = 0; i < mList.size(); ++i)
+			{
+				mList[i]->evaluate(_tmp);
+				_result.append(_tmp);
+			}
+		}
+		void addElement(IExpression * _element)
+		{
+			mList.push_back(_element);
+		}
+	private:
+		rtl::vector<IExpression*>	mList;
+	};
+
 	class CVariable : public IExpression
 	{
 	private:

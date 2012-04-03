@@ -101,9 +101,28 @@ namespace rev { namespace script
 	//---------------------------------------------------------------------------------------------------------------------
 	IExpression * SSyntaxParser::processExpression(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor)
 	{
-		// Only literal constant expressions allowed
-		CConstantExpression * expression = constantExpression(_tokens[_cursor++]);
-		return expression;
+		if(_tokens[_cursor].mType == CScriptToken::eOpenBraces) // List
+		{
+			CListExpression * list = new CListExpression();
+			++_cursor; // Skip [
+			while(_tokens[_cursor].mType != CScriptToken::eCloseBraces)
+			{
+				if (_tokens[_cursor].mType == CScriptToken::eComma)
+					++_cursor;
+				else
+				{
+					list->addElement(processExpression(_tokens, _cursor));
+				}
+			}
+			++_cursor; // Skip ]
+			return list;
+		}
+		else
+		{
+			// Only literal constant expressions allowed
+			CConstantExpression * expression = constantExpression(_tokens[_cursor++]);
+			return expression;
+		}
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------

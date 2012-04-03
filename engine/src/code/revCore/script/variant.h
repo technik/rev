@@ -8,6 +8,8 @@
 #ifndef _REV_CORE_SCRIPT_CVARIANT_H_
 #define _REV_CORE_SCRIPT_CVARIANT_H_
 
+#include <vector.h>
+
 namespace rev
 {
 	class CVariant
@@ -34,10 +36,12 @@ namespace rev
 		CVariant			(bool);
 
 		// Assignment
-		CVariant& operator=	(const CVariant&);
-		CVariant& operator=	(int);
-		CVariant& operator=	(double);
-		CVariant& operator=	(bool);
+		CVariant& operator=		(const CVariant&);
+		CVariant& operator=		(int);
+		CVariant& operator=		(double);
+		CVariant& operator=		(bool);
+		void		setNill		();
+		void		append		(const CVariant& _x);
 
 		// Destruction
 		~CVariant			() {}
@@ -46,6 +50,7 @@ namespace rev
 		int			asInt		() const	{ return mData.i; }
 		double		asDouble	() const	{ return mData.d; }
 		bool		asBool		() const	{ return mData.b; }
+		CVariant&	operator[]	(unsigned _idx);
 
 		EDataType	type		() const	{ return mType;	  }
 	public:
@@ -62,14 +67,15 @@ namespace rev
 	private:
 		union UDataT
 		{
-			int	i;		// Int
-			double d;	// Real
-			bool b;		// bool
+			int		i;	// Int
+			double	d;	// Real
+			bool	b;	// Bool
 		};
 
 	private:
-		EDataType	mType;
-		UDataT		mData;
+		EDataType				mType;
+		UDataT					mData;
+		rtl::vector<CVariant>	mList;
 	};
 }	// namespace rev
 

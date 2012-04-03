@@ -20,11 +20,14 @@ namespace rev { namespace script
 			eRealLiteral,
 			eStringLiteral,
 			eOperator,
+			eComma,			// ","
 			eSemicolon,		// ";"
 			eOpenCBraces,	// Curly braces "{"
 			eCloseCBraces,	// Curly braces "}"
-			eOpenPar,		// "{"
-			eClosePar,		// "}"
+			eOpenBraces,	// Braces "["
+			eCloseBraces,	// Braces "]"
+			eOpenPar,		// "("
+			eClosePar,		// ")"
 			eIf,
 			eElse
 		};
