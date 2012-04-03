@@ -8,15 +8,14 @@
 #ifndef _REV_CORE_SCRIPT_CSCRIPTMACHINE_H_
 #define _REV_CORE_SCRIPT_CSCRIPTMACHINE_H_
 
-namespace rev
+#include "syntax.h"
+
+namespace rev { namespace script
 {
 	class CVariant;
 
 	class CScriptMachine
 	{
-	public:
-		typedef void(*TScriptFunction)(const CVariant&,CVariant&);
-		
 	public:
 		static void				init	();
 		static void				end		();
@@ -25,7 +24,7 @@ namespace rev
 		///\ Registers a function to the script machine
 		void	addFunction		(TScriptFunction _fn, const char * _name);
 		///\ Evaluates an expression
-		void	eval			(const char * _expression);
+		void	execute			(const char * _expression);
 		///\ Evaluates an expression and stores the result in _dst variant
 		void	eval			(const char * _expression, CVariant& _dst);
 
@@ -33,6 +32,8 @@ namespace rev
 		CScriptMachine();
 		~CScriptMachine();
 	};
-}	// rev
+
+}	// namespace script
+}	// namespace rev
 
 #endif // _REV_CORE_SCRIPT_CSCRIPTMACHINE_H_

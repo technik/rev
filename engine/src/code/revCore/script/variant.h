@@ -40,14 +40,14 @@ namespace rev
 		CVariant& operator=	(bool);
 
 		// Destruction
-		~CVariant			();
+		~CVariant			() {}
 		
 		// Accessors
-		int			asInt		() const;
-		double		asDouble	() const;
-		bool		asBool		() const;
+		int			asInt		() const	{ return mData.i; }
+		double		asDouble	() const	{ return mData.d; }
+		bool		asBool		() const	{ return mData.b; }
 
-		EDataType	type		() const;
+		EDataType	type		() const	{ return mType;	  }
 	public:
 		// Comparison
 		bool	operator==	(const CVariant&) const;

@@ -8,18 +8,24 @@
 #ifndef _REV_CORE_SCRIPT_CSCRIPT_H_
 #define _REV_CORE_SCRIPT_CSCRIPT_H_
 
-namespace rev
-{
-	class CVariant;
+#include "syntax.h"
+#include "variant.h"
 
+namespace rev { namespace script
+{
 	class CScript
 	{
 	public:
 		CScript(const char * _filename);
-		~CScript();
+		~CScript() {}
 
-		void run(const CVariant& _res);
+		void run(CVariant& _res);
+
+	private:
+		CStatementList	mCode;
 	};
-}	// rev
+
+}	// namespace script
+}	// namespace rev
 
 #endif // _REV_CORE_SCRIPT_CSCRIPT_H_

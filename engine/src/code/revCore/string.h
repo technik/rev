@@ -20,6 +20,14 @@ namespace rev
 
 using std::string;
 
+unsigned	stringLength		(const char * _str);
+bool		isCharacterInString	(char, const char * _str);
+bool		compareString		(const char * _a, const char * _b);
+bool		compareString		(const char * _a, const char * _b, unsigned _n);
+void		copyString			(char * _dst, const char * _src);
+void		copyStringN			(char * _dst, const char * _src, unsigned _maxLength);
+int			integerFromString	(const char * _str);
+
 #endif // _linux || ANDROID || WIN32
 
 }	// namespace rev
