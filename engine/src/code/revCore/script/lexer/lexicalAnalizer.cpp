@@ -180,14 +180,16 @@ namespace rev { namespace script
 			++cursor;
 		if(_code[cursor] == '.')	// Real literal
 		{
-			codeTools::SLog::log("Error (Lexical): Real literal constant in script code. Real literals aren't supported yet");
-			return -1;
+			++cursor; // Skip period
+			while(isANumber(_code[cursor]))
+				++cursor;
+			_tokenList.push_back(createToken(CScriptToken::eRealLiteral, _code, cursor));
 		}
 		else // Integer literal
 		{
 			_tokenList.push_back(createToken(CScriptToken::eIntegerLiteral, _code, cursor));
-			return cursor;
 		}
+		return cursor;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

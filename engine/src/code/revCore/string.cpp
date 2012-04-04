@@ -69,6 +69,32 @@ namespace rev
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
+	double doubleFromString(const char * _str)
+	{
+		if(!isCharacterInString('.', _str))
+		{
+			return double(integerFromString(_str));
+		}else
+		{	
+			unsigned cursor = 0;
+			int integer = 0;
+			char digit = _str[cursor];
+			while(digit != '.')
+			{
+				integer *= 10;	// Multiply previous result by ten
+				integer += digit - '0';	// Add the value of the new digit
+				// Go to the next digit
+				digit = _str[++cursor];
+			}
+			++cursor; // Skip period
+			double decimal = double(integerFromString(&_str[cursor]));
+			while(_str[cursor++] != '\0')
+				decimal /= 10.0;
+			return double(integer) + decimal;
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------
 	bool compareString(const char * _a, const char * _b)
 	{
 		if (!_a || !_b)

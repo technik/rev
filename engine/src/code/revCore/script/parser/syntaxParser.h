@@ -24,6 +24,7 @@ namespace rev { namespace script
 
 		static CCodeBlockStatement* codeBlockStatement			(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor);
 		static CConstantExpression*	constantIntegerExpression	(const CScriptToken _token);
+		static CConstantExpression*	constantRealExpression		(const CScriptToken _token);
 		static CConstantExpression* constantStringExpression	(const CScriptToken _string);
 	};
 

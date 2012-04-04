@@ -135,10 +135,20 @@ namespace rev { namespace script
 		{
 			return constantStringExpression(_tokens[_cursor++]);
 		}
-		else
+		else if(_tokens[_cursor].mType == CScriptToken::eRealLiteral)
+		{
+			return constantRealExpression(_tokens[_cursor++]);
+		}
+		else if(_tokens[_cursor].mType == CScriptToken::eIntegerLiteral)
 		{
 			// Literal constant expression
 			return constantIntegerExpression(_tokens[_cursor++]);
+		}
+		else
+		{
+			SLog::log("Syntax error: Unknown token at position ");
+			SLog::log(_cursor++);
+			return 0;
 		}
 	}
 
@@ -157,6 +167,15 @@ namespace rev { namespace script
 		// Only integer constants supported
 		CConstantExpression * expression = new CConstantExpression();
 		expression->mConstant = CVariant(integerFromString(_token.mContent));
+		return expression;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	CConstantExpression * SSyntaxParser::constantRealExpression(const CScriptToken _token)
+	{
+		// Only integer constants supported
+		CConstantExpression * expression = new CConstantExpression();
+		expression->mConstant = CVariant(doubleFromString(_token.mContent));
 		return expression;
 	}
 
