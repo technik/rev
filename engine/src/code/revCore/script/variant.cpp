@@ -8,6 +8,8 @@
 #include "variant.h"
 
 #include <revCore/codeTools/assert/assert.h>
+#include <revCore/codeTools/log/log.h>
+#include <revCore/string.h>
 
 namespace rev
 {
@@ -23,6 +25,8 @@ namespace rev
 	{
 		if((mType = _x.mType) == eList)
 			mList = _x.mList;
+		else if(mType == eString)
+			mString = _x.mString;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -47,6 +51,20 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	CVariant::CVariant(const char * _str)
+		:mType(eString)
+		,mString(_str)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVariant::CVariant(const string& _str)
+		:mType(eString)
+		,mString(_str)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator=(const CVariant& _x)
 	{
 		if(mType == eList)
@@ -54,6 +72,8 @@ namespace rev
 
 		if((mType = _x.mType) == eList)
 			mList = _x.mList;
+		else if(mType == eString)
+			mString = _x.mString;
 		else
 			mData = _x.mData;
 		return *this;
@@ -66,6 +86,36 @@ namespace rev
 			mList.clear();
 		mType = eInteger;
 		mData.i = _x;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVariant& CVariant::operator=(bool _x)
+	{
+		if(mType == eList)
+			mList.clear();
+		mType = eBool;
+		mData.b = _x;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVariant& CVariant::operator=(const char * _x)
+	{
+		if(mType == eList)
+			mList.clear();
+		mType = eString;
+		mString = string(_x);
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVariant& CVariant::operator=(const string& _x)
+	{
+		if(mType == eList)
+			mList.clear();
+		mType = eString;
+		mString = _x;
 		return *this;
 	}
 
@@ -96,5 +146,45 @@ namespace rev
 	{
 		codeTools::revAssert((mType == eList) && (_idx < mList.size()));
 		return mList[_idx];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CVariant::log(unsigned _indent)
+	{
+		// Indent the log
+		string indent = "";
+		for(unsigned tabs = 0; tabs<_indent; ++tabs)
+			indent += ("  ");
+		// Log content
+		switch(mType)
+		{
+		case eList:
+			codeTools::SLog::logN(indent + "[");
+			for(rtl::vector<CVariant>::iterator element = mList.begin(); element != mList.end(); ++element)
+			{
+				element->log(_indent+1);
+			}
+			codeTools::SLog::logN(indent + "]");
+			break;
+		case eInteger:
+			codeTools::SLog::log(indent);
+			codeTools::SLog::logN(mData.i);
+			break;
+		case eBool:
+			if(mData.b)
+				codeTools::SLog::logN(indent + "true");
+			else
+				codeTools::SLog::logN(indent + "false");
+			break;
+		case eReal:
+			codeTools::SLog::log(indent);
+			codeTools::SLog::logN(mData.d);
+			break;
+		case eString:
+			codeTools::SLog::logN(indent + mString);
+			break;
+		default:
+				codeTools::SLog::logN(indent + "Log error, unkown Variant type");
+		}
 	}
 }	// namespace rev

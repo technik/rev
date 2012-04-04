@@ -18,7 +18,7 @@ namespace rev
 
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
 
-using std::string;
+typedef std::string string;
 
 unsigned	stringLength		(const char * _str);
 bool		isCharacterInString	(char, const char * _str);

@@ -80,6 +80,17 @@ namespace rev { namespace script
 		IExpression * mDst, * mSrc;
 	};
 
+	class CBooleanExpression : public IExpression
+	{
+	private:
+		void evaluate(CVariant& _result) const
+		{
+			_result = mValue;
+		}
+	public:
+		bool mValue;
+	};
+
 	class IStatement
 	{
 	public:

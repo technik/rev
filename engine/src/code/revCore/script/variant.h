@@ -9,6 +9,7 @@
 #define _REV_CORE_SCRIPT_CVARIANT_H_
 
 #include <vector.h>
+#include <revCore/string.h>
 
 namespace rev
 {
@@ -21,6 +22,7 @@ namespace rev
 			eInteger,
 			eReal,
 			eBool,
+			eString,
 			eList,
 			eDictionary
 		};
@@ -34,12 +36,16 @@ namespace rev
 		CVariant			(int);
 		CVariant			(double);
 		CVariant			(bool);
+		CVariant			(const char * _str);
+		CVariant			(const string& _str);
 
 		// Assignment
 		CVariant& operator=		(const CVariant&);
 		CVariant& operator=		(int);
 		CVariant& operator=		(double);
 		CVariant& operator=		(bool);
+		CVariant& operator=		(const char * _str);
+		CVariant& operator=		(const string& _str);
 		void		setNill		();
 		void		append		(const CVariant& _x);
 
@@ -53,6 +59,9 @@ namespace rev
 		CVariant&	operator[]	(unsigned _idx);
 
 		EDataType	type		() const	{ return mType;	  }
+
+		// Log
+		void		log			(unsigned _indent = 0);
 	public:
 		// Comparison
 		bool	operator==	(const CVariant&) const;
@@ -76,6 +85,7 @@ namespace rev
 		EDataType				mType;
 		UDataT					mData;
 		rtl::vector<CVariant>	mList;
+		string					mString;
 	};
 }	// namespace rev
 

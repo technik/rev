@@ -22,8 +22,9 @@ namespace rev { namespace script
 		static IStatement*	processStatement	(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor);
 		static IExpression*	processExpression	(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor);
 
-		static CCodeBlockStatement* codeBlockStatement	(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor);
-		static CConstantExpression*	constantExpression	(const CScriptToken _token);
+		static CCodeBlockStatement* codeBlockStatement			(const rtl::vector<CScriptToken>& _tokens, unsigned& _cursor);
+		static CConstantExpression*	constantIntegerExpression	(const CScriptToken _token);
+		static CConstantExpression* constantStringExpression	(const CScriptToken _string);
 	};
 
 }	// namespace script

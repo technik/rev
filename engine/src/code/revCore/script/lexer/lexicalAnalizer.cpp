@@ -39,6 +39,16 @@ namespace rev { namespace script
 				_tokenList.push_back(createToken(CScriptToken::eElse, &_code[cursor], 4));
 				cursor+=4;
 			}
+			else if(compareString("true", &_code[cursor], 4))
+			{
+				_tokenList.push_back(createToken(CScriptToken::eTrue, &_code[cursor], 4));
+				cursor+=4;
+			}
+			else if(compareString("false", &_code[cursor], 5))
+			{
+				_tokenList.push_back(createToken(CScriptToken::eFalse, &_code[cursor], 5));
+				cursor+=5;
+			}
 			else if(isALetter(currentChar) || currentChar == '_') // Identifier
 			{
 				int correctToken = processIdentifierToken(&_code[cursor], _tokenList);
@@ -86,6 +96,17 @@ namespace rev { namespace script
 			{
 				_tokenList.push_back(createToken(CScriptToken::eSemicolon, &_code[cursor], 1));
 				++cursor;
+			}
+			else if(currentChar == '"')
+			{
+				++cursor; // Skip initial quote
+				unsigned len = 0;
+				while(_code[cursor+len] != '"')
+				{
+					++len;
+				}
+				_tokenList.push_back(createToken(CScriptToken::eStringLiteral, &_code[cursor], len));
+				cursor += len + 1; // Skip string content and final quote
 			}
 			else if(currentChar == ',')
 			{

@@ -117,11 +117,28 @@ namespace rev { namespace script
 			++_cursor; // Skip ]
 			return list;
 		}
+		else if(_tokens[_cursor].mType == CScriptToken::eTrue)
+		{
+			CBooleanExpression * boolean = new CBooleanExpression();
+			boolean->mValue = true;
+			++_cursor;
+			return boolean;
+		}
+		else if(_tokens[_cursor].mType == CScriptToken::eFalse)
+		{
+			CBooleanExpression * boolean = new CBooleanExpression();
+			boolean->mValue = false;
+			++_cursor;
+			return boolean;
+		}
+		else if(_tokens[_cursor].mType == CScriptToken::eStringLiteral)
+		{
+			return constantStringExpression(_tokens[_cursor++]);
+		}
 		else
 		{
-			// Only literal constant expressions allowed
-			CConstantExpression * expression = constantExpression(_tokens[_cursor++]);
-			return expression;
+			// Literal constant expression
+			return constantIntegerExpression(_tokens[_cursor++]);
 		}
 	}
 
@@ -135,11 +152,20 @@ namespace rev { namespace script
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	CConstantExpression * SSyntaxParser::constantExpression(const CScriptToken _token)
+	CConstantExpression * SSyntaxParser::constantIntegerExpression(const CScriptToken _token)
 	{
 		// Only integer constants supported
 		CConstantExpression * expression = new CConstantExpression();
 		expression->mConstant = CVariant(integerFromString(_token.mContent));
+		return expression;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	CConstantExpression * SSyntaxParser::constantStringExpression(const CScriptToken _token)
+	{
+		// Only integer constants supported
+		CConstantExpression * expression = new CConstantExpression();
+		expression->mConstant = CVariant(_token.mContent);
 		return expression;
 	}
 }	// namespace script

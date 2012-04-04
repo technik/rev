@@ -29,7 +29,10 @@ namespace rev { namespace script
 			eOpenPar,		// "("
 			eClosePar,		// ")"
 			eIf,
-			eElse
+			eElse,
+			eTrue,
+			eFalse,
+			eString			// String literal
 		};
 
 	public:

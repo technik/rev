@@ -29,8 +29,10 @@ namespace rev	{	namespace codeTools
 		static	void	init();			///< Creates and inits the system.
 		static	void	end	();			///< Finishes and deletes the system.
 
-		template< typename _T>
+		template< class _T>
 		static	void	log	(_T _msg);	///< logs _msg.
+		template< class _T>
+		static	void	logN(_T _msg);	///< logs _msg and appends new line
 
 	private:
 		//----------------------------------------------------------------------
@@ -46,12 +48,27 @@ namespace rev	{	namespace codeTools
 	template<typename _T>
 	void SLog::log(_T _msg)
 	{
-		std::cout << _msg << std::endl;
+		std::cout << _msg;
 	}
 #else
 	//--------------------------------------------------------------------------
 	template<typename _T>
 	void SLog::log(_T /*_msg*/)
+	{
+		// Intentionally blank
+	}
+#endif
+#ifdef _DEBUG
+	//--------------------------------------------------------------------------
+	template<typename _T>
+	void SLog::logN(_T _msg)
+	{
+		std::cout << _msg << std::endl;
+	}
+#else
+	//--------------------------------------------------------------------------
+	template<typename _T>
+	void SLog::logN(_T /*_msg*/)
 	{
 		// Intentionally blank
 	}
