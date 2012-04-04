@@ -48,6 +48,9 @@ namespace rev
 		:mType(eBool)
 	{
 		mData.b = _b;
+		if(mData.b)
+			mString = "true";
+		else mString = "false";
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -96,6 +99,11 @@ namespace rev
 			mList.clear();
 		mType = eBool;
 		mData.b = _x;
+		
+		if(mData.b)
+			mString = "true";
+		else mString = "false";
+		
 		return *this;
 	}
 
@@ -139,6 +147,71 @@ namespace rev
 		}
 		// Add the new element
 		mList.push_back(_x);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int CVariant::asInt() const
+	{
+		switch(mType)
+		{
+		case eReal:
+			return int(mData.d);
+		case eList:
+			return mList.size();
+		case eString:
+			return integerFromString(mString.c_str());
+		case eBool:
+			return mData.b? 1 : 0;
+		case eInteger:
+		default:
+			return mData.i;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	double CVariant::asDouble() const
+	{
+		switch(mType)
+		{
+		case eInteger:
+			return int(mData.d);
+		case eBool:
+			return mData.b? 1.0 : 0.0;
+		case eString:
+			return doubleFromString(mString.c_str());
+		case eReal:
+		default:
+			return mData.d;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool CVariant::asBool() const
+	{
+		switch(mType)
+		{
+		case eString:
+			if(compareString("true", mString.c_str()))
+				return true;
+			else if(compareString("false", mString.c_str()))
+				return false;
+			else return !mString.empty();
+		case eList:
+			return !mList.empty();
+		case eReal:
+			return mData.d != 0.0;
+		case eInteger:
+			return mData.i != 0;
+		case eBool:
+		default:
+			return mData.b;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	const string& CVariant::asString() const
+	{
+		return mString;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -29,39 +29,40 @@ namespace rev
 	public:
 		// ---- Construction, copy and deletion -----
 		// Basic constructors
-		CVariant			();
-		CVariant			(const CVariant&);
+		CVariant					();
+		CVariant					(const CVariant&);
 
 		// Typed constructors
-		CVariant			(int);
-		CVariant			(double);
-		CVariant			(bool);
-		CVariant			(const char * _str);
-		CVariant			(const string& _str);
-
-		// Assignment
-		CVariant& operator=		(const CVariant&);
-		CVariant& operator=		(int);
-		CVariant& operator=		(double);
-		CVariant& operator=		(bool);
-		CVariant& operator=		(const char * _str);
-		CVariant& operator=		(const string& _str);
-		void		setNill		();
-		void		append		(const CVariant& _x);
+		CVariant					(int);
+		CVariant					(double);
+		CVariant					(bool);
+		CVariant					(const char * _str);
+		CVariant					(const string& _str);
 
 		// Destruction
-		~CVariant			() {}
+		~CVariant					() {}
+
+		// Assignment
+		CVariant&		operator=	(const CVariant&);
+		CVariant&		operator=	(int);
+		CVariant&		operator=	(double);
+		CVariant&		operator=	(bool);
+		CVariant&		operator=	(const char * _str);
+		CVariant&		operator=	(const string& _str);
+		void			setNill		();
+		void			append		(const CVariant& _x);
 		
 		// Accessors
-		int			asInt		() const	{ return mData.i; }
-		double		asDouble	() const	{ return mData.d; }
-		bool		asBool		() const	{ return mData.b; }
-		CVariant&	operator[]	(unsigned _idx);
+		int				asInt		() const;
+		double			asDouble	() const;
+		bool			asBool		() const;
+		const string&	asString	() const;
+		CVariant&		operator[]	(unsigned _idx);
 
-		EDataType	type		() const	{ return mType;	  }
+		EDataType		type		() const	{ return mType;	  }
 
 		// Log
-		void		log			(unsigned _indent = 0);
+		void			log			(unsigned _indent = 0);
 	public:
 		// Comparison
 		bool	operator==	(const CVariant&) const;
@@ -85,7 +86,7 @@ namespace rev
 		EDataType				mType;
 		UDataT					mData;
 		rtl::vector<CVariant>	mList;
-		string					mString;
+		string			mString;
 	};
 }	// namespace rev
 
