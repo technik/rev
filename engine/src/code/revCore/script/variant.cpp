@@ -209,13 +209,27 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	const string& CVariant::asString() const
+	CVec3 CVariant::asVec3() const
 	{
-		return mString;
+		codeTools::revAssert((mType == eList) && (mList.size() >= 3));
+		return CVec3(float(mList[0].asDouble()),float(mList[1].asDouble()),float(mList[2].asDouble()));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	const char* CVariant::asString() const
+	{
+		return mString.c_str();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator[](unsigned _idx)
+	{
+		codeTools::revAssert((mType == eList) && (_idx < mList.size()));
+		return mList[_idx];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	const CVariant& CVariant::operator[](unsigned _idx) const
 	{
 		codeTools::revAssert((mType == eList) && (_idx < mList.size()));
 		return mList[_idx];

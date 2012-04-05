@@ -20,8 +20,9 @@ public:
 	CFile(const string& _name);
 	~CFile();
 
-	const void *	buffer	() const { return mBuffer;	}
-	int				size	() const { return mSize;	}
+	const void *	buffer		() const { return mBuffer;	}
+	const char *	textBuffer	() const { return reinterpret_cast<const char*>(mBuffer); }
+	int				size		() const { return mSize;	}
 
 private:
 	string	mFileName;

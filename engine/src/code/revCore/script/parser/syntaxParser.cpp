@@ -24,7 +24,7 @@ namespace rev { namespace script
 		{
 			IStatement * statement = processStatement(_tokens, cursor);
 			if(0 == statement)
-				SLog::log("Syntax error, couldn't process statement");
+				SLog::logN("Syntax error, couldn't process statement");
 			else
 				_dst.addStatement(statement);
 		}
@@ -42,7 +42,7 @@ namespace rev { namespace script
 			if(_tokens[_cursor].mType != CScriptToken::eCloseCBraces)
 			{
 				SLog::log("Syntax error: Expected \"}\" at position:");
-				SLog::log(_cursor);
+				SLog::logN(_cursor);
 				return 0;
 			}
 			++_cursor;	// Skip }
@@ -53,7 +53,7 @@ namespace rev { namespace script
 			if(_tokens[_cursor+1].mType != CScriptToken::eOpenPar)
 			{
 				SLog::log("Syntax error: Expected \"(\" after \"if\" at position:");
-				SLog::log(_cursor);
+				SLog::logN(_cursor);
 				return 0;
 			}
 			_cursor+=2; // Skip "If ("
@@ -61,7 +61,7 @@ namespace rev { namespace script
 			if(_tokens[_cursor].mType != CScriptToken::eClosePar)
 			{
 				SLog::log("Syntax error: Expected \")\" at position:");
-				SLog::log(_cursor);
+				SLog::logN(_cursor);
 				return 0;
 			}
 			++_cursor; // Skip ")"
@@ -90,7 +90,7 @@ namespace rev { namespace script
 			if(_tokens[_cursor].mType != CScriptToken::eSemicolon)
 			{
 				SLog::log("Syntax error: Expected \";\" at position:");
-				SLog::log(_cursor);
+				SLog::logN(_cursor);
 				return 0;
 			}
 			++_cursor; // Skip semicolon
@@ -147,7 +147,7 @@ namespace rev { namespace script
 		else
 		{
 			SLog::log("Syntax error: Unknown token at position ");
-			SLog::log(_cursor++);
+			SLog::logN(_cursor++);
 			return 0;
 		}
 	}

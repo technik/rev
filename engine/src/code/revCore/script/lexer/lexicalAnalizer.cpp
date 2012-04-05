@@ -15,7 +15,7 @@
 namespace rev { namespace script
 {
 	const char * SLexicalAnalizer::sOperators = "+-*/><=";
-	const char * SLexicalAnalizer::sSeparators = " \t\n";
+	const char * SLexicalAnalizer::sSeparators = " \t\n\r";
 
 	//------------------------------------------------------------------------------------------------------------------
 	int SLexicalAnalizer::parseCodeIntoTokens(const char * _code, rtl::vector<CScriptToken>& _tokenList)
@@ -145,7 +145,7 @@ namespace rev { namespace script
 			}
 			else
 			{
-				codeTools::SLog::log("Error: Unknown token");
+				codeTools::SLog::logN("Error: Unknown token");
 				logErrorMessageAndCode(_code, cursor);
 				return cursor;
 			}
@@ -220,10 +220,10 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	void SLexicalAnalizer::logErrorMessageAndCode(const char * _code, unsigned cursor)
 	{
-		char message[256];
-		sprintf(message, "Error parsing script code at position %d\nIn code:", cursor);
-		codeTools::SLog::log(message);
-		codeTools::SLog::log(_code);
+		codeTools::SLog::log("Error parsing script code at position ");
+		codeTools::SLog::logN(cursor);
+		codeTools::SLog::logN("in code:");
+		codeTools::SLog::logN(_code);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ namespace rev { namespace script
 	{
 		if(_code[1] == '\0')
 		{
-			codeTools::SLog::log("Unexpected end of file after \"/\"");
+			codeTools::SLog::logN("Unexpected end of file after \"/\"");
 			return -1;
 		}
 		if(_code[1] == '/') // Single line comment
@@ -243,24 +243,12 @@ namespace rev { namespace script
 		}
 		else if (_code[1] == '*') // Comment block
 		{
-			unsigned cursor = 2;
-			bool endFound = false;
-			while(!endFound)
-			{
-				while(_code[cursor] != '*')
-					++cursor;
-				if(_code[cursor+1] == '/')
-					endFound;
-				else
-					++cursor;
-			}
-			while(_code[cursor] != '\n' && _code[cursor] != '\0')
-				++cursor;
-			return cursor;
+			codeTools::SLog::logN("Error: Multiline comments are not supported");
+			return -1;
 		}
 		else
 		{
-			codeTools::SLog::log("Error: Unexpected character after \"/\"");
+			codeTools::SLog::logN("Error: Unexpected character after \"/\"");
 			return -1;
 		}
 	}

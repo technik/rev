@@ -9,6 +9,7 @@
 #define _REV_CORE_SCRIPT_CVARIANT_H_
 
 #include <vector.h>
+#include <revCore/math/vector.h>
 #include <revCore/string.h>
 
 namespace rev
@@ -56,8 +57,10 @@ namespace rev
 		int				asInt		() const;
 		double			asDouble	() const;
 		bool			asBool		() const;
-		const string&	asString	() const;
+		const char*		asString	() const;
+		CVec3			asVec3		() const;
 		CVariant&		operator[]	(unsigned _idx);
+		const CVariant&	operator[]	(unsigned _idx) const;
 
 		EDataType		type		() const	{ return mType;	  }
 
