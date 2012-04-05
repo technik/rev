@@ -75,6 +75,8 @@ namespace rev { namespace video
 		void			glDeleteShader			(unsigned _shader);
 		void			glShaderSource			(unsigned _shader, int _count, const char ** _string, const int * _length);
 		void			glCompileShader			(unsigned _shader);
+		void			glGetShaderiv			(unsigned _shader, unsigned _paramType, int * param) const;
+		void			glGetShaderInfoLog		(unsigned _shader, unsigned _maxSize, int * length, char * buffer) const;
 		void			glAttachShader			(unsigned _program, unsigned _shader);
 		void			glLinkProgram			(unsigned _program);
 		void			glBindAttribLocation	(unsigned _program, unsigned _index, const char * _name);
@@ -89,6 +91,9 @@ namespace rev { namespace video
 		void			glUniform1i				(unsigned _location, int _i);
 
 		void			glActiveTexture			(GLenum aTexture);
+
+		// --- Debugging aids ---
+		bool			detectShaderError			(unsigned shader) const;
 
 	private:
 		// --- Internal state --- //
@@ -106,6 +111,8 @@ namespace rev { namespace video
 		PFNGLDELETESHADERPROC m_deleteShader;
 		PFNGLSHADERSOURCEPROC m_shaderSource;
 		PFNGLCOMPILESHADERPROC m_compileShader;
+		PFNGLGETSHADERIVPROC m_getShaderiv;
+		PFNGLGETSHADERINFOLOGPROC m_getShaderInfoLog;
 		PFNGLATTACHSHADERPROC m_attachShader;
 		PFNGLLINKPROGRAMPROC m_linkProgram;
 		// Data binding

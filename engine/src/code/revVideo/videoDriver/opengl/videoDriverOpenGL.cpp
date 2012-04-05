@@ -8,13 +8,15 @@
 // Engine headers
 #include "videoDriverOpenGL.h"
 
-#include "revCore/codeTools/assert/assert.h"
-#include "revCore/file/file.h"
-#include "revCore/math/matrix.h"
-#include "revVideo/color/color.h"
-#include "revVideo/texture/texture.h"
-#include "revVideo/videoDriver/shader/pxlShader.h"
-#include "revVideo/videoDriver/shader/vtxShader.h"
+#include <revCore/codeTools/assert/assert.h>
+#include <revCore/codeTools/log/log.h>
+#include <revCore/file/file.h>
+#include <revCore/math/matrix.h>
+#include <revCore/string.h>
+#include <revVideo/color/color.h>
+#include <revVideo/texture/texture.h>
+#include <revVideo/videoDriver/shader/pxlShader.h>
+#include <revVideo/videoDriver/shader/vtxShader.h>
 
 #ifdef _linux
 #define loadExtension( a ) glXGetProcAddressARB((const GLubyte*) (a))
@@ -183,7 +185,13 @@ namespace rev { namespace video
 		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
-		return int(shader);
+		if(!detectShaderError(shader))
+			return int(shader);
+		else
+		{
+			glDeleteShader(shader);
+			return -1;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -194,7 +202,13 @@ namespace rev { namespace video
 		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
 		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
 		glCompileShader(shader); // Compile
-		return int(shader);
+		if(!detectShaderError(shader))
+			return int(shader);
+		else
+		{
+			glDeleteShader(shader);
+			return -1;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -221,6 +235,8 @@ namespace rev { namespace video
 		m_deleteShader = (PFNGLDELETESHADERPROC)loadExtension("glDeleteShader");
 		m_shaderSource = (PFNGLSHADERSOURCEPROC)loadExtension("glShaderSource");
 		m_compileShader = (PFNGLCOMPILESHADERPROC)loadExtension("glCompileShader");
+		m_getShaderiv = (PFNGLGETSHADERIVPROC)loadExtension("glGetShaderiv");
+		m_getShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)loadExtension("glGetShaderInfoLog");
 		m_attachShader = (PFNGLATTACHSHADERPROC)loadExtension("glAttachShader");
 		m_linkProgram = (PFNGLLINKPROGRAMPROC)loadExtension("glLinkProgram");
 		m_bindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)loadExtension("glBindAttribLocation");
@@ -348,6 +364,39 @@ namespace rev { namespace video
 	void IVideoDriverOpenGL::glActiveTexture(GLenum _texture)
 	{
 		m_activeTexture(_texture);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glGetShaderiv(unsigned _shader, unsigned _pName, int * _params) const
+	{
+		m_getShaderiv(_shader, _pName, _params);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::glGetShaderInfoLog(unsigned _shader, unsigned _maxLength, int * _length, char * _buffer) const
+	{
+		m_getShaderInfoLog(_shader,_maxLength,_length,_buffer);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool IVideoDriverOpenGL::detectShaderError(unsigned _shader) const
+	{
+		int status;
+		glGetShaderiv(_shader, GL_COMPILE_STATUS, &status);
+		if(status == GL_TRUE)
+		{
+			return false;
+		}
+		else
+		{
+			char buffer[1024];
+			int len;
+			glGetShaderInfoLog(_shader, 1024, &len, buffer);
+			buffer[len] = '\0';
+			SLog::logN("Error compiling shader");
+			SLog::logN(buffer);
+			return true;
+		}
 	}
 
 }	// namespace video

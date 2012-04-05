@@ -29,10 +29,11 @@ namespace rev { namespace video
 		if( 0 != tempUserStorage.size())
 		{
 			mUsers = tempUserStorage;
-			for(rtl::vector<CShader*>::iterator i = tempUserStorage.begin(); i != tempUserStorage.end(); ++i)
-			{
-				(*i)->refresh();
-			}
+			if(-1 != mId)
+				for(rtl::vector<CShader*>::iterator i = tempUserStorage.begin(); i != tempUserStorage.end(); ++i)
+				{
+					(*i)->refresh();
+				}
 			tempUserStorage.clear();
 		}
 	}
