@@ -72,6 +72,97 @@ namespace rev { namespace game
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
+	inline unsigned nVerticesInSphere(unsigned _nMeridians, unsigned _nParallels)
+	{
+		// Top and bottom plus _nParallels per meridian
+		return 2 + _nMeridians * (_nParallels+1);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	void fillVectorRing(CVec3 * _dst, unsigned _nVerts, TReal _rad, TReal _height)
+	{
+		TReal deltaTheta = 3.14159265f / _nVerts;
+		TReal theta = 0.f;
+		for(unsigned i = 0; i < _nVerts-1; ++i)
+		{
+			_dst[i] = CVec3(_rad*sin(theta), _rad * -cos(theta), _height);
+			theta += deltaTheta;
+		}
+		_dst[_nVerts-1] = _dst[0];
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec3 * generateSphereNormals(unsigned _nMeridians, unsigned _nParallels)
+	{
+		// Compute total vertices needed
+		unsigned nVerts = nVerticesInSphere(_nMeridians, _nParallels);
+		// Allocate needed vertices
+		CVec3 * vertices = new CVec3[nVerts];
+		// Add top and bottom vertices
+		vertices[0] = CVec3(0.f, 0.f, 1.f);
+		vertices[nVerts-1] = CVec3(0.f, 0.f, -1.f);
+		// Add intermediate rings of vertices
+		TReal deltaAlpha = 3.14159265f / (1+_nMeridians);
+		TReal alpha = (-3.14159265f / 2.f) + deltaAlpha;
+		for(unsigned ring = 0; ring < _nMeridians; ++ring)
+		{
+			fillVectorRing(&vertices[1+ring*(_nParallels+1)], _nParallels+1, cos(alpha), sin(alpha));
+			alpha += deltaAlpha;
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec3 * generateSphereVertices(TReal _radius, unsigned _nMeridians, unsigned _nParallels)
+	{
+		// Compute total vertices needed
+		unsigned nVerts = nVerticesInSphere(_nMeridians, _nParallels);
+		// Allocate needed vertices
+		CVec3 * vertices = generateSphereNormals(_nMeridians, _nParallels);
+		for(unsigned i = 0; i < nVerts; ++i)
+			vertices[i] *= _radius;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec2 * generateSphereUVs(unsigned _nMeridians, unsigned _nParallels)
+	{
+		unsigned nVerts = nVerticesInSphere(_nMeridians, _nParallels);
+		CVec2 * uvs = new CVec2[nVerts];
+		uvs[0] = CVec2(0.5f,0.f);
+		uvs[nVerts-1] = CVec2(0.5f,1.f);
+		TReal deltaZ = 1.f/(1+_nMeridians);
+		TReal deltaX = 1.f / _nParallels;
+		TReal X = 0.f;
+		for(unsigned i = 0; i < _nParallels+1; ++i)
+		{
+			TReal Z = 1.f - deltaZ;
+			for(unsigned j = 0; j < _nMeridians; ++j)
+			{
+				uvs[1+i+j*(_nParallels+1)] = CVec2(X, Z);
+				Z+=deltaZ;
+			}
+			X+=deltaX;
+		}
+		return uvs;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CStaticModel * CMeshGenerator::geoSphere(TReal _radius, unsigned _nMeridians, unsigned _nParallels)
+	{
+		// Create vertices
+		CVec3 * verts = generateSphereVertices(_radius, _nMeridians, _nParallels);
+		// Create normals
+		CVec3 * norms = generateSphereNormals(_nMeridians, _nParallels);
+		// Create uvs
+		CVec2 * uvs = generateSphereUVs(_nMeridians, _nParallels);
+		// Create indices
+		// Create the model itself
+		verts;
+		norms;
+		uvs;
+		return 0;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
 	void CMeshGenerator::fillBoxFace(int faceIdx, const CVec3& size, CVec3 * verts, CVec3 * norms, CVec2 * uvs)
 	{
 		CVec3 halfSize = size * 0.5f;

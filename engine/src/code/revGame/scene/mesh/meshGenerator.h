@@ -25,7 +25,7 @@ namespace rev { namespace game
 	public:
 		static video::CStaticModel * plane		(const CVec2& size);
 		static video::CStaticModel * box		(const CVec3& size);
-		// static video::CStaticModel * geoSphere	(TReal radius, int nMeridians, int nParallels);
+		static video::CStaticModel * geoSphere	(TReal radius, unsigned nMeridians, unsigned nParallels);
 
 	private:
 		static void fillBoxFace(int faceIdx, const CVec3& size, CVec3 * verts, CVec3 * norms, CVec2 * uv);

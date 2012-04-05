@@ -89,6 +89,8 @@ CFile::CFile(const string& _filename)
 	// Fill the buffer with the contents of the file
 	file.read((char*)mBuffer, mSize);
 	((char*)mBuffer)[mSize] = '\0';
+
+	file.close();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
