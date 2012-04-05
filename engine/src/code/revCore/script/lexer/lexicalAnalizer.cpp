@@ -60,7 +60,7 @@ namespace rev { namespace script
 				else
 					cursor += correctToken;
 			}
-			else if(isANumber(currentChar)) // Number
+			else if(isANumber(currentChar) || (isANumber(_code[cursor+1]) && (currentChar=='-'))) // Number
 			{
 				int correctToken = processNumberToken(&_code[cursor], _tokenList);
 				if(-1 == correctToken)
@@ -175,7 +175,7 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	int SLexicalAnalizer::processNumberToken(const char * _code, rtl::vector<CScriptToken>& _tokenList)
 	{
-		unsigned cursor = 0;
+		unsigned cursor = _code[0]=='-'?1:0;
 		while(isANumber(_code[cursor])) // Go till the end of the number
 			++cursor;
 		if(_code[cursor] == '.')	// Real literal

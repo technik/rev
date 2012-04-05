@@ -55,6 +55,9 @@ namespace rev
 	//----------------------------------------------------------------------------------------------------------------------
 	int integerFromString(const char * _str)
 	{
+		bool negative = *_str == '-';
+		if(negative)
+			_str = &_str[1];
 		unsigned cursor = 0;
 		int integer = 0;
 		char digit = _str[cursor];
@@ -65,7 +68,10 @@ namespace rev
 			// Go to the next digit
 			digit = _str[++cursor];
 		}
-		return integer;
+		if(negative)
+			return -integer;
+		else
+			return integer;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -75,7 +81,10 @@ namespace rev
 		{
 			return double(integerFromString(_str));
 		}else
-		{	
+		{
+			bool negative = *_str == '-';
+			if(negative)
+				_str = &_str[1];
 			unsigned cursor = 0;
 			int integer = 0;
 			char digit = _str[cursor];
@@ -90,7 +99,8 @@ namespace rev
 			double decimal = double(integerFromString(&_str[cursor]));
 			while(_str[cursor++] != '\0')
 				decimal /= 10.0;
-			return double(integer) + decimal;
+			double res = double(integer) + decimal;
+			return negative?-res:res;
 		}
 	}
 

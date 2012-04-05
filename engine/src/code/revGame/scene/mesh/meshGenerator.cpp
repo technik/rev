@@ -109,6 +109,7 @@ namespace rev { namespace game
 			fillVectorRing(&vertices[1+ring*(_nParallels+1)], _nParallels+1, cos(alpha), sin(alpha));
 			alpha += deltaAlpha;
 		}
+		return vertices;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ namespace rev { namespace game
 		CVec3 * vertices = generateSphereNormals(_nMeridians, _nParallels);
 		for(unsigned i = 0; i < nVerts; ++i)
 			vertices[i] *= _radius;
+		return vertices;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
