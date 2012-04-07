@@ -32,7 +32,7 @@ namespace rev { namespace video {
 		// -- Accessor methods -----------------------------------------------------------------------------------------
 		CVtxShader*				shader			() const;	///< Vertex shader used by this model
 		unsigned short			nVertices		() const;	///< How many vertices the model has
-		unsigned short			nTriangles		() const;	///< Number of independent triangle faces in the model
+		unsigned short			nTriIndices		() const;	///< Number of independent triangle faces in the model
 		const float*			vertices		() const;	///< Return model's vertex array
 		const float*			normals			() const;	///< Return model's normal array
 		const float*			uvs				() const;	///< Return model's uv array
@@ -44,9 +44,10 @@ namespace rev { namespace video {
 												float * _vertNrm,		///< \param _vertNrm vertex normals
 												float * _vertUV);		///< \param _vertUV vertex uv coordinates
 
-		void					setFaces		(			///< Set new triangled faces (deletes any previous faces)
-												unsigned short _count,		///< \param _count how many faces
-												unsigned short * _indices);	///< \param _indices face indices
+		void					setFaceIndices	(			///< Set new triangled faces (deletes any previous faces)
+												unsigned short _nIndices,	///< \param _count how many faces
+												unsigned short * _indices,	///< \param _indices face indices
+												bool _strip = false);		///< \param 
 
 	private:
 		static CVtxShader * sShader;
@@ -56,7 +57,7 @@ namespace rev { namespace video {
 		float*			mNormals;
 		float*			mUVs;
 		unsigned short*	mTriangles;
-		unsigned short	mNTriangles;
+		unsigned short	mNTriIndices;
 		unsigned short*	mTriStrip;
 		unsigned short	mStripLength;
 	};
@@ -64,13 +65,13 @@ namespace rev { namespace video {
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
 	//------------------------------------------------------------------------------------------------------------------
-	inline CVtxShader*				CStaticModel::shader	() const	{	return sShader;		}
-	inline unsigned short			CStaticModel::nVertices	() const	{	return mNVertices;	}
-	inline unsigned short			CStaticModel::nTriangles() const	{	return mNTriangles;	}
-	inline const float*				CStaticModel::vertices	() const	{	return mVertices;	}
-	inline const float*				CStaticModel::normals	() const	{	return mNormals;	}
-	inline const float*				CStaticModel::uvs		() const	{	return mUVs;		}
-	inline const unsigned short*	CStaticModel::triangles	() const	{	return mTriangles;	}
+	inline CVtxShader*				CStaticModel::shader		() const	{	return sShader;		}
+	inline unsigned short			CStaticModel::nVertices		() const	{	return mNVertices;	}
+	inline unsigned short			CStaticModel::nTriIndices	() const	{	return mNTriIndices;}
+	inline const float*				CStaticModel::vertices		() const	{	return mVertices;	}
+	inline const float*				CStaticModel::normals		() const	{	return mNormals;	}
+	inline const float*				CStaticModel::uvs			() const	{	return mUVs;		}
+	inline const unsigned short*	CStaticModel::triangles		() const	{	return mTriangles;	}
 
 }	// namespace video
 }	// namespace rev

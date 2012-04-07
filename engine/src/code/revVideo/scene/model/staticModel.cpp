@@ -29,7 +29,7 @@ namespace video
 		,mNormals(0)
 		,mUVs(0)
 		,mTriangles(0)
-		,mNTriangles(0)
+		,mNTriIndices(0)
 		,mTriStrip(0)
 		,mStripLength(0)
 	{
@@ -45,7 +45,7 @@ namespace video
 		mNormals(0),
 		mUVs(0),
 		mTriangles(0),
-		mNTriangles(0),
+		mNTriIndices(0),
 		mTriStrip(0),
 		mStripLength(0)
 	{
@@ -65,7 +65,7 @@ namespace video
 
 		// Read model metrics from header
 		mNVertices = reinterpret_cast<const unsigned short*>(buffer)[2];
-		mNTriangles = reinterpret_cast<const unsigned short*>(buffer)[3];
+		mNTriIndices = 3 * reinterpret_cast<const unsigned short*>(buffer)[3];
 		// Move on from the header
 		pointer = buffer + 4*sizeof(unsigned short);
 
@@ -104,13 +104,13 @@ namespace video
 		pointer += 2 * mNVertices * sizeof(float);
 
 		// Read face indices
-		mTriangles = new unsigned short[mNTriangles * 3];
+		mTriangles = new unsigned short[mNTriIndices];
 		const unsigned short * idxBuffer = reinterpret_cast<const unsigned short*>(pointer);
-		for(unsigned i = 0; i < mNTriangles; ++i)
+		for(unsigned i = 0; i < mNTriIndices; i+=3)
 		{
-			mTriangles[3*i+0] = idxBuffer[3*i+0];
-			mTriangles[3*i+1] = idxBuffer[3*i+1];
-			mTriangles[3*i+2] = idxBuffer[3*i+2];
+			mTriangles[i+0] = idxBuffer[i+0];
+			mTriangles[i+1] = idxBuffer[i+1];
+			mTriangles[i+2] = idxBuffer[i+2];
 		}
 	}
 
@@ -141,7 +141,10 @@ namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CStaticModel::render() const
 	{
-		SVideo::get()->driver()->drawIndexBuffer(3*mNTriangles, mTriangles);
+		if(0 != mNTriIndices)
+			SVideo::get()->driver()->drawIndexBuffer(mNTriIndices, mTriangles);
+		if(0 != mStripLength)
+			SVideo::get()->driver()->drawIndexBuffer(mStripLength, mTriStrip, IVideoDriver::eTriStrip);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -164,14 +167,31 @@ namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStaticModel::setFaces(unsigned short _count, unsigned short * _indices)
+	void CStaticModel::setFaceIndices(unsigned short _nIndices, unsigned short * _indices, bool _strip)
 	{
-		// Update count
-		mNTriangles = _count;
-		// Update buffer
+		// Clear old data
 		if( 0 != mTriangles) // Delete old indices, if any
+		{
 			delete mTriangles;
-		mTriangles = _indices;
+			mNTriIndices = 0;
+		}
+		if( 0 != mStripLength)
+		{
+			delete mTriStrip;
+			mStripLength = 0;
+		}
+		if(_strip)
+		{
+			mStripLength = _nIndices;
+			mTriStrip = _indices;
+		}
+		else
+		{
+			// Update count
+			mNTriIndices = _nIndices;
+			// Update buffer
+			mTriangles = _indices;
+		}
 	}
 
 }	// namespace video

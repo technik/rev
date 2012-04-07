@@ -17,9 +17,11 @@ namespace rev { namespace script
 	{
 		// Parse code and generate a list of tokens
 		rtl::vector<CScriptToken>	tokens;
-		SLexicalAnalizer::parseCodeIntoTokens(_code, tokens);
-		// Transform the list of tokens into
-		SSyntaxParser::parseTokenListIntoExecutionTree(mCode, tokens);
+		if(SLexicalAnalizer::parseCodeIntoTokens(_code, tokens) != -1)
+		{
+			// Transform the list of tokens into
+			SSyntaxParser::parseTokenListIntoExecutionTree(mCode, tokens);
+		}
 
 		// House keeping
 		for(unsigned i = 0; i < tokens.size(); ++i)

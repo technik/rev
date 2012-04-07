@@ -42,7 +42,7 @@ namespace rev { namespace game
 		faces[3] = 2;
 		faces[4] = 3;
 		faces[5] = 0;
-		plane->setFaces(2, faces);
+		plane->setFaceIndices(6, faces);
 
 		return plane;
 	}
@@ -67,7 +67,7 @@ namespace rev { namespace game
 		}
 		CStaticModel * box = new CStaticModel();
 		box->setVertexData(24, reinterpret_cast<float*>(verts), reinterpret_cast<float*>(norms), reinterpret_cast<float*>(uvs));
-		box->setFaces(12, indices);
+		box->setFaceIndices(36, indices);
 		return box;
 	}
 
@@ -81,7 +81,7 @@ namespace rev { namespace game
 	//---------------------------------------------------------------------------------------------------------------
 	void fillVectorRing(CVec3 * _dst, unsigned _nVerts, TReal _rad, TReal _height)
 	{
-		TReal deltaTheta = 3.14159265f / _nVerts;
+		TReal deltaTheta =  2.f * 3.14159265f / (_nVerts-1);
 		TReal theta = 0.f;
 		for(unsigned i = 0; i < _nVerts-1; ++i)
 		{
@@ -99,8 +99,8 @@ namespace rev { namespace game
 		// Allocate needed vertices
 		CVec3 * vertices = new CVec3[nVerts];
 		// Add top and bottom vertices
-		vertices[0] = CVec3(0.f, 0.f, 1.f);
-		vertices[nVerts-1] = CVec3(0.f, 0.f, -1.f);
+		vertices[0] = CVec3(0.f, 0.f, -1.f);
+		vertices[nVerts-1] = CVec3(0.f, 0.f, 1.f);
 		// Add intermediate rings of vertices
 		TReal deltaAlpha = 3.14159265f / (1+_nMeridians);
 		TReal alpha = (-3.14159265f / 2.f) + deltaAlpha;
@@ -148,6 +148,40 @@ namespace rev { namespace game
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
+	unsigned nIndicesInSphere(unsigned _nMeridians, unsigned _nParallels)
+	{
+		return (2*_nMeridians + 3) * _nParallels;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	void generateSphereSliceIndices(u16 * _dst, unsigned _nMeridians, unsigned _nParallels, unsigned _slice)
+	{
+		_dst[0] = 0;
+		for(unsigned i = 0; i < _nMeridians; ++i)
+		{
+			_dst[1+2*i] = u16(2 + _slice + (_nParallels+1) * i);
+			_dst[2+2*i] = u16(1 + _slice + (_nParallels+1) * i);
+		}
+		_dst[2*_nMeridians + 1] = u16(nVerticesInSphere(_nMeridians, _nParallels) -1);
+		_dst[2*_nMeridians + 2] = u16(nVerticesInSphere(_nMeridians, _nParallels) -1);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	u16 * generateSphereIndices(unsigned _nMeridians, unsigned _nParallels)
+	{
+		unsigned nIndices = nIndicesInSphere(_nMeridians, _nParallels);
+		u16 * indices = new u16[nIndices];
+		unsigned deltaIndices = 2*_nMeridians+3;
+		unsigned accumIndices = 0;
+		for(unsigned i = 0; i < _nParallels; ++i)
+		{
+			generateSphereSliceIndices(&indices[accumIndices], _nMeridians, _nParallels, i);
+			accumIndices += deltaIndices;
+		}
+		return indices;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
 	CStaticModel * CMeshGenerator::geoSphere(TReal _radius, unsigned _nMeridians, unsigned _nParallels)
 	{
 		// Create vertices
@@ -157,11 +191,15 @@ namespace rev { namespace game
 		// Create uvs
 		CVec2 * uvs = generateSphereUVs(_nMeridians, _nParallels);
 		// Create indices
+		u16 * indices = generateSphereIndices(_nMeridians, _nParallels);
 		// Create the model itself
-		verts;
-		norms;
-		uvs;
-		return 0;
+		CStaticModel * sphere = new CStaticModel();
+		sphere->setVertexData(u16(nVerticesInSphere(_nMeridians,_nParallels)),
+			reinterpret_cast<float*>(verts),
+			reinterpret_cast<float*>(norms),
+			reinterpret_cast<float*>(uvs));
+		sphere->setFaceIndices(u16(nIndicesInSphere(_nMeridians, _nParallels)), indices, true);
+		return sphere;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------

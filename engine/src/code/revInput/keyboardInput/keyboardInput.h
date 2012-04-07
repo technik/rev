@@ -43,6 +43,8 @@ namespace rev { namespace input
 			eKeyUp,
 			eKeyRight,
 			eKeyDown,
+			eA = 'A',
+			eB,eC,eD,eE,eF,eG,eH,eI,eJ,eK,eL,eM,eN,eO,eP,eQ,eR,eS,eT,eU,eV,eW,eX,eY,eZ,
 
 			eMaxKeyCode
 		};

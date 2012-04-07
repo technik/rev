@@ -73,7 +73,14 @@ namespace rev { namespace script
 			}
 			else if(currentChar == '/' && (_code[cursor+1] == '/' || _code[cursor+1] == '*')) // Comment
 			{
-				cursor += skipComment(&_code[cursor]);
+				int ret = skipComment(&_code[cursor]);
+				if(ret > 0)
+					cursor += skipComment(&_code[cursor]);
+				else
+				{
+					codeTools::SLog::logN("Couldn't recover from previous error");
+					return -1;
+				}
 			}
 			else if(isCharacterInString(currentChar, sOperators))
 			{
@@ -151,7 +158,7 @@ namespace rev { namespace script
 			}
 			currentChar = _code[cursor];
 		}
-		return -1;
+		return 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
