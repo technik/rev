@@ -1,80 +1,130 @@
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine, code tools, log
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
-// Created on August 21st, 2011
-////////////////////////////////////////////////////////////////////////////////
-// log
+// Created on April 9th, 2012
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Basic log interface
 
-#ifndef _REV_REVCORE_CODETOOLS_LOG_LOG_H_
-#define _REV_REVCORE_CODETOOLS_LOG_LOG_H_
+#ifndef _REV_CORE_CODETOOLS_LOG_LOG_H_
+#define _REV_CORE_CODETOOLS_LOG_LOG_H_
 
-#if defined(_DEBUG)
-#include <iostream>
-#endif // _DEBUG
+#include <revCore/string.h>
+#include <vector.h>
 
-
-#if defined(ANDROID) && defined(_DEBUG)
-#include <android/log.h>
-#define LOG_ANDROID(...) __android_log_print(ANDROID_LOG_INFO, "REV_LOG", __VA_ARGS__)
-#else // !(ANDROID && _DEBUG)
-#define LOG_ANDROID( a )
-#endif // ANDROID && _DEBUG
-
-namespace rev	{	namespace codeTools
+namespace rev
 {
-	class SLog
+	enum ELogChannel
 	{
-	public:
-		// ---- Singleton lifecycle --------------------------------------------
-		static	void	init();			///< Creates and inits the system.
-		static	void	end	();			///< Finishes and deletes the system.
+		eCommon,
+		eError,
+		eAssert,
+		eVerbose,
+		eParanoid,
+		eGP1,
+		eGP2,
+		eGP3,
 
-		template< class _T>
-		static	void	log	(_T _msg);	///< logs _msg.
-		template< class _T>
-		static	void	logN(_T _msg);	///< logs _msg and appends new line
-
-	private:
-		//----------------------------------------------------------------------
-		// Private constructor and destructor for the singleton
-		//----------------------------------------------------------------------
-		SLog		();			///< Constructor.
-		~SLog		();			///< Destructor.
-	private:
-		static	SLog* s_pLog;	///< Singleton instance.
+		eMaxLogChannel
 	};
-#ifdef _DEBUG
-	//--------------------------------------------------------------------------
-	template<typename _T>
-	void SLog::log(_T _msg)
-	{
-		std::cout << _msg;
-	}
-#else
-	//--------------------------------------------------------------------------
-	template<typename _T>
-	void SLog::log(_T /*_msg*/)
-	{
-		// Intentionally blank
-	}
-#endif
-#ifdef _DEBUG
-	//--------------------------------------------------------------------------
-	template<typename _T>
-	void SLog::logN(_T _msg)
-	{
-		std::cout << _msg << std::endl;
-	}
-#else
-	//--------------------------------------------------------------------------
-	template<typename _T>
-	void SLog::logN(_T /*_msg*/)
-	{
-		// Intentionally blank
-	}
-#endif
 
-} // namespace codeTools
-} // namespace rev
+	namespace codeTools
+	{
+		class SLog
+		{
+		public:
+			// Singleton life cycle
+			static	void	init	();
+			static	void	end		();
+			static	SLog*	get		();
 
-#endif // _REV_REVCORE_CODETOOLS_LOG_LOG_H_
+		public:
+			// Common use interface
+			template < class T >
+			void	log		( T _msg, ELogChannel _out );
+			void	newLine	(ELogChannel _out);
+
+			// Extra management
+			void	enableGlobalLog		()	{	mEnableGlobal = true;	}
+			void	disableGlobalLog	()	{	mEnableGlobal = false;	}
+			void	enableChannel		(ELogChannel _channel)	{ mEnableChannel[_channel] = true; }
+			void	disableChannel		(ELogChannel _channel)	{ mEnableChannel[_channel] = false;}
+			void	flush				();
+			void	setBufferCapacity	(unsigned _capacity);
+
+		private:
+			typedef char*	messageT;	// Channel, message text
+		
+			bool					mEnableGlobal;
+			bool					mEnableChannel[eMaxLogChannel];
+			rtl::vector<messageT>	mBuffer;
+			unsigned				mBufferCapacity;
+
+		private:
+			// Singleton instantiation
+			SLog();
+			~SLog();
+			static SLog * sInstance;
+		};
+	
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<class T>
+		void SLog::log( T _msg, ELogChannel _channel )
+		{
+			if(mEnableGlobal && mEnableChannel[_channel])
+			{
+				mBuffer.push_back(makeString(_msg));
+				if(mBuffer.size() >= mBufferCapacity)
+					flush();
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		// const char * specialization
+		//--------------------------------------------------------------------------------------------------------------
+		template<>
+		void SLog::log(const char * _msg, ELogChannel _channel);
+
+	}	// namespace codeTools
+
+#ifdef REV_LOG
+//------------------------------------------------------------------------------------------------------------------
+template<class T>
+void	revLog	( T _msg, ELogChannel _channel = eCommon )
+{
+	codeTools::SLog * logger = codeTools::SLog::get();
+	codeTools::revAssert(0 != logger);
+	logger->log(_msg, _channel);
+}
+	
+//------------------------------------------------------------------------------------------------------------------
+template<class T>
+void	revLogN	( T _msg, ELogChannel _channel = eCommon )
+{
+	codeTools::SLog * logger = codeTools::SLog::get();
+	codeTools::revAssert(0 != logger);
+	logger->log(_msg, _channel);
+	logger->newLine(_channel);
+}
+#else // ! REV_LOG
+	// When log is not enabled, delete it in preprocessing.
+//------------------------------------------------------------------------------------------------------------------
+template<class T>
+void	revLog	( T _msg, ELogChannel _channel = eCommon )
+{
+	_msg;
+	_channel;
+}
+	
+//------------------------------------------------------------------------------------------------------------------
+template<class T>
+void	revLogN	( T _msg, ELogChannel _channel = eCommon )
+{
+	_msg;
+	_channel;
+}
+#endif // ! REV_LOG
+
+}	// namespace rev
+
+#endif // _REV_CORE_CODETOOLS_LOG_LOG_H_

@@ -11,14 +11,15 @@
 // Standard headers
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
 #include <string>
+#include <sstream>
 #endif // _linux || ANDROID || WIN32
 
 namespace rev
 {
 
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
-
 typedef std::string string;
+#endif // linux || android || windows
 
 unsigned	stringLength		(const char * _str);
 bool		isCharacterInString	(char, const char * _str);
@@ -29,7 +30,23 @@ void		copyStringN			(char * _dst, const char * _src, unsigned _maxLength);
 int			integerFromString	(const char * _str);
 double		doubleFromString	(const char * _str);
 
-#endif // _linux || ANDROID || WIN32
+// Stringification
+template < class T >
+char*		makeString			( T _x )
+{
+#if defined(_linux) || defined(ANDROID) || defined (WIN32)
+	std::stringstream ss ( std::stringstream::in || std::stringstream::out );
+	ss << _x;
+	string str = ss.str();
+	const char * text = str.c_str();
+
+	unsigned len = stringLength(text);
+	char * retText = new char[len+1];
+	copyString(retText, text);
+
+	return retText;
+#endif // linux || android || windows
+}
 
 }	// namespace rev
 

@@ -44,7 +44,7 @@ namespace rev { namespace game
 	{
 		// Init log system
 		SLog::init();
-		SLog::logN("----- Creating base game client -----");
+		revLogN("----- Creating base game client -----");
 #ifdef WIN32
 		mWindowsHandler = new CWindowsHandler();
 #endif // WIN32
@@ -71,7 +71,7 @@ namespace rev { namespace game
 		delete mWindowsHandler;
 #endif // WIN32
 		// End log system
-		SLog::logN("----- Base game client destroyed -----");
+		revLogN("----- Base game client destroyed -----");
 		SLog::end();
 	}
 

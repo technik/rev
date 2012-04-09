@@ -246,32 +246,32 @@ namespace rev
 		switch(mType)
 		{
 		case eList:
-			codeTools::SLog::logN(indent + "[");
+			revLogN(indent + "[");
 			for(rtl::vector<CVariant>::iterator element = mList.begin(); element != mList.end(); ++element)
 			{
 				element->log(_indent+1);
 			}
-			codeTools::SLog::logN(indent + "]");
+			revLogN(indent + "]");
 			break;
 		case eInteger:
-			codeTools::SLog::log(indent);
-			codeTools::SLog::logN(mData.i);
+			revLog(indent);
+			revLogN(mData.i);
 			break;
 		case eBool:
 			if(mData.b)
-				codeTools::SLog::logN(indent + "true");
+				revLogN(indent + "true");
 			else
-				codeTools::SLog::logN(indent + "false");
+				revLogN(indent + "false");
 			break;
 		case eReal:
-			codeTools::SLog::log(indent);
-			codeTools::SLog::logN(mData.d);
+			revLog(indent);
+			revLogN(mData.d);
 			break;
 		case eString:
-			codeTools::SLog::logN(indent + mString);
+			revLogN(indent + mString);
 			break;
 		default:
-				codeTools::SLog::logN(indent + "Log error, unkown Variant type");
+			revLogN(indent + "Log error, unkown Variant type", eError);
 		}
 	}
 }	// namespace rev

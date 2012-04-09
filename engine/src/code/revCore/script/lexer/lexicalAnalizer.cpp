@@ -78,7 +78,7 @@ namespace rev { namespace script
 					cursor += skipComment(&_code[cursor]);
 				else
 				{
-					codeTools::SLog::logN("Couldn't recover from previous error");
+					revLogN("Couldn't recover from previous error", eError);
 					return -1;
 				}
 			}
@@ -152,7 +152,7 @@ namespace rev { namespace script
 			}
 			else
 			{
-				codeTools::SLog::logN("Error: Unknown token");
+				revLogN("Error: Unknown token", eError);
 				logErrorMessageAndCode(_code, cursor);
 				return cursor;
 			}
@@ -227,10 +227,10 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	void SLexicalAnalizer::logErrorMessageAndCode(const char * _code, unsigned cursor)
 	{
-		codeTools::SLog::log("Error parsing script code at position ");
-		codeTools::SLog::logN(cursor);
-		codeTools::SLog::logN("in code:");
-		codeTools::SLog::logN(_code);
+		revLog("Error parsing script code at position ", eError);
+		revLogN(cursor, eError);
+		revLogN("in code:", eError);
+		revLogN(_code, eError);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -238,7 +238,7 @@ namespace rev { namespace script
 	{
 		if(_code[1] == '\0')
 		{
-			codeTools::SLog::logN("Unexpected end of file after \"/\"");
+			revLogN("Unexpected end of file after \"/\"", eError);
 			return -1;
 		}
 		if(_code[1] == '/') // Single line comment
@@ -250,12 +250,12 @@ namespace rev { namespace script
 		}
 		else if (_code[1] == '*') // Comment block
 		{
-			codeTools::SLog::logN("Error: Multiline comments are not supported");
+			revLogN("Error: Multiline comments are not supported", eError);
 			return -1;
 		}
 		else
 		{
-			codeTools::SLog::logN("Error: Unexpected character after \"/\"");
+			revLogN("Error: Unexpected character after \"/\"", eError);
 			return -1;
 		}
 	}

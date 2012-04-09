@@ -393,8 +393,8 @@ namespace rev { namespace video
 			int len;
 			glGetShaderInfoLog(_shader, 1024, &len, buffer);
 			buffer[len] = '\0';
-			SLog::logN("Error compiling shader");
-			SLog::logN(buffer);
+			revLogN("Error compiling shader", eError);
+			revLogN(buffer, eError);
 			return true;
 		}
 	}

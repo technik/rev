@@ -22,6 +22,7 @@ namespace rev
 	{
 	public:
 		CVec2()	{}
+		~CVec2() {}
 		CVec2(TReal _x, TReal _y): x(_x), y(_y)	{}
 		TReal	x;
 		TReal	y;
