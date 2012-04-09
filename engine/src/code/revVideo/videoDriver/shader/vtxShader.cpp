@@ -27,7 +27,7 @@ namespace rev { namespace video
 	{
 		SVideo * videoSystem = SVideo::get();
 		if(videoSystem)
-			SVideo::get()->driver()->loadVtxShader(_name.c_str());
+			mId = videoSystem->driver()->loadVtxShader(_name.c_str());
 		if( 0 != tempUserStorage.size())
 		{
 			mUsers = tempUserStorage;

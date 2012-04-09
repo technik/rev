@@ -79,7 +79,7 @@ namespace modelProcessor
 
 		// Set data to the model
 		_model->setVertexData(unsigned short(mVtxQueue.size()), vertPos, vertNrm, vertUV);
-		_model->setFaces(unsigned short(mFaceIndices.size()) / 3, faces);
+		_model->setFaceIndices(unsigned short(mFaceIndices.size()), faces);
 	}
 
 }	// namespace modelProcessor

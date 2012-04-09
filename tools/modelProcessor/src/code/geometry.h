@@ -10,7 +10,7 @@
 
 // Engine headers
 #include "revCore/math/vector.h"
-#include "rtl/vector.h"
+#include "vector.h"
 
 namespace rev { namespace video {
 	class CStaticModel;
@@ -34,6 +34,7 @@ namespace modelProcessor
 					:mVIdx(_vIdx)
 					,mNIdx(_nIdx)
 					,mTIdx(_tIdx) {}
+		~TVertexInfo() {}
 
 		// Comparison operator
 		bool	operator == (const TVertexInfo& _other) const;

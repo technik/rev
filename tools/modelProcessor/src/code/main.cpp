@@ -13,10 +13,10 @@
 #include <revCore/file/file.h>
 #include <revCore/math/vector.h>
 #include <revVideo/scene/model/staticModel.h>
-#include <rtl/vector.h>
+#include <vector.h>
 
 // Project headers
-#include "geometry.h"
+#include <loaders/obj/objLoader.h>
 
 enum EInputArguments
 {
@@ -31,7 +31,6 @@ enum EInputArguments
 // Active namespaces
 using namespace rev;
 using namespace rev::video;
-using namespace std;
 
 // Function prototypes
 namespace modelProcessor
@@ -44,6 +43,8 @@ void saveRmdModel(const CStaticModel * _model, const char * _fileName);
 int main (int _argc, const char ** _argv)
 {
 	// ---- Input and output file names ----
+	if(_argc <= eInputFileArgId)
+		return -1;
 	string inputFileName(_argv[eInputFileArgId]);
 	string outputFileName;
 	if(_argc > eOutputFileArgId)
@@ -57,12 +58,16 @@ int main (int _argc, const char ** _argv)
 		outputFileName = inputFileName + ".rmd";
 	}
 
+	IModelLoader * loader = new CObjLoader();
 	// Import obj
-	CStaticModel * model = modelProcessor::loadObjModel(inputFileName.c_str());
+	CStaticModel * model = loader->modelFromFile(inputFileName.c_str());
 	if(!model)
 		return -1;
 	// Save it as rmd
 	modelProcessor::saveRmdModel(model, outputFileName.c_str());
+
+	// House keeping
+	delete loader;
 	delete model;
 	return 0;
 }
@@ -70,7 +75,7 @@ int main (int _argc, const char ** _argv)
 namespace modelProcessor
 {
 	//------------------------------------------------------------------------------------------------------------------
-	char * nextLine(char * _buffer)
+	const char * nextLine(const char * _buffer)
 	{
 		unsigned i = 0;
 		while(_buffer[i] != '\0') // Run the test till we run out of buffer
@@ -115,9 +120,10 @@ namespace modelProcessor
 	CStaticModel * loadObjModel(const char * _fileName)
 	{
 		// Open the input file
-		char * buffer = bufferFromFile(_fileName);
+		CFile modelFile(_fileName);
+		const char * buffer = modelFile.textBuffer();
 		// ---------------- Read the data from the buffer ------------------------
-		char * line = buffer;
+		const char * line = buffer;
 		CGeometry geometry;
 		// Parse the buffer
 		while(line)
@@ -160,10 +166,6 @@ namespace modelProcessor
 		CStaticModel * model = new CStaticModel();
 		// Fill the data
 		geometry.fillModel(model);
-		// model->setVertices(unsigned short(vertices.size()), bufferFromVector(vertices));
-		// model->setTriangles(unsigned short(faces.size() / 3), bufferFromVector(faces));
-		// Clean memory
-		delete buffer;
 		return model;
 	}
 
@@ -171,8 +173,8 @@ namespace modelProcessor
 	void saveRmdModel(const CStaticModel * _model, const char * _fileName)
 	{
 		// Open the input file
-		fstream file;
-		file.open(_fileName, fstream::binary | fstream::out);
+		std::fstream file;
+		file.open(_fileName, std::fstream::binary | std::fstream::out);
 		rev::codeTools::revAssert(file.is_open());
 		rev::codeTools::revAssert(file.good());
 		// Write model header
@@ -184,7 +186,7 @@ namespace modelProcessor
 		// Write each mesh
 		//	Mesh header
 		unsigned short nVertices = _model->nVertices();
-		unsigned short nTriangles = _model->nTriangles();
+		unsigned short nTriangles = _model->nTriIndices() / 3; //>nTriangles();
 		file.write((const char*)&nVertices, sizeof(unsigned short));
 		file.write((const char*)&nTriangles, sizeof(unsigned short));
 		//	Buffers
@@ -192,7 +194,7 @@ namespace modelProcessor
 		file.write((const char*)_model->normals(), 3 * _model->nVertices() * sizeof(float));
 		file.write((const char*)_model->uvs(), 2 * _model->nVertices() * sizeof(float));
 		//	Indices
-		file.write((const char*)_model->triangles(), 3 * _model->nTriangles() * sizeof(unsigned short));
+		file.write((const char*)_model->triangles(), _model->nTriIndices() * sizeof(unsigned short));
 		// Clear
 		file.close();
 	}
