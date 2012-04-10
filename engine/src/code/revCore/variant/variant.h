@@ -3,10 +3,10 @@
 // Created by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // on March 30th, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Script variant
+// variant
 
-#ifndef _REV_CORE_SCRIPT_CVARIANT_H_
-#define _REV_CORE_SCRIPT_CVARIANT_H_
+#ifndef _REV_CORE_VARIANT_CVARIANT_H_
+#define _REV_CORE_VARIANT_CVARIANT_H_
 
 #include <vector.h>
 #include <revCore/math/vector.h>
@@ -98,4 +98,4 @@ namespace rev
 	};
 }	// namespace rev
 
-#endif // _REV_CORE_SCRIPT_CVARIANT_H_
+#endif // _REV_CORE_VARIANT_CVARIANT_H_
