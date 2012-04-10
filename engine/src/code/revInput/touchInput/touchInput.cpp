@@ -24,7 +24,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void STouchInput::init()
 	{
-		codeTools::revAssert(0 == sTouchInput);
+		revAssert(0 == sTouchInput);
 #ifdef _WIN32
 			sTouchInput = new CTouchInputWin32();
 #endif // _WIN32

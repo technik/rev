@@ -160,6 +160,9 @@
     <Filter Include="revCore\variant">
       <UniqueIdentifier>{2e8d3d3a-638f-4880-8e6e-fb1aec9ce32f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\delegate">
+      <UniqueIdentifier>{38e9ea7b-24c4-4504-b1b9-6f518dfc1c43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -405,6 +408,12 @@
     <ClInclude Include="..\..\code\revCore\variant\variant.h">
       <Filter>revCore\variant</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\delegate\delegate.h">
+      <Filter>revCore\delegate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\file\fileWatcher.h">
+      <Filter>revCore\file</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -565,6 +574,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\variant\variant.cpp">
       <Filter>revCore\variant</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp">
+      <Filter>revCore\file</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

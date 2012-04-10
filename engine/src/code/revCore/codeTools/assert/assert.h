@@ -8,32 +8,41 @@
 #ifndef _REV_REVCORE_CODETOOLS_ASSERT_ASSERT_H_
 #define _REV_REVCORE_CODETOOLS_ASSERT_ASSERT_H_
 
-#include <assert.h>
+#include <revCore/codeTools/log/log.h>
 
-namespace rev	{	namespace codeTools
+namespace rev
 {
-	//--------------------------------------------------------------------------
-	// Function prototypes
-	//--------------------------------------------------------------------------
-	void revAssert(bool _condition);	// halt execution if _condition fails
-										// only in debug mode.
+#ifdef REV_ASSERT
+	inline void revAssert(bool _condition, const char * _errorMessage)
+	{
+		if( _condition == false )
+		{
+			revLogN(_errorMessage, eError );
+			codeTools::SLog::get()->flush();
+#if defined(WIN32)
+			__asm int 3;
+#endif // win32
+		}
+	}
 
-	//--------------------------------------------------------------------------
-	// Implementations
-	//--------------------------------------------------------------------------
-#ifdef _DEBUG
 	inline void revAssert(bool _condition)
 	{
-		assert(_condition);
+		if(_condition == false)
+		{
+			__asm int 3;
+		}
 	}
-#else // _DEBUG
-	inline void revAssert(bool /*_condition*/)
+#else // ! REV_ASSERT
+	inline void revAssert(bool _condition, const char * _errorMessage)
 	{
-		// Intentionally blank
+		_condition;
+		_errorMessage;
 	}
-#endif // _DEBUG
-
-}	// namespace codeTools
+	inline void revAssert(bool _condition)
+	{
+		_condition;
+	}
+#endif // !REV_ASSERT
 }	// namespace rev
 
 #endif // _REV_REVCORE_CODETOOLS_ASSERT_ASSERT_H_

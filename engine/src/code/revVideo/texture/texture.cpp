@@ -120,12 +120,11 @@ namespace video
 			fIFormat = FreeImage_GetFIFFromFilename(_name.c_str());
 		// If we still don't have a valid extension
 		if(fIFormat == FIF_UNKNOWN)
-			codeTools::revAssert(0); // Couldn't get a valid file extension
+			revAssert(0); // Couldn't get a valid file extension
 
 		// -- Actual loading --
 		FIBITMAP * pFIBitmap = FreeImage_Load(fIFormat, _name.c_str()); // Load the file as a bitmap
-		if(!pFIBitmap)
-			codeTools::revAssert(false); // Couldn't load the bitmap
+		revAssert(0 != pFIBitmap, "Couldn't load the bitmap"); // Couldn't load the bitmap
 
 		mWidth = FreeImage_GetWidth(pFIBitmap);
 		mHeight = FreeImage_GetHeight(pFIBitmap); // Get the image size

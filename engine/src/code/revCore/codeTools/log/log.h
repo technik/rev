@@ -93,7 +93,6 @@ template<class T>
 void	revLog	( T _msg, ELogChannel _channel = eCommon )
 {
 	codeTools::SLog * logger = codeTools::SLog::get();
-	codeTools::revAssert(0 != logger);
 	logger->log(_msg, _channel);
 }
 	
@@ -102,7 +101,6 @@ template<class T>
 void	revLogN	( T _msg, ELogChannel _channel = eCommon )
 {
 	codeTools::SLog * logger = codeTools::SLog::get();
-	codeTools::revAssert(0 != logger);
 	logger->log(_msg, _channel);
 	logger->newLine(_channel);
 }

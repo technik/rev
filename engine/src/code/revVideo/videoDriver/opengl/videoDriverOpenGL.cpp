@@ -98,13 +98,11 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, int _slot, const CTexture * _value)
 	{
-		if(0 == _slot)
-		{
-			glActiveTexture(GL_TEXTURE0);
-			glUniform1i(_id, 0);
-		}
-		else codeTools::revAssert(false); // Unimplemented: Check how many slots are available
-		//
+		revAssert(0 == _slot, "Only one texture slot supported");
+		
+		glActiveTexture(GL_TEXTURE0);
+		glUniform1i(_id, 0);
+		
 		glBindTexture(GL_TEXTURE_2D, _value->id());
 	}
 
@@ -127,7 +125,7 @@ namespace rev { namespace video
 			glDrawElements(GL_LINE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;
 		default:
-			codeTools::revAssert(false);	// Unsupported
+			revAssert(false);	// Unsupported
 		}
 	}
 

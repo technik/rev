@@ -61,7 +61,7 @@ namespace video
 		unsigned short nMeshes = reinterpret_cast<const unsigned short*>(buffer)[1];
 
 		// Validate model header
-		rev::codeTools::revAssert(nMeshes == 1 && minEngineVersion <= 1);
+		rev::revAssert(nMeshes == 1 && minEngineVersion <= 1);
 
 		// Read model metrics from header
 		mNVertices = reinterpret_cast<const unsigned short*>(buffer)[2];

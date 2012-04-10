@@ -74,7 +74,7 @@ namespace rev
 			if(!baseResource->mKey.empty()) // Registered resource
 			{
 				typename resourceMapT::iterator iter = mResources.find(baseResource->mKey);
-				codeTools::revAssert(mResources.end() != iter);
+				revAssert(mResources.end() != iter);
 				mResources.erase(iter);
 			}
 			delete _resource;

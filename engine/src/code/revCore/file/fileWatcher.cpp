@@ -17,15 +17,15 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void SFileWatcher::init()
 	{
-		codeTools::revAssert(0 == sInstance);
+		revAssert(0 == sInstance, "Error: file watcher already initialized");
 		sInstance = new SFileWatcher();
-		codeTools::revAssert(0 != sInstance);
+		revAssert(0 != sInstance, "Error: unable to create SFileWatcher");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void SFileWatcher::end()
 	{
-		codeTools::revAssert(0 != sInstance);
+		revAssert(0 != sInstance, "Error: Can't destroy SFileWatcher, someone already did it");
 		delete sInstance;
 		sInstance = 0;
 	}

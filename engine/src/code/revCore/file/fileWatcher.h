@@ -39,7 +39,7 @@ namespace rev
 
 	private:
 		// Each watched file has an associated list of delegates to call on modification
-		rtl::dictionary<vector<IDelegate*>, 64>	mWatchedFiles;
+		rtl::dictionary<rtl::vector<IDelegate*>, 64>	mWatchedFiles;
 	};
 }	// namespace rev
 

@@ -56,7 +56,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;REV_LOG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;REV_LOG;REV_ASSERT</PreprocessorDefinitions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -111,7 +111,9 @@
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\log\log.h" />
     <ClInclude Include="..\..\code\revCore\component\component.h" />
+    <ClInclude Include="..\..\code\revCore\delegate\delegate.h" />
     <ClInclude Include="..\..\code\revCore\file\file.h" />
+    <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
@@ -186,6 +188,7 @@
     <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp" />
     <ClCompile Include="..\..\code\revCore\component\component.cpp" />
     <ClCompile Include="..\..\code\revCore\file\file.cpp" />
+    <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp" />
     <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />
     <ClCompile Include="..\..\code\revCore\math\vector.cpp" />

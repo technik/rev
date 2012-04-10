@@ -228,35 +228,35 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void* CVariant::asPointer() const
 	{
-		codeTools::revAssert(mType == ePointer);
+		revAssert(mType == ePointer, "Error: Trying to use a non-pointer variant as pointer");
 		return mData.p;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CVec3 CVariant::asVec3() const
 	{
-		codeTools::revAssert((mType == eList) && (mList.size() == 3));
+		revAssert((mType == eList) && (mList.size() == 3), "Error, this variant isn't a Vec3");
 		return CVec3(float(mList[0].asDouble()),float(mList[1].asDouble()),float(mList[2].asDouble()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	const char* CVariant::asString() const
 	{
-		codeTools::revAssert(mType == eString);
+		revAssert(mType == eString, "Error: This variant isn't a string");
 		return mString.c_str();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator[](unsigned _idx)
 	{
-		codeTools::revAssert((mType == eList) && (_idx < mList.size()));
+		revAssert((mType == eList) && (_idx < mList.size()), "Error: This variant isn't a list");
 		return mList[_idx];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	const CVariant& CVariant::operator[](unsigned _idx) const
 	{
-		codeTools::revAssert((mType == eList) && (_idx < mList.size()));
+		revAssert((mType == eList) && (_idx < mList.size()), "Error: This variant isn't a list");
 		return mList[_idx];
 	}
 

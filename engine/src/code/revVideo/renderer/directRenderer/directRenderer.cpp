@@ -102,13 +102,13 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CDirectRenderer::renderElement( IRenderableInstance * _x )
 	{
-		codeTools::revAssert(0 != _x);
+		revAssert(0 != _x);
 		const CMaterialInstance * materialInstance = _x->materialInstance();
-		codeTools::revAssert(0 != materialInstance);
+		revAssert(0 != materialInstance);
 		const IMaterial * material = materialInstance->material();
-		codeTools::revAssert(0 != material);
+		revAssert(0 != material);
 		const IRenderable * renderable = _x->renderable();
-		codeTools::revAssert(0 != renderable);
+		revAssert(0 != renderable);
 
 		// Update shader cache
 		setShaders(renderable->shader(), material->shader());

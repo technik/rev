@@ -61,7 +61,7 @@ namespace rev
 	template<typename _derivedResT>
 	inline TPassiveResource<_derivedResT>::~TPassiveResource()
 	{
-		codeTools::revAssert(0 == mReferences);
+		revAssert(0 == mReferences, "Error: Trying to delete an object with non-zero references");
 	}
 
 }	// namespace rev

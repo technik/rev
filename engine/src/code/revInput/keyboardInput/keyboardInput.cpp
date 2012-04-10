@@ -20,18 +20,18 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void SKeyboardInput::init()
 	{
-		codeTools::revAssert(0 == sInstance);
+		revAssert(0 == sInstance);
 #ifdef WIN32
 		sInstance = new CKeyboardInputWindows();
 #endif // WIN32
-		codeTools::revAssert(0 != sInstance);
+		revAssert(0 != sInstance);
 	}
 
 	
 	//------------------------------------------------------------------------------------------------------------------
 	void SKeyboardInput::end()
 	{
-		codeTools::revAssert(0 != sInstance);
+		revAssert(0 != sInstance);
 		delete sInstance;
 		sInstance = 0;
 	}

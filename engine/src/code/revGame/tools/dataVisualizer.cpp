@@ -49,14 +49,14 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	void CDataVisualizer::resetChannel(int _channelId, float _data)
 	{
-		codeTools::revAssert(_channelId > 0 && unsigned(_channelId) < mChannels.size() );
+		revAssert(_channelId > 0 && unsigned(_channelId) < mChannels.size() );
 		mChannels[_channelId]->reset(_data);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CDataVisualizer::pushData(int _channelId, float _data)
 	{
-		codeTools::revAssert(_channelId >= 0 && unsigned(_channelId) < mChannels.size() );
+		revAssert(_channelId >= 0 && unsigned(_channelId) < mChannels.size() );
 		unsigned i = 0;
 		CChannel& channel = *(mChannels[_channelId]);
 		CVec3 * data = channel.data();

@@ -23,15 +23,15 @@ namespace rev
 		//--------------------------------------------------------------------------------------------------------------
 		void SLog::init()
 		{
-			codeTools::revAssert( 0 == sInstance );
+			revAssert( 0 == sInstance , "Error: SLog is already initializer");
 			sInstance = new SLog();
-			codeTools::revAssert( 0 != sInstance );
+			revAssert( 0 != sInstance); // We can't set an error message if SLog doesn't exist at all
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SLog::end()
 		{
-			codeTools::revAssert( 0 != sInstance );
+			revAssert( 0 != sInstance );
 			delete sInstance;
 			sInstance = 0;
 		}
@@ -39,7 +39,7 @@ namespace rev
 		//--------------------------------------------------------------------------------------------------------------
 		SLog * SLog::get()
 		{
-			codeTools::revAssert(0 != sInstance);
+			revAssert(0 != sInstance);
 			return sInstance;
 		}
 

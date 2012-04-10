@@ -39,7 +39,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	inline CPxlShader * IMaterial::shader() const
 	{
-		codeTools::revAssert(0 != mShader);
+		revAssert(0 != mShader, "Error: shader doesn't exist");
 		return mShader;
 	}
 }	// namespace video
