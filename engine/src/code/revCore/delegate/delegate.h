@@ -4,6 +4,8 @@
 // on April 10th, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Delegates
+// Delegates can be used as a method to handle events. They provide an abstraction layer between event raising and
+// event handling.
 
 #ifndef _REV_CORE_DELEGATE_DELEGATE_H_
 #define _REV_CORE_DELEGATE_DELEGATE_H_
