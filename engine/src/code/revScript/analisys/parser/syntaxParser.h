@@ -3,11 +3,12 @@
 // Created by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // on April 1st, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Sintax parser for script
-#ifndef _REV_CORE_SCRIPT_PARSER_SINTAXPARSER_H_
-#define _REV_CORE_SCRIPT_PARSER_SINTAXPARSER_H_
+// Script syntax parser
 
-#include <revCore/script/syntax.h>
+#ifndef _REV_SCRIPT_ANALISYS_PARSER_SINTAXPARSER_H_
+#define _REV_SCRIPT_ANALISYS_PARSER_SINTAXPARSER_H_
+
+#include <revScript/syntax.h>
 
 namespace rev { namespace script
 {
@@ -31,4 +32,4 @@ namespace rev { namespace script
 }	// namespace script
 }	// namespace rev
 
-#endif // _REV_CORE_SCRIPT_PARSER_SINTAXPARSER_H_
+#endif // _REV_SCRIPT_ANALISYS_PARSER_SINTAXPARSER_H_

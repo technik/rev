@@ -9,8 +9,8 @@
 
 #include <revCore/codeTools/assert/assert.h>
 #include <revCore/codeTools/log/log.h>
-#include <revCore/script/scriptToken.h>
 #include <revCore/string.h>
+#include <revScript/scriptToken.h>
 
 namespace rev { namespace script
 {

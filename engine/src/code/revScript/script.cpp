@@ -7,8 +7,8 @@
 
 #include "script.h"
 
-#include "lexer/lexicalAnalizer.h"
-#include "parser/syntaxParser.h"
+#include "analisys/lexer/lexicalAnalizer.h"
+#include "analisys/parser/syntaxParser.h"
 
 namespace rev { namespace script
 {

@@ -9,9 +9,11 @@
 #define _REV_CORE_SCRIPT_CSCRIPT_H_
 
 #include "syntax.h"
-#include "variant.h"
 
-namespace rev { namespace script
+namespace rev 
+{ 
+	class CVariant;
+	namespace script
 {
 	class CScript
 	{

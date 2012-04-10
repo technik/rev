@@ -145,14 +145,20 @@
     <Filter Include="revGame\gameClient\windows">
       <UniqueIdentifier>{600a64f5-285e-4bbd-9174-d078eebb6abd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revCore\script">
-      <UniqueIdentifier>{eef1e225-a29d-47f0-b771-49aa87d065d5}</UniqueIdentifier>
+    <Filter Include="revScript">
+      <UniqueIdentifier>{97e2c9f3-7178-4782-8d61-5c3a6f74977c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revCore\script\parser">
-      <UniqueIdentifier>{d9a9537e-6422-4391-9e31-29a4e4834495}</UniqueIdentifier>
+    <Filter Include="revScript\analisys">
+      <UniqueIdentifier>{f3f9a177-f3ee-4e45-a142-432787e8b92a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revCore\script\lexer">
-      <UniqueIdentifier>{2828c64b-cb74-4cfe-80d6-bdfc332f4e0b}</UniqueIdentifier>
+    <Filter Include="revScript\analisys\lexer">
+      <UniqueIdentifier>{e600d79b-27c8-49a5-847d-0c387530a349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revScript\analisys\parser">
+      <UniqueIdentifier>{577939c2-ae00-494f-9910-906cb316de3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\variant">
+      <UniqueIdentifier>{2e8d3d3a-638f-4880-8e6e-fb1aec9ce32f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -378,26 +384,26 @@
     <ClInclude Include="..\..\..\..\..\stl\dictionary.h">
       <Filter>stl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\scriptToken.h">
-      <Filter>revCore\script</Filter>
+    <ClInclude Include="..\..\code\revScript\script.h">
+      <Filter>revScript</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\lexer\lexicalAnalizer.h">
-      <Filter>revCore\script\lexer</Filter>
+    <ClInclude Include="..\..\code\revScript\scriptMachine.h">
+      <Filter>revScript</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\variant.h">
-      <Filter>revCore\script</Filter>
+    <ClInclude Include="..\..\code\revScript\scriptToken.h">
+      <Filter>revScript</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\scriptMachine.h">
-      <Filter>revCore\script</Filter>
+    <ClInclude Include="..\..\code\revScript\syntax.h">
+      <Filter>revScript</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\script.h">
-      <Filter>revCore\script</Filter>
+    <ClInclude Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.h">
+      <Filter>revScript\analisys\lexer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\syntax.h">
-      <Filter>revCore\script</Filter>
+    <ClInclude Include="..\..\code\revScript\analisys\parser\syntaxParser.h">
+      <Filter>revScript\analisys\parser</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\script\parser\syntaxParser.h">
-      <Filter>revCore\script\parser</Filter>
+    <ClInclude Include="..\..\code\revCore\variant\variant.h">
+      <Filter>revCore\variant</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -545,20 +551,20 @@
     <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp">
       <Filter>revGame\gameClient\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revCore\script\lexer\lexicalAnalizer.cpp">
-      <Filter>revCore\script\lexer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revCore\script\variant.cpp">
-      <Filter>revCore\script</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revCore\script\script.cpp">
-      <Filter>revCore\script</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\code\revCore\string.cpp">
       <Filter>revCore</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revCore\script\parser\syntaxParser.cpp">
-      <Filter>revCore\script\parser</Filter>
+    <ClCompile Include="..\..\code\revScript\script.cpp">
+      <Filter>revScript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.cpp">
+      <Filter>revScript\analisys\lexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revScript\analisys\parser\syntaxParser.cpp">
+      <Filter>revScript\analisys\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\variant\variant.cpp">
+      <Filter>revCore\variant</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

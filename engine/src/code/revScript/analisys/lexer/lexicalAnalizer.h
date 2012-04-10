@@ -4,12 +4,12 @@
 // on April 1st, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lexical analizer of scripts
-#ifndef _REV_CORE_SCRIPT_LEXER_SLEXICALANALIZER_H_
-#define _REV_CORE_SCRIPT_LEXER_SLEXICALANALIZER_H_
+#ifndef _REV_SCRIPT_ANALISYS_LEXER_SLEXICALANALIZER_H_
+#define _REV_SCRIPT_ANALISYS_LEXER_SLEXICALANALIZER_H_
 
 #include <vector.h>
 
-#include <revCore/script/scriptToken.h>
+#include <revScript/scriptToken.h>
 
 namespace rev { namespace script
 {
@@ -41,4 +41,4 @@ namespace rev { namespace script
 }	// namespace script
 }	// namespace rev
 
-#endif // _REV_CORE_SCRIPT_LEXER_SLEXICALANALIZER_H_
+#endif // _REV_SCRIPT_ANALISYS_LEXER_SLEXICALANALIZER_H_

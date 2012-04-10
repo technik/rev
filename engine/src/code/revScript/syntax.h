@@ -3,13 +3,14 @@
 // Created by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // on April 1st, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Sintax definition
-#ifndef _REV_CORE_SCRIPT_SYNTAX_H_
-#define _REV_CORE_SCRIPT_SYNTAX_H_
+// Script syntax definition
+
+#ifndef _REV_SCRIPT_SYNTAX_H_
+#define _REV_SCRIPT_SYNTAX_H_
 
 #include <vector.h>
 
-#include "variant.h"
+#include <revCore/variant/variant.h>
 
 namespace rev { namespace script
 {
@@ -173,4 +174,4 @@ namespace rev { namespace script
 }	// namespace script
 }	// namespace rev
 
-#endif // _REV_CORE_SCRIPT_SYNTAX_H_
+#endif // _REV_SCRIPT_SYNTAX_H_
