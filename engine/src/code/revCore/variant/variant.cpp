@@ -68,6 +68,13 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	CVariant::CVariant(void* _ptr)
+		:mType(ePointer)
+	{
+		mData.p = _ptr;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator=(const CVariant& _x)
 	{
 		if(mType == eList)
@@ -124,6 +131,16 @@ namespace rev
 			mList.clear();
 		mType = eString;
 		mString = _x;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVariant& CVariant::operator=(void* _ptr)
+	{
+		if(mType == eList)
+			mList.clear();
+		mType = ePointer;
+		mData.p = _ptr;
 		return *this;
 	}
 
@@ -209,15 +226,23 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void* CVariant::asPointer() const
+	{
+		codeTools::revAssert(mType == ePointer);
+		return mData.p;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CVec3 CVariant::asVec3() const
 	{
-		codeTools::revAssert((mType == eList) && (mList.size() >= 3));
+		codeTools::revAssert((mType == eList) && (mList.size() == 3));
 		return CVec3(float(mList[0].asDouble()),float(mList[1].asDouble()),float(mList[2].asDouble()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	const char* CVariant::asString() const
 	{
+		codeTools::revAssert(mType == eString);
 		return mString.c_str();
 	}
 

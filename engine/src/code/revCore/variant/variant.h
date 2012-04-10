@@ -23,6 +23,7 @@ namespace rev
 			eInteger,
 			eReal,
 			eBool,
+			ePointer,
 			eString,
 			eList,
 			eDictionary
@@ -39,6 +40,7 @@ namespace rev
 		CVariant					(bool);
 		CVariant					(const char * _str);
 		CVariant					(const string& _str);
+		CVariant					(void* _ptr);
 
 		// Destruction
 		~CVariant					() {}
@@ -50,6 +52,7 @@ namespace rev
 		CVariant&		operator=	(bool);
 		CVariant&		operator=	(const char * _str);
 		CVariant&		operator=	(const string& _str);
+		CVariant&		operator=	(void * _ptr);
 		void			setNill		();
 		void			append		(const CVariant& _x);
 		
@@ -57,6 +60,7 @@ namespace rev
 		int				asInt		() const;
 		double			asDouble	() const;
 		bool			asBool		() const;
+		void*			asPointer	() const;
 		const char*		asString	() const;
 		CVec3			asVec3		() const;
 		CVariant&		operator[]	(unsigned _idx);
@@ -83,6 +87,7 @@ namespace rev
 			int		i;	// Int
 			double	d;	// Real
 			bool	b;	// Bool
+			void*	p;	// Void pointer
 		};
 
 	private:
