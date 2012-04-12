@@ -50,7 +50,7 @@
       <Optimization>Disabled</Optimization>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;REV_LOG;REV_ASSERT;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -69,7 +69,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;REV_LOG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -84,10 +84,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\client\shaderToolClient.cpp" />
+    <ClCompile Include="..\..\code\shaderRender\shaderMaterial.cpp" />
+    <ClCompile Include="..\..\code\shaderRender\surface.cpp" />
     <ClCompile Include="..\..\code\windows\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\client\shaderToolClient.h" />
+    <ClInclude Include="..\..\code\shaderRender\shaderMaterial.h" />
+    <ClInclude Include="..\..\code\shaderRender\surface.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\engine\src\project\windows\rev.vcxproj">
