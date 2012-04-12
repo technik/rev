@@ -1,0 +1,19 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Revolution Engine, Shader tool
+// Created by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// on April 12th, 2012
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <client/shaderToolClient.h>
+
+int main (int _argc, const char **_argv)
+{
+	_argc;
+	_argv;
+	ShaderToolClient * shaderTool = new ShaderToolClient;
+	
+	while(shaderTool->update()) {	}
+	
+	delete shaderTool;
+	return 0;
+}

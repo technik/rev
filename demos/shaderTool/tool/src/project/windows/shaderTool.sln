@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shaderTool", "shaderTool.vcxproj", "{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rev", "..\..\..\..\..\..\engine\src\project\windows\rev.vcxproj", "{396F5795-7C55-4467-B80B-82388C96A253}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}.Debug|Win32.ActiveCfg = Debug|Win32
+		{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}.Debug|Win32.Build.0 = Debug|Win32
+		{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}.Release|Win32.ActiveCfg = Release|Win32
+		{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}.Release|Win32.Build.0 = Release|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Debug|Win32.ActiveCfg = Debug|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Debug|Win32.Build.0 = Debug|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Release|Win32.ActiveCfg = Release|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
