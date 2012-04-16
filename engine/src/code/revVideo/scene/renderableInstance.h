@@ -47,7 +47,7 @@ namespace rev { namespace video
 
 		// Interface
 		inline IRenderable*	renderable		() const { return mRenderable; }
-		virtual void		setEnviroment	() const;
+		virtual void		setEnvironment	() const;
 		CMaterialInstance*	materialInstance() const { return mMaterialInstance; }
 	protected:
 		void				setRenderable	(IRenderable * _renderable) { mRenderable = _renderable; }

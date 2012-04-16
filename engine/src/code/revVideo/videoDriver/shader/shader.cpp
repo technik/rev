@@ -54,7 +54,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CShader::setEnviroment() const
+	void CShader::setEnvironment() const
 	{
 		SVideo::get()->driver()->setShader(mId);
 	}

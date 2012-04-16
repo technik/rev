@@ -18,7 +18,7 @@ namespace rev { namespace video
 		virtual ~IRenderable() {}
 
 		virtual CVtxShader * shader	() const = 0;
-		virtual void setEnviroment	() const = 0;
+		virtual void setEnvironment	() const = 0;
 		virtual void render			() const = 0;
 	};
 }	// namespace video

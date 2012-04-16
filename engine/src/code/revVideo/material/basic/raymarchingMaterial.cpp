@@ -33,13 +33,9 @@ namespace rev { namespace video
 	{
 		float dt = STime::get()->frameTime();
 		mTime +=dt;
-		while(mTime > 4.f)
-			mTime -= 4.f;
 		IVideoDriver * driver = SVideo::get()->driver();
 		int uniformId = driver->getUniformId("time");
-		float clampTime = 0.5f*mTime - 1.0f;
-		clampTime = clampTime > 0.f ? clampTime : -clampTime;
-		driver->setUniform(uniformId, 2.f*clampTime-1.f);
+		driver->setUniform(uniformId, mTime);
 	}
 
 }	// namespace video

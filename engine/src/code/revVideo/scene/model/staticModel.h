@@ -26,7 +26,7 @@ namespace rev { namespace video {
 		~CStaticModel();						///< Destructor
 
 		// -- Rendering ------------------------------------------------------------------------------------------------
-		void	setEnviroment					() const;	///< Adjust rendering enviroment to render this static model
+		void	setEnvironment					() const;	///< Adjust rendering enviroment to render this static model
 		void	render							() const;	///< Render the model using current enviroment configuration
 
 		// -- Accessor methods -----------------------------------------------------------------------------------------

@@ -95,7 +95,7 @@ namespace rev { namespace video
 			mCurrentVtxShader = _vtx;
 			mCurrentPxlShader = _pxl;
 			mCurrentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(_vtx,_pxl));
-			mCurrentShader->setEnviroment();
+			mCurrentShader->setEnvironment();
 		}
 	}
 
@@ -116,7 +116,7 @@ namespace rev { namespace video
 		if(renderable != mCurrentRenderable)
 		{
 			mCurrentRenderable = renderable;
-			renderable->setEnviroment();
+			renderable->setEnvironment();
 		}
 		// Material cache
 		if(mCurrentMaterial != material)
@@ -125,7 +125,7 @@ namespace rev { namespace video
 			material->setEnvironment();
 		}
 		// Actual render
-		_x->setEnviroment();
+		_x->setEnvironment();
 		materialInstance->setEnvironment();
 		renderable->render();
 	}

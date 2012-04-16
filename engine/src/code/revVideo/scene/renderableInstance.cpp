@@ -17,7 +17,7 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	void IRenderableInstance::setEnviroment() const
+	void IRenderableInstance::setEnvironment() const
 	{
 		// Set model-view-projection matrix
 		IVideoDriver * driver = SVideo::get()->driver();

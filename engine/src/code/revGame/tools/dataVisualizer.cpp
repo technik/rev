@@ -129,7 +129,7 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CDataVisualizer::CRenderable::setEnviroment() const
+	void CDataVisualizer::CRenderable::setEnvironment() const
 	{
 	}
 

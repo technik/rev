@@ -130,7 +130,7 @@ namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStaticModel::setEnviroment() const
+	void CStaticModel::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);

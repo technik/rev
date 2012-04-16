@@ -23,7 +23,7 @@ namespace rev
 		//--------------------------------------------------------------------------------------------------------------
 		void SLog::init()
 		{
-			revAssert( 0 == sInstance , "Error: SLog is already initializer");
+			revAssert( 0 == sInstance , "Error: SLog is already initialized-");
 			sInstance = new SLog();
 			revAssert( 0 != sInstance); // We can't set an error message if SLog doesn't exist at all
 		}

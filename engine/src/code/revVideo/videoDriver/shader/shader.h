@@ -23,7 +23,7 @@ namespace rev { namespace video
 	public:
 		CShader(pair<CVtxShader*,CPxlShader*> _baseShaders);
 		~CShader();
-		void	setEnviroment() const;
+		void	setEnvironment() const;
 
 		void	refresh();
 	private:

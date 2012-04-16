@@ -27,7 +27,7 @@ namespace rev
 
 		// Renderable interface
 		CVtxShader * shader () const;
-		void setEnviroment	() const;
+		void setEnvironment	() const;
 		void render			() const;
 
 	private:

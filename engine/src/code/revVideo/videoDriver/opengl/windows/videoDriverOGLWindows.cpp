@@ -64,7 +64,7 @@ namespace rev { namespace video
 	// -- Actual creation of the window --
 	g_hWnd = CreateWindowA("RevolutionWndClass", "",// Class and name
 		WS_POPUP | WS_VISIBLE,						// Creation options
-		20, 80,									// Position
+		10, 10,									// Position
 		_width, _height,							// Size
 		0, 0, 0, 0);								// Windows specific parameters that we don't need
 

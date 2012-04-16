@@ -75,7 +75,7 @@ namespace rev { namespace game
 			typedef rtl::vector<CChannel*>	channelArrayT;
 
 			video::CVtxShader * shader	() const;
-			void		setEnviroment	() const;
+			void		setEnvironment	() const;
 			void		render			() const;
 
 			CVec2	mSize;
