@@ -110,6 +110,7 @@
     <ClInclude Include="..\..\..\..\..\stl\vector.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\log\log.h" />
+    <ClInclude Include="..\..\code\revCore\codeTools\profiler\profiler.h" />
     <ClInclude Include="..\..\code\revCore\component\component.h" />
     <ClInclude Include="..\..\code\revCore\delegate\delegate.h" />
     <ClInclude Include="..\..\code\revCore\file\file.h" />

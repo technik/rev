@@ -17,6 +17,7 @@ namespace rev
 {
 	namespace codeTools
 	{
+		const unsigned bufferSize = 2048;
 		//--------------------------------------------------------------------------------------------------------------
 		SLog * SLog::sInstance = 0;
 
@@ -55,51 +56,66 @@ namespace rev
 		{
 			if(mEnableGlobal && mEnableChannel[_channel])
 			{
-				char * msg = new char[stringLength(_msg)+1];
-				copyString(msg, _msg);
-				mBuffer.push_back(msg);
-				if(mBuffer.size() >= mBufferCapacity)
+				unsigned len = stringLength(_msg);
+				if(len+1 > (bufferSize - mBufferCursor))
+				{
 					flush();
+					if(len > bufferSize)
+						flushString(_msg);
+					else
+					{
+						copyString(&mBuffer[mBufferCursor], _msg);
+						mBufferCursor += len;
+					}
+				}
+				else
+				{
+					copyString(&mBuffer[mBufferCursor], _msg);
+					mBufferCursor += len;
+				}
 			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SLog::flush()
 		{
-			for(unsigned i = 0; i < mBuffer.size(); ++i)
-			{
-				char * message = mBuffer[i];
-#if defined(WIN32) || defined(_linux)
-				std::cout << message;
-#endif // win32 || linux
-				delete[] message;
-			}
-			mBuffer.clear();
+			flushString(mBuffer);
+			resetBuffer();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void SLog::setBufferCapacity(unsigned _capacity)
+		void SLog::flushString(const char * _s)
 		{
-			mBuffer.reserve(_capacity);
-			mBufferCapacity = _capacity;
+#ifdef WIN32
+			std::cout << _s;
+#endif // WIN32
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void SLog::resetBuffer()
+		{
+			mBufferCursor = 0;
+			mBuffer[0] = 0;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		SLog::SLog()
 			:mEnableGlobal(true)
-			,mBufferCapacity(100)
+			,mBufferCursor(0)
 		{
 			for(unsigned i = 0; i < eMaxLogChannel; ++i)
 			{
 				mEnableChannel[i] = true;
 			}
-			mBuffer.reserve(mBufferCapacity);
+			mBuffer = new char[bufferSize];
+			resetBuffer();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		SLog::~SLog()
 		{
 			flush(); // Flush pending messages so they don't get lost
+			delete[] mBuffer;
 		}
 	}	// namespace codeTools
 

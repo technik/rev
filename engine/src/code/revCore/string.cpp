@@ -45,7 +45,7 @@ namespace rev
 	void		copyStringN			(char * _dst, const char * _src, unsigned _maxLength)
 	{
 		unsigned i = 0;
-		for(; _src[i] != '\0', i < _maxLength; ++i)
+		for(; _src[i] != '\0' && i < _maxLength; ++i)
 		{
 			_dst[i] = _src[i];
 		}

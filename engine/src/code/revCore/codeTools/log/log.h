@@ -9,7 +9,6 @@
 #define _REV_CORE_CODETOOLS_LOG_LOG_H_
 
 #include <revCore/string.h>
-#include <vector.h>
 
 namespace rev
 {
@@ -49,23 +48,29 @@ namespace rev
 			void	enableChannel		(ELogChannel _channel)	{ mEnableChannel[_channel] = true; }
 			void	disableChannel		(ELogChannel _channel)	{ mEnableChannel[_channel] = false;}
 			void	flush				();
-			void	setBufferCapacity	(unsigned _capacity);
 
 		private:
 			typedef char*	messageT;	// Channel, message text
 		
 			bool					mEnableGlobal;
 			bool					mEnableChannel[eMaxLogChannel];
-			rtl::vector<messageT>	mBuffer;
-			unsigned				mBufferCapacity;
+			char*					mBuffer;
+			unsigned				mBufferCursor;
 
 		private:
+			void flushString(const char * _msg); // Immediate log of a string
+			void resetBuffer();
 			// Singleton instantiation
 			SLog();
 			~SLog();
 			static SLog * sInstance;
 		};
-	
+
+		//--------------------------------------------------------------------------------------------------------------
+		// const char * specialization
+		//--------------------------------------------------------------------------------------------------------------
+		template<>
+		void SLog::log(const char * _msg, ELogChannel _channel);
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class T>
@@ -73,17 +78,10 @@ namespace rev
 		{
 			if(mEnableGlobal && mEnableChannel[_channel])
 			{
-				mBuffer.push_back(makeString(_msg));
-				if(mBuffer.size() >= mBufferCapacity)
-					flush();
+				char * stringifiedMsg = makeString(_msg);
+				log(stringifiedMsg, _channel);
 			}
 		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		// const char * specialization
-		//--------------------------------------------------------------------------------------------------------------
-		template<>
-		void SLog::log(const char * _msg, ELogChannel _channel);
 
 	}	// namespace codeTools
 

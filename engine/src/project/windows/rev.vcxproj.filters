@@ -163,6 +163,9 @@
     <Filter Include="revCore\delegate">
       <UniqueIdentifier>{38e9ea7b-24c4-4504-b1b9-6f518dfc1c43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\codeTools\profiler">
+      <UniqueIdentifier>{f4ade60b-87a4-4d9d-b93a-057edf2d6c3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -413,6 +416,9 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h">
       <Filter>revCore\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\codeTools\profiler\profiler.h">
+      <Filter>revCore\codeTools\profiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
