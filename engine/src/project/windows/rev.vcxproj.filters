@@ -584,5 +584,8 @@
     <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp">
       <Filter>revCore\file</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\revCore\codeTools\profiler\profiler.cpp">
+      <Filter>revCore\codeTools\profiler</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@ namespace rev
 		eCommon,
 		eError,
 		eAssert,
+		eProfiler,
 		eVerbose,
 		eParanoid,
 		eGP1,
@@ -56,6 +57,7 @@ namespace rev
 			bool					mEnableChannel[eMaxLogChannel];
 			char*					mBuffer;
 			unsigned				mBufferCursor;
+			unsigned				mBufferSize;
 
 		private:
 			void flushString(const char * _msg); // Immediate log of a string
@@ -79,7 +81,26 @@ namespace rev
 			if(mEnableGlobal && mEnableChannel[_channel])
 			{
 				char * stringifiedMsg = makeString(_msg);
-				log(stringifiedMsg, _channel);
+				if(mEnableGlobal && mEnableChannel[_channel])
+				{
+					unsigned len = stringLength(stringifiedMsg);
+					if(len+1 > (mBufferSize - mBufferCursor))
+					{
+						flush();
+						if(len > mBufferSize)
+							flushString(stringifiedMsg);
+						else
+						{
+							copyString(&mBuffer[mBufferCursor], stringifiedMsg);
+							mBufferCursor += len;
+						}
+					}
+					else
+					{
+						copyString(&mBuffer[mBufferCursor], stringifiedMsg);
+						mBufferCursor += len;
+					}
+				}
 			}
 		}
 

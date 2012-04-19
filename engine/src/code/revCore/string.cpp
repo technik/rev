@@ -133,6 +133,32 @@ namespace rev
 		}
 		return true;
 	}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	int compareStringsOrder(const char * _a, const char * _b)
+	{
+		if (!_a && !_b)
+			return 0;
+		else if (!_a)
+			return -1;
+		else if(!_b)
+			return 1;
+
+		unsigned i = 0;
+		while(_a[i] != '\0' && _b[i] != '\0')
+		{
+			if(_a[i] < _b[i])
+				return -1;
+			else if (_b[i] < _a[i])
+				return 1;
+			++i;
+		}
+		if(_a[i] != '\0')
+			return 1;
+		else if (_b[i] != '\0')
+			return -1;
+		return 0;
+	}
 }	// namespace rev
 
 #endif // _REV_CORE_STRING_H_

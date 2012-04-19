@@ -102,6 +102,7 @@ namespace rev
 		SLog::SLog()
 			:mEnableGlobal(true)
 			,mBufferCursor(0)
+			,mBufferSize(bufferSize)
 		{
 			for(unsigned i = 0; i < eMaxLogChannel; ++i)
 			{

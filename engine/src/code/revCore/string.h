@@ -29,6 +29,7 @@ void		copyString			(char * _dst, const char * _src);
 void		copyStringN			(char * _dst, const char * _src, unsigned _maxLength);
 int			integerFromString	(const char * _str);
 double		doubleFromString	(const char * _str);
+int			compareStringsOrder (const char* _a, const char* _b);
 
 // Stringification
 template < class T >
@@ -46,6 +47,32 @@ char*		makeString			( T _x )
 
 	return retText;
 #endif // linux || android || windows
+}
+
+template<>
+inline char* makeString (double _x)
+{
+	char buffer[32];
+	sprintf(buffer, "%f", _x);
+
+	unsigned len = stringLength(buffer);
+	char * retText = new char[len+1];
+	copyString(retText, buffer);
+
+	return retText;
+}
+
+template<>
+inline char* makeString (float _x)
+{
+	char buffer[32];
+	sprintf(buffer, "%f", _x);
+
+	unsigned len = stringLength(buffer);
+	char * retText = new char[len+1];
+	copyString(retText, buffer);
+
+	return retText;
 }
 
 }	// namespace rev

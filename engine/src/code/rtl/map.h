@@ -37,8 +37,8 @@ namespace rtl
 			bool	operator==(const const_iterator& _i) const;
 			bool	operator!=(const const_iterator& _i) const;
 			// Dereferencing
-			_T&		operator*();
-			_T*		operator->();
+			valueT&		operator*();
+			valueT*		operator->();
 		protected:
 			map<_keyT, _T>* mMap;
 			size_type		mIdx;
@@ -58,6 +58,9 @@ namespace rtl
 			iterator	operator++(int);
 			iterator&	operator--();
 			iterator	operator--(int);
+			// Dereferencing
+			valueT&		operator*();
+			valueT*		operator->();
 
 			friend class map<_keyT,_T>;
 		};
@@ -125,8 +128,8 @@ namespace rtl
 			size_type	mHighChildIdx;
 			size_type	mLowChildIdx;
 
-			size_type	nextElementIdx() const;
-			size_type	prevElementIdx() const;
+			size_type	nextElementIdx(elementT * _array) const;
+			size_type	prevElementIdx(elementT * _array) const;
 
 			void		insertChild(size_type _myIdx, elementT * _array, size_type _childIdx)
 			{
@@ -242,16 +245,16 @@ namespace rtl
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _T>
-	inline _T& map<_keyT, _T>::const_iterator::operator*()
+	inline typename map<_keyT, _T>::valueT& map<_keyT, _T>::const_iterator::operator*()
 	{
-		return (mMap->mArray[mIdx]).mElement.second;
+		return (mMap->mArray[mIdx]).mElement;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _T>
-	inline _T* map<_keyT,_T>::const_iterator::operator->()
+	inline typename map<_keyT, _T>::valueT* map<_keyT,_T>::const_iterator::operator->()
 	{
-		return &((mMap->mArray[mIdx]).mElement.second);
+		return &((mMap->mArray[mIdx]).mElement);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -279,7 +282,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator++()
 	{
-		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx(mMap->mArray);
 		return *this;
 	}
 
@@ -287,7 +290,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator map<_keyT,_T>::iterator::operator++(int)
 	{
-		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].nextElementIdx(mMap->mArray);
 		return *this;
 	}
 
@@ -295,7 +298,7 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator& map<_keyT,_T>::iterator::operator--()
 	{
-		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx(mMap->mArray);
 		return *this;
 	}
 
@@ -303,17 +306,31 @@ namespace rtl
 	template<typename _keyT, typename _T>
 	inline typename map<_keyT,_T>::iterator map<_keyT,_T>::iterator::operator--(int)
 	{
-		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx();
+		const_iterator::mIdx = const_iterator::mMap->mArray[const_iterator::mIdx].prevElementIdx(mMap->mArray);
 		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _T>
+	inline typename map<_keyT, _T>::valueT& map<_keyT, _T>::iterator::operator*()
+	{
+		return (mMap->mArray[mIdx]).mElement;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _T>
+	inline typename map<_keyT, _T>::valueT* map<_keyT,_T>::iterator::operator->()
+	{
+		return &((mMap->mArray[mIdx]).mElement);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename _keyT, typename _T>
 	inline map<_keyT, _T>::map():
 		mArray(0),
-		mRootIdx(0),
-		mLowestIdx(0),
-		mHighestIdx(0),
+		mRootIdx(0xffFFffFF),
+		mLowestIdx(0xffFFffFF),
+		mHighestIdx(0xffFFffFF),
 		mSize(0),
 		mCapacity(0)
 	{
@@ -458,7 +475,7 @@ namespace rtl
 			}
 			// If we get here, it means we've found no node, so we have to create one
 			enforceMinSize(mSize+1);
-			idx = mSize; // New nodes are always inserted at the end of the array
+			idx = mSize++; // New nodes are always inserted at the end of the array
 			elementT * element = new(&mArray[idx]) elementT(); // Construct the node
 			// Update hierarchy and map metrics
 			element->mParentIdx = lastIdx;
@@ -751,6 +768,66 @@ namespace rtl
 				mArray = bigArray;
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _T>
+	size_type map<_keyT,_T>::elementT::nextElementIdx(elementT * _array) const
+	{
+		if(mHighChildIdx == 0xffFFffFF)
+		{
+			if(mParentIdx == 0xffFFffFF || &_array[_array[mParentIdx].mLowChildIdx] == this) // No parent or parent bigger than this
+				return mParentIdx;
+			else // My parent is smaller than me
+			{
+				size_type child = mParentIdx;
+				size_type parent = _array[mParentIdx].mParentIdx;
+				while(parent != 0xffFFffFF && _array[parent].mHighChildIdx == child)
+				{
+					child = parent;
+					parent = _array[parent].mParentIdx;
+				}
+				return parent;
+			}
+		}
+		unsigned index = mHighChildIdx;
+		elementT * higher = &_array[index];
+		while(higher->mLowChildIdx != 0xffFFffFF)
+		{
+			index = higher->mLowChildIdx;
+			higher =  &_array[index];
+		}
+		return index;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename _keyT, typename _T>
+	size_type map<_keyT,_T>::elementT::prevElementIdx(elementT * _array) const
+	{
+		if(mLowChildIdx == 0xffFFffFF)
+		{
+			if(mParentIdx == 0xffFFffFF || &_array[_array[mParentIdx].mHighChildIdx] == this) // No parent or parent smaller than this
+				return mParentIdx;
+			else // My parent is bigger than me
+			{
+				size_type child = mParentIdx;
+				size_type parent = _array[mParentIdx].mParentIdx;
+				while(parent != 0xffFFffFF && _array[parent].mLowChildIdx == child)
+				{
+					child = parent;
+					parent = _array[parent].mParentIdx;
+				}
+				return parent;
+			}
+		}
+		unsigned index = mLowChildIdx;
+		elementT * lower = &_array[index];
+		while(higher->mHighChildIdx != 0xffFFffFF)
+		{
+			index = lower->mHighChildIdx;
+			lower =  &_array[index];
+		}
+		return index;
 	}
 
 }	// namespace rtl

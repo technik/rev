@@ -17,6 +17,7 @@
 
 // --- Engine headers -----------
 #include <revCore/codeTools/log/log.h>
+#include <revCore/codeTools/profiler/profiler.h>
 #include <revCore/string.h>
 #include <revCore/time/time.h>
 #include <revInput/keyboardInput/keyboardInput.h>
@@ -45,6 +46,9 @@ namespace rev { namespace game
 		// Init log system
 		SLog::init();
 		revLogN("----- Creating base game client -----");
+#ifdef REV_PROFILER
+		SProfiler::init();
+#endif // REV_PROFILER
 #ifdef WIN32
 		mWindowsHandler = new CWindowsHandler();
 #endif // WIN32
@@ -70,6 +74,9 @@ namespace rev { namespace game
 #ifdef WIN32
 		delete mWindowsHandler;
 #endif // WIN32
+#ifdef REV_PROFILER
+		SProfiler::end();
+#endif // REV_PROFILER
 		// End log system
 		revLogN("----- Base game client destroyed -----");
 		SLog::end();
@@ -78,6 +85,10 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	bool CGameClient::update()
 	{
+#ifdef REV_PROFILER
+		SProfiler::get()->resetFrame();
+#endif // REV_PROFILER
+		CProfileFunction profilerIntance("CGameClient::update"); 
 		// Update time system
 		STime::get()->update();
 		// Update video system and render

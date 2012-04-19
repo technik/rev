@@ -41,7 +41,7 @@ namespace rev
 		typename resourceMapT::iterator searchResult = mResources.find(_key);
 		if(mResources.end() != searchResult) // We found it!
 		{
-			_resourceT * resource = *searchResult;
+			_resourceT * resource = searchResult->second;
 			// Add a reference of ownership to the resource and return it
 			TPassiveResource<_resourceT>* baseResource = static_cast<TPassiveResource<_resourceT>*>(resource);
 			++baseResource->mReferences;
@@ -86,7 +86,7 @@ namespace rev
 	void TPassiveResourceManager<_resourceT>::release(const string& _key)
 	{
 		typename resourceMapT::iterator iter = mResources.find(_key);
-		TPassiveResource<_resourceT> * baseResource = (*iter);
+		TPassiveResource<_resourceT> * baseResource = iter->second;
 		// Decrease references
 		--baseResource->mReferences;
 		if(0 == baseResource->mReferences) // No one owns this resource anymore

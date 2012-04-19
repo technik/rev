@@ -66,7 +66,7 @@ namespace rev
 		_resourceT * resource;
 		if(mResources.end() != searchResult) // We found it!
 		{
-			resource = *searchResult;
+			resource = searchResult->second;
 		}
 		else
 		{
@@ -133,7 +133,7 @@ namespace rev
 		typename resourceMapT::iterator searchResult = mResources.find(_key);
 		if(mResources.end() != searchResult) // Resource found, let's reload it
 		{
-			_resourceT * res = *searchResult;
+			_resourceT * res = searchResult->second;
 			unsigned int nRefs = static_cast<TResource<_resourceT, string>*>(res)->mReferences;
 			res->~_resourceT(); // Destroy but not deallocate
 			new(res)_resourceT(_key); // Recreate in the same memory location
@@ -149,7 +149,7 @@ namespace rev
 		_resourceT * resource;
 		if(mResources.end() != searchResult) // We found it!
 		{
-			resource = *searchResult;
+			resource = searchResult->second;
 		}
 		else
 		{
@@ -199,7 +199,7 @@ namespace rev
 	void TResourceManager<_resourceT, string>::release(const string& _key)
 	{
 		typename resourceMapT::iterator iter = mResources.find(_key);
-		TResource<_resourceT, string> * baseResource = (*iter);
+		TResource<_resourceT, string> * baseResource = iter->second;
 		// Decrease references
 		--baseResource->mReferences;
 		if(0 == baseResource->mReferences) // No one owns this resource anymore

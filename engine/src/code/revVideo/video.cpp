@@ -11,22 +11,23 @@
 // Engine headers
 #include "video.h"
 
-#include "revCore/codeTools/assert/assert.h"
-#include "revVideo/color/color.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revCore/codeTools/assert/assert.h>
+#include <revCore/codeTools/profiler/profiler.h>
+#include <revVideo/color/color.h>
+#include <revVideo/videoDriver/videoDriver.h>
 #ifdef _linux
-#include "revVideo/videoDriver/opengl/linux/videoDriverLinux.h"
+#include <revVideo/videoDriver/opengl/linux/videoDriverLinux.h>
 #endif // _linux
 #ifdef ANDROID
-#include "revVideo/videoDriver/android/videoDriverAndroid.h"
+#include <revVideo/videoDriver/android/videoDriverAndroid.h>
 #endif // ANDROID
 #ifdef WIN32
-#include "revVideo/videoDriver/opengl/windows/videoDriverOGLWindows.h"
+#include <revVideo/videoDriver/opengl/windows/videoDriverOGLWindows.h>
 #endif // WIN32
 
-#include "revVideo/renderer/renderer3d.h"
+#include <revVideo/renderer/renderer3d.h>
 #ifdef REV_USE_DIRECT_RENDERER
-#include "revVideo/renderer/directRenderer/directRenderer.h"
+#include <revVideo/renderer/directRenderer/directRenderer.h>
 #endif // REV_USE_DIRECT_RENDERER
 
 // Active namespaces
@@ -61,6 +62,7 @@ namespace rev	{	namespace	video
 	//--------------------------------------------------------------------------
 	void SVideo::update()
 	{
+		codeTools::CProfileFunction profile("SVideo::update()");
 		// assert we have a driver
 		revAssert(0 != m_pDriver);
 		// Begin frame
