@@ -7,6 +7,7 @@
 
 #include "shaderToolClient.h"
 
+#include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/orthoCamera.h>
 #include <revVideo/viewport/viewport.h>
 
@@ -32,16 +33,12 @@ ShaderToolClient::ShaderToolClient()
 //----------------------------------------------------------------------------------------------------------------------
 ShaderToolClient::~ShaderToolClient()
 {
-	delete mCamera;
-	delete mViewport;
-	delete mSurface;
-	delete mSurfaceInstance;
-	delete mMaterial;
-	delete mMaterialInstance;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool ShaderToolClient::update()
 {
+	if(input::SKeyboardInput::get()->pressed(input::SKeyboardInput::eEscape))
+		return false;
 	return CGameClient::update();
 }

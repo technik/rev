@@ -77,7 +77,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;REV_LOG;REV_PROFILER;REV_ASSERT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;REV_LOG;REV_ASSERT</PreprocessorDefinitions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <TreatWarningAsError>true</TreatWarningAsError>
