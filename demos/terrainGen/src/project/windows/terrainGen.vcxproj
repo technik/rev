@@ -10,9 +10,21 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\code\gameClient\gameClient.cpp" />
+    <ClCompile Include="..\..\code\windows\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\engine\src\project\windows\rev.vcxproj">
+      <Project>{396f5795-7c55-4467-b80b-82388c96a253}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\code\gameClient\gameClient.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{44C2FF9D-F476-4BAE-B1D1-B17F601B6079}</ProjectGuid>
-    <RootNamespace>shaderTool</RootNamespace>
+    <ProjectGuid>{B80C22CF-0FCA-4D7B-9F43-1806FA3F31EC}</ProjectGuid>
+    <RootNamespace>terrainGen</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -37,12 +49,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)..\..\..\bin\windows\</OutDir>
-    <IncludePath>$(RTL_HOME);$(REVSDK_HOME)\engine\src\code;$(REVSDK_HOME)\revsdk\demos\shaderTool\tool\src\code;$(ProjectDir)\..\..\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\engine\src\code;$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Programacion\rev\engine\lib\windows\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)..\..\..\bin\windows</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\..\..\bin\windows\</OutDir>
-    <IncludePath>C:\Users\technik\programming\stl;C:\Users\technik\programming\revsdk\engine\src\code;C:\Users\technik\programming\revsdk\demos\shaderTool\tool\src\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\engine\src\code;$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Programacion\rev\engine\lib\windows\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)..\..\..\bin\windows</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -50,7 +64,7 @@
       <Optimization>Disabled</Optimization>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;REV_LOG;REV_ASSERT;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DEBUG;REV_LOG;REV_ASSERT</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -69,7 +83,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;REV_LOG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -82,22 +96,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\code\client\shaderToolClient.cpp" />
-    <ClCompile Include="..\..\code\shaderRender\shaderMaterial.cpp" />
-    <ClCompile Include="..\..\code\shaderRender\surface.cpp" />
-    <ClCompile Include="..\..\code\windows\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\code\client\shaderToolClient.h" />
-    <ClInclude Include="..\..\code\shaderRender\shaderMaterial.h" />
-    <ClInclude Include="..\..\code\shaderRender\surface.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\engine\src\project\windows\rev.vcxproj">
-      <Project>{396f5795-7c55-4467-b80b-82388c96a253}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
