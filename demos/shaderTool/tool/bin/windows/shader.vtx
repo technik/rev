@@ -1,0 +1,13 @@
+// Shader tool demo, vertex shader
+attribute vec2 vertex; // Screen coordinates
+varying vec2 vCoord;
+varying vec3 vViewDir;
+varying vec3 viewPos;
+
+void main ( void )
+{
+	vCoord = vertex;
+	viewPos = vec3(0.0,0.0,1.7);
+	vViewDir = vec3(8.0*vertex.x, 5.0, 4.5*vertex.y);
+	gl_Position = vec4(vertex, 0.0, 1.0);
+}
