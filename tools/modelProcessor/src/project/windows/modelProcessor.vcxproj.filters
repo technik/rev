@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\code\geometry.cpp" />
+    <ClCompile Include="..\..\code\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\code\geometry.h" />
+    <ClInclude Include="..\..\code\loaders\obj\objLoader.h">
+      <Filter>loaders\obj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\loaders\modelLoader.h">
+      <Filter>loaders</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="loaders">
+      <UniqueIdentifier>{dbf4edc4-2e03-47d8-922d-89b73844fae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="loaders\obj">
+      <UniqueIdentifier>{4abfb131-27c6-4f7b-bc87-f27dee0880de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

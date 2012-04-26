@@ -8,7 +8,7 @@
 #ifndef _REV_REVCORE_MATH_MATRIX_H_
 #define _REV_REVCORE_MATH_MATRIX_H_
 
-#include "revCore/types.h"
+#include <revCore/types.h>
 
 namespace rev
 {
