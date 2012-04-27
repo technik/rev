@@ -4,6 +4,7 @@
 // On November 27th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Engine headers
+#include <revVideo/color/color.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
@@ -26,18 +27,22 @@ CBuggyGameClient::CBuggyGameClient()
 	mBuggy = new buggyDemo::CBuggy();
 	// Create a camera
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
+	mViewport->setCamera(mCamera->camera());
+	SVideo::get()->driver()->setBackgroundColor(CColor::GREEN);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 CBuggyGameClient::~CBuggyGameClient()
 {
-	delete mCamera;
-	delete mBuggy;
-	delete mViewport;
+	//delete mCamera;
+	//delete mBuggy;
+	//delete mViewport;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool CBuggyGameClient::update()
 {
-	return true;
+	mBuggy->update();
+	mCamera->update();
+	return CGameClient::update();
 }

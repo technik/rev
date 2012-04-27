@@ -1,40 +1,40 @@
 #include "buggy.h"
 
-#include <revCore/node/node.h>
-
-#include <revVideo/material/materialInstance.h>
-#include <revVideo/material/basic/diffuseTextureMaterial.h>
-
-#include <revVideo/scene/model/staticModelInstance.h>
+#include <revGame/scene/object/staticObject.h>
+#include <revCore/resourceManager/passiveResourceManager.h>
+#include <revCore/resourceManager/resourceManager.h>
+#include <revGame/scene/mesh/meshGenerator.h>
+#include <revVideo/material/basic/solidColorMaterial.h>
+#include <revVideo/scene/model/staticModel.h>
 
 using namespace rev;
-
+using namespace rev::game;
 using namespace rev::video;
 
 namespace buggyDemo
 {
 	CBuggy::CBuggy()
 	{
-		mNode = new CNode();
-		mMaterialInstance = new IMaterialInstance( new CDiffuseTextureMaterial("buggy.png") );
-		mModelInstance = new CStaticModelInstance("buggy.rmd", mMaterialInstance);
-		mModelInstance->attachTo(mNode);
+		// Register mesh
+		CStaticModel::manager()->registerResource(CMeshGenerator::box(CVec3(1.0)), "buggy.rmd");
+		// Register material
+		IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor::RED), "buggyMaterial");
+		// Create the object
+		mObject = new CStaticObject("buggy.rmd", "buggyMaterial");
 	}
 	
 	CBuggy::~CBuggy()
 	{
-		delete mModelInstance;
-		delete mMaterialInstance;
-		delete mNode;
+		// delete mObject;
 	}
 
 	void CBuggy::update()
 	{
-
+		// Intentionally blank
 	}
 
-	const CNode * CBuggy::node() const
+	CNode * CBuggy::node() const
 	{
-		return mNode;
+		return mObject->node();
 	}
 }

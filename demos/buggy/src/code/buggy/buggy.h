@@ -8,34 +8,26 @@
 #define _BUGGYDEMO_BUGGY_BUGGY_H_
 
 // Forward declarations
-namespace rev {
-	class CNode;
-	namespace video
-	{
-		class CStaticModelInstance;
-		class IMaterialInstance;
-	}	// namespace video
-}	// namespace rev
+namespace rev { class CNode; }
+namespace rev { namespace game { class CStaticObject; } }
 
 namespace buggyDemo
 {
 	class CBuggy
 	{
 	public:
-		// -- Constructor and destructor -------------------------------------------------------------------------------
+		// Constructor and destructor
 		CBuggy();
 		~CBuggy();
 
-		// -- Update ---------------------------------------------------------------------------------------------------
+		// Update
 		void update ();
 
-		// -- Accessor methods -----------------------------------------------------------------------------------------
-		const rev::CNode * node() const;
+		// Accessor methods
+		rev::CNode * node() const;
 
 	private:
-		rev::CNode * mNode;	// Buggy main node
-		rev::video::CStaticModelInstance * mModelInstance; // Buggy model
-		rev::video::IMaterialInstance * mMaterialInstance;
+		rev::game::CStaticObject * mObject;
 	};
 }	// namespace buggyDemo
 

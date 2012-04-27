@@ -8,14 +8,9 @@
 #define _BUGGYDEMO_CAMERA_AERIALCAMERA_H_
 
 // -- Forward declarations
-namespace rev {
-	class CNode;
+namespace rev {	class CNode; }	// namespace rev
 
-	namespace video
-	{
-		class CPerspectiveCamera;
-	}	// namespace video
-}	// namespace rev
+#include <revVideo/camera/perspectiveCamera.h>
 
 namespace buggyDemo
 {
@@ -23,17 +18,18 @@ namespace buggyDemo
 	{
 	public:
 		// Constructor
-		CAerialCamera(const rev::CNode * _target);
+		CAerialCamera(rev::CNode * _target);
 		~CAerialCamera();
 
 		// Update
 		void update ();
 
+		rev::video::CPerspectiveCamera*	camera() const { return mCamera; }
+
 	private:
-		const rev::CNode*						mTarget;
+		rev::CNode*						mTarget;
 		rev::CNode *							mCamNode;
 		class rev::video::CPerspectiveCamera*	mCamera;
-
 	};
 
 }	// namespace buggyDemo

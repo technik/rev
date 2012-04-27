@@ -1,0 +1,16 @@
+uniform mat4 modelViewProj;
+uniform vec3 viewPos; // View position in model space
+attribute vec3 vertex;
+attribute vec3 normal;
+attribute vec2 uv0;
+varying vec2 vTex0;
+varying vec3 vNormal;
+varying vec3 vPos;
+
+void main ( void )
+{
+	vNormal = normal;
+	vPos = vertex;
+	vTex0 = uv0;
+	gl_Position = modelViewProj * vec4(vertex, 1.0);
+}
