@@ -7,11 +7,17 @@
 #include "gameClient.h"
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
+#include <revCore/resourceManager/resourceManager.h>
+#include <revCore/resourceManager/passiveResourceManager.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/perspectiveCamera.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
+#include <revVideo/material/basic/solidColorMaterial.h>
+#include <revVideo/scene/model/staticModel.h>
+#include <revGame/scene/mesh/meshGenerator.h>
+#include <revGame/scene/object/staticObject.h>
 
 using namespace rev;
 using namespace rev::game;
@@ -29,6 +35,16 @@ terrainGenerator::terrainGenerator()
 	// Create a viewport and attach the camera to it
 	CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
 	view->setCamera(mCamera);
+
+	// Register resources
+	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.7f,0.7f,0.2f)), "block");
+	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
+
+
+
+
+	//CStaticObject * cubo1 = 
+	new CStaticObject("block", "block");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -51,5 +67,6 @@ bool terrainGenerator::update()
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Enter your code below
+
 	return true;
 }
