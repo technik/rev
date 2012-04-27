@@ -27,6 +27,9 @@ namespace buggyDemo
 		rev::video::CPerspectiveCamera*	camera() const { return mCamera; }
 
 	private:
+		void move();
+
+	private:
 		rev::CNode*						mTarget;
 		rev::CNode *							mCamNode;
 		class rev::video::CPerspectiveCamera*	mCamera;
