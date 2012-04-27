@@ -420,6 +420,9 @@
     <ClInclude Include="..\..\code\revCore\codeTools\profiler\profiler.h">
       <Filter>revCore\codeTools\profiler</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\material\basic\scriptedMaterial.h">
+      <Filter>revVideo\material\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -586,6 +589,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\codeTools\profiler\profiler.cpp">
       <Filter>revCore\codeTools\profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\material\basic\scriptedMaterial.cpp">
+      <Filter>revVideo\material\basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

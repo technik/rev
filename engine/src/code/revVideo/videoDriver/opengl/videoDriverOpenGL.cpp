@@ -156,6 +156,8 @@ namespace rev { namespace video
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_POLYGON_SMOOTH);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_CULL_FACE);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

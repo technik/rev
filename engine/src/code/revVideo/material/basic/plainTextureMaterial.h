@@ -8,7 +8,7 @@
 #ifndef _REV_REVVIDEO_MATERIAL_BASIC_PLAINTEXTUREMATERIAL_H_
 #define _REV_REVVIDEO_MATERIAL_BASIC_PLAINTEXTUREMATERIAL_H_
 
-#include "revVideo/material/material.h"
+#include <revVideo/material/material.h>
 
 namespace rev { namespace video
 {
