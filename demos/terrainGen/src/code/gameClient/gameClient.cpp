@@ -4,9 +4,11 @@
 // Created on April 26th, 2012
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <cstdlib>
 #include "gameClient.h"
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
+#include <revCore/time/time.h>
 #include <revCore/resourceManager/resourceManager.h>
 #include <revCore/resourceManager/passiveResourceManager.h>
 #include <revInput/keyboardInput/keyboardInput.h>
@@ -23,6 +25,8 @@ using namespace rev;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::video;
+CStaticObject * cubos[10000];
+float heightmap[10000];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
@@ -32,26 +36,73 @@ terrainGenerator::terrainGenerator()
 	mCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
 	CNode * camNode = new CNode();
 	camNode->addComponent(mCamera);
-	camNode->setPos(CVec3(0.f, -10.f, 0.f));
+	camNode->setPos(CVec3(0.f, 0.f, 10.f));
 	// Create a viewport and attach the camera to it
 	CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
 	view->setCamera(mCamera);
 
 	// Register resources
-	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.7f,0.7f,0.2f)), "block");
+	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.8f,0.8f,0.2f)), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
+	genHeightmap();
+	for(int i=0; i<100; ++i)
+	{
+		for(int j=0; j<100; ++j)
+		{
+			cubos[i+100*j] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,heightmap[i+100*j]));
+		}
+		
+	}
 
+	
+}
 
-
-	//CStaticObject * cubo1 = 
-	new CStaticObject("block", "block");
+//-------------------------------------------------------------------------------------------------------------------
+void terrainGenerator::updateCamera(float _time)
+{
+	TReal fwdStep = 3.f * _time;
+	TReal upStep = 1.f * _time;
+	TReal sideStep = 3.f * _time;
+	TReal turnStep = 1.f * _time;
+	SKeyboardInput * keyboard = SKeyboardInput::get();
+	CNode * camNode = mCamera->node();
+	if(keyboard->held(SKeyboardInput::eKeyLeft))
+		camNode->move(CVec3(-sideStep, 0.f, 0.f));
+	if(keyboard->held(SKeyboardInput::eKeyRight))
+		camNode->move(CVec3(sideStep, 0.f, 0.f));
+	if(keyboard->held(SKeyboardInput::eKeyUp))
+		camNode->move(CVec3(0.f, 0.f, upStep));
+	if(keyboard->held(SKeyboardInput::eKeyDown))
+		camNode->move(CVec3(0.f, 0.f, -upStep));
+	if(keyboard->held(SKeyboardInput::eW))
+		camNode->move(CVec3::yAxis * fwdStep);
+	if(keyboard->held(SKeyboardInput::eS))
+		camNode->move(CVec3::yAxis * -fwdStep);
+	if(keyboard->held(SKeyboardInput::eA))
+		camNode->rotate(CVec3::zAxis, turnStep);
+	if(keyboard->held(SKeyboardInput::eD))
+		camNode->rotate(CVec3::zAxis, -turnStep);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::~terrainGenerator()
 {
 	// Intentionally blank
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void terrainGenerator::genHeightmap()
+{
+	for(int i=0; i<100; ++i)
+	{
+		for(int j=0; j<100; ++j)
+		{
+			heightmap[i+100*j] = (i*i-j*j+j)/500.0f;
+		}
+		
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -68,6 +119,7 @@ bool terrainGenerator::update()
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Enter your code below
+	updateCamera(STime::get()->frameTime());
 
 	return true;
 }

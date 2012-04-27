@@ -28,6 +28,10 @@ public:
 	// Returns false to exit the game.
 	// Returns true otherways.
 
+	void updateCamera(float _time);
+
+	void genHeightmap();
+
 private:
 	rev::video::CPerspectiveCamera * mCamera;
 };
