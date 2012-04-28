@@ -31,17 +31,7 @@ float heightmap[10000];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
-	:mCamera(0)
 {
-	// Create the camera
-	mCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
-	CNode * camNode = new CNode();
-	camNode->addComponent(mCamera);
-	camNode->setPos(CVec3(0.f, 0.f, 10.f));
-	// Create a viewport and attach the camera to it
-	CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
-	view->setCamera(mCamera);
-
 	// Register resources
 	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
@@ -67,7 +57,7 @@ void terrainGenerator::updateCamera(float _time)
 	TReal sideStep = 3.f * _time;
 	TReal turnStep = 1.f * _time;
 	SKeyboardInput * keyboard = SKeyboardInput::get();
-	CNode * camNode = mCamera->node();
+	CNode * camNode = camera3d()->node();
 	if(keyboard->held(SKeyboardInput::eKeyLeft))
 		camNode->move(CVec3(-sideStep, 0.f, 0.f));
 	if(keyboard->held(SKeyboardInput::eKeyRight))

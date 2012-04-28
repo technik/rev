@@ -18,11 +18,13 @@
 // --- Engine headers -----------
 #include <revCore/codeTools/log/log.h>
 #include <revCore/codeTools/profiler/profiler.h>
+#include <revCore/node/node.h>
 #include <revCore/string.h>
 #include <revCore/time/time.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revInput/touchInput/touchInput.h>
 #include <revVideo/video.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 // --- Active namespaces --------
 using namespace rev;
@@ -43,23 +45,9 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	CGameClient::CGameClient()
 	{
-		// Init log system
-		SLog::init();
-		revLogN("----- Creating base game client -----");
-#ifdef REV_PROFILER
-		SProfiler::init();
-#endif // REV_PROFILER
-#ifdef WIN32
-		mWindowsHandler = new CWindowsHandler();
-#endif // WIN32
-		// Init time system
-		STime::init();
-		// Init video system
-		SVideo::init();
-		// Init audio system
-		// Init input system
-		STouchInput::init();
-		SKeyboardInput::init();
+		initEngineSystems();
+		initBasic2d();
+		initBasic3d();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -174,6 +162,47 @@ namespace rev { namespace game
 
 #endif // WIN32
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CGameClient::initEngineSystems()
+	{
+		// Init log system
+		SLog::init();
+		revLogN("----- Creating base game client -----");
+#ifdef REV_PROFILER
+		SProfiler::init();
+#endif // REV_PROFILER
+#ifdef WIN32
+		mWindowsHandler = new CWindowsHandler();
+#endif // WIN32
+		// Init time system
+		STime::init();
+		// Init video system
+		SVideo::init();
+		// Init audio system
+		// Init input system
+		STouchInput::init();
+		SKeyboardInput::init();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CGameClient::initBasic2d()
+	{
+		// TO DO
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CGameClient::initBasic3d()
+	{
+		// Create the camera
+		m3dCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
+		CNode * camNode = new CNode();
+		camNode->addComponent(m3dCamera);
+		// Create a viewport and attach the camera to it
+		CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
+		view->setCamera(m3dCamera);
+
 	}
 
 } // namespace game

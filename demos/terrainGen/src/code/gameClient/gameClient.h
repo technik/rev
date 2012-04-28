@@ -33,7 +33,6 @@ public:
 	void genHeightmap();
 
 private:
-	rev::video::CPerspectiveCamera * mCamera;
 };
 
 #endif // _TERRAINGEN_GAMECLIENT_GAMECLIENT_H_

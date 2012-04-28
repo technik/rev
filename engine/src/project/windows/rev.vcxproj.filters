@@ -166,6 +166,9 @@
     <Filter Include="revCore\codeTools\profiler">
       <UniqueIdentifier>{f4ade60b-87a4-4d9d-b93a-057edf2d6c3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui\html">
+      <UniqueIdentifier>{0d0fbadf-1aac-47e2-a340-8024544349e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
