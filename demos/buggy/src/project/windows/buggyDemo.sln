@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "buggyDemo", "buggyDemo\buggyDemo.vcxproj", "{82E7EEE7-F631-4F00-8AD4-7C926939566D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rev", "..\..\..\..\..\engine\src\project\windows\rev.vcxproj", "{396F5795-7C55-4467-B80B-82388C96A253}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Profiling|Win32 = Profiling|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Debug|Win32.Build.0 = Debug|Win32
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Profiling|Win32.ActiveCfg = Release|Win32
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Profiling|Win32.Build.0 = Release|Win32
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Release|Win32.ActiveCfg = Release|Win32
+		{82E7EEE7-F631-4F00-8AD4-7C926939566D}.Release|Win32.Build.0 = Release|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Debug|Win32.ActiveCfg = Debug|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Debug|Win32.Build.0 = Debug|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Profiling|Win32.ActiveCfg = Profiling|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Profiling|Win32.Build.0 = Profiling|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Release|Win32.ActiveCfg = Release|Win32
+		{396F5795-7C55-4467-B80B-82388C96A253}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
