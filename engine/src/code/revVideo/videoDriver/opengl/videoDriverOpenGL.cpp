@@ -248,12 +248,18 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::flushGeometryCache()
 	{
-		this->glVertexAttribPointer(unsigned(eVertex), 3, GL_FLOAT, false, 0, mVertexCache.data());
-		this->glVertexAttribPointer(unsigned(eNormal), 3, GL_FLOAT, false, 0, mNormalCache.data());
-		this->glVertexAttribPointer(unsigned(eTexCoord), 2, GL_FLOAT, false, 0, mTexCoordCache.data());
-		glEnableVertexAttribArray(eVertex);
-		glEnableVertexAttribArray(eNormal);
-		glEnableVertexAttribArray(eTexCoord);
+		if(!mTriangleCache.empty() 
+			|| !mTriStripCache.empty() 
+			|| !mLineCache.empty()
+			|| !mLineStripCache.empty())
+		{
+			this->glVertexAttribPointer(unsigned(eVertex), 3, GL_FLOAT, false, 0, mVertexCache.data());
+			this->glVertexAttribPointer(unsigned(eNormal), 3, GL_FLOAT, false, 0, mNormalCache.data());
+			this->glVertexAttribPointer(unsigned(eTexCoord), 2, GL_FLOAT, false, 0, mTexCoordCache.data());
+			glEnableVertexAttribArray(eVertex);
+			glEnableVertexAttribArray(eNormal);
+			glEnableVertexAttribArray(eTexCoord);
+		}
 		// Draw triangles
 		if(!mTriangleCache.empty())
 		{
