@@ -19,12 +19,9 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void IRenderableInstance::setEnvironment() const
 	{
-		// Set model-view-projection matrix
-		IVideoDriver * driver = SVideo::get()->driver();
-		int mvpUniformId = driver->getUniformId("modelViewProj");
+		// Set model matrix
 		IRenderer3d * renderer = SVideo::get()->renderer();
 		renderer->setModelMatrix(node()->transform());
-		driver->setUniform(mvpUniformId, renderer->viewProjMatrix() * node()->transform());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

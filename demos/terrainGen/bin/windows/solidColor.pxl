@@ -1,13 +1,16 @@
 uniform vec4 color;
 varying vec3 vNormal;
+varying vec3 vPos;
 
-vec3 lightDir = normalize(vec3(2.0, 1.0, 3.0));
+vec3 lightDir = normalize(vec3(1.0, 2.0, 3.0));
 
 void main ( void )
 {
-	float lightInt = dot(vNormal, lightDir);
-	if(lightInt < 0.3)
-		lightInt = 0.3;
-	vec3 color = vec3(0.3, 0.2, 0.0);
-	gl_FragColor = vec4(color * lightInt, 1.0);
+	vec3 normal = normalize(vNormal);
+	// Diffuse light
+	float diffInt = clamp(dot(vNormal, lightDir), 0.0, 1.0);
+	vec3 diffColor = vec3(0.3, 0.2, 0.0);
+	// Total light
+	vec3 color = diffColor * (diffInt+0.3);
+	gl_FragColor = vec4(color, 1.0);
 }

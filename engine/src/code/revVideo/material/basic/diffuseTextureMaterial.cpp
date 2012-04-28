@@ -25,14 +25,6 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CDiffuseTextureMaterialInstance::setEnvironment() const
 	{
-		IVideoDriver * driver = SVideo::get()->driver();
-		int lightUniformId = driver->getUniformId("light0Dir");
-		IRenderer3d * renderer = SVideo::get()->renderer();
-		CMat34 invModel;
-		renderer->modelMatrix().inverse(invModel);
-		driver->setUniform(lightUniformId, invModel.rotate(CVec3(1.f, 0.f, -0.4f)).normalize());
-		int viewDirUniformId = driver->getUniformId("viewPos");
-		driver->setUniform(viewDirUniformId, invModel * (renderer->viewMatrix() * CVec3::zero));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -53,8 +45,16 @@ namespace rev { namespace video
 	void CDiffuseTextureMaterial::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
+		// Texture
 		int textureUniformId = driver->getUniformId("texture");
 		driver->setUniform(textureUniformId, 0, mTexture); // Set my texture into texture slot 0
+		// Light
+		int lightUniformId = driver->getUniformId("light0Dir");
+		driver->setUniform(lightUniformId, CVec3(2.5f, -2.f, -3.f).normalize());
+		// ViewPos
+		IRenderer3d * renderer = SVideo::get()->renderer();
+		int viewDirUniformId = driver->getUniformId("viewPos");
+		driver->setUniform(viewDirUniformId, (renderer->viewMatrix() * CVec3::zero));
 	}
 
 }	// namespace video

@@ -1,0 +1,15 @@
+uniform vec3 light0Dir;
+uniform vec3 viewPos; // View position in model space
+uniform sampler2D texture;
+varying vec3 vNormal;
+varying vec3 vPos;
+varying vec2 vTex0;
+
+void main ( void )
+{
+	vec3 light = normalize(-light0Dir);
+	vec3 normal = normalize(vNormal);
+	vec3 diffColor = texture2D(texture, vTex0).xyz;
+	float diffInt = max(0.0,dot(light,normal)+0.2);
+	gl_FragColor = vec4(diffColor*diffInt, 1.0);
+}

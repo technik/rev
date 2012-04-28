@@ -30,12 +30,47 @@ using namespace rev::codeTools;
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	IVideoDriverOpenGL::IVideoDriverOpenGL():
+	IVideoDriverOpenGL::IVideoDriverOpenGL()
 		// Internal state and caches
-		mCurShader(-1),
-		mScreenWidth(800),
-		mScreenHeight(480)
+		:mCurShader(-1)
+		,mMVPUniformId(-1)
+		,mScreenWidth(800)
+		,mScreenHeight(480)
+		,m0Idx(0)
 	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setModelMatrix(const CMat34& _m)
+	{
+		mModel = _m;
+		m0Idx = mVertexCache.size();
+		if((m0Idx + mNVertices) > 0xffff)
+		{
+			flushGeometryCache();
+			m0Idx = 0;
+		}
+		// Copy geometry data
+		for(unsigned i = 0; i < mNVertices; ++i)
+		{
+			mVertexCache.push_back(mModel * mVertexBuffer[i]);
+			mNormalCache.push_back(mModel.rotate(mNormalBuffer[i]));
+			mTexCoordCache.push_back(mTexCoordBuffer[i]);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setViewMatrix(const CMat34& _v)
+	{
+		_v.inverse(mInvView);
+		setUniform(mMVPUniformId, mProj * mInvView);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setProjMatrix(const CMat4& _proj)
+	{
+		mProj = _proj;
+		setUniform(mMVPUniformId, _proj * mInvView);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -44,8 +79,10 @@ namespace rev { namespace video
 		revAssert(_shader >= 0);
 		if(_shader != mCurShader) // Check cache
 		{
+			flushGeometryCache();
 			mCurShader = _shader;
 			glUseProgram(unsigned(mCurShader));
+			mMVPUniformId = getUniformId("modelViewProj");
 		}
 	}
 
@@ -56,50 +93,84 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::setRealAttribBuffer(const int _attribId, const unsigned _nComponents, const void * const _buffer)
+	void IVideoDriverOpenGL::setRealAttribBuffer(const int _attribId
+												,unsigned _nElements
+												,const unsigned _nComponents
+												,const void * const _buffer)
 	{
-		// Assert incomming data si valid
+		// Assert incomming data is valid
 		revAssert((_nComponents > 0) && (_nComponents < 5)); // [1,4] reals per buffer element
 		revAssert(_attribId >= 0); // Valid id
 		revAssert(0 != _buffer); // Non-null buffer
-		// Pass array to OpenGL
-#if defined (_linux) || defined (WIN32)
-		glVertexAttribPointer(unsigned(_attribId), _nComponents, GL_FLOAT, false, 0, _buffer);
-		glEnableVertexAttribArray(_attribId);
-#else
-		revAssert(false); // Does current platform use GL_FLOAT for TReal?
-#endif
+
+		// Process data
+		if(_attribId == eVertex)
+		{
+			mNVertices = _nElements;
+			mVertexBuffer = reinterpret_cast<const CVec3*>(_buffer);
+		}
+		else if(_attribId == eNormal)
+		{
+			mNormalBuffer = reinterpret_cast<const CVec3*>(_buffer);
+		}
+		else if(_attribId == eTexCoord)
+		{
+			mTexCoordBuffer = reinterpret_cast<const CVec2*>(_buffer);
+		}
+		else
+		{
+			flushGeometryCache();
+			glVertexAttribPointer(unsigned(_attribId), _nComponents, GL_FLOAT, false, 0, _buffer);
+			glEnableVertexAttribArray(_attribId);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, float _value)
 	{
-		glUniform1f(_id, _value);
+		if(_id > 0)
+		{
+			flushGeometryCache();
+			glUniform1f(_id, _value);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, const CMat4& _value)
 	{
-		m_uniformMatrix4fv(_id, 1, true, reinterpret_cast<const float*>(_value.m));
+		if(_id >= 0) // Valid uniform
+		{
+			flushGeometryCache();
+			m_uniformMatrix4fv(_id, 1, true, reinterpret_cast<const float*>(_value.m));
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, const CColor& _value)
 	{
-		glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
+		if(_id >= 0) // Valid uniform
+		{
+			flushGeometryCache();
+			glUniform4f(_id, _value.r(), _value.g(), _value.b(), _value.a());
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, const CVec3& _value)
 	{
-		glUniform3f(_id, _value.x, _value.y, _value.z);
+		if(_id >= 0) // Valid uniform
+		{
+			flushGeometryCache();
+			glUniform3f(_id, _value.x, _value.y, _value.z);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setUniform(int _id, int _slot, const CTexture * _value)
 	{
 		revAssert(0 == _slot, "Only one texture slot supported");
-		
+	
+		flushGeometryCache();
 		glActiveTexture(GL_TEXTURE0);
 		glUniform1i(_id, 0);
 		
@@ -113,16 +184,32 @@ namespace rev { namespace video
 		switch(_primitive)
 		{
 		case eTriangle:
-			glDrawElements(GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			for(int i = 0; i < _nIndices; ++i)
+			{
+				mTriangleCache.push_back(_indices[i] + (u16)m0Idx);
+			}
+			// glDrawElements(GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;
 		case eTriStrip:
-			glDrawElements(GL_TRIANGLE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			for(int i = 0; i < _nIndices; ++i)
+			{
+				mTriStripCache.push_back(_indices[i] + (u16)m0Idx);
+			}
+			//glDrawElements(GL_TRIANGLE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;
 		case eLine:
-			glDrawElements(GL_LINES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			for(int i = 0; i < _nIndices; ++i)
+			{
+				mLineCache.push_back(_indices[i] + (u16)m0Idx);
+			}
+			//glDrawElements(GL_LINES, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;
 		case eLineStrip:
-			glDrawElements(GL_LINE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			for(int i = 0; i < _nIndices; ++i)
+			{
+				mLineStripCache.push_back(_indices[i] + (u16)m0Idx);
+			}
+			//glDrawElements(GL_LINE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;
 		default:
 			revAssert(false);	// Unsupported
@@ -156,6 +243,60 @@ namespace rev { namespace video
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_POLYGON_SMOOTH);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_CULL_FACE);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::endFrame()
+	{
+		flushGeometryCache();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::flushGeometryCache()
+	{
+		if(!mTriangleCache.empty() 
+			|| !mTriStripCache.empty() 
+			|| !mLineCache.empty()
+			|| !mLineStripCache.empty())
+		{
+			this->glVertexAttribPointer(unsigned(eVertex), 3, GL_FLOAT, false, 0, mVertexCache.data());
+			this->glVertexAttribPointer(unsigned(eNormal), 3, GL_FLOAT, false, 0, mNormalCache.data());
+			this->glVertexAttribPointer(unsigned(eTexCoord), 2, GL_FLOAT, false, 0, mTexCoordCache.data());
+			glEnableVertexAttribArray(eVertex);
+			glEnableVertexAttribArray(eNormal);
+			glEnableVertexAttribArray(eTexCoord);
+		}
+		// Draw triangles
+		if(!mTriangleCache.empty())
+		{
+			glDrawElements(GL_TRIANGLES, mTriangleCache.size(), GL_UNSIGNED_SHORT, mTriangleCache.data());
+			mTriangleCache.clear();
+		}
+		// Draw triangles
+		
+		if(!mTriStripCache.empty())
+		{
+			glDrawElements(GL_TRIANGLE_STRIP, mTriStripCache.size(), GL_UNSIGNED_SHORT, mTriStripCache.data());
+			mTriStripCache.clear();
+		}
+		// Draw triangles
+		
+		if(!mLineCache.empty())
+		{
+			glDrawElements(GL_LINES, mLineCache.size(), GL_UNSIGNED_SHORT, mLineCache.data());
+			mLineCache.clear();
+		}
+		// Draw triangles
+		if(!mLineStripCache.empty())
+		{
+			glDrawElements(GL_LINE_STRIP, mLineStripCache.size(), GL_UNSIGNED_SHORT, mLineStripCache.data());
+			mLineStripCache.clear();
+		}
+		mVertexCache.clear();
+		mNormalCache.clear();
+		mTexCoordCache.clear();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

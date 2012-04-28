@@ -59,10 +59,10 @@ namespace rev { namespace game
 		{
 			fillBoxFace(i, size, &verts[4*i], &norms[4*i], &uvs[4*i]);
 			indices[6*i+0] = 4*i+0;
-			indices[6*i+1] = 4*i+1;
+			indices[6*i+1] = 4*i+3;
 			indices[6*i+2] = 4*i+2;
 			indices[6*i+3] = 4*i+2;
-			indices[6*i+4] = 4*i+3;
+			indices[6*i+4] = 4*i+1;
 			indices[6*i+5] = 4*i+0;
 		}
 		CStaticModel * box = new CStaticModel();

@@ -206,6 +206,7 @@
     <ClInclude Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\plainTextureMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h" />
+    <ClInclude Include="..\..\code\revVideo\material\basic\scriptedMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\basic\solidColorMaterial.h" />
     <ClInclude Include="..\..\code\revVideo\material\material.h" />
     <ClInclude Include="..\..\code\revVideo\material\materialInstance.h" />
@@ -271,10 +272,12 @@
     <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\plainTextureMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp" />
+    <ClCompile Include="..\..\code\revVideo\material\basic\scriptedMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\basic\solidColorMaterial.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\material.cpp" />
     <ClCompile Include="..\..\code\revVideo\material\materialInstance.cpp" />
     <ClCompile Include="..\..\code\revVideo\renderer\directRenderer\directRenderer.cpp" />
+    <ClCompile Include="..\..\code\revVideo\renderer\renderer3d.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\quad.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModel.cpp" />
     <ClCompile Include="..\..\code\revVideo\scene\model\staticModelInstance.cpp" />

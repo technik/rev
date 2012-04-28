@@ -40,24 +40,6 @@ namespace rev { namespace video
 	};
 
 	//---------------------------------------------------------------------------------------------------------------
-	inline void IRenderer3d::setModelMatrix(const CMat34& _m)
-	{
-		mModelMatrix = _m;
-	}
-
-	//---------------------------------------------------------------------------------------------------------------
-	inline void IRenderer3d::setViewMatrix(const CMat34& _m)
-	{
-		mViewMatrix = _m;
-	}
-
-	//---------------------------------------------------------------------------------------------------------------
-	inline void IRenderer3d::setProjectionMatrix(const CMat4& _m)
-	{
-		mProjectionMatrix = _m;
-	}
-
-	//---------------------------------------------------------------------------------------------------------------
 	inline const CMat34& IRenderer3d::modelMatrix() const
 	{
 		return mModelMatrix;

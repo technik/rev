@@ -133,9 +133,9 @@ namespace video
 	void CStaticModel::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
-		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);
-		driver->setRealAttribBuffer(IVideoDriver::eNormal, 3, mNormals);
-		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 2, mUVs);
+		driver->setRealAttribBuffer(IVideoDriver::eVertex, mNVertices, 3, mVertices);
+		driver->setRealAttribBuffer(IVideoDriver::eNormal, mNVertices, 3, mNormals);
+		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, mNVertices, 2, mUVs);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

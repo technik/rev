@@ -16,6 +16,7 @@
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
+#include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revGame/scene/mesh/meshGenerator.h>
@@ -46,7 +47,7 @@ terrainGenerator::terrainGenerator()
 	view->setCamera(mCamera);
 
 	// Register resources
-	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.8f,0.8f,0.2f)), "block");
+	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
 	genHeightmap();

@@ -23,7 +23,8 @@
 #include "glext.h"
 
 // Engine headers
-#include "revVideo/videoDriver/videoDriver.h"
+#include <vector.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {
@@ -38,9 +39,12 @@ namespace rev { namespace video
 		virtual ~IVideoDriverOpenGL()	{}
 
 		// ---- Render tasks ---- //
+		void	setModelMatrix	(const CMat34& _mv);
+		void	setViewMatrix	(const CMat34& _mv);
+		void	setProjMatrix		(const CMat4& _proj);
 		void	setShader			(const int _shader);
 		int		getUniformId		(const char * _name) const;
-		void	setRealAttribBuffer	(const int _attribId, const unsigned _nComponents, const void * const _buffer);
+		void	setRealAttribBuffer	(const int _attribId, unsigned _nElements, const unsigned _nComponents, const void * const _buffer);
 		void	setUniform			(int _id, float _value);
 		void	setUniform			(int _id, const CMat4& _value);
 		void	setUniform			(int _id, const CColor& _value);
@@ -52,10 +56,12 @@ namespace rev { namespace video
 		void	setBackgroundColor	(const CColor& _color);
 
 		virtual void	beginFrame	();
-		void			initOpenGL				();
+		void			initOpenGL	();
+		virtual	void	endFrame	();
 	private:
 		// -- OpenGL specifics --
 		virtual void	createOpenGLWindow		(const unsigned int _width, const unsigned int _heihgt) = 0;
+		void			flushGeometryCache		();
 		
 		// --- Shader management -- //
 		int				linkShader			(CVtxShader* _vtx, CPxlShader* _pxl);
@@ -100,6 +106,23 @@ namespace rev { namespace video
 		int				mCurShader;
 		unsigned int	mScreenWidth;
 		unsigned int	mScreenHeight;
+		// Geometry cache
+		int					mMVPUniformId;
+		CMat34				mModel;
+		CMat34				mInvView;
+		CMat4				mProj;
+		const CVec3*		mVertexBuffer;
+		const CVec3*		mNormalBuffer;
+		const CVec2*		mTexCoordBuffer;
+		rtl::vector<CVec3>	mVertexCache;
+		rtl::vector<CVec3>	mNormalCache;
+		rtl::vector<CVec2>	mTexCoordCache;
+		rtl::vector<u16>	mTriangleCache;
+		rtl::vector<u16>	mTriStripCache;
+		rtl::vector<u16>	mLineCache;
+		rtl::vector<u16>	mLineStripCache;
+		unsigned			m0Idx;	// Index where starts the geometry of the current renderable
+		unsigned			mNVertices;
 
 	private:
 		// ---- pointers to openGL extensions ----

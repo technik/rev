@@ -68,8 +68,8 @@ namespace rev { namespace video
 	void CQuad::setEnvironment() const
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
-		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mVertices);
-		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 2, mUVs);
+		driver->setRealAttribBuffer(IVideoDriver::eVertex, 4, 3, mVertices);
+		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 4, 2, mUVs);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
