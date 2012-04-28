@@ -45,6 +45,11 @@ namespace rev { namespace video
 	{
 		mModelView = _mv;
 		m0Idx = mVertexCache.size();
+		if((m0Idx + mNVertices) > 0xffff)
+		{
+			flushGeometryCache();
+			m0Idx = 0;
+		}
 		// Copy geometry data
 		for(unsigned i = 0; i < mNVertices; ++i)
 		{
