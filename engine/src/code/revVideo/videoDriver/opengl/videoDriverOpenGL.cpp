@@ -41,9 +41,9 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::setModelViewMatrix(const CMat34& _mv)
+	void IVideoDriverOpenGL::setModelMatrix(const CMat34& _m)
 	{
-		mModelView = _mv;
+		mModel = _m;
 		m0Idx = mVertexCache.size();
 		if((m0Idx + mNVertices) > 0xffff)
 		{
@@ -53,16 +53,24 @@ namespace rev { namespace video
 		// Copy geometry data
 		for(unsigned i = 0; i < mNVertices; ++i)
 		{
-			mVertexCache.push_back(mModelView * mVertexBuffer[i]);
-			mNormalCache.push_back(mNormalBuffer[i]);
+			mVertexCache.push_back(mModel * mVertexBuffer[i]);
+			mNormalCache.push_back(mModel.rotate(mNormalBuffer[i]));
 			mTexCoordCache.push_back(mTexCoordBuffer[i]);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::setViewMatrix(const CMat34& _v)
+	{
+		_v.inverse(mInvView);
+		setUniform(mMVPUniformId, mProj * mInvView);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::setProjMatrix(const CMat4& _proj)
 	{
-		setUniform(mMVPUniformId, _proj);
+		mProj = _proj;
+		setUniform(mMVPUniformId, _proj * mInvView);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -39,7 +39,8 @@ namespace rev { namespace video
 		virtual ~IVideoDriverOpenGL()	{}
 
 		// ---- Render tasks ---- //
-		void	setModelViewMatrix	(const CMat34& _mv);
+		void	setModelMatrix	(const CMat34& _mv);
+		void	setViewMatrix	(const CMat34& _mv);
 		void	setProjMatrix		(const CMat4& _proj);
 		void	setShader			(const int _shader);
 		int		getUniformId		(const char * _name) const;
@@ -107,7 +108,9 @@ namespace rev { namespace video
 		unsigned int	mScreenHeight;
 		// Geometry cache
 		int					mMVPUniformId;
-		CMat34				mModelView;
+		CMat34				mModel;
+		CMat34				mInvView;
+		CMat4				mProj;
 		const CVec3*		mVertexBuffer;
 		const CVec3*		mNormalBuffer;
 		const CVec2*		mTexCoordBuffer;

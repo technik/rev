@@ -56,7 +56,8 @@ namespace rev	{
 		virtual const CVec2& screenSize		() const = 0;
 
 		// ---- Render related ---- //
-		virtual void	setModelViewMatrix	(const CMat34& _mv) = 0;
+		virtual void	setModelMatrix	(const CMat34& _mv) = 0;
+		virtual void	setViewMatrix	(const CMat34& _mv) = 0;
 		virtual void	setProjMatrix		(const CMat4& _proj) = 0;
 		virtual void	setShader			(const int _shaderId) = 0;
 		virtual int		getUniformId		(const char * _name) const = 0;
