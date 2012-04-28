@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include "gameClient.h"
+#include <revCore/codeTools/profiler/profiler.h>
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
 #include <revCore/time/time.h>
@@ -23,20 +24,24 @@
 #include <revGame/scene/object/staticObject.h>
 
 using namespace rev;
+using namespace rev::codeTools;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::video;
-const int nWall = 65;
-const int nCol = 65;
+const int nWall = 513;
+const int nCol = 513;
 const int colHeight = 64;
-const int smooth = 5;
+const int smooth = 9;
+CStaticObject * buffer;
 CStaticObject * cubos[nWall][nCol][colHeight];
 unsigned char heightmap[nWall][nCol];
+unsigned char heightmin[nWall][nCol];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
 	:mCamera(0)
 {
+	CProfileFunction prof("terrainGenerator");
 	// Create the camera
 	mCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
 	CNode * camNode = new CNode();
@@ -46,25 +51,31 @@ terrainGenerator::terrainGenerator()
 	CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
 	view->setCamera(mCamera);
 
+	SVideo::getDriver()->setBackgroundColor(CColor::BLUE);
+
+	// Allocate a buffer for the cubes
+	buffer = reinterpret_cast<CStaticObject*>(new char[colHeight*nCol*nWall*sizeof(CStaticObject)]);
 	// Register resources
 	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
 	genHeightmap();
 
-	for(int i=0; i<nWall; ++i)
+	for(int r=0; r<nWall*nCol; ++r)
 	{
-		for(int j=0; j<nCol; ++j)
+		int i = r%nCol;
+		int j = r/nCol;
+		if(i < smooth || i > nCol-smooth-1 || j < smooth || j > nWall-smooth-1)
+			continue;
+		int height = heightmap[i][j];
+		int minHeight = height - colHeight/15;
+		if(minHeight < 0)
+			minHeight = 0;
+		for(int k = minHeight; k<height; ++k)
 		{
-			for(int k = 0; k<heightmap[i][j]; ++k)
-			{
-				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
-			}
+			cubos[i][j][k] = new(&buffer[k+colHeight*j+colHeight*nCol*i]) CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
 		}
-		
 	}
-
-	
 }
 
 //-------------------------------------------------------------------------------------------------------------------
