@@ -43,6 +43,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverLinux::endFrame()
 	{
+		IVideoDriverOpenGL::endFrame();
 		// Swap buffers
 		glXSwapBuffers(m_pDisplay, m_window);
 	}

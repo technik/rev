@@ -138,14 +138,14 @@ namespace rev { namespace game
 	{
 		IVideoDriver * driver = SVideo::getDriver();
 		// Draw background
-		driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mBGVertices);
+		driver->setRealAttribBuffer(IVideoDriver::eVertex, 4, 3, mBGVertices);
 		int colorUniform = driver->getUniformId("color");
 		driver->setUniform(colorUniform, CColor(1.f,1.f,1.f,0.2f));
 		driver->drawIndexBuffer(4, mIndices, IVideoDriver::eTriStrip);
 		// Draw data channels
 		for(unsigned i = 0; i < mChannels.size(); ++i)
 		{
-			driver->setRealAttribBuffer(IVideoDriver::eVertex, 3, mChannels[i]->data());
+			driver->setRealAttribBuffer(IVideoDriver::eVertex, 100, 3, mChannels[i]->data());
 			driver->setUniform(colorUniform, CColor::RED);
 			driver->drawIndexBuffer(100, mChannels[i]->indices(), IVideoDriver::eLineStrip);
 		}

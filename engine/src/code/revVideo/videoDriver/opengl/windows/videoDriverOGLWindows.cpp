@@ -33,6 +33,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoDriverOGLWindows::endFrame()
 	{
+		IVideoDriverOpenGL::endFrame();
 		SwapBuffers(g_hDC);
 	}
 	

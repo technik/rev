@@ -593,5 +593,8 @@
     <ClCompile Include="..\..\code\revVideo\material\basic\scriptedMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\renderer\renderer3d.cpp">
+      <Filter>revVideo\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
