@@ -17,6 +17,7 @@
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
+#include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revGame/scene/mesh/meshGenerator.h>
 #include <revGame/scene/object/staticObject.h>
@@ -36,7 +37,7 @@ unsigned char heightmap[nWall][nCol];
 terrainGenerator::terrainGenerator()
 {
 	// Register resources
-	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.8f,0.8f,0.2f)), "block");
+	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
 	genHeightmap();
@@ -45,7 +46,8 @@ terrainGenerator::terrainGenerator()
 	{
 		for(int j=0; j<nCol; ++j)
 		{
-			for(int k = 0; k<heightmap[i][j]; ++k)
+			int height = heightmap[i][j];
+			for(int k = 0; k<height; ++k)
 			{
 				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
 			}
