@@ -16,7 +16,6 @@
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
-#include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revGame/scene/mesh/meshGenerator.h>
@@ -26,22 +25,30 @@ using namespace rev;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::video;
-CStaticObject * cubos[10000];
-float heightmap[10000];
+const int nWall = 65;
+const int nCol = 65;
+const int colHeight = 64;
+const int smooth = 5;
+CStaticObject * cubos[nWall][nCol][colHeight];
+unsigned char heightmap[nWall][nCol];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
 {
 	// Register resources
-	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
+	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.8f,0.8f,0.2f)), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
 	genHeightmap();
-	for(int i=0; i<100; ++i)
+
+	for(int i=0; i<nWall; ++i)
 	{
-		for(int j=0; j<100; ++j)
+		for(int j=0; j<nCol; ++j)
 		{
-			cubos[i+100*j] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,heightmap[i+100*j]));
+			for(int k = 0; k<heightmap[i][j]; ++k)
+			{
+				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
+			}
 		}
 		
 	}
@@ -52,9 +59,9 @@ terrainGenerator::terrainGenerator()
 //-------------------------------------------------------------------------------------------------------------------
 void terrainGenerator::updateCamera(float _time)
 {
-	TReal fwdStep = 3.f * _time;
-	TReal upStep = 1.f * _time;
-	TReal sideStep = 3.f * _time;
+	TReal fwdStep = 15.f * _time;
+	TReal upStep = 9.f * _time;
+	TReal sideStep = 15.f * _time;
 	TReal turnStep = 1.f * _time;
 	SKeyboardInput * keyboard = SKeyboardInput::get();
 	CNode * camNode = camera3d()->node();
@@ -86,13 +93,41 @@ terrainGenerator::~terrainGenerator()
 
 void terrainGenerator::genHeightmap()
 {
-	for(int i=0; i<100; ++i)
+	srand(54);
+	for(int i=0; i<nWall; ++i)
 	{
-		for(int j=0; j<100; ++j)
+		for(int j=0; j<nCol; ++j)
 		{
-			heightmap[i+100*j] = (i*i-j*j+j)/500.0f;
+			heightmap[i][j] = rand() % colHeight;
 		}
-		
+	}
+	for(int i=smooth; i<nWall-smooth; ++i)
+	{
+		for(int j=smooth; j<nCol-smooth; ++j)
+		{
+			unsigned int summatory = 0;
+			for(int n = -smooth; n<=smooth;++n)
+			{
+				for(int m = -smooth;m<=smooth;++m)
+				{
+					summatory += heightmap[i+n][j+m];
+				}
+			}
+			heightmap[i][j] = unsigned char(summatory / ((2*smooth+1)*(2*smooth+1)));
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void terrainGenerator::growSquare(int xMin, int xMax, int yMin, int yMax, unsigned char growth)
+{
+	for(int i = xMin; i < xMax; ++i)
+	{
+		for(int j = yMin; j < yMax; ++j)
+		{
+			heightmap[i][j] += growth;
+		}
 	}
 }
 
