@@ -42,12 +42,13 @@ terrainGenerator::terrainGenerator()
 
 	genHeightmap();
 
-	for(int i=0; i<nWall; ++i)
+	for(int i=smooth; i<nWall-smooth; ++i)
 	{
-		for(int j=0; j<nCol; ++j)
+		for(int j=smooth; j<nCol-smooth; ++j)
 		{
 			int height = heightmap[i][j];
-			for(int k = 0; k<height; ++k)
+			int minHeight = height - colHeight / (2*smooth+1);
+			for(int k = minHeight; k<height; ++k)
 			{
 				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
 			}
