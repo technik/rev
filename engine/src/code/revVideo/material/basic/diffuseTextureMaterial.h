@@ -16,21 +16,11 @@ namespace rev { namespace video
 	class CTexture;
 	class CPxlShader;
 
-	class CDiffuseTextureMaterial;
-
-	class CDiffuseTextureMaterialInstance : public CMaterialInstance
-	{
-	public:
-		CDiffuseTextureMaterialInstance( CDiffuseTextureMaterial * material );
-		void setEnvironment() const;
-	};
-
 	class CDiffuseTextureMaterial : public IMaterial
 	{
 	public:
 		CDiffuseTextureMaterial(const char * _textureName);
 		~CDiffuseTextureMaterial();
-		CMaterialInstance * getInstance() { return new CDiffuseTextureMaterialInstance(this); }
 	private:
 		void setEnvironment() const;
 

@@ -34,6 +34,7 @@ namespace rev { namespace video
 	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model, CMaterialInstance * _material)
 		:mModel(_model)
 	{
+		IRenderableInstance::setRenderable(mModel);
 		setMaterialInstance(_material);
 	}
 

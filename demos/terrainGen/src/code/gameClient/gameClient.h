@@ -7,11 +7,13 @@
 #ifndef _TERRAINGEN_GAMECLIENT_GAMECLIENT_H_
 #define _TERRAINGEN_GAMECLIENT_GAMECLIENT_H_
 
+#include <revCore/math/vector.h>
 #include <revGame/gameClient/gameClient.h>
 
 // Forward declarations
 namespace rev
 {
+	class CNode;
 	namespace video { class CPerspectiveCamera; }
 }	// namespace rev
 
@@ -27,6 +29,9 @@ public:
 	bool	update(); // Here goes the code for the main loop of the game.
 	// Returns false to exit the game.
 	// Returns true otherways.
+
+	void		initPools();
+	rev::CNode*	createCube(const rev::CVec3& _pos);
 
 	void updateCamera(float _time);
 

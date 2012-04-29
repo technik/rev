@@ -17,17 +17,6 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CDiffuseTextureMaterialInstance::CDiffuseTextureMaterialInstance( CDiffuseTextureMaterial * material )
-			: CMaterialInstance(material)
-	{
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CDiffuseTextureMaterialInstance::setEnvironment() const
-	{
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	CDiffuseTextureMaterial::CDiffuseTextureMaterial(const char * _textureName)
 	{
 		mShader = CPxlShader::manager()->get("perPixelDiffuse.pxl");

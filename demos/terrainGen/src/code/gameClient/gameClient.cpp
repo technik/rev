@@ -13,6 +13,7 @@
 #include <revCore/resourceManager/passiveResourceManager.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/perspectiveCamera.h>
+#include <revVideo/scene/model/staticModelInstance.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
@@ -30,15 +31,26 @@ const int nWall = 65;
 const int nCol = 65;
 const int colHeight = 64;
 const int smooth = 5;
-CStaticObject * cubos[nWall][nCol][colHeight];
+const int maxCubes = (nWall-2*smooth) * (nCol-2*smooth) * colHeight / (2*smooth+1);
+// Pools and caches
+IMaterial * grassMaterial;
+CStaticModel * cubeModel;
+CNode * nodeBuffer;
+CStaticModelInstance * modelBuffer;
+CMaterialInstance * materialBuffer;
+unsigned poolIdx = 0;
+// Pointers
+CNode * cubos[nWall][nCol][colHeight];
 unsigned char heightmap[nWall][nCol];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
 {
 	// Register resources
-	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
-	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
+	grassMaterial = new CDiffuseTextureMaterial("grass.png");
+	cubeModel =  CMeshGenerator::box(CVec3(1.f, 1.f, 1.f));
+	// Pre-allocate memory
+	initPools();
 
 	genHeightmap();
 
@@ -50,13 +62,34 @@ terrainGenerator::terrainGenerator()
 			int minHeight = height - colHeight / (2*smooth+1);
 			for(int k = minHeight; k<height; ++k)
 			{
-				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
+				cubos[i][j][k] = createCube( CVec3(i*1.0f,j*1.0f,1.0f*k) );
 			}
 		}
 		
 	}
 
 	
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void terrainGenerator::initPools()
+{
+	nodeBuffer = reinterpret_cast<CNode*>(new char[maxCubes*sizeof(CNode)]);
+	modelBuffer = reinterpret_cast<CStaticModelInstance*>(new char[maxCubes*sizeof(CStaticModelInstance)]);
+	materialBuffer = reinterpret_cast<CMaterialInstance*>(new char[maxCubes*sizeof(CMaterialInstance)]);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+CNode* terrainGenerator::createCube(const CVec3& _pos)
+{
+	CNode * node = new(&nodeBuffer[poolIdx])CNode();
+	node->setPos(_pos);
+	CMaterialInstance * materialInst = new(&materialBuffer[poolIdx]) CMaterialInstance(grassMaterial);
+	CStaticModelInstance * modelInst = new(&modelBuffer[poolIdx]) CStaticModelInstance(cubeModel, materialInst);
+	node->addComponent(modelInst);
+	++poolIdx;
+	revAssert(poolIdx < maxCubes);
+	return node;
 }
 
 //-------------------------------------------------------------------------------------------------------------------
