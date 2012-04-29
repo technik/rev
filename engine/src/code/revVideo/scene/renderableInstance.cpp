@@ -7,15 +7,30 @@
 
 #include "renderableInstance.h"
 
-#include "revCore/node/node.h"
-#include "revVideo/camera/camera.h"
-#include "revVideo/material/material.h"
-#include "revVideo/renderer/renderer3d.h"
-#include "revVideo/video.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revCore/codeTools/profiler/profiler.h>
+#include <revCore/node/node.h>
+#include <revVideo/camera/camera.h>
+#include <revVideo/material/material.h>
+#include <revVideo/renderer/renderer3d.h>
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {
+	//------------------------------------------------------------------------------------------------------------------
+	IRenderableInstance::IRenderableInstance(IRenderable * _renderable, CMaterialInstance * _material)
+		:mMaterialInstance(_material)
+		,mRenderable(_renderable)
+	{
+		//codeTools::CProfileFunction profiler("IRenderableInstance constructor");
+		//codeTools::SProfiler::get()->addEventStart("IRenderableInstance-addRenderable");
+		CVideoScene::defaultScene()->addRenderable(this);
+		//codeTools::SProfiler::get()->addEventFinish();
+		//codeTools::SProfiler::get()->addEventStart("IRenderableInstance-defaultScene");
+		mScene = CVideoScene::defaultScene();
+		//codeTools::SProfiler::get()->addEventFinish();
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void IRenderableInstance::setEnvironment() const
 	{

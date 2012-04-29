@@ -8,9 +8,7 @@
 #ifndef _REV_REVVIDEO_SCENE_VIDEOSCENE_H_
 #define _REV_REVVIDEO_SCENE_VIDEOSCENE_H_
 
-#include "rtl/poolset.h"
-
-using rtl::poolset;
+#include <vector.h>
 
 namespace rev { namespace video
 {
@@ -20,11 +18,12 @@ namespace rev { namespace video
 	class CVideoScene
 	{
 	public:
-		typedef poolset<IRenderableInstance*>	TRenderableContainer;
+		typedef rtl::vector<IRenderableInstance*>	TRenderableContainer;
 	public:
 		// -- Default scene
 		static CVideoScene* defaultScene();
 		// --  renderables
+		void reserve			(unsigned _nRenderables);
 		void addRenderable		(IRenderableInstance * _renderable);
 		void removeRenderable	(IRenderableInstance * _renderable);
 

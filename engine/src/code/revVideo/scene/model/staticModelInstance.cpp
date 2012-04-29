@@ -8,15 +8,16 @@
 #include "staticModelInstance.h"
 #include "staticModel.h"
 
-#include "revCore/node/node.h"
-#include "revCore/resourceManager/passiveResourceManager.h"
-#include "revCore/resourceManager/resourceManager.h"
-#include "revVideo/camera/camera.h"
-#include "revVideo/material/material.h"
-#include "revVideo/material/materialInstance.h"
-#include "revVideo/scene/renderableInstance.h"
-#include "revVideo/video.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revCore/codeTools/profiler/profiler.h>
+#include <revCore/node/node.h>
+#include <revCore/resourceManager/passiveResourceManager.h>
+#include <revCore/resourceManager/resourceManager.h>
+#include <revVideo/camera/camera.h>
+#include <revVideo/material/material.h>
+#include <revVideo/material/materialInstance.h>
+#include <revVideo/scene/renderableInstance.h>
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {
@@ -34,8 +35,13 @@ namespace rev { namespace video
 	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model, CMaterialInstance * _material)
 		:mModel(_model)
 	{
+		//codeTools::CProfileFunction profiler("CStaticModelInstance constructor");
+		//codeTools::SProfiler::get()->addEventStart("CStaticModelInstance-setRenderable");
 		IRenderableInstance::setRenderable(mModel);
+		//codeTools::SProfiler::get()->addEventFinish();
+		//codeTools::SProfiler::get()->addEventStart("CStaticModelInstance-setMaterialInstance");
 		setMaterialInstance(_material);
+		//codeTools::SProfiler::get()->addEventFinish();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

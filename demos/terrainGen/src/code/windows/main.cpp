@@ -21,6 +21,8 @@ int main (int _argc, const char **_argv)
 	{
 		exitGame = !client->update();
 	}
+
+	delete client;
 	
 #ifdef REV_PROFILER
 	system("PAUSE");

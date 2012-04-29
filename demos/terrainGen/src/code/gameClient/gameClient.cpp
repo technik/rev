@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include "gameClient.h"
+#include <revCore/codeTools/profiler/profiler.h>
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
 #include <revCore/time/time.h>
@@ -14,6 +15,7 @@
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/perspectiveCamera.h>
 #include <revVideo/scene/model/staticModelInstance.h>
+#include <revVideo/scene/videoScene.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
@@ -24,13 +26,14 @@
 #include <revGame/scene/object/staticObject.h>
 
 using namespace rev;
+using namespace rev::codeTools;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::video;
-const int nWall = 65;
-const int nCol = 65;
+const int nWall = 129;
+const int nCol = 129;
 const int colHeight = 64;
-const int smooth = 5;
+const int smooth = 9;
 const int maxCubes = (nWall-2*smooth) * (nCol-2*smooth) * colHeight / (2*smooth+1);
 // Pools and caches
 IMaterial * grassMaterial;
@@ -53,27 +56,14 @@ terrainGenerator::terrainGenerator()
 	initPools();
 
 	genHeightmap();
-
-	for(int i=smooth; i<nWall-smooth; ++i)
-	{
-		for(int j=smooth; j<nCol-smooth; ++j)
-		{
-			int height = heightmap[i][j];
-			int minHeight = height - colHeight / (2*smooth+1);
-			for(int k = minHeight; k<height; ++k)
-			{
-				cubos[i][j][k] = createCube( CVec3(i*1.0f,j*1.0f,1.0f*k) );
-			}
-		}
-		
-	}
-
-	
+	createCubes();	
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void terrainGenerator::initPools()
 {
+	//CVideoScene::defaultScene()->reserve(maxCubes);
+	//CProfileFunction profiler("initPools()");
 	nodeBuffer = reinterpret_cast<CNode*>(new char[maxCubes*sizeof(CNode)]);
 	modelBuffer = reinterpret_cast<CStaticModelInstance*>(new char[maxCubes*sizeof(CStaticModelInstance)]);
 	materialBuffer = reinterpret_cast<CMaterialInstance*>(new char[maxCubes*sizeof(CMaterialInstance)]);
@@ -82,11 +72,22 @@ void terrainGenerator::initPools()
 //----------------------------------------------------------------------------------------------------------------------
 CNode* terrainGenerator::createCube(const CVec3& _pos)
 {
+	//CProfileFunction profiler("createCube()");
+	//SProfiler::get()->addEventStart("new node");
 	CNode * node = new(&nodeBuffer[poolIdx])CNode();
+	//SProfiler::get()->addEventFinish();
+	//SProfiler::get()->addEventStart("node->setPos");
 	node->setPos(_pos);
+	//SProfiler::get()->addEventFinish();
+	//SProfiler::get()->addEventStart("new material instance");
 	CMaterialInstance * materialInst = new(&materialBuffer[poolIdx]) CMaterialInstance(grassMaterial);
+	//SProfiler::get()->addEventFinish();
+	//SProfiler::get()->addEventStart("new model instance");
 	CStaticModelInstance * modelInst = new(&modelBuffer[poolIdx]) CStaticModelInstance(cubeModel, materialInst);
+	//SProfiler::get()->addEventFinish();
+	//SProfiler::get()->addEventStart("add component");
 	node->addComponent(modelInst);
+	//SProfiler::get()->addEventFinish();
 	++poolIdx;
 	revAssert(poolIdx < maxCubes);
 	return node;
@@ -129,6 +130,7 @@ terrainGenerator::~terrainGenerator()
 
 void terrainGenerator::genHeightmap()
 {
+	CProfileFunction profiler("genHeightmap()");
 	srand(54);
 	for(int i=0; i<nWall; ++i)
 	{
@@ -151,6 +153,25 @@ void terrainGenerator::genHeightmap()
 			}
 			heightmap[i][j] = unsigned char(summatory / ((2*smooth+1)*(2*smooth+1)));
 		}
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void terrainGenerator::createCubes()
+{
+	CProfileFunction profiler("createCubes()");
+	for(int i=smooth; i<nWall-smooth; ++i)
+	{
+		for(int j=smooth; j<nCol-smooth; ++j)
+		{
+			int height = heightmap[i][j];
+			int minHeight = height - colHeight / (2*smooth+1);
+			for(int k = minHeight; k<height; ++k)
+			{
+				cubos[i][j][k] = createCube( CVec3(i*1.0f,j*1.0f,1.0f*k) );
+			}
+		}
+		
 	}
 }
 

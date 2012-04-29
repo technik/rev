@@ -36,6 +36,7 @@ public:
 	void updateCamera(float _time);
 
 	void genHeightmap();
+	void createCubes();
 
 	void growSquare(int xMin, int xMax, int yMin, int yMax, unsigned char growth);
 

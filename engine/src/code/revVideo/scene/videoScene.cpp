@@ -7,6 +7,8 @@
 
 #include "videoScene.h"
 
+#include <revCore/codeTools/profiler/profiler.h>
+
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -22,15 +24,29 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void CVideoScene::reserve(unsigned _nRenderables)
+	{
+		mRenderables.reserve(_nRenderables);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CVideoScene::addRenderable(IRenderableInstance * _renderable)
 	{
-		mRenderables.insert(_renderable);
+		//codeTools::CProfileFunction("CVideoScene::addRenderable");
+		mRenderables.push_back(_renderable);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoScene::removeRenderable(IRenderableInstance * _renderable)
 	{
-		mRenderables.erase(_renderable);
+		for(TRenderableContainer::iterator i = mRenderables.begin(); i != mRenderables.end(); ++i)
+		{
+			if(*i == _renderable)
+			{
+				mRenderables.erase(i);
+				return;
+			}
+		}
 	}
 }	// namespace video
 }	// namespace rev
