@@ -25,25 +25,11 @@ namespace rev { namespace video
 		// Per frame tasks
 		void	endFrame	();
 
-		//--------------------------------------------------------------------------------------------------------------
-		// Accessor methods
-		void	setScreenSize		(const unsigned int _width, const unsigned int _height);
-		const CVec2& screenSize		() const;
-
 	private:
 		//--------------------------------------------------------------------------------------------------------------
 		// For internal use
 		void	createOpenGLWindow(const unsigned int _width, const unsigned int _height);
-		CVec2	mScreenSize;
 	};
-
-	//------------------------------------------------------------------------------------------------------------------
-	// Inline implementations
-	//------------------------------------------------------------------------------------------------------------------
-	inline const CVec2& CVideoDriverOGLWindows::screenSize() const
-	{
-		return mScreenSize;
-	}
 
 }	// namespace video
 }	// namespace rev

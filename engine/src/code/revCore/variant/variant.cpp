@@ -191,7 +191,7 @@ namespace rev
 		switch(mType)
 		{
 		case eInteger:
-			return int(mData.d);
+			return double(mData.i);
 		case eBool:
 			return mData.b? 1.0 : 0.0;
 		case eString:
@@ -237,6 +237,13 @@ namespace rev
 	{
 		revAssert((mType == eList) && (mList.size() == 3), "Error, this variant isn't a Vec3");
 		return CVec3(float(mList[0].asDouble()),float(mList[1].asDouble()),float(mList[2].asDouble()));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVec2 CVariant::asVec2() const
+	{
+		revAssert((mType == eList) && (mList.size() == 2), "Error, this variant isn't a Vec2");
+		return CVec2(float(mList[0].asDouble()),float(mList[1].asDouble()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

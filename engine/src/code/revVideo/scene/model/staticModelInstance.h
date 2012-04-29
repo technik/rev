@@ -18,6 +18,7 @@ namespace rev { namespace video
 	{
 	public:
 		CStaticModelInstance(const char * _modelName, const char * _material);
+		CStaticModelInstance(CStaticModel * _model, CMaterialInstance * materialInstance);
 		~CStaticModelInstance();
 
 	private:

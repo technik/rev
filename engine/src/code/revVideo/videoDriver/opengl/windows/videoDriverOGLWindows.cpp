@@ -22,7 +22,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CVideoDriverOGLWindows::CVideoDriverOGLWindows()
 	{
-		createOpenGLWindow(800, 480);
+		createOpenGLWindow(int(screenSize().x), int(screenSize().y));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -35,12 +35,6 @@ namespace rev { namespace video
 	{
 		IVideoDriverOpenGL::endFrame();
 		SwapBuffers(g_hDC);
-	}
-	
-	//------------------------------------------------------------------------------------------------------------------
-	void CVideoDriverOGLWindows::setScreenSize(const unsigned int _width, const unsigned int _height)
-	{
-		mScreenSize = CVec2(TReal(_width), TReal(_height));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -31,6 +31,13 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model, CMaterialInstance * _material)
+		:mModel(_model)
+	{
+		setMaterialInstance(_material);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CStaticModelInstance::~CStaticModelInstance()
 	{
 		CStaticModel::manager()->release(mModel);

@@ -35,7 +35,6 @@ public:
 	void growSquare(int xMin, int xMax, int yMin, int yMax, unsigned char growth);
 
 private:
-	rev::video::CPerspectiveCamera * mCamera;
 };
 
 #endif // _TERRAINGEN_GAMECLIENT_GAMECLIENT_H_

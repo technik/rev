@@ -63,6 +63,7 @@ namespace rev
 		void*			asPointer	() const;
 		const char*		asString	() const;
 		CVec3			asVec3		() const;
+		CVec2			asVec2		() const;
 		CVariant&		operator[]	(unsigned _idx);
 		const CVariant&	operator[]	(unsigned _idx) const;
 

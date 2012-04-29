@@ -13,6 +13,8 @@
 #include <revCore/file/file.h>
 #include <revCore/math/matrix.h>
 #include <revCore/string.h>
+#include <revCore/variant/variant.h>
+#include <revScript/script.h>
 #include <revVideo/color/color.h>
 #include <revVideo/texture/texture.h>
 #include <revVideo/videoDriver/shader/pxlShader.h>
@@ -26,6 +28,7 @@
 #endif // WIN32
 
 using namespace rev::codeTools;
+using namespace rev::script;
 
 namespace rev { namespace video
 {
@@ -34,10 +37,18 @@ namespace rev { namespace video
 		// Internal state and caches
 		:mCurShader(-1)
 		,mMVPUniformId(-1)
-		,mScreenWidth(800)
-		,mScreenHeight(480)
+		,mScreenSize(CVec2(800.f, 640.f))
 		,m0Idx(0)
 	{
+		// Load configuration script
+		CFile	configFile("video.rsc");
+		CScript config(configFile.textBuffer());
+		CVariant configVar;
+		config.run(configVar);
+		if(configVar.type() == CVariant::eList)
+		{
+			mScreenSize = configVar[0].asVec2();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

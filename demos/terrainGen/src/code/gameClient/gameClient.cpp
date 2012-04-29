@@ -6,7 +6,6 @@
 
 #include <cstdlib>
 #include "gameClient.h"
-#include <revCore/codeTools/profiler/profiler.h>
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
 #include <revCore/time/time.h>
@@ -17,65 +16,44 @@
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
-#include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revGame/scene/mesh/meshGenerator.h>
 #include <revGame/scene/object/staticObject.h>
 
 using namespace rev;
-using namespace rev::codeTools;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::video;
-const int nWall = 513;
-const int nCol = 513;
+const int nWall = 65;
+const int nCol = 65;
 const int colHeight = 64;
-const int smooth = 9;
-CStaticObject * buffer;
+const int smooth = 5;
 CStaticObject * cubos[nWall][nCol][colHeight];
 unsigned char heightmap[nWall][nCol];
-unsigned char heightmin[nWall][nCol];
 
 //----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
-	:mCamera(0)
 {
-	CProfileFunction prof("terrainGenerator");
-	// Create the camera
-	mCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
-	CNode * camNode = new CNode();
-	camNode->addComponent(mCamera);
-	camNode->setPos(CVec3(-10.f, -10.f, 32.f));
-	// Create a viewport and attach the camera to it
-	CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
-	view->setCamera(mCamera);
-
-	SVideo::getDriver()->setBackgroundColor(CColor::BLUE);
-
-	// Allocate a buffer for the cubes
-	buffer = reinterpret_cast<CStaticObject*>(new char[colHeight*nCol*nWall*sizeof(CStaticObject)]);
 	// Register resources
-	IMaterial::manager()->registerResource(new CDiffuseTextureMaterial("grass.png"), "block");
+	IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor(0.8f,0.8f,0.2f)), "block");
 	CStaticModel::manager()->registerResource( CMeshGenerator::box(CVec3(1.f, 1.f, 1.f)), "block");
 
 	genHeightmap();
 
-	for(int r=0; r<nWall*nCol; ++r)
+	for(int i=0; i<nWall; ++i)
 	{
-		int i = r%nCol;
-		int j = r/nCol;
-		if(i < smooth || i > nCol-smooth-1 || j < smooth || j > nWall-smooth-1)
-			continue;
-		int height = heightmap[i][j];
-		int minHeight = height - colHeight/15;
-		if(minHeight < 0)
-			minHeight = 0;
-		for(int k = minHeight; k<height; ++k)
+		for(int j=0; j<nCol; ++j)
 		{
-			cubos[i][j][k] = new(&buffer[k+colHeight*j+colHeight*nCol*i]) CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
+			for(int k = 0; k<heightmap[i][j]; ++k)
+			{
+				cubos[i][j][k] = new CStaticObject("block", "block", CVec3(i*1.0f,j*1.0f,1.0f*k));
+			}
 		}
+		
 	}
+
+	
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -86,7 +64,7 @@ void terrainGenerator::updateCamera(float _time)
 	TReal sideStep = 15.f * _time;
 	TReal turnStep = 1.f * _time;
 	SKeyboardInput * keyboard = SKeyboardInput::get();
-	CNode * camNode = mCamera->node();
+	CNode * camNode = camera3d()->node();
 	if(keyboard->held(SKeyboardInput::eKeyLeft))
 		camNode->move(CVec3(-sideStep, 0.f, 0.f));
 	if(keyboard->held(SKeyboardInput::eKeyRight))
