@@ -41,6 +41,7 @@ namespace rev { namespace video
 		const	CVec2& screenSize() const { return mScreenSize; }
 		void	setScreenSize		(const unsigned int _width, const unsigned int _height)
 			{ mScreenSize = CVec2(float(_width),float(_height)); }
+		const CVec2& screenPos	() const { return mScreenPos; }
 
 		// ---- Render tasks ---- //
 		void	setModelMatrix	(const CMat34& _mv);
@@ -111,6 +112,7 @@ namespace rev { namespace video
 		unsigned int	mScreenWidth;
 		unsigned int	mScreenHeight;
 		CVec2			mScreenSize;
+		CVec2			mScreenPos;
 		// Geometry cache
 		int					mMVPUniformId;
 		CMat34				mModel;

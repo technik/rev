@@ -67,7 +67,8 @@ namespace rev
 		CVariant&		operator[]	(unsigned _idx);
 		const CVariant&	operator[]	(unsigned _idx) const;
 
-		EDataType		type		() const	{ return mType;	  }
+		EDataType		type		() const	{ return mType;	}
+		unsigned		size		() const;
 
 		// Log
 		void			log			(unsigned _indent = 0);

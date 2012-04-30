@@ -268,6 +268,21 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	unsigned CVariant::size() const
+	{
+		switch(mType)
+		{
+		case eList:
+			return mList.size();
+		case eString:
+			return mString.size();
+		default:
+			revAssert(false, "Unsupported behavior, this variant is neither a list nor a string");
+			return 0;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CVariant::log(unsigned _indent)
 	{
 		// Indent the log

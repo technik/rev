@@ -56,10 +56,12 @@ namespace rev { namespace video
 		"RevolutionWndClass"};
 	RegisterClassA(&winClass);
 
+	CVec2 screenPosition = screenPos();
 	// -- Actual creation of the window --
 	g_hWnd = CreateWindowA("RevolutionWndClass", "",// Class and name
 		WS_POPUP | WS_VISIBLE,						// Creation options
-		10, 10,									// Position
+		int(screenPosition.x),
+		int(screenPosition.y),						// Position
 		_width, _height,							// Size
 		0, 0, 0, 0);								// Windows specific parameters that we don't need
 

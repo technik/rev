@@ -37,7 +37,8 @@ namespace rev { namespace video
 		// Internal state and caches
 		:mCurShader(-1)
 		,mMVPUniformId(-1)
-		,mScreenSize(CVec2(800.f, 640.f))
+		,mScreenSize(CVec2(800.f, 480.f))
+		,mScreenPos(CVec2(20.f, 20.f))
 		,m0Idx(0)
 	{
 		// Load configuration script
@@ -45,9 +46,17 @@ namespace rev { namespace video
 		CScript config(configFile.textBuffer());
 		CVariant configVar;
 		config.run(configVar);
-		if(configVar.type() == CVariant::eList)
+		if((configVar.type() == CVariant::eList) && (configVar.size() > 0))
 		{
-			mScreenSize = configVar[0].asVec2();
+			if(configVar.size() == 1) // Only screen resolution provided
+			{
+				mScreenSize = configVar[0].asVec2();
+			}
+			else // Standard formatting
+			{
+				mScreenPos = configVar[0].asVec2();
+				mScreenSize = configVar[1].asVec2();
+			}
 		}
 	}
 
