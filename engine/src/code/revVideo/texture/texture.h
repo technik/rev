@@ -18,6 +18,7 @@ namespace rev { namespace video
 	{		
 	public:
 		// Constructor and destructor
+		CTexture(void * buffer, int width, int height);
 		CTexture(const string& _name);
 		~CTexture();
 

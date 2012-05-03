@@ -385,6 +385,25 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	unsigned IVideoDriverOpenGL::registerTexture(void * _buffer, int _width, int _height)
+	{
+		unsigned id;
+		// Get an openGL texture ID for this texture
+		glGenTextures(1, &id);
+		// Load the image to the graphic card
+		glBindTexture(GL_TEXTURE_2D, id);
+		// Basic texture configuration
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//store the texture data for OpenGL use
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height,
+			0, GL_RGBA, GL_UNSIGNED_BYTE, _buffer);
+		return id;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::loadOpenGLExtensions()
 	{
 		m_useProgram = (PFNGLUSEPROGRAMPROC)loadExtension("glUseProgram");

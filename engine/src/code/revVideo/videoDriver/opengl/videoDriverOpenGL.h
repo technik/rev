@@ -76,6 +76,9 @@ namespace rev { namespace video
 		void			releaseShader		(int _id);
 		void			bindAttributes		(int _shader);
 
+		// -- Texture management --
+		unsigned registerTexture	(void * _buffer, int _width, int _height);
+
 		// -- Extensions
 		void			loadOpenGLExtensions	();
 		// ---- OpenGL extension wrappers

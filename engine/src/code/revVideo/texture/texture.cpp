@@ -60,8 +60,10 @@ if(GL_NO_ERROR != errorCode) \
 
 #endif // ANDROID
 
-#include "revCore/codeTools/assert/assert.h"
-#include "revCore/codeTools/log/log.h"
+#include <revCore/codeTools/assert/assert.h>
+#include <revCore/codeTools/log/log.h>
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
@@ -69,6 +71,19 @@ namespace rev {
 	TResource<video::CTexture, string>::managerT * TResource<video::CTexture, string>::sManager = 0;
 namespace video
 {
+	//------------------------------------------------------------------------------------------------------------------
+	CTexture::CTexture(void * _buffer, int _width, int _height)
+		:mBuffer(_buffer)
+		,mWidth(_width)
+		,mHeight(_height)
+	{
+		// Copy data into texture
+		mBuffer = _buffer;
+		mWidth = _width;
+		mHeight = _height;
+
+		mId = SVideo::getDriver()->registerTexture(mBuffer, mWidth, mHeight);
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::CTexture(const string& _name)
@@ -78,38 +93,8 @@ namespace video
 
 		mBuffer = imageFromPngBuffer(fileBuffer, mWidth, mHeight);
 
-		codeTools::revAssert(0 != mBuffer);
-		LOG_ANDROID("Texture %s successfuly loaded into buffer", _name.c_str());
-
 		delete [] fileBuffer;
 
-		LOG_ANDROID("Before glGenTextures");
-		// Get an openGL texture ID for this texture
-		glGenTextures(1, &mId);
-		LOG_ANDROID("After glGenTextures");
-
-		ASSERT_GL("glGenTextures");
-		// Load the image to the graphic card
-		glBindTexture(GL_TEXTURE_2D, mId);
-		LOG_ANDROID("After glBindTexture");
-
-		ASSERT_GL("glBindTexture");
-		// Basic texture configuration
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		LOG_ANDROID("After glTexParameteri");
-
-		ASSERT_GL("glTexParameteri");
-		//store the texture data for OpenGL use
-		LOG_ANDROID("b4 glTexImage2D w=%d, h=%d", mWidth, mHeight);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight,
-			0, GL_RGBA, GL_UNSIGNED_BYTE, mBuffer);
-		LOG_ANDROID("After glTexImage2D");
-
-		ASSERT_GL("glTexImage2D");
-		LOG_ANDROID("Texture successfuly created");
 #endif // ANDROID
 #ifdef _WIN32
 		// ---- try to load the texture from a file ----
@@ -154,20 +139,8 @@ namespace video
 		FreeImage_Unload(pFIBitmap); // Release FreeImage's copy of the data
 		// Construct a texture using the data we just loaded
 		mBuffer = pixels;
-
-		// Get an openGL texture ID for this texture
-		glGenTextures(1, &mId);
-		// Load the image to the graphic card
-		glBindTexture(GL_TEXTURE_2D, mId);
-		// Basic texture configuration
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//store the texture data for OpenGL use
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight,
-			0, GL_RGBA, GL_UNSIGNED_BYTE, mBuffer);
 #endif // _WIN32
+		SVideo::getDriver()->registerTexture(mBuffer, mWidth, mHeight);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
