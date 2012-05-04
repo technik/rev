@@ -29,6 +29,8 @@ namespace rev { namespace game
 		// Accessor methods
 		const CVec2&	size	() const;
 		void			setSize	(const CVec2& _size);
+//		void			setTexture	(const char * _texture);
+//		void			setTexture	(CTexture * texture);
 	private:
 		video::CQuad * mQuad;
 		CVec2 mSize;

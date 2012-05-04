@@ -714,6 +714,9 @@
     <ClInclude Include="..\..\code\revVideo\font\fontDriver.h">
       <Filter>revVideo\font</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\guiText.h">
+      <Filter>revGame\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -964,6 +967,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\font\fontDriver.cpp">
       <Filter>revVideo\font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\guiText.cpp">
+      <Filter>revGame\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

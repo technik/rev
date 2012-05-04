@@ -45,6 +45,11 @@ namespace rev	{	namespace game
 #endif // WIN32
 	};
 
+	//------------------------------------------------------------
+	// Implement this function to create your own game client
+	CGameClient * createGameClient();
+	//------------------------------------------------------------
+
 }	// namespace game
 }	// namespace rev
 
