@@ -10,8 +10,6 @@
 
 #include <revCore/codeTools/profiler/profiler.h>
 #include <revCore/node/node.h>
-#include <revCore/resourceManager/passiveResourceManager.h>
-#include <revCore/resourceManager/resourceManager.h>
 #include <revVideo/camera/camera.h>
 #include <revVideo/material/material.h>
 #include <revVideo/material/materialInstance.h>
@@ -24,30 +22,29 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CStaticModelInstance::CStaticModelInstance(const char * _modelName, const char * _material)
 	{
-		mModel = CStaticModel::manager()->get(string(_modelName));
+		// Model
+		mModel = CStaticModel::get(_modelName);
+		mModel->getOwnership();
+		CStaticModel::release(_modelName);
 		IRenderableInstance::setRenderable(mModel);
-		IMaterial * material = IMaterial::manager()->get(string(_material));
+		// Material
+		IMaterial * material = IMaterial::get(_material);
 		setMaterial(material);
-		IMaterial::manager()->release(material);
+		IMaterial::release(material); // Relinquish materail ownership
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CStaticModelInstance::CStaticModelInstance(CStaticModel * _model, CMaterialInstance * _material)
 		:mModel(_model)
 	{
-		//codeTools::CProfileFunction profiler("CStaticModelInstance constructor");
-		//codeTools::SProfiler::get()->addEventStart("CStaticModelInstance-setRenderable");
 		IRenderableInstance::setRenderable(mModel);
-		//codeTools::SProfiler::get()->addEventFinish();
-		//codeTools::SProfiler::get()->addEventStart("CStaticModelInstance-setMaterialInstance");
 		setMaterialInstance(_material);
-		//codeTools::SProfiler::get()->addEventFinish();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CStaticModelInstance::~CStaticModelInstance()
 	{
-		CStaticModel::manager()->release(mModel);
+		mModel->release();
 	}
 
 }	// namespace video

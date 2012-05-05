@@ -360,12 +360,6 @@
     <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h">
       <Filter>revGame\scene\object</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResourceManager.h">
-      <Filter>revCore\resourceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResource.h">
-      <Filter>revCore\resourceManager</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\stl\iterator.h">
       <Filter>stl</Filter>
     </ClInclude>
@@ -716,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revGame\gui\guiText.h">
       <Filter>revGame\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\resourceManager\managedResource.h">
+      <Filter>revCore\resourceManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,6 @@
 
 namespace rev 
 {
-	TPassiveResource<video::IMaterial>::managerT * TPassiveResource<video::IMaterial>::sManager = 0;
+	IManagedResource<video::IMaterial,const char*,false>::TManager * video::IMaterial::sManager = 0;
 
 }	// namespace rev

@@ -10,7 +10,7 @@
 
 #include "revCore/codeTools/assert/assert.h"
 #include "revCore/string.h"
-#include "revCore/resourceManager/passiveResource.h"
+#include "revCore/resourceManager/managedResource.h"
 #include "revVideo/material/materialInstance.h"
 
 namespace rev { namespace video
@@ -19,7 +19,7 @@ namespace rev { namespace video
 	class CPxlShader;
 
 	// Material base class
-	class IMaterial: public TPassiveResource<IMaterial>
+	class IMaterial: public IManagedResource<IMaterial,const char*,false>
 	{
 	public:
 		IMaterial():mShader(0){}

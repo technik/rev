@@ -9,7 +9,6 @@
 #include "directRenderer.h"
 
 #include "revCore/node/node.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/camera/camera.h"
 #include "revVideo/color/color.h"
 #include "revVideo/material/material.h"
@@ -94,7 +93,7 @@ namespace rev { namespace video
 			invalidateRenderableCache();
 			mCurrentVtxShader = _vtx;
 			mCurrentPxlShader = _pxl;
-			mCurrentShader = CShader::manager()->get(pair<CVtxShader*,CPxlShader*>(_vtx,_pxl));
+			mCurrentShader = CShader::get(pair<CVtxShader*,CPxlShader*>(_vtx,_pxl));
 			mCurrentShader->setEnvironment();
 		}
 	}

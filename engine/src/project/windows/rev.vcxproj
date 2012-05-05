@@ -254,8 +254,7 @@
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
     <ClInclude Include="..\..\code\revCore\node\node.h" />
-    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResource.h" />
-    <ClInclude Include="..\..\code\revCore\resourceManager\passiveResourceManager.h" />
+    <ClInclude Include="..\..\code\revCore\resourceManager\managedResource.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resource.h" />
     <ClInclude Include="..\..\code\revCore\resourceManager\resourceManager.h" />
     <ClInclude Include="..\..\code\revCore\string.h" />

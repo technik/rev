@@ -7,8 +7,6 @@
 
 #include "panel.h"
 
-#include "revCore/resourceManager/passiveResourceManager.h"
-#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/material/basic/plainTextureMaterial.h"
 #include "revVideo/material/material.h"
 #include "revVideo/material/materialInstance.h"
@@ -26,14 +24,14 @@ namespace rev { namespace game
 	CPanel::CPanel(const char * _texture, const CVec3& _pos)
 	{
 		// Create a material using the given texture
-		CTexture * texture = CTexture::manager()->get(_texture);	// Retrieve texture from the manager
-		IMaterial * material = IMaterial::manager()->get(_texture);
+		CTexture * texture = CTexture::get(_texture);	// Retrieve texture from the manager
+		IMaterial * material = IMaterial::get(_texture);
 		if(0 == material)
 		{
 			material = new CPlainTextureMaterial(texture);
-			IMaterial::manager()->registerResource(material, _texture);
+			IMaterial::registerResource(material, _texture);
 		}
-		CTexture::manager()->release(texture); // So we don't have ownership of this texture.
+		CTexture::release(texture); // Relinquish ownership of this texture.
 		setMaterial(material);	// Create a material with this texture
 
 		// Create a quad model with the size of the texture

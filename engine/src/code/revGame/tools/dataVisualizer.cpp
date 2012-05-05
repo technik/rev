@@ -8,7 +8,6 @@
 #include "dataVisualizer.h"
 
 #include <revCore/node/node.h>
-#include <revCore/resourceManager/resourceManager.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/shader/pxlShader.h>
 #include <revVideo/videoDriver/shader/vtxShader.h>
@@ -101,7 +100,7 @@ namespace rev { namespace game
 		:mSize(_size)
 		,mChannels(_channels)
 	{
-		mShader = CVtxShader::manager()->get("dataGraph.vtx");
+		mShader = CVtxShader::get("dataGraph.vtx");
 		mBGVertices = new CVec3[4];
 		mBGVertices[0] = CVec3(0.f,0.f,0.f);
 		mBGVertices[1] = CVec3(0.f,0.f,mSize.y);
@@ -117,7 +116,7 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	CDataVisualizer::CRenderable::~CRenderable()
 	{
-		CVtxShader::manager()->release(mShader);
+		CVtxShader::release(mShader);
 		delete mIndices;
 		delete mBGVertices;
 	}
@@ -154,13 +153,13 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	CDataVisualizer::CMaterial::CMaterial()
 	{
-		mShader = CPxlShader::manager()->get("dataGraph.pxl");
+		mShader = CPxlShader::get("dataGraph.pxl");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CDataVisualizer::CMaterial::~CMaterial()
 	{
-		CPxlShader::manager()->release(mShader);
+		CPxlShader::release(mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

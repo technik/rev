@@ -8,7 +8,7 @@
 #ifndef _REV_REVVIDEO_SHADER_VTXSHADER_H_
 #define _REV_REVVIDEO_SHADER_VTXSHADER_H_
 
-#include "revCore/resourceManager/resource.h"
+#include "revCore/resourceManager/managedResource.h"
 #include "revCore/string.h"
 #include <vector.h>
 
@@ -16,11 +16,11 @@ namespace rev { namespace video
 {
 	class CShader;
 
-	class CVtxShader: public TResource<CVtxShader, string>
+	class CVtxShader: public IManagedResource<CVtxShader, const char*, true>
 	{
 	public:
 		// Constructor and destructor
-		CVtxShader(const string& _name);
+		CVtxShader(const char* _name);
 		~CVtxShader();
 
 		// Other methods

@@ -13,11 +13,11 @@
 
 namespace rev {
 
-class CFile : public TResource<CFile, string>
+class CFile : public IResource
 {
 public:
 	// Constructor and destructor
-	CFile(const string& _name);
+	CFile(const char * _name);
 	~CFile();
 
 	const void *	buffer		() const { return mBuffer;	}

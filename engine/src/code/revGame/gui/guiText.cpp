@@ -7,7 +7,6 @@
 
 #include "guiText.h"
 
-#include <revCore/resourceManager/resourceManager.h>
 #include <revVideo/font/font.h>
 #include <revVideo/material/materialInstance.h>
 #include <revVideo/scene/model/staticModelInstance.h>

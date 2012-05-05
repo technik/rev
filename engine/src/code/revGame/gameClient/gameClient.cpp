@@ -6,7 +6,6 @@
 // basic game client
 #ifdef WIN32
 #include <Windows.h>
-#include <revCore/resourceManager/resourceManager.h>
 #include <revGame/gameClient/windows/windowsHandler.h>
 #include <revVideo/texture/texture.h>
 #include <revVideo/videoDriver/shader/vtxShader.h>
@@ -143,9 +142,9 @@ namespace rev { namespace game
 							break;
 						filename += c;
 					}
-					CTexture::manager()->reload(filename);
-					CVtxShader::manager()->reload(filename);
-					CPxlShader::manager()->reload(filename);
+					// CTexture::manager()->reload(filename);
+					// CVtxShader::manager()->reload(filename);
+					// CPxlShader::manager()->reload(filename);
 				}
 
 				ReadDirectoryChangesW(
