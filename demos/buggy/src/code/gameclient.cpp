@@ -45,7 +45,7 @@ void CBuggyGameClient::init()
 	mBuggy = new buggyDemo::CBuggy();
 	// Create a camera
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
-	SVideo::get()->driver()->setBackgroundColor(CColor::GREEN);
+	SVideo::get()->driver()->setBackgroundColor(CColor(0.2f, 0.62f, 0.88f));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
