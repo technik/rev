@@ -8,13 +8,14 @@
 #ifndef _REV_REVVIDEO_TEXTURE_TEXTURE_H_
 #define _REV_REVVIDEO_TEXTURE_TEXTURE_H_
 
-#include "revCore/math/vector.h"
-#include "revCore/resourceManager/managedResource.h"
-#include "revCore/string.h"
+#include <revCore/file/fileBinding.h>
+#include <revCore/math/vector.h>
+#include <revCore/resourceManager/managedResource.h>
+#include <revCore/string.h>
 
 namespace rev { namespace video
 {
-	class CTexture: public IManagedResource<CTexture, const char*, true>
+	class CTexture: public IManagedResource<CTexture, const char*, true>, private CRecreationFileBinding<CTexture>
 	{		
 	public:
 		// Constructor and destructor
