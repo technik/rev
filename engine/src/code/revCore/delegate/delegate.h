@@ -14,17 +14,26 @@ namespace rev
 {
 	class CVariant;
 
+	template<class _argT>
 	class IDelegate
 	{
 	public:
-		virtual ~IDelegate() {}
-		virtual void invoke	(CVariant& _var) = 0;
+		virtual ~IDelegate() {};
+		virtual void invoke	(_argT& _var) = 0;
 	};
 
-	template<class T>
-	class CObjectDelegate : public IDelegate
+	template<class _argT>
+	class IDelegate<_argT*>
 	{
-		typedef void (T::*MethodT)(CVariant&);
+	public:
+		virtual ~IDelegate() {};
+		virtual void invoke	(_argT* _var) = 0;
+	};
+
+	template<class T, class _argT>
+	class CObjectDelegate : public IDelegate<_argT>
+	{
+		typedef void (T::*MethodT)(_argT&);
 	public:
 		// Constrction
 		CObjectDelegate (T* _callee, MethodT _method)
@@ -32,9 +41,30 @@ namespace rev
 			,mMethod(_method) {}
 
 		// Invoke the delegate
-		void invoke (CVariant& _var)
+		void invoke (_argT& _var)
 		{
-			mObject->*mMethod(_var);
+			(mObject->*mMethod)(_var);
+		}
+
+	private:
+		T*		mObject;
+		MethodT	mMethod;
+	};
+
+	template<class T, class _argT>
+	class CObjectDelegate<T, _argT*> : public IDelegate<_argT*>
+	{
+		typedef void (T::*MethodT)(_argT*);
+	public:
+		// Constrction
+		CObjectDelegate (T* _callee, MethodT _method)
+			:mObject(_callee)
+			,mMethod(_method) {}
+
+		// Invoke the delegate
+		void invoke (_argT* _var)
+		{
+			(mObject->*mMethod)(_var);
 		}
 
 	private:

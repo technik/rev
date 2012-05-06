@@ -17,6 +17,7 @@
 // --- Engine headers -----------
 #include <revCore/codeTools/log/log.h>
 #include <revCore/codeTools/profiler/profiler.h>
+#include <revCore/file/fileWatcher.h>
 #include <revCore/node/node.h>
 #include <revCore/string.h>
 #include <revCore/time/time.h>
@@ -159,6 +160,7 @@ namespace rev { namespace game
 							break;
 						filename += c;
 					}
+					SFileWatcher::get()->notifyFileChanged(filename.c_str());
 					// CTexture::manager()->reload(filename);
 					// CVtxShader::manager()->reload(filename);
 					// CPxlShader::manager()->reload(filename);
@@ -191,6 +193,7 @@ namespace rev { namespace game
 #endif // REV_PROFILER
 #ifdef WIN32
 		mWindowsHandler = new CWindowsHandler();
+		SFileWatcher::init();
 #endif // WIN32
 		// Init time system
 		STime::init();

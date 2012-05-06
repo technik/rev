@@ -23,9 +23,10 @@ namespace rev { namespace video
 	rtl::vector<CShader*> CPxlShader::tempUserStorage;
 
 	//------------------------------------------------------------------------------------------------------------------
-	CPxlShader::CPxlShader(const string& _name)
+	CPxlShader::CPxlShader(const char* _name)
+		:CRecreationFileBinding(_name)
 	{
-		mId = SVideo::get()->driver()->loadPxlShader(_name.c_str());
+		mId = SVideo::get()->driver()->loadPxlShader(_name);
 		if( 0 != tempUserStorage.size())
 		{
 			mUsers = tempUserStorage;

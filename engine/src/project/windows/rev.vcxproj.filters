@@ -699,11 +699,11 @@
     <ClInclude Include="..\..\code\revVideo\font\fontDriver.h">
       <Filter>revVideo\font</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revGame\gui\guiText.h">
-      <Filter>revGame\gui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\revCore\resourceManager\managedResource.h">
       <Filter>revCore\resourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\file\fileBinding.h">
+      <Filter>revCore\file</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -949,6 +949,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\font\fontDriver.cpp">
       <Filter>revVideo\font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\file\fileBinding.cpp">
+      <Filter>revCore\file</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

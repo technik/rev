@@ -29,4 +29,47 @@ namespace rev
 		delete sInstance;
 		sInstance = 0;
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	SFileWatcher* SFileWatcher::get()
+	{
+		return sInstance;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SFileWatcher::addWatcher(const char * _fileName, IDelegate<const char*>* _watcher)
+	{
+		mWatchers[string(_fileName)].push_back(_watcher);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SFileWatcher::removeWatcher(IDelegate<const char*>* _watcher)
+	{
+		for(rtl::map<string,rtl::vector<IDelegate<const char*>*> >::iterator i = mWatchers.begin(); i != mWatchers.end(); ++i)
+		{
+			rtl::vector<IDelegate<const char*>*>& v = i->second;
+			for(rtl::vector<IDelegate<const char*>*>::iterator j = v.begin(); j != v.end(); ++j)
+			{
+				if(*j == _watcher)
+				{
+					v.erase(j);
+					return;
+				}
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SFileWatcher::notifyFileChanged(const char * _fileName)
+	{
+		rtl::map<string,rtl::vector<IDelegate<const char*>*> >::iterator i = mWatchers.begin();
+		if(i != mWatchers.end())
+		{
+			rtl::vector<IDelegate<const char*>*>& v = i->second;
+			for(rtl::vector<IDelegate<const char*>*>::iterator j = v.begin(); j != v.end(); ++j)
+			{
+				(*j)->invoke(_fileName);
+			}
+		}
+	}
 }	// namespace rev

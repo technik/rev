@@ -9,13 +9,13 @@
 #ifndef _REV_CORE_FILE_FILEWATCHER_H_
 #define _REV_CORE_FILE_FILEWATCHER_H_
 
-#include <dictionary.h>
+#include <revCore/delegate/delegate.h>
+#include <revCore/string.h>
+#include <rtl/map.h>
+#include <vector.h>
 
 namespace rev
 {
-	// Forward declaration
-	class IDelegate;
-
 	class SFileWatcher
 	{
 	public:
@@ -26,20 +26,20 @@ namespace rev
 
 		// File watcher interface
 		// Once you're watching a file, the delegate will be invoked everytime the file gets modified.
-		void watchFile(const char * _filename, IDelegate * delegate);
-		void stopWatchingFile(const char * _filename);
+		void addWatcher(const char * _filename, IDelegate<const char*> * _watcher);
+		void removeWatcher(IDelegate<const char*> * _watcher);
 
 		// Call this to notity the watcher that a given file has changed
 		void notifyFileChanged(const char * _filename);
 
 	private:
-		SFileWatcher();
-		~SFileWatcher();
+		SFileWatcher() {}
+		~SFileWatcher(){}
 		static SFileWatcher * sInstance;
 
 	private:
 		// Each watched file has an associated list of delegates to call on modification
-		rtl::dictionary<rtl::vector<IDelegate*>, 64>	mWatchedFiles;
+		rtl::map<string, rtl::vector<IDelegate<const char*>*> >	mWatchers;
 	};
 }	// namespace rev
 

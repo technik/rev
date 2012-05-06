@@ -248,6 +248,7 @@
     <ClInclude Include="..\..\code\revCore\component\component.h" />
     <ClInclude Include="..\..\code\revCore\delegate\delegate.h" />
     <ClInclude Include="..\..\code\revCore\file\file.h" />
+    <ClInclude Include="..\..\code\revCore\file\fileBinding.h" />
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
@@ -348,6 +349,7 @@
     <ClCompile Include="..\..\code\revCore\codeTools\profiler\profiler.cpp" />
     <ClCompile Include="..\..\code\revCore\component\component.cpp" />
     <ClCompile Include="..\..\code\revCore\file\file.cpp" />
+    <ClCompile Include="..\..\code\revCore\file\fileBinding.cpp" />
     <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp" />
     <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />

@@ -8,8 +8,9 @@
 #ifndef _REV_REVVIDEO_SHADER_PXLSHADER_H_
 #define _REV_REVVIDEO_SHADER_PXLSHADER_H_
 
-#include "revCore/resourceManager/managedResource.h"
-#include "revCore/string.h"
+#include <revCore/file/fileBinding.h>
+#include <revCore/resourceManager/managedResource.h>
+#include <revCore/string.h>
 #include <vector.h>
 
 namespace rev { namespace video
@@ -17,10 +18,10 @@ namespace rev { namespace video
 	// Forward declarations
 	class CShader;
 
-	class CPxlShader: public IManagedResource<CPxlShader, const char*, true>
+	class CPxlShader: public IManagedResource<CPxlShader, const char*, true>, private CRecreationFileBinding<CPxlShader>
 	{
 	public:
-		CPxlShader(const string& _name);
+		CPxlShader(const char* _name);
 		~CPxlShader();
 		int		id() const	{	return mId;	}
 		rtl::vector<CShader*>& users () { return mUsers; }
