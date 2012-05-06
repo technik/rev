@@ -7,7 +7,6 @@
 
 #include "raymarchingMaterial.h"
 
-#include "revCore/resourceManager/resourceManager.h"
 #include "revCore/codeTools/log/log.h"
 #include "revCore/time/time.h"
 #include "revVideo/video.h"
@@ -19,13 +18,13 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CRaymarchingMaterial::CRaymarchingMaterial():mTime(0.f)
 	{
-		mShader = CPxlShader::manager()->get("raymarching.pxl");
+		mShader = CPxlShader::get("raymarching.pxl");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CRaymarchingMaterial::~CRaymarchingMaterial()
 	{
-		CPxlShader::manager()->release(mShader);
+		CPxlShader::release(mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

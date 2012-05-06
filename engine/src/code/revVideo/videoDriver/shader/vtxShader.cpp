@@ -14,7 +14,8 @@
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// static data
-	TResource<video::CVtxShader, string>::managerT * TResource<video::CVtxShader, string>::sManager = 0;
+	video::CVtxShader::TManager	* video::CVtxShader::sManager = 0;
+
 }	// namespace rev
 
 namespace rev { namespace video
@@ -23,11 +24,11 @@ namespace rev { namespace video
 	rtl::vector<CShader*> CVtxShader::tempUserStorage;
 
 	//------------------------------------------------------------------------------------------------------------------
-	CVtxShader::CVtxShader(const string& _name)
+	CVtxShader::CVtxShader(const char* _name)
 	{
 		SVideo * videoSystem = SVideo::get();
 		if(videoSystem)
-			mId = videoSystem->driver()->loadVtxShader(_name.c_str());
+			mId = videoSystem->driver()->loadVtxShader(_name);
 		if( 0 != tempUserStorage.size())
 		{
 			mUsers = tempUserStorage;

@@ -8,7 +8,7 @@
 #ifndef _REV_VIDEO_FONT_FONT_H_
 #define _REV_VIDEO_FONT_FONT_H_
 
-#include <revCore/resourceManager/resource.h>
+#include <revCore/resourceManager/managedResource.h>
 #include <revCore/string.h>
 #include <rtl/map.h>
 
@@ -17,10 +17,10 @@ namespace rev { namespace video
 	class CStaticModel;
 	class CTexture;
 
-	class CFont : public TResource<CFont, string>
+	class CFont : public IManagedResource<CFont, const char*, true>
 	{
 	public:
-		CFont(const string& _filename);
+		CFont(const char* _filename);
 		~CFont();
 
 		CStaticModel *	createText(const char * _text, unsigned _size);

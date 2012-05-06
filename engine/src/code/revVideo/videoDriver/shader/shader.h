@@ -8,7 +8,7 @@
 #ifndef _REV_REVVIDEO_VIDEODRIVER_SHADER_SHADER_H_
 #define _REV_REVVIDEO_VIDEODRIVER_SHADER_SHADER_H_
 
-#include "revCore/resourceManager/resource.h"
+#include "revCore/resourceManager/managedResource.h"
 #include <vector.h>
 
 using rtl::pair;
@@ -18,7 +18,7 @@ namespace rev { namespace video
 	class CVtxShader;
 	class CPxlShader;
 
-	class CShader: public TResource<CShader, pair<CVtxShader*,CPxlShader*> >
+	class CShader: public IManagedResource<CShader, pair<CVtxShader*,CPxlShader*>, true>
 	{
 	public:
 		CShader(pair<CVtxShader*,CPxlShader*> _baseShaders);

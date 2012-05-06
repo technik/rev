@@ -393,7 +393,7 @@ namespace rtl
 	typename map<_keyT,_T>::const_iterator map<_keyT,_T>::begin() const
 	{
 		const_iterator iter;
-		iter.mMap = this;
+		iter.mMap = const_cast<map<_keyT,_T>*>(this);
 		iter.mIdx = mLowestIdx;
 		return iter;
 	}
@@ -413,7 +413,7 @@ namespace rtl
 	typename map<_keyT,_T>::const_iterator map<_keyT,_T>::end() const
 	{
 		const_iterator iter;
-		iter.mMap = this;
+		iter.mMap = const_cast<map<_keyT,_T>*>(this);
 		iter.mIdx = 0xffFFffFF;
 		return iter;
 	}
@@ -729,13 +729,13 @@ namespace rtl
 				}else // Equal, we've found what we were looking for
 				{
 					const_iterator iter;
-					iter.mMap = this;
+					iter.mMap = const_cast<map<_keyT,_T>*>(this);
 					iter.mIdx = idx;
-					return pair<const_iterator, bool>(iter, true);
+					return iter;
 				}
 			}
 			// Not found
-			return pair<const_iterator, bool>(end(), false);
+			return end();
 		}
 	}
 
