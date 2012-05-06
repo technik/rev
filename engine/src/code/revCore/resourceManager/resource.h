@@ -56,7 +56,8 @@ namespace rev
 	//----------------------------------------------------------------------------------------------------------------------
 	inline IResource::~IResource()
 	{
-		revAssert(!mReferences, "Internal error: Trying to delete a resource with non-zero references");
+		// One reference deletion is allowed so resources can be created locally.
+		revAssert(mReferences < 2, "Internal error: Trying to delete a resource with multiple references");
 	}
 }	// namespace rev
 /*
