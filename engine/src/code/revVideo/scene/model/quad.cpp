@@ -8,7 +8,6 @@
 #include "quad.h"
 
 #include <revCore/math/vector.h>
-#include <revCore/resourceManager/resourceManager.h>
 #include <revVideo/texture/texture.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/shader/vtxShader.h>
@@ -21,7 +20,7 @@ namespace rev { namespace video
 		:mTexture(_texture)
 	{
 		// Request the shader
-		mShader = CVtxShader::manager()->get("guiPanel.vtx");
+		mShader = CVtxShader::get("guiPanel.vtx");
 		// Allocate space for data
 		mVertices = new float[12]; // 3 components x 4 vertices
 		mUVs = new float[8]; // 2 components x 4 vertices
@@ -63,7 +62,7 @@ namespace rev { namespace video
 		delete mIndices;
 		delete mVertices;
 		delete mUVs;
-		CVtxShader::manager()->release(mShader);
+		CVtxShader::release(mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
