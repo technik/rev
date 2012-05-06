@@ -73,7 +73,8 @@ namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::CTexture(void * _buffer, int _width, int _height)
-		:mBuffer(_buffer)
+		:CRecreationFileBinding(0)
+		,mBuffer(_buffer)
 		,mWidth(_width)
 		,mHeight(_height)
 	{
@@ -87,6 +88,7 @@ namespace video
 
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture::CTexture(const char* _name)
+		:CRecreationFileBinding(_name)
 	{
 #ifdef ANDROID
 		char * fileBuffer = bufferFromFile(_name);

@@ -25,6 +25,7 @@ namespace rev { namespace video
 
 	//------------------------------------------------------------------------------------------------------------------
 	CVtxShader::CVtxShader(const char* _name)
+		:CRecreationFileBinding(_name)
 	{
 		SVideo * videoSystem = SVideo::get();
 		if(videoSystem)
