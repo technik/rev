@@ -9,17 +9,17 @@
 #define _REV_REVVIDEO_TEXTURE_TEXTURE_H_
 
 #include "revCore/math/vector.h"
-#include "revCore/resourceManager/managedResource.h"
+#include "revCore/resourceManager/resource.h"
 #include "revCore/string.h"
 
 namespace rev { namespace video
 {
-	class CTexture: public IManagedResource<CTexture, const char*, true>
+	class CTexture: public TResource<CTexture, string>
 	{		
 	public:
 		// Constructor and destructor
 		CTexture(void * buffer, int width, int height);
-		CTexture(const char * _name);
+		CTexture(const string& _name);
 		~CTexture();
 
 		// Accessors

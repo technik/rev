@@ -8,19 +8,20 @@
 #include "materialInstance.h"
 
 #include "material.h"
+#include <revCore/resourceManager/passiveResourceManager.h>
 
 namespace rev { namespace video
 {
 	//---------------------------------------------------------------------------------------------------------------
 	CMaterialInstance::CMaterialInstance(IMaterial * _material):mMaterial(_material)
 	{
-		mMaterial->getOwnership();
+		mMaterial->get();
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
 	CMaterialInstance::~CMaterialInstance()
 	{
-		mMaterial->release();
+		IMaterial::manager()->release(mMaterial);
 	}
 }	// namespace video
 }	// namespace rev

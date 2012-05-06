@@ -7,6 +7,7 @@
 
 #include "plainTextureMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/texture/texture.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
@@ -18,25 +19,25 @@ namespace rev { namespace video
 	CPlainTextureMaterial::CPlainTextureMaterial(CTexture * _texture)
 		:mTexture(_texture)
 	{
-		mShader = CPxlShader::get("plainTexture.pxl");
+		mShader = CPxlShader::manager()->get("plainTexture.pxl");
 		if(0 != _texture)
-			_texture->getOwnership();
+			_texture->get();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CPlainTextureMaterial::~CPlainTextureMaterial()
 	{
-		CPxlShader::release(mShader);
+		CPxlShader::manager()->release(mShader);
 		if(0 != mTexture)
-			mTexture->release();
+			CTexture::manager()->release(mTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CPlainTextureMaterial::setTexture(CTexture * _texture)
 	{
 		if(0 != mTexture)
-			mTexture->release(mTexture);
-		_texture->getOwnership();
+			CTexture::manager()->release(mTexture);
+		_texture->get();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

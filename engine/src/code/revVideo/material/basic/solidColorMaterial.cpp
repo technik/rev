@@ -7,6 +7,7 @@
 
 #include "solidColorMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/video.h"
 #include "revVideo/videoDriver/videoDriver.h"
 #include "revVideo/videoDriver/shader/pxlShader.h"
@@ -17,15 +18,15 @@ namespace rev { namespace video
 	CSolidColorMaterial::CSolidColorMaterial(const CColor& _color): mColor(_color)
 	{
 		if(0 == mShader)
-			mShader = CPxlShader::get("solidColor.pxl");
+			mShader = CPxlShader::manager()->get("solidColor.pxl");
 		else
-			mShader->getOwnership();
+			mShader->get();
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
 	CSolidColorMaterial::~CSolidColorMaterial()
 	{
-		CPxlShader::release(mShader);
+		CPxlShader::manager()->release(mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

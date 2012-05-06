@@ -8,7 +8,7 @@
 #ifndef _REV_REVVIDEO_SCENE_MODEL_STATICMODEL_H_
 #define _REV_REVVIDEO_SCENE_MODEL_STATICMODEL_H_
 
-#include "revCore/resourceManager/managedResource.h"
+#include "revCore/resourceManager/resource.h"
 #include "revCore/string.h"
 #include "revVideo/scene/renderable.h"
 
@@ -17,12 +17,12 @@ namespace rev { namespace video {
 	// Forward declaration
 	class CVtxShader;
 	
-	class CStaticModel: public IRenderable, public IManagedResource<CStaticModel, const char*, true>
+	class CStaticModel: public IRenderable, public TResource<CStaticModel, string>
 	{
 	public:
 		// -- Constructors & virtual destructor ------------------------------------------------------------------------
 		CStaticModel ();						///< Empty constructor.
-		CStaticModel (const char* fileName);	///< Create model from filename.
+		CStaticModel (const string& fileName);	///< Create model from filename.
 		~CStaticModel();						///< Destructor
 
 		// -- Rendering ------------------------------------------------------------------------------------------------

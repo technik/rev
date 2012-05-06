@@ -71,12 +71,12 @@ namespace rev
 {
 
 //----------------------------------------------------------------------------------------------------------------------
-CFile::CFile(const char* _filename)
+CFile::CFile(const string& _filename)
 	:mFileName(_filename)
 {
 	fstream file;
 	// Open the file
-	file.open(_filename, ios_base::binary|ios_base::in);
+	file.open(_filename.c_str(), ios_base::binary|ios_base::in);
 	revAssert(file.is_open(), "Can not open file");
 	// Meassure it's size
 	file.seekg(0, ios::end);
