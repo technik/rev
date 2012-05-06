@@ -7,6 +7,7 @@
 
 #include "diffuseTextureMaterial.h"
 
+#include "revCore/resourceManager/resourceManager.h"
 #include "revVideo/renderer/renderer3d.h"
 #include "revVideo/texture/texture.h"
 #include "revVideo/video.h"
@@ -18,15 +19,15 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CDiffuseTextureMaterial::CDiffuseTextureMaterial(const char * _textureName)
 	{
-		mShader = CPxlShader::get("perPixelDiffuse.pxl");
-		mTexture = CTexture::get(_textureName);
+		mShader = CPxlShader::manager()->get("perPixelDiffuse.pxl");
+		mTexture = CTexture::manager()->get(_textureName);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CDiffuseTextureMaterial::~CDiffuseTextureMaterial()
 	{
-		CPxlShader::release(mShader);
-		CTexture::release(mTexture);
+		CPxlShader::manager()->release(mShader);
+		CTexture::manager()->release(mTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

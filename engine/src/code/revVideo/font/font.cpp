@@ -13,7 +13,7 @@
 
 namespace rev {
 	// Static data
-	video::CFont::TManager * video::CFont::sManager = 0;
+	video::CFont::managerT * video::CFont::sManager = 0;
 
 	namespace video
 {

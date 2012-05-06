@@ -699,6 +699,9 @@
     <ClInclude Include="..\..\code\revVideo\font\fontDriver.h">
       <Filter>revVideo\font</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\guiText.h">
+      <Filter>revGame\gui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\code\revCore\resourceManager\managedResource.h">
       <Filter>revCore\resourceManager</Filter>
     </ClInclude>

@@ -1,6 +1,8 @@
 #include "buggy.h"
 
 #include <revGame/scene/object/staticObject.h>
+#include <revCore/resourceManager/passiveResourceManager.h>
+#include <revCore/resourceManager/resourceManager.h>
 #include <revGame/scene/mesh/meshGenerator.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
@@ -14,16 +16,15 @@ namespace buggyDemo
 	CBuggy::CBuggy()
 	{
 		// Register mesh
-		CStaticModel::registerResource(CMeshGenerator::box(CVec3(1.0)), "buggy.rmd");
+		CStaticModel::manager()->registerResource(CMeshGenerator::box(CVec3(1.0)), "buggy.rmd");
 		// Register material
-		IMaterial::registerResource(new CSolidColorMaterial(CColor::RED), "buggyMaterial");
+		IMaterial::manager()->registerResource(new CSolidColorMaterial(CColor::RED), "buggyMaterial");
 		// Create the object
 		mObject = new CStaticObject("buggy.rmd", "buggyMaterial");
 	}
 	
 	CBuggy::~CBuggy()
 	{
-		
 		// delete mObject;
 	}
 

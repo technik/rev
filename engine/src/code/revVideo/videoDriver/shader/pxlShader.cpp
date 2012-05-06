@@ -14,7 +14,7 @@
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// static data
-	video::CPxlShader::TManager * video::CPxlShader::sManager = 0;
+	TResource<video::CPxlShader, string>::managerT * TResource<video::CPxlShader, string>::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

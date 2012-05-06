@@ -12,12 +12,11 @@
 #include "revVideo/videoDriver/shader/vtxShader.h"
 #include "revVideo/videoDriver/videoDriver.h"
 
-namespace rev
-{
-	//------------------------------------------------------------------------------------------------------------------
-	// Static data definitions
-	video::CShader::TManager * video::CShader::sManager = 0;
-
+namespace rev {
+//------------------------------------------------------------------------------------------------------------------
+// Static data definitions
+TResource<video::CShader, pair<video::CVtxShader*,video::CPxlShader*> >::managerT*
+	TResource<video::CShader, pair<video::CVtxShader*,video::CPxlShader*> >::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

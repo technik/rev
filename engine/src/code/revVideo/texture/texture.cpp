@@ -68,7 +68,7 @@ if(GL_NO_ERROR != errorCode) \
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	// Static data definition
-	video::CTexture::TManager * video::CTexture::sManager = 0;
+	TResource<video::CTexture, string>::managerT * TResource<video::CTexture, string>::sManager = 0;
 namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -86,10 +86,10 @@ namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CTexture::CTexture(const char* _name)
+	CTexture::CTexture(const string& _name)
 	{
 #ifdef ANDROID
-		char * fileBuffer = bufferFromFile(_name);
+		char * fileBuffer = bufferFromFile(_name.c_str());
 
 		mBuffer = imageFromPngBuffer(fileBuffer, mWidth, mHeight);
 
@@ -100,15 +100,15 @@ namespace video
 		// ---- try to load the texture from a file ----
 		// -- Check file extension --
 		// Try to read the image format from the image's signature
-		FREE_IMAGE_FORMAT fIFormat = FreeImage_GetFileType(_name, 0);
+		FREE_IMAGE_FORMAT fIFormat = FreeImage_GetFileType(_name.c_str(), 0);
 		if(fIFormat == FIF_UNKNOWN) // If failed, try to read it fro the file extension
-			fIFormat = FreeImage_GetFIFFromFilename(_name);
+			fIFormat = FreeImage_GetFIFFromFilename(_name.c_str());
 		// If we still don't have a valid extension
 		if(fIFormat == FIF_UNKNOWN)
 			revAssert(0); // Couldn't get a valid file extension
 
 		// -- Actual loading --
-		FIBITMAP * pFIBitmap = FreeImage_Load(fIFormat, _name); // Load the file as a bitmap
+		FIBITMAP * pFIBitmap = FreeImage_Load(fIFormat, _name.c_str()); // Load the file as a bitmap
 		revAssert(0 != pFIBitmap, "Couldn't load the bitmap"); // Couldn't load the bitmap
 
 		mWidth = FreeImage_GetWidth(pFIBitmap);
