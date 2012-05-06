@@ -9,29 +9,24 @@
 
 #include "revGame/gameclient/gameclient.h"
 
-namespace rev { namespace video
-{
-	class CViewport;
-}	// namespace video
-}	// namespace rev
-
 namespace buggyDemo
 {
 	class CBuggy;
 	class CAerialCamera;
 }	// namespace buggyDemo
 
-class CBuggyGameClient : public rev::game::CGameClient
+class CBuggyGameClient : public rev::game::SGameClient
 {
 public:
 	CBuggyGameClient();
 	~CBuggyGameClient();
+
+	void init	();
 	bool update	();	///< Update the game
 private:
 	// The demo contains: A landscape, a buggy car, a simple GUI with a controller and a camera
 	buggyDemo::CBuggy *			mBuggy;
 	buggyDemo::CAerialCamera *	mCamera;
-	rev::video::CViewport*		mViewport;
 };
 
 #endif // _BUGGYDEMO_GAMECLIENT_H_

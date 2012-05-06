@@ -18,10 +18,8 @@ namespace rev { namespace video
 	class CVideoScene
 	{
 	public:
-		typedef rtl::vector<IRenderableInstance*>	TRenderableContainer;
+		typedef rtl::vector<IRenderableInstance*>	TRenderableContainer; // Should be a pool?
 	public:
-		// -- Default scene
-		static CVideoScene* defaultScene();
 		// --  renderables
 		void reserve			(unsigned _nRenderables);
 		void addRenderable		(IRenderableInstance * _renderable);
@@ -29,10 +27,7 @@ namespace rev { namespace video
 
 		TRenderableContainer&	renderables() { return mRenderables;	}
 	private:
-		// -- Default scene
-		static CVideoScene* sDefaultScene;
 		// Scene renderables
-		
 		TRenderableContainer	mRenderables;
 	};
 }	// namespace video
