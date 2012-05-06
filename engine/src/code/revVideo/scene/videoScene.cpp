@@ -12,18 +12,6 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	// Static data definitions
-	CVideoScene * CVideoScene::sDefaultScene = 0;
-
-	//------------------------------------------------------------------------------------------------------------------
-	CVideoScene * CVideoScene::defaultScene()
-	{
-		if(!sDefaultScene)
-			sDefaultScene = new CVideoScene();
-		return sDefaultScene;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	void CVideoScene::reserve(unsigned _nRenderables)
 	{
 		mRenderables.reserve(_nRenderables);
@@ -32,7 +20,6 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CVideoScene::addRenderable(IRenderableInstance * _renderable)
 	{
-		//codeTools::CProfileFunction("CVideoScene::addRenderable");
 		mRenderables.push_back(_renderable);
 	}
 

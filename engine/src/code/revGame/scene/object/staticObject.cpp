@@ -7,8 +7,9 @@
 
 #include "staticObject.h"
 
-#include "revCore/node/node.h"
-#include "revVideo/scene/model/staticModelInstance.h"
+#include <revCore/node/node.h>
+#include <revGame/gameClient/gameClient.h>
+#include <revVideo/scene/model/staticModelInstance.h>
 
 using namespace rev::video;
 
@@ -20,6 +21,7 @@ namespace rev { namespace game
 		mNode = new CNode();
 		mNode->setPos(_pos);
 		mModel = new CStaticModelInstance(_model, _material);
+		mModel->setScene(SGameClient::get()->scene3d());
 		mNode->addComponent(mModel);
 	}
 }	// namespace game

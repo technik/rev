@@ -19,16 +19,15 @@ using namespace rev;
 using namespace rev::video;
 
 //----------------------------------------------------------------------------------------------------------------------
+void rev::game::SGameClient::create()
+{
+	sInstance = new CBuggyGameClient();
+	sInstance->init();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 CBuggyGameClient::CBuggyGameClient()
 {
-	// Create a viewport
-	mViewport = new CViewport(CVec2::zero, SVideo::get()->driver()->screenSize(), 0);
-	// Create the buggy
-	mBuggy = new buggyDemo::CBuggy();
-	// Create a camera
-	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
-	mViewport->setCamera(mCamera->camera());
-	SVideo::get()->driver()->setBackgroundColor(CColor::GREEN);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -40,9 +39,19 @@ CBuggyGameClient::~CBuggyGameClient()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+void CBuggyGameClient::init()
+{
+	// Create the buggy
+	mBuggy = new buggyDemo::CBuggy();
+	// Create a camera
+	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
+	SVideo::get()->driver()->setBackgroundColor(CColor(0.2f, 0.62f, 0.88f));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 bool CBuggyGameClient::update()
 {
 	mBuggy->update();
 	mCamera->update();
-	return CGameClient::update();
+	return SGameClient::update();
 }

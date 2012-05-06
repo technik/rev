@@ -22,6 +22,7 @@
 #include <revCore/time/time.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revInput/touchInput/touchInput.h>
+#include <revVideo/scene/videoScene.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
@@ -41,8 +42,24 @@ namespace rev { namespace game
 		HANDLE hPort;
 		ULONG_PTR key = 1;
 #endif // WIN32
+
+	// Static data
+	SGameClient * SGameClient::sInstance = 0;
 	//------------------------------------------------------------------------------------------------------------------
-	CGameClient::CGameClient()
+	SGameClient * SGameClient::get()
+	{
+		return sInstance;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SGameClient::destroy()
+	{
+		delete sInstance;
+		sInstance = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	SGameClient::SGameClient()
 	{
 		initEngineSystems();
 		initBasic2d();
@@ -50,7 +67,7 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CGameClient::~CGameClient()
+	SGameClient::~SGameClient()
 	{
 		// End input system
 		// End audio system
@@ -70,12 +87,12 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool CGameClient::update()
+	bool SGameClient::update()
 	{
 #ifdef REV_PROFILER
 		SProfiler::get()->resetFrame();
 #endif // REV_PROFILER
-		CProfileFunction profilerIntance("CGameClient::update"); 
+		CProfileFunction profilerIntance("SGameClient::update"); 
 		// Update time system
 		STime::get()->update();
 		// Update video system and render
@@ -164,7 +181,7 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CGameClient::initEngineSystems()
+	void SGameClient::initEngineSystems()
 	{
 		// Init log system
 		SLog::init();
@@ -186,13 +203,23 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CGameClient::initBasic2d()
+	void SGameClient::initBasic2d()
 	{
-		// TO DO
+		CVec2 screenSize = SVideo::getDriver()->screenSize();
+		// Create the camera
+		m2dCamera = new COrthoCamera(screenSize, -100.f, 100.f);
+		CNode * camNode = new CNode();
+		m2dCamera->attachTo(camNode);
+		// Create a viewport
+		CViewport * view = new CViewport(rev::CVec2::zero, screenSize, 1.f);
+		view->setCamera(m2dCamera);
+		// Create a scene
+		m2dScene = new CVideoScene();
+		m2dCamera->setScene(m2dScene);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CGameClient::initBasic3d()
+	void SGameClient::initBasic3d()
 	{
 		// Create the camera
 		m3dCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
@@ -201,7 +228,9 @@ namespace rev { namespace game
 		// Create a viewport and attach the camera to it
 		CViewport * view = new CViewport(rev::CVec2::zero, SVideo::getDriver()->screenSize(), 0.f);
 		view->setCamera(m3dCamera);
-
+		// Create a scene
+		m3dScene = new CVideoScene();
+		m3dCamera->setScene(m3dScene);
 	}
 
 } // namespace game
