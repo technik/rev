@@ -7,16 +7,18 @@
 
 #include "quad.h"
 
-#include "revCore/math/vector.h"
-#include "revCore/resourceManager/resourceManager.h"
-#include "revVideo/video.h"
-#include "revVideo/videoDriver/shader/vtxShader.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revCore/math/vector.h>
+#include <revCore/resourceManager/resourceManager.h>
+#include <revVideo/texture/texture.h>
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/shader/vtxShader.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CQuad::CQuad(const CVec2& _size)
+	CQuad::CQuad(CTexture* _texture, const CVec2& _size)
+		:mTexture(_texture)
 	{
 		// Request the shader
 		mShader = CVtxShader::manager()->get("guiPanel.vtx");
@@ -70,6 +72,8 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 4, 3, mVertices);
 		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 4, 2, mUVs);
+		int u = driver->getUniformId("texture");
+		driver->setUniform(u, 0, mTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
