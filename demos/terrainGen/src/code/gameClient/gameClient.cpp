@@ -10,8 +10,6 @@
 #include <revCore/math/vector.h>
 #include <revCore/node/node.h>
 #include <revCore/time/time.h>
-#include <revCore/resourceManager/resourceManager.h>
-#include <revCore/resourceManager/passiveResourceManager.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/perspectiveCamera.h>
 #include <revVideo/scene/model/staticModelInstance.h>
@@ -32,7 +30,7 @@ using namespace rev::input;
 using namespace rev::video;
 const int nWall = 129;
 const int nCol = 129;
-const int colHeight = 64;
+const int colHeight = 32;
 const int smooth = 9;
 const int maxCubes = (nWall-2*smooth) * (nCol-2*smooth) * colHeight / (2*smooth+1);
 // Pools and caches
@@ -47,23 +45,20 @@ CNode * cubos[nWall][nCol][colHeight];
 unsigned char heightmap[nWall][nCol];
 
 //----------------------------------------------------------------------------------------------------------------------
+void rev::game::SGameClient::create()
+{
+	sInstance = new terrainGenerator();
+	sInstance->init();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 terrainGenerator::terrainGenerator()
 {
-	// Register resources
-	grassMaterial = new CDiffuseTextureMaterial("grass.png");
-	cubeModel =  CMeshGenerator::box(CVec3(1.f, 1.f, 1.f));
-	// Pre-allocate memory
-	initPools();
-
-	genHeightmap();
-	createCubes();	
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void terrainGenerator::initPools()
 {
-	//CVideoScene::defaultScene()->reserve(maxCubes);
-	//CProfileFunction profiler("initPools()");
 	nodeBuffer = reinterpret_cast<CNode*>(new char[maxCubes*sizeof(CNode)]);
 	modelBuffer = reinterpret_cast<CStaticModelInstance*>(new char[maxCubes*sizeof(CStaticModelInstance)]);
 	materialBuffer = reinterpret_cast<CMaterialInstance*>(new char[maxCubes*sizeof(CMaterialInstance)]);
@@ -84,6 +79,7 @@ CNode* terrainGenerator::createCube(const CVec3& _pos)
 	//SProfiler::get()->addEventFinish();
 	//SProfiler::get()->addEventStart("new model instance");
 	CStaticModelInstance * modelInst = new(&modelBuffer[poolIdx]) CStaticModelInstance(cubeModel, materialInst);
+	modelInst->setScene(scene3d());
 	//SProfiler::get()->addEventFinish();
 	//SProfiler::get()->addEventStart("add component");
 	node->addComponent(modelInst);
@@ -189,10 +185,25 @@ void terrainGenerator::growSquare(int xMin, int xMax, int yMin, int yMax, unsign
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+void terrainGenerator::init()
+{
+	// Register resources
+	grassMaterial = new CDiffuseTextureMaterial("grass.png");
+	cubeModel =  CMeshGenerator::box(CVec3(1.f, 1.f, 1.f));
+	// Pre-allocate memory
+	initPools();
+
+	genHeightmap();
+	createCubes();	
+
+	SVideo::getDriver()->setBackgroundColor(CColor::LIGHT_BLUE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 bool terrainGenerator::update()
 {
 	// CGameClient::update calls some internal methods to keep the engine running;
-	if(!CGameClient::update()) // If it returns false, it means the engine intends to close the game
+	if(!SGameClient::update()) // If it returns false, it means the engine intends to close the game
 		return false; // So we close the gamet
 
 	// Exit if someone pressed ESC

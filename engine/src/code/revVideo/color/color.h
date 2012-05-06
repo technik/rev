@@ -33,6 +33,8 @@ namespace rev { namespace video
 		static const CColor WHITE;
 		static const CColor BLACK;
 
+		static const CColor LIGHT_BLUE;
+
 	private:
 		TReal mR, mG, mB, mA;
 	};

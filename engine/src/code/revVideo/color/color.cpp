@@ -19,5 +19,7 @@ namespace rev { namespace video
 	const CColor CColor::WHITE(1.f, 1.f, 1.f);
 	const CColor CColor::BLACK(0.f, 0.f, 0.f);
 
+	const CColor CColor::LIGHT_BLUE(0.2f, 0.62f, 0.88f);
+
 }	// namespace video
 }	// namespace rev

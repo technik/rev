@@ -13,16 +13,16 @@ int main (int _argc, const char **_argv)
 	_argc; _argv;
 
 	// Create the game client
-	terrainGenerator * client = new terrainGenerator();
+	rev::game::SGameClient::create();
 	
 	// Loop the game
 	bool exitGame = false;
 	while(!exitGame)
 	{
-		exitGame = !client->update();
+		exitGame = !rev::game::SGameClient::get()->update();
 	}
 
-	delete client;
+	rev::game::SGameClient::destroy();
 	
 #ifdef REV_PROFILER
 	system("PAUSE");

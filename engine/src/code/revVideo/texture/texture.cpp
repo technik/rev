@@ -140,7 +140,7 @@ namespace video
 		// Construct a texture using the data we just loaded
 		mBuffer = pixels;
 #endif // _WIN32
-		SVideo::getDriver()->registerTexture(mBuffer, mWidth, mHeight);
+		mId = SVideo::getDriver()->registerTexture(mBuffer, mWidth, mHeight);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

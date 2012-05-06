@@ -17,16 +17,16 @@ namespace rev
 	namespace video { class CPerspectiveCamera; }
 }	// namespace rev
 
-class terrainGenerator : public rev::game::CGameClient
+class terrainGenerator : public rev::game::SGameClient
 {
 public:
-	// Class constructor
-	terrainGenerator(); // Here goes the code to initialize the game.
-	// Class destructor
-	~terrainGenerator(); // This get's called when you exit the game.
+	terrainGenerator();	// Class constructor
+	~terrainGenerator();// This get's called when you exit the game.
 
+	// Init
+	void	init	();	// Here goes the code to initialize the game.
 	// Update the game
-	bool	update(); // Here goes the code for the main loop of the game.
+	bool	update	(); // Here goes the code for the main loop of the game.
 	// Returns false to exit the game.
 	// Returns true otherways.
 
