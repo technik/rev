@@ -106,9 +106,6 @@
     <Filter Include="revVideo\texture">
       <UniqueIdentifier>{e83bcdbd-9dc6-46ff-ac4b-f7021b553cf8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="revGame\gui">
-      <UniqueIdentifier>{eb742640-eb33-4b75-9208-cfaad3f195c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="revGame\scene">
       <UniqueIdentifier>{4e54138b-7a49-4d1f-bbcd-2472d9a982d9}</UniqueIdentifier>
     </Filter>
@@ -341,12 +338,6 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\material\basic\raymarchingMaterial.h">
       <Filter>revVideo\material\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revGame\gui\panel.h">
-      <Filter>revGame\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\code\revGame\gui\guiElement.h">
-      <Filter>revGame\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\string.h">
       <Filter>revCore</Filter>
@@ -708,12 +699,15 @@
     <ClInclude Include="..\..\code\revVideo\font\fontDriver.h">
       <Filter>revVideo\font</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\code\revGame\gui\guiText.h">
       <Filter>revGame\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\code\revCore\resourceManager\managedResource.h">
       <Filter>revCore\resourceManager</Filter>
     </ClInclude>
+=======
+>>>>>>> 8630fc0557f81283ff05857484d3a23631a9ecf3
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -808,12 +802,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\raymarchingMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revGame\gui\panel.cpp">
-      <Filter>revGame\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revGame\gui\guiElement.cpp">
-      <Filter>revGame\gui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\material\basic\diffuseTextureMaterial.cpp">
       <Filter>revVideo\material\basic</Filter>
@@ -964,9 +952,6 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\font\fontDriver.cpp">
       <Filter>revVideo\font</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\code\revGame\gui\guiText.cpp">
-      <Filter>revGame\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,14 +21,8 @@ namespace rev { namespace video
 	IRenderableInstance::IRenderableInstance(IRenderable * _renderable, CMaterialInstance * _material)
 		:mMaterialInstance(_material)
 		,mRenderable(_renderable)
+		,mScene(0)
 	{
-		//codeTools::CProfileFunction profiler("IRenderableInstance constructor");
-		//codeTools::SProfiler::get()->addEventStart("IRenderableInstance-addRenderable");
-		CVideoScene::defaultScene()->addRenderable(this);
-		//codeTools::SProfiler::get()->addEventFinish();
-		//codeTools::SProfiler::get()->addEventStart("IRenderableInstance-defaultScene");
-		mScene = CVideoScene::defaultScene();
-		//codeTools::SProfiler::get()->addEventFinish();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

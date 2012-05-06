@@ -14,17 +14,19 @@ using namespace rev::input;
 
 int main (int /*_argc*/, const char ** /*_argv*/)
 {
-	CBuggyGameClient * client = new CBuggyGameClient();
+	// Create the game client
+	rev::game::SGameClient::create();
 
+	// Loop
 	bool bExitGame = false;
 	while(!bExitGame)
 	{
-		bExitGame = !client->update();
+		bExitGame = !rev::game::SGameClient::get()->update();
 		// Access the mouse
 		SKeyboardInput * keyboard = SKeyboardInput::get();
 		bExitGame |= keyboard->pressed(SKeyboardInput::eEscape);
 	}
 
-	delete client;
+	rev::game::SGameClient::destroy();
 	return 0;
 }

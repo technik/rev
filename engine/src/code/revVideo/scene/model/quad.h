@@ -16,13 +16,14 @@ namespace rev
 	namespace video
 {
 	// Forward declaration
+	class CTexture;
 	class CVtxShader;
 
 	class CQuad: public IRenderable
 	{
 	public:
 		// Constructor and destructor
-		CQuad(const CVec2& _size);
+		CQuad(CTexture * _texture, const CVec2& _size);
 		~CQuad();
 
 		// Renderable interface
@@ -32,6 +33,7 @@ namespace rev
 
 	private:
 		CVtxShader * mShader;
+		CTexture * mTexture;
 		float * mVertices;
 		float * mUVs;
 		unsigned short * mIndices;

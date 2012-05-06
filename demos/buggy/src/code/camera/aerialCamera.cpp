@@ -2,6 +2,7 @@
 
 #include <revCore/node/node.h>
 #include <revCore/time/time.h>
+#include <revGame/gameClient/gameClient.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revVideo/camera/perspectiveCamera.h>
 
@@ -15,10 +16,8 @@ namespace buggyDemo
 	CAerialCamera::CAerialCamera( rev::CNode * _target )
 	{
 		mTarget = _target;
-		mCamNode = new CNode();
-		mCamNode->setPos(mTarget->position());
-		mCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
-		mCamera->attachTo(mCamNode);
+		mCamera = rev::game::SGameClient::get()->camera3d();
+		mCamNode = mCamera->node();
 		mCamNode->attachTo(_target);
 		mCamNode->setPos(mTarget->position() + CVec3(0.f,-10.f,0.f));
 	}

@@ -18,20 +18,28 @@ namespace rev	{	namespace game
 	class CWindowsHandler;
 #endif // WIN32
 
-	class CGameClient
+	class SGameClient
 	{
 	public:
+		// Singleton interface
+		static void			create	();
+		static void			destroy	();
+		static SGameClient* get		();
+	public:
 		/// Constructor: Initializes basic game services
-		CGameClient			();
-		virtual ~CGameClient	(); ///< Destroy the application
+		SGameClient			();
+		virtual ~SGameClient	(); ///< Destroy the application
 
 
 		virtual	bool	update	();	// Update the game, returns false when the
 									// The game requests exit
-	protected:
-		video::CPerspectiveCamera *	camera3d() { return m3dCamera; }
-		video::COrthoCamera*		camera2d() { return m2dCamera; }
+	public:
+		video::CPerspectiveCamera *	camera3d()	{ return m3dCamera; }
+		video::COrthoCamera*		camera2d()	{ return m2dCamera; }
+		video::CVideoScene*			scene3d()	{ return m3dScene;	}
+		video::CVideoScene*			scene2d()	{ return m2dScene;	}
 	private:
+		virtual void init() = 0;
 		void	initEngineSystems();
 		void	initBasic3d();
 		void	initBasic2d();
@@ -39,6 +47,11 @@ namespace rev	{	namespace game
 		video::CPerspectiveCamera*	m3dCamera;
 		video::COrthoCamera*		m2dCamera;
 		video::CViewport*			mViewport;
+		video::CVideoScene*			m3dScene;
+		video::CVideoScene*			m2dScene;
+
+	private:
+		static SGameClient * sInstance;
 
 #ifdef WIN32
 		CWindowsHandler * mWindowsHandler;

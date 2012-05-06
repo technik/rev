@@ -14,7 +14,8 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	ICamera::ICamera():mScene(CVideoScene::defaultScene())
+	ICamera::ICamera()
+		:mScene(0)
 	{
 	}
 
