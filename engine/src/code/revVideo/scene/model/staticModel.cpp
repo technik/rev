@@ -166,7 +166,7 @@ namespace rev
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void CStaticModel::setFaceIndices(unsigned short _nIndices, unsigned short * _indices, bool _strip)
+		void CStaticModel::setFaceIndices(unsigned _nIndices, unsigned short * _indices, bool _strip)
 		{
 			// Clear old data
 			if( 0 != mTriangles) // Delete old indices, if any

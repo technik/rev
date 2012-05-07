@@ -7,6 +7,7 @@
 
 #include "meshGenerator.h"
 
+#include <revCore/math/noise.h>
 #include <revCore/math/vector.h>
 #include <revVideo/scene/model/staticModel.h>
 
@@ -252,6 +253,119 @@ namespace rev { namespace game
 		uvs[1] = CVec2(0.0f,1.0f);
 		uvs[2] = CVec2(1.0f,1.0f);
 		uvs[3] = CVec2(1.0f,0.0f);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	video::CStaticModel * CMeshGenerator::terrain(unsigned _side, float _gridSize, float _height)
+	{
+		revAssert(_side < 256, "Terrain is too big");
+		CVec3 * verts = generateTerrainVertices(_side,_gridSize,_height);
+		CVec3 * norms = generateTerrainNorms(_side,verts);
+		CVec2 * uvs =	generateTerrainUVs(_side);
+		u16 * indices = generateTerrainTriStrip(_side);
+		CStaticModel * terrain = new CStaticModel();
+		terrain->setVertexData(verticesInTerrain(_side),
+			reinterpret_cast<float*>(verts),
+			reinterpret_cast<float*>(norms),
+			reinterpret_cast<float*>(uvs));
+		terrain->setFaceIndices(indicesInTerrain(_side), indices, true);
+		return terrain;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec3 * CMeshGenerator::generateTerrainVertices(unsigned _side, float _size, float _height)
+	{
+		CVec3 * verts = new CVec3[verticesInTerrain(_side)];
+		// Planar fill
+		for(unsigned i = 0; i <= _side; ++i)
+		{
+			for(unsigned j = 0; j <= _side; ++j)
+			{
+				float x = (float(i) / _side - 0.5f) * _size;
+				float y = (float(j) / _side - 0.5f) * _size;
+				float h0n = SNoise::simplex(x*0.005f, y*0.005f);
+				float h0 = _height * h0n * h0n;
+				float h1 = 0.03125f*_height * SNoise::simplex(x*0.05f, y*0.04f);
+				float h2 = 0.00625f*_height * SNoise::simplex(x*0.5f, y*0.4f);
+				verts[(_side+1)*i + j] = CVec3(x, y, h0+h1+h2);
+			}
+		}
+		return verts;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec3 * CMeshGenerator::generateTerrainNorms(unsigned _side, CVec3 * _verts)
+	{
+		CVec3 * normals = new CVec3[verticesInTerrain(_side)];
+		// Quick fill
+		for(unsigned i = 0; i <= _side; ++i)
+		{
+			for(unsigned j = 0; j <= _side; ++j)
+			{
+				normals[(_side+1)*i + j] = CVec3::zAxis;
+			}
+		}
+		// Real normals
+		for(unsigned i = 1; i <= _side-1; ++i)
+		{
+			for(unsigned j = 1; j <= _side-1; ++j)
+			{
+				CVec3 dx = (_verts[(_side+1)*(i+1)+j]-_verts[(_side+1)*(i-1)+j]);
+				CVec3 dy = (_verts[(_side+1)*i+j+1]-_verts[(_side+1)*i+j-1]);
+				normals[(_side+1)*i + j] = (dx ^ dy).normalized();
+			}
+		}
+		return normals;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	CVec2 * CMeshGenerator::generateTerrainUVs(unsigned _side)
+	{
+		CVec2 * uvs = new CVec2[verticesInTerrain(_side)];
+		for(unsigned i = 0; i <= _side; ++i)
+		{
+			for(unsigned j = 0; j <= _side; ++j)
+			{
+				uvs[(_side+1)*i + j] = CVec2(float(i)/_side, float(j)/_side);
+			}
+		}
+		return uvs;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	u16 * CMeshGenerator::generateTerrainTriStrip(unsigned _side)
+	{
+		unsigned vtxPerRow = _side+1;
+		unsigned indicesPerRow = 2*vtxPerRow + 2; // Repeat first and last indices to be able to concatenate strips
+		unsigned nIndices = _side * indicesPerRow;
+		u16 * indices = new u16[nIndices];
+		for(unsigned row = 0; row < _side; ++row)
+		{
+			unsigned idx0 = indicesPerRow * row;
+			u16 vtx0 = u16(row * vtxPerRow);
+			indices[idx0] = u16(vtx0 + vtxPerRow);
+			for(unsigned i = 0; i < vtxPerRow; ++i)
+			{
+				indices[2*i + idx0 + 2] = vtx0 + u16(i);
+				indices[2*i + idx0 + 1] = u16(vtx0 + i + vtxPerRow);
+			}
+			indices[idx0+indicesPerRow-1] = u16(vtx0 + vtxPerRow - 1);
+		}
+		return indices;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	u16 CMeshGenerator::verticesInTerrain(unsigned _side)
+	{
+		return u16((_side+1)*(_side+1));
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
+	unsigned CMeshGenerator::indicesInTerrain(unsigned _side)
+	{
+		unsigned vtxPerRow = _side+1;
+		unsigned indicesPerRow = 2*vtxPerRow + 2; // Repeat first and last indices to be able to concatenate strips
+		return _side * indicesPerRow;
 	}
 }	// namespace game
 }	// namespace rev

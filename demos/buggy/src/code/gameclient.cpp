@@ -6,7 +6,11 @@
 // Engine headers
 #include <revCore/math/noise.h>
 #include <revGame/gui/guiPanel.h>
+#include <revGame/scene/mesh/meshGenerator.h>
+#include <revGame/scene/object/staticObject.h>
 #include <revVideo/color/color.h>
+#include <revVideo/material/basic/diffuseTextureMaterial.h>
+#include <revVideo/scene/model/staticModel.h>
 #include <revVideo/texture/texture.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
@@ -49,7 +53,7 @@ void CBuggyGameClient::init()
 	mBuggy = new buggyDemo::CBuggy();
 	// Create a camera
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
-	SVideo::get()->driver()->setBackgroundColor(CColor(0.2f, 0.62f, 0.88f));
+	SVideo::get()->driver()->setBackgroundColor(CColor::LIGHT_BLUE);
 	
 	unsigned char * buffer = new unsigned char[4*256*256];
 
@@ -65,9 +69,13 @@ void CBuggyGameClient::init()
 		}
 	}
 
-	CTexture * texture = new CTexture(buffer, 256, 256);
+	//CTexture * texture = new CTexture(buffer, 256, 256);
 
-	new CGuiPanel(texture);
+	//new CGuiPanel(texture);
+
+	CStaticModel::registerResource(CMeshGenerator::terrain(250, 512, 50.f), "terrain");
+	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");
+	new CStaticObject("terrain", "sand");
 }
 
 //----------------------------------------------------------------------------------------------------------------------

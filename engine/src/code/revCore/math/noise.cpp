@@ -52,9 +52,9 @@ namespace rev
 	float SNoise::simplex(float _x, float _y)
 	{
 		unsigned char perm [512];
-		for(unsigned i = 0; i < 512; ++i)
+		for(unsigned pi = 0; pi < 512; ++pi)
 		{
-			perm[i] = p[i&255];
+			perm[pi] = p[pi&255];
 		}
 		double n0, n1, n2; // Noise contributions from the three corners
 		const double f2 = 0.5f*(sqrt(3.f)-1.f);
@@ -117,6 +117,6 @@ namespace rev
 	int SNoise::fastFloor(double _x)
 	{
 		//return int(_x);
-		return _x>0.f? int(_x) : int(_x)-1;
+		return _x>=0.f? int(_x) : int(_x)-1;
 	}
 }	// namespace rev

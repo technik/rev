@@ -24,8 +24,6 @@ namespace rev { namespace video
 	{
 		// Model
 		mModel = CStaticModel::get(_modelName);
-		mModel->getOwnership();
-		CStaticModel::release(_modelName);
 		IRenderableInstance::setRenderable(mModel);
 		// Material
 		IMaterial * material = IMaterial::get(_material);

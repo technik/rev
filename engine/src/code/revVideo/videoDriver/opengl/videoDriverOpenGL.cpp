@@ -294,12 +294,21 @@ namespace rev { namespace video
 			|| !mLineCache.empty()
 			|| !mLineStripCache.empty())
 		{
-			this->glVertexAttribPointer(unsigned(eVertex), 3, GL_FLOAT, false, 0, mVertexCache.data());
-			this->glVertexAttribPointer(unsigned(eNormal), 3, GL_FLOAT, false, 0, mNormalCache.data());
-			this->glVertexAttribPointer(unsigned(eTexCoord), 2, GL_FLOAT, false, 0, mTexCoordCache.data());
-			glEnableVertexAttribArray(eVertex);
-			glEnableVertexAttribArray(eNormal);
-			glEnableVertexAttribArray(eTexCoord);
+			if(!mVertexCache.empty())
+			{
+				this->glVertexAttribPointer(unsigned(eVertex), 3, GL_FLOAT, false, 0, mVertexCache.data());
+				glEnableVertexAttribArray(eVertex);
+			}
+			if(!mNormalCache.empty())
+			{
+				this->glVertexAttribPointer(unsigned(eNormal), 3, GL_FLOAT, false, 0, mNormalCache.data());
+				glEnableVertexAttribArray(eNormal);
+			}
+			if(!mTexCoordCache.empty())
+			{
+				this->glVertexAttribPointer(unsigned(eTexCoord), 2, GL_FLOAT, false, 0, mTexCoordCache.data());
+				glEnableVertexAttribArray(eTexCoord);
+			}
 		}
 		// Draw triangles
 		if(!mTriangleCache.empty())

@@ -32,7 +32,7 @@ namespace rev { namespace video {
 		// -- Accessor methods -----------------------------------------------------------------------------------------
 		CVtxShader*				shader			() const;	///< Vertex shader used by this model
 		unsigned short			nVertices		() const;	///< How many vertices the model has
-		unsigned short			nTriIndices		() const;	///< Number of independent triangle faces in the model
+		unsigned				nTriIndices		() const;	///< Number of independent triangle in the model * 3
 		const float*			vertices		() const;	///< Return model's vertex array
 		const float*			normals			() const;	///< Return model's normal array
 		const float*			uvs				() const;	///< Return model's uv array
@@ -45,7 +45,7 @@ namespace rev { namespace video {
 												float * _vertUV);		///< \param _vertUV vertex uv coordinates
 
 		void					setFaceIndices	(			///< Set new triangled faces (deletes any previous faces)
-												unsigned short _nIndices,	///< \param _count how many faces
+												unsigned _nIndices,	///< \param _count how many faces
 												unsigned short * _indices,	///< \param _indices face indices
 												bool _strip = false);		///< \param 
 
@@ -57,9 +57,9 @@ namespace rev { namespace video {
 		float*			mNormals;
 		float*			mUVs;
 		unsigned short*	mTriangles;
-		unsigned short	mNTriIndices;
+		unsigned		mNTriIndices;
 		unsigned short*	mTriStrip;
-		unsigned short	mStripLength;
+		unsigned		mStripLength;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace rev { namespace video {
 	//------------------------------------------------------------------------------------------------------------------
 	inline CVtxShader*				CStaticModel::shader		() const	{	return sShader;		}
 	inline unsigned short			CStaticModel::nVertices		() const	{	return mNVertices;	}
-	inline unsigned short			CStaticModel::nTriIndices	() const	{	return mNTriIndices;}
+	inline unsigned					CStaticModel::nTriIndices	() const	{	return mNTriIndices;}
 	inline const float*				CStaticModel::vertices		() const	{	return mVertices;	}
 	inline const float*				CStaticModel::normals		() const	{	return mNormals;	}
 	inline const float*				CStaticModel::uvs			() const	{	return mUVs;		}
