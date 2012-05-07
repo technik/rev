@@ -193,6 +193,9 @@
     <Filter Include="revVideo\font">
       <UniqueIdentifier>{db20417c-1711-4d3e-955c-da920058a503}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui">
+      <UniqueIdentifier>{d2cded27-431a-4fef-aab2-2966dc1e0397}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -705,6 +708,9 @@
     <ClInclude Include="..\..\code\revCore\file\fileBinding.h">
       <Filter>revCore\file</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\guiPanel.h">
+      <Filter>revGame\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -952,6 +958,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\file\fileBinding.cpp">
       <Filter>revCore\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\guiPanel.cpp">
+      <Filter>revGame\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

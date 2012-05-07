@@ -4,6 +4,7 @@
 // On November 27th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Engine headers
+#include <revGame/gui/guiPanel.h>
 #include <revVideo/color/color.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
@@ -17,9 +18,10 @@
 
 using namespace rev;
 using namespace rev::video;
+using namespace rev::game;
 
 //----------------------------------------------------------------------------------------------------------------------
-void rev::game::SGameClient::create()
+void SGameClient::create()
 {
 	sInstance = new CBuggyGameClient();
 	sInstance->init();
@@ -46,6 +48,8 @@ void CBuggyGameClient::init()
 	// Create a camera
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
 	SVideo::get()->driver()->setBackgroundColor(CColor(0.2f, 0.62f, 0.88f));
+	
+	new CGuiPanel("sand.png");
 }
 
 //----------------------------------------------------------------------------------------------------------------------

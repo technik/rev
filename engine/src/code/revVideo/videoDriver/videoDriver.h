@@ -47,6 +47,8 @@ namespace rev	{
 		virtual ~IVideoDriver() {}
 		// ----- Per frame tasks ---- //
 		virtual	void	beginFrame	() = 0;
+		virtual void	clearZ		() = 0;
+		virtual void	finishPass	() = 0;
 		virtual	void	endFrame	() = 0;
 
 		// ---- Accessor methods ---- //

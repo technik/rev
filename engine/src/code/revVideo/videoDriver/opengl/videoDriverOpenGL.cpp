@@ -103,6 +103,7 @@ namespace rev { namespace video
 			mCurShader = _shader;
 			glUseProgram(unsigned(mCurShader));
 			mMVPUniformId = getUniformId("modelViewProj");
+			setUniform(mMVPUniformId, mProj * mInvView);
 		}
 	}
 
@@ -251,6 +252,12 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::clearZ()
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void IVideoDriverOpenGL::initOpenGL()
 	{
 		// Load required openGL extensions
@@ -268,9 +275,15 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void IVideoDriverOpenGL::endFrame()
+	void IVideoDriverOpenGL::finishPass()
 	{
 		flushGeometryCache();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void IVideoDriverOpenGL::endFrame()
+	{
+		// Intentionally blank
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

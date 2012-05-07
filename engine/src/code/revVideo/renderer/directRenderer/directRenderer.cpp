@@ -50,7 +50,9 @@ namespace rev { namespace video
 		for(CViewport::TViewportContainer::iterator vp = CViewport::viewports().begin();
 			vp != CViewport::viewports().end(); ++vp)
 		{
-			ICamera * cam = (*vp).second->camera();
+			CViewport * v = (*vp).second;
+			ICamera * cam = v->camera();
+			SVideo::getDriver()->clearZ();
 			if(cam)
 			{
 				alphaInstances.clear();
@@ -71,6 +73,7 @@ namespace rev { namespace video
 				{
 						renderElement(*iter);
 				}
+				SVideo::getDriver()->finishPass();
 			}
 		}
 	}

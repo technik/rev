@@ -16,8 +16,7 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CQuad::CQuad(CTexture* _texture, const CVec2& _size)
-		:mTexture(_texture)
+	CQuad::CQuad(const CVec2& _size)
 	{
 		// Request the shader
 		mShader = CVtxShader::get("guiPanel.vtx");
@@ -71,8 +70,6 @@ namespace rev { namespace video
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 4, 3, mVertices);
 		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 4, 2, mUVs);
-		int u = driver->getUniformId("texture");
-		driver->setUniform(u, 0, mTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

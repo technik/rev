@@ -61,7 +61,9 @@ namespace rev { namespace video
 		void	setBackgroundColor	(const CColor& _color);
 
 		virtual void	beginFrame	();
+		void			clearZ		();
 		void			initOpenGL	();
+		void			finishPass	();
 		virtual	void	endFrame	();
 	private:
 		// -- OpenGL specifics --

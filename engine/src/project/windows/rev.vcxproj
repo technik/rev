@@ -266,6 +266,7 @@
     <ClInclude Include="..\..\code\revCore\variant\variant.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h" />
+    <ClInclude Include="..\..\code\revGame\gui\guiPanel.h" />
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
     <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h" />
     <ClInclude Include="..\..\code\revGame\tools\dataVisualizer.h" />
@@ -361,6 +362,7 @@
     <ClCompile Include="..\..\code\revCore\variant\variant.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\guiPanel.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp" />
     <ClCompile Include="..\..\code\revGame\tools\dataVisualizer.cpp" />
