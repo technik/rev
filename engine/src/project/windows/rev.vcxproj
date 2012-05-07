@@ -251,6 +251,7 @@
     <ClInclude Include="..\..\code\revCore\file\fileBinding.h" />
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
+    <ClInclude Include="..\..\code\revCore\math\noise.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
     <ClInclude Include="..\..\code\revCore\math\vector.h" />
     <ClInclude Include="..\..\code\revCore\memory\memory.h" />
@@ -353,6 +354,7 @@
     <ClCompile Include="..\..\code\revCore\file\fileBinding.cpp" />
     <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp" />
     <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
+    <ClCompile Include="..\..\code\revCore\math\noise.cpp" />
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />
     <ClCompile Include="..\..\code\revCore\math\vector.cpp" />
     <ClCompile Include="..\..\code\revCore\node\node.cpp" />

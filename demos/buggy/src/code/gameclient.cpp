@@ -4,8 +4,10 @@
 // On November 27th, 2011
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Engine headers
+#include <revCore/math/noise.h>
 #include <revGame/gui/guiPanel.h>
 #include <revVideo/color/color.h>
+#include <revVideo/texture/texture.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revVideo/viewport/viewport.h>
@@ -49,7 +51,23 @@ void CBuggyGameClient::init()
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
 	SVideo::get()->driver()->setBackgroundColor(CColor(0.2f, 0.62f, 0.88f));
 	
-	new CGuiPanel("sand.png");
+	unsigned char * buffer = new unsigned char[4*256*256];
+
+	for(unsigned i = 0; i < 256; ++i)
+	{
+		for(unsigned j = 0; j < 256; ++j)
+		{
+			unsigned char h = unsigned char(255.f * (0.5f+0.5f*SNoise::simplex(0.1f*i+0.05f, 0.1f*j+0.05f)));
+			buffer[4*(i+256*j)+0] = h;
+			buffer[4*(i+256*j)+1] = h;
+			buffer[4*(i+256*j)+2] = h;
+			buffer[4*(i+256*j)+3] = 255;
+		}
+	}
+
+	CTexture * texture = new CTexture(buffer, 256, 256);
+
+	new CGuiPanel(texture);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

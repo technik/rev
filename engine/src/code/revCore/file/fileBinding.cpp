@@ -15,6 +15,11 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	IFileBinding::IFileBinding(const char * _file)
 	{
+		if(!_file || *_file=='\0')
+		{
+			mDelegate = 0;
+			return;
+		}
 		mDelegate = new CObjectDelegate<IFileBinding,const char*>(this, &IFileBinding::reload);
 		SFileWatcher::get()->addWatcher(_file, mDelegate);
 	}
@@ -22,6 +27,8 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	IFileBinding::~IFileBinding()
 	{
+		if( 0 == mDelegate)
+			return;
 		SFileWatcher::get()->removeWatcher(mDelegate);
 		delete mDelegate;
 	}

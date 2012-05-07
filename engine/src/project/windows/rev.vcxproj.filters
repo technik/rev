@@ -711,6 +711,9 @@
     <ClInclude Include="..\..\code\revGame\gui\guiPanel.h">
       <Filter>revGame\gui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\math\noise.h">
+      <Filter>revCore\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -961,6 +964,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gui\guiPanel.cpp">
       <Filter>revGame\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\math\noise.cpp">
+      <Filter>revCore\math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
