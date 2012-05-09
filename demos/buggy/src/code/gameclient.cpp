@@ -9,6 +9,7 @@
 #include <revGame/scene/mesh/meshGenerator.h>
 #include <revGame/scene/object/staticObject.h>
 #include <revVideo/color/color.h>
+#include <revVideo/font/font.h>
 #include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revVideo/texture/texture.h>
@@ -69,9 +70,11 @@ void CBuggyGameClient::init()
 		}
 	}
 
+	CFont * arial = CFont::get("arial.ttf");
+	CTexture * text = arial->renderText("Hello in Arial", 72);
 	//CTexture * texture = new CTexture(buffer, 256, 256);
 
-	//new CGuiPanel(texture);
+	new CGuiPanel(text);
 
 	CStaticModel::registerResource(CMeshGenerator::terrain(250, 512, 50.f), "terrain");
 	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");

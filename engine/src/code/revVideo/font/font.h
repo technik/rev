@@ -23,31 +23,20 @@ namespace rev { namespace video
 		CFont(const char* _filename);
 		~CFont();
 
-		CStaticModel *	createText(const char * _text, unsigned _size);
-		CTexture*		getTexture(unsigned _size);
+		CTexture * renderText(const char * _text, unsigned _size);
 
 	private:
 		class CSizedFont
 		{
 		public:
 			CSizedFont(unsigned _size);
-			~CSizedFont();
-			CStaticModel *	createText(const char * _text);
-			CTexture *		texture();
-			
-		private:
-			class CChar
-			{
-			public:
-			};
+			CTexture * renderText(const char * _text);
 
-			CTexture *				mTexture;
-			rtl::map<char, CChar>	mChars;
+		private:
+			unsigned mSize;
 		};
 
-	private:
-		CSizedFont * getFontBySize(unsigned _size);
-
+		string	mFilename;
 		rtl::map<unsigned, CSizedFont*>	mFonts;
 	};
 }	// namespace video
