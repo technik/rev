@@ -70,13 +70,13 @@ void CBuggyGameClient::init()
 		}
 	}
 
-	CFont * arial = CFont::get("arial.ttf");
-	CTexture * text = arial->renderText("Hello in Arial", 72);
+	CFont * arial = CFont::get("arial32.fnt");
+	CTexture * text = arial->renderText("Hello in Arial");
 	//CTexture * texture = new CTexture(buffer, 256, 256);
 
 	new CGuiPanel(text);
 
-	CStaticModel::registerResource(CMeshGenerator::terrain(250, 512, 50.f), "terrain");
+	CStaticModel::registerResource(CMeshGenerator::terrain(125, 512, 50.f), "terrain");
 	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");
 	new CStaticObject("terrain", "sand");
 }

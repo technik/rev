@@ -128,7 +128,7 @@ namespace video
 				pixels[4*i+3] = buffer[4*i+3];
 			}
 		}
-		else // RGB
+		else if(FreeImage_GetBPP(pFIBitmap) == 24) // RGB
 		{
 			for(unsigned i = 0; i < nPixels; i++)
 			{
@@ -137,6 +137,30 @@ namespace video
 				pixels[4*i+2] = buffer[3*i+0];
 				pixels[4*i+3] = 255;
 			}
+		}
+		else if(FreeImage_GetBPP(pFIBitmap) == 16) // Intensity-Alpha
+		{
+			for(unsigned i = 0; i < nPixels; i++)
+			{
+				pixels[4*i+0] = buffer[2*i+0];
+				pixels[4*i+1] = buffer[2*i+0];
+				pixels[4*i+2] = buffer[2*i+0];
+				pixels[4*i+3] = buffer[2*i+0];
+			}
+		}
+		else if(FreeImage_GetBPP(pFIBitmap) == 8) // Grey image
+		{
+			for(unsigned i = 0; i < nPixels; i++)
+			{
+				pixels[4*i+0] = buffer[i];
+				pixels[4*i+1] = buffer[i];
+				pixels[4*i+2] = buffer[i];
+				pixels[4*i+3] = 255;
+			}
+		}
+		else
+		{
+			revAssert(false, "Unsupported image format");
 		}
 		FreeImage_Unload(pFIBitmap); // Release FreeImage's copy of the data
 		// Construct a texture using the data we just loaded

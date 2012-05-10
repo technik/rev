@@ -25,7 +25,10 @@ namespace rev { namespace video
 
 		// Accessors
 		CVec2		size() const;
+		int			width() const { return mWidth; }
+		int			height()const { return mHeight; }
 		unsigned	id	() const;
+		const unsigned char*	buffer() const { return (const unsigned char*)mBuffer; }
 
 	private:
 		int			mWidth;
