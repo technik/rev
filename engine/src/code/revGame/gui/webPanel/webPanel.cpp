@@ -98,18 +98,26 @@ namespace rev { namespace game
 		unsigned tWidth = textTexture->width();
 		unsigned tHeight = textTexture->height();
 		const unsigned char * render = textTexture->buffer();
-		for(unsigned i = 0; i < tWidth; ++i)
+		renderImage(_dstImg, render, tWidth, tHeight);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CWebPanel::renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _width, unsigned _height)
+	{
+		for(unsigned i = 0; i < _width; ++i)
 		{
 			if(i >= mWidth)
 				break;
-			for(unsigned j = 0; j < tHeight; ++j)
+			for(unsigned j = 0; j < _height; ++j)
 			{
-				unsigned srcIdx = i + tWidth * j;
-				unsigned dstIdx = i + mWidth * (j + mHeight - tHeight);
-				_dstImg[4*dstIdx+0] = render[4*srcIdx+0];
-				_dstImg[4*dstIdx+1] = render[4*srcIdx+1];
-				_dstImg[4*dstIdx+2] = render[4*srcIdx+2];
-				_dstImg[4*dstIdx+3] = render[4*srcIdx+3];
+				if(j >= mHeight)
+					break;
+				unsigned srcIdx = i + _width * j;
+				unsigned dstIdx = i + mWidth * (j + mHeight - _height);
+				_dstImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
+				_dstImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
+				_dstImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
+				_dstImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
 			}
 		}
 	}
