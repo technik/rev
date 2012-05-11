@@ -175,6 +175,15 @@
     <Filter Include="revGame\gui">
       <UniqueIdentifier>{d2cded27-431a-4fef-aab2-2966dc1e0397}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui\webPanel">
+      <UniqueIdentifier>{6ec6795d-da3a-4586-9367-245b96cc9fb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\gui\webPanel\html">
+      <UniqueIdentifier>{abceb2fa-2015-4fa8-a39b-bd0a13e59caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\gui\webPanel\html\lexer">
+      <UniqueIdentifier>{611a4526-ad4c-4e80-a8ed-9ed0c8817c8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -438,6 +447,12 @@
     <ClInclude Include="..\..\code\revCore\math\noise.h">
       <Filter>revCore\math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\webPanel.h">
+      <Filter>revGame\gui\webPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.h">
+      <Filter>revGame\gui\webPanel\html\lexer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -616,6 +631,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\math\noise.cpp">
       <Filter>revCore\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\webPanel.cpp">
+      <Filter>revGame\gui\webPanel</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

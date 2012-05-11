@@ -27,9 +27,10 @@ namespace rev { namespace game
 	public:
 		CGuiPanel(const char * _textureName);
 		CGuiPanel(video::CTexture * _texture);
+		virtual ~CGuiPanel();
 
 		//void setTexture(const char * _textureName);
-		//void setTexture(video::CTexture * _texture);
+		void setTexture(video::CTexture * _texture);
 		//
 		//void setSize(const CVec2& _size, bool _resize = true);
 		//void setPosition(const CVec2& _position);

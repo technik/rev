@@ -21,37 +21,63 @@ namespace rev { namespace game
 {
 	//------------------------------------------------------------------------------------------------------------------
 	CGuiPanel::CGuiPanel(const char * _texture)
+		:mTexture(0)
+		,mSize(CVec2(0.f,0.f))
+		,mMaterial(0)
+		,mInstance(0)
 	{
-		// Get the texture
-		mTexture = CTexture::get(_texture);
-		// Texture size
-		mSize = mTexture->size();
+		CTexture * texture =  CTexture::get(_texture);
 		// node
 		mNode = new CNode();
 		// Quad
 		mQuad = new CQuad(mSize);
-		mMaterial = new CPlainTextureMaterial(mTexture);
-		mInstance = new IRenderableInstance(mQuad, new CMaterialInstance(mMaterial));
-		mInstance->setScene(SGameClient::get()->scene2d());
-		mInstance->attachTo(mNode);
+		// Set the texture
+		setTexture( texture );
+		texture->release();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CGuiPanel::CGuiPanel(CTexture * _texture)
+		:mTexture(0)
+		,mSize(CVec2(0.f,0.f))
+		,mMaterial(0)
+		,mInstance(0)
 	{
+		if(0 != _texture)
+			setTexture(_texture);
+		// Get the texture
+		// node
+		mNode = new CNode();
+		// Quad
+		mQuad = new CQuad(mSize);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CGuiPanel::~CGuiPanel()
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CGuiPanel::setTexture(CTexture * _texture)
+	{
+		revAssert(0 != _texture, "Invalid texture for panel");
+		if(0 != mTexture)
+			mTexture->release();
 		// Get the texture
 		mTexture = _texture;
 		mTexture->getOwnership();
 		// Texture size
 		mSize = mTexture->size();
-		// node
-		mNode = new CNode();
 		// Quad
-		mQuad = new CQuad(mSize);
+		mQuad->setSize(mSize);
+		if(0 != mMaterial)
+			delete mMaterial;
 		mMaterial = new CPlainTextureMaterial(mTexture);
+		if(mInstance)
+			delete mInstance;
 		mInstance = new IRenderableInstance(mQuad, new CMaterialInstance(mMaterial));
 		mInstance->setScene(SGameClient::get()->scene2d());
 		mInstance->attachTo(mNode);
-	}
+	};
 }	// namespace game
 }	// namespace rev

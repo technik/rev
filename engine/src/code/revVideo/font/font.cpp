@@ -73,8 +73,14 @@ namespace rev {
 			buffer[n] = 0;
 		unsigned nChars = stringLength(_text);
 		unsigned xPos = 0;
+		//unsigned yPos = 0;
 		for(unsigned c = 0; c < nChars; ++c)
 		{
+			if(_text[c] == '\n')
+			{
+				xPos = 0;
+				continue;
+			}
 			CChar cChar = mChars[_text[c]];
 			for(int i = 0; i < cChar.width; ++i)
 			{

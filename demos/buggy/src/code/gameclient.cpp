@@ -6,6 +6,7 @@
 // Engine headers
 #include <revCore/math/noise.h>
 #include <revGame/gui/guiPanel.h>
+#include <revGame/gui/webPanel/webPanel.h>
 #include <revGame/scene/mesh/meshGenerator.h>
 #include <revGame/scene/object/staticObject.h>
 #include <revVideo/color/color.h>
@@ -55,26 +56,9 @@ void CBuggyGameClient::init()
 	// Create a camera
 	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
 	SVideo::get()->driver()->setBackgroundColor(CColor::LIGHT_BLUE);
-	
-	unsigned char * buffer = new unsigned char[4*256*256];
 
-	for(unsigned i = 0; i < 256; ++i)
-	{
-		for(unsigned j = 0; j < 256; ++j)
-		{
-			unsigned char h = unsigned char(255.f * (0.5f+0.5f*SNoise::simplex(0.1f*i+0.05f, 0.1f*j+0.05f)));
-			buffer[4*(i+256*j)+0] = h;
-			buffer[4*(i+256*j)+1] = h;
-			buffer[4*(i+256*j)+2] = h;
-			buffer[4*(i+256*j)+3] = 255;
-		}
-	}
-
-	CFont * arial = CFont::get("arial32.fnt");
-	CTexture * text = arial->renderText("Hello in Arial");
-	//CTexture * texture = new CTexture(buffer, 256, 256);
-
-	new CGuiPanel(text);
+	CWebPanel * testWeb = new CWebPanel(320, 240);
+	testWeb->runHtml("Hello from an HTML panel");
 
 	CStaticModel::registerResource(CMeshGenerator::terrain(125, 512, 50.f), "terrain");
 	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");

@@ -31,19 +31,11 @@ namespace rev { namespace video
 		mIndices[2] = 2;
 		mIndices[3] = 3;
 		// Vertices
-		CVec2 halfSize = _size * 0.5;
-		mVertices[0] = -halfSize.x;
-		mVertices[1] = -halfSize.y;
 		mVertices[2] = 0.f;
-		mVertices[3] = -halfSize.x;
-		mVertices[4] = halfSize.y;
 		mVertices[5] = 0.f;
-		mVertices[6] = halfSize.x;
-		mVertices[7] = halfSize.y;
 		mVertices[8] = 0.f;
-		mVertices[9] = halfSize.x;
-		mVertices[10] = -halfSize.y;
 		mVertices[11] = 0.f;
+		setSize(_size);
 		// UVs
 		mUVs[0] = 0.f;
 		mUVs[1] = 0.f;
@@ -62,6 +54,20 @@ namespace rev { namespace video
 		delete mVertices;
 		delete mUVs;
 		CVtxShader::release(mShader);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CQuad::setSize(const CVec2& _size)
+	{
+		CVec2 halfSize = _size * 0.5;
+		mVertices[0] = -halfSize.x;
+		mVertices[1] = -halfSize.y;
+		mVertices[3] = -halfSize.x;
+		mVertices[4] = halfSize.y;
+		mVertices[6] = halfSize.x;
+		mVertices[7] = halfSize.y;
+		mVertices[9] = halfSize.x;
+		mVertices[10] = -halfSize.y;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

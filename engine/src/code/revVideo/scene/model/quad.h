@@ -25,6 +25,9 @@ namespace rev
 		CQuad(const CVec2& _size);
 		~CQuad();
 
+		// Modifiers
+		void setSize(const CVec2& _size);
+
 		// Renderable interface
 		CVtxShader * shader () const;
 		void setEnvironment	() const;
