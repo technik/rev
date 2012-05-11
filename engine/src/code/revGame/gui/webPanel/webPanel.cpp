@@ -23,24 +23,6 @@ namespace rev { namespace game
 		,mHeight(_height)
 		,mPageDelegate(0)
 	{
-		/*unsigned imgSize = 4 * mWidth * mHeight;
-		unsigned char * img = new unsigned char[imgSize];
-		for(unsigned i = 0; i < mWidth; ++i)
-		{
-			for(unsigned j = 0; j < mHeight; ++j)
-			{
-				unsigned idx = i + mWidth * j;
-				img[4*idx+0] = (unsigned char)((i^j) & 0xff);
-				img[4*idx+1] = (unsigned char)((i^j) & 0xff);
-				img[4*idx+2] = (unsigned char)((i^j) & 0xff);
-				img[4*idx+3] = 255;
-			}
-		}
-		CTexture * texture = new CTexture(img, mWidth, mHeight);
-		CGuiPanel::setTexture(texture);
-		texture->release(); // So CGuiPanel takes care of texture ownership
-		*/
-
 		// Load fonts
 		mDefaultFont = CFont::get("arial32.fnt");
 	}
@@ -106,33 +88,67 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	void CWebPanel::renderCode(unsigned char * _dstImg, const char * _code)
 	{
-		CTexture * textTexture = mDefaultFont->renderText(_code);
-		unsigned tWidth = textTexture->width();
-		unsigned tHeight = textTexture->height();
-		const unsigned char * render = textTexture->buffer();
-
-		renderImage(_dstImg, render, tWidth, tHeight);
+		char lineBuffer[512];
+		unsigned offset = getTextLine(lineBuffer, _code, mWidth);
+		unsigned yPos = 0;
+		unsigned renderChar0 = 0;
+		while(0 != lineBuffer[0])
+		{
+			CTexture * textTexture = mDefaultFont->renderText(&lineBuffer[renderChar0]);
+			renderChar0 = 0;
+			unsigned tWidth = textTexture->width();
+			unsigned tHeight = textTexture->height();
+			const unsigned char * render = textTexture->buffer();
+			renderImage(_dstImg, render, 0, yPos, tWidth, tHeight);
+			yPos += tHeight + 4;
+			offset += getTextLine(lineBuffer, &_code[offset], mWidth);
+			while(lineBuffer[renderChar0] == ' ')
+				++renderChar0;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CWebPanel::renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _width, unsigned _height)
+	void CWebPanel::renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned _width, unsigned _height)
 	{
 		for(unsigned i = 0; i < _width; ++i)
 		{
-			if(i >= mWidth)
+			if(i+_x >= mWidth)
 				break;
 			for(unsigned j = 0; j < _height; ++j)
 			{
-				if(j >= mHeight)
+				if(j+_y >= mHeight)
 					break;
 				unsigned srcIdx = i + _width * j;
-				unsigned dstIdx = i + mWidth * (j + mHeight - _height);
+				unsigned dstIdx = i + _x + mWidth * (j - _y + mHeight - _height);
 				_dstImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
 				_dstImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
 				_dstImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
 				_dstImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned CWebPanel::getTextLine(char * _dst, const char * _src, unsigned _maxWidth)
+	{
+		unsigned cursor = 0;
+		unsigned wCursor = 0;
+		while(_src[cursor] != '\0')
+		{
+			while((_src[wCursor] != ' ') && (_src[wCursor] != '\t') && (_src[wCursor] != '\0'))
+			{
+				_dst[wCursor] = _src[wCursor];
+				++wCursor;
+			}
+			_dst[wCursor] = '\0';
+			unsigned width = mDefaultFont->textLength(_dst);
+			_dst[wCursor] = _src[wCursor];
+			if(width > _maxWidth)
+				break;
+			cursor = wCursor++;
+		}
+		_dst[cursor] = '\0';
+		return cursor;
 	}
 
 }	// namespace game

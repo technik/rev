@@ -26,7 +26,8 @@ namespace rev { namespace game
 	private:
 		void clearImage(unsigned char * _img);
 		void renderCode(unsigned char * _dstImg, const char * _code);
-		void renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned width, unsigned height);
+		void renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned width, unsigned height);
+		unsigned getTextLine(char * _dst, const char * _src, unsigned _maxWidth);
 
 	private:
 		unsigned mWidth;
