@@ -27,14 +27,15 @@ namespace rev { namespace video
 
 		CTexture * renderText(const char * _text);
 
+		unsigned textLength		(const char * _text);
+		unsigned textHeight		(const char * _text);
+
 	private:
 		void	parseFont		(const char * _text);
 		void	parseLine		(const char * _text, unsigned& _cursor);
 		void	parseCharLine	(const char * _text, unsigned& _cursor);
 		void	skipLine		(const char * _text, unsigned& _cursor);
 		int		readNumber		(const char * _text, unsigned& _cursor);
-		unsigned textLength		(const char * _text);
-		unsigned textHeight		(const char * _text);
 
 	private:
 		struct CChar

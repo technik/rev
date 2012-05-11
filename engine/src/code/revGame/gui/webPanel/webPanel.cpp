@@ -8,6 +8,7 @@
 #include "webPanel.h"
 
 #include <revCore/file/file.h>
+#include <revCore/file/fileWatcher.h>
 #include <revVideo/font/font.h>
 #include <revVideo/texture/texture.h>
 
@@ -20,6 +21,7 @@ namespace rev { namespace game
 		:CGuiPanel((CTexture*)0)
 		,mWidth(_width)
 		,mHeight(_height)
+		,mPageDelegate(0)
 	{
 		/*unsigned imgSize = 4 * mWidth * mHeight;
 		unsigned char * img = new unsigned char[imgSize];
@@ -47,6 +49,8 @@ namespace rev { namespace game
 	CWebPanel::~CWebPanel()
 	{
 		mDefaultFont->release();
+		if(0 != mPageDelegate)
+			delete mPageDelegate;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -54,12 +58,20 @@ namespace rev { namespace game
 	{
 		CFile pageFile(_pageName);
 		runHtml(pageFile.textBuffer());
-		// TODO: Set a file watcher
+		// Set a file watcher
+		mPageDelegate = new CObjectDelegate<CWebPanel, const char*>(this, &CWebPanel::loadPage);
+		SFileWatcher::get()->addWatcher(_pageName, mPageDelegate);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CWebPanel::runHtml(const char * _code)
 	{
+		if(0 != mPageDelegate)
+		{
+			SFileWatcher::get()->removeWatcher(mPageDelegate);
+			delete mPageDelegate;
+			mPageDelegate = 0;
+		}
 		// Initialize the image
 		unsigned imgSize = 4 * mWidth * mHeight;
 		unsigned char * img = new unsigned char[imgSize];
@@ -83,10 +95,10 @@ namespace rev { namespace game
 			{
 				unsigned idx = i + mWidth * j;
 				// XOR texture
-				_img[4*idx+0] = (unsigned char)((i^j) & 0xff);
-				_img[4*idx+1] = (unsigned char)((i^j) & 0xff);
-				_img[4*idx+2] = (unsigned char)((i^j) & 0xff);
-				_img[4*idx+3] = 255;
+				_img[4*idx+0] = 0;//(unsigned char)((i^j) & 0xff);
+				_img[4*idx+1] = 0;//(unsigned char)((i^j) & 0xff);
+				_img[4*idx+2] = 0;//(unsigned char)((i^j) & 0xff);
+				_img[4*idx+3] = 0;//255;
 			}
 		}
 	}
@@ -98,6 +110,7 @@ namespace rev { namespace game
 		unsigned tWidth = textTexture->width();
 		unsigned tHeight = textTexture->height();
 		const unsigned char * render = textTexture->buffer();
+
 		renderImage(_dstImg, render, tWidth, tHeight);
 	}
 

@@ -62,7 +62,7 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void SFileWatcher::notifyFileChanged(const char * _fileName)
 	{
-		rtl::map<string,rtl::vector<IDelegate<const char*>*> >::iterator i = mWatchers.begin();
+		rtl::map<string,rtl::vector<IDelegate<const char*>*> >::iterator i = mWatchers.find(string(_fileName));
 		if(i != mWatchers.end())
 		{
 			rtl::vector<IDelegate<const char*>*>& v = i->second;

@@ -58,7 +58,8 @@ void CBuggyGameClient::init()
 	SVideo::get()->driver()->setBackgroundColor(CColor::LIGHT_BLUE);
 
 	CWebPanel * testWeb = new CWebPanel(320, 240);
-	testWeb->runHtml("Hello from an HTML panel");
+	testWeb->loadPage("testPage.html");
+	// testWeb->runHtml("Hello from an HTML panel");
 
 	CStaticModel::registerResource(CMeshGenerator::terrain(125, 512, 50.f), "terrain");
 	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");

@@ -8,6 +8,7 @@
 #ifndef _REV_GAME_GUI_WEBPANEL_HTML_HTMLLEXER_H_
 #define _REV_GAME_GUI_WEBPANEL_HTML_HTMLLEXER_H_
 
+#include <revCore/delegate/delegate.h>
 #include <revGame/gui/guiPanel.h>
 
 namespace rev { namespace video { class CFont; }}
@@ -31,6 +32,7 @@ namespace rev { namespace game
 		unsigned mWidth;
 		unsigned mHeight;
 		video::CFont * mDefaultFont;
+		CObjectDelegate<CWebPanel,const char*> * mPageDelegate;
 	};
 }	// namespace game
 }	// namespace rev

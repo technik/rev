@@ -17,14 +17,14 @@ namespace rev
 	{
 	public:
 		void getOwnership(); // Gets the ownership of this resource, so it won't get deleted till you release it.
-		bool release	 (); // Release this resource. The resource will delete itself when all its owners release it.
+		virtual bool release	 (); // Release this resource. The resource will delete itself when all its owners release it.
 			// Returns true if the resource is still active after release or false if it's been deleted.
 	protected:
 		IResource();
 		// Destruction.
 		// Virtual destructor ensures correct destruction of derived classes
 		virtual ~IResource();
-	private:
+	protected:
 		unsigned mReferences;
 	};
 

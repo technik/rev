@@ -71,7 +71,7 @@ namespace rev { namespace game
 		// Quad
 		mQuad->setSize(mSize);
 		if(0 != mMaterial)
-			delete mMaterial;
+			mMaterial->release();
 		mMaterial = new CPlainTextureMaterial(mTexture);
 		if(mInstance)
 			delete mInstance;

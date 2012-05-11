@@ -86,7 +86,8 @@ namespace rev
 		{
 			if(i->second == _res)
 			{
-				mResources.erase(i);
+				if(!_res->release())
+					mResources.erase(i);
 			}
 		}
 	}
@@ -100,7 +101,8 @@ namespace rev
 		{
 			if(i->second == _res)
 			{
-				mResources.erase(i);
+				if(!_res->release())
+					mResources.erase(i);
 			}
 		}
 	}
@@ -109,14 +111,18 @@ namespace rev
 	template<class _resourceT, class _keyT>
 	void CResourceManager<_resourceT, _keyT>::release(const _keyT& _x)
 	{
-		mResources.erase(_x);
+		typename rtl::map<string,_resourceT*>::iterator i = find(_x);
+		if(!i->second->release())
+			mResources.erase(i);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class _resourceT>
 	void CResourceManager<_resourceT, const char*>::release(const char* _x)
 	{
-		mResources.erase(string(_x));
+		typename rtl::map<string,_resourceT*>::iterator i = find(_x);
+		if(!i->second->release())
+			mResources.erase(i);
 	}
 
 }	// namespace rev
