@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\code\revCore\file\file.h" />
     <ClInclude Include="..\..\code\revCore\file\fileBinding.h" />
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
+    <ClInclude Include="..\..\code\revCore\fsm\finiteStateMachine.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
     <ClInclude Include="..\..\code\revCore\math\noise.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
@@ -184,6 +185,8 @@
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h" />
     <ClInclude Include="..\..\code\revGame\gui\guiPanel.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlTokens.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\webPanel.h" />
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
@@ -258,6 +261,8 @@
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\guiPanel.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\webPanel.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp" />

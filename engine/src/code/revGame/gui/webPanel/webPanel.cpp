@@ -6,11 +6,14 @@
 // web-based panel
 
 #include "webPanel.h"
+#include "html/htmlTokens.h"
+#include "html/lexer/htmlLexer.h"
 
 #include <revCore/file/file.h>
 #include <revCore/file/fileWatcher.h>
 #include <revVideo/font/font.h>
 #include <revVideo/texture/texture.h>
+#include <vector.h>
 
 using namespace rev::video;
 
@@ -77,10 +80,10 @@ namespace rev { namespace game
 			{
 				unsigned idx = i + mWidth * j;
 				// XOR texture
-				_img[4*idx+0] = 0;//(unsigned char)((i^j) & 0xff);
-				_img[4*idx+1] = 0;//(unsigned char)((i^j) & 0xff);
-				_img[4*idx+2] = 0;//(unsigned char)((i^j) & 0xff);
-				_img[4*idx+3] = 0;//255;
+				_img[4*idx+0] = 0; //(unsigned char)((i^j) & 0xff);
+				_img[4*idx+1] = 0; //(unsigned char)((i^j) & 0xff);
+				_img[4*idx+2] = 0; //(unsigned char)((i^j) & 0xff);
+				_img[4*idx+3] = 0; //255;
 			}
 		}
 	}
@@ -88,9 +91,22 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	void CWebPanel::renderCode(unsigned char * _dstImg, const char * _code)
 	{
+		rtl::vector<CHtmlToken>	tokenList;
+		// Parse
+		CHtmlLexer::parseHtmlIntoTokens(_code, tokenList);
+		// Load
+		mDomTree.loadFromTokenList(tokenList);
+		// Render
+		mDomTree.renderToImage(_dstImg, mWidth, mHeight);
+		//renderText(_dstImg, _code, 0, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CWebPanel::renderText(unsigned char * _dstImg, const char * _text, unsigned _x, unsigned _y)
+	{
 		char lineBuffer[512];
-		unsigned offset = getTextLine(lineBuffer, _code, mWidth);
-		unsigned yPos = 0;
+		unsigned offset = getTextLine(lineBuffer, _text, mWidth);
+		unsigned yPos = _y;
 		unsigned renderChar0 = 0;
 		while(0 != lineBuffer[0])
 		{
@@ -99,9 +115,9 @@ namespace rev { namespace game
 			unsigned tWidth = textTexture->width();
 			unsigned tHeight = textTexture->height();
 			const unsigned char * render = textTexture->buffer();
-			renderImage(_dstImg, render, 0, yPos, tWidth, tHeight);
+			renderImage(_dstImg, render, _x, yPos, tWidth, tHeight);
 			yPos += tHeight + 4;
-			offset += getTextLine(lineBuffer, &_code[offset], mWidth);
+			offset += getTextLine(lineBuffer, &_text[offset], mWidth);
 			while(lineBuffer[renderChar0] == ' ')
 				++renderChar0;
 		}
