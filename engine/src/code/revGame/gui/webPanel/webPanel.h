@@ -36,7 +36,7 @@ namespace rev { namespace game
 		unsigned mHeight;
 		video::CFont * mDefaultFont;
 		CObjectDelegate<CWebPanel,const char*> * mPageDelegate;
-		CHtmlDomTree	mDomTree;
+		//CHtmlDomTree	mDomTree;
 	};
 }	// namespace game
 }	// namespace rev

@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // html Dom Tree
 
-#include "htmlDomTree.h"
+//#include "htmlDomTree.h"
 
 #include <revCore/codeTools/assert/assert.h>
 #include <revCore/codeTools/log/log.h>
@@ -24,7 +24,7 @@ namespace rev { namespace game
 		eAfterBody
 	};
 	//------------------------------------------------------------------------------------------------------------------
-	void CHtmlDomTree::loadFromTokenList(const rtl::vector<CHtmlToken>& _tokenList)
+/*	void CHtmlDomTree::loadFromTokenList(const rtl::vector<CHtmlToken>& _tokenList)
 	{
 		//EInsertMode insertMode = eInitial;
 		rtl::vector<CHtmlToken>::const_iterator token = _tokenList.begin();
@@ -106,6 +106,6 @@ namespace rev { namespace game
 			revLogN(_pos, eError);
 			rev::codeTools::SLog::get()->flush();
 		}
-	}
+	}*/
 }	// namespace game
 }	// namespace rev

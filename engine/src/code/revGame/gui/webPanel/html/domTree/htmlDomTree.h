@@ -14,7 +14,7 @@
 namespace rev { namespace game
 {
 	///\ A Simplified dom tree
-	class CHtmlDomTree
+	/*class CHtmlDomTree
 	{
 	public:
 		void loadFromTokenList(const rtl::vector<CHtmlToken>& _tokenList);
@@ -32,7 +32,7 @@ namespace rev { namespace game
 		};
 
 		CElement * mBody;
-	};
+	};*/
 }	// namespace game
 }	// namespace rev
 

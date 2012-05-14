@@ -6,7 +6,6 @@
 // web-based panel
 
 #include "webPanel.h"
-#include "html/htmlTokens.h"
 #include "html/lexer/htmlLexer.h"
 
 #include <revCore/file/file.h>
@@ -91,13 +90,14 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	void CWebPanel::renderCode(unsigned char * _dstImg, const char * _code)
 	{
-		rtl::vector<CHtmlToken>	tokenList;
+		_dstImg;
+		rtl::vector<CToken>	tokenList;
 		// Parse
-		CHtmlLexer::parseHtmlIntoTokens(_code, tokenList);
+		CHtmlLexer::get()->tokenizeCode(tokenList, _code);
 		// Load
-		mDomTree.loadFromTokenList(tokenList);
+		//mDomTree.loadFromTokenList(tokenList);
 		// Render
-		mDomTree.renderToImage(_dstImg, mWidth, mHeight);
+		//mDomTree.renderToImage(_dstImg, mWidth, mHeight);
 		//renderText(_dstImg, _code, 0, 0);
 	}
 

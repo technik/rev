@@ -9,6 +9,7 @@
 #define _RTL_MAP_H_
 
 #include "baseTypes.h"
+#include <new>
 #include <utility.h>
 
 namespace rtl

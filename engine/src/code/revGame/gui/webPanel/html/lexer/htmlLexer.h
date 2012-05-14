@@ -8,20 +8,18 @@
 #ifndef _REV_GAME_GUI_WEBPANEL_HTML_LEXER_HTMLLEXER_H_
 #define _REV_GAME_GUI_WEBPANEL_HTML_LEXER_HTMLLEXER_H_
 
-#include <vector.h>
-#include <revGame/gui/webPanel/html/htmlTokens.h>
+#include <revCore/interpreter/lexer.h>
 
 namespace rev { namespace game
 {
 	class CHtmlLexer
 	{
 	public:
-		static void parseHtmlIntoTokens(const char * _html, rtl::vector<CHtmlToken>& _tokens);
-
+		static void init();
+		static CLexer * get();
+		static void end();
 	private:
-		static bool	isANumber(char character);
-		static bool isALetter(char character);
-		static bool isAlphanumeric(char character);
+		static CLexer * sHtmlLexer;
 	};
 
 }	// namespace game

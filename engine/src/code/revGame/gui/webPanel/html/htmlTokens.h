@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Revolution Engine
 // by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
-// Created on May 11th, 2012
+// Created on May 14th, 2012
 ////////////////////////////////////////////////////////////////////////////////
 // html lexer
 
@@ -10,7 +10,22 @@
 
 namespace rev { namespace game
 {
-	struct CHtmlToken
+	enum EHtmlToken
+	{
+		eOpenEndTag,
+		eOpenTag,
+		eCloseTag,
+		eAssignement,
+		ePercentage,
+		eSpace,
+		eInt,
+		eFloat,
+		eId,
+		eColor,
+		eWord,
+		eString,
+	};
+	/*struct CHtmlToken
 	{
 		enum EType
 		{
@@ -33,7 +48,7 @@ namespace rev { namespace game
 		const char * text;
 		
 		void clean() { if (0 != text) {delete[] text; text = 0; } }
-	};
+	};*/
 }	// namespace game
 }	// namespace rev
 

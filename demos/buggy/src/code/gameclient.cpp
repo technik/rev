@@ -24,6 +24,8 @@
 #include "buggy/buggy.h"
 #include "camera/aerialCamera.h"
 
+#include <revCore/fsm/regExpFsm.h>
+
 using namespace rev;
 using namespace rev::video;
 using namespace rev::game;
@@ -33,6 +35,46 @@ void SGameClient::create()
 {
 	sInstance = new CBuggyGameClient();
 	sInstance->init();
+
+	rev::CRegExpFsm	empty("");
+	empty.accepts("", 0);
+	empty.accepts("hello", 4);
+
+	rev::CRegExpFsm a("a");
+	a.accepts("", 0);
+	a.accepts("a", 1);
+	a.accepts("b", 1);
+	a.accepts("aaa", 3);
+
+	rev::CRegExpFsm dis("a|b+");
+	dis.accepts("", 0);
+	dis.accepts("a", 1);
+	dis.accepts("b", 1);
+	dis.accepts("c", 1);
+	dis.accepts("abbab", 5);
+	
+	rev::CRegExpFsm exclude("[^a]");
+	exclude.accepts("", 0);
+	exclude.accepts("b", 1);
+	exclude.accepts("a", 1);
+	exclude.accepts("bb", 2);
+
+	rev::CRegExpFsm range("[0-9]+");
+	range.accepts("", 0);
+	range.accepts("0", 1);
+	range.accepts("1", 1);
+	range.accepts("9", 1);
+	range.accepts("a", 1);
+	range.accepts("123", 3);
+
+	rev::CRegExpFsm floating("-?[0-9]+.[0-9]+f?");
+	floating.accepts("-",1);
+	floating.accepts("1.57f", 3);
+	floating.accepts("-.2", 3);
+	floating.accepts("-138.222f", 8);
+	floating.accepts("-.", 2);
+	floating.accepts("1111.222", 8);
+	floating.accepts("-112", 3);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

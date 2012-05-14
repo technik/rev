@@ -190,6 +190,9 @@
     <Filter Include="revCore\fsm">
       <UniqueIdentifier>{fdebe87e-6576-4547-a4a7-80ee76ce57d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revCore\interpreter">
+      <UniqueIdentifier>{5dd13a0e-d826-49f0-9438-3fa677f620ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -468,6 +471,15 @@
     <ClInclude Include="..\..\code\revCore\fsm\finiteStateMachine.h">
       <Filter>revCore\fsm</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\interpreter\token.h">
+      <Filter>revCore\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\fsm\regExpFsm.h">
+      <Filter>revCore\fsm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\interpreter\lexer.h">
+      <Filter>revCore\interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -655,6 +667,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.cpp">
       <Filter>revGame\gui\webPanel\html\domTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\fsm\regExpFsm.cpp">
+      <Filter>revCore\fsm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\interpreter\lexer.cpp">
+      <Filter>revCore\interpreter</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

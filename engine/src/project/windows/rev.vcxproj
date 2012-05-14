@@ -167,6 +167,9 @@
     <ClInclude Include="..\..\code\revCore\file\fileBinding.h" />
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
     <ClInclude Include="..\..\code\revCore\fsm\finiteStateMachine.h" />
+    <ClInclude Include="..\..\code\revCore\fsm\regExpFsm.h" />
+    <ClInclude Include="..\..\code\revCore\interpreter\lexer.h" />
+    <ClInclude Include="..\..\code\revCore\interpreter\token.h" />
     <ClInclude Include="..\..\code\revCore\math\matrix.h" />
     <ClInclude Include="..\..\code\revCore\math\noise.h" />
     <ClInclude Include="..\..\code\revCore\math\quaternion.h" />
@@ -249,6 +252,8 @@
     <ClCompile Include="..\..\code\revCore\file\file.cpp" />
     <ClCompile Include="..\..\code\revCore\file\fileBinding.cpp" />
     <ClCompile Include="..\..\code\revCore\file\fileWatcher.cpp" />
+    <ClCompile Include="..\..\code\revCore\fsm\regExpFsm.cpp" />
+    <ClCompile Include="..\..\code\revCore\interpreter\lexer.cpp" />
     <ClCompile Include="..\..\code\revCore\math\matrix.cpp" />
     <ClCompile Include="..\..\code\revCore\math\noise.cpp" />
     <ClCompile Include="..\..\code\revCore\math\quaternion.cpp" />
