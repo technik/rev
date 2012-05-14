@@ -7,6 +7,7 @@
 
 #include "lexer.h"
 
+#include <revCore/codeTools/log/log.h>
 #include <revCore/fsm/regExpFsm.h>
 #include <revCore/string.h>
 
@@ -21,6 +22,7 @@ namespace rev
 		// Allocate memory for rules and tokens
 		mRules = reinterpret_cast<CRegExpFsm*>(new char[sizeof(CRegExpFsm) * mNRules]);
 		mTokens = new unsigned[mNRules];
+		
 		// Create rules and copy tokens
 		for(unsigned i = 0; i < mNRules; ++i)
 		{
@@ -33,11 +35,34 @@ namespace rev
 	void CLexer::tokenizeCode(rtl::vector<CToken>& _tokenList, const char * _code)
 	{
 		unsigned cursor = 0;
+		mLine = 0;
+		mLineStart = 0;
 		while('\0' != _code[cursor])
 		{
-			CToken t;
-			cursor += getToken(t, &_code[cursor]);
-			_tokenList.push_back(t);
+			if(('\n' == _code[cursor]) || ('\f' == _code[cursor]))
+				advanceLine(cursor++);
+			else
+			{
+				CToken t;
+				t.line = mLine;
+				t.pos = cursor - mLineStart;
+				unsigned consumed = getToken(t, &_code[cursor]);
+				if(0 != consumed)
+				{
+					cursor += consumed;
+					_tokenList.push_back(t);
+				}
+				else // Error in token
+				{
+					rev::revLogN("Error: unrecognized token:", eError);
+					rev::revLog("In line ", eError);
+					rev::revLog(mLine, eError);
+					rev::revLog(", position ", eError);
+					rev::revLogN(cursor - mLineStart, eError);
+					rev::codeTools::SLog::get()->flush();
+					return;
+				}
+			}
 		}
 	}
 
@@ -52,8 +77,6 @@ namespace rev
 			if(0 != (len = mRules[r].consumes(_code)))
 			{
 				_t.type = mTokens[r];
-				_t.line = 0;
-				_t.pos = 0;
 				matched = true;
 				matchingFsm = r;
 				break;
@@ -70,6 +93,13 @@ namespace rev
 		}
 		else
 			return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CLexer::advanceLine(unsigned _cursor)
+	{
+		mLine++;
+		mLineStart = _cursor+1;
 	}
 
 }	// namespace rev

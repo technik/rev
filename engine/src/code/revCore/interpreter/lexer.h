@@ -37,6 +37,10 @@ namespace rev
 		CRegExpFsm*	mRules;
 		unsigned*	mTokens;
 		unsigned	mNRules;
+
+		void		advanceLine(unsigned _cursor);
+		unsigned	mLine;
+		unsigned	mLineStart;
 	};
 
 }	// namespace rev
