@@ -24,11 +24,28 @@
 #include "buggy/buggy.h"
 #include "camera/aerialCamera.h"
 
-#include <revCore/fsm/regExpFsm.h>
+#include <revCore/interpreter/parser.h>
+#include <revCore/interpreter/token.h>
 
 using namespace rev;
 using namespace rev::video;
 using namespace rev::game;
+
+enum EGrammarRule
+{
+	eStatement,
+	eExpression
+};
+
+enum EToken
+{
+	eNum,
+	ePlus,
+};
+
+CSyntagma expr = { eExpression,	false};
+CSyntagma plus = { ePlus,		true };
+CSyntagma numb = { eNum,		true };
 
 //----------------------------------------------------------------------------------------------------------------------
 void SGameClient::create()
@@ -36,45 +53,31 @@ void SGameClient::create()
 	sInstance = new CBuggyGameClient();
 	sInstance->init();
 
-	rev::CRegExpFsm	empty("");
-	empty.accepts("", 0);
-	empty.accepts("hello", 4);
+	// Tokens to parse
+	rtl::vector<CToken>	tkList;
+	CToken t = {eNum, 0, 0, 0};
+	CToken t2 = {ePlus, 0, 0, 0};
+	tkList.push_back(t);
+	tkList.push_back(t2);
+	tkList.push_back(t);
 
-	rev::CRegExpFsm a("a");
-	a.accepts("", 0);
-	a.accepts("a", 1);
-	a.accepts("b", 1);
-	a.accepts("aaa", 3);
-
-	rev::CRegExpFsm dis("a|b+");
-	dis.accepts("", 0);
-	dis.accepts("a", 1);
-	dis.accepts("b", 1);
-	dis.accepts("c", 1);
-	dis.accepts("abbab", 5);
+	// -- Grammar
+	CGrammarRule grammar[3];
+	// Statement : Expression
+	grammar[0].from = eStatement;
+	grammar[0].to.push_back(expr);
+	// Expression : Expression + Expression
+	grammar[1].from = eExpression;
+	grammar[1].to.push_back(expr);
+	grammar[1].to.push_back(plus);
+	grammar[1].to.push_back(expr);
+	// Expression : Number
+	grammar[2].from = eExpression;
+	grammar[2].to.push_back(numb);
 	
-	rev::CRegExpFsm exclude("[^a]");
-	exclude.accepts("", 0);
-	exclude.accepts("b", 1);
-	exclude.accepts("a", 1);
-	exclude.accepts("bb", 2);
-
-	rev::CRegExpFsm range("[0-9]+");
-	range.accepts("", 0);
-	range.accepts("0", 1);
-	range.accepts("1", 1);
-	range.accepts("9", 1);
-	range.accepts("a", 1);
-	range.accepts("123", 3);
-
-	rev::CRegExpFsm floating("-?[0-9]+.[0-9]+f?");
-	floating.accepts("-",1);
-	floating.accepts("1.57f", 3);
-	floating.accepts("-.2", 3);
-	floating.accepts("-138.222f", 8);
-	floating.accepts("-.", 2);
-	floating.accepts("1111.222", 8);
-	floating.accepts("-112", 3);
+	// -- Create the parser
+	CParser * parser = new CParser(grammar, 3);
+	parser->generateParseTree(tkList);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

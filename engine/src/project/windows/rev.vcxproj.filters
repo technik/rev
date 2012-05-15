@@ -193,6 +193,9 @@
     <Filter Include="revCore\interpreter">
       <UniqueIdentifier>{5dd13a0e-d826-49f0-9438-3fa677f620ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui\webPanel\html\parser">
+      <UniqueIdentifier>{0fc8a4dc-da99-4778-af67-8e1f02b007e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -480,6 +483,12 @@
     <ClInclude Include="..\..\code\revCore\interpreter\lexer.h">
       <Filter>revCore\interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revCore\interpreter\parser.h">
+      <Filter>revCore\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\parser\htmlParser.h">
+      <Filter>revGame\gui\webPanel\html\parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -672,6 +681,9 @@
       <Filter>revCore\fsm</Filter>
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\interpreter\lexer.cpp">
+      <Filter>revCore\interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revCore\interpreter\parser.cpp">
       <Filter>revCore\interpreter</Filter>
     </ClCompile>
   </ItemGroup>
