@@ -29,6 +29,7 @@ namespace rev
 	struct CParserNode
 	{
 		CSyntagma	mSyntagma;
+		virtual ~CParserNode() {}
 	};
 
 	struct CParserLeaf : public CParserNode
@@ -38,6 +39,7 @@ namespace rev
 
 	struct CParserNonLeaf: public CParserNode
 	{
+		~CParserNonLeaf() {for(unsigned i=0; i < mChildren.size(); ++i) delete mChildren[i];}
 		rtl::vector<CParserNode*>	mChildren;
 	};
 

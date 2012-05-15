@@ -65,7 +65,39 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool reduce(TChart& _chart, unsigned i, const CParseState& _state, const CGrammarRule* _rules)
+	void addToParseTree(rtl::vector<CParserNode*>& _treeStack, const CParseState& _state, const CGrammarRule* _rules, const CToken& _token)
+	{
+		const rtl::vector<CSyntagma>& predicate = _rules[_state.grammarRule].to;
+		if(predicate.size() == 1 && predicate[0].isTerminal)
+		{
+			CParserLeaf * newLeaf = new CParserLeaf();
+			newLeaf->mSyntagma = predicate[0];
+			newLeaf->mToken = _token;
+			_treeStack.push_back(newLeaf);
+		}
+		else
+		{
+			unsigned nChildren = 0;
+			for(unsigned c = 0; c < predicate.size(); ++c)
+			{
+				if(!predicate[c].isTerminal)
+					++nChildren;
+			}
+			CParserNonLeaf * newNode = new CParserNonLeaf();
+			CSyntagma syntagma = { _rules[_state.grammarRule].from, false};
+			newNode->mSyntagma = syntagma;
+			newNode->mChildren.resize(nChildren);
+			for(unsigned i = 1; i <= nChildren; ++i)
+			{
+				newNode->mChildren[nChildren-i] = _treeStack.back();
+				_treeStack.pop_back();
+			}
+			_treeStack.push_back(newNode);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool reduce(TChart& _chart, unsigned i, const CParseState& _state, const CGrammarRule* _rules, rtl::vector<CParserNode*>& _treeStack, const CToken& _token)
 	{
 		bool changed = false;
 		const TChartEntry& fromEntry = _chart[_state.from];
@@ -76,9 +108,11 @@ namespace rev
 			if(!next.isTerminal && (next.value == _rules[_state.grammarRule].from))
 			{
 				CParseState newState = { oldState.grammarRule, oldState.redDot+1, oldState.from };
-				changed |= addParseState(_chart[i], newState);
+				changed = addParseState(_chart[i], newState);
 			}
 		}
+		if(changed)
+			addToParseTree(_treeStack, _state, _rules, _token);
 		return changed;
 	}
 
@@ -92,7 +126,8 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	CParserNode * CParser::generateParseTree(const rtl::vector<CToken>& _tokens)
 	{
-		// Create a memoization chart of parsing states
+		rtl::vector<CParserNode*>	treeStack;	// Parse tree stack
+		// ------ Create a memoization chart of parsing states ------
 		TChart	memoChart;
 		memoChart.resize(_tokens.size() + 1);
 		// Add the starting rule to it
@@ -115,17 +150,14 @@ namespace rev
 					{
 						if(rule.to[state.redDot].isTerminal) // Shift
 						{
-							changed |= shift(memoChart, t, state);
+							if(t < _tokens.size())
+								changed |= shift(memoChart, t, state);
 						}
 						else // Closure
-						{
 							changed |= closure(state, chartEntry, mRules, mNRules, t);
-						}
 					}
 					else // Reduce
-					{
-						changed |= reduce(memoChart, t, state, mRules);
-					}
+						changed |= reduce(memoChart, t, state, mRules, treeStack, _tokens[t-1]);
 				}
 			}
 		}
@@ -133,23 +165,23 @@ namespace rev
 		//----------------------
 		// Log the states chart
 		//----------------------
-		for(unsigned i = 0; i < memoChart.size(); ++i)
-		{
-			TChartEntry& entry = memoChart[i];
-			revLog(i);
-			revLogN(" ---------------------------------");
-			for(unsigned j = 0; j < entry.size(); ++j)
-			{
-				CParseState& state = entry[j];
-				revLog("Rule: ");
-				revLog(state.grammarRule);
-				revLog(", from ");
-				revLog(state.from);
-				revLog(". dot at ");
-				revLogN(state.redDot);
-			}
-			codeTools::SLog::get()->flush();
-		}
+		// for(unsigned i = 0; i < memoChart.size(); ++i)
+		// {
+		// 	TChartEntry& entry = memoChart[i];
+		// 	revLog(i);
+		// 	revLogN(" ---------------------------------");
+		// 	for(unsigned j = 0; j < entry.size(); ++j)
+		// 	{
+		// 		CParseState& state = entry[j];
+		// 		revLog("Rule: ");
+		// 		revLog(state.grammarRule);
+		// 		revLog(", from ");
+		// 		revLog(state.from);
+		// 		revLog(". dot at ");
+		// 		revLogN(state.redDot);
+		// 	}
+		// 	codeTools::SLog::get()->flush();
+		// }
 		return 0;
 	}
 
