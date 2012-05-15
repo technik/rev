@@ -117,6 +117,20 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	bool validateChart(const TChart& _chart, const CGrammarRule& _baseRule)
+	{
+		const TChartEntry& lastEntry = _chart.back();
+		for(unsigned i = 0; i < lastEntry.size(); ++i)
+		{
+			if(	(lastEntry[i].grammarRule == 0)
+				&&(lastEntry[i].from == 0)
+				&&(lastEntry[i].redDot == _baseRule.to.size()) )
+				return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CParser::CParser(const CGrammarRule* _rules, unsigned _nRules)
 		:mRules(_rules)
 		,mNRules(_nRules)
@@ -160,6 +174,12 @@ namespace rev
 						changed |= reduce(memoChart, t, state, mRules, treeStack, _tokens[t-1]);
 				}
 			}
+		}
+
+		if(validateChart(memoChart, mRules[0]))
+		{
+			// chart is valid
+			return treeStack.back();
 		}
 
 		//----------------------

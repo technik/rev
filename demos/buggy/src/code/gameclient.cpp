@@ -24,28 +24,28 @@
 #include "buggy/buggy.h"
 #include "camera/aerialCamera.h"
 
-#include <revCore/interpreter/parser.h>
-#include <revCore/interpreter/token.h>
+// #include <revCore/interpreter/parser.h>
+// #include <revCore/interpreter/token.h>
 
 using namespace rev;
 using namespace rev::video;
 using namespace rev::game;
 
-enum EGrammarRule
-{
-	eStatement,
-	eExpression
-};
-
-enum EToken
-{
-	eNum,
-	ePlus,
-};
-
-CSyntagma expr = { eExpression,	false};
-CSyntagma plus = { ePlus,		true };
-CSyntagma numb = { eNum,		true };
+// enum EGrammarRule
+// {
+// 	eStatement,
+// 	eExpression
+// };
+// 
+// enum EToken
+// {
+// 	eNum,
+// 	ePlus,
+// };
+// 
+// CSyntagma expr = { eExpression,	false};
+// CSyntagma plus = { ePlus,		true };
+// CSyntagma numb = { eNum,		true };
 
 //----------------------------------------------------------------------------------------------------------------------
 void SGameClient::create()
@@ -53,31 +53,32 @@ void SGameClient::create()
 	sInstance = new CBuggyGameClient();
 	sInstance->init();
 
-	// Tokens to parse
-	rtl::vector<CToken>	tkList;
-	CToken t = {eNum, 0, 0, 0};
-	CToken t2 = {ePlus, 0, 0, 0};
-	tkList.push_back(t);
-	tkList.push_back(t2);
-	tkList.push_back(t);
-
-	// -- Grammar
-	CGrammarRule grammar[3];
-	// Statement : Expression
-	grammar[0].from = eStatement;
-	grammar[0].to.push_back(expr);
-	// Expression : Expression + Expression
-	grammar[1].from = eExpression;
-	grammar[1].to.push_back(expr);
-	grammar[1].to.push_back(plus);
-	grammar[1].to.push_back(expr);
-	// Expression : Number
-	grammar[2].from = eExpression;
-	grammar[2].to.push_back(numb);
-	
-	// -- Create the parser
-	CParser * parser = new CParser(grammar, 3);
-	parser->generateParseTree(tkList);
+	// // Tokens to parse
+	// rtl::vector<CToken>	tkList;
+	// CToken t = {eNum, 0, 0, 0};
+	// CToken t2 = {ePlus, 0, 0, 0};
+	// tkList.push_back(t);
+	// tkList.push_back(t2);
+	// tkList.push_back(t);
+	// 
+	// // -- Grammar
+	// CGrammarRule grammar[3];
+	// // Statement : Expression
+	// grammar[0].from = eStatement;
+	// grammar[0].to.push_back(expr);
+	// // Expression : Expression + Expression
+	// grammar[1].from = eExpression;
+	// grammar[1].to.push_back(expr);
+	// grammar[1].to.push_back(plus);
+	// grammar[1].to.push_back(expr);
+	// // Expression : Number
+	// grammar[2].from = eExpression;
+	// grammar[2].to.push_back(numb);
+	// 
+	// // -- Create the parser
+	// CParser * parser = new CParser(grammar, 3);
+	// parser->generateParseTree(tkList);
+	// delete parser;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
