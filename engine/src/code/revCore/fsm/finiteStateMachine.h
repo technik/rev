@@ -116,8 +116,12 @@ namespace rev
 		unsigned consumed = 0;
 		unsigned state = 0;
 		while(0 != (state=acceptsInputInState(_sequence[consumed], state)))
+		{
 			++consumed;
-		return consumed;
+			if(isAccepting(state))
+				return consumed;
+		}
+		return 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

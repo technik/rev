@@ -11,28 +11,18 @@
 #include <revGame/gui/webPanel/html/htmlTokens.h>
 #include <vector.h>
 
+namespace rev { class CParserNode; }
+
 namespace rev { namespace game
 {
-	///\ A Simplified dom tree
-	/*class CHtmlDomTree
+	class CHtmlDomNode
 	{
 	public:
-		void loadFromTokenList(const rtl::vector<CHtmlToken>& _tokenList);
-		void renderToImage(unsigned char * _dstImg, unsigned _dstWidth, unsigned _dstHeight);
-
+		static CHtmlDomNode * createNode(CParserNode * _tree);
+		virtual void render(unsigned char * _dstImg, unsigned _w, unsigned _h, unsigned _x, unsigned _y) const;
 	private:
-		void consumeDoctype(rtl::vector<CHtmlToken>::const_iterator& _token);
-		static void htmlAssert(bool _condition, const char * _errorMessage, unsigned _line, unsigned _pos);
-	private:
-		class CElement
-		{
-		public:
-			//virtual void render(unsigned char * _dst, unsigned _x, unsigned _y, unsigned _w, unsigned _h) = 0;
-			rtl::vector<CElement*> children;
-		};
-
-		CElement * mBody;
-	};*/
+		rtl::vector<CHtmlDomNode*> mChildren;
+	}
 }	// namespace game
 }	// namespace rev
 

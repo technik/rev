@@ -12,6 +12,15 @@ namespace rev { namespace game
 {
 	enum EHtmlToken
 	{
+		eSpace,
+		eOpenHtml,
+		eCloseHtml,
+		eOpenBody,
+		eCloseBody,
+		eWord
+	};
+	/*enum EHtmlToken
+	{
 		eOpenEndTag,
 		eOpenTag,
 		eCloseTag,
@@ -24,30 +33,6 @@ namespace rev { namespace game
 		eColor,
 		eWord,
 		eString,
-	};
-	/*struct CHtmlToken
-	{
-		enum EType
-		{
-			eSpace,
-			eWord,
-			eOpenTag,
-			eOpenEndTag,
-			eCloseTag,
-			eAssignment,
-			eString,
-			eSignedInt,
-			eFloat,
-			ePercentage,
-			eColor
-		};
-
-		EType type;
-		unsigned line;
-		unsigned pos;
-		const char * text;
-		
-		void clean() { if (0 != text) {delete[] text; text = 0; } }
 	};*/
 }	// namespace game
 }	// namespace rev

@@ -13,7 +13,7 @@
 
 namespace rev { namespace game
 {
-	const CTokenRule htmlLexRules[] = {
+	/*const CTokenRule htmlLexRules[] = {
 		{eOpenEndTag,	"</"},
 		{eOpenTag,		"<"},
 		{eCloseTag,		"/?>"},
@@ -24,8 +24,18 @@ namespace rev { namespace game
 		{eFloat,		"-?[0-9]+.[0-9]*f?"},
 		{eColor,		"#[0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F]"},
 		{eId,			"[a-z]+"},
-		{eWord,			"[^ \t\n\r\f<"},
+		{eWord,			"[^ \t\n\r\f<]"},
 		{eString,		"\"[^\"]*"},
+	};*/
+
+	const CTokenRule htmlLexRules[] = 
+	{
+		{eSpace,		" |\t|\n|\r|\f+"},
+		{eOpenHtml,		"<html>"},
+		{eCloseHtml,	"</html>"},
+		{eOpenBody,		"<body>"},
+		{eCloseBody,	"</body>"},
+		{eWord,			"[^ \t\n\r\f<]+"}
 	};
 
 	CLexer * CHtmlLexer::sHtmlLexer = 0;

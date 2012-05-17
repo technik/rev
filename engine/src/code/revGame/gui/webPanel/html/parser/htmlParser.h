@@ -8,13 +8,21 @@
 #ifndef _REV_GAME_GUI_WEBPANEL_HTML_HTMLPARSER_H_
 #define _REV_GAME_GUI_WEBPANEL_HTML_HTMLPARSER_H_
 
-namespace rev
+#include <revCore/interpreter/parser.h>
+
+namespace rev { namespace game
 {
 	class CHtmlParser
 	{
 	public:
-		void init();
+		static void		init();
+		static CParser*	get();
+		static void		end();
+
+	private:
+		static CParser*	sHtmlParser;
 	};
 }	// namespace rev
+}	// namespace game
 
 #endif // _REV_GAME_GUI_WEBPANEL_HTML_HTMLPARSER_H_

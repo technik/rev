@@ -7,6 +7,7 @@
 
 #include "webPanel.h"
 #include "html/lexer/htmlLexer.h"
+#include "html/parser/htmlParser.h"
 
 #include <revCore/file/file.h>
 #include <revCore/file/fileWatcher.h>
@@ -93,12 +94,14 @@ namespace rev { namespace game
 		_dstImg;
 		rtl::vector<CToken>	tokenList;
 		// Parse
-		CHtmlLexer::get()->tokenizeCode(tokenList, _code);
-		// Load
-		//mDomTree.loadFromTokenList(tokenList);
-		// Render
-		//mDomTree.renderToImage(_dstImg, mWidth, mHeight);
-		//renderText(_dstImg, _code, 0, 0);
+		CHtmlLexer::get()->tokenizeCode(tokenList, _code);	// Lexycal analysis
+		CParser * htmlParser = CHtmlParser::get();
+		htmlParser->stripTokens(tokenList, eSpace);			// Strip spaces
+		CParserNode * htmlTree = htmlParser->generateParseTree(tokenList);
+		if(htmlTree != 0)
+		{
+			renderText(_dstImg, _code, 0, 0);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

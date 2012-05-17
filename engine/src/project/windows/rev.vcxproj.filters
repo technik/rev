@@ -486,7 +486,7 @@
     <ClInclude Include="..\..\code\revCore\interpreter\parser.h">
       <Filter>revCore\interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revGame\gui\webPanel\parser\htmlParser.h">
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.h">
       <Filter>revGame\gui\webPanel\html\parser</Filter>
     </ClInclude>
   </ItemGroup>
@@ -685,6 +685,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revCore\interpreter\parser.cpp">
       <Filter>revCore\interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.cpp">
+      <Filter>revGame\gui\webPanel\html\parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
