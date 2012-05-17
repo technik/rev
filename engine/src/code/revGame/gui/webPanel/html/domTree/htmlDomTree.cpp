@@ -13,6 +13,7 @@
 #include <revCore/interpreter/token.h>
 #include <revGame/gui/webPanel/html/htmlTokens.h>
 #include <revGame/gui/webPanel/html/htmlExpressions.h>
+#include <revGame/gui/webPanel/html/renderContext/htmlRenderContext.h>
 #include <revVideo/font/font.h>
 #include <revVideo/texture/texture.h>
 
@@ -23,52 +24,66 @@ namespace rev { namespace game
 	//------------------------------------------------------------------------------------------------------------------
 	CHtmlDomNode * CHtmlDomNode::createNode(CParserNode * _node)
 	{
-		_node;
+		const CGrammarRule * rule = _node->mRule;
+		rule;
+		if(rule->from == eDocument)
+		{
+			CParserNonLeaf * root = static_cast<CParserNonLeaf*>(_node);
+			CParserNonLeaf * body = static_cast<CParserNonLeaf*>(root->mChildren[1]);
+			return createNode(body);
+		}
+		else if(rule->from == eBody)
+		{
+			CParserNonLeaf * body = static_cast<CParserNonLeaf*>(_node);
+			return htmlNode(static_cast<CParserNonLeaf*>(body->mChildren[1]));
+		}
+		// if(rule->from == eH
 		return new CHtmlDomNode();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CHtmlDomNode::render(unsigned char * _dstImg, unsigned _w, unsigned _h, unsigned _x, unsigned _y, CFont * _font) const
+	CHtmlDomNode* CHtmlDomNode::htmlNode(CParserNonLeaf * _node)
 	{
-		for(unsigned i = 0; i < mChildren.size(); ++i)
+		if(_node->mChildren.size() == 2) // W H
 		{
-			mChildren[i]->render(_dstImg, _w, _h, _x, _y, _font);
+			CHtmlElementNode * node = new CHtmlElementNode(static_cast<CParserLeaf*>(_node->mChildren[0])->mToken.text);
+			node->addChild(htmlNode(static_cast<CParserNonLeaf*>(_node->mChildren[1])));
+			return node;
+		}
+		else
+		{
+			return new CHtmlElementNode();
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void renderImage(unsigned char * _dstImg, unsigned _dstW, unsigned _dstH, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned _width, unsigned _height)
+	void CHtmlDomNode::addChild(CHtmlDomNode * _child)
 	{
-		for(unsigned i = 0; i < _width; ++i)
+		mChildren.push_back(_child);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CHtmlDomNode::render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const
+	{
+		for(rtl::vector<CHtmlDomNode*>::const_iterator i = mChildren.begin(); i != mChildren.end(); ++i)
 		{
-			if(i+_x >= _dstW)
-				break;
-			for(unsigned j = 0; j < _height; ++j)
-			{
-				if(j+_y >= _dstH)
-					break;
-				unsigned srcIdx = i + _width * j;
-				unsigned dstIdx = i + _x + _dstW * (j - _y + _dstH - _height);
-				_dstImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
-				_dstImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
-				_dstImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
-				_dstImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
-			}
+			(*i)->render(_context, _x, _y);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	// void CHtmlCodeDomNode::render(unsigned char * _dstImg, unsigned _w, unsigned _h, unsigned _x, unsigned _y, CFont * _font) const
-	// {
-	// 	// Render text
-	// 	CTexture * textTexture = _font->renderText(mToken.text);
-	// 	unsigned tWidth = textTexture->width();
-	// 	unsigned tHeight = textTexture->height();
-	// 	const unsigned char * render = textTexture->buffer();
-	// 	renderImage(_dstImg, _w, _h, render, _x, _y, tWidth, tHeight);
-	// 	// Render children
-	// 	CHtmlDomNode::render(_dstImg, _w, _h, _x+tWidth+_font->chars()[' '].xadvance, _y, _font);
-	// }
+	void CHtmlElementNode::render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const
+	{
+		if(mText.empty())
+		{
+			_context.renderText(_x, _y);
+		}
+		else
+		{
+			_context.addText(mText.c_str());
+		}
+		CHtmlDomNode::render(_context, _x, _y);
+	}
 
 }	// namespace game
 }	// namespace rev

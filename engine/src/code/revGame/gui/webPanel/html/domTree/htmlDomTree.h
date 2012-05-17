@@ -9,6 +9,8 @@
 #define _REV_GAME_GUI_WEBPANEL_HTML_DOMTREE_HTMLDOMTREE_H_
 
 #include <revCore/interpreter/token.h>
+#include <revCore/interpreter/parser.h>
+#include <revCore/string.h>
 #include <revGame/gui/webPanel/html/htmlTokens.h>
 #include <vector.h>
 
@@ -17,13 +19,29 @@ namespace rev {namespace video { class CFont; } }
 
 namespace rev { namespace game
 {
+	class CHtmlRenderContext;
+
 	class CHtmlDomNode
 	{
 	public:
 		static CHtmlDomNode * createNode(CParserNode * _tree);
-		virtual void render(unsigned char * _dstImg, unsigned _w, unsigned _h, unsigned _x, unsigned _y, video::CFont * _font) const;
+		virtual void render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const;
+		void addChild(CHtmlDomNode* _child);
 	protected:
+	private:
+		static CHtmlDomNode * htmlNode(CParserNonLeaf * _node);
+		
 		rtl::vector<CHtmlDomNode*> mChildren;
+	};
+
+	class CHtmlElementNode : public CHtmlDomNode
+	{
+	public:
+		CHtmlElementNode(const char * _text): mText(_text) {}
+		CHtmlElementNode() {}
+		void render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const;
+	private:
+		string mText;
 	};
 
 }	// namespace game

@@ -194,6 +194,7 @@
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlTokens.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRenderContext.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\webPanel.h" />
     <ClInclude Include="..\..\code\revGame\scene\mesh\meshGenerator.h" />
     <ClInclude Include="..\..\code\revGame\scene\object\staticObject.h" />
@@ -273,6 +274,7 @@
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRendereContext.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\webPanel.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\mesh\meshGenerator.cpp" />
     <ClCompile Include="..\..\code\revGame\scene\object\staticObject.cpp" />

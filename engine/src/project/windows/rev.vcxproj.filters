@@ -196,6 +196,9 @@
     <Filter Include="revGame\gui\webPanel\html\parser">
       <UniqueIdentifier>{0fc8a4dc-da99-4778-af67-8e1f02b007e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui\webPanel\html\renderContext">
+      <UniqueIdentifier>{bbfa529d-01e7-47de-a9ba-18acdc276fe9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -492,6 +495,9 @@
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlExpressions.h">
       <Filter>revGame\gui\webPanel\html</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRenderContext.h">
+      <Filter>revGame\gui\webPanel\html\renderContext</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -691,6 +697,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.cpp">
       <Filter>revGame\gui\webPanel\html\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRendereContext.cpp">
+      <Filter>revGame\gui\webPanel\html\renderContext</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
 #include "html/domTree/htmlDomTree.h"
 #include "html/lexer/htmlLexer.h"
 #include "html/parser/htmlParser.h"
+#include "html/renderContext/htmlRenderContext.h"
 
 #include <revCore/file/file.h>
 #include <revCore/file/fileWatcher.h>
@@ -102,7 +103,14 @@ namespace rev { namespace game
 		if(htmlTree != 0)
 		{
 			mTree = CHtmlDomNode::createNode(htmlTree);
-			mTree->render(_dstImg, mWidth, mHeight, 0, 0, mDefaultFont);
+			CHtmlRenderContext context;
+			context.dstImg = _dstImg;
+			context.imgH = mHeight;
+			context.imgW = mWidth;
+			context.font = mDefaultFont;
+			//context.addText("Hello from a render context!");
+			//context.renderText(0, 0);
+			mTree->render(context, 0, 0);
 			//renderText(_dstImg, _code, 0, 0);
 		}
 	}
