@@ -6,6 +6,7 @@
 // web-based panel
 
 #include "webPanel.h"
+#include "html/domTree/htmlDomTree.h"
 #include "html/lexer/htmlLexer.h"
 #include "html/parser/htmlParser.h"
 
@@ -100,55 +101,14 @@ namespace rev { namespace game
 		CParserNode * htmlTree = htmlParser->generateParseTree(tokenList);
 		if(htmlTree != 0)
 		{
-			renderText(_dstImg, _code, 0, 0);
+			mTree = CHtmlDomNode::createNode(htmlTree);
+			mTree->render(_dstImg, mWidth, mHeight, 0, 0, mDefaultFont);
+			//renderText(_dstImg, _code, 0, 0);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CWebPanel::renderText(unsigned char * _dstImg, const char * _text, unsigned _x, unsigned _y)
-	{
-		char lineBuffer[512];
-		unsigned offset = getTextLine(lineBuffer, _text, mWidth);
-		unsigned yPos = _y;
-		unsigned renderChar0 = 0;
-		while(0 != lineBuffer[0])
-		{
-			CTexture * textTexture = mDefaultFont->renderText(&lineBuffer[renderChar0]);
-			renderChar0 = 0;
-			unsigned tWidth = textTexture->width();
-			unsigned tHeight = textTexture->height();
-			const unsigned char * render = textTexture->buffer();
-			renderImage(_dstImg, render, _x, yPos, tWidth, tHeight);
-			yPos += tHeight + 4;
-			offset += getTextLine(lineBuffer, &_text[offset], mWidth);
-			while(lineBuffer[renderChar0] == ' ')
-				++renderChar0;
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CWebPanel::renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned _width, unsigned _height)
-	{
-		for(unsigned i = 0; i < _width; ++i)
-		{
-			if(i+_x >= mWidth)
-				break;
-			for(unsigned j = 0; j < _height; ++j)
-			{
-				if(j+_y >= mHeight)
-					break;
-				unsigned srcIdx = i + _width * j;
-				unsigned dstIdx = i + _x + mWidth * (j - _y + mHeight - _height);
-				_dstImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
-				_dstImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
-				_dstImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
-				_dstImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
-			}
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned CWebPanel::getTextLine(char * _dst, const char * _src, unsigned _maxWidth)
+	/*unsigned CWebPanel::getTextLine(char * _dst, const char * _src, unsigned _maxWidth)
 	{
 		unsigned cursor = 0;
 		unsigned wCursor = 0;
@@ -168,7 +128,7 @@ namespace rev { namespace game
 		}
 		_dst[cursor] = '\0';
 		return cursor;
-	}
+	}*/
 
 }	// namespace game
 }	// namespace rev

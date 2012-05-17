@@ -22,22 +22,6 @@ namespace rev { namespace video
 	class CFont : public IManagedResource<CFont, const char*, true>, public CRecreationFileBinding<CFont>
 	{
 	public:
-		CFont(const char* _filename);
-		~CFont();
-
-		CTexture * renderText(const char * _text);
-
-		unsigned textLength		(const char * _text);
-		unsigned textHeight		(const char * _text);
-
-	private:
-		void	parseFont		(const char * _text);
-		void	parseLine		(const char * _text, unsigned& _cursor);
-		void	parseCharLine	(const char * _text, unsigned& _cursor);
-		void	skipLine		(const char * _text, unsigned& _cursor);
-		int		readNumber		(const char * _text, unsigned& _cursor);
-
-	private:
 		struct CChar
 		{
 			CChar()
@@ -63,6 +47,25 @@ namespace rev { namespace video
 			~CChar(){}
 			int	x, y, width, height, xoffset, yoffset, xadvance;
 		};
+	public:
+		CFont(const char* _filename);
+		~CFont();
+
+		CTexture * renderText(const char * _text);
+
+		unsigned textLength		(const char * _text);
+		unsigned textHeight		(const char * _text);
+
+		const rtl::vector<CChar>& chars() const {return mChars;}
+
+	private:
+		void	parseFont		(const char * _text);
+		void	parseLine		(const char * _text, unsigned& _cursor);
+		void	parseCharLine	(const char * _text, unsigned& _cursor);
+		void	skipLine		(const char * _text, unsigned& _cursor);
+		int		readNumber		(const char * _text, unsigned& _cursor);
+
+	private:
 		rtl::vector<CChar>	mChars;
 		unsigned mImgWidth;
 		unsigned char * mImg;

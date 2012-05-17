@@ -190,6 +190,7 @@
     <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h" />
     <ClInclude Include="..\..\code\revGame\gui\guiPanel.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlExpressions.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlTokens.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.h" />

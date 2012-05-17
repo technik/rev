@@ -110,7 +110,7 @@ namespace rev
 	{
 		// Build the new node
 		CParserNonLeaf * newNode = new CParserNonLeaf();
-		newNode->mRule = _state.grammarRule;
+		newNode->mRule = &mRules[_state.grammarRule];
 		const CGrammarRule& rule = mRules[_state.grammarRule];
 		unsigned ruleSize = rule.to.size();
 		newNode->mChildren.resize(ruleSize);
@@ -120,7 +120,7 @@ namespace rev
 			if(rule.to[i].isTerminal)
 			{
 				CParserLeaf * leaf = new CParserLeaf;
-				leaf->mRule = rule.to[i].value;
+				leaf->mRule = 0; // rule.to[i].value;
 				leaf->mToken = _tokens[_i - tokenOffset];
 				++tokenOffset;
 				newNode->mChildren[i] = leaf;

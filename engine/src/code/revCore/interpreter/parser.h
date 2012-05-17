@@ -28,7 +28,7 @@ namespace rev
 
 	struct CParserNode
 	{
-		unsigned mRule;
+		const CGrammarRule * mRule;
 		virtual unsigned nTokens() const = 0;
 		virtual ~CParserNode() {}
 	};

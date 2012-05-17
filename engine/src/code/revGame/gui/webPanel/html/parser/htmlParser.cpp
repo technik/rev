@@ -6,18 +6,15 @@
 // Html parser
 
 #include "htmlParser.h"
+#include <revGame/gui/webPanel/html/htmlExpressions.h>
 #include <revGame/gui/webPanel/html/htmlTokens.h>
 
 namespace rev { namespace game
 {
-	//--- Html syntax definition ---
-	enum EHtmlSyntax // Non-terminal ids
-	{
-		eDocument,
-		eBody,
-		eHtmlCode
-	};
+	//------------------------------------------------------------------------------------------------------------------
+	CParser * CHtmlParser::sHtmlParser = 0;
 
+	
 	// -- Html syntagmas --
 	// Non terminals
 	CSyntagma document	= { eDocument , false };
@@ -32,9 +29,6 @@ namespace rev { namespace game
 
 	// -- Html syntax rules
 	CGrammarRule htmlSyntaxRules[4];
-
-	//------------------------------------------------------------------------------------------------------------------
-	CParser * CHtmlParser::sHtmlParser = 0;
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CHtmlParser::init()

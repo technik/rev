@@ -27,16 +27,16 @@ namespace rev { namespace game
 	private:
 		void clearImage(unsigned char * _img);
 		void renderCode(unsigned char * _dstImg, const char * _code);
-		void renderText(unsigned char * _dstImg, const char * _text, unsigned _x, unsigned _y);
-		void renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned width, unsigned height);
-		unsigned getTextLine(char * _dst, const char * _src, unsigned _maxWidth);
+		//void renderText(unsigned char * _dstImg, const char * _text, unsigned _x, unsigned _y);
+		//void renderImage(unsigned char * _dstImg, const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned width, unsigned height);
+		//unsigned getTextLine(char * _dst, const char * _src, unsigned _maxWidth);
 
 	private:
 		unsigned mWidth;
 		unsigned mHeight;
 		video::CFont * mDefaultFont;
 		CObjectDelegate<CWebPanel,const char*> * mPageDelegate;
-		//CHtmlDomTree	mDomTree;
+		CHtmlDomNode * mTree;
 	};
 }	// namespace game
 }	// namespace rev

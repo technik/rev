@@ -489,6 +489,9 @@
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.h">
       <Filter>revGame\gui\webPanel\html\parser</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlExpressions.h">
+      <Filter>revGame\gui\webPanel\html</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
