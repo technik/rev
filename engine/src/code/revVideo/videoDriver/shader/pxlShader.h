@@ -18,7 +18,9 @@ namespace rev { namespace video
 	// Forward declarations
 	class CShader;
 
-	class CPxlShader: public IManagedResource<CPxlShader, const char*, true>, private CRecreationFileBinding<CPxlShader>
+	class CPxlShader
+		:public IManagedResource<CPxlShader, const char*, true>
+		,private CRecreationFileBinding<CPxlShader>
 	{
 	public:
 		CPxlShader(const char* _name);
@@ -27,6 +29,7 @@ namespace rev { namespace video
 		rtl::vector<CShader*>& users () { return mUsers; }
 
 	private:
+		CObjectDelegate<IFileBinding,const char*>* mPreShaderDelegate, *mPostShaderDelegate;
 		int mId;
 		rtl::vector<CShader*>	mUsers;	///< Shaders that use this pixel shader
 

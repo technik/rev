@@ -28,6 +28,8 @@
 #include <revVideo/scene/videoScene.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/videoDriver.h>
+#include <revScript/analisys/lexer/lexicalAnalizer.h>
+#include <revScript/analisys/parser/syntaxParser.h>
 
 // --- Active namespaces --------
 using namespace rev;
@@ -200,6 +202,9 @@ namespace rev { namespace game
 		mWindowsHandler = new CWindowsHandler();
 		SFileWatcher::init();
 #endif // WIN32
+		// Init script system
+		script::CRevScriptLexer::init();
+		script::CRevScriptParser::init();
 		// Init time system
 		STime::init();
 		// Init video system

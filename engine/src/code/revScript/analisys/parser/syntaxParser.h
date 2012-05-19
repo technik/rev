@@ -8,10 +8,21 @@
 #ifndef _REV_SCRIPT_ANALISYS_PARSER_SINTAXPARSER_H_
 #define _REV_SCRIPT_ANALISYS_PARSER_SINTAXPARSER_H_
 
-#include <revScript/syntax.h>
+#include <revCore/interpreter/parser.h>
 
 namespace rev { namespace script
 {
+	class CRevScriptParser
+	{
+	public:
+		static void		init();
+		static CParser*	get();
+		static void		end();
+
+	private:
+		static CParser*	sParser;
+	};
+	/*
 	class CScriptToken;
 
 	class SSyntaxParser
@@ -28,7 +39,7 @@ namespace rev { namespace script
 		static CConstantExpression*	constantRealExpression		(const CScriptToken _token);
 		static CConstantExpression* constantStringExpression	(const CScriptToken _string);
 	};
-
+	*/
 }	// namespace script
 }	// namespace rev
 

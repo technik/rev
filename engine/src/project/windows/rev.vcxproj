@@ -206,12 +206,13 @@
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
     <ClInclude Include="..\..\code\revPhysics\rigidBodiy\rigidBody.h" />
     <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h" />
+    <ClInclude Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.h" />
     <ClInclude Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.h" />
     <ClInclude Include="..\..\code\revScript\analisys\parser\syntaxParser.h" />
     <ClInclude Include="..\..\code\revScript\script.h" />
     <ClInclude Include="..\..\code\revScript\scriptMachine.h" />
     <ClInclude Include="..\..\code\revScript\scriptToken.h" />
-    <ClInclude Include="..\..\code\revScript\syntax.h" />
+    <ClInclude Include="..\..\code\revScript\scriptSyntax.h" />
     <ClInclude Include="..\..\code\revVideo\camera\camera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\orthoCamera.h" />
     <ClInclude Include="..\..\code\revVideo\camera\perspectiveCamera.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
     <ClCompile Include="..\..\code\revPhysics\rigidBodiy\rigidBody.cpp" />
     <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp" />
+    <ClCompile Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.cpp" />
     <ClCompile Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.cpp" />
     <ClCompile Include="..\..\code\revScript\analisys\parser\syntaxParser.cpp" />
     <ClCompile Include="..\..\code\revScript\script.cpp" />

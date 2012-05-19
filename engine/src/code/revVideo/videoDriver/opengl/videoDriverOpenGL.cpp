@@ -37,7 +37,8 @@ namespace rev { namespace video
 		// Internal state and caches
 		:mCurShader(-1)
 		,mMVPUniformId(-1)
-		,mScreenSize(CVec2(800.f, 480.f))
+		,mScreenWidth(800)
+		,mScreenHeight(480)
 		,mScreenPos(CVec2(20.f, 20.f))
 		,m0Idx(0)
 	{
@@ -50,12 +51,14 @@ namespace rev { namespace video
 		{
 			if(configVar.size() == 1) // Only screen resolution provided
 			{
-				mScreenSize = configVar[0].asVec2();
+				mScreenWidth = configVar[0][0].asInt();
+				mScreenHeight = configVar[0][1].asInt();
 			}
 			else // Standard formatting
 			{
 				mScreenPos = configVar[0].asVec2();
-				mScreenSize = configVar[1].asVec2();
+				mScreenWidth = configVar[1][0].asInt();
+				mScreenHeight = configVar[1][1].asInt();
 			}
 		}
 	}
@@ -74,8 +77,14 @@ namespace rev { namespace video
 		for(unsigned i = 0; i < mNVertices; ++i)
 		{
 			mVertexCache.push_back(mModel * mVertexBuffer[i]);
-			mNormalCache.push_back(mModel.rotate(mNormalBuffer[i]));
 			mTexCoordCache.push_back(mTexCoordBuffer[i]);
+		}
+		if(0 != mNormalBuffer)
+		{
+			for(unsigned i = 0; i < mNVertices; ++i)
+			{
+				mNormalCache.push_back(mModel.rotate(mNormalBuffer[i]));
+			}
 		}
 	}
 
@@ -122,7 +131,7 @@ namespace rev { namespace video
 		// Assert incomming data is valid
 		revAssert((_nComponents > 0) && (_nComponents < 5)); // [1,4] reals per buffer element
 		revAssert(_attribId >= 0); // Valid id
-		revAssert(0 != _buffer); // Non-null buffer
+		revAssert(!((_attribId == eVertex)&&(0 == _buffer))); // Non-null buffer
 
 		// Process data
 		if(_attribId == eVertex)
@@ -363,8 +372,9 @@ namespace rev { namespace video
 	{
 		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
 		CFile file(_name);
-		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
-		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		const char * code[1];
+		code[0] = file.textBuffer();
+		glShaderSource(shader, 1, code, 0); // Attach source
 		glCompileShader(shader); // Compile
 		if(!detectShaderError(shader))
 			return int(shader);
@@ -380,8 +390,13 @@ namespace rev { namespace video
 	{
 		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
 		CFile file(_name);
-		const char * fileBuffer = reinterpret_cast<const char*>(file.buffer());
-		glShaderSource(shader, 1, &fileBuffer, 0); // Attach source
+		CFile preShader("preShader.pxl");
+		CFile postShader("postShader.pxl");
+		const char * code[3];
+		code[0] = preShader.textBuffer();
+		code[1] = file.textBuffer();
+		code[2] = postShader.textBuffer();
+		glShaderSource(shader, 3, code, 0); // Attach source
 		glCompileShader(shader); // Compile
 		if(!detectShaderError(shader))
 			return int(shader);
@@ -594,7 +609,8 @@ namespace rev { namespace video
 			glGetShaderInfoLog(_shader, 1024, &len, buffer);
 			buffer[len] = '\0';
 			revLogN("Error compiling shader", eError);
-			revAssert(false, buffer);
+			revLogN(buffer, eError);
+			codeTools::SLog::get()->flush();
 			return true;
 		}
 	}

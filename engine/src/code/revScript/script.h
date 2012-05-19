@@ -8,13 +8,13 @@
 #ifndef _REV_CORE_SCRIPT_CSCRIPT_H_
 #define _REV_CORE_SCRIPT_CSCRIPT_H_
 
-#include "syntax.h"
-
 namespace rev 
 { 
 	class CVariant;
 	namespace script
 {
+	class CRSTree;
+
 	class CScript
 	{
 	public:
@@ -24,7 +24,7 @@ namespace rev
 		void run(CVariant& _res);
 
 	private:
-		CStatementList	mCode;
+		CRSTree * mExecTree;
 	};
 
 }	// namespace script

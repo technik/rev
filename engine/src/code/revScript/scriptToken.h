@@ -10,37 +10,19 @@
 
 namespace rev { namespace script
 {
-	class CScriptToken
+	enum ERevScriptToken
 	{
-	public:
-		enum ETokenType
-		{
-			eIdentifier,
-			eIntegerLiteral,
-			eRealLiteral,
-			eStringLiteral,
-			eOperator,
-			eComma,			// ","
-			eSemicolon,		// ";"
-			eOpenCBraces,	// Curly braces "{"
-			eCloseCBraces,	// Curly braces "}"
-			eOpenBraces,	// Braces "["
-			eCloseBraces,	// Braces "]"
-			eOpenPar,		// "("
-			eClosePar,		// ")"
-			eIf,
-			eElse,
-			eTrue,
-			eFalse,
-			eString			// String literal
-		};
-
-	public:
-		~CScriptToken() {}
-
-	public:
-		ETokenType	mType;
-		char *		mContent;
+		eCommentToken,
+		eSpace,
+		eFloat,
+		eInteger,
+		eString,
+		eTrue,
+		eFalse,
+		eOpenBraces,	// [
+		eCloseBraces,	// ]
+		eComma,			// ,
+		eSemicolon,		// ;
 	};
 
 }	// namespace script

@@ -13,6 +13,7 @@ namespace rev
 {
 	//------------------------------------------------------------------------------------------------------------------
 	CRegExpFsm::CRegExpFsm(const char * _expression)
+		:mRegExp(_expression)
 	{
 		initBaseFsm();
 		unsigned curState = 0;
@@ -119,6 +120,13 @@ namespace rev
 			unsigned old = _old;
 			unsigned none = 0;
 			return 1 + parse(&_expression[1], old, none, lastTarget);
+		}
+		else if('\\' == c) // escape
+		{
+			addBranch(_expression[1], _from, ++_highest);
+			_old = _from;
+			_from = _highest;
+			return 2;
 		}
 		else // Simple character
 		{

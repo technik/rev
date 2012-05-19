@@ -84,8 +84,8 @@ namespace rev
 		void			triStepState(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState& _state, const rtl::vector<CToken>& _tokens) const;
 		void			closure(unsigned _entry, const CParseState& _state) const;
 		void			shift(unsigned _entry, const CParseState& _state, const rtl::vector<CToken>& _tokens) const;
-		void			reduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState& _state, const rtl::vector<CToken>& _tokens) const;
-		void			finalReduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState& _state, const rtl::vector<CToken>& _tokens) const;
+		void			reduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState _state, const rtl::vector<CToken>& _tokens) const;
+		void			finalReduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState _state, const rtl::vector<CToken>& _tokens) const;
 		void			addState(unsigned _entry, const CParseState& _state) const;
 		bool			stateFitsTokens(const CParseState& _next, const rtl::vector<CToken>& _tokens, unsigned _i) const;
 		void			addToParseTree(rtl::vector<CParserNode*>& _treeStack, const CParseState& _state, const rtl::vector<CToken>& _tokens, unsigned _i) const;

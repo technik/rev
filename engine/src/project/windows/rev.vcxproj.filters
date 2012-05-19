@@ -199,6 +199,9 @@
     <Filter Include="revGame\gui\webPanel\html\renderContext">
       <UniqueIdentifier>{bbfa529d-01e7-47de-a9ba-18acdc276fe9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revScript\analisys\executionTree">
+      <UniqueIdentifier>{431cca0d-608f-4907-8298-edb8b0b2ecda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -420,9 +423,6 @@
     <ClInclude Include="..\..\code\revScript\scriptToken.h">
       <Filter>revScript</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revScript\syntax.h">
-      <Filter>revScript</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.h">
       <Filter>revScript\analisys\lexer</Filter>
     </ClInclude>
@@ -497,6 +497,12 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRenderContext.h">
       <Filter>revGame\gui\webPanel\html\renderContext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revScript\scriptSyntax.h">
+      <Filter>revScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.h">
+      <Filter>revScript\analisys\executionTree</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -700,6 +706,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\renderContext\htmlRendereContext.cpp">
       <Filter>revGame\gui\webPanel\html\renderContext</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.cpp">
+      <Filter>revScript\analisys\executionTree</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

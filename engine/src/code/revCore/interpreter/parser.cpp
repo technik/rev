@@ -31,7 +31,11 @@ namespace rev
 		for(unsigned s = 0; s < lastEntry.size(); ++s)
 		{
 			if(mRules[lastEntry[s].grammarRule].to.size() == lastEntry[s].redDot)
-				finalReduce(treeStack, nTokens+1, lastEntry[s], _tokens);
+				finalReduce(treeStack, nTokens, lastEntry[s], _tokens);
+			else if(!mRules[lastEntry[s].grammarRule].to[lastEntry[s].redDot].isTerminal)
+			{
+				closure(nTokens, lastEntry[s]);
+			}
 		}
 		CParseState finalState = { 0, mRules[0].to.size(), 0 };
 		addToParseTree(treeStack, finalState, _tokens, _tokens.size());
@@ -138,7 +142,7 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CParser::reduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState& _state, const rtl::vector<CToken>& _tokens) const
+	void CParser::reduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState _state, const rtl::vector<CToken>& _tokens) const
 	{
 		const TChartEntry& oldEntry = mMemoChart[_state.from];
 		unsigned ruleKey = mRules[_state.grammarRule].from;
@@ -206,7 +210,7 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CParser::finalReduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState& _state, const rtl::vector<CToken>& _tokens) const
+	void CParser::finalReduce(rtl::vector<CParserNode*>& _treeStack, unsigned _entryIdx, const CParseState _state, const rtl::vector<CToken>& _tokens) const
 	{
 		const TChartEntry& oldEntry = mMemoChart[_state.from];
 		unsigned ruleKey = mRules[_state.grammarRule].from;
@@ -221,7 +225,7 @@ namespace rev
 				CParseState newState = { state.grammarRule, state.redDot+1, state.from };
 				addState(_entryIdx, newState);
 				
-				addToParseTree(_treeStack, state, _tokens, _entryIdx);
+				addToParseTree(_treeStack, _state, _tokens, _entryIdx);
 			}
 		}
 	}

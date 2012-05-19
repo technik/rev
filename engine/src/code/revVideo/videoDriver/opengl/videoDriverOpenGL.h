@@ -38,9 +38,9 @@ namespace rev { namespace video
 		// -- Constructor & virtual destructor
 		IVideoDriverOpenGL();
 		virtual ~IVideoDriverOpenGL()	{}
-		const	CVec2& screenSize() const { return mScreenSize; }
+		CVec2 screenSize() const { return CVec2(float(mScreenWidth), float(mScreenHeight)); }
 		void	setScreenSize		(const unsigned int _width, const unsigned int _height)
-			{ mScreenSize = CVec2(float(_width),float(_height)); }
+			{ mScreenWidth = _width; mScreenHeight = _height; }
 		const CVec2& screenPos	() const { return mScreenPos; }
 
 		// ---- Render tasks ---- //
@@ -116,7 +116,6 @@ namespace rev { namespace video
 		int				mCurShader;
 		unsigned int	mScreenWidth;
 		unsigned int	mScreenHeight;
-		CVec2			mScreenSize;
 		CVec2			mScreenPos;
 		// Geometry cache
 		int					mMVPUniformId;

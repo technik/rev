@@ -5,11 +5,24 @@ varying vec3 vNormal;
 varying vec3 vPos;
 varying vec2 vTex0;
 
-void main ( void )
+const mat4 colorMatrix = 
+{
+	{ 1.0, 0.0, 0.0, 0.0 },
+	{ 0.0, 1.0, 0.0, 0.0 },
+	{ 0.0, 0.0, 1.0, 0.0 },
+	{ 0.0, 0.0, 0.0, 1.0 }
+};
+
+vec4 surfaceColor()
 {
 	vec3 light = normalize(vec3(-1.0,-1.4,2.0));
 	vec3 normal = normalize(vNormal);
-	vec3 diffColor = texture2D(texture, vTex0).xyz;
+	vec3 diffColor = texture2D(texture, 2.0*vTex0).xyz;
 	float diffInt = max(0.0,dot(light,normal))+0.1;
-	gl_FragColor = vec4(diffColor*diffInt, 1.0);
+	return vec4(diffColor*diffInt, 1.0);
+}
+
+vec4 transformColor(in vec4 color)
+{
+	return colorMatrix * color;
 }

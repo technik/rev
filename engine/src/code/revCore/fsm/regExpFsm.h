@@ -12,6 +12,8 @@
 #include <utility.h>
 #include <rtl/map.h>
 
+#include <revCore/string.h>
+
 namespace rev
 {
 	class CRegExpFsm // Regular expression finite state machine
@@ -27,6 +29,7 @@ namespace rev
 
 	private:
 		unsigned mFinalState;
+		string	mRegExp;
 	};
 
 }	// namespace rev

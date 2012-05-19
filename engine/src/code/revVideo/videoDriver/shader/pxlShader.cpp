@@ -7,9 +7,9 @@
 
 #include "pxlShader.h"
 
-#include "revVideo/video.h"
-#include "revVideo/videoDriver/shader/shader.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/shader/shader.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------

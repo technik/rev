@@ -9,33 +9,20 @@
 
 #include <vector.h>
 
+#include <revCore/interpreter/lexer.h>
 #include <revScript/scriptToken.h>
 
 namespace rev { namespace script
 {
-	class SLexicalAnalizer
+	class CRevScriptLexer
 	{
 	public:
-		///\ parseCodeIntoTokens:
-		///\ return -1 if no errors, or the position of the first character of an unrecognized token in case any.
-		static int parseCodeIntoTokens(const char * code, rtl::vector<CScriptToken>& _tokenList);
+		static void init();
+		static CLexer * get();
+		static void end();
 
 	private:
-		static bool	isANumber(char character);
-		static bool isALetter(char character);
-		static bool isAlphanumeric(char character);
-
-		static int	processNumberToken		(const char * _code, rtl::vector<CScriptToken>& _tokenList);
-		static int	processIdentifierToken	(const char * _code, rtl::vector<CScriptToken>& _tokenList);
-		static int	skipComment				(const char * _code);
-
-		static void logErrorMessageAndCode	(const char * _code, unsigned cursor);
-
-		static CScriptToken	createToken(CScriptToken::ETokenType, const char * _code, unsigned length);
-
-	private:
-		static const char * sOperators;
-		static const char * sSeparators;
+		static CLexer * sLexer;
 	};
 
 }	// namespace script

@@ -100,6 +100,16 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	CVariant& CVariant::operator=(double _x)
+	{
+		if(mType == eList)
+			mList.clear();
+		mType = eReal;
+		mData.d = _x;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	CVariant& CVariant::operator=(bool _x)
 	{
 		if(mType == eList)

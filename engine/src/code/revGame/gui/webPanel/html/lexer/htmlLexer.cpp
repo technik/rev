@@ -13,21 +13,6 @@
 
 namespace rev { namespace game
 {
-	/*const CTokenRule htmlLexRules[] = {
-		{eOpenEndTag,	"</"},
-		{eOpenTag,		"<"},
-		{eCloseTag,		"/?>"},
-		{eAssignement,	"="},
-		{ePercentage,	"%"},
-		{eSpace,		" |\t|\n|\r|\f+"},
-		{eInt,			"-?[0-9]+"},
-		{eFloat,		"-?[0-9]+.[0-9]*f?"},
-		{eColor,		"#[0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F][0-9]|[a-f]|[A-F]"},
-		{eId,			"[a-z]+"},
-		{eWord,			"[^ \t\n\r\f<]"},
-		{eString,		"\"[^\"]*"},
-	};*/
-
 	const CTokenRule htmlLexRules[] = 
 	{
 		{eSpace,		" |\t|\n|\r|\f+"},

@@ -7,6 +7,7 @@
 
 #include "script.h"
 
+#include "analisys/executionTree/revScriptExecutionTree.h"
 #include "analisys/lexer/lexicalAnalizer.h"
 #include "analisys/parser/syntaxParser.h"
 
@@ -16,24 +17,18 @@ namespace rev { namespace script
 	CScript::CScript(const char * _code)
 	{
 		// Parse code and generate a list of tokens
-		rtl::vector<CScriptToken>	tokens;
-		if(SLexicalAnalizer::parseCodeIntoTokens(_code, tokens) != -1)
-		{
-			// Transform the list of tokens into
-			SSyntaxParser::parseTokenListIntoExecutionTree(mCode, tokens);
-		}
-
-		// House keeping
-		for(unsigned i = 0; i < tokens.size(); ++i)
-		{
-			delete[] tokens[i].mContent;
-		}
+		rtl::vector<CToken>	tokens;
+		CRevScriptLexer::get()->tokenizeCode(tokens, _code);
+		CRevScriptParser::get()->stripTokens(tokens, eSpace);
+		CRevScriptParser::get()->stripTokens(tokens, eCommentToken);
+		CParserNode * nodeTree = CRevScriptParser::get()->generateParseTree(tokens);
+		mExecTree = new CRSTree(nodeTree);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CScript::run(CVariant& _res)
 	{
-		mCode.execute(_res);
+		mExecTree->eval(_res);
 	}
 }	// namespace script
 }	// namespace rev

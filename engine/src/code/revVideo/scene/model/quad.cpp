@@ -75,6 +75,7 @@ namespace rev { namespace video
 	{
 		IVideoDriver * driver = SVideo::get()->driver();
 		driver->setRealAttribBuffer(IVideoDriver::eVertex, 4, 3, mVertices);
+		driver->setRealAttribBuffer(IVideoDriver::eNormal, 0, 3, 0);
 		driver->setRealAttribBuffer(IVideoDriver::eTexCoord, 4, 2, mUVs);
 	}
 

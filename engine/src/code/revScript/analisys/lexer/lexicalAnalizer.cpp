@@ -7,257 +7,45 @@
 
 #include "lexicalAnalizer.h"
 
-#include <revCore/codeTools/assert/assert.h>
-#include <revCore/codeTools/log/log.h>
-#include <revCore/string.h>
+#include <revCore/interpreter/token.h>
 #include <revScript/scriptToken.h>
 
 namespace rev { namespace script
 {
-	const char * SLexicalAnalizer::sOperators = "+-*/><=";
-	const char * SLexicalAnalizer::sSeparators = " \t\n\r";
+	const CTokenRule revScriptTokens[] = 
+	{
+		{eCommentToken,	"//[^\n\r\f]"},
+		{eSpace,		"\t| |\n|\r|\f+"},
+		{eFloat,		"-?[0-9]+.[0-9]+"},
+		{eInteger,		"-?[0-9]+"},
+		{eString,		"\"[^\"]*\""},
+		{eTrue,			"true"},
+		{eFalse,		"false"},
+		{eOpenBraces,	"\\["},
+		{eCloseBraces,	"]"},
+		{eComma,		","},
+		{eSemicolon,	";"},
+	};
+
+	CLexer * CRevScriptLexer::sLexer = 0;
 
 	//------------------------------------------------------------------------------------------------------------------
-	int SLexicalAnalizer::parseCodeIntoTokens(const char * _code, rtl::vector<CScriptToken>& _tokenList)
+	void CRevScriptLexer::init()
 	{
-		unsigned cursor = 0;
-		// TODO: Improve error messages to display error line and position
-		char currentChar = _code[cursor];
-		while('\0' != currentChar)
-		{
-			if(isCharacterInString(currentChar, sSeparators)) // Separator
-			{
-				++cursor; // Skip separator characters
-			}
-			else if(compareString("if", &_code[cursor], 2))
-			{
-				_tokenList.push_back(createToken(CScriptToken::eIf, &_code[cursor], 2));
-				cursor+=2;
-			}
-			else if(compareString("else", &_code[cursor], 4))
-			{
-				_tokenList.push_back(createToken(CScriptToken::eElse, &_code[cursor], 4));
-				cursor+=4;
-			}
-			else if(compareString("true", &_code[cursor], 4))
-			{
-				_tokenList.push_back(createToken(CScriptToken::eTrue, &_code[cursor], 4));
-				cursor+=4;
-			}
-			else if(compareString("false", &_code[cursor], 5))
-			{
-				_tokenList.push_back(createToken(CScriptToken::eFalse, &_code[cursor], 5));
-				cursor+=5;
-			}
-			else if(isALetter(currentChar) || currentChar == '_') // Identifier
-			{
-				int correctToken = processIdentifierToken(&_code[cursor], _tokenList);
-				if(-1 == correctToken)
-				{
-					logErrorMessageAndCode(_code, cursor);
-					return cursor; // Something went wrong, the token is not valid
-				}
-				else
-					cursor += correctToken;
-			}
-			else if(isANumber(currentChar) || (isANumber(_code[cursor+1]) && (currentChar=='-'))) // Number
-			{
-				int correctToken = processNumberToken(&_code[cursor], _tokenList);
-				if(-1 == correctToken)
-				{
-					logErrorMessageAndCode(_code, cursor);
-					return cursor; // Something went wrong, the token is not valid
-				}
-				else
-					cursor += correctToken;
-			}
-			else if(currentChar == '/' && (_code[cursor+1] == '/' || _code[cursor+1] == '*')) // Comment
-			{
-				int ret = skipComment(&_code[cursor]);
-				if(ret > 0)
-					cursor += skipComment(&_code[cursor]);
-				else
-				{
-					revLogN("Couldn't recover from previous error", eError);
-					return -1;
-				}
-			}
-			else if(isCharacterInString(currentChar, sOperators))
-			{
-				char nextChar = _code[cursor+1];
-				if((currentChar == '=' && nextChar == '=' )							// ==
-				|| (currentChar == '<' && (nextChar == '=' || nextChar == '<'))		// <=,<<
-				|| (currentChar == '>' && (nextChar == '=' || nextChar == '>')))	// >=,>>
-				{	// Single character operator
-					_tokenList.push_back(createToken(CScriptToken::eOperator, &_code[cursor], 2));
-					cursor+=2;
-				}
-				else
-				{
-					// Two characters operator
-					_tokenList.push_back(createToken(CScriptToken::eOperator, &_code[cursor], 1));
-					++cursor;
-				}
-			}
-			else if(currentChar == ';')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eSemicolon, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == '"')
-			{
-				++cursor; // Skip initial quote
-				unsigned len = 0;
-				while(_code[cursor+len] != '"')
-				{
-					++len;
-				}
-				_tokenList.push_back(createToken(CScriptToken::eStringLiteral, &_code[cursor], len));
-				cursor += len + 1; // Skip string content and final quote
-			}
-			else if(currentChar == ',')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eComma, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == '(')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eOpenPar, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == ')')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eClosePar, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == '{')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eOpenCBraces, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == '}')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eCloseCBraces, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == '[')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eOpenBraces, &_code[cursor], 1));
-				++cursor;
-			}
-			else if(currentChar == ']')
-			{
-				_tokenList.push_back(createToken(CScriptToken::eCloseBraces, &_code[cursor], 1));
-				++cursor;
-			}
-			else
-			{
-				revLogN("Error: Unknown token", eError);
-				logErrorMessageAndCode(_code, cursor);
-				return cursor;
-			}
-			currentChar = _code[cursor];
-		}
-		return 0;
+		sLexer = new CLexer(revScriptTokens, sizeof(revScriptTokens)/sizeof(CTokenRule));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool SLexicalAnalizer::isANumber(char _x)
+	CLexer * CRevScriptLexer::get()
 	{
-		return (_x >= '0') && (_x <= '9');
+		return sLexer;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool SLexicalAnalizer::isALetter(char _x)
+	void CRevScriptLexer::end()
 	{
-		return ((_x >= 'a') && (_x <= 'z')) || ((_x >= 'A') && (_x <= 'Z'));
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	bool SLexicalAnalizer::isAlphanumeric(char _x)
-	{
-		return isALetter(_x) || isANumber(_x);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	int SLexicalAnalizer::processNumberToken(const char * _code, rtl::vector<CScriptToken>& _tokenList)
-	{
-		unsigned cursor = _code[0]=='-'?1:0;
-		while(isANumber(_code[cursor])) // Go till the end of the number
-			++cursor;
-		if(_code[cursor] == '.')	// Real literal
-		{
-			++cursor; // Skip period
-			while(isANumber(_code[cursor]))
-				++cursor;
-			_tokenList.push_back(createToken(CScriptToken::eRealLiteral, _code, cursor));
-		}
-		else // Integer literal
-		{
-			_tokenList.push_back(createToken(CScriptToken::eIntegerLiteral, _code, cursor));
-		}
-		return cursor;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	int SLexicalAnalizer::processIdentifierToken(const char * _code, rtl::vector<CScriptToken>& _tokenList)
-	{
-		unsigned cursor = 0;
-		// Go to the end of the token
-		while(isAlphanumeric(_code[cursor]) || _code[cursor] == '_')
-			++cursor;
-		_tokenList.push_back(createToken(CScriptToken::eIdentifier, _code, cursor));
-		return cursor; // Unimplemented
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	CScriptToken SLexicalAnalizer::createToken(CScriptToken::ETokenType _type, const char * _code, unsigned length)
-	{
-		// Create a token
-		CScriptToken token;
-		// Set token type
-		token.mType = _type;
-		// Copy the string into the token
-		token.mContent = new char[length+1];
-		copyStringN(token.mContent, _code, length);
-		// Add the token to the list
-		return token;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void SLexicalAnalizer::logErrorMessageAndCode(const char * _code, unsigned cursor)
-	{
-		revLog("Error parsing script code at position ", eError);
-		revLogN(cursor, eError);
-		revLogN("in code:", eError);
-		revLogN(_code, eError);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	int SLexicalAnalizer::skipComment(const char * _code)
-	{
-		if(_code[1] == '\0')
-		{
-			revLogN("Unexpected end of file after \"/\"", eError);
-			return -1;
-		}
-		if(_code[1] == '/') // Single line comment
-		{
-			unsigned cursor = 2;
-			while(_code[cursor] != '\n' && _code[cursor] != '\0')
-				++cursor;
-			return cursor;
-		}
-		else if (_code[1] == '*') // Comment block
-		{
-			revLogN("Error: Multiline comments are not supported", eError);
-			return -1;
-		}
-		else
-		{
-			revLogN("Error: Unexpected character after \"/\"", eError);
-			return -1;
-		}
+		delete sLexer;
+		sLexer = 0;
 	}
 
 }	// namespace script

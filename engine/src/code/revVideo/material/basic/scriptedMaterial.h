@@ -19,14 +19,13 @@ namespace rev { namespace video
 	{
 	public:
 		CScriptedMaterial(const char * _scriptFileName);
-		~CScriptedMaterial();
+		~CScriptedMaterial() {}
 
 		bool	usesAlpha		() const { return mUseAlpha; }
 		void	setEnvironment	() const;
 
 	private:
 		bool	mUseAlpha;
-		rtl::vector<rtl::pair<int,string> >	mUniforms;
 	};
 }	// namespace video
 }	// namespace rev

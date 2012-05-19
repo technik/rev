@@ -39,29 +39,27 @@ namespace rev
 		mLineStart = 0;
 		while('\0' != _code[cursor])
 		{
-			if(('\n' == _code[cursor]) || ('\f' == _code[cursor]))
-				advanceLine(cursor++);
-			else
+			if(('\n' == _code[cursor]) || ('\r' == _code[cursor]) || ('\f' == _code[cursor]))
+				advanceLine(cursor);
+			
+			CToken t;
+			t.line = mLine;
+			t.pos = cursor - mLineStart;
+			unsigned consumed = getToken(t, &_code[cursor]);
+			if(0 != consumed)
 			{
-				CToken t;
-				t.line = mLine;
-				t.pos = cursor - mLineStart;
-				unsigned consumed = getToken(t, &_code[cursor]);
-				if(0 != consumed)
-				{
-					cursor += consumed;
-					_tokenList.push_back(t);
-				}
-				else // Error in token
-				{
-					rev::revLogN("Error: unrecognized token:", eError);
-					rev::revLog("In line ", eError);
-					rev::revLog(mLine, eError);
-					rev::revLog(", position ", eError);
-					rev::revLogN(cursor - mLineStart, eError);
-					rev::codeTools::SLog::get()->flush();
-					return;
-				}
+				cursor += consumed;
+				_tokenList.push_back(t);
+			}
+			else // Error in token
+			{
+				rev::revLogN("Error: unrecognized token:", eError);
+				rev::revLog("In line ", eError);
+				rev::revLog(mLine, eError);
+				rev::revLog(", position ", eError);
+				rev::revLogN(cursor - mLineStart, eError);
+				rev::codeTools::SLog::get()->flush();
+				return;
 			}
 		}
 	}
@@ -99,7 +97,7 @@ namespace rev
 	void CLexer::advanceLine(unsigned _cursor)
 	{
 		mLine++;
-		mLineStart = _cursor+1;
+		mLineStart = _cursor;
 	}
 
 }	// namespace rev

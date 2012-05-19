@@ -55,11 +55,11 @@ namespace rev	{
 		virtual void	setBackgroundColor	(const CColor& _color) = 0;
 		virtual void	setScreenSize		(const unsigned int _width,
 											const unsigned int _height) = 0;
-		virtual const CVec2& screenSize		() const = 0;
+		virtual CVec2	screenSize			() const = 0;
 
 		// ---- Render related ---- //
-		virtual void	setModelMatrix	(const CMat34& _mv) = 0;
-		virtual void	setViewMatrix	(const CMat34& _mv) = 0;
+		virtual void	setModelMatrix		(const CMat34& _mv) = 0;
+		virtual void	setViewMatrix		(const CMat34& _mv) = 0;
 		virtual void	setProjMatrix		(const CMat4& _proj) = 0;
 		virtual void	setShader			(const int _shaderId) = 0;
 		virtual int		getUniformId		(const char * _name) const = 0;
