@@ -1,6 +1,4 @@
 uniform sampler2D texture;
-varying vec3 vPos;
-varying vec2 vTex0;
 
 #define OVERRIDE_MAIN
 

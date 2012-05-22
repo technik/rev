@@ -1,21 +1,11 @@
-uniform vec3 light0Dir;
-uniform vec3 viewPos; // View position in model space
 uniform sampler2D texture;
 varying vec3 vNormal;
-varying vec3 vPos;
-varying vec2 vTex0;
 
-const mat4 colorMatrix = 
-{
-	{ 1.0, 0.0, 0.0, 0.0 },
-	{ 0.0, 1.0, 0.0, 0.0 },
-	{ 0.0, 0.0, 1.0, 0.0 },
-	{ 0.0, 0.0, 0.0, 1.0 }
-};
+#define ENABLE_ATMOSPHERICS
 
 vec4 surfaceColor()
 {
-	vec3 light = normalize(vec3(0.0,1.0,0.1));
+	vec3 light = light0Dir;
 	vec3 normal = normalize(vNormal);
 	vec3 diffColor = texture2D(texture, 2.0*vTex0).xyz;
 	float diffInt = max(0.0,dot(light,normal))+0.1;

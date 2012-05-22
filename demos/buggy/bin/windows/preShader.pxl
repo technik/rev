@@ -1,0 +1,64 @@
+// Pre shader
+// This file contains code that user code must be able to use
+//---------------------------------------------------------------------------------
+// Common uniforms
+//---------------------------------------------------------------------------------
+uniform mat4 modelViewProj;
+uniform vec3 viewPos; // View position in model space
+varying vec2 vTex0;
+varying vec3 vPos; // Vertex position
+const vec3 light0Dir = normalize(vec3(0.0,1.0,0.0));
+
+//---------------------------------------------------------------------------------
+// Mathematical constants
+//---------------------------------------------------------------------------------
+const float pi = 3.14159;
+const float e = 2.718281;
+
+//---------------------------------------------------------------------------------
+// Atmospherics
+//---------------------------------------------------------------------------------
+// Global constants
+const float AtmosphericScale = 0.001; // Meters to kilometers
+const float EarthRadius = 6730.0;
+const float AtmosphericHeight = 43.0;
+const vec3	invWavelen4 = {4.476,12.437,21.855};// e-12, rgb
+const float	rayC = 0.05;	// Rayleigh scattering constant
+const float mieC = 0.0; // Mie scattering constant
+const float lAbC = 10.0; // Light Absortion coefficient
+const float	sunLight = 1.0; // Intensity of sun light
+const int	scatteringSamples = 100;
+const int	scatteringSubSamples = 0;
+
+//------------------------------------------------------------
+float atmosphereHeight(vec2 pos)
+{
+	// Spherical atmosphere
+	return sqrt(dot(pos,pos))-EarthRadius;
+}
+
+//------------------------------------------------------------
+float atmosphereDensity(vec2 point)
+{
+	// Cuadratic density distribution
+	float h = atmosphereHeight(point) / AtmosphericHeight;
+	return max(h*h-2.0*h+1.0, 0.0);
+}
+
+//------------------------------------------------------------
+// Note: dir is assumed unitary
+float distanceToSpace(in vec2 pos, in vec2 dir)
+{
+	float b = dot(pos,dir);
+	float rAtmos = EarthRadius + AtmosphericHeight;
+	float c = dot(pos,pos)-rAtmos*rAtmos;
+	return -b+sqrt(b*b-c);
+}
+
+//------------------------------------------------------------
+float rayleighPhase(float cos)
+{
+	return (3.0/(16.0*pi))*(1.0+cos*cos);
+}
+
+// --- End of pre-shader ---

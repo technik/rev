@@ -29,7 +29,11 @@ namespace rev { namespace video
 		rtl::vector<CShader*>& users () { return mUsers; }
 
 	private:
-		CObjectDelegate<IFileBinding,const char*>* mPreShaderDelegate, *mPostShaderDelegate;
+		void load(const char* _filename);
+
+	private:
+		CObjectDelegate<CPxlShader,const char*>* mPreShaderDelegate, *mPostShaderDelegate;
+		string mName;
 		int mId;
 		rtl::vector<CShader*>	mUsers;	///< Shaders that use this pixel shader
 

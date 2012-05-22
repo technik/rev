@@ -83,7 +83,7 @@ void CBuggyGameClient::init()
 	CWebPanel * testWeb = new CWebPanel(unsigned(screenSize.x)-40, unsigned(screenSize.y)-30);
 	testWeb->loadPage("testPage.html");
 
-	CStaticModel::registerResource(CMeshGenerator::terrain(125, 512, 50.f), "terrain");
+	CStaticModel::registerResource(CMeshGenerator::terrain(125, 200, 7.f), "terrain");
 	IMaterial::registerResource(new CDiffuseTextureMaterial("sand.png"), "sand");
 	new CStaticObject("terrain", "sand");
 }

@@ -283,10 +283,10 @@ namespace rev { namespace game
 			{
 				float x = (float(i) / _side - 0.5f) * _size;
 				float y = (float(j) / _side - 0.5f) * _size;
-				float h0n = SNoise::simplex(x*0.005f, y*0.005f);
+				float h0n = SNoise::simplex(x*0.05f, y*0.05f);
 				float h0 = _height * h0n * h0n;
-				float h1 = 0.03125f*_height * SNoise::simplex(x*0.05f, y*0.04f);
-				float h2 = 0.00625f*_height * SNoise::simplex(x*0.5f, y*0.4f);
+				float h1 = 0.03125f*_height * SNoise::simplex(x*0.5f, y*0.4f);
+				float h2 = 0.00625f*_height * SNoise::simplex(x*5.f, y*4.f);
 				verts[(_side+1)*i + j] = CVec3(x, y, h0+h1+h2);
 			}
 		}

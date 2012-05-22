@@ -7,6 +7,8 @@
 
 #include "pxlShader.h"
 
+#include <revCore/delegate/delegate.h>
+#include <revCore/file/fileWatcher.h>
 #include <revVideo/video.h>
 #include <revVideo/videoDriver/shader/shader.h>
 #include <revVideo/videoDriver/videoDriver.h>
@@ -25,25 +27,45 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	CPxlShader::CPxlShader(const char* _name)
 		:CRecreationFileBinding(_name)
+		,mName(_name)
+		,mId(-1)
 	{
-		mId = SVideo::get()->driver()->loadPxlShader(_name);
-		if( 0 != tempUserStorage.size())
-		{
-			mUsers = tempUserStorage;
-			if(-1 != mId)
-				for(rtl::vector<CShader*>::iterator i = tempUserStorage.begin(); i != tempUserStorage.end(); ++i)
-				{
-					(*i)->refresh();
-				}
-			tempUserStorage.clear();
-		}
+		// -- Delegates
+		mPreShaderDelegate = new CObjectDelegate<CPxlShader,const char*>(this,&CPxlShader::load);
+		mPostShaderDelegate = new CObjectDelegate<CPxlShader,const char*>(this,&CPxlShader::load);
+		SFileWatcher::get()->addWatcher("preShader.pxl", mPreShaderDelegate);
+		SFileWatcher::get()->addWatcher("postShader.pxl", mPostShaderDelegate);
+		// -- Shader itself
+		mUsers = tempUserStorage;
+		load(_name);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CPxlShader::~CPxlShader()
 	{
 		SVideo::get()->driver()->releaseShader(mId);
+		SFileWatcher::get()->removeWatcher(mPreShaderDelegate);
+		SFileWatcher::get()->removeWatcher(mPostShaderDelegate);
 		tempUserStorage = mUsers;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CPxlShader::load(const char * _filename)
+	{
+		// Notice we don't load from the passed name but from our stored name
+		_filename;
+		// Destroy old shader, if any
+		if(-1 != mId)
+			SVideo::get()->driver()->releaseShader(mId);
+		// Load the shader
+		mId = SVideo::get()->driver()->loadPxlShader(mName.c_str());
+		if(-1 != mId)
+		{
+			for(rtl::vector<CShader*>::iterator i = mUsers.begin(); i != mUsers.end(); ++i)
+			{
+				(*i)->refresh();
+			}
+		}
 	}
 }	// namespace video
 }	// namespace rev

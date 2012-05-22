@@ -109,7 +109,7 @@ namespace rev { namespace video
 		void			glActiveTexture			(GLenum aTexture);
 
 		// --- Debugging aids ---
-		bool			detectShaderError			(unsigned shader) const;
+		bool			detectShaderError			(unsigned shader, const char * _file) const;
 
 	private:
 		// --- Internal state --- //

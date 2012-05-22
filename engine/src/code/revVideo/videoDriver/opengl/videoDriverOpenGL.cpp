@@ -376,7 +376,7 @@ namespace rev { namespace video
 		code[0] = file.textBuffer();
 		glShaderSource(shader, 1, code, 0); // Attach source
 		glCompileShader(shader); // Compile
-		if(!detectShaderError(shader))
+		if(!detectShaderError(shader, _name))
 			return int(shader);
 		else
 		{
@@ -398,7 +398,7 @@ namespace rev { namespace video
 		code[2] = postShader.textBuffer();
 		glShaderSource(shader, 3, code, 0); // Attach source
 		glCompileShader(shader); // Compile
-		if(!detectShaderError(shader))
+		if(!detectShaderError(shader, _name))
 			return int(shader);
 		else
 		{
@@ -594,7 +594,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool IVideoDriverOpenGL::detectShaderError(unsigned _shader) const
+	bool IVideoDriverOpenGL::detectShaderError(unsigned _shader, const char * _name) const
 	{
 		int status;
 		glGetShaderiv(_shader, GL_COMPILE_STATUS, &status);
@@ -608,7 +608,9 @@ namespace rev { namespace video
 			int len;
 			glGetShaderInfoLog(_shader, 1024, &len, buffer);
 			buffer[len] = '\0';
-			revLogN("Error compiling shader", eError);
+			revLog("Error compiling shader \"", eError);
+			revLog(_name, eError);
+			revLogN("\"", eError);
 			revLogN(buffer, eError);
 			codeTools::SLog::get()->flush();
 			return true;

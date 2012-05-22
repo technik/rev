@@ -39,7 +39,7 @@ namespace buggyDemo
 	void CAerialCamera::move()
 	{
 		float time = STime::get()->frameTime();
-		TReal fwdStep = 3.f * time;
+		TReal fwdStep = 5.f * time;
 		TReal upStep = 1.f * time;
 		TReal sideStep = 3.f * time;
 		TReal turnStep = 1.f * time;

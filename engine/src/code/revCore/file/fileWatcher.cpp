@@ -65,7 +65,8 @@ namespace rev
 		rtl::map<string,rtl::vector<IDelegate<const char*>*> >::iterator i = mWatchers.find(string(_fileName));
 		if(i != mWatchers.end())
 		{
-			rtl::vector<IDelegate<const char*>*>& v = i->second;
+			// Copy the vector instead of referencing it may get corrupted due to watchers deleting themselves during recreation
+			rtl::vector<IDelegate<const char*>*> v = i->second;
 			for(rtl::vector<IDelegate<const char*>*>::iterator j = v.begin(); j != v.end(); ++j)
 			{
 				(*j)->invoke(_fileName);

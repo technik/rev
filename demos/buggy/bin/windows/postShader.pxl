@@ -1,0 +1,105 @@
+// Post shader
+// This file contains main and calls user code
+
+float fExp = 2.5;
+
+//-----------------------------------------------------------------------------
+// Atmospherics
+//-----------------------------------------------------------------------------
+#ifndef OVERRIDE_ATMOSPHERICS
+vec3 sunContribution(in vec2 point)
+{
+	return vec3(1.0);
+}
+
+vec3 applyAtmospherics(in vec3 color)
+{
+	vec3 rayDir = vPos-viewPos;
+	// Proyected position and ray
+	vec2 cPos = {0.0, viewPos.z+EarthRadius}; // 2D camera position
+	vec2 vRay = {length(rayDir.xy),rayDir.z};
+	float rayLength = length(vRay);
+	vRay /= rayLength;
+	
+	// Scattering phases
+	float cosTheta = dot(normalize(rayDir),-light0Dir);
+	float rayPhase= rayleighPhase(cosTheta);
+	vec3 scBeta = rayC * rayPhase * invWavelen4;
+	float extBeta = lAbC;
+	
+	// Scattering loop
+	vec3 rayColor = vec3(0.0);
+	float extintionExp = 0.0;
+	float dens0 = atmosphereDensity(cPos);
+	float dens1;
+	vec3 color0 = sunContribution(cPos);
+	vec3 color1;
+	float deltaD = rayLength/(scatteringSamples+1);
+	for(int i = 0; i < scatteringSamples+1; ++i)
+	{
+		// compute new sample
+		vec2 samplePos = cPos+vRay*deltaD*(i+1);
+		
+		// Integrate density
+		dens1 = atmosphereDensity(samplePos);
+		extintionExp += deltaD*(dens1+dens0)*0.5;
+		dens0 = dens1;
+		// Compute extintion
+		float extintion = pow(e, -extBeta*extintionExp);
+		
+		// Integrate contribution
+		color1 = extintion*sunContribution(samplePos);
+		rayColor += 0.5*deltaD*(color1+color0);
+		color0 = color1;
+	}
+	
+	return color+scBeta*rayColor;
+}
+#endif // OVERRIDE_ATMOSPHERICS
+
+//-----------------------------------------------------------------------------
+// Post process
+//-----------------------------------------------------------------------------
+#if !defined( DISBALE_POSTPROCESS ) && !defined(OVERRIDE_MAIN)
+const mat4 colorMatrix = 
+{
+	{ 1.0, 0.0, 0.0, 0.0 },
+	{ 0.0, 1.0, 0.0, 0.0 },
+	{ 0.0, 0.0, 1.0, 0.0 },
+	{ 0.0, 0.0, 0.0, 1.0 }
+};
+
+vec4 postprocessColor(in vec4 color)
+{
+	vec3 fColor = color.xyz;
+	// --- Apply Atmospherics ---
+#ifdef ENABLE_ATMOSPHERICS
+	fColor = applyAtmospherics(fColor);
+#endif
+	// --- Apply Color transformations ---
+	fColor = (colorMatrix * vec4(fColor,1.0)).xyz;
+	// --- Apply High dynamic range ---
+#ifndef DISABLE_HDR
+	fColor.x = 1.0 - pow(2.71,-fExp*fColor.x);
+	fColor.y = 1.0 - pow(2.71,-fExp*fColor.y);
+	fColor.z = 1.0 - pow(2.71,-fExp*fColor.z);
+#endif
+	return vec4(fColor,color.a);
+}
+#endif // !defined( DISBALE_POSTPROCESS ) && !defined(OVERRIDE_MAIN)
+
+//-----------------------------------------------------------------------------
+// Default main
+//-----------------------------------------------------------------------------
+#ifndef OVERRIDE_MAIN
+
+void main ( void )
+{
+#ifndef DISABLE_POSTPROCESS
+	gl_FragColor = postprocessColor(surfaceColor());
+#else // !DISABLE_POSTPROCESS
+	gl_FragColor = surfaceColor();
+#endif // !DISABLE_POSTPROCESS
+}
+
+#endif // !OVERRIDE_MAIN
