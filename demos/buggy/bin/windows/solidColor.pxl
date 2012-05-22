@@ -12,8 +12,3 @@ vec4 surfaceColor()
 {
 	return color;
 }
-
-vec4 transformColor(in vec4 clr)
-{
-	return colorMatrix * clr;
-}

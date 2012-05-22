@@ -9,7 +9,10 @@
 
 #include <revCore/file/file.h>
 #include <revCore/variant/variant.h>
+#include <revVideo/renderer/renderer3d.h>
+#include <revVideo/video.h>
 #include <revVideo/videoDriver/shader/pxlShader.h>
+#include <revVideo/videoDriver/videoDriver.h>
 #include <revScript/script.h>
 
 using namespace rev::script;
@@ -31,7 +34,11 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void CScriptedMaterial::setEnvironment() const
 	{
-		// Intentionally blank
+		// ViewPos
+		IVideoDriver * driver = SVideo::getDriver();
+		IRenderer3d * renderer = SVideo::get()->renderer();
+		int viewDirUniformId = driver->getUniformId("viewPos");
+		driver->setUniform(viewDirUniformId, (renderer->viewMatrix() * CVec3::zero));
 	}
 }	// namespace video
 }	// namespace rev

@@ -18,7 +18,7 @@ namespace buggyDemo
 		// Register material
 		IMaterial::registerResource(new CSolidColorMaterial(CColor::RED), "buggyMaterial");
 		// Create the object
-		mObject = new CStaticObject("buggy.rmd", "buggyMaterial");
+		//mObject = new CStaticObject("buggy.rmd", "buggyMaterial");
 	}
 	
 	CBuggy::~CBuggy()

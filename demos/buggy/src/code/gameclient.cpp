@@ -59,8 +59,8 @@ void CBuggyGameClient::init()
 	// Create the buggy
 	mBuggy = new buggyDemo::CBuggy();
 	// Create a camera
-	mCamera = new buggyDemo::CAerialCamera(mBuggy->node());
-	SVideo::get()->driver()->setBackgroundColor(CColor::LIGHT_BLUE);
+	mCamera = new buggyDemo::CAerialCamera(0);//mBuggy->node());
+	//SVideo::get()->driver()->setBackgroundColor(CColor::LIGHT_BLUE);
 
 	CVec2 screenSize = SVideo::getDriver()->screenSize();
 

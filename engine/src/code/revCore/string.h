@@ -36,7 +36,7 @@ template < class T >
 char*		makeString			( T _x )
 {
 #if defined(_linux) || defined(ANDROID) || defined (WIN32)
-	std::stringstream ss ( std::stringstream::in || std::stringstream::out );
+	std::stringstream ss ( std::stringstream::in | std::stringstream::out );
 	ss << _x;
 	string str = ss.str();
 	const char * text = str.c_str();

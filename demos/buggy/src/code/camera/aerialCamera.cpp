@@ -18,8 +18,8 @@ namespace buggyDemo
 		mTarget = _target;
 		mCamera = rev::game::SGameClient::get()->camera3d();
 		mCamNode = mCamera->node();
-		mCamNode->attachTo(_target);
-		mCamNode->setPos(mTarget->position() + CVec3(0.f,-10.f,2.f));
+		//mCamNode->attachTo(_target);
+		//mCamNode->setPos(mTarget->position() + CVec3(0.f,-10.f,2.f));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

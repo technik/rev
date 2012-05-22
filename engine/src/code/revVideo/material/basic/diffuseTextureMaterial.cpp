@@ -7,11 +7,11 @@
 
 #include "diffuseTextureMaterial.h"
 
-#include "revVideo/renderer/renderer3d.h"
-#include "revVideo/texture/texture.h"
-#include "revVideo/video.h"
-#include "revVideo/videoDriver/shader/pxlShader.h"
-#include "revVideo/videoDriver/videoDriver.h"
+#include <revVideo/renderer/renderer3d.h>
+#include <revVideo/texture/texture.h>
+#include <revVideo/video.h>
+#include <revVideo/videoDriver/shader/pxlShader.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {

@@ -15,14 +15,9 @@ const mat4 colorMatrix =
 
 vec4 surfaceColor()
 {
-	vec3 light = normalize(vec3(-1.0,-1.4,2.0));
+	vec3 light = normalize(vec3(0.0,1.0,0.1));
 	vec3 normal = normalize(vNormal);
 	vec3 diffColor = texture2D(texture, 2.0*vTex0).xyz;
 	float diffInt = max(0.0,dot(light,normal))+0.1;
 	return vec4(diffColor*diffInt, 1.0);
-}
-
-vec4 transformColor(in vec4 color)
-{
-	return colorMatrix * color;
 }
