@@ -9,6 +9,12 @@ float fExp = 2.5;
 #ifndef OVERRIDE_ATMOSPHERICS
 vec3 sunContribution(in vec2 point)
 {
+	// vec2 lDir = {length(light0Dir.xy), light0Dir.z};
+	// float extintionExp = distanceToSpace(point, lDir);
+	// vec3 extBeta = vec3(lAbC)+rayC*invWavelen4;
+	// return vec3(pow(e, -extBeta.x*extintionExp),
+	// 					pow(e, -extBeta.y*extintionExp),
+	// 					pow(e, -extBeta.z*extintionExp));
 	return vec3(1.0);
 }
 
@@ -23,9 +29,10 @@ vec3 applyAtmospherics(in vec3 color)
 	
 	// Scattering phases
 	float cosTheta = dot(normalize(rayDir),-light0Dir);
-	float rayPhase= rayleighPhase(cosTheta);
-	vec3 scBeta = rayC * rayPhase * invWavelen4;
-	float extBeta = lAbC;
+	float ray = rayleighPhase(cosTheta);
+	float mie = miePhase(cosTheta);
+	vec3 scBeta = rayC * ray * invWavelen4 + vec3(mieC*mie);
+	vec3 extBeta = vec3(lAbC)+rayC*invWavelen4;
 	
 	// Scattering loop
 	vec3 rayColor = vec3(0.0);
@@ -45,7 +52,9 @@ vec3 applyAtmospherics(in vec3 color)
 		extintionExp += deltaD*(dens1+dens0)*0.5;
 		dens0 = dens1;
 		// Compute extintion
-		float extintion = pow(e, -extBeta*extintionExp);
+		vec3 extintion = vec3(pow(e, -extBeta.x*extintionExp),
+						pow(e, -extBeta.y*extintionExp),
+						pow(e, -extBeta.z*extintionExp));
 		
 		// Integrate contribution
 		color1 = extintion*sunContribution(samplePos);
