@@ -95,17 +95,6 @@ vec4 surfaceColor()
 }*/
 
 #define OVERRIDE_ATMOSPHERICS
-vec3 sunContribution(in vec2 point)
-{
-	// vec2 lDir = {length(light0Dir.xy), light0Dir.z};
-	// float extintionExp = 0.10;// distanceToSpace(point, lDir);
-	// vec3 extBeta = vec3(lAbC)+rayC*invWavelen4;
-	// return vec3(pow(e, -extBeta.x*extintionExp),
-	// 					pow(e, -extBeta.y*extintionExp),
-	// 					pow(e, -extBeta.z*extintionExp));
-	return vec3(1.0);
-}
-
 vec3 applyAtmospherics(in vec3 color)
 {
 	vec2 uv = vec2(2.0*vTex0.x-1.0, 1.5*vTex0.y-0.75);

@@ -111,7 +111,7 @@ namespace rev
 	template<class _resourceT, class _keyT>
 	void CResourceManager<_resourceT, _keyT>::release(const _keyT& _x)
 	{
-		typename rtl::map<string,_resourceT*>::iterator i = find(_x);
+		typename rtl::map<string,_resourceT*>::iterator i = mResources.find(_x);
 		if(!i->second->release())
 			mResources.erase(i);
 	}
@@ -120,7 +120,7 @@ namespace rev
 	template<class _resourceT>
 	void CResourceManager<_resourceT, const char*>::release(const char* _x)
 	{
-		typename rtl::map<string,_resourceT*>::iterator i = find(_x);
+		typename rtl::map<string,_resourceT*>::iterator i = mResources.find(_x);
 		if(!i->second->release())
 			mResources.erase(i);
 	}

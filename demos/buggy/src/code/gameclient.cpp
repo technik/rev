@@ -78,6 +78,7 @@ void CBuggyGameClient::init()
 	bgViewport->setCamera(skyCam);
 	skyCam->setScene(bgScene);
 	skyCam->attachTo(skyNode);
+	skyNode->attachTo(camera3d()->node());
 	// -------------------------------------------------------
 
 	CWebPanel * testWeb = new CWebPanel(unsigned(screenSize.x)-40, unsigned(screenSize.y)-30);

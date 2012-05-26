@@ -14,7 +14,7 @@ namespace rev { namespace script
 {
 	const CTokenRule revScriptTokens[] = 
 	{
-		{eCommentToken,	"//[^\n\r\f]"},
+		{eCommentToken,	"//[^\n\r\f]*\n|\r|\f"},
 		{eSpace,		"\t| |\n|\r|\f+"},
 		{eFloat,		"-?[0-9]+.[0-9]+"},
 		{eInteger,		"-?[0-9]+"},

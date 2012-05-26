@@ -300,10 +300,10 @@ namespace rev
 	{
 		for(rtl::vector<CToken>::iterator i = _list.begin(); i != _list.end(); ++i)
 		{
-			if(i->type == _id)
+			while(i != _list.end() && i->type == _id)
 			{
 				// delete[] i->text;
-				_list.erase(i);
+				i = _list.erase(i);
 			}
 		}
 	}

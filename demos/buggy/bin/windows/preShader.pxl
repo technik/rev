@@ -7,7 +7,7 @@ uniform mat4 modelViewProj;
 uniform vec3 viewPos; // View position in model space
 varying vec2 vTex0;
 varying vec3 vPos; // Vertex position
-const vec3 light0Dir = normalize(vec3(0.0,1.0,0.01));
+const vec3 light0Dir = normalize(vec3(0.0,1.0,0.5));
 
 //---------------------------------------------------------------------------------
 // Mathematical constants
@@ -28,8 +28,20 @@ const float	rayC = 0.05;	// Rayleigh scattering constant
 const float mieC = 0.0025; // Mie scattering constant
 const float lAbC = 10.0; // Light Absortion coefficient
 const float	sunLight = 1.0; // Intensity of sun light
-const int	scatteringSamples = 20;
+const int	scatteringSamples = 0;
 const int	scatteringSubSamples = 0;
+
+//------------------------------------------------------------
+vec3 sunContribution(in vec2 point)
+{
+	// vec2 lDir = {length(light0Dir.xy), light0Dir.z};
+	// float extintionExp = 0.10;// distanceToSpace(point, lDir);
+	// vec3 extBeta = vec3(lAbC)+rayC*invWavelen4;
+	// return vec3(pow(e, -extBeta.x*extintionExp),
+	// 					pow(e, -extBeta.y*extintionExp),
+	// 					pow(e, -extBeta.z*extintionExp));
+	return vec3(sunLight);
+}
 
 //------------------------------------------------------------
 float atmosphereHeight(vec2 pos)
