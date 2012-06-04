@@ -743,5 +743,8 @@
     <ClCompile Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.cpp">
       <Filter>revGame\gui\webPanel\css</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\code\revScript\scriptMachine.cpp">
+      <Filter>revScript</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

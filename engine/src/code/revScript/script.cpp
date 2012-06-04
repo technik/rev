@@ -6,6 +6,7 @@
 // Script machine
 
 #include "script.h"
+#include "scriptMachine.h"
 
 #include "analisys/executionTree/revScriptExecutionTree.h"
 #include "analisys/lexer/lexicalAnalizer.h"

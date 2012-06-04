@@ -8,6 +8,8 @@
 #include "revScriptExecutionTree.h"
 
 #include <revCore/codeTools/log/log.h>
+#include <revCore/variant/variant.h>
+#include <revScript/scriptMachine.h>
 #include <revScript/scriptSyntax.h>
 #include <revScript/scriptToken.h>
 
@@ -82,12 +84,12 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVectorNode::eval(CVariant& _v)
+	void CVectorNode::eval(CScriptMachine * _sm, CVariant& _v)
 	{
 		for(rtl::vector<CExpressionNode*>::iterator i = mElements.begin(); i != mElements.end(); ++i)
 		{
 			CVariant e;
-			(*i)->eval(e);
+			(*i)->eval(_sm, e);
 			_v.append(e);
 		}
 	}
@@ -101,8 +103,9 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStringNode::eval(CVariant& _v)
+	void CStringNode::eval(CScriptMachine * _sm, CVariant& _v)
 	{
+		_sm;
 		_v = mValue;
 	}
 
@@ -113,8 +116,9 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CFloatNode::eval(CVariant& _v)
+	void CFloatNode::eval(CScriptMachine * _sm, CVariant& _v)
 	{
+		_sm;
 		_v = mValue;
 	}
 
@@ -125,9 +129,9 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStmtNode::eval(CVariant& _v)
+	void CStmtNode::eval(CScriptMachine * _sm, CVariant& _v)
 	{
-		mExpression->eval(_v);
+		mExpression->eval(_sm, _v);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -167,7 +171,7 @@ namespace rev { namespace script
 	{
 		for(rtl::vector<CStmtNode*>::iterator i = mStmts.begin(); i != mStmts.end(); ++i)
 		{
-			(*i)->eval(_v);
+			(*i)->eval(CScriptMachine::get(), _v);
 		}
 	}
 

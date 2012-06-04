@@ -8,10 +8,10 @@
 #ifndef _REV_CORE_SCRIPT_CSCRIPT_H_
 #define _REV_CORE_SCRIPT_CSCRIPT_H_
 
-namespace rev 
-{ 
-	class CVariant;
-	namespace script
+// Forward declarations
+namespace rev { class CVariant; }
+
+namespace rev { namespace script
 {
 	class CRSTree;
 

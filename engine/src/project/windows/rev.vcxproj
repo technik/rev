@@ -298,6 +298,7 @@
     <ClCompile Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.cpp" />
     <ClCompile Include="..\..\code\revScript\analisys\parser\syntaxParser.cpp" />
     <ClCompile Include="..\..\code\revScript\script.cpp" />
+    <ClCompile Include="..\..\code\revScript\scriptMachine.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\camera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\orthoCamera.cpp" />
     <ClCompile Include="..\..\code\revVideo\camera\perspectiveCamera.cpp" />

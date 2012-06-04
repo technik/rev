@@ -16,6 +16,7 @@
 
 namespace rev { namespace script
 {
+	class CScriptMachine;
 	/*
 
 	class CStmtLstNode
@@ -32,7 +33,7 @@ namespace rev { namespace script
 	{
 	public:
 		static CExpressionNode * expressionNode(CParserNonLeaf*);
-		virtual void eval(CVariant& _v) = 0;
+		virtual void eval(CScriptMachine * _sm, CVariant& _v) = 0;
 	};
 
 	//--------------------------------------------------------------------
@@ -40,7 +41,7 @@ namespace rev { namespace script
 	{
 	public:
 		static CLiteralNode * literalNode(CParserNonLeaf*);
-		virtual void eval(CVariant& _v) = 0;
+		virtual void eval(CScriptMachine * _sm, CVariant& _v) = 0;
 	private:
 	};
 
@@ -49,7 +50,7 @@ namespace rev { namespace script
 	{
 	public:
 		CVectorNode(CParserNonLeaf*);
-		void eval(CVariant& _v);
+		void eval(CScriptMachine * _sm, CVariant& _v);
 	private:
 		rtl::vector<CExpressionNode*> mElements;
 	};
@@ -59,7 +60,7 @@ namespace rev { namespace script
 	{
 	public:
 		CStringNode(CParserLeaf*);
-		void eval(CVariant& _v);
+		void eval(CScriptMachine * _sm, CVariant& _v);
 	private:
 		string mValue;
 	};
@@ -69,7 +70,7 @@ namespace rev { namespace script
 	{
 	public:
 		CFloatNode(CParserLeaf*);
-		void eval (CVariant& _v);
+		void eval (CScriptMachine * _sm, CVariant& _v);
 	private:
 		double mValue;
 	};
@@ -79,7 +80,7 @@ namespace rev { namespace script
 	{
 	public:
 		class CStmtNode(CParserNonLeaf*);
-		void eval(CVariant& _v);
+		void eval(CScriptMachine * _sm, CVariant& _v);
 	private:
 		CExpressionNode * mExpression;
 	};
