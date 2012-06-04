@@ -202,6 +202,15 @@
     <Filter Include="revScript\analisys\executionTree">
       <UniqueIdentifier>{431cca0d-608f-4907-8298-edb8b0b2ecda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\gui\webPanel\css">
+      <UniqueIdentifier>{ccd363f2-43f0-42ee-a02b-07379b09c28b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\gui\webPanel\css\lexer">
+      <UniqueIdentifier>{e8023b6f-3f49-44c5-90b1-ab9df82e2e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revGame\gui\webPanel\css\parser">
+      <UniqueIdentifier>{6feda060-f6b0-4538-90b8-4942867b1489}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -504,6 +513,21 @@
     <ClInclude Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.h">
       <Filter>revScript\analisys\executionTree</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssTokens.h">
+      <Filter>revGame\gui\webPanel\css</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\lexer\cssLexer.h">
+      <Filter>revGame\gui\webPanel\css\lexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\parser\cssParser.h">
+      <Filter>revGame\gui\webPanel\css\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssExpressions.h">
+      <Filter>revGame\gui\webPanel\css</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.h">
+      <Filter>revGame\gui\webPanel\css</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -709,6 +733,15 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.cpp">
       <Filter>revScript\analisys\executionTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\lexer\cssLexer.cpp">
+      <Filter>revGame\gui\webPanel\css\lexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\parser\cssParser.cpp">
+      <Filter>revGame\gui\webPanel\css\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.cpp">
+      <Filter>revGame\gui\webPanel\css</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

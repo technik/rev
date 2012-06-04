@@ -14,7 +14,15 @@ namespace rev { namespace game
 	enum EHtmlSyntax // Non-terminal ids
 	{
 		eDocument,
+		eHead,
+		eHeadCode,
+		eMetadata,
 		eBody,
+		eArgList,
+		eArgument,
+		eAttribute,
+		eHtmlElement,
+		eTag,
 		eHtmlCode
 	};
 

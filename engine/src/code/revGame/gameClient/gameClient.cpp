@@ -23,6 +23,8 @@
 #include <revCore/time/time.h>
 #include <revGame/gui/webPanel/html/lexer/htmlLexer.h>
 #include <revGame/gui/webPanel/html/parser/htmlParser.h>
+#include <revGame/gui/webPanel/css/lexer/cssLexer.h>
+#include <revGame/gui/webPanel/css/parser/cssParser.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revInput/touchInput/touchInput.h>
 #include <revVideo/scene/videoScene.h>
@@ -69,9 +71,11 @@ namespace rev { namespace game
 		initEngineSystems();
 		initBasic2d();
 		initBasic3d();
-		// Init html loader
+		// Init web loaders
 		CHtmlLexer::init();
 		CHtmlParser::init();
+		CCssDeclarationLexer::init();
+		CCssDeclParser::init();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

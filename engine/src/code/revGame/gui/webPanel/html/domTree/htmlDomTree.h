@@ -14,34 +14,64 @@
 #include <revGame/gui/webPanel/html/htmlTokens.h>
 #include <vector.h>
 
-namespace rev { struct CParserNode; }
+namespace rev { class CParserNode; }
 namespace rev {namespace video { class CFont; } }
 
 namespace rev { namespace game
 {
 	class CHtmlRenderContext;
+	class CCssDeclaration;
 
-	class CHtmlDomNode
+	//---------------------------------------------------------
+	class CHtmlElementNode
 	{
 	public:
-		static CHtmlDomNode * createNode(CParserNode * _tree);
-		virtual void render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const;
-		void addChild(CHtmlDomNode* _child);
+		CHtmlElementNode(CParserNode * _node);
+		virtual void render(CHtmlRenderContext& _rc) = 0;
+
 	protected:
-	private:
-		static CHtmlDomNode * htmlNode(CParserNonLeaf * _node);
-		
-		rtl::vector<CHtmlDomNode*> mChildren;
+		CCssDeclaration * mStyle;
 	};
 
-	class CHtmlElementNode : public CHtmlDomNode
+	//---------------------------------------------------------
+	class CHtmlSpanElement : public CHtmlElementNode
 	{
 	public:
-		CHtmlElementNode(const char * _text): mText(_text) {}
-		CHtmlElementNode() {}
-		void render(CHtmlRenderContext& _context, unsigned _x, unsigned _y) const;
+		CHtmlSpanElement(CParserNode * _node);
+		void render(CHtmlRenderContext& _rc);
 	private:
-		string mText;
+		rtl::vector<CHtmlElementNode*>	mChildren;
+	};
+
+	//---------------------------------------------------------
+	class CHtmlWordNode : public CHtmlElementNode
+	{
+	public:
+		CHtmlWordNode(CParserNode * _node);
+		void render(CHtmlRenderContext& _rc);
+	private:
+		string	mText;
+	};
+
+	//---------------------------------------------------------
+	class CHtmlBodyNode
+	{
+	public:
+		CHtmlBodyNode(CParserNode * _bodyTree);
+		void render(CHtmlRenderContext& _rc);
+
+	private:
+		rtl::vector<CHtmlElementNode*>	mChildren;
+		CCssDeclaration * mStyle;
+	};
+
+	//---------------------------------------------------------
+	class CHtmlDocument
+	{
+	public:
+		CHtmlDocument(CParserNode * _htmlTree);
+		void render(CHtmlRenderContext& _rc);
+	private:
 	};
 
 }	// namespace game

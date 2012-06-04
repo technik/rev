@@ -26,8 +26,9 @@ namespace rev
 		//const CSyntagma	*const to];	// into a list of syntagmas 'to'
 	};
 
-	struct CParserNode
+	class CParserNode
 	{
+	public:
 		const CGrammarRule * mRule;
 		virtual unsigned nTokens() const = 0;
 		virtual ~CParserNode() {}

@@ -20,7 +20,8 @@ namespace rev { namespace script
 		rtl::vector<CToken>	tokens;
 		CRevScriptLexer::get()->tokenizeCode(tokens, _code);
 		CRevScriptParser::get()->stripTokens(tokens, eSpace);
-		CRevScriptParser::get()->stripTokens(tokens, eCommentToken);
+		CRevScriptParser::get()->stripTokens(tokens, eLineComment);
+		CRevScriptParser::get()->stripTokens(tokens, eBlockComment);
 		CParserNode * nodeTree = CRevScriptParser::get()->generateParseTree(tokens);
 		mExecTree = new CRSTree(nodeTree);
 	}

@@ -33,20 +33,20 @@ namespace rev { namespace script
 	CLiteralNode * CLiteralNode::literalNode(CParserNonLeaf * _node)
 	{
 		CParserNode * child = _node->mChildren[0];
-		if(child->mRule)
+		if(child->mRule) // Not a terminal
 		{
-			if(child->mRule->from == eVector)
+			if(child->mRule->from == eInlineVector)
 			{
 				return new CVectorNode(static_cast<CParserNonLeaf*>(child));
 			}
 			else
 			{
-				revLog("Error: literals can only be strings, floats or vectors");
+				revLogN("Error: literals can only be strings, floats or vectors");
 				codeTools::SLog::get()->flush();
 				return 0;
 			}
 		}
-		else
+		else // Terminal literal
 		{
 			CParserLeaf * leaf = static_cast<CParserLeaf*>(child);
 			if(leaf->mToken.type == eString)
@@ -59,7 +59,7 @@ namespace rev { namespace script
 			}
 			else
 			{
-				revLog("Error: literals can only be strings, floats or vectors");
+				revLogN("Error: literals can only be strings, floats or vectors");
 				codeTools::SLog::get()->flush();
 				return 0;
 			}
@@ -131,7 +131,7 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CStmtLstNode::CStmtLstNode(CParserNonLeaf* _node)
+	/*CStmtLstNode::CStmtLstNode(CParserNonLeaf* _node)
 	{
 		CParserNonLeaf * child = _node;
 		while(child->mRule->to.size() == 2)
@@ -148,26 +148,34 @@ namespace rev { namespace script
 		{
 			(*i)->eval(_v);
 		}
-	}
+	}*/
 
 	//------------------------------------------------------------------------------------------------------------------
 	CRSTree::CRSTree(CParserNode * _node)
 	{
 		CParserNonLeaf * root= static_cast<CParserNonLeaf*>(_node);
-		mStmtLst = new CStmtLstNode(static_cast<CParserNonLeaf*>(root->mChildren[0]));
+		CParserNonLeaf * child = static_cast<CParserNonLeaf*>(root->mChildren[0]);
+		while(child->mRule->to.size() == 2)
+		{
+			mStmts.push_back(new CStmtNode(static_cast<CParserNonLeaf*>(child->mChildren[0])));
+			child = static_cast<CParserNonLeaf*>(child->mChildren[1]);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CRSTree::eval(CVariant& _v)
 	{
-		mStmtLst->eval(_v);
+		for(rtl::vector<CStmtNode*>::iterator i = mStmts.begin(); i != mStmts.end(); ++i)
+		{
+			(*i)->eval(_v);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CRSTree::run()
 	{
 		CVariant v;
-		mStmtLst->eval(v);
+		eval(v);
 	}
 }	// namespace script
 }	// namespace rev

@@ -189,6 +189,11 @@
     <ClInclude Include="..\..\code\revGame\gameClient\gameClient.h" />
     <ClInclude Include="..\..\code\revGame\gameClient\windows\windowsHandler.h" />
     <ClInclude Include="..\..\code\revGame\gui\guiPanel.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssExpressions.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssTokens.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\lexer\cssLexer.h" />
+    <ClInclude Include="..\..\code\revGame\gui\webPanel\css\parser\cssParser.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlExpressions.h" />
     <ClInclude Include="..\..\code\revGame\gui\webPanel\html\htmlTokens.h" />
@@ -272,6 +277,9 @@
     <ClCompile Include="..\..\code\revGame\gameClient\gameClient.cpp" />
     <ClCompile Include="..\..\code\revGame\gameClient\windows\windowsHandler.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\guiPanel.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\lexer\cssLexer.cpp" />
+    <ClCompile Include="..\..\code\revGame\gui\webPanel\css\parser\cssParser.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\domTree\htmlDomTree.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\lexer\htmlLexer.cpp" />
     <ClCompile Include="..\..\code\revGame\gui\webPanel\html\parser\htmlParser.cpp" />

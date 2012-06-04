@@ -9,11 +9,30 @@
 #define _REV_GAME_GUI_WEBPANEL_HTML_RENDERCONTEXT_HTMLRENDERCONTEXT_H_
 
 #include <revCore/string.h>
+#include <revVideo/color/color.h>
+#include <vector.h>
 
 namespace rev { namespace video { class CFont; }}
 
 namespace rev { namespace game
 {
+	class CCssDeclaration;
+
+	struct CHtmlRenderState
+	{
+		CHtmlRenderState()
+			:mColor(video::CColor::WHITE)
+			,mBgColor(0.f,0.f,0.f,0.f)
+		{}
+		video::CColor	mColor;
+		video::CColor	mBgColor;
+		video::CFont*	mFont;
+		unsigned		mWidth;
+		unsigned		mHeight;
+		unsigned		mX0;
+		unsigned		mY0;
+	};
+
 	class CHtmlRenderContext
 	{
 	public:
@@ -22,10 +41,11 @@ namespace rev { namespace game
 		unsigned char * dstImg;
 		unsigned imgW;
 		unsigned imgH;
-		video::CFont * font;
 
 		void addText(const char * _text);
-		void renderText(unsigned _x, unsigned _y);
+		void renderText();
+		void addStyle(const CCssDeclaration& _style);
+		void removeTopStyle();
 
 	private:
 		unsigned getTextLine(char * _dst, const char * _src, unsigned _maxWidth);
@@ -33,6 +53,7 @@ namespace rev { namespace game
 
 	private:
 		string	mText;
+		rtl::vector<CHtmlRenderState>	mStateStack;
 	};
 }	// namespace game
 }	// namespace rev

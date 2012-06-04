@@ -50,21 +50,21 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CHtmlRenderContext::renderText(unsigned _x, unsigned _y)
+	void CHtmlRenderContext::renderText()
 	{
 		const char * textToRender = mText.c_str();
 		char lineBuffer[512];
 		unsigned offset = getTextLine(lineBuffer, textToRender, imgW);
-		unsigned yPos = _y;
+		unsigned yPos = 0;//_y;
 		unsigned renderChar0 = 0;
 		while(0 != lineBuffer[0])
 		{
-			CTexture * textTexture = font->renderText(&lineBuffer[renderChar0]);
+			CTexture * textTexture = 0;//font->renderText(&lineBuffer[renderChar0]);
 			renderChar0 = 0;
 			unsigned tWidth = textTexture->width();
 			unsigned tHeight = textTexture->height();
 			const unsigned char * render = textTexture->buffer();
-			renderImage(render, _x, yPos, tWidth, tHeight);
+			renderImage(render, 0, yPos, tWidth, tHeight);
 			yPos += tHeight + 4;
 			offset += getTextLine(lineBuffer, &textToRender[offset], imgW);
 			while(lineBuffer[renderChar0] == ' ')
@@ -85,7 +85,7 @@ namespace rev { namespace game
 				++wCursor;
 			}
 			_dst[wCursor] = '\0';
-			unsigned width = font->textLength(_dst);
+			unsigned width = 0;//font->textLength(_dst);
 			_dst[wCursor] = _src[wCursor];
 			if(width > _maxWidth)
 				break;

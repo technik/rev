@@ -10,6 +10,7 @@
 #include "html/lexer/htmlLexer.h"
 #include "html/parser/htmlParser.h"
 #include "html/renderContext/htmlRenderContext.h"
+#include "css/cssDeclaration.h"
 
 #include <revCore/file/file.h>
 #include <revCore/file/fileWatcher.h>
@@ -99,10 +100,20 @@ namespace rev { namespace game
 		CHtmlLexer::get()->tokenizeCode(tokenList, _code);	// Lexycal analysis
 		CParser * htmlParser = CHtmlParser::get();
 		htmlParser->stripTokens(tokenList, eSpace);			// Strip spaces
+		htmlParser->stripTokens(tokenList, eComment);
 		CParserNode * htmlTree = htmlParser->generateParseTree(tokenList);
 		if(htmlTree != 0)
 		{
-			mTree = CHtmlDomNode::createNode(htmlTree);
+			CHtmlRenderContext context;
+			context.dstImg = _dstImg;
+			context.imgH = mHeight;
+			context.imgW = mWidth;
+			CCssDeclaration stl("color:red;");
+			context.addStyle(stl);
+			context.addText("Hello!");
+			context.renderText();
+			context.removeTopStyle();
+			/*mTree = CHtmlDomNode::createNode(htmlTree);
 			CHtmlRenderContext context;
 			context.dstImg = _dstImg;
 			context.imgH = mHeight;
@@ -111,7 +122,7 @@ namespace rev { namespace game
 			//context.addText("Hello from a render context!");
 			//context.renderText(0, 0);
 			mTree->render(context, 0, 0);
-			//renderText(_dstImg, _code, 0, 0);
+			//renderText(_dstImg, _code, 0, 0);*/
 		}
 	}
 

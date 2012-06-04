@@ -20,91 +20,102 @@ namespace rev { namespace script
 	//---------------------------------------------------------------------------------------------------------------------
 	CParser * CRevScriptParser::sParser = 0;
 
-	//---------------------------------------------------------------------------------------------------------------------
-	//CSyntagma script = { eScript, false };
-	CSyntagma funcDef = { eFuncDef, false };
-	CSyntagma statementList = { eStmtLst, false };
-	CSyntagma statement = { eStatement, false };
-	CSyntagma assignement = { eAssignement, false };
-	CSyntagma funcCall = { eFuncCall, false };
-	CSyntagma expression = { eExpression, false };
-	CSyntagma vectorSynt = { eVector, false };
-	CSyntagma expressionList = { eExpressionLst, false };
-	CSyntagma literalSynt = { eLiteral, false };
-	CSyntagma boolSynt = { eBool, false };
-
-	CSyntagma floatSynt = { eFloat, true };
-	CSyntagma integer = { eInteger, true };
-	CSyntagma stringSynt = { eString, true };
-	CSyntagma trueSynt = { eTrue, true };
-	CSyntagma falseSynt = {eFalse, true };
-	CSyntagma openBraces = {eOpenBraces, true };
-	CSyntagma closeBraces = { eCloseBraces, true };
-	CSyntagma comma = { eComma, true };
-	CSyntagma semicolon = {eSemicolon, true };
-
-	CGrammarRule revScriptSyntaxRules[17];
+	CGrammarRule revScriptSyntaxRules[13];
 
 	//---------------------------------------------------------------------------------------------------------------------
 	void CRevScriptParser::init()
 	{
-		// script : stmtLst
+		// ----- Define syntagmas -----
+		// Non terminals
+		CSyntagma scriptStreamS = {eScriptStream, false };
+		CSyntagma stmtS = { eStmt, false };
+//		CSyntagma fnDefS = { eFnDef, false };
+		CSyntagma expressionS = { eExpression, false };
+//		CSyntagma conditionalS = { eConditional, false };
+//		CSyntagma whileLoopS = { eWhileLoop, false };
+//		CSyntagma forLoopS	= { eForLoop, false };
+//		CSyntagma assignementS = { eAssignement, false };
+//		CSyntagma argLstS = { eArgLst, false };
+//		CSyntagma argument = { eArgument, false };
+//		CSyntagma codeBlockS = { eCodeBlock, false };
+//		CSyntagma stmtLstS = { eStmtLst, false };
+//		CSyntagma fnCall = { eFnCall, false };
+//		CSyntagma elementAccessS = { eElementAccess, false };
+		CSyntagma literalS = { eLiteral, false };
+		CSyntagma inlineVectorS = { eInlineVector, false };
+//		CSyntagma boolS = { eBool, false };
+		CSyntagma exprLstS = { eExprLst, false };
+//		CSyntagma elseBlockS = { eElseBlock, false };
+		// Terminals
+		CSyntagma semicolonT = { eSemicolon, true };
+//		CSyntagma functionKWT = { eFunctionKW, true };
+//		CSyntagma openParenthesisT = { eOpenParenthesis, true };
+//		CSyntagma closeParenthesisT = { eCloseParenthesis, true };
+		CSyntagma commaT = { eComma, true };
+//		CSyntagma whileKWT = { eWhileKW, true };
+//		CSyntagma forKWT = { eForKW, true };
+//		CSyntagma openCBracesT = { eOpenCBraces, true };
+//		CSyntagma closeCBracesT = { eCloseCBraces, true };
+//		CSyntagma assignOperatorT = { eAssignOperator, true };
+		CSyntagma openBracesT = { eOpenBraces, true };
+		CSyntagma closeBracesT = { eCloseBraces, true };
+//		CSyntagma trueKWT = { eTrueKW, true };
+//		CSyntagma falseKWT = {eFalseKW, true };
+//		CSyntagma nullKWT = { eNullKW, true };
+//		CSyntagma ifKWT = { eIfKW, true };
+//		CSyntagma elseKWT = { eElseKW, true };
+		CSyntagma floatT = { eFloat, true };
+//		CSyntagma integerT = { eInteger, true };
+		CSyntagma stringT = { eString, true };
+//		CSyntagma identifierT = { eIdentifier, true };
+
+		// ----- Define syntax rules -----
+		// script : scriptStream
 		revScriptSyntaxRules[0].from = eScript;
-		revScriptSyntaxRules[0].to.push_back(statementList);
-		// stmtLst : stmt stmtLst
-		revScriptSyntaxRules[1].from = eStmtLst;
-		revScriptSyntaxRules[1].to.push_back(statement);
-		revScriptSyntaxRules[1].to.push_back(statementList);
-		// stmtLst :
-		revScriptSyntaxRules[2].from = eStmtLst;
-		// stmt : expression ;
-		revScriptSyntaxRules[3].from = eStatement;
-		revScriptSyntaxRules[3].to.push_back(expression);
-		revScriptSyntaxRules[3].to.push_back(semicolon);
-		// expression : assignement
-		revScriptSyntaxRules[4].from = eExpression;
-		revScriptSyntaxRules[4].to.push_back(assignement);
+		revScriptSyntaxRules[0].to.push_back(scriptStreamS);
+		// scriptStream : stmt scriptStream
+		revScriptSyntaxRules[2].from = eScriptStream;
+		revScriptSyntaxRules[2].to.push_back(stmtS);
+		revScriptSyntaxRules[2].to.push_back(scriptStreamS);
+		// scriptStrean : fnDef scriptStream
+//		revScriptSyntaxRules[1].from = eScriptStream;
+//		revScriptSyntaxRules[1].to.push_back(fnDefS);
+//		revScriptSyntaxRules[1].to.push_back(scriptStreamS);
+		// scriptStream :
+		revScriptSyntaxRules[3].from = eScriptStream;
+		// statement : expression ;
+		revScriptSyntaxRules[4].from = eStmt;
+		revScriptSyntaxRules[4].to.push_back(expressionS);
+		revScriptSyntaxRules[4].to.push_back(semicolonT);
 		// expression : literal
 		revScriptSyntaxRules[5].from = eExpression;
-		revScriptSyntaxRules[5].to.push_back(literalSynt);
-		// literal : vector
+		revScriptSyntaxRules[5].to.push_back(literalS);
+		// literal : inlineVector
 		revScriptSyntaxRules[6].from = eLiteral;
-		revScriptSyntaxRules[6].to.push_back(vectorSynt);
-		// literal : integer
-		revScriptSyntaxRules[7].from = eLiteral;
-		revScriptSyntaxRules[7].to.push_back(integer);
+		revScriptSyntaxRules[6].to.push_back(inlineVectorS);
 		// literal : float
-		revScriptSyntaxRules[8].from = eLiteral;
-		revScriptSyntaxRules[8].to.push_back(floatSynt);
+		revScriptSyntaxRules[7].from = eLiteral;
+		revScriptSyntaxRules[7].to.push_back(floatT);
 		// literal : string
-		revScriptSyntaxRules[9].from = eLiteral;
-		revScriptSyntaxRules[9].to.push_back(stringSynt);
-		// literal : bool
-		revScriptSyntaxRules[10].from = eLiteral;
-		revScriptSyntaxRules[10].to.push_back(boolSynt);
-		// vector : [ exprLst ]
-		revScriptSyntaxRules[11].from = eVector;
-		revScriptSyntaxRules[11].to.push_back(openBraces);
-		revScriptSyntaxRules[11].to.push_back(expressionList);
-		revScriptSyntaxRules[11].to.push_back(closeBraces);
-		// exprLst : expr , exprLst
-		revScriptSyntaxRules[12].from = eExpressionLst;
-		revScriptSyntaxRules[12].to.push_back(expression);
-		revScriptSyntaxRules[12].to.push_back(comma);
-		revScriptSyntaxRules[12].to.push_back(expressionList);
+		revScriptSyntaxRules[8].from = eLiteral;
+		revScriptSyntaxRules[8].to.push_back(stringT);
+		// inlineVector : [ exprLst ]
+		revScriptSyntaxRules[9].from = eInlineVector;
+		revScriptSyntaxRules[9].to.push_back(openBracesT);
+		revScriptSyntaxRules[9].to.push_back(exprLstS);
+		revScriptSyntaxRules[9].to.push_back(closeBracesT);
+		// exprLst : expr, exprLst
+		revScriptSyntaxRules[10].from = eExprLst;
+		revScriptSyntaxRules[10].to.push_back(expressionS);
+		revScriptSyntaxRules[10].to.push_back(commaT);
+		revScriptSyntaxRules[10].to.push_back(exprLstS);
 		// exprLst : expr
-		revScriptSyntaxRules[13].from = eExpressionLst;
-		revScriptSyntaxRules[13].to.push_back(expression);
-		// exprLst : 
-		revScriptSyntaxRules[12].from = eExpressionLst;
-		// bool : true
-		revScriptSyntaxRules[15].from = eBool;
-		revScriptSyntaxRules[15].to.push_back(trueSynt);
-		// bool : false
-		revScriptSyntaxRules[16].from = eBool;
-		revScriptSyntaxRules[16].to.push_back(falseSynt);
+		revScriptSyntaxRules[11].from = eExprLst;
+		revScriptSyntaxRules[11].to.push_back(expressionS);
+		// exprLst :
+		revScriptSyntaxRules[12].from = eExprLst;
 
-		sParser = new CParser(revScriptSyntaxRules, 17);
+		sParser = new CParser(revScriptSyntaxRules, 13);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------

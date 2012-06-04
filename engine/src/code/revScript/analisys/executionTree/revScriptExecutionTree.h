@@ -16,6 +16,18 @@
 
 namespace rev { namespace script
 {
+	/*
+
+	class CStmtLstNode
+	{
+	public:
+		CStmtLstNode(CParserNonLeaf*);
+		void eval(CVariant& _v);
+	private:
+		rtl::vector<CStmtNode*>	mStmts;
+	};*/
+
+	//--------------------------------------------------------------------
 	class CExpressionNode
 	{
 	public:
@@ -23,6 +35,7 @@ namespace rev { namespace script
 		virtual void eval(CVariant& _v) = 0;
 	};
 
+	//--------------------------------------------------------------------
 	class CLiteralNode : public CExpressionNode
 	{
 	public:
@@ -31,6 +44,7 @@ namespace rev { namespace script
 	private:
 	};
 
+	//--------------------------------------------------------------------
 	class CVectorNode : public CLiteralNode
 	{
 	public:
@@ -40,6 +54,7 @@ namespace rev { namespace script
 		rtl::vector<CExpressionNode*> mElements;
 	};
 
+	//--------------------------------------------------------------------
 	class CStringNode : public CLiteralNode
 	{
 	public:
@@ -49,6 +64,7 @@ namespace rev { namespace script
 		string mValue;
 	};
 
+	//--------------------------------------------------------------------
 	class CFloatNode : public CLiteralNode
 	{
 	public:
@@ -58,6 +74,7 @@ namespace rev { namespace script
 		double mValue;
 	};
 
+	//--------------------------------------------------------------------
 	class CStmtNode
 	{
 	public:
@@ -67,16 +84,13 @@ namespace rev { namespace script
 		CExpressionNode * mExpression;
 	};
 
-	class CStmtLstNode
+	//--------------------------------------------------------------------
+	class CFnDefinition
 	{
-	public:
-		CStmtLstNode(CParserNonLeaf*);
-		void eval(CVariant& _v);
-	private:
-		rtl::vector<CStmtNode*>	mStmts;
 	};
 
-	class CRSTree
+	//--------------------------------------------------------------------
+	class CRSTree // Rev Script Tree
 	{
 	public:
 		CRSTree(CParserNode*);
@@ -84,7 +98,8 @@ namespace rev { namespace script
 		void eval(CVariant& _v);
 
 	private:
-		CStmtLstNode * mStmtLst;
+		rtl::vector<CFnDefinition*>	mFnDefinitions;
+		rtl::vector<CStmtNode*>	mStmts;
 	};
 }	// namespace script
 }	// namespace rev

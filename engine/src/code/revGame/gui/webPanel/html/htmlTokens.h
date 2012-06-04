@@ -12,11 +12,40 @@ namespace rev { namespace game
 {
 	enum EHtmlToken
 	{
-		eSpace,
+		// Core html tokens
 		eOpenHtml,
 		eCloseHtml,
-		eOpenBody,
-		eCloseBody,
+		eOpenHead,
+		eCloseHead,
+		// Metadata tags
+		eLinkTag,
+		// Other tags
+		eBodyTag,
+		eBrTag,
+		eDivTag,
+		eImgTag,
+		eH1Tag,
+		eH2Tag,
+		eH3Tag,
+		eH4Tag,
+		eH5Tag,
+		eH6Tag,
+		ePTag,
+		eSpanTag,
+		// Attributes
+		eClassAttrib,
+		eHiddenAttrib,
+		eHrefAttrib,
+		eIdAttrib,
+		eStyleAttrib,
+		// Generic tokens
+		eComment,
+		eOpenEndTag,
+		eOpenTag,
+		eCloseTag,
+		eSpace,
+		eAssignement,
+		eString,
 		eWord
 	};
 }	// namespace game

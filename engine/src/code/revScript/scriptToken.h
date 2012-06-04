@@ -12,17 +12,30 @@ namespace rev { namespace script
 {
 	enum ERevScriptToken
 	{
-		eCommentToken,
 		eSpace,
+		eLineComment,
+		eBlockComment,
+		eSemicolon,			// ;
+		eFunctionKW,		// function
+		eOpenParenthesis,	// (
+		eCloseParenthesis,	// )
+		eComma,				// ,
+		eWhileKW,			// while
+		eForKW,				// for
+		eOpenCBraces,		// {
+		eCloseCBraces,		// }
+		eAssignOperator,	// =
+		eOpenBraces,		// [
+		eCloseBraces,		// ]
+		eTrueKW,			// true
+		eFalseKW,			// false
+		eNullKW,			// null
+		eIfKW,				// if
+		eElseKW,			// else
 		eFloat,
 		eInteger,
 		eString,
-		eTrue,
-		eFalse,
-		eOpenBraces,	// [
-		eCloseBraces,	// ]
-		eComma,			// ,
-		eSemicolon,		// ;
+		eIdentifier,
 	};
 
 }	// namespace script

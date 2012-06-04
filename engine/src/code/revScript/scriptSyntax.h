@@ -17,16 +17,25 @@ namespace rev { namespace script
 	enum ERevScriptExpressions
 	{
 		eScript,
-		eFuncDef,
-		eStmtLst,
-		eStatement,
-		eAssignement,
-		eFuncCall,
+		eScriptStream,
+		eStmt,
+		eFnDef,
 		eExpression,
-		eExpressionLst,
-		eVector,
+		eConditional,
+		eWhileLoop,
+		eForLoop,
+		eAssignement,
+		eArgLst,
+		eArgument,
+		eCodeBlock,
+		eStmtLst,
+		eFnCall,
+		eElementAccess,
 		eLiteral,
+		eInlineVector,
 		eBool,
+		eExprLst,
+		eElseBlock,
 	};
 }	// namespace script
 }	// namespace rev
