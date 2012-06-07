@@ -45,22 +45,15 @@ namespace rev { namespace video
 		// Load configuration script
 		CFile	configFile("video.rsc");
 		CScript config(configFile.textBuffer());
-		CVariant configVar;
-		config.run(configVar);
-		if((configVar.type() == CVariant::eList) && (configVar.size() > 0))
-		{
-			if(configVar.size() == 1) // Only screen resolution provided
-			{
-				mScreenWidth = configVar[0][0].asInt();
-				mScreenHeight = configVar[0][1].asInt();
-			}
-			else // Standard formatting
-			{
-				mScreenPos = configVar[0].asVec2();
-				mScreenWidth = configVar[1][0].asInt();
-				mScreenHeight = configVar[1][1].asInt();
-			}
-		}
+		config.run();
+
+		CVariant v;
+		CScript::getVar("screenPosition", v);
+		CVec2 pos = v.asVec2(mScreenPos);
+		CScript::getVar("screenSize", v);
+		CVec2 size = v.asVec2(CVec2((float)mScreenWidth, (float)mScreenHeight));
+		mScreenWidth = (int)size.x;
+		mScreenHeight = (int)size.y;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

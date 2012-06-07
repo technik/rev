@@ -32,6 +32,7 @@
 #include <revVideo/videoDriver/videoDriver.h>
 #include <revScript/analisys/lexer/lexicalAnalizer.h>
 #include <revScript/analisys/parser/syntaxParser.h>
+#include <revScript/scriptMachine.h>
 
 // --- Active namespaces --------
 using namespace rev;
@@ -209,6 +210,7 @@ namespace rev { namespace game
 		// Init script system
 		script::CRevScriptLexer::init();
 		script::CRevScriptParser::init();
+		script::CScriptMachine::init();
 		// Init time system
 		STime::init();
 		// Init video system

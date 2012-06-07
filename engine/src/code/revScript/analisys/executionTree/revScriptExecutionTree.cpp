@@ -23,13 +23,44 @@ namespace rev { namespace script
 		{
 			return CLiteralNode::literalNode(static_cast<CParserNonLeaf*>(child));
 		}
-		else
+		else if(child->mRule->from == eIdentifier)
 		{
-			revLog("Error: revScipt only supports error literal expressions", eError);
-			codeTools::SLog::get()->flush();
+			return new CIdentifierExpression(static_cast<CParserLeaf*>(child));
+		}
+		else // Assignement
+		{
 			return 0;
 		}
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CIdentifierExpression::CIdentifierExpression(CParserLeaf * _node)
+		:mIdentifier(_node->mToken.text)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned CIdentifierExpression::eval(CScriptMachine * _sm)
+	{
+		return _sm->getVar(mIdentifier.c_str());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+//	CAssignementExpression::CAssignementExpression(CParserNonLeaf * _node)
+//	{
+//		CParserLeaf * id = static_cast<CParserLeaf*>(_node->mChildren[0]);
+//		CParserNonLeaf * expr = static_cast<CParserNonLeaf*>(_node->mChildren[3]);
+//		mIdentifier = string(id->mToken.text);
+//		mExpression = CExpressionNode::expressionNode(expr);
+//	}
+//
+//	//------------------------------------------------------------------------------------------------------------------
+//	unsigned CAssignementExpression::eval(CScriptMachine* _sm)
+//	{
+//		unsigned varIdx = mExpression->eval(_sm);
+//		_sm->setVar(mIdentifier.c_str(), varIdx);
+//		return varIdx;
+//	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CLiteralNode * CLiteralNode::literalNode(CParserNonLeaf * _node)
@@ -84,14 +115,16 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CVectorNode::eval(CScriptMachine * _sm, CVariant& _v)
+	unsigned CVectorNode::eval(CScriptMachine * _sm)
 	{
+		CVariant v;
 		for(rtl::vector<CExpressionNode*>::iterator i = mElements.begin(); i != mElements.end(); ++i)
 		{
 			CVariant e;
-			(*i)->eval(_sm, e);
-			_v.append(e);
+			e = int((*i)->eval(_sm));
+			v.append(e);
 		}
+		return _sm->addvar(v);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -103,10 +136,10 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStringNode::eval(CScriptMachine * _sm, CVariant& _v)
+	unsigned CStringNode::eval(CScriptMachine * _sm)
 	{
-		_sm;
-		_v = mValue;
+		CVariant value = CVariant(mValue);
+		return _sm->addvar(value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -116,22 +149,26 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CFloatNode::eval(CScriptMachine * _sm, CVariant& _v)
+	unsigned CFloatNode::eval(CScriptMachine * _sm)
 	{
-		_sm;
-		_v = mValue;
+		CVariant value = CVariant(mValue);
+		return _sm->addvar(value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CStmtNode::CStmtNode(CParserNonLeaf* _node)
 	{
-		mExpression = CExpressionNode::expressionNode(static_cast<CParserNonLeaf*>(_node->mChildren[0]));
+		CParserLeaf * id = static_cast<CParserLeaf*>(_node->mChildren[0]);
+		CParserNonLeaf * expr = static_cast<CParserNonLeaf*>(_node->mChildren[2]);
+		mTargetId = string(id->mToken.text);
+		mExpression = CExpressionNode::expressionNode(expr);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStmtNode::eval(CScriptMachine * _sm, CVariant& _v)
+	void CStmtNode::run(CScriptMachine * _sm)
 	{
-		mExpression->eval(_sm, _v);
+		unsigned varIdx = mExpression->eval(_sm);
+		_sm->setVar(mTargetId.c_str(), varIdx);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -167,19 +204,12 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CRSTree::eval(CVariant& _v)
+	void CRSTree::run()
 	{
 		for(rtl::vector<CStmtNode*>::iterator i = mStmts.begin(); i != mStmts.end(); ++i)
 		{
-			(*i)->eval(CScriptMachine::get(), _v);
+			(*i)->run(CScriptMachine::get());
 		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CRSTree::run()
-	{
-		CVariant v;
-		eval(v);
 	}
 }	// namespace script
 }	// namespace rev

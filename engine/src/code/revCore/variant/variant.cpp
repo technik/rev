@@ -252,8 +252,17 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	CVec2 CVariant::asVec2() const
 	{
-		revAssert((mType == eList) && (mList.size() == 2), "Error, this variant isn't a Vec2");
+		revAssert((mType == eList) && (mList.size() >= 2), "Error, this variant isn't a Vec2");
 		return CVec2(float(mList[0].asDouble()),float(mList[1].asDouble()));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CVec2 CVariant::asVec2(const CVec2& _def) const
+	{
+		if((mType != eList) || (mList.size() < 2))
+			return _def;
+		else
+			return CVec2(float(mList[0].asDouble()),float(mList[1].asDouble()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

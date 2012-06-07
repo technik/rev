@@ -24,7 +24,7 @@ namespace rev { namespace script
 		eConditional,
 		eWhileLoop,
 		eForLoop,
-		eAssignement,
+//		eAssignement,
 		eArgLst,
 		eArgument,
 		eCodeBlock,

@@ -29,7 +29,11 @@ namespace rev { namespace script
 		void createContextLevel();
 		void destroyContextLevel();
 		unsigned getVar(const char * _name);
-		void assign(const char * dst, const char * src);
+		void setVar(const char * _name, unsigned _idx);
+		unsigned addvar(CVariant& _v);
+		void getValue(unsigned _idx, CVariant& _v);
+		void getValue(const char * _varName, CVariant& _dst);
+		//void assign(const char * dst, const char * src);
 
 	private:
 		CScriptMachine();

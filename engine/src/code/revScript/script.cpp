@@ -28,9 +28,15 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CScript::run(CVariant& _res)
+	void CScript::run()
 	{
-		mExecTree->eval(_res);
+		mExecTree->run();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CScript::getVar(const char * _name, CVariant& _v)
+	{
+		CScriptMachine::get()->getValue(_name, _v);
 	}
 }	// namespace script
 }	// namespace rev

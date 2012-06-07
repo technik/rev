@@ -546,8 +546,8 @@ namespace rtl
 			}
 			// If we get here, it means we've found no node, so we have to create one
 			idx = mSize; // New nodes are always inserted at the end of the array
+			enforceMinSize(mSize+1);
 			++mSize;
-			enforceMinSize(mSize);
 			elementT * element = new(&mArray[idx]) elementT(); // Construct the node
 			// Update hierarchy and map metrics
 			element->mParentIdx = lastIdx;

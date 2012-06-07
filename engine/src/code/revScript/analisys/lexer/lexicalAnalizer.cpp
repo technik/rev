@@ -37,7 +37,7 @@ namespace rev { namespace script
 		{eFloat,			"-?[0-9]+.[0-9]+"},
 		{eInteger,			"-?[0-9]+"},
 		{eString,			"\"[^\"]*\""},
-		{eIdentifier,		"_|[a-z]|[A-Z]?_[a-z]|[A-Z]|[0-9]*"},
+		{eIdentifier,		"_|[a-z]|[A-Z]?_|[a-z]|[A-Z]|[0-9]*"},
 	};
 
 	CLexer * CRevScriptLexer::sLexer = 0;

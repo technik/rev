@@ -199,10 +199,14 @@ namespace rev
 			else	// else can next state start with next token?
 			{
 				bool fit = false;
+				unsigned nextRuleFrom = mRules[_state.grammarRule].to[_state.redDot].value;
 				for(unsigned r = 0; r < mNRules; ++r)
 				{
-					CParseState newState = { r, 0, _i };
-					fit |= stateFitsTokens(newState, _tokens, _i);
+					if(mRules[r].from == nextRuleFrom)
+					{
+						CParseState newState = { r, 0, _i };
+						fit |= stateFitsTokens(newState, _tokens, _i);
+					}
 				}
 				return fit;
 			}

@@ -21,7 +21,8 @@ namespace rev { namespace script
 		CScript(const char * _filename);
 		~CScript() {}
 
-		void run(CVariant& _res);
+		void run();
+		static void getVar(const char * _name, CVariant& _v);
 
 	private:
 		CRSTree * mExecTree;

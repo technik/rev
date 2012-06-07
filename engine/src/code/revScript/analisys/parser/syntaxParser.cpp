@@ -56,7 +56,7 @@ namespace rev { namespace script
 //		CSyntagma forKWT = { eForKW, true };
 //		CSyntagma openCBracesT = { eOpenCBraces, true };
 //		CSyntagma closeCBracesT = { eCloseCBraces, true };
-//		CSyntagma assignOperatorT = { eAssignOperator, true };
+		CSyntagma assignOperatorT = { eAssignOperator, true };
 		CSyntagma openBracesT = { eOpenBraces, true };
 		CSyntagma closeBracesT = { eCloseBraces, true };
 //		CSyntagma trueKWT = { eTrueKW, true };
@@ -67,26 +67,27 @@ namespace rev { namespace script
 		CSyntagma floatT = { eFloat, true };
 //		CSyntagma integerT = { eInteger, true };
 		CSyntagma stringT = { eString, true };
-//		CSyntagma identifierT = { eIdentifier, true };
+		CSyntagma identifierT = { eIdentifier, true };
 
 		// ----- Define syntax rules -----
 		// script : scriptStream
 		revScriptSyntaxRules[0].from = eScript;
 		revScriptSyntaxRules[0].to.push_back(scriptStreamS);
 		// scriptStream : stmt scriptStream
-		revScriptSyntaxRules[2].from = eScriptStream;
-		revScriptSyntaxRules[2].to.push_back(stmtS);
-		revScriptSyntaxRules[2].to.push_back(scriptStreamS);
-		// scriptStrean : fnDef scriptStream
-//		revScriptSyntaxRules[1].from = eScriptStream;
-//		revScriptSyntaxRules[1].to.push_back(fnDefS);
-//		revScriptSyntaxRules[1].to.push_back(scriptStreamS);
+		revScriptSyntaxRules[1].from = eScriptStream;
+		revScriptSyntaxRules[1].to.push_back(stmtS);
+		revScriptSyntaxRules[1].to.push_back(scriptStreamS);
 		// scriptStream :
-		revScriptSyntaxRules[3].from = eScriptStream;
-		// statement : expression ;
-		revScriptSyntaxRules[4].from = eStmt;
-		revScriptSyntaxRules[4].to.push_back(expressionS);
-		revScriptSyntaxRules[4].to.push_back(semicolonT);
+		revScriptSyntaxRules[2].from = eScriptStream;
+		// statement : identifier = expression ;
+		revScriptSyntaxRules[3].from = eStmt;
+		revScriptSyntaxRules[3].to.push_back(identifierT);
+		revScriptSyntaxRules[3].to.push_back(assignOperatorT);
+		revScriptSyntaxRules[3].to.push_back(expressionS);
+		revScriptSyntaxRules[3].to.push_back(semicolonT);
+		// expression : identifier
+		revScriptSyntaxRules[4].from = eExpression;
+		revScriptSyntaxRules[4].to.push_back(identifierT);
 		// expression : literal
 		revScriptSyntaxRules[5].from = eExpression;
 		revScriptSyntaxRules[5].to.push_back(literalS);
