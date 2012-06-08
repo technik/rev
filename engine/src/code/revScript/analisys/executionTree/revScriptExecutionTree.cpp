@@ -46,23 +46,6 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-//	CAssignementExpression::CAssignementExpression(CParserNonLeaf * _node)
-//	{
-//		CParserLeaf * id = static_cast<CParserLeaf*>(_node->mChildren[0]);
-//		CParserNonLeaf * expr = static_cast<CParserNonLeaf*>(_node->mChildren[3]);
-//		mIdentifier = string(id->mToken.text);
-//		mExpression = CExpressionNode::expressionNode(expr);
-//	}
-//
-//	//------------------------------------------------------------------------------------------------------------------
-//	unsigned CAssignementExpression::eval(CScriptMachine* _sm)
-//	{
-//		unsigned varIdx = mExpression->eval(_sm);
-//		_sm->setVar(mIdentifier.c_str(), varIdx);
-//		return varIdx;
-//	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	CLiteralNode * CLiteralNode::literalNode(CParserNonLeaf * _node)
 	{
 		CParserNode * child = _node->mChildren[0];
@@ -156,40 +139,63 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	CStmtNode::CStmtNode(CParserNonLeaf* _node)
+	CStmtNode * CStmtNode::stmtNode(CParserNonLeaf * _node)
+	{
+		CParserLeaf * _tk = static_cast<CParserLeaf*>(_node->mChildren[1]);
+		if(_tk->mToken.type == eAssignOperator) // Assignement
+		{
+			return new CAssignStmt(_node);
+		}
+		else
+			return new CFnCallStmt(_node);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CAssignStmt::CAssignStmt(CParserNonLeaf* _node)
 	{
 		CParserLeaf * id = static_cast<CParserLeaf*>(_node->mChildren[0]);
 		CParserNonLeaf * expr = static_cast<CParserNonLeaf*>(_node->mChildren[2]);
-		mTargetId = string(id->mToken.text);
+		mIdentifier = string(id->mToken.text);
 		mExpression = CExpressionNode::expressionNode(expr);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStmtNode::run(CScriptMachine * _sm)
+	void CAssignStmt::run(CScriptMachine * _sm)
 	{
 		unsigned varIdx = mExpression->eval(_sm);
-		_sm->setVar(mTargetId.c_str(), varIdx);
+		_sm->setVar(mIdentifier.c_str(), varIdx);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	/*CStmtLstNode::CStmtLstNode(CParserNonLeaf* _node)
+	CFnCallStmt::CFnCallStmt(CParserNonLeaf * _node)
 	{
-		CParserNonLeaf * child = _node;
-		while(child->mRule->to.size() == 2)
+		CParserLeaf * id = static_cast<CParserLeaf*>(_node->mChildren[0]);
+		mIdentifier = string(id->mToken.text);
+		CParserNonLeaf * expr = static_cast<CParserNonLeaf*>(_node->mChildren[2]);
+		while(expr->mRule->to.size() > 1) // expLst : expr , exprL
 		{
-			mStmts.push_back(new CStmtNode(static_cast<CParserNonLeaf*>(child->mChildren[0])));
-			child = static_cast<CParserNonLeaf*>(child->mChildren[1]);
+			mArgs.push_back(CExpressionNode::expressionNode(static_cast<CParserNonLeaf*>(expr->mChildren[0])));
+			expr = static_cast<CParserNonLeaf*>(expr->mChildren[2]);
+		}
+		if(!expr->mRule->to.empty()) // exprLst : expr
+		{
+			mArgs.push_back(CExpressionNode::expressionNode(static_cast<CParserNonLeaf*>(expr->mChildren[0])));
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CStmtLstNode::eval(CVariant& _v)
+	void CFnCallStmt::run(CScriptMachine * _sm)
 	{
-		for(rtl::vector<CStmtNode*>::iterator i = mStmts.begin(); i != mStmts.end(); ++i)
+		CVariant arguments;
+		for(rtl::vector<CExpressionNode*>::iterator i = mArgs.begin(); i != mArgs.end(); ++i)
 		{
-			(*i)->eval(_v);
+			CVariant e;
+			e = int((*i)->eval(_sm));
+			arguments.append(e);
 		}
-	}*/
+		CVariant r;
+		_sm->callFunction(mIdentifier.c_str(), arguments, r);
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CRSTree::CRSTree(CParserNode * _node)
@@ -198,7 +204,7 @@ namespace rev { namespace script
 		CParserNonLeaf * child = static_cast<CParserNonLeaf*>(root->mChildren[0]);
 		while(child->mRule->to.size() == 2)
 		{
-			mStmts.push_back(new CStmtNode(static_cast<CParserNonLeaf*>(child->mChildren[0])));
+			mStmts.push_back(CStmtNode::stmtNode(static_cast<CParserNonLeaf*>(child->mChildren[0])));
 			child = static_cast<CParserNonLeaf*>(child->mChildren[1]);
 		}
 	}

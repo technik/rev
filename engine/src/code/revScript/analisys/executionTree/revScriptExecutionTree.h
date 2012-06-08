@@ -17,16 +17,6 @@
 namespace rev { namespace script
 {
 	class CScriptMachine;
-	/*
-
-	class CStmtLstNode
-	{
-	public:
-		CStmtLstNode(CParserNonLeaf*);
-		void eval(CVariant& _v);
-	private:
-		rtl::vector<CStmtNode*>	mStmts;
-	};*/
 
 	//--------------------------------------------------------------------
 	class CExpressionNode
@@ -88,11 +78,30 @@ namespace rev { namespace script
 	class CStmtNode
 	{
 	public:
-		class CStmtNode(CParserNonLeaf*);
+		static CStmtNode * stmtNode(CParserNonLeaf*);
+		virtual void run(CScriptMachine * _sm) = 0;
+	protected:
+		string	mIdentifier;
+	};
+
+	//--------------------------------------------------------------------
+	class CAssignStmt : public CStmtNode
+	{
+	public:
+		CAssignStmt(CParserNonLeaf*);
 		void run(CScriptMachine * _sm);
 	private:
-		string				mTargetId;
-		CExpressionNode*	mExpression;
+		CExpressionNode * mExpression;
+	};
+
+	//--------------------------------------------------------------------
+	class CFnCallStmt : public CStmtNode
+	{
+	public:
+		CFnCallStmt(CParserNonLeaf*);
+		void run(CScriptMachine* _sm);
+	private:
+		rtl::vector<CExpressionNode*> mArgs;
 	};
 
 	//--------------------------------------------------------------------

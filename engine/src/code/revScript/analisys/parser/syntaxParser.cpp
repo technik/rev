@@ -20,7 +20,7 @@ namespace rev { namespace script
 	//---------------------------------------------------------------------------------------------------------------------
 	CParser * CRevScriptParser::sParser = 0;
 
-	CGrammarRule revScriptSyntaxRules[13];
+	CGrammarRule revScriptSyntaxRules[15];
 
 	//---------------------------------------------------------------------------------------------------------------------
 	void CRevScriptParser::init()
@@ -49,8 +49,8 @@ namespace rev { namespace script
 		// Terminals
 		CSyntagma semicolonT = { eSemicolon, true };
 //		CSyntagma functionKWT = { eFunctionKW, true };
-//		CSyntagma openParenthesisT = { eOpenParenthesis, true };
-//		CSyntagma closeParenthesisT = { eCloseParenthesis, true };
+		CSyntagma openParenthesisT = { eOpenParenthesis, true };
+		CSyntagma closeParenthesisT = { eCloseParenthesis, true };
 		CSyntagma commaT = { eComma, true };
 //		CSyntagma whileKWT = { eWhileKW, true };
 //		CSyntagma forKWT = { eForKW, true };
@@ -85,38 +85,45 @@ namespace rev { namespace script
 		revScriptSyntaxRules[3].to.push_back(assignOperatorT);
 		revScriptSyntaxRules[3].to.push_back(expressionS);
 		revScriptSyntaxRules[3].to.push_back(semicolonT);
-		// expression : identifier
-		revScriptSyntaxRules[4].from = eExpression;
+		// statement : identifier ( exprLst ) ;
+		revScriptSyntaxRules[4].from = eStmt;
 		revScriptSyntaxRules[4].to.push_back(identifierT);
-		// expression : literal
+		revScriptSyntaxRules[4].to.push_back(openParenthesisT);
+		revScriptSyntaxRules[4].to.push_back(exprLstS);
+		revScriptSyntaxRules[4].to.push_back(closeParenthesisT);
+		revScriptSyntaxRules[4].to.push_back(semicolonT);
+		// expression : identifier
 		revScriptSyntaxRules[5].from = eExpression;
-		revScriptSyntaxRules[5].to.push_back(literalS);
+		revScriptSyntaxRules[5].to.push_back(identifierT);
+		// expression : literal
+		revScriptSyntaxRules[6].from = eExpression;
+		revScriptSyntaxRules[6].to.push_back(literalS);
 		// literal : inlineVector
-		revScriptSyntaxRules[6].from = eLiteral;
-		revScriptSyntaxRules[6].to.push_back(inlineVectorS);
-		// literal : float
 		revScriptSyntaxRules[7].from = eLiteral;
-		revScriptSyntaxRules[7].to.push_back(floatT);
-		// literal : string
+		revScriptSyntaxRules[7].to.push_back(inlineVectorS);
+		// literal : float
 		revScriptSyntaxRules[8].from = eLiteral;
-		revScriptSyntaxRules[8].to.push_back(stringT);
+		revScriptSyntaxRules[8].to.push_back(floatT);
+		// literal : string
+		revScriptSyntaxRules[9].from = eLiteral;
+		revScriptSyntaxRules[9].to.push_back(stringT);
 		// inlineVector : [ exprLst ]
-		revScriptSyntaxRules[9].from = eInlineVector;
-		revScriptSyntaxRules[9].to.push_back(openBracesT);
-		revScriptSyntaxRules[9].to.push_back(exprLstS);
-		revScriptSyntaxRules[9].to.push_back(closeBracesT);
-		// exprLst : expr, exprLst
-		revScriptSyntaxRules[10].from = eExprLst;
-		revScriptSyntaxRules[10].to.push_back(expressionS);
-		revScriptSyntaxRules[10].to.push_back(commaT);
+		revScriptSyntaxRules[10].from = eInlineVector;
+		revScriptSyntaxRules[10].to.push_back(openBracesT);
 		revScriptSyntaxRules[10].to.push_back(exprLstS);
-		// exprLst : expr
+		revScriptSyntaxRules[10].to.push_back(closeBracesT);
+		// exprLst : expr, exprLst
 		revScriptSyntaxRules[11].from = eExprLst;
 		revScriptSyntaxRules[11].to.push_back(expressionS);
-		// exprLst :
+		revScriptSyntaxRules[11].to.push_back(commaT);
+		revScriptSyntaxRules[11].to.push_back(exprLstS);
+		// exprLst : expr
 		revScriptSyntaxRules[12].from = eExprLst;
+		revScriptSyntaxRules[12].to.push_back(expressionS);
+		// exprLst :
+		revScriptSyntaxRules[13].from = eExprLst;
 
-		sParser = new CParser(revScriptSyntaxRules, 13);
+		sParser = new CParser(revScriptSyntaxRules, 14);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------

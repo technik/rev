@@ -32,20 +32,42 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CScriptMachine::createContextLevel()
+	void CScriptMachine::addFunction(TScriptFunction _fn, const char * _name)
 	{
-		mContextStack.resize(mContextStack.size()+1);
+		mCoreFunctions[_name] = _fn;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CScriptMachine::destroyContextLevel()
+	void CScriptMachine::callFunction(const char * _name, CVariant& _args, CVariant& _ret)
 	{
-		TCtxLevel& level = mContextStack.back();
-		for(TCtxLevel::iterator i = level.begin(); i != level.end(); ++i)
+		if(mCoreFunctions.contains(_name))
 		{
-			--mVarTable[i->second].first;
+			CVariant arguments;
+			for(unsigned i = 0; i < _args.size(); ++i)
+			{
+				CVariant element;
+				getValue(_args[i].asInt(), element);
+				arguments.append(element);
+			}
+			mCoreFunctions[_name](arguments, _ret);
 		}
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+//	void CScriptMachine::createContextLevel()
+//	{
+//		mContextStack.resize(mContextStack.size()+1);
+//	}
+//
+//	//------------------------------------------------------------------------------------------------------------------
+//	void CScriptMachine::destroyContextLevel()
+//	{
+//		TCtxLevel& level = mContextStack.back();
+//		for(TCtxLevel::iterator i = level.begin(); i != level.end(); ++i)
+//		{
+//			--mVarTable[i->second].first;
+//		}
+//	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned CScriptMachine::getVar(const char * _name)
