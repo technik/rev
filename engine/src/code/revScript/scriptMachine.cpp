@@ -6,6 +6,7 @@
 // Script machine
 
 #include "scriptMachine.h"
+#include <revCore/codeTools/log/log.h>
 
 namespace rev { namespace script
 {
@@ -38,131 +39,132 @@ namespace rev { namespace script
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CScriptMachine::callFunction(const char * _name, CVariant& _args, CVariant& _ret)
+	unsigned CScriptMachine::callFunction(const char * _name, const rtl::vector<unsigned>& _args)
 	{
 		if(mCoreFunctions.contains(_name))
 		{
 			CVariant arguments;
+			// Gather raw argument data from the table of variables
 			for(unsigned i = 0; i < _args.size(); ++i)
 			{
 				CVariant element;
-				getValue(_args[i].asInt(), element);
 				arguments.append(element);
+				mData.getLiteral(_args[i], arguments[i]);
 			}
-			mCoreFunctions[_name](arguments, _ret);
+			CVariant retValues; // To store actual return values
+			if(mCoreFunctions[_name](arguments, retValues)) // If the function returns any value
+			{
+				unsigned retIdx = mData.newVar();
+				mData.setLiteral(retIdx, retValues);
+				return retIdx;
+			}
+		}
+		else
+		{
+			revLog("Error [Script]: Attempt to call unknown function \"", eError);
+			revLog(_name, eError);
+			revLogN("\"", eError);
+		}
+		return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CScriptMachine::getVar(const char * _name, CVariant& _dst)
+	{
+		if(mContext.contains(_name)) // if the variable exists in the current context
+		{
+			mData.getLiteral(mContext[_name], _dst);
+		}
+		else // else create a new empty variable
+		{
+			mContext[_name] = mData.newVar();
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-//	void CScriptMachine::createContextLevel()
-//	{
-//		mContextStack.resize(mContextStack.size()+1);
-//	}
-//
-//	//------------------------------------------------------------------------------------------------------------------
-//	void CScriptMachine::destroyContextLevel()
-//	{
-//		TCtxLevel& level = mContextStack.back();
-//		for(TCtxLevel::iterator i = level.begin(); i != level.end(); ++i)
-//		{
-//			--mVarTable[i->second].first;
-//		}
-//	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned CScriptMachine::getVar(const char * _name)
+	void CScriptMachine::setVar(const char * _name, const CVariant& _value)
 	{
-		// Check if the var exists
-		TCtxLevel& level = mContextStack.back();
-		TCtxLevel::iterator i = level.find(_name);
-		if(i == level.end())
+		unsigned varIdx;
+		if(mContext.contains(_name)) // The variable already exists
 		{
-			// If it doesn't exist, create it
-			unsigned varIdx = getFirstEmptyVar();
-			mContextStack.back().insert(string(_name), varIdx);
-			return varIdx;
+			varIdx = mContext[_name];
 		}
 		else
-			return i->second;
+		{
+			varIdx = mData.newVar();
+			mContext[_name] = varIdx;
+		}
+		mData.setLiteral(varIdx, _value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void CScriptMachine::setVar(const char * _name, unsigned _idx)
 	{
-		TCtxLevel& level = mContextStack.back();
-		TCtxLevel::iterator i = level.find(_name);
-		if(i == level.end())
+		if(mContext.contains(_name)) // The variable already exists
 		{
-			// If it doesn't exist, create it
-			mContextStack.back().insert(string(_name), _idx);
+			unsigned& varIdx = mContext[_name];
+			mData.lockVar(_idx); // It's important to lock before releasing because otherways trying to self-assign
+			mData.releaseVar(varIdx); // variable could lead to reference corruption
+			varIdx = _idx;
 		}
 		else
-			i->second = _idx;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned CScriptMachine::addvar(CVariant& _v)
-	{
-		unsigned varIdx = getFirstEmptyVar();
-		mVarTable[varIdx].first = 1;
-		mVarTable[varIdx].second = _v;
-		return varIdx;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CScriptMachine::getValue(unsigned _idx, CVariant& _v)
-	{
-		_v = mVarTable[_idx].second;
-		if(_v.type() == CVariant::eList)
 		{
-			for(unsigned i = 0; i < _v.size(); ++i)
-			{
-				CVariant element;
-				getValue(_v[i].asInt(), element);
-				_v[i] = element;
-			}
+			mContext[_name] = _idx;
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void CScriptMachine::getValue(const char * _name, CVariant& _v)
+	void CScriptMachine::setVar(const char * _name, const rtl::vector<unsigned>& _indices)
 	{
-		getValue(getVar(_name), _v);
+		CVariant indices;
+		for(unsigned i = 0; i < _indices.size(); ++i)
+		{
+			indices.append(CVariant(int(_indices[i])));
+		}
+		unsigned idx = mData.newVar();
+		mData.setRawValue(idx, indices);
+		mContext[_name] = idx;
 	}
-
+	
 	//------------------------------------------------------------------------------------------------------------------
-//	void CScriptMachine::assign(const char * _dst, const char * _src)
-//	{
-//		// Get source
-//		unsigned dstIdx = getVar(_dst);
-//		--mVarTable[dstIdx].first;
-//		unsigned srcIdx = getVar(_src);
-//		mContextStack.back()[_dst] = srcIdx;
-//		++mVarTable[srcIdx].first;
-//	}
+	unsigned CScriptMachine::addData(const CVariant& _data)
+	{
+		unsigned i = mData.newVar();
+		mData.setLiteral(i, _data);
+		return i;
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned CScriptMachine::addData(const rtl::vector<unsigned>& _indices)
+	{
+		CVariant indices;
+		for(unsigned i = 0; i < _indices.size(); ++i)
+		{
+			indices.append(CVariant(int(_indices[i])));
+		}
+		unsigned idx = mData.newVar();
+		mData.setRawValue(idx, indices);
+		return idx;
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned CScriptMachine::findData(const char * _name)
+	{
+		if(mContext.contains(_name))
+			return mContext[_name];
+		else
+			return 0;
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CScriptMachine::CScriptMachine()
 	{
-		mContextStack.resize(1);
+		mData.newVar(); // Create a nill variable at index 0
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CScriptMachine::~CScriptMachine()
 	{
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	unsigned CScriptMachine::getFirstEmptyVar()
-	{
-		for(unsigned i = 0; i < mVarTable.size(); ++i)
-		{
-			if(0 == mVarTable[i].first)
-				return i;
-		}
-		unsigned size = mVarTable.size();
-		mVarTable.resize(size+1);
-		return size;
 	}
 
 }	// namespace script

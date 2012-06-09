@@ -16,6 +16,7 @@
 
 namespace rev { namespace video
 {
+	class CColor;
 	class CStaticModel;
 	class CTexture;
 
@@ -52,6 +53,7 @@ namespace rev { namespace video
 		~CFont();
 
 		CTexture * renderText(const char * _text);
+		CTexture * renderText(const char * _text, const CColor& _clr);
 
 		unsigned textLength		(const char * _text);
 		unsigned textHeight		(const char * _text);

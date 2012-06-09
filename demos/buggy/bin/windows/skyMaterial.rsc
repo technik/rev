@@ -1,1 +1,1 @@
-["sky.pxl"];
+pxlShader = "sky.pxl";

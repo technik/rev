@@ -7,6 +7,7 @@
 
 #include "htmlRenderContext.h"
 
+#include <revGame/gui/webPanel/css/cssDeclaration.h>
 #include <revVideo/font/font.h>
 #include <revVideo/texture/texture.h>
 
@@ -15,8 +16,16 @@ using namespace rev::video;
 namespace rev { namespace game
 {
 	//------------------------------------------------------------------------------------------------------------------
-	CHtmlRenderContext::CHtmlRenderContext()
+	CHtmlRenderContext::CHtmlRenderContext(unsigned char * _dstImg, unsigned _imgW, unsigned _imgH)
+		:mImg(_dstImg)
+		,mW(_imgW)
+		,mH(_imgH)
 	{
+		CHtmlRenderState defaultState;
+		defaultState.mFont = CFont::get("arial32.fnt");
+		defaultState.mWidth = mW;
+		defaultState.mHeight = mH;
+		mStateStack.push_back(defaultState);
 	}
 
 
@@ -33,18 +42,18 @@ namespace rev { namespace game
 	{
 		for(unsigned i = 0; i < _width; ++i)
 		{
-			if(i+_x >= imgW)
+			if(i+_x >= mW)
 				break;
 			for(unsigned j = 0; j < _height; ++j)
 			{
-				if(j+_y >= imgH)
+				if(j+_y >= mH)
 					break;
 				unsigned srcIdx = i + _width * j;
-				unsigned dstIdx = i + _x + imgW * (j - _y + imgH - _height);
-				dstImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
-				dstImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
-				dstImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
-				dstImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
+				unsigned dstIdx = i + _x + mW * (j - _y + mH - _height);
+				mImg[4*dstIdx+0] = _srcImg[4*srcIdx+0];
+				mImg[4*dstIdx+1] = _srcImg[4*srcIdx+1];
+				mImg[4*dstIdx+2] = _srcImg[4*srcIdx+2];
+				mImg[4*dstIdx+3] = _srcImg[4*srcIdx+3];
 			}
 		}
 	}
@@ -54,22 +63,40 @@ namespace rev { namespace game
 	{
 		const char * textToRender = mText.c_str();
 		char lineBuffer[512];
-		unsigned offset = getTextLine(lineBuffer, textToRender, imgW);
+		unsigned offset = getTextLine(lineBuffer, textToRender, mW);
 		unsigned yPos = 0;//_y;
 		unsigned renderChar0 = 0;
-		while(0 != lineBuffer[0])
+		CHtmlRenderState& renderState = mStateStack.back();
+		while(0 != lineBuffer[renderChar0])
 		{
-			CTexture * textTexture = 0;//font->renderText(&lineBuffer[renderChar0]);
-			renderChar0 = 0;
+			CTexture * textTexture = renderState.mFont->renderText(&lineBuffer[renderChar0], renderState.mColor);
 			unsigned tWidth = textTexture->width();
 			unsigned tHeight = textTexture->height();
 			const unsigned char * render = textTexture->buffer();
 			renderImage(render, 0, yPos, tWidth, tHeight);
 			yPos += tHeight + 4;
-			offset += getTextLine(lineBuffer, &textToRender[offset], imgW);
+			offset += getTextLine(lineBuffer, &textToRender[offset], mW);
+			renderChar0 += offset;
 			while(lineBuffer[renderChar0] == ' ')
 				++renderChar0;
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CHtmlRenderContext::addStyle(const CCssDeclaration& _style)
+	{
+		CHtmlRenderState newState = mStateStack.back();
+		if(_style.hasColor)
+			newState.mColor = _style.color;
+		if(_style.hasBgColor)
+			newState.mBgColor = _style.bgColor;
+		mStateStack.push_back(newState);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void CHtmlRenderContext::removeTopStyle()
+	{
+		mStateStack.pop_back();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

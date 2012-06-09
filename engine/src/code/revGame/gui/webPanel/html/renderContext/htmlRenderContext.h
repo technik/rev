@@ -23,6 +23,8 @@ namespace rev { namespace game
 		CHtmlRenderState()
 			:mColor(video::CColor::WHITE)
 			,mBgColor(0.f,0.f,0.f,0.f)
+			,mX0(0)
+			,mY0(0)
 		{}
 		video::CColor	mColor;
 		video::CColor	mBgColor;
@@ -36,11 +38,7 @@ namespace rev { namespace game
 	class CHtmlRenderContext
 	{
 	public:
-		CHtmlRenderContext();
-
-		unsigned char * dstImg;
-		unsigned imgW;
-		unsigned imgH;
+		CHtmlRenderContext(unsigned char * dstImg, unsigned imgW, unsigned imgH);
 
 		void addText(const char * _text);
 		void renderText();
@@ -52,6 +50,9 @@ namespace rev { namespace game
 		void renderImage(const unsigned char * _srcImg, unsigned _x, unsigned _y, unsigned _width, unsigned _height);
 
 	private:
+		unsigned char * mImg;
+		unsigned mW;
+		unsigned mH;
 		string	mText;
 		rtl::vector<CHtmlRenderState>	mStateStack;
 	};

@@ -28,8 +28,8 @@ namespace rev { namespace video
 		CFile scriptFile(_scriptFileName);
 		CScript	script(scriptFile.textBuffer());
 		script.run();
-		CScript::getVar("shader", params);
-		mShader = CPxlShader::get(params[0].asString());
+		CScript::getVar("pxlShader", params);
+		mShader = CPxlShader::get(params.asString());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned CIdentifierExpression::eval(CScriptMachine * _sm)
 	{
-		return _sm->getVar(mIdentifier.c_str());
+		return _sm->findData(mIdentifier.c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -100,14 +100,12 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned CVectorNode::eval(CScriptMachine * _sm)
 	{
-		CVariant v;
+		rtl::vector<unsigned>	elementIndices;
 		for(rtl::vector<CExpressionNode*>::iterator i = mElements.begin(); i != mElements.end(); ++i)
 		{
-			CVariant e;
-			e = int((*i)->eval(_sm));
-			v.append(e);
+			elementIndices.push_back((*i)->eval(_sm));
 		}
-		return _sm->addvar(v);
+		return _sm->addData(elementIndices);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -122,7 +120,7 @@ namespace rev { namespace script
 	unsigned CStringNode::eval(CScriptMachine * _sm)
 	{
 		CVariant value = CVariant(mValue);
-		return _sm->addvar(value);
+		return _sm->addData(value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -135,7 +133,7 @@ namespace rev { namespace script
 	unsigned CFloatNode::eval(CScriptMachine * _sm)
 	{
 		CVariant value = CVariant(mValue);
-		return _sm->addvar(value);
+		return _sm->addData(value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -162,8 +160,7 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	void CAssignStmt::run(CScriptMachine * _sm)
 	{
-		unsigned varIdx = mExpression->eval(_sm);
-		_sm->setVar(mIdentifier.c_str(), varIdx);
+		_sm->setVar(mIdentifier.c_str(), mExpression->eval(_sm));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -186,15 +183,13 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	void CFnCallStmt::run(CScriptMachine * _sm)
 	{
-		CVariant arguments;
+		rtl::vector<unsigned>	arguments;
 		for(rtl::vector<CExpressionNode*>::iterator i = mArgs.begin(); i != mArgs.end(); ++i)
 		{
-			CVariant e;
-			e = int((*i)->eval(_sm));
-			arguments.append(e);
+			arguments.push_back((*i)->eval(_sm));
 		}
-		CVariant r;
-		_sm->callFunction(mIdentifier.c_str(), arguments, r);
+		_sm->callFunction(mIdentifier.c_str(), arguments);
+		// TODO: maybe we should free the return value from current context
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

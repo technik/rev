@@ -104,6 +104,7 @@ namespace rev { namespace game
 		cssDeclSyntaxRules[5].to.push_back(dcColorProperty);
 		cssDeclSyntaxRules[5].to.push_back(dcColon);
 		cssDeclSyntaxRules[5].to.push_back(dcColorValue);
+		cssDeclSyntaxRules[5].to.push_back(dcSemicolon);
 		// colorProperty : background
 		cssDeclSyntaxRules[6].from = eColorProperty;
 		cssDeclSyntaxRules[6].to.push_back(dcBackgroundProp);

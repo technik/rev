@@ -9,9 +9,9 @@
 #define _REV_CORE_SCRIPT_CSCRIPTMACHINE_H_
 
 #include <revCore/variant/variant.h>
+#include <revScript/scriptMachine/varTable.h>
 #include <dictionary.h>
 #include <vector.h>
-#include <rtl/map.h>
 
 // Forward declarations
 namespace rev { class CVariant; }
@@ -21,38 +21,46 @@ namespace rev { namespace script
 	class CScriptMachine
 	{
 	public:
+		// Compliant functions must return true if the function writes something to _ret
+		typedef bool(*TScriptFunction)(CVariant& _args, CVariant& _ret);
+
+	public:
+		// Singleton management
 		static void				init	();
 		static void				end		();
 		static CScriptMachine*	get		();
 
-		// Returns true if the function writes something to _ret
-		typedef bool(*TScriptFunction)(CVariant& _args, CVariant& _ret);
-
+		// ----- Dealing with functions -----
 		///\ Registers a function to the script machine
-		void	addFunction		(TScriptFunction _fn, const char * _name);
-		void	callFunction	(const char * _name, CVariant& _args, CVariant& _ret);
-//		void createContextLevel();
-//		void destroyContextLevel();
-		unsigned getVar(const char * _name);
-		void setVar(const char * _name, unsigned _idx);
-		unsigned addvar(CVariant& _v);
-		void getValue(unsigned _idx, CVariant& _v);
-		void getValue(const char * _varName, CVariant& _dst);
+		void		addFunction		(TScriptFunction _fn, const char * _name);
+		///\return: index pointing to the return value of the function (0 if the function returns nothing)
+		unsigned	callFunction	(const char * _name,	// Function name
+						const rtl::vector<unsigned>& _argIndices);// List of indices pointing to the variables that store argument values
+
+		// ----- Dealing with data -----
+		void getVar			(const char * _name, CVariant& _value);
+		void setVar			(const char * _name, const CVariant& _value);
+		void setVar			(const char * _name, unsigned _idx);
+		void setVar			(const char * _name, const rtl::vector<unsigned>& _indices);
+		unsigned addData	(const CVariant& _data);
+		unsigned addData	(const rtl::vector<unsigned>& _indices);
+		unsigned findData	(const char * _name);
 
 	private:
 		CScriptMachine();
 		~CScriptMachine();
-
-		unsigned getFirstEmptyVar();
 		
 	private:
-		typedef rtl::pair<unsigned, CVariant>	TScriptVar;
-		typedef rtl::map<string, unsigned>		TCtxLevel;
+		// Custom types
+		typedef rtl::dictionary<unsigned, 64>			contextT;
+		typedef rtl::dictionary<TScriptFunction, 64>	functionIndexT;
 
-		rtl::dictionary<TScriptFunction, 64>	mCoreFunctions; // Functions registered from code
-		rtl::vector<TScriptVar>					mVarTable;
-		rtl::vector<TCtxLevel>					mContextStack;
+		// Internal data
+		functionIndexT	mCoreFunctions; // Functions registered from code
+		contextT		mContext;		// Execution context, keeps variables indexed by name
+		CVarTable		mData;			// Variable table containing the actual raw data
 
+		// Singleton instance
 		static CScriptMachine* sInstance;
 	};
 

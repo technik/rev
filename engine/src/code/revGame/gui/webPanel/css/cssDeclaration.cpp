@@ -38,6 +38,14 @@ namespace rev { namespace game
 		CParserNonLeaf * rootDecl = static_cast<CParserNonLeaf*>(_tree);
 		CParserNonLeaf * cssDecl = static_cast<CParserNonLeaf*>(rootDecl->mChildren[0]);
 		CParserNonLeaf * typedDecl = static_cast<CParserNonLeaf*>(cssDecl->mChildren[0]);
+		CParserNonLeaf * propNode = static_cast<CParserNonLeaf*>(typedDecl->mChildren[0]);
+		//CParserNonLeaf * valNode = static_cast<CParserNonLeaf*>(typedDecl->mChildren[2]);
+		CParserLeaf * prop = static_cast<CParserLeaf*>(propNode->mChildren[0]);
+		//CParserLeaf * val = static_cast<CParserLeaf*>(valNode->mChildren[0]);
+		if(prop->mToken.type == eColorProp)
+		{
+			color = video::CColor::RED;
+		}
 		typedDecl;
 	}
 }	// namespace game

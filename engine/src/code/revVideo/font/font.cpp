@@ -10,6 +10,7 @@
 #include <revCore/file/file.h>
 #include <revCore/math/vector.h>
 #include <revCore/string.h>
+#include <revVideo/color/color.h>
 #include <revVideo/scene/model/staticModel.h>
 #include <revVideo/texture/texture.h>
 
@@ -65,6 +66,12 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	CTexture * CFont::renderText(const char * _text)
 	{
+		return renderText(_text, CColor::WHITE);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	CTexture * CFont::renderText(const char * _text, const CColor& _clr)
+	{
 		unsigned len = textLength(_text);
 		unsigned h = textHeight(_text);
 		unsigned bufferSize = 4 * len * h;
@@ -89,10 +96,10 @@ namespace rev {
 					unsigned idx = unsigned(xPos+i+len*j);
 					unsigned texel = unsigned(cChar.x + i + (cChar.y+cChar.height-j-1)*mImgWidth);
 					revAssert(4*idx+3 < bufferSize);
-					buffer[4*idx+0] = 255;
-					buffer[4*idx+1] = 255;
-					buffer[4*idx+2] = 255;
-					buffer[4*idx+3] = mImg[4*texel+0];
+					buffer[4*idx+0] = (unsigned char)(255*_clr.r());
+					buffer[4*idx+1] = (unsigned char)(255*_clr.g());
+					buffer[4*idx+2] = (unsigned char)(255*_clr.b());
+					buffer[4*idx+3] = (unsigned char)(mImg[4*texel+0]*_clr.a());
 				}
 			}
 			xPos += cChar.xadvance;

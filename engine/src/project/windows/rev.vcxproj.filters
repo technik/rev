@@ -211,6 +211,9 @@
     <Filter Include="revGame\gui\webPanel\css\parser">
       <UniqueIdentifier>{6feda060-f6b0-4538-90b8-4942867b1489}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revScript\scriptMachine">
+      <UniqueIdentifier>{b4370d88-0a7f-48af-8c72-28724ec0e56d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -528,6 +531,9 @@
     <ClInclude Include="..\..\code\revGame\gui\webPanel\css\cssDeclaration.h">
       <Filter>revGame\gui\webPanel\css</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revScript\scriptMachine\varTable.h">
+      <Filter>revScript\scriptMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -745,6 +751,9 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revScript\scriptMachine.cpp">
       <Filter>revScript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revScript\scriptMachine\varTable.cpp">
+      <Filter>revScript\scriptMachine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

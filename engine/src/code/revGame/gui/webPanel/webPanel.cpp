@@ -29,14 +29,11 @@ namespace rev { namespace game
 		,mHeight(_height)
 		,mPageDelegate(0)
 	{
-		// Load fonts
-		mDefaultFont = CFont::get("arial32.fnt");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CWebPanel::~CWebPanel()
 	{
-		mDefaultFont->release();
 		if(0 != mPageDelegate)
 			delete mPageDelegate;
 	}
@@ -104,10 +101,7 @@ namespace rev { namespace game
 		CParserNode * htmlTree = htmlParser->generateParseTree(tokenList);
 		if(htmlTree != 0)
 		{
-			CHtmlRenderContext context;
-			context.dstImg = _dstImg;
-			context.imgH = mHeight;
-			context.imgW = mWidth;
+			CHtmlRenderContext context(_dstImg, mWidth, mHeight);
 			CCssDeclaration stl("color:red;");
 			context.addStyle(stl);
 			context.addText("Hello!");
@@ -125,29 +119,6 @@ namespace rev { namespace game
 			//renderText(_dstImg, _code, 0, 0);*/
 		}
 	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	/*unsigned CWebPanel::getTextLine(char * _dst, const char * _src, unsigned _maxWidth)
-	{
-		unsigned cursor = 0;
-		unsigned wCursor = 0;
-		while(_src[cursor] != '\0')
-		{
-			while((_src[wCursor] != ' ') && (_src[wCursor] != '\t') && (_src[wCursor] != '\0'))
-			{
-				_dst[wCursor] = _src[wCursor];
-				++wCursor;
-			}
-			_dst[wCursor] = '\0';
-			unsigned width = mDefaultFont->textLength(_dst);
-			_dst[wCursor] = _src[wCursor];
-			if(width > _maxWidth)
-				break;
-			cursor = wCursor++;
-		}
-		_dst[cursor] = '\0';
-		return cursor;
-	}*/
 
 }	// namespace game
 }	// namespace rev
