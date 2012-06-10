@@ -13,45 +13,29 @@
 #include <windows.h>
 
 // Engine headers
-#include <revGame/gameClient/gameClient.h>
-#include <revInput/touchInput/windows/touchInputWin32.h>
+#include <revInput/keyboardInput/keyboardInput.h>
 
-using namespace rev::game;
+// Project headers
+#include <revGameClient.h>
+
 using namespace rev::input;
 
 int main (int /*_argc*/, const char ** /*_argv*/)
 {
-	CGameClient * gameClient = new CGameClient();
-	gameClient->init();
+	// Create the game client
+	rev::game::SGameClient::create();
 
+	// Loop
 	bool bExitGame = false;
 	while(!bExitGame)
 	{
+		bExitGame = !rev::game::SGameClient::get()->update();
 		// Access the mouse
-		CTouchInputWin32 * touchInputSystem = static_cast<CTouchInputWin32*>(STouchInput::get());
-		touchInputSystem->refresh();
-		// This prevents the application from hanging and makes it responsive to Windows events
-		MSG msg;
-		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
-		{
-			if(msg.message==WM_QUIT)
-			{
-				bExitGame = true;
-			}
-			else
-			{
-                // Tell touch input to process OS messages
-                touchInputSystem->processWindowsMessage(msg);
-				TranslateMessage(&msg);	// Translate The Message
-				DispatchMessage(&msg);
-			}
-		}
-		// Update the game client
-		bExitGame = bExitGame || !gameClient->update();
+		SKeyboardInput * keyboard = SKeyboardInput::get();
+		bExitGame |= keyboard->pressed(SKeyboardInput::eEscape);
 	}
 
-	gameClient->end();
-	delete gameClient;
+	rev::game::SGameClient::destroy();
 	return 0;
 }
 

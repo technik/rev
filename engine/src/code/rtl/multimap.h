@@ -8,7 +8,7 @@
 #ifndef _REV_RTL_MULTIMAP_H_
 #define _REV_RTL_MULTIMAP_H_
 
-#include "vector.h"
+#include <vector.h>
 
 namespace rtl
 {

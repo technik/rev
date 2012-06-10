@@ -7,7 +7,7 @@
 #ifndef _BUGGYDEMO_GAMECLIENT_H_
 #define _BUGGYDEMO_GAMECLIENT_H_
 
-#include "revGame/gameclient/gameclient.h"
+#include <revGame/gameclient/gameclient.h>
 
 namespace buggyDemo
 {

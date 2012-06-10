@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\technik\programacion\revsdk\engine\src\libs\windows;$(SolutionDir)..\..\..\..\..\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)..\..\..\..\..\engine\src\code;$(ProjectDir)\..\..\code;$(IncludePath)</IncludePath>
+    <LibraryPath>$(REVSDK_HOME)\engine\src\libs\windows;$(REVSDK_HOME)\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\..\..\..\engine\src\code;$(ProjectDir)\..\..\code;$(RTL_HOME);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,12 +93,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\code\revGameClient.cpp" />
     <ClCompile Include="..\..\code\windows\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\engine\src\project\windows\rev.vcxproj">
       <Project>{396f5795-7c55-4467-b80b-82388c96a253}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\code\revGameClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
