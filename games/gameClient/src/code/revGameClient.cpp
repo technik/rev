@@ -32,5 +32,5 @@ void CRevGameClient::init()
 //--------------------------------------------------------------------------------
 bool CRevGameClient::update()
 {
-	return true;
+	return SGameClient::update();
 }

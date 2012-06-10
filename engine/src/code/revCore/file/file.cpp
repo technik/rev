@@ -77,7 +77,15 @@ CFile::CFile(const char* _filename)
 	fstream file;
 	// Open the file
 	file.open(_filename, ios_base::binary|ios_base::in);
-	revAssert(file.is_open(), "Can not open file");
+	if(!file.is_open())
+	{
+		revLog("Couldn't open file \"");
+		revLog(_filename);
+		revLogN("\"");
+		mSize = 0;
+		mBuffer = 0;
+		return;
+	}
 	// Meassure it's size
 	file.seekg(0, ios::end);
 	mSize = int(file.tellg());

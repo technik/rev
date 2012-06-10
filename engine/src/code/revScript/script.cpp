@@ -17,6 +17,11 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	CScript::CScript(const char * _code)
 	{
+		if(0 == _code)
+		{
+			mExecTree = 0;
+			return;
+		}
 		// Parse code and generate a list of tokens
 		rtl::vector<CToken>	tokens;
 		CRevScriptLexer::get()->tokenizeCode(tokens, _code);
@@ -30,7 +35,8 @@ namespace rev { namespace script
 	//------------------------------------------------------------------------------------------------------------------
 	void CScript::run()
 	{
-		mExecTree->run();
+		if(0 != mExecTree)
+			mExecTree->run();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
