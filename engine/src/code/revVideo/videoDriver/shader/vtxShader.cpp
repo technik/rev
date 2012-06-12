@@ -30,6 +30,14 @@ namespace rev { namespace video
 		SVideo * videoSystem = SVideo::get();
 		if(videoSystem)
 			mId = videoSystem->driver()->loadVtxShader(_name);
+		if(mId < 0)
+		{
+			revLog("Error [Shader]: Unable to create vertex shader: \"");
+			revLog(_name);
+			revLogN("\"");
+			codeTools::SLog::get()->flush();
+			return;
+		}
 		if( 0 != tempUserStorage.size())
 		{
 			mUsers = tempUserStorage;

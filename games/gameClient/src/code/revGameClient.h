@@ -15,4 +15,11 @@ public:
 
 	void init	();
 	bool update	();	///< Update the game
+
+private:
+	void updateCamera();
+
+	float mCamSpeed;
+	float mCamTurboFactor;
+	float mCamTurnSpeed;
 };

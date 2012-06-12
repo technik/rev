@@ -93,6 +93,14 @@ namespace rev
 		TReal z;
 	};
 
+	//--------------------------------------------------------------------------
+	// 4 components vector interface
+	class CVec4
+	{
+	public:
+		TReal x, y, z, w;
+	};
+
 	// Specialized algorithms and operators
 	CVec3	operator *	(TReal _k, const CVec3& _v);
 	void	swap		(CVec3& _a, CVec3& _b);
@@ -283,6 +291,12 @@ namespace rev
 		y*=factor;
 		z*=factor;
 		return *this;
+	}
+
+	//--------------------------------------------------------------------------
+	inline CVec3 operator*(TReal _k, const CVec3& _v)
+	{
+		return _v * _k;
 	}
 
 }	//namespace rev

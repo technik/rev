@@ -49,45 +49,6 @@ char*		makeString			( T _x )
 #endif // linux || android || windows
 }
 
-template<>
-inline char* makeString (double _x)
-{
-	char buffer[32];
-	sprintf(buffer, "%f", _x);
-
-	unsigned len = stringLength(buffer);
-	char * retText = new char[len+1];
-	copyString(retText, buffer);
-
-	return retText;
-}
-
-template<>
-inline char* makeString (float _x)
-{
-	char buffer[32];
-	sprintf(buffer, "%f", _x);
-
-	unsigned len = stringLength(buffer);
-	char * retText = new char[len+1];
-	copyString(retText, buffer);
-
-	return retText;
-}
-
-template<>
-inline char* makeString (int _x)
-{
-	char buffer[32];
-	sprintf(buffer, "%d", _x);
-
-	unsigned len = stringLength(buffer);
-	char * retText = new char[len+1];
-	copyString(retText, buffer);
-
-	return retText;
-}
-
 }	// namespace rev
 
 #endif // _REV_REVCORE_STRING_H_

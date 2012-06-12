@@ -43,7 +43,7 @@
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(REVSDK_HOME)\engine\src\libs\windows;$(REVSDK_HOME)\engine\lib\windows\$(Configuration);$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\..\..\..\engine\src\code;$(ProjectDir)\..\..\code;$(RTL_HOME);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\bin\windows\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

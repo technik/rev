@@ -25,6 +25,7 @@
 #include <revGame/gui/webPanel/html/parser/htmlParser.h>
 #include <revGame/gui/webPanel/css/lexer/cssLexer.h>
 #include <revGame/gui/webPanel/css/parser/cssParser.h>
+#include <revGame/revGameScriptInterface.h>
 #include <revInput/keyboardInput/keyboardInput.h>
 #include <revInput/touchInput/touchInput.h>
 #include <revVideo/scene/videoScene.h>
@@ -77,6 +78,8 @@ namespace rev { namespace game
 		CHtmlParser::init();
 		CCssDeclarationLexer::init();
 		CCssDeclParser::init();
+		// Register script interface
+		registerScriptInterface();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -100,16 +103,14 @@ namespace rev { namespace game
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool SGameClient::update()
+	bool SGameClient::baseUpdate()
 	{
 #ifdef REV_PROFILER
 		SProfiler::get()->resetFrame();
 #endif // REV_PROFILER
-		CProfileFunction profilerIntance("SGameClient::update"); 
+		CProfileFunction profilerIntance("SGameClient::update");
 		// Update time system
 		STime::get()->update();
-		// Update video system and render
-		SVideo::get()->update();
 		// Update input
 		SKeyboardInput::get()->refresh();	// Input must be refreshed before we handle os messages. Otherways key presses
 #ifdef WIN32								// be missinterpreted as key holdings
@@ -191,6 +192,11 @@ namespace rev { namespace game
 		}
 
 #endif // WIN32
+		// Update client logic
+		if(!update())
+			return false;
+		// Update video system and render
+		SVideo::get()->update();
 		return true;
 	}
 

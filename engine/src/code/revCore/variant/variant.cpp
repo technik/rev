@@ -213,6 +213,59 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	double CVariant::asDouble(double _default) const
+	{
+		switch(mType)
+		{
+		case eInteger:
+			return double(mData.i);
+		case eBool:
+			return mData.b? 1.0 : 0.0;
+		case eString:
+			return doubleFromString(mString.c_str());
+		case eReal:
+			return mData.d;
+		default:
+			return _default;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	float CVariant::asFloat() const
+	{
+		switch(mType)
+		{
+		case eInteger:
+			return float(mData.i);
+		case eBool:
+			return mData.b? 1.f : 0.f;
+		case eString:
+			return (float)doubleFromString(mString.c_str());
+		case eReal:
+		default:
+			return (float)mData.d;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	float CVariant::asFloat(float _default) const
+	{
+		switch(mType)
+		{
+		case eInteger:
+			return float(mData.i);
+		case eBool:
+			return mData.b? 1.f : 0.f;
+		case eString:
+			return (float)doubleFromString(mString.c_str());
+		case eReal:
+			return (float)mData.d;
+		default:
+			return _default;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	bool CVariant::asBool() const
 	{
 		switch(mType)

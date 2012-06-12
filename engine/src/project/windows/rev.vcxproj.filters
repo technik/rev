@@ -214,6 +214,9 @@
     <Filter Include="revScript\scriptMachine">
       <UniqueIdentifier>{b4370d88-0a7f-48af-8c72-28724ec0e56d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revVideo\scriptInterface">
+      <UniqueIdentifier>{cd773d19-f256-44b1-8f8d-4ecfb3327b7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -534,6 +537,12 @@
     <ClInclude Include="..\..\code\revScript\scriptMachine\varTable.h">
       <Filter>revScript\scriptMachine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\code\revGame\revGameScriptInterface.h">
+      <Filter>revGame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revVideo\scriptInterface\revVideoScriptInterface.h">
+      <Filter>revVideo\scriptInterface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revVideo\video.cpp">
@@ -754,6 +763,12 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revScript\scriptMachine\varTable.cpp">
       <Filter>revScript\scriptMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revGame\revGameScriptInterface.cpp">
+      <Filter>revGame</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revVideo\scriptInterface\revVideoScriptInterface.cpp">
+      <Filter>revVideo\scriptInterface</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

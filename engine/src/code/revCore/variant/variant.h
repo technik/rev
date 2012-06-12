@@ -59,6 +59,9 @@ namespace rev
 		// Accessors
 		int				asInt		() const;
 		double			asDouble	() const;
+		double			asDouble	(double _default) const;
+		float			asFloat		() const;
+		float			asFloat		(float _default) const;
 		bool			asBool		() const;
 		void*			asPointer	() const;
 		const char*		asString	() const;

@@ -82,6 +82,7 @@ CFile::CFile(const char* _filename)
 		revLog("Couldn't open file \"");
 		revLog(_filename);
 		revLogN("\"");
+		codeTools::SLog::get()->flush();
 		mSize = 0;
 		mBuffer = 0;
 		return;

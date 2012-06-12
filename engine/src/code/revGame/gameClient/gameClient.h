@@ -29,20 +29,23 @@ namespace rev	{	namespace game
 		/// Constructor: Initializes basic game services
 		SGameClient			();
 		virtual ~SGameClient	(); ///< Destroy the application
+		
+		bool	baseUpdate();
 
-
-		virtual	bool	update	();	// Update the game, returns false when the
-									// The game requests exit
 	public:
 		video::CPerspectiveCamera *	camera3d()	{ return m3dCamera; }
 		video::COrthoCamera*		camera2d()	{ return m2dCamera; }
 		video::CVideoScene*			scene3d()	{ return m3dScene;	}
 		video::CVideoScene*			scene2d()	{ return m2dScene;	}
+
 	private:
 		virtual void init() = 0;
+		virtual	bool	update	() = 0;	// Update the game, returns false when the
+									// The game requests exit
 		void	initEngineSystems();
 		void	initBasic3d();
 		void	initBasic2d();
+		//void	updateCamera();
 	private:
 		video::CPerspectiveCamera*	m3dCamera;
 		video::COrthoCamera*		m2dCamera;

@@ -24,6 +24,11 @@ namespace rev { namespace video
 		TReal	b	()	const;
 		TReal	a	()	const;
 
+		TReal&	r	() { return mR; }
+		TReal&	g	() { return mG; }
+		TReal&	b	() { return mB; }
+		TReal&	a	() { return mA; }
+
 	public:
 		// Common colors
 		static const CColor RED;

@@ -29,7 +29,7 @@ int main (int /*_argc*/, const char ** /*_argv*/)
 	bool bExitGame = false;
 	while(!bExitGame)
 	{
-		bExitGame = !rev::game::SGameClient::get()->update();
+		bExitGame = !rev::game::SGameClient::get()->baseUpdate();
 		// Access the mouse
 		SKeyboardInput * keyboard = SKeyboardInput::get();
 		bExitGame |= keyboard->pressed(SKeyboardInput::eEscape);

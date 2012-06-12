@@ -363,8 +363,16 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	int IVideoDriverOpenGL::loadVtxShader(const char * _name)
 	{
-		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
 		CFile file(_name);
+		if(0 == file.textBuffer())
+		{
+			revLog("Couldn't open vertex shader file \"");
+			revLog(_name);
+			revLogN("\"");
+			codeTools::SLog::get()->flush();
+			return -1;
+		}
+		unsigned shader = glCreateShader(GL_VERTEX_SHADER);
 		const char * code[1];
 		code[0] = file.textBuffer();
 		glShaderSource(shader, 1, code, 0); // Attach source
@@ -381,8 +389,16 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	int IVideoDriverOpenGL::loadPxlShader(const char * _name)
 	{
-		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
 		CFile file(_name);
+		if(0 == file.textBuffer())
+		{
+			revLog("Couldn't open pixel shader file \"");
+			revLog(_name);
+			revLogN("\"");
+			codeTools::SLog::get()->flush();
+			return -1;
+		}
+		unsigned shader = glCreateShader(GL_FRAGMENT_SHADER);
 		CFile preShader("preShader.pxl");
 		CFile postShader("postShader.pxl");
 		const char * code[3];

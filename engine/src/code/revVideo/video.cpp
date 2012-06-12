@@ -30,6 +30,8 @@
 #include <revVideo/renderer/directRenderer/directRenderer.h>
 #endif // REV_USE_DIRECT_RENDERER
 
+#include <revVideo/scriptInterface/revVideoScriptInterface.h>
+
 // Active namespaces
 using namespace rev::codeTools;
 
@@ -48,6 +50,7 @@ namespace rev	{	namespace	video
 		revAssert(0 == s_pVideo);
 		s_pVideo = new SVideo();
 		s_pVideo->createRenderer();
+		registerScriptInterface();
 	}
 
 	//--------------------------------------------------------------------------

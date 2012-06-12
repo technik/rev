@@ -302,13 +302,14 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void CParser::stripTokens(rtl::vector<CToken>& _list, unsigned _id) const
 	{
-		for(rtl::vector<CToken>::iterator i = _list.begin(); i != _list.end(); ++i)
+		for(rtl::vector<CToken>::iterator i = _list.begin(); i != _list.end();)
 		{
-			while(i != _list.end() && i->type == _id)
+			if(i->type == _id)
 			{
-				// delete[] i->text;
 				i = _list.erase(i);
 			}
+			else
+				++i;
 		}
 	}
 
