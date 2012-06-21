@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\code\revCore\file\file.h" />
     <ClInclude Include="..\..\code\revCore\file\fileBinding.h" />
     <ClInclude Include="..\..\code\revCore\file\fileWatcher.h" />
+    <ClInclude Include="..\..\code\revCore\file\xml\xmlTree.h" />
     <ClInclude Include="..\..\code\revCore\fsm\finiteStateMachine.h" />
     <ClInclude Include="..\..\code\revCore\fsm\regExpFsm.h" />
     <ClInclude Include="..\..\code\revCore\interpreter\lexer.h" />
@@ -210,7 +211,11 @@
     <ClInclude Include="..\..\code\revInput\touchInput\android\touchInputAndroid.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\touchInput.h" />
     <ClInclude Include="..\..\code\revInput\touchInput\windows\touchInputWin32.h" />
-    <ClInclude Include="..\..\code\revPhysics\rigidBodiy\rigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\boxRigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\collision\rigidBodyCollision.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\pointRigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\rigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\sphereRigidBody.h" />
     <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h" />
     <ClInclude Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.h" />
     <ClInclude Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.h" />
@@ -257,6 +262,7 @@
     <ClInclude Include="..\..\code\rtl\map.h" />
     <ClInclude Include="..\..\code\rtl\multimap.h" />
     <ClInclude Include="..\..\code\rtl\poolset.h" />
+    <ClInclude Include="colladaLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\code\revCore\codeTools\log\log.cpp" />
@@ -296,7 +302,10 @@
     <ClCompile Include="..\..\code\revInput\keyboardInput\windows\keyboardInputWindows.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\touchInput.cpp" />
     <ClCompile Include="..\..\code\revInput\touchInput\windows\touchInputWin32.cpp" />
-    <ClCompile Include="..\..\code\revPhysics\rigidBodiy\rigidBody.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\boxRigidBody.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\pointRigidBody.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\rigidBody.cpp" />
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\sphereRigidBody.cpp" />
     <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp" />
     <ClCompile Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.cpp" />
     <ClCompile Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.cpp" />

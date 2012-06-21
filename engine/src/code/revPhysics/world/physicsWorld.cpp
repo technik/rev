@@ -7,7 +7,7 @@
 
 #include "physicsWorld.h"
 
-#include <revPhysics/rigidBodiy/rigidBody.h>
+#include <revPhysics/rigidBody/rigidBody.h>
 
 namespace rev { namespace physics
 {

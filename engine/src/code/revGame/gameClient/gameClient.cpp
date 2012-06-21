@@ -247,7 +247,7 @@ namespace rev { namespace game
 	void SGameClient::initBasic3d()
 	{
 		// Create the camera
-		m3dCamera = new CPerspectiveCamera(45.f, 1.5f, CVec2(0.f, 10000.f));
+		m3dCamera = new CPerspectiveCamera(45.f, 1.333f, CVec2(0.f, 10000.f));
 		CNode * camNode = new CNode();
 		camNode->addComponent(m3dCamera);
 		// Create a viewport and attach the camera to it

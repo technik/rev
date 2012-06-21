@@ -217,6 +217,15 @@
     <Filter Include="revVideo\scriptInterface">
       <UniqueIdentifier>{cd773d19-f256-44b1-8f8d-4ecfb3327b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revGame\scene\collada">
+      <UniqueIdentifier>{921bbe65-0675-4dec-9339-6ae1758d5d14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revCore\file\xml">
+      <UniqueIdentifier>{aabfa0ad-c659-4459-8f2c-a39ce4e9aa55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revPhysics\rigidBody\collision">
+      <UniqueIdentifier>{d656e11b-45d8-4341-872e-1f35653d14be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -417,9 +426,6 @@
     <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h">
       <Filter>revPhysics\world</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\revPhysics\rigidBodiy\rigidBody.h">
-      <Filter>revPhysics\rigidBody</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h">
       <Filter>stl</Filter>
     </ClInclude>
@@ -542,6 +548,27 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revVideo\scriptInterface\revVideoScriptInterface.h">
       <Filter>revVideo\scriptInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="colladaLoader.h">
+      <Filter>revGame\scene\collada</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revCore\file\xml\xmlTree.h">
+      <Filter>revCore\file\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\sphereRigidBody.h">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\rigidBody.h">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\boxRigidBody.h">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\collision\rigidBodyCollision.h">
+      <Filter>revPhysics\rigidBody\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\rigidBody\pointRigidBody.h">
+      <Filter>revPhysics\rigidBody</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -674,9 +701,6 @@
     <ClCompile Include="..\..\code\revGame\tools\dataVisualizer.cpp">
       <Filter>revGame\tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\revPhysics\rigidBodiy\rigidBody.cpp">
-      <Filter>revPhysics\rigidBody</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\code\revPhysics\world\physicsWorld.cpp">
       <Filter>revPhysics\world</Filter>
     </ClCompile>
@@ -769,6 +793,18 @@
     </ClCompile>
     <ClCompile Include="..\..\code\revVideo\scriptInterface\revVideoScriptInterface.cpp">
       <Filter>revVideo\scriptInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\sphereRigidBody.cpp">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\rigidBody.cpp">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\boxRigidBody.cpp">
+      <Filter>revPhysics\rigidBody</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\revPhysics\rigidBody\pointRigidBody.cpp">
+      <Filter>revPhysics\rigidBody</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

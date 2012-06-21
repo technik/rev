@@ -8,6 +8,7 @@
 #include "revVideoScriptInterface.h"
 
 #include <revScript/scriptMachine.h>
+#include <revVideo/material/basic/diffuseTextureMaterial.h>
 #include <revVideo/material/basic/solidColorMaterial.h>
 #include <revVideo/material/material.h>
 
@@ -16,7 +17,7 @@ using namespace rev::script;
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	bool createDiffuseColorMaterial(CVariant& _args, CVariant&)
+	bool createDiffuseColorMaterial(CVariant& _args, CVariant&) // (name, color)
 	{
 		CColor color(CColor::WHITE);
 		CVariant& colorVar = _args[1];
@@ -32,11 +33,19 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	bool createDiffuseTextureMaterial(CVariant& _args, CVariant&) // (material name, texture name)
+	{
+		IMaterial::registerResource(new CDiffuseTextureMaterial(_args[1].asString()), _args[0].asString());
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void registerScriptInterface()
 	{
 		CScriptMachine * sm = CScriptMachine::get();
 		
 		sm->addFunction(&createDiffuseColorMaterial, "createDiffuseColorMaterial");
+		sm->addFunction(&createDiffuseTextureMaterial, "createDiffuseTextureMaterial");
 	}
 
 }	// namespace video

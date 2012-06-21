@@ -13,9 +13,20 @@
 namespace rev { namespace physics
 {
 	class CPhysicsWorld;
+	class CRBCollisionInfo;
 
 	class CRigidBody : public ITransformSrc
 	{
+	public:
+		enum ERigidBodyType
+		{
+			ePoint,
+			eSphere,
+			eBox,
+			eConvexHull,
+			eConcaveMesh
+		};
+
 	public:
 		CRigidBody(float _mass = 0.f);
 		~CRigidBody();
@@ -39,24 +50,30 @@ namespace rev { namespace physics
 				CVec3&	angularVelocity	();
 		const	CVec3&	angularVelocity	() const;
 
-		void			setMass			(float _mass);
+		virtual void	setMass			(float _mass);
 		void			setPosition		(const CVec3& _pos);
 		void			setRotation		(const CQuat& _rot);
 
-	private:
-		void	applyFriction	();
+		virtual ERigidBodyType	rbType	() const = 0;
+
+		// Ray casting
+		// Returns distance if the ray intersects this body, -1.f else
+		virtual float	rayCast(const CVec3& point, const CVec3& direction) const = 0;
+		// Returns true in case of collision and fills rigidBodyCollisionStructure
+		virtual	bool	checkCollision	(CRigidBody * B, float time, CRBCollisionInfo * info) = 0;
+
+	protected:
+		float	mInvMass;
+		CVec3	mInvInertia;
 
 	private:
 		CVec3	mLinearVelocity;
 		CVec3	mAngularVelocity;
 
-		float	mInvMass;
-		CVec3	mInvInertia;
-
 		CVec3	mForce;	// Forces applied at the center of mass
 		CVec3	mTorque;	// Applied torques
 
-		static CPhysicsWorld * defaultWorld;
+		CPhysicsWorld * mWorld;
 	};
 
 	// Inline implementations
