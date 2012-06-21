@@ -27,6 +27,9 @@ namespace rev { namespace game
 	void CWindowsHandler::update()
 	{
 		MSG msg;
+		CTouchInputWin32 * touch = static_cast<CTouchInputWin32*>(STouchInput::get());
+		touch->refresh();
+
 		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
 		{
 			if(msg.message==WM_QUIT)
@@ -40,7 +43,6 @@ namespace rev { namespace game
 				bool processed = keyboard->processWindowsMessage(msg);
 				if (!processed)
 				{
-					CTouchInputWin32 * touch = static_cast<CTouchInputWin32*>(STouchInput::get());
 					processed = touch->processWindowsMessage(msg);
 				}
 				if(!processed)
