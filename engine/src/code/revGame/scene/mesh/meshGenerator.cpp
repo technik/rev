@@ -76,7 +76,7 @@ namespace rev { namespace game
 	inline unsigned nVerticesInSphere(unsigned _nMeridians, unsigned _nParallels)
 	{
 		// Top and bottom plus _nParallels per meridian
-		return 2 + _nMeridians * (_nParallels+1);
+		return (1+_nMeridians) * (_nParallels+2);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
@@ -99,15 +99,12 @@ namespace rev { namespace game
 		unsigned nVerts = nVerticesInSphere(_nMeridians, _nParallels);
 		// Allocate needed vertices
 		CVec3 * vertices = new CVec3[nVerts];
-		// Add top and bottom vertices
-		vertices[0] = CVec3(0.f, 0.f, -1.f);
-		vertices[nVerts-1] = CVec3(0.f, 0.f, 1.f);
-		// Add intermediate rings of vertices
-		TReal deltaAlpha = 3.14159265f / (1+_nMeridians);
-		TReal alpha = (-3.14159265f / 2.f) + deltaAlpha;
-		for(unsigned ring = 0; ring < _nMeridians; ++ring)
+		// Add rings of vertices
+		TReal deltaAlpha = 3.14159265f / (1+_nParallels);
+		TReal alpha = (-3.14159265f / 2.f);
+		for(unsigned ring = 0; ring < _nParallels+2; ++ring)
 		{
-			fillVectorRing(&vertices[1+ring*(_nParallels+1)], _nParallels+1, cos(alpha), sin(alpha));
+			fillVectorRing(&vertices[ring*(_nMeridians+1)], _nMeridians+1, cos(alpha), sin(alpha));
 			alpha += deltaAlpha;
 		}
 		return vertices;
@@ -130,20 +127,18 @@ namespace rev { namespace game
 	{
 		unsigned nVerts = nVerticesInSphere(_nMeridians, _nParallels);
 		CVec2 * uvs = new CVec2[nVerts];
-		uvs[0] = CVec2(0.5f,0.f);
-		uvs[nVerts-1] = CVec2(0.5f,1.f);
-		TReal deltaZ = 1.f/(1+_nMeridians);
-		TReal deltaX = 1.f / _nParallels;
-		TReal X = 0.f;
-		for(unsigned i = 0; i < _nParallels+1; ++i)
+		TReal deltaX = 1.f / _nMeridians;
+		TReal deltaY = 1.f/(1+_nParallels);
+		TReal Y = 0.f;
+		for(unsigned j = 0; j < _nParallels+1; ++j)
 		{
-			TReal Z = 1.f - deltaZ;
-			for(unsigned j = 0; j < _nMeridians; ++j)
+			TReal X = 0.f;
+			for(unsigned i = 0; i < _nMeridians; ++i)
 			{
-				uvs[1+i+j*(_nParallels+1)] = CVec2(X, Z);
-				Z+=deltaZ;
+				uvs[i+j*(_nMeridians+1)] = CVec2(X, Y);
+				X+=deltaX;
 			}
-			X+=deltaX;
+			Y+=deltaY;
 		}
 		return uvs;
 	}
@@ -151,20 +146,22 @@ namespace rev { namespace game
 	//---------------------------------------------------------------------------------------------------------------
 	unsigned nIndicesInSphere(unsigned _nMeridians, unsigned _nParallels)
 	{
-		return (2*_nMeridians + 3) * _nParallels;
+		return (2*_nMeridians + 4) * (_nParallels+1);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
-	void generateSphereSliceIndices(u16 * _dst, unsigned _nMeridians, unsigned _nParallels, unsigned _slice)
+	void generateSphereSliceIndices(u16 * _dst, u16 _nMeridians, u16 _v0, bool _inverted)
 	{
-		_dst[0] = 0;
-		for(unsigned i = 0; i < _nMeridians; ++i)
+		u16 highVertex0 = _inverted?_v0:(_v0+_nMeridians+1);
+		u16 lowVertex0 = _inverted?(_v0+_nMeridians+1):_v0;
+
+		_dst[0] = highVertex0;
+		for(u16 i = 0; i < _nMeridians+1; ++i)
 		{
-			_dst[1+2*i] = u16(2 + _slice + (_nParallels+1) * i);
-			_dst[2+2*i] = u16(1 + _slice + (_nParallels+1) * i);
+			_dst[2*i+1] = highVertex0 + i;
+			_dst[2*i+2] = lowVertex0  + i;
 		}
-		_dst[2*_nMeridians + 1] = u16(nVerticesInSphere(_nMeridians, _nParallels) -1);
-		_dst[2*_nMeridians + 2] = u16(nVerticesInSphere(_nMeridians, _nParallels) -1);
+		_dst[3+2*_nMeridians] = lowVertex0 + _nMeridians;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
@@ -172,12 +169,15 @@ namespace rev { namespace game
 	{
 		unsigned nIndices = nIndicesInSphere(_nMeridians, _nParallels);
 		u16 * indices = new u16[nIndices];
-		unsigned deltaIndices = 2*_nMeridians+3;
+		unsigned deltaIndices = 2*_nMeridians+4;
+		unsigned deltaVerts = _nMeridians + 1;
 		unsigned accumIndices = 0;
-		for(unsigned i = 0; i < _nParallels; ++i)
+		unsigned accumVerts = 0;
+		for(unsigned i = 0; i < _nParallels+1; ++i)
 		{
-			generateSphereSliceIndices(&indices[accumIndices], _nMeridians, _nParallels, i);
+			generateSphereSliceIndices(&indices[accumIndices], (u16)_nMeridians, (u16)accumVerts, true);
 			accumIndices += deltaIndices;
+			accumVerts += deltaVerts;
 		}
 		return indices;
 	}
