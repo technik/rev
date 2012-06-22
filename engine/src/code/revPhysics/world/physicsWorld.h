@@ -25,6 +25,9 @@ namespace rev { namespace physics
 
 		unsigned nBodies		() const { return mBodies.size(); }
 	private:
+		void detectCollisions	(float _interval) const;
+
+	private:
 		rtl::vector<CRigidBody*>	mBodies;
 	};
 }	// namespace physics

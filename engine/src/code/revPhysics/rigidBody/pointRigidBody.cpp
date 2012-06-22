@@ -53,7 +53,7 @@ namespace rev { namespace physics
 		CVec3 relPos = position() - _b->position(); // Position relative to sphere
 		CVec3 relVel = linearVelocity() - _b->linearVelocity(); // Velocity relative to sphere
 		float r;
-		if((r=_b->rayCast(relPos, relVel.normalized())) >= 0.f) // Collision
+		if((r=_b->rayCast(position(), relVel.normalized())) >= 0.f) // Collision
 		{
 			float spd = relVel.norm();
 			float t = r/spd;
