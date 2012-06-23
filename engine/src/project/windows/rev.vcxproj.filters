@@ -226,6 +226,9 @@
     <Filter Include="revPhysics\rigidBody\collision">
       <UniqueIdentifier>{d656e11b-45d8-4341-872e-1f35653d14be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libs\bullet">
+      <UniqueIdentifier>{8d6031de-1138-4374-847b-b2d44e4b5d75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\code\rtl\baseTypes.h">
@@ -569,6 +572,15 @@
     </ClInclude>
     <ClInclude Include="..\..\code\revPhysics\rigidBody\pointRigidBody.h">
       <Filter>revPhysics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\revPhysics\world\constraintSolver.h">
+      <Filter>revPhysics\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\libs\bullet\btBulletCollisionCommon.h">
+      <Filter>libs\bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\libs\bullet\btBulletDynamicsCommon.h">
+      <Filter>libs\bullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -157,6 +157,8 @@
     <ClInclude Include="..\..\..\..\..\stl\utility.h" />
     <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h" />
     <ClInclude Include="..\..\..\..\..\stl\vector.h" />
+    <ClInclude Include="..\..\code\libs\bullet\btBulletCollisionCommon.h" />
+    <ClInclude Include="..\..\code\libs\bullet\btBulletDynamicsCommon.h" />
     <ClInclude Include="..\..\code\libs\windows\FreeImage.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\log\log.h" />
@@ -216,6 +218,7 @@
     <ClInclude Include="..\..\code\revPhysics\rigidBody\pointRigidBody.h" />
     <ClInclude Include="..\..\code\revPhysics\rigidBody\rigidBody.h" />
     <ClInclude Include="..\..\code\revPhysics\rigidBody\sphereRigidBody.h" />
+    <ClInclude Include="..\..\code\revPhysics\world\constraintSolver.h" />
     <ClInclude Include="..\..\code\revPhysics\world\physicsWorld.h" />
     <ClInclude Include="..\..\code\revScript\analisys\executionTree\revScriptExecutionTree.h" />
     <ClInclude Include="..\..\code\revScript\analisys\lexer\lexicalAnalizer.h" />

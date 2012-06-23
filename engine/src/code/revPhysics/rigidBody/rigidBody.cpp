@@ -83,6 +83,12 @@ namespace rev { namespace physics
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
+	CVec3 CRigidBody::linearVelocity(const CVec3& _point) const
+	{
+		return mAngularVelocity ^ _point;
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
 	void CRigidBody::setMass(float _mass)
 	{
 		mInvMass = _mass==0.f? 0.f : (1.f / _mass);

@@ -8,6 +8,7 @@
 #ifndef _REV_PHYSICS_WORLD_PHYSICSWORLD_H_
 #define _REV_PHYSICS_WORLD_PHYSICSWORLD_H_
 
+#include <revPhysics/rigidBody/collision/rigidBodyCollision.h>
 #include <vector.h>
 
 namespace rev { namespace physics
@@ -18,17 +19,19 @@ namespace rev { namespace physics
 	class CPhysicsWorld
 	{
 	public:
+				CPhysicsWorld	();
 		void	simulate		(float _time);
 
 		void	addRigidBody	(CRigidBody * _body);
 		void	removeRigidBody	(CRigidBody * _body);
 
-		unsigned nBodies		() const { return mBodies.size(); }
 	private:
-		void detectCollisions	(float _interval) const;
+		void detectCollisions	(float _interval);
+		void solveConstraints	(float _interval);
 
 	private:
-		rtl::vector<CRigidBody*>	mBodies;
+		rtl::vector<CRigidBody*>		mBodies;
+		rtl::vector<CRBCollisionInfo>	mCollisions;
 	};
 }	// namespace physics
 }	// namespace rev

@@ -61,8 +61,8 @@ namespace rev { namespace physics
 			{
 				_info->A = _b;
 				_info->B = this;
-				_info->collisionPoint = relPos + (relVel * t);
-				_info->collisionNormal = -relVel.normalized();
+				_info->collisionPoint = position() + (relVel * t);
+				_info->collisionNormal = (_info->collisionPoint - _b->position()).normalized();
 				_info->depth = (_info->collisionPoint - (relPos+relVel*_time)).norm();
 				return true;
 			}

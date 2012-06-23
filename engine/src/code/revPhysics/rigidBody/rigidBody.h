@@ -47,6 +47,8 @@ namespace rev { namespace physics
 		// Accessors
 				CVec3&	linearVelocity	();
 		const	CVec3&	linearVelocity	() const;
+				CVec3	linearVelocity	(const CVec3& _point) const; // Linear velocity at given point
+										// Point coordinates given relative to COM, in world space
 				CVec3&	angularVelocity	();
 		const	CVec3&	angularVelocity	() const;
 

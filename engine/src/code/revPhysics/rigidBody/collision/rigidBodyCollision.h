@@ -20,7 +20,7 @@ namespace rev { namespace physics
 		CRigidBody * A;
 		CRigidBody * B;
 
-		// In coordinates of A
+		// In world coordinates
 		CVec3	collisionPoint;
 		CVec3	collisionNormal;
 		float	depth;
