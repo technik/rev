@@ -17,15 +17,7 @@ namespace rev { namespace physics
 	class CPointRigidBody : public CRigidBody
 	{
 	public:
-		CPointRigidBody(float _mass = 0.f):CRigidBody(_mass){}
-
-		ERigidBodyType	rbType	() const { return ePoint; }
-
-		float	rayCast(const CVec3& point, const CVec3& unitaryDirection) const;
-		bool	checkCollision	(CRigidBody * B, float time, CRBCollisionInfo * info);
-
-	private:
-		bool intersectSphere	(CSphereRigidBody * sphere, float time, CRBCollisionInfo * info);
+		CPointRigidBody(float _mass = 0.f);
 	};
 }	// namespace physics
 }	// namespace rev

@@ -10,6 +10,10 @@
 
 #include <revCore/transform/transformSrc.h>
 
+class btCollisionShape;
+struct btDefaultMotionState;
+class btRigidBody;
+
 namespace rev { namespace physics
 {
 	class CPhysicsWorld;
@@ -28,65 +32,26 @@ namespace rev { namespace physics
 		};
 
 	public:
-		CRigidBody(float _mass = 0.f);
+		CRigidBody();
 		~CRigidBody();
 
-		// integrate
-		void	integrate	(float _time);
-
-		// Forces, torques and impulses (in global coordinates)
-		void	applyForce			(const CVec3& _f, const CVec3& _pos);
-		void	applyForce			(const CVec3& _f);
-		void	applyTorque			(const CVec3& _t);
-		void	applyImpulse		(const CVec3& _i, const CVec3& _pos);
-		void	applyImpulse		(const CVec3& _i);
-		void	applyTorqueImpulse	(const CVec3& _t);
-		void	clearForces			();
-		void	clearTorques		();
-
 		// Accessors
-				CVec3&	linearVelocity	();
-		const	CVec3&	linearVelocity	() const;
-				CVec3	linearVelocity	(const CVec3& _point) const; // Linear velocity at given point
-										// Point coordinates given relative to COM, in world space
-				CVec3&	angularVelocity	();
-		const	CVec3&	angularVelocity	() const;
-
-		virtual void	setMass			(float _mass);
 		void			setPosition		(const CVec3& _pos);
-		void			setRotation		(const CQuat& _rot);
+		void			applyImpulse	(const CVec3& _impulse); // At center of mass
 
-		virtual ERigidBodyType	rbType	() const = 0;
-
-		// Ray casting
-		// Returns distance if the ray intersects this body, -1.f else
-		virtual float	rayCast(const CVec3& point, const CVec3& direction) const = 0;
-		// Returns true in case of collision and fills rigidBodyCollisionStructure
-		virtual	bool	checkCollision	(CRigidBody * B, float time, CRBCollisionInfo * info) = 0;
+		void			setMass			(float _mass);
 
 	protected:
-		float	mInvMass;
-		CVec3	mInvInertia;
+		btCollisionShape*		mCollisionShape;
+		btDefaultMotionState*	mMotionState;
+		btRigidBody*			mBulletRigidBody;
 
 	private:
-		CVec3	mLinearVelocity;
-		CVec3	mAngularVelocity;
-
-		CVec3	mForce;	// Forces applied at the center of mass
-		CVec3	mTorque;	// Applied torques
-
 		CPhysicsWorld * mWorld;
-	};
 
-	// Inline implementations
-	inline			CVec3&	CRigidBody::linearVelocity	()			{ return mLinearVelocity;	}
-	inline	const	CVec3&	CRigidBody::linearVelocity	() const	{ return mLinearVelocity;	}
-	inline			CVec3&	CRigidBody::angularVelocity	()			{ return mAngularVelocity;	}
-	inline	const	CVec3&	CRigidBody::angularVelocity	() const	{ return mAngularVelocity;	}
-	inline	void			CRigidBody::clearForces		()			{ mForce = CVec3::zero;		}
-	inline	void			CRigidBody::clearTorques	()			{ mTorque = CVec3::zero;	}
-	inline	void			CRigidBody::setPosition		(const CVec3& _pos)	{	ITransformSrc::setPosition(_pos);	}
-	inline	void			CRigidBody::setRotation		(const CQuat& _rot)	{	ITransformSrc::setRotation(_rot);	}
+		void updateMotionState();
+		friend class CPhysicsWorld;
+	};
 
 }	// namespace physics
 }	// namespace rev

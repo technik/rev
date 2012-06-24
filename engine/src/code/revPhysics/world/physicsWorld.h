@@ -8,8 +8,13 @@
 #ifndef _REV_PHYSICS_WORLD_PHYSICSWORLD_H_
 #define _REV_PHYSICS_WORLD_PHYSICSWORLD_H_
 
-#include <revPhysics/rigidBody/collision/rigidBodyCollision.h>
 #include <vector.h>
+
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+struct btDbvtBroadphase;
+class btSequentialImpulseConstraintSolver;
+class btDiscreteDynamicsWorld;
 
 namespace rev { namespace physics
 {
@@ -20,18 +25,23 @@ namespace rev { namespace physics
 	{
 	public:
 				CPhysicsWorld	();
+				~CPhysicsWorld	();
 		void	simulate		(float _time);
 
 		void	addRigidBody	(CRigidBody * _body);
 		void	removeRigidBody	(CRigidBody * _body);
 
 	private:
-		void detectCollisions	(float _interval);
-		void solveConstraints	(float _interval);
 
 	private:
 		rtl::vector<CRigidBody*>		mBodies;
-		rtl::vector<CRBCollisionInfo>	mCollisions;
+
+		// Bullet integration data
+		btDefaultCollisionConfiguration*		mCollisionConfig;
+		btCollisionDispatcher*					mDispatcher;
+		btDbvtBroadphase*						mBroadPhase;
+		btSequentialImpulseConstraintSolver*	mSolver;
+		btDiscreteDynamicsWorld*				mDynamicsWorld;
 	};
 }	// namespace physics
 }	// namespace rev

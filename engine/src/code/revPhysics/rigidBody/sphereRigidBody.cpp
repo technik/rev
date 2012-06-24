@@ -9,51 +9,28 @@
 
 #include <revPhysics/rigidBody/collision/rigidBodyCollision.h>
 
+#include <libs/bullet/btBulletDynamicsCommon.h>
+
 namespace rev { namespace physics {
 	//------------------------------------------------------------------------------------------------------------------
 	CSphereRigidBody::CSphereRigidBody(float _radius, float _mass)
-		:CRigidBody(_mass)
-		,mRadius(_radius)
+		:mRadius(_radius)
 	{
-		setMass(_mass);
-	}
+		mCollisionShape = new btSphereShape(_radius);
 
-	//------------------------------------------------------------------------------------------------------------------
-	float CSphereRigidBody::rayCast(const CVec3& _pos, const CVec3& _uDir) const
-	{
-		// |p+lamda*d - center|^2 <= r^2
-		// Transform ray origin to local coordinates of the sphere
-		CVec3 relPos = _pos - position();
-		// Discriminant
-		float proyPos = relPos * _uDir; // Proyection of relative origin over ray distance
-		float sqPos = relPos * relPos; // Square magnitude of relative ray origin
-		float sqRad = mRadius * mRadius;
-		float discriminant = proyPos*proyPos + sqRad - sqPos;
-		if(discriminant > 0.f)
-		{
-			return - proyPos - sqrt(discriminant);
-		}
-		else
-			return -1.f;
-	}
+		btTransform transform;
+		transform.setIdentity();
 
-	//------------------------------------------------------------------------------------------------------------------
-	void CSphereRigidBody::setMass(float _mass)
-	{
-		mInvMass = _mass==0.f? 0.f : (1.f / _mass);
-		mInvInertia = CVec3(mRadius*mRadius*2.5f*mInvMass);
-	}
+		bool isDynamic = (_mass != 0.f);
 
-	//------------------------------------------------------------------------------------------------------------------
-	bool CSphereRigidBody::checkCollision(CRigidBody * _b, float _time, CRBCollisionInfo * _info)
-	{
-		switch(_b->rbType())
-		{
-		case ePoint:
-			return _b->checkCollision(this, _time, _info);
-		default:
-			return false;
-		}
+		btVector3 localInertia(0,0,0);
+		if (isDynamic)
+			mCollisionShape->calculateLocalInertia(_mass,localInertia);
+
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		mMotionState = new btDefaultMotionState(transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass,mMotionState,mCollisionShape,localInertia);
+		mBulletRigidBody = new btRigidBody(rbInfo);
 	}
 
 }	// namespace physics

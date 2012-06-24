@@ -55,7 +55,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(ProjectDir)..\..\code\libs;$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\..\code\libs\bullet;$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)..\..\..\lib\windows\$(Configuration)\</OutDir>
@@ -66,12 +66,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(ProjectDir)..\..\code\libs;$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\..\code\libs\bullet;$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(ProjectDir)..\..\code\libs;$(RTL_HOME);$(ProjectDir)..\..\code\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\..\code\libs\bullet;$(ProjectDir)\..\..\libs\windows;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -83,7 +83,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <DisableSpecificWarnings>4701;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4701;4996;4127</DisableSpecificWarnings>
       <StringPooling>true</StringPooling>
       <ShowIncludes>false</ShowIncludes>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -92,7 +92,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib;bullet.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,7 +118,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib;Bullet.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">
@@ -145,7 +145,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib;Bullet.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,7 +157,6 @@
     <ClInclude Include="..\..\..\..\..\stl\utility.h" />
     <ClInclude Include="..\..\..\..\..\stl\utility_operartors.h" />
     <ClInclude Include="..\..\..\..\..\stl\vector.h" />
-    <ClInclude Include="..\..\code\libs\bullet\btBulletCollisionCommon.h" />
     <ClInclude Include="..\..\code\libs\bullet\btBulletDynamicsCommon.h" />
     <ClInclude Include="..\..\code\libs\windows\FreeImage.h" />
     <ClInclude Include="..\..\code\revCore\codeTools\assert\assert.h" />

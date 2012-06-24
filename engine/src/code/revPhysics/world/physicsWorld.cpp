@@ -9,24 +9,41 @@
 
 #include <revPhysics/rigidBody/rigidBody.h>
 
+#include <libs/bullet/btBulletDynamicsCommon.h>
+
 namespace rev { namespace physics
 {
 	//------------------------------------------------------------------------------------------------------------------
+	CPhysicsWorld::CPhysicsWorld()
+	{
+		// Create collision configuration object
+		mCollisionConfig = new btDefaultCollisionConfiguration();
+		mDispatcher = new	btCollisionDispatcher(mCollisionConfig);
+		mBroadPhase = new btDbvtBroadphase();
+		mSolver = new btSequentialImpulseConstraintSolver();
+		mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher,mBroadPhase,mSolver,mCollisionConfig);
+		mDynamicsWorld->setGravity(btVector3(0, 0,0));
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+	CPhysicsWorld::~CPhysicsWorld()
+	{
+		// delete bullet data
+		delete mDynamicsWorld;
+		delete mSolver;
+		delete mBroadPhase;
+		delete mDispatcher;
+		delete mCollisionConfig;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void CPhysicsWorld::simulate(float _time)
 	{
-		// Collision detection
-		mCollisions.clear();
-		detectCollisions(_time);
-		// Constraint preparation
-		// Constraint solve
-		solveConstraints(_time);
-		// Integration
-		for(rtl::vector<CRigidBody*>::iterator i = mBodies.begin(); i != mBodies.end(); ++i)
+		mDynamicsWorld->stepSimulation(_time);
+		// Update rigid body transforms
+		for(unsigned i = 0; i < mBodies.size(); ++i)
 		{
-			CRigidBody * body = *i;
-			body->integrate(_time);
-			body->clearForces();
-			body->clearTorques();
+			mBodies[i]->updateMotionState();
 		}
 	}
 
@@ -34,6 +51,7 @@ namespace rev { namespace physics
 	void CPhysicsWorld::addRigidBody(CRigidBody * _body)
 	{
 		mBodies.push_back(_body);
+		mDynamicsWorld->addRigidBody(_body->mBulletRigidBody);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -43,44 +61,10 @@ namespace rev { namespace physics
 		{
 			if(*i == _body)
 			{
+				mDynamicsWorld->removeRigidBody(_body->mBulletRigidBody);
 				mBodies.erase(i);
 				return;
 			}
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void CPhysicsWorld::detectCollisions(float _interval)
-	{
-		/// TODO: We're checking collision before integration. We should simulate integration before checking or something
-		CRBCollisionInfo info;
-		// Iterate over all bodies
-		for(rtl::vector<CRigidBody*>::iterator i = mBodies.begin(); i != mBodies.end(); ++i)
-		{
-			rtl::vector<CRigidBody*>::iterator j = i;
-			++j;
-			for( ;j != mBodies.end(); ++j)
-			{
-				// Check collision
-				if((*i)->checkCollision(*j, _interval, &info))
-				{
-					// store collision info;
-					mCollisions.push_back(info);
-				}
-			}
-		}
-	}
-	
-	//------------------------------------------------------------------------------------------------------------------
-	void CPhysicsWorld::solveConstraints(float _time)
-	{
-		_time;
-		for(rtl::vector<CRBCollisionInfo>::iterator i = mCollisions.begin(); i < mCollisions.end(); ++i)
-		{
-			//
-			// Compute observed masses
-			// Move back to collision point.
-			// Reverse relative speed at contact point (temporarily just set them 0)
 		}
 	}
 

@@ -17,16 +17,6 @@ namespace rev { namespace physics
 	public:
 		CSphereRigidBody(float _radius, float _mass = 0.f);
 
-		ERigidBodyType	rbType	() const { return eSphere; }
-
-		float	rayCast(const CVec3& point, const CVec3& unitaryDirection) const;
-		bool	checkCollision	(CRigidBody * B, float time, CRBCollisionInfo * info);
-
-		void setMass(float _mass);
-
-	private:
-		bool intersectParticle(CSphereRigidBody * _b, float _time, CRBCollisionInfo * _info);
-
 	private:
 		float	mRadius;
 	};

@@ -576,9 +576,6 @@
     <ClInclude Include="..\..\code\revPhysics\world\constraintSolver.h">
       <Filter>revPhysics\world</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\code\libs\bullet\btBulletCollisionCommon.h">
-      <Filter>libs\bullet</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\code\libs\bullet\btBulletDynamicsCommon.h">
       <Filter>libs\bullet</Filter>
     </ClInclude>
