@@ -1,0 +1,16 @@
+Rev coding rules
+
+Names:
+
+namespace identifiers are lowcase single words
+preprocessor definitions are underscore separated UPPERCASE words (REV_ENABLE_SERIAL_PORT)
+
+Most names in the sdk can be made of several words separated by capitalization
+Class and structure names start with an Uppercase character  (Time, VideoDriver, DynamicComponentManager)
+Local variables and class methods start with a lowercase character (armor, temporaryBuffer, bar, destroy(), countInstances())
+Argument names start with an underscore (_length, _lowerIndex)
+Non-Static member names start with 'm' (mDriver, mTopSpeed, mSelfSteemCounter)
+Static member names start with 's' (sInstance, sCounter, sAlreadyCreated, sSharedBuffer)
+global variables start with 'g' (gWhatever, gFooFooFooo)
+
+folders are names as local variables
