@@ -1,8 +1,0 @@
-uniform sampler2D texture;
-
-#define OVERRIDE_MAIN
-
-void main ( void )
-{
-	gl_FragColor = texture2D(texture, vTex0);
-}
