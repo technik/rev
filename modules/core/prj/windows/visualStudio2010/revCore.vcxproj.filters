@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="math">
+      <UniqueIdentifier>{97b370e9-72d3-4eb8-96de-1ed25b4a171f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script">
+      <UniqueIdentifier>{ee6c5bdc-defd-4c6c-a0c1-80e5af21b157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="time">
+      <UniqueIdentifier>{b71286fe-7ea1-4388-a582-a5f390c0cdd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script\virtualMachine">
+      <UniqueIdentifier>{f3df95c3-8342-4305-b3cb-88bc4eab325a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
