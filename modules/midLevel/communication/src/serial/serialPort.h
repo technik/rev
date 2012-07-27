@@ -29,8 +29,10 @@ namespace rev { namespace comm
 		~SerialPort();
 
 		// Communication
-		unsigned	write(const void * srcBuffer, unsigned nBytes);
-		unsigned	read (void * dstBuffer, unsigned nBytes);
+		unsigned	write(const void * srcBuffer, unsigned nBytes); // Returns the amount of bytes written
+		void		write(u8); // Writes a single byte
+		unsigned	read (void * dstBuffer, unsigned nBytes); // Returns the amount of bytes read
+		u8			read (); // Reads one byte
 
 		bool		isReady () const;
 

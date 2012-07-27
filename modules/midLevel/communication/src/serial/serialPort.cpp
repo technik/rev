@@ -129,6 +129,50 @@ namespace rev { namespace comm
 			break;
 		}
 #endif // USE_ARDUINO_LIBS
+		mReady = true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned SerialPort::write(const void * _srcBuffer, unsigned _nBytes)
+	{
+#ifdef WIN32
+		DWORD writtenBytes;
+		::WriteFile(mPortHandle, _srcBuffer, _nBytes, &writtenBytes, NULL);
+		return writtenBytes;
+#endif // WIN32
+#ifdef USE_ARDUINO_LIBS
+		// TODO
+#endif // USE_ARDUINO_LIBS
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SerialPort::write(u8 _data)
+	{
+#ifdef WIN32
+		DWORD writtenBytes;
+		::WriteFile(mPortHandle, &_data, 1, &writtenBytes, NULL);
+#endif // WIN32
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned SerialPort.read(void * _dstBuffer, unsigned _nBytes)
+	{
+#ifdef WIN32
+		DWORD readBytes;
+		::ReadFile(mPortHandle, _dstBuffer, _nBytes, &readBytes, NULL);
+		return readBytes;
+#endif // WIN32
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	u8 SerialPort.read()
+	{
+#ifdef WIN32
+		u8 result;
+		DWORD readBytes;
+		::ReadFile(mPortHandle, &result, 1, &readBytes, NULL);
+		return result;
+#endif // WIN32
 	}
 }	// namespace comm
 }	// namespace rev
