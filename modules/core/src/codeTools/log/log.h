@@ -10,6 +10,11 @@
 
 #include <codeTools/usefulMacros.h>
 
+// Platform dependent configuration
+#ifdef WIN32
+#define REV_BUFFER_LOG
+#endif // WIN32
+
 #ifdef REV_ENABLE_LOG
 #include <string>
 #endif // REV_ENABLE_LOG
@@ -34,22 +39,32 @@ namespace rev { namespace codeTools
 		// Construction, destruction and copy
 		Log();
 		~Log();
-		DECLARE_COPY(Log);
+		DECLARE_COPY(Log); // Prevent copy
 
 	private:
-		void LogString(const std::string&);
+#ifdef REV_ENABLE_LOG
+		void	logString	(const std::string&);
+		void	flushBuffer	(const char*, unsigned _size);
+#ifdef REV_BUFFER_LOG
+		void	resetBuffer	();
+#endif // REV_BUFFER_LOG
 
 	private:
-#ifdef REV_ENABLE_LOG // Prevent the instance to occupy any space when Log is disabled
 		static Log* sInstance;
-#endif // REV_ENABLE_LOG
 
+#ifdef REV_BUFFER_LOG
 		char * mBuffer;
-		char * mInternalCursor;
-		char * mBufferSize;
+		unsigned mInternalCursor;
+#endif // REV_BUFFER_LOG
+#endif // REV_ENABLE_LOG
 	};
 
-	
+	// Inline implementations
+	Log& Log::get()
+	{
+		return *sInstance;
+	}
+
 	template<class t_>
 	Log& Log::operator<<(const t_& _message)
 	{

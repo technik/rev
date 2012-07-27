@@ -1,0 +1,5 @@
+-Revisar Log cuando se haya escrito el sistema de asserts para hacer más seguro el código
+-Buffered log se tiene que activar y desactivar usando defines
+
+// Atmega
+-Usar el puerto serie 0 como backend para el sistema de log?
