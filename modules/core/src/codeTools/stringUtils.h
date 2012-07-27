@@ -10,11 +10,12 @@
 
 // External headers
 #include <sstream>
+#include <string>
 
 namespace rev
 {
 	template<class t_>
-	string	makeString(const t_& _x)
+	std::string	makeString(const t_& _x)
 	{
 		std::stringstream ss ( std::stringstream::out );
 		ss << _x;

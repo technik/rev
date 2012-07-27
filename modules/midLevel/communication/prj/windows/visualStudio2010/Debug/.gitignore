@@ -1,0 +1,9 @@
+
+*.tlog
+*.lastbuildstate
+*.log
+*.unsuccessfulbuild
+*.cache
+*.obj
+*.idb
+*.pdb

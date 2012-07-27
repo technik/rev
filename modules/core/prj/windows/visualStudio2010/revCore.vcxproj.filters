@@ -33,6 +33,7 @@
     <ClInclude Include="..\..\..\src\codeTools\stringUtils.h">
       <Filter>codeTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\numericTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\codeTools\log\log.cpp">

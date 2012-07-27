@@ -17,6 +17,7 @@
 
 #ifdef REV_ENABLE_LOG
 #include <string>
+#include <codeTools/stringUtils.h>
 #endif // REV_ENABLE_LOG
 
 namespace rev { namespace codeTools

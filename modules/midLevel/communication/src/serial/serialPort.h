@@ -14,6 +14,7 @@
 #endif // WIN32
 
 // Headers
+#include <numericTypes.h>
 #include <codeTools/usefulMacros.h>
 
 #ifdef REV_ENABLE_SERIAL_PORT
@@ -24,7 +25,7 @@ namespace rev { namespace comm
 	{
 	public:
 		// Construction and destruction
-		SerialPort(unsigned port, unsigned baudRate, unsigned parityBits = 0, unsigned stopBits = 0);
+		SerialPort(u8 port, u32 baudRate, u8 parityBits = 0, u8 stopBits = 0);
 		~SerialPort();
 
 		// Communication
@@ -53,7 +54,7 @@ namespace rev { namespace comm
 	};
 	
 	// --- Inline definitions -------------------------------------------
-	bool isReady() const { return mReady };
+	bool SerialPort::isReady() const { return mReady; }
 
 }	// namespace comm
 }	// namespace rev

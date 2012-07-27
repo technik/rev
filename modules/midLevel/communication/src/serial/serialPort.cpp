@@ -16,14 +16,18 @@
 
 // Rev headers
 #include "serialPort.h"
+#include <codeTools/log/log.h>
 
 #ifdef REV_ENABLE_SERIAL_PORT
 
 namespace rev { namespace comm
 {
 	//------------------------------------------------------------------------------------------------------------------
-	SerialPort::SerialPort(unsigned _port, unsigned _baudRate, unsigned _parityBits, unsigned _stopBits)
+	SerialPort::SerialPort(u8 _port, u32 _baudRate, u8 _parityBits, u8 _stopBits)
 		:mReady(false)
+#ifdef WIN32
+		,mPortHandle(INVALID_HANDLE_VALUE)
+#endif // WIN32
 	{
 #ifdef WIN32
 		// Get port name
@@ -38,50 +42,71 @@ namespace rev { namespace comm
 			FILE_ATTRIBUTE_NORMAL,
 			0); // No templates
 		if(mPortHandle == INVALID_HANDLE_VALUE) // Error checking
-			return;
-		// Configurate the port
-
-		if(m_hCommPort != INVALID_HANDLE_VALUE)
 		{
-			serialOpened = true;
-		}
-		else
-		{
+			revLog() << "Unable to start " << portName << " port\n";
 			DWORD error = GetLastError();
 			if(error == ERROR_ACCESS_DENIED)
-			{
-				cout << "Access denied to " << comPort << endl;
-				cout << "Check the port isn't in use by any other application or try another port" << endl;
-			}
-			else if (error == ERROR_FILE_NOT_FOUND)
-			{
-				cout << "Couldn't find " << comPort << endl;
-			}
+				revLog() << "Error: Access denied. Check the port isn't in use by any other application or try another port\n";
+			else if(error == ERROR_FILE_NOT_FOUND)
+				revLog() << "Error: Couldn't find " << portName << " port\n";
 			else
+				revLog() << "Error: Unknown error\n";
+			return;
+		}
+		// Configurate the port
+		DCB dcb = {0};
+		dcb.DCBlength = sizeof(DCB);
+		if (!::GetCommState (mPortHandle,&dcb))
+		{
+			revLog() << "Error: Failed to Get Comm State\n";
+			return;
+		}
+		switch(_baudRate)
+		{
+		case 4800:
+			dcb.BaudRate    = CBR_4800;
+			break;
+		case 9600:
+			dcb.BaudRate    = CBR_9600;
+			break;
+		case 19200:
+			dcb.BaudRate    = CBR_19200;
+			break;
+		case 57600:
+			dcb.BaudRate    = CBR_57600;
+			break;
+		case 115200:
+			dcb.BaudRate    = CBR_115200;
+			break;
+		case 128000:
+			dcb.BaudRate    = CBR_128000;
+			break;
+		case 256000:
+			dcb.BaudRate    = CBR_256000;
+			break;
+		default:
 			{
-				cout << "Unknown error" << endl;
+				revLog() << "Error: " << _baudRate << " isn't a supported baud rate\n";
+				return;
 			}
 		}
-	}
+		dcb.ByteSize = 8;
+		dcb.fParity = FALSE;
+		dcb.Parity = 0;
+		if(_parityBits != 0)
+			revLog() << "Warning: Parity bits are not supported\n Defaulting to no parity\n";
+		if(_stopBits > 2)
+		{
+			revLog() << "Warning: Maximun stop bits is 2. Defaulting to 1\n";
+			dcb.StopBits = 1;
+		}
+		else
+			dcb.StopBits = _stopBits;
 
-	DCB dcb = {0};
-	dcb.DCBlength = sizeof(DCB);
-
-	if (!::GetCommState (m_hCommPort,&dcb))
-	{
-		cout << "Failed to Get Comm State" << endl;
-	}
-
-	dcb.BaudRate    = CBR_115200;
-	dcb.ByteSize    = 8;
-	dcb.fParity		= FALSE;
-	dcb.Parity      = 0;
-	dcb.StopBits    = ONESTOPBIT;
-
-	if (!::SetCommState (m_hCommPort,&dcb))
-	{
-		cout << "Failed to Set Comm State" << endl;
-	}
+		if (!::SetCommState (mPortHandle,&dcb))
+		{
+			revLog() << "Error: Failed to Set Comm State\n";
+		}
 #endif // WIN32
 #ifdef USE_ARDUINO_LIBS
 		// Unsigned variables
