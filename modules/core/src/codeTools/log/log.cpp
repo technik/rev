@@ -48,13 +48,18 @@ namespace rev { namespace codeTools
 
 	//------------------------------------------------------------------------------------------------------------------
 	Log::Log()
+#ifdef REV_BUFFER_LOG
 #ifdef WIN32
 		:mBuffer(new char[gBufferLength+1])
 #else
 		:mBuffer(new char[gBufferLength])
 #endif
 		,mInternalCursor(0)
+#endif // REV_BUFFER_LOG
 	{
+#if defined(WIN32) && defined(REV_BUFFER_LOG)
+		resetBuffer();
+#endif // WIN32 && REV_BUFFER_LOG
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

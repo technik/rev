@@ -61,7 +61,7 @@ namespace rev { namespace codeTools
 	};
 
 	// Inline implementations
-	Log& Log::get()
+	inline Log& Log::get()
 	{
 		return *sInstance;
 	}
@@ -79,7 +79,7 @@ namespace rev { namespace codeTools
 
 }	// namespace codeTools
 
-	codeTools::Log&	revLog()
+	inline codeTools::Log&	revLog()
 	{
 		return codeTools::Log::get();
 	}

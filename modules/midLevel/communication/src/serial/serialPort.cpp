@@ -51,6 +51,7 @@ namespace rev { namespace comm
 				revLog() << "Error: Couldn't find " << portName << " port\n";
 			else
 				revLog() << "Error: Unknown error\n";
+			revLog().flush();
 			return;
 		}
 		// Configurate the port
@@ -58,7 +59,7 @@ namespace rev { namespace comm
 		dcb.DCBlength = sizeof(DCB);
 		if (!::GetCommState (mPortHandle,&dcb))
 		{
-			revLog() << "Error: Failed to Get Comm State\n";
+			(revLog() << "Error: Failed to Get Comm State\n").flush();
 			return;
 		}
 		switch(_baudRate)
@@ -86,7 +87,7 @@ namespace rev { namespace comm
 			break;
 		default:
 			{
-				revLog() << "Error: " << _baudRate << " isn't a supported baud rate\n";
+				(revLog() << "Error: " << _baudRate << " isn't a supported baud rate\n").flush();
 				return;
 			}
 		}
@@ -105,7 +106,7 @@ namespace rev { namespace comm
 
 		if (!::SetCommState (mPortHandle,&dcb))
 		{
-			revLog() << "Error: Failed to Set Comm State\n";
+			(revLog() << "Error: Failed to Set Comm State\n").flush();
 		}
 #endif // WIN32
 #ifdef USE_ARDUINO_LIBS
@@ -155,7 +156,7 @@ namespace rev { namespace comm
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	unsigned SerialPort.read(void * _dstBuffer, unsigned _nBytes)
+	unsigned SerialPort::read(void * _dstBuffer, unsigned _nBytes)
 	{
 #ifdef WIN32
 		DWORD readBytes;
@@ -165,7 +166,7 @@ namespace rev { namespace comm
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	u8 SerialPort.read()
+	u8 SerialPort::read()
 	{
 #ifdef WIN32
 		u8 result;

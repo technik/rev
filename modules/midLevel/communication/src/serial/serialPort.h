@@ -56,7 +56,7 @@ namespace rev { namespace comm
 	};
 	
 	// --- Inline definitions -------------------------------------------
-	bool SerialPort::isReady() const { return mReady; }
+	inline bool SerialPort::isReady() const { return mReady; }
 
 }	// namespace comm
 }	// namespace rev
