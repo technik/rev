@@ -14,8 +14,8 @@
 
 namespace rev
 {
-	template<class t_>
-	std::string	makeString(const t_& _x)
+	template<class T_>
+	std::string	makeString(const T_& _x)
 	{
 		std::stringstream ss ( std::stringstream::out );
 		ss << _x;

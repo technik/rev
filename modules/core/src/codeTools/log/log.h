@@ -31,8 +31,8 @@ namespace rev { namespace codeTools
 		static Log& get();
 
 		// Log interface
-		template<class t_>
-		Log& operator<< (const t_&);
+		template<class T_>
+		Log& operator<< (const T_&);
 
 		void flush();
 
@@ -66,8 +66,8 @@ namespace rev { namespace codeTools
 		return *sInstance;
 	}
 
-	template<class t_>
-	Log& Log::operator<<(const t_& _message)
+	template<class T_>
+	Log& Log::operator<<(const T_& _message)
 	{
 #ifdef REV_ENABLE_LOG
 		logString(makeString(_message));
