@@ -20,6 +20,13 @@ namespace std
 		template<class T_> bool operator >=	(const T_&, const T_&);
 	}	// namespace rel_ops
 
+	template<class T_> void swap(T_& a, T_&b);
+	template <class T_, size_t n_> void swap(T_ (&_a)[n_], T (&_b)[n_]);
+
+	template <class T_> T_&& forward(typename remove_reference<T_>::type&);
+	template <class T_> T_&& forward(typename remove_reference<T_>::type&&);
+	template <class T_> typename remove_reference<T_>::type&& move(T_&&);
+
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
 	//------------------------------------------------------------------------------------------------------------------
@@ -53,6 +60,15 @@ namespace std
 			return !(a < b);
 		}
 	}	// namespace rel_ops
+
+	//--------------------------------------------------
+	template<class T_>
+	void swap(T_& a, T_& b)
+	{
+		T_ temp(move<T_>(a));
+		a = move<T_>(b);
+		b = move<T_>(temp);
+	}
 }	// namespace std
 
 #endif // _REV_STD_UTILITY_H_
