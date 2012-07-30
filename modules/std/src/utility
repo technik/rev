@@ -69,6 +69,13 @@ namespace std
 		a = move<T_>(b);
 		b = move<T_>(temp);
 	}
+
+	//--------------------------------------------------
+	template<class T_, size_t n_>
+	void swap(T_ (a&)[n_], T_ (a&)[n_])
+	{
+		swap_range(a, n_, b);
+	}
 }	// namespace std
 
 #endif // _REV_STD_UTILITY_H_
