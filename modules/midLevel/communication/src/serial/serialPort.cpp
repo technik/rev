@@ -23,7 +23,7 @@
 namespace rev { namespace comm
 {
 	//------------------------------------------------------------------------------------------------------------------
-	SerialPort::SerialPort(u8 _port, u32 _baudRate, u8 _parityBits, u8 _stopBits)
+	SerialPort::SerialPort(uint8_t _port, uint32_t _baudRate, uint8_t _parityBits, uint8_t _stopBits)
 		:mReady(false)
 #ifdef WIN32
 		,mPortHandle(INVALID_HANDLE_VALUE)
@@ -147,7 +147,7 @@ namespace rev { namespace comm
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void SerialPort::write(u8 _data)
+	void SerialPort::write(uint8_t _data)
 	{
 #ifdef WIN32
 		DWORD writtenBytes;
@@ -166,10 +166,10 @@ namespace rev { namespace comm
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	u8 SerialPort::read()
+	uint8_t SerialPort::read()
 	{
 #ifdef WIN32
-		u8 result;
+		uint8_t result;
 		DWORD readBytes;
 		::ReadFile(mPortHandle, &result, 1, &readBytes, NULL);
 		return result;

@@ -25,6 +25,9 @@
     <Filter Include="src\codeTools\log">
       <UniqueIdentifier>{c5368e4d-d530-4371-95da-d83ea2b03c91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\script\variant">
+      <UniqueIdentifier>{dd430795-877f-4a80-bda0-aca9932060a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\codeTools\log\log.h">
@@ -36,8 +39,8 @@
     <ClInclude Include="..\..\..\src\codeTools\stringUtils.h">
       <Filter>src\codeTools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\numericTypes.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\..\src\script\variant\variant.h">
+      <Filter>src\script\variant</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

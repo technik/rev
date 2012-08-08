@@ -14,7 +14,7 @@
 #endif // WIN32
 
 // Headers
-#include <numericTypes.h>
+#include <cstdint>
 #include <codeTools/usefulMacros.h>
 
 #ifdef REV_ENABLE_SERIAL_PORT
@@ -25,14 +25,14 @@ namespace rev { namespace comm
 	{
 	public:
 		// Construction and destruction
-		SerialPort(u8 port, u32 baudRate, u8 parityBits = 0, u8 stopBits = 0);
+		SerialPort(uint8_t port, uint32_t baudRate, uint8_t parityBits = 0, uint8_t stopBits = 0);
 		~SerialPort();
 
 		// Communication
 		unsigned	write(const void * srcBuffer, unsigned nBytes); // Returns the amount of bytes written
-		void		write(u8); // Writes a single byte
+		void		write(uint8_t); // Writes a single byte
 		unsigned	read (void * dstBuffer, unsigned nBytes); // Returns the amount of bytes read
-		u8			read (); // Reads one byte
+		uint8_t			read (); // Reads one byte
 
 		bool		isReady () const;
 
