@@ -28,6 +28,9 @@
     <Filter Include="src\script\variant">
       <UniqueIdentifier>{dd430795-877f-4a80-bda0-aca9932060a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\math\algebra">
+      <UniqueIdentifier>{2e49a821-1717-49f3-b11b-2a3dee5a1f91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\codeTools\log\log.h">
@@ -41,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\script\variant\variant.h">
       <Filter>src\script\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\math\algebra\vector.h">
+      <Filter>src\math\algebra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

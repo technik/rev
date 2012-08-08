@@ -14,6 +14,9 @@ namespace rose { namespace agent
 	{
 	public:
 		virtual ~Agent() = 0; // Pure virtual destructor for proper agent destruction
+
+		// Public agent interface
+		virtual void simulate(unsigned _milliseconds) = 0;
 	};
 
 }	// namespace agent

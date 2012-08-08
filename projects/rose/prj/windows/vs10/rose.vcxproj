@@ -40,12 +40,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(ProjectDir)..\..\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(ProjectDir)..\..\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,6 +90,10 @@
     <ProjectReference Include="..\..\..\..\..\modules\core\prj\windows\visualStudio2010\revCore.vcxproj">
       <Project>{6c37ff39-0ea3-4eda-9c56-017695195af4}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\agent\agent.h" />
+    <ClInclude Include="..\..\..\src\agent\vehicle\2d\ackerman\ackerman2dVehicle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
