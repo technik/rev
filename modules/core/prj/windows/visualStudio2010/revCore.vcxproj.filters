@@ -48,6 +48,9 @@
     <ClInclude Include="..\..\..\src\math\algebra\vector.h">
       <Filter>src\math\algebra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\math\numericTraits.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\codeTools\log\log.cpp">

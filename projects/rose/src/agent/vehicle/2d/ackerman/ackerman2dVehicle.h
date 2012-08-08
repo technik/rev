@@ -9,18 +9,22 @@
 #define _ROSE_AGENT_VEHICLE_2D_ACKERMAN_ACKERMAN2DVEHICLE_H_
 
 #include <agent/agent.h>
+#include <math/algebra/vector.h>
 
 namespace rose { namespace agent
 {
-	class Ackerman2dVechicle : Agent
+	class Ackerman2dVehicle : Agent
 	{
 	public:
-		// Destructor
+		// Construction and destruction
+		Ackerman2dVehicle();
 		~Ackerman2dVehicle() {}
 
 		void simulate(unsigned _milliseconds);
 
 	private:
+		rev::math::Vec2f	mPosition;
+		rev::math::Vec2f	mVelocity;
 	};
 
 }	// namespace agent

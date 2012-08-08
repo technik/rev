@@ -8,6 +8,8 @@
 #ifndef _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 #define _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 
+#include <math/numericTraits.h>
+
 namespace rev { namespace math
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -22,15 +24,15 @@ namespace rev { namespace math
 		Vector2<Number_>& operator=(const Vector2<Number_>&);	// Assignement operator
 
 		// Equality and inequality
-		bool	operator==	(const Vector<Number_>&) const;
-		bool	operator!=	(const Vector<Number_>&) const;
+		bool	operator==	(const Vector2<Number_>&) const;
+		bool	operator!=	(const Vector2<Number_>&) const;
 
 		// Adition and substraction
 		Vector2<Number_>	operator+	(const Vector2<Number_>&) const;	// Adition
 		Vector2<Number_>&	operator+=	(const Vector2<Number_>&);			// Adition
 		Vector2<Number_>	operator-	(const Vector2<Number_>&) const;	// Substraction
 		Vector2<Number_>&	operator-=	(const Vector2<Number_>&);			// Substraction
-		Vector2<Number_>&	operator-	() const;				// Return the oposite of this vector
+		Vector2<Number_>	operator-	() const;				// Return the oposite of this vector
 
 		// Products
 		Vector2<Number_>	operator*	(const Number_) const;				// Product by scalar
@@ -43,8 +45,15 @@ namespace rev { namespace math
 		Vector2<Number_>&	operator|=	(const Vector2<Number_>&);			// Component wise product
 
 		// Matrix-like accessors
-		Number_&			operator	(unsigned _index);
-		const Number_&		operator	(unsigned _index) const;
+		Number_&			operator()	(unsigned _index);
+		const Number_&		operator()	(unsigned _index) const;
+
+		// Common constants
+#ifdef WIN32
+		static			 Vector2<Number_>	zero();
+#else // !WIN32
+		static constexpr Vector2<Number_>	zero();
+#endif // !WIN32
 
 	public:
 		// Actual data
@@ -137,6 +146,20 @@ namespace rev { namespace math
 	Vector2<N_> Vector2<N_>::operator- () const
 	{
 		return Vector2<N_>(-x, -y);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector2<N_> Vector2<N_>::operator*(const N_ _k) const
+	{
+		return Vector2<N_>(x * _k, y * _k);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector2<N_> Vector2<N_>::zero()
+	{
+		return Vector2<N_>(NumericTraits<N_>::zero(), NumericTraits<N_>::zero());
 	}
 
 }	// namespace math

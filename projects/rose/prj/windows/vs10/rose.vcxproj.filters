@@ -27,6 +27,9 @@
     <ClCompile Include="main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\agent\vehicle\2d\ackerman\ackerman2dVehicle.cpp">
+      <Filter>src\agent\vehicle\2d\ackerman</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\agent\vehicle\2d\ackerman\ackerman2dVehicle.h">

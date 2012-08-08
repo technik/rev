@@ -98,6 +98,7 @@
     <ClInclude Include="..\..\..\src\codeTools\stringUtils.h" />
     <ClInclude Include="..\..\..\src\codeTools\usefulMacros.h" />
     <ClInclude Include="..\..\..\src\math\algebra\vector.h" />
+    <ClInclude Include="..\..\..\src\math\numericTraits.h" />
     <ClInclude Include="..\..\..\src\script\variant\variant.h" />
   </ItemGroup>
   <ItemGroup>
