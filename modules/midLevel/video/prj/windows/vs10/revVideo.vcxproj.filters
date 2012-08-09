@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{1a805757-c2bd-4c81-9658-41c2d36bbb4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\videoDriver">
+      <UniqueIdentifier>{c8cbfac5-0102-416c-804f-003653138e3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3dDriver">
+      <UniqueIdentifier>{6073f504-ffe0-4f59-bb81-b941b2156f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\videoDriver\windows">
+      <UniqueIdentifier>{c5ca4b36-21f2-4923-b6d3-75b3d4905298}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\videoDriver\videoDriver.h">
+      <Filter>src\videoDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\videoDriver\windows\videoDriverWindows.h">
+      <Filter>src\videoDriver\windows</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\videoDriver\videoDriver.cpp">
+      <Filter>src\videoDriver</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
