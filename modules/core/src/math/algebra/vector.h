@@ -68,8 +68,12 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Useful predefined types
-	typedef Vector2<float>	Vec2f;
-	typedef Vector3<float>	Vec3f;
+	typedef Vector2<float>		Vec2f;	// 2d float vector
+	typedef Vector2<int>		Vec2i;	// 2d signed integer vector
+	typedef Vector2<unsigned>	Vec2u;	// 2d unsigned integer vector
+	typedef Vector3<float>		Vec3f;	// 3d float vector
+	typedef Vector3<int>		Vec3i;	// 3d signed integer vector
+	typedef Vector3<unsigned>	Vec3u;	// 3d unsigned integer vector
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
@@ -93,6 +97,7 @@ namespace rev { namespace math
 	{
 		x=_v.x;
 		y=_v.y;
+		return *this;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

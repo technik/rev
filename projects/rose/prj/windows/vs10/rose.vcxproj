@@ -40,7 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(ProjectDir)..\..\..\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\src;$(REVSDK_HOME)\modules\midLevel\video\src;$(REVSDK_HOME)\modules\core\src;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -90,6 +90,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\modules\core\prj\windows\visualStudio2010\revCore.vcxproj">
       <Project>{6c37ff39-0ea3-4eda-9c56-017695195af4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\modules\midLevel\video\prj\windows\vs10\revVideo.vcxproj">
+      <Project>{c3c20971-94d9-409e-9587-399a32a6a9b0}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

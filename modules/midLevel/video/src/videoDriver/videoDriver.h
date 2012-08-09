@@ -9,6 +9,7 @@
 #define _REV_VIDEO_VIDEODRIVER_VIDEODRIVER_H_
 
 #include <codeTools/usefulMacros.h>
+#include <math/algebra/vector.h>
 
 namespace rev { namespace video
 {
@@ -24,9 +25,12 @@ namespace rev { namespace video
 		static void			shutDown();
 		static VideoDriver*	get();
 
-		// Actual video driver interface
-		virtual Window*	createWindow() = 0;
+		// --- Actual video driver interface ---
+		// Window creation and destruction
+		virtual Window*	createWindow(const math::Vec2i& position, const math::Vec2u& resolution) = 0;
 		virtual void	destroyWindow(Window*) = 0;
+		// Screen resolution
+		virtual math::Vec2u		screenResolution() const = 0;
 
 	protected:
 		VideoDriver() {}

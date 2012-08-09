@@ -17,9 +17,20 @@ namespace rev { namespace video
 	class VideoDriverWindows : public VideoDriver
 	{
 	public:
-		Window* createWindow	();
-		void	destroyWindow	(Window*);
+		VideoDriverWindows();
+
+		Window*			createWindow		(const math::Vec2i& position, const math::Vec2u& resolution);
+		void			destroyWindow		(Window*);
+
+		math::Vec2u		screenResolution	() const;
+
+	private:
+		void registerWindowClass();
+
+	private:
+		bool	mIsWindowClassRegistered;
 	};
+
 }	// namespace video
 }	// namespace rev
 

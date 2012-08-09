@@ -5,10 +5,24 @@
 //----------------------------------------------------------------------------------------------------------------------
 // main, entry point
 
+#include <videoDriver/videoDriver.h>
+
+using namespace rev;
+
 //----------------------------------------------------------------------------------------------------------------------
 int main ( int _argc, const char ** _argv )
 {
 	_argc; _argv;// Unuser arguments
+
+
+
+
+	video::VideoDriver::startUp();
+	video::VideoDriver::get()->createWindow(math::Vec2i(0, 0), math::Vec2u(320, 180));
+
+
+
+
 
 	// Simulation workflow
 

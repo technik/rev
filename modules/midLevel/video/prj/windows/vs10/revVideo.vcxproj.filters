@@ -13,6 +13,15 @@
     <Filter Include="src\videoDriver\windows">
       <UniqueIdentifier>{c5ca4b36-21f2-4923-b6d3-75b3d4905298}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\types">
+      <UniqueIdentifier>{2a29b086-4a23-4679-99e8-40aac23fbe97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\window">
+      <UniqueIdentifier>{6b9acf8c-4403-4b04-b088-ac353ed96191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\window\windows">
+      <UniqueIdentifier>{0cc954f9-ba56-489c-acb7-b34880c076ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\videoDriver\videoDriver.h">
@@ -21,10 +30,22 @@
     <ClInclude Include="..\..\..\src\videoDriver\windows\videoDriverWindows.h">
       <Filter>src\videoDriver\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\types\window\videoWindow.h">
+      <Filter>src\types\window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\window\windows\videoWindowWindows.h">
+      <Filter>src\types\window\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\videoDriver\videoDriver.cpp">
       <Filter>src\videoDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\videoDriver\windows\videoDriverWindows.cpp">
+      <Filter>src\videoDriver\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\window\windows\videoWindowWindows.cpp">
+      <Filter>src\types\window\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
