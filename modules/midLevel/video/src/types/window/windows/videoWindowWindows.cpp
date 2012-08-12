@@ -23,7 +23,7 @@ namespace rev { namespace video
 		mResolution = _res;
 
 		// Create a windown through the windows API
-		CreateWindowA("RevWindowClass",	// Class name, registered by the video driver
+		mWinapiHandle = CreateWindowA("RevWindowClass",	// Class name, registered by the video driver
 		"",											// Window name (currently unsupported
 		WS_CAPTION | WS_POPUP | WS_VISIBLE,			// Creation options
 		_pos.x,						// X Position
@@ -31,6 +31,14 @@ namespace rev { namespace video
 		int(_res.x),				// Width
 		int(_res.y),				// Height
 		0, 0, 0, 0);				// Windows specific parameters that we don't need
+
+		// Resize client area
+		RECT rcClient;
+		POINT ptDiff;
+		GetClientRect(mWinapiHandle, &rcClient);
+		ptDiff.x = mResolution.x - rcClient.right;
+		ptDiff.y = mResolution.y - rcClient.bottom;
+		MoveWindow(mWinapiHandle,mPosition.x, mPosition.y, mResolution.x + ptDiff.x, mResolution.y + ptDiff.y, TRUE);
 	}
 
 }	// namespace video

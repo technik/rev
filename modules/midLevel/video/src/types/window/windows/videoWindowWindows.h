@@ -10,6 +10,8 @@
 
 #ifdef WIN32
 
+#include <Windows.h>
+
 #include "../videoWindow.h"
 
 namespace rev { namespace video
@@ -21,7 +23,15 @@ namespace rev { namespace video
 
 		virtual void		setPosition		(const math::Vec2i& position) {}
 		virtual void		setResolution	(const math::Vec2u& resolution) {}
+
+		HWND				winapiHandle	() const;
+
+	private:
+		HWND	mWinapiHandle; // Winapi handle to the window
 	};
+
+	// Inline implementations
+	inline HWND WindowWindows::winapiHandle() const { return mWinapiHandle; }
 
 }	// namespace video
 }	// namespace rev

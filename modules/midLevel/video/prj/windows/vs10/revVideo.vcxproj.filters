@@ -7,9 +7,6 @@
     <Filter Include="src\videoDriver">
       <UniqueIdentifier>{c8cbfac5-0102-416c-804f-003653138e3d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\3dDriver">
-      <UniqueIdentifier>{6073f504-ffe0-4f59-bb81-b941b2156f33}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\videoDriver\windows">
       <UniqueIdentifier>{c5ca4b36-21f2-4923-b6d3-75b3d4905298}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,18 @@
     </Filter>
     <Filter Include="src\types\window\windows">
       <UniqueIdentifier>{0cc954f9-ba56-489c-acb7-b34880c076ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\driver3d">
+      <UniqueIdentifier>{6073f504-ffe0-4f59-bb81-b941b2156f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\driver3d\openGL20">
+      <UniqueIdentifier>{f74268da-b92f-4128-b3b7-54d299d4b197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\driver3d\openGL20\windows">
+      <UniqueIdentifier>{fefc2c55-c3f1-4fea-af9f-88e2c1e5b5aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\color">
+      <UniqueIdentifier>{d93d28c2-58c8-4f87-93c9-927428b9d073}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +45,21 @@
     <ClInclude Include="..\..\..\src\types\window\windows\videoWindowWindows.h">
       <Filter>src\types\window\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\driver3d\openGL20\driver3dOpenGL20.h">
+      <Filter>src\driver3d\openGL20</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\driver3d\driver3d.h">
+      <Filter>src\driver3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\driver3d\openGL20\glext.h">
+      <Filter>src\driver3d\openGL20</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\color\color.h">
+      <Filter>src\types\color</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\driver3d\openGL20\windows\driver3dOpenGL20Windows.h">
+      <Filter>src\driver3d\openGL20\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\videoDriver\videoDriver.cpp">
@@ -46,6 +70,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\types\window\windows\videoWindowWindows.cpp">
       <Filter>src\types\window\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\driver3d\openGL20\driver3dOpenGL20.cpp">
+      <Filter>src\driver3d\openGL20</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\driver3d\openGL20\windows\driver3dOpenGL20Windows.cpp">
+      <Filter>src\driver3d\openGL20\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
