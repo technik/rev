@@ -10,7 +10,7 @@
 
 #include <codeTools/log/log.h>
 
-namespace rev { namespace codeTools
+namespace rev
 {
 #ifdef REV_ENABLE_ASSERT
 	inline void assert(bool _condition)
@@ -40,7 +40,6 @@ namespace rev { namespace codeTools
 		}
 	}
 
-}	// namespace codeTools
 }	// namespace rev
 
 #endif // _REV_CORE_CODETOOLS_ASSERT_ASSERT_H_

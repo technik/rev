@@ -14,6 +14,7 @@ namespace rev { namespace video
 {
 	// Forward declarations
 	class Color;
+	class Shader;
 
 	class Driver3d
 	{

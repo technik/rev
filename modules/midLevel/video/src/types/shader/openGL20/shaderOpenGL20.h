@@ -8,17 +8,25 @@
 #ifndef _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
 #define _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
 
+#include "../shader.h"
+
 namespace rev { namespace video
 {
 	// Forward declarations
+	class Driver3dOpenGL20;
 	class PxlShader;
 	class VtxShader;
 
-	class ShaderOpenGL20
+	class ShaderOpenGL20 : public Shader
 	{
 	public:
-		Shader(const VtxShader*, const PxlShader*);
+		ShaderOpenGL20(Driver3dOpenGL20*, const VtxShader*, const PxlShader*);
 		~ShaderOpenGL20();
+
+		unsigned	id() const { return mId; }
+
+	private:
+		unsigned	mId;
 	};
 
 }	// namespace video

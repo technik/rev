@@ -8,6 +8,13 @@
 #ifndef _REV_VIDEO_3DDRIVER_OPENGL20_3DDRIVEROPENGL20_H_
 #define _REV_VIDEO_3DDRIVER_OPENGL20_3DDRIVEROPENGL20_H_
 
+#ifdef WIN32
+#include <Windows.h>
+#endif // WIN32
+
+#include <gl/GL.h>
+#include <glext.h>
+
 #include "../driver3d.h"
 
 namespace rev { namespace video
@@ -15,6 +22,7 @@ namespace rev { namespace video
 	class Driver3dOpenGL20 : public Driver3d
 	{
 	public:
+		Driver3dOpenGL20();
 		virtual ~Driver3dOpenGL20() {} // Virtual destructor
 
 		// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
@@ -26,8 +34,24 @@ namespace rev { namespace video
 		void	flush				();
 		void	finishFrame			();
 
-	private:
+		//
+
+	private: // Methods for internal use
+		void	loadOpenGLExtensions();
+
+	private: // Abstract methods
 		virtual void	swapBuffers	() = 0;
+
+	public:
+		// OpenGL extensions
+		void	glAttachShader	(GLuint _program, GLuint _shader) { mAttachShader(_program, _shader); }
+		GLuint	glCreateProgram	()	{ return mCreateProgram(); }
+		void	glLinkProgram	(GLuint _program)	{ mLinkProgram(_program); }
+
+	private:
+		PFNGLATTACHSHADERPROC	mAttachShader;
+		PFNGLCREATEPROGRAMPROC	mCreateProgram;
+		PFNGLLINKPROGRAMPROC	mLinkProgram;
 	};
 
 }	// namespace video

@@ -18,8 +18,18 @@
 
 using namespace rev::math;
 
+#ifdef WIN32
+#define loadExtension( a ) wglGetProcAddress( a )
+#endif // WIN32
+
 namespace rev { namespace video
 {
+	//------------------------------------------------------------------------------------------------------------------
+	Driver3dOpenGL20::Driver3dOpenGL20()
+	{
+		loadOpenGLExtensions();
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL20::setViewport(const Vec2i& _position, const Vec2u& _size)
 	{
@@ -58,6 +68,14 @@ namespace rev { namespace video
 		flush();
 		swapBuffers();
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL20::loadOpenGLExtensions()
+	{
+		mAttachShader	= (PFNGLATTACHSHADERPROC)loadExtension("glAttachShader");
+		mCreateProgram	= (PFNGLCREATEPROGRAMPROC)loadExtension("glCreateProgram");
+		mLinkProgram	= (PFNGLLINKPROGRAMPROC)loadExtension("glLinkProgram");
+	};
 
 }	// namespace video
 }	// namespace rev
