@@ -31,6 +31,18 @@
     <Filter Include="src\types\color">
       <UniqueIdentifier>{d93d28c2-58c8-4f87-93c9-927428b9d073}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\types\shader">
+      <UniqueIdentifier>{40b909e2-d216-4187-bdc0-25a359d7cfcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\shader\vertex">
+      <UniqueIdentifier>{9782a805-049e-4877-a7a5-980c6d4eb6bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\shader\pixel">
+      <UniqueIdentifier>{b8c105c0-64ee-461b-9119-daff643cb541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types\shader\openGL20">
+      <UniqueIdentifier>{89232986-b193-4f17-8f1b-c2e34eb893bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\videoDriver\videoDriver.h">
@@ -59,6 +71,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\driver3d\openGL20\windows\driver3dOpenGL20Windows.h">
       <Filter>src\driver3d\openGL20\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\shader\shader.h">
+      <Filter>src\types\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\shader\vertex\vtxShader.h">
+      <Filter>src\types\shader\vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\shader\pixel\pxlShader.h">
+      <Filter>src\types\shader\pixel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

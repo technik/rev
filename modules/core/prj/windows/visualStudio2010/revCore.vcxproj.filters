@@ -31,6 +31,9 @@
     <Filter Include="src\math\algebra">
       <UniqueIdentifier>{2e49a821-1717-49f3-b11b-2a3dee5a1f91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\file">
+      <UniqueIdentifier>{a2211cda-1311-484e-b24a-40f8dadfd63a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\codeTools\log\log.h">
@@ -51,10 +54,16 @@
     <ClInclude Include="..\..\..\src\math\numericTraits.h">
       <Filter>src\math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\file\file.h">
+      <Filter>src\file</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\codeTools\log\log.cpp">
       <Filter>src\codeTools\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file\file.cpp">
+      <Filter>src\file</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

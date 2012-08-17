@@ -39,6 +39,8 @@ namespace rev { namespace video
 		ptDiff.x = mResolution.x - rcClient.right;
 		ptDiff.y = mResolution.y - rcClient.bottom;
 		MoveWindow(mWinapiHandle,mPosition.x, mPosition.y, mResolution.x + ptDiff.x, mResolution.y + ptDiff.y, TRUE);
+
+		// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
 	}
 
 }	// namespace video

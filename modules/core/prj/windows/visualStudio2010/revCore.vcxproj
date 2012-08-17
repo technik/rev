@@ -97,12 +97,14 @@
     <ClInclude Include="..\..\..\src\codeTools\log\log.h" />
     <ClInclude Include="..\..\..\src\codeTools\stringUtils.h" />
     <ClInclude Include="..\..\..\src\codeTools\usefulMacros.h" />
+    <ClInclude Include="..\..\..\src\file\file.h" />
     <ClInclude Include="..\..\..\src\math\algebra\vector.h" />
     <ClInclude Include="..\..\..\src\math\numericTraits.h" />
     <ClInclude Include="..\..\..\src\script\variant\variant.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\codeTools\log\log.cpp" />
+    <ClCompile Include="..\..\..\src\file\file.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
