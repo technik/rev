@@ -57,6 +57,9 @@
     <ClInclude Include="..\..\..\src\file\file.h">
       <Filter>src\file</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\codeTools\assert\assert.h">
+      <Filter>src\codeTools\assert</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\codeTools\log\log.cpp">

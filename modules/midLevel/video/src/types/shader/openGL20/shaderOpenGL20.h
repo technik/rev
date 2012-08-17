@@ -3,10 +3,10 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
 // On August 12th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Shader
+// OpenGL 2.0 Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_SHADER_H_
-#define _REV_VIDEO_TYPES_SHADER_SHADER_H_
+#ifndef _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
+#define _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
 
 namespace rev { namespace video
 {
@@ -14,14 +14,14 @@ namespace rev { namespace video
 	class PxlShader;
 	class VtxShader;
 
-	class Shader
+	class ShaderOpenGL20
 	{
 	public:
-		Shader(const VtxShader*, const PxlShader*) {}
-		virtual ~Shader() {} = 0;
+		Shader(const VtxShader*, const PxlShader*);
+		~ShaderOpenGL20();
 	};
 
 }	// namespace video
 }	// namespace rev
 
-#endif // _REV_VIDEO_TYPES_SHADER_SHADER_H_
+#endif // _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_

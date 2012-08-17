@@ -94,6 +94,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\codeTools\assert\assert.h" />
     <ClInclude Include="..\..\..\src\codeTools\log\log.h" />
     <ClInclude Include="..\..\..\src\codeTools\stringUtils.h" />
     <ClInclude Include="..\..\..\src\codeTools\usefulMacros.h" />

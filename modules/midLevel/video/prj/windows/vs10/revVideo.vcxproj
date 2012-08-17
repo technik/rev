@@ -91,6 +91,7 @@
     <ClInclude Include="..\..\..\src\driver3d\openGL20\glext.h" />
     <ClInclude Include="..\..\..\src\driver3d\openGL20\windows\driver3dOpenGL20Windows.h" />
     <ClInclude Include="..\..\..\src\types\color\color.h" />
+    <ClInclude Include="..\..\..\src\types\shader\openGL20\shaderOpenGL20.h" />
     <ClInclude Include="..\..\..\src\types\shader\pixel\pxlShader.h" />
     <ClInclude Include="..\..\..\src\types\shader\shader.h" />
     <ClInclude Include="..\..\..\src\types\shader\vertex\vtxShader.h" />

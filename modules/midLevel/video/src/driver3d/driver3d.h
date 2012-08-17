@@ -28,6 +28,8 @@ namespace rev { namespace video
 
 		virtual void	flush				() = 0;
 		virtual void	finishFrame			() = 0;
+
+		virtual void	setShader			(const Shader * _shader) = 0;
 	};
 
 }	// namespace video

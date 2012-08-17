@@ -1,0 +1,26 @@
+
+// Common preprocessor definitions for different configurations
+Debug:
+	REV_ENABLE_ASSERT;REV_ENABLE_LOG;REV_BUFFER_LOG;
+Release:
+	-
+
+// List of all preprocessor definitions
+
+ATMEGA
+	Defined for all AVR Atmega platforms
+
+REV_ENABLE_ASSERT
+	Activa el uso de asserts en el módulo. Cuando están activados,
+	los asserts pueden parar la ejecución de la aplicación y mostrar un mensaje de error.
+	
+REV_ENABLE_LOG
+	Activa la emisión de mensajes de error. Generalmente estos mensajes son mostrados en la
+	consola de la aplicación o en algún otro canal estandarizado (como un archivo de log).
+	
+REV_BUFFER_LOG
+	Para mejorar la eficiencia en algunas plataformas, la salida de log puede diferirse
+	y procesarse por lotes. Esta definicion activa dicha característica.
+	
+WIN32
+	Defined for windows platforms

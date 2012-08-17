@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\..\src\types\shader\pixel\pxlShader.h">
       <Filter>src\types\shader\pixel</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\types\shader\openGL20\shaderOpenGL20.h">
+      <Filter>src\types\shader\openGL20</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\videoDriver\videoDriver.cpp">
