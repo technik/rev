@@ -3,26 +3,26 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
 // On August 10th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Windows openGL20 driver
+// Windows openGL 2.1 driver
 
-#ifndef _REV_VIDEO_3DDRIVER_OPENGL20_WINDOWS_3DDRIVEROPENGL20WINDOWS_H_
-#define _REV_VIDEO_3DDRIVER_OPENGL20_WINDOWS_3DDRIVEROPENGL20WINDOWS_H_
+#ifndef _REV_VIDEO_3DDRIVER_OPENGL21_WINDOWS_3DDRIVEROPENGL21WINDOWS_H_
+#define _REV_VIDEO_3DDRIVER_OPENGL21_WINDOWS_3DDRIVEROPENGL21WINDOWS_H_
 
 #ifdef WIN32
 
 #include <Windows.h>
 
-#include "../driver3dOpenGL20.h"
+#include "../driver3dOpenGL21.h"
 
 namespace rev { namespace video
 {
 	// Forward declarations
 	class Window;
 
-	class Driver3dOpenGL20Windows : public Driver3dOpenGL20
+	class Driver3dOpenGL21Windows : public Driver3dOpenGL21
 	{
 	public:
-		Driver3dOpenGL20Windows(const Window * window);
+		Driver3dOpenGL21Windows(const Window * window);
 
 		void	swapBuffers	();
 
@@ -36,4 +36,4 @@ namespace rev { namespace video
 
 #endif // WIN32
 
-#endif // _REV_VIDEO_3DDRIVER_OPENGL20_WINDOWS_3DDRIVEROPENGL20WINDOWS_H_
+#endif // _REV_VIDEO_3DDRIVER_OPENGL21_WINDOWS_3DDRIVEROPENGL21WINDOWS_H_

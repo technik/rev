@@ -1,7 +1,7 @@
 
 // Common preprocessor definitions for different configurations
 Debug:
-	REV_ENABLE_ASSERT;REV_ENABLE_LOG;REV_BUFFER_LOG;
+	REV_ENABLE_ASSERT;REV_ENABLE_LOG;
 Release:
 	-
 

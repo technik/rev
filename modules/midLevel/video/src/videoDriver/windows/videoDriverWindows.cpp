@@ -9,6 +9,8 @@
 
 #include <Windows.h>
 
+#include <codeTools/assert/assert.h>
+#include <driver3d/openGL21/windows/driver3dOpenGL21Windows.h>
 #include <types/window/windows/videoWindowWindows.h>
 #include "videoDriverWindows.h"
 
@@ -20,6 +22,15 @@ namespace rev { namespace video
 	VideoDriverWindows::VideoDriverWindows()
 		:mIsWindowClassRegistered(false)
 	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	Driver3d * VideoDriverWindows::createDriver3d()
+	{
+		// Only openGL driver is currently supported
+		Window * window = mainWindow();
+		assert(nullptr != window, "Error: Trying to create 3d Driver without window");
+		return new Driver3dOpenGL21Windows(window);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

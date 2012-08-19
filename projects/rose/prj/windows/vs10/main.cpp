@@ -5,10 +5,11 @@
 //----------------------------------------------------------------------------------------------------------------------
 // main, entry point
 
-#include <videoDriver/videoDriver.h>
 
 #include <Windows.h>
-#include <driver3d/openGL20/windows/driver3dOpenGL20Windows.h>
+
+#include <driver3d/driver3d.h>
+#include <videoDriver/videoDriver.h>
 
 using namespace rev;
 
@@ -21,10 +22,8 @@ int main ( int _argc, const char ** _argv )
 
 
 	video::VideoDriver::startUp();
-	video::Window * window = video::VideoDriver::get()->createWindow(math::Vec2i(50, 50), math::Vec2u(320, 180));
-
-	rev::video::Driver3dOpenGL20Windows * driver = new rev::video::Driver3dOpenGL20Windows(window);
-	driver->swapBuffers();
+	video::VideoDriver::get()->init3d();
+	video::VideoDriver::getDriver3d()->finishFrame();
 	system("PAUSE");
 
 

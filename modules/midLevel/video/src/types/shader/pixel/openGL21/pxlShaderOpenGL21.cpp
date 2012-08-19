@@ -1,22 +1,18 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On August 17th, 2012
+// On August 18th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// OpenGL 2.0 Pixel Shader
+// OpenGL 2.1 Pixel Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_PIXEL_OPENGL20_PXLSHADEROPENGL20_H_
-#define _REV_VIDEO_TYPES_SHADER_PIXEL_OPENGL20_PXLSHADEROPENGL20_H_
-
-#include "../pxlShader.h"
+#include "pxlShaderOpenGL21.h"
 
 namespace rev { namespace video
 {
-	class PxlShaderOpenGL20 : public PxlShader
+	//------------------------------------------------------------------------------------------------------------------
+	PxlShaderOpenGL21::PxlShaderOpenGL21(const char * _code)
 	{
-	};
+	}
 
 }	// namespace video
 }	// namespace rev
-
-#endif // _REV_VIDEO_TYPES_SHADER_PIXEL_OPENGL20_PXLSHADEROPENGL20_H_

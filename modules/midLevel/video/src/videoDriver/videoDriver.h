@@ -14,6 +14,7 @@
 namespace rev { namespace video
 {
 	// Forward declarations
+	class Driver3d;
 	class Window;
 
 	// Video driver interface
@@ -24,22 +25,32 @@ namespace rev { namespace video
 		static void			startUp();
 		static void			shutDown();
 		static VideoDriver*	get();
+		static Driver3d*	getDriver3d();
 
 		// --- Actual video driver interface ---
 		// Window creation and destruction
-		virtual Window*	createWindow(const math::Vec2i& position, const math::Vec2u& resolution) = 0;
-		virtual void	destroyWindow(Window*) = 0;
+				void			init3d			();
+				Driver3d*		driver3d		();
+				Window*			mainWindow		();
 		// Screen resolution
 		virtual math::Vec2u		screenResolution() const = 0;
 
 	protected:
-		VideoDriver() {}
-		virtual ~VideoDriver() {}
+		VideoDriver();
+		virtual ~VideoDriver();
+
+	private:
+		virtual Driver3d*	createDriver3d	() = 0;
+		virtual Window*		createWindow	(const math::Vec2i& position, const math::Vec2u& resolution) = 0;
+		virtual void		destroyWindow	(Window*) = 0;
 
 	private:
 		DECLARE_COPY(VideoDriver);
-
 		static VideoDriver * sInstance;
+
+	private:
+		Driver3d*	mDriver3d;
+		Window *	mMainWindow;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -55,6 +66,24 @@ namespace rev { namespace video
 	inline VideoDriver * VideoDriver::get()
 	{
 		return sInstance;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline Driver3d * VideoDriver::getDriver3d()
+	{
+		return get()->driver3d();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline Driver3d * VideoDriver::driver3d()
+	{
+		return mDriver3d;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline Window * VideoDriver::mainWindow()
+	{
+		return mMainWindow;
 	}
 
 }	// namespace video

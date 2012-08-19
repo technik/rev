@@ -19,13 +19,16 @@ namespace rev { namespace video
 	public:
 		VideoDriverWindows();
 
-		Window*			createWindow		(const math::Vec2i& position, const math::Vec2u& resolution);
-		void			destroyWindow		(Window*);
-
 		math::Vec2u		screenResolution	() const;
 
 	private:
-		void registerWindowClass();
+		// Polymorphic implementation
+		Driver3d*		createDriver3d	();
+		Window*			createWindow		(const math::Vec2i& position, const math::Vec2u& resolution);
+		void			destroyWindow		(Window*);
+
+	private:
+		void	registerWindowClass();
 
 	private:
 		bool	mIsWindowClassRegistered;

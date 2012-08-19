@@ -3,20 +3,20 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
 // On August 11th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Windows openGL20 driver
+// Windows openGL 2.1 driver
 
 #ifdef WIN32
 
 #include <Windows.h>
 #include <gl/GL.h>
 
-#include "driver3dOpenGL20Windows.h"
+#include "driver3dOpenGL21Windows.h"
 #include <types/window/windows/videoWindowWindows.h>
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	Driver3dOpenGL20Windows::Driver3dOpenGL20Windows(const Window * _window)
+	Driver3dOpenGL21Windows::Driver3dOpenGL21Windows(const Window * _window)
 	{
 		const WindowWindows * wnd = static_cast<const WindowWindows*>(_window);
 		mWindowHandle = wnd->winapiHandle();
@@ -52,7 +52,7 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Driver3dOpenGL20Windows::swapBuffers()
+	void Driver3dOpenGL21Windows::swapBuffers()
 	{
 		SwapBuffers(mDrawCtxHandle);
 	}

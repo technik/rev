@@ -101,6 +101,9 @@
     <ClInclude Include="..\..\..\src\file\file.h" />
     <ClInclude Include="..\..\..\src\math\algebra\vector.h" />
     <ClInclude Include="..\..\..\src\math\numericTraits.h" />
+    <ClInclude Include="..\..\..\src\resource\managedResource.h" />
+    <ClInclude Include="..\..\..\src\resource\resource.h" />
+    <ClInclude Include="..\..\..\src\resource\resourceManager.h" />
     <ClInclude Include="..\..\..\src\script\variant\variant.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,21 @@
+
+// Managed resources
+
+Rev SDK uses the concept of Resource for objects whose life time is controlled by reference counting.
+Managed resources are those resources that are usually handled by a manager that associates them
+to a unique key.
+
+To create a managed resource class, you must inherit from the template class ManagedResource,
+using your own class (tha child class that inherits from ManagedResource) as the first template
+parameter, the class of the desired associative key as the second parameter, and a boolean
+indicating wether the class features a factory method (more on that later) as the third parameter.
+
+The factory method is a static method of the child class that will be called to try to create an object
+given a key, whenever the manager can't find the requested object.
+
+Example:
+
+class ManagedBar : ManagedResource<ManagedBar, string, true>
+{
+	static ManagedBar* factory(const string&);
+};

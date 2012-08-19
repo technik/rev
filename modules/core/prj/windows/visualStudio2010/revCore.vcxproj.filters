@@ -34,6 +34,9 @@
     <Filter Include="src\file">
       <UniqueIdentifier>{a2211cda-1311-484e-b24a-40f8dadfd63a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\resource">
+      <UniqueIdentifier>{5b771248-3f60-43dc-9c95-38d9e9519a69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\codeTools\log\log.h">
@@ -59,6 +62,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\codeTools\assert\assert.h">
       <Filter>src\codeTools\assert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\resource\resource.h">
+      <Filter>src\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\resource\resourceManager.h">
+      <Filter>src\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\resource\managedResource.h">
+      <Filter>src\resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -28,5 +28,32 @@ namespace rev { namespace video
 #endif
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void VideoDriver::init3d()
+	{
+		// Create a windows
+		if(nullptr == mMainWindow)
+			mMainWindow = createWindow(math::Vec2i(50, 50), math::Vec2u(640, 480));
+		// Create a 3d driver
+		if(nullptr == mDriver3d)
+			mDriver3d = createDriver3d();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	VideoDriver::VideoDriver()
+		:mDriver3d(nullptr)
+		,mMainWindow(nullptr)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	VideoDriver::~VideoDriver()
+	{
+		if(nullptr != mMainWindow)
+			delete mMainWindow;
+		if(nullptr != mDriver3d)
+			delete mDriver3d;
+	}
+
 }	// namespace video
 }	// namespace rev

@@ -5,31 +5,31 @@
 //----------------------------------------------------------------------------------------------------------------------
 // OpenGL 2.0 Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
-#define _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
+#ifndef _REV_VIDEO_TYPES_SHADER_OPENGL21_SHADEROPENGL21_H_
+#define _REV_VIDEO_TYPES_SHADER_OPENGL21_SHADEROPENGL21_H_
 
 #include "../shader.h"
 
 namespace rev { namespace video
 {
 	// Forward declarations
-	class Driver3dOpenGL20;
+	class Driver3dOpenGL21;
 	class PxlShader;
 	class VtxShader;
 
-	class ShaderOpenGL20 : public Shader
+	class ShaderOpenGL21 : public Shader
 	{
 	public:
-		ShaderOpenGL20(Driver3dOpenGL20*, const VtxShader*, const PxlShader*);
-		~ShaderOpenGL20();
+		ShaderOpenGL21(const VtxShader*, const PxlShader*);
+		~ShaderOpenGL21();
 
 		unsigned	id() const { return mId; }
 
 	private:
-		unsigned	mId;
+		unsigned			mId;
 	};
 
 }	// namespace video
 }	// namespace rev
 
-#endif // _REV_VIDEO_TYPES_SHADER_OPENGL20_SHADER_H_
+#endif // _REV_VIDEO_TYPES_SHADER_OPENGL21_SHADEROPENGL21_H_

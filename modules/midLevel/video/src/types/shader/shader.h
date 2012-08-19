@@ -8,17 +8,22 @@
 #ifndef _REV_VIDEO_TYPES_SHADER_SHADER_H_
 #define _REV_VIDEO_TYPES_SHADER_SHADER_H_
 
+#include <utility>
+#include <resource/managedResource.h>
+
 namespace rev { namespace video
 {
 	// Forward declarations
 	class PxlShader;
 	class VtxShader;
 
-	class Shader
+	class Shader : public ManagedResource<Shader, std::pair<VtxShader*,PxlShader*>, true>
 	{
 	public:
-		Shader(const VtxShader*, const PxlShader*) {}
-		virtual ~Shader() {} = 0;
+		virtual ~Shader() = 0 {};
+
+	public:
+		static Shader* factory(const std::pair<VtxShader*,PxlShader*>&);
 	};
 
 }	// namespace video
