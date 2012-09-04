@@ -20,7 +20,7 @@ namespace rev { namespace video
 	class ShaderOpenGL21 : public Shader
 	{
 	public:
-		ShaderOpenGL21(const VtxShader*, const PxlShader*);
+		ShaderOpenGL21(unsigned _id);
 		~ShaderOpenGL21();
 
 		unsigned	id() const { return mId; }

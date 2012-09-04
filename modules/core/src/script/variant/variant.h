@@ -1,19 +1,25 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On August 18th, 2012
+// On August 5th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// OpenGL 2.1 Pixel Shader
+// Variant (base data type for scripting)
 
-#include "pxlShaderOpenGL21.h"
+#ifndef _REV_CORE_SCRIPT_VARIANT_VARIANT_H_
+#define _REV_CORE_SCRIPT_VARIANT_VARIANT_H_
 
-namespace rev { namespace video
-{
-	//------------------------------------------------------------------------------------------------------------------
-	PxlShaderOpenGL21::PxlShaderOpenGL21(unsigned _id)
-		:mId(_id)
+namespace rev { namespace script
+
+	class Variant
 	{
-	}
+	public:
+		enum 
+	public:
+		Variant();
 
-}	// namespace video
+	};
+
+}	// namespace script
 }	// namespace rev
+
+#endif // _REV_CORE_SCRIPT_VARIANT_VARIANT_H_

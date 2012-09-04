@@ -13,40 +13,38 @@
 
 namespace rev
 {
-	template<class Derived_, class Key_>
+	template<class Derived_, class Key_, class Hasher_>
 	class ManagedResourceBase : public Resource
 	{
 	protected:
 		ManagedResourceBase();
+		virtual ~ManagedResourceBase() = 0 {} // So that it can't be instantiated without inheritance
 
 	public:
 		static void registerResource	(Derived_*, const Key_&);	// Register a resource (does not imply ownership)
-		static void	release				(const _keyT&);				// Release a resource by key
+		static void	release				(const Key_&);				// Release a resource by key
 			   bool	release				();
 
-	private:
-		typedef ResourceManager<Derived_, Key_>		Manager;
+	public:
+		typedef ResourceManager<Derived_, Key_, Hasher_>		Manager;
+	protected:
 		static	Manager * manager();
 		static 	Manager * sManager;
 
 		bool	mRegistered;
 	};
 
-	// This interface allows different specializations to share common functionality through inheritance of the same base class
-	template<class Derived_, class Key_, bool autocreate_>
-	class ManagedResource {};
-
-	// Not autocreate specialization
-	template<class Derived_, class Key_>
-	class ManagedResource<Derived_, Key_, false> : public ManagedResourceBase<Derived_,Key_>
+	// Simple managed resource
+	template<class Derived_, class Key_, class Hasher_ = std::tr1::hash<Key_> >
+	class ManagedResource : public ManagedResourceBase<Derived_,Key_,Hasher_>
 	{
 	public:
 		static Derived_ *	get	(const Key_&);
 	};
 
-	// Autocreate specialization
-	template<class Derived_, class Key_>
-	class ManagedResource<Derived_, Key_, true> : public ManagedResourceBase<Derived_,Key_>
+	// Factory managed resource (derived class must feature a factory method)
+	template<class Derived_, class Key_, class Hasher_ = std::tr1::hash<Key_> >
+	class FactoryManagedResource : public ManagedResourceBase<Derived_,Key_,Hasher_>
 	{
 	public:
 		static Derived_ *	get	(const Key_&);
@@ -55,40 +53,40 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_, class Key_>
-	ManagedResourceBase<Derived_, Key_>::ManagedResourceBase()
+	template<class Derived_, class Key_, class Hasher_>
+	ManagedResourceBase<Derived_, Key_, Hasher_>::ManagedResourceBase()
 		:mRegistered(false)
 	{
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_, class Key_>
-	void ManagedResourceBase<Derived_,Key_>::registerResource(Derived_* _res, const Key_& _key)
+	template<class Derived_, class Key_, class Hasher_>
+	void ManagedResourceBase<Derived_,Key_, Hasher_>::registerResource(Derived_* _res, const Key_& _key)
 	{
 		manager()->registerResource(_res,_key);
 		_res->mRegistered = true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_, class Key_>
-	void ManagedResourceBase<Derived_,Key_>::release(const Key_& _x)
+	template<class Derived_, class Key_, class Hasher_>
+	void ManagedResourceBase<Derived_,Key_, Hasher_>::release(const Key_& _x)
 	{
 		manager()->release(_x);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_, class Key_>
-	bool ManagedResourceBase<Derived_,Key_>::release()
+	template<class Derived_, class Key_, class Hasher_>
+	bool ManagedResourceBase<Derived_,Key_, Hasher_>::release()
 	{
 		if(mRegistered)
-			return manager()->release(this);
+			return manager()->release(static_cast<Derived_*>(this));
 		else
 			return Resource::release();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_, class Key_>
-	inline typename ManagedResourceBase<Derived_,Key_>::Manager * ManagedResourceBase<Derived_,Key_>::manager()
+	template<class Derived_, class Key_, class Hasher_>
+	inline typename ManagedResourceBase<Derived_,Key_, Hasher_>::Manager * ManagedResourceBase<Derived_,Key_,Hasher_>::manager()
 	{
 		if(nullptr == sManager)
 			sManager = new Manager();
@@ -96,19 +94,20 @@ namespace rev
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_,class Key_>
-	Derived_ * ManagedResource<Derived_,Key_,false>::get(const Key_& _x)
+	template<class Derived_,class Key_, class Hasher_>
+	Derived_ * ManagedResource<Derived_,Key_, Hasher_>::get(const Key_& _x)
 	{
 		return manager()->get(_x);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Derived_,class Key_>
-	Derived_ * ManagedResource<Derived_,Key_,true>::get(const Key_& _x)
+	template<class Derived_,class Key_, class Hasher_>
+	Derived_ * FactoryManagedResource<Derived_,Key_, Hasher_>::get(const Key_& _x)
 	{
-		Derived_ resource = manager()->get(_x);
+		Derived_ * resource = manager()->get(_x);
 		if(nullptr == resource)
-			return Derived_::factory(_x);
+			resource = Derived_::factory(_x);
+		return resource;
 	}
 
 }	// namespace rev

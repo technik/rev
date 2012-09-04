@@ -26,46 +26,59 @@ namespace rev { namespace video
 		virtual ~Driver3dOpenGL21() {} // Virtual destructor
 
 		// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
-		void	setViewport			(const math::Vec2i& position, const math::Vec2u& size);
-		void	clearZBuffer		();
-		void	clearColorBuffer	();
-		void	setClearColor		(const Color&);
+		void		setViewport				(const math::Vec2i& position, const math::Vec2u& size);
+		void		clearZBuffer			();
+		void		clearColorBuffer		();
+		void		setClearColor			(const Color&);
 
-		void	flush				();
-		void	finishFrame			();
+		void		flush					();
+		void		finishFrame				();
 
-		void	setShader			(const Shader * _shader);
+		void		setShader				(const Shader * _shader);
+		PxlShader*	createPxlShader			(const char * _fileName);
+		Shader*		createShader			(VtxShader*, PxlShader*);
+		VtxShader*	createVtxShader			(const char * _fileName);
+
+		void		setRealAttribBuffer	(int _attribId, unsigned _nElements, unsigned _nComponents, const void * _buffer);
+		void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, IVideoDriver::EPrimitiveType _primitive);
 
 	private: // Methods for internal use
-		void	loadOpenGLExtensions();
+		void	loadOpenGLExtensions		();
+
+		void	bindShaderAttributes		(int _shader);
+		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
 
 	private: // Abstract methods
-		virtual void	swapBuffers	() = 0;
+		virtual void	swapBuffers			() = 0;
 
 	public:
 		// OpenGL extensions
-		void	glAttachShader	(GLuint _program, GLuint _shader)	{ mAttachShader(_program, _shader); }
-		void	glCompileShader	(GLuint _shader)					{ mCompileShader(_shader);			}
-		GLuint	glCreateProgram	()									{ return mCreateProgram();			}
-		GLuint	glCreateShader	(GLenum _shaderType)				{ return mCreateShader(_shaderType);}
-		void	glDeleteProgram	(GLuint _program)					{ mDeleteProgram(_program);			}
-		void	glDeleteShader	(GLuint _shader)					{ mDeleteShader(_shader);			}
-		void	glLinkProgram	(GLuint _program)					{ mLinkProgram(_program);			}
-		void	glUseProgram	(GLuint _program)					{ mUseProgram(_program);			}
-		void	glShaderSource	(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
+		void	glAttachShader		(GLuint _program, GLuint _shader)	{ mAttachShader(_program, _shader); }
+		void	glCompileShader		(GLuint _shader)					{ mCompileShader(_shader);			}
+		GLuint	glCreateProgram		()									{ return mCreateProgram();			}
+		GLuint	glCreateShader		(GLenum _shaderType)				{ return mCreateShader(_shaderType);}
+		void	glDeleteProgram		(GLuint _program)					{ mDeleteProgram(_program);			}
+		void	glDeleteShader		(GLuint _shader)					{ mDeleteShader(_shader);			}
+		void	glGetShaderInfoLog	(GLuint _shader, GLsizei _maxLen, GLsizei* _length, GLchar* _infoLog);
+		void	glGetShaderiv		(GLuint _shader, GLenum _paramName, GLint* _params);
+		void	glLinkProgram		(GLuint _program)					{ mLinkProgram(_program);			}
+		void	glUseProgram		(GLuint _program)					{ mUseProgram(_program);			}
+		void	glShaderSource		(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
 
 
 	private:
 		// OpenGL extensions
-		PFNGLATTACHSHADERPROC	mAttachShader;
-		PFNGLCOMPILESHADERPROC	mCompileShader;
-		PFNGLCREATEPROGRAMPROC	mCreateProgram;
-		PFNGLCREATESHADERPROC	mCreateShader;
-		PFNGLDELETEPROGRAMPROC	mDeleteProgram;
-		PFNGLDELETESHADERPROC	mDeleteShader;
-		PFNGLLINKPROGRAMPROC	mLinkProgram;
-		PFNGLUSEPROGRAMPROC		mUseProgram;
-		PFNGLSHADERSOURCEPROC	mShaderSource;
+		PFNGLATTACHSHADERPROC		mAttachShader;
+		PFNGLCOMPILESHADERPROC		mCompileShader;
+		PFNGLCREATEPROGRAMPROC		mCreateProgram;
+		PFNGLCREATESHADERPROC		mCreateShader;
+		PFNGLDELETEPROGRAMPROC		mDeleteProgram;
+		PFNGLDELETESHADERPROC		mDeleteShader;
+		PFNGLGETSHADERINFOLOGPROC	mGetShaderInfoLog;
+		PFNGLGETSHADERIVPROC		mGetShaderiv;
+		PFNGLLINKPROGRAMPROC		mLinkProgram;
+		PFNGLUSEPROGRAMPROC			mUseProgram;
+		PFNGLSHADERSOURCEPROC		mShaderSource;
 	};
 
 }	// namespace video

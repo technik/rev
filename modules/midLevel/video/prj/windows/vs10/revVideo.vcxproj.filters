@@ -119,5 +119,17 @@
     <ClCompile Include="..\..\..\src\types\shader\openGL21\shaderOpenGL21.cpp">
       <Filter>src\types\shader\openGL21</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\types\shader\shader.cpp">
+      <Filter>src\types\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\shader\vertex\openGL21\vtxShaderOpenGL21.cpp">
+      <Filter>src\types\shader\vertex\openGL21</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\shader\pixel\pxlShader.cpp">
+      <Filter>src\types\shader\pixel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\shader\vertex\vtxShader.cpp">
+      <Filter>src\types\shader\vertex</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

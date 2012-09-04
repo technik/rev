@@ -31,9 +31,9 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
-	const void * File::buffer () const { return mBuffer; }
-	const char * File::bufferAsText () const { return static_cast<const char*>(mBuffer); }
-	int			 File::sizeInBytes () const { return mSize; }
+	inline const void * File::buffer () const { return mBuffer; }
+	inline const char * File::bufferAsText () const { return static_cast<const char*>(mBuffer); }
+	inline int			 File::sizeInBytes () const { return mSize; }
 
 }	// namespace rev
 

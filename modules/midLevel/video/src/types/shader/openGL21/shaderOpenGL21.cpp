@@ -16,22 +16,9 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	ShaderOpenGL21::ShaderOpenGL21(const VtxShader * _vtx, const PxlShader * _pxl)
+	ShaderOpenGL21::ShaderOpenGL21(unsigned _id)
+		:mId(_id)
 	{
-		// Cast to the openGL version of the shaders
-		const VtxShaderOpenGL21 * vtx21 = static_cast<const VtxShaderOpenGL21*>(_vtx);
-		const PxlShaderOpenGL21 * pxl21 = static_cast<const PxlShaderOpenGL21*>(_pxl);
-		assert(vtx21 != nullptr, "Error: Trying to link an invalid vertex shader");
-		assert(pxl21 != nullptr, "Error: Trying to link an invalid pixel shader");
-
-		// Create an OpenGL program and link the shaders
-		Driver3dOpenGL21 * driver = static_cast<Driver3dOpenGL21*>(VideoDriver::getDriver3d());
-		GLuint program = driver->glCreateProgram();
-		driver->glAttachShader(program, vtx21->id());
-		driver->glAttachShader(program, pxl21->id());
-		driver->glLinkProgram(program);
-
-		mId = program;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

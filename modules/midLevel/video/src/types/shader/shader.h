@@ -17,7 +17,16 @@ namespace rev { namespace video
 	class PxlShader;
 	class VtxShader;
 
-	class Shader : public ManagedResource<Shader, std::pair<VtxShader*,PxlShader*>, true>
+	class ShaderKeyHasher
+	{
+	public:
+		size_t operator()	(const std::pair<VtxShader*,PxlShader*>& _key) const
+		{
+			return ((reinterpret_cast<size_t>(_key.first)&0xff) | (reinterpret_cast<size_t>(_key.second)<<16));
+		}
+	};
+
+	class Shader : public FactoryManagedResource<Shader, std::pair<VtxShader*,PxlShader*>, ShaderKeyHasher>
 	{
 	public:
 		virtual ~Shader() = 0 {};

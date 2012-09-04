@@ -107,6 +107,10 @@
     <ClCompile Include="..\..\..\src\driver3d\openGL21\windows\driver3dOpenGL21Windows.cpp" />
     <ClCompile Include="..\..\..\src\types\shader\openGL21\shaderOpenGL21.cpp" />
     <ClCompile Include="..\..\..\src\types\shader\pixel\openGL21\pxlShaderOpenGL21.cpp" />
+    <ClCompile Include="..\..\..\src\types\shader\pixel\pxlShader.cpp" />
+    <ClCompile Include="..\..\..\src\types\shader\shader.cpp" />
+    <ClCompile Include="..\..\..\src\types\shader\vertex\openGL21\vtxShaderOpenGL21.cpp" />
+    <ClCompile Include="..\..\..\src\types\shader\vertex\vtxShader.cpp" />
     <ClCompile Include="..\..\..\src\types\window\windows\videoWindowWindows.cpp" />
     <ClCompile Include="..\..\..\src\videoDriver\videoDriver.cpp" />
     <ClCompile Include="..\..\..\src\videoDriver\windows\videoDriverWindows.cpp" />

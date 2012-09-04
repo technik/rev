@@ -1,26 +1,25 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On August 17th, 2012
+// On August 24th, 2012
 //----------------------------------------------------------------------------------------------------------------------
 // Vertex Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
-#define _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
+#include "vtxShader.h"
 
-#include <string>
+#include <driver3d/driver3d.h>
+#include <videoDriver/videoDriver.h>
 
-#include <resource/managedResource.h>
+namespace rev
+{
+	video::VtxShader::Manager * video::VtxShader::sManager = 0;
+}	// namespace rev
 
 namespace rev { namespace video
 {
-	class VtxShader : public FactoryManagedResource<VtxShader, std::string>
+	VtxShader * VtxShader::factory(const std::string& _fileName)
 	{
-	public:
-		static VtxShader * factory(const std::string&);
-	};
-
+		return VideoDriver::getDriver3d()->createVtxShader(_fileName.c_str());
+	}
 }	// namespace video
 }	// namespace rev
-
-#endif // _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_

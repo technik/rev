@@ -8,10 +8,16 @@
 #ifndef _REV_VIDEO_TYPES_SHADER_PIXEL_PXLSHADER_H_
 #define _REV_VIDEO_TYPES_SHADER_PIXEL_PXLSHADER_H_
 
+#include <string>
+
+#include <resource/managedResource.h>
+
 namespace rev { namespace video
 {
-	class PxlShader
+	class PxlShader : public FactoryManagedResource<PxlShader,std::string>
 	{
+	public:
+		static PxlShader* factory(const std::string&);
 	};
 
 }	// namespace video

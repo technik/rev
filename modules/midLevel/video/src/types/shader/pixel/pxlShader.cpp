@@ -1,26 +1,25 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On August 17th, 2012
+// On August 24th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Vertex Shader
+// Pixel Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
-#define _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
+#include "pxlShader.h"
 
-#include <string>
+#include <driver3d/driver3d.h>
+#include <videoDriver/videoDriver.h>
 
-#include <resource/managedResource.h>
+namespace rev
+{
+	video::PxlShader::Manager * video::PxlShader::sManager = 0;
+}	// namespace rev
 
 namespace rev { namespace video
 {
-	class VtxShader : public FactoryManagedResource<VtxShader, std::string>
+	PxlShader * PxlShader::factory(const std::string& _fileName)
 	{
-	public:
-		static VtxShader * factory(const std::string&);
-	};
-
+		return VideoDriver::getDriver3d()->createPxlShader(_fileName.c_str());
+	}
 }	// namespace video
 }	// namespace rev
-
-#endif // _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_

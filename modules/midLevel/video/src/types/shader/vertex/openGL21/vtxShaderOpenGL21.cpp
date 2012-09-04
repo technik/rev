@@ -5,12 +5,12 @@
 //----------------------------------------------------------------------------------------------------------------------
 // OpenGL 2.1 Pixel Shader
 
-#include "pxlShaderOpenGL21.h"
+#include "vtxShaderOpenGL21.h"
 
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	PxlShaderOpenGL21::PxlShaderOpenGL21(unsigned _id)
+	VtxShaderOpenGL21::VtxShaderOpenGL21(unsigned _id)
 		:mId(_id)
 	{
 	}

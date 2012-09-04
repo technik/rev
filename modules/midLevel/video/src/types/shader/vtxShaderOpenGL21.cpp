@@ -1,26 +1,19 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On August 17th, 2012
+// On August 18th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Vertex Shader
+// OpenGL 2.1 Pixel Shader
 
-#ifndef _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
-#define _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
-
-#include <string>
-
-#include <resource/managedResource.h>
+#include "vtxShaderOpenGL21.h"
 
 namespace rev { namespace video
 {
-	class VtxShader : public FactoryManagedResource<VtxShader, std::string>
+	//------------------------------------------------------------------------------------------------------------------
+	VtxShaderOpenGL21::VtxShaderOpenGL21(unsigned _id)
+		:mId(_id)
 	{
-	public:
-		static VtxShader * factory(const std::string&);
-	};
+	}
 
 }	// namespace video
 }	// namespace rev
-
-#endif // _REV_VIDEO_TYPES_SHADER_VERTEX_VTXSHADER_H_
