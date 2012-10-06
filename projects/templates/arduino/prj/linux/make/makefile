@@ -20,19 +20,24 @@ READELF := $(ATMEGA_TOOLCHAIN)/avr-readelf
 ROOT_DIR := ../../..
 SRC_DIR := $(ROOT_DIR)/src
 CODE_DIR := $(SRC_DIR)/code
+OUT_DIR := $(ROOT_DIR)/bin
 
 CXX_SRC := $(shell find $(CODE_DIR) -name *.cpp)
 
 # -- Build variables --
-CXX_FLAGS := -mmcu=atmega2560 -fno-acess-control -fno-enforce-eh-specs -fno-rtti -g0 -O1 -fno-exceptions -ffunction-sections -fdata-sections
-OUT_NAME := $(PRJ_NAME)
+PREPROCESSOR_DEFINITIONS := -DATMEGA -DATMEGA2560
+CXX_FLAGS := $(PREPROCESSOR_DEFINITIONS) -mmcu=atmega2560 -fno-access-control -fno-enforce-eh-specs -fno-rtti -g0 -O1 -fno-exceptions -ffunction-sections -fdata-sections
+OUT_NAME := $(OUT_DIR)/$(PRJ_NAME)
 OUTPUT := $(OUT_NAME).hex
 
 # -- Rules --
 all: $(OUTPUT)
 
+run: $(OUTPUT)
+	avrdude -p atmega2560 -c stk500 -P /dev/ttyACM0 -U flash:w:$^:i
+
 %.hex: %.elf
-	$(OBJCOPY) -O ihex .eeprom -R .fuse -R .lock -R .signature $^ $@
+	$(OBJCOPY) -O ihex -R .eeprom -R .fuse -R .lock -R .signature $^ $@
 
 $(OUT_NAME).elf: $(CXX_SRC)
 	$(CXX) -o $@ $^ $(CXX_FLAGS)
@@ -45,4 +50,4 @@ assebly: (OUT_NAME).S
 $(OUT_NAME).S: $(CXX_SRC)
 	$(CXX) -S -o $@ $^ $(CXX_FLAGS)
 
-.PHONY: all readelf
+.PHONY: all readelf run

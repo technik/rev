@@ -2,7 +2,12 @@
 // Created by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
 // On October 6th, 2012
 
-void main ()
+// Atmel header files
+#include <avr/io.h>
+
+int main ()
 {
-	// TODO
+	DDRB = 1<<7;
+	PORTB = 1<<7;
+	return 0;
 }
