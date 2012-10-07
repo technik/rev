@@ -7,7 +7,9 @@
 
 #include "file.h"
 
+#ifndef ATMEGA
 #include <fstream>
+#endif // !ATMEGA
 
 #include <codeTools/log/log.h>
 
@@ -18,6 +20,9 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	File * File::open(const char * _fileName, bool ) // Second parameter is unused, writeable files are unsupported
 	{
+#ifdef ATMEGA
+		return nullptr;
+#else // !ATMEGA
 		fstream srcFile;
 		// Open the file
 		srcFile.open(_fileName, ios_base::binary|ios_base::in);
@@ -49,18 +54,20 @@ namespace rev
 		file->mBuffer = buffer;
 
 		return file;
+#endif // !ATMEGA
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	File::~File()
 	{
-		delete (static_cast<char*>(mBuffer));
+		if(nullptr != mBuffer)
+			delete (static_cast<char*>(mBuffer));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	File::File()
-		:mBuffer(0)
-		,mSize(0)
+		:mSize(0)
+		,mBuffer(0)
 	{
 	}
 

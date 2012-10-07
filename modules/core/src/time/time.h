@@ -8,11 +8,17 @@
 #ifndef _REV_CORE_TIME_TIME_H_
 #define _REV_CORE_TIME_TIME_H_
 
+#ifdef ATMEGA
+#include <stdio.h>
+#else // !ATMEGA
+#include <cstdint>
+#endif // !ATMEGA
+
 namespace rev
 {
 	class Time
 	{
-		static void Init(); ///< Initialize system clock
+		static void init(); ///< Initialize system clock
 
 		// Time measurement
 		uint32_t	micros	();	///< Microseconds since power-up or last reset

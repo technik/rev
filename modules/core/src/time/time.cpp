@@ -39,25 +39,39 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	uint32_t Time::micros()
 	{
-		return (((uint32_t)gTicksH) << 15) | (TCNT >> 1); // Returns nTicks / 2 (one tick is half a second)
+		return (((uint32_t)gTicksH) << 15) | (TCNT1 >> 1); // Returns nTicks / 2 (one tick is half a second)
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	uint32_t Time::millis()
 	{
+		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
+		// Maybe gTicksH should get 32 bits for that.
 		return micros() / 1000;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	uint32_t Time::seconds()
 	{
+		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
+		// Maybe gTicksH should get 32 bits for that.
 		return micros() / 1000000;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Time::delayMS()
+	void Time::delayMS(uint16_t _ms)
 	{
-		//
+		uint32_t startMilliseconds = millis();
+		while((millis() - startMilliseconds) < _ms)
+		{}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Time::delayUS(uint16_t _us)
+	{
+		uint32_t startMicroseconds = micros();
+		while((micros() - startMicroseconds) < _us)
+		{}
 	}
 	
 #endif // ATMEGA

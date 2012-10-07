@@ -63,7 +63,11 @@ namespace rev { namespace codeTools
 	// Inline implementations
 	inline Log& Log::get()
 	{
+#ifdef REV_ENABLE_LOG
 		return *sInstance;
+#else // !REV_ENABLE_LOG
+		return *((Log*)nullptr);
+#endif // !REV_ENABLE_LOG
 	}
 
 	template<class T_>
