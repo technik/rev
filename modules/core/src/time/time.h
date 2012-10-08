@@ -18,16 +18,16 @@ namespace rev
 {
 	class Time
 	{
-		static void init(); ///< Initialize system clock
+		static void		init	(); ///< Initialize system clock
 
 		// Time measurement
-		uint32_t	micros	();	///< Microseconds since power-up or last reset
-		uint32_t	millis	(); ///< Milliseconds since power-up or last reset
-		uint32_t	seconds	(); ///< Seconds since power-up or last reset
+		static uint32_t	micros	();	///< Microseconds since power-up or last reset
+		static uint32_t	millis	(); ///< Milliseconds since power-up or last reset
+		static uint32_t	seconds	(); ///< Seconds since power-up or last reset
 
 		// Delays
-		void		delayMS	(uint16_t _ms);	///< Delay _ms milliseconds
-		void		delayUS	(uint16_t _us); ///< Delay _us microseconds
+		static void		delayMS	(uint16_t _ms);	///< Delay _ms milliseconds
+		static void		delayUS	(uint16_t _us); ///< Delay _us microseconds
 	};
 }	// namespace rev
 

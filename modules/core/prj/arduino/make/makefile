@@ -16,8 +16,7 @@ OUT_DIR := $(ROOT_DIR)/bin
 
 include $(REVSDK_HOME)/common/arduino/make/arduino-common.mk
 
-OUT_NAME := $(OUT_DIR)/$(MODULE_NAME)
-OUTPUT := $(OUT_NAME).a
+OUTPUT := $(OUT_DIR)/lib$(MODULE_NAME).a
 
 # -- Rules --
 all: $(OUTPUT)
