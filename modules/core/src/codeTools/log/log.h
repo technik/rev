@@ -10,11 +10,6 @@
 
 #include <codeTools/usefulMacros.h>
 
-// Platform dependent configuration
-#ifdef WIN32
-#define REV_BUFFER_LOG
-#endif // WIN32
-
 #ifdef REV_ENABLE_LOG
 #include <string>
 #include <codeTools/stringUtils.h>
@@ -33,7 +28,6 @@ namespace rev { namespace codeTools
 		// Log interface
 		template<class T_>
 		Log& operator<< (const T_&);
-
 		void flush();
 
 	private:
@@ -43,21 +37,11 @@ namespace rev { namespace codeTools
 		DECLARE_COPY(Log); // Prevent copy
 
 	private:
-#ifdef REV_ENABLE_LOG
-		void	logString	(const std::string&);
-		void	flushBuffer	(const char*, unsigned _size);
-#ifdef REV_BUFFER_LOG
-		void	resetBuffer	();
-#endif // REV_BUFFER_LOG
+		virtual void	logString	(const std::string&);
+		virtual void	flushBuffer	(const char*);
 
 	private:
 		static Log* sInstance;
-
-#ifdef REV_BUFFER_LOG
-		char * mBuffer;
-		unsigned mInternalCursor;
-#endif // REV_BUFFER_LOG
-#endif // REV_ENABLE_LOG
 	};
 
 	// Inline implementations
@@ -66,7 +50,7 @@ namespace rev { namespace codeTools
 #ifdef REV_ENABLE_LOG
 		return *sInstance;
 #else // !REV_ENABLE_LOG
-		return *((Log*)nullptr);
+		return *((Log*)nullptr); // Return a reference to a null pointer
 #endif // !REV_ENABLE_LOG
 	}
 

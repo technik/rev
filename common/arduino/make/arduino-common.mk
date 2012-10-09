@@ -27,7 +27,9 @@ PREPROCESSOR_DEFINITIONS := -DATMEGA -DATMEGA2560
 WARNING_FLAGS := -Wall -Werror
 INCLUDE_FLAGS := -I$(CODE_DIR)
 CXX_COMPILE_FLAGS := -std=c++0x -mmcu=atmega2560 -fno-access-control -fno-enforce-eh-specs\
- -fno-rtti -g -O1 -fno-exceptions -ffunction-sections -fdata-sections
-COMMON_C_FLAGS := $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS) $(INCLUDE_FLAGS)
+ -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
+DEBUG_FLAGS := -g
+OPTIMIZATION_FLAGS := -O1
+COMMON_C_FLAGS := $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS) $(INCLUDE_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZATION_FLAGS
 CC_FLAGS := $(COMMON_C_FLAGS)
 CXX_FLAGS := $(COMMON_C_FLAGS) $(CXX_COMPILE_FLAGS)

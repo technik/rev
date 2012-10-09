@@ -5,50 +5,39 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 # Project configuration variables
-PRJ_NAME := ciervaPilot
+PRJ_NAME := rose
 
 # -- Folder structure --
 ROOT_DIR := ../../..
 SRC_DIR := $(ROOT_DIR)/src
 CODE_DIR := $(SRC_DIR)/code
-OUT_DIR := $(ROOT_DIR)/bin
+OUT_DIR := $(ROOT_DIR)/bin/linux
 
 OUT_NAME := $(OUT_DIR)/$(PRJ_NAME)
-OUTPUT := $(OUT_NAME).hex
+OUTPUT := $(OUT_NAME)
 
-include $(REVSDK_HOME)/common/arduino/make/arduino-common.mk
+include $(REVSDK_HOME)/common/linux/make/linux-common.mk
 
-LIB_DIR := -L$(REVSDK_HOME)/modules/core/bin
+LIB_DIR := -L$(REVSDK_HOME)/modules/core/bin/linux
 REV_INCLUDE := -I$(REVSDK_HOME)/modules/core/src/
 
 # -- Rules --
 all: $(OUTPUT)
 
 clean:
-	rm -f $(OUTPUT) $(TEMP_FILES) $(OUT_NAME).elf
+	rm -f $(OUTPUT) $(TEMP_FILES) $(OUT_NAME).elf $(REVSDK_HOME)/modules/core/bin/linux/librevcore.a
 
 run: $(OUTPUT)
-	avrdude -p atmega2560 -c stk500 -P /dev/ttyACM0 -U flash:w:$^:i
+	$(OUTPUT)
 
-%.hex: %.elf
-	$(OBJCOPY) -O ihex -R .eeprom -R .fuse -R .lock -R .signature $^ $@
+debug: $(OUTPUT)
+	gdb $(OUTPUT)
 
-$(OUT_NAME).elf: $(CXX_SRC) $(CORE_LIB)
-	cd $(REVSDK_HOME)/modules/core/prj/arduino/make/ && $(MAKE)
-	$(CXX) -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE) $(LIB_DIR) -lrevcore
+%.cpp.o: %.cpp
+	$(CXX) -c -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE)
 
-readelf: $(OUT_NAME).elf
-	$(READELF) -a $^
+$(OUT_NAME): $(CXX_OBJ)
+	cd $(REVSDK_HOME)/modules/core/prj/linux/make/ && $(MAKE)
+	$(CXX) -o $@ $^ $(LIB_DIR) -lrevcore
 
-dump: $(OUT_NAME).elf
-	$(OBJDUMP) -h $^
-
-dwarf: $(OUT_NAME).elf
-	$(OBJDUMP) --dwarf=info $^
-
-assebly: (OUT_NAME).S
-
-$(OUT_NAME).S: $(CXX_SRC)
-	$(CXX) -S -o $@ $^ $(CXX_FLAGS)
-
-.PHONY: readelf run clean
+.PHONY: run clean

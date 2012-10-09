@@ -3,16 +3,23 @@
 # Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 # On October 8th, 2012
 #-----------------------------------------------------------------------------------------------------------------------
-# Core module, make file
+# Generic gnu module common makefile
 
-# Project configuration variables
-MODULE_NAME := revcore
+OUTPUT := $(OUT_DIR)/lib$(MODULE_NAME).a
 
-# -- Folder structure --
-ROOT_DIR := ../../..
-SRC_DIR := $(ROOT_DIR)/src
-CODE_DIR := $(SRC_DIR)
-OUT_DIR := $(ROOT_DIR)/bin/linux
+# -- Rules --
+all: $(OUTPUT)
 
-include $(REVSDK_HOME)/common/linux/make/linux-common.mk
-include $(REVSDK_HOME)/common/linux/make/module-common.mk
+clean:
+	rm -f $(OUTPUT) $(TEMP_FILES)
+
+$(OUTPUT): $(CXX_OBJ)
+	$(AR) rcs $(OUTPUT) $(CXX_OBJ)
+
+%.cpp.o: %.cpp
+	$(CXX) -c -o $@ $^ $(CXX_FLAGS)
+
+%.c.o : %.c
+	$(CC) -o $@ $^ $(CC_FLAGS)
+
+.PHONY: clean

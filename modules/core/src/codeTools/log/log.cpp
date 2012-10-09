@@ -7,22 +7,12 @@
 
 #include "log.h"
 
-#ifdef REV_ENABLE_LOG
-#ifdef WIN32
+#ifndef ATMEGA
 #include <iostream>
-#endif // WIN32
+#endif // !ATMEGA
 
 namespace rev { namespace codeTools
 {
-	//------------------------------------------------------------------------------------------------------------------
-	// Global data
-	const unsigned	gBufferLength = 
-#ifdef WIN32
-		1024;
-#endif // WIN32
-#ifdef ATMEGA
-		4;
-#endif // ATMEGA
 	// Static data
 	Log* Log::sInstance = nullptr;
 
@@ -42,80 +32,47 @@ namespace rev { namespace codeTools
 	//------------------------------------------------------------------------------------------------------------------
 	void Log::flush()
 	{
-		flushBuffer(mBuffer, mInternalCursor);
-		resetBuffer();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Log::Log()
-#ifdef REV_BUFFER_LOG
-#ifdef WIN32
-		:mBuffer(new char[gBufferLength+1])
-#else
-		:mBuffer(new char[gBufferLength])
-#endif
-		,mInternalCursor(0)
-#endif // REV_BUFFER_LOG
 	{
-#if defined(WIN32) && defined(REV_BUFFER_LOG)
-		resetBuffer();
-#endif // WIN32 && REV_BUFFER_LOG
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Log::~Log()
 	{
 		flush();
-		delete[] mBuffer;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Log::logString(const std::string& _s)
 	{
-#ifdef REV_BUFFER_LOG
-		unsigned msgLength = _s.length();
-		if(msgLength > (gBufferLength - mInternalCursor)) // No space available
-		{
-			flushBuffer(mBuffer, mInternalCursor);
-			resetBuffer();
-			if(msgLength > gBufferLength)
-			{
-				flushBuffer(_s.c_str(), msgLength);
-				return;
-			}
-		}
-		// Copy the message
-		for(auto i = _s.begin(); i != _s.end(); ++i)
-			mBuffer[mInternalCursor++] = *i;
-#else // !REV_BUFFER_LOG
-		flushBuffer(_s.c_str(), _s.length());
-#endif // !REV_BUFFER_LOG
+		// unsigned msgLength = _s.length();
+		// if(msgLength > (gBufferLength - mInternalCursor)) // No space available
+		// {
+		// 	flushBuffer(mBuffer, mInternalCursor);
+		// 	resetBuffer();
+		// 	if(msgLength > gBufferLength)
+		// 	{
+		// 		flushBuffer(_s.c_str(), msgLength);
+		// 		return;
+		// 	}
+		// }
+		// // Copy the message
+		// for(auto i = _s.begin(); i != _s.end(); ++i)
+		// 	mBuffer[mInternalCursor++] = *i;
+		flushBuffer(_s.c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Log::flushBuffer(const char * _buffer, unsigned _length)
+	void Log::flushBuffer(const char * _buffer)
 	{
-#ifdef WIN32
-		_length; // Unused variable
+#ifndef ATMEGA
+		// We assume 0 terminated buffers
 		std::cout << _buffer;
-#endif // WIN32
+#endif // !ATMEGA
 	}
-
-#ifdef REV_BUFFER_LOG
-	//------------------------------------------------------------------------------------------------------------------
-	void Log::resetBuffer()
-	{
-		mInternalCursor = 0;
-#ifdef WIN32
-		for(unsigned i = 0; i < gBufferLength+1; ++i)
-		{
-			mBuffer[i] = 0;
-		}
-#endif // WIN32
-	}
-#endif // REV_BUFFER_LOG
 
 }	// namespace codeTools
 }	// namespace rev
-
-#endif // REV_ENABLE_LOG

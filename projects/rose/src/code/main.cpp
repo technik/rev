@@ -5,7 +5,15 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
+#include <codeTools/log/log.h>
+#include <iostream>
+
+using namespace rev;
+
 int main()
 {
+	codeTools::Log::init();
+	revLog() << "Hello world\n";
+	codeTools::Log::end();
 	return 0;
 }
