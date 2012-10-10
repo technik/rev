@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Rose project
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
-//  On October 8th, 2012
+// On October 8th, 2012
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
@@ -13,7 +13,7 @@ using namespace rev;
 int main()
 {
 	codeTools::Log::init();
-	revLog() << "Hello world\n";
+	revLog() << "Rose: Robotic Simulation Environment\n";
 	codeTools::Log::end();
 	return 0;
 }
