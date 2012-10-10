@@ -34,7 +34,7 @@ namespace rev { namespace codeTools
 		// Construction, destruction and copy
 		Log();
 		~Log();
-		DECLARE_COPY(Log); // Prevent copy
+		REV_DECLARE_COPY(Log); // Prevent copy
 
 	private:
 		virtual void	logString	(const std::string&);
@@ -47,11 +47,7 @@ namespace rev { namespace codeTools
 	// Inline implementations
 	inline Log& Log::get()
 	{
-#ifdef REV_ENABLE_LOG
 		return *sInstance;
-#else // !REV_ENABLE_LOG
-		return *((Log*)nullptr); // Return a reference to a null pointer
-#endif // !REV_ENABLE_LOG
 	}
 
 	template<class T_>
@@ -60,7 +56,7 @@ namespace rev { namespace codeTools
 #ifdef REV_ENABLE_LOG
 		logString(makeString(_message));
 #else // !REV_ENABLE_LOG
-		_message; // Unused variable
+		REV_UNUSED_PARAM(_message); // Unused variable
 #endif // !REV_ENABLE_LOG
 		return *this;
 	}

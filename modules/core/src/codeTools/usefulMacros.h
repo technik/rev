@@ -12,10 +12,13 @@
 // Class construction, copy and destruction
 //----------------------------------------------------------------------------------------------------------------------
 // When declared under private, this macro disables copy of the enclosing class
-#define DECLARE_COPY( type_ )	\
+#define REV_DECLARE_COPY( type_ )	\
 	type_(const type_&);\
 	type_(type_&&);\
 	type_& operator=(const type_&);\
 	type_& operator=(type_&&);
+
+#define REV_UNUSED_PARAM( _param )	\
+	(void)_param
 
 #endif // _REV_CORE_CODETOOLS_USEFULMACROS_H_

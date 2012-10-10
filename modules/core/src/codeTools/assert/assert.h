@@ -15,12 +15,12 @@ namespace rev
 #ifdef REV_ENABLE_ASSERT
 	inline void assert(bool _condition)
 	{
-#if defined(WIN32)
+#if defined(WIN32) || defined (__linux__)
 		if(_condition == false)
 		{
 			__asm int 3;
 		}
-#endif // Win32
+#endif // Win32 || linux
 	}
 
 #else // !REV_ENABLE_ASSERT
