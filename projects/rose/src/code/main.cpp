@@ -8,6 +8,8 @@
 #include <codeTools/log/log.h>
 #include <iostream>
 
+#include <component/microcontroller/avr/avr8bit.h>
+
 using namespace rev;
 
 int main()
