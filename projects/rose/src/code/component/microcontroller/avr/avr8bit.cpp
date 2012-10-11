@@ -10,18 +10,20 @@
 #include <cstdint>
 
 #include <codeTools/assert/assert.h>
+#include <codeTools/log/log.h>
 #include <file/file.h>
 using rev::File;
+using rev::revLog;
 
 namespace rose { namespace component {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Avr8bit::Avr8bit(unsigned _flash, unsigned _ram)
 		:mFlashSize(_flash * 512) // slots = _kilobytes * 1024 / 2.
-		,mDataSize(_ram * 1024)
+		,mDataSize(_ram * 1024 + 0x200) // Data memory + register file + i/o memory + extended i/o memory.
 	{
 		mFlash = new uint16_t[mFlashSize];
-		mDataSpace = new uint8_t[mDataSize + 0x200]; // Data memory + register file + i/o memory + extended i/o memory.
+		mDataSpace = new uint8_t[mDataSize];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -56,8 +58,36 @@ namespace rose { namespace component {
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::reset()
 	{
-		for(unsigned i = 0; i < mDataSize+0x200; ++i)
-			mDataSpace[0] = 0x00;
+		for(unsigned i = 0; i < mDataSize; ++i)
+			mDataSpace[i] = 0x00;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::showAssembly(unsigned _start, unsigned _end) const
+	{
+		revLog() << "Assembly\n" << "Address\tOpcode\tName\n";
+		if(_start >= mFlashSize || _start >= _end)
+			return; // There is no code after _start
+		if(_end > mFlashSize)
+			_end = mFlashSize; // Clamp section
+		for(unsigned i = _start; i < _end; ++i)
+		{
+			showAssemblyInstruction(i);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::showMemory(unsigned _start, unsigned _end) const
+	{
+		revLog() << "Memory\n" << "Address\tValue\n";
+		if(_start >= mDataSize || _start >= _end)
+			return; // There is no code after _start
+		if(_end > mFlashSize)
+			_end = mFlashSize; // Clamp section
+		for(unsigned i = _start; i < _end; ++i)
+		{
+			showMemoryCell(i);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -106,6 +136,21 @@ namespace rose { namespace component {
 	uint16_t Avr8bit::wordFromHex(const char * _digits)
 	{
 		return (byteFromHex(_digits) << 8) | byteFromHex(&_digits[2]);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::showAssemblyInstruction(unsigned _position) const
+	{
+		// Display opcode
+		uint16_t opcode = mFlash[_position];
+		// TODO: Translate opcode names
+		revLog() << _position << "\t" << opcode << "\n";
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::showMemoryCell(unsigned _position) const
+	{
+		revLog() << _position << "\t" << unsigned(mDataSpace[_position]) << "\n";
 	}
 
 }	// namespace component

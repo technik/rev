@@ -30,10 +30,10 @@ namespace rose { namespace component {
 									unsigned _end) const;		///< code starting at _start and not including _end.
 																///< If end equals 0, all occupied program memory will be
 																///< displayed.
-		void		showFlash		(unsigned _start,			///< Show a region of flash memory delimited by _start
+		void		showMemory		(unsigned _start,			///< Show a region of flash memory delimited by _start
 									unsigned _end) const;		///< and _end in the same way as 'showAssembly'.
 
-		void		simulates		(unsigned _cycles);			///< Run current program for the given cycles. This method
+		void		simulate		(unsigned _cycles);			///< Run current program for the given cycles. This method
 																///< completely ignores breakpoints and debugging aids in
 																///< order to get the best performance 
 		unsigned	step			();							///< Runs the program until the next instruction is reached.
@@ -54,6 +54,9 @@ namespace rose { namespace component {
 		uint8_t		halfByteFromHex	(const char * _digits);
 		uint8_t		byteFromHex		(const char * _digits);
 		uint16_t 	wordFromHex		(const char * _digits);
+
+		void showAssemblyInstruction(unsigned _position) const;
+		void showMemoryCell			(unsigned _position) const;
 
 	private:
 		uint16_t*	mFlash;		///< Flash memory
