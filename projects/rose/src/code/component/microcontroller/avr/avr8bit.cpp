@@ -36,12 +36,14 @@ namespace rose { namespace component {
 
 		// Now open the file
 		File * hexFile = File::open(_filename);
+		if(!hexFile)
+			return false;
 		const char * hexCode = hexFile->bufferAsText();
 		bool reachedEndOfFile = false;
 		unsigned hexLineIndex = 0;
 		while(! reachedEndOfFile)
 		{
-			reachedEndOfFile = processHexLine(hexFile, hexLineIndex);
+			reachedEndOfFile = processHexLine(hexCode, hexLineIndex);
 		}
 		delete hexFile;
 		return true;
@@ -51,7 +53,7 @@ namespace rose { namespace component {
 	bool Avr8bit::processHexLine(const char* _buffer, unsigned& _idx)
 	{
 		// _idx must be the offset inside the _buffer where the target line starts at.
-		rev::assert(_buffer[_idx] == ':');
+		rev::revAssert(_buffer[_idx] == ':');
 		uint8_t registryLen = byteFromHex(&_buffer[_idx+1]);
 		uint16_t address = wordFromHex(&_buffer[_idx+3]);
 		uint8_t dataType = byteFromHex(&_buffer[_idx+7]);
@@ -66,7 +68,7 @@ namespace rose { namespace component {
 		}
 		else
 		{
-			revAssert(false, "Unsupported data type in Hex file");
+			rev::revAssert(false, "Unsupported data type in Hex file");
 		}
 		// Move index to the start of the next line:
 		// 1b colon + 2b regLen + 4b address + 2b dataType + 2b checksum  + 2b (new line+carr ret)= 13b per line

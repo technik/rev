@@ -50,7 +50,7 @@ namespace rev { namespace codeTools
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Log::logString(const std::string& _s)
+	void Log::logBuffer(const char* _s)
 	{
 		// unsigned msgLength = _s.length();
 		// if(msgLength > (gBufferLength - mInternalCursor)) // No space available
@@ -66,7 +66,7 @@ namespace rev { namespace codeTools
 		// // Copy the message
 		// for(auto i = _s.begin(); i != _s.end(); ++i)
 		// 	mBuffer[mInternalCursor++] = *i;
-		flushBuffer(_s.c_str());
+		flushBuffer(_s);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
