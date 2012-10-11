@@ -15,7 +15,7 @@ namespace rose { namespace component {
 	class Avr8bit
 	{
 	public:
-		Avr8bit(unsigned _flashSize);
+		Avr8bit(unsigned _flash, unsigned _ram);				///< Memory sizes are expected in kilobytes.
 		~Avr8bit();
 
 		// Simulation and debugging
@@ -25,9 +25,6 @@ namespace rose { namespace component {
 																///< program memory or eeprom memory
 		unsigned	setBreakPoint	(int _instruction);
 		void		removeBreakPoint(unsigned _id);
-		unsigned	step			();							///< Execute only one instruction. 
-																///< Returns elapsed cycles.
-		unsigned	run				();							///< Keep executing until a breakpoint is reached or
 																///< a reset occurs
 		void		showAssembly	(unsigned _start,			///< Shows assembler code for the specified region of
 									unsigned _end) const;		///< code starting at _start and not including _end.
@@ -35,6 +32,18 @@ namespace rose { namespace component {
 																///< displayed.
 		void		showFlash		(unsigned _start,			///< Show a region of flash memory delimited by _start
 									unsigned _end) const;		///< and _end in the same way as 'showAssembly'.
+
+		void		simulates		(unsigned _cycles);			///< Run current program for the given cycles. This method
+																///< completely ignores breakpoints and debugging aids in
+																///< order to get the best performance 
+		unsigned	step			();							///< Runs the program until the next instruction is reached.
+																///< This usually means running just one instruction but in
+																///< case of interrupt, the whole interrupt routine will be
+																///< executed in the process.
+																///< Returns elapsed cycles.
+		unsigned	run				();							///< Keep executing until a breakpoint is reached or the
+																///< program resets.
+																///< Returns elapsed cycles.
 
 	private:
 		bool		processHexLine	(const char * _file,		///< Processes a line of code from a program file in
@@ -48,6 +57,9 @@ namespace rose { namespace component {
 
 	private:
 		uint16_t*	mFlash;		///< Flash memory
+		unsigned	mFlashSize;	///< Size of flash memory in slots (not in kilobytes).
+		uint8_t*	mDataSpace;
+		unsigned	mDataSize;
 	};
 
 }	// namespace component

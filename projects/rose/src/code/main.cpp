@@ -12,7 +12,6 @@
 
 using namespace rev;
 
-const int flashMemorySize = 128 * 1024; // 128K
 using rose::component::Avr8bit;
 
 int main()
@@ -23,9 +22,10 @@ int main()
 
 	// Actual code
 	revLog() << "Creating AVR Core ... ";
-	Avr8bit * core = new Avr8bit(flashMemorySize);
+	Avr8bit * core = new Avr8bit(256, 8);
 	revLog() << "Success\n";
 	core->loadProgram("ciervaPilot.hex");
+	core->reset();
 
 	// House keeping
 	codeTools::Log::end();

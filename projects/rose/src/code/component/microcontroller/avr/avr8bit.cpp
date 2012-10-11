@@ -16,15 +16,19 @@ using rev::File;
 namespace rose { namespace component {
 
 	//------------------------------------------------------------------------------------------------------------------
-	Avr8bit::Avr8bit(unsigned _flashSize)
+	Avr8bit::Avr8bit(unsigned _flash, unsigned _ram)
+		:mFlashSize(_flash * 512) // slots = _kilobytes * 1024 / 2.
+		,mDataSize(_ram * 1024)
 	{
-		mFlash = new uint16_t[_flashSize];
+		mFlash = new uint16_t[mFlashSize];
+		mDataSpace = new uint8_t[mDataSize + 0x200]; // Data memory + register file + i/o memory + extended i/o memory.
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Avr8bit::~Avr8bit()
 	{
 		delete[] mFlash;
+		delete[] mDataSpace;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -47,6 +51,13 @@ namespace rose { namespace component {
 		}
 		delete hexFile;
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::reset()
+	{
+		for(unsigned i = 0; i < mDataSize+0x200; ++i)
+			mDataSpace[0] = 0x00;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
