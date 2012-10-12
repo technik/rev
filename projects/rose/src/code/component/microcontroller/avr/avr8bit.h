@@ -46,6 +46,7 @@ namespace rose { namespace component {
 																///< Returns elapsed cycles.
 
 	private:
+		// Hex file processing
 		bool		processHexLine	(const char * _file,		///< Processes a line of code from a program file in
 									unsigned& _index);			///< Intel HEX format. Returns true on end of file.
 																///< Notice _index will be incremented till the start of
@@ -55,14 +56,22 @@ namespace rose { namespace component {
 		uint8_t		byteFromHex		(const char * _digits);
 		uint16_t 	wordFromHex		(const char * _digits);
 
+		// Show debug information
 		void showAssemblyInstruction(unsigned _position) const;
 		void showMemoryCell			(unsigned _position) const;
 
+		// Program execution
+		unsigned	executeOneInstruction	();					///< Returns elapsed cycles
+		void		updateTimers			();
+
 	private:
+		// Virtual memories
 		uint16_t*	mFlash;		///< Flash memory
 		unsigned	mFlashSize;	///< Size of flash memory in slots (not in kilobytes).
 		uint8_t*	mDataSpace;
 		unsigned	mDataSize;
+
+		// Cache
 	};
 
 }	// namespace component

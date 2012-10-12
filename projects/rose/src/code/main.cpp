@@ -27,7 +27,7 @@ int main()
 	core->loadProgram("ciervaPilot.hex");
 	core->reset();
 	core->showAssembly(150, 160);
-	core->showMemory(0x2100, 0x2200);
+	core->showMemory(0x21f0, 0x2200);
 
 	// House keeping
 	codeTools::Log::end();

@@ -8,6 +8,7 @@
 #include "avr8bit.h"
 
 #include <cstdint>
+#include <iostream>
 
 #include <codeTools/assert/assert.h>
 #include <codeTools/log/log.h>
@@ -65,7 +66,7 @@ namespace rose { namespace component {
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showAssembly(unsigned _start, unsigned _end) const
 	{
-		revLog() << "Assembly\n" << "Address\tOpcode\tName\n";
+		revLog() << "Assembly\n" << "Address\t\tOpcode\tName\n";
 		if(_start >= mFlashSize || _start >= _end)
 			return; // There is no code after _start
 		if(_end > mFlashSize)
@@ -88,6 +89,12 @@ namespace rose { namespace component {
 		{
 			showMemoryCell(i);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::simulate(unsigned _cycles)
+	{
+		//
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -144,13 +151,13 @@ namespace rose { namespace component {
 		// Display opcode
 		uint16_t opcode = mFlash[_position];
 		// TODO: Translate opcode names
-		revLog() << _position << "\t" << opcode << "\n";
+		std::cout << std::dec << _position << " (0x" << std::hex << (int)_position << ")\t0x" << opcode << "\n";
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showMemoryCell(unsigned _position) const
 	{
-		revLog() << _position << "\t" << unsigned(mDataSpace[_position]) << "\n";
+		std::cout << "0x" << std::hex << (int)_position << "\t" << unsigned(mDataSpace[_position]) << std::endl;
 	}
 
 }	// namespace component
