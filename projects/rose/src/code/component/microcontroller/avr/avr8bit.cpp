@@ -255,6 +255,10 @@ namespace rose { namespace component {
 		mDispatcherTable[0x25] = &Avr8bit::opcode100101;
 		mDispatcherTable[0x2e] = &Avr8bit::OUT;
 		mDispatcherTable[0x2f] = &Avr8bit::OUT;
+		mDispatcherTable[0x38] = &Avr8bit::LDI;
+		mDispatcherTable[0x39] = &Avr8bit::LDI;
+		mDispatcherTable[0x3a] = &Avr8bit::LDI;
+		mDispatcherTable[0x3b] = &Avr8bit::LDI;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
