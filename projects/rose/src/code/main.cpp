@@ -5,14 +5,16 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
-#include <codeTools/log/log.h>
 #include <iostream>
+#include <string>
 
+#include <codeTools/log/log.h>
 #include <component/microcontroller/avr/avr8bit.h>
 
 using namespace rev;
 
 using rose::component::Avr8bit;
+using namespace std;
 
 int main()
 {
@@ -25,12 +27,46 @@ int main()
 	Avr8bit * core = new Avr8bit(256, 8);
 	revLog() << "Success\n";
 	core->loadProgram("ciervaPilot.hex");
-	revLog() << "Run 10 cycles\n";
-	core->simulate(10);
 	core->reset();
-	core->showAssembly(110, 120);
-	core->showMemory(0x21f0, 0x2200);
 
+	bool exit = false;
+	while(!exit)
+	{
+		cout << "---";
+		string instruction;
+		cin >> instruction;
+		switch(instruction[0])
+		{
+			case 's': // Simulate
+			{
+				unsigned cycles;
+				cin >> cycles;
+				revLog() << "Simulate " << cycles << " cycles\n";
+				core->simulate(cycles);
+				core->showExecutionStatus();
+				break;
+			}
+			case 'a': // Assembly
+			{
+				unsigned start, end;
+				cin >> start >> end;
+				core->showAssembly(start, end);
+				break;
+			}
+			case 'm': // Memory
+			{
+				unsigned start, end;
+				cin >> start >> end;
+				core->showMemory(start, end);
+				break;
+			}
+			case 'q': // Quit
+			{
+				exit = true;
+				break;
+			}
+		}
+	}
 
 	// House keeping
 	codeTools::Log::end();

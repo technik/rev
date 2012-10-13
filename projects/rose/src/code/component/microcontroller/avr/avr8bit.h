@@ -9,6 +9,7 @@
 #define _ROSE_COMPONENT_MICROCONTROLLER_AVR_AVR8BIT_H_
 
 #include <cstdint>
+#include <vector>
 
 #include "avrIOMemory.h"
 
@@ -34,7 +35,7 @@ namespace rose { namespace component {
 																///< displayed.
 		void		showMemory		(unsigned _start,			///< Show a region of flash memory delimited by _start
 									unsigned _end) const;		///< and _end in the same way as 'showAssembly'.
-
+		void 		showExecutionStatus() const;				///< Shows the current status of program execution.
 		bool		simulate		(unsigned _cycles);			///< Run current program for the given cycles. This method
 																///< completely ignores breakpoints and debugging aids in
 																///< order to get the best performance.
@@ -72,6 +73,12 @@ namespace rose { namespace component {
 		void		updateTimers			(unsigned _cycles);
 		uint8_t&	statusRegister			();
 		uint8_t		statusRegister			() const;
+		uint8_t		readSRAM				(unsigned idx) const {return mDataSpace[idx];}
+		void		writeToSRAM				(unsigned idx, uint8_t _val) { mDataSpace[idx] = _val;}
+		uint16_t	stackPointer			() const;
+		void		setStackPointer			(uint16_t _sp);
+		void		pop 					(unsigned _n, void * _dst);
+		void 		push					(unsigned _n, void * _data);
 
 	private:
 		// Virtual memories
@@ -85,21 +92,34 @@ namespace rose { namespace component {
 		unsigned		mProgramCounter;
 		uint16_t		mCurOpcode;
 		unsigned		mDelayedCycles;
-		unsigned long	mTotalSimulatedInstructions;
 
 		// Cache
 		typedef unsigned (Avr8bit::*OpcodeDispatcher)();		///< Opcode dispatcher functions are the entry
 		OpcodeDispatcher*	mExecutionTable;
 		OpcodeDispatcher*	mDispatcherTable;
 
+		// Debug
+		unsigned long	mTotalSimulatedInstructions;
+		std::vector<unsigned>	mCallStack;
+
 	private:
 		// Instruction set
 		unsigned	unsupportedOpcode	();
+		unsigned	opcode100100		();
 		unsigned	opcode100101		();
+		unsigned	BRBC				();
+		unsigned	CALL				();
+		unsigned	CPC					();
+		unsigned	CPI					();
 		unsigned	EOR					();
+		unsigned	IN 					();
 		unsigned	JMP					();
 		unsigned	LDI					();
 		unsigned	OUT					();
+		unsigned	POP 				();
+		unsigned	PUSH 				();
+		unsigned	RET 				();
+		unsigned	RJMP				();
 	};
 
 }	// namespace component
