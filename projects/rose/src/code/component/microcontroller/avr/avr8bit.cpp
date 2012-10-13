@@ -354,8 +354,18 @@ namespace rose { namespace component {
 			return CALL();
 		else if(mCurOpcode == 0x9508)
 			return RET();
+		else if((mCurOpcode&0xff88)==0x9488)
+			return BCLR();
 		else
 			return unsupportedOpcode();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::BCLR()
+	{
+		uint8_t s = (mCurOpcode>>4)&0x7;
+		statusRegister() &= ~(1<<s);
+		return 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

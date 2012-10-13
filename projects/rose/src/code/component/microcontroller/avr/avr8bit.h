@@ -107,6 +107,7 @@ namespace rose { namespace component {
 		unsigned	unsupportedOpcode	();
 		unsigned	opcode100100		();
 		unsigned	opcode100101		();
+		unsigned	BCLR				();
 		unsigned	BRBC				();
 		unsigned	CALL				();
 		unsigned	CPC					();
