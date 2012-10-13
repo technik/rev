@@ -105,6 +105,8 @@ namespace rose { namespace component {
 	private:
 		// Instruction set
 		unsigned	unsupportedOpcode	();
+		unsigned 	opcode000000		();
+		unsigned	opcode100000		();
 		unsigned	opcode100100		();
 		unsigned	opcode100101		();
 		unsigned	BCLR				();
@@ -116,11 +118,16 @@ namespace rose { namespace component {
 		unsigned	IN 					();
 		unsigned	JMP					();
 		unsigned	LDI					();
+		unsigned	LDZ1				();
+		unsigned	MOVW				();
 		unsigned	OUT					();
 		unsigned	POP 				();
 		unsigned	PUSH 				();
 		unsigned	RET 				();
 		unsigned	RJMP				();
+		unsigned 	STZ1				();
+		unsigned	SUB					();
+		unsigned	SUBI				();
 	};
 
 }	// namespace component

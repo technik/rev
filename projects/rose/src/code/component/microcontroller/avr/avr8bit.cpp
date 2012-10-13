@@ -297,7 +297,10 @@ namespace rose { namespace component {
 		for(unsigned i = 0; i < 64; ++i)
 			mDispatcherTable[i] = &Avr8bit::unsupportedOpcode;
 
+		mDispatcherTable[0x00] = &Avr8bit::opcode000000;
 		mDispatcherTable[0x01] = &Avr8bit::CPC;
+
+		mDispatcherTable[0x06] = &Avr8bit::SUB;
 
 		mDispatcherTable[0x09] = &Avr8bit::EOR;
 
@@ -305,6 +308,13 @@ namespace rose { namespace component {
 		mDispatcherTable[0x0d] = &Avr8bit::CPI;
 		mDispatcherTable[0x0e] = &Avr8bit::CPI;
 		mDispatcherTable[0x0f] = &Avr8bit::CPI;
+
+		mDispatcherTable[0x14] = &Avr8bit::SUBI;
+		mDispatcherTable[0x15] = &Avr8bit::SUBI;
+		mDispatcherTable[0x16] = &Avr8bit::SUBI;
+		mDispatcherTable[0x17] = &Avr8bit::SUBI;
+
+		mDispatcherTable[0x20] = &Avr8bit::opcode100000;
 
 		mDispatcherTable[0x24] = &Avr8bit::opcode100100;
 		mDispatcherTable[0x25] = &Avr8bit::opcode100101;
@@ -335,6 +345,27 @@ namespace rose { namespace component {
 		return 0;
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::opcode000000()
+	{
+		if(0x00 == mCurOpcode)
+			return 1; // NOP
+		else if((mCurOpcode&0xfe00)==0x00)
+			return MOVW();
+		else
+			return unsupportedOpcode();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::opcode100000()
+	{
+		if((mCurOpcode&0xfe0f)==0x8200)
+			return STZ1();
+		else
+			return unsupportedOpcode();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::opcode100100()
 	{
 		if((mCurOpcode&0xfe0f) == 0x920f)
@@ -496,6 +527,26 @@ namespace rose { namespace component {
 		return 1;
 	}
 
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::LDZ1()
+	{
+		// { CProfileFunction profile("LDZ1"); }
+		unsigned Z = (mIOMemory.read(0x3b)<<16)|(mDataSpace[0x1f])|(mDataSpace[0x1e]);
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		mDataSpace[d] = readSRAM(Z);
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::MOVW()
+	{
+		uint8_t r = (mCurOpcode & 0xf) << 1;
+		uint8_t d = (mCurOpcode & 0xf0) >> 3;
+		mDataSpace[d++] = mDataSpace[r++];
+		mDataSpace[d] = mDataSpace[r];
+		return 1;
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::OUT()
 	{
@@ -542,6 +593,67 @@ namespace rose { namespace component {
 		mProgramCounter += relAddress;
 		rev::revAssert(mProgramCounter < mFlashSize);
 		return 2;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::STZ1()
+	{
+		uint8_t r = (mCurOpcode>>4) & 0x1f;
+		unsigned Z = (mIOMemory.read(0x3b)<<16) |(mDataSpace[0x1f]<<8) | mDataSpace[0x1e];
+		writeToSRAM(Z, mDataSpace[r]);
+
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::SUB()
+	{
+		uint8_t d = (mCurOpcode >> 4) & 0x1f;
+		uint8_t Rd = mDataSpace[d];
+		uint8_t r = ((mCurOpcode & 0x0f) | ((mCurOpcode >> 5) & 0x10));
+		uint8_t Rr = mDataSpace[r];
+		uint8_t R = Rd - Rr;
+		statusRegister() &= 0xC0;
+		unsigned Rr3 = (Rr>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = ((!Rd3)&&Rr3) || (Rr3&&R3) || (R3&&!Rd3);
+		unsigned Rr7 = (Rr>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&(!Rr7)&&!R7)||((!Rd7)&&Rr7&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		unsigned Z = R==0?1:0;
+		unsigned C = ((!Rd7)&&Rr7) || (Rr7&&R7) || (R7&&!Rd7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::SUBI()
+	{
+		uint8_t d = 0x10 | ((mCurOpcode >> 4) & 0xf );
+		uint8_t Rd = mDataSpace[d];
+		uint8_t K = ((mCurOpcode >> 4) & 0xf0) | (mCurOpcode & 0xf);
+		uint8_t R = Rd - K;
+		statusRegister() &= 0xC0;
+		unsigned K3 = (K>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = ((!Rd3)&&K3) || (K3&&R3) || (R3&&!Rd3);
+		unsigned K7 = (K>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&(!K7)&&!R7)||((!Rd7)&&K7&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		unsigned Z = R==0?1:0;
+		unsigned C = ((!Rd7)&&K7) || (K7&&R7) || (R7&&!Rd7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
 	}
 
 }	// namespace component
