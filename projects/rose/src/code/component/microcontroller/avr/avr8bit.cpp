@@ -293,12 +293,20 @@ namespace rose { namespace component {
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::JMP()
 	{
-		//CProfileFunction profile("JMP");
 		unsigned addressH = ((mCurOpcode & 0x01f1) >> 3) | (mCurOpcode & 0x1);
 		unsigned addressL = mFlash[mProgramCounter];
 		mProgramCounter = (addressH << 16) | addressL;
 		rev::revAssert(mProgramCounter < mFlashSize);
 		return 3;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::LDI()
+	{
+		uint8_t data = ((mCurOpcode & 0x0f00)>>4) | (mCurOpcode & 0x000f);
+		uint8_t r = 0x10 | ((mCurOpcode & 0x00f0) >> 4);
+		mDataSpace[r] = data;
+		return 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -98,6 +98,7 @@ namespace rose { namespace component {
 		unsigned	opcode100101		();
 		unsigned	EOR					();
 		unsigned	JMP					();
+		unsigned	LDI					();
 		unsigned	OUT					();
 	};
 
