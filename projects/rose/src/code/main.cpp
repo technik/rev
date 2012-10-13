@@ -25,9 +25,12 @@ int main()
 	Avr8bit * core = new Avr8bit(256, 8);
 	revLog() << "Success\n";
 	core->loadProgram("ciervaPilot.hex");
+	revLog() << "Run 10 cycles\n";
+	core->simulate(10);
 	core->reset();
-	core->showAssembly(150, 160);
+	core->showAssembly(110, 120);
 	core->showMemory(0x21f0, 0x2200);
+
 
 	// House keeping
 	codeTools::Log::end();

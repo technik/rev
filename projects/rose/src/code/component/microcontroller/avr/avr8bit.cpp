@@ -22,9 +22,19 @@ namespace rose { namespace component {
 	Avr8bit::Avr8bit(unsigned _flash, unsigned _ram)
 		:mFlashSize(_flash * 512) // slots = _kilobytes * 1024 / 2.
 		,mDataSize(_ram * 1024 + 0x200) // Data memory + register file + i/o memory + extended i/o memory.
+		,mProgramCounter(0)
+		,mCurOpcode(0)
+		,mDelayedCycles(0)
+		,mTotalSimulatedInstructions(0)
+		,mDispatcherTable(nullptr)
 	{
+		// Allocate program memory and execution cache
 		mFlash = new uint16_t[mFlashSize];
+		mExecutionTable = new OpcodeDispatcher[mFlashSize];
+
+		// Allocate data memories
 		mDataSpace = new uint8_t[mDataSize];
+		new(&mIOMemory) AvrIOMemory(mDataSpace);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -32,6 +42,9 @@ namespace rose { namespace component {
 	{
 		delete[] mFlash;
 		delete[] mDataSpace;
+		delete[] mExecutionTable;
+		if(nullptr != mDispatcherTable)
+			delete[] mDispatcherTable;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -45,6 +58,7 @@ namespace rose { namespace component {
 		File * hexFile = File::open(_filename);
 		if(!hexFile)
 			return false;
+		// Process the file and load contents to flash memory
 		const char * hexCode = hexFile->bufferAsText();
 		bool reachedEndOfFile = false;
 		unsigned hexLineIndex = 0;
@@ -53,6 +67,10 @@ namespace rose { namespace component {
 			reachedEndOfFile = processHexLine(hexCode, hexLineIndex);
 		}
 		delete hexFile;
+
+		// Once we have the program loaded into the flash memory, we can compute the cached execution table
+		// to speed up the emulation
+		generateExecutionTable();
 		return true;
 	}
 
@@ -92,9 +110,30 @@ namespace rose { namespace component {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Avr8bit::simulate(unsigned _cycles)
+	bool Avr8bit::simulate(unsigned _cycles)
 	{
-		//
+		if(_cycles > mDelayedCycles)
+		{
+			// Clear delayed cycles
+			_cycles -= mDelayedCycles;
+			mDelayedCycles = 0;
+			// Actually run some instructions
+			while(_cycles > 0)
+			{
+				// Execute just one instruction
+				unsigned cyclesElapsedByInstruction = executeOneInstruction();
+				if(0 == cyclesElapsedByInstruction)
+					return false; // Failure on execution.
+				// Update cycle count
+				if(cyclesElapsedByInstruction > _cycles)
+					_cycles = 0;
+				else _cycles -= cyclesElapsedByInstruction;
+				// Update internal timers of the microcontroller
+				updateTimers(cyclesElapsedByInstruction);
+			}
+		}
+		else mDelayedCycles -= _cycles; // Not enough cycles to run anything
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -151,13 +190,124 @@ namespace rose { namespace component {
 		// Display opcode
 		uint16_t opcode = mFlash[_position];
 		// TODO: Translate opcode names
-		std::cout << std::dec << _position << " (0x" << std::hex << (int)_position << ")\t0x" << opcode << "\n";
+		std::cout << std::dec << _position << "\t(0x" << std::hex << (int)_position << ")\t0x" << opcode << "\n";
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showMemoryCell(unsigned _position) const
 	{
 		std::cout << "0x" << std::hex << (int)_position << "\t" << unsigned(mDataSpace[_position]) << std::endl;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::executeOneInstruction()
+	{
+		mCurOpcode = mFlash[mProgramCounter];
+		++mTotalSimulatedInstructions;
+		return (this->*(mExecutionTable[mProgramCounter++]))();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::updateTimers(unsigned _cycles)
+	{
+		(void)_cycles;
+		// TODO: support timers
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	uint8_t& Avr8bit::statusRegister()
+	{
+		return mDataSpace[0x5f];
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	uint8_t Avr8bit::statusRegister() const
+	{
+		return mDataSpace[0x5f];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::generateExecutionTable()
+	{
+		// Create an opcode dispatcher table
+		createOpcodeDispatcher();
+		// Use the opcode dispatcher to fill the execution table
+		for(unsigned i = 0; i < mFlashSize; ++i)
+		{
+			// Fill the execution table by indexing the dispatcher with the corresponding opcode
+			mExecutionTable[i] = mDispatcherTable[mFlash[i] >> 10];
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::createOpcodeDispatcher()
+	{
+		if(nullptr != mDispatcherTable)
+			return; // The table already exists
+
+		mDispatcherTable = new OpcodeDispatcher[64];
+
+		// Fill execution table with invalid instructions
+		for(unsigned i = 0; i < 64; ++i)
+			mDispatcherTable[i] = &Avr8bit::unsupportedOpcode;
+
+		mDispatcherTable[0x09] = &Avr8bit::EOR;
+		mDispatcherTable[0x25] = &Avr8bit::opcode100101;
+		mDispatcherTable[0x2e] = &Avr8bit::OUT;
+		mDispatcherTable[0x2f] = &Avr8bit::OUT;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::unsupportedOpcode()
+	{
+		std::cout << "Unsuported opcode: 0x"	<< std::hex << mCurOpcode << std::dec << std::endl;
+		std::cout << "Program counter = " << mProgramCounter-1 << std::endl;
+		std::cout << "Total simulated instructions = " << mTotalSimulatedInstructions << std::endl;
+		return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::opcode100101()
+	{
+		if((mCurOpcode&0xfe0e) == 0x940c)
+			return JMP();
+		else
+			return unsupportedOpcode();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::EOR()
+	{
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t r = ((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f);
+		mDataSpace[d] = mDataSpace[d] ^ mDataSpace[r];
+		// Update status register
+		statusRegister() &= 0xE1;
+		uint8_t N = ((mDataSpace[d]>>7) & 1)? 1 : 0;
+		uint8_t S = N;
+		uint8_t Z = (mDataSpace[d] == 0x00) ? 1 : 0;
+		statusRegister() |= (S<<4) | (N<<2) | (Z<<1);
+		return 1;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::JMP()
+	{
+		//CProfileFunction profile("JMP");
+		unsigned addressH = ((mCurOpcode & 0x01f1) >> 3) | (mCurOpcode & 0x1);
+		unsigned addressL = mFlash[mProgramCounter];
+		mProgramCounter = (addressH << 16) | addressL;
+		rev::revAssert(mProgramCounter < mFlashSize);
+		return 3;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::OUT()
+	{
+		uint8_t r = (mCurOpcode & 0x1f0) >> 4;
+		uint8_t A = ((mCurOpcode & 0x600) >> 5) | (mCurOpcode & 0x0f);
+		mIOMemory.write(A, mDataSpace[r]);
+		return 1;
 	}
 
 }	// namespace component

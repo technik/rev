@@ -10,6 +10,8 @@
 
 #include <cstdint>
 
+#include "avrIOMemory.h"
+
 namespace rose { namespace component {
 	
 	class Avr8bit
@@ -33,9 +35,10 @@ namespace rose { namespace component {
 		void		showMemory		(unsigned _start,			///< Show a region of flash memory delimited by _start
 									unsigned _end) const;		///< and _end in the same way as 'showAssembly'.
 
-		void		simulate		(unsigned _cycles);			///< Run current program for the given cycles. This method
+		bool		simulate		(unsigned _cycles);			///< Run current program for the given cycles. This method
 																///< completely ignores breakpoints and debugging aids in
-																///< order to get the best performance 
+																///< order to get the best performance.
+																///< Returns true if execution succeded and false on failure. 
 		unsigned	step			();							///< Runs the program until the next instruction is reached.
 																///< This usually means running just one instruction but in
 																///< case of interrupt, the whole interrupt routine will be
@@ -60,18 +63,42 @@ namespace rose { namespace component {
 		void showAssemblyInstruction(unsigned _position) const;
 		void showMemoryCell			(unsigned _position) const;
 
+		// Cache related
+		void		generateExecutionTable	();
+		void		createOpcodeDispatcher	();
+
 		// Program execution
 		unsigned	executeOneInstruction	();					///< Returns elapsed cycles
-		void		updateTimers			();
+		void		updateTimers			(unsigned _cycles);
+		uint8_t&	statusRegister			();
+		uint8_t		statusRegister			() const;
 
 	private:
 		// Virtual memories
-		uint16_t*	mFlash;		///< Flash memory
-		unsigned	mFlashSize;	///< Size of flash memory in slots (not in kilobytes).
-		uint8_t*	mDataSpace;
-		unsigned	mDataSize;
+		uint16_t*		mFlash;		///< Flash memory
+		unsigned		mFlashSize;	///< Size of flash memory in slots (not in kilobytes).
+		uint8_t*		mDataSpace;
+		unsigned		mDataSize;
+		AvrIOMemory		mIOMemory;
+
+		//Execution control
+		unsigned		mProgramCounter;
+		uint16_t		mCurOpcode;
+		unsigned		mDelayedCycles;
+		unsigned long	mTotalSimulatedInstructions;
 
 		// Cache
+		typedef unsigned (Avr8bit::*OpcodeDispatcher)();		///< Opcode dispatcher functions are the entry
+		OpcodeDispatcher*	mExecutionTable;
+		OpcodeDispatcher*	mDispatcherTable;
+
+	private:
+		// Instruction set
+		unsigned	unsupportedOpcode	();
+		unsigned	opcode100101		();
+		unsigned	EOR					();
+		unsigned	JMP					();
+		unsigned	OUT					();
 	};
 
 }	// namespace component
