@@ -9,12 +9,15 @@
 
 #include <cstdint>
 #include <iostream>
+#include <sstream>
 
 #include <codeTools/assert/assert.h>
 #include <codeTools/log/log.h>
 #include <file/file.h>
 using rev::File;
 using rev::revLog;
+
+using namespace std;
 
 namespace rose { namespace component {
 
@@ -35,6 +38,9 @@ namespace rose { namespace component {
 		// Allocate data memories
 		mDataSpace = new uint8_t[mDataSize];
 		new(&mIOMemory) AvrIOMemory(mDataSpace);
+
+		// Debug information
+		mOpcodeNames = new string[mFlashSize];
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -43,6 +49,7 @@ namespace rose { namespace component {
 		delete[] mFlash;
 		delete[] mDataSpace;
 		delete[] mExecutionTable;
+		delete[] mOpcodeNames;
 		if(nullptr != mDispatcherTable)
 			delete[] mDispatcherTable;
 	}
@@ -71,6 +78,7 @@ namespace rose { namespace component {
 		// Once we have the program loaded into the flash memory, we can compute the cached execution table
 		// to speed up the emulation
 		generateExecutionTable();
+		generateOpcodeNames();
 		return true;
 	}
 
@@ -197,14 +205,15 @@ namespace rose { namespace component {
 		// Display opcode
 		uint16_t opcode = mFlash[_position];
 		// TODO: Translate opcode names
-		std::cout << std::dec << _position << "\t(0x" << std::hex << (int)_position << ")\t0x" << opcode << "\n";
+		cout << dec << _position << "\t(0x" << hex << (int)_position << ")\t0x" << opcode;
+		cout << "\t" << mOpcodeNames[_position] << endl;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showMemoryCell(unsigned _position) const
 	{
-		std::cout << "0x" << std::hex << (int)_position << "\t" << unsigned(mDataSpace[_position]) 
-		<< std::dec << std::endl;
+		cout << "0x" << hex << (int)_position << "\t" << unsigned(mDataSpace[_position]) 
+		<< dec << endl;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -286,6 +295,316 @@ namespace rose { namespace component {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::generateOpcodeNames()
+	{
+		// Initialize tha table
+		for(unsigned i = 0; i < mFlashSize; ++i)
+		{
+			uint16_t opcode = mFlash[i];
+			mOpcodeNames[i] = "--- Unknown Opcode ---";
+			unsigned hash = opcode >> 10;
+			switch(hash)
+			{
+				case 0:
+				{
+					if(0x00 == opcode)
+						mOpcodeNames[i] = "NOP: No operation";
+					else if((0x0300&opcode)==0x0100)
+					{
+						uint8_t r = (opcode & 0xf) << 1;
+						uint8_t d = (opcode & 0xf0) >> 3;
+						stringstream name;
+						name << "MOVW d:" << (int)d << " <- r:" << (int)r;
+						mOpcodeNames[i] = name.str();
+					}
+					break;
+				}
+				case 1:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "CPC d:" << (int)d << " - r:" << (int)r << " - C";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 2:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "SBC d <- d:" << (int)d << " - r:" << (int)r << " - C";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 3:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "ADD d:" << (int)d << " += r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 4:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "CPSE if d:" << (int)d << "==r:" << (int)r << " -> Skip";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 5:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "CP d:" << (int)d << " - r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 6:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "SUB d:" << (int)d << " -= r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 7:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "ADC d:" << (int)d << " r:" << (int)r << " + C";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 8:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "AND d <- d:" << (int)d << " & r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 9:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "EOR d <- d:" << (int)d << " ^ r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 10:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "OR d <- d:" << (int)d << " | r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 11:
+				{
+					stringstream name;
+					uint8_t d = (opcode>>4) & 0x1f;
+					uint8_t r = ((opcode>>5)&0x10) | (opcode&0x0f);
+					name << "MOV d:" << (int)d << " <- r:" << (int)r;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+				{
+					stringstream name;
+					uint8_t d = 0x10 |((opcode>>4) & 0xf);
+					uint8_t K = ((opcode>>4) & 0xf0) | (opcode & 0xf);
+					name << "CPI d:" << (int)d << " - K:" << (int)K;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+				{
+					stringstream name;
+					uint8_t d = 0x10 |((opcode>>4) & 0xf);
+					uint8_t K = ((opcode>>4) & 0xf0) | (opcode & 0xf);
+					name << "SBCI d <- d:" << (int)d << " - K:" << (int)K << " -C";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				{
+					stringstream name;
+					uint8_t d = 0x10 |((opcode>>4) & 0xf);
+					uint8_t K = ((opcode>>4) & 0xf0) | (opcode & 0xf);
+					name << "SUBI d <- d:" << (int)d << " - K:" << (int)K;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 24:
+				case 25:
+				case 26:
+				case 27:
+				{
+					stringstream name;
+					uint8_t d = 0x10 |((opcode>>4) & 0xf);
+					uint8_t K = ((opcode>>4) & 0xf0) | (opcode & 0xf);
+					name << "ORI d <- d:" << (int)d << " | K:" << (int)K;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 28:
+				case 29:
+				case 30:
+				case 31:
+				{
+					stringstream name;
+					uint8_t d = 0x10 |((opcode>>4) & 0xf);
+					uint8_t K = ((opcode>>4) & 0xf0) | (opcode & 0xf);
+					name << "ANDI d <- d:" << (int)d << " & K:" << (int)K;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 32:
+				{
+					stringstream name;
+					if(opcode&0x0200)
+					{
+						int r = (opcode>>4)&0x1f;
+						name << "STZ(1) (Z++) <- r:" << r;
+						mOpcodeNames[i] = name.str();
+					}
+					break;
+				}
+				case 36:
+				{
+					stringstream name;
+					int r = (opcode>>4)&0x1f;
+					if((opcode&0xfe0f)==0x9007) // ELPM3
+					{
+						name << "ELPM(3) d:" << r << " <- *((RAMPZ:Z)++)";
+						mOpcodeNames[i] = name.str();
+					}
+					else if((opcode&0xfe0f)==0x920d)
+					{
+						name << "ST (X++) <- r:" << r;
+						mOpcodeNames[i] = name.str();
+					}else if((opcode&0xfe0f) == 0x920f)
+					{
+						name << "PUSH (SP--) <- r:" << r;
+						mOpcodeNames[i] = name.str();
+					}
+					else if((opcode&0xfe0f) == 0x900f)
+					{
+						name << "POP d:" << r << " <- (++SP))";
+						mOpcodeNames[i] = name.str();
+					}
+					break;
+				}
+				case 37:
+				{
+					stringstream name;
+					//int s = (opcode>>4)&0x7;
+					//int K = (opcode>>4)&0xf;
+					//int d = (opcode>>4)&0x1f;
+					unsigned k = ((opcode&0x1f0)<<13)|((opcode&0x01)<<16)|mFlash[i+1];
+					if((opcode&0xfe0e)==0x940c)
+					{
+						name << "JMP PC <- k:" << k;
+						if(k == 0)
+							name << " // Reset";
+						mOpcodeNames[i] = name.str();
+						++i;
+					}
+					else if((opcode&0xfe0e)==0x940e)
+					{
+						name << "CALL PC <- k:" << k;
+						mOpcodeNames[i] = name.str();
+						++i;
+					}
+					else if(opcode == 0x9508)
+					{
+						mOpcodeNames[i] = "RET";
+					}
+					else if((opcode&0xff8f)==0x9488)
+					{
+						name << "BLCR s:" << ((opcode>>4)&0x7);
+						mOpcodeNames[i] = name.str();
+					}
+					break;
+				}
+				case 44:
+				case 45:
+				{
+					stringstream name;
+					int d = (opcode>>4) & 0x1f;
+					int A = ((opcode >> 5)&0x30) | (opcode&0xf);
+					name << "IN d:" << d << " <- A:0x" << hex << A << " (0x" << A+0x20  << dec << ")";
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 46:
+				case 47:
+				{
+					stringstream name;
+					int d = (opcode>>4) & 0x1f;
+					int A = ((opcode >> 5)&0x30) | (opcode&0xf);
+					name << "OUT A:0x" << hex << A << " (0x" << A+0x20  << dec <<") <- d:" << d;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 48:
+				case 49:
+				case 50:
+				case 51:
+				{
+					stringstream name;
+					int16_t k = opcode&0xfff;
+					if(k&0x800) // negative
+						k |= 0xf000; // Extend sign
+					name << "RJMP PC += " << int(k);
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 56:
+				case 57:
+				case 58:
+				case 59:
+				{
+					stringstream name;
+					int d = 0x10 | ((opcode>>4)&0x0f);
+					int K = ((opcode>>4)&0xf0)|(opcode&0xf);
+					name << "LDI d:" << d << " <- " << K << hex << "(0x" << K << ")" << dec;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+				case 61:
+				{
+					stringstream name;
+					uint8_t s = mCurOpcode & 0x7;
+					uint8_t k = (mCurOpcode>>3) & 0x7f;
+					name << "BRBC s:" << s << ", k:"<< k;
+					mOpcodeNames[i] = name.str();
+					break;
+				}
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::createOpcodeDispatcher()
 	{
 		if(nullptr != mDispatcherTable)
@@ -340,7 +659,8 @@ namespace rose { namespace component {
 	unsigned Avr8bit::unsupportedOpcode()
 	{
 		std::cout << "Unsuported opcode: 0x"	<< std::hex << mCurOpcode << std::dec << std::endl;
-		std::cout << "Program counter = " << mProgramCounter-1 << std::endl;
+		showAssemblyInstruction(mProgramCounter-1);
+		std::cout << "Program counter = " << dec << mProgramCounter-1 << std::endl;
 		std::cout << "Total simulated instructions = " << mTotalSimulatedInstructions << std::endl;
 		return 0;
 	}
@@ -372,6 +692,10 @@ namespace rose { namespace component {
 			return PUSH();
 		else if((mCurOpcode&0xfe0f) == 0x900f)
 			return POP();
+		else if((mCurOpcode&0xfe0f) == 0x920d)
+			return ST();
+		else if((mCurOpcode&0xfe0c)==0x9004)
+			return LPM();
 		else
 			return unsupportedOpcode();
 	}
@@ -538,6 +862,24 @@ namespace rose { namespace component {
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::LPM() // Must support lpm2, lpm3, elpm2 and elmp3
+	{
+		uint8_t d = (mCurOpcode>>4)&0x1f;
+		bool extended = mCurOpcode & 0x02 ? true : false;
+		unsigned Z = (extended?(mIOMemory.read(0x3b)<<16):0) | (mDataSpace[0x1f]<<8) | mDataSpace[0x1e];
+		char * flash = reinterpret_cast<char*>(mFlash);
+		mDataSpace[d] = flash[Z];
+		if(mCurOpcode & 0x01) // Increment Z
+		{
+			++Z;
+			mDataSpace[0x1e] = Z & 0xff;
+			mDataSpace[0x1f] = (Z>>8) & 0xff;
+			mIOMemory.write(0x3b, (Z>>16) & 0x03);
+		}
+		return 3;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::MOVW()
 	{
 		uint8_t r = (mCurOpcode & 0xf) << 1;
@@ -592,6 +934,33 @@ namespace rose { namespace component {
 			relAddress = hexOffset;
 		mProgramCounter += relAddress;
 		rev::revAssert(mProgramCounter < mFlashSize);
+		return 2;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::STS()
+	{
+		uint8_t r = (mCurOpcode&0x1f0)>>4;
+		unsigned k = mFlash[mProgramCounter++];
+		writeToSRAM(k, mDataSpace[r]);
+		return 2;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::ST()
+	{
+		uint8_t r = (mCurOpcode&0x1f0)>>4;
+		uint8_t pointerSel = (mCurOpcode>>2) & 0x3;
+		uint8_t rPointer = pointerSel?(0x20-(2*pointerSel)):0x1e;
+		unsigned pointer = (mDataSpace[rPointer+1]<<8) | mDataSpace[rPointer];
+
+		pointer -= (mCurOpcode & 0x2) ? 1:0;
+		writeToSRAM(pointer & 0xffff, mDataSpace[r]);
+		pointer += (mCurOpcode & 0x1) ? 1:0;
+
+		mDataSpace[rPointer] = pointer & 0xff;
+		mDataSpace[rPointer+1] = (pointer>>8) & 0xff;
+
 		return 2;
 	}
 

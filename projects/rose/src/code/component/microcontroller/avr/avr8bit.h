@@ -9,6 +9,7 @@
 #define _ROSE_COMPONENT_MICROCONTROLLER_AVR_AVR8BIT_H_
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "avrIOMemory.h"
@@ -66,6 +67,7 @@ namespace rose { namespace component {
 
 		// Cache related
 		void		generateExecutionTable	();
+		void		generateOpcodeNames		();
 		void		createOpcodeDispatcher	();
 
 		// Program execution
@@ -101,6 +103,7 @@ namespace rose { namespace component {
 		// Debug
 		unsigned long	mTotalSimulatedInstructions;
 		std::vector<unsigned>	mCallStack;
+		std::string*			mOpcodeNames;
 
 	private:
 		// Instruction set
@@ -119,12 +122,15 @@ namespace rose { namespace component {
 		unsigned	JMP					();
 		unsigned	LDI					();
 		unsigned	LDZ1				();
+		unsigned	LPM 				();
 		unsigned	MOVW				();
 		unsigned	OUT					();
 		unsigned	POP 				();
 		unsigned	PUSH 				();
 		unsigned	RET 				();
 		unsigned	RJMP				();
+		unsigned	ST 					();
+		unsigned	STS 				();
 		unsigned 	STZ1				();
 		unsigned	SUB					();
 		unsigned	SUBI				();
