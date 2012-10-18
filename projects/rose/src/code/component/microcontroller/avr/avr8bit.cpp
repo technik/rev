@@ -90,6 +90,18 @@ namespace rose { namespace component {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::setBreakpoint(unsigned _instruction)
+	{
+		mBreakpoints.insert(_instruction);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Avr8bit::removeBreakpoint(unsigned _instruction)
+	{
+		mBreakpoints.erase(_instruction);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showAssembly(unsigned _start, unsigned _end) const
 	{
 		revLog() << "Assembly\n" << "Address\t\tOpcode\tName\n";
@@ -120,7 +132,7 @@ namespace rose { namespace component {
 	//------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::showExecutionStatus() const
 	{
-		std::cout << "Program Counter = " << mProgramCounter << std::endl
+		std::cout << "Program Counter = " << dec << mProgramCounter << std::endl
 				  << "Simulated instructions = " << mTotalSimulatedInstructions << std::endl;
 	}
 
@@ -149,6 +161,25 @@ namespace rose { namespace component {
 		}
 		else mDelayedCycles -= _cycles; // Not enough cycles to run anything
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::step()
+	{
+		// TODO: Support interrupts
+		unsigned elapsedCycles = executeOneInstruction();
+		showAssemblyInstruction(mProgramCounter);
+		return elapsedCycles;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::run()
+	{
+		unsigned cycles = 0;
+		while(mBreakpoints.find(mProgramCounter) == mBreakpoints.end())
+			cycles += step();
+		showExecutionStatus();
+		return cycles;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -205,7 +236,7 @@ namespace rose { namespace component {
 		// Display opcode
 		uint16_t opcode = mFlash[_position];
 		// TODO: Translate opcode names
-		cout << dec << _position << "\t(0x" << hex << (int)_position << ")\t0x" << opcode;
+		cout << dec << _position << "\t(0x" << hex << (int)_position << dec << ")\t0x" << opcode;
 		cout << "\t" << mOpcodeNames[_position] << endl;
 	}
 
@@ -269,7 +300,7 @@ namespace rose { namespace component {
 		setStackPointer(SP);
 	}
 
-		//-------------------------------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------------------------------
 	void Avr8bit::push(unsigned _n, void * _data)
 	{
 		uint8_t * bytes = (uint8_t*)_data;
@@ -279,6 +310,14 @@ namespace rose { namespace component {
 			writeToSRAM(SP--, bytes[i]);
 		}
 		setStackPointer(SP);
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	bool Avr8bit::isTwoWordInstruction(unsigned _opcode)
+	{
+		unsigned maskedOpcode = _opcode & 0xfe0f;
+		return (((maskedOpcode&0xfc0f)==0x9000) // STS, LDS
+			 || ((maskedOpcode&0xfe0c)==0x940c)); // CALL, JMP
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -596,7 +635,7 @@ namespace rose { namespace component {
 					stringstream name;
 					uint8_t s = mCurOpcode & 0x7;
 					uint8_t k = (mCurOpcode>>3) & 0x7f;
-					name << "BRBC s:" << s << ", k:"<< k;
+					name << "BRBC s:" << (int)s << ", k:"<< (int)k;
 					mOpcodeNames[i] = name.str();
 					break;
 				}
@@ -618,21 +657,35 @@ namespace rose { namespace component {
 
 		mDispatcherTable[0x00] = &Avr8bit::opcode000000;
 		mDispatcherTable[0x01] = &Avr8bit::CPC;
-
+		mDispatcherTable[0x03] = &Avr8bit::ADD;
+		mDispatcherTable[0x04] = &Avr8bit::CPSE;
+		mDispatcherTable[0x05] = &Avr8bit::CP;
 		mDispatcherTable[0x06] = &Avr8bit::SUB;
-
+		mDispatcherTable[0x07] = &Avr8bit::ADC;
+		mDispatcherTable[0x08] = &Avr8bit::AND;
 		mDispatcherTable[0x09] = &Avr8bit::EOR;
-
+		mDispatcherTable[0x0a] = &Avr8bit::OR;
+		mDispatcherTable[0x0b] = &Avr8bit::MOV;
 		mDispatcherTable[0x0c] = &Avr8bit::CPI;
 		mDispatcherTable[0x0d] = &Avr8bit::CPI;
 		mDispatcherTable[0x0e] = &Avr8bit::CPI;
 		mDispatcherTable[0x0f] = &Avr8bit::CPI;
-
+		mDispatcherTable[0x10] = &Avr8bit::SBCI;
+		mDispatcherTable[0x11] = &Avr8bit::SBCI;
+		mDispatcherTable[0x12] = &Avr8bit::SBCI;
+		mDispatcherTable[0x13] = &Avr8bit::SBCI;
 		mDispatcherTable[0x14] = &Avr8bit::SUBI;
 		mDispatcherTable[0x15] = &Avr8bit::SUBI;
 		mDispatcherTable[0x16] = &Avr8bit::SUBI;
 		mDispatcherTable[0x17] = &Avr8bit::SUBI;
-
+		mDispatcherTable[0x18] = &Avr8bit::ORI;
+		mDispatcherTable[0x19] = &Avr8bit::ORI;
+		mDispatcherTable[0x1a] = &Avr8bit::ORI;
+		mDispatcherTable[0x1b] = &Avr8bit::ORI;
+		//mDispatcherTable[0x1c] = &Avr8bit::ANDI;
+		//mDispatcherTable[0x1d] = &Avr8bit::ANDI;
+		//mDispatcherTable[0x1e] = &Avr8bit::ANDI;
+		//mDispatcherTable[0x1f] = &Avr8bit::ANDI;
 		mDispatcherTable[0x20] = &Avr8bit::opcode100000;
 
 		mDispatcherTable[0x24] = &Avr8bit::opcode100100;
@@ -651,7 +704,7 @@ namespace rose { namespace component {
 		mDispatcherTable[0x39] = &Avr8bit::LDI;
 		mDispatcherTable[0x3a] = &Avr8bit::LDI;
 		mDispatcherTable[0x3b] = &Avr8bit::LDI;
-
+		mDispatcherTable[0x3c] = &Avr8bit::BRBS;
 		mDispatcherTable[0x3d] = &Avr8bit::BRBC;
 	}
 
@@ -660,7 +713,7 @@ namespace rose { namespace component {
 	{
 		std::cout << "Unsuported opcode: 0x"	<< std::hex << mCurOpcode << std::dec << std::endl;
 		showAssemblyInstruction(mProgramCounter-1);
-		std::cout << "Program counter = " << dec << mProgramCounter-1 << std::endl;
+		std::cout << "Program counter = " << mProgramCounter-1 << std::endl;
 		std::cout << "Total simulated instructions = " << mTotalSimulatedInstructions << std::endl;
 		return 0;
 	}
@@ -681,6 +734,8 @@ namespace rose { namespace component {
 	{
 		if((mCurOpcode&0xfe0f)==0x8200)
 			return STZ1();
+		else if((mCurOpcode&0xfe0f)==0x8000)
+			return LDZ1();
 		else
 			return unsupportedOpcode();
 	}
@@ -711,8 +766,85 @@ namespace rose { namespace component {
 			return RET();
 		else if((mCurOpcode&0xff88)==0x9488)
 			return BCLR();
+		else if((mCurOpcode&0xff8f)==0x9408)
+			return BSET();
+		else if((mCurOpcode&0xff8f)==0x9400)
+			return COM();
 		else
 			return unsupportedOpcode();
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::ADC()
+	{
+		// {CProfileFunction profile("ADC"); }
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t Rd = mDataSpace[d];
+		uint8_t r = ((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f);
+		uint8_t Rr = mDataSpace[r];
+		unsigned C = statusRegister() & 1;
+		uint8_t R = Rd + Rr + uint8_t(C);
+		statusRegister() &= 0xC0;
+		unsigned Rr3 = (Rr>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = (Rd3&&Rr3) || (Rr3&&!R3) || (Rd3&&!R3);
+		unsigned Rr7 = (Rr>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&Rr7&&!R7)||((!Rd7)&&(!Rr7)&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		unsigned Z = R==0?1:0;
+		C = (Rd7&&Rr7) || (Rr7&&!R7) || (Rd7&&!R7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::ADD()
+	{
+		// { CProfileFunction profile("ADD"); }
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t r = ((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f);
+		uint8_t Rd = mDataSpace[d];
+		uint8_t Rr = mDataSpace[r];
+		uint8_t R = Rd + Rr;
+		statusRegister() &= 0xC0;
+		unsigned Rr3 = (Rr>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = (Rd3&&Rr3) || (Rr3&&!R3) || (Rd3&&!R3);
+		unsigned Rr7 = (Rr>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&Rr7&&!R7)||((!Rd7)&&(!Rr7)&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		unsigned Z = R==0?1:0;
+		unsigned C = (Rd7&&Rr7) || (Rr7&&!R7) || (Rd7&&!R7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::AND()
+	{
+		// { CProfileFunction profile("AND"); }
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t r = ((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f);
+		uint8_t Rd = mDataSpace[d];
+		uint8_t Rr = mDataSpace[r];
+		mDataSpace[d] = Rd & Rr;
+		// Update status register
+		statusRegister() &= 0xE1;
+		uint8_t N = ((mDataSpace[d]>>7) & 1)? 1 : 0;
+		uint8_t S = N;
+		uint8_t Z = (mDataSpace[d]) == 0x00 ? 1 : 0;
+		statusRegister() |= (S<<4) | (N<<2) | (Z<<1);
+		return 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -742,6 +874,35 @@ namespace rose { namespace component {
 		}
 	}
 
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::BRBS()
+	{
+		//CProfileFunction profile("BRBS");
+		uint8_t s = mCurOpcode & 0x7;
+		uint8_t k = (mCurOpcode>>3) & 0x7f;
+		if((statusRegister() & (1<<s)) != 0) // If bit is set
+		{
+			if (k > 63)
+				mProgramCounter -= (128 - k);
+			else
+				mProgramCounter += k;
+			return 2;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::BSET()
+	{
+		//CProfileFunction profile("BSET");
+		uint8_t s = (mCurOpcode>>4)&0x7;
+		statusRegister() |= (1<<s);
+		return 1;
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::CALL()
 	{
@@ -756,6 +917,47 @@ namespace rose { namespace component {
 		rev::revAssert(mProgramCounter < mFlashSize);
 		return 5;
 	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::COM()
+	{
+		// { CProfileFunction profile("COM"); }
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t R = 0xff - mDataSpace[d];
+		uint8_t N = (R>>7) & 1;
+		uint8_t S = N;
+		uint8_t Z = (R==0x00)?1:0;
+		statusRegister() &= 0xE1;
+		statusRegister() |= (S<<4) | (N<<2) | (Z<<1) | 1;
+		mDataSpace[d] = R;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::CP()
+	{
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t Rd = mDataSpace[d];
+		uint8_t r = ((mCurOpcode>>5)&0x10) | (mCurOpcode&0x0f);
+		uint8_t Rr = mDataSpace[r];
+		uint8_t R = Rd - Rr;
+		statusRegister() &= 0xC0;
+		unsigned Rr3 = (Rr>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = ((!Rd3)&&Rr3) || (Rr3&&R3) || (R3&&!Rd3);
+		unsigned Rr7 = (Rr>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&(!Rr7)&&!R7)||((!Rd7)&&Rr7&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		unsigned Z = R==0?1:0;
+		unsigned C = ((!Rd7)&&Rr7) || (Rr7&&R7) || (R7&&!Rd7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		return 1;
+	}
+
 
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::CPC()
@@ -808,6 +1010,62 @@ namespace rose { namespace component {
 		return 1;
 	}
 
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::CPSE()
+	{
+		// CProfileFunction profile("CPC");
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t Rd = mDataSpace[d];
+		uint8_t r = ((mCurOpcode>>5)&0x10) | (mCurOpcode&0x0f);
+		uint8_t Rr = mDataSpace[r];
+		if(Rr == Rd)
+		{
+			if(isTwoWordInstruction(mFlash[mProgramCounter]))
+			{
+				mProgramCounter += 2;
+				return 3;
+			}
+			else
+			{
+				++mProgramCounter;
+				return 2;
+			}
+		}
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::DEC()
+	{
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t rd = mDataSpace[d];
+		uint8_t R = rd-1;
+		uint8_t V = (R==0x7f)?1:0;
+		uint8_t N = R>>7;
+		uint8_t Z = R?0:2;
+		uint8_t S = (V^N)&0x01;
+		mDataSpace[d] = R;
+		statusRegister() = (statusRegister()&0xe1) | (S<<4) | (V<<3) | (N<<2) | Z;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::EICALL()
+	{
+		// Push return address
+		unsigned returnAddress = mProgramCounter+1;
+		push(3, &returnAddress);
+		// Gather destination from extended z pointer
+		unsigned addressL = mDataSpace[0x1e]; // Z Low
+		unsigned addressH = mDataSpace[0x1f]; // Z High
+		unsigned addressHH= mIOMemory.read(0x3c); // EIND
+		// Set program counter to the new address
+		mProgramCounter = (addressHH << 16) | (addressH << 8) | addressL;
+		mCallStack.push_back(mProgramCounter);
+		rev::revAssert(mProgramCounter < mFlashSize);
+		return 4;
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::EOR()
 	{
@@ -852,6 +1110,15 @@ namespace rose { namespace component {
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::LDS()
+	{
+		uint8_t d = (mCurOpcode>>4)&0x1f;
+		unsigned k = mFlash[mProgramCounter++];
+		mDataSpace[d] = readSRAM(k);
+		return 2;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::LDZ1()
 	{
 		// { CProfileFunction profile("LDZ1"); }
@@ -880,12 +1147,58 @@ namespace rose { namespace component {
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::MOV()
+	{
+		// { CProfileFunction profile("MOV"); }
+		uint8_t d = (mCurOpcode>>4) & 0x1f;
+		uint8_t r = ((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f);
+		mDataSpace[d] = mDataSpace[r];
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::MOVW()
 	{
 		uint8_t r = (mCurOpcode & 0xf) << 1;
 		uint8_t d = (mCurOpcode & 0xf0) >> 3;
 		mDataSpace[d++] = mDataSpace[r++];
 		mDataSpace[d] = mDataSpace[r];
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::OR()
+	{
+		// { CProfileFunction profile("OR"); }
+		uint8_t d = char((mCurOpcode>>4) & 0x1f);
+		uint8_t r = char(((mCurOpcode>>5) & 0x10) | (mCurOpcode & 0x0f));
+		uint8_t Rd = mDataSpace[d];
+		uint8_t Rr = mDataSpace[r];
+		mDataSpace[d] = Rd | Rr;
+		// Update status register
+		statusRegister() &= 0xE1;
+		uint8_t N = ((mDataSpace[d]>>7) & 1)? 1 : 0;
+		uint8_t S = N;
+		uint8_t Z = (mDataSpace[d]) == 0x00 ? 1 : 0;
+		statusRegister() |= (S<<4) | (N<<2) | (Z<<1);
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::ORI()
+	{
+		//CProfileFunction profile("ORI");
+		uint8_t d = char((mCurOpcode>>4) & 0xf) | 0x10;
+		uint8_t K = char(((mCurOpcode>>4)& 0xf0) | (mCurOpcode&0x0f));
+		uint8_t Rd = mDataSpace[d];
+		uint8_t R = Rd | K;
+		statusRegister() &= 0xE1;
+		unsigned R7 = (R>>7)&1;
+		unsigned N = R7;
+		unsigned S = N;
+		unsigned Z = R==0?1:0;
+		statusRegister() |= (S<<4) | (N<<2) | (Z<<1);
+		mDataSpace[d] = R;
 		return 1;
 	}
 
@@ -938,12 +1251,59 @@ namespace rose { namespace component {
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------
-	unsigned Avr8bit::STS()
+	unsigned Avr8bit::SBC()
 	{
-		uint8_t r = (mCurOpcode&0x1f0)>>4;
-		unsigned k = mFlash[mProgramCounter++];
-		writeToSRAM(k, mDataSpace[r]);
-		return 2;
+		//CProfileFunction profile("SBC");
+		uint8_t d = (mCurOpcode>>4)&0x1f;
+		uint8_t r = ((mCurOpcode>>5)&0x10) | (mCurOpcode & 0x0f);
+		uint8_t Rd = mDataSpace[d];
+		uint8_t Rr = mDataSpace[r];
+		unsigned C = statusRegister() & 0x1;
+		uint8_t R = Rd - Rr - uint8_t(C);
+		unsigned Z = (statusRegister() >> 1) & 0x01;
+		statusRegister() &= 0xC0;
+		unsigned K3 = (Rr>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = ((!Rd3)&&K3) || (K3&&R3) || (R3&&!Rd3);
+		unsigned K7 = (Rr>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&(!K7)&&!R7)||((!Rd7)&&K7&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		Z = R==0?Z:0;
+		C = ((!Rd7)&&K7) || (K7&&R7) || (R7&&!Rd7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::SBCI()
+	{
+		uint8_t d = 0x10 | ((mCurOpcode >> 4) & 0xf);
+		uint8_t Rd = mDataSpace[d];
+		uint8_t K = ((mCurOpcode >> 4) & 0xf0) | (mCurOpcode & 0xf);
+		unsigned C = statusRegister() & 0x1;
+		uint8_t R = Rd - K - uint8_t(C);
+		unsigned Z = (statusRegister() >> 1) & 0x01;
+		statusRegister() &= 0xC0;
+		unsigned K3 = (K>>3) & 1;
+		unsigned R3 = (R>>3) & 1;
+		unsigned Rd3 = (Rd>>3) & 1;
+		unsigned H = ((!Rd3)&&K3) || (K3&&R3) || (R3&&!Rd3);
+		unsigned K7 = (K>>7)&1;
+		unsigned R7 = (R>>7)&1;
+		unsigned Rd7 = (Rd>>7)&1;
+		unsigned V = (Rd7&&(!K7)&&!R7)||((!Rd7)&&K7&&R7);
+		unsigned S = H ^ V;
+		unsigned N = R7;
+		Z = R==0?Z:0;
+		C = ((!Rd7)&&K7) || (K7&&R7) || (R7&&!Rd7);
+		statusRegister() |= (H<<5) | (S<<4) | (V<<3) | (N<<2) | (Z<<1) | C;
+		mDataSpace[d] = R;
+		return 1;
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------
@@ -961,6 +1321,15 @@ namespace rose { namespace component {
 		mDataSpace[rPointer] = pointer & 0xff;
 		mDataSpace[rPointer+1] = (pointer>>8) & 0xff;
 
+		return 2;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	unsigned Avr8bit::STS()
+	{
+		uint8_t r = (mCurOpcode&0x1f0)>>4;
+		unsigned k = mFlash[mProgramCounter++];
+		writeToSRAM(k, mDataSpace[r]);
 		return 2;
 	}
 

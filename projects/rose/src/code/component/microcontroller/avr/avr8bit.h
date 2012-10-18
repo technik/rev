@@ -9,6 +9,7 @@
 #define _ROSE_COMPONENT_MICROCONTROLLER_AVR_AVR8BIT_H_
 
 #include <cstdint>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -27,8 +28,8 @@ namespace rose { namespace component {
 		void		reset			();							///< Reset micro to power-up state.
 																///< This simulates a power-off reset and doesn't erase 
 																///< program memory or eeprom memory
-		unsigned	setBreakPoint	(int _instruction);
-		void		removeBreakPoint(unsigned _id);
+		void		setBreakpoint	(unsigned _instruction);
+		void		removeBreakpoint(unsigned _instruction);
 																///< a reset occurs
 		void		showAssembly	(unsigned _start,			///< Shows assembler code for the specified region of
 									unsigned _end) const;		///< code starting at _start and not including _end.
@@ -81,6 +82,7 @@ namespace rose { namespace component {
 		void		setStackPointer			(uint16_t _sp);
 		void		pop 					(unsigned _n, void * _dst);
 		void 		push					(unsigned _n, void * _data);
+		static bool	isTwoWordInstruction	(unsigned _opcode);
 
 	private:
 		// Virtual memories
@@ -104,6 +106,7 @@ namespace rose { namespace component {
 		unsigned long	mTotalSimulatedInstructions;
 		std::vector<unsigned>	mCallStack;
 		std::string*			mOpcodeNames;
+		std::set<unsigned>		mBreakpoints;
 
 	private:
 		// Instruction set
@@ -112,23 +115,40 @@ namespace rose { namespace component {
 		unsigned	opcode100000		();
 		unsigned	opcode100100		();
 		unsigned	opcode100101		();
+		unsigned	ADC					();
+		unsigned	ADD					();
+		unsigned	AND 				();
 		unsigned	BCLR				();
 		unsigned	BRBC				();
+		unsigned	BRBS				();
+		unsigned	BSET				();
 		unsigned	CALL				();
+		unsigned	COM 				();
+		unsigned	CP 					();
 		unsigned	CPC					();
 		unsigned	CPI					();
+		unsigned	CPSE				();
+		unsigned	DEC					();
+		unsigned	EICALL				();
 		unsigned	EOR					();
 		unsigned	IN 					();
 		unsigned	JMP					();
+		unsigned	LD					();
 		unsigned	LDI					();
+		unsigned	LDS					();
 		unsigned	LDZ1				();
 		unsigned	LPM 				();
+		unsigned	MOV					();
 		unsigned	MOVW				();
+		unsigned	OR					();
+		unsigned	ORI					();
 		unsigned	OUT					();
 		unsigned	POP 				();
 		unsigned	PUSH 				();
 		unsigned	RET 				();
 		unsigned	RJMP				();
+		unsigned	SBC					();
+		unsigned	SBCI				();
 		unsigned	ST 					();
 		unsigned	STS 				();
 		unsigned 	STZ1				();

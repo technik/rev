@@ -46,11 +46,28 @@ int main()
 				core->showExecutionStatus();
 				break;
 			}
+			case 't':
+			{
+				core->step();
+				break;
+			}
 			case 'a': // Assembly
 			{
 				unsigned start, end;
 				cin >> start >> end;
 				core->showAssembly(start, end);
+				break;
+			}
+			case 'b': // Breakpoint
+			{
+				unsigned instruction;
+				cin >> instruction;
+				core->setBreakpoint(instruction);
+				break;
+			}
+			case 'r': // run
+			{
+				core->run();
 				break;
 			}
 			case 'm': // Memory
