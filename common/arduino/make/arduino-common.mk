@@ -23,7 +23,7 @@ CXX_OBJ := $(patsubst %.cpp, %.cpp.o, $(CXX_SRC))
 TEMP_FILES := $(CXX_OBJ)
 
 # -- Build variables --
-PREPROCESSOR_DEFINITIONS := -DATMEGA -DATMEGA2560
+PREPROCESSOR_DEFINITIONS := $(EXTRA_DEFINITIONS) -DATMEGA -DATMEGA2560
 WARNING_FLAGS := -Wall -Werror
 INCLUDE_FLAGS := -I$(CODE_DIR)
 CXX_COMPILE_FLAGS := -std=c++0x -fno-access-control -fno-enforce-eh-specs\

@@ -7,14 +7,14 @@
 
 #include "time.h"
 
-#ifdef ATMEGA
+/*#ifdef ATMEGA
 #include <avr/interrupt.h>
 #include <avr/io.h>
 // Notice this must be outside the namespace for the interrupt to work
 //----------------------------------------------------------------------------------------------------------------------
 // Global data
 //----------------------------------------------------------------------------------------------------------------------
-volatile uint16_t gTicksH = 0; // High word for tick count
+volatile uint32_t gTicksH = 0; // High word for tick count
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interrupt handler
@@ -39,7 +39,7 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	uint32_t Time::micros()
 	{
-		return (((uint32_t)gTicksH) << 15) | (TCNT1 >> 1); // Returns nTicks / 2 (one tick is half a second)
+		return (gTicksH << 15) | (TCNT1 >> 1); // Returns nTicks / 2 (one tick is half a second)
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ namespace rev
 	{
 		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
 		// Maybe gTicksH should get 32 bits for that.
-		return micros() / 1000;
+		return ((gTicksH<<12) | (TCNT1>>4)) / 125;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ namespace rev
 	{
 		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
 		// Maybe gTicksH should get 32 bits for that.
-		return micros() / 1000000;
+		return ((gTicksH<< 9) | (TCNT1>>7)) / 15625;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -76,3 +76,5 @@ namespace rev
 	
 #endif // ATMEGA
 }	// namespace rev
+
+*/
