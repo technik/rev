@@ -11,7 +11,6 @@
 #include <revCore/codeTools/usefulMacros.h>
 
 #ifdef REV_ENABLE_LOG
-#include <string>
 #include <revCore/codeTools/stringUtils.h>
 #endif // REV_ENABLE_LOG
 
@@ -37,7 +36,7 @@ namespace rev { namespace codeTools
 		REV_DECLARE_COPY(Log); // Prevent copy
 
 	private:
-		virtual void	logString	(const std::string&);
+		virtual void	logBuffer	(const char*);
 		virtual void	flushBuffer	(const char*);
 
 	private:
@@ -54,7 +53,7 @@ namespace rev { namespace codeTools
 	Log& Log::operator<<(const T_& _message)
 	{
 #ifdef REV_ENABLE_LOG
-		logString(makeString(_message));
+		logBuffer(makeString(_message).c_str());
 #else // !REV_ENABLE_LOG
 		REV_UNUSED_PARAM(_message); // Unused variable
 #endif // !REV_ENABLE_LOG

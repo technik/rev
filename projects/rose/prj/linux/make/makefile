@@ -28,10 +28,10 @@ clean:
 	rm -f $(OUTPUT) $(TEMP_FILES) $(OUT_NAME).elf $(REVSDK_HOME)/modules/core/bin/linux/librevcore.a
 
 run: $(OUTPUT)
-	$(OUTPUT)
+	cd $(OUT_DIR) && ./$(PRJ_NAME)
 
 debug: $(OUTPUT)
-	gdb $(OUTPUT)
+	cd $(OUT_DIR) && gdb $(PRJ_NAME)
 
 %.cpp.o: %.cpp
 	$(CXX) -c -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE)

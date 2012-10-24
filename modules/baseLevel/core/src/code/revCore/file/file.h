@@ -13,7 +13,7 @@ namespace rev
 	class File
 	{
 	public:
-		static File * open(const char * fileName, bool writeable = true);
+		static File * open(const char * fileName, bool writeable = false);
 
 		~File();
 

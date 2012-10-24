@@ -23,13 +23,14 @@ CXX_OBJ := $(patsubst %.cpp, %.cpp.o, $(CXX_SRC))
 TEMP_FILES := $(CXX_OBJ)
 
 # -- Build variables --
-PREPROCESSOR_DEFINITIONS := -DATMEGA -DATMEGA2560
+PREPROCESSOR_DEFINITIONS := $(EXTRA_DEFINITIONS) -DATMEGA -DATMEGA2560
 WARNING_FLAGS := -Wall -Werror
 INCLUDE_FLAGS := -I$(CODE_DIR)
-CXX_COMPILE_FLAGS := -std=c++0x -mmcu=atmega2560 -fno-access-control -fno-enforce-eh-specs\
- -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
+CXX_COMPILE_FLAGS := -std=c++0x -fno-access-control -fno-enforce-eh-specs\
+ 			-fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
 DEBUG_FLAGS := -g
-OPTIMIZATION_FLAGS := -O1
-COMMON_C_FLAGS := $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS) $(INCLUDE_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZATION_FLAGS
+OPTIMIZATION_FLAGS := # -O4
+COMMON_C_FLAGS := -mmcu=atmega2560 $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS)\
+ 			 $(INCLUDE_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZATION_FLAGS)
 CC_FLAGS := $(COMMON_C_FLAGS)
 CXX_FLAGS := $(COMMON_C_FLAGS) $(CXX_COMPILE_FLAGS)

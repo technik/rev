@@ -5,4 +5,4 @@
 #-----------------------------------------------------------------------------------------------------------------------
 # Arduino module common makefile
 
-include ../../make/module-common.mk
+include $(REVSDK_HOME)/common/make/module-common.mk
