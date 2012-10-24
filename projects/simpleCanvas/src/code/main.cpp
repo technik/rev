@@ -5,9 +5,13 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
+#include <revVideo/videoDriver/videoDriver.h>
+
 int main (int //_argc
 	, const char** //_argv
 	)
 {
+	rev::video::VideoDriver::startUp();
+	rev::video::VideoDriver::shutDown();
 	return 0;
 }

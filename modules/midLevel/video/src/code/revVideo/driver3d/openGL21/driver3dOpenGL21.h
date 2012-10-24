@@ -12,7 +12,7 @@
 #include <Windows.h>
 #endif // WIN32
 
-#include <gl/GL.h>
+#include <GL/gl.h>
 #include "glext.h"
 
 #include "../driver3d.h"
@@ -40,7 +40,7 @@ namespace rev { namespace video
 		VtxShader*	createVtxShader			(const char * _fileName);
 
 		void		setRealAttribBuffer	(int _attribId, unsigned _nElements, unsigned _nComponents, const void * _buffer);
-		void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, IVideoDriver::EPrimitiveType _primitive);
+		void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, Driver3d::EPrimitiveType _primitive);
 
 	private: // Methods for internal use
 		void	loadOpenGLExtensions		();

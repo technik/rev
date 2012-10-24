@@ -7,11 +7,11 @@
 
 #include "shaderOpenGL21.h"
 
-#include <codeTools/assert/assert.h>
-#include <driver3d/openGL21/driver3dOpenGL21.h>
-#include <types/shader/pixel/openGL21/pxlShaderOpenGL21.h>
-#include <types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
-#include <videoDriver/videoDriver.h>
+#include <revCore/codeTools/assert/assert.h>
+#include <revVideo/driver3d/openGL21/driver3dOpenGL21.h>
+#include <revVideo/types/shader/pixel/openGL21/pxlShaderOpenGL21.h>
+#include <revVideo/types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {

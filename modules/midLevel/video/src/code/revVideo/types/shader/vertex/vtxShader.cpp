@@ -7,12 +7,15 @@
 
 #include "vtxShader.h"
 
-#include <driver3d/driver3d.h>
-#include <videoDriver/videoDriver.h>
+#include <revVideo/driver3d/driver3d.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev
 {
-	video::VtxShader::Manager * video::VtxShader::sManager = 0;
+	using namespace video;
+	template<>
+	VtxShader::Manager * 
+		ManagedResourceBase<VtxShader, std::string, std::tr1::hash<std::string> >::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

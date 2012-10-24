@@ -9,22 +9,28 @@
 
 #ifdef WIN32
 #include <Windows.h>
+#include <gl/GL.h>
 #endif // WIN32
+#ifdef __linux__
+#include <GL/glx.h>
+#endif // __linux__
 
-#include <GL/gl.h>
 #include "glext.h"
 
-#include <file/file.h>
-#include <types/color/color.h>
-#include <types/shader/pixel/openGL21/pxlShaderOpenGL21.h>
-#include <types/shader/openGL21/shaderOpenGL21.h>
-#include <types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
+#include <revCore/file/file.h>
+#include <revVideo/types/color/color.h>
+#include <revVideo/types/shader/pixel/openGL21/pxlShaderOpenGL21.h>
+#include <revVideo/types/shader/openGL21/shaderOpenGL21.h>
+#include <revVideo/types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
 
 using namespace rev::math;
 
 #ifdef WIN32
 #define loadExtension( a ) wglGetProcAddress( a )
 #endif // WIN32
+#ifdef __linux__
+#define loadExtension( a ) glXGetProcAddress( (GLubyte*)a )
+#endif // __linux__
 
 namespace rev { namespace video
 {

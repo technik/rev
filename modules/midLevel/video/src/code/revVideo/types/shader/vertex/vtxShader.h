@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include <resource/managedResource.h>
+#include <revCore/resource/managedResource.h>
 
 namespace rev { namespace video
 {
