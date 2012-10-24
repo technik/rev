@@ -34,6 +34,30 @@ namespace rev { namespace math
 #endif // WIN32
 	};
 
+	//------------------------------------------------------------------------------------------------------------------
+	template<>
+	class NumericTraits<int>
+	{
+	public:
+#ifndef WIN32
+		static constexpr int	zero() { return 0; }
+#else // WIN32
+		static int			zero() { return 0; }
+#endif // WIN32
+	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<>
+	class NumericTraits<unsigned>
+	{
+	public:
+#ifndef WIN32
+		static constexpr unsigned	zero() { return 0; }
+#else // WIN32
+		static unsigned				zero() { return 0; }
+#endif // WIN32
+	};
+
 }	// namespace math
 }	// namespace rev
 

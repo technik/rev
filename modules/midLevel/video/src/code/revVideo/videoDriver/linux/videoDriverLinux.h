@@ -3,7 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
 // On October 24th, 2012
 //----------------------------------------------------------------------------------------------------------------------
-// Windows video driver
+// Linux video driver
 
 #ifndef _REV_VIDEO_VIDEODRIVER_LINUX_VIDEODRIVERLINUX_H_
 #define _REV_VIDEO_VIDEODRIVER_LINUX_VIDEODRIVERLINUX_H_

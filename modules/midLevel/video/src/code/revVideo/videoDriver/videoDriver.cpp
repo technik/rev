@@ -29,6 +29,8 @@ namespace rev { namespace video
 		// Create a different video driver depending on current platform
 #ifdef WIN32
 		sInstance = new VideoDriverWindows();
+#elif defined(__linux__)
+		sInstance = new VideoDriverLinux();
 #else // Unknown platform
 		sInstance = 0;
 		revAssert(false, "This platform lacks an implementation for VideoDriver");
