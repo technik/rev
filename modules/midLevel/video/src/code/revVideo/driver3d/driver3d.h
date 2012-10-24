@@ -10,7 +10,7 @@
 
 #include <utility>
 
-#include <math/algebra/vector.h>
+#include <revCore/math/algebra/vector.h>
 
 namespace rev { namespace video
 {

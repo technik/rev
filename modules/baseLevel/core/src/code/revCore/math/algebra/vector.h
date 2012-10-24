@@ -162,7 +162,11 @@ namespace rev { namespace math
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
+	#ifdef WIN32
 	Vector2<N_> Vector2<N_>::zero()
+	#else // !WIN32
+	Vector2<N_> constexpr Vector2<N_>::zero()
+	#endif // !WIN32
 	{
 		return Vector2<N_>(NumericTraits<N_>::zero(), NumericTraits<N_>::zero());
 	}

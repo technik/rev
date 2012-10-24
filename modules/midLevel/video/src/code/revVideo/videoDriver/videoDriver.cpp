@@ -7,9 +7,14 @@
 
 #include "videoDriver.h"
 #include <revCore/codeTools/assert/assert.h>
+#include <revVideo/types/window/videoWindow.h>
+#include <revVideo/driver3d/driver3d.h>
 #ifdef WIN32
 #include "windows/videoDriverWindows.h"
 #endif // WIN32
+#ifdef __linux__
+#include "linux/videoDriverLinux.h"
+#endif // __linux__
 
 namespace rev { namespace video
 {
@@ -26,6 +31,7 @@ namespace rev { namespace video
 		sInstance = new VideoDriverWindows();
 #else // Unknown platform
 		sInstance = 0;
+		revAssert(false, "This platform lacks an implementation for VideoDriver");
 #endif
 	}
 

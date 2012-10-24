@@ -6,11 +6,13 @@
 // Shader
 
 #include "shader.h"
-#include <driver3d/driver3d.h>
-#include <videoDriver/videoDriver.h>
+#include <revVideo/driver3d/driver3d.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev {
-	video::Shader::Manager* video::Shader::sManager = 0;
+	using namespace video;
+	template<>
+	Shader::Manager* ManagedResourceBase<Shader, std::pair<VtxShader*, PxlShader*>, ShaderKeyHasher>::sManager = 0;
 }	// namespace rev
 
 namespace rev { namespace video

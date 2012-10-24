@@ -12,8 +12,8 @@
 #include <cassert>
 #endif // REV_ENABLE_ASSERT
 
-#include <codeTools/log/log.h>
-#include <codeTools/usefulMacros.h>
+#include <revCore/codeTools/log/log.h>
+#include <revCore/codeTools/usefulMacros.h>
 
 namespace rev
 {

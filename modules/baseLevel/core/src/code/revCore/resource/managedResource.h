@@ -18,7 +18,7 @@ namespace rev
 	{
 	protected:
 		ManagedResourceBase();
-		virtual ~ManagedResourceBase() = 0 {} // So that it can't be instantiated without inheritance
+		virtual ~ManagedResourceBase() = 0; // So that it can't be instantiated without inheritance
 
 	public:
 		static void registerResource	(Derived_*, const Key_&);	// Register a resource (does not imply ownership)
@@ -33,6 +33,13 @@ namespace rev
 
 		bool	mRegistered;
 	};
+
+	// Destructor body
+	template<class Derived_, class Key_, class Hasher_>
+	ManagedResourceBase<Derived_,Key_,Hasher_>::~ManagedResourceBase()
+	{
+		// Intentionally blank
+	}
 
 	// Simple managed resource
 	template<class Derived_, class Key_, class Hasher_ = std::tr1::hash<Key_> >
@@ -97,14 +104,14 @@ namespace rev
 	template<class Derived_,class Key_, class Hasher_>
 	Derived_ * ManagedResource<Derived_,Key_, Hasher_>::get(const Key_& _x)
 	{
-		return manager()->get(_x);
+		return ManagedResource<Derived_,Key_,Hasher_>::manager()->get(_x);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class Derived_,class Key_, class Hasher_>
 	Derived_ * FactoryManagedResource<Derived_,Key_, Hasher_>::get(const Key_& _x)
 	{
-		Derived_ * resource = manager()->get(_x);
+		Derived_ * resource = FactoryManagedResource<Derived_,Key_,Hasher_>::manager()->get(_x);
 		if(nullptr == resource)
 			resource = Derived_::factory(_x);
 		return resource;

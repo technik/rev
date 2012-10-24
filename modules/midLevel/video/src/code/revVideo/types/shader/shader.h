@@ -9,7 +9,7 @@
 #define _REV_VIDEO_TYPES_SHADER_SHADER_H_
 
 #include <utility>
-#include <resource/managedResource.h>
+#include <revCore/resource/managedResource.h>
 
 namespace rev { namespace video
 {
@@ -29,11 +29,14 @@ namespace rev { namespace video
 	class Shader : public FactoryManagedResource<Shader, std::pair<VtxShader*,PxlShader*>, ShaderKeyHasher>
 	{
 	public:
-		virtual ~Shader() = 0 {};
+		virtual ~Shader() = 0;
 
 	public:
 		static Shader* factory(const std::pair<VtxShader*,PxlShader*>&);
 	};
+
+	// Destructor body
+	Shader::~Shader() {}
 
 }	// namespace video
 }	// namespace rev

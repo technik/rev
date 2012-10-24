@@ -11,7 +11,7 @@ MODULE_NAME := revvideo
 # -- Folder structure --
 ROOT_DIR := ../../..
 SRC_DIR := $(ROOT_DIR)/src
-CODE_DIR := $(SRC_DIR)
+CODE_DIR := $(SRC_DIR)/code
 OUT_DIR := $(ROOT_DIR)/bin/linux
 
 include $(REVSDK_HOME)/common/linux/make/linux-common.mk

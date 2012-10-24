@@ -42,7 +42,6 @@ namespace rev { namespace video
 	private:
 		virtual Driver3d*	createDriver3d	() = 0;
 		virtual Window*		createWindow	(const math::Vec2i& position, const math::Vec2u& resolution) = 0;
-		virtual void		destroyWindow	(Window*) = 0;
 
 	private:
 		REV_DECLARE_COPY(VideoDriver);

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
-// Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
+// Created by Carmelo J. Fdez-AgÃ¼era Tortosa a.k.a. (Technik)
 // On August 19th, 2012
 //----------------------------------------------------------------------------------------------------------------------
 // Resource Manager
@@ -9,12 +9,13 @@
 #define _REV_CORE_RESOURCE_RESOURCEMANAGER_H_
 
 #include <unordered_map>
+namespace std { namespace tr1 { using namespace std; }} // To enable std::tr1::hash
 
-#include <codeTools/assert/assert.h>
+#include <revCore/codeTools/assert/assert.h>
 
 namespace rev
 {
-	template <class Resource_, class Key_, class Hasher_ = std::tr1::hash<Key_> >
+	template <class Resource_, class Key_, class Hasher_ = typename std::tr1::hash<Key_> >
 	class ResourceManager
 	{
 	public:
