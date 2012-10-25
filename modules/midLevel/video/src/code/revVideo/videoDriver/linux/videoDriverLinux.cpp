@@ -4,9 +4,11 @@
 // On October 24th, 2012
 //----------------------------------------------------------------------------------------------------------------------
 // Linux video driver
+#ifdef __linux__
 
 #include "videoDriverLinux.h"
 #include <revCore/codeTools/assert/assert.h>
+#include <revVideo/types/window/linux/videoWindowLinux.h>
 
 using rev::math::Vec2u;
 
@@ -35,9 +37,10 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	Window* VideoDriverLinux::createWindow(const math::Vec2i& position, const math::Vec2u& resolution)
 	{
-		// TODO
-		return 0;
+		return new WindowLinux(position, resolution, "Rev");
 	}
 
 }	// namespace video
 }	// namespace rev
+
+#endif // __linux__

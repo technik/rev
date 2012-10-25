@@ -17,3 +17,4 @@ OUT_DIR := $(ROOT_DIR)/bin/linux
 include $(REVSDK_HOME)/common/linux/make/linux-common.mk
 INCLUDE_FLAGS := $(INCLUDE_FLAGS) -I$(REVSDK_HOME)/modules/baseLevel/core/src/code
 include $(REVSDK_HOME)/common/linux/make/module-common.mk
+LIBRARIES := -lX11

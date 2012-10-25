@@ -21,8 +21,8 @@ namespace rev { namespace video
 	public:
 		WindowWindows	(const math::Vec2i& position, const math::Vec2u& resolution);
 
-		virtual void		setPosition		(const math::Vec2i& position) {}
-		virtual void		setResolution	(const math::Vec2u& resolution) {}
+		void		setPosition		(const math::Vec2i& position) {}
+		void		setResolution	(const math::Vec2u& resolution) {}
 
 		HWND				winapiHandle	() const;
 

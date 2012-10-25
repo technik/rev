@@ -5,6 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
+#include <iostream>
 #include <revVideo/videoDriver/videoDriver.h>
 
 int main (int //_argc
@@ -13,5 +14,8 @@ int main (int //_argc
 {
 	rev::video::VideoDriver::startUp();
 	rev::video::VideoDriver::shutDown();
+
+	int a;
+	std::cin >> a;
 	return 0;
 }
