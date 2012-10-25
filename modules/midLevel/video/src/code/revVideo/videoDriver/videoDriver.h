@@ -29,6 +29,7 @@ namespace rev { namespace video
 
 		// --- Actual video driver interface ---
 		// Window creation and destruction
+				void			createMainWindow();
 				void			init3d			();
 				Driver3d*		driver3d		();
 				Window*			mainWindow		();

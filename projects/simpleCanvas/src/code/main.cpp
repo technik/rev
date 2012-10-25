@@ -6,14 +6,18 @@
 // Entry point
 
 #include <iostream>
+#include <revCore/codeTools/log/log.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
+	rev::codeTools::Log::init();
 	rev::video::VideoDriver::startUp();
+	rev::video::VideoDriver::get()->createMainWindow();
 	rev::video::VideoDriver::shutDown();
+	rev::codeTools::Log::end();
 
 	int a;
 	std::cin >> a;
