@@ -18,8 +18,12 @@ OUTPUT := $(OUT_NAME)
 
 include $(REVSDK_HOME)/common/linux/make/linux-common.mk
 
-LIB_DIR := -L$(REVSDK_HOME)/modules/baseLevel/core/bin/linux -L$(REVSDK_HOME)/modules/midLevel/video/bin/linux
-REV_INCLUDE := -I$(REVSDK_HOME)/modules/baseLevel/core/src/code -I$(REVSDK_HOME)/modules/midLevel/video/src/code
+LINK_DIRS := $(LINK_DIRS) -L$(REVSDK_HOME)/modules/baseLevel/core/bin/linux \
+ -L$(REVSDK_HOME)/modules/midLevel/video/bin/linux
+INCLUDE_FLAGS := $(INCLUDE_FLAGS) -I$(REVSDK_HOME)/modules/baseLevel/core/src/code \
+ -I$(REVSDK_HOME)/modules/midLevel/video/src/code
+
+LIBRARIES := $(LIBRARIES) -lrevvideo -lrevcore -lGL -lX11
 
 # -- Rules --
 all: $(OUTPUT)
@@ -28,6 +32,8 @@ clean:
 	rm -f $(OUTPUT) $(TEMP_FILES) $(OUT_NAME).elf \
 	$(REVSDK_HOME)/modules/baseLevel/core/bin/linux/librevcore.a \
 	$(REVSDK_HOME)/modules/midLevel/video/bin/linux/librevvideo.a
+	cd $(REVSDK_HOME)/modules/baseLevel/core/prj/linux/make && make clean
+	cd $(REVSDK_HOME)/modules/midLevel/video/prj/linux/make && make clean
 
 run: $(OUTPUT)
 	$(OUTPUT)
@@ -36,11 +42,11 @@ debug: $(OUTPUT)
 	gdb $(OUTPUT)
 
 %.cpp.o: %.cpp
-	$(CXX) -c -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE)
+	$(CXX) -c -o $@ $^ $(CXX_FLAGS)
 
 $(OUT_NAME): $(CXX_OBJ)
 	cd $(REVSDK_HOME)/modules/baseLevel/core/prj/linux/make/ && $(MAKE)
 	cd $(REVSDK_HOME)/modules/midLevel/video/prj/linux/make/ && $(MAKE)
-	$(CXX) -o $@ $^ $(LIB_DIR) -lrevvideo -lrevcore
+	$(CXX) -o $@ $^ $(CXX_FLAGS)
 
 .PHONY: run clean
