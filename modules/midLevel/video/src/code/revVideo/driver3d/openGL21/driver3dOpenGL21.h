@@ -62,8 +62,10 @@ namespace rev { namespace video
 		void	glGetShaderInfoLog	(GLuint _shader, GLsizei _maxLen, GLsizei* _length, GLchar* _infoLog);
 		void	glGetShaderiv		(GLuint _shader, GLenum _paramName, GLint* _params);
 		void	glLinkProgram		(GLuint _program)					{ mLinkProgram(_program);			}
-		void	glUseProgram		(GLuint _program)					{ mUseProgram(_program);			}
 		void	glShaderSource		(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
+		void	glUseProgram		(GLuint _program)					{ mUseProgram(_program);			}
+		void	glVertexAttribPointer(GLuint _idx, GLint _size, GLenum _type, bool _normalized, GLsizei _stride,
+ 				const GLvoid * _pointer);
 
 
 	private:
@@ -77,8 +79,9 @@ namespace rev { namespace video
 		PFNGLGETSHADERINFOLOGPROC	mGetShaderInfoLog;
 		PFNGLGETSHADERIVPROC		mGetShaderiv;
 		PFNGLLINKPROGRAMPROC		mLinkProgram;
-		PFNGLUSEPROGRAMPROC			mUseProgram;
 		PFNGLSHADERSOURCEPROC		mShaderSource;
+		PFNGLUSEPROGRAMPROC			mUseProgram;
+		PFNGLVERTEXATTRIBPOINTERPROC mVertexAttribPointer;
 	};
 
 }	// namespace video

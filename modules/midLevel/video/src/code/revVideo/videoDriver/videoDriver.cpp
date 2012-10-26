@@ -52,8 +52,6 @@ namespace rev { namespace video
 		{
 			if(mMainWindow->needsRedraw())
 			{
-				//if(nullptr != mDriver3d)
-				//	mDriver3d->update();
 				mMainWindow->redraw();
 			}
 		}

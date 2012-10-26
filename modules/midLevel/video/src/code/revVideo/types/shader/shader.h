@@ -36,7 +36,7 @@ namespace rev { namespace video
 	};
 
 	// Destructor body
-	Shader::~Shader() {}
+	inline Shader::~Shader() {}
 
 }	// namespace video
 }	// namespace rev

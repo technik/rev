@@ -8,6 +8,7 @@
 
 #include "videoDriverLinux.h"
 #include <revCore/codeTools/assert/assert.h>
+#include <revVideo/driver3d/openGL21/linux/driver3dOpenGL21Linux.h>
 #include <revVideo/types/window/linux/videoWindowLinux.h>
 
 using rev::math::Vec2u;
@@ -44,9 +45,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	Driver3d* VideoDriverLinux::createDriver3d()
 	{
-		// TODO
-		revAssert(false, "3d driver creation is not yet supported under linux systems");
-		return 0;
+		return new Driver3dOpenGL21Linux(mMainWindow);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
