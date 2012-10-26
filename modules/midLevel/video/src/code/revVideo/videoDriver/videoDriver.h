@@ -22,13 +22,14 @@ namespace rev { namespace video
 	{
 	public:
 		// Singleton interface
-		static void			startUp();
-		static void			shutDown();
-		static VideoDriver*	get();
-		static Driver3d*	getDriver3d();
+		static void				startUp			();
+		static void				shutDown		();
+		static VideoDriver*		get				();
+		static Driver3d*		getDriver3d		();
 
 		// --- Actual video driver interface ---
 		// Window creation and destruction
+		virtual	bool			update			(); // Return false means application must exit
 				void			createMainWindow();
 				void			init3d			();
 				Driver3d*		driver3d		();
@@ -48,7 +49,7 @@ namespace rev { namespace video
 		REV_DECLARE_COPY(VideoDriver);
 		static VideoDriver * sInstance;
 
-	private:
+	protected:
 		Driver3d*	mDriver3d;
 		Window *	mMainWindow;
 	};

@@ -22,6 +22,9 @@ namespace rev { namespace video
 		virtual math::Vec2u	resolution		() const;
 		virtual void		setPosition		(const math::Vec2i& position) = 0;
 		virtual void		setResolution	(const math::Vec2u& resolution) = 0;
+		// Redraw
+		virtual bool		needsRedraw		() const = 0;
+		virtual void		redraw			() = 0;
 
 	protected:
 		math::Vec2i	mPosition;

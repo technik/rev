@@ -16,10 +16,14 @@ int main (int //_argc
 	rev::codeTools::Log::init();
 	rev::video::VideoDriver::startUp();
 	rev::video::VideoDriver::get()->createMainWindow();
+
+	bool mustExit = false;
+	while(!mustExit)
+	{
+		mustExit = !rev::video::VideoDriver::get()->update();
+	}
+	
 	rev::video::VideoDriver::shutDown();
 	rev::codeTools::Log::end();
-
-	int a;
-	std::cin >> a;
 	return 0;
 }

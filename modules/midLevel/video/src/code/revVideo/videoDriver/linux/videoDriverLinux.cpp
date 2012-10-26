@@ -21,9 +21,24 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	Vec2u	VideoDriverLinux::screenResolution () const
+	Vec2u VideoDriverLinux::screenResolution () const
 	{
 		return Vec2u::zero();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool VideoDriverLinux::update()
+	{
+		// Process events from the X system
+		if(nullptr != mMainWindow)
+		{
+			WindowLinux* window = static_cast<WindowLinux*>(mMainWindow);
+			window->processEvents();
+			if(window->mustClose())
+				return false;
+		}
+		// Base class update
+		return VideoDriver::update();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

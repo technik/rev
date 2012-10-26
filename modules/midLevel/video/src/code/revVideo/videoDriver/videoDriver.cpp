@@ -46,6 +46,21 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	bool VideoDriver::update()
+	{
+		if(nullptr != mMainWindow)
+		{
+			if(mMainWindow->needsRedraw())
+			{
+				//if(nullptr != mDriver3d)
+				//	mDriver3d->update();
+				mMainWindow->redraw();
+			}
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void VideoDriver::init3d()
 	{
 		// Create a 3d driver

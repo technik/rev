@@ -20,6 +20,7 @@ namespace rev { namespace video
 		VideoDriverLinux();
 
 		math::Vec2u		screenResolution	() const;
+		bool			update				();
 
 	private:
 		// Polymorphic implementation
