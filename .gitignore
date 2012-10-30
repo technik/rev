@@ -14,3 +14,13 @@
 /projects/rose/prj/windows/vs10/rose.opensdf
 /projects/rose/prj/windows/vs10/rose.sdf
 /projects/rose/prj/windows/vs10/rose.suo
+*.tlog
+/modules/baseLevel/core/prj/windows/vs12/Debug/*.log
+*.lastbuildstate
+*.sdf
+*.suo
+*.pdb
+*.obj
+*.idb
+*.user
+*.opensdf

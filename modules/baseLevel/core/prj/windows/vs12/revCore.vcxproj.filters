@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="codeTools">
+      <UniqueIdentifier>{cd5885bd-638a-46f5-8cc9-20f08f5fb14c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="codeTools\assert">
+      <UniqueIdentifier>{cf4f9518-93a2-40ea-83a9-08b38a2caba9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="codeTools\log">
+      <UniqueIdentifier>{38b87bf5-20f4-42aa-9d11-f463c12c1c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="time">
+      <UniqueIdentifier>{0bfb6db9-884a-486e-8f9b-d68c62bc4450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{d61c8fa0-f77e-4e18-a74b-9ca1dcd8b5ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{3790e449-660d-4e20-af5c-03385d9d79e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\algebra">
+      <UniqueIdentifier>{cb4abf2b-1c66-42c8-9183-326bc34160db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{e46b0f77-1627-4d14-98ef-79affd11318f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script">
+      <UniqueIdentifier>{34409b45-6827-4371-8261-a16d4886abd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script\variant">
+      <UniqueIdentifier>{59165ff8-9447-4dc8-809b-a3a5dbfc88aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revCore\codeTools\assert\assert.h">
+      <Filter>codeTools\assert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\codeTools\log\log.h">
+      <Filter>codeTools\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\codeTools\stringUtils.h">
+      <Filter>codeTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\codeTools\usefulMacros.h">
+      <Filter>codeTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\time\time.h">
+      <Filter>time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\file\file.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\math\numericTraits.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\math\algebra\vector.h">
+      <Filter>math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\resource\managedResource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\resource\resource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\resource\resourceManager.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\script\variant\variant.h">
+      <Filter>script\variant</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\revCore\codeTools\log\log.cpp">
+      <Filter>codeTools\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revCore\time\time.cpp">
+      <Filter>time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revCore\file\file.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
