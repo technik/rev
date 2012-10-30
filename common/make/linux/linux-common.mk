@@ -7,6 +7,15 @@
 
 include $(REVSDK_HOME)/common/make/linux/toolchain.mk
 
+# -- GNU Tools --
+AS := as # Assembler
+AR := ar # Archiver
+CC := gcc # C Compiler
+CXX := g++ # C++ Compiler
+OBJCOPY := objcopy # Obj copy
+OBJDUMP := objdump
+READELF := readelf
+
 CXX_SRC := $(shell find $(CODE_DIR) -name *.cpp)
 CXX_OBJ = $(patsubst %.cpp, %.cpp.o, $(CXX_SRC))
 
