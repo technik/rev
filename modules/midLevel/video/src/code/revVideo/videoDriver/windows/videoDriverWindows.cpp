@@ -9,9 +9,9 @@
 
 #include <Windows.h>
 
-#include <codeTools/assert/assert.h>
-#include <driver3d/openGL21/windows/driver3dOpenGL21Windows.h>
-#include <types/window/windows/videoWindowWindows.h>
+#include <revCore/codeTools/assert/assert.h>
+#include <revVideo/driver3d/openGL21/windows/driver3dOpenGL21Windows.h>
+#include <revVideo/types/window/windows/videoWindowWindows.h>
 #include "videoDriverWindows.h"
 
 using namespace rev::math;
@@ -29,7 +29,7 @@ namespace rev { namespace video
 	{
 		// Only openGL driver is currently supported
 		Window * window = mainWindow();
-		assert(nullptr != window, "Error: Trying to create 3d Driver without window");
+		revAssert(nullptr != window, "Error: Trying to create 3d Driver without window");
 		return new Driver3dOpenGL21Windows(window);
 	}
 

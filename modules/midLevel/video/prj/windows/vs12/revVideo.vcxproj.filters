@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="videoDriver">
+      <UniqueIdentifier>{3d9591b3-b418-43e1-bd2a-a10ae16f8af5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="driver3d">
+      <UniqueIdentifier>{82d483fe-8b72-4e77-879a-549d2f41ffa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types">
+      <UniqueIdentifier>{cda789b4-8ef8-4b22-a06d-9f1e3a28fa5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="videoDriver\windows">
+      <UniqueIdentifier>{47285d92-3c94-42af-a453-31adf963ac0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\window">
+      <UniqueIdentifier>{f09639f2-db33-42fb-aa72-29d39880a136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader">
+      <UniqueIdentifier>{a336201e-db12-484b-bec9-a93d90924924}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\color">
+      <UniqueIdentifier>{98bce943-a5a1-4383-a407-bce35d4fb751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader\OpenGL21">
+      <UniqueIdentifier>{16aba729-cb20-4b60-8642-b12dc5cb2aec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader\pixel">
+      <UniqueIdentifier>{81c5e9b8-754d-4930-8f13-3ea7bb6eda54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader\vertex">
+      <UniqueIdentifier>{9e144b49-4bb0-4730-a78f-d19f8655dc0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader\vertex\openGL21">
+      <UniqueIdentifier>{09cba759-4d5b-4fe8-892d-e4b58ae25292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="driver3d\openGL21">
+      <UniqueIdentifier>{3ea49222-bd40-4fed-b103-30da81c4e624}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="driver3d\openGL21\windows">
+      <UniqueIdentifier>{f29efe4f-201e-4a14-bdf3-7f9fb9d7266c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\shader\pixel\openGL21">
+      <UniqueIdentifier>{08275dac-f473-4a6d-bb9f-9fa01fcb2a80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="types\window\windows">
+      <UniqueIdentifier>{84c38869-f15c-44d7-a93d-00c2ff25a6fb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.cpp">
+      <Filter>videoDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\windows\videoDriverWindows.cpp">
+      <Filter>videoDriver\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\driver3dOpenGL21.cpp">
+      <Filter>driver3d\openGL21</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\windows\driver3dOpenGL21Windows.cpp">
+      <Filter>driver3d\openGL21\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\shader.cpp">
+      <Filter>types\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\vertex\vtxShader.cpp">
+      <Filter>types\shader\vertex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\vertex\openGL21\vtxShaderOpenGL21.cpp">
+      <Filter>types\shader\vertex\openGL21</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\pixel\openGL21\pxlShaderOpenGL21.cpp">
+      <Filter>types\shader\pixel\openGL21</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\pixel\pxlShader.cpp">
+      <Filter>types\shader\pixel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\openGL21\shaderOpenGL21.cpp">
+      <Filter>types\shader\OpenGL21</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.cpp">
+      <Filter>types\window\windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.h">
+      <Filter>videoDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\windows\videoDriverWindows.h">
+      <Filter>videoDriver\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\driver3d.h">
+      <Filter>driver3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\driver3dOpenGL21.h">
+      <Filter>driver3d\openGL21</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\glext.h">
+      <Filter>driver3d\openGL21</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\windows\driver3dOpenGL21Windows.h">
+      <Filter>driver3d\openGL21\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\color\color.h">
+      <Filter>types\color</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\shader.h">
+      <Filter>types\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\vertex\vtxShader.h">
+      <Filter>types\shader\vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\vertex\openGL21\vtxShaderOpenGL21.h">
+      <Filter>types\shader\vertex\openGL21</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\pixel\openGL21\pxlShaderOpenGL21.h">
+      <Filter>types\shader\pixel\openGL21</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\pixel\pxlShader.h">
+      <Filter>types\shader\pixel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\openGL21\shaderOpenGL21.h">
+      <Filter>types\shader\OpenGL21</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\window\videoWindow.h">
+      <Filter>types\window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.h">
+      <Filter>types\window\windows</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

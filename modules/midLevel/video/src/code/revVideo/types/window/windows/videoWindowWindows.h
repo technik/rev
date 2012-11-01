@@ -21,10 +21,13 @@ namespace rev { namespace video
 	public:
 		WindowWindows	(const math::Vec2i& position, const math::Vec2u& resolution);
 
-		void		setPosition		(const math::Vec2i& position) {}
-		void		setResolution	(const math::Vec2u& resolution) {}
+		void		setPosition		(const math::Vec2i& _position) { _position; }
+		void		setResolution	(const math::Vec2u& _resolution) { _resolution;}
 
-		HWND				winapiHandle	() const;
+		HWND		winapiHandle	() const;
+
+		bool		needsRedraw		() const { return true; }
+		void		redraw			() {}
 
 	private:
 		HWND	mWinapiHandle; // Winapi handle to the window

@@ -10,7 +10,7 @@
 
 #ifdef WIN32
 
-#include <videoDriver/videoDriver.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 namespace rev { namespace video
 {
