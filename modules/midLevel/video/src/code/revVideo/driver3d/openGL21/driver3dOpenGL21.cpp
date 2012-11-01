@@ -123,6 +123,23 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::setRealAttribBuffer(int _attribId,
+		unsigned //_nElements
+		, unsigned _nComponents, const void * _buffer)
+	{
+		glVertexAttribPointer(_attribId, _nComponents, GL_FLOAT, GL_FALSE, 0, _buffer);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::drawIndexBuffer(int //_nIndices
+		, unsigned short * //_indices
+		, Driver3d::EPrimitiveType //_primitive
+		)
+	{
+		//
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	VtxShader * Driver3dOpenGL21::createVtxShader(const char * _fileName)
 	{File * shaderFile = File::open(_fileName, false);
 		unsigned shaderId = glCreateShader(GL_FRAGMENT_SHADER);
@@ -151,8 +168,9 @@ namespace rev { namespace video
 		mGetShaderInfoLog	= (PFNGLGETSHADERINFOLOGPROC)loadExtension("glGetShaderInfoLog");
 		mGetShaderiv		= (PFNGLGETSHADERIVPROC)loadExtension("glGetShaderiv");
 		mLinkProgram		= (PFNGLLINKPROGRAMPROC)loadExtension("glLinkProgram");
-		mUseProgram			= (PFNGLUSEPROGRAMPROC)loadExtension("glUseProgram");
 		mShaderSource		= (PFNGLSHADERSOURCEPROC)loadExtension("glShaderSource");
+		mUseProgram			= (PFNGLUSEPROGRAMPROC)loadExtension("glUseProgram");
+		mVertexAttribPointer= (PFNGLVERTEXATTRIBPOINTERPROC)loadExtension("glVertexAttribPointer");
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -193,6 +211,13 @@ namespace rev { namespace video
 			revLog().flush();
 			return true;
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void  Driver3dOpenGL21::glVertexAttribPointer(GLuint _idx, GLint _size,
+		GLenum _type, bool _normalized, GLsizei _stride, const GLvoid * _pointer)
+	{
+		mVertexAttribPointer(_idx, _size, _type, _normalized, _stride, _pointer);
 	}
 
 }	// namespace video

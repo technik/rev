@@ -5,25 +5,19 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
-#include <iostream>
-#include <revCore/codeTools/log/log.h>
-#include <revVideo/videoDriver/videoDriver.h>
+#include <revCanvas/application/canvasApplication.h>
+
+using namespace rev::canvas;
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
-	rev::codeTools::Log::init();
-	rev::video::VideoDriver::startUp();
-	rev::video::VideoDriver::get()->createMainWindow();
-
+	CanvasApplication * canvasApp = new CanvasApplication();
 	bool mustExit = false;
 	while(!mustExit)
 	{
-		mustExit = !rev::video::VideoDriver::get()->update();
+		mustExit = !canvasApp->update();
 	}
-	
-	rev::video::VideoDriver::shutDown();
-	rev::codeTools::Log::end();
 	return 0;
 }

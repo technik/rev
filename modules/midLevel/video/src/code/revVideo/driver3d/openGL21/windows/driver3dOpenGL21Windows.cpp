@@ -11,7 +11,7 @@
 #include <gl/GL.h>
 
 #include "driver3dOpenGL21Windows.h"
-#include <types/window/windows/videoWindowWindows.h>
+#include <revVideo/types/window/windows/videoWindowWindows.h>
 
 namespace rev { namespace video
 {
