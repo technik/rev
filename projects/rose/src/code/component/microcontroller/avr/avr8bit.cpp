@@ -11,9 +11,9 @@
 #include <iostream>
 #include <sstream>
 
-#include <codeTools/assert/assert.h>
-#include <codeTools/log/log.h>
-#include <file/file.h>
+#include <revCore/codeTools/assert/assert.h>
+#include <revCore/codeTools/log/log.h>
+#include <revCore/file/file.h>
 using rev::File;
 using rev::revLog;
 
@@ -1084,8 +1084,8 @@ namespace rose { namespace component {
 	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::IN()
 	{
-		uint8_t d = (mCurOpcode & 0x1f0) >> 4;
-		uint8_t A = ((mCurOpcode & 0x600) >> 5) | (mCurOpcode & 0x0f);
+		uint8_t d = uint8_t((mCurOpcode & 0x1f0) >> 4);
+		uint8_t A =  uint8_t(((mCurOpcode & 0x600) >> 5) | (mCurOpcode & 0x0f));
 		mDataSpace[d] = (uint8_t) mIOMemory.read(A);
 		return 1;
 	}
@@ -1103,8 +1103,8 @@ namespace rose { namespace component {
 	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::LDI()
 	{
-		uint8_t data = ((mCurOpcode & 0x0f00)>>4) | (mCurOpcode & 0x000f);
-		uint8_t r = 0x10 | ((mCurOpcode & 0x00f0) >> 4);
+		uint8_t data =  uint8_t(((mCurOpcode & 0x0f00)>>4) | (mCurOpcode & 0x000f));
+		uint8_t r =  uint8_t(0x10 | ((mCurOpcode & 0x00f0) >> 4));
 		mDataSpace[r] = data;
 		return 1;
 	}
@@ -1205,8 +1205,8 @@ namespace rose { namespace component {
 	//------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::OUT()
 	{
-		uint8_t r = (mCurOpcode & 0x1f0) >> 4;
-		uint8_t A = ((mCurOpcode & 0x600) >> 5) | (mCurOpcode & 0x0f);
+		uint8_t r =  uint8_t((mCurOpcode & 0x1f0) >> 4);
+		uint8_t A =  uint8_t(((mCurOpcode & 0x600) >> 5) | (mCurOpcode & 0x0f));
 		mIOMemory.write(A, mDataSpace[r]);
 		return 1;
 	}
@@ -1309,8 +1309,8 @@ namespace rose { namespace component {
 	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::ST()
 	{
-		uint8_t r = (mCurOpcode&0x1f0)>>4;
-		uint8_t pointerSel = (mCurOpcode>>2) & 0x3;
+		uint8_t r =  uint8_t((mCurOpcode&0x1f0)>>4);
+		uint8_t pointerSel =  uint8_t((mCurOpcode>>2) & 0x3);
 		uint8_t rPointer = pointerSel?(0x20-(2*pointerSel)):0x1e;
 		unsigned pointer = (mDataSpace[rPointer+1]<<8) | mDataSpace[rPointer];
 
@@ -1327,7 +1327,7 @@ namespace rose { namespace component {
 	//-------------------------------------------------------------------------------------------------------------------
 	unsigned Avr8bit::STS()
 	{
-		uint8_t r = (mCurOpcode&0x1f0)>>4;
+		uint8_t r =  uint8_t((mCurOpcode&0x1f0)>>4);
 		unsigned k = mFlash[mProgramCounter++];
 		writeToSRAM(k, mDataSpace[r]);
 		return 2;

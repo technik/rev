@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-#include <codeTools/log/log.h>
+#include <revCore/codeTools/log/log.h>
 #include <component/microcontroller/avr/avr8bit.h>
 
 using namespace rev;
@@ -32,7 +32,7 @@ int main()
 	bool exit = false;
 	while(!exit)
 	{
-		cout << "---";
+		cout << "--->";
 		string instruction;
 		cin >> instruction;
 		switch(instruction[0])
