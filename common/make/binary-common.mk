@@ -6,6 +6,7 @@
 # Binary common makefile
 
 include $(REVSDK_HOME)/common/make/$(PLATFORM)/toolchain.mk
+include $(REVSDK_HOME)/common/make/$(PLATFORM)/platform.mk
 
 CXX_SRC := $(shell find $(CODE_DIR) -name *.cpp)
 CXX_OBJ := $(patsubst %.cpp, %.cpp.o, $(CXX_SRC))
