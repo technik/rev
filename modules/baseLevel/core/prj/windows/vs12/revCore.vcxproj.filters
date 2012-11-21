@@ -31,6 +31,12 @@
     <Filter Include="script\variant">
       <UniqueIdentifier>{59165ff8-9447-4dc8-809b-a3a5dbfc88aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="stream">
+      <UniqueIdentifier>{29f9e17d-2532-4e2c-8d7a-24442b8015cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stream\bytestream">
+      <UniqueIdentifier>{1cf9ec0c-b2f8-4a8c-b399-981e613b85ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCore\codeTools\assert\assert.h">
@@ -68,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revCore\script\variant\variant.h">
       <Filter>script\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\byteStream.h">
+      <Filter>stream\bytestream</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

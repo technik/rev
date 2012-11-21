@@ -108,6 +108,7 @@
     <ClInclude Include="..\..\..\src\code\revCore\resource\resource.h" />
     <ClInclude Include="..\..\..\src\code\revCore\resource\resourceManager.h" />
     <ClInclude Include="..\..\..\src\code\revCore\script\variant\variant.h" />
+    <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\byteStream.h" />
     <ClInclude Include="..\..\..\src\code\revCore\time\time.h" />
   </ItemGroup>
   <ItemGroup>
