@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\byteStream.h">
       <Filter>stream\bytestream</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\dummyByteStream.h">
+      <Filter>stream\bytestream</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revCore\codeTools\log\log.cpp">
@@ -88,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revCore\file\file.cpp">
       <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revCore\stream\byteStream\dummyByteStream.cpp">
+      <Filter>stream\bytestream</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

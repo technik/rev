@@ -109,11 +109,13 @@
     <ClInclude Include="..\..\..\src\code\revCore\resource\resourceManager.h" />
     <ClInclude Include="..\..\..\src\code\revCore\script\variant\variant.h" />
     <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\byteStream.h" />
+    <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\dummyByteStream.h" />
     <ClInclude Include="..\..\..\src\code\revCore\time\time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revCore\codeTools\log\log.cpp" />
     <ClCompile Include="..\..\..\src\code\revCore\file\file.cpp" />
+    <ClCompile Include="..\..\..\src\code\revCore\stream\byteStream\dummyByteStream.cpp" />
     <ClCompile Include="..\..\..\src\code\revCore\time\time.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
