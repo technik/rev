@@ -25,17 +25,23 @@ public:
 	Package		(Package&&); // Move constructor
 	~Package	();
 
+	Package& operator= (const Package&);
+	Package& operator= (Package&&);
+
 	// Data
 	void			setSize(uint8_t _size); // Sets size and allocates space for data
 	void			addData(uint8_t _byte);	// Assumes enough data is available in the packet
 	
 	// Accesors
 	Type			type	() const;
-	uint8_t			length	() const;
+	uint8_t			dataSize() const;
 	const uint8_t*	data	() const;
+
+	uint16_t		checksum() const;
 
 private:
 	uint8_t*	mData;
+	uint16_t	mChecksum;
 	uint8_t		mDataSize;
 	uint8_t		mDataIdx;
 	Type		mType;
@@ -47,6 +53,7 @@ private:
 //-------------------------------------------------------------------------------------------------------------------
 inline Package::Package()
 	:mData(nullptr)
+	,mChecksum(0)
 	,mDataSize(0)
 	,mDataIdx(0)
 {
@@ -55,6 +62,7 @@ inline Package::Package()
 //-------------------------------------------------------------------------------------------------------------------
 inline Package::Package(Package&& _x)
 	:mData(_x.mData)
+	,mChecksum(_x.mChecksum)
 	,mDataSize(_x.mDataSize)
 	,mDataIdx(_x.mDataIdx)
 	,mType(_x.mType)
@@ -69,7 +77,7 @@ inline Package::Type Package::type() const
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-inline uint8_t Package::length() const
+inline uint8_t Package::dataSize() const
 {
 	return mDataSize;
 }
@@ -78,6 +86,12 @@ inline uint8_t Package::length() const
 inline const uint8_t* Package::data() const
 {
 	return mData;
+}
+
+//-------------------------------------------------------------------------------------------------------------------
+inline uint16_t Package::checksum() const
+{
+	return mChecksum;
 }
 
 #endif // _ARDUINOLINK_COMMUNICATION_PACKAGE_PACKAGE_H_

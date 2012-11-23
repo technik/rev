@@ -5,6 +5,9 @@
     <ClCompile Include="..\..\..\src\code\communication\package\Package.cpp">
       <Filter>communication\package</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\communication\packagePort\packagePort.cpp">
+      <Filter>communication\packagePort</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="communication">

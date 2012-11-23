@@ -10,6 +10,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 Package::Package(Type _type, uint8_t _length, const void* _data)
 	:mType(_type)
+	,mChecksum(0)
 {
 	setSize(_length);
 	for(unsigned i = 0; i < _length; ++i)
@@ -19,6 +20,7 @@ Package::Package(Type _type, uint8_t _length, const void* _data)
 //----------------------------------------------------------------------------------------------------------------------
 Package::Package(const Package& _x)
 	:mType(_x.mType)
+	,mChecksum(0)
 {
 	setSize(_x.mDataSize);
 	for(unsigned i = 0; i < _x.mDataSize; ++i)
@@ -44,4 +46,5 @@ void Package::setSize(uint8_t _size)
 void Package::addData(uint8_t _data)
 {
 	mData[mDataIdx++] = _data;
+	mChecksum += _data;
 }
