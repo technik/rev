@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="communication">
+      <UniqueIdentifier>{b5e4edea-4c49-44fa-baa5-98213150fd0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\package">
+      <UniqueIdentifier>{006d97e0-1e8a-40bc-a083-67084cde9587}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\communication\package\package.h">
+      <Filter>communication\package</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

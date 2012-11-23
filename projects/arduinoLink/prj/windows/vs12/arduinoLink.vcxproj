@@ -76,6 +76,9 @@
       <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\communication\package\package.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
