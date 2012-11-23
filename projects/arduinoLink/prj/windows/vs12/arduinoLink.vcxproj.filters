@@ -13,10 +13,16 @@
     <Filter Include="communication\package">
       <UniqueIdentifier>{006d97e0-1e8a-40bc-a083-67084cde9587}</UniqueIdentifier>
     </Filter>
+    <Filter Include="communication\packagePort">
+      <UniqueIdentifier>{502da3b2-428b-493c-bee9-1ca47f191a71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\communication\package\package.h">
       <Filter>communication\package</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\communication\packagePort\packagePort.h">
+      <Filter>communication\packagePort</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
