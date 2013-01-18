@@ -2,26 +2,24 @@
 %{
 // This code is to be copied as is
 #include <cstdio>
+#include <string>
+
+#include "parser.h"
+
 int copyText(char* _dst, unsigned _maxSize);
 
-#define YY_INPUT(buf,result,max_size) { result = copyText(buf, max_size); }
+//#define YY_INPUT(buf,result,max_size) { result = copyText(buf, max_size); }
 
 %}
 
-%option yylineno
 %option noyywrap
 
 %%
 
-Hello	{ printf("Hello world!"); }
+[0-9]+		{ yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
+"+"			{ return '+'; }
 
 %%
-
-int main(int, const char**)
-{
-	yylex();
-	return 0;
-}
 
 int copied = 0;
 
