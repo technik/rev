@@ -3,7 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 // On January 18th, 2013
 //-------------------------------------------------------------------------
-// Script Virtual Machine
+// Variant: Dynamic type data holder
 
 #ifndef _REV_SCRIPT_VARIANT_VARIANT_H_
 #define _REV_SCRIPT_VARIANT_VARIANT_H_
@@ -13,7 +13,7 @@ namespace rev { namespace script
 	class Variant
 	{
 	public:
-		enum Type
+		enum class Type
 		{
 			nill,
 			integer,
@@ -32,6 +32,7 @@ namespace rev { namespace script
 		Variant& operator=	(int);
 
 		// Accessors
+		int	 asInteger		() const; // If the stored data is not an int, the result is undefined
 		Type type			() const;
 
 	private:
@@ -58,6 +59,12 @@ namespace rev { namespace script
 		:mDataType(Type::integer)
 	{
 		mData.mInteger = _x;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	inline int Variant::asInteger() const
+	{
+		return mData.mInteger;
 	}
 
 	//------------------------------------------------------------------------------------------------

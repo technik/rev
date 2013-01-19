@@ -1,31 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\code\revScript\scriptVM.h" />
     <ClInclude Include="..\..\..\src\code\revScript\variant\variant.h">
-      <Filter>variant</Filter>
+      <Filter>revScript\variant</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revScript\backend\parser.h">
-      <Filter>backend</Filter>
+      <Filter>revScript\backend</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revScript\backend\scriptVMBackend.h">
-      <Filter>backend</Filter>
+      <Filter>revScript\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revScript\scriptVM.h">
+      <Filter>revScript</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="backend">
+    <Filter Include="revScript">
+      <UniqueIdentifier>{67d8f8ed-fece-4104-8593-348e0d2cad2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revScript\backend">
       <UniqueIdentifier>{b69255dc-7566-48c1-89a4-c2f3ad49158a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="variant">
+    <Filter Include="revScript\variant">
       <UniqueIdentifier>{6c387b04-466e-4b6a-bedd-d6b76e0c57f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revScript\backend\lexer.cpp">
-      <Filter>backend</Filter>
+      <Filter>revScript\backend</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revScript\backend\parser.cpp">
-      <Filter>backend</Filter>
+      <Filter>revScript\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\variant\variant.cpp">
+      <Filter>revScript\variant</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

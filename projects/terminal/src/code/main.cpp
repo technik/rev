@@ -8,15 +8,19 @@
 #include <string>
 #include <iostream>
 
+// Rev headers
+#include <revScript/variant/variant.h>
+
 using std::string;
 using std::cin;
-
-int yyparse();
+using rev::script::Variant;
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
+	Variant num(3);
+	std::cout << num.asInteger();
 	while(true)
 	{
 		string code;
