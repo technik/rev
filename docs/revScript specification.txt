@@ -1,0 +1,132 @@
+// RevScript Language specification
+//---------------------------------
+
+//-------- Language objectives ------------
+// The purpose of the language is to serve as a script language for the engine.
+// As such, the language is intended for easy and quick use.
+// For that purpose, the language must commit to the following rules:
+// - C-like syntax
+// - No need to pre-declare variables
+// - Ability to declare functions and classes
+// - Python-like inheritance
+// - Dynamic data typing
+// - Built-in useful types
+// - Interface with native code (in both directions)
+// - Debug capabilities
+// - Maybe multithreading support
+// - namespaces?
+// The result should be a simplified mix between C++ and python
+
+//--------- Language specification --------------
+// BNF standard notation will be used below
+// TODO: There is an ambiguity in fnCall with types
+
+script 		= scriptBlock script
+			| scriptBlock
+			;
+scriptBlock	= statement
+			| clDecl
+			| fnDefinition
+			;
+statement	= conditional
+			| loop
+			| fnCall
+			| assignment
+			;
+clDecl		= clHeader clBody
+			;
+fnDef		= fnHeader stmtBlock
+			;
+conditional = ifBlock
+			| ifElseBlock
+loop		= whileLoop
+			| forLoop
+			;
+fnCall		= ident '(' exprLst ')'
+			| ident '(' ')'
+			| ident '.' fnCall
+			| type "::" fnCall
+			;
+assignment	= expression '=' expression
+			;
+clHeader	= "class" IDENTIFIER
+			| "class" IDENTIFIER ':' inheritLst
+			;
+clBody		= '{' interfaceBlock '}'
+			;
+interfaceBlock = interfaceStmt interfaceBlock
+			|
+			;
+interfaceStmt = "public" ':'
+			| "protected" ':'
+			| "private" ':'
+			| memberDecl
+			| methodDecl
+			;
+fnHeader	= "def" IDENTIFIER '(' argLst ')'
+			| "def" IDENTIFIER '(' argument ')'
+			;
+argLst		= argument ',' argLst
+			| argument
+			;
+argument	= IDENTIFIER argLst
+			| "const" IDENTIFIER argLst
+			;
+stmtBlock	= '{' stmtLst '}'
+			;
+stmtLst		= statement stmtLst
+			|
+			;
+ifBlock		= "if" '(' expression ')' stmtBlock
+			| "if" '(' expression ')' statement
+			;
+ifElseBlock = ifBlock elseBlock
+			;
+elseBlock	= "else" stmtBlock
+			| "else" statement
+			;
+whileLoop	= "while" '(' expression ')' stmtBlock
+			| "while" '(' expression ')' statement
+			;
+forLoop		= "for" '(' type IDENTIFIER "in" ident ')' stmtBlock
+			| "for" '(' type IDENTIFIER "in" ident ')' statement
+			;
+exprLst		= expression
+			| expression ',' exprLst
+			;
+ident		= IDENTIFIER
+			| type "::" ident
+			| ident "." ident
+			| ident '[' expression ']'
+			;
+inheritLst	= inherit
+			| inherit ',' inherit
+			;
+inherit		= "public" ident
+			| "protected" ident
+			| "private" ident
+expression	= fnCall
+			| ident
+			| literal
+			;
+literal		= STRING
+			| INTEGER
+			| FLOAT
+			| vector
+			| dictionary
+			;
+vector		= '[' ']'
+			| '[' exprLst ']'
+			;
+dictionary
+methodDecl	= ident IDENTIFIER '(' argLst ')' const
+			| ident IDENTIFIER '(' argLst ')'
+			| ident IDENTIFIER '(' argument ')' const
+			| ident IDENTIFIER '(' argument ')'
+			;
+memberDecl	= const IDENTIFIER '=' expression
+			| IDENTIFIER
+			;
+type		= IDENTIFIER
+			| IDENTIFIER "::" ident
+			;

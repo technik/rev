@@ -26,3 +26,4 @@
 *.opensdf
 *.log
 *.cache
+*.lib
