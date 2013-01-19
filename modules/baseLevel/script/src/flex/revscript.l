@@ -9,10 +9,12 @@
 int copyText(char* _dst, unsigned _maxSize);
 
 //#define YY_INPUT(buf,result,max_size) { result = copyText(buf, max_size); }
+#define YY_NO_UNISTD_H
 
 %}
 
 %option noyywrap
+%option never-interactive
 
 %%
 

@@ -56,7 +56,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 60 "../../src/code/parser.h"
+#line 60 "../../src/code/revScript/backend/parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

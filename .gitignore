@@ -24,3 +24,5 @@
 *.idb
 *.user
 *.opensdf
+*.log
+*.cache

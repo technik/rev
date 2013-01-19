@@ -5,12 +5,23 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
+#include <string>
+#include <iostream>
+
+using std::string;
+using std::cin;
+
 int yyparse();
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
+	while(true)
+	{
+		string code;
+		cin >> code;
+	}
 	//yyparse();
 	return 0;
 }

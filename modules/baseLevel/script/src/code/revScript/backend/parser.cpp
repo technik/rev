@@ -79,7 +79,7 @@ void yyerror(char const*);
 
 
 /* Line 189 of yacc.c  */
-#line 83 "../../src/code/parser.c"
+#line 83 "../../src/code/revScript/backend/parser.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -124,7 +124,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 128 "../../src/code/parser.c"
+#line 128 "../../src/code/revScript/backend/parser.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -136,7 +136,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 140 "../../src/code/parser.c"
+#line 140 "../../src/code/revScript/backend/parser.c"
 
 #ifdef short
 # undef short
@@ -1328,7 +1328,7 @@ yyreduce:
 
 
 /* Line 1464 of yacc.c  */
-#line 1332 "../../src/code/parser.c"
+#line 1332 "../../src/code/revScript/backend/parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

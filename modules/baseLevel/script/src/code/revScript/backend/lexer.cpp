@@ -1,6 +1,6 @@
-#line 2 "../../src/code/lexer.cpp"
+#line 2 "../../src/code/revScript/backend/lexer.cpp"
 
-#line 4 "../../src/code/lexer.cpp"
+#line 4 "../../src/code/revScript/backend/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -460,8 +460,9 @@ char *yytext;
 int copyText(char* _dst, unsigned _maxSize);
 
 //#define YY_INPUT(buf,result,max_size) { result = copyText(buf, max_size); }
+#define YY_NO_UNISTD_H
 
-#line 465 "../../src/code/lexer.cpp"
+#line 466 "../../src/code/revScript/backend/lexer.cpp"
 
 #define INITIAL 0
 
@@ -643,10 +644,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 17 "../../src/flex/revscript.l"
+#line 19 "../../src/flex/revscript.l"
 
 
-#line 650 "../../src/code/lexer.cpp"
+#line 651 "../../src/code/revScript/backend/lexer.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -705,16 +706,12 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 6 );
+		while ( yy_current_state != 8 );
+		yy_cp = (yy_last_accepting_cpos);
+		yy_current_state = (yy_last_accepting_state);
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
-		if ( yy_act == 0 )
-			{ /* have to back up */
-			yy_cp = (yy_last_accepting_cpos);
-			yy_current_state = (yy_last_accepting_state);
-			yy_act = yy_accept[yy_current_state];
-			}
 
 		YY_DO_BEFORE_ACTION;
 
@@ -731,20 +728,20 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 19 "../../src/flex/revscript.l"
+#line 21 "../../src/flex/revscript.l"
 { yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 20 "../../src/flex/revscript.l"
+#line 22 "../../src/flex/revscript.l"
 { return '+'; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 22 "../../src/flex/revscript.l"
+#line 24 "../../src/flex/revscript.l"
 ECHO;
 	YY_BREAK
-#line 748 "../../src/code/lexer.cpp"
+#line 745 "../../src/code/revScript/backend/lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -811,7 +808,8 @@ case YY_STATE_EOF(INITIAL):
 
 			else
 				{
-				yy_cp = (yy_c_buf_p);
+				yy_cp = (yy_last_accepting_cpos);
+				yy_current_state = (yy_last_accepting_state);
 				goto yy_find_action;
 				}
 			}
@@ -1294,10 +1292,6 @@ static void yy_load_buffer_state  (void)
 	yyfree((void *) b  );
 }
 
-#ifndef __cplusplus
-extern int isatty (int );
-#endif /* __cplusplus */
-    
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a yyrestart() or at EOF.
@@ -1321,7 +1315,7 @@ extern int isatty (int );
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+        b->yy_is_interactive = 0;
     
 	errno = oerrno;
 }
@@ -1742,7 +1736,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 22 "../../src/flex/revscript.l"
+#line 24 "../../src/flex/revscript.l"
 
 
 
