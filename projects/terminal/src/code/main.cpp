@@ -10,6 +10,7 @@
 
 // Rev headers
 #include <revScript/variant/variant.h>
+#include <revScript/scriptVM.h>
 
 using std::string;
 using std::cin;
@@ -20,8 +21,15 @@ int main (int //_argc
 	)
 {
 	Variant num(3);
-	std::cout << num.asInteger();
-	while(true)
+
+	rev::script::ScriptVM vm;
+	vm.setVar("Test01", num);
+
+	Variant dst;
+	vm.getVar("Test01", dst);
+
+	std::cout << dst.asInteger();
+	
 	{
 		string code;
 		cin >> code;

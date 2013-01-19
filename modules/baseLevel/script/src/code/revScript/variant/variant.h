@@ -32,8 +32,9 @@ namespace rev { namespace script
 		Variant& operator=	(int);
 
 		// Accessors
-		int	 asInteger		() const; // If the stored data is not an int, the result is undefined
-		Type type			() const;
+		int		asInteger	() const; // If the stored data is not an int, the result is undefined
+		void	setNill		();
+		Type	type		() const;
 
 	private:
 		union Data
@@ -65,6 +66,12 @@ namespace rev { namespace script
 	inline int Variant::asInteger() const
 	{
 		return mData.mInteger;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	inline void Variant::setNill()
+	{
+		mDataType = Type::nill;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -13,6 +13,9 @@
     <ClInclude Include="..\..\..\src\code\revScript\scriptVM.h">
       <Filter>revScript</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revScript\virtualMachine\dataTable.h">
+      <Filter>revScript\virtualMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="revScript">
@@ -24,6 +27,9 @@
     <Filter Include="revScript\variant">
       <UniqueIdentifier>{6c387b04-466e-4b6a-bedd-d6b76e0c57f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="revScript\virtualMachine">
+      <UniqueIdentifier>{f9203339-f664-4e77-854d-749cc27ada82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revScript\backend\lexer.cpp">
@@ -34,6 +40,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revScript\variant\variant.cpp">
       <Filter>revScript\variant</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\scriptVM.cpp">
+      <Filter>revScript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\dataTable.cpp">
+      <Filter>revScript\virtualMachine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
