@@ -11,6 +11,6 @@ int main (int //_argc
 	, const char** //_argv
 	)
 {
-	yyparse();
+	//yyparse();
 	return 0;
 }
