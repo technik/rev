@@ -25,12 +25,6 @@
     <Filter Include="resource">
       <UniqueIdentifier>{e46b0f77-1627-4d14-98ef-79affd11318f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="script">
-      <UniqueIdentifier>{34409b45-6827-4371-8261-a16d4886abd1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="script\variant">
-      <UniqueIdentifier>{59165ff8-9447-4dc8-809b-a3a5dbfc88aa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="stream">
       <UniqueIdentifier>{29f9e17d-2532-4e2c-8d7a-24442b8015cc}</UniqueIdentifier>
     </Filter>
@@ -71,9 +65,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revCore\resource\resourceManager.h">
       <Filter>resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\code\revCore\script\variant\variant.h">
-      <Filter>script\variant</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revCore\stream\byteStream\byteStream.h">
       <Filter>stream\bytestream</Filter>
