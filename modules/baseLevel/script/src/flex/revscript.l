@@ -5,11 +5,20 @@
 #include <string>
 
 #include "parser.h"
+#include "scriptVMBackend.h"
 
-int copyText(char* _dst, unsigned _maxSize);
+extern rev::script::ScriptVMBackend* gActiveBackend;
 
-//#define YY_INPUT(buf,result,max_size) { result = copyText(buf, max_size); }
+#define YY_INPUT(buf,result,max_size) { result = gActiveBackend->retrieveCode(buf, max_size); }
 #define YY_NO_UNISTD_H
+
+void copyText(char*& _dst, const char* _src, unsigned _len)
+{
+	_dst = new char[_len+1];
+	for(unsigned i = 0; i < _len; ++i)
+		_dst[i] = _src[i];
+	_dst[_len] = '\0';
+}
 
 %}
 
@@ -18,23 +27,10 @@ int copyText(char* _dst, unsigned _maxSize);
 
 %%
 
-[0-9]+		{ yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
-"+"			{ return '+'; }
+[ \t\r\n]					;
+[0-9]+						{ yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
+"+"							{ return '+'; }
+"="							{ return '='; }
+[a-zA-Z_][a-zA-Z_0-9]*		{ copyText(yylval.text, yytext, yyleng); return IDENTIFIER; }
 
 %%
-
-int copied = 0;
-
-int copyText(char* _dst, unsigned _maxSize)
-{
-	const char text[] = "Hello";
-	for(unsigned i = 0; i < _maxSize; ++i)
-	{
-		if(copied < 5) {
-			_dst[i] = text[copied++];
-		} else {
-		return (i==0)?YY_NULL:i; 
-		}
-	}
-	return _maxSize;
-}

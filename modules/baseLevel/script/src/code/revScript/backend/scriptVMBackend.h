@@ -15,16 +15,21 @@ namespace rev { namespace script
 	class ScriptVMBackend
 	{
 	public:
-		ScriptVMBackend(ScriptVM* _owner);
+		ScriptVMBackend				();
 
 		// Interface with the virtual machine
-		void interpretCode(const char* _code);
+		void		buildExecTree	(const char* _code);
 
-		// Interface with bison
-		void matchInteger(int);
+		// Interface with flex/bison
+		void		matchStatement	();
+		void		matchExpression	();
+		void		matchSum		(int, int);
+		void		matchInteger	(int);
+		unsigned	retrieveCode	(char* _dst, unsigned _maxSize);
 
 	private:
-		ScriptVM*	mOwner;
+		const char*	mCodeBuffer;
+		unsigned	mCodeCursor;
 	};
 
 }	// namespace script

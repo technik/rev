@@ -17,11 +17,26 @@ namespace rev { namespace script {
 		freeCell.first = _x;
 		return index;
 	}
+
+	//---------------------------------------------------------------------
+	void DataTable::releaseData(unsigned _index)
+	{
+		auto& slot = mTable[_index];
+		slot.second--;
+	}
 	
 	//---------------------------------------------------------------------
 	void DataTable::consultData(unsigned _index, Variant& _dst) const
 	{
 		_dst = mTable[_index].first;
+	}
+
+	//---------------------------------------------------------------------
+	void DataTable::getData(unsigned _index, Variant& _data)
+	{
+		auto& slot = mTable[_index];
+		slot.second++;
+		_data = slot.first;
 	}
 	
 	//---------------------------------------------------------------------

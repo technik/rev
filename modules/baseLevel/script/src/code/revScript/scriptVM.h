@@ -22,17 +22,23 @@ namespace rev { namespace script
 	class ScriptVM
 	{
 	public:
+		ScriptVM();
+		~ScriptVM();
+
+		//---- Interface ----------------------
 		void execute		(const char* _code);					// Run some code in the virtual machine
 		
 		void setVar			(const char* _name, const Variant& _v);	// Set a variable in the virtual environment
 		void getVar			(const char* _name, Variant& _v);		// Retrieve the variable's value from the virtual environment
 
-	private:
+	public:
 		typedef	std::unordered_map<std::string, unsigned>	LookUpT;
 
 	private:
-		DataTable		mStoredData;
-		LookUpT			mVarTable;
+		DataTable			mStoredData;
+		LookUpT				mVarTable;
+
+		ScriptVMBackend*	mBackend;
 	};
 
 }	// namespace script

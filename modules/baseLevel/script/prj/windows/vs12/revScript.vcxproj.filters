@@ -16,6 +16,9 @@
     <ClInclude Include="..\..\..\src\code\revScript\virtualMachine\dataTable.h">
       <Filter>revScript\virtualMachine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revScript\virtualMachine\executionTree\executionTree.h">
+      <Filter>revScript\virtualMachine\executionTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="revScript">
@@ -29,6 +32,9 @@
     </Filter>
     <Filter Include="revScript\virtualMachine">
       <UniqueIdentifier>{f9203339-f664-4e77-854d-749cc27ada82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="revScript\virtualMachine\executionTree">
+      <UniqueIdentifier>{99cbfc9e-44f4-4a70-850e-13bc280ccbad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\dataTable.cpp">
       <Filter>revScript\virtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\backend\scriptVMBackend.cpp">
+      <Filter>revScript\backend</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

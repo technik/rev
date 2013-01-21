@@ -6,8 +6,27 @@
 // Script Virtual Machine
 
 #include "scriptVM.h"
+#include "backend/scriptVMBackend.h"
 
 namespace rev { namespace script {
+
+	//---------------------------------------------------------------------
+	ScriptVM::ScriptVM()
+	{
+		mBackend = new ScriptVMBackend();
+	}
+
+	//---------------------------------------------------------------------
+	ScriptVM::~ScriptVM()
+	{
+		delete mBackend;
+	}
+
+	//---------------------------------------------------------------------
+	void ScriptVM::execute(const char* _code)
+	{
+		mBackend->buildExecTree(_code);
+	}
 
 	//---------------------------------------------------------------------
 	void ScriptVM::setVar(const char* _name, const Variant& _data)

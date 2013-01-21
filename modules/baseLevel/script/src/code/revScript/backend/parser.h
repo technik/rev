@@ -38,7 +38,8 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     INTEGER = 258
+     INTEGER = 258,
+     IDENTIFIER = 259
    };
 #endif
 
@@ -49,14 +50,15 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 11 "../../src/bison/revscript.y"
+#line 17 "../../src/bison/revscript.y"
 
-	int	integer;
+	int				integer;
+	char*			text;
 
 
 
 /* Line 1685 of yacc.c  */
-#line 60 "../../src/code/revScript/backend/parser.h"
+#line 62 "../../src/code/revScript/backend/parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

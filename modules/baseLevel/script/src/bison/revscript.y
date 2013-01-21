@@ -2,22 +2,38 @@
 /* Bison grammar file for rev script language */
 
 #include <stdio.h>
+#include <string>
+
+#include "scriptVMBackend.h"
+
 // Bison declarations (used during parsing, defined in the epilogue)
 int yylex(void);
 void yyerror(char const*);
 
+rev::script::ScriptVMBackend*	gActiveBackend = 0;
+
 %}
 
 %union{
-	int	integer;
+	int				integer;
+	char*			text;
 }
 
 
-%token <integer> INTEGER
+%token <integer> 	INTEGER
+%token <text>		IDENTIFIER
 
 %%
 
-revScript	: INTEGER '+' INTEGER			{ printf("%d\n", $1+$3);}
+revScript	:	statement
+			;
+statement	:	IDENTIFIER '=' expression
+			|	/* empty */
+			;
+expression	:	sum
+			;
+sum			:	INTEGER '+' INTEGER		{ gActiveBackend->matchSum(); }
+			;
 
 %%
 

@@ -104,6 +104,7 @@
     <ClInclude Include="..\..\..\src\code\revScript\scriptVM.h" />
     <ClInclude Include="..\..\..\src\code\revScript\variant\variant.h" />
     <ClInclude Include="..\..\..\src\code\revScript\virtualMachine\dataTable.h" />
+    <ClInclude Include="..\..\..\src\code\revScript\virtualMachine\executionTree\executionTree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revScript\backend\lexer.cpp">
@@ -118,6 +119,7 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Level3</WarningLevel>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</TreatWarningAsError>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\backend\scriptVMBackend.cpp" />
     <ClCompile Include="..\..\..\src\code\revScript\scriptVM.cpp" />
     <ClCompile Include="..\..\..\src\code\revScript\variant\variant.cpp" />
     <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\dataTable.cpp" />

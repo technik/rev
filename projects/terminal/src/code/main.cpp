@@ -33,7 +33,7 @@ int main (int //_argc
 	{
 		string code;
 		cin >> code;
+		vm.execute(code.c_str());
 	}
-	//yyparse();
 	return 0;
 }

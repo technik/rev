@@ -15,9 +15,8 @@ int yyparse();
 namespace rev { namespace script {
 
 	//----------------------------------------------------------------------------------
-	ScriptVMBackend::ScriptVMBackend(ScriptVM* _owner)
-		:mOwner(_owner)
-		,mCodeBuffer(nullptr)
+	ScriptVMBackend::ScriptVMBackend()
+		:mCodeBuffer(nullptr)
 		,mCodeCursor(0)
 	{ // Intentionally blank
 	}
