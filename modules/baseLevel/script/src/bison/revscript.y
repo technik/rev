@@ -16,7 +16,7 @@ rev::script::ScriptVMBackend*	gActiveBackend = 0;
 
 %union{
 	int				integer;
-	char*			text;
+	std::string*	text;
 }
 
 
@@ -25,14 +25,7 @@ rev::script::ScriptVMBackend*	gActiveBackend = 0;
 
 %%
 
-revScript	:	statement
-			;
-statement	:	IDENTIFIER '=' expression
-			|	/* empty */
-			;
-expression	:	sum
-			;
-sum			:	INTEGER '+' INTEGER		{ gActiveBackend->matchSum(); }
+revScript	:	IDENTIFIER '=' INTEGER ';'		{ gActiveBackend->matchAssign($1, $3); }
 			;
 
 %%

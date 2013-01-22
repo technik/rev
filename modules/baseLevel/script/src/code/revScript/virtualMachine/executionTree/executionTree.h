@@ -8,14 +8,34 @@
 #ifndef _REV_SCRIPT_VIRTUALMACHINE_EXECUTIONTREE_H_
 #define _REV_SCRIPT_VIRTUALMACHINE_EXECUTIONTREE_H_
 
+#include <string>
+
 namespace rev { namespace script {
 
 	class ScriptVM;
+
+	class AssignStatement
+	{
+	public:
+		AssignStatement(std::string* _identifier, int _value);
+		~AssignStatement();
+		void run(ScriptVM* _vm) const;
+
+	private:
+		std::string*	mId;
+		int				mLiteral;
+
+	};
 	
 	class ExecutionTree
 	{
 	public:
+		ExecutionTree();
+		~ExecutionTree();
 		void run(ScriptVM* _vm) const;
+		void addAssign(AssignStatement* _stmt);
+	private:
+		AssignStatement* mStmt;
 	};
 
 }	// namespace script

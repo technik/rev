@@ -20,20 +20,24 @@ int main (int //_argc
 	, const char** //_argv
 	)
 {
-	Variant num(3);
+	Variant num(0);
 
 	rev::script::ScriptVM vm;
-	vm.setVar("Test01", num);
+	vm.setVar("a", num);
 
 	Variant dst;
-	vm.getVar("Test01", dst);
+	vm.getVar("a", dst);
 
-	std::cout << dst.asInteger();
+	std::cout << dst.asInteger() << std::endl;
 	
 	{
 		string code;
 		cin >> code;
 		vm.execute(code.c_str());
+		vm.getVar("a", dst);
+
+		std::cout << dst.asInteger() << std::endl;
+		cin >> code;
 	}
 	return 0;
 }

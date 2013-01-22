@@ -8,28 +8,35 @@
 #ifndef _REV_SCRIPT_BACKEND_SCRIPTVMBACKEND_H_
 #define _REV_SCRIPT_BACKEND_SCRIPTVMBACKEND_H_
 
+#include <string>
+
 namespace rev { namespace script
 {
+	class ExecutionTree;
 	class ScriptVM;
 
 	class ScriptVMBackend
 	{
 	public:
-		ScriptVMBackend				();
+		ScriptVMBackend					();
+		~ScriptVMBackend				();
 
 		// Interface with the virtual machine
-		void		buildExecTree	(const char* _code);
+		ExecutionTree*	buildExecTree	(const char* _code);
 
 		// Interface with flex/bison
-		void		matchStatement	();
-		void		matchExpression	();
-		void		matchSum		(int, int);
-		void		matchInteger	(int);
-		unsigned	retrieveCode	(char* _dst, unsigned _maxSize);
+		void			matchStatement	();
+		void			matchExpression	();
+		void			matchAssign		(std::string* _identifier, int _literal);
+		void			matchSum		(int, int);
+		void			matchInteger	(int);
+		unsigned		retrieveCode	(char* _dst, unsigned _maxSize);
 
 	private:
-		const char*	mCodeBuffer;
-		unsigned	mCodeCursor;
+		const char*		mCodeBuffer;
+		unsigned		mCodeCursor;
+
+		ExecutionTree* mCurrentExecTree;
 	};
 
 }	// namespace script

@@ -7,6 +7,7 @@
 // and the virtual machine itself.
 
 #include "scriptVMBackend.h"
+#include "../virtualMachine/executionTree/executionTree.h"
 
 extern rev::script::ScriptVMBackend* gActiveBackend;
 
@@ -18,16 +19,39 @@ namespace rev { namespace script {
 	ScriptVMBackend::ScriptVMBackend()
 		:mCodeBuffer(nullptr)
 		,mCodeCursor(0)
+		,mCurrentExecTree(nullptr)
 	{ // Intentionally blank
 	}
 
 	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::buildExecTree(const char* _code)
+	ScriptVMBackend::~ScriptVMBackend()
+	{
+		if(nullptr != mCurrentExecTree) {
+			delete mCurrentExecTree;
+		}
+	}
+
+	//----------------------------------------------------------------------------------
+	ExecutionTree* ScriptVMBackend::buildExecTree(const char* _code)
 	{
 		mCodeCursor = 0;
 		mCodeBuffer = _code;
 		gActiveBackend = this;
+
+		// Create the execution tree we plan to return
+		mCurrentExecTree = new ExecutionTree();
+
 		yyparse();
+		// TODO: Return an actual execution tree
+		ExecutionTree* codeTree = mCurrentExecTree;
+		mCurrentExecTree = nullptr;
+		return codeTree;
+	}
+
+	//----------------------------------------------------------------------------------
+	void ScriptVMBackend::matchAssign(std::string* _identifier, int _value)
+	{
+		mCurrentExecTree->addAssign(new AssignStatement(_identifier, _value));
 	}
 
 	//----------------------------------------------------------------------------------

@@ -123,6 +123,7 @@
     <ClCompile Include="..\..\..\src\code\revScript\scriptVM.cpp" />
     <ClCompile Include="..\..\..\src\code\revScript\variant\variant.cpp" />
     <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\dataTable.cpp" />
+    <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\executionTree\executionTree.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

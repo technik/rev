@@ -31,6 +31,7 @@ void copyText(char*& _dst, const char* _src, unsigned _len)
 [0-9]+						{ yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
 "+"							{ return '+'; }
 "="							{ return '='; }
-[a-zA-Z_][a-zA-Z_0-9]*		{ copyText(yylval.text, yytext, yyleng); return IDENTIFIER; }
+";"							{ return ';'; }
+[a-zA-Z_][a-zA-Z_0-9]*		{ yylval.text = new std::string(yytext, yyleng); return IDENTIFIER; }
 
 %%

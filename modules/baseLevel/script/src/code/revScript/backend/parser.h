@@ -53,7 +53,7 @@ typedef union YYSTYPE
 #line 17 "../../src/bison/revscript.y"
 
 	int				integer;
-	char*			text;
+	std::string*	text;
 
 
 

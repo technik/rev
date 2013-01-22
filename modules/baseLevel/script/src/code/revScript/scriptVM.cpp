@@ -7,6 +7,7 @@
 
 #include "scriptVM.h"
 #include "backend/scriptVMBackend.h"
+#include "virtualMachine/executionTree/executionTree.h"
 
 namespace rev { namespace script {
 
@@ -25,7 +26,11 @@ namespace rev { namespace script {
 	//---------------------------------------------------------------------
 	void ScriptVM::execute(const char* _code)
 	{
-		mBackend->buildExecTree(_code);
+		ExecutionTree* codeTree = mBackend->buildExecTree(_code);
+		if(nullptr != codeTree) {
+			codeTree->run(this);
+			delete codeTree;
+		}
 	}
 
 	//---------------------------------------------------------------------

@@ -56,5 +56,8 @@
     <ClCompile Include="..\..\..\src\code\revScript\backend\scriptVMBackend.cpp">
       <Filter>revScript\backend</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revScript\virtualMachine\executionTree\executionTree.cpp">
+      <Filter>revScript\virtualMachine\executionTree</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
