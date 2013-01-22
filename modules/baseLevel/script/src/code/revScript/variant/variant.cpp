@@ -32,5 +32,13 @@ namespace rev { namespace script {
 		return *this;
 	}
 
+	//---------------------------------------------------------------------
+	Variant& Variant::operator=(float _x)
+	{
+		mDataType = Type::real;
+		mData.mReal = _x;
+		return *this;
+	}
+
 }	// namespace script
 }	// namespace rev
