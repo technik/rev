@@ -39,7 +39,8 @@
       know about them.  */
    enum yytokentype {
      INTEGER = 258,
-     IDENTIFIER = 259
+     REAL = 259,
+     IDENTIFIER = 260
    };
 #endif
 
@@ -53,12 +54,13 @@ typedef union YYSTYPE
 #line 17 "../../src/bison/revscript.y"
 
 	int				integer;
+	float			real;
 	std::string*	text;
 
 
 
 /* Line 1685 of yacc.c  */
-#line 62 "../../src/code/revScript/backend/parser.h"
+#line 64 "../../src/code/revScript/backend/parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

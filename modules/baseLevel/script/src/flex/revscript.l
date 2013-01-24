@@ -28,7 +28,8 @@ void copyText(char*& _dst, const char* _src, unsigned _len)
 %%
 
 [ \t\r\n]					;
-[0-9]+						{ yylval.integer = atoi(std::string(yytext, yyleng).c_str()); return INTEGER; }
+-?[0-9]+\.[0-9]*f?			{ yylval.real = atof(yytext); return REAL; }
+-?[0-9]+					{ yylval.integer = atoi(yytext); return INTEGER; }
 "+"							{ return '+'; }
 "="							{ return '='; }
 ";"							{ return ';'; }

@@ -13,6 +13,7 @@
 namespace rev { namespace script
 {
 	class ExecutionTree;
+	class Expression;
 	class ScriptVM;
 
 	class ScriptVMBackend
@@ -25,18 +26,17 @@ namespace rev { namespace script
 		ExecutionTree*	buildExecTree	(const char* _code);
 
 		// Interface with flex/bison
-		void			matchStatement	();
-		void			matchExpression	();
-		void			matchAssign		(std::string* _identifier, int _literal);
-		void			matchSum		(int, int);
+		void			matchAssign		(std::string* _identifier);
 		void			matchInteger	(int);
+		void			matchReal		(float);
 		unsigned		retrieveCode	(char* _dst, unsigned _maxSize);
 
 	private:
 		const char*		mCodeBuffer;
 		unsigned		mCodeCursor;
 
-		ExecutionTree* mCurrentExecTree;
+		ExecutionTree*	mCurrentExecTree;
+		Expression*		mActiveExpression;
 	};
 
 }	// namespace script

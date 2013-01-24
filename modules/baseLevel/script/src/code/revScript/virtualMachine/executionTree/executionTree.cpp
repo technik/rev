@@ -9,13 +9,43 @@
 #include "../../scriptVM.h"
 #include "../../variant/variant.h"
 
+#include <revCore/codeTools/assert/assert.h>
+
 namespace rev { namespace script {
 
 	//---------------------------------------------------------------------
-	AssignStatement::AssignStatement(std::string* _identifier, int _literal)
+	IntegerExpression::IntegerExpression(int _literal)
+		:mValue(_literal)
+	{
+	}
+
+	//---------------------------------------------------------------------
+	void IntegerExpression::evaluate(Variant& _result) const
+	{
+		_result = mValue;
+	}
+
+	//---------------------------------------------------------------------
+	RealExpression::RealExpression(float _literal)
+		:mValue(_literal)
+	{
+	}
+
+	//---------------------------------------------------------------------
+	void RealExpression::evaluate(Variant& _result) const
+	{
+		_result = mValue;
+	}
+
+	//---------------------------------------------------------------------
+	AssignStatement::AssignStatement(std::string* _identifier, Expression * _value)
 		:mId(_identifier)
-		,mLiteral(_literal)
-	{ // Intentionally blank
+		,mExpression(_value)
+	{
+		// Check input data is valid
+		revAssert(nullptr != _identifier);
+		revAssert(_identifier->c_str()[0] != '\0');
+		revAssert(nullptr != _value);
 	}
 
 	//---------------------------------------------------------------------
@@ -24,13 +54,15 @@ namespace rev { namespace script {
 		if(nullptr != mId) {
 			delete mId;
 		}
+		delete mExpression;
 	}
 
 	//---------------------------------------------------------------------
 	void AssignStatement::run(ScriptVM* _vm) const
 	{
-		Variant v(mLiteral);
-		_vm->setVar(mId->c_str(), mLiteral);
+		Variant value;
+		mExpression->evaluate(value);
+		_vm->setVar(mId->c_str(), value);
 	}
 
 	//---------------------------------------------------------------------

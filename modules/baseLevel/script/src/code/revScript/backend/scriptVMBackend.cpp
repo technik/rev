@@ -20,6 +20,7 @@ namespace rev { namespace script {
 		:mCodeBuffer(nullptr)
 		,mCodeCursor(0)
 		,mCurrentExecTree(nullptr)
+		,mActiveExpression(nullptr)
 	{ // Intentionally blank
 	}
 
@@ -49,46 +50,39 @@ namespace rev { namespace script {
 	}
 
 	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::matchAssign(std::string* _identifier, int _value)
+	void ScriptVMBackend::matchAssign(std::string* _identifier)
 	{
-		mCurrentExecTree->addAssign(new AssignStatement(_identifier, _value));
+		mCurrentExecTree->addAssign(new AssignStatement(_identifier, mActiveExpression));
+		mActiveExpression = 0;
 	}
 
 	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::matchStatement()
+	void ScriptVMBackend::matchInteger(int _integer)
 	{
-		// TODO
+		mActiveExpression = new IntegerExpression(_integer);
 	}
 
 	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::matchExpression()
+	void ScriptVMBackend::matchReal(float _real)
 	{
-		// TODO
-	}
-
-	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::matchSum(int, int)
-	{
-		// TODO
-	}
-
-	//----------------------------------------------------------------------------------
-	void ScriptVMBackend::matchInteger(int)
-	{
-		// TODO
+		mActiveExpression = new RealExpression(_real);
 	}
 
 	//----------------------------------------------------------------------------------
 	unsigned ScriptVMBackend::retrieveCode(char* _dst, unsigned _maxSize)
 	{
+		if(mCodeBuffer[mCodeCursor] == '\0')
+			return 0;
 		for(unsigned i = 0; i < _maxSize; ++i)
 		{
 			if(mCodeBuffer[mCodeCursor+i] == '\0') {
+				mCodeCursor += i;
 				return i;
 			} else {
 				_dst[i] = mCodeBuffer[mCodeCursor+i];
 			}
 		}
+		mCodeCursor += _maxSize;
 		return _maxSize;
 	}
 

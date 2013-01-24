@@ -16,16 +16,21 @@ rev::script::ScriptVMBackend*	gActiveBackend = 0;
 
 %union{
 	int				integer;
+	float			real;
 	std::string*	text;
 }
 
 
 %token <integer> 	INTEGER
+%token <real>		REAL
 %token <text>		IDENTIFIER
 
 %%
 
-revScript	:	IDENTIFIER '=' INTEGER ';'		{ gActiveBackend->matchAssign($1, $3); }
+revScript	:	IDENTIFIER '=' expression ';'		{ gActiveBackend->matchAssign($1); }
+			;
+expression	:	INTEGER							{ gActiveBackend->matchInteger($1); }
+			|	REAL							{ gActiveBackend->matchReal($1);	}
 			;
 
 %%

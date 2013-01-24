@@ -13,20 +13,51 @@
 namespace rev { namespace script {
 
 	class ScriptVM;
+	class Variant;
 
+	//---------------------------------------------------------
+	class Expression
+	{
+	public:
+		virtual ~Expression() {}
+		virtual void evaluate(Variant& _result) const = 0;
+	};
+
+	//---------------------------------------------------------
+	class IntegerExpression : public Expression
+	{
+	public:
+		IntegerExpression(int);
+		void evaluate(Variant& _result) const;
+	private:
+		int mValue;
+	};
+
+	//---------------------------------------------------------
+	class RealExpression : public Expression
+	{
+	public:
+		RealExpression(float);
+		void evaluate(Variant& _result) const;
+	private:
+		float mValue;
+	};
+
+	//---------------------------------------------------------
 	class AssignStatement
 	{
 	public:
-		AssignStatement(std::string* _identifier, int _value);
+		AssignStatement(std::string* _identifier, Expression* _value);
 		~AssignStatement();
 		void run(ScriptVM* _vm) const;
 
 	private:
 		std::string*	mId;
-		int				mLiteral;
+		Expression*		mExpression;
 
 	};
 	
+	//---------------------------------------------------------
 	class ExecutionTree
 	{
 	public:
