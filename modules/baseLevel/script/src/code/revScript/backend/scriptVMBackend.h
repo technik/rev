@@ -9,6 +9,7 @@
 #define _REV_SCRIPT_BACKEND_SCRIPTVMBACKEND_H_
 
 #include <string>
+#include <vector>
 
 namespace rev { namespace script
 {
@@ -28,15 +29,18 @@ namespace rev { namespace script
 		// Interface with flex/bison
 		void			matchAssign		(std::string* _identifier);
 		void			matchInteger	(int);
+		void			matchIdentifier	(std::string* _identifier);
 		void			matchReal		(float);
 		unsigned		retrieveCode	(char* _dst, unsigned _maxSize);
 
+	private:
+		typedef std::vector<Expression*>	ExpressionStack;
 	private:
 		const char*		mCodeBuffer;
 		unsigned		mCodeCursor;
 
 		ExecutionTree*	mCurrentExecTree;
-		Expression*		mActiveExpression;
+		ExpressionStack	mStack;
 	};
 
 }	// namespace script

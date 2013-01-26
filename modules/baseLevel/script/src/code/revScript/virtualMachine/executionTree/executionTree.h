@@ -20,7 +20,7 @@ namespace rev { namespace script {
 	{
 	public:
 		virtual ~Expression() {}
-		virtual void evaluate(Variant& _result) const = 0;
+		virtual void evaluate(ScriptVM* _vm, Variant& _result) const = 0;
 	};
 
 	//---------------------------------------------------------
@@ -28,7 +28,7 @@ namespace rev { namespace script {
 	{
 	public:
 		IntegerExpression(int);
-		void evaluate(Variant& _result) const;
+		void evaluate(ScriptVM* _vm, Variant& _result) const;
 	private:
 		int mValue;
 	};
@@ -38,7 +38,17 @@ namespace rev { namespace script {
 	{
 	public:
 		RealExpression(float);
-		void evaluate(Variant& _result) const;
+		void evaluate(ScriptVM* _vm, Variant& _result) const;
+	private:
+		float mValue;
+	};
+
+	//---------------------------------------------------------
+	class VariableExpression : public Expression
+	{
+	public:
+		VariableExpression(std::string* _name);
+		void evaluate(ScriptVM* _vm, Variant& _result) const;
 	private:
 		float mValue;
 	};

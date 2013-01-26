@@ -27,10 +27,11 @@ rev::script::ScriptVMBackend*	gActiveBackend = 0;
 
 %%
 
-revScript	:	IDENTIFIER '=' expression ';'		{ gActiveBackend->matchAssign($1); }
+revScript	:	IDENTIFIER '=' expression		{ gActiveBackend->matchAssign($1); 			}
 			;
-expression	:	INTEGER							{ gActiveBackend->matchInteger($1); }
-			|	REAL							{ gActiveBackend->matchReal($1);	}
+expression	:	INTEGER							{ gActiveBackend->matchInteger($1); 		}
+			|	REAL							{ gActiveBackend->matchReal($1);			}
+			|	IDENTIFIER						{ gActiveBackend->matchIdExpression($1);	}
 			;
 
 %%

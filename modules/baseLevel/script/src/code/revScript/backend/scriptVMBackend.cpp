@@ -20,7 +20,6 @@ namespace rev { namespace script {
 		:mCodeBuffer(nullptr)
 		,mCodeCursor(0)
 		,mCurrentExecTree(nullptr)
-		,mActiveExpression(nullptr)
 	{ // Intentionally blank
 	}
 
@@ -30,6 +29,9 @@ namespace rev { namespace script {
 		if(nullptr != mCurrentExecTree) {
 			delete mCurrentExecTree;
 		}
+		// Clear the stack
+		for(auto i = mStack.begin(); i != mStack.end(); ++i)
+			delete (*i);
 	}
 
 	//----------------------------------------------------------------------------------
@@ -52,20 +54,21 @@ namespace rev { namespace script {
 	//----------------------------------------------------------------------------------
 	void ScriptVMBackend::matchAssign(std::string* _identifier)
 	{
-		mCurrentExecTree->addAssign(new AssignStatement(_identifier, mActiveExpression));
-		mActiveExpression = 0;
+		Expression* rValue = mStack.back();
+		mStack.pop_back();
+		mCurrentExecTree->addAssign(new AssignStatement(_identifier, rValue));
 	}
 
 	//----------------------------------------------------------------------------------
 	void ScriptVMBackend::matchInteger(int _integer)
 	{
-		mActiveExpression = new IntegerExpression(_integer);
+		mStack.push_back(new IntegerExpression(_integer));
 	}
 
 	//----------------------------------------------------------------------------------
 	void ScriptVMBackend::matchReal(float _real)
 	{
-		mActiveExpression = new RealExpression(_real);
+		mStack.push_back(new IntegerExpression(_real));
 	}
 
 	//----------------------------------------------------------------------------------
