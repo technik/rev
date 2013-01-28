@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1010DA05-36E5-4A28-97C3-C7D873810A21}</ProjectGuid>
+    <ProjectGuid>{6A37958C-8072-43CA-AD17-A3FC5725068E}</ProjectGuid>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>revVideo</RootNamespace>
