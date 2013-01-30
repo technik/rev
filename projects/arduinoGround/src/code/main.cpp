@@ -5,11 +5,18 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Entry point
 
+#include <revCanvas/application/canvasApplication.h>
 
+using namespace rev::canvas;
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
+	CanvasApplication* app = new CanvasApplication();
+	while(app->update())
+	{}
+	delete app;
+
 	return 0;
 }

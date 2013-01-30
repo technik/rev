@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCanvas\application\canvasApplication.h" />
+    <ClInclude Include="..\..\..\src\code\revCanvas\canvas\canvas.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

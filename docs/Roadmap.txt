@@ -1,0 +1,6 @@
+//---------------------------
+// Miscellaneous tasks
+//---------------------------
+- Video system to support scripted configuration parameters and/or a default config script file
+- Script system to support setting default values when you request a variable that doesn't exist yet
+- Review 3d driver interface. Shader/fixed pipeline stuff should be isolated from 3dDriver interface

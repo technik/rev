@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arduinoGround", "arduinoGro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revVideo", "..\..\..\..\..\modules\midLevel\video\prj\windows\vs12\revVideo.vcxproj", "{6A37958C-8072-43CA-AD17-A3FC5725068E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "canvas", "..\..\..\..\..\modules\highLevel\canvas\prj\windows\vs12\canvas.vcxproj", "{A3A80EEB-CE85-473F-A402-25186CCB4F5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Debug|Win32.Build.0 = Debug|Win32
 		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Release|Win32.ActiveCfg = Release|Win32
 		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Release|Win32.Build.0 = Release|Win32
+		{A3A80EEB-CE85-473F-A402-25186CCB4F5C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A3A80EEB-CE85-473F-A402-25186CCB4F5C}.Debug|Win32.Build.0 = Debug|Win32
+		{A3A80EEB-CE85-473F-A402-25186CCB4F5C}.Release|Win32.ActiveCfg = Release|Win32
+		{A3A80EEB-CE85-473F-A402-25186CCB4F5C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

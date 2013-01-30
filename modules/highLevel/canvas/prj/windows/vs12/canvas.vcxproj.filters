@@ -4,6 +4,9 @@
     <Filter Include="application">
       <UniqueIdentifier>{4f1907e9-aa88-439a-a0af-b4ee4e66d61c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="canvas">
+      <UniqueIdentifier>{f7019537-3554-4cc1-b6ce-129495a8bd31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revCanvas\application\canvasApplication.cpp">
@@ -13,6 +16,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCanvas\application\canvasApplication.h">
       <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revCanvas\canvas\canvas.h">
+      <Filter>canvas</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

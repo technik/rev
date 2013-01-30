@@ -25,6 +25,8 @@
 
 using namespace rev::math;
 
+// loadExtension must be a macro in order to allow extensions to be loaded from the constructor. If it was a virtual function,
+// you would not be able to call it during construction, and it would require extra complexity to get this system work properly.
 #ifdef WIN32
 #define loadExtension( a ) wglGetProcAddress( a )
 #endif // WIN32

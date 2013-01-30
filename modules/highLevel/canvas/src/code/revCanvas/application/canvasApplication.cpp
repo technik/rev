@@ -6,6 +6,7 @@
 // Basic canvas application
 
 #include "canvasApplication.h"
+#include "../canvas/canvas.h"
 #include <revCore/codeTools/log/log.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
@@ -24,11 +25,14 @@ namespace rev { namespace canvas
 		Log::init();
 		// Init video systems and drivers
 		initializeVideoSystem();
+		// Create canvas
+		mCanvas = new Canvas();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CanvasApplication::~CanvasApplication()
 	{
+		delete mCanvas;
 		VideoDriver::shutDown();
 		Log::end();
 	}
@@ -37,6 +41,7 @@ namespace rev { namespace canvas
 	bool CanvasApplication::update()
 	{
 		mDriver3d->clearColorBuffer();
+		this->draw();
 		mDriver3d->finishFrame();
 		return mVideoDriver->update();
 	}

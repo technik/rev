@@ -17,6 +17,8 @@ namespace rev {
 
 namespace rev { namespace canvas
 {
+	class Canvas;
+
 	class CanvasApplication
 	{
 	public:
@@ -25,13 +27,18 @@ namespace rev { namespace canvas
 
 		bool update();
 
+	protected:
+		Canvas* canvas();
+
 	private:
+		virtual void draw() {} // Override this function with your main loop code
 		void initializeVideoSystem();
 
 	private:
 		// Driver cache
 		video::VideoDriver*	mVideoDriver;
 		video::Driver3d*	mDriver3d;
+		Canvas*				mCanvas;
 	};
 }	// namespace canvas
 }	// namespace rev

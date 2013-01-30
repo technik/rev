@@ -20,7 +20,7 @@ namespace rev { namespace script {
 	}
 
 	//---------------------------------------------------------------------
-	void IntegerExpression::evaluate(Variant& _result) const
+	void IntegerExpression::evaluate(ScriptVM*, Variant& _result) const
 	{
 		_result = mValue;
 	}
@@ -32,7 +32,7 @@ namespace rev { namespace script {
 	}
 
 	//---------------------------------------------------------------------
-	void RealExpression::evaluate(Variant& _result) const
+	void RealExpression::evaluate(ScriptVM*, Variant& _result) const
 	{
 		_result = mValue;
 	}
@@ -61,7 +61,7 @@ namespace rev { namespace script {
 	void AssignStatement::run(ScriptVM* _vm) const
 	{
 		Variant value;
-		mExpression->evaluate(value);
+		mExpression->evaluate(_vm, value);
 		_vm->setVar(mId->c_str(), value);
 	}
 
