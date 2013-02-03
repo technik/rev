@@ -25,6 +25,10 @@ namespace rev { namespace video
 	public:
 		enum class EPrimitiveType
 		{
+			triangles,
+			triStrip,
+			lines,
+			lineStrip
 		};
 	public:
 		virtual ~Driver3d() {} // Virtual destructor
@@ -38,6 +42,7 @@ namespace rev { namespace video
 		virtual void		flush				() = 0;
 		virtual void		finishFrame			() = 0;
 
+		// --- Shaders -----
 		virtual void		setShader			(const Shader * _shader) = 0;
 		virtual PxlShader*	createPxlShader		(const char * _fileName) = 0;
 		virtual Shader*		createShader		(VtxShader*, PxlShader*) = 0;

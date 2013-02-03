@@ -10,13 +10,22 @@
 
 #include <revCore/math/algebra/vector.h>
 
+namespace rev { namespace video {
+	class Driver3d;
+}}
+
 namespace rev { namespace canvas {
 
 	class Canvas
 	{
 	public:
+		Canvas();
+
 		void rect(const math::Vec2f& _topLeft, const math::Vec2f& _size);
 		void line(const math::Vec2f& _start, const math::Vec2f& _end);
+
+	private:
+		video::Driver3d* mDriver3d;
 	};
 
 }	// namespace canvas

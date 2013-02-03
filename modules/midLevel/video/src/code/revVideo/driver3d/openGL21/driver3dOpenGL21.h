@@ -42,9 +42,10 @@ namespace rev { namespace video
 		void		setRealAttribBuffer	(int _attribId, unsigned _nElements, unsigned _nComponents, const void * _buffer);
 		void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, Driver3d::EPrimitiveType _primitive);
 
-	private: // Methods for internal use
+	protected: // Methods for internal use
 		void	loadOpenGLExtensions		();
 
+	private:
 		void	bindShaderAttributes		(int _shader);
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
 

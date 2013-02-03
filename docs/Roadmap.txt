@@ -4,3 +4,20 @@
 - Video system to support scripted configuration parameters and/or a default config script file
 - Script system to support setting default values when you request a variable that doesn't exist yet
 - Review 3d driver interface. Shader/fixed pipeline stuff should be isolated from 3dDriver interface
+- Review Resource class. Should they be created with 0 references to suport stack allocation? In that case, is the get method
+	that should set references to one if the object has just been created.
+	- Can Resource's Manager type be private instead of public?
+- 3dDriverOpenGL21 's load extensions should be virtual functions
+
+//----------------------------------
+// Arduino ground station objectives
+//----------------------------------
+- Automatic connection with arduino devices programmed using the "standard" protocol for arduino
+communication (defined somewhere in rev)
+- Interactive script console
+- Support config scripts
+- Support "task" scripts: You set up a script for the application to run every frame.
+- Support on the fly edition of task scripts: Whithout closing the application, edit the script in an external editor
+	and the script will be automatically reloaded.
+- Draw squares, lines, images and text.
+- Select multiple colors/styles for drawing

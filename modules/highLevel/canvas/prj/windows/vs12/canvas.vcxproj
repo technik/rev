@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revCanvas\application\canvasApplication.cpp" />
+    <ClCompile Include="..\..\..\src\code\revCanvas\canvas\canvas.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCanvas\application\canvasApplication.h" />

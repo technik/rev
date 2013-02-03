@@ -27,6 +27,8 @@ using namespace rev::math;
 
 // loadExtension must be a macro in order to allow extensions to be loaded from the constructor. If it was a virtual function,
 // you would not be able to call it during construction, and it would require extra complexity to get this system work properly.
+// Note: This has proven the wrong way to do things. As usual, there is a good reason not to allow virtuals here. Virtuals may
+// depend. So...TODO: Make loadExtensions into a virtual function
 #ifdef WIN32
 #define loadExtension( a ) wglGetProcAddress( a )
 #endif // WIN32
@@ -39,7 +41,6 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	Driver3dOpenGL21::Driver3dOpenGL21()
 	{
-		loadOpenGLExtensions();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -92,7 +93,8 @@ namespace rev { namespace video
 	PxlShader * Driver3dOpenGL21::createPxlShader(const char * _fileName)
 	{
 		File * shaderFile = File::open(_fileName, false);
-		unsigned shaderId = glCreateShader(GL_VERTEX_SHADER);
+		revAssert(nullptr != shaderFile, "Error: Couldn't open shader file");
+		unsigned shaderId = glCreateShader(GL_FRAGMENT_SHADER);
 		const char * code[1];
 		code[0] = shaderFile->bufferAsText();
 		glShaderSource(shaderId, 1, code, 0); // Attach source
@@ -143,8 +145,10 @@ namespace rev { namespace video
 
 	//------------------------------------------------------------------------------------------------------------------
 	VtxShader * Driver3dOpenGL21::createVtxShader(const char * _fileName)
-	{File * shaderFile = File::open(_fileName, false);
-		unsigned shaderId = glCreateShader(GL_FRAGMENT_SHADER);
+	{
+		File * shaderFile = File::open(_fileName, false);
+		revAssert(nullptr != shaderFile, "Error: Couldn't open shader file");
+		unsigned shaderId = glCreateShader(GL_VERTEX_SHADER);
 		const char * code[1];
 		code[0] = shaderFile->bufferAsText();
 		glShaderSource(shaderId, 1, code, 0); // Attach source

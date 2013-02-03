@@ -12,6 +12,9 @@
     <ClCompile Include="..\..\..\src\code\revCanvas\application\canvasApplication.cpp">
       <Filter>application</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revCanvas\canvas\canvas.cpp">
+      <Filter>canvas</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCanvas\application\canvasApplication.h">
