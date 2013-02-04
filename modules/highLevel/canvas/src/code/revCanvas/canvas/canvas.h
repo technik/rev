@@ -8,10 +8,12 @@
 #ifndef _REV_CANVAS_CANVAS_CANVAS_H_
 #define _REV_CANVAS_CANVAS_CANVAS_H_
 
+#include <cstdint>
 #include <revCore/math/algebra/vector.h>
 
 namespace rev { namespace video {
 	class Driver3d;
+	class Shader;
 }}
 
 namespace rev { namespace canvas {
@@ -25,7 +27,11 @@ namespace rev { namespace canvas {
 		void line(const math::Vec2f& _start, const math::Vec2f& _end);
 
 	private:
-		video::Driver3d* mDriver3d;
+		video::Driver3d*	mDriver3d;
+		video::Shader*		mShader;
+
+		int					mColorUniformId;
+		uint16_t			mRectIndices[6];
 	};
 
 }	// namespace canvas

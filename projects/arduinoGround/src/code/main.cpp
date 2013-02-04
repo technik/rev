@@ -6,17 +6,29 @@
 // Entry point
 
 #include <revCanvas/application/canvasApplication.h>
+#include <revCanvas/canvas/canvas.h>
 
 using namespace rev::canvas;
+
+class TestCanvasApp : public CanvasApplication
+{
+public:
+	void draw();
+};
 
 int main (int //_argc
 	, const char** //_argv
 	)
 {
-	CanvasApplication* app = new CanvasApplication();
+	CanvasApplication* app = new TestCanvasApp();
 	while(app->update())
 	{}
 	delete app;
 
 	return 0;
+}
+
+void TestCanvasApp::draw()
+{
+	canvas()->rect(rev::math::Vec2f(0.f, 0.f), rev::math::Vec2f(1.f, 0.5f));
 }

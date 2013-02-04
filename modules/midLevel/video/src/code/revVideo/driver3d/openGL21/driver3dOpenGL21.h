@@ -12,6 +12,8 @@
 #include <Windows.h>
 #endif // WIN32
 
+#include <cstdint>
+
 #include <GL/gl.h>
 #include "glext.h"
 
@@ -19,6 +21,8 @@
 
 namespace rev { namespace video
 {
+	class VtxShaderOpenGL21;
+
 	class Driver3dOpenGL21 : public Driver3d
 	{
 	public:
@@ -39,14 +43,25 @@ namespace rev { namespace video
 		Shader*		createShader			(VtxShader*, PxlShader*);
 		VtxShader*	createVtxShader			(const char * _fileName);
 
-		void		setRealAttribBuffer	(int _attribId, unsigned _nElements, unsigned _nComponents, const void * _buffer);
-		void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, Driver3d::EPrimitiveType _primitive);
+		// --- Attributes and uniforms
+		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const float * _buffer);
+		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const uint16_t* _buffer);
+		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const int16_t* _buffer);
+		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const math::Vec2f* _buffer);
+		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const math::Vec3f* _buffer);
+
+		void		setUniform				(int _id, float _value);
+		void		setUniform				(int _id, const math::Vec2f& _value);
+		void		setUniform				(int _id, const math::Vec3f& _value);
+		void		setUniform				(int _id, const Color& _value);
+
+		// --- Draw ---
+		void		drawIndexBuffer			(int _nIndices, unsigned short * _indices, Driver3d::EPrimitiveType _primitive);
 
 	protected: // Methods for internal use
 		void	loadOpenGLExtensions		();
 
 	private:
-		void	bindShaderAttributes		(int _shader);
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
 
 	private: // Abstract methods
@@ -54,35 +69,53 @@ namespace rev { namespace video
 
 	public:
 		// OpenGL extensions
-		void	glAttachShader		(GLuint _program, GLuint _shader)	{ mAttachShader(_program, _shader); }
-		void	glCompileShader		(GLuint _shader)					{ mCompileShader(_shader);			}
-		GLuint	glCreateProgram		()									{ return mCreateProgram();			}
-		GLuint	glCreateShader		(GLenum _shaderType)				{ return mCreateShader(_shaderType);}
-		void	glDeleteProgram		(GLuint _program)					{ mDeleteProgram(_program);			}
-		void	glDeleteShader		(GLuint _shader)					{ mDeleteShader(_shader);			}
-		void	glGetShaderInfoLog	(GLuint _shader, GLsizei _maxLen, GLsizei* _length, GLchar* _infoLog);
-		void	glGetShaderiv		(GLuint _shader, GLenum _paramName, GLint* _params);
-		void	glLinkProgram		(GLuint _program)					{ mLinkProgram(_program);			}
-		void	glShaderSource		(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
-		void	glUseProgram		(GLuint _program)					{ mUseProgram(_program);			}
-		void	glVertexAttribPointer(GLuint _idx, GLint _size, GLenum _type, bool _normalized, GLsizei _stride,
+		void	glAttachShader				(GLuint _program, GLuint _shader)	{ mAttachShader(_program, _shader); }
+		void	glBindAttribLocation		(GLuint _program, GLuint _index, const GLchar* _name);
+		void	glCompileShader				(GLuint _shader)					{ mCompileShader(_shader);			}
+		GLuint	glCreateProgram				()									{ return mCreateProgram();			}
+		GLuint	glCreateShader				(GLenum _shaderType)				{ return mCreateShader(_shaderType);}
+		void	glDeleteProgram				(GLuint _program)					{ mDeleteProgram(_program);			}
+		void	glDeleteShader				(GLuint _shader)					{ mDeleteShader(_shader);			}
+		void	glDisableVertexAttribArray	(GLuint _index);
+		void	glEnableVertexAttribArray	(GLuint _index);
+		GLint	glGetUniformLocation		(GLuint _program, const GLchar* _uniform);
+		void	glGetShaderInfoLog			(GLuint _shader, GLsizei _maxLen, GLsizei* _length, GLchar* _infoLog);
+		void	glGetShaderiv				(GLuint _shader, GLenum _paramName, GLint* _params);
+		void	glLinkProgram				(GLuint _program)					{ mLinkProgram(_program);			}
+		void	glShaderSource				(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
+		void	glUniform1f					(GLint _uniform, float _value);
+		void	glUniform2f					(GLint _uniform, float _f0, float _f1);
+		void	glUniform3f					(GLint _uniform, float _f0, float _f1, float _f2);
+		void	glUniform4f					(GLint _uniform, float _f0, float _f1, float _f2, float _f3);
+		void	glUseProgram				(GLuint _program)					{ mUseProgram(_program);			}
+		void	glVertexAttribPointer		(GLuint _idx, GLint _size, GLenum _type, bool _normalized, GLsizei _stride,
  				const GLvoid * _pointer);
 
 
 	private:
 		// OpenGL extensions
-		PFNGLATTACHSHADERPROC		mAttachShader;
-		PFNGLCOMPILESHADERPROC		mCompileShader;
-		PFNGLCREATEPROGRAMPROC		mCreateProgram;
-		PFNGLCREATESHADERPROC		mCreateShader;
-		PFNGLDELETEPROGRAMPROC		mDeleteProgram;
-		PFNGLDELETESHADERPROC		mDeleteShader;
-		PFNGLGETSHADERINFOLOGPROC	mGetShaderInfoLog;
-		PFNGLGETSHADERIVPROC		mGetShaderiv;
-		PFNGLLINKPROGRAMPROC		mLinkProgram;
-		PFNGLSHADERSOURCEPROC		mShaderSource;
-		PFNGLUSEPROGRAMPROC			mUseProgram;
-		PFNGLVERTEXATTRIBPOINTERPROC mVertexAttribPointer;
+		PFNGLATTACHSHADERPROC				mAttachShader;
+		PFNGLBINDATTRIBLOCATIONPROC			mBindAttribLocation;
+		PFNGLCOMPILESHADERPROC				mCompileShader;
+		PFNGLCREATEPROGRAMPROC				mCreateProgram;
+		PFNGLCREATESHADERPROC				mCreateShader;
+		PFNGLDELETEPROGRAMPROC				mDeleteProgram;
+		PFNGLDELETESHADERPROC				mDeleteShader;
+		PFNGLDISABLEVERTEXATTRIBARRAYPROC	mDisableVertexAttribArray;
+		PFNGLENABLEVERTEXATTRIBARRAYPROC	mEnableVertexAttribArray;
+		PFNGLGETUNIFORMLOCATIONPROC			mGetUniformLocation;
+		PFNGLGETSHADERINFOLOGPROC			mGetShaderInfoLog;
+		PFNGLGETSHADERIVPROC				mGetShaderiv;
+		PFNGLLINKPROGRAMPROC				mLinkProgram;
+		PFNGLSHADERSOURCEPROC				mShaderSource;
+		PFNGLUNIFORM1FPROC					mUniform1f;
+		PFNGLUNIFORM2FPROC					mUniform2f;
+		PFNGLUNIFORM3FPROC					mUniform3f;
+		PFNGLUNIFORM4FPROC					mUniform4f;
+		PFNGLUSEPROGRAMPROC					mUseProgram;
+		PFNGLVERTEXATTRIBPOINTERPROC		mVertexAttribPointer;
+		
+		const VtxShaderOpenGL21*			mCurVtxShader;
 	};
 
 }	// namespace video

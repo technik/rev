@@ -15,7 +15,7 @@ namespace rev { namespace math
 	class NumericTraits
 	{
 	public:
-#ifndef WIN32
+#ifndef _WIN32
 		static constexpr Number_	zero();
 #else // WIN32
 		static			 Number_	zero();
@@ -27,7 +27,7 @@ namespace rev { namespace math
 	class NumericTraits<float>
 	{
 	public:
-#ifndef WIN32
+#ifndef _WIN32
 		static constexpr float	zero() { return 0.f; }
 #else // WIN32
 		static float			zero() { return 0.f; }
@@ -39,7 +39,7 @@ namespace rev { namespace math
 	class NumericTraits<int>
 	{
 	public:
-#ifndef WIN32
+#ifndef _WIN32
 		static constexpr int	zero() { return 0; }
 #else // WIN32
 		static int			zero() { return 0; }
@@ -51,7 +51,7 @@ namespace rev { namespace math
 	class NumericTraits<unsigned>
 	{
 	public:
-#ifndef WIN32
+#ifndef _WIN32
 		static constexpr unsigned	zero() { return 0; }
 #else // WIN32
 		static unsigned				zero() { return 0; }

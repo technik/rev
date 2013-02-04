@@ -30,6 +30,7 @@ namespace rev { namespace video
 	{
 	public:
 		virtual ~Shader() = 0;
+		virtual int getUniformLocation(const char* _uniform) const = 0;
 
 	public:
 		static Shader* factory(const std::pair<VtxShader*,PxlShader*>&);

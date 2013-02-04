@@ -8,6 +8,7 @@
 	that should set references to one if the object has just been created.
 	- Can Resource's Manager type be private instead of public?
 - 3dDriverOpenGL21 's load extensions should be virtual functions
+- Parse vertex shaders to create the attribute list so that it doesn't have to be passed manually.
 
 //----------------------------------
 // Arduino ground station objectives

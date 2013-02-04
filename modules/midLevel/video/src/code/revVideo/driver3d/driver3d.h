@@ -8,6 +8,7 @@
 #ifndef _REV_VIDEO_3DDRIVER_3DDRIVER_H_
 #define _REV_VIDEO_3DDRIVER_3DDRIVER_H_
 
+#include <cstdint>
 #include <utility>
 
 #include <revCore/math/algebra/vector.h>
@@ -48,7 +49,19 @@ namespace rev { namespace video
 		virtual Shader*		createShader		(VtxShader*, PxlShader*) = 0;
 		virtual VtxShader*	createVtxShader		(const char * _fileName) = 0;
 
-		virtual void		setRealAttribBuffer	(int _attribId, unsigned _nElements, unsigned _nComponents, const void * _buffer) = 0;
+		// --- Attributes and uniforms
+		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const float * _buffer) = 0;
+		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const uint16_t* _buffer) = 0;
+		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const int16_t* _buffer) = 0;
+		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const math::Vec2f* _buffer) = 0;
+		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const math::Vec3f* _buffer) = 0;
+
+		virtual void		setUniform			(int _id, float _value) = 0;
+		virtual void		setUniform			(int _id, const math::Vec2f& _value) = 0;
+		virtual void		setUniform			(int _id, const math::Vec3f& _value) = 0;
+		virtual void		setUniform			(int _id, const Color& _value) = 0;
+
+		// --- Draw ---
 		virtual void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) = 0;
 	};
 

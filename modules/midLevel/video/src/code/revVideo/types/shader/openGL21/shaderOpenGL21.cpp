@@ -16,8 +16,9 @@
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	ShaderOpenGL21::ShaderOpenGL21(unsigned _id)
+	ShaderOpenGL21::ShaderOpenGL21(unsigned _id, const VtxShaderOpenGL21* _vtxShader)
 		:mId(_id)
+		,mVtxShader(_vtxShader)
 	{
 	}
 
@@ -26,6 +27,13 @@ namespace rev { namespace video
 	{
 		Driver3dOpenGL21 * driver = static_cast<Driver3dOpenGL21*>(VideoDriver::getDriver3d());
 		driver->glDeleteProgram(mId);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	int ShaderOpenGL21::getUniformLocation(const char* _uniform) const
+	{
+		Driver3dOpenGL21 * driver = static_cast<Driver3dOpenGL21*>(VideoDriver::getDriver3d());
+		return driver->glGetUniformLocation(mId, _uniform);
 	}
 
 }	// namespace video

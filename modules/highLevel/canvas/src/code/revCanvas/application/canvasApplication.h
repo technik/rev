@@ -40,6 +40,15 @@ namespace rev { namespace canvas
 		video::Driver3d*	mDriver3d;
 		Canvas*				mCanvas;
 	};
+
+	//----------------------------------------------------------------------------
+	// Inline implementation
+	//----------------------------------------------------------------------------
+	inline Canvas* CanvasApplication::canvas()
+	{
+		return mCanvas;
+	}
+
 }	// namespace canvas
 }	// namespace rev
 
