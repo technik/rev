@@ -44,12 +44,18 @@ namespace rev { namespace canvas {
 	void Canvas::rect(const math::Vec2f& _pos, const math::Vec2f& _size)
 	{
 		mDriver3d->setShader(mShader);
-		mDriver3d->setUniform(mColorUniformId, Color(0.f, 0.f, 1.f, 1.f));
 		math::Vec2f vertices[4] = 
 		{ _pos, _pos+math::Vec2f(_size.x, 0.f),
-		_pos+math::Vec2f(0.f, _size.y), _pos+_size };
+		_pos-math::Vec2f(0.f, _size.y), _pos+math::Vec2f(_size.x, -_size.y) };
 		mDriver3d->setAttribBuffer(0, 4, vertices);
 		mDriver3d->drawIndexBuffer(6, mRectIndices, Driver3d::EPrimitiveType::triangles);
+	}
+
+	//------------------------------------------------------------
+	void Canvas::setDrawColor(const video::Color& _color)
+	{
+		mDriver3d->setShader(mShader);
+		mDriver3d->setUniform(mColorUniformId, _color);
 	}
 
 }	// namespace canvas

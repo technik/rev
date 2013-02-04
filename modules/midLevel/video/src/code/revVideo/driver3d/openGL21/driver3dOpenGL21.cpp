@@ -40,7 +40,8 @@ namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
 	Driver3dOpenGL21::Driver3dOpenGL21()
-		:mCurVtxShader(nullptr)
+		:mCurShader(nullptr)
+		,mCurVtxShader(nullptr)
 	{
 	}
 
@@ -86,6 +87,9 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::setShader(const Shader * _shd)
 	{
+		if(_shd == mCurShader) {
+			return; 
+		} else mCurShader = _shd;
 		const ShaderOpenGL21 * shader = static_cast<const ShaderOpenGL21*>(_shd);
 
 		// Set active attributes

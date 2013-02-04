@@ -115,6 +115,8 @@ namespace rev { namespace video
 		PFNGLUSEPROGRAMPROC					mUseProgram;
 		PFNGLVERTEXATTRIBPOINTERPROC		mVertexAttribPointer;
 		
+		// Cache
+		const Shader*						mCurShader;
 		const VtxShaderOpenGL21*			mCurVtxShader;
 	};
 

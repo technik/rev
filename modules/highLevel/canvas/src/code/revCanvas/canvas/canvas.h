@@ -14,6 +14,7 @@
 namespace rev { namespace video {
 	class Driver3d;
 	class Shader;
+	class Color;
 }}
 
 namespace rev { namespace canvas {
@@ -25,6 +26,8 @@ namespace rev { namespace canvas {
 
 		void rect(const math::Vec2f& _topLeft, const math::Vec2f& _size);
 		void line(const math::Vec2f& _start, const math::Vec2f& _end);
+
+		void setDrawColor(const video::Color& _color);
 
 	private:
 		video::Driver3d*	mDriver3d;
