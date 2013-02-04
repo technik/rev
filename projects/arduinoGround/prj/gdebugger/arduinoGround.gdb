@@ -38,7 +38,7 @@
         <GLDebugOutputLoggingEnabled>false</GLDebugOutputLoggingEnabled>
         <GLDebugOutputBreakOnReports>false</GLDebugOutputBreakOnReports>
         <GLDebugOutputMessagesMask>0</GLDebugOutputMessagesMask>
-        <GLDebugOutputSeverity>3</GLDebugOutputSeverity>
+        <GLDebugOutputSeverity>0</GLDebugOutputSeverity>
     </GLDebugOutput>
     <InitializeDirectDrawLibrary>false</InitializeDirectDrawLibrary>
     <PerformanceCountersDisplayedContexts />

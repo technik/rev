@@ -32,5 +32,5 @@ int main (int //_argc
 void TestCanvasApp::draw()
 {
 	canvas()->setDrawColor(rev::video::Color(0.f, 1.f, 1.f, 1.f));
-	canvas()->rect(rev::math::Vec2f(0.f, 0.f), rev::math::Vec2f(1.f, 0.5f));
+	canvas()->rect(rev::math::Vec2f(200.f, 50.f), rev::math::Vec2f(160.f, 90.f));
 }

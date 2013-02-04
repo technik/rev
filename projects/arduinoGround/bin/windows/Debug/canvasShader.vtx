@@ -2,8 +2,10 @@
 // Simple canvas shader
 //--------------------------------------
 attribute 	vec2 	vertex;
+uniform		vec2	screenSize;
 
 void main ()
 {
-	gl_Position = vec4(vertex, 0.0, 1.0);
+	vec2 halfSize = 0.5*screenSize;
+	gl_Position = vec4((vertex.x - halfSize.x)/halfSize.x, (halfSize.y - vertex.y)/halfSize.y, 0.0, 1.0);
 }

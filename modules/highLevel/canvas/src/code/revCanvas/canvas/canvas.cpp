@@ -11,6 +11,7 @@
 #include <revVideo/types/shader/pixel/pxlShader.h>
 #include <revVideo/types/shader/shader.h>
 #include <revVideo/types/shader/vertex/vtxShader.h>
+#include <revVideo/types/window/videoWindow.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
 #include <revVideo/types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
@@ -31,6 +32,12 @@ namespace rev { namespace canvas {
 		PxlShader * pxlShader = PxlShader::get("canvasShader.pxl");
 		mShader = Shader::get(std::make_pair(vtxShader, pxlShader));
 		mColorUniformId = mShader->getUniformLocation("color");
+		mDriver3d->setShader(mShader);
+		// Set screen size uniforms
+		int screenSizeUniform = mShader->getUniformLocation("screenSize");
+		math::Vec2u screenSize = VideoDriver::get()->mainWindow()->resolution();
+		math::Vec2f floatScreenSize = math::Vec2f(float(screenSize.x), float(screenSize.y));
+		mDriver3d->setUniform(screenSizeUniform, floatScreenSize);
 
 		mRectIndices[0] = 0;
 		mRectIndices[1] = 1;
@@ -46,7 +53,7 @@ namespace rev { namespace canvas {
 		mDriver3d->setShader(mShader);
 		math::Vec2f vertices[4] = 
 		{ _pos, _pos+math::Vec2f(_size.x, 0.f),
-		_pos-math::Vec2f(0.f, _size.y), _pos+math::Vec2f(_size.x, -_size.y) };
+		_pos+math::Vec2f(0.f, _size.y), _pos+_size };
 		mDriver3d->setAttribBuffer(0, 4, vertices);
 		mDriver3d->drawIndexBuffer(6, mRectIndices, Driver3d::EPrimitiveType::triangles);
 	}
