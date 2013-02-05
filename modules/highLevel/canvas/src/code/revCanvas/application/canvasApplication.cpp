@@ -12,6 +12,10 @@
 #include <revVideo/types/color/color.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif // _WIN32
+
 using rev::codeTools::Log;
 using namespace rev::video;
 
@@ -40,6 +44,22 @@ namespace rev { namespace canvas
 	//------------------------------------------------------------------------------------------------------------------
 	bool CanvasApplication::update()
 	{
+#ifdef _WIN32
+		// TODO: Move this to a platform specific handler that can process and dispatch messages
+		MSG msg;
+		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+		{
+			if(msg.message==WM_QUIT)
+			{
+				return false;
+			}
+			else
+			{
+                TranslateMessage(&msg);	// Translate The Message
+				DispatchMessage(&msg);
+			}
+		}
+#endif // _WIN32
 		mDriver3d->clearColorBuffer();
 		this->draw();
 		mDriver3d->finishFrame();
