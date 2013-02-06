@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="serial">
+      <UniqueIdentifier>{1932d998-e16d-42a3-b1a4-f52b780e17e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\revCommunication\serial\serialPort.cpp">
+      <Filter>serial</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revCommunication\serial\serialPort.h">
+      <Filter>serial</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

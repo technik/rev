@@ -15,7 +15,7 @@
 
 // Headers
 #include <cstdint>
-#include <codeTools/usefulMacros.h>
+#include <revCore/codeTools/usefulMacros.h>
 
 #ifdef REV_ENABLE_SERIAL_PORT
 
@@ -45,7 +45,7 @@ namespace rev { namespace comm
 		// SerialPort(SerialPort&&);
 		// SerialPort& operator=(const SerialPort&);
 		// SerialPort& operator=(SerialPort&&);
-		DECLARE_COPY(SerialPort);
+		REV_DECLARE_COPY(SerialPort);
 
 	private:
 #ifdef WIN32

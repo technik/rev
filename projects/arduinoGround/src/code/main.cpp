@@ -7,6 +7,7 @@
 
 #include <revCanvas/application/canvasApplication.h>
 #include <revCanvas/canvas/canvas.h>
+#include <revCommunication/serial/serialPort.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
 #include <revVideo/videoDriver/videoDriver.h>
