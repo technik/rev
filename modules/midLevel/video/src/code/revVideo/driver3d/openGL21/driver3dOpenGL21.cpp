@@ -163,6 +163,9 @@ namespace rev { namespace video
 	{
 		switch(_primitive)
 		{
+		case EPrimitiveType::lines:
+			glDrawElements(GL_LINES, _nIndices, GL_UNSIGNED_SHORT, _indices);
+			break;
 		case EPrimitiveType::triangles:
 			glDrawElements(GL_TRIANGLES, _nIndices, GL_UNSIGNED_SHORT, _indices);
 			break;

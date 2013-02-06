@@ -7,7 +7,9 @@
 
 #include <revCanvas/application/canvasApplication.h>
 #include <revCanvas/canvas/canvas.h>
+#include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 using namespace rev::canvas;
 
@@ -31,6 +33,9 @@ int main (int //_argc
 
 void TestCanvasApp::draw()
 {
-	canvas()->setDrawColor(rev::video::Color(0.f, 1.f, 1.f, 1.f));
+	rev::video::VideoDriver::getDriver3d()->setClearColor(rev::video::Color(0.4f));
+	canvas()->setDrawColor(rev::video::Color(0.f));
 	canvas()->rect(rev::math::Vec2f(200.f, 50.f), rev::math::Vec2f(160.f, 90.f));
+	canvas()->setDrawColor(rev::video::Color(1.f));
+	canvas()->line(rev::math::Vec2f(200.f, 50.f), rev::math::Vec2f(360.f, 140.f));
 }

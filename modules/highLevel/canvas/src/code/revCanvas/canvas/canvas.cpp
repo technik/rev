@@ -57,6 +57,15 @@ namespace rev { namespace canvas {
 		mDriver3d->setAttribBuffer(0, 4, vertices);
 		mDriver3d->drawIndexBuffer(6, mRectIndices, Driver3d::EPrimitiveType::triangles);
 	}
+	
+	//------------------------------------------------------------
+	void Canvas::line(const math::Vec2f& _start, const math::Vec2f& _end)
+	{
+		mDriver3d->setShader(mShader);
+		math::Vec2f vertices[2] = { _start, _end };
+		mDriver3d->setAttribBuffer(0, 2, vertices);
+		mDriver3d->drawIndexBuffer(2, mRectIndices, Driver3d::EPrimitiveType::lines);
+	}
 
 	//------------------------------------------------------------
 	void Canvas::setDrawColor(const video::Color& _color)
