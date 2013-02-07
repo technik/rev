@@ -4,17 +4,15 @@
 // On February 7th, 2013
 //------------------------------------------------------------------------
 // Log unit test
-#include <jni.h>
-#include <errno.h>
-
-#include <android/log.h>
 #include <android_native_app_glue.h>
+
+#include <revCore/codeTools/log/log.h>
 
 void android_main(struct android_app* state)
 {
 	// Make sure glue isn't stripped.
     app_dummy();
 	
-	__android_log_print(ANDROID_LOG_INFO, "native-activity", "HELLO!!!\n");
+	rev::revLog() << "Hello from rev::Log!\n";
 	while(1);
 }

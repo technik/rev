@@ -16,6 +16,9 @@
 /projects/rose/prj/windows/vs10/rose.suo
 *.tlog
 /modules/baseLevel/core/prj/windows/vs12/Debug/*.log
+/projects/unitTest/baseLevel/core/log/prj/android/bin/*
+/projects/unitTest/baseLevel/core/log/prj/android/libs/*
+/projects/unitTest/baseLevel/core/log/prj/android/obj/*
 *.lastbuildstate
 *.sdf
 *.suo
