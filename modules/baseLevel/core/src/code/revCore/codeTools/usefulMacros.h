@@ -12,12 +12,19 @@
 // Class construction, copy and destruction
 //----------------------------------------------------------------------------------------------------------------------
 // When declared under private, this macro disables copy of the enclosing class
+// Android doesn't support move syntax
+#ifdef ANDROID
+#define REV_DECLARE_COPY( type_ )	\
+	type_(const type_&);\
+	type_& operator=(const type_&);
+#else // !ANDROID
 #define REV_DECLARE_COPY( type_ )	\
 	type_(const type_&);\
 	type_(type_&&);\
 	type_& operator=(const type_&);\
 	type_& operator=(type_&&);
-
+#endif // !ANDROID
+	
 #define REV_UNUSED_PARAM( _param )	\
 	(void)_param
 

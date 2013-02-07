@@ -11,7 +11,11 @@
 #include <revCore/codeTools/usefulMacros.h>
 
 #ifdef REV_ENABLE_LOG
+#ifdef ANDROID
+#include <android/log.h>
+#else // !ANDROID
 #include <revCore/codeTools/stringUtils.h>
+#endif // !ANDROID
 #endif // REV_ENABLE_LOG
 
 namespace rev { namespace codeTools
@@ -53,7 +57,11 @@ namespace rev { namespace codeTools
 	Log& Log::operator<<(const T_& _message)
 	{
 #ifdef REV_ENABLE_LOG
+#ifdef ANDROID
+		__android_log_print(ANDROID_LOG_INFO, "rev::Log", _message);
+#else // !ANDROID
 		logBuffer(makeString(_message).c_str());
+#endif // !ANDROID
 #else // !REV_ENABLE_LOG
 		REV_UNUSED_PARAM(_message); // Unused variable
 #endif // !REV_ENABLE_LOG

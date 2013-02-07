@@ -7,9 +7,9 @@
 
 #include "log.h"
 
-#ifndef ATMEGA
+#if !(defined( ATMEGA ) || defined(ANDROID))
 #include <iostream>
-#endif // !ATMEGA
+#endif // !ATMEGA, !ANDROID
 
 namespace rev { namespace codeTools
 {
@@ -72,10 +72,10 @@ namespace rev { namespace codeTools
 	//------------------------------------------------------------------------------------------------------------------
 	void Log::flushBuffer(const char * _buffer)
 	{
-#ifndef ATMEGA
+#if !(defined( ATMEGA ) || defined(ANDROID))
 		// We assume 0 terminated buffers
 		std::cout << _buffer;
-#endif // !ATMEGA
+#endif // !ATMEGA, !ANDROID
 	}
 
 }	// namespace codeTools
