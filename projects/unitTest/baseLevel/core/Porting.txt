@@ -1,0 +1,6 @@
+In order to port the core module to a new platform, it is highly recommended to build the unit tests projects one after another.
+This will help you deal with only one problem at a time. The proper order of porting for unit tests in this module is:
+- log
+- assert
+
+Please read the corresponding readme file inside each test's documentation to verify the expected behavior of each test.
