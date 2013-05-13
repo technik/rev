@@ -6,10 +6,15 @@
 // Basic canvas application
 
 #include "canvasApplication.h"
+#include "../canvas/canvas.h"
 #include <revCore/codeTools/log/log.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
 #include <revVideo/videoDriver/videoDriver.h>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif // _WIN32
 
 using rev::codeTools::Log;
 using namespace rev::video;
@@ -19,16 +24,19 @@ namespace rev { namespace canvas
 	//------------------------------------------------------------------------------------------------------------------
 	CanvasApplication::CanvasApplication()
 	{
-		// Note: The order of initialization is important because there are some internal dependencies
+		// Note: The order of initialization is important because video system assumes log is initialized
 		// Init log system
 		Log::init();
 		// Init video systems and drivers
 		initializeVideoSystem();
+		// Create canvas
+		mCanvas = new Canvas();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	CanvasApplication::~CanvasApplication()
 	{
+		delete mCanvas;
 		VideoDriver::shutDown();
 		Log::end();
 	}
@@ -36,7 +44,24 @@ namespace rev { namespace canvas
 	//------------------------------------------------------------------------------------------------------------------
 	bool CanvasApplication::update()
 	{
+#ifdef _WIN32
+		// TODO: Move this to a platform specific handler that can process and dispatch messages
+		MSG msg;
+		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+		{
+			if(msg.message==WM_QUIT)
+			{
+				return false;
+			}
+			else
+			{
+                TranslateMessage(&msg);	// Translate The Message
+				DispatchMessage(&msg);
+			}
+		}
+#endif // _WIN32
 		mDriver3d->clearColorBuffer();
+		this->draw();
 		mDriver3d->finishFrame();
 		return mVideoDriver->update();
 	}

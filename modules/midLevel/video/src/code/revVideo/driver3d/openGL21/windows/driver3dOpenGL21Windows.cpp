@@ -49,6 +49,9 @@ namespace rev { namespace video
 		SetPixelFormat(mDrawCtxHandle,pixelFormat,&pfd);
 		HGLRC renderCtxHandle=wglCreateContext(mDrawCtxHandle);
 		wglMakeCurrent(mDrawCtxHandle,renderCtxHandle);
+	
+		// Note extensions can only be loaded after OpenGL context has been created
+		loadOpenGLExtensions();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -49,7 +49,7 @@ namespace rev { namespace math
 		const Number_&		operator()	(unsigned _index) const;
 
 		// Common constants
-#ifdef WIN32
+#ifdef _WIN32
 		static			 Vector2<Number_>	zero();
 #else // !WIN32
 		static constexpr Vector2<Number_>	zero();
@@ -64,6 +64,10 @@ namespace rev { namespace math
 	template<class Number_>
 	class Vector3
 	{
+	public:
+		Vector3() {}
+	public:
+		Number_ x, y, z;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -162,11 +166,11 @@ namespace rev { namespace math
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	#ifdef WIN32
+	#ifdef _WIN32
 	Vector2<N_> Vector2<N_>::zero()
-	#else // !WIN32
+	#else // !_WIN32
 	Vector2<N_> constexpr Vector2<N_>::zero()
-	#endif // !WIN32
+	#endif // !_WIN32
 	{
 		return Vector2<N_>(NumericTraits<N_>::zero(), NumericTraits<N_>::zero());
 	}

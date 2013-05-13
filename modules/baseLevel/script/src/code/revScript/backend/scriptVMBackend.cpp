@@ -68,7 +68,7 @@ namespace rev { namespace script {
 	//----------------------------------------------------------------------------------
 	void ScriptVMBackend::matchReal(float _real)
 	{
-		mStack.push_back(new IntegerExpression(_real));
+		mStack.push_back(new RealExpression(_real));
 	}
 
 	//----------------------------------------------------------------------------------

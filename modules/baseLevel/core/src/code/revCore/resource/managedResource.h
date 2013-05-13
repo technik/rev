@@ -34,13 +34,6 @@ namespace rev
 		bool	mRegistered;
 	};
 
-	// Destructor body
-	template<class Derived_, class Key_, class Hasher_>
-	ManagedResourceBase<Derived_,Key_,Hasher_>::~ManagedResourceBase()
-	{
-		// Intentionally blank
-	}
-
 	// Simple managed resource
 	template<class Derived_, class Key_, class Hasher_ = std::tr1::hash<Key_> >
 	class ManagedResource : public ManagedResourceBase<Derived_,Key_,Hasher_>
@@ -60,6 +53,13 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
+	// Destructor body
+	template<class Derived_, class Key_, class Hasher_>
+	ManagedResourceBase<Derived_,Key_,Hasher_>::~ManagedResourceBase()
+	{
+		// Intentionally blank
+	}
+
 	template<class Derived_, class Key_, class Hasher_>
 	ManagedResourceBase<Derived_, Key_, Hasher_>::ManagedResourceBase()
 		:mRegistered(false)

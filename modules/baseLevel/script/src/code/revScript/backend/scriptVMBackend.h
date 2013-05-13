@@ -30,6 +30,7 @@ namespace rev { namespace script
 		void			matchAssign		(std::string* _identifier);
 		void			matchInteger	(int);
 		void			matchIdentifier	(std::string* _identifier);
+		void			matchIdExpression (std::string* ) {}
 		void			matchReal		(float);
 		unsigned		retrieveCode	(char* _dst, unsigned _maxSize);
 
