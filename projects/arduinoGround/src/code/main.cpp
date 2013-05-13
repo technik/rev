@@ -7,6 +7,7 @@
 
 #include <revCanvas/application/canvasApplication.h>
 #include <revCanvas/canvas/canvas.h>
+#include <revCommunication/serial/serialPort.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
 #include <revVideo/videoDriver/videoDriver.h>
@@ -19,7 +20,22 @@ public:
 	void draw();
 };
 
-int main (int //_argc
+#ifdef ANDROID
+int android_entry_point(int,const char**);
+
+void android_main(struct android_app*)
+{
+	// Make sure glue isn't stripped.
+    app_dummy();
+	
+	android_entry_point(0, nullptr);
+}
+
+int android_entry_point
+#else // !ANDROID
+int main 
+#endif // !ANDROID
+	(int //_argc
 	, const char** //_argv
 	)
 {

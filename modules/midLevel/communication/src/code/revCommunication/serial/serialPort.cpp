@@ -16,7 +16,7 @@
 
 // Rev headers
 #include "serialPort.h"
-#include <codeTools/log/log.h>
+#include <revCore/codeTools/log/log.h>
 
 #ifdef REV_ENABLE_SERIAL_PORT
 
