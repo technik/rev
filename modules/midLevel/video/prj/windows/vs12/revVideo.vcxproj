@@ -74,6 +74,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
+    <Lib>
+      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -92,6 +95,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
+    <Lib>
+      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="System" />

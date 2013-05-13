@@ -91,6 +91,14 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revCanvas\application\canvasApplication.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\baseLevel\core\prj\windows\vs12\revCore.vcxproj">
+      <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\midLevel\video\prj\windows\vs12\revVideo.vcxproj">
+      <Project>{6a37958c-8072-43ca-ad17-a3fc5725068e}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
