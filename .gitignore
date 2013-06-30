@@ -30,3 +30,5 @@
 *.log
 *.cache
 *.lib
+*.unsuccessfulbuild
+/projects/rose/bin/windows/Debug/rose.exe

@@ -20,14 +20,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -101,6 +101,7 @@
     <ClInclude Include="..\..\..\src\code\revCore\codeTools\log\log.h" />
     <ClInclude Include="..\..\..\src\code\revCore\codeTools\stringUtils.h" />
     <ClInclude Include="..\..\..\src\code\revCore\codeTools\usefulMacros.h" />
+    <ClInclude Include="..\..\..\src\code\revCore\event\event.h" />
     <ClInclude Include="..\..\..\src\code\revCore\file\file.h" />
     <ClInclude Include="..\..\..\src\code\revCore\math\algebra\vector.h" />
     <ClInclude Include="..\..\..\src\code\revCore\math\numericTraits.h" />

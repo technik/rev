@@ -23,16 +23,16 @@ int main()
 	revLog() << "Rose: Robotic Simulation Environment\n";
 
 	// Actual code
-	revLog() << "Creating AVR Core ... ";
-	Avr8bit * core = new Avr8bit(256, 8);
-	revLog() << "Success\n";
-	core->loadProgram("ciervaPilot.hex");
-	core->reset();
+	// revLog() << "Creating AVR Core ... ";
+	// Avr8bit * core = new Avr8bit(256, 8);
+	// revLog() << "Success\n";
+	// core->loadProgram("ciervaPilot.hex");
+	// core->reset();
 
 	bool exit = false;
 	while(!exit)
 	{
-		cout << "--->";
+		/*cout << "--->";
 		string instruction;
 		cin >> instruction;
 		switch(instruction[0])
@@ -82,7 +82,7 @@ int main()
 				exit = true;
 				break;
 			}
-		}
+		}*/
 	}
 
 	// House keeping

@@ -62,6 +62,7 @@ namespace rev { namespace canvas
 #endif // _WIN32
 		mDriver3d->clearColorBuffer();
 		this->draw();
+		mOnUpdate();
 		mDriver3d->finishFrame();
 		return mVideoDriver->update();
 	}

@@ -8,6 +8,8 @@
 #ifndef _REV_CANVAS_APPLICATION_CANVASAPPLICATION_H_
 #define _REV_CANVAS_APPLICATION_CANVASAPPLICATION_H_
 
+#include <revCore/event/event.h>
+
 namespace rev {
 	namespace video {
 		class VideoDriver;
@@ -22,19 +24,21 @@ namespace rev { namespace canvas
 	class CanvasApplication
 	{
 	public:
-		CanvasApplication();
-		~CanvasApplication();
+		CanvasApplication				();
+		~CanvasApplication				();
+		Event<>&		onUpdate	();
 
-		bool update();
+		bool				update		();
 
 	protected:
-		Canvas* canvas();
+		Canvas*				canvas		();
 
 	private:
 		virtual void draw() {} // Override this function with your main loop code
 		void initializeVideoSystem();
 
 	private:
+		Event<>			mOnUpdate;
 		// Driver cache
 		video::VideoDriver*	mVideoDriver;
 		video::Driver3d*	mDriver3d;
@@ -47,6 +51,12 @@ namespace rev { namespace canvas
 	inline Canvas* CanvasApplication::canvas()
 	{
 		return mCanvas;
+	}
+
+	//----------------------------------------------------------------------------
+	inline Event<>& CanvasApplication::onUpdate()
+	{
+		return mOnUpdate;
 	}
 
 }	// namespace canvas
