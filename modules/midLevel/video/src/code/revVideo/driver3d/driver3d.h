@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <utility>
 
-#include <revCore/math/algebra/vector.h>
+#include <revMath/algebra/vector.h>
 
 namespace rev { namespace video
 {

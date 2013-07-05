@@ -8,10 +8,12 @@
 #include <iostream>
 #include <string>
 
-#include <revCore/codeTools/log/log.h>
 #include <component/microcontroller/avr/avr8bit.h>
+#include <revCore/codeTools/log/log.h>
+#include <revGraphics3d/application/application3d.h>
 
 using namespace rev;
+using namespace rev::graphics3d;
 
 using rose::component::Avr8bit;
 using namespace std;
@@ -29,10 +31,13 @@ int main()
 	// core->loadProgram("ciervaPilot.hex");
 	// core->reset();
 
-	bool exit = false;
+	Application3d app;
+	app.run();
+
+	/*bool exit = false;
 	while(!exit)
 	{
-		/*cout << "--->";
+		cout << "--->";
 		string instruction;
 		cin >> instruction;
 		switch(instruction[0])
@@ -82,8 +87,9 @@ int main()
 				exit = true;
 				break;
 			}
-		}*/
+		}
 	}
+	*/
 
 	// House keeping
 	codeTools::Log::end();

@@ -5,6 +5,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rose", "rose.vcxproj", "{C8
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revCore", "..\..\..\..\..\modules\baseLevel\core\prj\windows\vs12\revCore.vcxproj", "{9EA9CC91-7BE3-4344-A760-DE9988C8970B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revVideo", "..\..\..\..\..\modules\midLevel\video\prj\windows\vs12\revVideo.vcxproj", "{6A37958C-8072-43CA-AD17-A3FC5725068E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revMath", "..\..\..\..\..\modules\baseLevel\math\prj\windows\vs12\revMath.vcxproj", "{2801C807-CB71-4739-AF5D-B86D15A618CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revGraphics3d", "..\..\..\..\..\modules\highLevel\graphics3d\prj\windows\vs12\revGraphics3d.vcxproj", "{980979D9-AF04-4504-9484-D7AD5F9C4FFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +25,18 @@ Global
 		{9EA9CC91-7BE3-4344-A760-DE9988C8970B}.Debug|Win32.Build.0 = Debug|Win32
 		{9EA9CC91-7BE3-4344-A760-DE9988C8970B}.Release|Win32.ActiveCfg = Release|Win32
 		{9EA9CC91-7BE3-4344-A760-DE9988C8970B}.Release|Win32.Build.0 = Release|Win32
+		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Debug|Win32.Build.0 = Debug|Win32
+		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Release|Win32.ActiveCfg = Release|Win32
+		{6A37958C-8072-43CA-AD17-A3FC5725068E}.Release|Win32.Build.0 = Release|Win32
+		{2801C807-CB71-4739-AF5D-B86D15A618CF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2801C807-CB71-4739-AF5D-B86D15A618CF}.Debug|Win32.Build.0 = Debug|Win32
+		{2801C807-CB71-4739-AF5D-B86D15A618CF}.Release|Win32.ActiveCfg = Release|Win32
+		{2801C807-CB71-4739-AF5D-B86D15A618CF}.Release|Win32.Build.0 = Release|Win32
+		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Debug|Win32.Build.0 = Debug|Win32
+		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Release|Win32.ActiveCfg = Release|Win32
+		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

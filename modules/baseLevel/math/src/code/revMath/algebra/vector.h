@@ -8,7 +8,7 @@
 #ifndef _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 #define _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 
-#include <revCore/math/numericTraits.h>
+#include <revMath/numericTraits.h>
 
 namespace rev { namespace math
 {
@@ -66,6 +66,7 @@ namespace rev { namespace math
 	{
 	public:
 		Vector3() {}
+		Vector3(Number_ _x, Number_ _y, Number_ _z):x(_x),y(_y),z(_z){}
 	public:
 		Number_ x, y, z;
 	};

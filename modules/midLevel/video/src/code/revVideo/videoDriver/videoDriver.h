@@ -9,7 +9,7 @@
 #define _REV_VIDEO_VIDEODRIVER_VIDEODRIVER_H_
 
 #include <revCore/codeTools/usefulMacros.h>
-#include <revCore/math/algebra/vector.h>
+#include <revMath/algebra/vector.h>
 
 namespace rev { namespace video
 {

@@ -8,7 +8,7 @@
 #ifndef _REV_VIDEO_TYPES_WINDOW_VIDEOWINDOW_H_
 #define _REV_VIDEO_TYPES_WINDOW_VIDEOWINDOW_H_
 
-#include <revCore/math/algebra/vector.h>
+#include <revMath/algebra/vector.h>
 
 namespace rev { namespace video
 {

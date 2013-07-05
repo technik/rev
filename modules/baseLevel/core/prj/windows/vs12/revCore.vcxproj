@@ -103,8 +103,6 @@
     <ClInclude Include="..\..\..\src\code\revCore\codeTools\usefulMacros.h" />
     <ClInclude Include="..\..\..\src\code\revCore\event\event.h" />
     <ClInclude Include="..\..\..\src\code\revCore\file\file.h" />
-    <ClInclude Include="..\..\..\src\code\revCore\math\algebra\vector.h" />
-    <ClInclude Include="..\..\..\src\code\revCore\math\numericTraits.h" />
     <ClInclude Include="..\..\..\src\code\revCore\resource\managedResource.h" />
     <ClInclude Include="..\..\..\src\code\revCore\resource\resource.h" />
     <ClInclude Include="..\..\..\src\code\revCore\resource\resourceManager.h" />

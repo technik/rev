@@ -16,12 +16,6 @@
     <Filter Include="file">
       <UniqueIdentifier>{d61c8fa0-f77e-4e18-a74b-9ca1dcd8b5ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="math">
-      <UniqueIdentifier>{3790e449-660d-4e20-af5c-03385d9d79e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="math\algebra">
-      <UniqueIdentifier>{cb4abf2b-1c66-42c8-9183-326bc34160db}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resource">
       <UniqueIdentifier>{e46b0f77-1627-4d14-98ef-79affd11318f}</UniqueIdentifier>
     </Filter>
@@ -53,12 +47,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revCore\file\file.h">
       <Filter>file</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\code\revCore\math\numericTraits.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\code\revCore\math\algebra\vector.h">
-      <Filter>math\algebra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revCore\resource\managedResource.h">
       <Filter>resource</Filter>

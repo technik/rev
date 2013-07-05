@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
@@ -96,6 +96,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\modules\baseLevel\core\prj\windows\vs12\revCore.vcxproj">
       <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\modules\highLevel\graphics3d\prj\windows\vs12\revGraphics3d.vcxproj">
+      <Project>{980979d9-af04-4504-9484-d7ad5f9c4ffa}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

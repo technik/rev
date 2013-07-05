@@ -45,14 +45,14 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
     <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
     <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -133,6 +133,11 @@
     <ClInclude Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\windows\videoDriverWindows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\baseLevel\core\prj\windows\vs12\revCore.vcxproj">
+      <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
