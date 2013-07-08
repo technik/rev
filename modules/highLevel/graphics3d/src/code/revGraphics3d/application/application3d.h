@@ -33,6 +33,7 @@ namespace rev { namespace graphics3d {
 		video::Driver3d*	mDriver3d;
 
 		video::Shader*		mBasicShader;
+		int					mMvpUniform;
 	};
 
 }	// namespace graphics3d

@@ -45,8 +45,8 @@ namespace rev { namespace math
 		Vector2<Number_>&	operator|=	(const Vector2<Number_>&);			// Component wise product
 
 		// Matrix-like accessors
-		Number_&			operator()	(unsigned _index);
-		const Number_&		operator()	(unsigned _index) const;
+				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
+		const	Number_& operator[] (unsigned int _index) const { return (reinterpret_cast<const Number_*>(this))[_index];	}
 
 		// Common constants
 #ifdef _WIN32
@@ -67,8 +67,25 @@ namespace rev { namespace math
 	public:
 		Vector3() {}
 		Vector3(Number_ _x, Number_ _y, Number_ _z):x(_x),y(_y),z(_z){}
+
+				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
+		const	Number_& operator[] (unsigned int _index) const { return (reinterpret_cast<const Number_*>(this))[_index];	}
 	public:
 		Number_ x, y, z;
+	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class Number_>
+	class Vector4
+	{
+	public:
+		Vector4() {}
+		Vector4(Number_ _x, Number_ _y, Number_ _z, Number_ _w):x(_x),y(_y),z(_z),w(_w){}
+
+				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
+		const	Number_& operator[] (unsigned int _index) const { return (reinterpret_cast<const Number_*>(this))[_index];	}
+	public:
+		Number_ x, y, z, w;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------

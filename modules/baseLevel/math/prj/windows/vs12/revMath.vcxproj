@@ -40,9 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(REVSDK_HOME)/modules/baseLevel/math/src/code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.lib</TargetExt>
+    <IncludePath>$(REVSDK_HOME)/modules/baseLevel/math/src/code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -69,6 +71,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revMath\algebra\matrix.h" />
     <ClInclude Include="..\..\..\src\code\revMath\algebra\vector.h" />
     <ClInclude Include="..\..\..\src\code\revMath\numericTraits.h" />
   </ItemGroup>

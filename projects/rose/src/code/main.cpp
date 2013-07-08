@@ -11,6 +11,7 @@
 #include <component/microcontroller/avr/avr8bit.h>
 #include <revCore/codeTools/log/log.h>
 #include <revGraphics3d/application/application3d.h>
+#include <revGraphics3d/renderable/renderable.h>
 
 using namespace rev;
 using namespace rev::graphics3d;
@@ -18,78 +19,35 @@ using namespace rev::graphics3d;
 using rose::component::Avr8bit;
 using namespace std;
 
+class RoseApp : public Application3d
+{
+public:
+	RoseApp()
+	{
+		obj = new Renderable();
+		obj->m = rev::math::Mat34f::identity();
+		obj->m[0][3] = 0.f;
+		obj->m[1][3] = 5.f;
+		obj->m[2][3] = 0.f;
+	}
+
+	~RoseApp()
+	{
+		delete obj;
+	}
+
+private:
+	Renderable* obj;
+};
+
 int main()
 {
 	// System initialization
 	codeTools::Log::init();
 	revLog() << "Rose: Robotic Simulation Environment\n";
 
-	// Actual code
-	// revLog() << "Creating AVR Core ... ";
-	// Avr8bit * core = new Avr8bit(256, 8);
-	// revLog() << "Success\n";
-	// core->loadProgram("ciervaPilot.hex");
-	// core->reset();
-
-	Application3d app;
+	RoseApp app;
 	app.run();
-
-	/*bool exit = false;
-	while(!exit)
-	{
-		cout << "--->";
-		string instruction;
-		cin >> instruction;
-		switch(instruction[0])
-		{
-			case 's': // Simulate
-			{
-				unsigned cycles;
-				cin >> cycles;
-				revLog() << "Simulate " << cycles << " cycles\n";
-				core->simulate(cycles);
-				core->showExecutionStatus();
-				break;
-			}
-			case 't':
-			{
-				core->step();
-				break;
-			}
-			case 'a': // Assembly
-			{
-				unsigned start, end;
-				cin >> start >> end;
-				core->showAssembly(start, end);
-				break;
-			}
-			case 'b': // Breakpoint
-			{
-				unsigned instruction;
-				cin >> instruction;
-				core->setBreakpoint(instruction);
-				break;
-			}
-			case 'r': // run
-			{
-				core->run();
-				break;
-			}
-			case 'm': // Memory
-			{
-				unsigned start, end;
-				cin >> start >> end;
-				core->showMemory(start, end);
-				break;
-			}
-			case 'q': // Quit
-			{
-				exit = true;
-				break;
-			}
-		}
-	}
-	*/
 
 	// House keeping
 	codeTools::Log::end();

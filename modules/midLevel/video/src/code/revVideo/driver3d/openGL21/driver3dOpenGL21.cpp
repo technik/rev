@@ -250,6 +250,12 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::setUniform(int _uniformId, const math::Mat44f& _value)
+	{
+		glUniformMatrix4fv(_uniformId, 1, true, &_value[0][0]);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::setUniform(int _uniformId, const Color& _value)
 	{
 		glUniform4f(_uniformId, _value.r, _value.g, _value.b, _value.a);
@@ -276,6 +282,7 @@ namespace rev { namespace video
 		mUniform2f					= (PFNGLUNIFORM2FPROC)					loadExtension("glUniform2f");
 		mUniform3f					= (PFNGLUNIFORM3FPROC)					loadExtension("glUniform3f");
 		mUniform4f					= (PFNGLUNIFORM4FPROC)					loadExtension("glUniform4f");
+		mUniformMatrix4fv			= (PFNGLUNIFORMMATRIX4FVPROC)			loadExtension("glUniformMatrix4fv");
 		mUseProgram					= (PFNGLUSEPROGRAMPROC)					loadExtension("glUseProgram");
 		mVertexAttribPointer		= (PFNGLVERTEXATTRIBPOINTERPROC)		loadExtension("glVertexAttribPointer");
 	};
@@ -366,6 +373,12 @@ namespace rev { namespace video
 	void Driver3dOpenGL21::glUniform4f(GLint _uniformId, GLfloat _f0, GLfloat _f1, GLfloat _f2, GLfloat _f3)
 	{
 		mUniform4f(_uniformId, _f0, _f1, _f2, _f3);
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::glUniformMatrix4fv(GLint _uniform, GLsizei _count, GLboolean _transpose, const GLfloat* _value)
+	{
+		mUniformMatrix4fv(_uniform, _count, _transpose, _value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

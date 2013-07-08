@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <utility>
 
+#include <revMath/algebra/matrix.h>
 #include <revMath/algebra/vector.h>
 
 namespace rev { namespace video
@@ -59,6 +60,7 @@ namespace rev { namespace video
 		virtual void		setUniform			(int _id, float _value) = 0;
 		virtual void		setUniform			(int _id, const math::Vec2f& _value) = 0;
 		virtual void		setUniform			(int _id, const math::Vec3f& _value) = 0;
+		virtual void		setUniform			(int _id, const math::Mat44f& _value) = 0;
 		virtual void		setUniform			(int _id, const Color& _value) = 0;
 
 		// --- Draw ---

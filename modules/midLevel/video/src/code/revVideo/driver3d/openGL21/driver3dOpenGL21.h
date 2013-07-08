@@ -53,6 +53,7 @@ namespace rev { namespace video
 		void		setUniform				(int _id, float _value);
 		void		setUniform				(int _id, const math::Vec2f& _value);
 		void		setUniform				(int _id, const math::Vec3f& _value);
+		void		setUniform				(int _id, const math::Mat44f& _value);
 		void		setUniform				(int _id, const Color& _value);
 
 		// --- Draw ---
@@ -87,6 +88,7 @@ namespace rev { namespace video
 		void	glUniform2f					(GLint _uniform, float _f0, float _f1);
 		void	glUniform3f					(GLint _uniform, float _f0, float _f1, float _f2);
 		void	glUniform4f					(GLint _uniform, float _f0, float _f1, float _f2, float _f3);
+		void	glUniformMatrix4fv			(GLint _uniform, GLsizei _count, GLboolean _transpose, const GLfloat* _value);
 		void	glUseProgram				(GLuint _program)					{ mUseProgram(_program);			}
 		void	glVertexAttribPointer		(GLuint _idx, GLint _size, GLenum _type, bool _normalized, GLsizei _stride,
  				const GLvoid * _pointer);
@@ -112,6 +114,7 @@ namespace rev { namespace video
 		PFNGLUNIFORM2FPROC					mUniform2f;
 		PFNGLUNIFORM3FPROC					mUniform3f;
 		PFNGLUNIFORM4FPROC					mUniform4f;
+		PFNGLUNIFORMMATRIX4FVPROC			mUniformMatrix4fv;
 		PFNGLUSEPROGRAMPROC					mUseProgram;
 		PFNGLVERTEXATTRIBPOINTERPROC		mVertexAttribPointer;
 		

@@ -24,25 +24,15 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<>
-	class NumericTraits<float>
-	{
-	public:
-#ifndef _WIN32
-		static constexpr float	zero() { return 0.f; }
-#else // WIN32
-		static float			zero() { return 0.f; }
-#endif // WIN32
-	};
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<>
 	class NumericTraits<int>
 	{
 	public:
 #ifndef _WIN32
 		static constexpr int	zero() { return 0; }
+		static constexpr int	one () { return 1; }
 #else // WIN32
 		static int			zero() { return 0; }
+		static int			one () { return 1; }
 #endif // WIN32
 	};
 
@@ -53,8 +43,24 @@ namespace rev { namespace math
 	public:
 #ifndef _WIN32
 		static constexpr unsigned	zero() { return 0; }
+		static constexpr unsigned	one () { return 1; }
 #else // WIN32
 		static unsigned				zero() { return 0; }
+		static unsigned				one () { return 1; }
+#endif // WIN32
+	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<>
+	class NumericTraits<float>
+	{
+	public:
+#ifndef _WIN32
+		static constexpr float	zero() { return 0.f; }
+		static constexpr float	one () { return 1.f; }
+#else // WIN32
+		static float			zero() { return 0.f; }
+		static float			one () { return 1.f; }
 #endif // WIN32
 	};
 

@@ -11,6 +11,7 @@
 
 #include "application3d.h"
 
+#include <revGraphics3d/renderable/renderScene.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
 #include <revVideo/types/shader/pixel/pxlShader.h>
@@ -41,8 +42,9 @@ namespace rev { namespace graphics3d {
 		vtx21->addAttribute("vertex");
 		// ----- End of platform dependent code --------------
 		mBasicShader = Shader::get(std::make_pair(vtxShader, PxlShader::get("test.pxl")));
+		mMvpUniform = mBasicShader->getUniformLocation("mvp");
 		//mColorUniformId = mShader->getUniformLocation("color");
-		
+		mDriver3d->setShader(mBasicShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -82,14 +84,7 @@ namespace rev { namespace graphics3d {
 	//------------------------------------------------------------------------------------------------------------------
 	void Application3d::render()
 	{
-		mDriver3d->setShader(mBasicShader);
-		Vec3f vertices[] = { Vec3f(-0.5f, -0.3f, 0.f ),
-							 Vec3f(0.5f, -0.3f, 0.f ),
-							 Vec3f(0.f, 0.4f, 0.f) };
-
-		mDriver3d->setAttribBuffer(0, 3, vertices);
-		uint16_t indices[] = { 0, 1, 2 };
-		mDriver3d->drawIndexBuffer(3, indices, Driver3d::EPrimitiveType::triangles);
+		RenderScene::get()->render(mMvpUniform);
 	}
 
 }	// namespace graphics3d

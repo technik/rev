@@ -8,6 +8,8 @@
 #ifndef _REV_GRAPHICS3D_RENDERABLE_RENDERABLE_H_
 #define _REV_GRAPHICS3D_RENDERABLE_RENDERABLE_H_
 
+#include <revMath/algebra/matrix.h>
+
 namespace rev { namespace graphics3d {
 
 	class Renderable
@@ -28,6 +30,9 @@ namespace rev { namespace graphics3d {
 								unsigned short _nIndices,	///< \param _count how many faces
 								unsigned short * _indices,	///< \param _indices face indices
 								bool _strip = false);		///< \param 
+
+	public:
+		math::Mat34f	m;
 
 	private:
 		float*			mVertices;

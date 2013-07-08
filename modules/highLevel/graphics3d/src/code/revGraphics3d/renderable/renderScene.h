@@ -22,7 +22,7 @@ namespace rev { namespace graphics3d {
 		void	add				(Renderable*);
 		void	remove			(Renderable*);
 
-		void	render			();
+		void	render			(int _mvp);
 
 	private:
 		RenderScene() {}

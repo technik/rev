@@ -8,6 +8,12 @@
 #include "renderable.h"
 #include "renderScene.h"
 
+#include <revMath/algebra/matrix.h>
+#include <revVideo/driver3d/driver3d.h>
+#include <revVideo/videoDriver/videoDriver.h>
+
+using namespace rev::math;
+
 namespace rev { namespace graphics3d {
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -42,10 +48,15 @@ namespace rev { namespace graphics3d {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::render()
+	void RenderScene::render(int _mvp)
 	{
+		video::Driver3d* driver = video::VideoDriver::getDriver3d();
+		Mat44f proj = Mat44f::frustrum(1.6f, 1.333f, 1.f, 1000.f);
 		for(auto element : mRenderQueue )
+		{
+			driver->setUniform(_mvp, proj * element->m);
 			element->render();
+		}
 	}
 	
 }	// namespace graphics3d

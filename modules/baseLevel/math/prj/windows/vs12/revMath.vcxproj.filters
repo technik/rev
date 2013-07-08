@@ -10,5 +10,8 @@
     <ClInclude Include="..\..\..\src\code\revMath\algebra\vector.h">
       <Filter>algebra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revMath\algebra\matrix.h">
+      <Filter>algebra</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
