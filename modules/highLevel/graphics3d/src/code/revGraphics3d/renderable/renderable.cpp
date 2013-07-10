@@ -33,7 +33,7 @@ namespace rev { namespace graphics3d {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Renderable::render()
+	void Renderable::render() const
 	{
 		video::Driver3d* driver = video::VideoDriver::getDriver3d();
 

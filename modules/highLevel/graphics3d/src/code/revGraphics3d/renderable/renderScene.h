@@ -9,6 +9,7 @@
 #define _REV_GRAPHICS3D_RENDERABLE_RENDERSCENE_H_
 
 #include <vector>
+#include <functional>
 
 namespace rev { namespace graphics3d {
 
@@ -19,17 +20,17 @@ namespace rev { namespace graphics3d {
 	public:
 		static RenderScene* get	();
 
-		void	add				(Renderable*);
-		void	remove			(Renderable*);
+		void	add				(const Renderable*);
+		void	remove			(const Renderable*);
 
-		void	render			(int _mvp);
+		void	traverse		(std::function<void (const Renderable*)>) const;
 
 	private:
 		RenderScene() {}
 
 	private:
-		static RenderScene*			sInstance;
-		std::vector<Renderable*>	mRenderQueue;
+		static RenderScene*				sInstance;
+		std::vector<const Renderable*>	mRenderQueue;
 	};
 
 }	// namespace graphics3d

@@ -30,13 +30,13 @@ namespace rev { namespace graphics3d {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::add(Renderable* _x)
+	void RenderScene::add(const Renderable* _x)
 	{
 		mRenderQueue.push_back(_x);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::remove(Renderable* _x)
+	void RenderScene::remove(const Renderable* _x)
 	{
 		for(auto element = mRenderQueue.begin(); element != mRenderQueue.end(); ++element)
 		{
@@ -48,15 +48,10 @@ namespace rev { namespace graphics3d {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::render(int _mvp)
+	void RenderScene::traverse(std::function<void (const Renderable*)>_fn) const
 	{
-		video::Driver3d* driver = video::VideoDriver::getDriver3d();
-		Mat44f proj = Mat44f::frustrum(1.6f, 1.333f, 1.f, 1000.f);
 		for(auto element : mRenderQueue )
-		{
-			driver->setUniform(_mvp, proj * element->m);
-			element->render();
-		}
+			_fn(element);
 	}
 	
 }	// namespace graphics3d

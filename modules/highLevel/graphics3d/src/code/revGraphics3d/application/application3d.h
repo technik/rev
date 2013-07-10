@@ -8,6 +8,8 @@
 #ifndef _REV_GRAPHICS3D_APPLICATION_APPLICATION3D_H_
 #define _REV_GRAPHICS3D_APPLICATION_APPLICATION3D_H_
 
+#include <revGraphics3d/camera/camera.h>
+
 namespace rev { namespace video {
 	class VideoDriver;
 	class Driver3d;
@@ -15,6 +17,8 @@ namespace rev { namespace video {
 }}	// video, rev
 
 namespace rev { namespace graphics3d {
+
+	class Renderer;
 
 	class Application3d
 	{
@@ -31,9 +35,8 @@ namespace rev { namespace graphics3d {
 	private:
 		video::VideoDriver* mVideoDriver;
 		video::Driver3d*	mDriver3d;
-
-		video::Shader*		mBasicShader;
-		int					mMvpUniform;
+		Renderer*			mRenderer;
+		Camera				mCamera;
 	};
 
 }	// namespace graphics3d

@@ -12,12 +12,9 @@
 #include "application3d.h"
 
 #include <revGraphics3d/renderable/renderScene.h>
+#include <revGraphics3d/renderer/forward/forwardRenderer.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
-#include <revVideo/types/shader/pixel/pxlShader.h>
-#include <revVideo/types/shader/vertex/vtxShader.h>
-#include <revVideo/types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
-#include <revVideo/types/shader/shader.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
 using namespace rev::video;
@@ -34,17 +31,9 @@ namespace rev { namespace graphics3d {
 		mVideoDriver->init3d();
 		mDriver3d = VideoDriver::getDriver3d();
 		mDriver3d->setClearColor(Color::Color(0.2f));
+		mRenderer = new ForwardRenderer;
 
-		// Shaders
-		VtxShader* vtxShader = VtxShader::get("test.vtx");
-		// ----- WARNING: Highly platform dependent code -----
-		VtxShaderOpenGL21* vtx21 = static_cast<VtxShaderOpenGL21*>(vtxShader);
-		vtx21->addAttribute("vertex");
-		// ----- End of platform dependent code --------------
-		mBasicShader = Shader::get(std::make_pair(vtxShader, PxlShader::get("test.pxl")));
-		mMvpUniform = mBasicShader->getUniformLocation("mvp");
-		//mColorUniformId = mShader->getUniformLocation("color");
-		mDriver3d->setShader(mBasicShader);
+		mCamera.setProjection(Mat44f::frustrum(1.6f, 1.333f, 0.125f, 10000.f));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -84,7 +73,7 @@ namespace rev { namespace graphics3d {
 	//------------------------------------------------------------------------------------------------------------------
 	void Application3d::render()
 	{
-		RenderScene::get()->render(mMvpUniform);
+		mRenderer->render(mCamera, *RenderScene::get());
 	}
 
 }	// namespace graphics3d

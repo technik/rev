@@ -32,7 +32,8 @@ namespace rev { namespace math {
 		Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
 		const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
 
-		// Operators
+		// Operations
+		void		inverse		(Matrix3x4<Number_>& _dst) const; // Matrix is treated like an affine transform
 
 		// Useful matrices
 		static Matrix3x4<Number_>		identity	();
@@ -87,6 +88,23 @@ namespace rev { namespace math {
 			}
 		}
 		return mtx;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline void Matrix3x4<Number_>::inverse(Matrix3x4<Number_>& _dst) const
+	{
+		// Affine transformation's inverse
+		//     | A ··· b |         | A^-1 ··· -(A^-1)b |
+		// m = | 0 ··· 1 |, m^-1 = |  0   ···     1    |
+		// Since A is indeed orthonormal, A^-1 = transpose(A)
+		for(unsigned int row = 0; row < 3; ++row)
+		{
+			Vector4<Number_>& dstRow = _dst[row];
+			for(unsigned int col = 0; col < 3; ++col)
+				dstRow[col] = m[col][row]; // Transpose the core matrix
+			dstRow[3] = - (dstRow[0] * m[0][3] + dstRow[1] * m[1][3] + dstRow[2] * m[2][3]); // Invert the translation
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -7,6 +7,15 @@
     <Filter Include="renderable">
       <UniqueIdentifier>{a1cd1d72-c6df-4fc8-b9f6-46c5fd0a82be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{f342b89f-3e12-4409-84ab-8cb2290bfc10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\forward">
+      <UniqueIdentifier>{e1ca36c8-fe0f-4925-a803-c9dd5431221a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="camera">
+      <UniqueIdentifier>{0ad9aa8d-c180-4271-8af5-a9b58fb7dc8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGraphics3d\application\application3d.h">
@@ -18,6 +27,15 @@
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\renderScene.h">
       <Filter>renderable</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGraphics3d\renderer\renderer.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGraphics3d\renderer\forward\forwardRenderer.h">
+      <Filter>renderer\forward</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGraphics3d\camera\camera.h">
+      <Filter>camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGraphics3d\application\application3d.cpp">
@@ -28,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\renderScene.cpp">
       <Filter>renderable</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGraphics3d\renderer\forward\forwardRenderer.cpp">
+      <Filter>renderer\forward</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

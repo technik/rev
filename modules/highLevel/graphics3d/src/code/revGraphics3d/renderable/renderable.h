@@ -18,7 +18,7 @@ namespace rev { namespace graphics3d {
 		Renderable	();
 		~Renderable	();
 
-		void	render			();
+		void	render			() const;
 
 		void	setVertexData	(///< Set new vertex data (deletes any previous data)
 								unsigned short _count,	///< \param _count how many vertices
