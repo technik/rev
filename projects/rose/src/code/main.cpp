@@ -24,20 +24,26 @@ class RoseApp : public Application3d
 public:
 	RoseApp()
 	{
-		obj = new Renderable();
+		obj = Renderable::geoSphere(1.f, 8, 5);
 		obj->m = rev::math::Mat34f::identity();
 		obj->m[0][3] = 0.f;
 		obj->m[1][3] = 5.f;
 		obj->m[2][3] = 0.f;
+		obj2 = Renderable::box(math::Vec3f(2.f, 3.f, 4.f));
+		obj2->m = rev::math::Mat34f::identity();
+		obj2->m[0][3] = 3.f;
+		obj2->m[1][3] = 6.f;
+		obj2->m[2][3] = 1.f;
 	}
 
 	~RoseApp()
 	{
 		delete obj;
+		delete obj2;
 	}
 
 private:
-	Renderable* obj;
+	Renderable* obj, *obj2;
 };
 
 int main()

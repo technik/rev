@@ -19,7 +19,7 @@ namespace rev { namespace math
 	public:
 		// Copy, construction and destruction
 		Vector2() {}											// Default constructor
-		Vector2(const Vector2<Number_>& _v);					// Copy constructor
+		//Vector2(const Vector2<Number_>& _v);					// Copy constructor
 		Vector2(const Number_ _x, const Number_ _y);			// Data construction
 		Vector2<Number_>& operator=(const Vector2<Number_>&);	// Assignement operator
 
@@ -37,12 +37,7 @@ namespace rev { namespace math
 		// Products
 		Vector2<Number_>	operator*	(const Number_) const;				// Product by scalar
 		Vector2<Number_>&	operator*=	(const Number_);					// Product by scalar
-		Vector2<Number_>	operator*	(const Vector2<Number_>&) const;	// Dot product
-		Vector2<Number_>&	operator*=	(const Vector2<Number_>&);			// Dot product
-		Vector2<Number_>	operator^	(const Vector2<Number_>&) const;	// Cross product
-		Vector2<Number_>&	operator^=	(const Vector2<Number_>&);			// Cross product
-		Vector2<Number_>	operator|	(const Vector2<Number_>&) const;	// Component wise product
-		Vector2<Number_>&	operator|=	(const Vector2<Number_>&);			// Component wise product
+		Number_				operator*	(const Vector2<Number_>&) const;	// Dot product
 
 		// Matrix-like accessors
 				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
@@ -67,6 +62,24 @@ namespace rev { namespace math
 	public:
 		Vector3() {}
 		Vector3(Number_ _x, Number_ _y, Number_ _z):x(_x),y(_y),z(_z){}
+		Vector3<Number_>& operator=(const Vector3<Number_>&);
+
+		// Equality and inequality
+		bool	operator==	(const Vector3<Number_>&) const;
+		bool	operator!=	(const Vector3<Number_>&) const;
+
+		// Adition and substraction
+		Vector3<Number_>	operator+	(const Vector3<Number_>&) const;	// Adition
+		Vector3<Number_>&	operator+=	(const Vector3<Number_>&);			// Adition
+		Vector3<Number_>	operator-	(const Vector3<Number_>&) const;	// Substraction
+		Vector3<Number_>&	operator-=	(const Vector3<Number_>&);			// Substraction
+		Vector3<Number_>	operator-	() const;				// Return the oposite of this vector
+
+		// Products
+		Vector3<Number_>	operator*	(const Number_) const;				// Product by scalar
+		Vector3<Number_>&	operator*=	(const Number_);					// Product by scalar
+		Number_				operator*	(const Vector3<Number_>&) const;	// Dot product
+		Vector3<Number_>	operator^	(const Vector3<Number_>&) const;	// Cross product
 
 				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
 		const	Number_& operator[] (unsigned int _index) const { return (reinterpret_cast<const Number_*>(this))[_index];	}
@@ -99,13 +112,6 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
-	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
-	Vector2<N_>::Vector2(const Vector2<N_>& _v)
-		:x(_v.x)
-		,y(_v.y)
-	{}
-
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
 	Vector2<N_>::Vector2(const N_ _x, const N_ _y)
@@ -184,6 +190,22 @@ namespace rev { namespace math
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
+	Vector2<N_>& Vector2<N_>::operator*=(const N_ _k)
+	{
+		x*=_k;
+		y*=_k;
+		return *this;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	N_ Vector2<N_>::operator*(const Vector2<N_>& _b) const
+	{
+		return x * _b.x + y * _b.y;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
 	#ifdef _WIN32
 	Vector2<N_> Vector2<N_>::zero()
 	#else // !_WIN32
@@ -191,6 +213,104 @@ namespace rev { namespace math
 	#endif // !_WIN32
 	{
 		return Vector2<N_>(NumericTraits<N_>::zero(), NumericTraits<N_>::zero());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>& Vector3<N_>::operator=(const Vector3<N_>& _v)
+	{
+		x=_v.x;
+		y=_v.y;
+		z=_v.z;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	bool Vector3<N_>::operator==(const Vector3<N_>& _v) const
+	{
+		return (x == _v.x) && (y == _v.y) && (z == _v.z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	bool Vector3<N_>::operator!=(const Vector3<N_>& _v) const
+	{
+		return (x != _v.x) || (y != _v.y) || (z != _v.z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>	Vector3<N_>::operator+ (const Vector3<N_>& _v) const
+	{
+		return Vector3<N_>(x+_v.x, y+_v.y, z+_v.z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>& Vector3<N_>::operator+= (const Vector3<N_>& _v)
+	{
+		x += _v.x;
+		y += _v.y;
+		z += _v.z;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>	Vector3<N_>::operator- (const Vector3<N_>& _v) const
+	{
+		return Vector3<N_>(x-_v.x, y-_v.y, z-_v.z);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>& Vector3<N_>::operator-= (const Vector3<N_>& _v)
+	{
+		x -= _v.x;
+		y -= _v.y;
+		z -= _v.z;
+		return *this;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_> Vector3<N_>::operator- () const
+	{
+		return Vector3<N_>(-x, -y, -z);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_> Vector3<N_>::operator*(const N_ _k) const
+	{
+		return Vector3<N_>(x * _k, y * _k, z * _k);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_>& Vector3<N_>::operator*=(const N_ _k)
+	{
+		x*=_k;
+		y*=_k;
+		z*=_k;
+		return *this;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	N_ Vector3<N_>::operator*(const Vector3<N_>& _b) const
+	{
+		return x * _b.x + y * _b.y + z * _b.z;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	Vector3<N_> Vector3<N_>::operator^(const Vector3<N_>& _b) const
+	{
+		return Vector3<N_>(	y*_b.z - z*_b.y,
+							z*_b.x - x*_b.z,
+							x*_b.y - y*_b.x);
 	}
 
 }	// namespace math
