@@ -8,6 +8,8 @@
 #ifndef _REV_GRAPHICS3D_APPLICATION_APPLICATION3D_H_
 #define _REV_GRAPHICS3D_APPLICATION_APPLICATION3D_H_
 
+#include <cstdint>
+
 #include <revGraphics3d/camera/camera.h>
 
 namespace rev { namespace video {
@@ -31,12 +33,14 @@ namespace rev { namespace graphics3d {
 		virtual bool update() { return true; }
 
 		void render ();
+		void moveCamera();
 
 	private:
 		video::VideoDriver* mVideoDriver;
 		video::Driver3d*	mDriver3d;
 		Renderer*			mRenderer;
 		Camera				mCamera;
+		math::Vec3f			mCamPos;
 	};
 
 }	// namespace graphics3d

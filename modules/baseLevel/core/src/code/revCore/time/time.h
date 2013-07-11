@@ -1,34 +1,69 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On October 10th, 2012
+// On 2011/August/22
 //----------------------------------------------------------------------------------------------------------------------
-// Time control and measurement
+// Time
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Revolution Engine, time
+// by Carmelo J. Fernández-Agüera Tortosa (a.k.a. Technik)
+// Created on August 22nd, 2011
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// time
 
 #ifndef _REV_CORE_TIME_TIME_H_
 #define _REV_CORE_TIME_TIME_H_
-
-#ifdef ATMEGA
-#include <stdio.h>
-#else // !ATMEGA
-#include <cstdint>
-#endif // !ATMEGA
 
 namespace rev
 {
 	class Time
 	{
-		static void		init	(); ///< Initialize system clock
+		/// \brief this system provides time meassures to game. time is considered constant along a whole frame.
+	public:
+		// --- Singleton life cycle ---
+		static	void	init	();
+		static	Time*	get		();	///< Returns the singleton instance
+		static	void	end		();
 
-		// Time measurement
-		static uint32_t	micros	();	///< Microseconds since power-up or last reset
-		static uint32_t	millis	(); ///< Milliseconds since power-up or last reset
-		static uint32_t	seconds	(); ///< Seconds since power-up or last reset
+	public:
+		// --- System management ---
+		void	update	();	///< Update time system
 
-		// Delays
-		static void		delayMS	(uint16_t _ms);	///< Delay _ms milliseconds
-		static void		delayUS	(uint16_t _us); ///< Delay _us microseconds
+		// --- Public interface ---
+		float frameTime	();	// in seconds
+
+	private:
+		Time	();
+
+	private:
+		// Singleton instance
+		static Time*	sTime;
+
+		// last frame duration.
+		float	mFrameTime;
+
+		// Internal use.
+#if defined(_linux) || defined (ANDROID)
+		int	mLastTime;
+#endif
+#if defined (WIN32)
+		unsigned mLastTime;
+#endif
 	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline float Time::frameTime()
+	{
+		return mFrameTime;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	inline Time * Time::get()
+	{
+		return sTime;
+	}
+
 }	// namespace rev
 
 #endif // _REV_CORE_TIME_TIME_H_

@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revMath", "..\..\..\..\..\m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revGraphics3d", "..\..\..\..\..\modules\highLevel\graphics3d\prj\windows\vs12\revGraphics3d.vcxproj", "{980979D9-AF04-4504-9484-D7AD5F9C4FFA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revInput", "..\..\..\..\..\modules\midLevel\input\prj\windows\vs12\revInput.vcxproj", "{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +39,10 @@ Global
 		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Debug|Win32.Build.0 = Debug|Win32
 		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Release|Win32.ActiveCfg = Release|Win32
 		{980979D9-AF04-4504-9484-D7AD5F9C4FFA}.Release|Win32.Build.0 = Release|Win32
+		{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}.Debug|Win32.Build.0 = Debug|Win32
+		{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}.Release|Win32.ActiveCfg = Release|Win32
+		{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

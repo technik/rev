@@ -1,80 +1,95 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution SDK
 // Created by Carmelo J. Fdez-Agüera Tortosa a.k.a. (Technik)
-// On October 10th, 2012
+// On 2011/August/22
 //----------------------------------------------------------------------------------------------------------------------
-// Time control and measurement
+// Time
 
+// Standard headers
+#if defined(_linux) || defined(ANDROID)
+	#include <sys/time.h>
+#elif defined (WIN32)
+	#include <Windows.h>
+#endif // _linux
+
+// Engine headers
 #include "time.h"
 
-/*#ifdef ATMEGA
-#include <avr/interrupt.h>
-#include <avr/io.h>
-// Notice this must be outside the namespace for the interrupt to work
-//----------------------------------------------------------------------------------------------------------------------
-// Global data
-//----------------------------------------------------------------------------------------------------------------------
-volatile uint32_t gTicksH = 0; // High word for tick count
+#include "revCore/codeTools/assert/assert.h"
 
-//----------------------------------------------------------------------------------------------------------------------
-// Interrupt handler
-//----------------------------------------------------------------------------------------------------------------------
-ISR(TIMER1_OVF_vect)
-{
-	++gTicksH;
-}
-
-#endif // ATMEGA
+// Used namespaces
+using namespace rev::codeTools;
 
 namespace rev
 {
-#ifdef ATMEGA
+	//------------------------------------------------------------------------------------------------------------------
+	// Static data definitions
+	Time* Time::sTime = 0;
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Method implementations
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Time::init()
 	{
-		TCCR1B |= 1 << 1; // Clock source equals system clock / 8, 0.5 uS per tick
-		TIMSK1 |= 1 << 0; // Enable overflow interrupt
+		revAssert(0 == sTime);
+		sTime = new Time();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	uint32_t Time::micros()
+	void Time::end()
 	{
-		return (gTicksH << 15) | (TCNT1 >> 1); // Returns nTicks / 2 (one tick is half a second)
+		revAssert(0 != sTime);
+		delete sTime;
+		sTime = 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	uint32_t Time::millis()
+	void Time::update()
 	{
-		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
-		// Maybe gTicksH should get 32 bits for that.
-		return ((gTicksH<<12) | (TCNT1>>4)) / 125;
+	#if defined (_linux) || defined (ANDROID)
+		// Get current time
+		timeval currentTime;
+		gettimeofday(&currentTime, 0);
+		int usecTime = currentTime.tv_usec;
+		mFrameTime = TReal((usecTime - mLastTime)/ 1000000.0);	// Known conversion from double. There wont be loss of
+																// information because tv_usec isn't that precise.
+		if(mFrameTime < 0.f)
+		{
+			mFrameTime += 1.f;
+		}
+		mLastTime = usecTime;
+	#elif defined (WIN32)
+		// Get current time
+		LARGE_INTEGER largeTicks;
+		QueryPerformanceCounter(&largeTicks);
+		unsigned currTime = largeTicks.LowPart;
+		// Convert time difference to seconds
+		LARGE_INTEGER frequency;
+		QueryPerformanceFrequency(&frequency);
+		mFrameTime =  (float(currTime-mLastTime)/float(frequency.LowPart));
+		// --- Force minimun frame rate, so that time wont stall while debugging
+		mFrameTime = mFrameTime < 0.1f? mFrameTime : 0.1f;
+		// Replace last time
+		mLastTime = currTime;
+	#endif // _linux
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	uint32_t Time::seconds()
+	Time::Time()
+		:mFrameTime(0.f)
 	{
-		// TODO: This function could use a more direct approach over gTicksH not to lose so much information.
-		// Maybe gTicksH should get 32 bits for that.
-		return ((gTicksH<< 9) | (TCNT1>>7)) / 15625;
+	#if defined (_linux) || defined (ANDROID)
+		// Get current time
+		timeval currentTime;
+		gettimeofday(&currentTime, 0);
+		mLastTime = currentTime.tv_usec;
+	#elif defined (WIN32)
+		// Get initial time
+		LARGE_INTEGER largeTicks;
+		QueryPerformanceCounter(&largeTicks);
+		mLastTime = largeTicks.LowPart;
+	#endif
 	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void Time::delayMS(uint16_t _ms)
-	{
-		uint32_t startMilliseconds = millis();
-		while((millis() - startMilliseconds) < _ms)
-		{}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Time::delayUS(uint16_t _us)
-	{
-		uint32_t startMicroseconds = micros();
-		while((micros() - startMicroseconds) < _us)
-		{}
-	}
-	
-#endif // ATMEGA
 }	// namespace rev
-
-*/
