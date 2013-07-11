@@ -32,9 +32,11 @@ namespace rev { namespace graphics3d {
 		// ----- WARNING: Highly platform dependent code -----
 		VtxShaderOpenGL21* vtx21 = static_cast<VtxShaderOpenGL21*>(vtxShader);
 		vtx21->addAttribute("vertex");
+		vtx21->addAttribute("normal");
 		// ----- End of platform dependent code --------------
 		mBasicShader = Shader::get(std::make_pair(vtxShader, PxlShader::get("test.pxl")));
 		mMvpUniform = mBasicShader->getUniformLocation("mvp");
+		mLightUniform = mBasicShader->getUniformLocation("lightDir");
 		//mColorUniformId = mShader->getUniformLocation("color");
 	}
 
@@ -42,7 +44,9 @@ namespace rev { namespace graphics3d {
 	void ForwardRenderer::render(const Camera& _pointOfView, const RenderScene& _scene)
 	{
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
+		mDriver->setZCompare(true);
 		mDriver->setShader(mBasicShader);
+		mDriver->setUniform(mLightUniform, math::Vec3f(1.f, 1.f, -2.f));
 		_scene.traverse([&,this](const Renderable* _renderable)
 		{
 			mDriver->setUniform(mMvpUniform, viewProj * _renderable->m);

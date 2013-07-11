@@ -43,13 +43,11 @@ namespace rev { namespace graphics3d {
 		video::Driver3d* driver = video::VideoDriver::getDriver3d();
 		
 		driver->setAttribBuffer(0, mNVertices, mVertices);
+		driver->setAttribBuffer(1, mNVertices, mNormals);
 		if(0 != mNTriIndices)
 			driver->drawIndexBuffer(mNTriIndices, mTriangles, video::Driver3d::EPrimitiveType::triangles);
 		if(0 != mStripLength)
 			driver->drawIndexBuffer(mStripLength, mTriStrip, video::Driver3d::EPrimitiveType::triStrip);
-
-		// uint16_t indices[] = { 0, 1, 2 };
-		// driver->drawIndexBuffer(3, indices, Driver3d::EPrimitiveType::triangles);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ namespace rev { namespace video
 		virtual void		clearZBuffer		() = 0;
 		virtual void		clearColorBuffer	() = 0;
 		virtual void		setClearColor		(const Color&) = 0;
+		virtual void		setZCompare			(bool _enable) = 0;
 
 		virtual void		flush				() = 0;
 		virtual void		finishFrame			() = 0;

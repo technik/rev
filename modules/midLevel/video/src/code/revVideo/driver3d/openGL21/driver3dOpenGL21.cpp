@@ -73,6 +73,15 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::setZCompare(bool _enable)
+	{
+		if(_enable)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::flush()
 	{
 	}

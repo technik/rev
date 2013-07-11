@@ -1,8 +1,12 @@
 attribute vec3 vertex;
+attribute vec3 normal;
 
 uniform mat4 mvp;
 
+varying vec3 vNormal;
+
 void main ( void )
 {
+	vNormal = normal;
 	gl_Position = mvp * vec4(vertex, 1.0);
 }

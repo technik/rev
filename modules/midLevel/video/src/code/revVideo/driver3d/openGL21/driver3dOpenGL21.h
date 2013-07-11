@@ -34,6 +34,7 @@ namespace rev { namespace video
 		void		clearZBuffer			();
 		void		clearColorBuffer		();
 		void		setClearColor			(const Color&);
+		void		setZCompare				(bool _enable);
 
 		void		flush					();
 		void		finishFrame				();
