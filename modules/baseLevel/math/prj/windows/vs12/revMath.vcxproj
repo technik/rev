@@ -72,6 +72,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revMath\algebra\matrix.h" />
+    <ClInclude Include="..\..\..\src\code\revMath\algebra\quaternion.h" />
     <ClInclude Include="..\..\..\src\code\revMath\algebra\vector.h" />
     <ClInclude Include="..\..\..\src\code\revMath\numericTraits.h" />
   </ItemGroup>
