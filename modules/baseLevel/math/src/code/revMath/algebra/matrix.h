@@ -17,6 +17,12 @@ namespace rev { namespace math {
 	class Matrix3x3
 	{
 	public:
+		Matrix3x3(){}
+		Matrix3x3(const Quaternion<N_>& _q);
+
+		Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
+		Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
+
 		Vector3<Number_>&		operator[]	(unsigned _row)			{ return mRow[_row]; }
 		const Vector3<Number_>&	operator[]	(unsigned _row) const	{ return mRow[_row]; }
 
@@ -33,7 +39,11 @@ namespace rev { namespace math {
 		const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
 
 		// Operations
-		void		inverse		(Matrix3x4<Number_>& _dst) const; // Matrix is treated like an affine transform
+		Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
+		Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
+		Matrix3x4<Number_>	operator*	(const Matrix3x4&) const;
+		void				inverse	(Matrix3x4<Number_>& _dst) const; // Matrix is treated like an affine transform
+		Vector3<Number_>	rotate		(const Vector3<Number_>& ) const;
 
 		// Useful matrices
 		static Matrix3x4<Number_>		identity	();
@@ -52,7 +62,7 @@ namespace rev { namespace math {
 
 		// Operators
 		Matrix4x4	operator*	(const Matrix3x4<Number_>& _b) const;
-		//Matrix4x4	operator*	(const Matrix4x4<Number_>& _b) const;
+		Matrix4x4	operator*	(const Matrix4x4<Number_>& _b) const;
 		void		transpose	(Matrix4x4& _transpose) const;
 
 		// Useful matrices
@@ -72,6 +82,10 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename N_>
+	inline Vector3<N_> Matrix3x4::operator* 
+
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename Number_>
 	inline Matrix3x4<Number_> Matrix3x4<Number_>::identity()
@@ -106,6 +120,8 @@ namespace rev { namespace math {
 			dstRow[3] = - (dstRow[0] * m[0][3] + dstRow[1] * m[1][3] + dstRow[2] * m[2][3]); // Invert the translation
 		}
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename Number_>
@@ -171,6 +187,24 @@ namespace rev { namespace math {
 									+ m[row][2] * _b[2][column];
 			}
 			dst[row][3] += m[row][3];
+		}
+		return dst;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix4x4<Number_> Matrix4x4<Number_>::operator* (const Matrix4x4<Number_>& _b) const
+	{
+		Matrix4x4 dst;
+		for(unsigned row = 0; row < 4; ++row)
+		{
+			for(unsigned column = 0; column < 4; ++column)
+			{
+				dst[row][column]	= m[row][0] * _b[0][column]
+									+ m[row][1] * _b[1][column]
+									+ m[row][2] * _b[2][column];
+									+ m[row][3] * _b[3][column];
+			}
 		}
 		return dst;
 	}
