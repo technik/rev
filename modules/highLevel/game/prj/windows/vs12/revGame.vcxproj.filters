@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="application">
+      <UniqueIdentifier>{226edc11-6ecd-436f-b278-d046ea8473ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{757c8707-b82c-40dc-a32e-94e6a20baaf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\transform">
+      <UniqueIdentifier>{3fc7d8ec-df09-4522-bc78-66842b8b2bff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\component">
+      <UniqueIdentifier>{5eb6f1c4-d624-4091-8dad-73431f3ec9ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{4ce8d76e-4ee8-41a2-b067-f336726cab08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene\camera">
+      <UniqueIdentifier>{a38dd997-8fe1-44ac-810d-721a8dec5332}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{c9dee4c0-da8c-4b6e-a939-8853a5dc8161}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="transformSrc.h">
+      <Filter>core\transform</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
