@@ -8,6 +8,7 @@
 #ifndef _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 #define _REV_CORE_MATH_ALGEBRA_VECTOR_H_
 
+#include <cmath>
 #include <revMath/numericTraits.h>
 
 namespace rev { namespace math
@@ -20,6 +21,7 @@ namespace rev { namespace math
 		// Copy, construction and destruction
 		Vector2() {}											// Default constructor
 		//Vector2(const Vector2<Number_>& _v);					// Copy constructor
+		explicit Vector2(const Number_);						// Single value constructor
 		Vector2(const Number_ _x, const Number_ _y);			// Data construction
 		Vector2<Number_>& operator=(const Vector2<Number_>&);	// Assignement operator
 
@@ -61,6 +63,8 @@ namespace rev { namespace math
 	{
 	public:
 		Vector3() {}
+		explicit Vector3(const Number_ _v):x(_V),y(_v),z(_v) {}
+		Vector3(const Vector2<Number_>& _v, Number_ _z):x(_v.x),y(_v.y),z(_z) {}
 		Vector3(Number_ _x, Number_ _y, Number_ _z):x(_x),y(_y),z(_z){}
 		Vector3<Number_>& operator=(const Vector3<Number_>&);
 
@@ -78,8 +82,22 @@ namespace rev { namespace math
 		// Products
 		Vector3<Number_>	operator*	(const Number_) const;				// Product by scalar
 		Vector3<Number_>&	operator*=	(const Number_);					// Product by scalar
+		Vector3<Number_>	operator/	(const Number_) const;				// Division by scalar
+		Vector3<Number_>&	operator/=	(const Number_);					// Division by scalar
 		Number_				operator*	(const Vector3<Number_>&) const;	// Dot product
 		Vector3<Number_>	operator^	(const Vector3<Number_>&) const;	// Cross product
+
+		// Vector norm and normalization
+		Number_		norm		() const;					///< Vector norm
+		Number_		sqNorm		() const;					///< Vector square norm
+		Vector3		normalized	() const;					///< Returns a normalized version of the vector
+		Vector3&	normalize	();							///< Normalizes the vector
+
+		// Common vectors
+		static Vector3 zero () { return Vector3(NumericTraits<Number_>::zero()) };
+		static Vector3 xAxis() { return Vector3(NumericTraits<Number_>::one(), NumericTraits<Number_>::zero(), NumericTraits<Number_>::zero()); }
+		static Vector3 yAxis() { return Vector3(NumericTraits<Number_>::zero(), NumericTraits<Number_>::one(), NumericTraits<Number_>::zero()); }
+		static Vector3 zAxis() { return Vector3(NumericTraits<Number_>::zero(), NumericTraits<Number_>::zero(), NumericTraits<Number_>::one()); }
 
 				Number_& operator[] (unsigned int _index)		{ return (reinterpret_cast<Number_*>(this))[_index];		}
 		const	Number_& operator[] (unsigned int _index) const { return (reinterpret_cast<const Number_*>(this))[_index];	}
@@ -113,15 +131,18 @@ namespace rev { namespace math
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
 	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
-	Vector2<N_>::Vector2(const N_ _x, const N_ _y)
-		:x(_x)
-		,y(_y)
-	{}
+	template<typename N_>
+	inline Vector2<N_>::Vector2(const N_ _x)
+		:x(_x),y(_x) {}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>& Vector2<N_>::operator=(const Vector2<N_>& _v)
+	inline Vector2<N_>::Vector2(const N_ _x, const N_ _y)
+		:x(_x),y(_y) {}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline Vector2<N_>& Vector2<N_>::operator=(const Vector2<N_>& _v)
 	{
 		x=_v.x;
 		y=_v.y;
@@ -130,28 +151,28 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	bool Vector2<N_>::operator==(const Vector2<N_>& _v) const
+	inline bool Vector2<N_>::operator==(const Vector2<N_>& _v) const
 	{
 		return (x == _v.x) && (y == _v.y);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	bool Vector2<N_>::operator!=(const Vector2<N_>& _v) const
+	inline bool Vector2<N_>::operator!=(const Vector2<N_>& _v) const
 	{
 		return (x != _v.x) || (y != _v.y);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>	Vector2<N_>::operator+ (const Vector2<N_>& _v) const
+	inline Vector2<N_>	Vector2<N_>::operator+ (const Vector2<N_>& _v) const
 	{
 		return Vector2<N_>(x+_v.x, y+_v.y);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>& Vector2<N_>::operator+= (const Vector2<N_>& _v)
+	inline Vector2<N_>& Vector2<N_>::operator+= (const Vector2<N_>& _v)
 	{
 		x += _v.x;
 		y += _v.y;
@@ -160,14 +181,14 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>	Vector2<N_>::operator- (const Vector2<N_>& _v) const
+	inline Vector2<N_>	Vector2<N_>::operator- (const Vector2<N_>& _v) const
 	{
 		return Vector2<N_>(x-_v.x, y-_v.y);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>& Vector2<N_>::operator-= (const Vector2<N_>& _v)
+	inline Vector2<N_>& Vector2<N_>::operator-= (const Vector2<N_>& _v)
 	{
 		x -= _v.x;
 		y -= _v.y;
@@ -176,21 +197,21 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_> Vector2<N_>::operator- () const
+	inline Vector2<N_> Vector2<N_>::operator- () const
 	{
 		return Vector2<N_>(-x, -y);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_> Vector2<N_>::operator*(const N_ _k) const
+	inline Vector2<N_> Vector2<N_>::operator*(const N_ _k) const
 	{
 		return Vector2<N_>(x * _k, y * _k);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector2<N_>& Vector2<N_>::operator*=(const N_ _k)
+	inline Vector2<N_>& Vector2<N_>::operator*=(const N_ _k)
 	{
 		x*=_k;
 		y*=_k;
@@ -199,7 +220,7 @@ namespace rev { namespace math
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	N_ Vector2<N_>::operator*(const Vector2<N_>& _b) const
+	inline N_ Vector2<N_>::operator*(const Vector2<N_>& _b) const
 	{
 		return x * _b.x + y * _b.y;
 	}
@@ -207,9 +228,9 @@ namespace rev { namespace math
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
 	#ifdef _WIN32
-	Vector2<N_> Vector2<N_>::zero()
+	inline Vector2<N_> Vector2<N_>::zero()
 	#else // !_WIN32
-	Vector2<N_> constexpr Vector2<N_>::zero()
+	inline Vector2<N_> constexpr Vector2<N_>::zero()
 	#endif // !_WIN32
 	{
 		return Vector2<N_>(NumericTraits<N_>::zero(), NumericTraits<N_>::zero());
@@ -217,7 +238,7 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>& Vector3<N_>::operator=(const Vector3<N_>& _v)
+	inline Vector3<N_>& Vector3<N_>::operator=(const Vector3<N_>& _v)
 	{
 		x=_v.x;
 		y=_v.y;
@@ -227,28 +248,28 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	bool Vector3<N_>::operator==(const Vector3<N_>& _v) const
+	inline bool Vector3<N_>::operator==(const Vector3<N_>& _v) const
 	{
 		return (x == _v.x) && (y == _v.y) && (z == _v.z);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	bool Vector3<N_>::operator!=(const Vector3<N_>& _v) const
+	inline bool Vector3<N_>::operator!=(const Vector3<N_>& _v) const
 	{
 		return (x != _v.x) || (y != _v.y) || (z != _v.z);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>	Vector3<N_>::operator+ (const Vector3<N_>& _v) const
+	inline Vector3<N_>	Vector3<N_>::operator+ (const Vector3<N_>& _v) const
 	{
 		return Vector3<N_>(x+_v.x, y+_v.y, z+_v.z);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>& Vector3<N_>::operator+= (const Vector3<N_>& _v)
+	inline Vector3<N_>& Vector3<N_>::operator+= (const Vector3<N_>& _v)
 	{
 		x += _v.x;
 		y += _v.y;
@@ -258,14 +279,14 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>	Vector3<N_>::operator- (const Vector3<N_>& _v) const
+	inline Vector3<N_>	Vector3<N_>::operator- (const Vector3<N_>& _v) const
 	{
 		return Vector3<N_>(x-_v.x, y-_v.y, z-_v.z);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>& Vector3<N_>::operator-= (const Vector3<N_>& _v)
+	inline Vector3<N_>& Vector3<N_>::operator-= (const Vector3<N_>& _v)
 	{
 		x -= _v.x;
 		y -= _v.y;
@@ -275,21 +296,21 @@ namespace rev { namespace math
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_> Vector3<N_>::operator- () const
+	inline Vector3<N_> Vector3<N_>::operator- () const
 	{
 		return Vector3<N_>(-x, -y, -z);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_> Vector3<N_>::operator*(const N_ _k) const
+	inline Vector3<N_> Vector3<N_>::operator*(const N_ _k) const
 	{
 		return Vector3<N_>(x * _k, y * _k, z * _k);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_>& Vector3<N_>::operator*=(const N_ _k)
+	inline Vector3<N_>& Vector3<N_>::operator*=(const N_ _k)
 	{
 		x*=_k;
 		y*=_k;
@@ -299,18 +320,70 @@ namespace rev { namespace math
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	N_ Vector3<N_>::operator*(const Vector3<N_>& _b) const
+	inline Vector3<N_> Vector3<N_>::operator/(const N_ _k) const
+	{
+		N_ inv = 1.f / _k;
+		return Vector3<N_>(x * inv, y * inv, z * inv);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline Vector3<N_>& Vector3<N_>::operator/=(const N_ _k)
+	{
+		N_ inv = 1.f / _k;
+		x*=inv;
+		y*=inv;
+		z*=inv;
+		return *this;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline N_ Vector3<N_>::operator*(const Vector3<N_>& _b) const
 	{
 		return x * _b.x + y * _b.y + z * _b.z;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	Vector3<N_> Vector3<N_>::operator^(const Vector3<N_>& _b) const
+	inline Vector3<N_> Vector3<N_>::operator^(const Vector3<N_>& _b) const
 	{
 		return Vector3<N_>(	y*_b.z - z*_b.y,
 							z*_b.x - x*_b.z,
 							x*_b.y - y*_b.x);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline N_ Vector3<N_>::norm	() const
+	{
+		return sqrt(x*x+y*y+z*z);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline N_ Vector3<N_>::sqNorm() const
+	{
+		return x*x+y*y+z*z;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline Vector3<N_> Vector3<N_>::normalized() const
+	{
+		N_ factor = 1.f / norm();
+		return Vector3<N_>(x*factor, y*factor, z*factor);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline Vector3<N_>& Vector3<N_>::normalize()
+	{
+		N_ factor = 1.f / norm();
+		x*=factor;
+		y*=factor;
+		z*=factor;
+		return *this;
 	}
 
 }	// namespace math

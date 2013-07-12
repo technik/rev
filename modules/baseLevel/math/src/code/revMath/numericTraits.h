@@ -17,8 +17,10 @@ namespace rev { namespace math
 	public:
 #ifndef _WIN32
 		static constexpr Number_	zero();
+		static constexpr Number_	one();
 #else // WIN32
 		static			 Number_	zero();
+		static			 Number_	one();
 #endif // WIN32
 	};
 
