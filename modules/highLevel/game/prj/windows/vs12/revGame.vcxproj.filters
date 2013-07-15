@@ -24,7 +24,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="transformSrc.h">
+    <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
+      <Filter>core\transform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h">
       <Filter>core\transform</Filter>
     </ClInclude>
   </ItemGroup>

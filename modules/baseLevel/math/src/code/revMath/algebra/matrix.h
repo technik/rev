@@ -12,13 +12,17 @@
 
 namespace rev { namespace math {
 
+	template<typename Number_> class Quaternion;
+	template<typename Number_> class Matrix3x4;
+
 	//------------------------------------------------------------------------------------------------------------------
 	template<class Number_>
 	class Matrix3x3
 	{
 	public:
 		Matrix3x3(){}
-		Matrix3x3(const Quaternion<N_>& _q);
+		Matrix3x3(const Quaternion<Number_>& _q);
+		Matrix3x3(const Matrix3x4<Number_>& _x);
 
 		Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
 		Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
@@ -35,6 +39,11 @@ namespace rev { namespace math {
 	class Matrix3x4
 	{
 	public:
+		Matrix3x4(){}
+		Matrix3x4(const Quaternion<Number_>& _q);
+		Matrix3x4(const Quaternion<Number_>& _q, const Vector3<Num_>& _v);
+		Matrix3x4(const Matrix3x3<Number_>& _x);
+
 		Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
 		const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
 
@@ -83,8 +92,6 @@ namespace rev { namespace math {
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
-	template<typename N_>
-	inline Vector3<N_> Matrix3x4::operator* 
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename Number_>

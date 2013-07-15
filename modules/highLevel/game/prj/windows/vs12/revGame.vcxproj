@@ -84,7 +84,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="transformSrc.h" />
+    <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

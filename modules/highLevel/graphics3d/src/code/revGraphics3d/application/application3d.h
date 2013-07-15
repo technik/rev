@@ -9,7 +9,6 @@
 #define _REV_GRAPHICS3D_APPLICATION_APPLICATION3D_H_
 
 #include <cstdint>
-
 #include <revGraphics3d/camera/camera.h>
 
 namespace rev { namespace video {
