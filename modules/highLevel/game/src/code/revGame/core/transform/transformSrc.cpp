@@ -42,10 +42,10 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	TransformSrc::TransformSrc()
-		:mLocalPos(Vec3f::identity())
+		:mLocalPos(Vec3f::zero())
 		,mLocalRot(Quatf::identity())
 		,mLocalTrans(Mat34f::identity())
-		,mWorldPos(Vec3f::identity())
+		,mWorldPos(Vec3f::zero())
 		,mWorldRot(Quatf::identity())
 		,mWorldTrans(Mat34f::identity())
 		,mParent(nullptr)
@@ -138,18 +138,30 @@ namespace rev { namespace game {
 	void TransformSrc::refreshLocal()
 	{
 		Mat34f parentInv;
-		mParent->mWorldTrans.inverse(parentInv);
-		mLocalPos = parentInv * mWorldPos;
-		mLocalRot = mParent->rotation().inverse() * mLocalRot;
-		mLocalTrans = Mat34f(mLocalRot, mLocalPos);
+		if(mParent != nullptr) {
+			mParent->mWorldTrans.inverse(parentInv);
+			mLocalPos = parentInv * mWorldPos;
+			mLocalRot = mParent->rotation().inverse() * mLocalRot;
+			mLocalTrans = Mat34f(mLocalRot, mLocalPos);
+		} else {
+			mLocalPos = mWorldPos;
+			mLocalRot = mWorldRot;
+			mLocalTrans = mWorldTrans;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void TransformSrc::refreshWorld()
 	{
-		mWorldPos = mParent->transform() * mLocalPos;
-		mWorldRot = mParent->rotation() * mLocalRot;
-		mWorldTrans = Mat34f(mWorldRot, mWorldPos);
+		if(mParent != nullptr) {
+			mWorldPos = mParent->transform() * mLocalPos;
+			mWorldRot = mParent->rotation() * mLocalRot;
+			mWorldTrans = Mat34f(mWorldRot, mWorldPos);
+		} else {
+			mWorldPos = mLocalPos;
+			mWorldRot = mLocalRot;
+			mWorldTrans = mLocalTrans;
+		}
 	}
 
 }	// namespace game

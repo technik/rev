@@ -95,7 +95,6 @@ namespace rev { namespace math
 
 		// Common vectors
 		static Vector3 zero () { return Vector3(NumericTraits<Number_>::zero()); }
-		static Vector3 identity() { return Vector3(NumericTraits<Number_>::one(),NumericTraits<Number_>::one(),NumericTraits<Number_>::one()); }
 		static Vector3 xAxis() { return Vector3(NumericTraits<Number_>::one(), NumericTraits<Number_>::zero(), NumericTraits<Number_>::zero()); }
 		static Vector3 yAxis() { return Vector3(NumericTraits<Number_>::zero(), NumericTraits<Number_>::one(), NumericTraits<Number_>::zero()); }
 		static Vector3 zAxis() { return Vector3(NumericTraits<Number_>::zero(), NumericTraits<Number_>::zero(), NumericTraits<Number_>::one()); }

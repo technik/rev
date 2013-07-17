@@ -36,7 +36,7 @@ public:
 		obj2->m[1][3] = 6.f;
 		obj2->m[2][3] = 1.f;
 
-		cam = new game::FlyByCamera(1.6f, 1.333f, 0.125f, 10000.f);
+		cam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
 		setCam(&cam->cam());
 	}
 

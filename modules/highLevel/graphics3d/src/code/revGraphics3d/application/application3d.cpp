@@ -41,7 +41,6 @@ namespace rev { namespace graphics3d {
 		mRenderer = new ForwardRenderer;
 
 		Time::get()->update();
-		//mCamera.setProjection(Mat44f::frustrum(1.6f, 1.333f, 0.125f, 10000.f));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

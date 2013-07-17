@@ -7,8 +7,11 @@
 
 #include "flyByCamera.h"
 
+#include <revCore/time/time.h>
 #include <revGame/core/transform/sceneNode.h>
+#include <revInput/keyboard/keyboardInput.h>
 
+using namespace rev::input;
 using namespace rev::math;
 
 namespace rev { namespace game {
@@ -30,6 +33,25 @@ namespace rev { namespace game {
 	void FlyByCamera::update()
 	{
 		// TODO: Move
+		float dt = Time::get()->frameTime();
+	 	KeyboardInput* input = KeyboardInput::get();
+		// Translation
+		Vec3f velocity = Vec3f::zero();
+		if(input->held(KeyboardInput::eD))			velocity.x += 2.f;
+	 	if(input->held(KeyboardInput::eA))			velocity.x -= 2.f;
+		if(input->held(KeyboardInput::eW))			velocity.y += 2.f;
+	 	if(input->held(KeyboardInput::eS))			velocity.y -= 2.f;
+		if(input->held(KeyboardInput::eKeyUp))		
+			velocity.z += 2.f;
+	 	if(input->held(KeyboardInput::eKeyDown))	
+			velocity.z -= 2.f;
+		mNode->move(velocity * dt);
+		// Rotation
+		float angSpd = 0.f;
+		if(input->held(KeyboardInput::eKeyRight))	angSpd -= 0.3f;
+	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += 0.3f;
+		mNode->rotate(Vec3f::zAxis(), angSpd * dt);
+
 		mCam.setView(mNode->transform());
 	}
 

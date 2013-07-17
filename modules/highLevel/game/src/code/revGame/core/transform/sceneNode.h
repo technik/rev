@@ -16,6 +16,7 @@ namespace rev { namespace game {
 
 	class SceneNode : public TransformSrc
 	{
+	public:
 		// Accessors
 		void			move				(const math::Vec3f& _translation);
 		void			setPos				(const math::Vec3f& _position);
