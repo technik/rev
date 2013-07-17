@@ -84,10 +84,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\revGame\core\transform\sceneNode.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revGame\core\transform\sceneNode.h" />
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

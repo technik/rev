@@ -28,17 +28,18 @@ namespace rev { namespace graphics3d {
 		~Application3d	();
 		void run		();
 
+		void setCam		(const Camera* _cam) { mCamera = _cam; }
+
 	private:
 		virtual bool update() { return true; }
 
 		void render ();
-		void moveCamera();
 
 	private:
 		video::VideoDriver* mVideoDriver;
 		video::Driver3d*	mDriver3d;
 		Renderer*			mRenderer;
-		Camera				mCamera;
+		const Camera*		mCamera;
 		math::Vec3f			mCamPos;
 	};
 

@@ -63,7 +63,7 @@ namespace rev { namespace math
 	{
 	public:
 		Vector3() {}
-		explicit Vector3(const Number_ _v):x(_V),y(_v),z(_v) {}
+		explicit Vector3(const Number_ _v):x(_v),y(_v),z(_v) {}
 		Vector3(const Vector2<Number_>& _v, Number_ _z):x(_v.x),y(_v.y),z(_z) {}
 		Vector3(Number_ _x, Number_ _y, Number_ _z):x(_x),y(_y),z(_z){}
 		Vector3<Number_>& operator=(const Vector3<Number_>&);
@@ -94,7 +94,7 @@ namespace rev { namespace math
 		Vector3&	normalize	();							///< Normalizes the vector
 
 		// Common vectors
-		static Vector3 zero () { return Vector3(NumericTraits<Number_>::zero()) };
+		static Vector3 zero () { return Vector3(NumericTraits<Number_>::zero()); }
 		static Vector3 identity() { return Vector3(NumericTraits<Number_>::one(),NumericTraits<Number_>::one(),NumericTraits<Number_>::one()); }
 		static Vector3 xAxis() { return Vector3(NumericTraits<Number_>::one(), NumericTraits<Number_>::zero(), NumericTraits<Number_>::zero()); }
 		static Vector3 yAxis() { return Vector3(NumericTraits<Number_>::zero(), NumericTraits<Number_>::one(), NumericTraits<Number_>::zero()); }

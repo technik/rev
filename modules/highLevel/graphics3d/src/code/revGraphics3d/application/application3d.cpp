@@ -28,6 +28,7 @@ namespace rev { namespace graphics3d {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Application3d::Application3d()
+		:mCamera(nullptr)
 	{
 		Time::init();
 		KeyboardInput::init();
@@ -40,8 +41,7 @@ namespace rev { namespace graphics3d {
 		mRenderer = new ForwardRenderer;
 
 		Time::get()->update();
-		mCamPos = Vec3f(0.f, 0.f, 0.f);
-		mCamera.setProjection(Mat44f::frustrum(1.6f, 1.333f, 0.125f, 10000.f));
+		//mCamera.setProjection(Mat44f::frustrum(1.6f, 1.333f, 0.125f, 10000.f));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -75,8 +75,9 @@ namespace rev { namespace graphics3d {
 			mDriver3d->clearColorBuffer();
 			mDriver3d->clearZBuffer();
 			mDriver3d->setViewport(Vec2i::zero(), Vec2u(640, 480));
-			moveCamera();
-			render();
+			if(nullptr != mCamera) {
+				render();
+			}
 			mDriver3d->finishFrame();
 			if(!mVideoDriver->update())	return;
 		}
@@ -85,20 +86,20 @@ namespace rev { namespace graphics3d {
 	//------------------------------------------------------------------------------------------------------------------
 	void Application3d::render()
 	{
-		mRenderer->render(mCamera, *RenderScene::get());
+		mRenderer->render(*mCamera, *RenderScene::get());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Application3d::moveCamera()
-	{
-		float dt = Time::get()->frameTime();
-		KeyboardInput* input = KeyboardInput::get();
-		if(input->held(KeyboardInput::eA))	mCamPos.x -= dt;
-		if(input->held(KeyboardInput::eD))	mCamPos.x += dt;
-		Mat34f camView = Mat34f::identity();
-		camView[0][3]= mCamPos.x;
-		mCamera.setView(camView);
-	}
+	// void Application3d::moveCamera()
+	// {
+	// 	float dt = Time::get()->frameTime();
+	// 	KeyboardInput* input = KeyboardInput::get();
+	// 	if(input->held(KeyboardInput::eA))	mCamPos.x -= dt;
+	// 	if(input->held(KeyboardInput::eD))	mCamPos.x += dt;
+	// 	Mat34f camView = Mat34f::identity();
+	// 	camView[0][3]= mCamPos.x;
+	// 	mCamera.setView(camView);
+	// }
 
 }	// namespace graphics3d
 }	// namespace rev

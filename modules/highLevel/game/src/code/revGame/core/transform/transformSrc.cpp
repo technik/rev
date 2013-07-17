@@ -27,13 +27,8 @@ namespace rev { namespace game {
 			mParent = _parent;
 			mParent->mChildren.push_back(this);
 
-			// Compute new local coordinates
-			Mat34f parentInv;
-			mParent->transform().inverse(parentInv); // Extract parent's inverse transform to transform local position
-			mLocalPos = parentInv * mLocalPos;
-			mLocalRot = mParent->rotation().inverse() * mLocalRot;
-			refreshCacheCoords();
-			// Note: world coordinates remain the same along the attach process
+			refreshLocal();// Compute new local coordinates
+			// Note: world coordinates remain the same along the attach process. So do children
 		}
 	}
 
@@ -49,9 +44,10 @@ namespace rev { namespace game {
 	TransformSrc::TransformSrc()
 		:mLocalPos(Vec3f::identity())
 		,mLocalRot(Quatf::identity())
-		,mWorldTrans(Mat34f::identity())
+		,mLocalTrans(Mat34f::identity())
 		,mWorldPos(Vec3f::identity())
 		,mWorldRot(Quatf::identity())
+		,mWorldTrans(Mat34f::identity())
 		,mParent(nullptr)
 	{}
 
@@ -59,7 +55,8 @@ namespace rev { namespace game {
 	void TransformSrc::setLocalPos(const Vec3f& _pos, bool _refreshChildren)
 	{
 		mLocalPos = _pos;
-		mWorldPos = mParent?(mParent->transform()*_pos):_pos;
+		mLocalTrans = Mat34f(mLocalRot, mLocalPos);
+		refreshWorld();
 		if(_refreshChildren) refreshChildren();
 	}
 
@@ -67,14 +64,46 @@ namespace rev { namespace game {
 	void TransformSrc::setLocalRot(const Quatf& _rot, bool _refreshChildren)
 	{
 		mLocalRot = _rot;
-		mWorldRot = mParent?(mParent->rotation()*_rot):_rot;
+		mLocalTrans = Mat34f(mLocalRot, mLocalPos);
+		refreshWorld();
 		if(_refreshChildren) refreshChildren();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void TransformSrc::setLocalTrans(const Mat34f& _trans, bool _refreshChildren)
 	{
-		mWorldRot = mParent?(mParent->transform()*_trans):_trans;
+		mLocalTrans = _trans;
+		mLocalRot = Quatf(mLocalTrans);
+		mLocalPos = mLocalTrans * Vec3f::zero();
+		refreshWorld();
+		if(_refreshChildren) refreshChildren();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void TransformSrc::setWorldPos(const Vec3f& _pos, bool _refreshChildren)
+	{
+		mWorldPos = _pos;
+		mWorldTrans = Mat34f(mWorldRot, mWorldPos);
+		refreshLocal();
+		if(_refreshChildren) refreshChildren();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void TransformSrc::setWorldRot(const Quatf& _rot, bool _refreshChildren)
+	{
+		mWorldRot = _rot;
+		mWorldTrans = Mat34f(mWorldRot, mWorldPos);
+		refreshLocal();
+		if(_refreshChildren) refreshChildren();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void TransformSrc::setWorldTrans(const Mat34f& _trans, bool _refreshChildren)
+	{
+		mWorldTrans = _trans;
+		mWorldRot = Quatf(mWorldTrans);
+		mWorldPos = mWorldTrans * Vec3f::zero();
+		refreshLocal();
 		if(_refreshChildren) refreshChildren();
 	}
 
@@ -85,7 +114,7 @@ namespace rev { namespace game {
 		{
 			// Clean hierarchy
 			auto& siblings = mParent->mChildren;
-			for(auto i = siblings.begin(); i != siblings.end; ++i)
+			for(auto i = siblings.begin(); i != siblings.end(); ++i)
 			{
 				if(*i == this) {
 					i = siblings.erase(i);
@@ -102,15 +131,21 @@ namespace rev { namespace game {
 	void TransformSrc::refreshChildren()
 	{
 		for(auto child : mChildren)
-		{
-			child->mWorldPos = mWorldTrans * child->mLocalPos;
-			child->mWorldRot = mWorldRot * child->mLocalRot;
-			child->mWorldTrans = Mat34f(child->mLocalRot, child->mLocalPos);
-		}
+			child->refreshWorld();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void TransformSrc::refreshCacheCoords()
+	void TransformSrc::refreshLocal()
+	{
+		Mat34f parentInv;
+		mParent->mWorldTrans.inverse(parentInv);
+		mLocalPos = parentInv * mWorldPos;
+		mLocalRot = mParent->rotation().inverse() * mLocalRot;
+		mLocalTrans = Mat34f(mLocalRot, mLocalPos);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void TransformSrc::refreshWorld()
 	{
 		mWorldPos = mParent->transform() * mLocalPos;
 		mWorldRot = mParent->rotation() * mLocalRot;

@@ -36,20 +36,31 @@ namespace rev { namespace game {
 		void setLocalPos	(const math::Vec3f&, bool _refreshChildren);
 		void setLocalRot	(const math::Quatf&, bool _refreshChildren);
 		void setLocalTrans	(const math::Mat34f&, bool _refreshChildren);
+		void setWorldPos	(const math::Vec3f&, bool _refreshChildren);
+		void setWorldRot	(const math::Quatf&, bool _refreshChildren);
+		void setWorldTrans	(const math::Mat34f&, bool _refreshChildren);
+
+		const math::Vec3f& localPos() const { return mLocalPos; }
+		const math::Quatf& localRot() const { return mLocalRot; }
+		const math::Mat34f& localTrans() const { return mLocalTrans; }
+		const math::Vec3f& worldPos() const { return mWorldPos; }
+		const math::Quatf& worldRot() const { return mWorldRot; }
+		const math::Mat34f& worldTrans() const { return mWorldTrans; }
 
 	private:
 		void deattach			();
 		void refreshChildren	();
-		void refreshCacheCoords	();
+		void refreshLocal		();
+		void refreshWorld		();
 
 	private:
 		// Transform info
 		math::Vec3f		mLocalPos;
 		math::Quatf		mLocalRot;
-		math::Mat34f	mWorldTrans;
-		// Cache
+		math::Mat34f	mLocalTrans;
 		math::Vec3f		mWorldPos;
 		math::Quatf		mWorldRot;
+		math::Mat34f	mWorldTrans;
 
 		// Hierarchy
 		TransformSrc*				mParent;
@@ -59,9 +70,9 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementations
 	//------------------------------------------------------------------------------------------------------------------
-	const math::Vec3f& TransformSrc::position() const { return mWorldPos; }
-	const math::Quatf& TransformSrc::rotation() const { return mWorldRot; }
-	const math::Mat34f& TransformSrc::transform() const { return mWorldTrans; }
+	inline const math::Vec3f&	TransformSrc::position	() const { return mWorldPos; }
+	inline const math::Quatf&	TransformSrc::rotation	() const { return mWorldRot; }
+	inline const math::Mat34f&	TransformSrc::transform	() const { return mWorldTrans; }
 
 }	// namespace game
 }	// namespace rev

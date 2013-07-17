@@ -12,6 +12,7 @@
 #include <revCore/codeTools/log/log.h>
 #include <revGraphics3d/application/application3d.h>
 #include <revGraphics3d/renderable/renderable.h>
+#include <revGame/scene/camera/flyByCamera.h>
 
 using namespace rev;
 using namespace rev::graphics3d;
@@ -34,15 +35,25 @@ public:
 		obj2->m[0][3] = 3.f;
 		obj2->m[1][3] = 6.f;
 		obj2->m[2][3] = 1.f;
+
+		cam = new game::FlyByCamera(1.6f, 1.333f, 0.125f, 10000.f);
+		setCam(&cam->cam());
+	}
+
+	bool update() {
+		cam->update();
+		return true;
 	}
 
 	~RoseApp()
 	{
+		delete cam;
 		delete obj;
 		delete obj2;
 	}
 
 private:
+	game::FlyByCamera* cam;
 	Renderable* obj, *obj2;
 };
 

@@ -41,7 +41,7 @@ namespace rev { namespace math {
 	public:
 		Matrix3x4(){}
 		Matrix3x4(const Quaternion<Number_>& _q);
-		Matrix3x4(const Quaternion<Number_>& _q, const Vector3<Num_>& _v);
+		Matrix3x4(const Quaternion<Number_>& _q, const Vector3<Number_>& _v);
 		Matrix3x4(const Matrix3x3<Number_>& _x);
 
 		Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
@@ -95,20 +95,105 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename Number_>
-	inline Matrix3x4<Number_> Matrix3x4<Number_>::identity()
+	inline Matrix3x4<Number_>::Matrix3x4(const Quaternion<Number_>& _q)
 	{
-		Matrix3x4<Number_> mtx;
-		for(unsigned int row = 0; row < 3; ++row)
-		{
-			for(unsigned int column = 0; column < 4; ++column)
-			{
-				if(column == row)
-					mtx.m[row][column] = NumericTraits<Number_>::one();
-				else
-					mtx.m[row][column] = NumericTraits<Number_>::zero();
-			}
+		Number_ a2 = _q.w*_q.w;
+		Number_ b2 = _q.x*_q.x;
+		Number_ c2 = _q.y*_q.y;
+		Number_ d2 = _q.z*_q.z;
+		Number_ ab = 2*_q.w*_q.x;
+		Number_ ac = 2*_q.w*_q.y;
+		Number_ ad = 2*_q.w*_q.z;
+		Number_ bc = 2*_q.x*_q.y;
+		Number_ bd = 2*_q.x*_q.z;
+		Number_ cd = 2*_q.y*_q.z;
+		m[0][0] = a2+b2-c2-d2;
+		m[0][1] = bc-ad;
+		m[0][2] = bd+ac;
+		m[1][0] = bc+ad;
+		m[1][1] = a2-b2+c2-d2;
+		m[1][2] = cd-ab;
+		m[2][0] = bd-ac;
+		m[2][1] = cd+ab;
+		m[2][2] = a2-b2-c2+d2;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix3x4<Number_>::Matrix3x4(const Quaternion<Number_>& _q, const Vector3<Number_>& _v)
+	{
+		// Rotation
+		Number_ a2 = _q.w*_q.w;
+		Number_ b2 = _q.x*_q.x;
+		Number_ c2 = _q.y*_q.y;
+		Number_ d2 = _q.z*_q.z;
+		Number_ ab = 2*_q.w*_q.x;
+		Number_ ac = 2*_q.w*_q.y;
+		Number_ ad = 2*_q.w*_q.z;
+		Number_ bc = 2*_q.x*_q.y;
+		Number_ bd = 2*_q.x*_q.z;
+		Number_ cd = 2*_q.y*_q.z;
+		m[0][0] = a2+b2-c2-d2;
+		m[0][1] = bc-ad;
+		m[0][2] = bd+ac;
+		m[1][0] = bc+ad;
+		m[1][1] = a2-b2+c2-d2;
+		m[1][2] = cd-ab;
+		m[2][0] = bd-ac;
+		m[2][1] = cd+ab;
+		m[2][2] = a2-b2-c2+d2;
+		// Translation
+		m[0][3] = _v[0];
+		m[1][3] = _v[1];
+		m[2][3] = _v[2];
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix3x4<Number_>::Matrix3x4(const Matrix3x3<Number_>& _x)
+	{
+		for(unsigned i = 0; i < 3; ++i) {
+			for(unsigned j = 0; j < 3; ++j)
+				m[i][j] = _x[i][j];
+			m[i][3] = NumericTraits<Number_>::zero();
 		}
-		return mtx;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Vector3<Number_> Matrix3x4<Number_>::operator*(const Vector3<Number_>& _v) const
+	{
+		Vector3<Number_>	v;
+		for(unsigned i = 0; i < 3; ++i)
+			v[i] = _v[0]*m[i][0] + _v[1]*m[i][1] + _v[2]*m[i][2];
+		return v;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix3x3<Number_> Matrix3x4<Number_>::operator*(const Matrix3x3<Number_>& _b) const
+	{
+		Matrix3x3<Number_>	ab;
+		for(unsigned i = 0; i < 3; ++i)
+			for(unsigned j = 0; j < 3; ++j)
+				ab[i][j] = m[i][0]*_b[0][j] + m[i][1]*_b[1][j] + m[i][2]*_b[2][j];
+		return ab;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix3x4<Number_> Matrix3x4<Number_>::operator*(const Matrix3x4<Number_>& _b) const
+	{
+		Matrix3x4<Number_> ab;
+		for(unsigned row = 0; row < 3; ++row)
+			for(unsigned column = 0; column < 4; ++ column)
+				ab[row][column] = m[row][0]*_b[0][column]
+								+ m[row][1]*_b[1][column]
+								+ m[row][2]*_b[2][column];
+		ab[0][3] += m[0][3];
+		ab[1][3] += m[1][3];
+		ab[2][3] += m[2][3];
+		return ab;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -129,6 +214,37 @@ namespace rev { namespace math {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Vector3<Number_>	Matrix3x4<Number_>::rotate(const Vector3<Number_>& _v) const
+	{
+		Vector3<Number_> result;
+		for(unsigned i = 0; i < 3; ++i)
+		{
+			result[i] = m[i][0]*_v[0]+m[i][1]*_v[1]+m[i][2]*_v[2];
+		}
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix3x4<Number_> Matrix3x4<Number_>::identity()
+	{
+		Matrix3x4<Number_> mtx;
+		for(unsigned int row = 0; row < 3; ++row)
+		{
+			for(unsigned int column = 0; column < 4; ++column)
+			{
+				if(column == row)
+					mtx.m[row][column] = NumericTraits<Number_>::one();
+				else
+					mtx.m[row][column] = NumericTraits<Number_>::zero();
+			}
+		}
+		return mtx;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Matrix 4x4
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<typename Number_>

@@ -25,8 +25,8 @@ namespace rev { namespace math {
 		// Constructors
 		Quaternion	()	{}
 		Quaternion	(Number_ _x, Number_ _y, Number_ _z, Number_ _w): x(_x), y(_y), z(_z), w(_w)	{}
-		Quaternion	(const Vec3<Number_>& _axis, const Number_ _radians);
-		Quaternion	(const Vec3<Number_>& _rotationVector);
+		Quaternion	(const Vector3<Number_>& _axis, const Number_ _radians);
+		Quaternion	(const Vector3<Number_>& _rotationVector);
 		Quaternion	(const Matrix3x3<Number_>& _matrix);
 		Quaternion	(const Matrix3x4<Number_>& _matrix);
 
@@ -34,7 +34,7 @@ namespace rev { namespace math {
 		Quaternion	operator *	(const Quaternion& _q) const;
 
 		// Other operations
-		Vec3<Number_>	rotate		(const Vec3<Number_>& _v) const;
+		Vector3<Number_>	rotate		(const Vector3<Number_>& _v) const;
 		Quaternion	inverse		() const;
 
 		// Useful quaternions
@@ -55,7 +55,7 @@ namespace rev { namespace math {
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Vec3<N_>& _axis, const N_ _radians)
+	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _axis, const N_ _radians)
 	{
 		w = cos(_radians * 0.5f);
 		N_ sinus = (N_)sin(_radians * 0.5f);
@@ -66,7 +66,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Vec3<N_>& _rotationVector)
+	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _rotationVector)
 	{
 		N_ halfRadians = _rotationVector.norm() * 0.5f;
 		Vec3<N_> axis  = _rotationVector.normalized();
@@ -79,7 +79,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix3x3<Number_>& _matrix)
+	inline Quaternion<N_>::Quaternion(const Matrix3x3<N_>& _matrix)
 	{
 		// Find the largest diagonal element of _m
 		if(_m[0][0] > _m[1][1]) {
@@ -119,39 +119,39 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix3x4<Number_>& _matrix)
+	inline Quaternion<N_>::Quaternion(const Matrix3x4<N_>& _matrix)
 	{	// Find the largest diagonal element of _m
-		if(_m.m[0][0] > _m.m[1][1]) {
-			if(_m.m[0][0] > _m.m[2][2]) { // _m00 is the largest diagonal element
-				TReal r = sqrt( 1 + _m.m[0][0] - _m.m[1][1] - _m.m[2][2] );
-				TReal inv2r = 0.5f / r;
-				w = (_m.m[2][1] - _m.m[1][2]) * inv2r;
+		if(_matrix[0][0] > _matrix[1][1]) {
+			if(_matrix[0][0] > _matrix[2][2]) { // _m00 is the largest diagonal element
+				N_ r = sqrt( 1 + _matrix[0][0] - _matrix[1][1] - _matrix[2][2] );
+				N_ inv2r = 0.5f / r;
+				w = (_matrix[2][1] - _matrix[1][2]) * inv2r;
 				x = 0.5f * r;
-				y = (_m.m[0][1] + _m.m[1][0]) * inv2r;
-				z = (_m.m[2][0] + _m.m[0][2]) * inv2r;
+				y = (_matrix[0][1] + _matrix[1][0]) * inv2r;
+				z = (_matrix[2][0] + _matrix[0][2]) * inv2r;
 			} else {// _m22 is the largest diagonal element
-				TReal r = sqrt( 1 + _m.m[2][2] - _m.m[0][0] - _m.m[1][1] );
-				TReal inv2r = 0.5f / r;
-				w = (_m.m[1][0] - _m.m[0][1]) * inv2r;
+				N_ r = sqrt( 1 + _matrix[2][2] - _matrix[0][0] - _matrix[1][1] );
+				N_ inv2r = 0.5f / r;
+				w = (_matrix[1][0] - _matrix[0][1]) * inv2r;
 				z = 0.5f * r;
-				x = (_m.m[2][0] + _m.m[0][2]) * inv2r;
-				y = (_m.m[1][2] + _m.m[2][1]) * inv2r;
+				x = (_matrix[2][0] + _matrix[0][2]) * inv2r;
+				y = (_matrix[1][2] + _matrix[2][1]) * inv2r;
 			}
 		} else {
-			if(_m.m[1][1] > _m.m[2][2]) { // _m11 is the largest diagonal element
-				TReal r = sqrt( 1 + _m.m[1][1] - _m.m[2][2] - _m.m[0][0] );
-				TReal inv2r = 0.5f / r;
-				w = (_m.m[0][1] - _m.m[1][0]) * inv2r;
+			if(_matrix[1][1] > _matrix[2][2]) { // _m11 is the largest diagonal element
+				N_ r = sqrt( 1 + _matrix[1][1] - _matrix[2][2] - _matrix[0][0] );
+				N_ inv2r = 0.5f / r;
+				w = (_matrix[0][1] - _matrix[1][0]) * inv2r;
 				y = 0.5f * r;
-				z = (_m.m[1][2] + _m.m[2][1]) * inv2r;
-				x = (_m.m[0][1] + _m.m[1][0]) * inv2r;
+				z = (_matrix[1][2] + _matrix[2][1]) * inv2r;
+				x = (_matrix[0][1] + _matrix[1][0]) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				TReal r = sqrt( 1 + _m.m[2][2] - _m.m[0][0] - _m.m[1][1] );
-				TReal inv2r = 0.5f / r;
-				w = (_m.m[1][0] - _m.m[0][1]) * inv2r;
+				N_ r = sqrt( 1 + _matrix[2][2] - _matrix[0][0] - _matrix[1][1] );
+				N_ inv2r = 0.5f / r;
+				w = (_matrix[1][0] - _matrix[0][1]) * inv2r;
 				z = 0.5f * r;
-				x = (_m.m[2][0] + _m.m[0][2]) * inv2r;
-				y = (_m.m[1][2] + _m.m[2][1]) * inv2r;
+				x = (_matrix[2][0] + _matrix[0][2]) * inv2r;
+				y = (_matrix[1][2] + _matrix[2][1]) * inv2r;
 			}
 		}
 	}
@@ -170,7 +170,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Vec3<N_> Quaternion<N_>::rotate(const Vec3<Number_>& _v) const
+	inline Vector3<N_> Quaternion<N_>::rotate(const Vector3<N_>& _v) const
 	{
 		N_ a2 = w*w;
 		N_ b2 = x*x;
@@ -201,10 +201,10 @@ namespace rev { namespace math {
 	inline Quaternion<N_> Quaternion<N_>::identity()
 	{
 		return Quaternion<N_>(
-			NumeriTraits<N_>::zero(),
-			NumeriTraits<N_>::zero(),
-			NumeriTraits<N_>::zero(),
-			NumeriTraits<N_>::one());
+			NumericTraits<N_>::zero(),
+			NumericTraits<N_>::zero(),
+			NumericTraits<N_>::zero(),
+			NumericTraits<N_>::one());
 	}
 
 }	// namespace math

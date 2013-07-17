@@ -10,9 +10,6 @@
     <Filter Include="core\transform">
       <UniqueIdentifier>{3fc7d8ec-df09-4522-bc78-66842b8b2bff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="core\component">
-      <UniqueIdentifier>{5eb6f1c4-d624-4091-8dad-73431f3ec9ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="scene">
       <UniqueIdentifier>{4ce8d76e-4ee8-41a2-b067-f336726cab08}</UniqueIdentifier>
     </Filter>
@@ -27,10 +24,22 @@
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
       <Filter>core\transform</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\core\transform\sceneNode.cpp">
+      <Filter>core\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.cpp">
+      <Filter>scene\camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h">
       <Filter>core\transform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\core\transform\sceneNode.h">
+      <Filter>core\transform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h">
+      <Filter>scene\camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
