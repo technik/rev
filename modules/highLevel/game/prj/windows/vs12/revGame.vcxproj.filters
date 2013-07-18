@@ -19,6 +19,15 @@
     <Filter Include="physics">
       <UniqueIdentifier>{c9dee4c0-da8c-4b6e-a939-8853a5dc8161}</UniqueIdentifier>
     </Filter>
+    <Filter Include="physics\world">
+      <UniqueIdentifier>{9fa380d8-6ca0-47dd-84f3-a5e18d0c2fdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics\rigidBody">
+      <UniqueIdentifier>{e3c77549-3958-40ca-ab31-2eee1fa90ffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics\bullet">
+      <UniqueIdentifier>{86e25524-a086-44c3-8f35-6a276c01044a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
@@ -30,6 +39,12 @@
     <ClCompile Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.cpp">
       <Filter>scene\camera</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\physics\world\physicsWorld.cpp">
+      <Filter>physics\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.cpp">
+      <Filter>physics\rigidBody</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h">
@@ -40,6 +55,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h">
       <Filter>scene\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.h">
+      <Filter>physics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\physics\world\physicsWorld.h">
+      <Filter>physics\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\sphereRb.h">
+      <Filter>physics\rigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\bullet\btBulletDynamicsCommon.h">
+      <Filter>physics\bullet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
