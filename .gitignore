@@ -32,3 +32,4 @@
 *.lib
 *.unsuccessfulbuild
 /projects/rose/bin/windows/Debug/rose.exe
+/modules/highLevel/game/src/code/bullet

@@ -6,6 +6,7 @@
 // Physics world
 
 #include "physicsWorld.h"
+#include "../rigidBody/rigidBody.h"
 
 namespace rev { namespace game {
 
@@ -21,8 +22,9 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void PhysicsWorld::addRigidBody(RigidBody*)
+	void PhysicsWorld::addRigidBody(RigidBody* _rb)
 	{
+		mBulletWorld->addRigidBody(_rb->mBody);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -44,6 +46,7 @@ namespace rev { namespace game {
 		mBroadPhase = new btDbvtBroadphase;
 		mSolver = new btSequentialImpulseConstraintSolver;
 		mBulletWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfig);
+		mBulletWorld->setGravity(btVector3(0.f,0.f,0.f));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

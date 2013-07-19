@@ -10,18 +10,30 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <revMath/algebra/vector.h>
-// #include <revGame/core/transform/sceneNode.h>
+#include <revGame/core/transform/transformSrc.h>
 
 namespace rev { namespace game {
 
-	class RigidBody {
+	class RigidBody : public TransformSrc {
 	public:
-		RigidBody(float _mass, const math::Vec3f& _inertia, btCollisionShape* _shape);
 		virtual ~RigidBody();
+		void setPosition	(const math::Vec3f& _position);
 
-		void applyImpulse(const math::Vec3f& _impulse);
+		void applyImpulse	(const math::Vec3f& _impulse);
 		// Position is given in world coordinates, relative to the rigid body's COM
-		void applyImpulse(const math::Vec3f& _impulse, const math::Vec3f& _position);
+		void applyImpulse	(const math::Vec3f& _impulse, const math::Vec3f& _position);
+
+		void refresh		();
+
+	protected:
+		RigidBody() {}
+		void initRb(float _mass, const btVector3& _inertia, btCollisionShape* _shape);
+
+	private:
+		btMotionState*	mMotionState;
+		btRigidBody*	mBody;
+
+		friend class PhysicsWorld;
 	};
 }	// namespace game
 }	// namespace rev
