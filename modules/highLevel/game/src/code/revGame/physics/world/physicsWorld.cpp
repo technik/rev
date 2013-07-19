@@ -25,17 +25,34 @@ namespace rev { namespace game {
 	void PhysicsWorld::addRigidBody(RigidBody* _rb)
 	{
 		mBulletWorld->addRigidBody(_rb->mBody);
+		mBodies.push_back(_rb);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void PhysicsWorld::removeRigidBody(RigidBody*)
+	void PhysicsWorld::removeRigidBody(RigidBody* _rb)
 	{
+		mBulletWorld->removeRigidBody(_rb->mBody);
+		for(auto i = mBodies.begin(); i != mBodies.end(); ++i)
+		{
+			if(*i == _rb) {
+				mBodies.erase(i);
+				break;
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void PhysicsWorld::update(float _dt)
 	{
 		mBulletWorld->stepSimulation(_dt);
+		for(auto body : mBodies)
+			body->refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void PhysicsWorld::setGravity(float _g)
+	{
+		mBulletWorld->setGravity(btVector3(0.f, 0.f, -_g));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

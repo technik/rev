@@ -25,9 +25,12 @@ namespace rev { namespace game {
 
 		void refresh		();
 
-	protected:
-		RigidBody() {}
-		void initRb(float _mass, const btVector3& _inertia, btCollisionShape* _shape);
+	public:
+		static RigidBody* sphere	(float _mass, float _radius);
+		static RigidBody* box		(float _mass, const math::Vec3f& _size);
+
+	private:
+		RigidBody(float _mass, const btVector3& _inertia, btCollisionShape* _shape);
 
 	private:
 		btMotionState*	mMotionState;

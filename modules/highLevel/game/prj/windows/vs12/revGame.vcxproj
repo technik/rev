@@ -206,9 +206,9 @@
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\sceneNode.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.cpp" />
-    <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\sphereRb.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\physics\world\physicsWorld.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\scene\object\solidObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\bullet\btBulletCollisionCommon.h" />
@@ -408,9 +408,9 @@
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\sceneNode.h" />
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.h" />
-    <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\sphereRb.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\world\physicsWorld.h" />
     <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\scene\object\solidObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\src\code\bullet\LinearMath\CMakeLists.txt" />

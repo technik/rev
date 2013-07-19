@@ -12,12 +12,13 @@
 #include <revCore/codeTools/log/log.h>
 #include <revCore/time/time.h>
 #include <revGraphics3d/application/application3d.h>
-#include <revGraphics3d/renderable/renderable.h>
-#include <revGame/physics/rigidBody/sphereRb.h>
+#include <revGame/physics/rigidBody/rigidBody.h>
 #include <revGame/physics/world/physicsWorld.h>
 #include <revGame/scene/camera/flyByCamera.h>
+#include <revGame/scene/object/solidObject.h>
 
 using namespace rev;
+using namespace rev::math;
 using namespace rev::game;
 using namespace rev::graphics3d;
 
@@ -29,42 +30,38 @@ class RoseApp : public Application3d
 public:
 	RoseApp()
 	{
-		obj = Renderable::geoSphere(1.f, 32, 15);
-		obj2 = Renderable::box(math::Vec3f(2.f, 3.f, 4.f));
-		obj2->m = rev::math::Mat34f::identity();
-		obj2->m[0][3] = 3.f;
-		obj2->m[1][3] = 6.f;
-		obj2->m[2][3] = 1.f;
-
 		cam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
 		setCam(&cam->cam());
 
 		mWorld = PhysicsWorld::get();
-		mBall = new SphereRb(10.f, 1.f);
-		mBall->setPosition(math::Vec3f(0.f, 0.5f, 1.f));
+		mWorld->setGravity(9.81f);
+
+		floor = SolidObject::box(0.f, Vec3f(100.f, 100.f, 1.f));
+		floor->rigidBody()->setPosition(Vec3f(0.f, 10.f, -0.5f));
+
+		ball = SolidObject::ball(10.f, 1.f, 16);
+		ball->rigidBody()->setPosition(Vec3f(0.f, 10.f, 2.f));
 	}
 
 	bool update() {
 		cam->update();
 		float deltaTime = Time::get()->frameTime();
 		mWorld->update(deltaTime);
-		mBall->refresh();
-		obj->m = mBall->transform();
+		ball->refresh();
+		floor->refresh();
 		return true;
 	}
 
 	~RoseApp()
 	{
 		delete cam;
-		delete obj;
-		delete obj2;
 	}
 
 private:
-	game::FlyByCamera* cam;
-	Renderable* obj, *obj2;
+	FlyByCamera* cam;
+	SolidObject* floor;
+	SolidObject* ball;
 	PhysicsWorld* mWorld;
-	RigidBody* mBall;
 };
 
 int main()

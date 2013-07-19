@@ -46,7 +46,7 @@ namespace rev { namespace graphics3d {
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
 		mDriver->setZCompare(true);
 		mDriver->setShader(mBasicShader);
-		mDriver->setUniform(mLightUniform, math::Vec3f(1.f, 1.f, -2.f));
+		mDriver->setUniform(mLightUniform, math::Vec3f(1.f, 0.f, -2.f));
 		_scene.traverse([&,this](const Renderable* _renderable)
 		{
 			mDriver->setUniform(mMvpUniform, viewProj * _renderable->m);

@@ -70,6 +70,9 @@
     <Filter Include="physics\bullet\vectormath\neon">
       <UniqueIdentifier>{d3687d5c-8211-4b78-a527-690761bf5c7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scene\object">
+      <UniqueIdentifier>{b63777d0-c7a6-42da-ad94-2c0c121b8611}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
@@ -85,9 +88,6 @@
       <Filter>physics\world</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.cpp">
-      <Filter>physics\rigidBody</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\sphereRb.cpp">
       <Filter>physics\rigidBody</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.cpp">
@@ -441,6 +441,9 @@
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btVector3.cpp">
       <Filter>physics\bullet\LinearMath</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\scene\object\solidObject.cpp">
+      <Filter>scene\object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h">
@@ -457,9 +460,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revGame\physics\world\physicsWorld.h">
       <Filter>physics\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\sphereRb.h">
-      <Filter>physics\rigidBody</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\bullet\btBulletDynamicsCommon.h">
       <Filter>physics\bullet</Filter>
@@ -1042,6 +1042,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\bullet\btBulletCollisionCommon.h">
       <Filter>physics\bullet\vectormath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\scene\object\solidObject.h">
+      <Filter>scene\object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

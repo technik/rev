@@ -9,6 +9,7 @@
 #define _REV_GAME_PHYSICS_WORLD_PHYSICSWORLD_H_
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <vector>
 
 namespace rev { namespace game {
 
@@ -22,6 +23,7 @@ namespace rev { namespace game {
 		void	removeRigidBody	(RigidBody*);
 
 		void	update			(float _dt);
+		void	setGravity		(float _g);
 
 	private:
 		static PhysicsWorld* sInstance;
@@ -29,6 +31,8 @@ namespace rev { namespace game {
 		~PhysicsWorld();
 
 	private:
+		std::vector<RigidBody*>				mBodies;
+
 		btDefaultCollisionConfiguration*	mCollisionConfig;
 		btCollisionDispatcher*				mDispatcher;
 		btDbvtBroadphase*					mBroadPhase;

@@ -14,7 +14,7 @@
 namespace rev { namespace game {
 
 	//-----------------------------------------------------------------------------------------------------------------
-	void RigidBody::initRb(float _mass, const btVector3& _inertia, btCollisionShape* _shape)
+	RigidBody::RigidBody(float _mass, const btVector3& _inertia, btCollisionShape* _shape)
 	{
 		btTransform initTransform;
 		initTransform.setIdentity();
@@ -63,6 +63,24 @@ namespace rev { namespace game {
 		btQuaternion rot = transform.getRotation();
 		setLocalPos(bt2Vec(pos), false);
 		setLocalRot(bt2Quat(rot), true);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	RigidBody* RigidBody::sphere(float _mass, float _radius)
+	{
+		btCollisionShape* shape = new btSphereShape(_radius);
+		btVector3 inertia;
+		shape->calculateLocalInertia(_mass, inertia);
+		return new RigidBody(_mass, inertia, shape);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	RigidBody* RigidBody::box(float _mass, const math::Vec3f& _size)
+	{
+		btCollisionShape* shape = new btBoxShape(Vec2bt(_size*0.5f));
+		btVector3 inertia;
+		shape->calculateLocalInertia(_mass, inertia);
+		return new RigidBody(_mass, inertia, shape);
 	}
 
 }	// namespace game
