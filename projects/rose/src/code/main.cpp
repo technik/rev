@@ -47,8 +47,6 @@ public:
 		cam->update();
 		float deltaTime = Time::get()->frameTime();
 		mWorld->update(deltaTime);
-		ball->refresh();
-		floor->refresh();
 		return true;
 	}
 

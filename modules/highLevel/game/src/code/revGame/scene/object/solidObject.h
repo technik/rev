@@ -26,9 +26,7 @@ namespace rev { namespace game {
 		static SolidObject* ball(float _mass, float _radius, unsigned _sections);
 
 	private:
-		SolidObject(RigidBody* _body, graphics3d::Renderable* _renderable)
-			:mRb(_body)
-			,mRenderable(_renderable) {}
+		SolidObject(RigidBody* _body, graphics3d::Renderable* _renderable);
 
 	private:
 		RigidBody* mRb;

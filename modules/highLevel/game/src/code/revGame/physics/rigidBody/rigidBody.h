@@ -12,6 +12,9 @@
 #include <revMath/algebra/vector.h>
 #include <revGame/core/transform/transformSrc.h>
 
+#include <functional>
+#include <vector>
+
 namespace rev { namespace game {
 
 	class RigidBody : public TransformSrc {
@@ -22,8 +25,7 @@ namespace rev { namespace game {
 		void applyImpulse	(const math::Vec3f& _impulse);
 		// Position is given in world coordinates, relative to the rigid body's COM
 		void applyImpulse	(const math::Vec3f& _impulse, const math::Vec3f& _position);
-
-		void refresh		();
+		void onMove			(std::function<void(RigidBody*)>);
 
 	public:
 		static RigidBody* sphere	(float _mass, float _radius);
@@ -32,9 +34,12 @@ namespace rev { namespace game {
 	private:
 		RigidBody(float _mass, const btVector3& _inertia, btCollisionShape* _shape);
 
+		void refresh		();
+
 	private:
 		btMotionState*	mMotionState;
 		btRigidBody*	mBody;
+		std::vector<std::function<void(RigidBody*)> >	mMoveCb;
 
 		friend class PhysicsWorld;
 	};

@@ -22,6 +22,8 @@ namespace rev { namespace game {
 		mMotionState = new btDefaultMotionState(initTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass,mMotionState,_shape,_inertia);
 		mBody = new btRigidBody(rbInfo);
+		//mBody->setDamping(0.5f, 0.5f);
+		mBody->setRestitution(0.8f);
 
 		PhysicsWorld::get()->addRigidBody(this);
 	}
@@ -63,6 +65,15 @@ namespace rev { namespace game {
 		btQuaternion rot = transform.getRotation();
 		setLocalPos(bt2Vec(pos), false);
 		setLocalRot(bt2Quat(rot), true);
+		// Invoke callbacks
+		for(auto callback : mMoveCb)
+			callback(this);
+	}
+
+	//-----------------------------------------------------------------------------------------------------------------
+	void RigidBody::onMove(std::function<void(RigidBody*)> _callback)
+	{
+		mMoveCb.push_back(_callback);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

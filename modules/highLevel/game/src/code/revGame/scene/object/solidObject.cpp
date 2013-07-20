@@ -35,5 +35,15 @@ namespace rev { namespace game {
 		return new SolidObject(body, renderable);
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	SolidObject::SolidObject(RigidBody* _body, graphics3d::Renderable* _renderable)
+			:mRb(_body)
+			,mRenderable(_renderable)
+	{
+		mRb->onMove([this](RigidBody*){ // Update renderable's transform whenever rigidbody moves
+			mRenderable->m = mRb->transform();
+		});
+	}
+
 }	// namespace game
 }	// namespace rev
