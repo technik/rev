@@ -29,6 +29,8 @@ namespace rev { namespace video
 		Driver3dOpenGL21();
 		virtual ~Driver3dOpenGL21() {} // Virtual destructor
 
+		void init();
+
 		// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 		void		setViewport				(const math::Vec2i& position, const math::Vec2u& size);
 		void		clearZBuffer			();
@@ -39,10 +41,11 @@ namespace rev { namespace video
 		void		flush					();
 		void		finishFrame				();
 
-		void		setShader				(const Shader * _shader);
-		PxlShader*	createPxlShader			(const char * _fileName);
-		Shader*		createShader			(VtxShader*, PxlShader*);
-		VtxShader*	createVtxShader			(const char * _fileName);
+		// --- Vertex config and surface config ---
+		void		setVtxConfig			(VtxConfig* ) {}
+		void		surfaceConfig			(SrfConfig* ) {}
+
+		int			getUniformLocation		(const char* _uniformName);
 
 		// --- Attributes and uniforms
 		void		setAttribBuffer			(unsigned _id, unsigned _nElements, const float * _buffer);
@@ -64,7 +67,11 @@ namespace rev { namespace video
 		void	loadOpenGLExtensions		();
 
 	private:
+		void	loadShader					();
+		void	setShader					();
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
+
+		GLuint	mProgram;
 
 	private: // Abstract methods
 		virtual void	swapBuffers			() = 0;
@@ -118,10 +125,6 @@ namespace rev { namespace video
 		PFNGLUNIFORMMATRIX4FVPROC			mUniformMatrix4fv;
 		PFNGLUSEPROGRAMPROC					mUseProgram;
 		PFNGLVERTEXATTRIBPOINTERPROC		mVertexAttribPointer;
-		
-		// Cache
-		const Shader*						mCurShader;
-		const VtxShaderOpenGL21*			mCurVtxShader;
 	};
 
 }	// namespace video

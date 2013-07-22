@@ -17,11 +17,9 @@
 
 #include "glext.h"
 
+#include <revCore/codeTools/assert/assert.h>
 #include <revCore/file/file.h>
 #include <revVideo/types/color/color.h>
-#include <revVideo/types/shader/pixel/openGL21/pxlShaderOpenGL21.h>
-#include <revVideo/types/shader/openGL21/shaderOpenGL21.h>
-#include <revVideo/types/shader/vertex/openGL21/vtxShaderOpenGL21.h>
 
 using namespace rev::math;
 
@@ -40,9 +38,14 @@ namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
 	Driver3dOpenGL21::Driver3dOpenGL21()
-		:mCurShader(nullptr)
-		,mCurVtxShader(nullptr)
 	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::init()
+	{
+		loadShader();
+		setShader();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -94,77 +97,9 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Driver3dOpenGL21::setShader(const Shader * _shd)
+	int Driver3dOpenGL21::getUniformLocation(const char* _uniform)
 	{
-		if(_shd == mCurShader) {
-			return; 
-		} else mCurShader = _shd;
-		const ShaderOpenGL21 * shader = static_cast<const ShaderOpenGL21*>(_shd);
-
-		// Set active attributes
-		const VtxShaderOpenGL21* vtx21 = shader->vtxShader();
-		if(mCurVtxShader != vtx21) {
-			if(nullptr != mCurVtxShader) { // Disable old attributes
-				const std::map<std::string, unsigned>& oldAttributes = mCurVtxShader->attributes();
-				for(auto iter = oldAttributes.begin(); iter != oldAttributes.end(); ++iter) {
-					glDisableVertexAttribArray(iter->second);
-				}
-			}
-			// Enable new attributes
-			const std::map<std::string, unsigned>& newAttributes = vtx21->attributes();
-			for(auto iter = newAttributes.begin(); iter != newAttributes.end(); ++iter){
-				glEnableVertexAttribArray(iter->second);
-			}
-			mCurVtxShader = vtx21; // Update cache
-		}
-
-		glUseProgram(shader->id());
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	PxlShader * Driver3dOpenGL21::createPxlShader(const char * _fileName)
-	{
-		File * shaderFile = File::open(_fileName, false);
-		revAssert(nullptr != shaderFile, "Error: Couldn't open shader file");
-		unsigned shaderId = glCreateShader(GL_FRAGMENT_SHADER);
-		const char * code[1];
-		code[0] = shaderFile->bufferAsText();
-		glShaderSource(shaderId, 1, code, 0); // Attach source
-		glCompileShader(shaderId); // Compile
-		if(!detectShaderError(shaderId, _fileName))
-			return new PxlShaderOpenGL21(shaderId);
-		else
-		{
-			glDeleteShader(shaderId);
-			return nullptr;
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	Shader * Driver3dOpenGL21::createShader(VtxShader* _vtx, PxlShader * _pxl)
-	{
-		// Cast to the openGL version of the shaders
-		if((nullptr == _vtx) || (nullptr == _pxl))
-			return nullptr;
-		const VtxShaderOpenGL21 * vtx21 = static_cast<const VtxShaderOpenGL21*>(_vtx);
-		const PxlShaderOpenGL21 * pxl21 = static_cast<const PxlShaderOpenGL21*>(_pxl);
-
-		// Create an OpenGL program and attach the shaders
-		GLuint program = glCreateProgram();
-		glAttachShader(program, vtx21->id());
-		glAttachShader(program, pxl21->id());
-
-		// Bind attributes
-		const std::map<std::string, unsigned>& attributeMap = vtx21->attributes();
-		for(auto iter = attributeMap.begin(); iter != attributeMap.end(); ++iter)
-		{
-			glBindAttribLocation(program, iter->second, iter->first.c_str());
-		}
-
-		// Link the program
-		glLinkProgram(program);
-
-		return new ShaderOpenGL21(program, vtx21);
+		return glGetUniformLocation(mProgram, _uniform);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -183,25 +118,6 @@ namespace rev { namespace video
 			break;
 		default:
 			revAssert(false, "Error: Trying to render an unimplemented primitive type");
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	VtxShader * Driver3dOpenGL21::createVtxShader(const char * _fileName)
-	{
-		File * shaderFile = File::open(_fileName, false);
-		revAssert(nullptr != shaderFile, "Error: Couldn't open shader file");
-		unsigned shaderId = glCreateShader(GL_VERTEX_SHADER);
-		const char * code[1];
-		code[0] = shaderFile->bufferAsText();
-		glShaderSource(shaderId, 1, code, 0); // Attach source
-		glCompileShader(shaderId); // Compile
-		if(!detectShaderError(shaderId, _fileName))
-			return new VtxShaderOpenGL21(shaderId);
-		else
-		{
-			glDeleteShader(shaderId);
-			return nullptr;
 		}
 	}
 
@@ -268,6 +184,57 @@ namespace rev { namespace video
 	void Driver3dOpenGL21::setUniform(int _uniformId, const Color& _value)
 	{
 		glUniform4f(_uniformId, _value.r, _value.g, _value.b, _value.a);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::loadShader()
+	{
+		// Load vertex shader
+		File * vtxShaderFile = File::open("test.vtx", false);
+		revAssert(nullptr != vtxShaderFile, "Error: Couldn't open shader file");
+		unsigned vtxShaderId = glCreateShader(GL_VERTEX_SHADER);
+		const char * vtxCode[1];
+		vtxCode[0] = vtxShaderFile->bufferAsText();
+		glShaderSource(vtxShaderId, 1, vtxCode, 0); // Attach source
+		glCompileShader(vtxShaderId); // Compile
+		if(detectShaderError(vtxShaderId, "test.vtx")) {
+			glDeleteShader(vtxShaderId);
+			return;
+		}
+		
+		// Load pixel shader
+		File * pxlShaderFile = File::open("test.pxl", false);
+		revAssert(nullptr != pxlShaderFile, "Error: Couldn't open shader file");
+		unsigned pxlShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+		const char * pxlCode[1];
+		pxlCode[0] = pxlShaderFile->bufferAsText();
+		glShaderSource(pxlShaderId, 1, pxlCode, 0); // Attach source
+		glCompileShader(pxlShaderId); // Compile
+		if(detectShaderError(pxlShaderId, "test.pxl")) {
+			glDeleteShader(pxlShaderId);
+			return;
+		}
+
+		// Create an OpenGL program and attach the shaders
+		mProgram = glCreateProgram();
+		glAttachShader(mProgram, vtxShaderId);
+		glAttachShader(mProgram, pxlShaderId);
+		// Bind attributes
+		glBindAttribLocation(mProgram, 0, "vertex");
+		glBindAttribLocation(mProgram, 1, "normal");
+		glBindAttribLocation(mProgram, 2, "uv");
+
+		glLinkProgram(mProgram);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::setShader()
+	{
+		// Set active attributes
+		glUseProgram(mProgram);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

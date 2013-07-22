@@ -107,12 +107,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\driver3dOpenGL21.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\windows\driver3dOpenGL21Windows.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\openGL21\shaderOpenGL21.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\pixel\openGL21\pxlShaderOpenGL21.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\pixel\pxlShader.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\shader.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\vertex\openGL21\vtxShaderOpenGL21.cpp" />
-    <ClCompile Include="..\..\..\src\code\revVideo\types\shader\vertex\vtxShader.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\windows\videoDriverWindows.cpp" />
@@ -122,13 +116,9 @@
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\driver3dOpenGL21.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\glext.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\openGL21\windows\driver3dOpenGL21Windows.h" />
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\srfConfig.h" />
+    <ClInclude Include="..\..\..\src\code\revVideo\driver3d\vtxConfig.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\color\color.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\openGL21\shaderOpenGL21.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\pixel\openGL21\pxlShaderOpenGL21.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\pixel\pxlShader.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\shader.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\vertex\openGL21\vtxShaderOpenGL21.h" />
-    <ClInclude Include="..\..\..\src\code\revVideo\types\shader\vertex\vtxShader.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\window\videoWindow.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.h" />

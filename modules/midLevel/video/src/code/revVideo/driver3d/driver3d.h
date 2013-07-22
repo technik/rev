@@ -18,9 +18,8 @@ namespace rev { namespace video
 {
 	// Forward declarations
 	class Color;
-	class PxlShader;
-	class Shader;
-	class VtxShader;
+	class SrfConfig;
+	class VtxConfig;
 
 	class Driver3d
 	{
@@ -45,11 +44,11 @@ namespace rev { namespace video
 		virtual void		flush				() = 0;
 		virtual void		finishFrame			() = 0;
 
-		// --- Shaders -----
-		virtual void		setShader			(const Shader * _shader) = 0;
-		virtual PxlShader*	createPxlShader		(const char * _fileName) = 0;
-		virtual Shader*		createShader		(VtxShader*, PxlShader*) = 0;
-		virtual VtxShader*	createVtxShader		(const char * _fileName) = 0;
+		// --- Vertex config and surface config ---
+		virtual void		setVtxConfig		(VtxConfig* _cfg) = 0;
+		virtual void		surfaceConfig		(SrfConfig* _cfg) = 0;
+
+		virtual int			getUniformLocation	(const char* _uniformName) = 0;
 
 		// --- Attributes and uniforms
 		virtual void		setAttribBuffer		(unsigned _id, unsigned _nElements, const float * _buffer) = 0;

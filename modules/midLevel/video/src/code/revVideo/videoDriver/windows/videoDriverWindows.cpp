@@ -30,7 +30,9 @@ namespace rev { namespace video
 		// Only openGL driver is currently supported
 		Window * window = mainWindow();
 		revAssert(nullptr != window, "Error: Trying to create 3d Driver without window");
-		return new Driver3dOpenGL21Windows(window);
+		Driver3dOpenGL21Windows* driver3d = new Driver3dOpenGL21Windows(window);
+		driver3d->init();
+		return driver3d;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

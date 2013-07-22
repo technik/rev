@@ -62,8 +62,9 @@ namespace rev { namespace video
 	void VideoDriver::init3d()
 	{
 		// Create a 3d driver
-		if(nullptr == mDriver3d)
+		if(nullptr == mDriver3d) {
 			mDriver3d = createDriver3d();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

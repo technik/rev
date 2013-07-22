@@ -12,10 +12,14 @@
 #include <revCore/codeTools/log/log.h>
 #include <revCore/time/time.h>
 #include <revGraphics3d/application/application3d.h>
+#include <revGame/core/transform/sceneNode.h>
 #include <revGame/physics/rigidBody/rigidBody.h>
 #include <revGame/physics/world/physicsWorld.h>
 #include <revGame/scene/camera/flyByCamera.h>
 #include <revGame/scene/object/solidObject.h>
+#include <revVideo/driver3d/driver3d.h>
+#include <revVideo/types/color/color.h>
+#include <revVideo/videoDriver/videoDriver.h>
 
 using namespace rev;
 using namespace rev::math;
@@ -30,13 +34,15 @@ class RoseApp : public Application3d
 public:
 	RoseApp()
 	{
+		video::VideoDriver::getDriver3d()->setClearColor(video::Color(0.f));
 		cam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
 		setCam(&cam->cam());
+		cam->node()->setPos(Vec3f::zAxis());
 
 		mWorld = PhysicsWorld::get();
 		mWorld->setGravity(9.81f);
 
-		floor = SolidObject::box(0.f, Vec3f(100.f, 100.f, 1.f));
+		floor = SolidObject::box(0.f, Vec3f(10000.f, 10000.f, 1.f));
 		floor->rigidBody()->setPosition(Vec3f(0.f, 10.f, -0.5f));
 
 		ball = SolidObject::ball(10.f, 1.f, 16);

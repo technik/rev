@@ -22,6 +22,7 @@ namespace rev { namespace game {
 
 		void update();
 		const graphics3d::Camera& cam() const { return mCam; }
+		SceneNode* node() { return mNode; }
 
 	private:
 		SceneNode* mNode;

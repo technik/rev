@@ -44,6 +44,7 @@ namespace rev { namespace graphics3d {
 		
 		driver->setAttribBuffer(0, mNVertices, mVertices);
 		driver->setAttribBuffer(1, mNVertices, mNormals);
+		driver->setAttribBuffer(2, mNVertices, mUVs);
 		if(0 != mNTriIndices)
 			driver->drawIndexBuffer(mNTriIndices, mTriangles, video::Driver3d::EPrimitiveType::triangles);
 		if(0 != mStripLength)
