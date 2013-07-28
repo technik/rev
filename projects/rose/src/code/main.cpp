@@ -12,7 +12,7 @@
 #include <component/microcontroller/avr/avr8bit.h>
 #include <revCore/codeTools/log/log.h>
 #include <revCore/time/time.h>
-#include <revGraphics3d/application/application3d.h>
+#include <revGame/application/baseApplication.h>
 #include <revGame/core/transform/sceneNode.h>
 #include <revGame/physics/rigidBody/rigidBody.h>
 #include <revGame/physics/world/physicsWorld.h>
@@ -32,7 +32,7 @@ using namespace rev::input;
 using rose::component::Avr8bit;
 using namespace std;
 
-class RoseApp : public Application3d
+class RoseApp : public BaseApplication
 {
 public:
 	RoseApp()
