@@ -24,6 +24,7 @@ namespace rev { namespace game {
 		mBody = new btRigidBody(rbInfo);
 		//mBody->setDamping(0.5f, 0.5f);
 		mBody->setRestitution(0.8f);
+		mBody->setActivationState(DISABLE_DEACTIVATION);
 
 		PhysicsWorld::get()->addRigidBody(this);
 	}

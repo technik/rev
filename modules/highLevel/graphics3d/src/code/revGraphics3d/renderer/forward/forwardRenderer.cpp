@@ -34,10 +34,12 @@ namespace rev { namespace graphics3d {
 	{
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
 		mDriver->setZCompare(true);
-		mDriver->setUniform(mLightUniform, math::Vec3f(1.f, 0.f, -2.f));
 		_scene.traverse([&,this](const Renderable* _renderable)
 		{
+			Mat34f invModel;
+			_renderable->m.inverse(invModel);
 			mDriver->setUniform(mMvpUniform, viewProj * _renderable->m);
+			mDriver->setUniform(mLightUniform, invModel.rotate(math::Vec3f(1.f, 0.f, -2.f)));
 			_renderable->render();
 		});
 	}

@@ -18,8 +18,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,11 +85,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\aircraft\quad\quad.cpp" />
     <ClCompile Include="..\..\..\src\code\component\microcontroller\avr\avr8bit.cpp" />
     <ClCompile Include="..\..\..\src\code\component\microcontroller\avr\avrIOMemory.cpp" />
     <ClCompile Include="..\..\..\src\code\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\aircraft\quad\quad.h" />
     <ClInclude Include="..\..\..\src\code\component\microcontroller\avr\avr8bit.h" />
     <ClInclude Include="..\..\..\src\code\component\microcontroller\avr\avrIOMemory.h" />
   </ItemGroup>

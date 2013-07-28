@@ -21,6 +21,7 @@ namespace rev { namespace graphics3d {
 		void			setProjection	(const math::Mat44f& _proj);
 		void			setView			(const math::Mat34f& _view);
 		math::Mat44f	viewProjMatrix	() const;
+		math::Mat34f	invView			() const { return mInvView; }
 
 	private:
 		math::Mat34f mInvView;
