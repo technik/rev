@@ -203,6 +203,8 @@
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btQuickprof.cpp" />
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btSerializer.cpp" />
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btVector3.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\application\baseApplication.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\application\platform\windows\osHandlerWindows.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\sceneNode.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.cpp" />
@@ -405,6 +407,11 @@
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\sse\vectormath_aos.h" />
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\sse\vec_aos.h" />
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\vmInclude.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\application\baseApplication.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\application\fileSystem\fileSystem.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\application\fileSystem\windows\fileSystemWindows.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\application\platform\osHandler.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\application\platform\windows\osHandlerWindows.h" />
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\sceneNode.h" />
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.h" />

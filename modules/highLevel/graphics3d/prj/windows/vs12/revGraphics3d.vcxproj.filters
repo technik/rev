@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="application">
-      <UniqueIdentifier>{80389bad-e733-4703-8318-fc88c33d433f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="renderable">
       <UniqueIdentifier>{a1cd1d72-c6df-4fc8-b9f6-46c5fd0a82be}</UniqueIdentifier>
     </Filter>
@@ -18,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\code\revGraphics3d\application\application3d.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\renderable.h">
       <Filter>renderable</Filter>
     </ClInclude>
@@ -38,9 +32,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\code\revGraphics3d\application\application3d.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\renderable.cpp">
       <Filter>renderable</Filter>
     </ClCompile>

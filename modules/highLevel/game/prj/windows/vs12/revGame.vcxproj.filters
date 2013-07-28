@@ -73,6 +73,18 @@
     <Filter Include="scene\object">
       <UniqueIdentifier>{b63777d0-c7a6-42da-ad94-2c0c121b8611}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application\platform">
+      <UniqueIdentifier>{bee55bc8-f7c0-42e3-a365-ca780d48bbfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\platform\windows">
+      <UniqueIdentifier>{749ccdbb-202e-4337-aead-ea34fdc54c9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\filesystem">
+      <UniqueIdentifier>{f6a820c7-7d0d-4e2a-adc9-f6e9c3533118}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\filesystem\windows">
+      <UniqueIdentifier>{e4f0518e-7a13-429c-97d2-232a7cdf3b65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
@@ -443,6 +455,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revGame\scene\object\solidObject.cpp">
       <Filter>scene\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\application\platform\windows\osHandlerWindows.cpp">
+      <Filter>application\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\application\baseApplication.cpp">
+      <Filter>application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1045,6 +1063,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revGame\scene\object\solidObject.h">
       <Filter>scene\object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\application\fileSystem\fileSystem.h">
+      <Filter>application\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\application\fileSystem\windows\fileSystemWindows.h">
+      <Filter>application\filesystem\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\application\platform\windows\osHandlerWindows.h">
+      <Filter>application\platform\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\application\platform\osHandler.h">
+      <Filter>application\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\application\baseApplication.h">
+      <Filter>application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

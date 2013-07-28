@@ -11,28 +11,54 @@
 
 namespace rev
 {
-	template<typename... Arg_>
+	
+	template<typename Ret_, typename ... Arg_>
 	class Event
 	{
+		typedef Function std::function<Ret_(Arg_)>;
 	public:
-		void	operator()	(Arg_...) const;					///\ Invoke events
-		void	operator+=	(std::function<void (Arg_...)>*);	///\ Add a deletage to the event
-		void	operator-=	(std::function<void (Arg_...)>*);	///\ Remove a delegate from the event
+		class Delegate {
+		public:
+			Delegate(std::function<Ret_(Arg_)> _f) : mF(_f) {}
+			Ret_	operator() (Arg_ _args) { return mF(_args); }
+		private:
+			std::function<Ret_(Arg_)>	mF;
+		};
+
+		~Event()
+		{
+			for(auto d : mDelegates)
+				delete d;
+		}
+
+		void operator(Arg_ _args)
+		{
+			for(auto deleg : mDelegates)
+				deleg(_args);
+		}
+
+		Delegate* operator+= (std::function<Ret_(Arg_)> _f) {
+			Delegate* del = new Delegate(_f);
+			mDelegates.push_back(del);
+			return del;
+		}
+
+		void operator-= (Delegate* _del)
+		{
+			for(auto i = mDelegates.begin(); i != mDelegates.end(); ++i)
+				if(*i == _del) {
+					delete _del;
+					return;
+				}
+		}
 
 	private:
-		std::vector<std::function<void (Arg_...)>*> mDelegates;
+		std::vector<Delegate>	mDelegates;
 	};
 
 	//----------------------------------------------------------
 	// Inline implementation
 	//----------------------------------------------------------
-	template<typename... Arg_>
-	void Event<Arg_...>::operator() 
-		(Arg_... _argument) const
-	{
-		for(auto del : mDelegates)
-			(*del)(_argument...);
-	}
 
 }	// namespace rev
 
