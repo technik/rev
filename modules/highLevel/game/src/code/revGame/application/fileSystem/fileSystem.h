@@ -19,11 +19,14 @@ namespace rev { namespace game {
 	class FileSystem
 	{
 	public:
+		static FileSystem* get(); // Must be implemented in derived class' cpp.
+
 		typedef rev::Event<void, const char*>	FileEvent;
 
 		FileEvent&	onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
 
 	protected:
+
 		std::map<std::string, FileEvent>	mFileChangedEvents;
 	};
 

@@ -8,6 +8,7 @@
 #ifdef _WIN32
 
 #include "osHandlerWindows.h"
+#include <revGame/application/fileSystem/windows/fileSystemWindows.h>
 #include <revInput/keyboard/windows/keyboardInputWindows.h>
 
 using namespace rev::input;
@@ -63,6 +64,8 @@ namespace rev { namespace game {
 				}
 			}
 		}
+		// Update filesystem
+		FileSystemWindows::get()->update();
 		return true;
 	}
 

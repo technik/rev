@@ -19,14 +19,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -204,6 +204,7 @@
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btSerializer.cpp" />
     <ClCompile Include="..\..\..\src\code\bullet\LinearMath\btVector3.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\application\baseApplication.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\application\fileSystem\windows\fileSystemWindows.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\application\platform\windows\osHandlerWindows.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\sceneNode.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp" />

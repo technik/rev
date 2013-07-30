@@ -11,18 +11,17 @@
 
 namespace rev
 {
-	
-	template<typename Ret_, typename ... Arg_>
+	template<typename Ret_, typename... Arg_>
 	class Event
 	{
-		typedef Function std::function<Ret_(Arg_)>;
+		typedef std::function<Ret_(Arg_...)>	CbFunction;
 	public:
 		class Delegate {
 		public:
-			Delegate(std::function<Ret_(Arg_)> _f) : mF(_f) {}
-			Ret_	operator() (Arg_ _args) { return mF(_args); }
+			Delegate(CbFunction _f) : mF(_f) {}
+			Ret_	operator() (Arg_ ... _args) { return mF(_args...); }
 		private:
-			std::function<Ret_(Arg_)>	mF;
+			CbFunction	mF;
 		};
 
 		~Event()
@@ -31,13 +30,13 @@ namespace rev
 				delete d;
 		}
 
-		void operator(Arg_ _args)
+		void operator()(Arg_ ... _args)
 		{
 			for(auto deleg : mDelegates)
-				deleg(_args);
+				(*deleg)(_args...);
 		}
 
-		Delegate* operator+= (std::function<Ret_(Arg_)> _f) {
+		Delegate* operator+= (CbFunction _f) {
 			Delegate* del = new Delegate(_f);
 			mDelegates.push_back(del);
 			return del;
@@ -53,7 +52,7 @@ namespace rev
 		}
 
 	private:
-		std::vector<Delegate>	mDelegates;
+		std::vector<Delegate*>	mDelegates;
 	};
 
 	//----------------------------------------------------------

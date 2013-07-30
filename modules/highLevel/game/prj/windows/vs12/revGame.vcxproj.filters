@@ -462,6 +462,9 @@
     <ClCompile Include="..\..\..\src\code\revGame\application\baseApplication.cpp">
       <Filter>application</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGame\application\fileSystem\windows\fileSystemWindows.cpp">
+      <Filter>application\filesystem\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h">

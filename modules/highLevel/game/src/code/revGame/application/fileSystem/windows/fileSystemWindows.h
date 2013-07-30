@@ -12,6 +12,8 @@
 
 #include "../fileSystem.h"
 
+#include <cstdint>
+#include <string>
 #include <Windows.h>
 
 namespace rev { namespace game {
@@ -19,9 +21,23 @@ namespace rev { namespace game {
 	class FileSystemWindows : FileSystem
 	{
 	public:
-		FileSystemWindows();
+		static FileSystemWindows* get();
 
-		bool 
+		void update();
+	private:
+		static FileSystemWindows* sFileSystem;
+
+		FileSystemWindows();
+		void doFileChanged(const std::string& _fileName);
+		void watchDirectory();
+
+		static const int	mNotifBufferSize = 1024;
+		HANDLE			mDirectoryHandle;
+		HANDLE			mPortHandle;
+		uint32_t		mNotificationBuffer[mNotifBufferSize];
+		DWORD			mBytesRecieved;
+		OVERLAPPED		mOverlapped;
+		ULONG_PTR		mCompletionKey;
 	};
 
 }	// namespace game
