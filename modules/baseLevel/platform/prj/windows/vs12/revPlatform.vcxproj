@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5BA55F80-3AE6-4915-BB0E-EFFC7513FB5F}</ProjectGuid>
+    <ProjectGuid>{9365A1B2-4336-45B8-A0FD-9F4D27167D48}</ProjectGuid>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>revVideo</RootNamespace>
+    <RootNamespace>revCore</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -43,17 +43,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\input\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
-    <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <TargetExt>.lib</TargetExt>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\..\src\code\revCore\$(Configuration)\</OutDir>
     <TargetExt>.lib</TargetExt>
-    <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\input\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
-    <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -74,9 +72,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
-    <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -95,9 +90,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
-    <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -105,20 +97,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\baseLevel\core\prj\windows\vs12\revCore.vcxproj">
+    <ClCompile Include="..\..\..\src\code\revPlatform\fileSystem\windows\fileSystemWindows.cpp" />
+    <ClCompile Include="..\..\..\src\code\revPlatform\osHandler\windows\osHandlerWindows.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\code\revPlatform\fileSystem\fileSystem.h" />
+    <ClInclude Include="..\..\..\src\code\revPlatform\fileSystem\windows\fileSystemWindows.h" />
+    <ClInclude Include="..\..\..\src\code\revPlatform\osHandler\osHandler.h" />
+    <ClInclude Include="..\..\..\src\code\revPlatform\osHandler\windows\osHandlerWindows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\core\prj\windows\vs12\revCore.vcxproj">
       <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\baseLevel\platform\prj\windows\vs12\revPlatform.vcxproj">
-      <Project>{9365a1b2-4336-45b8-a0fd-9f4d27167d48}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\src\code\revInput\keyboard\keyboardInput.h" />
-    <ClInclude Include="..\..\..\src\code\revInput\keyboard\windows\keyboardInputWindows.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\src\code\revInput\keyboard\keyboardInput.cpp" />
-    <ClCompile Include="..\..\..\src\code\revInput\keyboard\windows\keyboardInputWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

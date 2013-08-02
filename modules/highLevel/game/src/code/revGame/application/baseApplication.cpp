@@ -8,7 +8,7 @@
 #include "baseApplication.h"
 
 #include <revCore/time/time.h>
-#include <revGame/application/platform/osHandler.h>
+#include <revPlatform/osHandler/osHandler.h>
 #include <revGraphics3d/renderable/renderScene.h>
 #include <revGraphics3d/renderer/forward/forwardRenderer.h>
 #include <revInput/keyboard/keyboardInput.h>
@@ -20,6 +20,7 @@
 using namespace rev::graphics3d;
 using namespace rev::input;
 using namespace rev::math;
+using namespace rev::platform;
 using namespace rev::video;
 
 namespace rev { namespace game {

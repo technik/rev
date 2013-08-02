@@ -5,30 +5,24 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Windows handler for Operating System call
 
-#ifndef _REV_GAME_APPLICATION_PLATFORM_OSHANDLER_H_
-#define _REV_GAME_APPLICATION_PLATFORM_OSHANDLER_H_
+#ifndef _REV_PLATFORM_OSHANDLER_OSHANDLER_H_
+#define _REV_PLATFORM_OSHANDLER_OSHANDLER_H_
 
 
-namespace rev { namespace game {
+namespace rev { namespace platform {
 
 	class OSHandler
 	{
 	public:
-		static OSHandler* get() {
-			if(!sHandler) createHandler();
-			return sHandler;
-		}
+		static OSHandler* get();
 
 		virtual bool update() = 0;
-	private:
-		static void createHandler();	// Define this two along with the proper derived class.
 
 	protected:
-		static OSHandler* sHandler;			// That ensures one and only one class derives this at link time.
 		OSHandler(){}
 	};
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
-#endif // _REV_GAME_APPLICATION_PLATFORM_OSHANDLER_H_
+#endif // _REV_PLATFORM_OSHANDLER_OSHANDLER_H_

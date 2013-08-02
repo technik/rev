@@ -45,14 +45,14 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
     <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
     <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

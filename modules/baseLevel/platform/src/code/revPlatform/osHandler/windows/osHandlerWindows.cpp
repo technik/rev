@@ -8,33 +8,28 @@
 #ifdef _WIN32
 
 #include "osHandlerWindows.h"
-#include <revGame/application/fileSystem/windows/fileSystemWindows.h>
-#include <revInput/keyboard/windows/keyboardInputWindows.h>
+#include <revPlatform/fileSystem/windows/fileSystemWindows.h>
 
-using namespace rev::input;
-
-namespace rev { namespace game {
+namespace rev { namespace platform {
 
 	//-----------------------------------------------------------------------------------------------------------------
-	OSHandler* OSHandler::sHandler = nullptr;
+	OSHandlerWindows* OSHandlerWindows::sHandler = nullptr;
 
 	//-----------------------------------------------------------------------------------------------------------------
-	void OSHandler::createHandler() {
-		OSHandlerWindows::createHandler();
+	OSHandler* OSHandler::get() {
+		return OSHandlerWindows::get();
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
-	void OSHandlerWindows::createHandler() {
-		sHandler = new OSHandlerWindows;
+	OSHandlerWindows* OSHandlerWindows::get() {
+		if(nullptr == sHandler)
+			sHandler = new OSHandlerWindows;
+		return sHandler;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
 	OSHandlerWindows::OSHandlerWindows()
 	{
-		KeyboardInputWindows * kb = static_cast<KeyboardInputWindows*>(KeyboardInput::get());
-		*this += ([=](MSG _msg){
-			return kb->processWindowsMessage(_msg);
-		});
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------
@@ -69,7 +64,7 @@ namespace rev { namespace game {
 		return true;
 	}
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
 #endif // _WIN32

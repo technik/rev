@@ -8,6 +8,9 @@
 #ifdef WIN32
 
 #include "keyboardInputWindows.h"
+#include <revPlatform/osHandler/windows/osHandlerWindows.h>
+
+using namespace rev::platform;
 
 namespace rev { namespace input
 {
@@ -19,6 +22,11 @@ namespace rev { namespace input
 			keyState[key] = 0;
 			oldKeyState[key] = 0;
 		}
+
+		// Register in osHandler for message processing
+		(*OSHandlerWindows::get()) += [this](MSG _msg){
+			return processWindowsMessage(_msg);
+		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

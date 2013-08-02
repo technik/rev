@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Windows File system
 
-#ifndef _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_WINDOWS_H_
-#define _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_WINDOWS_H_
+#ifndef _REV_PLATFORM_FILESYSTEM_WINDOWS_FILESYSTEM_WINDOWS_H_
+#define _REV_PLATFORM_FILESYSTEM_WINDOWS_FILESYSTEM_WINDOWS_H_
 
 #ifdef _WIN32
 
@@ -16,14 +16,15 @@
 #include <string>
 #include <Windows.h>
 
-namespace rev { namespace game {
+namespace rev { namespace platform {
 
-	class FileSystemWindows : FileSystem
+	class FileSystemWindows : public FileSystem
 	{
 	public:
 		static FileSystemWindows* get();
 
-		void update();
+		FileBuffer	getFileAsBuffer	(const char* _fileName);
+		void		update			();
 	private:
 		static FileSystemWindows* sFileSystem;
 
@@ -40,9 +41,9 @@ namespace rev { namespace game {
 		ULONG_PTR		mCompletionKey;
 	};
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
 #endif // _WIN32
 
-#endif // _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_WINDOWS_H_
+#endif // _REV_PLATFORM_FILESYSTEM_WINDOWS_FILESYSTEM_WINDOWS_H_

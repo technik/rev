@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // File system interface
 
-#ifndef _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_H_
-#define _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_H_
+#ifndef _REV_PLATFORM_FILESYSTEM_FILESYSTEM_H_
+#define _REV_PLATFORM_FILESYSTEM_FILESYSTEM_H_
 
 #include <functional>
 #include <map>
@@ -14,23 +14,29 @@
 
 #include <revCore/event/event.h>
 
-namespace rev { namespace game {
+namespace rev { namespace platform {
 
 	class FileSystem
 	{
 	public:
-		static FileSystem* get(); // Must be implemented in derived class' cpp.
+		struct FileBuffer {
+			int		mSize;
+			void*	mBuffer;
+		};
 
 		typedef rev::Event<void, const char*>	FileEvent;
+	public:
+		static FileSystem* get(); // Must be implemented in derived class' cpp.
 
-		FileEvent&	onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
+		FileEvent&			onFileChanged	(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
+		virtual FileBuffer	getFileAsBuffer	(const char* _fileName) = 0;
 
 	protected:
 
 		std::map<std::string, FileEvent>	mFileChangedEvents;
 	};
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
-#endif // _REV_GAME_APPLICATION_FILESYSTEM_FILESYSTEM_H_
+#endif // _REV_PLATFORM_FILESYSTEM_FILESYSTEM_H_

@@ -18,15 +18,13 @@
 #include "glext.h"
 
 #include <revCore/codeTools/assert/assert.h>
-#include <revCore/file/file.h>
+#include <revPlatform/fileSystem/fileSystem.h>
 #include <revVideo/types/color/color.h>
 
 using namespace rev::math;
 
 // loadExtension must be a macro in order to allow extensions to be loaded from the constructor. If it was a virtual function,
 // you would not be able to call it during construction, and it would require extra complexity to get this system work properly.
-// Note: This has proven the wrong way to do things. As usual, there is a good reason not to allow virtuals here. Virtuals may
-// depend. So...TODO: Make loadExtensions into a virtual function
 #ifdef WIN32
 #define loadExtension( a ) wglGetProcAddress( a )
 #endif // WIN32
@@ -190,11 +188,10 @@ namespace rev { namespace video
 	void Driver3dOpenGL21::loadShader()
 	{
 		// Load vertex shader
-		File * vtxShaderFile = File::open("test.vtx", false);
-		revAssert(nullptr != vtxShaderFile, "Error: Couldn't open shader file");
 		unsigned vtxShaderId = glCreateShader(GL_VERTEX_SHADER);
 		const char * vtxCode[1];
-		vtxCode[0] = vtxShaderFile->bufferAsText();
+		vtxCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer("test.vtx").mBuffer;
+		revAssert(nullptr != vtxCode[0], "Error: Couldn't open shader file");
 		glShaderSource(vtxShaderId, 1, vtxCode, 0); // Attach source
 		glCompileShader(vtxShaderId); // Compile
 		if(detectShaderError(vtxShaderId, "test.vtx")) {
@@ -203,11 +200,10 @@ namespace rev { namespace video
 		}
 		
 		// Load pixel shader
-		File * pxlShaderFile = File::open("test.pxl", false);
-		revAssert(nullptr != pxlShaderFile, "Error: Couldn't open shader file");
 		unsigned pxlShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 		const char * pxlCode[1];
-		pxlCode[0] = pxlShaderFile->bufferAsText();
+		pxlCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer("test.pxl").mBuffer;
+		revAssert(nullptr != pxlCode[0], "Error: Couldn't open shader file");
 		glShaderSource(pxlShaderId, 1, pxlCode, 0); // Attach source
 		glCompileShader(pxlShaderId); // Compile
 		if(detectShaderError(pxlShaderId, "test.pxl")) {

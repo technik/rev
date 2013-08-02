@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Windows handler for Operating System call
 
-#ifndef _REV_GAME_APPLICATION_PLATFORM_WINDOWS_OSHANDLER_WINDOWS_H_
-#define _REV_GAME_APPLICATION_PLATFORM_WINDOWS_OSHANDLER_WINDOWS_H_
+#ifndef _REV_PLATFORM_OSHANDLER_WINDOWS_OSHANDLERWINDOWS_H_
+#define _REV_PLATFORM_OSHANDLER_WINDOWS_OSHANDLERWINDOWS_H_
 
 #ifdef _WIN32
 
@@ -16,23 +16,24 @@
 #include <vector>
 #include <Windows.h>
 
-namespace rev { namespace game {
+namespace rev { namespace platform {
 
 	class OSHandlerWindows : public OSHandler
 	{
 	public:
-		static void createHandler();
+		static OSHandlerWindows* get();
 		void operator+= (std::function<bool (MSG)> _msgProcessor);
 
 		bool update();
 	private:
+		static OSHandlerWindows* sHandler;
 		OSHandlerWindows();
 		std::vector<std::function<bool (MSG)> >	mMsgProcessors;
 	};
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
 #endif // _WIN32
 
-#endif // _REV_GAME_APPLICATION_PLATFORM_WINDOWS_OSHANDLER_WINDOWS_H_
+#endif // _REV_PLATFORM_OSHANDLER_WINDOWS_OSHANDLERWINDOWS_H_

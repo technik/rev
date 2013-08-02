@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
-    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
+    <IncludePath>$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code\;$(ProjectDir)..\..\..\src\code\;$(REVSDK_HOME)\modules\highLevel\graphics3d\src\code\;$(REVSDK_HOME)\modules\baseLevel\math\src\code\;$(REVSDK_HOME)\modules\highLevel\game\src\code\;$(REVSDK_HOME)\modules\midLevel\input\src\code\;$(REVSDK_HOME)\modules\midLevel\video\src\code\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,6 +98,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\modules\baseLevel\core\prj\windows\vs12\revCore.vcxproj">
       <Project>{9ea9cc91-7be3-4344-a760-de9988c8970b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\modules\baseLevel\platform\prj\windows\vs12\revPlatform.vcxproj">
+      <Project>{9365a1b2-4336-45b8-a0fd-9f4d27167d48}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\modules\highLevel\game\prj\windows\vs12\revGame.vcxproj">
       <Project>{0c676c89-33ae-478a-a678-3f1e3a6731d1}</Project>

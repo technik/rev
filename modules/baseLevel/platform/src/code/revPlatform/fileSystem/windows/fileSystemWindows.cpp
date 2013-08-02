@@ -10,10 +10,19 @@
 #include "fileSystemWindows.h"
 #include <Windows.h>
 
-namespace rev { namespace game {
+#include <fstream>
+using namespace std;
+
+namespace rev { namespace platform {
 
 	//------------------------------------------------------------------------------------------------------------------
 	FileSystemWindows* 	FileSystemWindows::sFileSystem = nullptr;
+
+	//------------------------------------------------------------------------------------------------------------------
+	FileSystem* FileSystem::get()
+	{
+		return FileSystemWindows::get();
+	}
 	
 	//------------------------------------------------------------------------------------------------------------------
 	FileSystemWindows* FileSystemWindows::get()
@@ -21,6 +30,32 @@ namespace rev { namespace game {
 		if(nullptr == sFileSystem)
 			sFileSystem = new FileSystemWindows;
 		return sFileSystem;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	FileSystemWindows::FileBuffer FileSystemWindows::getFileAsBuffer(const char* _fileName)
+	{
+		FileBuffer returnBuffer = { 0, nullptr };
+
+		fstream fileStream;
+		// Open the file
+		fileStream.open(_fileName, ios_base::binary|ios_base::in);
+		if(fileStream.is_open())
+		{
+			// Measure it's size
+			fileStream.seekg(0, ios::end);
+			returnBuffer.mSize = int(fileStream.tellg());
+			fileStream.seekg(0, ios::beg);
+			returnBuffer.mSize -= int(fileStream.tellg());;
+			// Allocate the buffer
+			returnBuffer.mBuffer = new char[returnBuffer.mSize+1];
+			// Fill the buffer with the contents of the file
+			fileStream.read((char*)returnBuffer.mBuffer, returnBuffer.mSize);
+			((char*)returnBuffer.mBuffer)[returnBuffer.mSize] = '\0';
+			fileStream.close();
+		}
+
+		return returnBuffer;
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
@@ -56,7 +91,7 @@ namespace rev { namespace game {
 		mOverlapped.InternalHigh = 0;
 		mOverlapped.hEvent = 0;
 		mOverlapped.Pointer = 0;
-		mDirectoryHandle = CreateFile(".\\", 
+		mDirectoryHandle = CreateFileA(".\\", 
 				FILE_LIST_DIRECTORY,	// Request permission to list directory contents
 				FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
 				NULL,
@@ -96,7 +131,7 @@ namespace rev { namespace game {
 		}
 	}
 
-}	// namespace game
+}	// namespace platform
 }	// namespace rev
 
 #endif // _WIN32
