@@ -37,19 +37,19 @@ namespace rev { namespace game {
 	 	KeyboardInput* input = KeyboardInput::get();
 		// Translation
 		Vec3f velocity = Vec3f::zero();
-		if(input->held(KeyboardInput::eD))			velocity.x += 2.f;
-	 	if(input->held(KeyboardInput::eA))			velocity.x -= 2.f;
-		if(input->held(KeyboardInput::eW))			velocity.y += 2.f;
-	 	if(input->held(KeyboardInput::eS))			velocity.y -= 2.f;
+		if(input->held(KeyboardInput::eD))			velocity.x += 0.5f;
+	 	if(input->held(KeyboardInput::eA))			velocity.x -= 0.5f;
+		if(input->held(KeyboardInput::eW))			velocity.y += 0.5f;
+	 	if(input->held(KeyboardInput::eS))			velocity.y -= 0.5f;
 		if(input->held(KeyboardInput::eKeyUp))		
-			velocity.z += 2.f;
+			velocity.z += 0.5f;
 	 	if(input->held(KeyboardInput::eKeyDown))	
-			velocity.z -= 2.f;
+			velocity.z -= 0.5f;
 		mNode->move(velocity * dt);
 		// Rotation
 		float angSpd = 0.f;
-		if(input->held(KeyboardInput::eKeyRight))	angSpd -= 0.3f;
-	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += 0.3f;
+		if(input->held(KeyboardInput::eKeyRight))	angSpd -= 0.03f;
+	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += 0.03f;
 		mNode->rotate(Vec3f::zAxis(), angSpd * dt);
 
 		mCam.setView(mNode->transform());

@@ -44,6 +44,13 @@ namespace rev { namespace video
 	{
 		loadShader();
 		setShader();
+		auto shaderReload = [this](const char*){
+			glDeleteProgram(mProgram);
+			loadShader();
+			setShader();
+		};
+		platform::FileSystem::get()->onFileChanged("test.vtx") += shaderReload;
+		platform::FileSystem::get()->onFileChanged("test.pxl") += shaderReload;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -221,6 +228,9 @@ namespace rev { namespace video
 		glBindAttribLocation(mProgram, 2, "uv");
 
 		glLinkProgram(mProgram);
+
+		glDeleteShader(vtxShaderId);
+		glDeleteShader(pxlShaderId);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

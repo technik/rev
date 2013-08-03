@@ -31,6 +31,7 @@ namespace rev { namespace graphics3d {
 		video::Shader*		mBasicShader;
 		int					mMvpUniform;
 		int					mLightUniform;
+		int					mViewPosUniform;
 	};
 
 }	// namespace graphics3d

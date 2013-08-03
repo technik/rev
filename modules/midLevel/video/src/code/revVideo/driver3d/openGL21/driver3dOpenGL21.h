@@ -99,7 +99,7 @@ namespace rev { namespace video
 		void	glUniformMatrix4fv			(GLint _uniform, GLsizei _count, GLboolean _transpose, const GLfloat* _value);
 		void	glUseProgram				(GLuint _program)					{ mUseProgram(_program);			}
 		void	glVertexAttribPointer		(GLuint _idx, GLint _size, GLenum _type, bool _normalized, GLsizei _stride,
- 				const GLvoid * _pointer);
+				const GLvoid * _pointer);
 
 
 	private:

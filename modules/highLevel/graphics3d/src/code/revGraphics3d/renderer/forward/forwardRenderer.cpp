@@ -13,8 +13,7 @@
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
-using rev::math::Mat34f;
-using rev::math::Mat44f;
+using namespace rev::math;
 using namespace rev::video;
 
 namespace rev { namespace graphics3d {
@@ -23,9 +22,10 @@ namespace rev { namespace graphics3d {
 	ForwardRenderer::ForwardRenderer()
 		:mDriver(video::VideoDriver::getDriver3d())
 	{
-		// Shaders
+		// Shader
 		mMvpUniform = mDriver->getUniformLocation("mvp");
 		mLightUniform = mDriver->getUniformLocation("lightDir");
+		mViewPosUniform = mDriver->getUniformLocation("viewPos");
 		//mColorUniformId = mShader->getUniformLocation("color");
 	}
 
@@ -33,6 +33,9 @@ namespace rev { namespace graphics3d {
 	void ForwardRenderer::render(const Camera& _pointOfView, const RenderScene& _scene)
 	{
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
+		Mat34f view;
+		_pointOfView.invView().inverse(view);
+		Vec3f viewPos(view[0][3], view[1][3], view[2][3]);
 		mDriver->setZCompare(true);
 		_scene.traverse([&,this](const Renderable* _renderable)
 		{
@@ -40,6 +43,7 @@ namespace rev { namespace graphics3d {
 			_renderable->m.inverse(invModel);
 			mDriver->setUniform(mMvpUniform, viewProj * _renderable->m);
 			mDriver->setUniform(mLightUniform, invModel.rotate(math::Vec3f(1.f, 0.f, -2.f)));
+			mDriver->setUniform(mViewPosUniform, invModel * viewPos);
 			_renderable->render();
 		});
 	}

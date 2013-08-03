@@ -23,8 +23,8 @@ Quad::Quad(float _mass, float _target)
 //----------------------------------------------------------------------------------------------------------------------
 void Quad::update(float _dt)
 {
-	float force = 10.f;
 	RigidBody * body = mBody->rigidBody();
-	if(body->position().z < mTarget)
-		body->applyImpulse(Vec3f::zAxis() * force * _dt);
+	float kp = 0.8f;
+	float force = kp * (mTarget - body->position().z);
+	body->applyImpulse(Vec3f::zAxis() * force * _dt);
 }
