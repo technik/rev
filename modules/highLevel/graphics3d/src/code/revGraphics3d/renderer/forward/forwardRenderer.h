@@ -13,6 +13,7 @@
 // Forward declarations
 namespace rev { namespace video { 
 	class Driver3d;
+	class Image;
 	class Shader;
 }}
 
@@ -32,6 +33,8 @@ namespace rev { namespace graphics3d {
 		int					mMvpUniform;
 		int					mLightUniform;
 		int					mViewPosUniform;
+		int					mDiffTextUniform;
+		video::Image*		mXorText;
 	};
 
 }	// namespace graphics3d

@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <revMath/algebra/matrix.h>
+#include <revVideo/types/image/image.h>
 
 namespace rev { namespace graphics3d {
 
@@ -31,6 +32,8 @@ namespace rev { namespace graphics3d {
 								uint16_t _nIndices,		///< \param _count how many faces
 								uint16_t * _indices,	///< \param _indices face indices
 								bool _strip = false);	///< \param 
+		void setTexture(const video::Image* _tex) { mTexture = _tex; }
+		const video::Image* texture() const { return mTexture; }
 
 		// Useful factories
 		static Renderable* plane		(const math::Vec2f& _size);
@@ -49,6 +52,8 @@ namespace rev { namespace graphics3d {
 		uint16_t		mNTriIndices;
 		uint16_t*		mTriStrip;
 		uint16_t		mStripLength;
+
+		const video::Image*	mTexture;
 	};
 
 }	// namespace graphics3d

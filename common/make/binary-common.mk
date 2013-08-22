@@ -16,7 +16,7 @@ TEMP_FILES := $(CXX_OBJ)
 # -- Build variables --
 PREPROCESSOR_DEFINITIONS := $(PLATFROM_DEFINITIONS)
 WARNING_FLAGS := -Wall -Werror
-INCLUDE_FLAGS := -I$(CODE_DIR)
+INCLUDE_FLAGS := -I$(CODE_DIR) -I$(INCLUDE_FOLDER)
 CXX_COMPILE_FLAGS := -std=c++0x -fno-access-control -fno-enforce-eh-specs\
  			-fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
 DEBUG_FLAGS := -g

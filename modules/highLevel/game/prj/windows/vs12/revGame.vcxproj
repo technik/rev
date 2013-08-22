@@ -54,6 +54,7 @@
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;REV_ENABLE_LOG;REV_ENABLE_ASSERT;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,6 +70,7 @@
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;REV_ENABLE_LOG;REV_ENABLE_ASSERT;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -214,6 +216,7 @@
     <ClCompile Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\physics\world\physicsWorld.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.cpp" />
+    <ClCompile Include="..\..\..\src\code\revGame\scene\level\doom3Level.cpp" />
     <ClCompile Include="..\..\..\src\code\revGame\scene\object\solidObject.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -417,6 +420,7 @@
     <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\world\physicsWorld.h" />
     <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\scene\level\doom3Level.h" />
     <ClInclude Include="..\..\..\src\code\revGame\scene\object\solidObject.h" />
   </ItemGroup>
   <ItemGroup>

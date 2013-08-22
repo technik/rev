@@ -15,9 +15,12 @@ namespace rev { namespace graphics3d {
 
 	class Renderer {
 	public:
+		Renderer():mMaxRenderables(0){}
 		~Renderer(){}
 
 		virtual void render(const Camera& _pointOfView, const RenderScene& _scene) = 0;
+
+		unsigned mMaxRenderables;
 	};
 
 }	// namespace graphics3d

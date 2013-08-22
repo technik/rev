@@ -18,15 +18,13 @@ namespace rev { namespace game {
 
 	class SolidObject {
 	public:
+		SolidObject(RigidBody* _body, graphics3d::Renderable* _renderable);
 		void refresh();
 
 		RigidBody* rigidBody() { return mRb; }
 
 		static SolidObject* box(float _mass, math::Vec3f& _size);
 		static SolidObject* ball(float _mass, float _radius, unsigned _sections);
-
-	private:
-		SolidObject(RigidBody* _body, graphics3d::Renderable* _renderable);
 
 	private:
 		RigidBody* mRb;

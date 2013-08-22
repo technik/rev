@@ -46,14 +46,14 @@
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
     <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
-    <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(REVSDK_HOME)\modules\midLevel\video\src\lib\windows;$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <OutDir>$(ProjectDir)..\..\..\bin\windows\$(Configuration)\</OutDir>
     <IncludePath>$(REVSDK_HOME)\modules\midLevel\video\src\code;$(REVSDK_HOME)\modules\baseLevel\math\src\code;$(REVSDK_HOME)\modules\baseLevel\platform\src\code;$(REVSDK_HOME)\modules\baseLevel\core\src\code;$(IncludePath)</IncludePath>
-    <LibraryPath>$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(REVSDK_HOME)\modules\midLevel\video\src\lib\windows;$(REVSDK_HOME)\modules\baseLevel\core\bin\windows\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -75,7 +75,8 @@
       <AdditionalDependencies />
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;FreeImage.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(REVSDK_HOME)\modules\midLevel\video\src\lib\windows</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,7 +97,8 @@
       <AdditionalDependencies />
     </Link>
     <Lib>
-      <AdditionalDependencies>OpenGL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib FreeImage.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(REVSDK_HOME)\modules\midLevel\video\src\lib\windows</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -107,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\driver3dOpenGL21.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\driver3d\openGL21\windows\driver3dOpenGL21Windows.cpp" />
+    <ClCompile Include="..\..\..\src\code\revVideo\types\image\image.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.cpp" />
     <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\windows\videoDriverWindows.cpp" />
@@ -119,6 +122,7 @@
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\srfConfig.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\vtxConfig.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\color\color.h" />
+    <ClInclude Include="..\..\..\src\code\revVideo\types\image\image.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\window\videoWindow.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.h" />
     <ClInclude Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.h" />

@@ -13,6 +13,7 @@
 #endif // WIN32
 
 #include <cstdint>
+#include <map>
 
 #include <GL/gl.h>
 #include "glext.h"
@@ -59,6 +60,7 @@ namespace rev { namespace video
 		void		setUniform				(int _id, const math::Vec3f& _value);
 		void		setUniform				(int _id, const math::Mat44f& _value);
 		void		setUniform				(int _id, const Color& _value);
+		void		setUniform				(int _id, const Image* _value);
 
 		// --- Draw ---
 		void		drawIndexBuffer			(int _nIndices, unsigned short * _indices, Driver3d::EPrimitiveType _primitive);
@@ -70,8 +72,12 @@ namespace rev { namespace video
 		void	loadShader					();
 		void	setShader					();
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
+		void	unregisterTexture			(const Image* _image);
+		unsigned registerTexture			(const Image* _image);
 
-		GLuint	mProgram;
+		typedef std::pair<const uint8_t*, unsigned> textureReg;
+		GLuint							mProgram;
+		std::map<const Image*, textureReg>	mTextures;
 
 	private: // Abstract methods
 		virtual void	swapBuffers			() = 0;
@@ -92,6 +98,7 @@ namespace rev { namespace video
 		void	glGetShaderiv				(GLuint _shader, GLenum _paramName, GLint* _params);
 		void	glLinkProgram				(GLuint _program)					{ mLinkProgram(_program);			}
 		void	glShaderSource				(GLuint _shader, GLsizei _count, const GLchar ** _string, const GLint * _length);
+		void	glUniform1i					(GLint _uniform, int _value);
 		void	glUniform1f					(GLint _uniform, float _value);
 		void	glUniform2f					(GLint _uniform, float _f0, float _f1);
 		void	glUniform3f					(GLint _uniform, float _f0, float _f1, float _f2);
@@ -118,6 +125,7 @@ namespace rev { namespace video
 		PFNGLGETSHADERIVPROC				mGetShaderiv;
 		PFNGLLINKPROGRAMPROC				mLinkProgram;
 		PFNGLSHADERSOURCEPROC				mShaderSource;
+		PFNGLUNIFORM1IPROC					mUniform1i;
 		PFNGLUNIFORM1FPROC					mUniform1f;
 		PFNGLUNIFORM2FPROC					mUniform2f;
 		PFNGLUNIFORM3FPROC					mUniform3f;

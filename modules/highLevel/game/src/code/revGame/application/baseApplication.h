@@ -36,7 +36,7 @@ namespace rev { namespace game {
 
 		bool render ();
 
-	private:
+	protected:
 		video::VideoDriver*				mVideoDriver;
 		video::Driver3d*				mDriver3d;
 		rev::graphics3d::Renderer*		mRenderer;

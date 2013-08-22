@@ -20,6 +20,7 @@
 #include <revCore/codeTools/assert/assert.h>
 #include <revPlatform/fileSystem/fileSystem.h>
 #include <revVideo/types/color/color.h>
+#include <revVideo/types/image/image.h>
 
 using namespace rev::math;
 
@@ -51,6 +52,7 @@ namespace rev { namespace video
 		};
 		platform::FileSystem::get()->onFileChanged("test.vtx") += shaderReload;
 		platform::FileSystem::get()->onFileChanged("test.pxl") += shaderReload;
+		//glDisable(GL_CULL_FACE);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -192,6 +194,59 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::unregisterTexture(const Image* _image)
+	{
+		textureReg& reg = mTextures[_image];
+		glDeleteTextures(1, &reg.second);
+		reg = std::make_pair(nullptr, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	unsigned Driver3dOpenGL21::registerTexture(const Image* _image)
+	{
+		// --- Register to openGL
+		unsigned id;
+		// Get an openGL texture ID for this texture
+		glGenTextures(1, &id);
+		// Load the image to the graphic card
+		glBindTexture(GL_TEXTURE_2D, id);
+		// Basic texture configuration
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//store the texture data for OpenGL use
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _image->width(), _image->height(),
+			0, GL_RGBA, GL_UNSIGNED_BYTE, _image->buffer());
+
+		// --- Register to the driver
+		mTextures[_image] = std::make_pair(_image->buffer(), id);
+		return id;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::setUniform(int _uniformId, const Image* _value)
+	{
+		bool isTextRegistered = false;
+		unsigned texId = 0;
+		auto t = mTextures.find(_value);
+		if(t != mTextures.end()) {
+			if(t->second.first != _value->buffer()) {
+				unregisterTexture(_value);
+			} else {
+				isTextRegistered = true;
+				texId = t->second.second;
+			}
+		}
+		if(!isTextRegistered)
+			texId = registerTexture(_value);
+
+		//glActiveTexture(GL_TEXTURE0);
+		glUniform1i(_uniformId, 0);
+		glBindTexture(GL_TEXTURE_2D, texId);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::loadShader()
 	{
 		// Load vertex shader
@@ -260,6 +315,7 @@ namespace rev { namespace video
 		mGetShaderiv				= (PFNGLGETSHADERIVPROC)				loadExtension("glGetShaderiv");
 		mLinkProgram				= (PFNGLLINKPROGRAMPROC)				loadExtension("glLinkProgram");
 		mShaderSource				= (PFNGLSHADERSOURCEPROC)				loadExtension("glShaderSource");
+		mUniform1i					= (PFNGLUNIFORM1IPROC)					loadExtension("glUniform1i");
 		mUniform1f					= (PFNGLUNIFORM1FPROC)					loadExtension("glUniform1f");
 		mUniform2f					= (PFNGLUNIFORM2FPROC)					loadExtension("glUniform2f");
 		mUniform3f					= (PFNGLUNIFORM3FPROC)					loadExtension("glUniform3f");
@@ -331,6 +387,12 @@ namespace rev { namespace video
 			revLog().flush();
 			return true;
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Driver3dOpenGL21::glUniform1i(GLint _uniformId, GLint _value)
+	{
+		mUniform1i(_uniformId, _value);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -17,7 +17,9 @@
 #include <revGame/physics/rigidBody/rigidBody.h>
 #include <revGame/physics/world/physicsWorld.h>
 #include <revGame/scene/camera/flyByCamera.h>
+#include <revGame/scene/level/doom3Level.h>
 #include <revGame/scene/object/solidObject.h>
+#include <revGraphics3d/renderer/renderer.h>
 #include <revInput/keyboard/keyboardInput.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
@@ -38,24 +40,36 @@ public:
 	RoseApp()
 	{
 		video::VideoDriver::getDriver3d()->setClearColor(video::Color(0.f));
+		
+		mLevel = new Doom3Level("d3dm3");
+
 		cam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
 		setCam(&cam->cam());
-		cam->node()->setPos(Vec3f::zAxis());
+		cam->node()->setPos(mLevel->playerStart + Vec3f::zAxis() * 10);
 
 		mWorld = PhysicsWorld::get();
 		mWorld->setGravity(9.81f);
 
-		floor = SolidObject::box(0.f, Vec3f(10000.f, 10000.f, 1.f));
-		floor->rigidBody()->setPosition(Vec3f(0.f, 10.f, -0.5f));
+		// floor = SolidObject::box(0.f, Vec3f(10000.f, 10000.f, 1.f));
+		// floor->rigidBody()->setPosition(Vec3f(0.f, 0.f, -0.5f));
 
-		mQuadcopter = new Quad(0.7f, 2.f);
+		// ball = SolidObject::ball(0.f, 2.f, 10);
+		// ball->rigidBody()->setPosition(Vec3f(4.f, 2.f, 1.f));
+
+		// mQuadcopter = new Quad(0.7f, 2.f);
 	}
 
 	bool update() {
 		cam->update();
 		float deltaTime = Time::get()->frameTime();
 		// --- Gameplay ---
-		mQuadcopter->update(deltaTime);
+		//mQuadcopter->update(deltaTime);
+
+		KeyboardInput* input = KeyboardInput::get();
+		if(input->pressed(KeyboardInput::eP))
+			mRenderer->mMaxRenderables++;
+		if(input->pressed(KeyboardInput::eL) && mRenderer->mMaxRenderables)
+			mRenderer->mMaxRenderables--;
 
 		// ----------------
 		mWorld->update(deltaTime);
@@ -70,8 +84,10 @@ public:
 private:
 	FlyByCamera*	cam;
 	SolidObject*	floor;
+	SolidObject*	ball;
 	Quad*			mQuadcopter;
 	PhysicsWorld*	mWorld;
+	Doom3Level*		mLevel;
 };
 
 int main()

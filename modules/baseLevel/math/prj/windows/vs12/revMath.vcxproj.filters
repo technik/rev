@@ -16,5 +16,6 @@
     <ClInclude Include="..\..\..\src\code\revMath\algebra\quaternion.h">
       <Filter>algebra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revMath\angles.h" />
   </ItemGroup>
 </Project>

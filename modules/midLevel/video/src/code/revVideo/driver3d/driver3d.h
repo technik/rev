@@ -18,6 +18,7 @@ namespace rev { namespace video
 {
 	// Forward declarations
 	class Color;
+	class Image;
 	class SrfConfig;
 	class VtxConfig;
 
@@ -62,6 +63,7 @@ namespace rev { namespace video
 		virtual void		setUniform			(int _id, const math::Vec3f& _value) = 0;
 		virtual void		setUniform			(int _id, const math::Mat44f& _value) = 0;
 		virtual void		setUniform			(int _id, const Color& _value) = 0;
+		virtual void		setUniform			(int _id, const Image* _value) = 0;
 
 		// --- Draw ---
 		virtual void		drawIndexBuffer		(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) = 0;

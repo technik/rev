@@ -32,24 +32,29 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	void FlyByCamera::update()
 	{
+		static float mult = 1.f;
 		// TODO: Move
 		float dt = Time::get()->frameTime();
-	 	KeyboardInput* input = KeyboardInput::get();
+		KeyboardInput* input = KeyboardInput::get();
+		if(input->pressed(KeyboardInput::eV))
+			mult *= 2.f;
 		// Translation
+		const float deltaV = 1.f * mult;
 		Vec3f velocity = Vec3f::zero();
-		if(input->held(KeyboardInput::eD))			velocity.x += 0.5f;
-	 	if(input->held(KeyboardInput::eA))			velocity.x -= 0.5f;
-		if(input->held(KeyboardInput::eW))			velocity.y += 0.5f;
-	 	if(input->held(KeyboardInput::eS))			velocity.y -= 0.5f;
+		if(input->held(KeyboardInput::eD))			velocity.x += deltaV;
+	 	if(input->held(KeyboardInput::eA))			velocity.x -= deltaV;
+		if(input->held(KeyboardInput::eW))			velocity.y += deltaV;
+	 	if(input->held(KeyboardInput::eS))			velocity.y -= deltaV;
 		if(input->held(KeyboardInput::eKeyUp))		
-			velocity.z += 0.5f;
+			velocity.z += deltaV;
 	 	if(input->held(KeyboardInput::eKeyDown))	
-			velocity.z -= 0.5f;
+			velocity.z -= deltaV;
 		mNode->move(velocity * dt);
 		// Rotation
 		float angSpd = 0.f;
-		if(input->held(KeyboardInput::eKeyRight))	angSpd -= 0.03f;
-	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += 0.03f;
+		float deltaG = 0.5f;
+		if(input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
+	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
 		mNode->rotate(Vec3f::zAxis(), angSpd * dt);
 
 		mCam.setView(mNode->transform());

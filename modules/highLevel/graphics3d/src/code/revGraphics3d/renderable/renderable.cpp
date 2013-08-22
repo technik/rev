@@ -26,6 +26,7 @@ namespace rev { namespace graphics3d {
 		,mUVs(nullptr)
 		,mTriStrip(nullptr)
 		,mTriangles(nullptr)
+		,mTexture(nullptr)
 	{
 		// Register in scene
 		RenderScene::get()->add(this);

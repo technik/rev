@@ -1,4 +1,5 @@
 uniform vec3 lightDir;
+uniform sampler2D diffTex;
 // 
 varying vec3 vNormal;
 varying vec2 vUV;
@@ -8,27 +9,37 @@ float snoise(vec2 v);
 
 void main (void)
 {
-	vec3 diffColor = vec3(0.3, 0.3, 0.4);
-	vec3 specColor = vec3(0.6, 0.6, 0.6);
-	
+	vec3 diffColor = texture2D(diffTex, vUV).xyz;
+	vec3 specColor = vec3(0.9, 0.9, 0.8);
+	vec3 ambient = vec3(0.2, 0.2, 0.24);
 	float bump = 0.125;
+	float disp = 1.0;
+	float shininess = 5.2;
+	
+	vec3 finalViewDir = normalize(vViewDir);
 	vec2 uvWrap = vUV * 8;
 	vec2 deltaX = vec2(1.0, 0.0);
 	vec2 deltaY = vec2(0.0, 1.0);
-	float xNoise = snoise(uvWrap+deltaX) - snoise(uvWrap);
-	float yNoise = snoise(uvWrap+deltaY) - snoise(uvWrap);
-	vec3 normal = vNormal + bump*vec3(xNoise, yNoise, 0.0);
+	float pointNoise = snoise(uvWrap);
+	float xNoise = snoise(uvWrap+deltaX) - pointNoise;
+	float yNoise = snoise(uvWrap+deltaY) - pointNoise;
+	vec3 normal = vNormal;// + bump*vec3(xNoise, yNoise, 0.0);
+	
+	// Parallax
+	float finalHeight = disp * pointNoise;
 	
 	vec3 finalLightDir = normalize(lightDir);
 	vec3 finalNormal = normalize(normal);
-	vec3 finalViewDir = -normalize(vViewDir);
-	vec3 halfVector = normalize(finalNormal + finalViewDir);
 	
-	float diffInt = clamp(-dot(finalNormal, finalLightDir ), 0.0, 1.0);
-	float specInt = clamp(-dot(halfVector, finalLightDir), 0.0, 1.0);
-	specInt = specInt * specInt;
+	float diffInt = max(-dot(finalNormal, finalLightDir), 0.0);
+	float specInt = 0.0;
+	if(diffInt > 0) {
+		vec3 halfVector = normalize(finalLightDir + finalViewDir);
+		specInt = max(-dot(halfVector, finalNormal), 0.0);
+		specInt = pow(specInt, shininess);
+	}
 	
-	vec3 color = diffInt*diffColor+specInt*specColor+vec3(0.04, 0.04, 0.10);
+	vec3 color = diffInt*diffColor+ambient*diffColor+specInt*specColor;
 	gl_FragColor = vec4(color, 1.0);
 }
 

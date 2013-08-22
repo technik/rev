@@ -33,3 +33,7 @@
 *.unsuccessfulbuild
 /projects/rose/bin/windows/Debug/rose.exe
 /modules/highLevel/game/src/code/bullet
+/projects/rose/bin/windows/textures
+/projects/rose/bin/windows/*.proc
+/projects/rose/bin/windows/*.zip
+/projects/rose/bin/windows/*.map

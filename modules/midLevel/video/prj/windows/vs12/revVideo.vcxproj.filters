@@ -28,6 +28,9 @@
     <Filter Include="types\window\windows">
       <UniqueIdentifier>{84c38869-f15c-44d7-a93d-00c2ff25a6fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="types\image">
+      <UniqueIdentifier>{f1e0c668-8571-4810-b875-52cdbf169673}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revVideo\videoDriver\videoDriver.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revVideo\types\window\windows\videoWindowWindows.cpp">
       <Filter>types\window\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revVideo\types\image\image.cpp">
+      <Filter>types\image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revVideo\driver3d\srfConfig.h">
       <Filter>driver3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revVideo\types\image\image.h">
+      <Filter>types\image</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
