@@ -34,6 +34,7 @@ namespace rev { namespace graphics3d {
 								bool _strip = false);	///< \param 
 		void setTexture(const video::Image* _tex) { mTexture = _tex; }
 		const video::Image* texture() const { return mTexture; }
+		float boundingRadius() const {return mBoundingRadius;}
 
 		// Useful factories
 		static Renderable* plane		(const math::Vec2f& _size);
@@ -42,6 +43,7 @@ namespace rev { namespace graphics3d {
 
 	public:
 		math::Mat34f	m;
+		bool isVisible;
 
 	private:
 		math::Vec3f*	mVertices;
@@ -52,6 +54,7 @@ namespace rev { namespace graphics3d {
 		uint16_t		mNTriIndices;
 		uint16_t*		mTriStrip;
 		uint16_t		mStripLength;
+		float			mBoundingRadius;
 
 		const video::Image*	mTexture;
 	};

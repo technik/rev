@@ -18,7 +18,8 @@ namespace rev { namespace graphics3d {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Renderable::Renderable()
-		:mNVertices(0)
+		:isVisible(true)
+		,mNVertices(0)
 		,mNTriIndices(0)
 		,mStripLength(0)
 		,mVertices(nullptr)
@@ -28,14 +29,11 @@ namespace rev { namespace graphics3d {
 		,mTriangles(nullptr)
 		,mTexture(nullptr)
 	{
-		// Register in scene
-		RenderScene::get()->add(this);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Renderable::~Renderable()
 	{
-		RenderScene::get()->remove(this);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -65,6 +63,16 @@ namespace rev { namespace graphics3d {
 		mVertices = _vertPos;
 		mNormals = _vertNrm;
 		mUVs = _vertUV;
+
+		// Compute bounding radius
+		mBoundingRadius = 0.f;
+		if(nullptr != mVertices) {
+			for(unsigned i = 0; i < _count; ++i) {
+				float nrm = mVertices[i].norm();
+				if(nrm > mBoundingRadius)
+					mBoundingRadius = nrm;
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

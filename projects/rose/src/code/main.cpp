@@ -59,17 +59,23 @@ public:
 		// mQuadcopter = new Quad(0.7f, 2.f);
 	}
 
+	void renderScene(const rev::graphics3d::Camera* _camera)
+	{
+		mRenderer->render(*_camera, *mLevel);
+	}
+
 	bool update() {
 		cam->update();
 		float deltaTime = Time::get()->frameTime();
 		// --- Gameplay ---
-		//mQuadcopter->update(deltaTime);
 
 		KeyboardInput* input = KeyboardInput::get();
 		if(input->pressed(KeyboardInput::eP))
-			mRenderer->mMaxRenderables++;
-		if(input->pressed(KeyboardInput::eL) && mRenderer->mMaxRenderables)
-			mRenderer->mMaxRenderables--;
+			mLevel->mMaxRenderables++;
+		if(input->pressed(KeyboardInput::eL) && mLevel->mMaxRenderables)
+			mLevel->mMaxRenderables--;
+		//mQuadcopter->update(deltaTime);
+
 
 		// ----------------
 		mWorld->update(deltaTime);

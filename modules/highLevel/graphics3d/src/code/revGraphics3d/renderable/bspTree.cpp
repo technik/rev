@@ -1,26 +1,19 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Graphics 3d module
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
-// On 2013/July/10
+// On 2013/Aug/22
 //----------------------------------------------------------------------------------------------------------------------
-// renderer interface
+// Bsp tree
 
-#ifndef _REV_GRAPHIS3D_RENDERER_RENDERER_H_
-#define _REV_GRAPHIS3D_RENDERER_RENDERER_H_
+#include "bspTree.h"
 
 namespace rev { namespace graphics3d {
 
-	class RenderScene;
-	class Camera;
+	//------------------------------------------------------------------------------------------------------------------
+	void BspTree::reserve(unsigned _nNodes)
+	{
+		mNodes.reserve(_nNodes);
+	}
 
-	class Renderer {
-	public:
-		~Renderer(){}
-
-		virtual void render(const Camera& _pointOfView, const RenderScene& _scene) = 0;
-	};
-
-}	// namespace graphics3d
 }	// namespace rev
-
-#endif // _REV_GRAPHIS3D_RENDERER_RENDERER_H_
+}	// namespace video

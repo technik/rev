@@ -11,14 +11,23 @@
 #include <string>
 #include <vector>
 
+#include <revGraphics3d/renderable/bspTree.h>
 #include <revGraphics3d/renderable/renderable.h>
+#include <revGraphics3d/renderable/renderScene.h>
+#include <functional>
 
 namespace rev { namespace game {
 
-	class Doom3Level {
+	class Doom3Level : public rev::graphics3d::RenderScene {
 	public:
 		Doom3Level(const char* _fileName);
+
+		void	traverse	( std::function<void (const rev::graphics3d::Renderable*)> _fn
+							, std::function<bool (const rev::graphics3d::Renderable*)> _filter) const;
+
 		math::Vec3f playerStart;
+
+		unsigned mMaxRenderables;
 
 	private:
 		class IDToken {
@@ -45,10 +54,13 @@ namespace rev { namespace game {
 		const char* mBuffer;
 		std::string mMapName;
 		std::map<std::string, IDModel*> mModels;
+		std::vector<IDModel*> mAreas;
+		rev::graphics3d::BspTree mAreaTree;
 
 		void parseMapFile();
 		void parseEntity();
 		void parseChunk();
+		void parseBspTreeChunk();
 		void skipChunk();
 		void parseModelChunk();
 		IDToken parseToken();
@@ -57,9 +69,6 @@ namespace rev { namespace game {
 		IDToken parseNumber();
 		IDToken parseString();
 		IDToken parseId();
-		
-		// static bool getFileLine(const char* _fileBuffer, char* _lineBuffer, unsigned& _cursor);
-		// static void parseModelHeader(const char* _lineBuffer, string& _name, unsigned& _nSurfaces);
 	};
 
 }	// namespace game

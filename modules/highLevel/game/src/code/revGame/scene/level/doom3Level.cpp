@@ -79,6 +79,7 @@ namespace rev { namespace game {
 		:mCursor(0)
 		,mOpenBraces(0)
 		,mBuffer(nullptr)
+		,mMaxRenderables(0)
 	{
 		std::string baseName = _fileName;
 		mBuffer = (const char*)(FileSystem::get()->getFileAsBuffer((baseName+ ".proc").c_str()).mBuffer);
@@ -92,6 +93,22 @@ namespace rev { namespace game {
 		mBuffer = (const char*)(FileSystem::get()->getFileAsBuffer((baseName+ ".map").c_str()).mBuffer);
 		if(mBuffer != nullptr) {
 			parseMapFile();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Doom3Level::traverse(std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
+	{
+		unsigned nRendered = 0;
+		for(auto area : mAreas) {
+			if(0 != mMaxRenderables) {
+				if(nRendered == mMaxRenderables)
+					return;
+				else ++nRendered;
+			}
+			for(auto surface : area->mSurfaces)
+				if(_filter(surface))
+					_fn(surface);
 		}
 	}
 
@@ -162,8 +179,39 @@ namespace rev { namespace game {
 		revAssert(nextToken.mType==IDToken::Id);
 		if(!strcmp(nextToken.mData.c, "model")) {
 			parseModelChunk();
-		} else skipChunk();
-		
+		} else if(!strcmp(nextToken.mData.c, "nodes")) {
+			parseBspTreeChunk();
+		}else
+			skipChunk();
+		// Hide models
+		for(auto model : mModels)
+			for(auto surface : model.second->mSurfaces)
+				surface->isVisible = false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Doom3Level::parseBspTreeChunk()
+	{
+		if(readChar('{'))
+		{
+			int nNodes = parseNumber().mData.i;
+			mAreaTree.reserve(nNodes);
+			while(!readChar('}'))
+			{
+				BspTree::Node node;
+				// Read node
+				readChar('(');
+				node.normal.x = parseNumber().asFloat();
+				node.normal.y = parseNumber().asFloat();
+				node.normal.z = parseNumber().asFloat();
+				node.offset = parseNumber().asFloat();
+				readChar(')');
+				node.positiveChildIdx = parseNumber().mData.i;
+				node.negativeChildIdx = parseNumber().mData.i;
+
+				mAreaTree.mNodes.push_back(node);
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -186,6 +234,7 @@ namespace rev { namespace game {
 		{
 			IDModel* model = new IDModel;
 			std::string modelName = parseString().mData.c;
+			bool isAreaModel = !strncmp("_area", modelName.c_str(), 5);
 			int nSurfaces = parseNumber().mData.i;
 			for(int i = 0; i < nSurfaces; ++i)
 			{
@@ -221,7 +270,10 @@ namespace rev { namespace game {
 					model->mSurfaces.push_back(surface);
 				} else assert(false);
 			}
-			mModels[modelName] = model;
+			if(isAreaModel)
+				mAreas.push_back(model);
+			else
+				mModels[modelName] = model;
 			readChar('}');
 		}
 	}

@@ -16,27 +16,28 @@ using namespace rev::math;
 
 namespace rev { namespace graphics3d {
 
-	//------------------------------------------------------------------------------------------------------------------
-	// Static data
 	//----------------------------------------------------------------------------------------------------------------------
-	RenderScene* RenderScene::sInstance = nullptr;
-
-	//----------------------------------------------------------------------------------------------------------------------
-	RenderScene* RenderScene::get()
+	void RenderScene::traverse(std::function<void (const Renderable*)>_fn) const
 	{
-		if(nullptr == sInstance)
-			sInstance = new RenderScene();
-		return sInstance;
+		traverse(_fn, [](const Renderable*){return true;});
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::add(const Renderable* _x)
+	void LinearRenderScene::traverse(std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
+	{
+		for(auto element : mRenderQueue )
+			if(_filter(element))
+				_fn(element);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	void LinearRenderScene::add(const Renderable* _x)
 	{
 		mRenderQueue.push_back(_x);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::remove(const Renderable* _x)
+	void LinearRenderScene::remove(const Renderable* _x)
 	{
 		for(auto element = mRenderQueue.begin(); element != mRenderQueue.end(); ++element)
 		{
@@ -45,13 +46,6 @@ namespace rev { namespace graphics3d {
 				mRenderQueue.erase(element);
 			}
 		}
-	}
-
-	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::traverse(std::function<void (const Renderable*)>_fn) const
-	{
-		for(auto element : mRenderQueue )
-			_fn(element);
 	}
 	
 }	// namespace graphics3d

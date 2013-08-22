@@ -45,6 +45,17 @@ namespace rev { namespace graphics3d {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void ForwardRenderer::sortQueue(const RenderScene& _scene)
+	{
+		mRenderQueue.clear();
+		_scene.traverse([this](const Renderable* _r){
+			RenderDesc desc;
+			desc.texture = _r->texture();
+			mRenderQueue.insert(std::make_pair(desc, _r));
+		});
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const Camera& _pointOfView, const RenderScene& _scene)
 	{
 		static float angle = 0;
@@ -56,25 +67,29 @@ namespace rev { namespace graphics3d {
 		Vec3f viewPos(view[0][3], view[1][3], view[2][3]);
 		mDriver->setZCompare(true);
 		math::Vec3f lightDir(cosf(angle), sinf(angle), -2.f);
-		unsigned nRendered = 0;
-		_scene.traverse([&,this](const Renderable* _renderable)
-		{
-			if(0 != mMaxRenderables) {
-				if(nRendered == mMaxRenderables)
-					return;
-				else ++nRendered;
-			}
+
+		RenderDesc currentDesc;
+		currentDesc.texture = nullptr;
+		mDriver->setUniform(mDiffTextUniform, mXorText);
+		sortQueue(_scene);
+		for(auto entry : mRenderQueue) {
+			const Renderable* renderable = entry.second;
+			if(!renderable->isVisible)
+				continue;
 			Mat34f invModel;
-			_renderable->m.inverse(invModel);
-			mDriver->setUniform(mMvpUniform, viewProj * _renderable->m);
+			renderable->m.inverse(invModel);
+			mDriver->setUniform(mMvpUniform, viewProj * renderable->m);
 			mDriver->setUniform(mLightUniform, invModel.rotate(lightDir));
 			mDriver->setUniform(mViewPosUniform, invModel * viewPos);
-			const Image* texture = _renderable->texture();
-			if(!texture)
-				texture = mXorText;
-			mDriver->setUniform(mDiffTextUniform, texture);
-			_renderable->render();
-		});
+			if(!(entry.first == currentDesc)) {
+				currentDesc = entry.first;
+				const Image* texture = renderable->texture();
+				if(!texture)
+					texture = mXorText;
+				mDriver->setUniform(mDiffTextUniform, texture);
+			}
+			renderable->render();
+		}
 	}
 
 }	// namespace graphics3d

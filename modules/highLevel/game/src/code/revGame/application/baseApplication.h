@@ -33,6 +33,7 @@ namespace rev { namespace game {
 
 	private:
 		virtual bool update() { return true; }
+		virtual void renderScene(const rev::graphics3d::Camera*) {}
 
 		bool render ();
 

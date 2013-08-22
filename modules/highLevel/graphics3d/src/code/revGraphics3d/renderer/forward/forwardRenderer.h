@@ -9,6 +9,7 @@
 #define _REV_GRAPHIS3D_RENDERER_FORWARD_FORWARDRENDERER_H_
 
 #include "../renderer.h"
+#include <map>
 
 // Forward declarations
 namespace rev { namespace video { 
@@ -19,6 +20,8 @@ namespace rev { namespace video {
 
 namespace rev { namespace graphics3d {
 
+	class Renderable;
+
 	class ForwardRenderer : public Renderer{
 	public:
 		ForwardRenderer();
@@ -27,6 +30,8 @@ namespace rev { namespace graphics3d {
 		void render(const Camera& _pointOfView, const RenderScene& _scene);
 
 	private:
+		void sortQueue(const RenderScene& _scene);
+
 		video::Driver3d*	mDriver;
 		
 		video::Shader*		mBasicShader;
@@ -35,6 +40,17 @@ namespace rev { namespace graphics3d {
 		int					mViewPosUniform;
 		int					mDiffTextUniform;
 		video::Image*		mXorText;
+
+		struct RenderDesc {
+			const video::Image* texture;
+			bool operator< (const RenderDesc& _d) const {
+				return texture < _d.texture;
+			}
+			bool operator== (const RenderDesc& _d) const {
+				return texture == _d.texture;
+			}
+		};
+		std::multimap<RenderDesc, const Renderable*>	mRenderQueue;
 	};
 
 }	// namespace graphics3d

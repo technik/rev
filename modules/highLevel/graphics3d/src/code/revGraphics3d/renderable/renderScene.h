@@ -18,18 +18,20 @@ namespace rev { namespace graphics3d {
 	class RenderScene
 	{
 	public:
-		static RenderScene* get	();
+		void			traverse		(std::function<void (const Renderable*)>) const;
+		virtual void	traverse		(std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const = 0;
+	};
+
+
+	class LinearRenderScene
+	{
+	public:
+		void	traverse		(std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const;
 
 		void	add				(const Renderable*);
 		void	remove			(const Renderable*);
 
-		void	traverse		(std::function<void (const Renderable*)>) const;
-
 	private:
-		RenderScene() {}
-
-	private:
-		static RenderScene*				sInstance;
 		std::vector<const Renderable*>	mRenderQueue;
 	};
 

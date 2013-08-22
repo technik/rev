@@ -30,6 +30,9 @@
     <ClInclude Include="..\..\..\src\code\revGraphics3d\camera\camera.h">
       <Filter>camera</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\bspTree.h">
+      <Filter>renderable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\renderable.cpp">
@@ -40,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderer\forward\forwardRenderer.cpp">
       <Filter>renderer\forward</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\bspTree.cpp">
+      <Filter>renderable</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

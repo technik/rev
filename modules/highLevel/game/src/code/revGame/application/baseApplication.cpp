@@ -68,8 +68,9 @@ namespace rev { namespace game {
 		mDriver3d->clearColorBuffer();
 		mDriver3d->clearZBuffer();
 		mDriver3d->setViewport(Vec2i::zero(), Vec2u(640, 480));
-		if(nullptr != mCamera)
-			mRenderer->render(*mCamera, *RenderScene::get());
+		if(nullptr != mCamera) {
+			renderScene(mCamera);
+		}
 		mDriver3d->finishFrame();
 		return mVideoDriver->update();
 	}

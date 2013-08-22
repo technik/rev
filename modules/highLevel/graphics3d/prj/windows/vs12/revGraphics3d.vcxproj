@@ -77,12 +77,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\code\revGraphics3d\camera\camera.h" />
+    <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\bspTree.h" />
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\renderable.h" />
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderable\renderScene.h" />
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderer\forward\forwardRenderer.h" />
     <ClInclude Include="..\..\..\src\code\revGraphics3d\renderer\renderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\bspTree.cpp" />
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\renderable.cpp" />
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderable\renderScene.cpp" />
     <ClCompile Include="..\..\..\src\code\revGraphics3d\renderer\forward\forwardRenderer.cpp" />
