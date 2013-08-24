@@ -97,19 +97,26 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Doom3Level::traverse(std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
+	void Doom3Level::traverse(const math::Vec3f& _camPos, std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
 	{
+		auto apply = [=](const IDModel* _area) {
+			for(auto surface : _area->mSurfaces)
+				if(_filter(surface))
+					_fn(surface);
+		};
+
 		unsigned nRendered = 0;
 		for(auto area : mAreas) {
 			if(0 != mMaxRenderables) {
 				if(nRendered == mMaxRenderables)
-					return;
+					break;
 				else ++nRendered;
 			}
-			for(auto surface : area->mSurfaces)
-				if(_filter(surface))
-					_fn(surface);
+			apply(area);
 		}
+
+		// for(auto model : mModels)
+		// 	apply(model.second);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -184,9 +191,9 @@ namespace rev { namespace game {
 		}else
 			skipChunk();
 		// Hide models
-		for(auto model : mModels)
-			for(auto surface : model.second->mSurfaces)
-				surface->isVisible = false;
+		// for(auto model : mModels)
+		// 	for(auto surface : model.second->mSurfaces)
+		// 		surface->isVisible = false;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -266,7 +273,15 @@ namespace rev { namespace game {
 					surface->m = Mat34f::identity();
 					surface->setVertexData(nVerts, vertices, normals, uvs);
 					surface->setFaceIndices(nIndices, indices);
-					surface->setTexture(Image::loadImage(textureName.c_str()));
+					// Get texture
+					const Image* texture = nullptr;
+					auto texIter = mTextures.find(textureName);
+					if(texIter == mTextures.end()) {
+						texture = Image::loadImage(textureName.c_str());
+						mTextures.insert(std::make_pair(textureName.c_str(), texture));
+					}
+					else texture = texIter->second;
+					surface->setTexture(texture);
 					model->mSurfaces.push_back(surface);
 				} else assert(false);
 			}

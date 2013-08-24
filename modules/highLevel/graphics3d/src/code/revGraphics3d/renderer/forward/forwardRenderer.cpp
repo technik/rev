@@ -45,10 +45,11 @@ namespace rev { namespace graphics3d {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::sortQueue(const RenderScene& _scene)
+	void ForwardRenderer::sortQueue(const Vec3f& _pointOfView, const RenderScene& _scene)
 	{
+//		const float maxDrawDistance = 100.f;
 		mRenderQueue.clear();
-		_scene.traverse([this](const Renderable* _r){
+		_scene.traverse(_pointOfView, [&,this](const Renderable* _r){
 			RenderDesc desc;
 			desc.texture = _r->texture();
 			mRenderQueue.insert(std::make_pair(desc, _r));
@@ -59,19 +60,20 @@ namespace rev { namespace graphics3d {
 	void ForwardRenderer::render(const Camera& _pointOfView, const RenderScene& _scene)
 	{
 		static float angle = 0;
-		const float angSpd = 0.01f;
+		const float angSpd = 0.1f;
 		angle += angSpd * Time::get()->frameTime();
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
 		Mat34f view;
 		_pointOfView.invView().inverse(view);
-		Vec3f viewPos(view[0][3], view[1][3], view[2][3]);
+		if(!mCamLocked)
+			mCamLockPos = view.col(3);
 		mDriver->setZCompare(true);
 		math::Vec3f lightDir(cosf(angle), sinf(angle), -2.f);
 
 		RenderDesc currentDesc;
 		currentDesc.texture = nullptr;
 		mDriver->setUniform(mDiffTextUniform, mXorText);
-		sortQueue(_scene);
+		sortQueue(mCamLockPos, _scene);
 		for(auto entry : mRenderQueue) {
 			const Renderable* renderable = entry.second;
 			if(!renderable->isVisible)
@@ -80,7 +82,7 @@ namespace rev { namespace graphics3d {
 			renderable->m.inverse(invModel);
 			mDriver->setUniform(mMvpUniform, viewProj * renderable->m);
 			mDriver->setUniform(mLightUniform, invModel.rotate(lightDir));
-			mDriver->setUniform(mViewPosUniform, invModel * viewPos);
+			mDriver->setUniform(mViewPosUniform, invModel * mCamLockPos);
 			if(!(entry.first == currentDesc)) {
 				currentDesc = entry.first;
 				const Image* texture = renderable->texture();

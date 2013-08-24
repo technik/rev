@@ -14,6 +14,7 @@
 #include <revGraphics3d/renderable/bspTree.h>
 #include <revGraphics3d/renderable/renderable.h>
 #include <revGraphics3d/renderable/renderScene.h>
+#include <revVideo/types/image/image.h>
 #include <functional>
 
 namespace rev { namespace game {
@@ -22,7 +23,8 @@ namespace rev { namespace game {
 	public:
 		Doom3Level(const char* _fileName);
 
-		void	traverse	( std::function<void (const rev::graphics3d::Renderable*)> _fn
+		void	traverse	(const math::Vec3f& _camPos
+							, std::function<void (const rev::graphics3d::Renderable*)> _fn
 							, std::function<bool (const rev::graphics3d::Renderable*)> _filter) const;
 
 		math::Vec3f playerStart;
@@ -54,8 +56,14 @@ namespace rev { namespace game {
 		const char* mBuffer;
 		std::string mMapName;
 		std::map<std::string, IDModel*> mModels;
+		std::map<std::string, const rev::video::Image*>	mTextures;
 		std::vector<IDModel*> mAreas;
 		rev::graphics3d::BspTree mAreaTree;
+
+		void processNode(const math::Vec3f& _camPos,
+			const rev::graphics3d::BspTree::Node& _node,
+			std::vector<bool>& renderedLeafs
+			,std::function<void (const IDModel* _area)>) const;
 
 		void parseMapFile();
 		void parseEntity();

@@ -20,6 +20,7 @@
 #include <revGame/scene/level/doom3Level.h>
 #include <revGame/scene/object/solidObject.h>
 #include <revGraphics3d/renderer/renderer.h>
+#include <revGraphics3d/renderer/forward/forwardRenderer.h>
 #include <revInput/keyboard/keyboardInput.h>
 #include <revVideo/driver3d/driver3d.h>
 #include <revVideo/types/color/color.h>
@@ -73,7 +74,7 @@ public:
 		if(input->pressed(KeyboardInput::eP))
 			mLevel->mMaxRenderables++;
 		if(input->pressed(KeyboardInput::eL) && mLevel->mMaxRenderables)
-			mLevel->mMaxRenderables--;
+			static_cast<ForwardRenderer*>(mRenderer)->swapLock();
 		//mQuadcopter->update(deltaTime);
 
 

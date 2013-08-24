@@ -17,13 +17,13 @@ using namespace rev::math;
 namespace rev { namespace graphics3d {
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void RenderScene::traverse(std::function<void (const Renderable*)>_fn) const
+	void RenderScene::traverse(const math::Vec3f& _camPos, std::function<void (const Renderable*)>_fn) const
 	{
-		traverse(_fn, [](const Renderable*){return true;});
+		traverse(_camPos, _fn, [](const Renderable*){return true;});
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	void LinearRenderScene::traverse(std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
+	void LinearRenderScene::traverse(const math::Vec3f&, std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
 	{
 		for(auto element : mRenderQueue )
 			if(_filter(element))

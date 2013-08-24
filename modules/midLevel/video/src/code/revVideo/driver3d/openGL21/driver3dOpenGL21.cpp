@@ -53,6 +53,8 @@ namespace rev { namespace video
 		platform::FileSystem::get()->onFileChanged("test.vtx") += shaderReload;
 		platform::FileSystem::get()->onFileChanged("test.pxl") += shaderReload;
 		//glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

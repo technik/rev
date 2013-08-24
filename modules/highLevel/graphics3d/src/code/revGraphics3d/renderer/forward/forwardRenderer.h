@@ -9,6 +9,7 @@
 #define _REV_GRAPHIS3D_RENDERER_FORWARD_FORWARDRENDERER_H_
 
 #include "../renderer.h"
+#include <revMath/algebra/vector.h>
 #include <map>
 
 // Forward declarations
@@ -28,9 +29,10 @@ namespace rev { namespace graphics3d {
 		~ForwardRenderer(){}
 
 		void render(const Camera& _pointOfView, const RenderScene& _scene);
+		void swapLock() { mCamLocked = !mCamLocked;}
 
 	private:
-		void sortQueue(const RenderScene& _scene);
+		void sortQueue(const math::Vec3f& _pointOfView, const RenderScene& _scene);
 
 		video::Driver3d*	mDriver;
 		
@@ -40,6 +42,9 @@ namespace rev { namespace graphics3d {
 		int					mViewPosUniform;
 		int					mDiffTextUniform;
 		video::Image*		mXorText;
+
+		bool				mCamLocked;
+		math::Vec3f			mCamLockPos;
 
 		struct RenderDesc {
 			const video::Image* texture;

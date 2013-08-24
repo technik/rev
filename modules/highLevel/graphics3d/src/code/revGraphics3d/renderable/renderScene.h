@@ -18,15 +18,15 @@ namespace rev { namespace graphics3d {
 	class RenderScene
 	{
 	public:
-		void			traverse		(std::function<void (const Renderable*)>) const;
-		virtual void	traverse		(std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const = 0;
+		void			traverse		(const math::Vec3f& _camPos, std::function<void (const Renderable*)>) const;
+		virtual void	traverse		(const math::Vec3f& _camPos, std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const = 0;
 	};
 
 
 	class LinearRenderScene
 	{
 	public:
-		void	traverse		(std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const;
+		void	traverse		(const math::Vec3f&, std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const;
 
 		void	add				(const Renderable*);
 		void	remove			(const Renderable*);

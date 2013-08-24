@@ -29,6 +29,7 @@ namespace rev { namespace math {
 
 		Vector3<Number_>&		operator[]	(unsigned _row)			{ return mRow[_row]; }
 		const Vector3<Number_>&	operator[]	(unsigned _row) const	{ return mRow[_row]; }
+		Vector3<Number_>		col			(unsigned _col) const	{ return Vector3<Number_>(mRow[0][_col],mRow[1][_col],mRow[1][_col]);}
 
 	private:
 		Vector3<Number_>	mRow[3];
@@ -46,6 +47,7 @@ namespace rev { namespace math {
 
 		Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
 		const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
+		Vector3<Number_>		col			(unsigned _col) const	{ return Vector3<Number_>(m[0][_col],m[1][_col],m[1][_col]);}
 
 		// Operations
 		Vector3<Number_>	operator*	(const Vector3<Number_>&) const;

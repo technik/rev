@@ -65,13 +65,15 @@ namespace rev { namespace graphics3d {
 		mUVs = _vertUV;
 
 		// Compute bounding radius
+		mBoundingSqRadius = 0.f;
 		mBoundingRadius = 0.f;
 		if(nullptr != mVertices) {
 			for(unsigned i = 0; i < _count; ++i) {
-				float nrm = mVertices[i].norm();
-				if(nrm > mBoundingRadius)
-					mBoundingRadius = nrm;
+				float nrm = mVertices[i].sqNorm();
+				if(nrm > mBoundingSqRadius)
+					mBoundingSqRadius = nrm;
 			}
+			mBoundingRadius = sqrt(mBoundingSqRadius);
 		}
 	}
 
