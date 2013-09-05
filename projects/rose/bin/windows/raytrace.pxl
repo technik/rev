@@ -1,47 +1,12 @@
-uniform vec3 lightDir;
-uniform sampler2D diffTex;
-// 
-varying vec3 vNormal;
-varying vec2 vUV;
-varying vec3 vViewDir;
+// Raytrace pxl shader
+
+varying vec2 screenPos;
 
 float snoise(vec2 v);
 
 void main (void)
 {
-	vec3 diffColor = texture2D(diffTex, vUV).xyz;
-	float alpha = texture2D(diffTex, vUV).a;
-	vec3 specColor = vec3(0.9, 0.9, 0.8);
-	vec3 ambient = vec3(0.2, 0.2, 0.24);
-	float bump = 0.125;
-	float disp = 1.0;
-	float shininess = 5.2;
-	
-	vec3 finalViewDir = normalize(vViewDir);
-	vec2 uvWrap = vUV * 8;
-	vec2 deltaX = vec2(1.0, 0.0);
-	vec2 deltaY = vec2(0.0, 1.0);
-	float pointNoise = snoise(uvWrap);
-	float xNoise = snoise(uvWrap+deltaX) - pointNoise;
-	float yNoise = snoise(uvWrap+deltaY) - pointNoise;
-	vec3 normal = vNormal;// + bump*vec3(xNoise, yNoise, 0.0);
-	
-	// Parallax
-	float finalHeight = disp * pointNoise;
-	
-	vec3 finalLightDir = normalize(lightDir);
-	vec3 finalNormal = normalize(normal);
-	
-	float diffInt = max(-dot(finalNormal, finalLightDir), 0.0);
-	float specInt = 0.0;
-	if(diffInt > 0) {
-		vec3 halfVector = normalize(finalLightDir + finalViewDir);
-		specInt = max(-dot(halfVector, finalNormal), 0.0);
-		specInt = pow(specInt, shininess);
-	}
-	
-	vec3 color = diffInt*diffColor+ambient*diffColor;//+specInt*specColor;
-	gl_FragColor = vec4(color, alpha);
+	gl_FragColor = vec4(vec3(0.5)+0.5*screenPos.xyy, 0.5+0.5*snoise(10*screenPos.xy));
 }
 
 vec3 mod289(vec3 x) {

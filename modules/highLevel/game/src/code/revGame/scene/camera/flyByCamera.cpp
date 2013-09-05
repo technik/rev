@@ -38,6 +38,8 @@ namespace rev { namespace game {
 		KeyboardInput* input = KeyboardInput::get();
 		if(input->pressed(KeyboardInput::eV))
 			mult *= 2.f;
+		if(input->pressed(KeyboardInput::eB))
+			mult *= 0.5f;
 		// Translation
 		const float deltaV = 1.f * mult;
 		Vec3f velocity = Vec3f::zero();
@@ -52,7 +54,7 @@ namespace rev { namespace game {
 		mNode->move(velocity * dt);
 		// Rotation
 		float angSpd = 0.f;
-		float deltaG = 0.5f;
+		float deltaG = 0.8f;
 		if(input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
 	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
 		mNode->rotate(Vec3f::zAxis(), angSpd * dt);

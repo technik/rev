@@ -43,15 +43,17 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::init()
 	{
-		loadShader();
-		setShader();
-		auto shaderReload = [this](const char*){
+		const char vtxShader[] = "test.vtx";
+		const char pxlShader[] = "test.pxl";
+		mProgram = loadShader(vtxShader, pxlShader);
+		setShader(mProgram);
+		auto shaderReload = [&,this](const char*){
 			glDeleteProgram(mProgram);
-			loadShader();
-			setShader();
+			mProgram = loadShader(vtxShader, pxlShader);
+			setShader(mProgram);
 		};
-		platform::FileSystem::get()->onFileChanged("test.vtx") += shaderReload;
-		platform::FileSystem::get()->onFileChanged("test.pxl") += shaderReload;
+		platform::FileSystem::get()->onFileChanged(vtxShader) += shaderReload;
+		platform::FileSystem::get()->onFileChanged(pxlShader) += shaderReload;
 		//glDisable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -249,52 +251,54 @@ namespace rev { namespace video
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Driver3dOpenGL21::loadShader()
+	unsigned Driver3dOpenGL21::loadShader(const char* _vtx, const char* _pxl)
 	{
 		// Load vertex shader
 		unsigned vtxShaderId = glCreateShader(GL_VERTEX_SHADER);
 		const char * vtxCode[1];
-		vtxCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer("test.vtx").mBuffer;
+		vtxCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer(_vtx).mBuffer;
 		revAssert(nullptr != vtxCode[0], "Error: Couldn't open shader file");
 		glShaderSource(vtxShaderId, 1, vtxCode, 0); // Attach source
 		glCompileShader(vtxShaderId); // Compile
 		if(detectShaderError(vtxShaderId, "test.vtx")) {
 			glDeleteShader(vtxShaderId);
-			return;
+			return 0;
 		}
 		
 		// Load pixel shader
 		unsigned pxlShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 		const char * pxlCode[1];
-		pxlCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer("test.pxl").mBuffer;
+		pxlCode[0] = (const char*)platform::FileSystem::get()->getFileAsBuffer(_pxl).mBuffer;
 		revAssert(nullptr != pxlCode[0], "Error: Couldn't open shader file");
 		glShaderSource(pxlShaderId, 1, pxlCode, 0); // Attach source
 		glCompileShader(pxlShaderId); // Compile
 		if(detectShaderError(pxlShaderId, "test.pxl")) {
 			glDeleteShader(pxlShaderId);
-			return;
+			return 0;
 		}
 
 		// Create an OpenGL program and attach the shaders
-		mProgram = glCreateProgram();
-		glAttachShader(mProgram, vtxShaderId);
-		glAttachShader(mProgram, pxlShaderId);
+		unsigned program = glCreateProgram();
+		glAttachShader(program, vtxShaderId);
+		glAttachShader(program, pxlShaderId);
 		// Bind attributes
-		glBindAttribLocation(mProgram, 0, "vertex");
-		glBindAttribLocation(mProgram, 1, "normal");
-		glBindAttribLocation(mProgram, 2, "uv");
+		glBindAttribLocation(program, 0, "vertex");
+		glBindAttribLocation(program, 1, "normal");
+		glBindAttribLocation(program, 2, "uv");
 
-		glLinkProgram(mProgram);
+		glLinkProgram(program);
 
 		glDeleteShader(vtxShaderId);
 		glDeleteShader(pxlShaderId);
+
+		return program;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Driver3dOpenGL21::setShader()
+	void Driver3dOpenGL21::setShader(unsigned _program)
 	{
 		// Set active attributes
-		glUseProgram(mProgram);
+		glUseProgram(_program);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);

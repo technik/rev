@@ -52,6 +52,7 @@ namespace rev { namespace game {
 	void BaseApplication::run()
 	{
 		for(;;) {
+			Time::get()->update();
 			KeyboardInput::get()->refresh();
 			if(!OSHandler::get()->update())
 				return;

@@ -78,6 +78,7 @@ namespace rev { namespace math {
 
 		// Useful matrices
 		static Matrix4x4		frustrum	(Number_ _fovRad, Number_ _aspectRatio, Number_ _nearClip, Number_ _farClip);
+		static Matrix4x4		ortho		(const Vector3<Number_>& _volumeDimensions);
 		static Matrix4x4		identity	();
 
 	private:
@@ -278,6 +279,24 @@ namespace rev { namespace math {
 		f.m[3][3] = NumericTraits<Number_>::zero();
 
 		return f;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<typename Number_>
+	inline Matrix4x4<Number_> Matrix4x4<Number_>::ortho(const Vector3<Number_>& _volumeDimensions)
+	{
+		Matrix4x4 mtx;
+		for(unsigned int row = 0; row < 4; ++row)
+		{
+			for(unsigned int column = 0; column < 4; ++column)
+			{
+				if(column == row)
+					mtx.m[row][column] = row>3?NumericTraits<Number_>::one():2*NumericTraits<Number_>::one()/_volumeDimensions[row];
+				else
+					mtx.m[row][column] = NumericTraits<Number_>::zero();
+			}
+		}
+		return mtx;
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------

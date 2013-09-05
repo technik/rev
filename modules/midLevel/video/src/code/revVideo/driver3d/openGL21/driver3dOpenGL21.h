@@ -31,6 +31,8 @@ namespace rev { namespace video
 		virtual ~Driver3dOpenGL21() {} // Virtual destructor
 
 		void init();
+		unsigned	loadShader					(const char* _vtx, const char* _pxl);
+		void	setShader					(unsigned _program);
 
 		// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 		void		setViewport				(const math::Vec2i& position, const math::Vec2u& size);
@@ -69,8 +71,6 @@ namespace rev { namespace video
 		void	loadOpenGLExtensions		();
 
 	private:
-		void	loadShader					();
-		void	setShader					();
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
 		void	unregisterTexture			(const Image* _image);
 		unsigned registerTexture			(const Image* _image);

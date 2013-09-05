@@ -22,7 +22,9 @@
 #include <revGraphics3d/renderer/renderer.h>
 #include <revGraphics3d/renderer/forward/forwardRenderer.h>
 #include <revInput/keyboard/keyboardInput.h>
+#include <revPlatform/fileSystem/fileSystem.h>
 #include <revVideo/driver3d/driver3d.h>
+#include <revVideo/driver3d/openGL21/driver3dOpenGL21.h>
 #include <revVideo/types/color/color.h>
 #include <revVideo/videoDriver/videoDriver.h>
 
@@ -31,6 +33,7 @@ using namespace rev::math;
 using namespace rev::game;
 using namespace rev::graphics3d;
 using namespace rev::input;
+using namespace rev::platform;
 
 using rose::component::Avr8bit;
 using namespace std;
@@ -38,45 +41,72 @@ using namespace std;
 class RoseApp : public BaseApplication
 {
 public:
-	RoseApp()
+	RoseApp(int _argc, const char** _argv)
+		:mCam(nullptr)
+		,mLevel(nullptr)
 	{
 		video::VideoDriver::getDriver3d()->setClearColor(video::Color(0.f));
-		
-		mLevel = new Doom3Level("d3dm3");
+		processArguments(_argc, _argv);
+		if(!mMapName.empty()) {
+		// --- Doom level loading ---
+		mLevel = new Doom3Level(mMapName.c_str());
 
-		cam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
-		setCam(&cam->cam());
-		cam->node()->setPos(mLevel->playerStart + Vec3f::zAxis() * 10);
+		mCam = new game::FlyByCamera(1.0f, 1.333f, 0.125f, 10000.f);
+		setCam(&mCam->cam());
+		mCam->node()->setPos(mLevel->playerStart + Vec3f::zAxis() * 10);
 
 		mWorld = PhysicsWorld::get();
 		mWorld->setGravity(9.81f);
+		}
+		else { // Raytracing
+			Vec3f volume(600.f, 100.f, 800.f);
+			mRayCam = new graphics3d::Camera(Mat44f::ortho(volume));
+			setCam(mRayCam); // Hack, not necessary for transform, but renderer will skip if no camera registered
+			mRayCanvas = graphics3d::Renderable::plane(Vec2f(2.f, 2.f));
+			mRayCanvas->m = Mat34f::identity();
 
-		// floor = SolidObject::box(0.f, Vec3f(10000.f, 10000.f, 1.f));
-		// floor->rigidBody()->setPosition(Vec3f(0.f, 0.f, -0.5f));
+			auto loadRaytraceShader = [](const char*) {
+				video::Driver3dOpenGL21* glDriver = static_cast<video::Driver3dOpenGL21*>(video::VideoDriver::getDriver3d());
+				unsigned program = glDriver->loadShader("raytrace.vtx", "raytrace.pxl");
+				glDriver->setShader(program);
+			};
+			loadRaytraceShader(nullptr);
+			platform::FileSystem::get()->onFileChanged("raytrace.vtx") += loadRaytraceShader;
+			platform::FileSystem::get()->onFileChanged("raytrace.pxl") += loadRaytraceShader;
+		}
+	}
 
-		// ball = SolidObject::ball(0.f, 2.f, 10);
-		// ball->rigidBody()->setPosition(Vec3f(4.f, 2.f, 1.f));
-
-		// mQuadcopter = new Quad(0.7f, 2.f);
+	void processArguments(int _argc, const char** _argv){
+		for(auto i = 0; i < _argc; ++i){
+			if(!strncmp(_argv[i], "--map", 5)) {
+				mMapName = _argv[++i];
+				continue;
+			}
+		}
 	}
 
 	void renderScene(const rev::graphics3d::Camera* _camera)
 	{
-		mRenderer->render(*_camera, *mLevel);
+		if(mLevel)
+			mRenderer->render(*_camera, *mLevel);
+		else {
+			// --- Render raytraced scene ---
+			mRayCanvas->render();
+		}
 	}
 
 	bool update() {
-		cam->update();
+		if(!mLevel)
+			return true;
+		mCam->update();
 		float deltaTime = Time::get()->frameTime();
 		// --- Gameplay ---
 
 		KeyboardInput* input = KeyboardInput::get();
 		if(input->pressed(KeyboardInput::eP))
-			mLevel->mMaxRenderables++;
-		if(input->pressed(KeyboardInput::eL) && mLevel->mMaxRenderables)
+			mLevel->mFilterBsp = !mLevel->mFilterBsp;
+		if(input->pressed(KeyboardInput::eL))
 			static_cast<ForwardRenderer*>(mRenderer)->swapLock();
-		//mQuadcopter->update(deltaTime);
-
 
 		// ----------------
 		mWorld->update(deltaTime);
@@ -85,25 +115,31 @@ public:
 
 	~RoseApp()
 	{
-		delete cam;
+		if(mCam) delete mCam;
 	}
 
 private:
-	FlyByCamera*	cam;
+	// Doom
+	FlyByCamera*	mCam;
 	SolidObject*	floor;
 	SolidObject*	ball;
 	Quad*			mQuadcopter;
 	PhysicsWorld*	mWorld;
 	Doom3Level*		mLevel;
+	std::string		mMapName;
+
+	// Raytrace
+	graphics3d::Camera*	mRayCam;
+	graphics3d::Renderable* mRayCanvas;
 };
 
-int main()
+int main(int _argc, const char** _argv)
 {
 	// System initialization
 	codeTools::Log::init();
 	revLog() << "Rose: Robotic Simulation Environment\n";
 
-	RoseApp app;
+	RoseApp app(_argc, _argv);
 	app.run();
 
 	// House keeping

@@ -24,6 +24,7 @@ namespace rev { namespace graphics3d {
 	//------------------------------------------------------------------------------------------------------------------
 	ForwardRenderer::ForwardRenderer()
 		:mDriver(video::VideoDriver::getDriver3d())
+		,mCamLocked(false)
 	{
 		// Shader
 		mMvpUniform = mDriver->getUniformLocation("mvp");
@@ -65,8 +66,9 @@ namespace rev { namespace graphics3d {
 		Mat44f viewProj = _pointOfView.viewProjMatrix();
 		Mat34f view;
 		_pointOfView.invView().inverse(view);
+		Vec3f viewPos = view.col(3);
 		if(!mCamLocked)
-			mCamLockPos = view.col(3);
+			mCamLockPos = viewPos;
 		mDriver->setZCompare(true);
 		math::Vec3f lightDir(cosf(angle), sinf(angle), -2.f);
 
@@ -82,7 +84,7 @@ namespace rev { namespace graphics3d {
 			renderable->m.inverse(invModel);
 			mDriver->setUniform(mMvpUniform, viewProj * renderable->m);
 			mDriver->setUniform(mLightUniform, invModel.rotate(lightDir));
-			mDriver->setUniform(mViewPosUniform, invModel * mCamLockPos);
+			mDriver->setUniform(mViewPosUniform, invModel * viewPos);
 			if(!(entry.first == currentDesc)) {
 				currentDesc = entry.first;
 				const Image* texture = renderable->texture();

@@ -28,8 +28,7 @@ namespace rev { namespace game {
 							, std::function<bool (const rev::graphics3d::Renderable*)> _filter) const;
 
 		math::Vec3f playerStart;
-
-		unsigned mMaxRenderables;
+		bool mFilterBsp;
 
 	private:
 		class IDToken {
@@ -58,12 +57,12 @@ namespace rev { namespace game {
 		std::map<std::string, IDModel*> mModels;
 		std::map<std::string, const rev::video::Image*>	mTextures;
 		std::vector<IDModel*> mAreas;
+		mutable std::vector<bool> mAreasRendered;
 		rev::graphics3d::BspTree mAreaTree;
-
-		void processNode(const math::Vec3f& _camPos,
-			const rev::graphics3d::BspTree::Node& _node,
-			std::vector<bool>& renderedLeafs
-			,std::function<void (const IDModel* _area)>) const;
+		int pointInArea(const math::Vec3f& _point) const; // Returns the number of the area where the point is (-1 if no area contains the point)
+		void traverseBspTree(const math::Vec3f& _camPos, std::function<void (const rev::graphics3d::Renderable*)> _fn
+							,std::function<bool (const rev::graphics3d::Renderable*)> _filter) const;
+		void traverseNode	(const math::Vec3f& _camPos, unsigned _nodeIdx, std::function<void (const rev::graphics3d::Renderable*)> _fn) const;
 
 		void parseMapFile();
 		void parseEntity();

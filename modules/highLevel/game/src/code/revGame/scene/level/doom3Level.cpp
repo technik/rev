@@ -79,12 +79,12 @@ namespace rev { namespace game {
 		:mCursor(0)
 		,mOpenBraces(0)
 		,mBuffer(nullptr)
-		,mMaxRenderables(0)
+		,mFilterBsp(false)
 	{
 		std::string baseName = _fileName;
 		mBuffer = (const char*)(FileSystem::get()->getFileAsBuffer((baseName+ ".proc").c_str()).mBuffer);
 		if(mBuffer != nullptr) {
-			mMapName = std::string(parseId().mData.c);	// Read map name
+			mMapName = std::string(parseId().mData.c);	// Read map name (TODO: This is not really the name of the map. it is a magic constant)
 			while('\0' != mBuffer[mCursor])
 				parseChunk();
 		}
@@ -97,6 +97,74 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	int Doom3Level::pointInArea(const math::Vec3f& _point) const
+	{
+		if(mAreaTree.mNodes.empty())
+			return -1;
+		const BspTree::Node* node = &mAreaTree.mNodes[0];
+		int			nodeNum;
+
+		while( 1 ) {
+			float d = _point * node->normal + node->offset;
+			if (d > 0) {
+				nodeNum = node->positiveChildIdx;
+			} else {
+				nodeNum = node->negativeChildIdx;
+			}
+			if ( nodeNum == 0 ) {
+				return -1;		// in solid
+			}
+			if ( nodeNum < 0 ) {
+				nodeNum = -1 - nodeNum;
+				if ( nodeNum >= mAreas.size() ) {
+					revAssert(false, "idRenderWorld::PointInArea: area out of range");
+				}
+				return nodeNum;
+			}
+			node = &mAreaTree.mNodes[nodeNum];
+		}
+
+		return -1;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Doom3Level::traverseBspTree(const math::Vec3f& _camPos, std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
+	{
+		auto applyFn = [=](const Renderable* _r) { if(_filter(_r)) _fn(_r); };
+		mAreasRendered.clear();
+		mAreasRendered.resize(mAreas.size(), false);
+
+		int areaId = pointInArea(_camPos);
+		if(-1 !=  areaId) {
+			IDModel * area = mAreas[areaId];
+			for(auto s : area->mSurfaces)
+				applyFn(s);
+		}
+		// traverseNode(_camPos, 0, applyFn);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Doom3Level::traverseNode(const math::Vec3f& _camPos, unsigned _nodeIdx, std::function<void (const Renderable*)> _fn) const
+	{
+		const BspTree::Node& node = mAreaTree.mNodes[_nodeIdx];
+
+		//float camProj = _camPos * node.normal;
+		bool posSide = _camPos * node.normal - node.offset < 0.f;
+		int child = posSide?node.positiveChildIdx:node.negativeChildIdx;
+
+		if(child > 0)
+			traverseNode(_camPos, child, _fn);
+		else if (child < 0) {
+			unsigned areaId = unsigned(-1 -child);
+			if(!mAreasRendered[areaId]) {
+				for(auto surface : mAreas[areaId]->mSurfaces)
+					_fn(surface);
+				mAreasRendered[areaId] = true;
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Doom3Level::traverse(const math::Vec3f& _camPos, std::function<void (const Renderable*)> _fn, std::function<bool (const Renderable*)> _filter) const
 	{
 		auto apply = [=](const IDModel* _area) {
@@ -105,16 +173,11 @@ namespace rev { namespace game {
 					_fn(surface);
 		};
 
-		unsigned nRendered = 0;
-		for(auto area : mAreas) {
-			if(0 != mMaxRenderables) {
-				if(nRendered == mMaxRenderables)
-					break;
-				else ++nRendered;
-			}
-			apply(area);
-		}
-
+		if(mFilterBsp)
+			traverseBspTree(_camPos, _fn, _filter);
+		else
+			for(auto area : mAreas)
+				apply(area);
 		// for(auto model : mModels)
 		// 	apply(model.second);
 	}
