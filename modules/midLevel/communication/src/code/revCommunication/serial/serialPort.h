@@ -32,7 +32,7 @@ namespace rev { namespace comm
 		unsigned	write(const void * srcBuffer, unsigned nBytes); // Returns the amount of bytes written
 		void		write(uint8_t); // Writes a single byte
 		unsigned	read (void * dstBuffer, unsigned nBytes); // Returns the amount of bytes read
-		uint8_t			read (); // Reads one byte
+		uint8_t		read (); // Reads one byte
 
 		bool		isReady () const;
 
