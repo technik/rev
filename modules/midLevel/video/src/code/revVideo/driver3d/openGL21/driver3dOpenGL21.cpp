@@ -7,10 +7,10 @@
 
 #include "driver3dOpenGL21.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #include <gl/GL.h>
-#endif // WIN32
+#endif //_ WIN32
 #ifdef __linux__
 #include <GL/glx.h>º
 #endif // __linux__
@@ -26,9 +26,10 @@ using namespace rev::math;
 
 // loadExtension must be a macro in order to allow extensions to be loaded from the constructor. If it was a virtual function,
 // you would not be able to call it during construction, and it would require extra complexity to get this system work properly.
-#ifdef WIN32
+// 777 TODO: Implement using templates
+#ifdef _WIN32
 #define loadExtension( a ) wglGetProcAddress( a )
-#endif // WIN32
+#endif // _WIN32
 #ifdef __linux__
 #define loadExtension( a ) glXGetProcAddress( (GLubyte*)a )
 #endif // __linux__

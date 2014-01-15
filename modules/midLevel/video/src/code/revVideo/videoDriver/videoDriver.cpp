@@ -40,9 +40,8 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void VideoDriver::createMainWindow()
 	{
-		// Create a window
-		if(nullptr == mMainWindow)
-			mMainWindow = createWindow(math::Vec2i(50, 50), math::Vec2u(640, 480));
+		assert(!mMainWindow);
+		mMainWindow = createWindow(math::Vec2i(50, 50), math::Vec2u(640, 480));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -61,10 +60,8 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void VideoDriver::init3d()
 	{
-		// Create a 3d driver
-		if(nullptr == mDriver3d) {
-			mDriver3d = createDriver3d();
-		}
+		assert(!mDriver3d);
+		mDriver3d = createDriver3d();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

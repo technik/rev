@@ -28,7 +28,7 @@ namespace rev { namespace video
 
 	private:
 		HWND	mWindowHandle;
-		HDC		mDrawCtxHandle;
+		HDC		mDevCtxHandle;
 	};
 
 }	// namespace video

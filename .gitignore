@@ -37,3 +37,5 @@
 /projects/rose/bin/windows/*.proc
 /projects/rose/bin/windows/*.zip
 /projects/rose/bin/windows/*.map
+*.ilk
+*.exe

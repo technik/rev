@@ -31,7 +31,6 @@ namespace rev { namespace video
 		Window * window = mainWindow();
 		revAssert(nullptr != window, "Error: Trying to create 3d Driver without window");
 		Driver3dOpenGL21Windows* driver3d = new Driver3dOpenGL21Windows(window);
-		driver3d->init();
 		return driver3d;
 	}
 

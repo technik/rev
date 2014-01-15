@@ -44,11 +44,11 @@ namespace rev { namespace video
 		};
 	
 		// -- Some Windows-OpenGL configuration --
-		mDrawCtxHandle = GetDC(mWindowHandle); // Drawing context
-		GLuint pixelFormat = ChoosePixelFormat(mDrawCtxHandle,&pfd);
-		SetPixelFormat(mDrawCtxHandle,pixelFormat,&pfd);
-		HGLRC renderCtxHandle=wglCreateContext(mDrawCtxHandle);
-		wglMakeCurrent(mDrawCtxHandle,renderCtxHandle);
+		mDevCtxHandle = GetDC(mWindowHandle); // Device context
+		GLuint pixelFormat = ChoosePixelFormat(mDevCtxHandle,&pfd);
+		SetPixelFormat(mDevCtxHandle,pixelFormat,&pfd);
+		HGLRC renderCtxHandle=wglCreateContext(mDevCtxHandle);
+		wglMakeCurrent(mDevCtxHandle,renderCtxHandle);
 	
 		// Note extensions can only be loaded after OpenGL context has been created
 		loadOpenGLExtensions();
@@ -57,7 +57,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21Windows::swapBuffers()
 	{
-		SwapBuffers(mDrawCtxHandle);
+		SwapBuffers(mDevCtxHandle);
 	}
 
 }	// namespace video

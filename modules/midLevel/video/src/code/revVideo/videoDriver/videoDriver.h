@@ -8,6 +8,7 @@
 #ifndef _REV_VIDEO_VIDEODRIVER_VIDEODRIVER_H_
 #define _REV_VIDEO_VIDEODRIVER_VIDEODRIVER_H_
 
+#include <cassert>
 #include <revCore/codeTools/usefulMacros.h>
 #include <revMath/algebra/vector.h>
 
@@ -25,12 +26,12 @@ namespace rev { namespace video
 		static void				startUp			();
 		static void				shutDown		();
 		static VideoDriver*		get				();
+
 		static Driver3d*		getDriver3d		();
 
 		// --- Actual video driver interface ---
 		// Window creation and destruction
 		virtual	bool			update			(); // Return false means application must exit
-				void			createMainWindow();
 				void			init3d			();
 				Driver3d*		driver3d		();
 				Window*			mainWindow		();
@@ -42,6 +43,7 @@ namespace rev { namespace video
 		virtual ~VideoDriver();
 
 	private:
+		void				createMainWindow();
 		virtual Driver3d*	createDriver3d	() = 0;
 		virtual Window*		createWindow	(const math::Vec2i& position, const math::Vec2u& resolution) = 0;
 
@@ -59,6 +61,7 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	inline void VideoDriver::shutDown()
 	{
+		assert(sInstance);
 		delete sInstance;
 		sInstance = 0;
 	}
@@ -66,12 +69,14 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	inline VideoDriver * VideoDriver::get()
 	{
+		assert(sInstance);
 		return sInstance;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	inline Driver3d * VideoDriver::getDriver3d()
 	{
+		assert(get()->mDriver3d);
 		return get()->driver3d();
 	}
 
@@ -84,6 +89,8 @@ namespace rev { namespace video
 	//------------------------------------------------------------------------------------------------------------------
 	inline Window * VideoDriver::mainWindow()
 	{
+		if(!mMainWindow)
+			createMainWindow();
 		return mMainWindow;
 	}
 

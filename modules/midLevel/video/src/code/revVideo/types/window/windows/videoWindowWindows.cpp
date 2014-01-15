@@ -24,7 +24,7 @@ namespace rev { namespace video
 
 		// Create a windown through the windows API
 		mWinapiHandle = CreateWindowA("RevWindowClass",	// Class name, registered by the video driver
-		"",											// Window name (currently unsupported
+		"WindowName",											// Window name (currently unsupported
 		WS_CAPTION | WS_POPUP | WS_VISIBLE,			// Creation options
 		_pos.x,						// X Position
 		_pos.y,						// Y Position

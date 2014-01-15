@@ -8,9 +8,9 @@
 #ifndef _REV_VIDEO_3DDRIVER_OPENGL21_3DDRIVEROPENGL21_H_
 #define _REV_VIDEO_3DDRIVER_OPENGL21_3DDRIVEROPENGL21_H_
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
-#endif // WIN32
+#endif // _WIN32
 
 #include <cstdint>
 #include <map>
