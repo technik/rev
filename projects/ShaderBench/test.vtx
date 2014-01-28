@@ -1,20 +1,8 @@
-void main() {
-	attribute vec3 vertex;
-	attribute vec3 normal;
-	attribute vec2 uv;
+attribute vec3 vertex;
+varying vec3 vPos;
 
-	uniform mat4 mvp;
-	uniform vec3 viewPos;
-
-	varying vec3 vNormal;
-	varying vec2 vUV;
-	varying vec3 vViewDir;
-
-	void main ( void )
-	{
-		vNormal = normal;
-		vUV = uv;
-		vViewDir = vertex - viewPos;
-		gl_Position = mvp * vec4(vertex, 1.0);
-	}
+void main ( void )
+{
+	vPos = vertex;
+	gl_Position = vec4(vertex, 1.0);
 }

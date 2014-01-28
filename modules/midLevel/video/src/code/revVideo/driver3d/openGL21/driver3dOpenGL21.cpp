@@ -28,10 +28,10 @@ using namespace rev::math;
 // you would not be able to call it during construction, and it would require extra complexity to get this system work properly.
 // 777 TODO: Implement using templates
 #ifdef _WIN32
-#define loadExtension( a ) wglGetProcAddress( a )
+PROC loadExtension (const char* _fnName) { return wglGetProcAddress(LPCSTR(_fnName)); }
 #endif // _WIN32
 #ifdef __linux__
-#define loadExtension( a ) glXGetProcAddress( (GLubyte*)a )
+void*() loadExtension(const char* _fnName) { return glXGetProcAddress( (GLubyte*)a ); }
 #endif // __linux__
 
 namespace rev { namespace video
