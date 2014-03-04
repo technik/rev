@@ -7,9 +7,9 @@
 
 #include "rigidBody.h"
 #include "../world/physicsWorld.h"
+#include "../util/bulletUtils.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
-#include <bullet/revBulletUtils.h>
 
 namespace rev { namespace game {
 

@@ -393,7 +393,6 @@
     <ClInclude Include="..\..\..\src\code\bullet\LinearMath\btTransform.h" />
     <ClInclude Include="..\..\..\src\code\bullet\LinearMath\btTransformUtil.h" />
     <ClInclude Include="..\..\..\src\code\bullet\LinearMath\btVector3.h" />
-    <ClInclude Include="..\..\..\src\code\bullet\revBulletUtils.h" />
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\neon\boolInVec.h" />
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\neon\floatInVec.h" />
     <ClInclude Include="..\..\..\src\code\bullet\vectormath\neon\mat_aos.h" />
@@ -418,6 +417,7 @@
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\sceneNode.h" />
     <ClInclude Include="..\..\..\src\code\revGame\core\transform\transformSrc.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\rigidBody\rigidBody.h" />
+    <ClInclude Include="..\..\..\src\code\revGame\physics\util\bulletUtils.h" />
     <ClInclude Include="..\..\..\src\code\revGame\physics\world\physicsWorld.h" />
     <ClInclude Include="..\..\..\src\code\revGame\scene\camera\flyByCamera.h" />
     <ClInclude Include="..\..\..\src\code\revGame\scene\level\doom3Level.h" />

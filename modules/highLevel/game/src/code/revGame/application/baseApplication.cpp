@@ -33,7 +33,6 @@ namespace rev { namespace game {
 		KeyboardInput::init();
 		VideoDriver::startUp();
 		mVideoDriver = VideoDriver::get();
-		mVideoDriver->createMainWindow();
 		mVideoDriver->init3d();
 		mDriver3d = VideoDriver::getDriver3d();
 		mDriver3d->setClearColor(Color::Color(0.2f));

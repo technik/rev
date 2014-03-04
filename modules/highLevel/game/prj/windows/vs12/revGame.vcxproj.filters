@@ -76,6 +76,9 @@
     <Filter Include="scene\level">
       <UniqueIdentifier>{7c652d39-c9ec-47b1-9509-b54704415ad8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="physics\util">
+      <UniqueIdentifier>{0dd0c03f-fdda-433b-9b6c-6167b1e6c0f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\code\revGame\core\transform\transformSrc.cpp">
@@ -471,9 +474,6 @@
       <Filter>physics\world</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\bullet\btBulletDynamicsCommon.h">
-      <Filter>physics\bullet</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\code\bullet\revBulletUtils.h">
       <Filter>physics\bullet</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h">
@@ -1060,6 +1060,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\code\revGame\scene\level\doom3Level.h">
       <Filter>scene\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code\revGame\physics\util\bulletUtils.h">
+      <Filter>physics\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
