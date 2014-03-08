@@ -200,6 +200,46 @@ namespace rev { namespace graphics3d {
 	}
 
 	//---------------------------------------------------------------------------------------------------------------
+	Renderable* Renderable::heightField	(uint16_t _n, uint16_t _m, const math::Vec2f& _size, std::function<float(const Vec2u& _idx)> _height) {
+		uint16_t width = _m+1;
+		uint16_t length = _n+1;
+		uint16_t nVertices = width*length;
+		Vec3f* vertices = new Vec3f[nVertices];
+		Vec3f* normals = new Vec3f[nVertices];
+		Vec2f* uvs = new Vec2f[nVertices];
+		Vec2f tileSize(_size.x/_m, _size.y/_n);
+		for(uint16_t i = 0; i < _n+1; ++i)
+		{
+			for(uint16_t j = 0; j < _m+1; ++j)
+			{
+				uint16_t vtxId = j+width*i;
+				float pointHeight = _height(Vec2u(i,j));
+				vertices[vtxId] = Vec3f(tileSize.x*j,tileSize.y*i,pointHeight);
+				normals[vtxId] = Vec3f::zAxis();
+				uvs[vtxId] = Vec2f(j*1.f/_m,i*1.f/_n);
+			}
+		}
+		uint16_t indicesPerRow = 2*(2+_m);
+		uint16_t* indices = new uint16_t[indicesPerRow*_n];
+		for(uint16_t i = 0; i < _n; ++i) // For each row
+		{
+			uint16_t i0 = i*indicesPerRow;
+			uint16_t vtx0 = uint16_t(i*width);
+			uint16_t vtx1 = uint16_t((i+1)*width);
+			indices[i0] = vtx0;
+			for(uint16_t j = 0; j < _m+1; ++j) {
+				indices[i0+1+2*j] = uint16_t(vtx0+j);
+				indices[i0+2+2*j] = uint16_t(vtx1+j);
+			}
+			indices[i0+indicesPerRow-1] = vtx1+_m;
+		}
+		Renderable * heightFieldObject = new Renderable;
+		heightFieldObject->setVertexData(nVertices, vertices, normals, uvs);
+		heightFieldObject->setFaceIndices(indicesPerRow*_n, indices, true);
+		return heightFieldObject;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------
 	inline unsigned nVerticesInSphere(uint16_t _nMeridians, uint16_t _nParallels)
 	{
 		// Top and bottom plus _nParallels per meridian

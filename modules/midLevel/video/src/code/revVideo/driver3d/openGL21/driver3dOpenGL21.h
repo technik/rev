@@ -30,7 +30,7 @@ namespace rev { namespace video
 		Driver3dOpenGL21();
 		virtual ~Driver3dOpenGL21() {} // Virtual destructor
 
-		void init();
+		void init() override;
 		unsigned	loadShader					(const char* _vtx, const char* _pxl);
 		void	setShader					(unsigned _program);
 

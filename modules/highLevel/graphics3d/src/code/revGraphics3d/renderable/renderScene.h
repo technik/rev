@@ -23,7 +23,7 @@ namespace rev { namespace graphics3d {
 	};
 
 
-	class LinearRenderScene
+	class LinearRenderScene : public RenderScene
 	{
 	public:
 		void	traverse		(const math::Vec3f&, std::function<void (const Renderable*)>, std::function<bool (const Renderable*)> _filter) const;

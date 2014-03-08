@@ -35,6 +35,7 @@ namespace rev { namespace game {
 		mVideoDriver = VideoDriver::get();
 		mVideoDriver->init3d();
 		mDriver3d = VideoDriver::getDriver3d();
+		mDriver3d->init();
 		mDriver3d->setClearColor(Color::Color(0.2f));
 		mRenderer = new ForwardRenderer;
 

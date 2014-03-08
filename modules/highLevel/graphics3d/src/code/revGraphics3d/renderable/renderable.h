@@ -9,8 +9,10 @@
 #define _REV_GRAPHICS3D_RENDERABLE_RENDERABLE_H_
 
 #include <cstdint>
+#include <revMath/algebra/vector.h>
 #include <revMath/algebra/matrix.h>
 #include <revVideo/types/image/image.h>
+#include <functional>
 
 namespace rev { namespace graphics3d {
 
@@ -41,6 +43,11 @@ namespace rev { namespace graphics3d {
 		static Renderable* plane		(const math::Vec2f& _size);
 		static Renderable* box			(const math::Vec3f& _size);
 		static Renderable* geoSphere	(float _radius, uint16_t _nMeridians, uint16_t _nParallels);
+		///\Parameters:
+		// - n: number of divisions along y axis
+		// - m: number of divisions along x axis
+		// - height: function to compute the height at a given index
+		static Renderable* heightField	(uint16_t _n, uint16_t _m, const math::Vec2f& _size, std::function<float(const math::Vec2u& _idx)> _height);
 
 	public:
 		math::Mat34f	m;
