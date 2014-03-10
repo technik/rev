@@ -7,6 +7,7 @@
 
 #include "baseApplication.h"
 
+#include <revCore/codeTools/log/log.h>
 #include <revCore/time/time.h>
 #include <revPlatform/osHandler/osHandler.h>
 #include <revGraphics3d/renderable/renderScene.h>
@@ -29,6 +30,7 @@ namespace rev { namespace game {
 	BaseApplication::BaseApplication()
 		:mCamera(nullptr)
 	{
+		codeTools::Log::init();
 		Time::init();
 		KeyboardInput::init();
 		VideoDriver::startUp();

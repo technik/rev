@@ -20,6 +20,7 @@ namespace rev { namespace game {
 	FlyByCamera::FlyByCamera(float _fov, float _aspectRatio, float _near, float _far)
 		:mCam(Mat44f::frustrum(_fov, _aspectRatio, _near, _far))
 		,mNode(new SceneNode)
+		,mSpeed(1.f)
 	{
 	}
 
@@ -51,7 +52,7 @@ namespace rev { namespace game {
 			velocity.z += deltaV;
 	 	if(input->held(KeyboardInput::eKeyDown))	
 			velocity.z -= deltaV;
-		mNode->move(velocity * dt);
+		mNode->move(velocity * mSpeed *dt);
 		// Rotation
 		float angSpd = 0.f;
 		float deltaG = 0.8f;

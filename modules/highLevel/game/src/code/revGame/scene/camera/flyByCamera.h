@@ -23,8 +23,10 @@ namespace rev { namespace game {
 		void update();
 		const graphics3d::Camera& cam() const { return mCam; }
 		SceneNode* node() { return mNode; }
+		void setSpeed(float _speed) { mSpeed = _speed; }
 
 	private:
+		float mSpeed;
 		SceneNode* mNode;
 		graphics3d::Camera	mCam;
 	};

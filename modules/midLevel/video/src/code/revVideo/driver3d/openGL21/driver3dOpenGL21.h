@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <map>
+#include <string>
 
 #include <GL/gl.h>
 #include "glext.h"
@@ -27,12 +28,12 @@ namespace rev { namespace video
 	class Driver3dOpenGL21 : public Driver3d
 	{
 	public:
-		Driver3dOpenGL21();
+		Driver3dOpenGL21(const char* _vtx = "test.vtx", const char* _pxl = "test.pxl");
 		virtual ~Driver3dOpenGL21() {} // Virtual destructor
 
 		void init() override;
-		unsigned	loadShader					(const char* _vtx, const char* _pxl);
-		void	setShader					(unsigned _program);
+		void		setShader				(unsigned _program);
+		unsigned	loadShader				(const char* _vtx, const char* _pxl);
 
 		// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 		void		setViewport				(const math::Vec2i& position, const math::Vec2u& size);
@@ -71,12 +72,13 @@ namespace rev { namespace video
 		void	loadOpenGLExtensions		();
 
 	private:
+		std::string mVertexShader, mPixelShader;
 		bool	detectShaderError			(unsigned _shaderId, const char * _shaderName);
 		void	unregisterTexture			(const Image* _image);
 		unsigned registerTexture			(const Image* _image);
 
 		typedef std::pair<const uint8_t*, unsigned> textureReg;
-		GLuint							mProgram;
+		GLuint								mProgram;
 		std::map<const Image*, textureReg>	mTextures;
 
 	private: // Abstract methods

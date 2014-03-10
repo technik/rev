@@ -37,24 +37,24 @@ void*() loadExtension(const char* _fnName) { return glXGetProcAddress( (GLubyte*
 namespace rev { namespace video
 {
 	//------------------------------------------------------------------------------------------------------------------
-	Driver3dOpenGL21::Driver3dOpenGL21()
+	Driver3dOpenGL21::Driver3dOpenGL21(const char* _vtx, const char* _pxl)
 	{
+		mVertexShader = _vtx;
+		mPixelShader = _pxl;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Driver3dOpenGL21::init()
 	{
-		const char vtxShader[] = "test.vtx";
-		const char pxlShader[] = "test.pxl";
-		mProgram = loadShader(vtxShader, pxlShader);
+		mProgram = loadShader(mVertexShader.c_str(), mPixelShader.c_str());
 		setShader(mProgram);
-		auto shaderReload = [&,this](const char*){
+		auto shaderReload = [this](const char*){
 			glDeleteProgram(mProgram);
-			mProgram = loadShader(vtxShader, pxlShader);
+			mProgram = loadShader(mVertexShader.c_str(), mPixelShader.c_str());
 			setShader(mProgram);
 		};
-		platform::FileSystem::get()->onFileChanged(vtxShader) += shaderReload;
-		platform::FileSystem::get()->onFileChanged(pxlShader) += shaderReload;
+		platform::FileSystem::get()->onFileChanged(mVertexShader.c_str()) += shaderReload;
+		platform::FileSystem::get()->onFileChanged(mPixelShader.c_str()) += shaderReload;
 		//glDisable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
