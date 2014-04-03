@@ -15,5 +15,8 @@
     <ClInclude Include="..\..\src\engine.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\memory\stdAllocator.h">
+      <Filter>src\core\memory</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

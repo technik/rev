@@ -9,12 +9,9 @@
 
 namespace rev {
 
-	class Engine {
+	template <class Allocator_>
+	class Engine : public Allocator_ {
 	public:
-		class Config {
-
-		};
-
 		Engine(int __argc, const char** _argv);
 		~Engine();
 	};
