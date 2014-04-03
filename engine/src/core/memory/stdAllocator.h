@@ -23,6 +23,8 @@ namespace rev {
 			T_*		allocate	(unsigned _n = 1);
 			template<class T_>
 			void	deallocate	(const T_* _ptr, unsigned _n = 1);
+
+			virtual ~StdAllocator() = default;
 		};
 
 	} // namespace core
