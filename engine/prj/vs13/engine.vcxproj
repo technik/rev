@@ -83,6 +83,10 @@
     <ClInclude Include="..\..\src\core\memory\stdAllocator.h" />
     <ClInclude Include="..\..\src\engine.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\core\memory\stdAllocator.inl" />
+    <None Include="..\..\src\engine.inl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

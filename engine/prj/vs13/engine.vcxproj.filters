@@ -19,4 +19,12 @@
       <Filter>src\core\memory</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\core\memory\stdAllocator.inl">
+      <Filter>src\core\memory</Filter>
+    </None>
+    <None Include="..\..\src\engine.inl">
+      <Filter>src</Filter>
+    </None>
+  </ItemGroup>
 </Project>

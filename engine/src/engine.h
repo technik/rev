@@ -12,10 +12,12 @@ namespace rev {
 	template <class Allocator_>
 	class Engine : public Allocator_ {
 	public:
-		Engine(int __argc, const char** _argv);
+		Engine(int _argc, const char** _argv);
 		~Engine();
 	};
 
 }	// namespace rev
+
+#include "engine.inl"
 
 #endif // _REV_ENGINE_H_

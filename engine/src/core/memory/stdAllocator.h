@@ -30,4 +30,6 @@ namespace rev {
 	} // namespace core
 }	// namespace rev
 
+#include "stdAllocator.inl"
+
 #endif // _REV_CORE_MEMORY_STDALLOCATOR_H_
