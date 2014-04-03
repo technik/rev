@@ -8,12 +8,20 @@
 #define _REV_ENGINE_H_
 
 namespace rev {
+	namespace video {
+		class Window;
+	}
 
 	template <class Allocator_>
 	class Engine : public Allocator_ {
 	public:
 		Engine(int _argc, const char** _argv);
 		~Engine();
+
+		video::Window* mainWindow() const;
+
+	private:
+		video::Window* mMainWindow = nullptr;
 	};
 
 }	// namespace rev

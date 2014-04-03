@@ -7,6 +7,8 @@
 #ifndef _REV_ENGINE_INL_
 #define _REV_ENGINE_INL_
 
+#include <cassert>
+
 #include "engine.h"
 
 #include "video/window/window.h"
@@ -22,14 +24,20 @@ namespace rev {
 		_argv; // Unused
 
 		// Create window
-		Window* window = Window::createWindow(*this);
-		destroy(window);
+		mMainWindow = Window::createWindow(*this);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
-		// Intentionally blank
+		destroy(mMainWindow);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	template<class Allocator_>
+	video::Window* Engine<Allocator_>::mainWindow() const {
+		assert(mMainWindow);
+		return mMainWindow;
 	}
 
 }	// namespace rev
