@@ -34,6 +34,9 @@
     <Filter Include="src\video\window\windows">
       <UniqueIdentifier>{00d10985-9105-4952-9403-cf70d57f5595}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\platform\windows">
+      <UniqueIdentifier>{f4d3d0cc-abdd-485b-b861-c42fdf33d0dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -51,6 +54,12 @@
     <ClInclude Include="..\..\src\video\window\windows\windowWindows.h">
       <Filter>src\video\window\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\osHandler.h">
+      <Filter>src\core\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h">
+      <Filter>src\core\platform\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -64,6 +73,9 @@
     </None>
     <None Include="..\..\src\video\window\window.inl">
       <Filter>src\video\window</Filter>
+    </None>
+    <None Include="..\..\src\core\platform\osHandler.inl">
+      <Filter>src\core\platform</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
