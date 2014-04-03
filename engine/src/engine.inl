@@ -9,6 +9,10 @@
 
 #include "engine.h"
 
+#include "video/window/window.h"
+
+using namespace rev::video;
+
 namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -16,6 +20,10 @@ namespace rev {
 	Engine<Allocator_>::Engine(int _argc, const char** _argv) {
 		_argc; // Unused
 		_argv; // Unused
+
+		// Create window
+		Window* window = Window::createWindow(*this);
+		destroy(window);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------

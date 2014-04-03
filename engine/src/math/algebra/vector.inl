@@ -3,28 +3,26 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 // 2014/April/03
 //----------------------------------------------------------------------------------------------------------------------
-// Standard allocator using new and delete
-#ifndef _REV_CORE_MEMORY_STDALLOCATOR_INL_
-#define _REV_CORE_MEMORY_STDALLOCATOR_INL_
-
-#include "stdAllocator.h"
+// Generic mathematical vector
+#ifndef _REV_MATH_ALGEBRA_VECTOR_INL_
+#define _REV_MATH_ALGEBRA_VECTOR_INL_
 
 namespace rev {
-	namespace core {
-
+	namespace math {
+		
 		//--------------------------------------------------------------------------------------------------------------
-		template<class T_, typename ... Args_>
-		T_*	StdAllocator::create(Args_ ... _args) {
-			return new T_(_args...);
+		template<typename T_>
+		bool Vector<T_, 2>::operator==(const Vector2<T_, 2>& _v) {
+			return _v.x == x && _v.y == y;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class T_>
-		void StdAllocator::destroy(const T_* _ptr) {
-			delete _ptr;
+		template<typename T_>
+		bool Vector<T_, 2>::operator!=(const Vector2<T_, 2>& _v) {
+			return _v.x != x || _v.y != y;
 		}
 
-	} // namespace core
+	}	// namespace math
 }	// namespace rev
 
-#endif // _REV_CORE_MEMORY_STDALLOCATOR_INL_
+#endif // _REV_MATH_ALGEBRA_VECTOR_INL_

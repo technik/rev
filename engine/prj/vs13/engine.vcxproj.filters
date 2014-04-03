@@ -10,6 +10,30 @@
     <Filter Include="src\core\memory">
       <UniqueIdentifier>{bed76eb2-d729-4674-9978-a8faee6fe5b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video">
+      <UniqueIdentifier>{473e9436-9f9f-4b22-baea-0c58c6c0ab23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\graphics">
+      <UniqueIdentifier>{ac2d982e-e08f-46dd-8e81-ab0d4cf64b8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\graphics\driver">
+      <UniqueIdentifier>{a0754ce1-bcac-41e5-90f7-c13e32f8c05a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\platform">
+      <UniqueIdentifier>{01938533-6d54-46a1-96ff-d02e6bdf75bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\window">
+      <UniqueIdentifier>{b6c98265-48c1-4aa4-96cb-f010953c9dfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{a449d2f9-8897-424a-bed2-5a7ffb54e0e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math\algebra">
+      <UniqueIdentifier>{9f89620c-aa46-4db1-8812-11fe3fca501b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\window\windows">
+      <UniqueIdentifier>{00d10985-9105-4952-9403-cf70d57f5595}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -18,6 +42,15 @@
     <ClInclude Include="..\..\src\core\memory\stdAllocator.h">
       <Filter>src\core\memory</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\window\window.h">
+      <Filter>src\video\window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\algebra\vector.h">
+      <Filter>src\math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\window\windows\windowWindows.h">
+      <Filter>src\video\window\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -25,6 +58,12 @@
     </None>
     <None Include="..\..\src\engine.inl">
       <Filter>src</Filter>
+    </None>
+    <None Include="..\..\src\math\algebra\vector.inl">
+      <Filter>src\math\algebra</Filter>
+    </None>
+    <None Include="..\..\src\video\window\window.inl">
+      <Filter>src\video\window</Filter>
     </None>
   </ItemGroup>
 </Project>
