@@ -82,5 +82,8 @@
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp">
       <Filter>src\video\window\windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
+      <Filter>src\core\platform\windows</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

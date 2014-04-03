@@ -98,6 +98,7 @@
     <None Include="..\..\src\video\window\window.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp" />
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
