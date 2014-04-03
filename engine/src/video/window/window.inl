@@ -8,6 +8,7 @@
 #define _REV_VIDEO_WINDOW_WINDOW_INL_
 
 #include "window.h"
+#include <math/algebra/vector.h>
 
 #ifdef _WIN32
 #include "windows/windowWindows.h"
@@ -20,7 +21,7 @@ namespace rev {
 		template<class Allocator_>
 		Window* Window::createWindow(Allocator_& _alloc) {
 #ifdef _WIN32
-			return _alloc.create<WindowWindows>();
+			return _alloc.create<WindowWindows>(math::Vec2u(100, 100), math::Vec2u(320, 240), "RevWindows");
 #endif // _WIN32
 		}
 

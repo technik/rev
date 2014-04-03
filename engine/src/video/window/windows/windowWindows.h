@@ -7,16 +7,33 @@
 #ifndef _REV_VIDEO_WINDOW_WINDOWS_WINDOWWINDOWS_H_
 #define _REV_VIDEO_WINDOW_WINDOWS_WINDOWWINDOWS_H_
 
+#ifdef _WIN32
+
+#include <Windows.h>
+
 #include "../window.h"
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {
 
 		class WindowWindows : public Window {
 		public:
+			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
+
+		private:
+			math::Vec2u mPosition;
+			math::Vec2u mSize;
+			HWND	mWinapiHandle; // Winapi handle to the window
+
+		private:
+			static bool sIsClassRegistered;
+			static void registerClass();
 		};
 
 	}	// namespace video
 }	// namespace rev
+
+#endif // _WIN32
 
 #endif // _REV_VIDEO_WINDOW_WINDOWS_WINDOWWINDOWS_H_
