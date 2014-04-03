@@ -60,6 +60,12 @@
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h">
       <Filter>src\core\platform\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\memory\newAllocator.h">
+      <Filter>src\core\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.inl">
+      <Filter>src\core\platform\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -77,13 +83,16 @@
     <None Include="..\..\src\core\platform\osHandler.inl">
       <Filter>src\core\platform</Filter>
     </None>
+    <None Include="..\..\src\core\memory\newAllocator.inl">
+      <Filter>src\core\memory</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp">
       <Filter>src\video\window\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
-      <Filter>src\core\platform\windows</Filter>
+    <ClCompile Include="..\..\src\core\platform\osHandler.cpp">
+      <Filter>src\core\platform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

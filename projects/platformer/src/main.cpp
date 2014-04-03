@@ -4,10 +4,10 @@
 // 2014/March/30
 //----------------------------------------------------------------------------------------------------------------------
 
-#include <core/memory/stdAllocator.h>
+#include <core/memory/newAllocator.h>
 #include <engine.h>
 
-typedef rev::Engine<rev::core::StdAllocator>	Engine;
+typedef rev::Engine<rev::core::NewAllocator>	Engine;
 
 //----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {

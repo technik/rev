@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\core\memory\newAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\stdAllocator.h" />
     <ClInclude Include="..\..\src\core\platform\osHandler.h" />
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h" />
@@ -91,6 +92,7 @@
     <ClInclude Include="..\..\src\video\window\windows\windowWindows.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\core\memory\newAllocator.inl" />
     <None Include="..\..\src\core\memory\stdAllocator.inl" />
     <None Include="..\..\src\core\platform\osHandler.inl" />
     <None Include="..\..\src\engine.inl" />
@@ -98,7 +100,10 @@
     <None Include="..\..\src\video\window\window.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp" />
+    <ClCompile Include="..\..\src\core\platform\osHandler.cpp" />
+    <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.inl">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

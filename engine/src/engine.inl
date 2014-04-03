@@ -32,7 +32,7 @@ namespace rev {
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
 		destroy(mMainWindow);
-		core::OSHandler::finish(*this);
+		core::OSHandler::shutDown(*this);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------

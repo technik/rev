@@ -23,13 +23,13 @@ namespace rev {
 		void OSHandler::startUp(Allocator_& _alloc) {
 #ifdef _WIN32
 			assert(sInstance);
-			sInstance = _alloc.create<OSHandlerWindows>();
+			sInstance = _alloc.create<OSHandlerWindows<Allocator_>>();
 #endif // _WIN32
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Allocator_>
-		void OSHandler::finish(Allocator_& _alloc) {
+		void OSHandler::shutDown(Allocator_& _alloc) {
 			_alloc.destroy(sInstance);
 			sInstance = nullptr;
 		}

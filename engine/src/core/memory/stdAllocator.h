@@ -3,29 +3,26 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 // 2014/April/03
 //----------------------------------------------------------------------------------------------------------------------
-// Standard allocator using new and delete
+// Wrapper to map rev allocators into stl-compliant allocators
 #ifndef _REV_CORE_MEMORY_STDALLOCATOR_H_
 #define _REV_CORE_MEMORY_STDALLOCATOR_H_
 
 namespace rev {
 	namespace core {
 
+		template<class BaseAlloc_, class T_>
 		class StdAllocator {
 		public:
-			// Object construction and destruction
-			// 666 TODO: Maybe add interface for constructing arrays of objects?
-			template<class T_, typename ... Args_>
-			T_*		create		(Args_ ... _args);
-			template<class T_>
-			void	destroy		(const T_* _ptr);
+			// Public types
+			typedef T_				value_type;
+			typedef	T_*				pointer;
+			typedef const T_*		const_pointer;
+			typedef T_&				reference;
+			typedef const T_&		const_reference;
+			typedef std::size_t		size_type;
+			typedef std::ptrdiff_t	difference_type;
 
-			// Raw allocation
-			template<class T_ = void>
-			T_*		allocate	(unsigned _n = 1);
-			template<class T_>
-			void	deallocate	(const T_* _ptr, unsigned _n = 1);
 
-			virtual ~StdAllocator() = default;
 		};
 
 	} // namespace core

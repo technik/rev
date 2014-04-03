@@ -4,7 +4,8 @@
 // 2014/April/03
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with Windows operating system
-
+#ifndef _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_INL_
+#define _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_INL_
 #ifdef _WIN32
 
 #include "osHandlerWindows.h"
@@ -15,11 +16,8 @@ namespace rev {
 	namespace core {
 
 		//--------------------------------------------------------------------------------------------------------------
-		// Static data definition
-		OSHandler* OSHandler::sInstance = nullptr;
-
-		//--------------------------------------------------------------------------------------------------------------
-		bool OSHandlerWindows::update() {
+		template<class Allocator_>
+		bool OSHandlerWindows<Allocator_>::update() {
 			MSG msg;
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -45,3 +43,4 @@ namespace rev {
 }	// namespace rev
 
 #endif // _WIN32
+#endif // _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_INL_

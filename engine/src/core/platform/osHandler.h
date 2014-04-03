@@ -14,15 +14,15 @@ namespace rev {
 		public:
 			// Singleton interface
 			template<class Allocator_>
-			static void startUp	(Allocator_&);
+			static void startUp		(Allocator_&);
 			template<class Allocator_>
-			static void finish	(Allocator_&);
+			static void shutDown	(Allocator_&);
 
-			static OSHandler* get() { return sInstance; }
+			static OSHandler* get	() { return sInstance; }
 
 			// Virtual interface
-			virtual ~OSHandler	() = default;
-			virtual bool update	() = 0;
+			virtual ~OSHandler		() = default;
+			virtual bool update		() = 0;
 		protected:
 			static OSHandler* sInstance;
 		};
