@@ -7,6 +7,13 @@
 #ifndef _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_H_
 #define _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_H_
 
+#ifdef _WIN32
+
+#include <Windows.h>
+
+#include <functional>
+#include <vector>
+
 #include "../osHandler.h"
 
 namespace rev {
@@ -14,11 +21,18 @@ namespace rev {
 
 		class OSHandlerWindows : public OSHandler{
 		public:
-			// Virtual interface
+			typedef std::function<bool(MSG)>	OSDelegate;
+
+			void operator+= (OSDelegate);
+
 			bool update();
+		private:
+			std::vector<OSDelegate, 
 		};
 
 	}	// namespace core
 }	// namespace rev
+
+#endif // _WIN32
 
 #endif // _REV_CORE_PLATFORM_WINDOWS_OSHANDLERWINDOWS_H_
