@@ -11,9 +11,6 @@
 
 #include <cassert>
 
-#ifdef _WIN32
-#include "windows/osHandlerWindows.h"
-#endif // _WIN32
 
 namespace rev {
 	namespace core {
@@ -21,15 +18,14 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Allocator_>
 		void OSHandler::startUp(Allocator_& _alloc) {
-#ifdef _WIN32
-			assert(sInstance);
-			sInstance = _alloc.create<OSHandlerWindows>();
-#endif // _WIN32
+			assert(!sInstance);
+			sInstance = _alloc.create<OSHandler>();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Allocator_>
 		void OSHandler::shutDown(Allocator_& _alloc) {
+			assert(sInstance);
 			_alloc.destroy(sInstance);
 			sInstance = nullptr;
 		}

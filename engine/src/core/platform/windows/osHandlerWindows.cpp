@@ -16,8 +16,12 @@ namespace rev {
 	namespace core {
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Allocator_>
-		bool OSHandlerWindows<Allocator_>::update() {
+		void OSHandlerBaseWindows::operator+=(OSHandlerBaseWindows::OSDelegate _delegate) {
+			mMsgProcessors.push_back(_delegate);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool OSHandlerBaseWindows::update() {
 			MSG msg;
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -25,13 +29,14 @@ namespace rev {
 					return false;
 				else {
 					bool processed = false; // Try to process the message internally
-					for (auto proc : mMsgProcessors)
-					if (proc(msg)) {
-						processed = true;
-						break;
+					for (auto proc : mMsgProcessors) {
+						if (proc(msg)) {
+							processed = true;
+							break;
+						}
 					}
 					if (!processed) { // Let windows process the message
-						TranslateMessage(&msg);	// Translate The Message
+						TranslateMessage(&msg);
 						DispatchMessage(&msg);
 					}
 				}

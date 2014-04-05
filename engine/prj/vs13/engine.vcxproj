@@ -107,9 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\core\platform\osHandler.cpp" />
-    <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.inl">
+    <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>
-    </ClInclude>
+    </ClCompile>
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

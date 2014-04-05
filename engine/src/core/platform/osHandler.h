@@ -7,10 +7,14 @@
 #ifndef _REV_CORE_PLATFORM_OSHANDLER_H_
 #define _REV_CORE_PLATFORM_OSHANDLER_H_
 
+#ifdef _WIN32
+#include "windows/osHandlerWindows.h"
+#endif // _WIN32
+
 namespace rev {
 	namespace core {
 
-		class OSHandler {
+		class OSHandler : public OSHandlerBase {
 		public:
 			// Singleton interface
 			template<class Allocator_>
@@ -22,7 +26,7 @@ namespace rev {
 
 			// Virtual interface
 			virtual ~OSHandler		() = default;
-			virtual bool update		() = 0;
+			virtual bool update		();
 		protected:
 			static OSHandler* sInstance;
 		};

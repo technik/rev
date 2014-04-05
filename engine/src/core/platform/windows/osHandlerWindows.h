@@ -13,22 +13,23 @@
 
 #include <functional>
 
-#include "../osHandler.h"
 #include <core/containers/vector.h>
 
 namespace rev {
 	namespace core {
 
-		class OSHandlerWindows : public OSHandler{
+		class OSHandlerBaseWindows {
 		public:
 			typedef std::function<bool(MSG)>	OSDelegate;
 
 			void operator+= (OSDelegate);
-
+		protected:
 			bool update();
 		private:
 			vector<OSDelegate>	mMsgProcessors;
 		};
+
+		typedef OSHandlerBaseWindows OSHandlerBase;
 
 	}	// namespace core
 }	// namespace rev
