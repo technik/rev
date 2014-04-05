@@ -11,7 +11,7 @@
 
 #include "engine.h"
 
-#include "core/platform/osHandler.h"
+#include "core/platform/platform.h"
 #include "video/window/window.h"
 
 
@@ -24,7 +24,7 @@ namespace rev {
 		_argv; // Unused
 
 		// Create window
-		core::OSHandler::startUp(*this);
+		core::Platform::startUp(*this);
 		mMainWindow = video::Window::createWindow(*this);
 	}
 
@@ -32,7 +32,7 @@ namespace rev {
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
 		destroy(mMainWindow);
-		core::OSHandler::shutDown(*this);
+		core::Platform::shutDown(*this);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------

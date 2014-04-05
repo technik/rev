@@ -11,6 +11,7 @@ namespace rev {
 	namespace core {
 
 		class Platform {
+		public:
 			template<typename Allocator_>
 			static void startUp(Allocator_&);
 			template<typename Allocator_>

@@ -26,17 +26,21 @@ namespace rev {
 
 			// Define local class using allocator
 			class SystemMemoryFinal : public SystemMemory {
+				Alloc_& mAlloc;
+				// This should be "=delete", but Visual studio won't swallow that.
+				SystemMemoryFinal& operator=(const SystemMemoryFinal&){ return *this; }
 			public:
-				Alloc_& mAlloc = _alloc;
+				SystemMemoryFinal(Alloc_& _alloc) : mAlloc(_alloc) {}
+
 				void*	allocBuffer(size_t _size) {
-					mAlloc.allocate<>(_size);
+					return mAlloc.allocate<>(_size);
 				}
 				void	freeBuffer(const void* _ptr, size_t _size) {
 					mAlloc.deallocate(_ptr, _size);
 				}
 			};
 
-			sInstance = _alloc.create(SystemMemoryFinal);
+			sInstance = _alloc.create<SystemMemoryFinal>(_alloc);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------

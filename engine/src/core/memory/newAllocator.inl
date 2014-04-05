@@ -24,6 +24,26 @@ namespace rev {
 			delete _ptr;
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		template<>
+		void * NewAllocator::allocate(unsigned _n) {
+			void* buffer = new char[_n];
+			return buffer;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		T_* NewAllocator::allocate(unsigned _n) {
+			void* buffer = new char[_n*sizeof(T_)];
+			return reinterpret_cast<T_*>(buffer);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		void NewAllocator::deallocate(const T_* _ptr, unsigned) {
+			delete[] reinterpret_cast<const char*>(_ptr);
+		}
+
 	} // namespace core
 }	// namespace rev
 
