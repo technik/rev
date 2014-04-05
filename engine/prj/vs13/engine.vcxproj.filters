@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\src\core\memory\systemMemory.h">
       <Filter>src\core\memory</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h">
+      <Filter>src\video\graphics\driver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
