@@ -100,12 +100,14 @@
   <ItemGroup>
     <None Include="..\..\src\core\memory\newAllocator.inl" />
     <None Include="..\..\src\core\memory\stdAllocator.inl" />
+    <None Include="..\..\src\core\memory\systemMemory.inl" />
     <None Include="..\..\src\core\platform\osHandler.inl" />
     <None Include="..\..\src\engine.inl" />
     <None Include="..\..\src\math\algebra\vector.inl" />
     <None Include="..\..\src\video\window\window.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\core\memory\systemMemory.cpp" />
     <ClCompile Include="..\..\src\core\platform\osHandler.cpp" />
     <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>

@@ -30,6 +30,17 @@ namespace rev {
 			sInstance = nullptr;
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		inline OSHandler* OSHandler::get() {
+			assert(sInstance);
+			return sInstance;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		inline bool OSHandler::update() {
+			return OSHandlerBase::update();
+		}
+
 	}	// namespace core
 }	// namespace rev
 

@@ -22,11 +22,8 @@ namespace rev {
 			template<class Allocator_>
 			static void shutDown	(Allocator_&);
 
-			static OSHandler* get	() { return sInstance; }
-
-			// Virtual interface
-			virtual ~OSHandler		() = default;
-			virtual bool update		();
+			static OSHandler* get();
+			bool update		();
 		protected:
 			static OSHandler* sInstance;
 		};
