@@ -40,6 +40,12 @@
     <Filter Include="src\core\containers">
       <UniqueIdentifier>{dfe34c1a-f19e-47ad-8aa5-b7618db36252}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\driver\openGL">
+      <UniqueIdentifier>{edb3780c-a98f-474a-8f53-2a1f3ccec137}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\graphics\driver\directX">
+      <UniqueIdentifier>{7b76c696-7704-4810-8557-108e74a92c05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -83,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\math\algebra\matrix.h">
       <Filter>src\math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h">
+      <Filter>src\video\graphics\driver\openGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

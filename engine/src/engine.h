@@ -24,6 +24,11 @@ namespace rev {
 
 	private:
 		video::Window* mMainWindow = nullptr;
+		// Disable copy
+		Engine(const Engine&) = delete;
+		Engine(Engine&&) = delete;
+		Engine& operator=(const Engine&) = delete;
+		Engine& operator=(Engine&&) = delete;
 	};
 
 }	// namespace rev
