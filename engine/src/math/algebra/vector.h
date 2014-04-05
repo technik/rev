@@ -32,6 +32,11 @@ namespace rev {
 			bool operator!=(const Vector&) const;
 		};
 
+		template<typename T_>
+		using Vector2 = Vector<T_, 2>;
+		template<typename T_>
+		using Vector3 = Vector<T_, 3>;
+
 		typedef Vector<unsigned, 2> Vec2u;
 		typedef Vector<int, 2>		Vec2i;
 		typedef Vector<float, 2>	Vec2f;

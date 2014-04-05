@@ -33,10 +33,13 @@ namespace rev {
 				lineStrip
 			};
 		public:
+			template<class Alloc_>
+			static GraphicsDriver* createDriver(Alloc_&);
+
 			virtual ~GraphicsDriver() {} // Virtual destructor
 			virtual void init() {};
 
-			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
+			// Note: position corresponds to the lower left corner of the rectangle and the window, starting at (0,0)
 			virtual void		setViewport(const math::Vec2i& position, const math::Vec2u& size) = 0;
 			virtual void		clearZBuffer() = 0;
 			virtual void		clearColorBuffer() = 0;

@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h">
       <Filter>src\video\graphics\driver</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\math\algebra\matrix.h">
+      <Filter>src\math\algebra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -106,6 +109,9 @@
     </None>
     <None Include="..\..\src\core\platform\platform.inl">
       <Filter>src\core\platform</Filter>
+    </None>
+    <None Include="..\..\src\math\algebra\matrix.inl">
+      <Filter>src\math\algebra</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
