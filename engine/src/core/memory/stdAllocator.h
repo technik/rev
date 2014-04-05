@@ -58,7 +58,10 @@ namespace rev {
 
 			//    construction/destruction
 			inline void construct(pointer p, const T_& t) { new(p)T_(t); }
-			inline void destroy(pointer p) { p->~T_(); }
+			inline void destroy(pointer _p) { 
+				_p; // Work around for visual studio incorrect warning
+				_p->~T_();
+			}
 
 			inline bool operator==(StdAllocator const&) { return true; }
 			inline bool operator!=(StdAllocator const& a) { return !operator==(a); }

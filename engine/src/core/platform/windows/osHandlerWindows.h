@@ -19,10 +19,8 @@
 namespace rev {
 	namespace core {
 
-		template<class Allocator_>
 		class OSHandlerWindows : public OSHandler{
 		public:
-			OSHandlerWindows(Allocator_&);
 			typedef std::function<bool(MSG)>	OSDelegate;
 
 			void operator+= (OSDelegate);
@@ -34,8 +32,6 @@ namespace rev {
 
 	}	// namespace core
 }	// namespace rev
-
-#include "osHandlerWindows.inl"
 
 #endif // _WIN32
 

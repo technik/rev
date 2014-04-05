@@ -23,7 +23,7 @@ namespace rev {
 		void OSHandler::startUp(Allocator_& _alloc) {
 #ifdef _WIN32
 			assert(sInstance);
-			sInstance = _alloc.create<OSHandlerWindows<Allocator_>>();
+			sInstance = _alloc.create<OSHandlerWindows>();
 #endif // _WIN32
 		}
 
