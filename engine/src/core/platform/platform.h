@@ -12,12 +12,14 @@ namespace rev {
 
 		class Platform {
 			template<typename Allocator_>
-			static void startUp();
+			static void startUp(Allocator_&);
 			template<typename Allocator_>
-			static void shutDown();
+			static void shutDown(Allocator_&);
 		};
 
 	}	// namespace core
 }	// namespace rev
+
+#include "platform.inl"
 
 #endif // _REV_CORE_PLATFORM_PLATFORM_H_
