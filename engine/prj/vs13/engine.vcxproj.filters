@@ -37,6 +37,9 @@
     <Filter Include="src\core\platform\windows">
       <UniqueIdentifier>{f4d3d0cc-abdd-485b-b861-c42fdf33d0dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\containers">
+      <UniqueIdentifier>{dfe34c1a-f19e-47ad-8aa5-b7618db36252}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -65,6 +68,18 @@
     </ClInclude>
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.inl">
       <Filter>src\core\platform\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\platform.h">
+      <Filter>src\core\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\containers\vector.h">
+      <Filter>src\core\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\memory\defaultAllocator.h">
+      <Filter>src\core\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\memory\systemMemory.h">
+      <Filter>src\core\memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

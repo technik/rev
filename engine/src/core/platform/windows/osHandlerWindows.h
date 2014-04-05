@@ -12,10 +12,9 @@
 #include <Windows.h>
 
 #include <functional>
-#include <vector>
 
 #include "../osHandler.h"
-#include <core/memory/stdAllocator.h>
+#include <core/containers/vector.h>
 
 namespace rev {
 	namespace core {
@@ -30,7 +29,7 @@ namespace rev {
 
 			bool update();
 		private:
-			std::vector<OSDelegate, StdAllocator<Allocator_, OSDelegate>>	mMsgProcessors;
+			vector<OSDelegate>	mMsgProcessors;
 		};
 
 	}	// namespace core

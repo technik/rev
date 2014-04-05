@@ -53,7 +53,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <TreatWarningAsError>true</TreatWarningAsError>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -66,7 +66,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <TreatWarningAsError>true</TreatWarningAsError>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -82,9 +82,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\core\containers\vector.h" />
+    <ClInclude Include="..\..\src\core\memory\defaultAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\newAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\stdAllocator.h" />
+    <ClInclude Include="..\..\src\core\memory\systemMemory.h" />
     <ClInclude Include="..\..\src\core\platform\osHandler.h" />
+    <ClInclude Include="..\..\src\core\platform\platform.h" />
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h" />
     <ClInclude Include="..\..\src\engine.h" />
     <ClInclude Include="..\..\src\math\algebra\vector.h" />
