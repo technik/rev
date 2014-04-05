@@ -46,6 +46,9 @@
     <Filter Include="src\video\graphics\driver\directX">
       <UniqueIdentifier>{7b76c696-7704-4810-8557-108e74a92c05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\basicTypes">
+      <UniqueIdentifier>{8d09b94f-dba2-4a98-b526-454258e08861}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -92,6 +95,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h">
       <Filter>src\video\graphics\driver\openGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\basicTypes\color.h">
+      <Filter>src\video\basicTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
