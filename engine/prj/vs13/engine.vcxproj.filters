@@ -89,9 +89,6 @@
     <None Include="..\..\src\math\algebra\vector.inl">
       <Filter>src\math\algebra</Filter>
     </None>
-    <None Include="..\..\src\video\window\window.inl">
-      <Filter>src\video\window</Filter>
-    </None>
     <None Include="..\..\src\core\platform\osHandler.inl">
       <Filter>src\core\platform</Filter>
     </None>

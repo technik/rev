@@ -13,8 +13,8 @@
 
 #include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
+#include "math/algebra/vector.h"
 #include "video/window/window.h"
-
 
 namespace rev {
 
@@ -26,7 +26,7 @@ namespace rev {
 
 		// Create window
 		core::Platform::startUp(*this);
-		mMainWindow = video::Window::createWindow(*this);
+		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------

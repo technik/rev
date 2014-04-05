@@ -11,13 +11,12 @@
 
 #include <Windows.h>
 
-#include "../window.h"
 #include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {
 
-		class WindowWindows : public Window {
+		class WindowWindows {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 
@@ -30,6 +29,8 @@ namespace rev {
 			static bool sIsClassRegistered;
 			static void registerClass();
 		};
+
+		typedef WindowWindows	WindowBase;
 
 	}	// namespace video
 }	// namespace rev

@@ -106,7 +106,6 @@
     <None Include="..\..\src\core\platform\platform.inl" />
     <None Include="..\..\src\engine.inl" />
     <None Include="..\..\src\math\algebra\vector.inl" />
-    <None Include="..\..\src\video\window\window.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\core\memory\systemMemory.cpp" />

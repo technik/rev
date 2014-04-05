@@ -7,21 +7,21 @@
 #ifndef _REV_VIDEO_WINDOW_WINDOW_H_
 #define _REV_VIDEO_WINDOW_WINDOW_H_
 
+#ifdef _WIN32
+#include "windows/windowWindows.h"
+#endif // _WIN32
+
 namespace rev {
 	namespace video {
 
-		class Window {
+		class Window : public WindowBase {
 		public:
-			virtual ~Window				() = default;
-			template<class Allocator_>
-			static Window* createWindow	(Allocator_&);
-		protected:
-			Window() = default;
+			Window(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName)
+				:WindowBase(_pos, _size, _windowName)
+			{}
 		};
 
 	}	// namespace video
 }	// namespace rev
-
-#include "window.inl"
 
 #endif // _REV_VIDEO_WINDOW_WINDOW_H_
