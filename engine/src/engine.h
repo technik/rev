@@ -18,6 +18,8 @@ namespace rev {
 		Engine(int _argc, const char** _argv);
 		~Engine();
 
+		bool update();
+
 		video::Window* mainWindow() const;
 
 	private:

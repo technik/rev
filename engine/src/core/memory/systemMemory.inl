@@ -30,7 +30,7 @@ namespace rev {
 				// This should be "=delete", but Visual studio won't swallow that.
 				SystemMemoryFinal& operator=(const SystemMemoryFinal&){ return *this; }
 			public:
-				SystemMemoryFinal(Alloc_& _alloc) : mAlloc(_alloc) {}
+				SystemMemoryFinal(Alloc_* _alloc) : mAlloc(*_alloc) {}
 
 				void*	allocBuffer(size_t _size) {
 					return mAlloc.allocate<>(_size);
@@ -40,7 +40,7 @@ namespace rev {
 				}
 			};
 
-			sInstance = _alloc.create<SystemMemoryFinal>(_alloc);
+			sInstance = _alloc.create<SystemMemoryFinal>(&_alloc);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------

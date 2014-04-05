@@ -11,6 +11,7 @@
 
 #include "engine.h"
 
+#include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
 #include "video/window/window.h"
 
@@ -33,6 +34,12 @@ namespace rev {
 	Engine<Allocator_>::~Engine() {
 		destroy(mMainWindow);
 		core::Platform::shutDown(*this);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	template<class Allocator_>
+	bool Engine<Allocator_>::update() {
+		return core::OSHandler::get()->update();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
