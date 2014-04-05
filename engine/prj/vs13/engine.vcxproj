@@ -98,6 +98,7 @@
     <ClInclude Include="..\..\src\video\window\windows\windowWindows.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\core\memory\defaultAllocator.inl" />
     <None Include="..\..\src\core\memory\newAllocator.inl" />
     <None Include="..\..\src\core\memory\stdAllocator.inl" />
     <None Include="..\..\src\core\memory\systemMemory.inl" />

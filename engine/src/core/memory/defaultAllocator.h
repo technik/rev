@@ -4,8 +4,8 @@
 // 2014/April/05
 //----------------------------------------------------------------------------------------------------------------------
 // Allocator using default platform memory system
-#ifndef _REV_CORE_PLATFORM_PLATFORM_H_
-#define _REV_CORE_PLATFORM_PLATFORM_H_
+#ifndef _REV_CORE_MEMORY_DEFAULTALLOCATOR_H_
+#define _REV_CORE_MEMORY_DEFAULTALLOCATOR_H_
 
 namespace rev {
 	namespace core {
@@ -31,4 +31,6 @@ namespace rev {
 	}	// namespace core
 }	// namespace rev
 
-#endif // _REV_CORE_PLATFORM_PLATFORM_H_
+#include "defaultAllocator.inl"
+
+#endif // _REV_CORE_MEMORY_DEFAULTALLOCATOR_H_

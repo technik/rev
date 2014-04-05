@@ -31,7 +31,7 @@ namespace rev {
 				void*	allocBuffer(size_t _size) {
 					mAlloc.allocate<>(_size);
 				}
-				void	freeBuffer(void* _ptr, size_t _size) {
+				void	freeBuffer(const void* _ptr, size_t _size) {
 					mAlloc.deallocate(_ptr, _size);
 				}
 			};

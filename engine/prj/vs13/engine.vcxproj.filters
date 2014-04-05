@@ -101,6 +101,9 @@
     <None Include="..\..\src\core\memory\systemMemory.inl">
       <Filter>src\core\memory</Filter>
     </None>
+    <None Include="..\..\src\core\memory\defaultAllocator.inl">
+      <Filter>src\core\memory</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp">

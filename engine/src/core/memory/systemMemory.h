@@ -19,16 +19,16 @@ namespace rev {
 			static SystemMemory* get();
 
 			template<typename T_>
-			static T_*	allocate(size_t _n);
+			static T_*	allocate(size_t _n = 1);
 			template<typename T_>
-			static void deallocate(const T_* _ptr, size_t _n);
+			static void deallocate(const T_* _ptr, size_t _n = 1);
 
 			virtual ~SystemMemory() = default;
 
 		private:
 			static SystemMemory* sInstance;
 			virtual void*	allocBuffer	(size_t _size) = 0;
-			virtual void	freeBuffer	(void* _ptr, size_t _n) = 0;
+			virtual void	freeBuffer	(const void* _ptr, size_t _n) = 0;
 		};
 
 	}	// namespace core
