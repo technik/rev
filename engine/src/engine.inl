@@ -14,6 +14,7 @@
 #include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
 #include "math/algebra/vector.h"
+#include "video/basicTypes/color.h"
 #include "video/window/window.h"
 #include "video/graphics/driver/openGL/openGLDriver.h"
 
@@ -41,7 +42,14 @@ namespace rev {
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	bool Engine<Allocator_>::update() {
-		return core::OSHandler::get()->update();
+		if(!core::OSHandler::get()->update())
+			return false;
+
+		mGfxDriver->setClearColor(video::Color(0.f, 1.f, 0.f));
+		mGfxDriver->clearColorBuffer();
+
+		mGfxDriver->finishFrame();
+		return true;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
