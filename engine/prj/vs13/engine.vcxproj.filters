@@ -58,6 +58,9 @@
     <Filter Include="src\video\graphics\shader\openGL">
       <UniqueIdentifier>{bdde83ec-408f-413c-9572-82c4221ba5a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\renderer">
+      <UniqueIdentifier>{b4c5805b-d870-4c60-9a94-921f34517d33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
