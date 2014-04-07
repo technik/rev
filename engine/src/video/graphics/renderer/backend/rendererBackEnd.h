@@ -7,12 +7,31 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_BACKEND_RENDERERBACKEND_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_BACKEND_RENDERERBACKEND_H_
 
+#include <cstdint>
+#include <math/algebra/vector.h>
+
 namespace rev {
 	namespace video {
 
+		class GraphicsDriver;
+
 		class RendererBackEnd {
 		public:
+			struct StaticGeometry {
+				std::uint16_t nVertices = 0;
+				math::Vec3f * vertices = nullptr;
+				std::uint16_t nIndices = 0;
+				std::uint16_t* indices = nullptr;
+			};
 
+		public:
+			RendererBackEnd(GraphicsDriver*);
+
+			void render(const StaticGeometry&);
+			void flush();
+
+		private:
+			GraphicsDriver* mGfxDriver;
 		};
 
 	}

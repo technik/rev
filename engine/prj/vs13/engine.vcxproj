@@ -112,7 +112,6 @@
     <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.h" />
-    <ClInclude Include="..\..\src\video\graphics\renderer\rendererBackEnd.h" />
     <ClInclude Include="..\..\src\video\graphics\shader\openGL\openGLShader.h" />
     <ClInclude Include="..\..\src\video\graphics\shader\shader.h" />
     <ClInclude Include="..\..\src\video\window\window.h" />
@@ -137,6 +136,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp" />
+    <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
