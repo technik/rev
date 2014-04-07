@@ -30,6 +30,8 @@ namespace rev {
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		mGfxDriver = create<video::OpenGLDriver>(mMainWindow);
+		mGfxDriver->setZCompare(true);
+		mGfxDriver->setClearColor(video::Color(0.6f, 0.8f, 1.f));
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -45,8 +47,8 @@ namespace rev {
 		if(!core::OSHandler::get()->update())
 			return false;
 
-		mGfxDriver->setClearColor(video::Color(0.f, 1.f, 0.f));
 		mGfxDriver->clearColorBuffer();
+		mGfxDriver->clearZBuffer();
 
 		mGfxDriver->finishFrame();
 		return true;
