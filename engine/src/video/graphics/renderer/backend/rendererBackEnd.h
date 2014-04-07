@@ -14,10 +14,12 @@ namespace rev {
 	namespace video {
 
 		class GraphicsDriver;
+		class Shader;
 
 		class RendererBackEnd {
 		public:
 			struct StaticGeometry {
+				Shader* shader = nullptr;
 				std::uint16_t nVertices = 0;
 				math::Vec3f * vertices = nullptr;
 				std::uint16_t nIndices = 0;
@@ -31,7 +33,7 @@ namespace rev {
 			void flush();
 
 		private:
-			GraphicsDriver* mGfxDriver;
+			GraphicsDriver* mDriver;
 		};
 
 	}

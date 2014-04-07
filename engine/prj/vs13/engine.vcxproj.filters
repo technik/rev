@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\src\video\graphics\shader\openGL\openGLShader.h">
       <Filter>src\video\graphics\shader\openGL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.h">
+      <Filter>src\video\graphics\renderer\backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">

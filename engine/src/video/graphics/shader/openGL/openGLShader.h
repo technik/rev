@@ -13,6 +13,7 @@ namespace rev {
 	namespace video {
 		class OpenGLShader : public Shader {
 		public:
+			OpenGLShader(const char* _vtxShaderCode, const char* _pxlShaderCode);
 			inline GLuint program() const { return mProgram; }
 		private:
 			GLuint mProgram;
