@@ -10,6 +10,7 @@
 namespace rev {
 	namespace video {
 		class Window;
+		class GraphicsDriver;
 	}
 
 	template <class Allocator_>

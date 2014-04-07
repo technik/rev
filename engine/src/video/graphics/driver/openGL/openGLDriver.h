@@ -49,19 +49,12 @@ namespace rev {
 			void		setUniform(int _id, const math::Vec3f& _value) override;
 			void		setUniform(int _id, const math::Mat44f& _value) override;
 			void		setUniform(int _id, const Color& _value) override;
-			void		setUniform(int _id, const Image* _value) override;
 
 			// --- Draw ---
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
 
-
 		private:
-			void	unregisterTexture(const Image* _image);
-			unsigned registerTexture(const Image* _image);
-
-			typedef std::pair<const uint8_t*, unsigned> textureReg;
 			GLuint								mProgram;
-			core::map<const Image*, textureReg>	mTextures;
 		};
 
 	}	// namespace video

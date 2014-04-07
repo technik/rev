@@ -13,7 +13,10 @@ namespace rev {
 		// A vector of dimension _n
 		template<typename T_, unsigned n_>
 		class Vector {
+		public:
 			/// 666 TODO: Implemente generic dimension vector
+			inline T_&			operator[](unsigned _n)			{ return m[_n]; }
+			inline const T_&	operator[](unsigned _n) const	{ return m[_n]; }
 		public:
 			T_ m[n_];
 		};

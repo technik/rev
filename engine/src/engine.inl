@@ -15,6 +15,7 @@
 #include "core/platform/platform.h"
 #include "math/algebra/vector.h"
 #include "video/window/window.h"
+#include "video/graphics/driver/openGL/openGLDriver.h"
 
 namespace rev {
 

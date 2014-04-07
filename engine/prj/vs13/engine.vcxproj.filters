@@ -52,6 +52,12 @@
     <Filter Include="src\video\graphics\driver\openGL\windows">
       <UniqueIdentifier>{21674a41-c36e-4b8e-a100-75b84b567638}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\shader">
+      <UniqueIdentifier>{f71a65c2-2cd1-4266-b900-14b5b1569c1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\graphics\shader\openGL">
+      <UniqueIdentifier>{bdde83ec-408f-413c-9572-82c4221ba5a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -107,6 +113,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.h">
       <Filter>src\video\graphics\driver\openGL\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\shader\shader.h">
+      <Filter>src\video\graphics\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\shader\openGL\openGLShader.h">
+      <Filter>src\video\graphics\shader\openGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
