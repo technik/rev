@@ -44,7 +44,6 @@ namespace rev {
 			virtual void		setClearColor(const Color&) = 0;
 			virtual void		setZCompare(bool _enable) = 0;
 
-			virtual void		flush() = 0;
 			virtual void		finishFrame() = 0;
 
 			// --- Vertex config and surface config ---
@@ -64,7 +63,6 @@ namespace rev {
 			virtual void		setUniform(int _id, const math::Vec3f& _value) = 0;
 			virtual void		setUniform(int _id, const math::Mat44f& _value) = 0;
 			virtual void		setUniform(int _id, const Color& _value) = 0;
-			virtual void		setUniform(int _id, const Image* _value) = 0;
 
 			// --- Draw ---
 			virtual void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) = 0;

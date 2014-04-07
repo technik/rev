@@ -29,7 +29,6 @@ namespace rev {
 			void		setClearColor(const Color&) override;
 			void		setZCompare(bool _enable) override;
 
-			void		flush() override;
 			void		finishFrame() override;
 
 			// --- Vertex config and surface config ---

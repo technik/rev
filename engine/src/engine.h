@@ -24,7 +24,10 @@ namespace rev {
 		video::Window* mainWindow() const;
 
 	private:
-		video::Window* mMainWindow = nullptr;
+		video::Window*			mMainWindow = nullptr;
+		video::GraphicsDriver*	mGfxDriver = nullptr;
+
+	private:
 		// Disable copy
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;

@@ -28,6 +28,7 @@ namespace rev {
 		// Create window
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
+		mGfxDriver = create<video::OpenGLDriver>(mMainWindow);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
