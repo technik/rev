@@ -46,12 +46,14 @@ namespace rev {
 		//----------------------------------------------------------------------------------------------------------------------
 		template<typename Alloc_>
 		void SystemMemory::shutDown(Alloc_& _alloc) {
+			assert(sInstance);
 			_alloc.destroy(sInstance);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
 		template<class T_>
 		T_* SystemMemory::allocate(size_t _n) {
+			assert(sInstance);
 			void* buffer = sInstance->allocBuffer(_n * sizeof(T_));
 			return reinterpret_cast<T_*>(buffer);
 		}
@@ -59,6 +61,7 @@ namespace rev {
 		//----------------------------------------------------------------------------------------------------------------------
 		template<class T_>
 		void SystemMemory::deallocate(const T_* _ptr, size_t _n) {
+			assert(sInstance);
 			sInstance->freeBuffer(reinterpret_cast<const void*>(_ptr), _n);
 		}
 

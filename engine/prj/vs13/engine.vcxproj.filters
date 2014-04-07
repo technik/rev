@@ -49,6 +49,9 @@
     <Filter Include="src\video\basicTypes">
       <UniqueIdentifier>{8d09b94f-dba2-4a98-b526-454258e08861}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\driver\openGL\windows">
+      <UniqueIdentifier>{21674a41-c36e-4b8e-a100-75b84b567638}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -99,6 +102,12 @@
     <ClInclude Include="..\..\src\video\basicTypes\color.h">
       <Filter>src\video\basicTypes</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\containers\map.h">
+      <Filter>src\core\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.h">
+      <Filter>src\video\graphics\driver\openGL\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -141,6 +150,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\core\memory\systemMemory.cpp">
       <Filter>src\core\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp">
+      <Filter>src\video\graphics\driver\openGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp">
+      <Filter>src\video\graphics\driver\openGL\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

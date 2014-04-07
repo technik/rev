@@ -25,6 +25,9 @@ namespace rev {
 
 			virtual ~SystemMemory() = default;
 
+		protected:
+			SystemMemory() = default;
+
 		private:
 			static SystemMemory* sInstance;
 			virtual void*	allocBuffer	(size_t _size) = 0;

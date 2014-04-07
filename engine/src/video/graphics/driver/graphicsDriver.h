@@ -19,8 +19,7 @@ namespace rev {
 		// Forward declarations
 		class Color;
 		class Image;
-		class PxlShader;
-		class VtxShader;
+		class Shader;
 
 		class GraphicsDriver
 		{
@@ -36,8 +35,7 @@ namespace rev {
 			template<class Alloc_>
 			static GraphicsDriver* createDriver(Alloc_&);
 
-			virtual ~GraphicsDriver() {} // Virtual destructor
-			virtual void init() {};
+			virtual ~GraphicsDriver() = default; // Virtual destructor
 
 			// Note: position corresponds to the lower left corner of the rectangle and the window, starting at (0,0)
 			virtual void		setViewport(const math::Vec2i& position, const math::Vec2u& size) = 0;
@@ -50,8 +48,7 @@ namespace rev {
 			virtual void		finishFrame() = 0;
 
 			// --- Vertex config and surface config ---
-			virtual void		setVtxShader(VtxShader* _cfg) = 0;
-			virtual void		setPxlShader(PxlShader* _cfg) = 0;
+			virtual	void		setShader(const Shader*) = 0;
 
 			virtual int			getUniformLocation(const char* _uniformName) = 0;
 

@@ -11,9 +11,11 @@ namespace rev {
 	namespace math {
 
 		// A vector of dimension _n
-		template<typename T_, unsigned _n>
+		template<typename T_, unsigned n_>
 		class Vector {
 			/// 666 TODO: Implemente generic dimension vector
+		public:
+			T_ m[n_];
 		};
 
 		// 2D vector
@@ -32,15 +34,43 @@ namespace rev {
 			bool operator!=(const Vector&) const;
 		};
 
+		// 3D vector
+		template<typename T_>
+		class Vector<T_, 3> {
+		public:
+			T_ x, y, z;
+		public:
+			// Construction
+			Vector() = default;
+			Vector(const Vector&) = default;
+			Vector(const T_& _x, const T_& _y, const T_& _z) : x(_x), y(_y), z(_z) {}
+
+			// Comparison
+			bool operator==(const Vector&) const;
+			bool operator!=(const Vector&) const;
+		};
+
 		template<typename T_>
 		using Vector2 = Vector<T_, 2>;
 		template<typename T_>
 		using Vector3 = Vector<T_, 3>;
+		template<typename T_>
+		using Vector4 = Vector<T_, 4>;
 
 		typedef Vector<unsigned, 2> Vec2u;
 		typedef Vector<int, 2>		Vec2i;
 		typedef Vector<float, 2>	Vec2f;
 		typedef Vector<double, 2>	Vec2d;
+
+		typedef Vector3<unsigned>	Vec3u;
+		typedef Vector3<int>		Vec3i;
+		typedef Vector3<float>		Vec3f;
+		typedef Vector3<double>		Vec3d;
+
+		typedef Vector4<unsigned>	Vec4u;
+		typedef Vector4<int>		Vec4i;
+		typedef Vector4<float>		Vec4f;
+		typedef Vector4<double>		Vec4d;
 		
 	}	// namespace math
 }	// namespace rev

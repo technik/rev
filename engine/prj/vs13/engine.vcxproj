@@ -44,10 +44,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(REVSDK_HOME)\engine\src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(REVSDK_HOME)\engine\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(REVSDK_HOME)\engine\src;$(IncludePath)</IncludePath>
+    <LibraryPath>$(REVSDK_HOME)\engine\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -84,6 +86,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\core\containers\map.h" />
     <ClInclude Include="..\..\src\core\containers\vector.h" />
     <ClInclude Include="..\..\src\core\memory\defaultAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\newAllocator.h" />
@@ -98,6 +101,7 @@
     <ClInclude Include="..\..\src\video\basicTypes\color.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h" />
+    <ClInclude Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.h" />
     <ClInclude Include="..\..\src\video\window\window.h" />
     <ClInclude Include="..\..\src\video\window\windows\windowWindows.h" />
   </ItemGroup>
@@ -118,6 +122,8 @@
     <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>
     </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
+    <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp" />
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

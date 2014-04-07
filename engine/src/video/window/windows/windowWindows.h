@@ -19,6 +19,7 @@ namespace rev {
 		class WindowWindows {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
+			inline HWND		winapiHandle() const { return mWinapiHandle; }
 
 		private:
 			math::Vec2u mPosition;
