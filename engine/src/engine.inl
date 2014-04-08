@@ -8,6 +8,7 @@
 #define _REV_ENGINE_INL_
 
 #include <cassert>
+#include <cstdint>
 
 #include "engine.h"
 
@@ -17,6 +18,7 @@
 #include "video/basicTypes/color.h"
 #include "video/window/window.h"
 #include "video/graphics/driver/openGL/openGLDriver.h"
+#include "video/graphics/renderer/backend/rendererBackEnd.h"
 
 namespace rev {
 
@@ -30,11 +32,16 @@ namespace rev {
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		mGfxDriver = create<video::OpenGLDriver>(mMainWindow);
+		mGfxDriver->setZCompare(true);
+		mGfxDriver->setClearColor(video::Color(0.6f, 0.8f, 1.f));
+		mBackEnd = create<video::RendererBackEnd>(mGfxDriver);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
+		destroy(mBackEnd);
+		destroy(mGfxDriver);
 		destroy(mMainWindow);
 		core::Platform::shutDown(*this);
 	}
@@ -45,8 +52,25 @@ namespace rev {
 		if(!core::OSHandler::get()->update())
 			return false;
 
-		mGfxDriver->setClearColor(video::Color(0.f, 1.f, 0.f));
 		mGfxDriver->clearColorBuffer();
+		mGfxDriver->clearZBuffer();
+
+		math::Vec3f vtx[3];
+		vtx[0] = Vec3f(0.f, 1.f, 0.f);
+		vtx[1] = Vec3f(-1.f, 0.f, 0.f);
+		vtx[2] = Vec3f(1.f, 0.f, 0.f);
+
+		uint16_t indices[] = { 0, 1, 2 };
+
+		video::RendererBackEnd::StaticGeometry geom;
+		geom.nIndices = indices;
+		geom.nIndices = 3;
+		geom.nVertices = 3;
+		geom.vertices = vtx;
+		geom.shader = mShader;
+
+		mBackEnd->render(geom);
+		mBackEnd->flush();
 
 		mGfxDriver->finishFrame();
 		return true;

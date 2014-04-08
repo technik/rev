@@ -61,6 +61,9 @@
     <Filter Include="src\video\graphics\renderer">
       <UniqueIdentifier>{b4c5805b-d870-4c60-9a94-921f34517d33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\renderer\backend">
+      <UniqueIdentifier>{da008397-3b92-4190-af72-799293d85199}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -123,6 +126,9 @@
     <ClInclude Include="..\..\src\video\graphics\shader\openGL\openGLShader.h">
       <Filter>src\video\graphics\shader\openGL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.h">
+      <Filter>src\video\graphics\renderer\backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -171,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp">
       <Filter>src\video\graphics\driver\openGL\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp">
+      <Filter>src\video\graphics\renderer\backend</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

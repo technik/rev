@@ -11,6 +11,7 @@ namespace rev {
 	namespace video {
 		class Window;
 		class GraphicsDriver;
+		class RendererBackEnd;
 	}
 
 	template <class Allocator_>
@@ -26,6 +27,8 @@ namespace rev {
 	private:
 		video::Window*			mMainWindow = nullptr;
 		video::GraphicsDriver*	mGfxDriver = nullptr;
+		video::RendererBackEnd*	mBackEnd = nullptr;
+		video::Shader*			mShader = nullptr;
 
 	private:
 		// Disable copy
