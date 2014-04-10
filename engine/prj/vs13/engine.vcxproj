@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\core\containers\map.h" />
+    <ClInclude Include="..\..\src\core\containers\resourceManager.h" />
     <ClInclude Include="..\..\src\core\containers\vector.h" />
     <ClInclude Include="..\..\src\core\memory\defaultAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\newAllocator.h" />

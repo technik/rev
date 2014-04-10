@@ -7,10 +7,13 @@
 #ifndef _REV_VIDEO_GRAPHICS_SHADER_SHADER_H_
 #define _REV_VIDEO_GRAPHICS_SHADER_SHADER_H_
 
+#include <core/containers/resourceManager.h>
+
 namespace rev {
 	namespace video {
 		class Shader {
 		public:
+			virtual ~Shader() = default;
 		};
 	}
 }

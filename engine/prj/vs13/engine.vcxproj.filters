@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.h">
       <Filter>src\video\graphics\renderer\backend</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\containers\resourceManager.h">
+      <Filter>src\core\containers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
