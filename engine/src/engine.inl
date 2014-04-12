@@ -20,6 +20,8 @@
 #include "video/graphics/driver/openGL/openGLDriver.h"
 #include "video/graphics/renderer/backend/rendererBackEnd.h"
 
+using namespace rev::math;
+
 namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -63,7 +65,7 @@ namespace rev {
 		uint16_t indices[] = { 0, 1, 2 };
 
 		video::RendererBackEnd::StaticGeometry geom;
-		geom.nIndices = indices;
+		geom.indices = indices;
 		geom.nIndices = 3;
 		geom.nVertices = 3;
 		geom.vertices = vtx;

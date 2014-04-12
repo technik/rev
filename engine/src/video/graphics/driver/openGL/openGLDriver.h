@@ -20,7 +20,7 @@ namespace rev {
 
 		class OpenGLDriver : public OpenGLDriverBase {
 		public:
-			OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {}
+			OpenGLDriver(const Window* _window);
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size) override;

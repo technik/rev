@@ -64,6 +64,15 @@
     <Filter Include="src\video\graphics\renderer\backend">
       <UniqueIdentifier>{da008397-3b92-4190-af72-799293d85199}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\resources">
+      <UniqueIdentifier>{97feeae2-2d2c-4f59-969f-92b594cd9dba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\resources\creator">
+      <UniqueIdentifier>{5db7f6ac-77db-46a0-9379-4850ba48b5da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\resources\ownership">
+      <UniqueIdentifier>{e2c6eedf-e535-4261-a857-1078c5294b76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -129,11 +138,20 @@
     <ClInclude Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.h">
       <Filter>src\video\graphics\renderer\backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\core\containers\resourceManager.h">
-      <Filter>src\core\containers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\core\types.h">
       <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\resources\resourceManager.h">
+      <Filter>src\core\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\resources\creator\virtualConstructor.h">
+      <Filter>src\core\resources\creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\resources\smartPtr.h">
+      <Filter>src\core\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\resources\ownership\refLink.h">
+      <Filter>src\core\resources\ownership</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -164,8 +182,8 @@
     <None Include="..\..\src\math\algebra\matrix.inl">
       <Filter>src\math\algebra</Filter>
     </None>
-    <None Include="..\..\src\core\containers\resourceManager.inl">
-      <Filter>src\core\containers</Filter>
+    <None Include="..\..\src\core\resources\resourceManager.inl">
+      <Filter>src\core\resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +207,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp">
       <Filter>src\video\graphics\renderer\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\shader\shader.cpp">
+      <Filter>src\video\graphics\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\shader\openGL\openGLShader.cpp">
+      <Filter>src\video\graphics\shader\openGL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

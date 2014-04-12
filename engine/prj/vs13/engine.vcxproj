@@ -97,7 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\core\containers\map.h" />
-    <ClInclude Include="..\..\src\core\containers\resourceManager.h" />
     <ClInclude Include="..\..\src\core\containers\vector.h" />
     <ClInclude Include="..\..\src\core\memory\defaultAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\newAllocator.h" />
@@ -106,6 +105,10 @@
     <ClInclude Include="..\..\src\core\platform\osHandler.h" />
     <ClInclude Include="..\..\src\core\platform\platform.h" />
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h" />
+    <ClInclude Include="..\..\src\core\resources\creator\virtualConstructor.h" />
+    <ClInclude Include="..\..\src\core\resources\ownership\refLink.h" />
+    <ClInclude Include="..\..\src\core\resources\resourceManager.h" />
+    <ClInclude Include="..\..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\..\src\core\types.h" />
     <ClInclude Include="..\..\src\engine.h" />
     <ClInclude Include="..\..\src\math\algebra\matrix.h" />
@@ -121,13 +124,13 @@
     <ClInclude Include="..\..\src\video\window\windows\windowWindows.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\core\containers\resourceManager.inl" />
     <None Include="..\..\src\core\memory\defaultAllocator.inl" />
     <None Include="..\..\src\core\memory\newAllocator.inl" />
     <None Include="..\..\src\core\memory\stdAllocator.inl" />
     <None Include="..\..\src\core\memory\systemMemory.inl" />
     <None Include="..\..\src\core\platform\osHandler.inl" />
     <None Include="..\..\src\core\platform\platform.inl" />
+    <None Include="..\..\src\core\resources\resourceManager.inl" />
     <None Include="..\..\src\engine.inl" />
     <None Include="..\..\src\math\algebra\matrix.inl" />
     <None Include="..\..\src\math\algebra\vector.inl" />
@@ -141,6 +144,8 @@
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp" />
     <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />
+    <ClCompile Include="..\..\src\video\graphics\shader\openGL\openGLShader.cpp" />
+    <ClCompile Include="..\..\src\video\graphics\shader\shader.cpp" />
     <ClCompile Include="..\..\src\video\window\windows\windowWindows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

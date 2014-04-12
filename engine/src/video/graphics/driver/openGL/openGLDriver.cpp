@@ -12,8 +12,18 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/openGL/openGLShader.h>
 
+using namespace rev::core;
+
 namespace rev {
 	namespace video {
+		//--------------------------------------------------------------------------------------------------------------
+		OpenGLDriver::OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {
+			Shader::manager()->setCreator(
+				[](const string& _name) -> Shader* {
+					return new OpenGLShader(_name);
+				});
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setViewport(const math::Vec2i& _position, const math::Vec2u& _size) {
 			glViewport(_position.x, _position.y, _size.x, _size.y);

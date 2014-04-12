@@ -12,6 +12,7 @@ namespace rev {
 		class Window;
 		class GraphicsDriver;
 		class RendererBackEnd;
+		class Shader;
 	}
 
 	template <class Allocator_>

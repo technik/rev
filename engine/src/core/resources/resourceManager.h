@@ -7,15 +7,17 @@
 #ifndef _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
 #define _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
 
-#include "map.h"
 #include "../memory/defaultAllocator.h"
+#include <core/containers/map.h>
+#include <core/resources/smartPtr.h>
 
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
 		class ResourceMgr : public Creator_ {
 		public:
+
 			// Singleton interface
 			static ResourceMgr* manager();
 			template<typename Alloc_>
@@ -23,8 +25,17 @@ namespace rev {
 			template<typename Alloc_>
 			static void shutDown(Alloc_& = Alloc_());
 
+		private:
+			class Destroy {
+				void destroy(Val_*) {
+					ResourceMgr::manager()->release(Val_*);
+				}
+			};
+
+		public:
+			typedef SmartPtr<Val_, Ownership_, Destroy>	Ptr;
 			// Resource manager interface
-			Ownership_::Pointee get(const Key_&);
+			Ptr get(const Key_&);
 
 		private:
 			ResourceMgr(MapAlloc_&);
@@ -32,16 +43,16 @@ namespace rev {
 
 			void release(Val_*);
 
-			ResourceMgr*				sIntance;
+			static ResourceMgr*			sInstance;
 			map<Key_, Val_, MapAlloc_>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_ = DefaultAllocator>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_ = DefaultAllocator>
 		class ManagedResource {
 		public:
 			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>	ResourceMgr;
-			inline static ResourceMgr*	manager() { ResourceMgr::manager(); }
+			inline static ResourceMgr*	manager() { return ResourceMgr::manager(); }
 		};
 
 	}	// namespace core

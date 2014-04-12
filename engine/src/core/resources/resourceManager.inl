@@ -14,7 +14,7 @@
 namespace rev {
 	namespace core {
 		//--------------------------------------------------------------------------------------------------------------
-		template<typename Key_, typename Val_, typename Creator_, typename Ownership_, typename MapAlloc_>
+		template<typename Key_, typename Val_, typename Creator_, template<class, class> class Ownership_, typename MapAlloc_>
 		ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>*
 			ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::manager() {
 				assert(sInstance);
@@ -22,8 +22,9 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_, class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::startUp<SingAlloc_>(
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		template<class SingAlloc_>
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::startUp(
 				SingAlloc_& _singAlloc, MapAlloc_& _mapAlloc)
 		{
 			assert(!sInstance);
@@ -31,8 +32,9 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_, class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::shutDown<SingAlloc_>(
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		template<class SingAlloc_>
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::shutDown(
 			SingAlloc_& _singAlloc)
 		{
 			assert(sInstance);
@@ -41,36 +43,39 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_>
-		typename Ownership_::Pointee ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::get(const Key_& _key)
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		typename ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::Ptr
+			ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::get(const Key_& _key)
 		{
 			auto resIterator = mResources.find(_key);
 			if (resIterator == mResources.end()) {
 				Val_* newResource = create<Val_>(_key);
 				auto newEntry = std::make_pair(_key, _newResource);
 				mResources.insert(newEntry);
-				return Ownership_::wrap(newResource);
+				return Ptr(newResource);
 			}
-			return Ownership_::invalid();
+			return Ptr(nullptr);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
 		ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::ResourceMgr(MapAlloc_& _mapAlloc)
 			:mResources(_mapAlloc)
 		{
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
 		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::release(
-			SingAlloc_& _singAlloc)
+			Val_* _v)
 		{
-			auto resIterator = mResources.find(_key);
-			assert(resIterator != mResources.end()); // Resource is not registered
-			Val_* resource = resIterator->second;
-			mResources.erase(resIterator);
-			destroy(resource);
+			for (auto element : mResources) {
+				if (element->second == _v) {
+					destroy(resource);
+					mResources.erase(elenment);
+				}
+			}
+			assert(false);
 		}
 
 	}	// namespace core

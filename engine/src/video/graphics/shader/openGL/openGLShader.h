@@ -8,12 +8,13 @@
 #define _REV_VIDEO_GRAPHICS_SHADER_OPENGL_OPENGLSHADER_H_
 
 #include "../shader.h"
+#include <core/types.h>
 
 namespace rev {
 	namespace video {
 		class OpenGLShader : public Shader {
 		public:
-			OpenGLShader(const char* _vtxShaderCode, const char* _pxlShaderCode);
+			OpenGLShader(const core::string&);
 			inline GLuint program() const { return mProgram; }
 		private:
 			GLuint mProgram;
