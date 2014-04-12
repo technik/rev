@@ -8,10 +8,11 @@
 #define _REV_VIDEO_GRAPHICS_SHADER_SHADER_H_
 
 #include <core/containers/resourceManager.h>
+#include <core/types.h>
 
 namespace rev {
 	namespace video {
-		class Shader {
+		class Shader : core::ManagedResource<core::string, Shader>{
 		public:
 			virtual ~Shader() = default;
 		};

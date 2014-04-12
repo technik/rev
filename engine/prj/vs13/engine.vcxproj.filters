@@ -132,6 +132,9 @@
     <ClInclude Include="..\..\src\core\containers\resourceManager.h">
       <Filter>src\core\containers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\types.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -160,6 +163,9 @@
     </None>
     <None Include="..\..\src\math\algebra\matrix.inl">
       <Filter>src\math\algebra</Filter>
+    </None>
+    <None Include="..\..\src\core\containers\resourceManager.inl">
+      <Filter>src\core\containers</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
