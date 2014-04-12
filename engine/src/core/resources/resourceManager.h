@@ -4,8 +4,8 @@
 // 2014/April/08
 //----------------------------------------------------------------------------------------------------------------------
 // Generic resource manager
-#ifndef _REV_CORE_CONTAINERS_RESOURCEMANAGER_H_
-#define _REV_CORE_CONTAINERS_RESOURCEMANAGER_H_
+#ifndef _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
+#define _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
 
 #include "map.h"
 #include "../memory/defaultAllocator.h"
@@ -13,8 +13,7 @@
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
-		template<typename Key_, typename Val_, typename Creator_, typename Ownership_,
-			typename MapAlloc_ = DefaultAllocator>
+		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_>
 		class ResourceMgr : public Creator_ {
 		public:
 			// Singleton interface
@@ -38,15 +37,16 @@ namespace rev {
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, Ownership_, typename MapAlloc_ = DefaultAllocator>
+		template<class Key_, class Val_, class Creator_, class Ownership_, class MapAlloc_ = DefaultAllocator>
 		class ManagedResource {
 		public:
 			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>	ResourceMgr;
 			inline static ResourceMgr*	manager() { ResourceMgr::manager(); }
 		};
+
 	}	// namespace core
 }	// namespace rev
 
 #include "resourceManager.inl"
 
-#endif // _REV_CORE_CONTAINERS_RESOURCEMANAGER_H_
+#endif // _REV_CORE_RESOURCES_RESOURCEMANAGER_H_

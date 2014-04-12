@@ -4,8 +4,8 @@
 // 2014/April/11
 //----------------------------------------------------------------------------------------------------------------------
 // Generic resource manager
-#ifndef _REV_CORE_CONTAINERS_RESOURCEMANAGER_INL_
-#define _REV_CORE_CONTAINERS_RESOURCEMANAGER_INL_
+#ifndef _REV_CORE_RESOURCES_RESOURCEMANAGER_INL_
+#define _REV_CORE_RESOURCES_RESOURCEMANAGER_INL_
 
 #include <cassert>
 
@@ -68,10 +68,12 @@ namespace rev {
 		{
 			auto resIterator = mResources.find(_key);
 			assert(resIterator != mResources.end()); // Resource is not registered
+			Val_* resource = resIterator->second;
 			mResources.erase(resIterator);
+			destroy(resource);
 		}
 
 	}	// namespace core
 }	// namespace rev
 
-#endif // _REV_CORE_CONTAINERS_RESOURCEMANAGER_INL_
+#endif // _REV_CORE_RESOURCES_RESOURCEMANAGER_INL_

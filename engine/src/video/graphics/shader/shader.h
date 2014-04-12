@@ -12,7 +12,12 @@
 
 namespace rev {
 	namespace video {
-		class Shader : core::ManagedResource<core::string, Shader>{
+
+		class ShaderCreatorPolicy {
+
+		};
+
+		class Shader : core::ManagedResource<core::string, Shader, ShaderCreatorPolicy, ReferenceLink>{
 		public:
 			virtual ~Shader() = default;
 		};
