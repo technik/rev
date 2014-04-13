@@ -22,6 +22,7 @@ namespace rev {
 			RefLink(RefLink& _x)
 				:prev(&_x)
 				, post(_x.post)
+				, pointee(_x.pointee)
 			{
 				_x.post = this;
 				if (post)
@@ -31,6 +32,7 @@ namespace rev {
 			RefLink(RefLink&& _x)
 				:prev(_x.prev)
 				, post(_x.post)
+				, pointee(_x.pointee)
 			{
 				_x.prev = nullptr;
 				_x.post = nullptr;

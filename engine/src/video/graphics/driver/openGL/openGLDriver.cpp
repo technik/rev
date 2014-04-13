@@ -18,6 +18,8 @@ namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriver::OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {
+			GLenum res = glewInit();
+			assert(res == GLEW_OK);
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
 					return new OpenGLShader(_name);
@@ -67,6 +69,7 @@ namespace rev {
 			const OpenGLShader* shader = static_cast<const OpenGLShader*>(_shader);
 			mProgram = shader->program();
 			glUseProgram(mProgram);
+			glEnableVertexAttribArray(0);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
