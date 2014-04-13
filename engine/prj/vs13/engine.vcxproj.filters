@@ -76,6 +76,9 @@
     <Filter Include="src\core\platform\fileSystem">
       <UniqueIdentifier>{539e66cf-ac30-40f2-91ee-1e4d5e239a85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\renderer\forward">
+      <UniqueIdentifier>{b8e8a5bc-28b0-47f6-b86a-ecab3cda352f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -161,6 +164,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\core\platform\fileSystem\stdFile.h">
       <Filter>src\core\platform\fileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\renderer\forward\forwardRenderer.h">
+      <Filter>src\video\graphics\renderer\forward</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\graphics\renderer\renderObj.h">
+      <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

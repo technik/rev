@@ -120,6 +120,8 @@
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.h" />
     <ClInclude Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.h" />
+    <ClInclude Include="..\..\src\video\graphics\renderer\forward\forwardRenderer.h" />
+    <ClInclude Include="..\..\src\video\graphics\renderer\renderObj.h" />
     <ClInclude Include="..\..\src\video\graphics\shader\openGL\openGLShader.h" />
     <ClInclude Include="..\..\src\video\graphics\shader\shader.h" />
     <ClInclude Include="..\..\src\video\window\window.h" />

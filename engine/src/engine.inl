@@ -15,11 +15,9 @@
 #include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
 #include "math/algebra/vector.h"
-#include "video/basicTypes/color.h"
+#include "video/graphics/renderer/forward/forwardRenderer.h"
+#include "video/graphics/renderer/renderObj.h"
 #include "video/window/window.h"
-#include "video/graphics/driver/openGL/openGLDriver.h"
-#include "video/graphics/renderer/backend/rendererBackEnd.h"
-#include "video/graphics/shader/shader.h"
 
 using namespace rev::math;
 
@@ -35,18 +33,24 @@ namespace rev {
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
-		mGfxDriver = create<video::OpenGLDriver>(mMainWindow);
-		mGfxDriver->setZCompare(true);
-		mGfxDriver->setClearColor(video::Color(0.6f, 0.8f, 1.f));
-		mBackEnd = create<video::RendererBackEnd>(mGfxDriver);
-		mShader = video::Shader::manager()->get("test");
+		mRenderer = create<video::ForwardRenderer>(mMainWindow);
+		mObj.nIndices = 3;
+		mObj.indices = allocate<uint16_t>(3);
+		mObj.indices[0] = 0;
+		mObj.indices[1] = 1;
+		mObj.indices[2] = 2;
+
+		mObj.nVertices = 3;
+		mObj.vertices = allocate<Vec3f>(3);
+		mObj.vertices[0] = Vec3f(0.f, 1.f, 0.f);
+		mObj.vertices[1] = Vec3f(-1.f, -1.f, 0.f);
+		mObj.vertices[2] = Vec3f(1.f, -1.f, 0.f);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
-		destroy(mBackEnd);
-		destroy(mGfxDriver);
+		destroy(mRenderer);
 		video::Shader::Mgr::shutDown(*this);
 		destroy(mMainWindow);
 		core::Platform::shutDown(*this);
@@ -58,27 +62,10 @@ namespace rev {
 		if(!core::OSHandler::get()->update())
 			return false;
 
-		mGfxDriver->clearColorBuffer();
-		mGfxDriver->clearZBuffer();
-
-		math::Vec3f vtx[3];
-		vtx[0] = Vec3f(0.f, 1.f, 0.f);
-		vtx[1] = Vec3f(-1.f, 0.f, 0.f);
-		vtx[2] = Vec3f(1.f, 0.f, 0.f);
-
-		uint16_t indices[] = { 0, 1, 2 };
-
-		video::RendererBackEnd::StaticGeometry geom;
-		geom.indices = indices;
-		geom.nIndices = 3;
-		geom.nVertices = 3;
-		geom.vertices = vtx;
-		geom.shader = mShader;
-
-		mBackEnd->render(geom);
-		mBackEnd->flush();
-
-		mGfxDriver->finishFrame();
+		mRenderer->startFrame();
+		mRenderer->renderObject(mObj);
+		mRenderer->finishFrame();
+		
 		return true;
 	}
 
