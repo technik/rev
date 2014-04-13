@@ -21,14 +21,15 @@ namespace rev {
 			// Singleton interface
 			static ResourceMgr* manager();
 			template<typename Alloc_>
-			static void startUp(Alloc_& = Alloc_(), MapAlloc_& = MapAlloc_());
+			static void startUp(Alloc_& = Alloc_(), MapAlloc_ = MapAlloc_());
 			template<typename Alloc_>
 			static void shutDown(Alloc_& = Alloc_());
 
 		private:
 			class Destroy {
-				void destroy(Val_*) {
-					ResourceMgr::manager()->release(Val_*);
+			protected:
+				void destroy(Val_* _v) {
+					ResourceMgr::manager()->release(_v);
 				}
 			};
 
@@ -44,15 +45,16 @@ namespace rev {
 			void release(Val_*);
 
 			static ResourceMgr*			sInstance;
-			map<Key_, Val_, MapAlloc_>	mResources;
+			map<Key_, Val_*, MapAlloc_>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------
 		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_ = DefaultAllocator>
 		class ManagedResource {
 		public:
-			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>	ResourceMgr;
-			inline static ResourceMgr*	manager() { return ResourceMgr::manager(); }
+			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>	Mgr;
+			typedef typename Mgr::Ptr	Ptr;
+			inline static Mgr*	manager() { return Mgr::manager(); }
 		};
 
 	}	// namespace core

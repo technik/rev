@@ -25,10 +25,11 @@ namespace rev {
 		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
 		template<class SingAlloc_>
 		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::startUp(
-				SingAlloc_& _singAlloc, MapAlloc_& _mapAlloc)
+				SingAlloc_& _singAlloc, MapAlloc_ _mapAlloc)
 		{
 			assert(!sInstance);
-			sInstance = _singAlloc.create<ResourceMgr>(_mapAlloc);
+			sInstance = _singAlloc.allocate<ResourceMgr>();
+			new(sInstance)ResourceMgr(_mapAlloc);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -38,7 +39,8 @@ namespace rev {
 			SingAlloc_& _singAlloc)
 		{
 			assert(sInstance);
-			_singAlloc.destroy(sInstance);
+			sInstance->~ResourceMgr();
+			_singAlloc.deallocate(sInstance);
 			sInstance = nullptr;
 		}
 
@@ -49,9 +51,8 @@ namespace rev {
 		{
 			auto resIterator = mResources.find(_key);
 			if (resIterator == mResources.end()) {
-				Val_* newResource = create<Val_>(_key);
-				auto newEntry = std::make_pair(_key, _newResource);
-				mResources.insert(newEntry);
+				Val_* newResource = create(_key);
+				mResources.insert(std::make_pair(_key, newResource));
 				return Ptr(newResource);
 			}
 			return Ptr(nullptr);
@@ -60,7 +61,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
 		ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::ResourceMgr(MapAlloc_& _mapAlloc)
-			:mResources(_mapAlloc)
+			:mResources(StdAllocator<MapAlloc_,std::pair<Key_,Val_*>>(_mapAlloc))
 		{
 		}
 
@@ -70,9 +71,9 @@ namespace rev {
 			Val_* _v)
 		{
 			for (auto element : mResources) {
-				if (element->second == _v) {
-					destroy(resource);
-					mResources.erase(elenment);
+				if (element.second == _v) {
+					destroy(_v);
+					mResources.erase(element.first);
 				}
 			}
 			assert(false);

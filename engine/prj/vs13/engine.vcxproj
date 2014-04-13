@@ -102,6 +102,8 @@
     <ClInclude Include="..\..\src\core\memory\newAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\stdAllocator.h" />
     <ClInclude Include="..\..\src\core\memory\systemMemory.h" />
+    <ClInclude Include="..\..\src\core\platform\fileSystem\file.h" />
+    <ClInclude Include="..\..\src\core\platform\fileSystem\stdFile.h" />
     <ClInclude Include="..\..\src\core\platform\osHandler.h" />
     <ClInclude Include="..\..\src\core\platform\platform.h" />
     <ClInclude Include="..\..\src\core\platform\windows\osHandlerWindows.h" />
@@ -137,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\core\memory\systemMemory.cpp" />
+    <ClCompile Include="..\..\src\core\platform\fileSystem\stdFile.cpp" />
     <ClCompile Include="..\..\src\core\platform\osHandler.cpp" />
     <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>

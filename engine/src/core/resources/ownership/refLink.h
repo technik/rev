@@ -14,6 +14,7 @@ namespace rev {
 		template<class T_, class Destroy_>
 		class RefLink : Destroy_ {
 		public:
+			RefLink() = default;
 			RefLink(T_* _ptr)
 				:pointee(_ptr)
 			{}
@@ -27,25 +28,46 @@ namespace rev {
 					post->prev = this;
 			}
 
+			RefLink(RefLink&& _x)
+				:prev(_x.prev)
+				, post(_x.post)
+			{
+				_x.prev = nullptr;
+				_x.post = nullptr;
+				_x.pointee = nullptr;
+				if (prev)
+					prev->post = this;
+				if (post)
+					post->prev = this;
+			}
+
 			~RefLink() {
 				if (prev)
 					prev->post = post;
 				if (post)
 					post->prev = prev;
-				if (!prev && !post)
+				if (pointee && !prev && !post)
 					destroy(pointee);
 			}
 
 			RefLink& operator=(RefLink& _x) {
 				if (!(_x.pointee == pointee)) {
-					~RefLink();
+					this->~RefLink();
+					new(this)RefLink(_x);
+				}
+				return *this;
+			}
+
+			RefLink& operator=(RefLink&& _x) {
+				if (!(_x.pointee == pointee)) {
+					this->~RefLink();
 					new(this)RefLink(_x);
 				}
 				return *this;
 			}
 
 		protected:
-			T_*	pointee;
+			T_*	pointee = nullptr;
 			RefLink* prev = nullptr;
 			RefLink* post = nullptr;
 		};

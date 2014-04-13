@@ -15,11 +15,12 @@ namespace rev {
 		class OpenGLShader : public Shader {
 		public:
 			OpenGLShader(const core::string&);
+			~OpenGLShader();
 			inline unsigned program() const { return mProgram; }
 		private:
-			unsigned mProgram;
-			unsigned mVtx;
-			unsigned mIdx;
+			unsigned mProgram = 0;
+			unsigned mVtx = 0;
+			unsigned mPxl = 0;
 		};
 	}
 }

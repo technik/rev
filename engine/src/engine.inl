@@ -19,6 +19,7 @@
 #include "video/window/window.h"
 #include "video/graphics/driver/openGL/openGLDriver.h"
 #include "video/graphics/renderer/backend/rendererBackEnd.h"
+#include "video/graphics/shader/shader.h"
 
 using namespace rev::math;
 
@@ -33,10 +34,12 @@ namespace rev {
 		// Create window
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
+		video::Shader::Mgr::startUp(*this);
 		mGfxDriver = create<video::OpenGLDriver>(mMainWindow);
 		mGfxDriver->setZCompare(true);
 		mGfxDriver->setClearColor(video::Color(0.6f, 0.8f, 1.f));
 		mBackEnd = create<video::RendererBackEnd>(mGfxDriver);
+		mShader = video::Shader::manager()->get("test");
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -44,6 +47,7 @@ namespace rev {
 	Engine<Allocator_>::~Engine() {
 		destroy(mBackEnd);
 		destroy(mGfxDriver);
+		video::Shader::Mgr::shutDown(*this);
 		destroy(mMainWindow);
 		core::Platform::shutDown(*this);
 	}

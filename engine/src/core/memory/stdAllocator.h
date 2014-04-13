@@ -33,6 +33,7 @@ namespace rev {
 
 		public:
 			inline explicit StdAllocator():BaseAlloc_() {}
+			inline explicit StdAllocator(BaseAlloc_ _b) :BaseAlloc_(_b) {}
 			inline ~StdAllocator() {}
 			inline explicit StdAllocator(StdAllocator const& _x) :BaseAlloc_(_x) {}
 			template<typename U>
@@ -48,7 +49,7 @@ namespace rev {
 				return BaseAlloc_::allocate<T_>(_cnt);
 			}
 			inline void deallocate(pointer _p, size_type _cnt) {
-				BaseAlloc_::deallocate<T_>(_p,_cnt);
+				BaseAlloc_::deallocate(_p,_cnt);
 			}
 
 			//    size

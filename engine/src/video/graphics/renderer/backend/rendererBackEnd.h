@@ -10,16 +10,17 @@
 #include <cstdint>
 #include <math/algebra/vector.h>
 
+#include <video/graphics/shader/shader.h>
+
 namespace rev {
 	namespace video {
 
 		class GraphicsDriver;
-		class Shader;
 
 		class RendererBackEnd {
 		public:
 			struct StaticGeometry {
-				Shader* shader = nullptr;
+				Shader::Ptr shader;
 				std::uint16_t nVertices = 0;
 				math::Vec3f * vertices = nullptr;
 				std::uint16_t nIndices = 0;

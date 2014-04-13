@@ -7,12 +7,13 @@
 #ifndef _REV_ENGINE_H_
 #define _REV_ENGINE_H_
 
+#include <video/graphics/shader/shader.h>
+
 namespace rev {
 	namespace video {
 		class Window;
 		class GraphicsDriver;
 		class RendererBackEnd;
-		class Shader;
 	}
 
 	template <class Allocator_>
@@ -29,7 +30,7 @@ namespace rev {
 		video::Window*			mMainWindow = nullptr;
 		video::GraphicsDriver*	mGfxDriver = nullptr;
 		video::RendererBackEnd*	mBackEnd = nullptr;
-		video::Shader*			mShader = nullptr;
+		video::Shader::Ptr		mShader = nullptr;
 
 	private:
 		// Disable copy

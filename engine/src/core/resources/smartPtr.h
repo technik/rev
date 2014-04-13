@@ -20,17 +20,30 @@ namespace rev {
 		template<class T_, template<class,class> class Ownership_, class Destroy_ = JustDelete>
 		class SmartPtr : public Ownership_<T_,Destroy_>{
 		public:
+			SmartPtr() {}
 			SmartPtr(T_* _ptr)
-				:Ownership_(_ptr)
+				:Ownership_<T_,Destroy_>(_ptr)
 			{}
 
 			SmartPtr(SmartPtr& _x)
-				:Ownership(_x)
+				:Ownership_<T_, Destroy_>(_x)
+			{}
+
+			SmartPtr(SmartPtr&& _x)
+				:Ownership_<T_, Destroy_>(_x)
 			{}
 
 			SmartPtr& operator=(SmartPtr& _x) {
-				Ownership = _x;
+				Ownership_<T_, Destroy_>::operator= (_x);
+				return *this;
 			}
+
+			SmartPtr& operator=(SmartPtr&& _x) {
+				Ownership_<T_, Destroy_>::operator= (_x);
+				return *this;
+			}
+
+			operator T_*() const { return pointee; }
 
 			bool operator==(const SmartPtr& _x) const {
 				return pointee == _x.pointee;

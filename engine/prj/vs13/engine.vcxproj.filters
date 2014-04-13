@@ -73,6 +73,9 @@
     <Filter Include="src\core\resources\ownership">
       <UniqueIdentifier>{e2c6eedf-e535-4261-a857-1078c5294b76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\platform\fileSystem">
+      <UniqueIdentifier>{539e66cf-ac30-40f2-91ee-1e4d5e239a85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -153,6 +156,12 @@
     <ClInclude Include="..\..\src\core\resources\ownership\refLink.h">
       <Filter>src\core\resources\ownership</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\fileSystem\file.h">
+      <Filter>src\core\platform\fileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\fileSystem\stdFile.h">
+      <Filter>src\core\platform\fileSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -213,6 +222,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\video\graphics\shader\openGL\openGLShader.cpp">
       <Filter>src\video\graphics\shader\openGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\platform\fileSystem\stdFile.cpp">
+      <Filter>src\core\platform\fileSystem</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
