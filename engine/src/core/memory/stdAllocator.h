@@ -46,7 +46,7 @@ namespace rev {
 			//    memory allocation
 			pointer allocate(size_type _cnt,
 				typename std::allocator<void>::const_pointer = 0) {
-				return BaseAlloc_::allocate<T_>(_cnt);
+				return BaseAlloc_::template allocate<T_>(_cnt);
 			}
 			void deallocate(pointer _p, size_type _cnt) {
 				BaseAlloc_::deallocate(_p,_cnt);
