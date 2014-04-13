@@ -32,40 +32,40 @@ namespace rev {
 			};
 
 		public:
-			inline explicit StdAllocator():BaseAlloc_() {}
-			inline explicit StdAllocator(BaseAlloc_ _b) :BaseAlloc_(_b) {}
-			inline ~StdAllocator() {}
-			inline explicit StdAllocator(StdAllocator const& _x) :BaseAlloc_(_x) {}
+			StdAllocator():BaseAlloc_() {}
+			explicit StdAllocator(BaseAlloc_ _b) :BaseAlloc_(_b) {}
+			~StdAllocator() {}
+			StdAllocator(StdAllocator const& _x) :BaseAlloc_(_x) {}
 			template<typename U>
-			inline explicit StdAllocator(StdAllocator<BaseAlloc_,U> const&) :BaseAlloc_() {}
+			explicit StdAllocator(StdAllocator<BaseAlloc_,U> const&) :BaseAlloc_() {}
 
 			//    address
-			inline pointer address(reference r) { return &r; }
-			inline const_pointer address(const_reference r) { return &r; }
+			pointer address(reference r) { return &r; }
+			const_pointer address(const_reference r) { return &r; }
 
 			//    memory allocation
-			inline pointer allocate(size_type _cnt,
+			pointer allocate(size_type _cnt,
 				typename std::allocator<void>::const_pointer = 0) {
 				return BaseAlloc_::allocate<T_>(_cnt);
 			}
-			inline void deallocate(pointer _p, size_type _cnt) {
+			void deallocate(pointer _p, size_type _cnt) {
 				BaseAlloc_::deallocate(_p,_cnt);
 			}
 
 			//    size
-			inline size_type max_size() const {
+			size_type max_size() const {
 				return std::numeric_limits<size_type>::max() / sizeof(T_);
 			}
 
 			//    construction/destruction
-			inline void construct(pointer p, const T_& t) { new(p)T_(t); }
-			inline void destroy(pointer _p) { 
+			void construct(pointer p, const T_& t) { new(p)T_(t); }
+			void destroy(pointer _p) { 
 				_p; // Work around for visual studio incorrect warning
 				_p->~T_();
 			}
 
-			inline bool operator==(StdAllocator const&) { return true; }
-			inline bool operator!=(StdAllocator const& a) { return !operator==(a); }
+			bool operator==(StdAllocator const&) { return true; }
+			bool operator!=(StdAllocator const& a) { return !operator==(a); }
 		};
 
 	} // namespace core
