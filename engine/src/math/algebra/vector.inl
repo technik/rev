@@ -24,6 +24,15 @@ namespace rev {
 			return _v.x != x || _v.y != y;
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T_>
+		Vector<T_, 3>& Vector<T_, 3>::operator=(const Vector& _v) {
+			x = _v.x;
+			y = _v.y;
+			z = _v.z;
+			return *this;
+		}
+
 	}	// namespace math
 }	// namespace rev
 

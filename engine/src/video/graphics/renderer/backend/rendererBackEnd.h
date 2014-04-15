@@ -11,6 +11,7 @@
 #include <math/algebra/vector.h>
 
 #include <video/graphics/shader/shader.h>
+#include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video {
@@ -25,6 +26,7 @@ namespace rev {
 				math::Vec3f * vertices = nullptr;
 				std::uint16_t nIndices = 0;
 				std::uint16_t* indices = nullptr;
+				math::Mat34f	transform;
 			};
 
 		public:

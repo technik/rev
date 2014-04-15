@@ -154,9 +154,9 @@ namespace rev {
 				for (unsigned int column = 0; column < 4; ++column)
 				{
 					if (column == row)
-						mtx.m[row][column] = NumericTraits<Number_>::one();
+						mtx.m[row][column] = Number_(1.f);
 					else
-						mtx.m[row][column] = NumericTraits<Number_>::zero();
+						mtx.m[row][column] = Number_(0.f);
 				}
 			}
 			return mtx;

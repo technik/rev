@@ -79,6 +79,12 @@
     <Filter Include="src\video\graphics\renderer\forward">
       <UniqueIdentifier>{b8e8a5bc-28b0-47f6-b86a-ecab3cda352f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\game">
+      <UniqueIdentifier>{1e430a82-f70b-4bd2-8128-ff6a6808eefa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game\sceneGraph">
+      <UniqueIdentifier>{0483ef6d-d801-43e9-a7da-a43aa4d853e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -171,6 +177,15 @@
     <ClInclude Include="..\..\src\video\graphics\renderer\renderObj.h">
       <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\sceneGraph\sceneNode.h">
+      <Filter>src\game\sceneGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\sceneGraph\transformSrc.h">
+      <Filter>src\game\sceneGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\algebra\quaternion.h">
+      <Filter>src\math\algebra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -237,6 +252,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\video\graphics\renderer\forward\forwardRenderer.cpp">
       <Filter>src\video\graphics\renderer\forward</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\sceneGraph\sceneNode.cpp">
+      <Filter>src\game\sceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\sceneGraph\transformSrc.cpp">
+      <Filter>src\game\sceneGraph</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

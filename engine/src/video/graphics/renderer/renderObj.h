@@ -8,6 +8,7 @@
 #define _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
 
 #include <cstdint>
+#include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 
 namespace rev {
@@ -18,9 +19,10 @@ namespace rev {
 			math::Vec3f*	vertices;
 			math::Vec3f*	normals;
 			math::Vec2f*	uvs;
-			unsigned		nVertices;
+			uint16_t		nVertices;
 			uint16_t		nIndices;
 			uint16_t*		indices;
+			math::Mat34f	transform;
 		};
 	}
 }

@@ -27,8 +27,14 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderObject(const RenderObj& _obj)
 		{
-			mDriver->setAttribBuffer(0, _obj.nVertices, _obj.vertices);
-			mDriver->drawIndexBuffer(_obj.nIndices, _obj.indices, GraphicsDriver::EPrimitiveType::triangles);
+			RendererBackEnd::StaticGeometry geom;
+			geom.indices = _obj.indices;
+			geom.nIndices = _obj.nIndices;
+			geom.vertices = _obj.vertices;
+			geom.nVertices = _obj.nVertices;
+			geom.shader = mShader;
+			geom.transform = _obj.transform;
+			mBackEnd->render(geom);
 		}
 	}
 }
