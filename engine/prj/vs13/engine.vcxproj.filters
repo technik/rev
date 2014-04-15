@@ -235,5 +235,8 @@
     <ClCompile Include="..\..\src\core\platform\fileSystem\stdFile.cpp">
       <Filter>src\core\platform\fileSystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\video\graphics\renderer\forward\forwardRenderer.cpp">
+      <Filter>src\video\graphics\renderer\forward</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

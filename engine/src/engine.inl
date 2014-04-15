@@ -33,7 +33,8 @@ namespace rev {
 		core::Platform::startUp(*this);
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
-		mRenderer = create<video::ForwardRenderer>(mMainWindow);
+		mRenderer = create<video::ForwardRenderer>();
+		mRenderer->init(mMainWindow,*this);
 		mObj.nIndices = 3;
 		mObj.indices = allocate<uint16_t>(3);
 		mObj.indices[0] = 0;
@@ -50,6 +51,7 @@ namespace rev {
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
+		mRenderer->end(*this);
 		destroy(mRenderer);
 		video::Shader::Mgr::shutDown(*this);
 		destroy(mMainWindow);

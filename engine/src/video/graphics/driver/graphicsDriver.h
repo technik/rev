@@ -33,7 +33,7 @@ namespace rev {
 			};
 		public:
 			template<class Alloc_>
-			static GraphicsDriver* createDriver(Alloc_&);
+			static GraphicsDriver* createDriver(Alloc_&); // 666TODO: Unimplemented
 
 			virtual ~GraphicsDriver() = default; // Virtual destructor
 
