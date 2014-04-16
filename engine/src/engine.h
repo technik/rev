@@ -7,7 +7,7 @@
 #ifndef _REV_ENGINE_H_
 #define _REV_ENGINE_H_
 
-#include "game/sceneGraph/sceneNode.h"
+#include "game/scene/sceneGraph/sceneNode.h"
 
 namespace rev {
 	namespace video {

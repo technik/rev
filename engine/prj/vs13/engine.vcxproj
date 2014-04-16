@@ -113,8 +113,8 @@
     <ClInclude Include="..\..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\..\src\core\types.h" />
     <ClInclude Include="..\..\src\engine.h" />
-    <ClInclude Include="..\..\src\game\sceneGraph\sceneNode.h" />
-    <ClInclude Include="..\..\src\game\sceneGraph\transformSrc.h" />
+    <ClInclude Include="..\..\src\game\scene\sceneGraph\sceneNode.h" />
+    <ClInclude Include="..\..\src\game\scene\sceneGraph\transformSrc.h" />
     <ClInclude Include="..\..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\..\src\math\algebra\quaternion.h" />
     <ClInclude Include="..\..\src\math\algebra\vector.h" />
@@ -149,8 +149,8 @@
     <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\sceneGraph\sceneNode.cpp" />
-    <ClCompile Include="..\..\src\game\sceneGraph\transformSrc.cpp" />
+    <ClCompile Include="..\..\src\game\scene\sceneGraph\sceneNode.cpp" />
+    <ClCompile Include="..\..\src\game\scene\sceneGraph\transformSrc.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp" />
     <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />

@@ -82,7 +82,10 @@
     <Filter Include="src\game">
       <UniqueIdentifier>{1e430a82-f70b-4bd2-8128-ff6a6808eefa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\game\sceneGraph">
+    <Filter Include="src\game\scene">
+      <UniqueIdentifier>{288df002-ff81-4f01-b446-648ac1c97d34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game\scene\sceneGraph">
       <UniqueIdentifier>{0483ef6d-d801-43e9-a7da-a43aa4d853e9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -177,14 +180,14 @@
     <ClInclude Include="..\..\src\video\graphics\renderer\renderObj.h">
       <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\game\sceneGraph\sceneNode.h">
-      <Filter>src\game\sceneGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\sceneGraph\transformSrc.h">
-      <Filter>src\game\sceneGraph</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\math\algebra\quaternion.h">
       <Filter>src\math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\scene\sceneGraph\sceneNode.h">
+      <Filter>src\game\scene\sceneGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\scene\sceneGraph\transformSrc.h">
+      <Filter>src\game\scene\sceneGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -253,11 +256,11 @@
     <ClCompile Include="..\..\src\video\graphics\renderer\forward\forwardRenderer.cpp">
       <Filter>src\video\graphics\renderer\forward</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\sceneGraph\sceneNode.cpp">
-      <Filter>src\game\sceneGraph</Filter>
+    <ClCompile Include="..\..\src\game\scene\sceneGraph\sceneNode.cpp">
+      <Filter>src\game\scene\sceneGraph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\sceneGraph\transformSrc.cpp">
-      <Filter>src\game\sceneGraph</Filter>
+    <ClCompile Include="..\..\src\game\scene\sceneGraph\transformSrc.cpp">
+      <Filter>src\game\scene\sceneGraph</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

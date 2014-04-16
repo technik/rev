@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Generic transform source
 
-#ifndef _REV_GAME_SCENEGRAPH_TRANSFORMSRC_H_
-#define _REV_GAME_SCENEGRAPH_TRANSFORMSRC_H_
+#ifndef _REV_GAME_SCENE_SCENEGRAPH_TRANSFORMSRC_H_
+#define _REV_GAME_SCENE_SCENEGRAPH_TRANSFORMSRC_H_
 
 #include <math/algebra/matrix.h>
 #include <math/algebra/quaternion.h>
@@ -77,4 +77,4 @@ namespace rev { namespace game {
 }	// namespace game
 }	// namespace rev
 
-#endif // _REV_GAME_SCENEGRAPH_TRANSFORMSRC_H_
+#endif // _REV_GAME_SCENE_SCENEGRAPH_TRANSFORMSRC_H_

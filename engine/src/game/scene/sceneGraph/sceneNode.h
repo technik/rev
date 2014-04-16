@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Scene graph node
 
-#ifndef _REV_GAME_SCENEGRAPH_SCENENODE_H_
-#define _REV_GAME_SCENEGRAPH_SCENENODE_H_
+#ifndef _REV_GAME_SCENE_SCENEGRAPH_SCENENODE_H_
+#define _REV_GAME_SCENE_SCENEGRAPH_SCENENODE_H_
 
 #include "transformSrc.h"
 
@@ -26,4 +26,4 @@ namespace rev { namespace game {
 }	// namespace game
 }	// namespace rev
 
-#endif // _REV_GAME_SCENEGRAPH_SCENENODE_H_
+#endif // _REV_GAME_SCENE_SCENEGRAPH_SCENENODE_H_
