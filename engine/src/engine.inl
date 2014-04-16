@@ -64,7 +64,10 @@ namespace rev {
 		if(!core::OSHandler::get()->update())
 			return false;
 
+		mNode.rotate(Vec3f::yAxis(), 0.001f);
+
 		mRenderer->startFrame();
+		mObj.transform = mNode.transform();
 		mRenderer->renderObject(mObj);
 		mRenderer->finishFrame();
 		

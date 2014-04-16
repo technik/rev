@@ -7,6 +7,8 @@
 #ifndef _REV_ENGINE_H_
 #define _REV_ENGINE_H_
 
+#include "game/sceneGraph/sceneNode.h"
+
 namespace rev {
 	namespace video {
 		class Window;
@@ -28,6 +30,7 @@ namespace rev {
 		video::Window*			mMainWindow = nullptr;
 		video::ForwardRenderer*	mRenderer = nullptr;
 		video::RenderObj		mObj;
+		game::SceneNode			mNode;
 
 	private:
 		// Disable copy

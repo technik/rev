@@ -216,8 +216,8 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<typename Number_>
-		inline Matrix4x4<Number_> Matrix4x4<Number_>::identity()
+		template<typename T_>
+		inline Matrix4x4<T_> Matrix4x4<T_>::identity()
 		{
 			Matrix4x4 mtx;
 			for (unsigned int row = 0; row < 4; ++row)
@@ -225,9 +225,9 @@ namespace rev {
 				for (unsigned int column = 0; column < 4; ++column)
 				{
 					if (column == row)
-						mtx.m[row][column] = NumericTraits<Number_>::one();
+						mtx.m[row][column] = T_(1.f);
 					else
-						mtx.m[row][column] = NumericTraits<Number_>::zero();
+						mtx.m[row][column] = T_(0.f);
 				}
 			}
 			return mtx;

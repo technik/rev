@@ -194,9 +194,6 @@
     <None Include="..\..\src\engine.inl">
       <Filter>src</Filter>
     </None>
-    <None Include="..\..\src\math\algebra\vector.inl">
-      <Filter>src\math\algebra</Filter>
-    </None>
     <None Include="..\..\src\core\platform\osHandler.inl">
       <Filter>src\core\platform</Filter>
     </None>
@@ -217,6 +214,9 @@
     </None>
     <None Include="..\..\src\core\resources\resourceManager.inl">
       <Filter>src\core\resources</Filter>
+    </None>
+    <None Include="..\..\src\math\algebra\vector.inl">
+      <Filter>src\math\algebra</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
