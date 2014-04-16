@@ -15,6 +15,7 @@
 #include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
 #include "math/algebra/vector.h"
+#include "input/keyboard/keyboardInput.h"
 #include "video/graphics/renderer/forward/forwardRenderer.h"
 #include "video/graphics/renderer/renderObj.h"
 #include "video/window/window.h"
@@ -31,10 +32,14 @@ namespace rev {
 
 		// Create window
 		core::Platform::startUp(*this);
+		input::KeyboardInput::init();
+
 		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
 		mRenderer = create<video::ForwardRenderer>();
 		mRenderer->init(mMainWindow,*this);
+		mCam = create<game::FlyByCamera>(1.54f, 0.75f, 0.01f, 1000.f);
+
 		mObj.nIndices = 3;
 		mObj.indices = allocate<uint16_t>(3);
 		mObj.indices[0] = 0;
@@ -43,18 +48,21 @@ namespace rev {
 
 		mObj.nVertices = 3;
 		mObj.vertices = allocate<Vec3f>(3);
-		mObj.vertices[0] = Vec3f(0.f, 1.f, 0.f);
-		mObj.vertices[1] = Vec3f(-1.f, -1.f, 0.f);
-		mObj.vertices[2] = Vec3f(1.f, -1.f, 0.f);
+		mObj.vertices[0] = Vec3f(1.f, 0.f, 0.f);
+		mObj.vertices[1] = Vec3f(0.f, 1.f, 0.f);
+		mObj.vertices[2] = Vec3f(0.f, 0.f, 1.f);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
+		destroy(mCam);
 		mRenderer->end(*this);
 		destroy(mRenderer);
 		video::Shader::Mgr::shutDown(*this);
 		destroy(mMainWindow);
+
+		input::KeyboardInput::end();
 		core::Platform::shutDown(*this);
 	}
 
@@ -64,9 +72,11 @@ namespace rev {
 		if(!core::OSHandler::get()->update())
 			return false;
 
-		mNode.rotate(Vec3f::yAxis(), 0.001f);
+		mNode.rotate(Vec3f::zAxis(), 0.001f);
+		mCam->update(0.01f);
 
 		mRenderer->startFrame();
+		mRenderer->setCamera(*mCam);
 		mObj.transform = mNode.transform();
 		mRenderer->renderObject(mObj);
 		mRenderer->finishFrame();

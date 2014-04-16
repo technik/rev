@@ -88,6 +88,18 @@
     <Filter Include="src\game\scene\sceneGraph">
       <UniqueIdentifier>{0483ef6d-d801-43e9-a7da-a43aa4d853e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\game\scene\camera">
+      <UniqueIdentifier>{809e71bd-6f53-4af4-b951-d6c10ec0e51e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input">
+      <UniqueIdentifier>{dbe62cef-af8e-44b0-95c6-c7a8fb147857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input\keyboard">
+      <UniqueIdentifier>{ab266081-dca4-40ab-852e-f645b72f4e46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input\keyboard\windows">
+      <UniqueIdentifier>{20280229-b78f-46e1-8e11-07658be7552c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -189,6 +201,18 @@
     <ClInclude Include="..\..\src\game\scene\sceneGraph\transformSrc.h">
       <Filter>src\game\scene\sceneGraph</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\scene\camera\flyByCamera.h">
+      <Filter>src\game\scene\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\scene\camera\camera.h">
+      <Filter>src\game\scene\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\input\keyboard\keyboardInput.h">
+      <Filter>src\input\keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\input\keyboard\windows\keyboardInputWindows.h">
+      <Filter>src\input\keyboard\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -261,6 +285,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\game\scene\sceneGraph\transformSrc.cpp">
       <Filter>src\game\scene\sceneGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\scene\camera\flyByCamera.cpp">
+      <Filter>src\game\scene\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\keyboard\keyboardInput.cpp">
+      <Filter>src\input\keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\keyboard\windows\keyboardInputWindows.cpp">
+      <Filter>src\input\keyboard\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
 
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
+#include <game/scene/camera/camera.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
@@ -33,7 +34,7 @@ namespace rev {
 
 			void setAmbientLight(const Color& _color);
 			void setLight(const math::Vec3f& _dir, const Color& _color);
-			void setCamera(const math::Mat34f& _view, const math::Mat44f& _Proj);
+			void setCamera(const game::Camera&);
 			void renderObject(const RenderObj&);
 
 		private:

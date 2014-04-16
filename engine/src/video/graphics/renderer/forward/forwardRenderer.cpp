@@ -9,6 +9,8 @@
 #include "../backend/rendererBackEnd.h"
 #include "../renderObj.h"
 
+using namespace rev::game;
+
 namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
@@ -22,6 +24,11 @@ namespace rev {
 		void ForwardRenderer::finishFrame()
 		{
 			mDriver->finishFrame();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::setCamera(const Camera& _cam) {
+			mBackEnd->setCamera(_cam.view(), _cam.projection());
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

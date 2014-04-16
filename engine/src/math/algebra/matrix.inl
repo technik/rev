@@ -74,7 +74,7 @@ namespace rev {
 			for (unsigned i = 0; i < 3; ++i) {
 				for (unsigned j = 0; j < 3; ++j)
 					m[i][j] = _x[i][j];
-				m[i][3] = NumericTraits<Number_>::zero();
+				m[i][3] = Number_(0.f);
 			}
 		}
 
@@ -170,29 +170,29 @@ namespace rev {
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::frustrum(Number_ _fovRad, Number_ _aspectRatio, Number_ _nearClip, Number_ _farClip)
 		{
 			// Precomputations
-			Number_ focalLength = NumericTraits<Number_>::one() / tan(_fovRad / 2.f);
-			Number_ invDepthRange = NumericTraits<Number_>::one() / (_farClip - _nearClip);
+			Number_ focalLength = Number_(1.f) / tan(_fovRad / 2.f);
+			Number_ invDepthRange = Number_(1.f) / (_farClip - _nearClip);
 			Matrix4x4 f;
 			// Row 0
 			f.m[0][0] = focalLength;
-			f.m[0][1] = NumericTraits<Number_>::zero();
-			f.m[0][2] = NumericTraits<Number_>::zero();
-			f.m[0][3] = NumericTraits<Number_>::zero();
+			f.m[0][1] = Number_(0.f);
+			f.m[0][2] = Number_(0.f);
+			f.m[0][3] = Number_(0.f);
 			// Row 1   
-			f.m[1][0] = NumericTraits<Number_>::zero();
-			f.m[1][1] = NumericTraits<Number_>::zero();
+			f.m[1][0] = Number_(0.f);
+			f.m[1][1] = Number_(0.f);
 			f.m[1][2] = focalLength * _aspectRatio; // Map height from Z to Y
-			f.m[1][3] = NumericTraits<Number_>::zero();
+			f.m[1][3] = Number_(0.f);
 			// Row 2   
-			f.m[2][0] = NumericTraits<Number_>::zero();
+			f.m[2][0] = Number_(0.f);
 			f.m[2][1] = (_nearClip + _farClip) * invDepthRange;
-			f.m[2][2] = NumericTraits<Number_>::zero();
+			f.m[2][2] = Number_(0.f);
 			f.m[2][3] = -2.f * _farClip * _nearClip * invDepthRange;
 			// Row 3, homogeneous component
-			f.m[3][0] = NumericTraits<Number_>::zero();
-			f.m[3][1] = NumericTraits<Number_>::one(); // Homogeneous component maps to depth
-			f.m[3][2] = NumericTraits<Number_>::zero();
-			f.m[3][3] = NumericTraits<Number_>::zero();
+			f.m[3][0] = Number_(0.f);
+			f.m[3][1] = Number_(1.f); // Homogeneous component maps to depth
+			f.m[3][2] = Number_(0.f);
+			f.m[3][3] = Number_(0.f);
 
 			return f;
 		}
@@ -207,9 +207,9 @@ namespace rev {
 				for (unsigned int column = 0; column < 4; ++column)
 				{
 					if (column == row)
-						mtx.m[row][column] = row>3 ? NumericTraits<Number_>::one() : 2 * NumericTraits<Number_>::one() / _volumeDimensions[row];
+						mtx.m[row][column] = row>3 ? Number_(1.f) : 2 * Number_(1.f) / _volumeDimensions[row];
 					else
-						mtx.m[row][column] = NumericTraits<Number_>::zero();
+						mtx.m[row][column] = Number_(0.f);
 				}
 			}
 			return mtx;

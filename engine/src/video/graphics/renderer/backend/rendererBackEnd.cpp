@@ -20,10 +20,17 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::setCamera(const math::Mat34f& _view, const math::Mat44f& _proj) {
+			Mat34f invView;
+			_view.inverse(invView);
+			mViewProj = _proj * invView;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::render(const RendererBackEnd::StaticGeometry& _geom) {
 			mDriver->setShader(_geom.shader);
 			unsigned mvpUniform = mDriver->getUniformLocation("mvp");
-			Mat44f mvp = Mat44f::identity() * _geom.transform;
+			Mat44f mvp = mViewProj * _geom.transform;
 			mDriver->setUniform(mvpUniform, mvp);
 			mDriver->setAttribBuffer(0, _geom.nVertices, _geom.vertices);
 			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, GraphicsDriver::EPrimitiveType::triangles);

@@ -8,6 +8,7 @@
 #define _REV_ENGINE_H_
 
 #include "game/scene/sceneGraph/sceneNode.h"
+#include "game/scene/camera/flyByCamera.h"
 
 namespace rev {
 	namespace video {
@@ -31,6 +32,7 @@ namespace rev {
 		video::ForwardRenderer*	mRenderer = nullptr;
 		video::RenderObj		mObj;
 		game::SceneNode			mNode;
+		game::FlyByCamera*		mCam;
 
 	private:
 		// Disable copy

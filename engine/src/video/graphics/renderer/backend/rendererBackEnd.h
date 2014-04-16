@@ -32,11 +32,13 @@ namespace rev {
 		public:
 			RendererBackEnd(GraphicsDriver*);
 
+			void setCamera(const math::Mat34f& _view, const math::Mat44f& _proj);
 			void render(const StaticGeometry&);
 			void flush();
 
 		private:
 			GraphicsDriver* mDriver;
+			math::Mat44f	mViewProj;
 		};
 
 	}
