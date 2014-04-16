@@ -24,6 +24,7 @@ namespace rev {
 				[](const string& _name) -> Shader* {
 					return new OpenGLShader(_name);
 				});
+			glEnable(GL_CULL_FACE);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
