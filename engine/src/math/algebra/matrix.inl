@@ -14,6 +14,16 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
+		inline Matrix3x3<Number_>::Matrix3x3(const Matrix3x4<Number_>& _x)
+		{
+			for (unsigned i = 0; i < 3; ++i) {
+				for (unsigned j = 0; j < 3; ++j)
+					m[i][j] = _x[i][j];
+			}
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
 		inline Matrix3x4<Number_>::Matrix3x4(const Quaternion<Number_>& _q)
 		{
 			Number_ a2 = _q.w*_q.w;

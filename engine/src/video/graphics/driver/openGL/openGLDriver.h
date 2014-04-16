@@ -46,6 +46,7 @@ namespace rev {
 			void		setUniform(int _id, float _value) override;
 			void		setUniform(int _id, const math::Vec2f& _value) override;
 			void		setUniform(int _id, const math::Vec3f& _value) override;
+			void		setUniform(int _id, const math::Mat33f& _value) override;
 			void		setUniform(int _id, const math::Mat44f& _value) override;
 			void		setUniform(int _id, const Color& _value) override;
 

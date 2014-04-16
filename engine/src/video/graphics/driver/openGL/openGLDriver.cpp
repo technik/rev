@@ -70,6 +70,7 @@ namespace rev {
 			mProgram = shader->program();
 			glUseProgram(mProgram);
 			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -148,6 +149,12 @@ namespace rev {
 		void OpenGLDriver::setUniform(int _uniformId, const math::Vec3f& _value)
 		{
 			glUniform3f(_uniformId, _value.x, _value.y, _value.z);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::setUniform(int _uniformId, const math::Mat33f& _value)
+		{
+			glUniformMatrix3fv(_uniformId, 1, true, &_value[0][0]);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

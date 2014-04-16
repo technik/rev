@@ -70,6 +70,8 @@ namespace rev {
 			mProgram = glCreateProgram();
 			glAttachShader(mProgram, mVtx);
 			glAttachShader(mProgram, mPxl);
+			glBindAttribLocation(mProgram, 0, "vertex");
+			glBindAttribLocation(mProgram, 1, "normal");
 			glLinkProgram(mProgram);
 		}
 

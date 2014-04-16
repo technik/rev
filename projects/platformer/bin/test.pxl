@@ -1,4 +1,9 @@
 
+uniform vec3 lightDir;
+
+varying vec3 vNormal;
+
 void main (void) {
-	gl_FragColor = vec4(1.0);
+	float diff = dot(vNormal, lightDir);
+	gl_FragColor = vec4(vec3(diff),1.0);
 }

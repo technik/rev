@@ -38,6 +38,7 @@ namespace rev {
 			geom.indices = _obj.indices;
 			geom.nIndices = _obj.nIndices;
 			geom.vertices = _obj.vertices;
+			geom.normals = _obj.normals;
 			geom.nVertices = _obj.nVertices;
 			geom.shader = mShader;
 			geom.transform = _obj.transform;

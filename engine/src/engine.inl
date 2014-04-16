@@ -51,6 +51,7 @@ namespace rev {
 		mObj.vertices[0] = Vec3f(1.f, 0.f, 0.f);
 		mObj.vertices[1] = Vec3f(0.f, 1.f, 0.f);
 		mObj.vertices[2] = Vec3f(0.f, 0.f, 1.f);
+		mObj.normals = mObj.vertices;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
