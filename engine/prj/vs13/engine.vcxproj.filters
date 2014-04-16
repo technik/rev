@@ -100,6 +100,12 @@
     <Filter Include="src\input\keyboard\windows">
       <UniqueIdentifier>{20280229-b78f-46e1-8e11-07658be7552c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\game\geometry">
+      <UniqueIdentifier>{3fd1c13e-9276-4401-9a31-4dec6ce8d8e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game\geometry\procedural">
+      <UniqueIdentifier>{1268f8f1-38ed-414d-adbd-9f992d9b0e70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -213,6 +219,9 @@
     <ClInclude Include="..\..\src\input\keyboard\windows\keyboardInputWindows.h">
       <Filter>src\input\keyboard\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\geometry\procedural\basic.h">
+      <Filter>src\game\geometry\procedural</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -294,6 +303,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\input\keyboard\windows\keyboardInputWindows.cpp">
       <Filter>src\input\keyboard\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\geometry\procedural\basic.cpp">
+      <Filter>src\game\geometry\procedural</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

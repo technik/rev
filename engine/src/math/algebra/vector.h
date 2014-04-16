@@ -35,6 +35,14 @@ namespace rev {
 			// Comparison
 			bool operator==(const Vector&) const;
 			bool operator!=(const Vector&) const;
+
+			// Products
+			Vector	operator*	(const T_) const;		// Product by scalar
+			Vector&	operator*=	(const T_);				// Product by scalar
+			Vector	operator/	(const T_) const;		// Division by scalar
+			Vector&	operator/=	(const T_);				// Division by scalar
+			T_		operator*	(const Vector&) const;	// Dot product
+			T_		operator^	(const Vector&) const;	// Cross product
 		};
 
 		// 3D vector

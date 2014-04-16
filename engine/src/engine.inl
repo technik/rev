@@ -14,6 +14,7 @@
 
 #include "core/platform/osHandler.h"
 #include "core/platform/platform.h"
+#include "game/geometry/procedural/basic.h"
 #include "math/algebra/vector.h"
 #include "input/keyboard/keyboardInput.h"
 #include "video/graphics/renderer/forward/forwardRenderer.h"
@@ -39,19 +40,9 @@ namespace rev {
 		mRenderer = create<video::ForwardRenderer>();
 		mRenderer->init(mMainWindow,*this);
 		mCam = create<game::FlyByCamera>(1.54f, 0.75f, 0.01f, 1000.f);
+		mCam->setSpeed(0.2f);
 
-		mObj.nIndices = 3;
-		mObj.indices = allocate<uint16_t>(3);
-		mObj.indices[0] = 0;
-		mObj.indices[1] = 1;
-		mObj.indices[2] = 2;
-
-		mObj.nVertices = 3;
-		mObj.vertices = allocate<Vec3f>(3);
-		mObj.vertices[0] = Vec3f(1.f, 0.f, 0.f);
-		mObj.vertices[1] = Vec3f(0.f, 1.f, 0.f);
-		mObj.vertices[2] = Vec3f(0.f, 0.f, 1.f);
-		mObj.normals = mObj.vertices;
+		mObj = game::Procedural::box(Vec3f(1.f));
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -78,8 +69,8 @@ namespace rev {
 
 		mRenderer->startFrame();
 		mRenderer->setCamera(*mCam);
-		mObj.transform = mNode.transform();
-		mRenderer->renderObject(mObj);
+		mObj->transform = mNode.transform();
+		mRenderer->renderObject(*mObj);
 		mRenderer->finishFrame();
 		
 		return true;

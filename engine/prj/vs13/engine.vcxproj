@@ -113,6 +113,7 @@
     <ClInclude Include="..\..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\..\src\core\types.h" />
     <ClInclude Include="..\..\src\engine.h" />
+    <ClInclude Include="..\..\src\game\geometry\procedural\basic.h" />
     <ClInclude Include="..\..\src\game\scene\camera\camera.h" />
     <ClInclude Include="..\..\src\game\scene\camera\flyByCamera.h" />
     <ClInclude Include="..\..\src\game\scene\sceneGraph\sceneNode.h" />
@@ -153,6 +154,7 @@
     <ClCompile Include="..\..\src\core\platform\windows\osHandlerWindows.cpp">
       <FileType>CppCode</FileType>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\geometry\procedural\basic.cpp" />
     <ClCompile Include="..\..\src\game\scene\camera\flyByCamera.cpp" />
     <ClCompile Include="..\..\src\game\scene\sceneGraph\sceneNode.cpp" />
     <ClCompile Include="..\..\src\game\scene\sceneGraph\transformSrc.cpp" />

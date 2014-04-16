@@ -30,7 +30,7 @@ namespace rev {
 	private:
 		video::Window*			mMainWindow = nullptr;
 		video::ForwardRenderer*	mRenderer = nullptr;
-		video::RenderObj		mObj;
+		video::RenderObj*		mObj;
 		game::SceneNode			mNode;
 		game::FlyByCamera*		mCam;
 
