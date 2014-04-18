@@ -38,7 +38,7 @@ namespace rev {
 			mDriver->setUniform(worldUniform, world);
 
 			unsigned lightDirUniform = mDriver->getUniformLocation("lightDir");
-			mDriver->setUniform(lightDirUniform, Vec3f::xAxis());
+			mDriver->setUniform(lightDirUniform, Vec3f(1.f, 0.2f, 1.5f).normalized());
 			
 			mDriver->setAttribBuffer(0, _geom.nVertices, _geom.vertices);
 			mDriver->setAttribBuffer(1, _geom.nVertices, _geom.normals);

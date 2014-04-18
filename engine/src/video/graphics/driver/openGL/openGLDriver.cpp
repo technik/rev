@@ -25,6 +25,8 @@ namespace rev {
 					return new OpenGLShader(_name);
 				});
 			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
