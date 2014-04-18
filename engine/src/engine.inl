@@ -12,11 +12,11 @@
 
 #include "engine.h"
 
-#include "core/platform/osHandler.h"
-#include "core/platform/platform.h"
-#include "math/algebra/vector.h"
-#include "input/keyboard/keyboardInput.h"
-#include "video/window/window.h"
+#include <core/platform/osHandler.h>
+#include <core/platform/platform.h>
+#include <math/algebra/vector.h>
+#include <input/keyboard/keyboardInput.h>
+#include <video/window/window.h>
 
 using namespace rev::math;
 

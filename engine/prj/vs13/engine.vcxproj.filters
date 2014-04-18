@@ -106,6 +106,9 @@
     <Filter Include="src\game\geometry\procedural">
       <UniqueIdentifier>{1268f8f1-38ed-414d-adbd-9f992d9b0e70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\platform\fileSystem\windows">
+      <UniqueIdentifier>{24a4e6aa-bbeb-4f17-8bf7-bfd6698b31d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -222,6 +225,15 @@
     <ClInclude Include="..\..\src\game\geometry\procedural\basic.h">
       <Filter>src\game\geometry\procedural</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\fileSystem\fileSystem.h">
+      <Filter>src\core\platform\fileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\platform\fileSystem\windows\fileSystemWindows.h">
+      <Filter>src\core\platform\fileSystem\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\event.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -306,6 +318,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\game\geometry\procedural\basic.cpp">
       <Filter>src\game\geometry\procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\platform\fileSystem\windows\fileSystemWindows.cpp">
+      <Filter>src\core\platform\fileSystem\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\platform\fileSystem\fileSystem.cpp">
+      <Filter>src\core\platform\fileSystem</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
