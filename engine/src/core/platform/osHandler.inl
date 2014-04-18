@@ -12,7 +12,7 @@
 #include <cassert>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
-
+#include <input/keyboard/keyboardInput.h>
 
 namespace rev {
 	namespace core {
@@ -40,6 +40,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		inline bool OSHandler::update() {
+			input::KeyboardInput::get()->refresh(); // Important: refresh before BaseUpdate
 			if (!OSHandlerBase::update())
 				return false;
 			FileSystem::get()->update();
