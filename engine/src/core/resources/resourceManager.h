@@ -11,6 +11,9 @@
 #include <core/containers/map.h>
 #include <core/resources/smartPtr.h>
 
+#include <cassert>
+#include <functional>
+
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
@@ -24,6 +27,7 @@ namespace rev {
 			static void startUp(Alloc_& = Alloc_(), MapAlloc_ = MapAlloc_());
 			template<typename Alloc_>
 			static void shutDown(Alloc_& = Alloc_());
+			void setOnRelease(std::function<void(const Key_&, Val_*)> _fn) { onRelease = _fn; }
 
 		private:
 			class Destroy {
@@ -45,6 +49,7 @@ namespace rev {
 			void release(Val_*);
 
 			static ResourceMgr*			sInstance;
+			std::function<void(const Key_&, Val_*)>	onRelease = [](const Key_&, Val_*){ assert(false); };
 			map<Key_, Val_*, MapAlloc_>	mResources;
 		};
 

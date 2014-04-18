@@ -39,7 +39,10 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		inline bool OSHandler::update() {
-			return OSHandlerBase::update();
+			if (!OSHandlerBase::update())
+				return false;
+			FileSystem::get()->update();
+			return true;
 		}
 
 	}	// namespace core

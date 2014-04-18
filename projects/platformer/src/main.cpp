@@ -31,7 +31,6 @@ int main(int _argc, const char** _argv) {
 
 	while (engine.update())
 	{
-		// objNode.rotate(Vec3f::zAxis(), 0.001f);
 		cam->update(0.01f);
 
 		renderer->startFrame();
@@ -44,8 +43,6 @@ int main(int _argc, const char** _argv) {
 				renderer->renderObject(*obj);
 			}
 		}
-		obj->transform = objNode.transform();
-		renderer->renderObject(*obj);
 		renderer->finishFrame();
 	}
 	return 0;

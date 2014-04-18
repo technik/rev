@@ -9,6 +9,7 @@
 #include <gl/GL.h>
 #include "glew.h"
 
+#include <core/platform/fileSystem/fileSystem.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/openGL/openGLShader.h>
 
@@ -22,8 +23,24 @@ namespace rev {
 			assert(res == GLEW_OK);
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
-					return new OpenGLShader(_name);
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+					OpenGLShader* shader = new OpenGLShader(_name);
+					auto refreshShader = [=](const string&) {
+						// Recreate shader
+						shader->~OpenGLShader();
+						new(shader)OpenGLShader(_name);
+					};
+					FileSystem::get()->onFileChanged(pxlName) += refreshShader;
+					FileSystem::get()->onFileChanged(vtxName) += refreshShader;
+					return shader;
 				});
+			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+				FileSystem::get()->onFileChanged(pxlName).clear();
+				FileSystem::get()->onFileChanged(vtxName).clear();
+			});
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);

@@ -20,6 +20,7 @@ namespace rev {
 			// Handle delegates
 			void operator+=(Delegate);
 			void operator-=(Delegate);
+			void clear() { mDelegates.clear(); }
 
 			// Invoke
 			void operator()(Arg_...) const;

@@ -72,6 +72,7 @@ namespace rev {
 		{
 			for (auto element : mResources) {
 				if (element.second == _v) {
+					onRelease(element.first, _v);
 					destroy(_v);
 					mResources.erase(element.first);
 				}
