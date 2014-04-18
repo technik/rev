@@ -6,14 +6,16 @@
 
 #include <core/memory/newAllocator.h>
 #include <engine.h>
-#include "game/scene/camera/flyByCamera.h"
-#include "game/geometry/procedural/basic.h"
-#include "game/scene/sceneGraph/sceneNode.h"
-#include "video/graphics/renderer/forward/forwardRenderer.h"
-#include "video/graphics/renderer/renderObj.h"
+#include <game/scene/camera/flyByCamera.h>
+#include <game/geometry/procedural/basic.h>
+#include <game/scene/sceneGraph/sceneNode.h>
+#include <core/time/time.h>
+#include <video/graphics/renderer/forward/forwardRenderer.h>
+#include <video/graphics/renderer/renderObj.h>
 
 typedef rev::Engine<rev::core::NewAllocator>	Engine;
 
+using namespace rev::core;
 using namespace rev::game;
 using namespace rev::video;
 
@@ -31,7 +33,8 @@ int main(int _argc, const char** _argv) {
 
 	while (engine.update())
 	{
-		cam->update(0.01f);
+		float frameTime = Time::get()->frameTime();
+		cam->update(frameTime);
 
 		renderer->startFrame();
 		renderer->setCamera(*cam);

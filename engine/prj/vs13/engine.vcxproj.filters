@@ -109,6 +109,9 @@
     <Filter Include="src\core\platform\fileSystem\windows">
       <UniqueIdentifier>{24a4e6aa-bbeb-4f17-8bf7-bfd6698b31d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\time">
+      <UniqueIdentifier>{96eeba5c-c6da-47f7-9c3b-9136e35a16b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -234,6 +237,9 @@
     <ClInclude Include="..\..\src\core\event.h">
       <Filter>src\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\time\time.h">
+      <Filter>src\core\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -324,6 +330,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\core\platform\fileSystem\fileSystem.cpp">
       <Filter>src\core\platform\fileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\time\time.cpp">
+      <Filter>src\core\time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

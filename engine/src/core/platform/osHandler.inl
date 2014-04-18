@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <core/platform/fileSystem/fileSystem.h>
+#include <core/time/time.h>
 
 
 namespace rev {
@@ -42,6 +43,7 @@ namespace rev {
 			if (!OSHandlerBase::update())
 				return false;
 			FileSystem::get()->update();
+			Time::get()->update();
 			return true;
 		}
 

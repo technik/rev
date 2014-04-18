@@ -12,6 +12,7 @@
 #include <core/memory/systemMemory.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
+#include <core/time/time.h>
 
 namespace rev {
 	namespace core {
@@ -21,6 +22,7 @@ namespace rev {
 		void Platform::startUp(Alloc_& _alloc) {
 			SystemMemory::startUp(_alloc);
 			OSHandler::startUp(_alloc);
+			Time::init();
 			FileSystem::init();
 		}
 		
@@ -28,6 +30,7 @@ namespace rev {
 		template<typename Alloc_>
 		void Platform::shutDown(Alloc_& _alloc) {
 			FileSystem::end();
+			Time::end();
 			OSHandler::shutDown(_alloc);
 			SystemMemory::shutDown(_alloc);
 		}
