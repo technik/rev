@@ -20,7 +20,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriver::OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {
 			GLenum res = glewInit();
-			assert(res == GLEW_OK);
+			assert(res == GLEW_OK); res;
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
 				string pxlName = _name + ".pxl";

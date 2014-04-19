@@ -19,7 +19,7 @@ namespace rev {
 				:pointee(_ptr)
 			{}
 
-			RefLink(RefLink& _x)
+			RefLink(const RefLink& _x)
 				:prev(&_x)
 				, post(_x.post)
 				, pointee(_x.pointee)
@@ -52,7 +52,7 @@ namespace rev {
 					destroy(pointee);
 			}
 
-			RefLink& operator=(RefLink& _x) {
+			RefLink& operator=(const RefLink& _x) {
 				if (!(_x.pointee == pointee)) {
 					this->~RefLink();
 					new(this)RefLink(_x);
@@ -70,8 +70,8 @@ namespace rev {
 
 		protected:
 			T_*	pointee = nullptr;
-			RefLink* prev = nullptr;
-			RefLink* post = nullptr;
+			mutable RefLink const* prev = nullptr;
+			mutable RefLink const* post = nullptr;
 		};
 
 	}	// namespace core

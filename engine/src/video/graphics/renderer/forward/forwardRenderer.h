@@ -35,10 +35,13 @@ namespace rev {
 			void setAmbientLight(const Color& _color);
 			void setLight(const math::Vec3f& _dir, const Color& _color);
 			void setCamera(const game::Camera&);
+
 			void renderObject(const RenderObj&);
+			void renderDebugLines(const RenderObj&);
 
 		private:
 			video::Shader::Ptr		mShader = nullptr;
+			video::Shader::Ptr		mDbgShader = nullptr;
 			video::RendererBackEnd*	mBackEnd;
 			GraphicsDriver*			mDriver;
 		};
@@ -49,7 +52,7 @@ namespace rev {
 			mBackEnd = _alloc.create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("test");
 
-			mDriver->setShader(mShader);
+			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 		}
 

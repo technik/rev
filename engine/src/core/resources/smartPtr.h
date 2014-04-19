@@ -21,11 +21,8 @@ namespace rev {
 		class SmartPtr : public Ownership_<T_,Destroy_>{
 		public:
 			SmartPtr() {}
-			SmartPtr(T_* _ptr)
-				:Ownership_<T_,Destroy_>(_ptr)
-			{}
 
-			SmartPtr(SmartPtr& _x)
+			SmartPtr(const SmartPtr& _x)
 				:Ownership_<T_, Destroy_>(_x)
 			{}
 
@@ -33,7 +30,11 @@ namespace rev {
 				:Ownership_<T_, Destroy_>(_x)
 			{}
 
-			SmartPtr& operator=(SmartPtr& _x) {
+			SmartPtr(T_* _ptr)
+				:Ownership_<T_, Destroy_>(_ptr)
+			{}
+
+			SmartPtr& operator=(const SmartPtr& _x) {
 				Ownership_<T_, Destroy_>::operator= (_x);
 				return *this;
 			}
@@ -43,10 +44,14 @@ namespace rev {
 				return *this;
 			}
 
-			operator T_*() const { return pointee; }
+			explicit operator T_*() const { return pointee; }
 
 			bool operator==(const SmartPtr& _x) const {
 				return pointee == _x.pointee;
+			}
+
+			bool operator!=(const SmartPtr& _x) const {
+				return pointee != _x.pointee;
 			}
 
 			T_* operator->() const { return pointee; }

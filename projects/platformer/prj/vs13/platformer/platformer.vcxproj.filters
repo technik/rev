@@ -4,10 +4,33 @@
     <Filter Include="src">
       <UniqueIdentifier>{cf1d22d3-3805-4de6-adcf-cd4d62e161b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\level">
+      <UniqueIdentifier>{c192bfa0-aeac-4ab9-8c4b-056b2bdac2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\actor">
+      <UniqueIdentifier>{e78d0279-1d98-4a04-ac7f-4b3ce627422b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\editor">
+      <UniqueIdentifier>{70ad1479-f768-4496-af7c-d36433e25265}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\editor\editor.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\level\gameLevel.cpp">
+      <Filter>src\level</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\level\gameLevel.h">
+      <Filter>src\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\editor.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -8,6 +8,9 @@
 
 #include <engine.h>
 
+#include "editor/editor.h"
+#include "level/gameLevel.h"
+
 #include <core/memory/newAllocator.h>
 #include <core/time/time.h>
 #include <game/scene/camera/flyByCamera.h>
@@ -35,18 +38,11 @@ int main(int _argc, const char** _argv) {
 	ForwardRenderer*	renderer = engine.create<ForwardRenderer>();
 	renderer->init(engine.mainWindow(), engine);
 	FlyByCamera* cam = engine.create<FlyByCamera>(1.54f, 1.3333f, 0.01f, 1000.f);
-	RenderObj* obj = Procedural::box(Vec3f(1.f));
-
-	SceneNode objNode;
+	cam->move(Vec3f::zAxis());
 	KeyboardInput* keyboard = KeyboardInput::get();
 
-	const int size = 200;
-	float height[size][size];
-	for (unsigned i = 0; i < size; ++i)
-		for (unsigned j = 0; j < size; ++j)
-			height[i][j] = 5 * SNoise::simplex(float(i) / 40, float(j) / 40) + 0.5f*SNoise::simplex(float(i), float(j));
-	cam->move(Vec3f(0.f, 0.f, height[0][0] + 2.f));
-	cam->rotate(Vec3f::zAxis(), -0.78f);
+	platformer::GameLevel* level = new platformer::GameLevel;
+	platformer::Editor* editor = new platformer::Editor(level);
 
 	std::cout << " --- Game loop ---\n";
 
@@ -59,17 +55,13 @@ int main(int _argc, const char** _argv) {
 		else
 			cam->setSpeed(0.4f);
 		cam->update(frameTime);
+		editor->update(frameTime);
+		
 
 		renderer->startFrame();
 		renderer->setCamera(*cam);
-		for (int i = 0; i < size; ++i){
-			for (int j = 0; j < size; ++j) {
-				float h = height[i][j];
-				objNode.setPos(Vec3f(float(i), float(j), h));
-				obj->transform = objNode.transform();
-				renderer->renderObject(*obj);
-			}
-		}
+		level->render(renderer);
+		editor->render(renderer);
 		renderer->finishFrame();
 	}
 	return 0;

@@ -38,8 +38,17 @@ namespace rev {
 			void flush();
 
 		private:
+			void setShader(Shader::Ptr);
+
+		private:
 			GraphicsDriver* mDriver;
 			math::Mat44f	mViewProj;
+
+			// Render cache
+			Shader::Ptr		mCurShader;
+			unsigned		mMvpUniform;
+			unsigned		mWorldUniform;
+			unsigned		mLightDirUniform;
 		};
 
 	}

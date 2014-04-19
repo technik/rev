@@ -28,26 +28,35 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::render(const RendererBackEnd::StaticGeometry& _geom) {
-			mDriver->setShader(_geom.shader);
-			unsigned mvpUniform = mDriver->getUniformLocation("mvp");
+			if (_geom.shader != mCurShader)
+				setShader(_geom.shader);
+			// Set uniforms
 			Mat44f mvp = mViewProj * _geom.transform;
-			mDriver->setUniform(mvpUniform, mvp);
-
-			unsigned worldUniform = mDriver->getUniformLocation("world");
+			mDriver->setUniform(mMvpUniform, mvp);
 			Mat33f world = _geom.transform;
-			mDriver->setUniform(worldUniform, world);
-
-			unsigned lightDirUniform = mDriver->getUniformLocation("lightDir");
-			mDriver->setUniform(lightDirUniform, Vec3f(1.f, 0.2f, 1.5f).normalized());
+			mDriver->setUniform(mWorldUniform, world);
+			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.2f, 1.5f).normalized());
 			
+			// Set arrays
 			mDriver->setAttribBuffer(0, _geom.nVertices, _geom.vertices);
 			mDriver->setAttribBuffer(1, _geom.nVertices, _geom.normals);
+
+			// Draw
 			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, GraphicsDriver::EPrimitiveType::triangles);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::flush() {
 			// Intentionally blank
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::setShader(Shader::Ptr _newShader) {
+			mDriver->setShader((Shader*)_newShader);
+			mMvpUniform = mDriver->getUniformLocation("mvp");
+			mWorldUniform = mDriver->getUniformLocation("world");
+			mLightDirUniform = mDriver->getUniformLocation("lightDir");
+			mCurShader = _newShader;
 		}
 	}
 }
