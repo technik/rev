@@ -127,6 +127,7 @@
     <ClInclude Include="..\..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\..\src\math\algebra\quaternion.h" />
     <ClInclude Include="..\..\src\math\algebra\vector.h" />
+    <ClInclude Include="..\..\src\math\noise.h" />
     <ClInclude Include="..\..\src\video\basicTypes\color.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\openGL\openGLDriver.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="..\..\src\game\scene\sceneGraph\transformSrc.cpp" />
     <ClCompile Include="..\..\src\input\keyboard\keyboardInput.cpp" />
     <ClCompile Include="..\..\src\input\keyboard\windows\keyboardInputWindows.cpp" />
+    <ClCompile Include="..\..\src\math\noise.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
     <ClCompile Include="..\..\src\video\graphics\driver\openGL\windows\openGLDriverWindows.cpp" />
     <ClCompile Include="..\..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />

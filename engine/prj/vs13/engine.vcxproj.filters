@@ -240,6 +240,9 @@
     <ClInclude Include="..\..\src\core\time\time.h">
       <Filter>src\core\time</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\math\noise.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -333,6 +336,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\core\time\time.cpp">
       <Filter>src\core\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\math\noise.cpp">
+      <Filter>src\math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
