@@ -12,7 +12,7 @@ namespace rev {
 		class Window;
 		class ForwardRenderer;
 		class RenderObj;
-	}
+	} // namespace rev
 
 	template <class Allocator_>
 	class Engine : public Allocator_ {

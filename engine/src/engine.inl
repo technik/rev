@@ -17,6 +17,7 @@
 #include <math/algebra/vector.h>
 #include <input/keyboard/keyboardInput.h>
 #include <video/window/window.h>
+#include <video/graphics/shader/shader.h>
 
 using namespace rev::math;
 
