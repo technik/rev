@@ -7,6 +7,8 @@
 #ifndef _REV_MATH_ALGEBRA_VECTOR_H_
 #define _REV_MATH_ALGEBRA_VECTOR_H_
 
+#include <cassert>
+
 namespace rev {
 	namespace math {
 
@@ -17,7 +19,7 @@ namespace rev {
 			/// 666 TODO: Implemente generic dimension vector
 			inline T_&			operator[](unsigned _n)			{ return m[_n]; }
 			inline const T_&	operator[](unsigned _n) const	{ return m[_n]; }
-		public:
+		private:
 			T_ m[n_];
 		};
 
@@ -35,6 +37,13 @@ namespace rev {
 			// Comparison
 			bool operator==(const Vector&) const;
 			bool operator!=(const Vector&) const;
+
+			// Adition and substraction
+			Vector	operator+	(const Vector&) const;	// Adition
+			Vector&	operator+=	(const Vector&);		// Adition
+			Vector	operator-	(const Vector&) const;	// Substraction
+			Vector&	operator-=	(const Vector&);		// Substraction
+			Vector	operator-	() const;				// Return the oposite of this vector
 
 			// Products
 			Vector	operator*	(const T_) const;		// Product by scalar

@@ -11,7 +11,7 @@
 
 namespace rev {
 	namespace math {
-		
+
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename T_>
 		bool Vector<T_, 2>::operator==(const Vector& _v) const {
@@ -22,6 +22,45 @@ namespace rev {
 		template<typename T_>
 		bool Vector<T_, 2>::operator!=(const Vector& _v) const {
 			return _v.x != x || _v.y != y;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		Vector<T_, 2> Vector<T_, 2>::operator+ (const Vector& _v) const
+		{
+			return Vector<T_, 2>(x + _v.x, y + _v.y);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		Vector<T_, 2>& Vector<T_, 2>::operator+= (const Vector& _v)
+		{
+			x += _v.x;
+			y += _v.y;
+			return *this;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		Vector<T_, 2>	Vector<T_, 2>::operator- (const Vector<T_, 2>& _v) const
+		{
+			return Vector<T_, 2>(x - _v.x, y - _v.y);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		Vector<T_, 2>& Vector<T_, 2>::operator-= (const Vector<T_, 2>& _v)
+		{
+			x -= _v.x;
+			y -= _v.y;
+			return *this;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		Vector<T_, 2> Vector<T_, 2>::operator- () const
+		{
+			return Vector<T_, 2>(-x, -y);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------
