@@ -26,7 +26,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<>
-		void * NewAllocator::allocate(unsigned _n) {
+		inline void * NewAllocator::allocate(unsigned _n) {
 			void* buffer = new char[_n];
 			return buffer;
 		}

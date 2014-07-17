@@ -52,6 +52,12 @@ namespace rev {
 			Vector&	operator/=	(const T_);				// Division by scalar
 			T_		operator*	(const Vector&) const;	// Dot product
 			T_		operator^	(const Vector&) const;	// Cross product
+
+			// Vector norm and normalization
+			T_		norm() const;						//< Vector norm
+			T_		sqNorm() const;						///< Vector square norm
+			Vector	normalized() const;					///< Returns a normalized version of the vector
+			Vector&	normalize();						///< Normalizes the vector
 		};
 
 		// 3D vector

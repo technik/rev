@@ -75,6 +75,7 @@ namespace rev {
 					onRelease(element.first, _v);
 					destroy(_v);
 					mResources.erase(element.first);
+					return;
 				}
 			}
 			assert(false);
