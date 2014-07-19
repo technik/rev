@@ -44,6 +44,8 @@ namespace rev {
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);
+			glLineWidth(2.f);
+			glPointSize(4.f);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -112,6 +114,9 @@ namespace rev {
 				break;
 			case EPrimitiveType::triStrip:
 				glDrawElements(GL_TRIANGLE_STRIP, _nIndices, GL_UNSIGNED_SHORT, _indices);
+				break;
+			case EPrimitiveType::points:
+				glDrawElements(GL_POINTS, _nIndices, GL_UNSIGNED_SHORT, _indices);
 				break;
 			default:
 				assert(false); // Error: Trying to render an unimplemented primitive type

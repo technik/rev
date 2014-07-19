@@ -29,7 +29,8 @@ namespace rev {
 				triangles,
 				triStrip,
 				lines,
-				lineStrip
+				lineStrip,
+				points
 			};
 		public:
 			template<class Alloc_>
