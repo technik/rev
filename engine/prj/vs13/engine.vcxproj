@@ -116,6 +116,7 @@
     <ClInclude Include="..\..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\..\src\core\time\time.h" />
     <ClInclude Include="..\..\src\core\types.h" />
+    <ClInclude Include="..\..\src\core\types\typeTraits.h" />
     <ClInclude Include="..\..\src\engine.h" />
     <ClInclude Include="..\..\src\game\geometry\procedural\basic.h" />
     <ClInclude Include="..\..\src\game\scene\camera\camera.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="..\..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\..\src\math\algebra\quaternion.h" />
     <ClInclude Include="..\..\src\math\algebra\vector.h" />
+    <ClInclude Include="..\..\src\math\geometry\kdtree.h" />
     <ClInclude Include="..\..\src\math\noise.h" />
     <ClInclude Include="..\..\src\video\basicTypes\color.h" />
     <ClInclude Include="..\..\src\video\graphics\driver\graphicsDriver.h" />

@@ -112,6 +112,12 @@
     <Filter Include="src\core\time">
       <UniqueIdentifier>{96eeba5c-c6da-47f7-9c3b-9136e35a16b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\math\geometry">
+      <UniqueIdentifier>{4204ae41-ccbb-4719-8b8d-6f0556b6781e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\types">
+      <UniqueIdentifier>{ae3818ac-c4dc-4601-8960-8e71f159bd4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -242,6 +248,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\math\noise.h">
       <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\math\geometry\kdtree.h">
+      <Filter>src\math\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\types\typeTraits.h">
+      <Filter>src\core\types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
