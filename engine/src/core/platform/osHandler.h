@@ -10,6 +10,9 @@
 #ifdef _WIN32
 #include "windows/osHandlerWindows.h"
 #endif // _WIN32
+#ifdef __linux__
+#include "linux/osHandlerLinux.h"
+#endif // __linux__
 
 namespace rev {
 	namespace core {

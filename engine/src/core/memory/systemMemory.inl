@@ -25,6 +25,7 @@ namespace rev {
 			assert(!sInstance);
 
 			// Define local class using allocator
+			// Having this local class allows to store an allocator whose type is defined by the template
 			class SystemMemoryFinal : public SystemMemory {
 				Alloc_& mAlloc;
 				// This should be "=delete", but Visual studio won't swallow that.
@@ -40,7 +41,7 @@ namespace rev {
 				}
 			};
 
-			sInstance = _alloc.create<SystemMemoryFinal>(&_alloc);
+			sInstance = _alloc.template create<SystemMemoryFinal>(&_alloc);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------

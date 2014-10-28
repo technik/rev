@@ -11,6 +11,8 @@
 #ifdef WIN32
 #include "windows/keyboardInputWindows.h"
 #endif // WIN32
+#ifdef __linux__
+#endif // __linux__
 
 namespace rev { namespace input
 {

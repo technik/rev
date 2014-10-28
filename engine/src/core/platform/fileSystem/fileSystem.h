@@ -10,6 +10,9 @@
 #ifdef _WIN32
 #include "windows/fileSystemWindows.h"
 #endif // _WIN32
+#ifdef __linux__
+#include "linux/fileSystemLinux.h"
+#endif // __linux__
 
 namespace rev {
 	namespace core {
