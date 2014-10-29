@@ -11,18 +11,22 @@
 
 #include <math/algebra/vector.h>
 
+#include <X11/X.h>
+#include <X11/Xlib.h>
+
 namespace rev {
 	namespace video {
 
 		class WindowLinux {
 		public:
-			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName) {
-				/// 666 TODO
-			}
+			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			
+			Display* display() const { return mDisplay; }
 		private:
 			math::Vec2u mPosition;
 			math::Vec2u mSize;
+
+			Display* mDisplay = nullptr;
 		};
 
 		typedef WindowLinux	WindowBase;

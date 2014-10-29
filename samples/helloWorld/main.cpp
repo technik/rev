@@ -7,10 +7,24 @@
 
 #include <core/memory/newAllocator.h>
 #include <engine.h>
+#include <input/keyboard/keyboardInput.h>
+#include <math/algebra/vector.h>
+#include <vector>
+#include <video/basicTypes/color.h>
+#include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/driver/openGL/openGLDriver.h>
 
 int main(int _argc, const char** _argv) {
 	rev::Engine<rev::core::NewAllocator>	mEngine(_argc,_argv);
-	mEngine.mainWindow();
 
+	//rev::input::KeyboardInput*				mKeyboard;
+	rev::video::GraphicsDriver*				mDriver;
+
+	mDriver = new rev::video::OpenGLDriver(mEngine.mainWindow());
+	mDriver->setClearColor(rev::video::Color(0.7f));
+	//mKeyboard = rev::input::KeyboardInput::get();
+	//mEngine.mainWindow();
+
+	while(1);
 	return 0;
 }

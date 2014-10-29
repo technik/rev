@@ -3,7 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
-// Interface with OpenGL for Windows platforms
+// Interface with OpenGL for linux platforms
 
 #ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_LINUX_OPENGLDRIVERLINUX_H_
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_LINUX_OPENGLDRIVERLINUX_H_
@@ -19,7 +19,7 @@ namespace rev {
 
 		class OpenGLDriverLinux : public GraphicsDriver {
 		public:
-			OpenGLDriverLinux(const Window*){}
+			OpenGLDriverLinux(const Window*);
 			void	swapBuffers() {}
 
 		private:

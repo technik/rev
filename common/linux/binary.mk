@@ -18,7 +18,7 @@ TEMP_FILES = $(CXX_OBJ)
 # ----- Build flags -----
 WARNING_FLAGS = -Wall -Werror
 INCLUDE_FLAGS = -I$(SRC_DIR)/ -I$(REVSDK_HOME)/engine/src/
-LIBRARIES := $(LIBRARIES) -lrev
+LIBRARIES := $(LIBRARIES) -lrev -lX11 -lGL -lGLEW
 LINK_DIRS := -L$(REVSDK_HOME)/engine/bin
 LINK_FLAGS = $(LINK_DIRS) $(LIBRARIES)
 CXX_COMPILE_FLAGS = -std=c++11 -fno-rtti -fno-exceptions
