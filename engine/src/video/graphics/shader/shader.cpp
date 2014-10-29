@@ -8,6 +8,6 @@
 
 namespace rev {
 	namespace core {
-		video::Shader::Mgr* video::Shader::Mgr::sInstance = nullptr;
+		template<> video::Shader::Mgr* video::Shader::Mgr::sInstance = nullptr;
 	}
 }

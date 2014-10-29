@@ -48,8 +48,8 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::init(Window* _window, Alloc_& _alloc){
-			mDriver = _alloc.create<OpenGLDriver>(_window);
-			mBackEnd = _alloc.create<RendererBackEnd>(mDriver);
+			mDriver = _alloc.template create<OpenGLDriver>(_window);
+			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("test");
 
 			mDriver->setShader((Shader*)mShader);

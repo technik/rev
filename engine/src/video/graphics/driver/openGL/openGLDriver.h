@@ -10,6 +10,9 @@
 #ifdef _WIN32
 #include "windows/openGLDriverWindows.h"
 #endif // _WIN32
+#ifdef __linux__
+#include "linux/openGLDriverLinux.h"
+#endif // __linux__
 #include "glew.h"
 #include <core/containers/map.h>
 

@@ -10,6 +10,7 @@ TEMP_FILES = $(CXX_OBJ)
 # ----- Build flags -----
 WARNING_FLAGS = -Wall -Werror
 INCLUDE_FLAGS = -I$(SRC_DIR)/
+LIBRARIES = -lGL -lGLEW -lc -lm -lc
 LINK_FLAGS = $(LINK_DIRS) $(LIBRARIES)
 CXX_COMPILE_FLAGS = -std=c++11 -fno-rtti -fno-exceptions
 ifeq (debug, true)
@@ -23,7 +24,7 @@ CXX_FLAGS = $(COMMON_C_FLAGS) $(CXX_COMPILE_FLAGS)
 
 OUT_DIR = ./bin
 
-OUT_NAME ?= $(OUT_DIR)/librev
+OUT_NAME ?= $(OUT_DIR)/librev.a
 OUTPUT := $(OUT_NAME)
 
 # -- Rules --
@@ -36,9 +37,9 @@ run: $(OUTPUT)
 	$(OUTPUT)
 
 %.cpp.o: %.cpp
-	$(CXX) -c -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
+	$(CXX) -c -o $@ $^ $(CXX_FLAGS)
 
-$(OUTPUT): $(CXX_SRC)
-	$(CXX) -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
+$(OUTPUT): $(CXX_OBJ)
+	$(AR) rvs $@ $^
 
 .PHONY: readelf run clean

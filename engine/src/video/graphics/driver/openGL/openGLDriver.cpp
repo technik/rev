@@ -6,7 +6,7 @@
 // Interface with OpenGL
 #include "openGLDriver.h"
 
-#include <gl/GL.h>
+#include <GL/gl.h>
 #include "glew.h"
 
 #include <core/platform/fileSystem/fileSystem.h>
@@ -20,7 +20,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriver::OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {
 			GLenum res = glewInit();
-			assert(res == GLEW_OK); res;
+			assert(res == GLEW_OK);
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
 				string pxlName = _name + ".pxl";
@@ -124,37 +124,32 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned _nElements, const float* _buffer)
+		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned, const float* _buffer)
 		{
-			_nElements;
 			glVertexAttribPointer(_attribId, 1, GL_FLOAT, GL_FALSE, 0, _buffer);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned _nElements, const uint16_t* _buffer)
+		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned, const uint16_t* _buffer)
 		{
-			_nElements;
 			glVertexAttribPointer(_attribId, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, _buffer);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned _nElements, const int16_t* _buffer)
+		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned , const int16_t* _buffer)
 		{
-			_nElements;
 			glVertexAttribPointer(_attribId, 1, GL_SHORT, GL_FALSE, 0, _buffer);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned _nElements, const math::Vec2f* _buffer)
+		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned, const math::Vec2f* _buffer)
 		{
-			_nElements;
 			glVertexAttribPointer(_attribId, 2, GL_FLOAT, GL_FALSE, 0, _buffer);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned _nElements, const math::Vec3f* _buffer)
+		void OpenGLDriver::setAttribBuffer(unsigned _attribId, unsigned, const math::Vec3f* _buffer)
 		{
-			_nElements;
 			glVertexAttribPointer(_attribId, 3, GL_FLOAT, GL_FALSE, 0, _buffer);
 		}
 
