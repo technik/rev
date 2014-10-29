@@ -18,7 +18,7 @@ namespace rev {
 
 			//void operator+= (OSDelegate);
 		protected:
-			bool update();
+			bool update() { return true; }
 		private:
 			//vector<OSDelegate>	mMsgProcessors;
 		};
