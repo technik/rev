@@ -10,6 +10,9 @@
 #ifdef _WIN32
 #include "windows/windowWindows.h"
 #endif // _WIN32
+#ifdef __linux__
+#include "linux/windowLinux.h"
+#endif //__linux__
 
 namespace rev {
 	namespace video {

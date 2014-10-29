@@ -8,9 +8,9 @@
 #include <core/memory/newAllocator.h>
 #include <engine.h>
 
-int main(int, const char**) {
-	rev::Engine<rev::core::NewAllocator>	mEngine;
-	mEngine::mainWindow();
+int main(int _argc, const char** _argv) {
+	rev::Engine<rev::core::NewAllocator>	mEngine(_argc,_argv);
+	mEngine.mainWindow();
 
 	return 0;
 }

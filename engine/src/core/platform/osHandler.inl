@@ -21,7 +21,7 @@ namespace rev {
 		template<class Allocator_>
 		void OSHandler::startUp(Allocator_& _alloc) {
 			assert(!sInstance);
-			sInstance = _alloc.create<OSHandler>();
+			sInstance = _alloc.template create<OSHandler>();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

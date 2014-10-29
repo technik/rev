@@ -25,15 +25,12 @@ namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	template<class Allocator_>
-	Engine<Allocator_>::Engine(int _argc, const char** _argv) {
-		_argc; // Unused
-		_argv; // Unused
-
+	Engine<Allocator_>::Engine(int, const char** ) {
 		// Create window
 		core::Platform::startUp(*this);
 		input::KeyboardInput::init();
 
-		mMainWindow = create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
+		mMainWindow = Allocator_::template create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
 	}
 
@@ -41,7 +38,7 @@ namespace rev {
 	template<class Allocator_>
 	Engine<Allocator_>::~Engine() {
 		video::Shader::Mgr::shutDown(*this);
-		destroy(mMainWindow);
+		Allocator_::destroy(mMainWindow);
 
 		input::KeyboardInput::end();
 		core::Platform::shutDown(*this);

@@ -17,7 +17,7 @@ namespace rev {
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class T_, template<class,class> class Ownership_, class Destroy_ = JustDelete>
+		template<class T_, template<class, class> class Ownership_, class Destroy_ = JustDelete<T_>>
 		class SmartPtr : public Ownership_<T_,Destroy_>{
 		public:
 			SmartPtr() {}
@@ -44,19 +44,21 @@ namespace rev {
 				return *this;
 			}
 
-			explicit operator T_*() const { return pointee; }
+			explicit operator T_*() const { return Ownership_<T_, Destroy_>::pointee; }
 
 			bool operator==(const SmartPtr& _x) const {
-				return pointee == _x.pointee;
+				return Ownership_<T_, Destroy_>::pointee == _x.pointee;
 			}
 
 			bool operator!=(const SmartPtr& _x) const {
-				return pointee != _x.pointee;
+				return Ownership_<T_, Destroy_>::pointee != _x.pointee;
 			}
 
-			T_* operator->() const { return pointee; }
-			T_& operator&() const { return *pointee; }
-			T_& operator*() const { return *pointee; }
+			T_* operator->() const { return Ownership_<T_, Destroy_>::pointee; }
+			T_& operator&() const { return *Ownership_<T_, Destroy_>::pointee; }
+			T_& operator*() const { return *Ownership_<T_, Destroy_>::pointee; }
+
+		private:
 		};
 
 	}	// namespace core

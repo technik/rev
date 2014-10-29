@@ -19,7 +19,7 @@ namespace rev {
 		public:
 			typedef Event<const char*> FileEvent;
 
-			//void		update();
+			void		update();
 
 		protected:
 			map<string, FileEvent>	mFileChangedEvents;

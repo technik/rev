@@ -28,7 +28,7 @@ namespace rev {
 				SingAlloc_& _singAlloc, MapAlloc_ _mapAlloc)
 		{
 			assert(!sInstance);
-			sInstance = _singAlloc.allocate<ResourceMgr>();
+			sInstance = _singAlloc.template allocate<ResourceMgr>();
 			new(sInstance)ResourceMgr(_mapAlloc);
 		}
 
