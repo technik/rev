@@ -20,9 +20,9 @@ namespace rev {
 			{}
 
 			RefLink(const RefLink& _x)
-				:prev(&_x)
+				:pointee(_x.pointee)
+				, prev(&_x)
 				, post(_x.post)
-				, pointee(_x.pointee)
 			{
 				_x.post = this;
 				if (post)
@@ -30,9 +30,9 @@ namespace rev {
 			}
 
 			RefLink(RefLink&& _x)
-				:prev(_x.prev)
+				:pointee(_x.pointee)
+				, prev(_x.prev)
 				, post(_x.post)
-				, pointee(_x.pointee)
 			{
 				_x.prev = nullptr;
 				_x.post = nullptr;
@@ -49,7 +49,7 @@ namespace rev {
 				if (post)
 					post->prev = prev;
 				if (pointee && !prev && !post)
-					destroy(pointee);
+					Destroy_::destroy(pointee);
 			}
 
 			RefLink& operator=(const RefLink& _x) {

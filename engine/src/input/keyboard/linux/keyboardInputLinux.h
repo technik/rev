@@ -14,7 +14,30 @@ namespace rev { namespace input
 	class KeyboardInputLinux
 	{
 	public:
-		enum EKeyCode {
+		enum EKeyCode
+		{
+			eBackSpace,
+			eTab,
+			eEnter,
+			eShift,
+			eControl,
+			eAlt,
+			ePause,
+			eCapsLock,
+			eEscape,
+			eSpace,
+			ePageUp,
+			ePageDown,
+			eEnd,
+			eHome,
+			eKeyLeft,
+			eKeyUp,
+			eKeyRight,
+			eKeyDown,
+			eA,
+			eB, eC, eD, eE, eF, eG, eH, eI, eJ, eK, eL, eM, eN, eO, eP, eQ, eR, eS, eT, eU, eV, eW, eX, eY, eZ,
+
+			eMaxKeyCode
 		};
 	public:
 		KeyboardInputLinux() {}

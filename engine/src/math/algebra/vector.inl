@@ -7,6 +7,8 @@
 #ifndef _REV_MATH_ALGEBRA_VECTOR_INL_
 #define _REV_MATH_ALGEBRA_VECTOR_INL_
 
+#include <cmath>
+
 #include "vector.h"
 
 namespace rev {

@@ -7,6 +7,7 @@
 #ifndef _REV_MATH_ALGEBRA_MATRIX_INL_
 #define _REV_MATH_ALGEBRA_MATRIX_INL_
 
+#include <cmath>
 #include "matrix.h"
 
 namespace rev {

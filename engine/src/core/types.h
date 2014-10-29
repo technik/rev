@@ -14,7 +14,7 @@
 
 namespace rev {
 	namespace core {
-		using string = std::basic_string<char, std::char_traits<char>, StdAllocator<DefaultAllocator, char>>;
+		using string = std::string;
 	}
 }
 
