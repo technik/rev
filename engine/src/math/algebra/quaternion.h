@@ -79,7 +79,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix3x3<N_>& _matrix)
+	inline Quaternion<N_>::Quaternion(const Matrix3x3<N_>& _m)
 	{
 		// Find the largest diagonal element of _m
 		if(_m[0][0] > _m[1][1]) {
@@ -182,7 +182,7 @@ namespace rev { namespace math {
 		N_ bc = x*y;
 		N_ bd = x*z;
 		N_ cd = y*z;
-		return Vec3<N_>(
+		return Vector3<N_>(
 			(a2+b2-c2-d2)*_v.x+2.0f*((bc-ad)*_v.y+(bd+ac)*_v.z),	// x
 			(a2-b2+c2-d2)*_v.y+2.0f*((cd-ab)*_v.z+(bc+ad)*_v.x),	// y
 			(a2-b2-c2+d2)*_v.z+2.0f*((bd-ac)*_v.x+(cd+ab)*_v.y)		// z
