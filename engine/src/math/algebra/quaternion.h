@@ -14,6 +14,7 @@
 // Engine headers
 #include "matrix.h"
 #include "vector.h"
+#include "../numericTraits.h"
 
 namespace rev { namespace math {
 
@@ -68,7 +69,7 @@ namespace rev { namespace math {
 	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _rotationVector)
 	{
 		N_ halfRadians = _rotationVector.norm() * 0.5f;
-		Vec3<N_> axis  = _rotationVector.normalized();
+		Vector3<N_> axis  = _rotationVector.normalized();
 		w = cos(halfRadians);
 		N_ sinus = aqrt(NumericTraits<N_>::one() - w*w); // sin(halfRadians);
 		x = axis.x * sinus;

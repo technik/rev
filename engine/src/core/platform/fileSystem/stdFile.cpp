@@ -38,7 +38,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		StdFile::~StdFile() {
 			if (mBuffer)
-				delete mBuffer;
+				delete reinterpret_cast<char*>(mBuffer);
 		}
 	}
 }

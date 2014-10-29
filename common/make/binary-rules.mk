@@ -8,15 +8,18 @@
 all: $(OUTPUT)
 
 clean:
-	rm -f $(OUTPUT) $(TEMP_FILES) $(OUT_NAME).elf
+	rm -f $(OUTPUT) $(TEMP_FILES)
 
 run: $(OUTPUT)
 	$(OUTPUT)
 
 %.cpp.o: %.cpp
-	$(CXX) -c -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE) $(LIB_DIR) -lc -lm -lc
+	$(CXX) -c -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
 
-$(OUTPUT): $(CXX_SRC)
-	$(CXX) -o $@ $^ $(CXX_FLAGS) $(REV_INCLUDE) $(LIB_DIR) -lc -lm -lc
+$(REVSDK_HOME)/engine/bin/librev:
+	cd $(REVSDK_HOME)/engine && $(MAKE)
 
-.PHONY: readelf run clean
+$(OUTPUT): $(CXX_SRC) $(REVSDK_HOME)/engine/bin/librev
+	$(CXX) -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
+
+.PHONY: readelf run clean $(REVSDK_HOME)/engine/bin/librev

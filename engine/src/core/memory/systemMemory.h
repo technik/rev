@@ -7,6 +7,8 @@
 #ifndef _REV_CORE_MEMORY_SYSTEMMEMORY_H_
 #define _REV_CORE_MEMORY_SYSTEMMEMORY_H_
 
+#include <cstdlib>
+
 namespace rev {
 	namespace core {
 

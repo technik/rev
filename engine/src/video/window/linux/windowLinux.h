@@ -16,7 +16,9 @@ namespace rev {
 
 		class WindowLinux {
 		public:
-			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
+			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName) {
+				/// 666 TODO
+			}
 			
 		private:
 			math::Vec2u mPosition;

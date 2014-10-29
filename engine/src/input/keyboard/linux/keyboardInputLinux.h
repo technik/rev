@@ -17,14 +17,13 @@ namespace rev { namespace input
 		enum EKeyCode {
 		};
 	public:
-		KeyboardInputLinux();
-		~KeyboardInputLinux();
+		KeyboardInputLinux() {}
+		~KeyboardInputLinux() {}
 
-		bool pressed	(EKeyCode _key) const;
-		bool held		(EKeyCode _key) const;
-		bool released	(EKeyCode _key) const;
-
-		void refresh	();
+		bool pressed	(EKeyCode _key) const { return false; }
+		bool held		(EKeyCode _key) const { return false; }
+		bool released	(EKeyCode _key) const { return false; } 
+		void refresh	() {}
 
 	private:
 		// int keyState[eMaxKeyCode];
