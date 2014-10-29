@@ -23,13 +23,13 @@ namespace rev {
 			void		update();
 
 		protected:
-			map<string, FileEvent>	mFileChangedEvents;
+			map<const std::string, FileEvent>	mFileChangedEvents;
 
 		protected:
 			FileSystemWindows();
 
 		private:
-			void doFileChanged(const string& _fileName);
+			void doFileChanged(const std::string& _fileName);
 			void watchDirectory();
 
 			static const int	mNotifBufferSize = 1024;

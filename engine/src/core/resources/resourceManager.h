@@ -17,14 +17,14 @@
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
 		class ResourceMgr : public Creator_ {
 		public:
 
 			// Singleton interface
 			static ResourceMgr* manager();
 			template<typename Alloc_>
-			static void startUp(Alloc_& = Alloc_(), MapAlloc_ = MapAlloc_());
+			static void startUp(Alloc_& = Alloc_());
 			template<typename Alloc_>
 			static void shutDown(Alloc_& = Alloc_());
 			void setOnRelease(std::function<void(const Key_&, Val_*)> _fn) { onRelease = _fn; }
@@ -43,21 +43,21 @@ namespace rev {
 			Ptr get(const Key_&);
 
 		private:
-			ResourceMgr(MapAlloc_&);
+			ResourceMgr();
 			~ResourceMgr() = default;
 
 			void release(Val_*);
 
 			static ResourceMgr*			sInstance;
 			std::function<void(const Key_&, Val_*)>	onRelease = [](const Key_&, Val_*){ assert(false); };
-			map<Key_, Val_*, MapAlloc_>	mResources;
+			map<Key_, Val_*>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_ = DefaultAllocator>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
 		class ManagedResource {
 		public:
-			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>	Mgr;
+			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_>	Mgr;
 			typedef typename Mgr::Ptr	Ptr;
 			inline static Mgr*	manager() { return Mgr::manager(); }
 		};

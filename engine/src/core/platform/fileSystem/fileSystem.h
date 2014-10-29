@@ -22,7 +22,7 @@ namespace rev {
 			static void init();
 			static void end();
 
-			FileEvent&			onFileChanged(const string& _fileName) { return mFileChangedEvents[_fileName]; }
+			FileEvent&			onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
 		private:
 			FileSystem() = default;
 			~FileSystem() = default;

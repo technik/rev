@@ -22,7 +22,7 @@ namespace rev {
 			void		update();
 
 		protected:
-			map<string, FileEvent>	mFileChangedEvents;
+			map<const std::string, FileEvent>	mFileChangedEvents;
 
 		protected:
 			FileSystemLinux();

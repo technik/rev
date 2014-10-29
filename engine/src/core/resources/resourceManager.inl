@@ -14,28 +14,28 @@
 namespace rev {
 	namespace core {
 		//--------------------------------------------------------------------------------------------------------------
-		template<typename Key_, typename Val_, typename Creator_, template<class, class> class Ownership_, typename MapAlloc_>
-		ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>*
-			ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::manager() {
+		template<typename Key_, typename Val_, typename Creator_, template<class, class> class Ownership_>
+		ResourceMgr<Key_, Val_, Creator_, Ownership_>*
+			ResourceMgr<Key_, Val_, Creator_, Ownership_>::manager() {
 				assert(sInstance);
 				return sInstance;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
 		template<class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::startUp(
-				SingAlloc_& _singAlloc, MapAlloc_ _mapAlloc)
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::startUp(
+				SingAlloc_& _singAlloc)
 		{
 			assert(!sInstance);
 			sInstance = _singAlloc.template allocate<ResourceMgr>();
-			new(sInstance)ResourceMgr(_mapAlloc);
+			new(sInstance)ResourceMgr();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
 		template<class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::shutDown(
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::shutDown(
 			SingAlloc_& _singAlloc)
 		{
 			assert(sInstance);
@@ -45,9 +45,9 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
-		typename ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::Ptr
-			ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::get(const Key_& _key)
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
+		typename ResourceMgr<Key_, Val_, Creator_, Ownership_>::Ptr
+			ResourceMgr<Key_, Val_, Creator_, Ownership_>::get(const Key_& _key)
 		{
 			auto resIterator = mResources.find(_key);
 			if (resIterator == mResources.end()) {
@@ -59,15 +59,14 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
-		ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::ResourceMgr(MapAlloc_& _mapAlloc)
-			:mResources(StdAllocator<MapAlloc_,std::pair<Key_,Val_*>>(_mapAlloc))
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
+		ResourceMgr<Key_, Val_, Creator_, Ownership_>::ResourceMgr()
 		{
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_, class MapAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_, MapAlloc_>::release(
+		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::release(
 			Val_* _v)
 		{
 			for (auto element : mResources) {

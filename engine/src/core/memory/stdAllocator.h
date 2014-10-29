@@ -60,7 +60,9 @@ namespace rev {
 			//    construction/destruction
 			void construct(pointer p, const T_& t) { new(p)T_(t); }
 			void destroy(pointer _p) { 
+				#ifdef _WIN32
 				_p; // Work around for visual studio incorrect warning
+				#endif // _WIN32
 				_p->~T_();
 			}
 
