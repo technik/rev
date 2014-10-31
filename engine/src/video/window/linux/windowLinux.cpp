@@ -8,7 +8,7 @@
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
-#include <GL/glx.h>
+#include <GL/glew.h>
 
 #include "windowLinux.h"
 
@@ -23,23 +23,22 @@ namespace rev {
 			assert(mDisplay);
 			::Window parentWindow = DefaultRootWindow(mDisplay);
 
-
 			GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-			XVisualInfo *visualInfo = glXChooseVisual(mDisplay, 0, att);
-			assert(visualInfo);
+			mVisualInfo = glXChooseVisual(mDisplay, 0, att);
+			assert(mVisualInfo);
 
-			Colormap cmap = XCreateColormap(mDisplay, parentWindow, visualInfo->visual, AllocNone);
+			Colormap cmap = XCreateColormap(mDisplay, parentWindow, mVisualInfo->visual, AllocNone);
 			XSetWindowAttributes    swa;
 			swa.colormap = cmap;
  			swa.event_mask = ExposureMask | KeyPressMask;
-			Window window = XCreateWindow(mDisplay, parentWindow, 0, 0, 600, 600, 0,
-				visualInfo->depth, InputOutput, visualInfo->visual, CWColormap | CWEventMask, &swa);
-			XMapWindow(mDisplay, window);
-			XStoreName(mDisplay, window, "VERY SIMPLE APPLICATION");
-			GLXContext glc = glXCreateContext(mDisplay, visualInfo, NULL, GL_TRUE);
-			glXMakeCurrent(mDisplay, window, glc);
-			glEnable(GL_DEPTH_TEST); 
+			mXWindow = XCreateWindow(mDisplay, parentWindow, 0, 0, 600, 600, 0,
+				mVisualInfo->depth, InputOutput, mVisualInfo->visual, CWColormap | CWEventMask, &swa);
+			XMapWindow(mDisplay, mXWindow);
+			XStoreName(mDisplay, mXWindow, _windowName);
 
+			// 666 TODO: Move this code to windowLinux
+			GLXContext glc = glXCreateContext(mDisplay, mVisualInfo, NULL, GL_TRUE);
+			glXMakeCurrent(mDisplay, mXWindow, glc);
 			/*
 			 while(1) {
 			        XNextEvent(dpy, &xev);

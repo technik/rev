@@ -20,9 +20,10 @@ namespace rev {
 		class OpenGLDriverLinux : public GraphicsDriver {
 		public:
 			OpenGLDriverLinux(const Window*);
-			void	swapBuffers() {}
+			void	swapBuffers();
 
 		private:
+			const Window* mWindow = nullptr;
 		};
 		
 		typedef OpenGLDriverLinux OpenGLDriverBase;

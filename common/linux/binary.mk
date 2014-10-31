@@ -22,9 +22,9 @@ LIBRARIES := $(LIBRARIES) -lrev -lX11 -lGL -lGLEW
 LINK_DIRS := -L$(REVSDK_HOME)/engine/bin
 LINK_FLAGS = $(LINK_DIRS) $(LIBRARIES)
 CXX_COMPILE_FLAGS = -std=c++11 -fno-rtti -fno-exceptions
-ifeq (debug, true)
+#ifeq (debug, true)
 DEBUG_FLAGS = -g
-endif
+#endif
 OPTIMIZATION_FLAGS = #-O1
 COMMON_C_FLAGS = $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS) $(INCLUDE_FLAGS) \
  $(LINK_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZATION_FLAGS)

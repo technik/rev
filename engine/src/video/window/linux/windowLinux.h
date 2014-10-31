@@ -13,6 +13,8 @@
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <GL/glew.h>
+#include <GL/glx.h>
 
 namespace rev {
 	namespace video {
@@ -22,11 +24,15 @@ namespace rev {
 			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			
 			Display* display() const { return mDisplay; }
+			::Window xWindow() const { return mXWindow; }
+			XVisualInfo* visualInfo() const { return mVisualInfo; }
 		private:
 			math::Vec2u mPosition;
 			math::Vec2u mSize;
 
 			Display* mDisplay = nullptr;
+			::Window mXWindow;
+			XVisualInfo* mVisualInfo = nullptr;
 		};
 
 		typedef WindowLinux	WindowBase;

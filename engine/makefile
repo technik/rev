@@ -1,4 +1,5 @@
 # base engine makefile
+debug ?= true
 
 SRC_DIR = ./src
 
@@ -13,9 +14,7 @@ INCLUDE_FLAGS = -I$(SRC_DIR)/
 LIBRARIES = -lGL -lGLEW -lc -lm -lc
 LINK_FLAGS = $(LINK_DIRS) $(LIBRARIES)
 CXX_COMPILE_FLAGS = -std=c++11 -fno-rtti -fno-exceptions
-ifeq (debug, true)
 DEBUG_FLAGS = -g
-endif
 OPTIMIZATION_FLAGS = #-O1
 COMMON_C_FLAGS = $(PREPROCESSOR_DEFINITIONS) $(WARNING_FLAGS) $(INCLUDE_FLAGS) \
  $(LINK_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZATION_FLAGS)

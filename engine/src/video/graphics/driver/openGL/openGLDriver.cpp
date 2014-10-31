@@ -7,7 +7,11 @@
 #include "openGLDriver.h"
 
 #include <GL/gl.h>
+#ifdef _WIN32
 #include "glew.h"
+#else
+#include <GL/glew.h>
+#endif // !_WIN32
 
 #include <core/platform/fileSystem/fileSystem.h>
 #include <video/basicTypes/color.h>

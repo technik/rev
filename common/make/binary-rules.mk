@@ -19,7 +19,7 @@ run: $(OUTPUT)
 $(REVSDK_HOME)/engine/bin/librev:
 	cd $(REVSDK_HOME)/engine && $(MAKE)
 
-$(OUTPUT): $(CXX_SRC) $(REVSDK_HOME)/engine/bin/librev
+$(OUTPUT): $(CXX_SRC) $(REVSDK_HOME)/engine/bin/librev.a
 	$(CXX) -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
 
-.PHONY: readelf run clean $(REVSDK_HOME)/engine/bin/librev
+.PHONY: readelf run clean $(REVSDK_HOME)/engine/bin/librev.a

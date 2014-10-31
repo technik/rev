@@ -25,6 +25,10 @@ int main(int _argc, const char** _argv) {
 	//mKeyboard = rev::input::KeyboardInput::get();
 	//mEngine.mainWindow();
 
-	while(1);
+	while(1) {
+		mDriver->clearColorBuffer();
+		mDriver->clearZBuffer();
+		mDriver->finishFrame();
+	}
 	return 0;
 }
