@@ -27,14 +27,18 @@ const Vec3f vertices[] = {
 uint16_t indices[] = { 0, 1, 2, 2, 3, 0 };
 
 // ---- Actual application code
-class HelloWorld : public rev::App3d {
+class ShaderToy : public rev::App3d {
 public:
-	HelloWorld(int _argc, const char** _argv) : App3d(_argc, _argv) {
+	ShaderToy(int _argc, const char** _argv) : App3d(_argc, _argv) {
 		driver3d()->setAttribBuffer(0, 4, vertices);
+		mShader = Shader::manager()->get("shader");
 	}
 
 private:
+	Shader::Ptr	mShader;
+
 	bool frame(float) override {
+		driver3d()->setShader((Shader*)mShader);
 		driver3d()->drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;
 	}
@@ -43,7 +47,7 @@ private:
 // ---- Generic main loop ----
 int main(int _argc, const char** _argv) {
 	
-	HelloWorld app(_argc,_argv);
+	ShaderToy app(_argc,_argv);
 
 	while(app.update());
 	return 0;

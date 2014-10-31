@@ -44,6 +44,8 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::preFrame(){
+		mEngine.update();
+
 		mDriver->clearColorBuffer();
 		mDriver->clearZBuffer();
 	}

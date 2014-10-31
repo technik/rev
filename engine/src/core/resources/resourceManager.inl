@@ -55,7 +55,7 @@ namespace rev {
 				mResources.insert(std::make_pair(_key, newResource));
 				return Ptr(newResource);
 			}
-			return Ptr(nullptr);
+			return Ptr(resIterator->second);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
