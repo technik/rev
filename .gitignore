@@ -30,6 +30,8 @@
 *.log
 *.cache
 *.lib
+*.cpp.o
+/engine/bin/*
 *.unsuccessfulbuild
 /projects/rose/bin/windows/Debug/rose.exe
 /modules/highLevel/game/src/code/bullet
