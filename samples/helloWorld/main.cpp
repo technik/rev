@@ -13,7 +13,7 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
-#include <video/graphics/shader/shader.h>
+//#include <video/graphics/shader/shader.h>
 
 using namespace rev::video;
 
@@ -28,7 +28,7 @@ int main(int _argc, const char** _argv) {
 	//mKeyboard = rev::input::KeyboardInput::get();
 	Shader::Ptr mShader = Shader::manager()->get("shader");
 	mDriver->setShader((Shader*)mShader);
-
+	
 	uint16_t indices[3] = { 0, 1, 2 };
 	Vec3f vertices[3] = {
 		{-1.f, -1.f, 0.f },
@@ -39,7 +39,7 @@ int main(int _argc, const char** _argv) {
 	mDriver->setAttribBuffer(0, 3, vertices);
 	//mDriver.setUniform(mColorUniform, _fill);
 
-	while(1) {
+	for(;;) {
 		mDriver->clearColorBuffer();
 		mDriver->clearZBuffer();
 
