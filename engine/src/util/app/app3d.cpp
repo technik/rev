@@ -6,6 +6,11 @@
 // Base class for 3d applications
 #include "app3d.h"
 
+#include <video/basicTypes/color.h>
+#include <video/graphics/driver/openGL/openGLDriver.h>
+
+using namespace rev::video;
+
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -13,7 +18,13 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	App3d::App3d(int, const char**) {
+	App3d::App3d(int _argc, const char** _argv)
+		: mEngine(_argc,_argv)
+	{
+		mDriver = new OpenGLDriver(mEngine.mainWindow());
+		mDriver->setClearColor(Color(0.7f));
+		mShader = Shader::manager()->get("shader");
+		mDriver->setShader((Shader*)mShader);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -33,10 +44,13 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::preFrame(){
+		mDriver->clearColorBuffer();
+		mDriver->clearZBuffer();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::postFrame() {
+		mDriver->finishFrame();
 	}
 
 }	// namespace rev

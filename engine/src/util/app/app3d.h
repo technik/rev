@@ -7,7 +7,14 @@
 #ifndef _REV_UTIL_APP_APP3D_H_
 #define _REV_UTIL_APP_APP3D_H_
 
+#include <core/memory/newAllocator.h>
+#include <engine.h>
+
 namespace rev {
+
+	namespace video {
+		class GraphicsDriver;
+	}
 
 	class App3d {
 	public:
@@ -17,10 +24,20 @@ namespace rev {
 		bool update();
 
 	protected:
-		virtual bool frame(float _dt); // Usually override this
+		rev::video::GraphicsDriver*	driver3d	() const { return mDriver; }
+
+		virtual bool				frame	(float _dt); // Usually override this
 	private:
 		void preFrame();
 		void postFrame();
+
+	protected:
+		typedef rev::Engine<rev::core::NewAllocator>	Engine;
+
+	private:
+		Engine						mEngine;
+		rev::video::GraphicsDriver*	mDriver;
+		rev::video::Shader::Ptr		mShader;
 	};
 
 }	// namespace rev
