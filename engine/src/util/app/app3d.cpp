@@ -9,6 +9,7 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
 
+using namespace rev::core;
 using namespace rev::video;
 
 namespace rev {
@@ -30,7 +31,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::update() {
 		preFrame();
-		if(frame(0.f)) { /// 666 TODO: Support time
+		if(frame(Time::get()->frameTime())) {
 			postFrame();
 			return true;
 		}

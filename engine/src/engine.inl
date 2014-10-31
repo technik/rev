@@ -14,6 +14,7 @@
 
 #include <core/platform/osHandler.h>
 #include <core/platform/platform.h>
+#include <core/time/time.h>
 #include <math/algebra/vector.h>
 #include <input/keyboard/keyboardInput.h>
 #include <video/window/window.h>
@@ -29,6 +30,7 @@ namespace rev {
 		// Create window
 		core::Platform::startUp(*this);
 		input::KeyboardInput::init();
+
 
 		mMainWindow = Allocator_::template create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
@@ -49,6 +51,8 @@ namespace rev {
 	bool Engine<Allocator_>::update() {
 		if(!core::OSHandler::get()->update())
 			return false;
+
+		core::Time::get()->update();
 		
 		return true;
 	}

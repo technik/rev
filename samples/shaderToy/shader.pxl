@@ -5,5 +5,5 @@
 //varying vec3 vPos;
 
 void main (void) {
-	gl_FragColor = vec4(0.2);
+	gl_FragColor = vec4(0.5);
 }
