@@ -29,12 +29,12 @@ uint16_t indices[] = { 0, 1, 2 };
 class HelloWorld : public rev::App3d {
 public:
 	HelloWorld(int _argc, const char** _argv) : App3d(_argc, _argv) {
-		driver3d()->setAttribBuffer(0, 3, vertices);
+		driver3d().setAttribBuffer(0, 3, vertices);
 	}
 
 private:
 	bool frame(float) override {
-		driver3d()->drawIndexBuffer(3, indices, GraphicsDriver::EPrimitiveType::triangles);
+		driver3d().drawIndexBuffer(3, indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;
 	}
 };

@@ -8,6 +8,7 @@
 #define _REV_UTIL_APP_APP3D_H_
 
 #include <core/memory/newAllocator.h>
+#include <input/keyboard/keyboardInput.h>
 #include <engine.h>
 
 namespace rev {
@@ -24,7 +25,8 @@ namespace rev {
 		bool update();
 
 	protected:
-		rev::video::GraphicsDriver*	driver3d	() const { return mDriver; }
+		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
+		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
 
 		virtual bool				frame	(float _dt); // Usually override this
 	private:
@@ -38,6 +40,7 @@ namespace rev {
 		Engine						mEngine;
 		rev::video::GraphicsDriver*	mDriver;
 		rev::video::Shader::Ptr		mShader;
+		rev::input::KeyboardInput*	mKeyboard;
 	};
 
 }	// namespace rev

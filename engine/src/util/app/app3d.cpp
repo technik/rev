@@ -26,11 +26,17 @@ namespace rev {
 		mDriver->setClearColor(Color(0.7f));
 		mShader = Shader::manager()->get("shader");
 		mDriver->setShader((Shader*)mShader);
+
+		mKeyboard = input::KeyboardInput::get();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::update() {
 		preFrame();
+
+		if(mKeyboard->pressed(input::KeyboardInput::eEscape))
+			return false;
+
 		if(frame(Time::get()->frameTime())) {
 			postFrame();
 			return true;
