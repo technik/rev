@@ -118,6 +118,12 @@
     <Filter Include="src\core\types">
       <UniqueIdentifier>{ae3818ac-c4dc-4601-8960-8e71f159bd4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{4fa347b1-4514-466b-8362-1946deb46f81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util\app">
+      <UniqueIdentifier>{542e7727-bd8d-4199-8ab7-4b84dd712467}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine.h">
@@ -255,6 +261,9 @@
     <ClInclude Include="..\..\src\core\types\typeTraits.h">
       <Filter>src\core\types</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\util\app\app3d.h">
+      <Filter>src\util\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\core\memory\stdAllocator.inl">
@@ -351,6 +360,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\math\noise.cpp">
       <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\app\app3d.cpp">
+      <Filter>src\util\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
