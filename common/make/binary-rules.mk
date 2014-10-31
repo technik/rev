@@ -16,7 +16,7 @@ run: $(OUTPUT)
 %.cpp.o: %.cpp
 	$(CXX) -c -o $@ $^ $(CXX_FLAGS) -lc -lm -lc
 
-$(REVSDK_HOME)/engine/bin/librev:
+$(REVSDK_HOME)/engine/bin/librev.a:
 	cd $(REVSDK_HOME)/engine && $(MAKE)
 
 $(OUTPUT): $(CXX_SRC) $(REVSDK_HOME)/engine/bin/librev.a
