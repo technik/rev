@@ -8,9 +8,6 @@
 
 namespace rev {
 	namespace core {
-#ifndef _WIN32
-		template<> 
-#endif // _WIN32
-		video::Shader::Mgr* video::Shader::Mgr::sInstance = nullptr;
+		template<> video::Shader::Mgr* video::Shader::Mgr::sInstance = nullptr;
 	}
 }
