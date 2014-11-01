@@ -17,7 +17,7 @@ namespace rev {
 	namespace video {
 
 		//------------------------------------------------------------------------------------------------------------------
-		/*bool detectShaderError(unsigned _shaderId, const char * _shaderName)
+		bool detectShaderError(unsigned _shaderId, const char * _shaderName)
 		{
 			int status;
 			glGetShaderiv(_shaderId, GL_COMPILE_STATUS, &status);
@@ -35,7 +35,7 @@ namespace rev {
 					<< buffer << "\n";
 				return true;
 			}
-		}*/
+		}
 
 		//----------------------------------------------------------------------------------------------------------------------
 		unsigned createShader(const char* _fileName, GLenum _type) {
@@ -45,11 +45,11 @@ namespace rev {
 			code[0] = shaderFile->bufferAsText();
 			glShaderSource(shaderId, 1, code, 0); // Attach source
 			glCompileShader(shaderId); // Compile
-			// if (detectShaderError(shaderId, _fileName))
-			// {
-			// 	glDeleteShader(shaderId);
-			// 	return 0;
-			// }
+			if (detectShaderError(shaderId, _fileName))
+			{
+				glDeleteShader(shaderId);
+				return 0;
+			}
 			return shaderId;
 		}
 

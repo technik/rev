@@ -21,6 +21,8 @@ namespace rev {
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			inline HWND		winapiHandle() const { return mWinapiHandle; }
 
+			const math::Vec2u& size() const { return mSize; }
+
 		private:
 			math::Vec2u mPosition;
 			math::Vec2u mSize;

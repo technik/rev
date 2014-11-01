@@ -4,6 +4,10 @@
 // Pixel
 //varying vec3 vPos;
 
+uniform vec2 	uResolution;
+uniform float	uTime;
+
 void main (void) {
-	gl_FragColor = vec4(0.5);
+	float light = sin(uTime)/2+0.5;
+	gl_FragColor = vec4(light);
 }

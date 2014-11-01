@@ -14,6 +14,7 @@
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
 
+using namespace rev::math;
 using namespace rev::video;
 
 // --- The triangle ---
@@ -29,17 +30,38 @@ uint16_t indices[] = { 0, 1, 2, 2, 3, 0 };
 // ---- Actual application code
 class ShaderToy : public rev::App3d {
 public:
-	ShaderToy(int _argc, const char** _argv) : App3d(_argc, _argv) {
-		driver3d().setAttribBuffer(0, 4, vertices);
+	ShaderToy(int _argc, const char** _argv)
+		: App3d(_argc, _argv)
+		, mTime(0.f)
+	{
+		rev::video::GraphicsDriver& driver = driver3d();
+		driver.setAttribBuffer(0, 4, vertices);
+		uTime = driver.getUniformLocation("uTime");
+		uResolution = driver.getUniformLocation("uResolution");
 		mShader = Shader::manager()->get("shader");
+
+		Vec2u resolution = window().size();
+		mResolution = Vec2f(float(resolution.x), float(resolution.y));
 	}
 
 private:
+	int uTime;
+	int uResolution;
 	Shader::Ptr	mShader;
+	float mTime;
+	Vec2f mResolution;
 
-	bool frame(float) override {
-		driver3d().setShader((Shader*)mShader);
-		driver3d().drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
+	bool frame(float _dt) override {
+
+		rev::video::GraphicsDriver& driver = driver3d();
+		driver.setShader((Shader*)mShader);
+		
+		// Update time
+		mTime += _dt;
+		driver.setUniform(uTime, mTime);
+		driver.setUniform(uResolution, mResolution);
+		
+		driver.drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;
 	}
 };

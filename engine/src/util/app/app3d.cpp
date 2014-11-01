@@ -28,6 +28,7 @@ namespace rev {
 		mDriver->setShader((Shader*)mShader);
 
 		mKeyboard = input::KeyboardInput::get();
+		mWindow = mEngine.mainWindow();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

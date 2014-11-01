@@ -27,6 +27,7 @@ namespace rev {
 	protected:
 		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
 		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
+		rev::video::Window&			window		() const { return *mWindow; }
 
 		virtual bool				frame	(float _dt); // Usually override this
 	private:
@@ -41,6 +42,7 @@ namespace rev {
 		rev::video::GraphicsDriver*	mDriver;
 		rev::video::Shader::Ptr		mShader;
 		rev::input::KeyboardInput*	mKeyboard;
+		rev::video::Window*			mWindow;
 	};
 
 }	// namespace rev

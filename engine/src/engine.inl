@@ -51,8 +51,6 @@ namespace rev {
 	bool Engine<Allocator_>::update() {
 		if(!core::OSHandler::get()->update())
 			return false;
-
-		core::Time::get()->update();
 		
 		return true;
 	}
