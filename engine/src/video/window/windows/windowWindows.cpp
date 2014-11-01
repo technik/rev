@@ -12,6 +12,9 @@
 #include <Windows.h>
 
 #include "windowWindows.h"
+#include <core/platform/osHandler.h>
+
+using namespace rev::math;
 
 namespace rev {
 	namespace video {
@@ -53,8 +56,44 @@ namespace rev {
 			ptDiff.x = mSize.x - rcClient.right;
 			ptDiff.y = mSize.y - rcClient.bottom;
 			MoveWindow(mWinapiHandle, mPosition.x, mPosition.y, mSize.x + ptDiff.x, mSize.y + ptDiff.y, TRUE);
-
 			// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
+
+			// Register for system messages
+			// Register in osHandler for message processing
+			(*core::OSHandler::get()) += [this](MSG _msg){
+				return processWin32Message(_msg);
+			};
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool WindowWindows::processWin32Message(MSG _msg) {
+			if(_msg.message == WM_SIZE)
+			{
+				LPARAM lparam = _msg.lParam;
+				mSize = Vec2u(LOWORD(lparam), HIWORD(lparam));
+				invokeOnResize();
+				return true;
+			}
+			if(_msg.message == WM_SIZING)
+			{
+				RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
+				mSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
+				invokeOnResize();
+				return true;
+			}
+			return false;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
+			MSG msg;
+			msg.hwnd = _hwnd;
+			msg.lParam = _lParam;
+			msg.wParam = _wParam;
+			msg.message = _uMsg;
+			if(core::OSHandler::get()->processMessage(msg))
+				return 0;
+			return DefWindowProc(_hwnd, _uMsg, _wParam, _lParam);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -63,7 +102,7 @@ namespace rev {
 			// -- Register a new window class --
 			WNDCLASS winClass = {
 				CS_OWNDC, // Class style
-				DefWindowProc,
+				WindowProc,
 				0,
 				0,
 				moduleHandle,

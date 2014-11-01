@@ -20,6 +20,7 @@ namespace rev {
 
 		class OSHandlerBaseWindows {
 		public:
+			bool processMessage(MSG);
 			typedef std::function<bool(MSG)>	OSDelegate;
 
 			void operator+= (OSDelegate);
@@ -27,6 +28,7 @@ namespace rev {
 			bool update();
 		private:
 			vector<OSDelegate>	mMsgProcessors;
+			bool				mMustQuit = false;
 		};
 
 		typedef OSHandlerBaseWindows OSHandlerBase;

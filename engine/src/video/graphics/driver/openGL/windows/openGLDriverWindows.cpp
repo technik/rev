@@ -46,6 +46,8 @@ namespace rev {
 			SetPixelFormat(mDevCtxHandle, pixelFormat, &pfd);
 			HGLRC renderCtxHandle = wglCreateContext(mDevCtxHandle);
 			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);
+
+			
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

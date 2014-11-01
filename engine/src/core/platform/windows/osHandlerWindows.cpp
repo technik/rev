@@ -21,21 +21,30 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		bool OSHandlerBaseWindows::processMessage(MSG _msg) {
+			if (_msg.message == WM_QUIT) { // If exit requested, don't bother processing anything else
+				mMustQuit = true;
+				return true;
+			}
+			else {
+				for (auto proc : mMsgProcessors) {
+					if (proc(_msg)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		bool OSHandlerBaseWindows::update() {
 			MSG msg;
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
-				if (msg.message == WM_QUIT) // If exit requested, don't bother processing anything else
+				if (msg.message == WM_QUIT || mMustQuit) // If exit requested, don't bother processing anything else
 					return false;
 				else {
-					bool processed = false; // Try to process the message internally
-					for (auto proc : mMsgProcessors) {
-						if (proc(msg)) {
-							processed = true;
-							break;
-						}
-					}
-					if (!processed) { // Let windows process the message
+					if(!processMessage(msg)) { // Let windows process the message
 						TranslateMessage(&msg);
 						DispatchMessage(&msg);
 					}

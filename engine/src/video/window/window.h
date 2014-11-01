@@ -14,6 +14,8 @@
 #include "linux/windowLinux.h"
 #endif //__linux__
 
+#include <core/event.h>
+
 namespace rev {
 	namespace video {
 
@@ -22,6 +24,13 @@ namespace rev {
 			Window(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName)
 				:WindowBase(_pos, _size, _windowName)
 			{}
+
+			typedef rev::core::Event<>	ResizeEvent;
+			ResizeEvent& onResize() { return mOnResize; }
+
+		private:
+			ResizeEvent	mOnResize;
+			void invokeOnResize() const { mOnResize(); }
 		};
 
 	}	// namespace video

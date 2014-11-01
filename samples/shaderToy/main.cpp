@@ -39,9 +39,6 @@ public:
 		uTime = driver.getUniformLocation("uTime");
 		uResolution = driver.getUniformLocation("uResolution");
 		mShader = Shader::manager()->get("shader");
-
-		Vec2u resolution = window().size();
-		mResolution = Vec2f(float(resolution.x), float(resolution.y));
 	}
 
 private:
@@ -49,7 +46,6 @@ private:
 	int uResolution;
 	Shader::Ptr	mShader;
 	float mTime;
-	Vec2f mResolution;
 
 	bool frame(float _dt) override {
 
@@ -59,7 +55,10 @@ private:
 		// Update time
 		mTime += _dt;
 		driver.setUniform(uTime, mTime);
-		driver.setUniform(uResolution, mResolution);
+
+		// Keep window resolution updated
+		Vec2u resolution = window().size();
+		driver.setUniform(uResolution, Vec2f(float(resolution.x), float(resolution.y)));
 		
 		driver.drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;

@@ -16,13 +16,14 @@
 #include <core/platform/fileSystem/fileSystem.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/openGL/openGLShader.h>
+#include <video/window/window.h>
 
 using namespace rev::core;
 
 namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriver::OpenGLDriver(const Window* _window) : OpenGLDriverBase(_window) {
+		OpenGLDriver::OpenGLDriver(Window* _window) : OpenGLDriverBase(_window), mWindow(_window) {
 			GLenum res = glewInit();
 			assert(res == GLEW_OK);
 			Shader::manager()->setCreator(
@@ -50,6 +51,10 @@ namespace rev {
 			glDepthFunc(GL_LEQUAL);
 			glLineWidth(2.f);
 			glPointSize(4.f);
+
+			_window->onResize() += [this]() { 
+				setViewport(math::Vec2i(0,0), mWindow->size());
+			};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

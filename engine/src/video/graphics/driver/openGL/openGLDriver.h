@@ -23,7 +23,7 @@ namespace rev {
 
 		class OpenGLDriver : public OpenGLDriverBase {
 		public:
-			OpenGLDriver(const Window* _window);
+			OpenGLDriver(Window* _window);
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size) override;
@@ -57,7 +57,8 @@ namespace rev {
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
 
 		private:
-			GLuint								mProgram;
+			Window*	mWindow;
+			GLuint	mProgram;
 		};
 
 	}	// namespace video

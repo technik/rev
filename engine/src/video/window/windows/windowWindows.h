@@ -15,13 +15,14 @@
 
 namespace rev {
 	namespace video {
-
+		
 		class WindowWindows {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			inline HWND		winapiHandle() const { return mWinapiHandle; }
 
 			const math::Vec2u& size() const { return mSize; }
+			const math::Vec2u& pos() const { return mPosition; }
 
 		private:
 			math::Vec2u mPosition;
@@ -29,6 +30,9 @@ namespace rev {
 			HWND	mWinapiHandle; // Winapi handle to the window
 
 		private:
+			virtual void invokeOnResize() const = 0;
+
+			bool processWin32Message(MSG _msg);
 			static bool sIsClassRegistered;
 			static void registerClass();
 		};
