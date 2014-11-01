@@ -7,8 +7,36 @@
 uniform vec2 	uResolution;
 uniform float	uTime;
 
+float DistanceEstimator(vec3 _p) {
+	vec3 relPos = _p - vec3(0.0, 0.0, 10.0);
+	float rad = sqrt(dot(relPos, relPos));
+	return rad - 2.0;
+	return 0.0;
+}
+
+int MaxRaySteps = 50;
+float MinimumDistance = 0.00001;
+
+float trace(vec3 from, vec3 direction) {
+	float totalDistance = 0.0;
+	int steps;
+	for (steps=0; steps < MaxRaySteps; steps++) {
+		vec3 p = from + totalDistance * direction;
+		float distance = DistanceEstimator(p);
+		totalDistance += distance;
+		if (distance < MinimumDistance) break;
+	}
+	return 1.0-float(steps)/float(MaxRaySteps);
+}
+
 void main (void) {
 	vec2 uv = gl_FragCoord.xy/uResolution.xy;
-	vec3 color = vec3(uv,0.0);
+	
+	vec3 ro = vec3(0.0, 1.0, 0.0);
+	vec3 rd = normalize( vec3(-1.0+2.0*uv, 1.0) );
+	
+	float light = trace(ro, rd);
+	
+	vec3 color = vec3(light);
 	gl_FragColor = vec4(color, 0.0);
 }
