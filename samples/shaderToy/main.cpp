@@ -6,14 +6,16 @@
 // Sample to play with shaders
 
 #include <engine.h>
+#include <game/scene/camera/flyByCamera.h>
 #include <input/keyboard/keyboardInput.h>
 #include <math/algebra/vector.h>
-#include <vector>
 #include <util/app/app3d.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
+#include <vector>
 
+using namespace rev::game;
 using namespace rev::math;
 using namespace rev::video;
 
@@ -34,27 +36,43 @@ public:
 		: App3d(_argc, _argv)
 		, mTime(0.f)
 	{
-		rev::video::GraphicsDriver& driver = driver3d();
-		driver.setAttribBuffer(0, 4, vertices);
-		uTime = driver.getUniformLocation("uTime");
-		uResolution = driver.getUniformLocation("uResolution");
 		mShader = Shader::manager()->get("shader");
+		processArgs(_argc, _argv);
 	}
 
 private:
-	int uTime;
-	int uResolution;
-	Shader::Ptr	mShader;
-	float mTime;
+	Shader::Ptr		mShader;
+	float			mTime;
+	FlyByCamera*	mCam = nullptr;
+	
+	//----------------------------------------------------------------
+	void processArgs(int _argc, const char** _argv) {
+		for(int i = 0; i < _argc; ++i) {
+			std::string arg(_argv[i]);
+			if(arg.substr(0,8)=="-shader=") {
+				mShader = Shader::manager()->get(arg.substr(8));
+			} else if(arg == "-flyby") {
+				mCam = new FlyByCamera(1.57079f, 1.333f, 0.001f, 1000.0f); // Actually, inside the shader we only care for camera's position
+			}
+		}
+	}
 
+	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 
 		rev::video::GraphicsDriver& driver = driver3d();
 		driver.setShader((Shader*)mShader);
+		driver.setAttribBuffer(0, 4, vertices);
+		int uTime = driver.getUniformLocation("uTime");
+		int uResolution = driver.getUniformLocation("uResolution");
+		int uCamPos = driver.getUniformLocation("uCamPos");
 		
 		// Update time
 		mTime += _dt;
 		driver.setUniform(uTime, mTime);
+
+		// Update scene
+		updateCamera(_dt, uCamPos);
 
 		// Keep window resolution updated
 		Vec2u resolution = window().size();
@@ -62,6 +80,14 @@ private:
 		
 		driver.drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;
+	}
+
+	//----------------------------------------------------------------
+	void updateCamera(float _dt, int _uCamPos) {
+		if(mCam) {
+			mCam->update(_dt);
+			driver3d().setUniform(_uCamPos, mCam->position());
+		}
 	}
 };
 

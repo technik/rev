@@ -27,9 +27,10 @@ namespace rev {
 			}
 			else
 			{
-				char buffer[1024];
+				char buffer[4096];
 				int len;
 				glGetShaderInfoLog(_shaderId, 1024, &len, buffer);
+				if(len > 4096) len = 4096;
 				buffer[len] = '\0';
 				std::cout << "Error compiling shader \"" << _shaderName << "\"\n"
 					<< buffer << "\n";
