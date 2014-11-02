@@ -102,6 +102,7 @@ namespace rev {
 			glUseProgram(mProgram);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

@@ -73,6 +73,7 @@ namespace rev {
 			glAttachShader(mProgram, mPxl);
 			glBindAttribLocation(mProgram, 0, "vertex");
 			glBindAttribLocation(mProgram, 1, "normal");
+			glBindAttribLocation(mProgram, 2, "uv");
 			glLinkProgram(mProgram);
 		}
 

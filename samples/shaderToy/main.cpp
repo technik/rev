@@ -19,15 +19,54 @@ using namespace rev::game;
 using namespace rev::math;
 using namespace rev::video;
 
+const float cStereoDistance = 0.1f;
+
 // --- The triangle ---
 const Vec3f vertices[] = {
+	// Mono quad
 	{-1.f, -1.f, 0.f },
 	{1.f, -1.f, 0.f },
 	{1.f, 1.f, 0.f },
 	{-1.f, 1.f, 0.f },
+	// Left quad
+	{-1.f, -1.f, 0.f },
+	{1.f, -1.f, 0.f },
+	{1.f, 0.f, 0.f },
+	{-1.f, 0.f, 0.f },
+	// Right quad
+	{-1.f, 0.f, 0.f },
+	{1.f, 0.f, 0.f },
+	{1.f, 1.f, 0.f },
+	{-1.f, 1.f, 0.f },
 };
 
-uint16_t indices[] = { 0, 1, 2, 2, 3, 0 };
+const Vec2f uvs[] = {
+	// Mono
+	{0.f, 0.f},
+	{1.f, 0.f},
+	{1.f, 1.f},
+	{0.f, 1.f},
+	// Left
+	{0.f, 0.f},
+	{1.f, 0.f},
+	{1.f, 1.f},
+	{0.f, 1.f},
+	// Right
+	{0.f, 0.f},
+	{1.f, 0.f},
+	{1.f, 1.f},
+	{0.f, 1.f},
+};
+
+uint16_t indicesMono[] = { 0, 1, 2, 2, 3, 0 };
+uint16_t indicesLeft[] = { 4, 5, 6, 6, 7, 4 };
+uint16_t indicesRight[] = { 8, 9, 10, 10, 11, 8 };
+
+enum class CamMode {
+	eMono,
+	eLeft,
+	eRight,
+};
 
 // ---- Actual application code
 class ShaderToy : public rev::App3d {
@@ -44,6 +83,7 @@ private:
 	Shader::Ptr		mShader;
 	float			mTime;
 	FlyByCamera*	mCam = nullptr;
+	bool			mStereo = false;
 	
 	//----------------------------------------------------------------
 	void processArgs(int _argc, const char** _argv) {
@@ -53,6 +93,8 @@ private:
 				mShader = Shader::manager()->get(arg.substr(8));
 			} else if(arg == "-flyby") {
 				mCam = new FlyByCamera(1.57079f, 1.333f, 0.001f, 1000.0f); // Actually, inside the shader we only care for camera's position
+			} else if(arg == "-stereo3d") {
+				mStereo = true;
 			}
 		}
 	}
@@ -63,6 +105,7 @@ private:
 		rev::video::GraphicsDriver& driver = driver3d();
 		driver.setShader((Shader*)mShader);
 		driver.setAttribBuffer(0, 4, vertices);
+		driver.setAttribBuffer(2, 4, uvs);
 		int uTime = driver.getUniformLocation("uTime");
 		int uResolution = driver.getUniformLocation("uResolution");
 		int uCamPos = driver.getUniformLocation("uCamPos");
@@ -71,24 +114,46 @@ private:
 		mTime += _dt;
 		driver.setUniform(uTime, mTime);
 
-		// Update scene
-		updateCamera(_dt, uCamPos);
-
 		// Keep window resolution updated
 		Vec2u resolution = window().size();
 		driver.setUniform(uResolution, Vec2f(float(resolution.x), float(resolution.y)));
-		
-		driver.drawIndexBuffer(6, indices, GraphicsDriver::EPrimitiveType::triangles);
+
+		// Update scene
+		updateCamera(_dt);
+		if(mStereo) {
+			// Draw left eye
+			setupCamera(uCamPos, CamMode::eLeft);
+			driver.drawIndexBuffer(6, indicesLeft, GraphicsDriver::EPrimitiveType::triangles);
+			// Draw right eye
+			setupCamera(uCamPos, CamMode::eRight);
+			driver.drawIndexBuffer(6, indicesRight, GraphicsDriver::EPrimitiveType::triangles);
+		} else {
+			setupCamera(uCamPos, CamMode::eMono);
+			driver.drawIndexBuffer(6, indicesMono, GraphicsDriver::EPrimitiveType::triangles);
+		}
 		return true;
 	}
 
 	//----------------------------------------------------------------
-	void updateCamera(float _dt, int _uCamPos) {
+	void setupCamera(int _uCamPos, CamMode _mode) {
+		Vec3f offset = Vec3f(0.0);
+		if(_mode == CamMode::eLeft) {
+			offset = Vec3f(-cStereoDistance,0.0,0.0);
+		} else 
+		if(_mode == CamMode::eRight) {
+			offset = Vec3f(cStereoDistance,0.0,0.0);
+		}
+		// Send camera position to GPU
+		if(mCam)
+			driver3d().setUniform(_uCamPos, mCam->position()+offset);
+		else // Default cam position
+			driver3d().setUniform(_uCamPos, offset);
+	}
+
+	//----------------------------------------------------------------
+	void updateCamera(float _dt) {
 		if(mCam) {
 			mCam->update(_dt);
-			driver3d().setUniform(_uCamPos, mCam->position());
-		} else { // Default cam position
-			driver3d().setUniform(_uCamPos, Vec3f(0.0));
 		}
 	}
 };
