@@ -93,6 +93,7 @@ private:
 				mShader = Shader::manager()->get(arg.substr(8));
 			} else if(arg == "-flyby") {
 				mCam = new FlyByCamera(1.57079f, 1.333f, 0.001f, 1000.0f); // Actually, inside the shader we only care for camera's position
+				mCam->setPos(Vec3f(0.0,1.72f,0.0));
 			} else if(arg == "-stereo3d") {
 				mStereo = true;
 			}

@@ -37,6 +37,11 @@ vec3 nPlane() {
 	return vec3(0.0, 1.0, 0.0);
 }
 
+// ----------------- Background ----------------------------
+vec3 background(in vec3 _rd) {
+	return vec3(0.5, 0.8, 1.0);
+}
+
 // ----------------- World intersection --------------------
 int worldIntersect(in vec3 _r0, in vec3 _rd, out float _t) {
 	int id = 0; // Invalid id
@@ -55,6 +60,7 @@ int worldIntersect(in vec3 _r0, in vec3 _rd, out float _t) {
 	return id;
 }
 
+// ----------------- World intersection --------------------
 vec3 worldNormal(vec3 _pos, int _id) {
 	if(_id == 1)
 		return nSphere(_pos, sph1);
@@ -63,10 +69,21 @@ vec3 worldNormal(vec3 _pos, int _id) {
 	return vec3(1.0);
 }
 
+//------------------ World color --------------------------
+vec3 worldColor(vec3 _pos, int _id) {
+	if(_id == 1)
+		return vec3(1.0);
+	if(_id == 2)
+		return vec3(0.7,0.9,1.0);;
+	return vec3(0.0);
+}
+
 //---------------- Actual raytracing ----------------------
-float worldShadow(in vec3 _r0, in vec3 _rd ) {
+float worldShadow(in vec3 _r0, in vec3 _rd, int _self ) {
 	float t;
-	if(0==worldIntersect(_r0,_rd,t))
+	// Avoid noise by getting a bit above the surface
+	vec3 offset = 0.00001*worldNormal(_r0, _self);
+	if(0==worldIntersect(_r0+offset,_rd,t))
 		return 1.0; // No intersection, hence light
 	return 0.0; // Hit something, darkness
 }
@@ -80,7 +97,7 @@ void main (void) {
 	vec3 r0 = uCamPos;
 	vec3 rd = normalize( vec3((2.0*vUV-1.0)*uvRatio, 2.0) );
 	
-	vec3 color = vec3(0.5, 0.8, 1.0);
+	vec3 color;
 	vec3 lightDir = normalize(vec3(4.0,-2.0,3.0));
 	float t;
 	int id = worldIntersect(r0, rd, t);
@@ -88,7 +105,10 @@ void main (void) {
 		vec3 pxlPos = r0+rd*t;
 		vec3 normal = worldNormal(pxlPos, id);
 		float light = sqrt(dot(normal,-lightDir));
-		color = vec3(light);
+		light *= worldShadow(pxlPos, -lightDir, id);
+		color = vec3(light)*worldColor(pxlPos, id);
+	} else {
+		color = background(rd);
 	}
 	gl_FragColor = vec4(color, 0.0);
 }
