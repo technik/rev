@@ -10,6 +10,7 @@
 #include <video/graphics/driver/openGL/openGLDriver.h>
 
 using namespace rev::core;
+using namespace rev::input;
 using namespace rev::video;
 
 namespace rev {

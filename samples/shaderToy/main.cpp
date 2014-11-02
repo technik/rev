@@ -118,6 +118,8 @@ private:
 		// Keep window resolution updated
 		Vec2u resolution = window().size();
 		driver.setUniform(uResolution, Vec2f(float(resolution.x), float(resolution.y)));
+		if(keyboard().held(keyboard().eAlt) && keyboard().pressed(keyboard().eS))
+		   mStereo = !mStereo;
 
 		// Update scene
 		updateCamera(_dt);
