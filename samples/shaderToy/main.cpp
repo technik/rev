@@ -30,14 +30,14 @@ const Vec3f vertices[] = {
 	{-1.f, 1.f, 0.f },
 	// Left quad
 	{-1.f, -1.f, 0.f },
-	{1.f, -1.f, 0.f },
-	{1.f, 0.f, 0.f },
-	{-1.f, 0.f, 0.f },
-	// Right quad
-	{-1.f, 0.f, 0.f },
-	{1.f, 0.f, 0.f },
-	{1.f, 1.f, 0.f },
+	{0.f, -1.f, 0.f },
+	{0.f, 1.f, 0.f },
 	{-1.f, 1.f, 0.f },
+	// Right quad
+	{0.f, -1.f, 0.f },
+	{1.f, -1.f, 0.f },
+	{1.f, 1.f, 0.f },
+	{0.f, 1.f, 0.f },
 };
 
 const Vec2f uvs[] = {
@@ -116,6 +116,8 @@ private:
 
 		// Keep window resolution updated
 		Vec2u resolution = window().size();
+		if(mStereo)
+			resolution.x /= 2;
 		driver.setUniform(uResolution, Vec2f(float(resolution.x), float(resolution.y)));
 
 		// Update scene
