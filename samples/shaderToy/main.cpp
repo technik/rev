@@ -19,7 +19,7 @@ using namespace rev::game;
 using namespace rev::math;
 using namespace rev::video;
 
-const float cStereoDistance = 0.1f;
+const float cStereoDistance = 0.03f;
 
 // --- The triangle ---
 const Vec3f vertices[] = {
@@ -116,8 +116,6 @@ private:
 
 		// Keep window resolution updated
 		Vec2u resolution = window().size();
-		if(mStereo)
-			resolution.x /= 2;
 		driver.setUniform(uResolution, Vec2f(float(resolution.x), float(resolution.y)));
 
 		// Update scene
