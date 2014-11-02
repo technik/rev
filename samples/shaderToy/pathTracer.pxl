@@ -11,6 +11,36 @@ varying vec2	vUV;
 
 vec4 sph1 = vec4(0.0, 1.0, 4.0, 1.0);
 
+// ---------------- Noise ------------------------
+float hash( vec2 p ) {
+	float h = dot(p,vec2(127.1,311.7));	
+    return fract(sin(h)*43758.5453123);
+}
+float noise1d( in vec2 p ) {
+    vec2 i = floor( p );
+    vec2 f = fract( p );	
+	vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                     hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+}
+
+vec2 randomSeed = vec2((uResolution.x*vUV.x)+uTime,uTime+(uResolution.y*vUV.y));
+
+float random1f() {
+	float f = noise1d( randomSeed );
+	randomSeed.x = hash(randomSeed);
+	randomSeed.y = f;
+	return f;
+}
+
+vec2 random2f() {
+	float x = random1f();
+	float y = random1f();
+	return vec2(x,y);
+}
+
 //---------------- Geometry ---------------------
 float iSphere(in vec3 r0, in vec3 rd, in vec4 sph) {
 	vec3 relPos = r0 - sph.xyz;
@@ -74,7 +104,7 @@ vec3 worldColor(vec3 _pos, int _id) {
 	if(_id == 1)
 		return vec3(0.9, 0.9, 0.9);
 	if(_id == 2)
-		return vec3(0.2,0.2,0.2);;
+		return vec3(0.4,0.4,0.4);;
 	return vec3(1.0);
 }
 
@@ -90,10 +120,11 @@ float worldShadow(in vec3 _r0, in vec3 _rd, int _self ) {
 
 // ------------ Light from direct sources ------------------
 vec3 worldLight(in vec3 _pos, in vec3 _normal, in int _id) {
+	// Sample sun
 	vec3 lightDir = normalize(vec3(4.0,-2.0,3.0));
 	float light = sqrt(max(0.0,dot(_normal,-lightDir)));
 	light *= worldShadow(_pos, -lightDir, _id);
-	return vec3(light);
+	return light*vec3(1.0,1.0,0.8);
 }
 
 // ------------- Compute reflections -----------------------
@@ -140,11 +171,17 @@ void main (void) {
 	sph1.x = sin(uTime);
 	sph1.z = 4.0+cos(uTime);
 	
-	vec3 r0 = uCamPos;
-	vec3 rd = normalize( vec3((2.0*vUV-1.0)*uvRatio, 2.0) );
-	
-	int nSteps = 5;
-	vec3 color = rayColor(r0, rd, nSteps);
-	
+	int nRays = 8;
+	vec3 color = vec3(0.0);
+	for(int i = 0; i < nRays; ++i) {
+		vec3 r0 = uCamPos;
+		vec2 pxlOffset = random2f()/uResolution;
+		vec2 pxlCoord = vUV+pxlOffset;
+		vec3 rd = normalize( vec3((2.0*pxlCoord-1.0)*uvRatio, 2.0) );
+		
+		int nSteps = 3;
+		color += rayColor(r0, rd, nSteps);
+	}
+	color /= nRays;
 	gl_FragColor = vec4(color, 0.0);
 }
