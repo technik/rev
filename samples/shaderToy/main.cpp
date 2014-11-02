@@ -87,6 +87,8 @@ private:
 		if(mCam) {
 			mCam->update(_dt);
 			driver3d().setUniform(_uCamPos, mCam->position());
+		} else { // Default cam position
+			driver3d().setUniform(_uCamPos, Vec3f(0.0));
 		}
 	}
 };

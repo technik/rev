@@ -26,7 +26,6 @@ namespace rev { namespace game {
 
 	private:
 		float mSpeed;
-		SceneNode* mNode;
 	};
 
 }	// namespace game
