@@ -8,9 +8,9 @@
 #ifndef _REV_INPUT_KEYBOARD_KEYBOARDINPUT_H_
 #define _REV_INPUT_KEYBOARD_KEYBOARDINPUT_H_
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows/keyboardInputWindows.h"
-#endif // WIN32
+#endif // _WIN32
 #ifdef __linux__
 #include "linux/keyboardInputLinux.h"
 #endif // __linux__

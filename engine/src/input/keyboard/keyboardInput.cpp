@@ -6,9 +6,9 @@
 // Keyboard input
 
 #include "keyboardInput.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows/keyboardInputWindows.h"
-#endif // WIN32
+#endif // _WIN32
 
 #include <cassert>
 

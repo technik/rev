@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard input for windows
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifndef _REV_INPUT_KEYBOARD_WINDOWS_KEYBOARDINPUTWINDOWS_H_
 #define _REV_INPUT_KEYBOARD_WINDOWS_KEYBOARDINPUTWINDOWS_H_
 
@@ -64,4 +64,4 @@ namespace rev { namespace input
 }	// namespace rev
 
 #endif // _REV_INPUT_KEYBOARD_WINDOWS_KEYBOARDINPUTWINDOWS_H_
-#endif // WIN32
+#endif // _WIN32

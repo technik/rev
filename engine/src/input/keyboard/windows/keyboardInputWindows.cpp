@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard input for windows
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include "keyboardInputWindows.h"
 #include <core/platform/osHandler.h>
@@ -86,4 +86,4 @@ namespace rev { namespace input
 }	// namespace input
 }	// namespace rev
 
-#endif // WIN32
+#endif // _WIN32
