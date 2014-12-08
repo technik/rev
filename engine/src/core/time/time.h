@@ -41,7 +41,7 @@ namespace rev
 #if defined(_linux) || defined (ANDROID)
 			int	mLastTime;
 #endif
-#if defined (WIN32)
+#if defined (_WIN32)
 			unsigned mLastTime;
 #endif
 		};
