@@ -18,18 +18,18 @@ namespace rev {
 			// Fill vertex data
 			Vec2f halfSize = _size * 0.5f;
 			Vec3f * vertices = new Vec3f[4];
-			vertices[0] = Vec3f(-halfSize.x, -halfSize.y, 0.f);
-			vertices[1] = Vec3f(-halfSize.x, halfSize.y, 0.f);
-			vertices[2] = Vec3f(halfSize.x, halfSize.y, 0.f);
-			vertices[3] = Vec3f(halfSize.x, -halfSize.y, 0.f);
+			vertices[0] = Vec3f(halfSize.x, -halfSize.y, 0.f);
+			vertices[1] = Vec3f(halfSize.x, halfSize.y, 0.f);
+			vertices[2] = Vec3f(-halfSize.x, halfSize.y, 0.f);
+			vertices[3] = Vec3f(-halfSize.x, -halfSize.y, 0.f);
 			Vec3f * normals = new Vec3f[4];
 			for (int i = 0; i < 4; ++i)
 				normals[i] = Vec3f(0.f, 0.f, 1.f);
 			Vec2f * uvs = new Vec2f[4];
-			uvs[0] = Vec2f(0.0f, 0.0f);
-			uvs[1] = Vec2f(0.0f, 1.0f);
-			uvs[2] = Vec2f(1.0f, 1.0f);
-			uvs[3] = Vec2f(1.0f, 0.0f);
+			uvs[0] = Vec2f(1.0f, 0.0f);
+			uvs[1] = Vec2f(1.0f, 1.0f);
+			uvs[2] = Vec2f(0.0f, 1.0f);
+			uvs[3] = Vec2f(0.0f, 0.0f);
 			plane->setVertexData(4, vertices, normals, uvs);
 			// Fill faces
 			uint16_t * faces = new uint16_t[6];

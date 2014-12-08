@@ -32,6 +32,7 @@ namespace rev {
 			// Construction
 			Vector() = default;
 			Vector(const Vector&) = default;
+			Vector(const T_& _r) : x(_r), y(_r) {}
 			Vector(const T_& _x, const T_& _y) : x(_x), y(_y) {}
 
 			// Comparison
