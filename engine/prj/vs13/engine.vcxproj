@@ -43,12 +43,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\lib\tinyxml2;$(ProjectDir)..\..\src;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\lib\glew;$(ProjectDir)..\..\engine\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\lib\tinyxml2;$(ProjectDir)..\..\src;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\lib\glew;$(ProjectDir)..\..\engine\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,6 +96,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\lib\tinyxml2\tinyxml2.h" />
     <ClInclude Include="..\..\src\core\containers\map.h" />
     <ClInclude Include="..\..\src\core\containers\vector.h" />
     <ClInclude Include="..\..\src\core\event.h" />
