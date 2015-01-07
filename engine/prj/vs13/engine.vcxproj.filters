@@ -373,5 +373,8 @@
     <ClCompile Include="..\..\src\util\app\app3d.cpp">
       <Filter>src\util\app</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\lib\tinyxml2\tinyxml2.cpp">
+      <Filter>lib\tinyxml2</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

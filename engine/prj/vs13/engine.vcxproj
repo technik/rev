@@ -157,6 +157,7 @@
     <None Include="..\..\src\math\algebra\vector.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\..\src\core\memory\systemMemory.cpp" />
     <ClCompile Include="..\..\src\core\platform\fileSystem\fileSystem.cpp" />
     <ClCompile Include="..\..\src\core\platform\fileSystem\stdFile.cpp" />
