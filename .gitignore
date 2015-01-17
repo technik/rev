@@ -41,3 +41,4 @@
 /projects/rose/bin/windows/*.map
 *.ilk
 *.exe
+/engine/prj/vs13/Debug
