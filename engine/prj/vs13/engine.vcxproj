@@ -80,7 +80,7 @@
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <SDLCheck>false</SDLCheck>
     </ClCompile>
