@@ -8,6 +8,7 @@
 #define _REV_MATH_ALGEBRA_VECTOR_INL_
 
 #include <cmath>
+#include <algorithm>
 
 #include "vector.h"
 
@@ -295,6 +296,26 @@ namespace rev {
 			y *= factor;
 			z *= factor;
 			return *this;
+		}
+
+		//----------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		T_	max(const T_& _a, const T_& _b) {
+			return T_{
+				std::max(_a.x,_b.x),
+				std::max(_a.y,_b.y),
+				std::max(_a.z,_b.z)
+			};
+		}
+
+		//----------------------------------------------------------------------------------------------------------------
+		template<class T_>
+		T_	min(const T_& _a, const T_& _b) {
+			return T_{
+				std::min(_a.x,_b.x),
+				std::min(_a.y,_b.y),
+				std::min(_a.z,_b.z)
+			};
 		}
 
 	}	// namespace math

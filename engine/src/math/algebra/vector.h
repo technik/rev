@@ -114,6 +114,13 @@ namespace rev {
 
 		};
 
+		// External operators
+		template<class T_>
+		T_	max(const T_& _a, const T_& _b);
+		
+		template<class T_>
+		T_	min(const T_& _a, const T_& _b);
+
 		template<typename T_>
 		using Vector2 = Vector<T_, 2>;
 		template<typename T_>
