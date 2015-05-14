@@ -31,7 +31,6 @@ namespace rev {
 		core::Platform::startUp(*this);
 		input::KeyboardInput::init();
 
-
 		mMainWindow = Allocator_::template create<video::Window>(math::Vec2u(100, 100), math::Vec2u(640, 480), "Rev window");
 		video::Shader::Mgr::startUp(*this);
 	}
