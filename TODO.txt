@@ -1,9 +1,0 @@
--Revisar Log cuando se haya escrito el sistema de asserts para hacer más seguro el código
-
--Assertions
-
-// Atmega
-
--Usar el puerto serie 0 como backend para el sistema de log en atmegas?
-
-// Testear el sistema de log unbuffered
