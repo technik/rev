@@ -1,8 +1,0 @@
-attribute vec3 vertex;
-varying vec3 vPos;
-
-void main ( void )
-{
-	vPos = vertex;
-	gl_Position = vec4(vertex, 1.0);
-}

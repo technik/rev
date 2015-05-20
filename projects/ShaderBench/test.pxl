@@ -1,7 +1,0 @@
-varying vec3 vPos;
-
-void main (void) {
-	gl_FragColor = vec4(sin(100.0*vPos.x+vPos.y),
-					sin(100),
-					0.0, 1.0);
-}
