@@ -4,6 +4,8 @@
 // 2014-10-29
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL for linux platforms
+#ifdef __linux__
+
 #include "openGLDriverLinux.h"
 #include <video/window/window.h>
 
@@ -24,3 +26,5 @@ namespace rev {
 		
 	} // namespace video
 }	// namespace rev
+
+#endif // __linux__
