@@ -23,6 +23,9 @@ namespace rev {
 		public:
 			WindowLinux(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			
+			const math::Vec2u& size() const { return mSize; }
+			const math::Vec2u& pos() const { return mPosition; }
+			
 			Display* display() const { return mDisplay; }
 			::Window xWindow() const { return mXWindow; }
 			XVisualInfo* visualInfo() const { return mVisualInfo; }

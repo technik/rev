@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
-// Created by Carmelo J. Fdez-Agüera Tortosa
+// Created by Carmelo J. Fdez-AgÃ¼era Tortosa
 // on 2014-10-31
 //----------------------------------------------------------------------------------------------------------------------
 // Base class for 3d applications
@@ -39,7 +39,7 @@ namespace rev {
 		if(mKeyboard->pressed(input::KeyboardInput::eEscape))
 			return false;
 
-		if(frame(Time::get()->frameTime())) {
+		if(frame(core::Time::get()->frameTime())) {
 			postFrame();
 			return true;
 		}
