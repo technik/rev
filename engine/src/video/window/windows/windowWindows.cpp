@@ -40,7 +40,7 @@ namespace rev {
 			mbstowcs_s(&nameSize, utf16Name, _windowName, MAX_NAME_SIZE);
 
 			// Create a windown through the windows API
-			mWinapiHandle = CreateWindow(L"RevWindowClass",	// Class name, registered by the video driver
+			mWinapiHandle = CreateWindowW(L"RevWindowClass",	// Class name, registered by the video driver
 				utf16Name,								// Window name (currently unsupported
 				WS_SIZEBOX | WS_CAPTION | WS_POPUP | WS_VISIBLE,	// Creation options
 				_pos.x,						// X Position
@@ -100,7 +100,7 @@ namespace rev {
 		void WindowWindows::registerClass() {
 			HINSTANCE moduleHandle = GetModuleHandle(NULL);
 			// -- Register a new window class --
-			WNDCLASS winClass = {
+			WNDCLASSW winClass = {
 				CS_OWNDC, // Class style
 				WindowProc,
 				0,
@@ -112,7 +112,7 @@ namespace rev {
 				NULL,
 				L"RevWindowClass" };
 
-			RegisterClass(&winClass);
+			RegisterClassW(&winClass);
 		}
 
 	}	// namespace video
