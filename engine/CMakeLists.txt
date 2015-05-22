@@ -6,7 +6,7 @@ project(rev)
 
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
-list(APPEND ${PROJECT_SOURCE_FILES} lib/tinyxml2/tinyxml2.cpp) # Tiny xml is so small that we can directly embed it like this.
+set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/lib/tinyxml2/tinyxml2.cpp) # Tiny xml is so small that we can directly embed it like this.
 
 # Clasify sources according to folder structure
 # This macro is courtesy of http://www.cmake.org/pipermail/cmake/2013-November/056336.html
