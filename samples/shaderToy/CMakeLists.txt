@@ -14,5 +14,8 @@ add_executable(shaderToy main.cpp)
 if(MSVC)
 	add_definitions(-DNOMINMAX)
 endif(MSVC)
+if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions(-std=c++11)
+endif()
 
 target_link_libraries (shaderToy LINK_PUBLIC rev)
