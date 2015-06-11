@@ -41,7 +41,13 @@ namespace rev {
 		//----------------------------------------------------------------------------------------------------------------------
 		unsigned createShader(const char* _fileName, GLenum _type) {
 			unsigned shaderId = glCreateShader(_type);
-			File* shaderFile = new File(_fileName);
+			File* shaderFile = File::openExisting(_fileName);
+			if(!shaderFile)
+			{
+				std::cout << "Error: Unable to open shader file \"" << _fileName << "\"\n";
+				return 0;
+			}
+			shaderFile->readAll();
 			const char * code[1];
 			code[0] = shaderFile->bufferAsText();
 			glShaderSource(shaderId, 1, code, 0); // Attach source
