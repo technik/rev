@@ -30,14 +30,16 @@ namespace rev {
 				[](const string& _name) -> Shader* {
 				string pxlName = _name + ".pxl";
 				string vtxName = _name + ".vtx";
-					OpenGLShader* shader = new OpenGLShader(_name);
-					auto refreshShader = [=](const string&) {
-						// Recreate shader
-						shader->~OpenGLShader();
-						new(shader)OpenGLShader(_name);
-					};
-					FileSystem::get()->onFileChanged(pxlName) += refreshShader;
-					FileSystem::get()->onFileChanged(vtxName) += refreshShader;
+					OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
+					if(shader) {
+						auto refreshShader = [=](const string&) {
+							// Recreate shader
+							shader->~OpenGLShader();
+							OpenGLShader::loadFromFiles(vtxName, pxlName, *shader);
+						};
+						FileSystem::get()->onFileChanged(pxlName) += refreshShader;
+						FileSystem::get()->onFileChanged(vtxName) += refreshShader;
+					}
 					return shader;
 				});
 			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
