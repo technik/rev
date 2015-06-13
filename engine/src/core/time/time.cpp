@@ -6,7 +6,7 @@
 // Time
 
 // Standard headers
-#if defined(_linux) || defined(ANDROID)
+#if defined(__linux__) || defined(ANDROID)
 	#include <sys/time.h>
 #elif defined (_WIN32)
 	#include <Windows.h>
@@ -45,16 +45,16 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		void Time::update()
 		{
-#if defined (_linux) || defined (ANDROID)
+#if defined (__linux__) || defined (ANDROID)
 			// Get current time
 			timeval currentTime;
 			gettimeofday(&currentTime, 0);
-			int usecTime = currentTime.tv_usec;
-			mFrameTime = TReal((usecTime - mLastTime)/ 1000000.0);	// Known conversion from double. There wont be loss of
+			int usecTime = currentTime.tv_usec + 1000000 * (currentTime.tv_sec % 1000); // Not more than a thousand seconds expected
+			mFrameTime = float((usecTime - mLastTime)/ 1000000.0);	// Known conversion from double. There wont be loss of
 			// information because tv_usec isn't that precise.
 			if(mFrameTime < 0.f)
 			{
-				mFrameTime += 1.f;
+				mFrameTime += 1000.f;
 			}
 			mLastTime = usecTime;
 #elif defined (_WIN32)
@@ -77,7 +77,7 @@ namespace rev {
 		Time::Time()
 			:mFrameTime(0.f)
 		{
-#if defined (_linux) || defined (ANDROID)
+#if defined (__linux__) || defined (ANDROID)
 			// Get current time
 			timeval currentTime;
 			gettimeofday(&currentTime, 0);

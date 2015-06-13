@@ -38,7 +38,7 @@ namespace rev
 			float	mFrameTime;
 
 			// Internal use.
-#if defined(_linux) || defined (ANDROID)
+#if defined(__linux__) || defined (ANDROID)
 			int	mLastTime;
 #endif
 #if defined (_WIN32)
