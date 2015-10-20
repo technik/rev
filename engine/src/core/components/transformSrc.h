@@ -78,7 +78,9 @@ namespace rev {
 		inline const math::Vec3f&	TransformSrc::localPosition	() const { return mWorldPos; }
 		inline const math::Quatf&	TransformSrc::localRotation	() const { return mWorldRot; }
 		inline const math::Mat34f&	TransformSrc::localTransform() const { return mWorldTrans; }
-
+		inline TransformSrc*		TransformSrc::parent	()	const { return mParent;  }
+		inline unsigned				TransformSrc::nChildren	()	const { return mChildren.size; }
+		inline TransformSrc*		TransformSrc::child		(unsigned _pos) { return mChildren[_pos]; }
 	}
 }
 
