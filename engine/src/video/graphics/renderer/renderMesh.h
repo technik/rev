@@ -3,8 +3,8 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Base renderable object
-#ifndef _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
-#define _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
+#ifndef _REV_VIDEO_GRAPHICS_RENDERER_RENDERMESH_H_
+#define _REV_VIDEO_GRAPHICS_RENDERER_RENDERMESH_H_
 
 #include <cstdint>
 #include <math/algebra/matrix.h>
@@ -49,4 +49,4 @@ namespace rev {
 	}	// namespace video
 }	// namespace rev
 
-#endif // _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
+#endif // _REV_VIDEO_GRAPHICS_RENDERER_RENDERMESH_H_
