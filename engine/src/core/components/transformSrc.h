@@ -47,6 +47,7 @@ namespace rev {
 				global
 			};
 
+			// Interface for derived classes to update source's state
 			void			setPosition(const math::Vec3f& _position, CoordinateSystem _base);
 			void			setRotation(const math::Quatf& _rotation, CoordinateSystem _base);
 			void			setTransform(const math::Mat34f& _transform, CoordinateSystem _base);
@@ -55,6 +56,7 @@ namespace rev {
 			// Methods for internal use
 			void			refreshChildren	() const;
 			void			refreshWorld	();
+			// The following methods only update their pertaining frame.
 			void			setWorldPos		(const math::Vec3f& _pos);
 			void			setLocalPos		(const math::Vec3f& _pos);
 			void			setWorldRot		(const math::Quatf& _rot);
