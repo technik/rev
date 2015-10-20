@@ -10,21 +10,21 @@
 #include <functional>
 
 #include <math/algebra/vector.h>
-#include <video/graphics/renderer/renderObj.h>
+#include <video/graphics/renderer/renderMesh.h>
 
 namespace rev {
 	namespace game {
 
 		class Procedural {
 		public:
-			static video::RenderObj* plane(const math::Vec2f& _size);
-			static video::RenderObj* box(const math::Vec3f& _size);
-			static video::RenderObj* geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels);
+			static video::RenderMesh* plane(const math::Vec2f& _size);
+			static video::RenderMesh* box(const math::Vec3f& _size);
+			static video::RenderMesh* geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels);
 			///\Parameters:
 			// - n: number of divisions along y axis
 			// - m: number of divisions along x axis
 			// - height: function to compute the height at a given index
-			static video::RenderObj* heightField(uint16_t _n, uint16_t _m,
+			static video::RenderMesh* heightField(uint16_t _n, uint16_t _m,
 			 	const math::Vec2f& _size, std::function<float(const math::Vec2u& _idx)> _height);
 
 		};

@@ -15,7 +15,11 @@ namespace rev {
 
 		class RenderContext : public std::set<RenderObj*> {
 		public:
-			// TODO: Set up lights and everything
+			void setCamera(const Camera* _cam) { mCamera = _cam; }
+			const Camera* camera() const { return mCamera; }
+
+		private:
+			const Camera* mCamera;
 		};
 	}
 }

@@ -10,14 +10,9 @@ namespace rev {
 	namespace core {
 		
 		template<class Derived_, class Context_> // Context must fulfill the semantics of a set<Derived_>
-		class ContextObj : {
+		class ContextObj {
 		protected:
-			//--------------------------------------------------
-			ContextObj(Context_* _context = defaultContext())
-				: mContext(_context)
-			{
-				setContext(_context);
-			}
+			ContextObj() = default;
 
 			//--------------------------------------------------
 			virtual ~ContextObj() {
@@ -34,6 +29,8 @@ namespace rev {
 			}
 
 			virtual Context_* defaultContext() { return nullptr; }
+		private:
+			Context_* mContext = nullptr;
 		};
 
 	}

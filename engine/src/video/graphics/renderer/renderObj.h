@@ -22,8 +22,8 @@ namespace rev {
 		public:
 			RenderObj(RenderMesh* _mesh) : mMesh(_mesh) {}
 			
-			RenderMesh*		mesh		() const { return mMesh; }
-			const Mat34f&	transform	() const { return node()->transform(); }
+			RenderMesh*			mesh		() const { return mMesh; }
+			const math::Mat34f&	transform	() const { return node()->transform(); }
 
 		private:
 			RenderMesh* mMesh;

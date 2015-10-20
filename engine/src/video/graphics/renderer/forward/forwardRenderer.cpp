@@ -7,7 +7,10 @@
 
 #include "forwardRenderer.h"
 #include "../backend/rendererBackEnd.h"
+#include "../renderContext.h"
+#include "../renderMesh.h"
 #include "../renderObj.h"
+#include <game/scene/camera/camera.h>
 
 using namespace rev::game;
 
@@ -27,19 +30,24 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::setCamera(const Camera& _cam) {
-			mBackEnd->setCamera(_cam.view(), _cam.projection());
+		void ForwardRenderer::renderContext(const RenderContext& _context) {
+			// Global config
+			mBackEnd->setCamera(_context.camera()->);
+			// Render all objects
+			for (auto obj : _context) {
+				renderObject(*obj);
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderObject(const RenderObj& _obj)
 		{
 			RendererBackEnd::StaticGeometry geom;
-			geom.indices = _obj.indices;
-			geom.nIndices = _obj.nIndices;
-			geom.vertices = _obj.vertices;
-			geom.normals = _obj.normals;
-			geom.nVertices = _obj.nVertices;
+			geom.indices = _obj.mesh()->indices;
+			geom.nIndices = _obj.mesh()->nIndices;
+			geom.vertices = _obj.mesh()->vertices;
+			geom.normals = _obj.mesh()->normals;
+			geom.nVertices = _obj.mesh()->nVertices;
 			geom.shader = mShader;
 			geom.transform = _obj.transform;
 			mBackEnd->render(geom);

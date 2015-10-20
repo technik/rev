@@ -13,8 +13,8 @@ namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		video::RenderObj* Procedural::plane(const math::Vec2f& _size) {
-			RenderObj * plane = new RenderObj;
+		video::RenderMesh* Procedural::plane(const math::Vec2f& _size) {
+			RenderMesh * plane = new RenderMesh;
 			// Fill vertex data
 			Vec2f halfSize = _size * 0.5f;
 			Vec3f * vertices = new Vec3f[4];
@@ -96,7 +96,7 @@ namespace rev {
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
-		RenderObj* Procedural::box(const Vec3f& _size)
+		RenderMesh* Procedural::box(const Vec3f& _size)
 		{
 			// 4 vertices times 6 faces
 			Vec3f * verts = new Vec3f[24];
@@ -113,7 +113,7 @@ namespace rev {
 				indices[6 * i + 4] = 4 * i + 1;
 				indices[6 * i + 5] = 4 * i + 0;
 			}
-			RenderObj * box = new RenderObj;
+			RenderMesh * box = new RenderMesh;
 			box->setVertexData(24, verts, norms, uvs);
 			box->setFaceIndices(36, indices);
 			return box;
@@ -230,7 +230,7 @@ namespace rev {
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
-		RenderObj * Procedural::geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels)
+		RenderMesh * Procedural::geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels)
 		{
 			// Create vertices
 			Vec3f * verts = generateSphereVertices(_radius, _nMeridians, _nParallels);
@@ -241,7 +241,7 @@ namespace rev {
 			// Create indices
 			uint16_t * indices = generateSphereIndices(_nMeridians, _nParallels);
 			// Create the model itself
-			RenderObj * sphere = new RenderObj();
+			RenderMesh * sphere = new RenderMesh();
 			sphere->setVertexData(uint16_t(nVerticesInSphere(_nMeridians, _nParallels)), verts, norms, uvs);
 			sphere->setFaceIndices(uint16_t(nIndicesInSphere(_nMeridians, _nParallels)), indices, true);
 			return sphere;

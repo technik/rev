@@ -23,6 +23,7 @@ namespace rev {
 		class GraphicsDriver;
 		class RenderContext;
 		class Window;
+		class RenderObj;
 
 		class ForwardRenderer {
 		public:
@@ -37,6 +38,9 @@ namespace rev {
 
 			void renderContext(const RenderContext&);
 			//void renderDebug(const RenderObj&);
+
+		private:
+			void renderObject(const RenderObj& _obj);
 
 		private:
 			video::Shader::Ptr		mShader = nullptr;
