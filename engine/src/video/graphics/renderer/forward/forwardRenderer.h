@@ -21,7 +21,7 @@ namespace rev {
 	namespace video {
 
 		class GraphicsDriver;
-		class RenderObj;
+		class RenderContext;
 		class Window;
 
 		class ForwardRenderer {
@@ -32,11 +32,10 @@ namespace rev {
 			void startFrame();
 			void finishFrame();
 
+			// Renderer's specific config
 			void setAmbientLight(const Color& _color);
-			void setLight(const math::Vec3f& _dir, const Color& _color);
-			void setCamera(const game::Camera&);
 
-			void renderObject(const RenderObj&);
+			void renderContext(const RenderContext&);
 			//void renderDebug(const RenderObj&);
 
 		private:

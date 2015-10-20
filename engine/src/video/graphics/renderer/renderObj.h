@@ -7,44 +7,26 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
 
-#include <cstdint>
-#include <math/algebra/matrix.h>
-#include <math/algebra/vector.h>
+#include<core/components/component.h>
+#include<core/components/sceneNode.h>
+#include<core/context/contextObj.h>
+#include<math/algebra/matrix.h>
+#include<video/graphics/renderer/renderContext.h>
 
 namespace rev {
 	namespace video {
 
-		class RenderObj {
+		class RenderMesh;
+
+		class RenderObj : public core::ContextObj<RenderObj, RenderContext>, public core::Component {
 		public:
-			math::Vec3f*	vertices = nullptr;
-			math::Vec3f*	normals = nullptr;
-			math::Vec2f*	uvs = nullptr;
-			uint16_t		nVertices = 0;
-			uint16_t		nIndices = 0;
-			uint16_t*		triStrip = nullptr;
-			uint16_t		stripLength = 0;
-			uint16_t*		indices = nullptr;
-			math::Mat34f	transform;
+			RenderObj(RenderMesh* _mesh) : mMesh(_mesh) {}
+			
+			RenderMesh*		mesh		() const { return mMesh; }
+			const Mat34f&	transform	() const { return node()->transform(); }
 
-			//----------------------------------------------------------------------------------------------------------
-			void setVertexData(uint16_t _nVertices, math::Vec3f* _vertices
-				, math::Vec3f* _normals, math::Vec2f* _uvs) {
-				vertices = _vertices;
-				normals = _normals;
-				uvs = _uvs;
-				nVertices = _nVertices;
-			}
-
-			//----------------------------------------------------------------------------------------------------------
-			void setFaceIndices(uint16_t _nIndices, uint16_t* _indices, bool _strip = false) {
-				if (_strip) {
-					stripLength = _nIndices;
-					triStrip = _indices;
-				} else {
-					nIndices = _nIndices;
-					indices = _indices;
-				}
-			}
+		private:
+			RenderMesh* mMesh;
 
 		};
 	}	// namespace video

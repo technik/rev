@@ -9,7 +9,7 @@
 namespace rev {
 	namespace core {
 		
-		template<class Derived_, class Context_> // Context must fulfill the semantics of a set
+		template<class Derived_, class Context_> // Context must fulfill the semantics of a set<Derived_>
 		class ContextObj : {
 		protected:
 			//--------------------------------------------------
