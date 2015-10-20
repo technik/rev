@@ -17,10 +17,14 @@ namespace rev {
 		class TransformSrc {
 		public:
 			// Constructor and virtual destructor
-			TransformSrc() :mParent(0)
+			TransformSrc() 
+				:mParent(0)
+				,mLocalPos(math::Vec3f::zero())
+				,mWorldPos(math::Vec3f::zero())
+				,mLocalRot(math::Quatf::identity())
+				,mWorldRot(math::Quatf::identity())
+				,mWorldTrans(math::Mat34f::identity())
 			{
-				setPosition(math::Vec3f::zero());
-				setRotation(math::Quatf::identity());
 			}
 			virtual ~TransformSrc() {}
 
@@ -81,7 +85,7 @@ namespace rev {
 		inline const math::Quatf&	TransformSrc::localRotation	() const { return mWorldRot; }
 		inline const math::Mat34f&	TransformSrc::localTransform() const { return mWorldTrans; }
 		inline TransformSrc*		TransformSrc::parent	()	const { return mParent;  }
-		inline unsigned				TransformSrc::nChildren	()	const { return mChildren.size; }
+		inline unsigned				TransformSrc::nChildren	()	const { return mChildren.size(); }
 		inline TransformSrc*		TransformSrc::child		(unsigned _pos) { return mChildren[_pos]; }
 	}
 }

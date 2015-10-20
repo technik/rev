@@ -4,7 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Base component in the component system
 #include "component.h"
-#include "node.h"
+#include "sceneNode.h"
 
 namespace rev {
 	namespace core {
@@ -14,7 +14,7 @@ namespace rev {
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
-		void Component::attachTo(Node* _node) {
+		void Component::attachTo(SceneNode* _node) {
 			dettach(); // Dettach from previous parent, if any.
 			mNode = _node;
 			_node->addComponent(this);
@@ -23,7 +23,7 @@ namespace rev {
 		//----------------------------------------------------------------------------------------------------------------------
 		void Component::dettach() {
 			if(mNode) {
-				Node* oldNode = mNode;
+				SceneNode* oldNode = mNode;
 				mNode = nullptr;
 				oldNode->removeComponent(this);
 			}

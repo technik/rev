@@ -9,7 +9,7 @@
 namespace rev {
 	namespace core {
 
-		class Node;
+		class SceneNode;
 
 		class Component {
 		public:
@@ -18,14 +18,14 @@ namespace rev {
 			virtual	~Component();
 
 			// -- attach and dettach --
-			virtual	void	attachTo(Node * _node);
+			virtual	void	attachTo(SceneNode * _node);
 			virtual void	dettach();
 
 		public:
-			Node * node() const { return mNode; }
+			SceneNode * node() const { return mNode; }
 
 		private:
-			Node * mNode;
+			SceneNode * mNode;
 		};
 	}
 }

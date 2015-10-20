@@ -37,7 +37,7 @@ namespace rev {
 			void setCamera(const game::Camera&);
 
 			void renderObject(const RenderObj&);
-			void renderDebugLines(const RenderObj&);
+			//void renderDebug(const RenderObj&);
 
 		private:
 			video::Shader::Ptr		mShader = nullptr;
