@@ -14,15 +14,15 @@ namespace rev {
 		class Component {
 		public:
 			// -- Constructor & destructor --
-			Component();
+			Component() : mNode(nullptr) {}
 			virtual	~Component();
 
-			// -- attach and deattach --
+			// -- attach and dettach --
 			virtual	void	attachTo(Node * _node);
-			virtual void	deattach();
+			virtual void	dettach();
 
 		public:
-			Node * node() const;
+			Node * node() const { return mNode; }
 
 		private:
 			Node * mNode;
