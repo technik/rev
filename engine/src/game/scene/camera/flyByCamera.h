@@ -9,13 +9,13 @@
 #define _REV_GAME_SCENE_CAMERA_FLYBYCAMERA_H_
 
 #include "camera.h"
-#include "../sceneGraph/sceneNode.h"
+#include <core/components/sceneNode.h>
 
 namespace rev { namespace game {
 
 	class SceneNode;
 
-	class FlyByCamera : public Camera, public SceneNode
+	class FlyByCamera : public Camera, public core::SceneNode
 	{
 	public:
 		FlyByCamera(float _fov, float _aspectRatio, float _near, float _far);
