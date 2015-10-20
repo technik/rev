@@ -14,22 +14,22 @@ namespace rev {
 
 		class Component;
 
-		// Nodes are containers of components that share the same transform and time source
-		// You can attach components to a node
-		// You can attach a node to a transform source (nodes, animations, rigid bodies, etc...)
-		// You can subscribe a node to a time source
+		/// Nodes are containers of components that share the same transform
+		/// You can attach components to a node
+		/// You can attach a node to another transform source (nodes, animations, rigid bodies, etc...)
 		class Node : TransformSrc
 		{
 		public:
 			// Constructor & destructor
-			Node();
-			virtual ~Node();
+			Node() {}
 
 			// Accessors
 			void			move		(const math::Vec3f& _translation);
 			void			moveLocal	(const math::Vec3f& _translation);
 			void			setPos		(const math::Vec3f& _position);
 			void			setPosLocal	(const math::Vec3f& _position);
+			void			setRot		(const math::Quatf& _rot);
+			void			setRotLocal	(const math::Quatf& _rot);
 			void			rotate		(const math::Vec3f& _axis, float _angle);
 
 			// Components
