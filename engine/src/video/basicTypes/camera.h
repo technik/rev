@@ -21,8 +21,8 @@ namespace rev {
 				: mProj(_proj)
 			{}
 
-			const math::Mat34f& view() const { return node()?node()->transform():math::Mat34f::identity(); }
-			const math::Mat44f& projection() const { return mProj; };
+			math::Mat34f		view() const		{ return node()?node()->transform():math::Mat34f::identity(); }
+			const math::Mat44f& projection() const	{ return mProj; };
 
 		protected:
 			void setProjection(const math::Mat44f& _proj) {

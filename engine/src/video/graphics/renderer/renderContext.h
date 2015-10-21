@@ -11,6 +11,7 @@
 namespace rev {
 	namespace video {
 
+		class Camera;
 		class RenderObj;
 
 		class RenderContext : public std::set<RenderObj*> {

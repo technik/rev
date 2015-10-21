@@ -9,7 +9,6 @@
 
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
-#include <game/scene/camera/camera.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/driver/openGL/openGLDriver.h>
@@ -53,7 +52,7 @@ namespace rev {
 		template<class Alloc_> void ForwardRenderer::init(Window* _window, Alloc_& _alloc){
 			mDriver = _alloc.template create<OpenGLDriver>(_window);
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
-			mShader = Shader::manager()->get("test");
+			mShader = Shader::manager()->get("shader");
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));

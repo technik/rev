@@ -21,11 +21,12 @@ namespace rev {
 
 			//--------------------------------------------------
 			void setContext(Context_* _c) {
+				Derived_* derivedThis = static_cast<Derived_*>(this);
 				if(mContext)
-					mContext->erase(this);
-				mContext = this;
+					mContext->erase(derivedThis);
+				mContext = _c;
 				if(mContext)
-					mContext->insert(this);
+					mContext->insert(derivedThis);
 			}
 
 			virtual Context_* defaultContext() { return nullptr; }

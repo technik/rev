@@ -10,9 +10,7 @@
 #include "../renderContext.h"
 #include "../renderMesh.h"
 #include "../renderObj.h"
-#include <game/scene/camera/camera.h>
-
-using namespace rev::game;
+#include <video/basicTypes/camera.h>
 
 namespace rev {
 	namespace video {
@@ -32,7 +30,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			// Global config
-			mBackEnd->setCamera(_context.camera()->);
+			mBackEnd->setCamera(_context.camera()->view(), _context.camera()->projection());
 			// Render all objects
 			for (auto obj : _context) {
 				renderObject(*obj);
@@ -49,7 +47,7 @@ namespace rev {
 			geom.normals = _obj.mesh()->normals;
 			geom.nVertices = _obj.mesh()->nVertices;
 			geom.shader = mShader;
-			geom.transform = _obj.transform;
+			geom.transform = _obj.transform();
 			mBackEnd->render(geom);
 		}
 	}

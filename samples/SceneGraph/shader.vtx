@@ -1,12 +1,16 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Basic shader
 //----------------------------------------------------------------------------------------------------------------------
-// Vertex
-attribute vec3 vertex;
-//varying vec3 vPos;
+// Vertex shader
+uniform 	mat4 uMvp;
+attribute 	vec3 vertex;
+attribute 	vec3 normal;
+varying		vec3 vNormal;
+varying		vec3 vPos;
 
 void main ( void )
 {
-	//vPos = vertex;
-	gl_Position = vec4(vertex, 1.0);
+	vNormal = normal;
+	gl_Position = uMvp*vec4(vertex, 1.0);
+	vPos = gl_Position.xyz;
 }

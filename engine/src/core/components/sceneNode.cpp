@@ -29,6 +29,23 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void SceneNode::setRot(const math::Quatf& _rot) {
+			setRotation(_rot, TransformSrc::global);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void SceneNode::setRotLocal(const math::Quatf& _rot) {
+			setRotation(_rot, TransformSrc::local);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void SceneNode::rotate(const math::Vec3f& _axis, float _angle)
+		{
+			math::Quatf turn = math::Quatf(_axis, _angle);
+			setRotation(turn * rotation(), TransformSrc::global);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::addComponent(Component* _c) {
 			mComponents.insert(_c);
 		}
