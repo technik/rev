@@ -10,7 +10,18 @@
 
 namespace rev {
 	namespace game {
+
+		class RigidBody;
+
 		class PhysicsWorld {
+		public:
+			PhysicsWorld();
+			~PhysicsWorld();
+
+			void addRigidBody(RigidBody* _rb);
+			void removeRigidBody(RigidBody* _rb);
+
+			void simulate(float _dt);
 		private:
 			btDefaultCollisionConfiguration*	mCollisionConfig;
 			btCollisionDispatcher*				mDispatcher;
