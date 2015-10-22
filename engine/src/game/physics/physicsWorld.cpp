@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Physics simulation context
 #include "physicsWorld.h"
+#include "rigidBody.h"
 
 namespace rev {
 	namespace game {
@@ -25,6 +26,16 @@ namespace rev {
 			delete mOverlappingPairCache;
 			delete mDispatcher;
 			delete mCollisionConfig;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::addRigidBody(RigidBody* _rb) {
+			mWorld->addRigidBody(_rb->mBody);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::removeRigidBody(RigidBody* _rb) {
+			mWorld->removeRigidBody(_rb->mBody);
 		}
 	}
 }

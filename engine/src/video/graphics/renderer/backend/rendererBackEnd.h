@@ -22,6 +22,7 @@ namespace rev {
 		class RendererBackEnd {
 		public:
 			struct StaticGeometry {
+				bool strip;
 				Shader::Ptr shader;
 				std::uint16_t nVertices = 0;
 				math::Vec3f * vertices = nullptr;

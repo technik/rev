@@ -42,8 +42,15 @@ namespace rev {
 		void ForwardRenderer::renderObject(const RenderObj& _obj)
 		{
 			RendererBackEnd::StaticGeometry geom;
-			geom.indices = _obj.mesh()->indices;
-			geom.nIndices = _obj.mesh()->nIndices;
+			if (_obj.mesh()->stripLength > 0) {
+				geom.strip = true;
+				geom.indices = _obj.mesh()->triStrip;
+				geom.nIndices = _obj.mesh()->stripLength;
+			} else {
+				geom.strip = false;
+				geom.indices = _obj.mesh()->indices;
+				geom.nIndices = _obj.mesh()->nIndices;
+			}
 			geom.vertices = _obj.mesh()->vertices;
 			geom.normals = _obj.mesh()->normals;
 			geom.nVertices = _obj.mesh()->nVertices;

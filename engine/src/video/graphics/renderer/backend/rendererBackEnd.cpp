@@ -44,7 +44,8 @@ namespace rev {
 			//mDriver->setAttribBuffer(2, _geom.nVertices, _geom.uv);
 
 			// Draw
-			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, GraphicsDriver::EPrimitiveType::triangles);
+			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, 
+				_geom.strip?GraphicsDriver::EPrimitiveType::triStrip:GraphicsDriver::EPrimitiveType::triangles);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

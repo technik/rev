@@ -19,8 +19,19 @@ namespace rev {
 	namespace game {
 		class RigidBody : public core::TransformSrc {
 		public:
-			RigidBody(float _mass, const video::RenderMesh* _mesh);
+			static RigidBody* concaveMesh(float _mass, const video::RenderMesh* _mesh);
+			static RigidBody* sphere(float _mass, float _radius);
+			static RigidBody* box	(float _mass, const math::Vec3f& _size);
 			~RigidBody();
+
+			void setPosition(const math::Vec3f& _pos);
+
+		private:
+			RigidBody(float _mass, btCollisionShape* _shape);
+			btCollisionShape* mShape;
+			btRigidBody* mBody;
+
+			friend class PhysicsWorld;
 		};
 	}
 }
