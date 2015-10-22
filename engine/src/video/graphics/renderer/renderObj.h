@@ -1,7 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
-// 2014/April/13
 //----------------------------------------------------------------------------------------------------------------------
 // Base renderable object
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
