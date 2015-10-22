@@ -64,3 +64,5 @@ SET(BUILD_OPENGL3_DEMOS OFF)
 set(BUILD_EXTRAS OFF)
 set(BUILD_UNIT_TESTS OFF)
 add_subdirectory(lib/bullet)
+
+target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/bullet/src)

@@ -2,7 +2,7 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
-// Generic material
+// Rigid body
 #ifndef _REV_GAME_PHYSICS_RIGIDBODY_H_
 #define _REV_GAME_PHYSICS_RIGIDBODY_H_
 

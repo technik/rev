@@ -34,6 +34,7 @@ public:
 	{
 		processArgs(_argc, _argv);
 
+		// Construct global objects
 		mRenderer = new ForwardRenderer();
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mRenderCtxt = new RenderContext();
