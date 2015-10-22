@@ -49,6 +49,7 @@ namespace rev {
 			btTransform t = mBody->getWorldTransform();
 			t.setOrigin(rev2bt(_pos));
 			mBody->setWorldTransform(t);
+			TransformSrc::setPosition(_pos, TransformSrc::local);
 		}
 	}
 }

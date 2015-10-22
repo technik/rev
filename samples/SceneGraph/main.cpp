@@ -55,8 +55,8 @@ public:
 		obj->attachTo(node);
 		mRenderCtxt->insert(obj);
 		RigidBody* floorRb = RigidBody::box(0.f, floorSize);
-		floorRb->setPosition({0.f, 0.f, -1.f});
 		node->attachTo(floorRb);
+		floorRb->setPosition({0.f, 0.f, -1.f});
 		mWorld->addRigidBody(floorRb);
 
 		// Construct sphere
@@ -70,8 +70,8 @@ public:
 		sphObj->attachTo(sph);
 		mRenderCtxt->insert(sphObj);
 		RigidBody* sphRb = RigidBody::sphere(0.f, sphRad);
-		sphRb->setPosition({0.f,0.f,2.f});
 		sph->attachTo(sphRb);
+		sphRb->setPosition({0.f,0.f,2.f});
 		mWorld->addRigidBody(sphRb);
 	}
 

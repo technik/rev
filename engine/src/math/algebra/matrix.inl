@@ -95,7 +95,7 @@ namespace rev {
 		{
 			Vector3<Number_>	v;
 			for (unsigned i = 0; i < 3; ++i)
-				v[i] = _v[0] * m[i][0] + _v[1] * m[i][1] + _v[2] * m[i][2];
+				v[i] = _v[0] * m[i][0] + _v[1] * m[i][1] + _v[2] * m[i][2] + m[i][3];
 			return v;
 		}
 
