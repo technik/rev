@@ -36,10 +36,12 @@ namespace rev {
 			Mat33f world = _geom.transform;
 			mDriver->setUniform(mWorldUniform, world);
 			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.2f, 1.5f).normalized());
+			mDriver->setUniform(mColorUniform, _geom.color);
 			
 			// Set arrays
 			mDriver->setAttribBuffer(0, _geom.nVertices, _geom.vertices);
 			mDriver->setAttribBuffer(1, _geom.nVertices, _geom.normals);
+			//mDriver->setAttribBuffer(2, _geom.nVertices, _geom.uv);
 
 			// Draw
 			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, GraphicsDriver::EPrimitiveType::triangles);
@@ -53,9 +55,10 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::setShader(Shader::Ptr _newShader) {
 			mDriver->setShader((Shader*)_newShader);
-			mMvpUniform = mDriver->getUniformLocation("mvp");
-			mWorldUniform = mDriver->getUniformLocation("world");
-			mLightDirUniform = mDriver->getUniformLocation("lightDir");
+			mMvpUniform = mDriver->getUniformLocation("uMvp");
+			mWorldUniform = mDriver->getUniformLocation("uWorld");
+			mLightDirUniform = mDriver->getUniformLocation("uLightDir");
+			mColorUniform = mDriver->getUniformLocation("uColor");
 			mCurShader = _newShader;
 		}
 	}

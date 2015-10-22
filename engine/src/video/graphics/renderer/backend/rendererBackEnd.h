@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <math/algebra/vector.h>
 
+#include <video/basicTypes/color.h>
 #include <video/graphics/shader/shader.h>
 #include <math/algebra/matrix.h>
 
@@ -28,6 +29,7 @@ namespace rev {
 				std::uint16_t nIndices = 0;
 				std::uint16_t* indices = nullptr;
 				math::Mat34f	transform;
+				Color color;
 			};
 
 		public:
@@ -45,10 +47,11 @@ namespace rev {
 			math::Mat44f	mViewProj;
 
 			// Render cache
-			Shader::Ptr		mCurShader;
-			unsigned		mMvpUniform;
-			unsigned		mWorldUniform;
-			unsigned		mLightDirUniform;
+			Shader::Ptr	mCurShader;
+			int			mMvpUniform;
+			int			mWorldUniform;
+			int			mLightDirUniform;
+			int			mColorUniform;
 		};
 
 	}

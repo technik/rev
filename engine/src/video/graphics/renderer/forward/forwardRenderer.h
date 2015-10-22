@@ -26,7 +26,7 @@ namespace rev {
 
 		class ForwardRenderer {
 		public:
-			template<class Alloc_> void init(Window* _window, Alloc_& _alloc);
+			template<class Alloc_> void init(GraphicsDriver* _driver, Alloc_& _alloc);
 			template<class Alloc_> void end(Alloc_& _alloc);
 
 			void startFrame();
@@ -49,8 +49,8 @@ namespace rev {
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Alloc_> void ForwardRenderer::init(Window* _window, Alloc_& _alloc){
-			mDriver = _alloc.template create<OpenGLDriver>(_window);
+		template<class Alloc_> void ForwardRenderer::init(GraphicsDriver* _driver, Alloc_& _alloc){
+			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("shader");
 
@@ -61,7 +61,6 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
 			_alloc.destroy(mBackEnd);
-			_alloc.destroy(mDriver);
 		}
 	}
 }

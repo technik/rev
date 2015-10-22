@@ -11,6 +11,7 @@
 #include "../renderMesh.h"
 #include "../renderObj.h"
 #include <video/basicTypes/camera.h>
+#include <video/graphics/renderer/material.h>
 
 namespace rev {
 	namespace video {
@@ -48,6 +49,8 @@ namespace rev {
 			geom.nVertices = _obj.mesh()->nVertices;
 			geom.shader = mShader;
 			geom.transform = _obj.transform();
+			if (_obj.mMaterial)
+				geom.color = _obj.mMaterial->mDiffuse;
 			mBackEnd->render(geom);
 		}
 	}

@@ -17,6 +17,7 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/openGL/openGLShader.h>
 #include <video/window/window.h>
+#include <iostream>
 
 using namespace rev::core;
 
@@ -97,20 +98,61 @@ namespace rev {
 			swapBuffers();
 		}
 
+		//----------------------------------------------------------------------------------------------------------------------
+		void logGlError() {
+			GLenum error = glGetError();
+			if (error) {
+				switch (error) {
+				case GL_INVALID_ENUM:
+					std::cout << "GL_INVALID_ENUM\n";
+					break;
+				case GL_INVALID_VALUE:
+					std::cout << "GL_INVALID_VALUE\n";
+					break;
+				case GL_INVALID_OPERATION:
+					std::cout << "GL_INVALID_OPERATION\n";
+					break;
+				default:
+					std::cout << "Other GL error\n";
+					break;
+				}
+			}
+		}
+
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setShader(const Shader* _shader) {
 			const OpenGLShader* shader = static_cast<const OpenGLShader*>(_shader);
+			logGlError();
 			mProgram = shader->program();
 			glUseProgram(mProgram);
+			logGlError();
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+			logGlError();
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		int OpenGLDriver::getUniformLocation(const char* _uniform)
 		{
-			return glGetUniformLocation(mProgram, _uniform);
+			int loc = glGetUniformLocation(mProgram, _uniform);
+			if (loc == -1) {
+				GLenum error = glGetError();
+				std::cout << "Uniform " << _uniform << " not found. Error ";
+				switch (error)
+				{
+				case GL_INVALID_VALUE:
+					std::cout << "GL_INVALID_VALUE\n";
+					break;
+				case GL_INVALID_OPERATION:
+					std::cout << "GL_INVALID_OPERATION\n";
+					break;
+				default:
+					std::cout << error << "\n";
+					break;
+				}
+			}
+			return loc;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

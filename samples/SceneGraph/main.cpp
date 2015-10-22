@@ -33,7 +33,7 @@ public:
 		processArgs(_argc, _argv);
 
 		mRenderer = new ForwardRenderer();
-		mRenderer->init<NewAllocator>(&window(), mAlloc);
+		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mRenderCtxt = new RenderContext();
 		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 1000.f);
 		mCam->setPos({0.f, -10.f, 0.f});

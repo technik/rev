@@ -38,6 +38,49 @@ namespace rev {
 			}
 		}
 
+		//------------------------------------------------------------------------------------------------------------------
+		bool detectProgramError(unsigned _shaderId)
+		{
+			int status;
+			glGetProgramiv(_shaderId, GL_LINK_STATUS, &status);
+			if (status == GL_TRUE)
+			{
+				return false;
+			}
+			else
+			{
+				char buffer[4096];
+				int len;
+				glGetProgramInfoLog(_shaderId, 1024, &len, buffer);
+				if (len > 4096) len = 4096;
+				buffer[len] = '\0';
+				std::cout << "Error linking shader\n"
+					<< buffer << "\n";
+				return true;
+			}
+		}
+
+		//----------------------------------------------------------------------------------------------------------------------
+		void logGlErrors() {
+			GLenum error = glGetError();
+			if (error) {
+				switch (error) {
+				case GL_INVALID_ENUM:
+					std::cout << "GL_INVALID_ENUM\n";
+					break;
+				case GL_INVALID_VALUE:
+					std::cout << "GL_INVALID_VALUE\n";
+					break;
+				case GL_INVALID_OPERATION:
+					std::cout << "GL_INVALID_OPERATION\n";
+					break;
+				default:
+					std::cout << "Other GL error\n";
+					break;
+				}
+			}
+		}
+
 		//----------------------------------------------------------------------------------------------------------------------
 		unsigned createShader(const char* _fileName, GLenum _type) {
 			unsigned shaderId = glCreateShader(_type);
@@ -67,13 +110,20 @@ namespace rev {
 		{
 			assert(_vtx);
 			assert(_pxl);
+			logGlErrors();
 			mProgram = glCreateProgram();
 			glAttachShader(mProgram, mVtx);
 			glAttachShader(mProgram, mPxl);
 			glBindAttribLocation(mProgram, 0, "vertex");
 			glBindAttribLocation(mProgram, 1, "normal");
 			glBindAttribLocation(mProgram, 2, "uv");
+			logGlErrors();
 			glLinkProgram(mProgram);
+			logGlErrors();
+			if (detectProgramError(mProgram)) {
+				glDeleteProgram(mProgram);
+				mProgram = unsigned(-1);
+			}
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------

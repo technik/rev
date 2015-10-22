@@ -14,6 +14,7 @@ namespace rev {
 		class Color
 		{
 		public:
+			Color() = default;
 			Color(float _i);
 			Color(float _r, float _g, float _b);
 			Color(float _r, float _g, float _b, float _a);
