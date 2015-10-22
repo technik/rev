@@ -28,7 +28,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::render(const RendererBackEnd::StaticGeometry& _geom) {
-			if (_geom.shader != mCurShader)
+			//if (_geom.shader != mCurShader)
 				setShader(_geom.shader);
 			// Set uniforms
 			Mat44f mvp = mViewProj * _geom.transform;

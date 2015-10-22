@@ -14,6 +14,7 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/renderer/renderContext.h>
+#include <video/graphics/renderer/material.h>
 #include <video/graphics/renderer/renderMesh.h>
 #include <video/graphics/renderer/renderObj.h>
 #include <core/memory/newAllocator.h>
@@ -41,6 +42,9 @@ public:
 
 		RenderMesh* mesh = Procedural::box(Vec3f(1.f));
 		RenderObj* obj = new RenderObj(mesh);
+		Material * mat = new Material();
+		mat->mDiffuse = Color(0.5f);
+		obj->mMaterial = mat;
 		SceneNode* node = new SceneNode();
 		obj->attachTo(node);
 		mRenderCtxt->insert(obj);

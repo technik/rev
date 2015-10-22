@@ -6,8 +6,11 @@ uniform		vec4 uColor;
 uniform		vec3 uLightDir;
 varying		vec3 vNormal;
 
+vec3 ambient = vec3(0.2);
+
 void main (void) {
 	vec3 normal = normalize(vNormal);
-	vec3 color = vec3(0.5, 0.0, 0.0);
-	gl_FragColor = vec4(color, 0.0);
+	float dif = max(0.0, dot(uLightDir, normal));
+	vec3 color = uColor.xyz;
+	gl_FragColor = vec4(color*dif+ambient, 0.0);
 }
