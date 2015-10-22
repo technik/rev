@@ -15,6 +15,7 @@
 namespace rev {
 	namespace video {
 
+		class Material;
 		class RenderMesh;
 
 		class RenderObj : public core::ContextObj<RenderObj, RenderContext>, public core::Component {
@@ -24,6 +25,7 @@ namespace rev {
 			RenderMesh*			mesh		() const { return mMesh; }
 			const math::Mat34f&	transform	() const { return node()->transform(); }
 
+			Material* mMaterial = nullptr;
 		private:
 			RenderMesh* mMesh;
 
