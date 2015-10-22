@@ -19,6 +19,7 @@
 #include <video/graphics/renderer/renderObj.h>
 #include <core/memory/newAllocator.h>
 #include <core/components/sceneNode.h>
+#include <game/physics/rigidBody.h>
 #include <vector>
 
 using namespace rev::core;
@@ -40,6 +41,7 @@ public:
 		mCam->setPos({0.f, -10.f, 0.f});
 		mRenderCtxt->setCamera(mCam);
 
+		// Construct floor
 		RenderMesh* mesh = Procedural::box(Vec3f(1.f));
 		RenderObj* obj = new RenderObj(mesh);
 		Material * mat = new Material();
