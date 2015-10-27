@@ -51,5 +51,12 @@ namespace rev {
 			mBody->setWorldTransform(t);
 			TransformSrc::setPosition(_pos, TransformSrc::local);
 		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::updateTransform() {
+			btTransform t = mBody->getWorldTransform();
+			TransformSrc::setPosition(bt2rev(t.getOrigin()), TransformSrc::local);
+			TransformSrc::setRotation(bt2rev(t.getRotation()), TransformSrc::local);
+		}
 	}
 }
