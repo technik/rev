@@ -7,6 +7,8 @@
 #define _REV_VIDEO_GRAPHICS_RENDERER_RENDERCONTEXT_H_
 
 #include <set>
+#include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video {
@@ -18,9 +20,12 @@ namespace rev {
 		public:
 			void setCamera(const Camera* _cam) { mCamera = _cam; }
 			const Camera* camera() const { return mCamera; }
+			void setLightDir(const math::Vec3f& _dir) { mLightDir = _dir;}
+			const math::Vec3f& lightDir() const { return mLightDir; }
 
 		private:
-			const Camera* mCamera;
+			const Camera*	mCamera;
+			math::Vec3f		mLightDir;
 		};
 	}
 }

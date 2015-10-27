@@ -34,7 +34,7 @@ namespace rev {
 			btDefaultMotionState* motion = new btDefaultMotionState(transform);
 			btVector3 inertia(0.f, 0.f, 0.f);
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, motion, _shape, inertia);
-			rbInfo.m_restitution = 0.9f;
+			rbInfo.m_restitution = 0.99f;
 			mBody = new btRigidBody(rbInfo);
 		}
 
