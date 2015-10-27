@@ -7,6 +7,7 @@
 #define _REV_GAME_PHYSICS_PHYSICSWORLD_H_
 
 #include <btBulletDynamicsCommon.h>
+#include <set>
 
 namespace rev {
 	namespace game {
@@ -22,12 +23,17 @@ namespace rev {
 			void removeRigidBody(RigidBody* _rb);
 
 			void simulate(float _dt);
+
 		private:
+			void updateRigidBodies();
+
 			btDefaultCollisionConfiguration*	mCollisionConfig;
 			btCollisionDispatcher*				mDispatcher;
 			btBroadphaseInterface*				mOverlappingPairCache;
 			btSequentialImpulseConstraintSolver*mSolver;
 			btDiscreteDynamicsWorld*			mWorld;
+
+			std::set<RigidBody*>				mBodies;
 		};
 	}
 }

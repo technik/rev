@@ -31,11 +31,19 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::addRigidBody(RigidBody* _rb) {
 			mWorld->addRigidBody(_rb->mBody);
+			mBodies.insert(_rb);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::removeRigidBody(RigidBody* _rb) {
 			mWorld->removeRigidBody(_rb->mBody);
+			mBodies.erase(_rb);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::updateRigidBodies() {
+			for(auto rb : mBodies)
+				rb->updateTransform();
 		}
 	}
 }

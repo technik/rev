@@ -27,6 +27,9 @@ namespace rev {
 			void setPosition(const math::Vec3f& _pos);
 
 		private:
+			void updateTransform();
+
+		private:
 			RigidBody(float _mass, btCollisionShape* _shape);
 			btCollisionShape* mShape;
 			btRigidBody* mBody;
