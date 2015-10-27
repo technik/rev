@@ -26,6 +26,8 @@ namespace rev {
 
 			void setPosition(const math::Vec3f& _pos);
 
+			void setBouncyness(float _bounce);
+
 		private:
 			void updateTransform();
 

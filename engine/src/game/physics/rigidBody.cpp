@@ -33,8 +33,8 @@ namespace rev {
 			transform.setIdentity();
 			btDefaultMotionState* motion = new btDefaultMotionState(transform);
 			btVector3 inertia(0.f, 0.f, 0.f);
-			btRigidBody::
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, motion, _shape, inertia);
+			rbInfo.m_restitution = 0.9f;
 			mBody = new btRigidBody(rbInfo);
 		}
 
@@ -50,6 +50,11 @@ namespace rev {
 			t.setOrigin(rev2bt(_pos));
 			mBody->setWorldTransform(t);
 			TransformSrc::setPosition(_pos, TransformSrc::local);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setBouncyness(float _b) {
+			mBody->setRestitution(_b);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

@@ -69,7 +69,7 @@ public:
 		SceneNode* sph = new SceneNode();
 		sphObj->attachTo(sph);
 		mRenderCtxt->insert(sphObj);
-		RigidBody* sphRb = RigidBody::sphere(0.f, sphRad);
+		RigidBody* sphRb = RigidBody::sphere(1.f, sphRad);
 		sph->attachTo(sphRb);
 		sphRb->setPosition({0.f,0.f,2.f});
 		mWorld->addRigidBody(sphRb);
@@ -98,6 +98,8 @@ private:
 
 		// Update objects in the middle
 		mCam->update(_dt);
+
+		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mRenderCtxt);
 		return true;
