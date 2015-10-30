@@ -82,9 +82,10 @@ namespace rev {
 			btTransform transform;
 			transform.setIdentity();
 			btDefaultMotionState* motion = new btDefaultMotionState(transform);
-			btVector3 inertia(0.f, 0.f, 0.f);
+			btVector3 inertia;
+			_shape->calculateLocalInertia(_mass,inertia);
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, motion, _shape, inertia);
-			rbInfo.m_restitution = 0.99f;
+			rbInfo.m_restitution = 0.9f;
 			mBody = new btRigidBody(rbInfo);
 		}
 

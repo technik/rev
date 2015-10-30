@@ -69,10 +69,10 @@ public:
 		SceneNode* sph = new SceneNode();
 		sphObj->attachTo(sph);
 		mRenderCtxt->insert(sphObj);
-		RigidBody* sphRb = RigidBody::sphere(1.f, sphRad);
-		sph->attachTo(sphRb);
-		sphRb->setPosition({0.f,0.f,2.f});
-		mWorld->addRigidBody(sphRb);
+		mBallBd = RigidBody::sphere(1.f, sphRad);
+		sph->attachTo(mBallBd);
+		mBallBd->setPosition({0.f,0.f,2.f});
+		mWorld->addRigidBody(mBallBd);
 	}
 
 	~SceneDemo() {
@@ -84,6 +84,7 @@ public:
 	NewAllocator mAlloc;
 	FlyByCamera* mCam;
 	PhysicsWorld* mWorld;
+	RigidBody* mBallBd;
 
 private:
 	
@@ -99,6 +100,8 @@ private:
 		// Update objects in the middle
 		mCam->update(_dt);
 
+		if(keyboard().pressed(rev::input::KeyboardInput::eSpace))
+			mBallBd->setPosition({0.f,0.f,10.f});
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mRenderCtxt);

@@ -71,4 +71,4 @@ target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/bullet/sr
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/inc)
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/public)
 target_link_libraries(rev LINK_PUBLIC BulletDynamics Bullet3Common BulletCollision LinearMath) # Bullet3Common
-target_link_libraries(rev LINK_PUBLIC vhacd)
+target_link_libraries(rev LINK_PUBLIC VHACD_LIB)
