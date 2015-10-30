@@ -70,5 +70,7 @@ add_subdirectory(lib/vhacd)
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/bullet/src)
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/inc)
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/public)
+target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/assimp/include)
 target_link_libraries(rev LINK_PUBLIC BulletDynamics Bullet3Common BulletCollision LinearMath) # Bullet3Common
 target_link_libraries(rev LINK_PUBLIC VHACD_LIB)
+target_link_libraries(rev LINK_PUBLIC assimp)
