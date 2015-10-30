@@ -19,7 +19,8 @@ namespace rev {
 	namespace game {
 		class RigidBody : public core::TransformSrc {
 		public:
-			static RigidBody* concaveMesh(float _mass, const video::RenderMesh* _mesh);
+			static RigidBody* concaveMesh	(float _mass, const video::RenderMesh* _mesh);
+			static RigidBody* convexHull	(float _mass, const video::RenderMesh* _mesh);
 			static RigidBody* sphere(float _mass, float _radius);
 			static RigidBody* box	(float _mass, const math::Vec3f& _size);
 			~RigidBody();

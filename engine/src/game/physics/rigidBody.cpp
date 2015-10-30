@@ -7,12 +7,62 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include "bulletMath.h"
+#include <VHACD.h>
+#include <video/graphics/renderer/renderMesh.h>
+#include <iostream>
+
+using namespace rev::math;
 
 namespace rev {
 	namespace game {
+
+		namespace {
+			//----------------------------------------------------------------------------------------------------------------------
+			btConvexHullShape* createHull(const VHACD::IVHACD::ConvexHull& _piece) {
+				btConvexHullShape* blockShape = new btConvexHullShape();
+				unsigned nVertices = _piece.m_nPoints;
+				for (unsigned i = 0; i < nVertices; ++i) {
+					btVector3 v(btScalar(_piece.m_points[3 * i + 0]), btScalar(_piece.m_points[3 * i + 1]), btScalar(_piece.m_points[3 * i + 2]));
+					blockShape->addPoint(v, false);
+				}
+				blockShape->recalcLocalAabb();
+				blockShape->setMargin(0.f);
+				return blockShape;
+			}
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		RigidBody* RigidBody::concaveMesh(float _mass, const video::RenderMesh* _mesh) {
-			return nullptr;
+
+
+			VHACD::IVHACD::Parameters cdParams;
+			VHACD::IVHACD* cdInterface = VHACD::CreateVHACD();
+			int * indices = new int[_mesh->nIndices];
+			for (unsigned i = 0; i < _mesh->nIndices; ++i)
+				indices[i] = _mesh->indices[i];
+			cdInterface->Compute(reinterpret_cast<const float*>(_mesh->vertices), 3, _mesh->nVertices, indices, 3, unsigned(_mesh->nIndices / 3), cdParams);
+			delete indices;
+
+			// Prepare rigid body's shape
+			btCompoundShape* pieceShape = new btCompoundShape(false);
+			int nHulls = cdInterface->GetNConvexHulls();
+			std::cout << "Found " << nHulls << " convex hulls\n";
+			btTransform origin;
+			origin.setIdentity();
+
+			for (int i = 0; i < nHulls; ++i) {
+				VHACD::IVHACD::ConvexHull hull;
+				cdInterface->GetConvexHull(i, hull);
+				std::cout << "- vertices: " << hull.m_nPoints << "\n";
+				for (unsigned v = 0; v < hull.m_nPoints; ++v)
+					std::cout << "(" << hull.m_points[3 * v + 0] << ", " << hull.m_points[3 * v + 1] << ", " << hull.m_points[3 * v + 2] << ")\n";
+
+				btConvexHullShape* hullShape = createHull(hull);
+				pieceShape->addChildShape(origin, hullShape);
+			}
+
+			// Create rigid body
+			return new RigidBody(_mass, pieceShape);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
