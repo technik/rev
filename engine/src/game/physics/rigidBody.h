@@ -25,8 +25,16 @@ namespace rev {
 			~RigidBody();
 
 			void setPosition(const math::Vec3f& _pos);
+			void setTransform(const math::Mat34f& _t);
+			void setLinearVelocity(const math::Vec3f& _v);
+			void setAngularVelocity(const math::Vec3f& _axix);
 
 			void setBouncyness(float _bounce);
+
+			void clearForces();
+
+			math::Vec3f	getGravity() const;
+			void setGravity(const math::Vec3f& _v);
 
 		private:
 			void updateTransform();

@@ -53,6 +53,28 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setTransform(const math::Mat34f& _t) {
+			btTransform t;
+			math::Vec3f origin = _t.col(3);
+			math::Quatf rot = math::Quatf(_t);
+			t.setRotation(rev2bt(rot));
+			t.setOrigin(rev2bt(origin));
+			mBody->setWorldTransform(t);
+			TransformSrc::setPosition(origin, TransformSrc::local);
+			TransformSrc::setRotation(rot, TransformSrc::local);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setLinearVelocity(const math::Vec3f& _v) {
+			mBody->setLinearVelocity(rev2bt(_v));
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setAngularVelocity(const math::Vec3f& _a) {
+			mBody->setAngularVelocity(rev2bt(_a));
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setBouncyness(float _b) {
 			mBody->setRestitution(_b);
 		}
