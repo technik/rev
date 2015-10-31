@@ -26,6 +26,10 @@ namespace rev {
 			const math::Mat34f&	transform	() const { return node()->transform(); }
 
 			Material* mMaterial = nullptr;
+
+			struct BoundingBox {
+				math::Vec3f min, max;
+			} mBBox;
 		private:
 			RenderMesh* mMesh;
 

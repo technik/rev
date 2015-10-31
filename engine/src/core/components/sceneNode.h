@@ -30,6 +30,7 @@ namespace rev {
 			void			setPosLocal	(const math::Vec3f& _position);
 			void			setRot		(const math::Quatf& _rot);
 			void			setRotLocal	(const math::Quatf& _rot);
+			void			setTransform(const math::Mat34f& _t);
 			void			rotate		(const math::Vec3f& _axis, float _angle);
 
 			// Components

@@ -3,23 +3,29 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Simple scene manager
-#ifndef _REV_GAME_SCENE_SCENEMGR_H_
-#define _REV_GAME_SCENE_SCENEMGR_H_
+#ifndef _REV_GAME_SCENE_SCENE_H_
+#define _REV_GAME_SCENE_SCENE_H_
 
 #include <core/components/sceneNode.h>
-#include <vector>
+#include <video/graphics/renderer/renderContext.h>
+#include <core/components/sceneNode.h>
+#include <map>
+#include <string>
 
 namespace rev {
 	namespace game {
 		
-		class SceneMgr {
+		class Scene {
 		public:
 			/// Open a scene and return it as a vector of scene nodes.
 			/// \return true on succuess importing the scene
-			static bool importScene(const char* _fileName, std::vector<core::SceneNode*>& _dst);
+			static bool import(const char* _fileName, std::vector<core::SceneNode*>& _dst);
+
+			video::RenderContext*			mRenderContext;
+			std::map<std::string,core::SceneNode*>	mSceneGraph;
 		};
 
 	}	// namespace game
 }	// namespace rev
 
-#endif // _REV_GAME_SCENE_SCENEMGR_H_
+#endif // _REV_GAME_SCENE_SCENE_H_
