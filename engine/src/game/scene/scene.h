@@ -19,7 +19,7 @@ namespace rev {
 		public:
 			/// Open a scene and return it as a vector of scene nodes.
 			/// \return true on succuess importing the scene
-			static bool import(const char* _fileName, std::vector<core::SceneNode*>& _dst);
+			static Scene* import(const char* _fileName);
 
 			video::RenderContext*			mRenderContext;
 			std::map<std::string,core::SceneNode*>	mSceneGraph;

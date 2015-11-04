@@ -73,14 +73,14 @@ namespace {
 namespace rev {
 	namespace game {
 		//--------------------------------------------------------------------------------------------------------------
-		bool Scene::import(const char* _fileName, std::vector<core::SceneNode*>& _dst) {
+		Scene* Scene::import(const char* _fileName) {
 			// Try to open the file
 			Assimp::Importer colladaImp;
 			const aiScene* colScene = colladaImp.ReadFile(_fileName,
 				aiProcess_GenNormals | aiProcess_Triangulate |
 				aiProcess_JoinIdenticalVertices);
 			if (!colScene) {
-				return false; // No file exists
+				return nullptr; // No file exists
 			}
 
 			Scene* scene = new Scene;
