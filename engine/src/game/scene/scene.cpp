@@ -102,7 +102,7 @@ namespace rev {
 				RenderMesh* mesh = createMesh(colScene->mMeshes[colNode->mMeshes[0]]);
 				RenderObj* obj = new RenderObj(mesh);
 				scene->mRenderContext->insert(obj);
-				SceneNode* node;
+				SceneNode* node = new SceneNode();
 				obj->attachTo(node);
 				std::string name = colNode->mName.C_Str();
 				node->setTransform(globalTransform(colNode));
