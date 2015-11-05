@@ -131,6 +131,22 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::clearForces() {
+			mBody->clearForces();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		math::Vec3f RigidBody::getGravity() const {
+			btVector3 g = mBody->getGravity();
+			return bt2rev(g);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setGravity(const math::Vec3f& _g) {
+			mBody->setGravity(rev2bt(_g));
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::updateTransform() {
 			btTransform t = mBody->getWorldTransform();
 			TransformSrc::setPosition(bt2rev(t.getOrigin()), TransformSrc::local);

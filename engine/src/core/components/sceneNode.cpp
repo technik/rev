@@ -39,6 +39,11 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		void SceneNode::setTransform(const math::Mat34f& _m) {
+			TransformSrc::setTransform(_m, TransformSrc::global);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		void SceneNode::rotate(const math::Vec3f& _axis, float _angle)
 		{
 			math::Quatf turn = math::Quatf(_axis, _angle);
