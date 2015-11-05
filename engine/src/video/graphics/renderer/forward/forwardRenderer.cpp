@@ -58,6 +58,8 @@ namespace rev {
 			geom.transform = _obj.transform();
 			if (_obj.mMaterial)
 				geom.color = _obj.mMaterial->mDiffuse;
+			else
+				geom.color = Color(1.f, 1.f, 1.f);
 			mBackEnd->render(geom);
 		}
 	}
