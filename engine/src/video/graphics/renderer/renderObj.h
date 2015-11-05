@@ -11,16 +11,19 @@
 #include<core/context/contextObj.h>
 #include<math/algebra/matrix.h>
 #include<video/graphics/renderer/renderContext.h>
+#include<video/graphics/renderer/renderMesh.h>
 
 namespace rev {
 	namespace video {
 
 		class Material;
-		class RenderMesh;
 
 		class RenderObj : public core::ContextObj<RenderObj, RenderContext>, public core::Component {
 		public:
-			RenderObj(RenderMesh* _mesh) : mMesh(_mesh) {}
+			RenderObj(RenderMesh* _mesh) : mMesh(_mesh) {
+				mBBox.min = _mesh->bbMin;
+				mBBox.max = _mesh->bbMax;
+			}
 			
 			RenderMesh*			mesh		() const { return mMesh; }
 			const math::Mat34f&	transform	() const { return node()->transform(); }

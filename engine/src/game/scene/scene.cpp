@@ -89,7 +89,6 @@ namespace rev {
 			}
 
 			Scene* scene = new Scene;
-			RenderObj::BoundingBox globalBBox{ Vec3f::zero(), Vec3f::zero() };
 			const aiNode* colRoot = colScene->mRootNode;
 			unsigned nNodes = colRoot->mNumChildren + 1; // Root plus children
 			std::vector<const aiNode*> colNodes;

@@ -35,7 +35,7 @@ namespace rev {
 			mDriver->setUniform(mMvpUniform, mvp);
 			Mat33f world = _geom.transform;
 			mDriver->setUniform(mWorldUniform, world);
-			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.2f, 1.5f).normalized());
+			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.4f, 1.5f).normalized());
 			mDriver->setUniform(mColorUniform, _geom.color);
 			
 			// Set arrays

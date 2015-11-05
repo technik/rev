@@ -24,13 +24,32 @@ namespace rev {
 			uint16_t		stripLength = 0;
 			uint16_t*		indices = nullptr;
 
+			math::Vec3f bbMin, bbMax; // Bounding box
+
 			//----------------------------------------------------------------------------------------------------------
 			void setVertexData(uint16_t _nVertices, math::Vec3f* _vertices
-				, math::Vec3f* _normals, math::Vec2f* _uvs) {
+				, math::Vec3f* _normals, math::Vec2f* _uvs, const math::Vec3f& _min, const math::Vec3f& _max) {
 				vertices = _vertices;
 				normals = _normals;
 				uvs = _uvs;
 				nVertices = _nVertices;
+				bbMin = _min;
+				bbMax = _max;
+			}
+
+			//----------------------------------------------------------------------------------------------------------
+			void setVertexData(uint16_t _nVertices, math::Vec3f* _vertices
+				, math::Vec3f* _normals, math::Vec2f* _uvs) {
+				if(!_vertices)
+					return;
+				math::Vec3f lmin = _vertices[0];
+				math::Vec3f lmax = _vertices[0];
+				for (unsigned i = 1; i < _nVertices; ++i) {
+					math::Vec3f& v = _vertices[i];
+					lmin = min(lmin, v);
+					lmax = max(lmax, v);
+				}
+				setVertexData(_nVertices, _vertices, _normals, _uvs, lmin, lmax);
 			}
 
 			//----------------------------------------------------------------------------------------------------------
