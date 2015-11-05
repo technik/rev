@@ -73,6 +73,11 @@ namespace {
 namespace rev {
 	namespace game {
 		//--------------------------------------------------------------------------------------------------------------
+		Scene::Scene() {
+			mRenderContext = new RenderContext;
+		}
+		
+		//--------------------------------------------------------------------------------------------------------------
 		Scene* Scene::import(const char* _fileName) {
 			// Try to open the file
 			Assimp::Importer colladaImp;

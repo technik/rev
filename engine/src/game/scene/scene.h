@@ -17,6 +17,7 @@ namespace rev {
 		
 		class Scene {
 		public:
+			Scene();
 			/// Open a scene and return it as a vector of scene nodes.
 			/// \return true on succuess importing the scene
 			static Scene* import(const char* _fileName);
