@@ -21,6 +21,7 @@
 #include <core/components/sceneNode.h>
 #include <game/physics/rigidBody.h>
 #include <game/physics/physicsWorld.h>
+#include <game/scene/scene.h>
 #include <vector>
 
 using namespace rev::core;
@@ -38,28 +39,31 @@ public:
 		// Construct global objects
 		mRenderer = new ForwardRenderer();
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
-		mRenderCtxt = new RenderContext();
-		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 1000.f);
+		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 10000.f);
 		mCam->setPos({0.f, -10.f, 1.72f});
-		mRenderCtxt->setCamera(mCam);
+
+		mScene = Scene::import("sample.DAE");
+		mScene->mRenderContext->setCamera(mCam);
+		//mRenderCtxt->setCamera(mCam);
 		mWorld = new PhysicsWorld();
 
+		
 		// Construct floor
 		Vec3f floorSize(100.f, 100.f, 2.f);
 		RenderMesh* mesh = Procedural::box(floorSize);
 		RenderObj* obj = new RenderObj(mesh);
 		Material * mat = new Material();
 		mat->mDiffuse = Color(0.5f);
-		obj->mMaterial = mat;
+		//obj->mMaterial = mat;
 		SceneNode* node = new SceneNode();
 		obj->attachTo(node);
-		mRenderCtxt->insert(obj);
+		mScene->mRenderContext->insert(obj);
 		RigidBody* floorRb = RigidBody::box(0.f, floorSize);
 		node->attachTo(floorRb);
 		floorRb->setPosition({0.f, 0.f, -1.f});
 		mWorld->addRigidBody(floorRb);
 
-		// Construct sphere
+		/*// Construct sphere
 		float sphRad = 1.f;
 		RenderMesh* sphMesh = Procedural::geoSphere(sphRad, 16, 7);
 		Material* sphMat = new Material();
@@ -73,6 +77,7 @@ public:
 		sph->attachTo(mBallBd);
 		mBallBd->setPosition({0.f,0.f,2.f});
 		mWorld->addRigidBody(mBallBd);
+		*/
 	}
 
 	~SceneDemo() {
@@ -80,7 +85,7 @@ public:
 	}
 
 	ForwardRenderer* mRenderer;
-	RenderContext*	mRenderCtxt;
+	Scene* mScene;
 	NewAllocator mAlloc;
 	FlyByCamera* mCam;
 	PhysicsWorld* mWorld;
@@ -104,7 +109,7 @@ private:
 			mBallBd->setPosition({0.f,0.f,10.f});
 		mWorld->simulate(_dt);
 
-		mRenderer->renderContext(*mRenderCtxt);
+		mRenderer->renderContext(*mScene->mRenderContext);
 		return true;
 	}
 };
