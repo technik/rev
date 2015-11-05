@@ -41,43 +41,31 @@ public:
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 10000.f);
 		mCam->setPos({0.f, -10.f, 1.72f});
-
-		mScene = Scene::import("sample.DAE");
-		mScene->mRenderContext->setCamera(mCam);
-		//mRenderCtxt->setCamera(mCam);
 		mWorld = new PhysicsWorld();
 
-		
-		// Construct floor
-		Vec3f floorSize(100.f, 100.f, 2.f);
-		RenderMesh* mesh = Procedural::box(floorSize);
-		RenderObj* obj = new RenderObj(mesh);
-		Material * mat = new Material();
-		mat->mDiffuse = Color(0.5f);
-		//obj->mMaterial = mat;
-		SceneNode* node = new SceneNode();
-		obj->attachTo(node);
-		mScene->mRenderContext->insert(obj);
-		RigidBody* floorRb = RigidBody::box(0.f, floorSize);
-		node->attachTo(floorRb);
-		floorRb->setPosition({0.f, 0.f, -1.f});
-		mWorld->addRigidBody(floorRb);
+		// Load scene
+		mScene = Scene::import("sample.DAE");
+		mScene->mRenderContext->setCamera(mCam);
+		RenderObj* groundRo;
+		RenderObj* ballRo;
+		SceneNode* ground = mScene->mSceneGraph["Floor"];
+		SceneNode* ball = mScene->mSceneGraph["Ball"];
+		for (auto ro : *mScene->mRenderContext) {
+			if(ro->node() == ground)
+				groundRo = ro;
+			if(ro->node() == ball)
+				ballRo = ro;
+		}
 
-		/*// Construct sphere
-		float sphRad = 1.f;
-		RenderMesh* sphMesh = Procedural::geoSphere(sphRad, 16, 7);
-		Material* sphMat = new Material();
-		sphMat->mDiffuse = Color(1.f,0.2f,0.2f);
-		RenderObj* sphObj = new RenderObj(sphMesh);
-		sphObj->mMaterial = sphMat;
-		SceneNode* sph = new SceneNode();
-		sphObj->attachTo(sph);
-		mRenderCtxt->insert(sphObj);
-		mBallBd = RigidBody::sphere(1.f, sphRad);
-		sph->attachTo(mBallBd);
-		mBallBd->setPosition({0.f,0.f,2.f});
-		mWorld->addRigidBody(mBallBd);
-		*/
+		// Configure ground
+		RigidBody* groundBd = RigidBody::box(0.f, groundRo->mBBox.max - groundRo->mBBox.min);
+		ground->attachTo(groundBd);
+		mWorld->addRigidBody(groundBd);
+
+		// Configure ball
+		RigidBody* ballRb = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
+		ground->attachTo(ballRb);
+		mWorld->addRigidBody(ballRb);
 	}
 
 	~SceneDemo() {
