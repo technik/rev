@@ -25,7 +25,6 @@ namespace rev {
 			void simulate(float _dt);
 
 		private:
-			void updateRigidBodies();
 
 			btDefaultCollisionConfiguration*	mCollisionConfig;
 			btCollisionDispatcher*				mDispatcher;

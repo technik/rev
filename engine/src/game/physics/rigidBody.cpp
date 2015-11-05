@@ -79,12 +79,11 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		RigidBody::RigidBody(float _mass, btCollisionShape* _shape) {
-			btTransform transform;
-			transform.setIdentity();
-			btDefaultMotionState* motion = new btDefaultMotionState(transform);
+			mShape = _shape;
+			mMotion = new MotionState(this);
 			btVector3 inertia;
 			_shape->calculateLocalInertia(_mass,inertia);
-			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, motion, _shape, inertia);
+			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, mMotion, _shape, inertia);
 			rbInfo.m_restitution = 0.9f;
 			mBody = new btRigidBody(rbInfo);
 		}
@@ -92,6 +91,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		RigidBody::~RigidBody() {
 			delete mBody;
+			delete mMotion;
 			delete mShape;
 		}
 
@@ -146,11 +146,25 @@ namespace rev {
 			mBody->setGravity(rev2bt(_g));
 		}
 
-		//--------------------------------------------------------------------------------------------------------------
-		void RigidBody::updateTransform() {
-			btTransform t = mBody->getWorldTransform();
-			TransformSrc::setPosition(bt2rev(t.getOrigin()), TransformSrc::local);
-			TransformSrc::setRotation(bt2rev(t.getRotation()), TransformSrc::local);
+		RigidBody::MotionState::MotionState(RigidBody * _bd)
+		{
+			mBd = _bd;
 		}
-	}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::MotionState::getWorldTransform(btTransform & worldTrans) const
+		{
+			worldTrans.setOrigin(rev2bt(mBd->position()));
+			worldTrans.setRotation(rev2bt(mBd->rotation()));
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::MotionState::setWorldTransform(const btTransform & _t)
+		{
+			math::Vec3f origin = bt2rev(_t.getOrigin());
+			math::Quatf rot = bt2rev(_t.getRotation());
+			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
+			mBd->setRotation(rot, TransformSrc::local);
+		}
+}
 }

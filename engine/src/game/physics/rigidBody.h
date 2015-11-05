@@ -7,6 +7,7 @@
 #define _REV_GAME_PHYSICS_RIGIDBODY_H_
 
 #include <core/components/transformSrc.h>
+#include <btBulletDynamicsCommon.h>
 
 class btCollisionShape;
 class btRigidBody;
@@ -38,13 +39,24 @@ namespace rev {
 			void setGravity(const math::Vec3f& _v);
 
 		private:
-			void updateTransform();
+			class MotionState : public btMotionState {
+			public:
+				MotionState(RigidBody* bd);
+				// Inherited via btMotionState
+				virtual void getWorldTransform(btTransform & worldTrans) const override;
+				virtual void setWorldTransform(const btTransform & worldTrans) override;
+
+			private:
+				RigidBody* mBd;
+			};
 
 		private:
 			RigidBody(float _mass, btCollisionShape* _shape);
 			btCollisionShape* mShape;
 			btRigidBody* mBody;
+			MotionState* mMotion;
 
+			friend class RigidBody::MotionState;
 			friend class PhysicsWorld;
 		};
 	}

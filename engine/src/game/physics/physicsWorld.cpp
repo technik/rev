@@ -42,19 +42,11 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void PhysicsWorld::updateRigidBodies() {
-			for(auto rb : mBodies)
-				rb->updateTransform();
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::simulate(float _dt) {
 			float fixedTimeStep = 0.01f;
 			unsigned maxSteps = unsigned(1.5f*_dt / fixedTimeStep);
 
 			mWorld->stepSimulation(_dt, maxSteps, fixedTimeStep);
-
-			updateRigidBodies();
 		}
 	}
 }
