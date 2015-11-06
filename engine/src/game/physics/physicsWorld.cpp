@@ -47,5 +47,10 @@ namespace rev {
 
 			mWorld->stepSimulation(_dt, maxSteps, fixedTimeStep);
 		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::singleStep(float _dt) {
+			mWorld->stepSimulation(_dt, 1, _dt);
+		}
 	}
 }

@@ -22,7 +22,9 @@ namespace rev {
 			void addRigidBody(RigidBody* _rb);
 			void removeRigidBody(RigidBody* _rb);
 
+			// Two ways of simulating
 			void simulate(float _dt);
+			void singleStep(float _dt);
 
 		private:
 
