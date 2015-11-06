@@ -23,6 +23,7 @@
 #include <game/physics/physicsWorld.h>
 #include <game/scene/scene.h>
 #include <vector>
+#include <iostream>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -59,13 +60,15 @@ public:
 
 		// Configure ground
 		RigidBody* groundBd = RigidBody::box(0.f, groundRo->mBBox.max - groundRo->mBBox.min);
+		groundBd->setPosition(ground->position());
 		ground->attachTo(groundBd);
 		mWorld->addRigidBody(groundBd);
 
 		// Configure ball
-		RigidBody* ballRb = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
-		ground->attachTo(ballRb);
-		mWorld->addRigidBody(ballRb);
+		mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
+		mBallBd->setPosition(ball->position());
+		ball->attachTo(mBallBd);
+		mWorld->addRigidBody(mBallBd);
 	}
 
 	~SceneDemo() {
@@ -78,6 +81,7 @@ public:
 	FlyByCamera* mCam;
 	PhysicsWorld* mWorld;
 	RigidBody* mBallBd;
+	float t = 0;
 
 private:
 	
@@ -89,12 +93,14 @@ private:
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
-
+		t += _dt;
+		if(t < 2.f)
+			std::cout << mBallBd->position().z << "\n";
 		// Update objects in the middle
 		mCam->update(_dt);
 
 		if(keyboard().pressed(rev::input::KeyboardInput::eSpace))
-			mBallBd->setPosition({0.f,0.f,10.f});
+			mBallBd->setPosition({0.f,0.f,5.f});
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mScene->mRenderContext);

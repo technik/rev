@@ -84,7 +84,6 @@ namespace rev {
 			btVector3 inertia;
 			_shape->calculateLocalInertia(_mass,inertia);
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, mMotion, _shape, inertia);
-			rbInfo.m_restitution = 0.9f;
 			mBody = new btRigidBody(rbInfo);
 		}
 
@@ -101,6 +100,14 @@ namespace rev {
 			t.setOrigin(rev2bt(_pos));
 			mBody->setWorldTransform(t);
 			TransformSrc::setPosition(_pos, TransformSrc::local);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void RigidBody::setRotation(const math::Quatf& _rot) {
+			btTransform t = mBody->getWorldTransform();
+			t.setRotation(rev2bt(_rot));
+			mBody->setWorldTransform(t);
+			TransformSrc::setRotation(_rot, TransformSrc::local);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -163,8 +170,10 @@ namespace rev {
 		{
 			math::Vec3f origin = bt2rev(_t.getOrigin());
 			math::Quatf rot = bt2rev(_t.getRotation());
-			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
-			mBd->setRotation(rot, TransformSrc::local);
+			mBd->setPosition(origin);
+			mBd->setRotation(rot);
+			//mBd->TransformSrc::setPosition(origin, TransformSrc::local);
+			//mBd->setRotation(rot, TransformSrc::local);
 		}
 }
 }

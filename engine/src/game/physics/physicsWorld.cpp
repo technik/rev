@@ -30,7 +30,6 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::addRigidBody(RigidBody* _rb) {
-			//_rb->mBody->activate();
 			mWorld->addRigidBody(_rb->mBody);
 			mBodies.insert(_rb);
 		}
