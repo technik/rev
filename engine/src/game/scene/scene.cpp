@@ -18,21 +18,23 @@ using namespace rev::video;
 namespace {
 	//----------------------------------------------------------------------------------------
 	RenderMesh* createMesh(const aiMesh* _mesh) {
-		RenderMesh* mesh = new RenderMesh;
-		mesh->nVertices = _mesh->mNumVertices;
-		mesh->vertices = new Vec3f[mesh->nVertices];
-		mesh->normals = new Vec3f[mesh->nVertices];
-		for (unsigned i = 0; i < mesh->nVertices; ++i) {
-			mesh->vertices[i] = Vec3f(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
-			mesh->normals[i] = Vec3f(_mesh->mNormals[i].x, _mesh->mNormals[i].y, _mesh->mNormals[i].z);
+		unsigned nVertices = _mesh->mNumVertices;
+		Vec3f* vertices = new Vec3f[nVertices];
+		Vec3f* normals = new Vec3f[nVertices];
+		for (unsigned i = 0; i < nVertices; ++i) {
+			vertices[i] = Vec3f(_mesh->mVertices[i].x, _mesh->mVertices[i].y, _mesh->mVertices[i].z);
+			normals[i] = Vec3f(_mesh->mNormals[i].x, _mesh->mNormals[i].y, _mesh->mNormals[i].z);
 		}
-		mesh->nIndices = 3 * _mesh->mNumFaces;
-		mesh->indices = new unsigned short[mesh->nIndices];
+		unsigned nIndices = 3 * _mesh->mNumFaces;
+		unsigned short* indices = new unsigned short[nIndices];
 		for (unsigned i = 0; i < _mesh->mNumFaces; ++i) {
-			mesh->indices[3 * i + 0] = _mesh->mFaces[i].mIndices[0];
-			mesh->indices[3 * i + 1] = _mesh->mFaces[i].mIndices[1];
-			mesh->indices[3 * i + 2] = _mesh->mFaces[i].mIndices[2];
+			indices[3 * i + 0] = _mesh->mFaces[i].mIndices[0];
+			indices[3 * i + 1] = _mesh->mFaces[i].mIndices[1];
+			indices[3 * i + 2] = _mesh->mFaces[i].mIndices[2];
 		}
+		RenderMesh* mesh = new RenderMesh;
+		mesh->setVertexData(nVertices, vertices, normals, nullptr);
+		mesh->setFaceIndices(nIndices, indices, false);
 		return mesh;
 	}
 
