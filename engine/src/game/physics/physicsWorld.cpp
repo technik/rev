@@ -30,6 +30,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::addRigidBody(RigidBody* _rb) {
+			_rb->mBody->activate(); // Always activate objects before introducing them into the world. (In case of reinsertion)
 			mWorld->addRigidBody(_rb->mBody);
 			mBodies.insert(_rb);
 		}

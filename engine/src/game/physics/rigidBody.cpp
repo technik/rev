@@ -170,10 +170,11 @@ namespace rev {
 		{
 			math::Vec3f origin = bt2rev(_t.getOrigin());
 			math::Quatf rot = bt2rev(_t.getRotation());
-			mBd->setPosition(origin);
-			mBd->setRotation(rot);
-			//mBd->TransformSrc::setPosition(origin, TransformSrc::local);
-			//mBd->setRotation(rot, TransformSrc::local);
+			//mBd->setPosition(origin);
+			//mBd->setRotation(rot);
+			// Do not affect btRigidBody's internal transform.
+			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
+			mBd->TransformSrc::setRotation(rot, TransformSrc::local);
 		}
 }
 }
