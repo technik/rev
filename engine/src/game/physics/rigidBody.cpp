@@ -80,6 +80,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		RigidBody::RigidBody(float _mass, btCollisionShape* _shape) {
 			mShape = _shape;
+			mShape->setMargin(0.f);
 			mMotion = new MotionState(this);
 			btVector3 inertia;
 			_shape->calculateLocalInertia(_mass,inertia);
