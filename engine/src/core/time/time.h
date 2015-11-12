@@ -26,6 +26,7 @@ namespace rev
 
 			// --- Public interface ---
 			float frameTime();	// in seconds
+			float timeMark();
 
 		private:
 			Time();

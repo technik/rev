@@ -124,7 +124,9 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setLinearVelocity(const math::Vec3f& _v) {
-			mBody->setLinearVelocity(rev2bt(_v));
+			btVector3 v = rev2bt(_v);
+			mBody->setLinearVelocity(v);
+			//mBody->setInterpolationLinearVelocity(v);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
