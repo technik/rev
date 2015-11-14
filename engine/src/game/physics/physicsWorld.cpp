@@ -5,6 +5,7 @@
 // Physics simulation context
 #include "physicsWorld.h"
 #include "rigidBody.h"
+#include <game/physics/bulletMath.h>
 
 namespace rev {
 	namespace game {
@@ -39,6 +40,11 @@ namespace rev {
 		void PhysicsWorld::removeRigidBody(RigidBody* _rb) {
 			mWorld->removeRigidBody(_rb->mBody);
 			mBodies.erase(_rb);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::setGravity(const math::Vec3f& _g) {
+			mWorld->setGravity(rev2bt(_g));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
