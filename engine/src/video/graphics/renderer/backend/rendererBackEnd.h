@@ -18,6 +18,7 @@ namespace rev {
 	namespace video {
 
 		class GraphicsDriver;
+		class RenderTarget;
 
 		class RendererBackEnd {
 		public:
@@ -39,6 +40,11 @@ namespace rev {
 			void setCamera(const math::Mat34f& _view, const math::Mat44f& _proj);
 			void render(const StaticGeometry&);
 			void flush();
+
+			RenderTarget*	createRenderTarget();
+			void			destroyRenderTarget();
+
+			void			setRenderTarget(RenderTarget* _rt); // If null, set default target
 
 		private:
 			void setShader(Shader::Ptr);

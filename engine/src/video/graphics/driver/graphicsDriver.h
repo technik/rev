@@ -20,6 +20,7 @@ namespace rev {
 		class Color;
 		class Image;
 		class Shader;
+		class RenderTarget;
 
 		class GraphicsDriver
 		{
@@ -31,6 +32,24 @@ namespace rev {
 				lines,
 				lineStrip,
 				points
+			};
+
+			enum class EImageFormat {
+				rgb,
+				rgba,
+				alpha,
+				luminance,
+				lumiAlpha
+			};
+
+			enum class EByteFormat {
+				eUnsignedByte,
+				eByte,
+				eUnsignedShort,
+				eShort,
+				eUnsignedInt,
+				eInt,
+				eFloat
 			};
 		public:
 			template<class Alloc_>
@@ -46,6 +65,11 @@ namespace rev {
 			virtual void		setZCompare(bool _enable) = 0;
 
 			virtual void		finishFrame() = 0;
+
+			// --- Render targets ---
+			virtual RenderTarget*		createRenderTarget	(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) = 0;
+			virtual void				destroyRenderTarget	(RenderTarget* _rt) = 0;
+			virtual void				setRenderTarget		(RenderTarget* _rt) = 0;
 
 			// --- Vertex config and surface config ---
 			virtual	void		setShader(const Shader*) = 0;
@@ -65,6 +89,7 @@ namespace rev {
 			virtual void		setUniform(int _id, const math::Mat33f& _value) = 0;
 			virtual void		setUniform(int _id, const math::Mat44f& _value) = 0;
 			virtual void		setUniform(int _id, const Color& _value) = 0;
+			virtual void		setUniform(int _id, const RenderTarget* _rt) = 0;
 
 			// --- Draw ---
 			virtual void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) = 0;

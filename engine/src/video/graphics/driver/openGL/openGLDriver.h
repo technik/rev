@@ -39,6 +39,11 @@ namespace rev {
 
 			int			getUniformLocation(const char* _uniformName) override;
 
+			// --- Render targets ---
+			RenderTarget*		createRenderTarget(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) override;
+			void				destroyRenderTarget(RenderTarget* _rt) override;
+			void				setRenderTarget(RenderTarget* _rt) override;
+
 			// --- Attributes and uniforms
 			void		setAttribBuffer(unsigned _id, unsigned _nElements, const float * _buffer) override;
 			void		setAttribBuffer(unsigned _id, unsigned _nElements, const uint16_t* _buffer) override;
@@ -52,9 +57,14 @@ namespace rev {
 			void		setUniform(int _id, const math::Mat33f& _value) override;
 			void		setUniform(int _id, const math::Mat44f& _value) override;
 			void		setUniform(int _id, const Color& _value) override;
+			void		setUniform(int _id, const RenderTarget* _rt) override;
 
 			// --- Draw ---
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
+
+		private:
+			static GLint enumToGl(EImageFormat _format);
+			static GLint enumToGl(EByteFormat _format);
 
 		private:
 			Window*	mWindow;

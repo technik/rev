@@ -18,6 +18,7 @@
 #include <video/graphics/shader/openGL/openGLShader.h>
 #include <video/window/window.h>
 #include <iostream>
+#include <video/graphics/driver/openGL/renderTargetGL.h>
 
 using namespace rev::core;
 
@@ -156,6 +157,80 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) {
+			RenderTargetGL* rt = new RenderTargetGL;
+			glGenFramebuffers(1, &rt->id);
+			glGenTextures(1, &rt->textureId);
+			glBindTexture(GL_TEXTURE_2D, rt->textureId);
+			GLint format = enumToGl(_format);
+			GLint byteFormat = enumToGl(_byteFormat);
+			glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_byteFormat), NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rt->textureId, 0);
+
+			return rt;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::destroyRenderTarget(RenderTarget* _rt) {
+			RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
+			glDeleteTextures(1, &rt->textureId);
+			glDeleteFramebuffers(1, &rt->id);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::setRenderTarget(RenderTarget* _rt) {
+			if (_rt) {
+				RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
+				glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
+			}
+			else {
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		GLint OpenGLDriver::enumToGl(EImageFormat _format) {
+			switch (_format) {
+			case EImageFormat::rgb:
+				return GL_RGB;
+			case EImageFormat::rgba:
+				return GL_RGBA;
+			case EImageFormat::alpha:
+				return GL_ALPHA;
+			case EImageFormat::luminance:
+				return GL_LUMINANCE;
+			case EImageFormat::lumiAlpha:
+				return GL_LUMINANCE_ALPHA;
+			}
+			return -1;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		GLint OpenGLDriver::enumToGl(EByteFormat _format) {
+			switch (_format)
+			{
+			case rev::video::GraphicsDriver::EByteFormat::eUnsignedByte:
+				return GL_UNSIGNED_BYTE;
+			case rev::video::GraphicsDriver::EByteFormat::eByte:
+				return GL_BYTE;
+			case rev::video::GraphicsDriver::EByteFormat::eUnsignedShort:
+				return GL_UNSIGNED_SHORT;
+			case rev::video::GraphicsDriver::EByteFormat::eShort:
+				return GL_SHORT;
+			case rev::video::GraphicsDriver::EByteFormat::eUnsignedInt:
+				return GL_UNSIGNED_INT;
+			case rev::video::GraphicsDriver::EByteFormat::eInt:
+				return GL_INT;
+			case rev::video::GraphicsDriver::EByteFormat::eFloat:
+				return GL_FLOAT;
+			}
+			return -1;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive)
 		{
 			switch (_primitive)
@@ -241,6 +316,11 @@ namespace rev {
 		void OpenGLDriver::setUniform(int _uniformId, const Color& _value)
 		{
 			glUniform4f(_uniformId, _value.r, _value.g, _value.b, _value.a);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::setUniform(int _uniformId, const RenderTarget* _rt) {
+			glUniform
 		}
 
 	}	// namespace video
