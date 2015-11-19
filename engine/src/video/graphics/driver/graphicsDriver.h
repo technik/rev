@@ -76,7 +76,7 @@ namespace rev {
 			virtual void		setUniform(int _id, const math::Mat33f& _value) = 0;
 			virtual void		setUniform(int _id, const math::Mat44f& _value) = 0;
 			virtual void		setUniform(int _id, const Color& _value) = 0;
-			virtual void		setUniform(int _id, const RenderTarget* _rt) = 0;
+			virtual void		setUniform(int _id, const Texture* _rt) = 0;
 
 			// --- Draw ---
 			virtual void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) = 0;

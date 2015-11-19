@@ -185,7 +185,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::destroyRenderTarget(RenderTarget* _rt) {
 			RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
-			glDeleteTextures(1, &rt->textureId);
+			glDeleteTextures(1, &rt->tex->id);
 			glDeleteFramebuffers(1, &rt->id);
 		}
 
@@ -328,8 +328,14 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setUniform(int _uniformId, const RenderTarget* _rt) {
-			glUniform
+		void OpenGLDriver::setUniform(int _uniformId, const Texture* _rt) {
+			glActiveTexture(mCurTexStage);
+			glBindTexture(GL_TEXTURE_2D, mCurTexStage);
+			glUniform1i(_uniformId, mCurTexStage);
+
+			mCurTexStage ++;
+			if(mCurTexStage > GL_TEXTURE31)
+				mCurTexStage = GL_TEXTURE0;
 		}
 
 	}	// namespace video

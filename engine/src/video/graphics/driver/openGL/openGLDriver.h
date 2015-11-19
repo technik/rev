@@ -62,7 +62,7 @@ namespace rev {
 			void		setUniform(int _id, const math::Mat33f& _value) override;
 			void		setUniform(int _id, const math::Mat44f& _value) override;
 			void		setUniform(int _id, const Color& _value) override;
-			void		setUniform(int _id, const RenderTarget* _rt) override;
+			void		setUniform(int _id, const Texture* _rt) override;
 
 			// --- Draw ---
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
@@ -74,6 +74,7 @@ namespace rev {
 		private:
 			Window*	mWindow;
 			GLuint	mProgram;
+			GLuint mCurTexStage = GL_TEXTURE0;
 
 			class TextureGL : public Texture {
 			public:
@@ -81,6 +82,7 @@ namespace rev {
 			};
 
 			class RenderTargetGL : public RenderTarget {
+			public:
 				unsigned id;
 				TextureGL* tex;
 			};
