@@ -16,6 +16,8 @@
 #include "glew.h"
 #include <core/containers/map.h>
 
+#include <video/basicTypes/texture.h>
+#include <video/graphics/renderer/types/renderTarget.h>
 #include <utility>
 
 namespace rev {
@@ -76,6 +78,11 @@ namespace rev {
 			class TextureGL : public Texture {
 			public:
 				unsigned id;
+			};
+
+			class RenderTargetGL : public RenderTarget {
+				unsigned id;
+				TextureGL* tex;
 			};
 		};
 

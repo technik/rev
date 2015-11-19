@@ -175,16 +175,9 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) {
 			RenderTargetGL* rt = new RenderTargetGL;
-			glGenFramebuffers(1, &rt->id);
-			glGenTextures(1, &rt->textureId);
-			glBindTexture(GL_TEXTURE_2D, rt->textureId);
-			GLint format = enumToGl(_format);
-			GLint byteFormat = enumToGl(_byteFormat);
-			glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_byteFormat), NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			rt->tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rt->textureId, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rt->tex->id, 0);
 
 			return rt;
 		}
