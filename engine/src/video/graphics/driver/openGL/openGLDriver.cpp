@@ -157,7 +157,23 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) {
+		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) {
+			TextureGL* tex = new TextureGL;
+			glGenTextures(1, &tex->id);
+			glBindTexture(GL_TEXTURE_2D, tex->id);
+			GLint format = enumToGl(_if);
+			tex->imgFormat = _if;
+			GLint byteFormat = enumToGl(_bf);
+			tex->byteFormat = _bf;
+			tex->size = _size;
+			glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			return tex;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) {
 			RenderTargetGL* rt = new RenderTargetGL;
 			glGenFramebuffers(1, &rt->id);
 			glGenTextures(1, &rt->textureId);
@@ -192,7 +208,7 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		GLint OpenGLDriver::enumToGl(EImageFormat _format) {
+		GLint OpenGLDriver::enumToGl(Texture::EImageFormat _format) {
 			switch (_format) {
 			case EImageFormat::rgb:
 				return GL_RGB;
@@ -209,7 +225,7 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		GLint OpenGLDriver::enumToGl(EByteFormat _format) {
+		GLint OpenGLDriver::enumToGl(Texture::EByteFormat _format) {
 			switch (_format)
 			{
 			case rev::video::GraphicsDriver::EByteFormat::eUnsignedByte:

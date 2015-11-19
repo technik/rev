@@ -12,6 +12,7 @@
 
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
+#include <video/basicTypes/texture.h>
 
 namespace rev {
 	namespace video
@@ -34,23 +35,6 @@ namespace rev {
 				points
 			};
 
-			enum class EImageFormat {
-				rgb,
-				rgba,
-				alpha,
-				luminance,
-				lumiAlpha
-			};
-
-			enum class EByteFormat {
-				eUnsignedByte,
-				eByte,
-				eUnsignedShort,
-				eShort,
-				eUnsignedInt,
-				eInt,
-				eFloat
-			};
 		public:
 			template<class Alloc_>
 			static GraphicsDriver* createDriver(Alloc_&); // 666TODO: Unimplemented
@@ -66,8 +50,11 @@ namespace rev {
 
 			virtual void		finishFrame() = 0;
 
+			// --- Textures ---
+			virtual Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) = 0;
+
 			// --- Render targets ---
-			virtual RenderTarget*		createRenderTarget	(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) = 0;
+			virtual RenderTarget*		createRenderTarget	(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) = 0;
 			virtual void				destroyRenderTarget	(RenderTarget* _rt) = 0;
 			virtual void				setRenderTarget		(RenderTarget* _rt) = 0;
 

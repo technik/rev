@@ -39,8 +39,11 @@ namespace rev {
 
 			int			getUniformLocation(const char* _uniformName) override;
 
+			// --- Textures ---
+			Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) override;
+
 			// --- Render targets ---
-			RenderTarget*		createRenderTarget(const math::Vec2u& _size, EImageFormat _format, EByteFormat _byteFormat) override;
+			RenderTarget*		createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) override;
 			void				destroyRenderTarget(RenderTarget* _rt) override;
 			void				setRenderTarget(RenderTarget* _rt) override;
 
@@ -63,12 +66,17 @@ namespace rev {
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
 
 		private:
-			static GLint enumToGl(EImageFormat _format);
-			static GLint enumToGl(EByteFormat _format);
+			static GLint enumToGl(Texture::EImageFormat _format);
+			static GLint enumToGl(Texture::EByteFormat _format);
 
 		private:
 			Window*	mWindow;
 			GLuint	mProgram;
+
+			class TextureGL : public Texture {
+			public:
+				unsigned id;
+			};
 		};
 
 	}	// namespace video
