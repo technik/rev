@@ -80,14 +80,17 @@ public:
 
 		// Create xor texture
 		unsigned xorSize = 256;
-		unsigned char* xor = new unsigned char[xorSize * xorSize];
+		unsigned char* xor = new unsigned char[4* xorSize * xorSize];
 		for (unsigned i = 0; i < xorSize; i++) {
 			for (unsigned j = 0; j < xorSize; ++j) {
-				xor[j+i*xorSize] = i^j;
+				xor[4*(j+i*xorSize)+0] = i^j;
+				xor[4 * (j + i*xorSize) + 1] = i^j;
+				xor[4 * (j + i*xorSize) + 2] = i^j;
+				xor[4 * (j + i*xorSize) + 3] = 255;
 			}
 		}
 
-		mXor = driver3d().createTexture({xorSize, xorSize}, Texture::EImageFormat::alpha, Texture::EByteFormat::eUnsignedByte, xor);
+		mXor = driver3d().createTexture({xorSize, xorSize}, Texture::EImageFormat::rgba, Texture::EByteFormat::eUnsignedByte, xor);
 	}
 
 private:

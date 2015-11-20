@@ -168,6 +168,8 @@ namespace rev {
 			glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			return tex;
 		}
 
@@ -327,14 +329,34 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setUniform(int _uniformId, const Texture* _rt) {
-			glActiveTexture(mCurTexStage);
-			glBindTexture(GL_TEXTURE_2D, mCurTexStage);
-			glUniform1i(_uniformId, mCurTexStage);
+		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex) {
+			logGlError();
+			const TextureGL* tex = static_cast<const TextureGL*>(_tex);
+			if(hasTexStage(tex)) {
+				//glActiveTexture(mAssignedTexStages[tex->id]);
+				//glBindTexture(GL_TEXTURE_2D, tex->id);
+			} else {
+				assignTexStage(tex);
+			}
+			logGlError();
+			glUniform1i(_uniformId, mAssignedTexStages[tex->id]);
+			logGlError();
+		}
 
-			mCurTexStage ++;
-			if(mCurTexStage > GL_TEXTURE31)
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::assignTexStage(const TextureGL* _tex) {
+			glActiveTexture(mCurTexStage);
+			glBindTexture(GL_TEXTURE_2D, _tex->id);
+			mAssignedTexStages[_tex->id] = mCurTexStage;
+
+			mCurTexStage++;
+			if (mCurTexStage > GL_TEXTURE31)
 				mCurTexStage = GL_TEXTURE0;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		bool OpenGLDriver::hasTexStage(const TextureGL* _tex) const {
+			return mAssignedTexStages.find(_tex->id) != mAssignedTexStages.end();
 		}
 
 	}	// namespace video

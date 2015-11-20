@@ -19,6 +19,7 @@
 #include <video/basicTypes/texture.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 #include <utility>
+#include <map>
 
 namespace rev {
 	namespace video{
@@ -86,6 +87,10 @@ namespace rev {
 				unsigned id;
 				TextureGL* tex;
 			};
+
+			void assignTexStage(const TextureGL*);
+			bool hasTexStage(const TextureGL*) const;
+			std::map<unsigned,GLuint> mAssignedTexStages; // Texture id, tex stage.
 		};
 
 	}	// namespace video

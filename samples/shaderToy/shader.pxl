@@ -6,6 +6,7 @@
 
 uniform vec2 	uResolution;
 uniform float	uTime;
+uniform sampler2D uXor;
 
 float sphereDistance(vec3 _p, vec3 _center, float _rad) {
 	vec3 relPos = _p - _center;
