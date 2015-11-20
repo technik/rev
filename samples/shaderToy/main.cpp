@@ -77,13 +77,26 @@ public:
 	{
 		mShader = Shader::manager()->get("shader");
 		processArgs(_argc, _argv);
+
+		// Create xor texture
+		unsigned xorSize = 256;
+		unsigned char* xor = new unsigned char[xorSize * xorSize];
+		for (unsigned i = 0; i < xorSize; i++) {
+			for (unsigned j = 0; j < xorSize; ++j) {
+				xor[j+i*xorSize] = i^j;
+			}
+		}
+
+		mXor = driver3d().createTexture({xorSize, xorSize}, Texture::EImageFormat::alpha, Texture::EByteFormat::eUnsignedByte, xor);
 	}
 
 private:
 	Shader::Ptr		mShader;
 	float			mTime;
+	Texture*		mXor;
 	FlyByCamera*	mCam = nullptr;
 	bool			mStereo = false;
+	int				mUniformXor;
 	
 	//----------------------------------------------------------------
 	void processArgs(int _argc, const char** _argv) {
@@ -110,6 +123,10 @@ private:
 		int uTime = driver.getUniformLocation("uTime");
 		int uResolution = driver.getUniformLocation("uResolution");
 		int uCamPos = driver.getUniformLocation("uCamPos");
+		mUniformXor = driver.getUniformLocation("uXor");
+
+		// Textures
+		driver.setUniform(mUniformXor, mXor);
 		
 		// Update time
 		mTime += _dt;

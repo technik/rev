@@ -18,7 +18,6 @@
 #include <video/graphics/shader/openGL/openGLShader.h>
 #include <video/window/window.h>
 #include <iostream>
-#include <video/graphics/driver/openGL/renderTargetGL.h>
 
 using namespace rev::core;
 
@@ -203,15 +202,15 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		GLint OpenGLDriver::enumToGl(Texture::EImageFormat _format) {
 			switch (_format) {
-			case EImageFormat::rgb:
+			case Texture::EImageFormat::rgb:
 				return GL_RGB;
-			case EImageFormat::rgba:
+			case Texture::EImageFormat::rgba:
 				return GL_RGBA;
-			case EImageFormat::alpha:
+			case Texture::EImageFormat::alpha:
 				return GL_ALPHA;
-			case EImageFormat::luminance:
+			case Texture::EImageFormat::luminance:
 				return GL_LUMINANCE;
-			case EImageFormat::lumiAlpha:
+			case Texture::EImageFormat::lumiAlpha:
 				return GL_LUMINANCE_ALPHA;
 			}
 			return -1;
@@ -221,19 +220,19 @@ namespace rev {
 		GLint OpenGLDriver::enumToGl(Texture::EByteFormat _format) {
 			switch (_format)
 			{
-			case rev::video::GraphicsDriver::EByteFormat::eUnsignedByte:
+			case Texture::EByteFormat::eUnsignedByte:
 				return GL_UNSIGNED_BYTE;
-			case rev::video::GraphicsDriver::EByteFormat::eByte:
+			case Texture::EByteFormat::eByte:
 				return GL_BYTE;
-			case rev::video::GraphicsDriver::EByteFormat::eUnsignedShort:
+			case Texture::EByteFormat::eUnsignedShort:
 				return GL_UNSIGNED_SHORT;
-			case rev::video::GraphicsDriver::EByteFormat::eShort:
+			case Texture::EByteFormat::eShort:
 				return GL_SHORT;
-			case rev::video::GraphicsDriver::EByteFormat::eUnsignedInt:
+			case Texture::EByteFormat::eUnsignedInt:
 				return GL_UNSIGNED_INT;
-			case rev::video::GraphicsDriver::EByteFormat::eInt:
+			case Texture::EByteFormat::eInt:
 				return GL_INT;
-			case rev::video::GraphicsDriver::EByteFormat::eFloat:
+			case Texture::EByteFormat::eFloat:
 				return GL_FLOAT;
 			}
 			return -1;
