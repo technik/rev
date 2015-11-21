@@ -16,15 +16,14 @@ float intersect(in vec3 ro, in vec3 rd) {
 
 void main (void) {
 	vec2 uvRatio = vec2(1.0,uResolution.y / uResolution.x);
-	vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
 	vec3 ro = vec3(0.0, 0.0, 1.0);
-	vec3 rd = normalize( vec3((2.0*uv.xy - 1.0)*uvRatio, 1.0));
+	vec3 rd = normalize( vec3((2.0*vUV.xy - 1.0)*uvRatio, 1.0));
 	
 	// Ray intersection
 	float id = intersect(ro, rd);
 	
-	vec3 color = vec3(uv.x);
+	vec3 color = vec3(vUV.x);
 	if(id > 0.0) {
 		color = vec3(1.0);
 	}
