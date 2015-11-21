@@ -32,21 +32,22 @@ namespace rev {
 			void finishFrame();
 
 			// Renderer's specific config
-			void setAmbientLight(const Color& _color);
-
 			void renderContext(const RenderContext&);
 			//void renderDebug(const RenderObj&);
 
 		private:
 			video::RendererBackEnd*	mBackEnd;
 			GraphicsDriver*			mDriver;
+			Shader::Ptr				mGeometryShader;
+			Shader::Ptr				mLightShader;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void DeferredRenderer::init(GraphicsDriver* _driver, Alloc_& _alloc){
 			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
-			mShader = Shader::manager()->get("shader");
+			mGeometryShader = Shader::manager()->get("geometry");
+			mLightShader = Shader::manager()->get("light");
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));

@@ -121,6 +121,8 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setShader(const Shader* _shader) {
+			if(!_shader)
+				return;
 			const OpenGLShader* shader = static_cast<const OpenGLShader*>(_shader);
 			logGlError();
 			mProgram = shader->program();

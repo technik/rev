@@ -154,11 +154,13 @@ namespace rev {
 			if (!vtx) {
 				std::cout << "Error creating vertex shader from " << _vtxName << "\n";
 				new(&_dst)OpenGLShader(); // Failure
+				return;
 			}
 			unsigned pxl = createShader(_pxlName.c_str(), GL_FRAGMENT_SHADER);
 			if (!pxl) {
 				std::cout << "Error creating pixel shader from " << _pxlName << "\n";
 				new(&_dst)OpenGLShader(); // Failure
+				return;
 			}
 			new(&_dst) OpenGLShader(vtx,pxl);
 		}
