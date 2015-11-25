@@ -3,14 +3,24 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Vertex shader
 uniform 	mat4 uMvp;
-uniform		mat3 uWorld;
+uniform		mat4 uModelTrans;
+uniform		mat3 uWorldRot;
 attribute 	vec3 vertex;
 attribute 	vec3 normal;
 attribute	vec2 uv;
 varying		vec3 vNormal;
+varying		vec3 vShadowPos;
+
+vec3 lightPos = vec3(0.0, 0.0, 5.0);
 
 void main ( void )
 {
-	vNormal = uWorld*normal;
+	vec3 worldVtx = (uModelTrans * vec4(vertex, 1.0)).xyz;
+	float shadowLen = 20.0;
+	float shadowHigh = 5.0;
+	vec3 invShadowVol = vec3(1.0 / shadowLen, 1.0 / shadowLen, -1.0 /shadowHigh);
+	vShadowPos = ((worldVtx - lightPos) * invShadowVol + vec3(0.5, 0.5, 0.0));
+	
+	vNormal = uWorldRot*normal;
 	gl_Position = uMvp*vec4(vertex, 1.0);
 }

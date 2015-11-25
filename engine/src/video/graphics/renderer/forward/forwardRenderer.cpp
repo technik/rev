@@ -31,14 +31,20 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
-			mDriver->setShader((Shader*)mShadowShader);
 			mDriver->setRenderTarget(mShadowBuffer);
+			mDriver->setClearColor({0.f,0.f,0.f, 0.0f});
+			mDriver->clearColorBuffer();
+			mBackEnd->setShader(mShadowShader);
 			for (auto obj : _context) {
 				renderObject(*obj);
 			}
+			//mDriver->finishFrame();
 			// Render pass
-			mDriver->setShader((Shader*)mShader);
 			mDriver->setRenderTarget(nullptr);
+			mDriver->setClearColor({0.f,0.f,0.f});
+			mDriver->clearColorBuffer();
+			mDriver->clearZBuffer();
+			mBackEnd->setShader(mShader);
 			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
 			mDriver->setUniform(uShadowMap, mShadowBuffer->tex);
 			mBackEnd->setCamera(_context.camera()->view(), _context.camera()->projection());
@@ -64,7 +70,6 @@ namespace rev {
 			geom.vertices = _obj.mesh()->vertices;
 			geom.normals = _obj.mesh()->normals;
 			geom.nVertices = _obj.mesh()->nVertices;
-			geom.shader = mShader;
 			geom.transform = _obj.transform();
 			if (_obj.mMaterial)
 				geom.color = _obj.mMaterial->mDiffuse;

@@ -54,9 +54,9 @@ namespace rev {
 			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("forward");
-			mShader = Shader::manager()->get("shadow");
+			mShadowShader = Shader::manager()->get("shadow");
 
-			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::alpha, Texture::EByteFormat::eFloat);
+			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::rgba, Texture::EByteFormat::eFloat);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));

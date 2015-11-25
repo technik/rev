@@ -24,7 +24,6 @@ namespace rev {
 		public:
 			struct StaticGeometry {
 				bool strip;
-				Shader::Ptr shader;
 				std::uint16_t nVertices = 0;
 				math::Vec3f * vertices = nullptr;
 				math::Vec3f * normals = nullptr;
@@ -37,6 +36,7 @@ namespace rev {
 		public:
 			RendererBackEnd(GraphicsDriver*);
 
+			void setView(const math::Mat34f& _view);
 			void setCamera(const math::Mat34f& _view, const math::Mat44f& _proj);
 			void render(const StaticGeometry&);
 			void flush();
@@ -46,17 +46,18 @@ namespace rev {
 
 			void			setRenderTarget(RenderTarget* _rt); // If null, set default target
 
-		private:
 			void setShader(Shader::Ptr);
 
 		private:
 			GraphicsDriver* mDriver;
 			math::Mat44f	mViewProj;
+			math::Mat34f	mInvView;
 
 			// Render cache
 			Shader::Ptr	mCurShader;
 			int			mMvpUniform;
-			int			mWorldUniform;
+			int			mModelTransUniform;
+			int			mWorldRotUniform;
 			int			mLightDirUniform;
 			int			mColorUniform;
 		};

@@ -124,21 +124,21 @@ namespace rev {
 			if(!_shader)
 				return;
 			const OpenGLShader* shader = static_cast<const OpenGLShader*>(_shader);
-			logGlError();
+			//logGlError();
 			mProgram = shader->program();
 			glUseProgram(mProgram);
-			logGlError();
+			//logGlError();
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
-			logGlError();
+			//logGlError();
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		int OpenGLDriver::getUniformLocation(const char* _uniform)
 		{
 			int loc = glGetUniformLocation(mProgram, _uniform);
-			if (loc == -1) {
+			/*if (loc == -1) {
 				GLenum error = glGetError();
 				std::cout << "Uniform " << _uniform << " not found. Error ";
 				switch (error)
@@ -153,7 +153,7 @@ namespace rev {
 					std::cout << error << "\n";
 					break;
 				}
-			}
+			}*/
 			return loc;
 		}
 
@@ -178,6 +178,8 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) {
 			RenderTargetGL* rt = new RenderTargetGL;
+			glGenFramebuffers(1, &rt->id);
+			glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
 			TextureGL* tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
 			rt->tex = tex;
 
@@ -196,9 +198,17 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setRenderTarget(RenderTarget* _rt) {
+			glFinish();
 			if (_rt) {
 				RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
 				glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
+				GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+				if (status != GL_FRAMEBUFFER_COMPLETE)
+				{
+					std::cout << "Incomplete fb\n";
+				}
+				//GLenum db = GL_COLOR_ATTACHMENT0;
+				//glDrawBuffers(1, &db);
 			}
 			else {
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -334,17 +344,17 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex) {
-			logGlError();
+			//logGlError();
 			const TextureGL* tex = static_cast<const TextureGL*>(_tex);
 			if(hasTexStage(tex)) {
-				//glActiveTexture(mAssignedTexStages[tex->id]);
-				//glBindTexture(GL_TEXTURE_2D, tex->id);
+				glActiveTexture(mAssignedTexStages[tex->id]);
+				glBindTexture(GL_TEXTURE_2D, tex->id);
 			} else {
 				assignTexStage(tex);
 			}
-			logGlError();
+			//logGlError();
 			glUniform1i(_uniformId, mAssignedTexStages[tex->id]);
-			logGlError();
+			//logGlError();
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

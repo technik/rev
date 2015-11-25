@@ -94,8 +94,8 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		t += _dt;
-		if(t < 2.f)
-			std::cout << mBallBd->position().z << "\n";
+		//if(t < 2.f)
+		//	std::cout << mBallBd->position().z << "\n";
 		// Update objects in the middle
 		mCam->update(_dt);
 

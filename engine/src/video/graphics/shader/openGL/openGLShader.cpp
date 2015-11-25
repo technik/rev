@@ -83,7 +83,9 @@ namespace rev {
 
 		//----------------------------------------------------------------------------------------------------------------------
 		unsigned createShader(const char* _fileName, GLenum _type) {
+			logGlErrors();
 			unsigned shaderId = glCreateShader(_type);
+			logGlErrors();
 			File* shaderFile = File::openExisting(_fileName);
 			if(!shaderFile)
 			{
@@ -93,13 +95,17 @@ namespace rev {
 			shaderFile->readAll();
 			const char * code[1];
 			code[0] = shaderFile->bufferAsText();
+			logGlErrors();
 			glShaderSource(shaderId, 1, code, 0); // Attach source
+			logGlErrors();
 			glCompileShader(shaderId); // Compile
+			logGlErrors();
 			if (detectShaderError(shaderId, _fileName))
 			{
 				glDeleteShader(shaderId);
 				return 0;
 			}
+			logGlErrors();
 			return shaderId;
 		}
 
@@ -110,16 +116,13 @@ namespace rev {
 		{
 			assert(_vtx);
 			assert(_pxl);
-			logGlErrors();
 			mProgram = glCreateProgram();
 			glAttachShader(mProgram, mVtx);
 			glAttachShader(mProgram, mPxl);
 			glBindAttribLocation(mProgram, 0, "vertex");
 			glBindAttribLocation(mProgram, 1, "normal");
 			glBindAttribLocation(mProgram, 2, "uv");
-			logGlErrors();
 			glLinkProgram(mProgram);
-			logGlErrors();
 			if (detectProgramError(mProgram)) {
 				glDeleteProgram(mProgram);
 				mProgram = unsigned(-1);

@@ -20,21 +20,25 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::setView(const math::Mat34f& _view) {
+			_view.inverse(mInvView);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::setCamera(const math::Mat34f& _view, const math::Mat44f& _proj) {
-			Mat34f invView;
-			_view.inverse(invView);
-			mViewProj = _proj * invView;
+			_view.inverse(mInvView);
+			mViewProj = _proj * mInvView;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::render(const RendererBackEnd::StaticGeometry& _geom) {
-			//if (_geom.shader != mCurShader)
-				setShader(_geom.shader);
+			//setShader(_geom.shader);
 			// Set uniforms
 			Mat44f mvp = mViewProj * _geom.transform;
 			mDriver->setUniform(mMvpUniform, mvp);
 			Mat33f world = _geom.transform;
-			mDriver->setUniform(mWorldUniform, world);
+			mDriver->setUniform(mModelTransUniform, Mat44f::identity() * _geom.transform);
+			mDriver->setUniform(mWorldRotUniform, world);
 			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.4f, 1.5f).normalized());
 			mDriver->setUniform(mColorUniform, _geom.color);
 			
@@ -62,7 +66,8 @@ namespace rev {
 		void RendererBackEnd::setShader(Shader::Ptr _newShader) {
 			mDriver->setShader((Shader*)_newShader);
 			mMvpUniform = mDriver->getUniformLocation("uMvp");
-			mWorldUniform = mDriver->getUniformLocation("uWorld");
+			mModelTransUniform = mDriver->getUniformLocation("uModelTrans");
+			mWorldRotUniform = mDriver->getUniformLocation("uWorldRot");
 			mLightDirUniform = mDriver->getUniformLocation("uLightDir");
 			mColorUniform = mDriver->getUniformLocation("uColor");
 			mCurShader = _newShader;
