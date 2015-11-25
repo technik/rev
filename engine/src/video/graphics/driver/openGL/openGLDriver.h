@@ -85,7 +85,6 @@ namespace rev {
 			class RenderTargetGL : public RenderTarget {
 			public:
 				unsigned id;
-				TextureGL* tex;
 			};
 
 			void assignTexStage(const TextureGL*);

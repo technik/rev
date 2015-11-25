@@ -12,6 +12,7 @@
 #include "../renderObj.h"
 #include <video/basicTypes/camera.h>
 #include <video/graphics/renderer/material.h>
+#include <video/graphics/renderer/types/renderTarget.h>
 
 namespace rev {
 	namespace video {
@@ -30,7 +31,16 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
-			// Global config
+			mDriver->setShader((Shader*)mShadowShader);
+			mDriver->setRenderTarget(mShadowBuffer);
+			for (auto obj : _context) {
+				renderObject(*obj);
+			}
+			// Render pass
+			mDriver->setShader((Shader*)mShader);
+			mDriver->setRenderTarget(nullptr);
+			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
+			mDriver->setUniform(uShadowMap, mShadowBuffer->tex);
 			mBackEnd->setCamera(_context.camera()->view(), _context.camera()->projection());
 			// Render all objects
 			for (auto obj : _context) {

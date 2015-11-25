@@ -43,8 +43,9 @@ namespace rev {
 
 		private:
 			video::Shader::Ptr		mShader = nullptr;
-			video::Shader::Ptr		mDbgShader = nullptr;
+			video::Shader::Ptr		mShadowShader = nullptr;
 			video::RendererBackEnd*	mBackEnd;
+			RenderTarget*			mShadowBuffer;
 			GraphicsDriver*			mDriver;
 		};
 
@@ -52,7 +53,10 @@ namespace rev {
 		template<class Alloc_> void ForwardRenderer::init(GraphicsDriver* _driver, Alloc_& _alloc){
 			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
-			mShader = Shader::manager()->get("shader");
+			mShader = Shader::manager()->get("forward");
+			mShader = Shader::manager()->get("shadow");
+
+			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::alpha, Texture::EByteFormat::eFloat);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
@@ -60,6 +64,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
+			mDriver->destroyRenderTarget(mShadowBuffer);
 			_alloc.destroy(mBackEnd);
 		}
 	}

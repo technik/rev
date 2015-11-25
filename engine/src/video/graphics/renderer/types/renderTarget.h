@@ -9,8 +9,11 @@
 namespace rev {
 	namespace video {
 
+		class Texture;
+
 		class RenderTarget {
-			//
+		public:
+			Texture* tex;
 		};
 	}
 }

@@ -178,9 +178,10 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) {
 			RenderTargetGL* rt = new RenderTargetGL;
-			rt->tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
+			TextureGL* tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
+			rt->tex = tex;
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rt->tex->id, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->id, 0);
 
 			return rt;
 		}
@@ -188,7 +189,8 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::destroyRenderTarget(RenderTarget* _rt) {
 			RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
-			glDeleteTextures(1, &rt->tex->id);
+			TextureGL* tex = static_cast<TextureGL*>(rt->tex);
+			glDeleteTextures(1, &tex->id);
 			glDeleteFramebuffers(1, &rt->id);
 		}
 
