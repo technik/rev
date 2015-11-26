@@ -183,7 +183,12 @@ namespace rev {
 			TextureGL* tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
 			rt->tex = tex;
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->id, 0);
+			if (_format == Texture::EImageFormat::depth)
+			{
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->id, 0);
+			} else {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->id, 0);
+			}
 
 			return rt;
 		}
@@ -228,6 +233,10 @@ namespace rev {
 				return GL_LUMINANCE;
 			case Texture::EImageFormat::lumiAlpha:
 				return GL_LUMINANCE_ALPHA;
+			case Texture::EImageFormat::depth:
+				return GL_DEPTH_COMPONENT;
+			case Texture::EImageFormat::depthStencil:
+				return GL_DEPTH_STENCIL;
 			}
 			return -1;
 		}

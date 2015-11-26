@@ -38,25 +38,22 @@ namespace rev {
 
 			void setView(const math::Mat34f& _view);
 			void setCamera(const math::Mat34f& _view, const math::Mat44f& _proj);
+			void setShadowMvp(const math::Mat44f& _smvp) { mSmvp = _smvp; }
 			void render(const StaticGeometry&);
 			void flush();
-
-			RenderTarget*	createRenderTarget();
-			void			destroyRenderTarget();
-
-			void			setRenderTarget(RenderTarget* _rt); // If null, set default target
 
 			void setShader(Shader::Ptr);
 
 		private:
 			GraphicsDriver* mDriver;
 			math::Mat44f	mViewProj;
+			math::Mat44f	mSmvp;
 			math::Mat34f	mInvView;
 
 			// Render cache
 			Shader::Ptr	mCurShader;
 			int			mMvpUniform;
-			int			mModelTransUniform;
+			int			mShadowMvpUniform;
 			int			mWorldRotUniform;
 			int			mLightDirUniform;
 			int			mColorUniform;

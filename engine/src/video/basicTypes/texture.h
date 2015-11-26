@@ -17,7 +17,9 @@ namespace rev {
 				rgba,
 				alpha,
 				luminance,
-				lumiAlpha
+				lumiAlpha,
+				depth,
+				depthStencil
 			};
 
 			enum class EByteFormat {

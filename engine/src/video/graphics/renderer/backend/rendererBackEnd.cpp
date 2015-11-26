@@ -36,8 +36,8 @@ namespace rev {
 			// Set uniforms
 			Mat44f mvp = mViewProj * _geom.transform;
 			mDriver->setUniform(mMvpUniform, mvp);
+			mDriver->setUniform(mShadowMvpUniform, mSmvp*_geom.transform);
 			Mat33f world = _geom.transform;
-			mDriver->setUniform(mModelTransUniform, Mat44f::identity() * _geom.transform);
 			mDriver->setUniform(mWorldRotUniform, world);
 			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.4f, 1.5f).normalized());
 			mDriver->setUniform(mColorUniform, _geom.color);
@@ -53,11 +53,6 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		RenderTarget* RendererBackEnd::createRenderTarget() {
-			return nullptr;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::flush() {
 			// Intentionally blank
 		}
@@ -66,7 +61,7 @@ namespace rev {
 		void RendererBackEnd::setShader(Shader::Ptr _newShader) {
 			mDriver->setShader((Shader*)_newShader);
 			mMvpUniform = mDriver->getUniformLocation("uMvp");
-			mModelTransUniform = mDriver->getUniformLocation("uModelTrans");
+			mShadowMvpUniform= mDriver->getUniformLocation("uShadowMvp");
 			mWorldRotUniform = mDriver->getUniformLocation("uWorldRot");
 			mLightDirUniform = mDriver->getUniformLocation("uLightDir");
 			mColorUniform = mDriver->getUniformLocation("uColor");

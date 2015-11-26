@@ -218,7 +218,7 @@ namespace rev {
 				for (unsigned int column = 0; column < 4; ++column)
 				{
 					if (column == row)
-						mtx.m[row][column] = row>3 ? Number_(1.f) : 2 * Number_(1.f) / _volumeDimensions[row];
+						mtx.m[row][column] = row==3 ? Number_(1.f) : 2 * Number_(1.f) / _volumeDimensions[row];
 					else
 						mtx.m[row][column] = Number_(0.f);
 				}

@@ -14,6 +14,8 @@
 #include <video/graphics/renderer/material.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 
+using namespace rev::math;
+
 namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
@@ -30,8 +32,29 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::setShadowLight(const math::Vec3f& _pos, const math::Vec3f& dir, const Color& _color) {
+
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
+			// compute light view matrix
+			auto camView = _context.camera()->view();
+			Mat34f lightView = Mat34f::identity();
+			if (abs(mLightDir * camView.col(1)) < 0.5) { // Do not use the view direction if it is too aligned with the light
+				auto lightUp = camView.col(1) ^ mLightDir;
+				auto lightSide = mLightDir ^ lightUp;
+				lightView.setCol(0, lightSide);
+				lightView.setCol(1, lightUp);
+				lightView.setCol(2, mLightDir);
+				lightView.setCol(3, mLightPos);
+			}
+			Mat44f shadowProj = Mat44f::ortho({20.f,20.f,20.f});
+
+			mBackEnd->setCamera(lightView, shadowProj);
+
 			mDriver->setRenderTarget(mShadowBuffer);
+			mDriver->setViewport(math::Vec2i(0,0), mShadowBuffer->tex->size);
 			mDriver->setClearColor({0.f,0.f,0.f, 0.0f});
 			mDriver->clearColorBuffer();
 			mBackEnd->setShader(mShadowShader);
@@ -41,13 +64,17 @@ namespace rev {
 			//mDriver->finishFrame();
 			// Render pass
 			mDriver->setRenderTarget(nullptr);
+			mDriver->setViewport(math::Vec2i(0,0), mWindowSize);
 			mDriver->setClearColor({0.f,0.f,0.f});
 			mDriver->clearColorBuffer();
 			mDriver->clearZBuffer();
+			Mat34f invLight;
+			lightView.inverse(invLight);
+			mBackEnd->setShadowMvp(shadowProj * invLight);
 			mBackEnd->setShader(mShader);
 			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
 			mDriver->setUniform(uShadowMap, mShadowBuffer->tex);
-			mBackEnd->setCamera(_context.camera()->view(), _context.camera()->projection());
+			mBackEnd->setCamera(camView, _context.camera()->projection());
 			// Render all objects
 			for (auto obj : _context) {
 				renderObject(*obj);

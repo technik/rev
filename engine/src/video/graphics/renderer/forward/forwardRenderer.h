@@ -33,7 +33,9 @@ namespace rev {
 			void finishFrame();
 
 			// Renderer's specific config
+			void setShadowLight(const math::Vec3f& _pos, const math::Vec3f& dir, const Color& _color);
 			void setAmbientLight(const Color& _color);
+			void setWindowSize(const rev::math::Vec2u& _size) { mWindowSize = _size; }
 
 			void renderContext(const RenderContext&);
 			//void renderDebug(const RenderObj&);
@@ -46,6 +48,8 @@ namespace rev {
 			video::Shader::Ptr		mShadowShader = nullptr;
 			video::RendererBackEnd*	mBackEnd;
 			RenderTarget*			mShadowBuffer;
+			rev::math::Vec2u		mWindowSize;
+			math::Vec3f				mLightPos, mLightDir;
 			GraphicsDriver*			mDriver;
 		};
 
@@ -56,10 +60,13 @@ namespace rev {
 			mShader = Shader::manager()->get("forward");
 			mShadowShader = Shader::manager()->get("shadow");
 
-			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::rgba, Texture::EByteFormat::eFloat);
+			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
+
+			mLightPos = {0.0, 0.0, 10.0};
+			mLightDir = {0.0, 0.0, -1.0};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

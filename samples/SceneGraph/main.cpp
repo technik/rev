@@ -40,6 +40,7 @@ public:
 		// Construct global objects
 		mRenderer = new ForwardRenderer();
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
+		mRenderer->setWindowSize(window().size());
 		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 10000.f);
 		mCam->setPos({0.f, -10.f, 1.72f});
 		mWorld = new PhysicsWorld();
@@ -57,6 +58,7 @@ public:
 			if(ro->node() == ball)
 				ballRo = ro;
 		}
+		ball->setPos({0.f,0.f,1.f});
 
 		// Configure ground
 		RigidBody* groundBd = RigidBody::box(0.f, groundRo->mBBox.max - groundRo->mBBox.min);
@@ -65,10 +67,10 @@ public:
 		mWorld->addRigidBody(groundBd);
 
 		// Configure ball
-		mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
-		mBallBd->setPosition(ball->position());
-		ball->attachTo(mBallBd);
-		mWorld->addRigidBody(mBallBd);
+		//mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
+		//mBallBd->setPosition(ball->position());
+		//ball->attachTo(mBallBd);
+		//mWorld->addRigidBody(mBallBd);
 	}
 
 	~SceneDemo() {

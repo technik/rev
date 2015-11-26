@@ -12,16 +12,16 @@ void main (void) {
 	vec3 normal = normalize(vNormal);
 	float dif = max(0.0, dot(uLightDir, normal));
 	vec3 color = uColor.xyz;
-	if(vShadowPos.x >= 0.0 && vShadowPos.x <= 1.0
-		&& vShadowPos.y >= 0.0 && vShadowPos.y <= 1.0
-		&& vShadowPos.z >= 0.0 && vShadowPos.z <= 1.0) {
-		float a = texture(uShadowMap, vShadowPos.xy).a;
-		//if(a < (vShadowPos.z-0.001))
-		//	color = vec3(0.0,0.0,1.0);
-		//else
-		//	color = vec3(1.0,0.0,0.0);
-		color = vec3(vShadowPos.z);
-		dif = 1.0;
-	}
 	gl_FragColor = vec4(color*dif, 0.0);
+	if(vShadowPos.x >= -1.0 && vShadowPos.x <= 1.0
+		&& vShadowPos.y >= -1.0 && vShadowPos.y <= 1.0
+		&& vShadowPos.z >= 0.0 && vShadowPos.z <= 1.0)
+	{
+		float d = texture(uShadowMap, vShadowPos.xy).r;
+		if(d < vShadowPos.z-0.01)
+			gl_FragColor = vec4(0.0);
+	}
+	
+	//vec2 uv = gl_FragCoord.xy / vec2(200.0, 200.0);
+	//color = texture(uShadowMap, uv).rgb;
 }

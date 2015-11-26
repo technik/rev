@@ -47,7 +47,7 @@ namespace rev { namespace game {
 			velocity.z += deltaV;
 	 	if(input->held(KeyboardInput::eKeyDown))	
 			velocity.z -= deltaV;
-		move(velocity * mSpeed * _dt);
+		moveLocal(velocity * mSpeed * _dt);
 		// Rotation
 		float angSpd = 0.f;
 		float deltaG = 0.8f;
