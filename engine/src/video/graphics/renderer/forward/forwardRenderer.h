@@ -60,13 +60,14 @@ namespace rev {
 			mShader = Shader::manager()->get("forward");
 			mShadowShader = Shader::manager()->get("shadow");
 
-			mShadowBuffer = mDriver->createRenderTarget({512, 512}, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
+			unsigned shdBfSz = 1024;
+			mShadowBuffer = mDriver->createRenderTarget({shdBfSz, shdBfSz}, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 
 			mLightPos = {0.0, 0.0, 10.0};
-			mLightDir = {0.0, 0.0, -1.0};
+			mLightDir = math::Vec3f(1.f, 0.4f, -2.5f).normalized();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

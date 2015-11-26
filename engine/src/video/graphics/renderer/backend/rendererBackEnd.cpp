@@ -39,7 +39,6 @@ namespace rev {
 			mDriver->setUniform(mShadowMvpUniform, mSmvp*_geom.transform);
 			Mat33f world = _geom.transform;
 			mDriver->setUniform(mWorldRotUniform, world);
-			mDriver->setUniform(mLightDirUniform, Vec3f(1.f, 0.4f, 1.5f).normalized());
 			mDriver->setUniform(mColorUniform, _geom.color);
 			
 			// Set arrays
@@ -63,7 +62,6 @@ namespace rev {
 			mMvpUniform = mDriver->getUniformLocation("uMvp");
 			mShadowMvpUniform= mDriver->getUniformLocation("uShadowMvp");
 			mWorldRotUniform = mDriver->getUniformLocation("uWorldRot");
-			mLightDirUniform = mDriver->getUniformLocation("uLightDir");
 			mColorUniform = mDriver->getUniformLocation("uColor");
 			mCurShader = _newShader;
 		}

@@ -9,17 +9,18 @@ varying		vec3 vShadowPos;
 uniform sampler2D uShadowMap;
 
 void main (void) {
+	vec3 ambient = vec3(0.2,0.2,0.25);
 	vec3 normal = normalize(vNormal);
-	float dif = max(0.0, dot(uLightDir, normal));
+	vec3 dif = vec3(0.8,0.8,0.75)*max(0.0, -dot(uLightDir, normal));
 	vec3 color = uColor.xyz;
-	gl_FragColor = vec4(color*dif, 0.0);
+	gl_FragColor = vec4(color*(dif+ambient), 1.0);
 	if(vShadowPos.x >= -1.0 && vShadowPos.x <= 1.0
 		&& vShadowPos.y >= -1.0 && vShadowPos.y <= 1.0
 		&& vShadowPos.z >= 0.0 && vShadowPos.z <= 1.0)
 	{
 		float d = texture(uShadowMap, vShadowPos.xy).r;
-		if(d < vShadowPos.z-0.01)
-			gl_FragColor = vec4(0.0);
+		if(d < vShadowPos.z-0.0001)
+			gl_FragColor = vec4(color*ambient, 1.0);
 	}
 	
 	//vec2 uv = gl_FragCoord.xy / vec2(200.0, 200.0);

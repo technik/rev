@@ -47,16 +47,25 @@ namespace rev {
 				lightView.setCol(0, lightSide);
 				lightView.setCol(1, lightUp);
 				lightView.setCol(2, mLightDir);
-				lightView.setCol(3, mLightPos);
 			}
-			Mat44f shadowProj = Mat44f::ortho({20.f,20.f,20.f});
+			else {
+				auto lightUp = camView.col(2) ^ mLightDir;
+				auto lightSide = mLightDir ^ lightUp;
+				lightView.setCol(0, lightSide);
+				lightView.setCol(1, lightUp);
+				lightView.setCol(2, mLightDir);
+			}
+			float lightWidth = 100.f;
+			float lightHeight = 200.f;
+
+			lightView.setCol(3, mLightPos);//camView.rotate({0.f,0.5f*lightWidth,0.f}));
+			Mat44f shadowProj = Mat44f::ortho({lightWidth,lightWidth,lightHeight});
 
 			mBackEnd->setCamera(lightView, shadowProj);
 
 			mDriver->setRenderTarget(mShadowBuffer);
 			mDriver->setViewport(math::Vec2i(0,0), mShadowBuffer->tex->size);
-			mDriver->setClearColor({0.f,0.f,0.f, 0.0f});
-			mDriver->clearColorBuffer();
+			mDriver->clearZBuffer();
 			mBackEnd->setShader(mShadowShader);
 			for (auto obj : _context) {
 				renderObject(*obj);
@@ -72,6 +81,8 @@ namespace rev {
 			lightView.inverse(invLight);
 			mBackEnd->setShadowMvp(shadowProj * invLight);
 			mBackEnd->setShader(mShader);
+			int uLightDir = mDriver->getUniformLocation("uLightDir");
+			mDriver->setUniform(uLightDir, mLightDir);
 			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
 			mDriver->setUniform(uShadowMap, mShadowBuffer->tex);
 			mBackEnd->setCamera(camView, _context.camera()->projection());
