@@ -66,6 +66,18 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		RigidBody* RigidBody::convexHull(float _mass, const video::RenderMesh* _mesh) {
+			btConvexHullShape* pieceShape = new btConvexHullShape();
+			for (unsigned i = 0; i < _mesh->nVertices; ++i) {
+				pieceShape->addPoint(rev2bt(_mesh->vertices[i]), false);
+			}
+			pieceShape->recalcLocalAabb();
+			pieceShape->setMargin(0.f);
+
+			return new RigidBody(_mass, pieceShape);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		RigidBody* RigidBody::sphere(float _mass, float _radius) {
 			btCollisionShape* shape = new btSphereShape(_radius);
 			return new RigidBody(_mass, shape);
