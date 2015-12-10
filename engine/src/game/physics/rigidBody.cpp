@@ -46,16 +46,16 @@ namespace rev {
 			// Prepare rigid body's shape
 			btCompoundShape* pieceShape = new btCompoundShape(false);
 			int nHulls = cdInterface->GetNConvexHulls();
-			std::cout << "Found " << nHulls << " convex hulls\n";
+			//std::cout << "Found " << nHulls << " convex hulls\n";
 			btTransform origin;
 			origin.setIdentity();
 
 			for (int i = 0; i < nHulls; ++i) {
 				VHACD::IVHACD::ConvexHull hull;
 				cdInterface->GetConvexHull(i, hull);
-				std::cout << "- vertices: " << hull.m_nPoints << "\n";
-				for (unsigned v = 0; v < hull.m_nPoints; ++v)
-					std::cout << "(" << hull.m_points[3 * v + 0] << ", " << hull.m_points[3 * v + 1] << ", " << hull.m_points[3 * v + 2] << ")\n";
+				// std::cout << "- vertices: " << hull.m_nPoints << "\n";
+				// for (unsigned v = 0; v < hull.m_nPoints; ++v)
+				// 	std::cout << "(" << hull.m_points[3 * v + 0] << ", " << hull.m_points[3 * v + 1] << ", " << hull.m_points[3 * v + 2] << ")\n";
 
 				btConvexHullShape* hullShape = createHull(hull);
 				pieceShape->addChildShape(origin, hullShape);
