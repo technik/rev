@@ -93,6 +93,17 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::setCulling(ECulling _culling) {
+			if (_culling == ECulling::eNone) {
+				glDisable(GL_CULL_FACE);
+			}
+			else {
+				glEnable(GL_CULL_FACE);
+				glCullFace(_culling==ECulling::eFront?GL_FRONT:GL_BACK);
+			}
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::finishFrame()
 		{
 			swapBuffers();

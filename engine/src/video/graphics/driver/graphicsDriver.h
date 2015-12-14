@@ -35,6 +35,12 @@ namespace rev {
 				points
 			};
 
+			enum class ECulling {
+				eBack,
+				eFront,
+				eNone
+			};
+
 		public:
 			template<class Alloc_>
 			static GraphicsDriver* createDriver(Alloc_&); // 666TODO: Unimplemented
@@ -47,6 +53,7 @@ namespace rev {
 			virtual void		clearColorBuffer() = 0;
 			virtual void		setClearColor(const Color&) = 0;
 			virtual void		setZCompare(bool _enable) = 0;
+			virtual void		setCulling(ECulling) = 0;
 
 			virtual void		finishFrame() = 0;
 

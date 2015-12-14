@@ -67,10 +67,10 @@ public:
 		mWorld->addRigidBody(groundBd);
 
 		// Configure ball
-		//mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
-		//mBallBd->setPosition(ball->position());
-		//ball->attachTo(mBallBd);
-		//mWorld->addRigidBody(mBallBd);
+		// mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
+		// mBallBd->setPosition(ball->position());
+		// ball->attachTo(mBallBd);
+		// mWorld->addRigidBody(mBallBd);
 	}
 
 	~SceneDemo() {

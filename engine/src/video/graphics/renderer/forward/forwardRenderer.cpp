@@ -66,6 +66,7 @@ namespace rev {
 			mDriver->setRenderTarget(mShadowBuffer);
 			mDriver->setViewport(math::Vec2i(0,0), mShadowBuffer->tex->size);
 			mDriver->clearZBuffer();
+			mDriver->setCulling(GraphicsDriver::ECulling::eFront);
 			mBackEnd->setShader(mShadowShader);
 			for (auto obj : _context) {
 				renderObject(*obj);
@@ -77,6 +78,7 @@ namespace rev {
 			mDriver->setClearColor({0.f,0.f,0.f});
 			mDriver->clearColorBuffer();
 			mDriver->clearZBuffer();
+			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
 			Mat34f invLight;
 			lightView.inverse(invLight);
 			mBackEnd->setShadowMvp(shadowProj * invLight);

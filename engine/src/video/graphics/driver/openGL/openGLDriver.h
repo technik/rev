@@ -34,6 +34,7 @@ namespace rev {
 			void		clearColorBuffer() override;
 			void		setClearColor(const Color&) override;
 			void		setZCompare(bool _enable) override;
+			void		setCulling(ECulling) override;
 
 			void		finishFrame() override;
 
