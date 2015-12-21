@@ -15,7 +15,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::moveLocal(const math::Vec3f& _translation) {
-			setPosition(position() + _translation, TransformSrc::local);
+			setPosition(position() + transform().rotate(_translation), TransformSrc::local);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
