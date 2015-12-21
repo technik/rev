@@ -40,36 +40,8 @@ public:
 		mRenderer = new ForwardRenderer();
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mRenderer->setWindowSize(window().size());
-		mCam = new FlyByCamera(1.57f, 4.f/3.f, 0.001f, 10000.f);
-		mCam->setPos({0.f, -10.f, 1.72f});
 		mWorld = new PhysicsWorld();
-
-		// Load scene
-		mScene = Scene::import("sample.DAE");
-		mScene->mRenderContext->setCamera(mCam);
-		RenderObj* groundRo;
-		RenderObj* ballRo;
-		SceneNode* ground = mScene->mSceneGraph["Floor"];
-		SceneNode* ball = mScene->mSceneGraph["Ball"];
-		for (auto ro : *mScene->mRenderContext) {
-			if(ro->node() == ground)
-				groundRo = ro;
-			if(ro->node() == ball)
-				ballRo = ro;
-		}
-		ball->setPos({0.f,0.f,1.f});
-
-		// Configure ground
-		RigidBody* groundBd = RigidBody::box(0.f, groundRo->mBBox.max - groundRo->mBBox.min);
-		groundBd->setPosition(ground->position());
-		ground->attachTo(groundBd);
-		mWorld->addRigidBody(groundBd);
-
-		// Configure ball
-		// mBallBd = RigidBody::sphere(1.f, ballRo->mBBox.max.x);
-		// mBallBd->setPosition(ball->position());
-		// ball->attachTo(mBallBd);
-		// mWorld->addRigidBody(mBallBd);
+		mScene = new Scene();
 	}
 
 	~RacingDemo() {
@@ -79,9 +51,7 @@ public:
 	ForwardRenderer* mRenderer;
 	Scene* mScene;
 	NewAllocator mAlloc;
-	FlyByCamera* mCam;
 	PhysicsWorld* mWorld;
-	RigidBody* mBallBd;
 	float t = 0;
 
 private:
@@ -95,13 +65,6 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		t += _dt;
-		//if(t < 2.f)
-		//	std::cout << mBallBd->position().z << "\n";
-		// Update objects in the middle
-		mCam->update(_dt);
-
-		if(keyboard().pressed(rev::input::KeyboardInput::eSpace))
-			mBallBd->setPosition({0.f,0.f,5.f});
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mScene->mRenderContext);
