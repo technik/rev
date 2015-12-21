@@ -1,0 +1,12 @@
+//----------------------------------------------------------------------------------------------------------------------
+// Basic shader
+//----------------------------------------------------------------------------------------------------------------------
+// Pixel shader
+varying		vec3 vShadowPos;
+
+void main (void) {
+	gl_FragColor.r = vShadowPos.z;
+	gl_FragColor.g = vShadowPos.z;
+	gl_FragColor.b = vShadowPos.z;
+	gl_FragColor.a = 1.0;
+}
