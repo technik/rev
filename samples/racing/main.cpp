@@ -5,7 +5,6 @@
 // Sample racing game
 
 #include <engine.h>
-#include <game/scene/camera/flyByCamera.h>
 #include <game/geometry/procedural/basic.h>
 #include <input/keyboard/keyboardInput.h>
 #include <math/algebra/vector.h>
@@ -23,6 +22,7 @@
 #include <game/scene/scene.h>
 #include <vector>
 #include <iostream>
+#include "player.h"
 
 using namespace rev::core;
 using namespace rev::game;
@@ -42,12 +42,16 @@ public:
 		mRenderer->setWindowSize(window().size());
 		mWorld = new PhysicsWorld();
 		mScene = new Scene();
+		mPlayer = new Player(mWorld);
+		mScene->mRenderContext->insert(mPlayer->renderObj());
+		mScene->mRenderContext->setCamera(mPlayer->camera());
 	}
 
 	~RacingDemo() {
 		mRenderer->end<NewAllocator>(mAlloc);
 	}
 
+	Player* mPlayer;
 	ForwardRenderer* mRenderer;
 	Scene* mScene;
 	NewAllocator mAlloc;
@@ -65,6 +69,7 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		t += _dt;
+		mPlayer->update(_dt);
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mScene->mRenderContext);
