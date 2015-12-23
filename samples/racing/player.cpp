@@ -7,6 +7,7 @@
 #include <math/algebra/vector.h>
 #include <game/geometry/procedural/basic.h>
 #include <input/keyboard/keyboardInput.h>
+#include <video/graphics/renderer/material.h>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -28,6 +29,8 @@ Player::Player(PhysicsWorld* _world)
 	RenderMesh* car = Procedural::box(carSize);
 	mFace = new RenderObj(car);
 	mFace->attachTo(mNode);
+	mFace->mMaterial = new Material();
+	mFace->mMaterial->mDiffuse = Color(0.4f, 0.8f, 0.4f);
 	// Camera
 	mCamPivot = new SceneNode();
 	mCamPivot->attachTo(mNode);

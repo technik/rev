@@ -18,6 +18,7 @@ public:
 	~Player();
 
 	void update(float _dt);
+	rev::game::RigidBody* body() const { return mBody; }
 	rev::core::SceneNode* node() const { return mNode; }
 	rev::video::Camera* camera() const { return mCamera; }
 	rev::video::RenderObj* renderObj() const { return mFace; }

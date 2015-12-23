@@ -102,6 +102,7 @@ namespace rev {
 		void TransformSrc::refreshWorld() {
 			setWorldPos(mParent->mWorldTrans * mLocalPos);
 			setWorldRot(mParent->mWorldRot * mLocalRot);
+			refreshChildren();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

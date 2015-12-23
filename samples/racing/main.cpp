@@ -43,7 +43,7 @@ public:
 		mWorld = new PhysicsWorld();
 		mScene = new Scene();
 		mPlayer = new Player(mWorld);
-		mPlayer->node()->setPos({0.f,0.f,3.f});
+		mPlayer->body()->setPosition({0.f,0.f,3.f});
 		mScene->mRenderContext->insert(mPlayer->renderObj());
 		mScene->mRenderContext->setCamera(mPlayer->camera());
 
