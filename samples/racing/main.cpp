@@ -43,8 +43,19 @@ public:
 		mWorld = new PhysicsWorld();
 		mScene = new Scene();
 		mPlayer = new Player(mWorld);
+		mPlayer->node()->setPos({0.f,0.f,3.f});
 		mScene->mRenderContext->insert(mPlayer->renderObj());
 		mScene->mRenderContext->setCamera(mPlayer->camera());
+
+		Vec3f groundSize = {1000.f, 1000.f, 2.f};
+		RigidBody* groundBd = RigidBody::box(0.f, groundSize);
+		RenderObj* groundRo = new RenderObj(Procedural::box(groundSize));
+		SceneNode* ground = new SceneNode;
+		ground->attachTo(groundBd);
+		groundRo->attachTo(ground);
+		groundBd->setPosition({0.f,0.f,-groundSize.z*0.5f});
+		mWorld->addRigidBody(groundBd);
+		mScene->mRenderContext->insert(groundRo);
 	}
 
 	~RacingDemo() {

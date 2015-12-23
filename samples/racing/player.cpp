@@ -21,6 +21,7 @@ Player::Player(PhysicsWorld* _world)
 	Vec3f carSize = {2.f, 4.f, 1.2f};
 	// Rigid body
 	mBody = RigidBody::box(1.f, carSize);
+	_world->addRigidBody(mBody);
 	mNode = new SceneNode();
 	mNode->attachTo(mBody);
 	// Render
