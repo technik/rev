@@ -26,6 +26,8 @@ namespace rev {
 			static RigidBody* box	(float _mass, const math::Vec3f& _size);
 			~RigidBody();
 
+			math::Vec3f linearVelocity() const;
+
 			void setPosition(const math::Vec3f& _pos);
 			void setRotation(const math::Quatf& _rot);
 			void setTransform(const math::Mat34f& _t);

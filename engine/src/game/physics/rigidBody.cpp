@@ -95,6 +95,11 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		Vec3f RigidBody::linearVelocity() const {
+			return bt2rev(mBody->getLinearVelocity());
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setPosition(const math::Vec3f& _pos) {
 			btTransform t = mBody->getWorldTransform();
 			t.setOrigin(rev2bt(_pos));
@@ -125,6 +130,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setLinearVelocity(const math::Vec3f& _v) {
 			mBody->setLinearVelocity(rev2bt(_v));
+			mBody->activate();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

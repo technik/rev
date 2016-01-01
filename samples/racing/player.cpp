@@ -54,4 +54,24 @@ void Player::update(float _dt) {
 		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), -0.4*camSpd);
 	if(input->held(KeyboardInput::eKeyDown))
 		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), 0.4*camSpd);
+
+	// Move car
+	float v = 0.f;
+	if(input->held(KeyboardInput::eW))
+		v+=1.f;
+	if(input->held(KeyboardInput::eS))
+		v-=1.f;
+
+	float vz = 0.f;
+	if(input->pressed(KeyboardInput::eSpace))
+		vz = 1.f;
+	mBody->setLinearVelocity({0.f,v,vz+mBody->linearVelocity().z});
+
+	// Rotate car
+	float w = 0.f;
+	if(input->held(KeyboardInput::eA))
+		w+=1.f;
+	if(input->held(KeyboardInput::eD))
+		w-=1.f;
+	mBody->setAngularVelocity(Vec3f::zAxis() * w);
 }

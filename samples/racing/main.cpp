@@ -56,6 +56,10 @@ public:
 		groundBd->setPosition({0.f,0.f,-groundSize.z*0.5f});
 		mWorld->addRigidBody(groundBd);
 		mScene->mRenderContext->insert(groundRo);
+
+		// Obstacles
+		for(auto i = 0; i < 10; ++i)
+			createCube({-10.f+4.f*i, 20.f, 0.5f}, mWorld, mScene->mRenderContext);
 	}
 
 	~RacingDemo() {
@@ -85,6 +89,19 @@ private:
 
 		mRenderer->renderContext(*mScene->mRenderContext);
 		return true;
+	}
+
+	//----------------------------------------------------------------
+	void createCube(const Vec3f& _pos, PhysicsWorld* _w, RenderContext* _renderCtxt) {
+		SceneNode* node = new SceneNode();
+		Vec3f size = Vec3f(1.f);
+		RigidBody* bd = RigidBody::box(0.f, size);
+		_w->addRigidBody(bd);
+		RenderObj* model = new RenderObj(Procedural::box(size));
+		_renderCtxt->insert(model);
+		model->attachTo(node);
+		node->attachTo(bd);
+		bd->setPosition(_pos);
 	}
 };
 
