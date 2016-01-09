@@ -46,22 +46,34 @@ namespace rev {
 			// Prepare rigid body's shape
 			btCompoundShape* pieceShape = new btCompoundShape(false);
 			int nHulls = cdInterface->GetNConvexHulls();
-			std::cout << "Found " << nHulls << " convex hulls\n";
+			//std::cout << "Found " << nHulls << " convex hulls\n";
 			btTransform origin;
 			origin.setIdentity();
 
 			for (int i = 0; i < nHulls; ++i) {
 				VHACD::IVHACD::ConvexHull hull;
 				cdInterface->GetConvexHull(i, hull);
-				std::cout << "- vertices: " << hull.m_nPoints << "\n";
-				for (unsigned v = 0; v < hull.m_nPoints; ++v)
-					std::cout << "(" << hull.m_points[3 * v + 0] << ", " << hull.m_points[3 * v + 1] << ", " << hull.m_points[3 * v + 2] << ")\n";
+				// std::cout << "- vertices: " << hull.m_nPoints << "\n";
+				// for (unsigned v = 0; v < hull.m_nPoints; ++v)
+				// 	std::cout << "(" << hull.m_points[3 * v + 0] << ", " << hull.m_points[3 * v + 1] << ", " << hull.m_points[3 * v + 2] << ")\n";
 
 				btConvexHullShape* hullShape = createHull(hull);
 				pieceShape->addChildShape(origin, hullShape);
 			}
 
 			// Create rigid body
+			return new RigidBody(_mass, pieceShape);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		RigidBody* RigidBody::convexHull(float _mass, const video::RenderMesh* _mesh) {
+			btConvexHullShape* pieceShape = new btConvexHullShape();
+			for (unsigned i = 0; i < _mesh->nVertices; ++i) {
+				pieceShape->addPoint(rev2bt(_mesh->vertices[i]), false);
+			}
+			pieceShape->recalcLocalAabb();
+			pieceShape->setMargin(0.f);
+
 			return new RigidBody(_mass, pieceShape);
 		}
 
@@ -80,6 +92,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		RigidBody::RigidBody(float _mass, btCollisionShape* _shape) {
 			mShape = _shape;
+			mShape->setMargin(0.f);
 			mMotion = new MotionState(this);
 			btVector3 inertia;
 			_shape->calculateLocalInertia(_mass,inertia);
@@ -129,8 +142,14 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setLinearVelocity(const math::Vec3f& _v) {
+<<<<<<< HEAD
 			mBody->setLinearVelocity(rev2bt(_v));
 			mBody->activate();
+=======
+			btVector3 v = rev2bt(_v);
+			mBody->setLinearVelocity(v);
+			//mBody->setInterpolationLinearVelocity(v);
+>>>>>>> remotes/origin/master
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -176,10 +195,11 @@ namespace rev {
 		{
 			math::Vec3f origin = bt2rev(_t.getOrigin());
 			math::Quatf rot = bt2rev(_t.getRotation());
-			mBd->setPosition(origin);
-			mBd->setRotation(rot);
-			//mBd->TransformSrc::setPosition(origin, TransformSrc::local);
-			//mBd->setRotation(rot, TransformSrc::local);
+			//mBd->setPosition(origin);
+			//mBd->setRotation(rot);
+			// Do not affect btRigidBody's internal transform.
+			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
+			mBd->TransformSrc::setRotation(rot, TransformSrc::local);
 		}
 }
 }

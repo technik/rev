@@ -81,15 +81,15 @@ namespace rev { namespace math {
 	template<class N_>
 	inline Quaternion<N_>::Quaternion(const Matrix3x3<N_>& _m)
 	{
-		N_ tr = _matrix[0][0] + _matrix[1][1] + _matrix[2][2];
+		N_ tr = _m[0][0] + _m[1][1] + _m[2][2];
 
 		if (tr > 0) {
 			N_ r = sqrt(1 + tr);
 			N_ inv2r = 0.5f / r;
 			w = 0.5f * r;
-			x = (_matrix[2][1] - _matrix[1][2]) * inv2r;
-			y = (_matrix[0][2] - _matrix[2][0]) * inv2r;
-			z = (_matrix[1][0] - _matrix[0][1]) * inv2r;
+			x = (_m[2][1] - _m[1][2]) * inv2r;
+			y = (_m[0][2] - _m[2][0]) * inv2r;
+			z = (_m[1][0] - _m[0][1]) * inv2r;
 			return;
 		}
 		// Find the largest diagonal element of _m
