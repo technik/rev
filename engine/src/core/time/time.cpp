@@ -74,6 +74,27 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		float Time::timeMark() {
+#if defined (__linux__) || defined (ANDROID)
+			// Get current time
+			timeval currentTime;
+			gettimeofday(&currentTime, 0);
+			int usecTime = currentTime.tv_usec + 1000000 * (currentTime.tv_sec % 1000); // Not more than a thousand seconds expected
+			return float(usecTime / 1000000.0);	// Known conversion from double. There wont be loss of
+																	// information because tv_usec isn't that precise.
+#elif defined (_WIN32)
+			// Get current time
+			LARGE_INTEGER largeTicks;
+			QueryPerformanceCounter(&largeTicks);
+			unsigned currTime = largeTicks.LowPart;
+			// Convert time difference to seconds
+			LARGE_INTEGER frequency;
+			QueryPerformanceFrequency(&frequency);
+			return float(currTime  / float(frequency.LowPart));
+#endif // _WIN32
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		Time::Time()
 			:mFrameTime(0.f)
 		{

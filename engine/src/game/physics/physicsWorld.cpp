@@ -5,6 +5,7 @@
 // Physics simulation context
 #include "physicsWorld.h"
 #include "rigidBody.h"
+#include <game/physics/bulletMath.h>
 
 namespace rev {
 	namespace game {
@@ -30,6 +31,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::addRigidBody(RigidBody* _rb) {
+			_rb->mBody->activate(); // Always activate objects before introducing them into the world. (In case of reinsertion)
 			mWorld->addRigidBody(_rb->mBody);
 			mBodies.insert(_rb);
 		}
@@ -41,11 +43,21 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::setGravity(const math::Vec3f& _g) {
+			mWorld->setGravity(rev2bt(_g));
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void PhysicsWorld::simulate(float _dt) {
 			float fixedTimeStep = 0.01f;
 			unsigned maxSteps = unsigned(1.5f*_dt / fixedTimeStep);
 
 			mWorld->stepSimulation(_dt, maxSteps, fixedTimeStep);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void PhysicsWorld::singleStep(float _dt) {
+			mWorld->stepSimulation(_dt, 1, _dt);
 		}
 	}
 }

@@ -8,6 +8,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <set>
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace game {
@@ -22,7 +23,11 @@ namespace rev {
 			void addRigidBody(RigidBody* _rb);
 			void removeRigidBody(RigidBody* _rb);
 
+			void setGravity(const math::Vec3f& _g);
+
+			// Two ways of simulating
 			void simulate(float _dt);
+			void singleStep(float _dt);
 
 		private:
 
