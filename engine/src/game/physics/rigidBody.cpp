@@ -142,14 +142,9 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RigidBody::setLinearVelocity(const math::Vec3f& _v) {
-<<<<<<< HEAD
-			mBody->setLinearVelocity(rev2bt(_v));
-			mBody->activate();
-=======
 			btVector3 v = rev2bt(_v);
 			mBody->setLinearVelocity(v);
 			//mBody->setInterpolationLinearVelocity(v);
->>>>>>> remotes/origin/master
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
