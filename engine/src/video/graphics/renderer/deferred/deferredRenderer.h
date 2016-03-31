@@ -49,8 +49,8 @@ namespace rev {
 			mGeometryShader = Shader::manager()->get("geometry");
 			mLightShader = Shader::manager()->get("light");
 
-			mDriver->setShader((Shader*)mShader);
-			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
+			//mDriver->setShader((Shader*)mShader);
+			//mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
