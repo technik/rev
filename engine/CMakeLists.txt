@@ -2,7 +2,7 @@
 # Rev project
 ################################################################################
 cmake_minimum_required (VERSION 2.6)
-project(rev)
+project(engine)
 
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
@@ -26,9 +26,6 @@ endmacro()
 
 GroupSources(src)
 
-#target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-#include_directories(src)
-
 # Visual studio specifics
 if(MSVC)
 	add_definitions(-DNOMINMAX)
@@ -51,7 +48,7 @@ if(WIN32)
 	find_library(GLEW_LIBRARIES glew32 ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew)
 	set(OPENGL_LIBRARIES opengl32)
 endif(WIN32)
-target_link_libraries (rev ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries (rev LINK_PUBLIC ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
 
 # --- Bullet configuration ---
 SET(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "")

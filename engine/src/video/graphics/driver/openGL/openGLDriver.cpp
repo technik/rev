@@ -104,6 +104,14 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::setMultiSampling(bool _enable) {
+			if(_enable)
+				glEnable(GL_MULTISAMPLE);
+			else
+				glDisable(GL_MULTISAMPLE);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::finishFrame()
 		{
 			swapBuffers();
@@ -169,36 +177,42 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) {
+		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data, bool _multiSample) {
 			TextureGL* tex = new TextureGL;
+			GLenum target = _multiSample? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &tex->id);
-			glBindTexture(GL_TEXTURE_2D, tex->id);
+			glBindTexture(target, tex->id);
 			GLint format = enumToGl(_if);
 			tex->imgFormat = _if;
 			GLint byteFormat = enumToGl(_bf);
 			tex->byteFormat = _bf;
 			tex->size = _size;
-			glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			if(_multiSample)
+				glTexImage2DMultisample(target, 4, format, _size.x, _size.y, true);
+			else {
+				glTexImage2D(target, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+				glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			}
 			return tex;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) {
+		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat, bool _multiSample) {
 			RenderTargetGL* rt = new RenderTargetGL;
 			glGenFramebuffers(1, &rt->id);
+			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
 			TextureGL* tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
 			rt->tex = tex;
 
 			if (_format == Texture::EImageFormat::depth)
 			{
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->id, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, target, tex->id, 0);
 			} else {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->id, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tex->id, 0);
 			}
 
 			return rt;

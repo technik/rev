@@ -35,6 +35,7 @@ namespace rev {
 			void		setClearColor(const Color&) override;
 			void		setZCompare(bool _enable) override;
 			void		setCulling(ECulling) override;
+			void		setMultiSampling(bool _enable) override;
 
 			void		finishFrame() override;
 
@@ -44,10 +45,12 @@ namespace rev {
 			int			getUniformLocation(const char* _uniformName) override;
 
 			// --- Textures ---
-			Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) override;
+			Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf,
+				void* _data = nullptr, bool _multiSample = false) override;
 
 			// --- Render targets ---
-			RenderTarget*		createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) override;
+			RenderTarget*		createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format,
+				Texture::EByteFormat _byteFormat, bool _multiSample = false) override;
 			void				destroyRenderTarget(RenderTarget* _rt) override;
 			void				setRenderTarget(RenderTarget* _rt) override;
 

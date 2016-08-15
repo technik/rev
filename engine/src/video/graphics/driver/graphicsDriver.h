@@ -54,14 +54,17 @@ namespace rev {
 			virtual void		setClearColor(const Color&) = 0;
 			virtual void		setZCompare(bool _enable) = 0;
 			virtual void		setCulling(ECulling) = 0;
+			virtual void		setMultiSampling(bool _enable) = 0;
 
 			virtual void		finishFrame() = 0;
 
 			// --- Textures ---
-			virtual Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data) = 0;
+			virtual Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, 
+				void* _data = nullptr, bool _multiSample = false) = 0;
 
 			// --- Render targets ---
-			virtual RenderTarget*		createRenderTarget	(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat) = 0;
+			virtual RenderTarget*		createRenderTarget	(const math::Vec2u& _size, Texture::EImageFormat _format,
+				Texture::EByteFormat _byteFormat, bool _multiSample = false) = 0;
 			virtual void				destroyRenderTarget	(RenderTarget* _rt) = 0;
 			virtual void				setRenderTarget		(RenderTarget* _rt) = 0;
 

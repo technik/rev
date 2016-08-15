@@ -64,6 +64,7 @@ namespace rev {
 			mBackEnd->setCamera(lightView, shadowProj);
 
 			mDriver->setRenderTarget(mShadowBuffer);
+			//mDriver->setMultiSampling(true);
 			mDriver->setViewport(math::Vec2i(0,0), mShadowBuffer->tex->size);
 			mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eFront);
@@ -73,6 +74,7 @@ namespace rev {
 			}
 			//mDriver->finishFrame();
 			// Render pass
+			//mDriver->setMultiSampling(false);
 			mDriver->setRenderTarget(nullptr);
 			mDriver->setViewport(math::Vec2i(0,0), mWindowSize);
 			mDriver->setClearColor({0.f,0.f,0.f});
