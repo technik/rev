@@ -74,8 +74,10 @@ namespace rev {
 			// Recenter shadow basis
 			shadowBasis.setCol(3, shadowBasis*shadowBB.center()); // TODO: Match lower surface of the bb with lower side of the frustum
 			Mat44f shadowProj = Mat44f::ortho({ shadowBB.size().x,shadowBB.size().y, _depth });
+			shadowBasis.inverse(invShadow);
 
 			mBackEnd->setCamera(shadowBasis, shadowProj);
+			mViewProj = shadowProj * invShadow;
 			// Configure renderer
 			mDriver->setRenderTarget(mShadowBuffer);
 			mDriver->setViewport(math::Vec2i(0, 0), mShadowBuffer->tex->size);
