@@ -40,7 +40,7 @@ namespace rev {
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			auto camView = _context.camera()->view();
 			// Render shadow pass
-			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 3.f);
+			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 20.f);
 			for (auto obj : _context) {
 				renderObject(*obj);
 			}

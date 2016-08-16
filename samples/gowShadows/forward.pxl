@@ -18,8 +18,9 @@ void main (void) {
 		&& vShadowPos.y >= -1.0 && vShadowPos.y <= 1.0
 		&& vShadowPos.z >= -1.0 && vShadowPos.z <= 1.0)
 	{
-		float d = texture(uShadowMap, vShadowPos.xy).r;
-		if(d < vShadowPos.z)
+		float distFromLight = vShadowPos.z;
+		float casterDistance = texture(uShadowMap, vShadowPos.xy).r;
+		if(distFromLight > casterDistance + 0.00001)
 			gl_FragColor = vec4(color*ambient, 1.0);
 	}
 	
