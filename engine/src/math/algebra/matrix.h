@@ -31,6 +31,9 @@ namespace rev {
 			const Vector3<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
 			Vector3<Number_>		col(unsigned _col) const	{ return Vector3<Number_>(m[0][_col], m[1][_col], m[1][_col]); }
 
+			// Useful matrices
+			static Matrix3x3<Number_>		identity();
+
 		private:
 			Vector3<Number_>	m[3];
 		};

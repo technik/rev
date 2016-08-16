@@ -25,6 +25,24 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
+		inline Matrix3x3<Number_> Matrix3x3<Number_>::identity()
+		{
+			Matrix3x3<Number_> mtx;
+			for (unsigned int row = 0; row < 3; ++row)
+			{
+				for (unsigned int column = 0; column < 3; ++column)
+				{
+					if (column == row)
+						mtx.m[row][column] = Number_(1.f);
+					else
+						mtx.m[row][column] = Number_(0.f);
+				}
+			}
+			return mtx;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
 		inline Matrix3x4<Number_>::Matrix3x4(const Quaternion<Number_>& _q)
 		{
 			Number_ a2 = _q.w*_q.w;
