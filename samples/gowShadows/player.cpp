@@ -34,7 +34,7 @@ Player::Player(PhysicsWorld* _world)
 	// Camera
 	mCamPivot = new SceneNode();
 	mCamPivot->attachTo(mNode);
-	mCamera = new Camera(Mat44f::frustrum(1.5f, 4.f/3.f, 0.1f, 1000.f));
+	mCamera = new Camera(Mat44f::frustrum(1.5f, 4.f/3.f, 0.1f, 100.f));
 	mCamNode = new SceneNode();
 	mCamNode->attachTo(mCamPivot);
 	mCamNode->setPos({0.f, -6.f, 1.f});

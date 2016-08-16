@@ -17,8 +17,10 @@ namespace rev {
 		class Camera : public core::Component
 		{
 		public:
-			Camera(const math::Mat44f& _proj = math::Mat44f::identity()) 
+			Camera(const math::Mat44f& _proj = math::Mat44f::identity(), const math::Vec3f& bbMin = {-1.f,-1.f,-1.f}, const math::Vec3f& bbMax = { 1.f,1.f,1.f })
 				: mProj(_proj)
+				, mBBMin(bbMin)
+				, mBBMax(bbMax)
 			{}
 
 			math::Mat34f		view() const		{ return node()?node()->transform():math::Mat34f::identity(); }
@@ -32,6 +34,8 @@ namespace rev {
 		private:
 			math::Mat34f mView;
 			math::Mat44f mProj;
+			math::Vec3f mBBMin;
+			math::Vec3f mBBMax;
 		};
 
 	}	// namespace video

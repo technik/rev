@@ -60,7 +60,7 @@ namespace rev {
 			mShader = Shader::manager()->get("forward");
 			mShadowShader = Shader::manager()->get("shadow");
 
-			unsigned shdBfSz = 2048;
+			unsigned shdBfSz = 1024;
 			mShadowBuffer = mDriver->createRenderTarget({shdBfSz, shdBfSz}, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
 
 			mDriver->setShader((Shader*)mShader);

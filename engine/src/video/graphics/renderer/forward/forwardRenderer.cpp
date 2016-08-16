@@ -40,6 +40,7 @@ namespace rev {
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			// compute light view matrix
 			auto camView = _context.camera()->view();
+			
 			Mat34f lightView = Mat34f::identity();
 			if (abs(mLightDir * camView.col(1)) < 0.5) { // Do not use the view direction if it is too aligned with the light
 				auto lightUp = camView.col(1) ^ mLightDir;
@@ -55,7 +56,7 @@ namespace rev {
 				lightView.setCol(1, lightUp);
 				lightView.setCol(2, mLightDir);
 			}
-			float lightWidth = 100.f;
+			float lightWidth = 40.f;
 			float lightHeight = 200.f;
 
 			lightView.setCol(3, mLightPos);//camView.rotate({0.f,0.5f*lightWidth,0.f}));
