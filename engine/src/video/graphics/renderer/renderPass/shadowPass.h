@@ -7,6 +7,7 @@
 
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
+#include <video/graphics/shader/shader.h>
 
 namespace rev {
 	namespace video {
@@ -14,14 +15,14 @@ namespace rev {
 		class GraphicsDriver;
 		class RenderObj;
 		class RendererBackEnd;
+		class RenderTarget;
 
 		class ShadowPass {
 		public:
 			ShadowPass(GraphicsDriver* _driver, RendererBackEnd* _backEnd, size_t bufferSize);
 			~ShadowPass();
 
-			void config(const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _depth);
-			void render(RenderObj& _obj);
+			void config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _depth);
 
 		private:
 			video::Shader::Ptr		mShadowShader = nullptr;
