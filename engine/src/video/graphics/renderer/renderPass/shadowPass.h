@@ -8,8 +8,14 @@
 namespace rev {
 	namespace video {
 
+		class RenderObj;
+
 		class ShadowPass {
 		public:
+			ShadowPass();
+			~ShadowPass();
+
+			void render(RenderObj& _obj);
 		};
 	}
 }
