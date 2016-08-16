@@ -8,6 +8,7 @@
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
 #include <video/graphics/shader/shader.h>
+#include <video/graphics/renderer/types/renderTarget.h>
 
 namespace rev {
 	namespace video {
@@ -15,7 +16,6 @@ namespace rev {
 		class GraphicsDriver;
 		class RenderObj;
 		class RendererBackEnd;
-		class RenderTarget;
 
 		class ShadowPass {
 		public:
@@ -24,11 +24,15 @@ namespace rev {
 
 			void config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _depth);
 
+			const math::Mat44f& viewProj() const { return mViewProj; }
+			Texture* tex() const { return mShadowBuffer->tex; }
+
 		private:
 			video::Shader::Ptr		mShadowShader = nullptr;
 			video::RendererBackEnd*	mBackEnd;
 			RenderTarget*			mShadowBuffer;
 			GraphicsDriver*			mDriver;
+			math::Mat44f			mViewProj;
 		};
 	}
 }

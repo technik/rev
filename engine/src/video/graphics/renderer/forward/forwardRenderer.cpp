@@ -38,38 +38,9 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
-			// compute light view matrix
 			auto camView = _context.camera()->view();
-			
-			Mat34f lightView = Mat34f::identity();
-			if (abs(mLightDir * camView.col(1)) < 0.5) { // Do not use the view direction if it is too aligned with the light
-				auto lightUp = camView.col(1) ^ mLightDir;
-				auto lightSide = mLightDir ^ lightUp;
-				lightView.setCol(0, lightSide);
-				lightView.setCol(1, lightUp);
-				lightView.setCol(2, mLightDir);
-			}
-			else {
-				auto lightUp = camView.col(2) ^ mLightDir;
-				auto lightSide = mLightDir ^ lightUp;
-				lightView.setCol(0, lightSide);
-				lightView.setCol(1, lightUp);
-				lightView.setCol(2, mLightDir);
-			}
-			float lightWidth = 40.f;
-			float lightHeight = 200.f;
-
-			lightView.setCol(3, mLightPos);//camView.rotate({0.f,0.5f*lightWidth,0.f}));
-			Mat44f shadowProj = Mat44f::ortho({lightWidth,lightWidth,lightHeight});
-
-			mBackEnd->setCamera(lightView, shadowProj);
-
-			mDriver->setRenderTarget(mShadowBuffer);
-			//mDriver->setMultiSampling(true);
-			mDriver->setViewport(math::Vec2i(0,0), mShadowBuffer->tex->size);
-			mDriver->clearZBuffer();
-			mDriver->setCulling(GraphicsDriver::ECulling::eFront);
-			mBackEnd->setShader(mShadowShader);
+			// Render shadow pass
+			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 20.f);
 			for (auto obj : _context) {
 				renderObject(*obj);
 			}
@@ -82,14 +53,12 @@ namespace rev {
 			mDriver->clearColorBuffer();
 			mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
-			Mat34f invLight;
-			lightView.inverse(invLight);
-			mBackEnd->setShadowMvp(shadowProj * invLight);
+			mBackEnd->setShadowMvp(mShadowPass->viewProj());
 			mBackEnd->setShader(mShader);
 			int uLightDir = mDriver->getUniformLocation("uLightDir");
 			mDriver->setUniform(uLightDir, mLightDir);
 			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
-			mDriver->setUniform(uShadowMap, mShadowBuffer->tex);
+			mDriver->setUniform(uShadowMap, mShadowPass->tex());
 			mBackEnd->setCamera(camView, _context.camera()->projection());
 			// Render all objects
 			for (auto obj : _context) {

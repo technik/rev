@@ -9,6 +9,7 @@
 #include <set>
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
+#include <math/geometry/types.h>
 
 namespace rev {
 	namespace video {
@@ -22,6 +23,8 @@ namespace rev {
 			const Camera* camera() const { return mCamera; }
 			void setLightDir(const math::Vec3f& _dir) { mLightDir = _dir;}
 			const math::Vec3f& lightDir() const { return mLightDir; }
+
+			math::Frustum viewFrustum;
 
 		private:
 			const Camera*	mCamera;

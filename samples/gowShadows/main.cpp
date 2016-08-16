@@ -8,6 +8,7 @@
 #include <game/geometry/procedural/basic.h>
 #include <input/keyboard/keyboardInput.h>
 #include <math/algebra/vector.h>
+#include <math/geometry/types.h>
 #include <util/app/app3d.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
@@ -20,9 +21,9 @@
 #include <game/physics/rigidBody.h>
 #include <game/physics/physicsWorld.h>
 #include <game/scene/scene.h>
+#include <game/scene/camera/flyByCamera.h>
 #include <vector>
 #include <iostream>
-#include "player.h"
 
 using namespace rev::core;
 using namespace rev::game;
@@ -42,10 +43,12 @@ public:
 		mRenderer->setWindowSize(window().size());
 		mWorld = new PhysicsWorld();
 		mScene = new Scene();
-		mPlayer = new Player(mWorld);
-		mPlayer->body()->setPosition({0.f,0.f,3.f});
-		mScene->mRenderContext->insert(mPlayer->renderObj());
-		mScene->mRenderContext->setCamera(mPlayer->camera());
+		
+		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
+		mCam->setPos({0.f,0.f,1.f});
+
+		mScene->mRenderContext->viewFrustum = Frustum(4.f/3.f, 1.5f, 0.1f, 100.f);
+		mScene->mRenderContext->setCamera(mCam);
 
 		Vec3f groundSize = {1000.f, 1000.f, 2.f};
 		RigidBody* groundBd = RigidBody::box(0.f, groundSize);
@@ -59,14 +62,15 @@ public:
 
 		// Obstacles
 		for(auto i = 0; i < 10; ++i)
-			createCube({-10.f+4.f*i, 20.f, 0.5f}, mWorld, mScene->mRenderContext);
+			for (auto j = 0; j < 8; ++j)
+			createCube({-20.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
 	}
 
 	~RacingDemo() {
 		mRenderer->end<NewAllocator>(mAlloc);
 	}
 
-	Player* mPlayer;
+	FlyByCamera* mCam;
 	ForwardRenderer* mRenderer;
 	Scene* mScene;
 	NewAllocator mAlloc;
@@ -84,7 +88,7 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		t += _dt;
-		mPlayer->update(_dt);
+		mCam->update(_dt);
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mScene->mRenderContext);

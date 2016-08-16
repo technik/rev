@@ -15,6 +15,7 @@
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 #include <video/graphics/shader/shader.h>
 #include <video/window/window.h>
+#include <video/graphics/renderer/renderPass/shadowPass.h>
 
 namespace rev {
 	namespace video {
@@ -44,13 +45,12 @@ namespace rev {
 			void renderObject(const RenderObj& _obj);
 
 		private:
-			video::Shader::Ptr		mShader = nullptr;
-			video::Shader::Ptr		mShadowShader = nullptr;
-			video::RendererBackEnd*	mBackEnd;
-			RenderTarget*			mShadowBuffer;
-			rev::math::Vec2u		mWindowSize;
-			math::Vec3f				mLightPos, mLightDir;
-			GraphicsDriver*			mDriver;
+			Shader::Ptr			mShader = nullptr;
+			RendererBackEnd*	mBackEnd;
+			rev::math::Vec2u	mWindowSize;
+			math::Vec3f			mLightPos, mLightDir;
+			GraphicsDriver*		mDriver;
+			ShadowPass	*		mShadowPass;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -58,21 +58,19 @@ namespace rev {
 			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("forward");
-			mShadowShader = Shader::manager()->get("shadow");
 
-			unsigned shdBfSz = 1024;
-			mShadowBuffer = mDriver->createRenderTarget({shdBfSz, shdBfSz}, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
+			mShadowPass = new ShadowPass(mDriver, mBackEnd, 1024);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 
 			mLightPos = {0.0, 0.0, 10.0};
-			mLightDir = math::Vec3f(1.f, 0.4f, -2.5f).normalized();
+			mLightDir = math::Vec3f(0.f, 0.f, -1.f).normalized();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
-			mDriver->destroyRenderTarget(mShadowBuffer);
+			delete mShadowPass;
 			_alloc.destroy(mBackEnd);
 		}
 	}

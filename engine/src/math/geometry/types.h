@@ -18,23 +18,47 @@ namespace rev {
 			BBox(const Vec3f& _size) : min(_size*-0.5f), max(_size*0.5f) {}
 			BBox(const Vec3f& _min, const Vec3f& _max) : min(_min), max(_max) {}
 
-			void merge(const Vec3f& _point);
+			void merge(const Vec3f& _point) {
+				max = math::max(this->max, _point);
+				min = math::min(this->min, _point);
+			}
 
 			Vec3f size() const { return max - min; }
 			Vec3f center() const { return (max+min)*0.5f; }
 		};
 
 		struct Frustum {
-			Frustum(float _aspectRatio, float _fov, float _near, float _far);
+			Frustum() = default; // Allow empty construction
+			Frustum(float _aspectRatio, float _fov, float _near, float _far) 
+				:mAspectRatio(_aspectRatio)
+				,mFov(_fov)
+				,mNear(_near)
+				,mFar(_far)
+			{
+				mProjection = Mat44f::frustrum(_fov, _aspectRatio, _near, _far);
 
-			float aspectRatio() const;
-			float fov() const;
-			float near() const;
-			float far() const;
-			float centroid() const;
+				float tangent = tan(_fov / 2.f);
+				Vec3f minVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_near;
+				Vec3f maxVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_far;
 
-			const Mat44f& projection() const;
-			const Vec3f*	vertices() const;
+				mVertices[0] = minVert;
+				mVertices[1] = Vec3f(-minVert.x, minVert.y, minVert.z);
+				mVertices[2] = Vec3f(minVert.x, minVert.y, -minVert.z);
+				mVertices[3] = Vec3f(-minVert.x, minVert.y, -minVert.z);
+				mVertices[4] = maxVert;
+				mVertices[5] = Vec3f(-maxVert.x, maxVert.y, maxVert.z);
+				mVertices[6] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
+				mVertices[7] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
+			}
+
+			float aspectRatio	() const { return mAspectRatio; }
+			float fov			() const { return mFov; }
+			float nearPlane		() const { return mNear; }
+			float farPlane		() const { return mFar; }
+			float centroid		() const { return 0.5f*(mNear+mFar); }
+
+			const Mat44f& projection() const { return mProjection; }
+			const Vec3f*	vertices() const { return mVertices; }
 
 		private:
 			float mAspectRatio;

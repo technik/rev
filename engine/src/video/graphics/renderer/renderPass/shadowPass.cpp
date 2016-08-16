@@ -27,6 +27,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		ShadowPass::~ShadowPass()
 		{
+			mDriver->destroyRenderTarget(mShadowBuffer);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ namespace rev {
 			// ---- Compute shadow transform axes ----
 			Mat34f shadowBasis = Mat34f::identity();
 			if (abs(_lightDir * _viewMat.col(1)) < 0.71f) { // Only use the view direction if it is not too aligned with the light
-				auto shadowX = _lightDir ^ _viewMat.col(1); // light ^ view.y;
+				auto shadowX = _viewMat.col(1) ^ _lightDir; // view.y ^ light;
 				auto shadowY = _lightDir ^ shadowX;
 				shadowBasis.setCol(0, shadowX);
 				shadowBasis.setCol(1, shadowY);
@@ -46,7 +47,7 @@ namespace rev {
 			}
 			else {
 				auto shadowY = _lightDir ^ _viewMat.col(0);
-				auto shadowX = _lightDir ^ shadowY;
+				auto shadowX = shadowY ^_lightDir;
 				shadowBasis.setCol(0, shadowX);
 				shadowBasis.setCol(1, shadowY);
 				// auto lightUp = _viewMat.col(2) ^ _lightDir;
@@ -74,6 +75,7 @@ namespace rev {
 			shadowBasis.setCol(3, shadowBasis*shadowBB.center()); // TODO: Match lower surface of the bb with lower side of the frustum
 			Mat44f shadowProj = Mat44f::ortho({ shadowBB.size().x,shadowBB.size().y, _depth });
 
+			mBackEnd->setCamera(shadowBasis, shadowProj);
 			// Configure renderer
 			mDriver->setRenderTarget(mShadowBuffer);
 			mDriver->setViewport(math::Vec2i(0, 0), mShadowBuffer->tex->size);
