@@ -16,6 +16,7 @@
 #include <video/graphics/shader/shader.h>
 #include <video/window/window.h>
 #include <video/graphics/renderer/renderPass/shadowPass.h>
+#include <video/graphics/renderer/debugDrawer.h>
 
 namespace rev {
 	namespace video {
@@ -39,12 +40,12 @@ namespace rev {
 			void setWindowSize(const rev::math::Vec2u& _size) { mWindowSize = _size; }
 
 			void renderContext(const RenderContext&);
-			//void renderDebug(const RenderObj&);
 
 		private:
 			void renderObject(const RenderObj& _obj);
 
 		private:
+			DebugDrawer*		mDebug;
 			Shader::Ptr			mShader = nullptr;
 			RendererBackEnd*	mBackEnd;
 			rev::math::Vec2u	mWindowSize;

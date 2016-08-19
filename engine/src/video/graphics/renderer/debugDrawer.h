@@ -18,9 +18,9 @@
 namespace rev {
 	namespace video {
 
-		class ForwardRenderer {
+		class DebugDrawer {
 		public:
-			ForwardRenderer(GraphicsDriver* driver, RendererBackEnd* backend)
+			DebugDrawer(GraphicsDriver* driver, RendererBackEnd* backend)
 				:mDriver(driver)
 				,mBackEnd(backend)
 				,mShader(Shader::manager()->get("debug"))
