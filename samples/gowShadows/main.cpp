@@ -63,7 +63,7 @@ public:
 		// Obstacles
 		for(auto i = 0; i < 10; ++i)
 			for (auto j = 0; j < 8; ++j)
-			createCube({-20.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
+			createCube({-22.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
 	}
 
 	~RacingDemo() {

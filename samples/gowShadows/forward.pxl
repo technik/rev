@@ -20,7 +20,7 @@ void main (void) {
 	{
 		float distFromLight = vShadowPos.z;
 		float casterDistance = texture(uShadowMap, vShadowPos.xy).r;
-		if(distFromLight > casterDistance + 0.00001)
+		if(distFromLight > casterDistance + 0.001)
 			gl_FragColor = vec4(color*ambient, 1.0);
 	}
 	

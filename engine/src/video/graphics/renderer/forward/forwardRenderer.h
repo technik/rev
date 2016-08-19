@@ -59,13 +59,13 @@ namespace rev {
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("forward");
 
-			mShadowPass = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass = new ShadowPass(mDriver, mBackEnd, 2048);
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 
 			mLightPos = {0.0, 0.0, 10.0};
-			mLightDir = math::Vec3f(0.f, 0.f, -1.f).normalized();
+			mLightDir = math::Vec3f(1.f, 0.f, 0.f).normalized();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
