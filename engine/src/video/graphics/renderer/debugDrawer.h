@@ -37,11 +37,17 @@ namespace rev {
 				drawLine(basis.col(3), basis.col(3) + basis.col(2), { 0.f,0.f,1.f });
 			}
 
-			void setViewProj(const math::Mat44f& _vp) { mVp = _vp; }
+			void setViewProj(const math::Mat34f& _view, const math::Mat44f& _proj) {
+				math::Mat34f invView;
+				_view.inverse(invView);
+				mVp = _proj * invView; 
+			}
 
 			void drawFrustum(const math::Mat34f& viewMat, const math::Frustum&);
 
 			void render() {
+				mDriver->setCulling(GraphicsDriver::ECulling::eNone);
+				mDriver->setZCompare(false);
 				mDriver->setShader((Shader*)mShader);
 				unsigned uColor = mDriver->getUniformLocation("color");
 				unsigned uVp = mDriver->getUniformLocation("vp");
@@ -53,6 +59,7 @@ namespace rev {
 					mDriver->setAttribBuffer(0, 2, vertices);
 					mDriver->drawIndexBuffer(2, indices, GraphicsDriver::EPrimitiveType::lines);
 				}
+				buffer.clear();
 			}
 
 		private:

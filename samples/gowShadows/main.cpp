@@ -92,6 +92,7 @@ private:
 		mWorld->simulate(_dt);
 
 		mRenderer->renderContext(*mScene->mRenderContext);
+		mRenderer->finishFrame();
 		return true;
 	}
 

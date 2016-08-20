@@ -28,7 +28,9 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::finishFrame()
 		{
-			mDriver->finishFrame();
+			mDebug->drawBasis(Mat34f::identity());
+			mDebug->render();
+			//mDriver->finishFrame();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -39,6 +41,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			auto camView = _context.camera()->view();
+			mDebug->setViewProj(camView, _context.camera()->projection());
 			// Render shadow pass
 			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 20.f);
 			for (auto obj : _context) {
