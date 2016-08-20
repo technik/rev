@@ -41,7 +41,16 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			auto camView = _context.camera()->view();
-			mDebug->setViewProj(camView, _context.camera()->projection());
+			auto pov = (mDebugCamera?mDebugCamera:_context.camera())->view();
+			mDebug->drawLine(camView.col(3), camView*Vec3f(0.f,100.f,0.f), Color(1.f,0.f,1.f));
+			if (mDebugCamera) {
+				mDebug->setViewProj(pov, mDebugCamera->projection());
+				mDebug->drawBasis(camView);
+				mDebug->drawFrustum(camView, _context.camera()->frustum(), Color(1.f,0.f,1.f));
+			}
+			else {
+				mDebug->setViewProj(pov, _context.camera()->projection());
+			}
 			// Render shadow pass
 			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 20.f);
 			for (auto obj : _context) {
@@ -62,7 +71,10 @@ namespace rev {
 			mDriver->setUniform(uLightDir, mLightDir);
 			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
 			mDriver->setUniform(uShadowMap, mShadowPass->tex());
-			mBackEnd->setCamera(camView, _context.camera()->projection());
+			if(mDebugCamera)
+				mBackEnd->setCamera(pov, mDebugCamera->projection());
+			else
+				mBackEnd->setCamera(pov, _context.camera()->projection());
 			// Render all objects
 			for (auto obj : _context) {
 				renderObject(*obj);

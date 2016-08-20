@@ -16,6 +16,7 @@ namespace rev {
 		class GraphicsDriver;
 		class RenderObj;
 		class RendererBackEnd;
+		class DebugDrawer;
 
 		class ShadowPass {
 		public:
@@ -26,6 +27,8 @@ namespace rev {
 
 			const math::Mat44f& viewProj() const { return mViewProj; }
 			Texture* tex() const { return mShadowBuffer->tex; }
+
+			DebugDrawer* mDebug = nullptr;
 
 		private:
 			video::Shader::Ptr		mShadowShader = nullptr;

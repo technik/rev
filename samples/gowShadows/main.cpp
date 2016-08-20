@@ -22,11 +22,13 @@
 #include <game/physics/physicsWorld.h>
 #include <game/scene/scene.h>
 #include <game/scene/camera/flyByCamera.h>
+#include <input/keyboard/keyboardInput.h>
 #include <vector>
 #include <iostream>
 
 using namespace rev::core;
 using namespace rev::game;
+using namespace rev::input;
 using namespace rev::math;
 using namespace rev::video;
 
@@ -38,6 +40,7 @@ public:
 		processArgs(_argc, _argv);
 
 		// Construct global objects
+		mKey = KeyboardInput::get();
 		mRenderer = new ForwardRenderer();
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mRenderer->setWindowSize(window().size());
@@ -45,7 +48,9 @@ public:
 		mScene = new Scene();
 		
 		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
+		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
 		mCam->setPos({0.f,0.f,1.f});
+		mDebugCam->setPos({ 0.f,0.f,1.f });
 
 		mScene->mRenderContext->viewFrustum = Frustum(4.f/3.f, 1.5f, 0.1f, 100.f);
 		mScene->mRenderContext->setCamera(mCam);
@@ -70,12 +75,15 @@ public:
 		mRenderer->end<NewAllocator>(mAlloc);
 	}
 
+	KeyboardInput* mKey;
 	FlyByCamera* mCam;
+	FlyByCamera* mDebugCam;
 	ForwardRenderer* mRenderer;
 	Scene* mScene;
 	NewAllocator mAlloc;
 	PhysicsWorld* mWorld;
 	float t = 0;
+	bool mDebug = false;
 
 private:
 	
@@ -88,8 +96,19 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		t += _dt;
-		mCam->update(_dt);
+
+		if (mKey->pressed(KeyboardInput::eTab))
+			mDebug = !mDebug;
+		if(mDebug) {
+			mDebugCam->update(_dt);
+			mRenderer->setDebugCamera(mDebugCam);
+		}
+		else {
+			mCam->update(_dt);
+			mRenderer->setDebugCamera(nullptr);
+		}
 		mWorld->simulate(_dt);
+
 
 		mRenderer->renderContext(*mScene->mRenderContext);
 		mRenderer->finishFrame();

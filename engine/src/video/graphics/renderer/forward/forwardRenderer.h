@@ -25,6 +25,7 @@ namespace rev {
 		class RenderContext;
 		class Window;
 		class RenderObj;
+		class Camera;
 
 		class ForwardRenderer {
 		public:
@@ -40,12 +41,14 @@ namespace rev {
 			void setWindowSize(const rev::math::Vec2u& _size) { mWindowSize = _size; }
 
 			void renderContext(const RenderContext&);
+			void setDebugCamera(const Camera* _dbg) { mDebugCamera = _dbg; }
 
 		private:
 			void renderObject(const RenderObj& _obj);
 
 		private:
 			DebugDrawer*		mDebug;
+			const Camera*		mDebugCamera;
 			Shader::Ptr			mShader = nullptr;
 			RendererBackEnd*	mBackEnd;
 			rev::math::Vec2u	mWindowSize;
@@ -62,12 +65,13 @@ namespace rev {
 			mDebug = new DebugDrawer(mDriver, mBackEnd);
 
 			mShadowPass = new ShadowPass(mDriver, mBackEnd, 2048);
+			mShadowPass->mDebug = mDebug;
 
 			mDriver->setShader((Shader*)mShader);
 			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 
 			mLightPos = {0.0, 0.0, 10.0};
-			mLightDir = math::Vec3f(0.f, 0.f, -1.f).normalized();
+			mLightDir = math::Vec3f(1.f, 0.f, -1.f).normalized();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

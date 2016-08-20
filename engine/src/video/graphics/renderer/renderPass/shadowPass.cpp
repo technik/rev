@@ -8,6 +8,7 @@
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
+#include <video/graphics/renderer/debugDrawer.h>
 
 using namespace rev::math;
 
@@ -72,9 +73,14 @@ namespace rev {
 				shadowBB.merge(invShadow * frustumWorld[i]);
 			}
 			// Recenter shadow basis
-			shadowBasis.setCol(3, shadowBasis*shadowBB.center()); // TODO: Match lower surface of the bb with lower side of the frustum
+			shadowBasis.setCol(3, centroidWorld); // TODO: Match lower surface of the bb with lower side of the frustum
 			Mat44f shadowProj = Mat44f::ortho({ shadowBB.size().x,shadowBB.size().y, _depth });
 			shadowBasis.inverse(invShadow);
+			if (mDebug) {
+				mDebug->drawBasis(shadowBasis);
+				mDebug->drawLine(centroidWorld-_lightDir*50.f, centroidWorld, Color(1.f,0.f,0.f));
+				mDebug->drawLine(centroidWorld, centroidWorld + _lightDir*50.f, Color(0.f, 1.f, 1.f));
+			}
 
 			mBackEnd->setCamera(shadowBasis, shadowProj);
 			mViewProj = shadowProj * invShadow;

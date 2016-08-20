@@ -43,11 +43,23 @@ namespace rev {
 				mVp = _proj * invView; 
 			}
 
-			void drawFrustum(const math::Mat34f& viewMat, const math::Frustum&);
+			void drawFrustum(const math::Mat34f& viewMat, const math::Frustum& _f, const Color& _c) {
+				math::Vec3f vertices[8];
+				for (size_t i = 0; i < 8; ++i) {
+					vertices[i] = viewMat * _f.vertices()[i];
+				}
+
+				for (size_t i = 0; i < 4; ++i) {
+					auto j = (i+1)%4;
+					drawLine(vertices[i], vertices[j], _c);
+					drawLine(vertices[i+4], vertices[j+4], _c);
+					drawLine(vertices[i], vertices[i + 4], _c);
+				}
+			}
 
 			void render() {
 				mDriver->setCulling(GraphicsDriver::ECulling::eNone);
-				mDriver->setZCompare(false);
+				//mDriver->setZCompare(false);
 				mDriver->setShader((Shader*)mShader);
 				unsigned uColor = mDriver->getUniformLocation("color");
 				unsigned uVp = mDriver->getUniformLocation("vp");

@@ -16,8 +16,8 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	FlyByCamera::FlyByCamera(float _fov, float _aspectRatio, float _near, float _far)
-		:Camera(Mat44f::frustrum(_fov, _aspectRatio, _near, _far))
-		,mSpeed(1.f)
+		: Camera(Mat44f::frustrum(_fov, _aspectRatio, _near, _far), math::Frustum(_aspectRatio, _fov, _near, _far))
+		, mSpeed(1.f)
 	{
 		Component::attachTo(this); // Attach camera component to scene node
 	}

@@ -10,6 +10,7 @@
 
 #include <video/basicTypes/camera.h>
 #include <core/components/sceneNode.h>
+#include <math/geometry/types.h>
 
 namespace rev { namespace game {
 
