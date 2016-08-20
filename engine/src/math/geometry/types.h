@@ -51,6 +51,24 @@ namespace rev {
 				mVertices[7] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
 			}
 
+			Frustum(Vec3f min, Vec3f max) // Rectangular
+				: mAspectRatio((max-min).x/(max-min).y)
+				, mFov(0.f)
+				, mNear(min.y)
+				, mFar(max.y)
+			{
+				mVertices[0] = min;
+				mVertices[1] = Vec3f(-min.x, min.y, min.z);
+				mVertices[2] = Vec3f(min.x, min.y, -min.z);
+				mVertices[3] = Vec3f(-min.x, min.y, -min.z);
+				mVertices[4] = max;
+				mVertices[5] = Vec3f(-max.x, max.y, max.z);
+				mVertices[6] = Vec3f(max.x, max.y, -max.z);
+				mVertices[7] = Vec3f(-max.x, max.y, -max.z);
+
+				mProjection = Mat44f::ortho(max-min);
+			}
+
 			float aspectRatio	() const { return mAspectRatio; }
 			float fov			() const { return mFov; }
 			float nearPlane		() const { return mNear; }
