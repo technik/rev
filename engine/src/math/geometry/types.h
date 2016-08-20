@@ -57,6 +57,7 @@ namespace rev {
 				, mNear(min.y)
 				, mFar(max.y)
 			{
+				max = Vec3f(-max.x,max.y,-max.z);
 				mVertices[0] = min;
 				mVertices[1] = Vec3f(-min.x, min.y, min.z);
 				mVertices[2] = Vec3f(-min.x, min.y, -min.z);

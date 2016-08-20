@@ -52,7 +52,7 @@ namespace rev {
 				mDebug->setViewProj(pov, _context.camera()->projection());
 			}
 			// Render shadow pass
-			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 20.f);
+			mShadowPass->config(mLightDir, camView, _context.viewFrustum, 200.f);
 			for (auto obj : _context) {
 				renderObject(*obj);
 			}
