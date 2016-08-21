@@ -6,24 +6,29 @@ uniform		vec4 uColor;
 uniform		vec3 uLightDir;
 varying		vec3 vNormal;
 varying		vec3 vShadowPos;
+varying		vec3 vShadowPos;
+varying 	float vNormDist;
 uniform sampler2D uShadowMap;
+uniform sampler2D uFarShadowMap;
 
 void main (void) {
 	vec3 ambient = vec3(0.2,0.2,0.25);
 	vec3 normal = normalize(vNormal);
-	vec3 dif = vec3(0.8,0.8,0.75)*max(0.0, -dot(uLightDir, normal));
+	vec3 dif = vec3(0.95,0.95,0.95)*max(0.0, -dot(uLightDir, normal));
 	vec3 color = uColor.xyz;
 	gl_FragColor = vec4(color*(dif+ambient), 1.0);
-	if(vShadowPos.x >= -1.0 && vShadowPos.x <= 1.0
-		&& vShadowPos.y >= -1.0 && vShadowPos.y <= 1.0
-		&& vShadowPos.z >= -1.0 && vShadowPos.z <= 1.0)
+	if(vShadowPos.x >= 0.0 && vShadowPos.x <= 1.0
+		&& vShadowPos.y >= 0.0 && vShadowPos.y <= 1.0
+		&& vShadowPos.z >= 0.0 && vShadowPos.z <= 1.0)
 	{
 		float distFromLight = vShadowPos.z;
-		float casterDistance = texture(uShadowMap, vShadowPos.xy).r;
+		float casterDistance = texture(uFarShadowMap, vShadowPos.xy).r;
 		if(distFromLight > casterDistance + 0.001)
 			gl_FragColor = vec4(color*ambient, 1.0);
+		if(vShadowPos.y>0.25)
+			color = vec3(1.0,0.0,0.0);
+		else
+			color = vec3(0.0,1.0,1.0);
+		gl_FragColor = vec4(color,1.0);
 	}
-	
-	//vec2 uv = gl_FragCoord.xy / vec2(200.0, 200.0);
-	//color = texture(uShadowMap, uv).rgb;
 }

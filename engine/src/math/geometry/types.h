@@ -51,23 +51,26 @@ namespace rev {
 				mVertices[7] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
 			}
 
-			Frustum(Vec3f min, Vec3f max) // Rectangular
-				: mAspectRatio((max-min).x/(max-min).y)
+			Frustum(Vec3f size) // Rectangular
+				: mAspectRatio(size.x/size.y)
 				, mFov(0.f)
-				, mNear(min.y)
-				, mFar(max.y)
+				, mNear(-0.5*size.y)
+				, mFar(-0.5*size.y)
 			{
-				max = Vec3f(-max.x,max.y,-max.z);
-				mVertices[0] = min;
-				mVertices[1] = Vec3f(-min.x, min.y, min.z);
-				mVertices[2] = Vec3f(-min.x, min.y, -min.z);
-				mVertices[3] = Vec3f(min.x, min.y, -min.z);
-				mVertices[4] = max;
-				mVertices[5] = Vec3f(-max.x, max.y, max.z);
-				mVertices[6] = Vec3f(-max.x, max.y, -max.z);
-				mVertices[7] = Vec3f(max.x, max.y, -max.z);
+				math::Vec3f hSize = size*0.5f;
+				math::Vec3f minVert = math::Vec3f(hSize.x, -hSize.y, hSize.z);
+				math::Vec3f maxVert = math::Vec3f(hSize.x, hSize.y, hSize.z);
 
-				mProjection = Mat44f::ortho(max-min);
+				mVertices[0] = minVert;
+				mVertices[1] = Vec3f(-minVert.x, minVert.y, minVert.z);
+				mVertices[2] = Vec3f(-minVert.x, minVert.y, -minVert.z);
+				mVertices[3] = Vec3f(minVert.x, minVert.y, -minVert.z);
+				mVertices[4] = maxVert;
+				mVertices[5] = Vec3f(-maxVert.x, maxVert.y, maxVert.z);
+				mVertices[6] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
+				mVertices[7] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
+
+				mProjection = Mat44f::ortho(size);
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }

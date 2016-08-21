@@ -45,9 +45,9 @@ public:
 		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
 		mRenderer->setWindowSize(window().size());
 		mWorld = new PhysicsWorld();
-		mScene = new Scene();
+		mScene = Scene::import("scene.DAE");
 		
-		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
+		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 200.f);
 		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
 		mCam->setPos({0.f,0.f,1.f});
 		mDebugCam->setPos({ 0.f,0.f,1.f });
@@ -84,6 +84,7 @@ public:
 	PhysicsWorld* mWorld;
 	float t = 0;
 	bool mDebug = false;
+	bool mDebugMove = false;
 
 private:
 	
@@ -97,14 +98,31 @@ private:
 	bool frame(float _dt) override {
 		t += _dt;
 
-		if (mKey->pressed(KeyboardInput::eTab))
-			mDebug = !mDebug;
-		if(mDebug) {
+		if (mKey->pressed(KeyboardInput::eTab)) {
+			if (!mDebug) {
+				mDebug = true;
+				mDebugMove = true;
+			}
+			else {
+				mDebug = false;
+				mDebugMove = false;
+			}
+		}
+
+		if (mKey->pressed(KeyboardInput::eQ) && mDebug) {
+			mDebugMove = !mDebugMove;
+		}
+
+
+		if(mDebugMove)
 			mDebugCam->update(_dt);
+		else
+			mCam->update(_dt);
+
+		if(mDebug) {
 			mRenderer->setDebugCamera(mDebugCam);
 		}
 		else {
-			mCam->update(_dt);
 			mRenderer->setDebugCamera(nullptr);
 		}
 		mWorld->simulate(_dt);

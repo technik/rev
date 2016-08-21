@@ -58,24 +58,25 @@ namespace rev {
 				// shadowBasis.setCol(2, _lightDir);
 			}
 			shadowBasis.setCol(2, _lightDir);
-			Vec3f centroidWorld = _viewMat * Vec3f(0.f, _viewFrustum.centroid(), 0.f);
-			shadowBasis.setCol(3, centroidWorld); // TODO: Match lower surface of the bb with lower side of the frustum
 
-			// ---- Project frustum into the basis to compute the bounding box ---
+			// ---- Project frustum into the basis to have its vertices in world space ---
 			Vec3f frustumWorld[8];
 			for (size_t i = 0; i < 8; ++i) {
 				frustumWorld[i] = _viewMat*_viewFrustum.vertices()[i];
 			}
-			BBox shadowBB;
 			// Transfrom frustum into shadow space to compute bounding box
 			Mat34f invShadow;
 			shadowBasis.inverse(invShadow);
-			for (size_t i = 0; i < 8; ++i) {
+			Vec3f shadowPoint0 = invShadow * frustumWorld[0];
+			Vec3f shadowPoint1 = invShadow * frustumWorld[1];
+			BBox shadowBB(shadowPoint0, shadowPoint1);
+			for (size_t i = 2; i < 8; ++i) {
 				shadowBB.merge(invShadow * frustumWorld[i]);
 			}
 			// Recenter shadow basis
-			Mat44f shadowProj = Mat44f::ortho({ shadowBB.size().x,shadowBB.size().y, _depth });
+			shadowBasis.setCol(3, shadowBasis * shadowBB.center());
 			shadowBasis.inverse(invShadow);
+			Mat44f shadowProj = Mat44f::ortho(shadowBB.size());
 
 			mBackEnd->setCamera(shadowBasis, shadowProj);
 			mViewProj = shadowProj * invShadow;
@@ -88,9 +89,10 @@ namespace rev {
 
 			if (mDebug) {
 				mDebug->drawBasis(shadowBasis);
+				Vec3f centroidWorld = _viewMat * Vec3f(0.f, _viewFrustum.centroid(), 0.f);
 				mDebug->drawLine(centroidWorld-_lightDir*50.f, centroidWorld, Color(1.f,0.f,0.f));
 				mDebug->drawLine(centroidWorld, centroidWorld + _lightDir*50.f, Color(0.f, 1.f, 1.f));
-				mDebug->drawFrustum(shadowBasis, Frustum(shadowBB.min, shadowBB.max), Color(0.5f,0.5f,0.f));
+				mDebug->drawFrustum(shadowBasis, Frustum(shadowBB.size()), Color(0.5f,0.5f,0.f));
 			}
 		}
 	}
