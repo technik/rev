@@ -32,30 +32,20 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ShadowPass::config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _depth) {
+		void ShadowPass::config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum) {
 			// ---- Compute shadow transform axes ----
 			Mat34f shadowBasis = Mat34f::identity();
 			if (abs(_lightDir * _viewMat.col(1)) < 0.71f) { // Only use the view direction if it is not too aligned with the light
-				auto shadowX = _viewMat.col(1) ^ _lightDir; // view.y ^ light;
+				auto shadowX = (_viewMat.col(1) ^ _lightDir).normalized(); // view.y ^ light;
 				auto shadowY = _lightDir ^ shadowX;
 				shadowBasis.setCol(0, shadowX);
 				shadowBasis.setCol(1, shadowY);
-				// auto lightUp = _viewMat.col(1) ^ _lightDir;
-				// auto lightSide = _lightDir ^ lightUp;
-				// shadowBasis.setCol(0, lightSide);
-				// shadowBasis.setCol(1, lightUp);
-				// shadowBasis.setCol(2, _lightDir);
 			}
 			else {
-				auto shadowY = _lightDir ^ _viewMat.col(0);
+				auto shadowY = (_lightDir ^ _viewMat.col(0)).normalized();
 				auto shadowX = shadowY ^_lightDir;
 				shadowBasis.setCol(0, shadowX);
 				shadowBasis.setCol(1, shadowY);
-				// auto lightUp = _viewMat.col(2) ^ _lightDir;
-				// auto lightSide = _lightDir ^ lightUp;
-				// shadowBasis.setCol(0, lightSide);
-				// shadowBasis.setCol(1, lightUp);
-				// shadowBasis.setCol(2, _lightDir);
 			}
 			shadowBasis.setCol(2, _lightDir);
 

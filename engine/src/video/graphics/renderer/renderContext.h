@@ -24,8 +24,6 @@ namespace rev {
 			void setLightDir(const math::Vec3f& _dir) { mLightDir = _dir;}
 			const math::Vec3f& lightDir() const { return mLightDir; }
 
-			math::Frustum viewFrustum;
-
 		private:
 			const Camera*	mCamera;
 			math::Vec3f		mLightDir;

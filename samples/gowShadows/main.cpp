@@ -47,12 +47,11 @@ public:
 		mWorld = new PhysicsWorld();
 		mScene = Scene::import("scene.DAE");
 		
-		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 200.f);
+		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
 		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
 		mCam->setPos({0.f,0.f,1.f});
 		mDebugCam->setPos({ 0.f,0.f,1.f });
 
-		mScene->mRenderContext->viewFrustum = Frustum(4.f/3.f, 1.5f, 0.1f, 100.f);
 		mScene->mRenderContext->setCamera(mCam);
 
 		Vec3f groundSize = {1000.f, 1000.f, 2.f};

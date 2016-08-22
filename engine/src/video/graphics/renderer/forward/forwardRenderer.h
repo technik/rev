@@ -55,7 +55,6 @@ namespace rev {
 			math::Vec3f			mLightPos, mLightDir;
 			GraphicsDriver*		mDriver;
 			ShadowPass	*		mShadowPass;
-			ShadowPass*			mFarShadowPass;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -66,7 +65,6 @@ namespace rev {
 			mDebug = new DebugDrawer(mDriver, mBackEnd);
 
 			mShadowPass = new ShadowPass(mDriver, mBackEnd, 1024);
-			mFarShadowPass = new ShadowPass(mDriver, mBackEnd, 1024);
 
 			mDriver->setShader((Shader*)mShader);
 
@@ -77,7 +75,6 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
 			delete mShadowPass;
-			delete mFarShadowPass;
 			_alloc.destroy(mBackEnd);
 		}
 	}
