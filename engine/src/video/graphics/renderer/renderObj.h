@@ -10,6 +10,7 @@
 #include<core/components/sceneNode.h>
 #include<core/context/contextObj.h>
 #include<math/algebra/matrix.h>
+#include <math/geometry/types.h>
 #include<video/graphics/renderer/renderContext.h>
 #include<video/graphics/renderer/renderMesh.h>
 
@@ -33,9 +34,7 @@ namespace rev {
 			bool castShadows = true;
 			bool recvShadows = true;
 
-			struct BoundingBox {
-				math::Vec3f min, max;
-			} mBBox;
+			math::BBox mBBox;
 		private:
 			RenderMesh* mMesh;
 

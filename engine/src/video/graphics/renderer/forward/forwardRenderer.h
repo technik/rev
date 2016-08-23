@@ -45,6 +45,7 @@ namespace rev {
 
 		private:
 			void renderObject(const RenderObj& _obj);
+			math::Frustum adjustShadowFrustum(const RenderContext&);
 
 		private:
 			DebugDrawer*		mDebug;

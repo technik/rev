@@ -42,24 +42,25 @@ namespace rev {
 		void ForwardRenderer::renderContext(const RenderContext& _context) {
 			auto camView = _context.camera()->view();
 			auto pov = (mDebugCamera?mDebugCamera:_context.camera())->view();
-			mDebug->drawLine(camView.col(3), camView*Vec3f(0.f,100.f,0.f), Color(1.f,0.f,1.f));
+			// Render shadow pass
+			Frustum globalFrustum = adjustShadowFrustum(_context);
+			mShadowPass->config(mLightDir, camView, globalFrustum);
+			for (auto obj : _context) {
+				if(obj->castShadows)
+					renderObject(*obj);
+			}
+			//mDriver->finishFrame();
 			if (mDebugCamera) {
 				mShadowPass->mDebug = mDebug;
+				mDebug->drawLine(camView.col(3), camView*Vec3f(0.f,globalFrustum.farPlane(),0.f), Color(1.f,0.f,1.f));
 				mDebug->setViewProj(pov, mDebugCamera->projection());
 				mDebug->drawBasis(camView);
-				mDebug->drawFrustum(camView, _context.camera()->frustum(), Color(1.f,0.f,1.f));
+				mDebug->drawFrustum(camView, globalFrustum, Color(1.f,0.f,1.f));
 			}
 			else {
 				mShadowPass->mDebug = nullptr;
 				mDebug->setViewProj(pov, _context.camera()->projection());
 			}
-			// Render shadow pass
-			Frustum globalFrustum = _context.camera()->frustum();
-			mShadowPass->config(mLightDir, camView, globalFrustum);
-			for (auto obj : _context) {
-				renderObject(*obj);
-			}
-			//mDriver->finishFrame();
 			// Render pass
 			//mDriver->setMultiSampling(false);
 			mDriver->setRenderTarget(nullptr);
@@ -108,6 +109,29 @@ namespace rev {
 			else
 				geom.color = Color(1.f, 1.f, 1.f);
 			mBackEnd->render(geom);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		Frustum ForwardRenderer::adjustShadowFrustum(const RenderContext& _context) {
+			Mat34f invView;
+			_context.camera()->view().inverse(invView);
+			Frustum camF = _context.camera()->frustum();
+			float minCaster = camF.farPlane();
+			float maxCaster = camF.nearPlane();
+			for (auto obj : _context) {
+				if (obj->castShadows)
+				{
+					float objDist = (invView*obj->node()->position()).y;
+					// Contribute to frustum adjustment
+					minCaster = std::min(minCaster, objDist - obj->mBBox.radius());
+					maxCaster = std::max(maxCaster, objDist + obj->mBBox.radius());
+				}
+			}
+			float adjNear = std::max(camF.nearPlane(), minCaster);
+			float adjFar = std::min(camF.farPlane(), maxCaster);
+			if(adjFar < adjNear) // No casters in the frustum
+				adjFar = adjNear;
+			return Frustum(camF.aspectRatio(), camF.fov(), adjNear, adjFar);
 		}
 	}
 }

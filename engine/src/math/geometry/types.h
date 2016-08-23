@@ -24,6 +24,7 @@ namespace rev {
 			}
 
 			Vec3f size() const { return max - min; }
+			float radius() const { return size().norm(); }
 			Vec3f center() const { return (max+min)*0.5f; }
 		};
 

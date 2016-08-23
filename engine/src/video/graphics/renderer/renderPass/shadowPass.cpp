@@ -9,6 +9,8 @@
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 #include <video/graphics/renderer/debugDrawer.h>
+#include <video/graphics/renderer/renderContext.h>
+#include <video/basicTypes/camera.h>
 
 using namespace rev::math;
 
