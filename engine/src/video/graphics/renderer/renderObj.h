@@ -30,6 +30,9 @@ namespace rev {
 
 			Material* mMaterial = nullptr;
 
+			bool castShadows = true;
+			bool recvShadows = true;
+
 			struct BoundingBox {
 				math::Vec3f min, max;
 			} mBBox;

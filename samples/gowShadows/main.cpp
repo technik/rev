@@ -57,6 +57,7 @@ public:
 		Vec3f groundSize = {1000.f, 1000.f, 2.f};
 		RigidBody* groundBd = RigidBody::box(0.f, groundSize);
 		RenderObj* groundRo = new RenderObj(Procedural::box(groundSize));
+		groundRo->castShadows = false;
 		SceneNode* ground = new SceneNode;
 		ground->attachTo(groundBd);
 		groundRo->attachTo(ground);
@@ -67,7 +68,7 @@ public:
 		// Obstacles
 		for(auto i = 0; i < 10; ++i)
 			for (auto j = 0; j < 8; ++j)
-			createCube({-22.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
+				createCube({-22.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
 	}
 
 	~RacingDemo() {
