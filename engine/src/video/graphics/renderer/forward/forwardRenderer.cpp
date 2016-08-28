@@ -44,21 +44,28 @@ namespace rev {
 			auto pov = (mDebugCamera?mDebugCamera:_context.camera())->view();
 			// Render shadow pass
 			Frustum globalFrustum = adjustShadowFrustum(_context);
-			mShadowPass->config(mLightDir, camView, globalFrustum);
-			for (auto obj : _context) {
-				if(obj->castShadows)
-					renderObject(*obj);
+			float maxFar = globalFrustum.farPlane();
+			float farPlane[3] = {maxFar*0.166f, maxFar * 0.333f, maxFar };
+			for(size_t i = 0; i < 3; ++i) {
+				Frustum cascadeFrustum = Frustum(globalFrustum.aspectRatio(), globalFrustum.fov(), globalFrustum.nearPlane(), farPlane[i]);
+				mShadowPass[i]->config(mLightDir, camView, cascadeFrustum);
+				for (auto obj : _context) {
+					if(obj->castShadows)
+						renderObject(*obj);
+				}
 			}
 			//mDriver->finishFrame();
 			if (mDebugCamera) {
-				mShadowPass->mDebug = mDebug;
+				for (size_t i = 0; i < 3; ++i)
+					mShadowPass[i]->mDebug = mDebug;
 				mDebug->drawLine(camView.col(3), camView*Vec3f(0.f,globalFrustum.farPlane(),0.f), Color(1.f,0.f,1.f));
 				mDebug->setViewProj(pov, mDebugCamera->projection());
 				mDebug->drawBasis(camView);
 				mDebug->drawFrustum(camView, globalFrustum, Color(1.f,0.f,1.f));
 			}
 			else {
-				mShadowPass->mDebug = nullptr;
+				for (size_t i = 0; i < 3; ++i)
+					mShadowPass[i]->mDebug = nullptr;
 				mDebug->setViewProj(pov, _context.camera()->projection());
 			}
 			// Render pass
@@ -69,12 +76,18 @@ namespace rev {
 			mDriver->clearColorBuffer();
 			mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
-			mBackEnd->setShadowMvp(mShadowPass->viewProj());
+			mBackEnd->setShadowVp(0, mShadowPass[0]->viewProj());
+			mBackEnd->setShadowVp(1, mShadowPass[1]->viewProj());
+			mBackEnd->setShadowVp(2, mShadowPass[2]->viewProj());
 			mBackEnd->setShader(mShader);
 			int uLightDir = mDriver->getUniformLocation("uLightDir");
 			mDriver->setUniform(uLightDir, mLightDir);
-			int uShadowMap = mDriver->getUniformLocation("uShadowMap");
-			mDriver->setUniform(uShadowMap, mShadowPass->tex());
+			int uShadowMap0 = mDriver->getUniformLocation("uShadowMap0");
+			mDriver->setUniform(uShadowMap0, mShadowPass[0]->tex());
+			int uShadowMap1 = mDriver->getUniformLocation("uShadowMap1");
+			mDriver->setUniform(uShadowMap1, mShadowPass[1]->tex());
+			int uShadowMap2 = mDriver->getUniformLocation("uShadowMap2");
+			mDriver->setUniform(uShadowMap2, mShadowPass[2]->tex());
 			//int uFarShadowMap = mDriver->getUniformLocation("uFarShadowMap");
 			//mDriver->setUniform(uFarShadowMap, mFarShadowPass->tex());
 			if(mDebugCamera)

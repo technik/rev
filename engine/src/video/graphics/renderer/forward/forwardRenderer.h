@@ -55,7 +55,7 @@ namespace rev {
 			rev::math::Vec2u	mWindowSize;
 			math::Vec3f			mLightPos, mLightDir;
 			GraphicsDriver*		mDriver;
-			ShadowPass	*		mShadowPass;
+			ShadowPass*			mShadowPass[3];
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -65,7 +65,9 @@ namespace rev {
 			mShader = Shader::manager()->get("forward");
 			mDebug = new DebugDrawer(mDriver, mBackEnd);
 
-			mShadowPass = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass[0] = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass[1] = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass[2] = new ShadowPass(mDriver, mBackEnd, 1024);
 
 			mDriver->setShader((Shader*)mShader);
 

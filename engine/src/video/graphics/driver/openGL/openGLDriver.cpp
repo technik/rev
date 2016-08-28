@@ -387,7 +387,7 @@ namespace rev {
 				assignTexStage(tex);
 			}
 			//logGlError();
-			glUniform1i(_uniformId, mAssignedTexStages[tex->id]);
+			glUniform1i(_uniformId, mAssignedTexStages[tex->id] - GL_TEXTURE0);
 			//logGlError();
 		}
 

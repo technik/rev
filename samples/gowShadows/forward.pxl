@@ -2,12 +2,17 @@
 // Basic shader
 //----------------------------------------------------------------------------------------------------------------------
 // Pixel shader
+varying		vec3 vNormal;
+varying 	float vNormDist;
+varying		vec3 vShadowPos0;
+varying		vec3 vShadowPos1;
+varying		vec3 vShadowPos2;
+
 uniform		vec4 uColor;
 uniform		vec3 uLightDir;
-varying		vec3 vNormal;
-varying		vec3 vShadowPos;
-varying 	float vNormDist;
-uniform sampler2D uShadowMap;
+uniform sampler2D uShadowMap0;
+uniform sampler2D uShadowMap1;
+uniform sampler2D uShadowMap2;
 
 void main (void) {
 	vec3 ambient = vec3(0.2,0.2,0.25);
@@ -15,16 +20,40 @@ void main (void) {
 	vec3 dif = vec3(0.95,0.95,0.95)*max(0.0, -dot(uLightDir, normal));
 	vec3 color = uColor.xyz;
 	gl_FragColor = vec4(color*(dif+ambient), 1.0);
-	if(vShadowPos.x >= 0.0 && vShadowPos.x <= 1.0
-		&& vShadowPos.y >= 0.0 && vShadowPos.y <= 1.0
-		&& vShadowPos.z >= 0.0 && vShadowPos.z <= 1.0)
+	if(vShadowPos0.x >= 0.0 && vShadowPos0.x <= 1.0
+		&& vShadowPos0.y >= 0.0 && vShadowPos0.y <= 1.0
+		&& vShadowPos0.z >= 0.0 && vShadowPos0.z <= 1.0)
 	{
-		float distFromLight = vShadowPos.z;
-		float casterDistance = texture(uShadowMap, vShadowPos.xy).r;
+		float distFromLight = vShadowPos0.z;
+		float casterDistance = texture(uShadowMap0, vShadowPos0.xy).r;
 		if(distFromLight > casterDistance + 0.001)
 			gl_FragColor = vec4(color*ambient, 1.0);
 		
-		//color = vec3(0.0,1.0,1.0);
+		//color = vec3(1.0,0.0,0.0);
+		//gl_FragColor = vec4(color,1.0);
+	}
+	else if(vShadowPos1.x >= 0.0 && vShadowPos1.x <= 1.0
+		&& vShadowPos1.y >= 0.0 && vShadowPos1.y <= 1.0
+		&& vShadowPos1.z >= 0.0 && vShadowPos1.z <= 1.0)
+	{
+		float distFromLight = vShadowPos1.z;
+		float casterDistance = texture(uShadowMap1, vShadowPos1.xy).r;
+		if(distFromLight > casterDistance + 0.001)
+			gl_FragColor = vec4(color*ambient, 1.0);
+		
+		//color = vec3(0.0,1.0,0.0);
+		//gl_FragColor = vec4(color,1.0);
+	}
+	else if(vShadowPos2.x >= 0.0 && vShadowPos2.x <= 1.0
+		&& vShadowPos2.y >= 0.0 && vShadowPos2.y <= 1.0
+		&& vShadowPos2.z >= 0.0 && vShadowPos2.z <= 1.0)
+	{
+		float distFromLight = vShadowPos2.z;
+		float casterDistance = texture(uShadowMap2, vShadowPos2.xy).r;
+		if(distFromLight > casterDistance + 0.001)
+			gl_FragColor = vec4(color*ambient, 1.0);
+		
+		//color = vec3(0.0,0.0,1.0);
 		//gl_FragColor = vec4(color,1.0);
 	}
 }

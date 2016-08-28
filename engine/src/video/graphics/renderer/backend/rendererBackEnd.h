@@ -38,7 +38,7 @@ namespace rev {
 
 			void setView(const math::Mat34f& _view);
 			void setCamera(const math::Mat34f& _view, const math::Mat44f& _proj);
-			void setShadowMvp(const math::Mat44f& _smvp) { mSmvp = _smvp; }
+			void setShadowVp(size_t i, const math::Mat44f& _svp) { mSvp[i] = _svp; }
 			void render(const StaticGeometry&);
 			void flush();
 
@@ -47,13 +47,13 @@ namespace rev {
 		private:
 			GraphicsDriver* mDriver;
 			math::Mat44f	mViewProj;
-			math::Mat44f	mSmvp;
+			math::Mat44f	mSvp[3];
 			math::Mat34f	mInvView;
 
 			// Render cache
 			Shader::Ptr	mCurShader;
 			int			mMvpUniform;
-			int			mShadowMvpUniform;
+			int			mShadowMvpUniform[3];
 			int			mWorldRotUniform;
 			int			mLightDirUniform;
 			int			mColorUniform;
