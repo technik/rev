@@ -27,8 +27,8 @@ namespace rev {
 			uint8_t *pixelData = new uint8_t[4*nPixels];
 			for (size_t i = 0; i < nPixels; ++i) {
 				pixelData[4 * i] = ((uint8_t*)bitmap->data)[3*i];
-				pixelData[4 * i+1] = ((uint8_t*)bitmap->data)[3 * i+1];
-				pixelData[4 * i+2] = ((uint8_t*)bitmap->data)[3 * i+2];
+				pixelData[4 * i+1] = ((uint8_t*)bitmap->data)[3 * i+2];
+				pixelData[4 * i+2] = ((uint8_t*)bitmap->data)[3 * i+1];
 				pixelData[4 * i+3] = 255;
 			}
 			

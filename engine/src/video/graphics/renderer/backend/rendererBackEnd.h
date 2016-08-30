@@ -27,6 +27,7 @@ namespace rev {
 				std::uint16_t nVertices = 0;
 				math::Vec3f * vertices = nullptr;
 				math::Vec3f * normals = nullptr;
+				math::Vec2f * uvs = nullptr;
 				std::uint16_t nIndices = 0;
 				std::uint16_t* indices = nullptr;
 				math::Mat34f	transform;

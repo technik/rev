@@ -45,7 +45,7 @@ namespace rev {
 			// Set arrays
 			mDriver->setAttribBuffer(0, _geom.nVertices, _geom.vertices);
 			mDriver->setAttribBuffer(1, _geom.nVertices, _geom.normals);
-			//mDriver->setAttribBuffer(2, _geom.nVertices, _geom.uv);
+			mDriver->setAttribBuffer(2, _geom.nVertices, _geom.uvs);
 
 			// Draw
 			mDriver->drawIndexBuffer(_geom.nIndices, _geom.indices, 

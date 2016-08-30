@@ -71,9 +71,25 @@ namespace rev {
 			// Render pass
 			//mDriver->setMultiSampling(false);
 			mDriver->setRenderTarget(nullptr);
-			mDriver->setViewport(math::Vec2i(0,0), mWindowSize);
-			mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
-			mDriver->clearColorBuffer();
+			mDriver->setViewport(math::Vec2i(0, 0), mWindowSize);
+			// Render skybox
+			if (_context.skyBox) {
+				mDriver->setZCompare(false); // Use the skybox to clear the buffer
+				mDriver->setShader((Shader*)mSkyShader);
+				int uMap = mDriver->getUniformLocation("uSkyMap");
+				mDriver->setUniform(uMap, _context.skyBox->mMaterial->mDiffMap);
+				Mat34f centeredView = pov;
+				centeredView.setCol(3, Vec3f::zero());
+				if (mDebugCamera)
+					mBackEnd->setCamera(centeredView, mDebugCamera->projection());
+				else
+					mBackEnd->setCamera(centeredView, _context.camera()->projection());
+				renderObject(*_context.skyBox);
+				mDriver->setZCompare(true);
+			} else {
+				mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
+				mDriver->clearColorBuffer();
+			}
 			mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
 			mBackEnd->setShadowVp(0, mShadowPass[0]->viewProj());
@@ -115,6 +131,7 @@ namespace rev {
 			}
 			geom.vertices = _obj.mesh()->vertices;
 			geom.normals = _obj.mesh()->normals;
+			geom.uvs = _obj.mesh()->uvs;
 			geom.nVertices = _obj.mesh()->nVertices;
 			geom.transform = _obj.transform();
 			if (_obj.mMaterial)

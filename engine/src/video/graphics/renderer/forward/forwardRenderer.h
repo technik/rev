@@ -51,6 +51,7 @@ namespace rev {
 			DebugDrawer*		mDebug;
 			const Camera*		mDebugCamera;
 			Shader::Ptr			mShader = nullptr;
+			Shader::Ptr			mSkyShader = nullptr;
 			RendererBackEnd*	mBackEnd;
 			rev::math::Vec2u	mWindowSize;
 			math::Vec3f			mLightPos, mLightDir;
@@ -63,6 +64,7 @@ namespace rev {
 			mDriver = _driver;
 			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
 			mShader = Shader::manager()->get("forward");
+			mSkyShader = Shader::manager()->get("skybox");
 			mDebug = new DebugDrawer(mDriver, mBackEnd);
 
 			mShadowPass[0] = new ShadowPass(mDriver, mBackEnd, 1024);

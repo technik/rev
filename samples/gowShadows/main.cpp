@@ -24,6 +24,7 @@
 #include <game/scene/camera/flyByCamera.h>
 #include <input/keyboard/keyboardInput.h>
 #include <video/basicTypes/texture.h>
+#include <video/graphics/renderer/material.h>
 #include <vector>
 #include <iostream>
 
@@ -48,7 +49,40 @@ public:
 		mWorld = new PhysicsWorld();
 		mScene = Scene::import("scene.DAE");
 
-		Texture* skyTexture = Texture::load("skybox.jpg", &driver3d());
+		// Load skybox
+		mSkyMaterial.mDiffMap = Texture::load("skybox.jpg", &driver3d());
+		mScene->mRenderContext->skyBox = new RenderObj(Procedural::box(Vec3f(1.f)));
+		mScene->mRenderContext->skyBox->mMaterial = &mSkyMaterial;
+		mScene->mRenderContext->skyBox->attachTo(new SceneNode);
+		mScene->mRenderContext->skyBox->mesh()->uvs[0] = Vec2f(0.75f, 1.f/3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[1] = Vec2f(0.75f, 2.f/3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[2] = Vec2f(0.5f, 2.f/3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[3] = Vec2f(0.5f, 1.f/3.f);
+
+		mScene->mRenderContext->skyBox->mesh()->uvs[4] = Vec2f(0.25f, 1.f/3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[5] = Vec2f(0.5f, 1.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[6] = Vec2f(0.5f, 2.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[7] = Vec2f(0.25f, 2.f / 3.f);
+
+		//mScene->mRenderContext->skyBox->mesh()->uvs[ 8] = Vec2f(1.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[ 9] = Vec2f(1.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[10] = Vec2f(1.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[11] = Vec2f(1.f, 0.f);
+		
+		mScene->mRenderContext->skyBox->mesh()->uvs[12] = Vec2f(0.f, 2.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[13] = Vec2f(0.f, 1.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[14] = Vec2f(0.25f, 1.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[15] = Vec2f(0.25f, 2.f / 3.f);
+
+		mScene->mRenderContext->skyBox->mesh()->uvs[16] = Vec2f(0.75f, 1.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[17] = Vec2f(1.f, 1.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[18] = Vec2f(1.f, 2.f / 3.f);
+		mScene->mRenderContext->skyBox->mesh()->uvs[19] = Vec2f(0.75f, 2.f / 3.f);
+
+		//mScene->mRenderContext->skyBox->mesh()->uvs[20] = Vec2f(0.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[21] = Vec2f(0.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[22] = Vec2f(0.f, 0.f);
+		//mScene->mRenderContext->skyBox->mesh()->uvs[23] = Vec2f(0.f, 0.f);
 		
 		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
 		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
@@ -85,6 +119,8 @@ public:
 	Scene* mScene;
 	NewAllocator mAlloc;
 	PhysicsWorld* mWorld;
+
+	Material mSkyMaterial;
 	float t = 0;
 	bool mDebug = false;
 	bool mDebugMove = false;

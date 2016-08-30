@@ -10,8 +10,12 @@
 
 namespace rev {
 	namespace video {
+
+		class Texture;
+
 		class Material {
 		public:
+			Texture* mDiffMap;
 			Color mDiffuse;
 		};
 	}
