@@ -7,9 +7,14 @@
 #define _REV_VIDEO_BASICTYPES_TEXTURE_H_
 
 #include <math/algebra/vector.h>
+#include <string>
+
 
 namespace rev {
 	namespace video {
+
+		class GraphicsDriver;
+
 		class Texture {
 		public:
 			enum class EImageFormat {
@@ -36,6 +41,8 @@ namespace rev {
 			void * data;
 			EImageFormat imgFormat;
 			EByteFormat byteFormat;
+
+			static Texture* load(const std::string& _fileName, GraphicsDriver* _driver);
 		};
 	}
 }

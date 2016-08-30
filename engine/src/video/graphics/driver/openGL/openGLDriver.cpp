@@ -179,6 +179,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data, bool _multiSample) {
 			TextureGL* tex = new TextureGL;
+			tex->data = _data;
 			GLenum target = _multiSample? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &tex->id);
 			glBindTexture(target, tex->id);

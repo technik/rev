@@ -23,6 +23,7 @@
 #include <game/scene/scene.h>
 #include <game/scene/camera/flyByCamera.h>
 #include <input/keyboard/keyboardInput.h>
+#include <video/basicTypes/texture.h>
 #include <vector>
 #include <iostream>
 
@@ -46,6 +47,8 @@ public:
 		mRenderer->setWindowSize(window().size());
 		mWorld = new PhysicsWorld();
 		mScene = Scene::import("scene.DAE");
+
+		Texture* skyTexture = Texture::load("skybox.jpg", &driver3d());
 		
 		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
 		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
