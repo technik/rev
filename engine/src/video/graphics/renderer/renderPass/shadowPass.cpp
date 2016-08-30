@@ -65,12 +65,11 @@ namespace rev {
 			for (size_t i = 2; i < 8; ++i) {
 				shadowBB.merge(invShadow * frustumWorld[i]);
 			}
+			shadowBB.merge(Vec3f(0.f,0.f,-_minCaster));
 			// Recenter shadow basis
 			shadowBasis.setCol(3, shadowBasis * shadowBB.center());
 			shadowBasis.inverse(invShadow);
-			auto volDim = shadowBB.size();
-			volDim.z = _minCaster;
-			Mat44f shadowProj = Mat44f::ortho(volDim);
+			Mat44f shadowProj = Mat44f::ortho(shadowBB.size());
 
 			mBackEnd->setCamera(shadowBasis, shadowProj);
 			mViewProj = shadowProj * invShadow;

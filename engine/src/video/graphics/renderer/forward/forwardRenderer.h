@@ -54,7 +54,6 @@ namespace rev {
 			Shader::Ptr			mSkyShader = nullptr;
 			RendererBackEnd*	mBackEnd;
 			rev::math::Vec2u	mWindowSize;
-			math::Vec3f			mLightPos, mLightDir;
 			GraphicsDriver*		mDriver;
 			ShadowPass*			mShadowPass[3];
 		};
@@ -72,9 +71,6 @@ namespace rev {
 			mShadowPass[2] = new ShadowPass(mDriver, mBackEnd, 1024);
 
 			mDriver->setShader((Shader*)mShader);
-
-			mLightPos = {0.0, 0.0, 10.0};
-			mLightDir = math::Vec3f(1.f, 0.f, -1.f).normalized();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

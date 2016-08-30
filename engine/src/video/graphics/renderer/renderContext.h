@@ -28,7 +28,7 @@ namespace rev {
 
 		private:
 			const Camera*	mCamera;
-			math::Vec3f		mLightDir;
+			math::Vec3f		mLightDir = math::Vec3f(0.f,0.f,-1.f);
 		};
 	}
 }

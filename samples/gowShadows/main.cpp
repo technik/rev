@@ -90,6 +90,7 @@ public:
 		mDebugCam->setPos({ 0.f,0.f,1.f });
 
 		mScene->mRenderContext->setCamera(mCam);
+		mScene->mRenderContext->setLightDir(Vec3f(-0.8f,0.1f,-1.f).normalized());
 
 		Vec3f groundSize = {1000.f, 1000.f, 2.f};
 		RigidBody* groundBd = RigidBody::box(0.f, groundSize);

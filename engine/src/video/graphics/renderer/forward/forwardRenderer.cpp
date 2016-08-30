@@ -48,7 +48,7 @@ namespace rev {
 			float farPlane[3] = {maxFar*0.166f, maxFar * 0.333f, maxFar };
 			for(size_t i = 0; i < 3; ++i) {
 				Frustum cascadeFrustum = Frustum(globalFrustum.aspectRatio(), globalFrustum.fov(), globalFrustum.nearPlane(), farPlane[i]);
-				mShadowPass[i]->config(mLightDir, camView, cascadeFrustum, maxFar);
+				mShadowPass[i]->config(_context.lightDir(), camView, cascadeFrustum, maxFar);
 				for (auto obj : _context) {
 					if(obj->castShadows)
 						renderObject(*obj);
@@ -97,7 +97,7 @@ namespace rev {
 			mBackEnd->setShadowVp(2, mShadowPass[2]->viewProj());
 			mBackEnd->setShader(mShader);
 			int uLightDir = mDriver->getUniformLocation("uLightDir");
-			mDriver->setUniform(uLightDir, mLightDir);
+			mDriver->setUniform(uLightDir, _context.lightDir());
 			int uShadowMap0 = mDriver->getUniformLocation("uShadowMap0");
 			mDriver->setUniform(uShadowMap0, mShadowPass[0]->tex());
 			int uShadowMap1 = mDriver->getUniformLocation("uShadowMap1");
