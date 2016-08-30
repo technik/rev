@@ -48,7 +48,7 @@ namespace rev {
 			float farPlane[3] = {maxFar*0.166f, maxFar * 0.333f, maxFar };
 			for(size_t i = 0; i < 3; ++i) {
 				Frustum cascadeFrustum = Frustum(globalFrustum.aspectRatio(), globalFrustum.fov(), globalFrustum.nearPlane(), farPlane[i]);
-				mShadowPass[i]->config(mLightDir, camView, cascadeFrustum);
+				mShadowPass[i]->config(mLightDir, camView, cascadeFrustum, maxFar);
 				for (auto obj : _context) {
 					if(obj->castShadows)
 						renderObject(*obj);

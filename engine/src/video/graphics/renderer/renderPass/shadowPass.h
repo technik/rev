@@ -23,7 +23,7 @@ namespace rev {
 			ShadowPass(GraphicsDriver* _driver, RendererBackEnd* _backEnd, size_t bufferSize);
 			~ShadowPass();
 
-			void config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum);
+			void config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _minCaster);
 
 			const math::Mat44f& viewProj() const { return mViewProj; }
 			Texture* tex() const { return mShadowBuffer->tex; }

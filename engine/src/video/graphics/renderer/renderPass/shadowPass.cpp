@@ -34,7 +34,7 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ShadowPass::config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum) {
+		void ShadowPass::config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _minCaster) {
 			// ---- Compute shadow transform axes ----
 			Mat34f shadowBasis = Mat34f::identity();
 			if (abs(_lightDir * _viewMat.col(1)) < 0.71f) { // Only use the view direction if it is not too aligned with the light
@@ -68,7 +68,9 @@ namespace rev {
 			// Recenter shadow basis
 			shadowBasis.setCol(3, shadowBasis * shadowBB.center());
 			shadowBasis.inverse(invShadow);
-			Mat44f shadowProj = Mat44f::ortho(shadowBB.size());
+			auto volDim = shadowBB.size();
+			volDim.z = _minCaster;
+			Mat44f shadowProj = Mat44f::ortho(volDim);
 
 			mBackEnd->setCamera(shadowBasis, shadowProj);
 			mViewProj = shadowProj * invShadow;
