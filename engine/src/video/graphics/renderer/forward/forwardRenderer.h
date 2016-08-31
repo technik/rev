@@ -75,7 +75,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
-			delete mShadowPass;
+			delete[] mShadowPass;
 			_alloc.destroy(mBackEnd);
 		}
 	}

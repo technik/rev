@@ -5,7 +5,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL
 #include "openGLDriver.h"
-
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 #include <GL/gl.h>
 #ifdef _WIN32
 #include "glew.h"
@@ -179,7 +181,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data, bool _multiSample) {
 			TextureGL* tex = new TextureGL;
-			tex->data = _data;
+			tex->data = (uint8_t*)_data;
 			GLenum target = _multiSample? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &tex->id);
 			glBindTexture(target, tex->id);
@@ -201,29 +203,16 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		RenderTarget* OpenGLDriver::createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format, Texture::EByteFormat _byteFormat, bool _multiSample) {
-			RenderTargetGL* rt = new RenderTargetGL;
-			glGenFramebuffers(1, &rt->id);
-			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-			glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
-			TextureGL* tex = static_cast<TextureGL*>(createTexture(_size, _format, _byteFormat, NULL));
-			rt->tex = tex;
-
-			if (_format == Texture::EImageFormat::depth)
-			{
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, target, tex->id, 0);
-			} else {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tex->id, 0);
-			}
-
-			return rt;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::destroyRenderTarget(RenderTarget* _rt) {
 			RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
-			TextureGL* tex = static_cast<TextureGL*>(rt->tex);
-			glDeleteTextures(1, &tex->id);
+			if(rt->color) {
+				TextureGL* tex = static_cast<TextureGL*>(rt->color);
+				glDeleteTextures(1, &tex->id);
+			}
+			if (rt->depth) {
+				TextureGL* tex = static_cast<TextureGL*>(rt->color);
+				glDeleteTextures(1, &tex->id);
+			}
 			glDeleteFramebuffers(1, &rt->id);
 		}
 
@@ -244,49 +233,6 @@ namespace rev {
 			else {
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		GLint OpenGLDriver::enumToGl(Texture::EImageFormat _format) {
-			switch (_format) {
-			case Texture::EImageFormat::rgb:
-				return GL_RGB;
-			case Texture::EImageFormat::rgba:
-				return GL_RGBA;
-			case Texture::EImageFormat::alpha:
-				return GL_ALPHA;
-			case Texture::EImageFormat::luminance:
-				return GL_LUMINANCE;
-			case Texture::EImageFormat::lumiAlpha:
-				return GL_LUMINANCE_ALPHA;
-			case Texture::EImageFormat::depth:
-				return GL_DEPTH_COMPONENT;
-			case Texture::EImageFormat::depthStencil:
-				return GL_DEPTH_STENCIL;
-			}
-			return -1;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		GLint OpenGLDriver::enumToGl(Texture::EByteFormat _format) {
-			switch (_format)
-			{
-			case Texture::EByteFormat::eUnsignedByte:
-				return GL_UNSIGNED_BYTE;
-			case Texture::EByteFormat::eByte:
-				return GL_BYTE;
-			case Texture::EByteFormat::eUnsignedShort:
-				return GL_UNSIGNED_SHORT;
-			case Texture::EByteFormat::eShort:
-				return GL_SHORT;
-			case Texture::EByteFormat::eUnsignedInt:
-				return GL_UNSIGNED_INT;
-			case Texture::EByteFormat::eInt:
-				return GL_INT;
-			case Texture::EByteFormat::eFloat:
-				return GL_FLOAT;
-			}
-			return -1;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

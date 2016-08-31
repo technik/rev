@@ -44,10 +44,6 @@ namespace rev {
 
 			int			getUniformLocation(const char* _uniformName) override;
 
-			// --- Textures ---
-			Texture*	createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf,
-				void* _data = nullptr, bool _multiSample = false) override;
-
 			// --- Render targets ---
 			RenderTarget*		createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format,
 				Texture::EByteFormat _byteFormat, bool _multiSample = false) override;
@@ -73,20 +69,11 @@ namespace rev {
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
 
 		private:
-			static GLint enumToGl(Texture::EImageFormat _format);
-			static GLint enumToGl(Texture::EByteFormat _format);
-
-		private:
 			Window*	mWindow;
 			GLuint	mProgram;
 			GLuint mCurTexStage = GL_TEXTURE0;
 
 			class TextureGL : public Texture {
-			public:
-				unsigned id;
-			};
-
-			class RenderTargetGL : public RenderTarget {
 			public:
 				unsigned id;
 			};

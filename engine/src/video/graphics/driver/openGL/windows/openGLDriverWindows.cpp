@@ -9,6 +9,7 @@
 
 #include "openGLDriverWindows.h"
 #include <video/window/window.h>
+#include <core/platform/osHandler.h>
 
 #include <gl/GL.h>
 
@@ -45,9 +46,7 @@ namespace rev {
 			GLuint pixelFormat = ChoosePixelFormat(mDevCtxHandle, &pfd);
 			SetPixelFormat(mDevCtxHandle, pixelFormat, &pfd);
 			HGLRC renderCtxHandle = wglCreateContext(mDevCtxHandle);
-			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);
-
-			
+			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);			
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

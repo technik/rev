@@ -6,9 +6,17 @@
 #ifndef _REV_VIDEO_BASICTYPES_TEXTURE_H_
 #define _REV_VIDEO_BASICTYPES_TEXTURE_H_
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <video/graphics/driver/openGL/glew.h>
+#else
+#include <GL/glew.h>
+#endif // !_WIN32
+
+#include <GL/gl.h>
+
 #include <math/algebra/vector.h>
 #include <string>
-
 
 namespace rev {
 	namespace video {
@@ -37,12 +45,26 @@ namespace rev {
 				eFloat
 			};
 
+		public:
+			Texture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data = nullptr, bool _multiSample = false);
+			~Texture();
+
+			static Texture* load(const std::string& _fileName, GraphicsDriver* _driver);
+
+			bool	multiSample	() const { return mMultiSample; }
+			GLuint	glId		() const { return mId; }
+
 			math::Vec2u size;
-			void * data;
+			uint8_t * data = nullptr;
 			EImageFormat imgFormat;
 			EByteFormat byteFormat;
 
-			static Texture* load(const std::string& _fileName, GraphicsDriver* _driver);
+		private:
+			static GLint enumToGl(EImageFormat _format);
+			static GLint enumToGl(EByteFormat _format);
+
+			bool mMultiSample = false;
+			GLuint mId;
 		};
 	}
 }

@@ -21,6 +21,7 @@ namespace rev {
 		class OSHandlerBaseWindows {
 		public:
 			bool processMessage(MSG);
+			/// \return true if the message was processed by the delegate
 			typedef std::function<bool(MSG)>	OSDelegate;
 
 			void operator+= (OSDelegate);

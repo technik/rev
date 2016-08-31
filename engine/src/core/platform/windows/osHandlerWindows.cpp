@@ -22,7 +22,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool OSHandlerBaseWindows::processMessage(MSG _msg) {
-			if (_msg.message == WM_QUIT) { // If exit requested, don't bother processing anything else
+			if (_msg.message == WM_QUIT || _msg.message == WM_CLOSE) { // If exit requested, don't bother processing anything else
 				mMustQuit = true;
 				return true;
 			}
