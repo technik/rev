@@ -186,6 +186,7 @@ namespace rev {
 				if (status != GL_FRAMEBUFFER_COMPLETE)
 				{
 					std::cout << "Incomplete fb\n";
+					assert(false);
 				}
 				//GLenum db = GL_COLOR_ATTACHMENT0;
 				//glDrawBuffers(1, &db);

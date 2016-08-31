@@ -25,46 +25,46 @@ namespace rev {
 
 		class Texture {
 		public:
-			enum class EImageFormat {
-				rgb,
-				rgba,
-				alpha,
-				luminance,
-				lumiAlpha,
-				depth,
-				depthStencil
+			enum class InternalFormat {
+				r = GL_RED,
+				rg = GL_RG8,
+				rgb = GL_RGB8,
+				rgba = GL_RGBA8,
+				rg16f = GL_RG16F,
+				rg32f = GL_RG32F,
+				depth = GL_DEPTH_COMPONENT
 			};
 
-			enum class EByteFormat {
-				eUnsignedByte,
-				eByte,
-				eUnsignedShort,
-				eShort,
-				eUnsignedInt,
-				eInt,
-				eFloat
+			enum class SourceFormat {
+				r = GL_RED,
+				rg = GL_RG,
+				rgb = GL_RGB,
+				rgba = GL_RGBA,
+				depth = GL_DEPTH,
+				depthStencil = GL_DEPTH_STENCIL
 			};
 
 		public:
-			Texture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data = nullptr, bool _multiSample = false);
+			Texture(const math::Vec2u& _size, InternalFormat _targetFormat, SourceFormat _srcFormat, uint8_t* _data);
+			// Empty texture
+			Texture(const math::Vec2u& _size, InternalFormat _if, bool _multiSample = false);
 			~Texture();
 
 			static Texture* load(const std::string& _fileName, GraphicsDriver* _driver);
 
+			// Texture options
+			// Set wrapping
+			// Set filtering
+
 			bool	multiSample	() const { return mMultiSample; }
 			GLuint	glId		() const { return mId; }
 
-			math::Vec2u size;
-			uint8_t * data = nullptr;
-			EImageFormat imgFormat;
-			EByteFormat byteFormat;
+			const math::Vec2u& size() const { return mSize; }
 
 		private:
-			static GLint enumToGl(EImageFormat _format);
-			static GLint enumToGl(EByteFormat _format);
-
+			math::Vec2u mSize;
+			GLuint mId = GL_INVALID_INDEX;
 			bool mMultiSample = false;
-			GLuint mId;
 		};
 	}
 }

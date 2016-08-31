@@ -12,26 +12,57 @@ namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		Texture::Texture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data, bool _multiSample)
-			: size(_size)
-			, data((uint8_t*)_data)
-			, imgFormat(_if)
-			, byteFormat(_bf)
+		Texture::Texture(const math::Vec2u& _size, InternalFormat _targetFormat, SourceFormat _srcFormat, uint8_t* _data)
+			: mSize(_size)
+		{
+			glGenTextures(1, &mId);
+			glBindTexture(GL_TEXTURE_2D, mId);
+			glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, (GLenum)_srcFormat, GL_UNSIGNED_BYTE, _data);
+			// Default settings
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		}
+		
+		//--------------------------------------------------------------------------------------------------------------
+		Texture::Texture(const math::Vec2u& _size, InternalFormat _targetFormat, bool _multiSample)
+			: mSize(_size)
 			, mMultiSample(_multiSample)
 		{
 			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &mId);
 			glBindTexture(target, mId);
-			GLint format = enumToGl(_if);
-			GLint byteFormat = enumToGl(_bf);
 			if (_multiSample)
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, format, _size.x, _size.y, true);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, (GLint)_targetFormat, _size.x, _size.y, true);
 			else {
-				glTexImage2D(GL_TEXTURE_2D, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				if(_targetFormat == InternalFormat::depth) {
+					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, (GLint)_targetFormat, GL_FLOAT, nullptr);
+
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					// Remove artefact on the edges of the shadowmap
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				}
+				else {
+					GLenum srcFormat = (GLenum)_targetFormat;
+					if(_targetFormat == InternalFormat::rgb)
+						srcFormat = GL_RGB;
+					else if (_targetFormat == InternalFormat::rgba)
+						srcFormat = GL_RGBA;
+					if (_targetFormat == InternalFormat::rgb)
+						srcFormat = GL_RGB;
+					else if (_targetFormat == InternalFormat::rg)
+						srcFormat = GL_RG;
+					else if (_targetFormat == InternalFormat::r)
+						srcFormat = GL_RED;
+					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, srcFormat, GL_UNSIGNED_BYTE, nullptr);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				}
 			}
 		}
 
@@ -45,7 +76,10 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Texture* Texture::load(const std::string& _fileName, GraphicsDriver* _driver){
 			auto fIFormat = FreeImage_GetFIFFromFilename(_fileName.c_str());
-			FIBITMAP * bitmap = FreeImage_Load(fIFormat, _fileName.c_str(), JPEG_ACCURATE);
+			int flags = 0;
+			if(fIFormat == FIF_JPEG)
+				flags = JPEG_ACCURATE;
+			FIBITMAP * bitmap = FreeImage_Load(fIFormat, _fileName.c_str(), flags);
 			if(!bitmap)
 				return nullptr;
 			auto imgType = FreeImage_GetImageType(bitmap);
@@ -58,101 +92,34 @@ namespace rev {
 			size.x = FreeImage_GetWidth(bitmap);
 			size.y = FreeImage_GetHeight(bitmap);
 			uint8_t * buffer = FreeImage_GetBits(bitmap); // Get the pixels from the bitmap
-			size_t nPixels = size.x * size.y;
-			unsigned char * pixels = new unsigned char[4 * nPixels];
-			if (FreeImage_GetBPP(bitmap) == 32) // RGBA
+			Texture* tex = nullptr;
+			switch (FreeImage_GetBPP(bitmap))
 			{
-				for (unsigned i = 0; i < nPixels; i++)
+			case 32:
+				tex = new Texture(size, InternalFormat::rgba, SourceFormat::rgba, buffer);
+				break;
+			case 24: {
+				unsigned nPixels = size.x*size.y;
+				for (unsigned i = 0; i < nPixels; ++i)
 				{
-					pixels[4 * i + 0] = buffer[4 * i + 0];
-					pixels[4 * i + 1] = buffer[4 * i + 1];
-					pixels[4 * i + 2] = buffer[4 * i + 2];
-					pixels[4 * i + 3] = buffer[4 * i + 3];
+					uint8_t r = buffer[3*i+2];
+					buffer[3 * i + 2] = buffer[3 * i];
+					buffer[3 * i] = r;
 				}
+				tex = new Texture(size, InternalFormat::rgb, SourceFormat::rgb, buffer);
+				break;
 			}
-			else if (FreeImage_GetBPP(bitmap) == 24) // RGB
-			{
-				for (unsigned i = 0; i < nPixels; i++)
-				{
-					pixels[4 * i + 0] = buffer[3 * i + 2];
-					pixels[4 * i + 1] = buffer[3 * i + 1];
-					pixels[4 * i + 2] = buffer[3 * i + 0];
-					pixels[4 * i + 3] = 255;
-				}
-			}
-			else if (FreeImage_GetBPP(bitmap) == 16) // Intensity-Alpha
-			{
-				for (unsigned i = 0; i < nPixels; i++)
-				{
-					pixels[4 * i + 0] = buffer[2 * i + 0];
-					pixels[4 * i + 1] = buffer[2 * i + 0];
-					pixels[4 * i + 2] = buffer[2 * i + 0];
-					pixels[4 * i + 3] = buffer[2 * i + 0];
-				}
-			}
-			else if (FreeImage_GetBPP(bitmap) == 8) // Grey image
-			{
-				for (unsigned i = 0; i < nPixels; i++)
-				{
-					pixels[4 * i + 0] = buffer[i];
-					pixels[4 * i + 1] = buffer[i];
-					pixels[4 * i + 2] = buffer[i];
-					pixels[4 * i + 3] = 255;
-				}
-			}
-			else
-			{
-				assert(false); //  "Unsupported image format"
-				FreeImage_Unload(bitmap);
-				return nullptr;
+			case 16:
+				tex = new Texture(size, InternalFormat::rg, SourceFormat::rg, buffer);
+				break;
+			case 8:
+				tex = new Texture(size, InternalFormat::r, SourceFormat::r, buffer);
+				break;
 			}
 			FreeImage_Unload(bitmap); // Release FreeImage's copy of the data
 										 // Construct a texture using the data we just loaded
 			
-			return new Texture(size, EImageFormat::rgba, EByteFormat::eUnsignedByte, pixels);
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		GLint Texture::enumToGl(Texture::EImageFormat _format) {
-			switch (_format) {
-			case Texture::EImageFormat::rgb:
-				return GL_RGB;
-			case Texture::EImageFormat::rgba:
-				return GL_RGBA;
-			case Texture::EImageFormat::alpha:
-				return GL_ALPHA;
-			case Texture::EImageFormat::luminance:
-				return GL_LUMINANCE;
-			case Texture::EImageFormat::lumiAlpha:
-				return GL_LUMINANCE_ALPHA;
-			case Texture::EImageFormat::depth:
-				return GL_DEPTH_COMPONENT;
-			case Texture::EImageFormat::depthStencil:
-				return GL_DEPTH_STENCIL;
-			}
-			return -1;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		GLint Texture::enumToGl(Texture::EByteFormat _format) {
-			switch (_format)
-			{
-			case Texture::EByteFormat::eUnsignedByte:
-				return GL_UNSIGNED_BYTE;
-			case Texture::EByteFormat::eByte:
-				return GL_BYTE;
-			case Texture::EByteFormat::eUnsignedShort:
-				return GL_UNSIGNED_SHORT;
-			case Texture::EByteFormat::eShort:
-				return GL_SHORT;
-			case Texture::EByteFormat::eUnsignedInt:
-				return GL_UNSIGNED_INT;
-			case Texture::EByteFormat::eInt:
-				return GL_INT;
-			case Texture::EByteFormat::eFloat:
-				return GL_FLOAT;
-			}
-			return -1;
+			return tex;
 		}
 	}
 }

@@ -16,7 +16,7 @@ uniform sampler2D uShadowMap2;
 
 void main (void) {
 	vec3 ambient = vec3(0.2,0.2,0.25);
-	vec3 normal = normalize(vNormal);
+	vec3 normal = vNormal;//normalize(vNormal);
 	vec3 dif = vec3(0.95,0.95,0.95)*max(0.0, -dot(uLightDir, normal));
 	vec3 color = uColor.xyz;
 	gl_FragColor = vec4(color*(dif+ambient), 1.0);

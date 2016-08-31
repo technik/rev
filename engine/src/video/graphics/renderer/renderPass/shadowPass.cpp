@@ -24,8 +24,9 @@ namespace rev {
 		{
 			mShadowShader = Shader::manager()->get("shadow");
 
-			Texture* depthTex = new Texture({ _bufferSize, _bufferSize }, Texture::EImageFormat::depth, Texture::EByteFormat::eFloat);
 			mShadowBuffer = new RenderTarget();
+			Vec2u size(_bufferSize);
+			Texture* depthTex = new Texture(size, Texture::InternalFormat::depth, false);
 			mShadowBuffer->setTargetDepth(depthTex);
 		}
 
@@ -78,7 +79,7 @@ namespace rev {
 			mViewProj = shadowProj * invShadow;
 			// Configure renderer
 			mDriver->setRenderTarget(mShadowBuffer);
-			mDriver->setViewport(math::Vec2i(0, 0), mShadowBuffer->depth()->size);
+			mDriver->setViewport(math::Vec2i(0, 0), mShadowBuffer->depth()->size());
 			mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eFront);
 			mBackEnd->setShader(mShadowShader);
