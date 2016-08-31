@@ -45,10 +45,7 @@ namespace rev {
 			int			getUniformLocation(const char* _uniformName) override;
 
 			// --- Render targets ---
-			RenderTarget*		createRenderTarget(const math::Vec2u& _size, Texture::EImageFormat _format,
-				Texture::EByteFormat _byteFormat, bool _multiSample = false) override;
-			void				destroyRenderTarget(RenderTarget* _rt) override;
-			void				setRenderTarget(RenderTarget* _rt) override;
+			void		setRenderTarget(RenderTarget* _rt) override;
 
 			// --- Attributes and uniforms
 			void		setAttribBuffer(unsigned _id, unsigned _nElements, const float * _buffer) override;
@@ -73,13 +70,8 @@ namespace rev {
 			GLuint	mProgram;
 			GLuint mCurTexStage = GL_TEXTURE0;
 
-			class TextureGL : public Texture {
-			public:
-				unsigned id;
-			};
-
-			void assignTexStage(const TextureGL*);
-			bool hasTexStage(const TextureGL*) const;
+			void assignTexStage(const Texture*);
+			bool hasTexStage(const Texture*) const;
 			std::map<unsigned,GLuint> mAssignedTexStages; // Texture id, tex stage.
 		};
 

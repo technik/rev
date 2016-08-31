@@ -55,8 +55,8 @@ namespace rev {
 			Frustum(Vec3f size) // Rectangular
 				: mAspectRatio(size.x/size.y)
 				, mFov(0.f)
-				, mNear(-0.5*size.y)
-				, mFar(-0.5*size.y)
+				, mNear(-0.5f*size.y)
+				, mFar(-0.5f*size.y)
 			{
 				math::Vec3f hSize = size*0.5f;
 				math::Vec3f minVert = math::Vec3f(hSize.x, -hSize.y, hSize.z);

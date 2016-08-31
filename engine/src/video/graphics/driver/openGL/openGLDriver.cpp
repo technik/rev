@@ -177,51 +177,11 @@ namespace rev {
 			}*/
 			return loc;
 		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		Texture* OpenGLDriver::createTexture(const math::Vec2u& _size, Texture::EImageFormat _if, Texture::EByteFormat _bf, void* _data, bool _multiSample) {
-			TextureGL* tex = new TextureGL;
-			tex->data = (uint8_t*)_data;
-			GLenum target = _multiSample? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-			glGenTextures(1, &tex->id);
-			glBindTexture(target, tex->id);
-			GLint format = enumToGl(_if);
-			tex->imgFormat = _if;
-			GLint byteFormat = enumToGl(_bf);
-			tex->byteFormat = _bf;
-			tex->size = _size;
-			if(_multiSample)
-				glTexImage2DMultisample(target, 4, format, _size.x, _size.y, true);
-			else {
-				glTexImage2D(target, 0, format, _size.x, _size.y, 0, format, enumToGl(_bf), _data);
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
-			}
-			return tex;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::destroyRenderTarget(RenderTarget* _rt) {
-			RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
-			if(rt->color) {
-				TextureGL* tex = static_cast<TextureGL*>(rt->color);
-				glDeleteTextures(1, &tex->id);
-			}
-			if (rt->depth) {
-				TextureGL* tex = static_cast<TextureGL*>(rt->color);
-				glDeleteTextures(1, &tex->id);
-			}
-			glDeleteFramebuffers(1, &rt->id);
-		}
-
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setRenderTarget(RenderTarget* _rt) {
 			glFinish();
 			if (_rt) {
-				RenderTargetGL* rt = static_cast<RenderTargetGL*>(_rt);
-				glBindFramebuffer(GL_FRAMEBUFFER, rt->id);
+				glBindFramebuffer(GL_FRAMEBUFFER, _rt->glId());
 				GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 				if (status != GL_FRAMEBUFFER_COMPLETE)
 				{
@@ -326,23 +286,22 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex) {
 			//logGlError();
-			const TextureGL* tex = static_cast<const TextureGL*>(_tex);
-			if(hasTexStage(tex)) {
-				glActiveTexture(mAssignedTexStages[tex->id]);
-				glBindTexture(GL_TEXTURE_2D, tex->id);
+			if(hasTexStage(_tex)) {
+				glActiveTexture(mAssignedTexStages[_tex->glId()]);
+				glBindTexture(GL_TEXTURE_2D, _tex->glId());
 			} else {
-				assignTexStage(tex);
+				assignTexStage(_tex);
 			}
 			//logGlError();
-			glUniform1i(_uniformId, mAssignedTexStages[tex->id] - GL_TEXTURE0);
+			glUniform1i(_uniformId, mAssignedTexStages[_tex->glId()] - GL_TEXTURE0);
 			//logGlError();
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::assignTexStage(const TextureGL* _tex) {
+		void OpenGLDriver::assignTexStage(const Texture* _tex) {
 			glActiveTexture(mCurTexStage);
-			glBindTexture(GL_TEXTURE_2D, _tex->id);
-			mAssignedTexStages[_tex->id] = mCurTexStage;
+			glBindTexture(GL_TEXTURE_2D, _tex->glId());
+			mAssignedTexStages[_tex->glId()] = mCurTexStage;
 
 			mCurTexStage++;
 			if (mCurTexStage > GL_TEXTURE31)
@@ -350,8 +309,8 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		bool OpenGLDriver::hasTexStage(const TextureGL* _tex) const {
-			return mAssignedTexStages.find(_tex->id) != mAssignedTexStages.end();
+		bool OpenGLDriver::hasTexStage(const Texture* _tex) const {
+			return mAssignedTexStages.find(_tex->glId()) != mAssignedTexStages.end();
 		}
 
 	}	// namespace video

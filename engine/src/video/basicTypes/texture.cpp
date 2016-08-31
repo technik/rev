@@ -109,7 +109,7 @@ namespace rev {
 			FreeImage_Unload(bitmap); // Release FreeImage's copy of the data
 										 // Construct a texture using the data we just loaded
 			
-			return _driver->createTexture(size, EImageFormat::rgba, EByteFormat::eUnsignedByte, pixels);
+			return new Texture(size, EImageFormat::rgba, EByteFormat::eUnsignedByte, pixels);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
