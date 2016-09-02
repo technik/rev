@@ -33,9 +33,30 @@ namespace rev {
 			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &mId);
 			glBindTexture(target, mId);
-			if (_multiSample)
+			
+			if (_multiSample){
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, (GLint)_targetFormat, _size.x, _size.y, true);
+				glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+				//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			}
 			else {
+				GLenum srcFormat = (GLenum)_targetFormat;
+				if (_targetFormat == InternalFormat::rgb)
+					srcFormat = GL_RGB;
+				else if (_targetFormat == InternalFormat::rgba)
+					srcFormat = GL_RGBA;
+				if (_targetFormat == InternalFormat::rgb)
+					srcFormat = GL_RGB;
+				else if (_targetFormat == InternalFormat::rg)
+					srcFormat = GL_RG;
+				else if (_targetFormat == InternalFormat::rg32f)
+					srcFormat = GL_RG;
+				else if (_targetFormat == InternalFormat::rg16f)
+					srcFormat = GL_RG;
+				else if (_targetFormat == InternalFormat::r)
+					srcFormat = GL_RED;
 				if(_targetFormat == InternalFormat::depth) {
 					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, (GLint)_targetFormat, GL_FLOAT, nullptr);
 
@@ -46,17 +67,6 @@ namespace rev {
 					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 				}
 				else {
-					GLenum srcFormat = (GLenum)_targetFormat;
-					if(_targetFormat == InternalFormat::rgb)
-						srcFormat = GL_RGB;
-					else if (_targetFormat == InternalFormat::rgba)
-						srcFormat = GL_RGBA;
-					if (_targetFormat == InternalFormat::rgb)
-						srcFormat = GL_RGB;
-					else if (_targetFormat == InternalFormat::rg)
-						srcFormat = GL_RG;
-					else if (_targetFormat == InternalFormat::r)
-						srcFormat = GL_RED;
 					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, srcFormat, GL_UNSIGNED_BYTE, nullptr);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -120,6 +130,18 @@ namespace rev {
 										 // Construct a texture using the data we just loaded
 			
 			return tex;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void Texture::enableMipMaps() {
+			glBindTexture(GL_TEXTURE_2D, mId);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void Texture::generateMipMaps() {
+			glBindTexture(GL_TEXTURE_2D, mId);
+			glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
 		}
 	}
 }

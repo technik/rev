@@ -28,12 +28,22 @@ namespace rev {
 			Vec2u size(_bufferSize);
 			Texture* depthTex = new Texture(size, Texture::InternalFormat::depth, false);
 			mShadowBuffer->setTargetDepth(depthTex);
+			Texture* shadowMap = new Texture(size, Texture::InternalFormat::rg32f, false);
+			shadowMap->enableMipMaps();
+			mShadowBuffer->setTargetColor(shadowMap);
+
+			Texture* msClr = new Texture(size, Texture::InternalFormat::rg32f, true);
+			Texture* msDpt = new Texture(size, Texture::InternalFormat::depth, true);
+			mMultiSampleShadows = new RenderTarget();
+			mMultiSampleShadows->setTargetColor(msClr);
+			mMultiSampleShadows->setTargetDepth(msDpt);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		ShadowPass::~ShadowPass()
 		{
-			mShadowBuffer->depth();
+			delete mShadowBuffer->depth();
+			delete mShadowBuffer->color();
 			delete[] mShadowBuffer;
 		}
 
@@ -78,9 +88,13 @@ namespace rev {
 			mBackEnd->setCamera(shadowBasis, shadowProj);
 			mViewProj = shadowProj * invShadow;
 			// Configure renderer
-			mDriver->setRenderTarget(mShadowBuffer);
+			//mDriver->setRenderTarget(mShadowBuffer);
+			mDriver->setRenderTarget(mMultiSampleShadows);
+
 			mDriver->setViewport(math::Vec2i(0, 0), mShadowBuffer->depth()->size());
 			mDriver->clearZBuffer();
+			mDriver->setClearColor(Color(1.0));
+			mDriver->clearColorBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eFront);
 			mBackEnd->setShader(mShadowShader);
 
@@ -91,6 +105,18 @@ namespace rev {
 				mDebug->drawLine(centroidWorld, centroidWorld + _lightDir*50.f, Color(0.f, 1.f, 1.f));
 				mDebug->drawFrustum(shadowBasis, Frustum(shadowBB.size()), Color(0.5f,0.5f,0.f));
 			}
+
+
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ShadowPass::finishPass() {
+			glFinish();
+			Vec2u size = mShadowBuffer->color()->size();
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, mMultiSampleShadows->glId());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mShadowBuffer->glId());   // Make sure no FBO is set as the draw framebuffer
+			glBlitFramebuffer(0,0, (GLint)size.x, (GLint)size.y,0,0, (GLint)size.x, (GLint)size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			mShadowBuffer->color()->generateMipMaps();
 		}
 	}
 }

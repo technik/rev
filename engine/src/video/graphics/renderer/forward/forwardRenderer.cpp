@@ -43,14 +43,17 @@ namespace rev {
 			// Render shadow pass
 			Frustum globalFrustum = adjustShadowFrustum(_context);
 			float maxFar = globalFrustum.farPlane();
-			float farPlane[3] = {maxFar*0.166f, maxFar * 0.333f, maxFar };
+			float farPlane[3] = {maxFar*0.1f, maxFar * 0.3f, maxFar };
 			for(size_t i = 0; i < 3; ++i) {
 				Frustum cascadeFrustum = Frustum(globalFrustum.aspectRatio(), globalFrustum.fov(), globalFrustum.nearPlane(), farPlane[i]);
 				mShadowPass[i]->config(_context.lightDir(), camView, cascadeFrustum, maxFar);
+				
 				for (auto obj : _context) {
 					if(obj->castShadows)
 						renderObject(*obj);
 				}
+				mShadowPass[i]->finishPass();
+				//mShadowPass[i]->tex()->generateMipMaps();
 			}
 			//mDriver->finishFrame();
 			if (mDebugCamera) {

@@ -55,6 +55,9 @@ namespace rev {
 			// Texture options
 			// Set wrapping
 			// Set filtering
+			// Set mipmaping
+			void enableMipMaps	();
+			void generateMipMaps();
 
 			bool	multiSample	() const { return mMultiSample; }
 			GLuint	glId		() const { return mId; }

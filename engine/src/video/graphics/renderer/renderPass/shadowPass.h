@@ -24,9 +24,10 @@ namespace rev {
 			~ShadowPass();
 
 			void config(const math::Vec3f& _lightDir, const math::Mat34f& _viewMat, const math::Frustum& _viewFrustum, float _minCaster);
+			void finishPass();
 
 			const math::Mat44f& viewProj() const { return mViewProj; }
-			Texture* tex() const { return mShadowBuffer->depth(); }
+			Texture* tex() const { return mShadowBuffer->color(); }
 
 			DebugDrawer* mDebug = nullptr;
 
@@ -36,6 +37,7 @@ namespace rev {
 			RenderTarget*			mShadowBuffer;
 			GraphicsDriver*			mDriver;
 			math::Mat44f			mViewProj;
+			RenderTarget*		mMultiSampleShadows;
 		};
 	}
 }
