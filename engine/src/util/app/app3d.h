@@ -8,6 +8,7 @@
 #define _REV_UTIL_APP_APP3D_H_
 
 #include <core/memory/newAllocator.h>
+#include <core/tools/profiler.h>
 #include <input/keyboard/keyboardInput.h>
 #include <engine.h>
 
@@ -43,6 +44,7 @@ namespace rev {
 		rev::video::Shader::Ptr		mShader;
 		rev::input::KeyboardInput*	mKeyboard;
 		rev::video::Window*			mWindow;
+		rev::core::Profiler			mProfiler;
 	};
 
 }	// namespace rev

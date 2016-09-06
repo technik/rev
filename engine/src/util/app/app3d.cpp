@@ -39,8 +39,10 @@ namespace rev {
 		if(mKeyboard->pressed(input::KeyboardInput::eEscape))
 			return false;
 
-		if(frame(core::Time::get()->frameTime())) {
+		float dt = core::Time::get()->frameTime();
+		if(frame(dt)) {
 			postFrame();
+			mProfiler.update(dt);
 			return true;
 		}
 		return false;
