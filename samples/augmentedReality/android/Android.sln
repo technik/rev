@@ -8,6 +8,11 @@ EndProject
 Project("{39E2626F-3545-4960-A6E8-258AD8476CE5}") = "Android.Packaging", "Android\Android.Packaging\Android.Packaging.androidproj", "{A518A5FC-5B1B-4EFB-869A-1F5DD3752684}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Android.NativeActivity", "Android\Android.NativeActivity\Android.NativeActivity.vcxproj", "{5EC8791F-FF30-4F8B-853C-719A8162DFDC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789} = {C17E8EB6-D764-4332-80A6-3CDCEB9AC789}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "revAndroid", "..\..\..\engine\revAndroid\revAndroid.vcxproj", "{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +66,22 @@ Global
 		{5EC8791F-FF30-4F8B-853C-719A8162DFDC}.Release|x64.Build.0 = Release|x64
 		{5EC8791F-FF30-4F8B-853C-719A8162DFDC}.Release|x86.ActiveCfg = Release|x86
 		{5EC8791F-FF30-4F8B-853C-719A8162DFDC}.Release|x86.Build.0 = Release|x86
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|ARM.ActiveCfg = Debug|ARM
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|ARM.Build.0 = Debug|ARM
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|ARM64.Build.0 = Debug|ARM64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|x64.ActiveCfg = Debug|x64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|x64.Build.0 = Debug|x64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|x86.ActiveCfg = Debug|x86
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Debug|x86.Build.0 = Debug|x86
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|ARM.ActiveCfg = Release|ARM
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|ARM.Build.0 = Release|ARM
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|ARM64.ActiveCfg = Release|ARM64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|ARM64.Build.0 = Release|ARM64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|x64.ActiveCfg = Release|x64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|x64.Build.0 = Release|x64
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|x86.ActiveCfg = Release|x86
+		{C17E8EB6-D764-4332-80A6-3CDCEB9AC789}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

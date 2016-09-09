@@ -18,6 +18,20 @@
 #ifndef _ANDROID_NATIVE_APP_GLUE_H
 #define _ANDROID_NATIVE_APP_GLUE_H
 
+#include <jni.h>
+#include <errno.h>
+
+#include <string.h>
+#include <unistd.h>
+#include <sys/resource.h>
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
+#include <android/sensor.h>
+
+#include <android/log.h>
+
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
@@ -330,11 +344,10 @@ void android_app_pre_exec_cmd(struct android_app* android_app, int8_t cmd);
  * actions for the command before calling this function.
  */
 void android_app_post_exec_cmd(struct android_app* android_app, int8_t cmd);
-
 /**
- * This is the function that application code must implement, representing
- * the main entry to the app.
- */
+* This is the function that application code must implement, representing
+* the main entry to the app.
+*/
 extern void android_main(struct android_app* app);
 
 #ifdef __cplusplus

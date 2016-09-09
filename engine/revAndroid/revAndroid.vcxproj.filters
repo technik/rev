@@ -1,10 +1,62 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="revAndroid.cpp" />
+    <ClInclude Include="..\src\math\noise.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\numericTraits.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\algebra\matrix.h">
+      <Filter>math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\algebra\quaternion.h">
+      <Filter>math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\algebra\vector.h">
+      <Filter>math\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\geometry\kdtree.h">
+      <Filter>math\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\geometry\types.h">
+      <Filter>math\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="android_glue.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="revAndroid.h" />
-    <ClInclude Include="pch.h" />
+    <Filter Include="core">
+      <UniqueIdentifier>{12fc273b-a96a-43ee-bfdb-a89ded154997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video">
+      <UniqueIdentifier>{9af3e320-9a0c-4650-9e85-9fb672f7a0a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{797292fd-94a3-4294-869b-8675de955e42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\geometry">
+      <UniqueIdentifier>{fe3cae3a-6f61-4e82-a523-b47d249b56c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\algebra">
+      <UniqueIdentifier>{3e9bcc80-536a-41ac-b13c-9b6f1477fef9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\math\noise.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="android_glue.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\math\algebra\matrix.inl">
+      <Filter>math\algebra</Filter>
+    </None>
+    <None Include="..\src\math\algebra\vector.inl">
+      <Filter>math\algebra</Filter>
+    </None>
   </ItemGroup>
 </Project>
