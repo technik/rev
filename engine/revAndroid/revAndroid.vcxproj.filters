@@ -28,6 +28,24 @@
     <ClInclude Include="..\src\core\time\time.h">
       <Filter>core\time</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\graphicsDriver.h">
+      <Filter>video\graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\openGL\glew.h">
+      <Filter>video\graphics\driver\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\openGL\glxew.h">
+      <Filter>video\graphics\driver\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\openGL\openGLDriver.h">
+      <Filter>video\graphics\driver\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\openGL\wglew.h">
+      <Filter>video\graphics\driver\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.h">
+      <Filter>video\graphics\driver\OpenGL\android</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -54,6 +72,18 @@
     <Filter Include="core\time">
       <UniqueIdentifier>{bcad4503-73bb-41ff-bb41-c4323d0528b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="video\graphics">
+      <UniqueIdentifier>{f33c61c4-0be4-41be-abb4-40760b013be0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\driver">
+      <UniqueIdentifier>{555d87d6-e01c-43e3-944c-f6d1a023f489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\driver\OpenGL">
+      <UniqueIdentifier>{44750777-4df4-4df8-8bf2-02c966aadeb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\driver\OpenGL\android">
+      <UniqueIdentifier>{db5d693c-5bb9-43b5-8b3f-2f97669fbd25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -61,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="..\src\core\time\time.cpp">
       <Filter>core\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp">
+      <Filter>video\graphics\driver\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

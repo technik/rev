@@ -17,6 +17,7 @@
 
 #include "android_native_app_glue.h"
 #include <core/time/time.h>
+#include <video/graphics/driver/graphicsDriver.h>
 
 using namespace rev;
 
@@ -250,6 +251,7 @@ void android_main(struct android_app* state) {
 	// loop waiting for stuff to do.
 
 	while (1) {
+		// Update time
 		core::Time::get()->update();
 		float dt = core::Time::get()->frameTime();
 		// Read all pending events.

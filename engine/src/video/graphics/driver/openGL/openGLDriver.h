@@ -7,12 +7,15 @@
 #ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 
-#ifdef _WIN32
-#include "windows/openGLDriverWindows.h"
-#endif // _WIN32
-#ifdef __linux__
+#ifdef ANDROID
+#	include "android/openGLDriverAndroid.h"
+#else
+#	if defined(_WIN32)
+		#include "windows/openGLDriverWindows.h"
+#	else ifdef __linux__
 #include "linux/openGLDriverLinux.h"
-#endif // __linux__
+#	endif // __linux__
+#endif // !ANDROID
 #include "glew.h"
 #include <core/containers/map.h>
 
