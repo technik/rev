@@ -7,15 +7,6 @@
 #ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 
-#ifdef ANDROID
-#	include "android/openGLDriverAndroid.h"
-#else
-#	if defined(_WIN32)
-		#include "windows/openGLDriverWindows.h"
-#	else ifdef __linux__
-#include "linux/openGLDriverLinux.h"
-#	endif // __linux__
-#endif // !ANDROID
 #include "glew.h"
 #include <core/containers/map.h>
 
@@ -27,49 +18,47 @@
 namespace rev {
 	namespace video{
 
-		class OpenGLDriver : public OpenGLDriverBase {
+		class OpenGLDriver {
 		public:
-			OpenGLDriver(Window* _window);
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
-			void		setViewport(const math::Vec2i& position, const math::Vec2u& size) override;
-			void		clearZBuffer() override;
-			void		clearColorBuffer() override;
-			void		setClearColor(const Color&) override;
-			void		setZCompare(bool _enable) override;
-			void		setCulling(ECulling) override;
-			void		setMultiSampling(bool _enable) override;
+			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);
+			void		clearZBuffer();
+			void		clearColorBuffer();
+			void		setClearColor(const Color&);
+			void		setZCompare(bool _enable);
+			void		setCulling(ECulling);
+			void		setMultiSampling(bool _enable);
 
-			void		finishFrame() override;
+			void		finishFrame();
 
 			// --- Vertex config and surface config ---
-			void		setShader(const Shader*) override;
+			void		setShader(const Shader*);
 
-			int			getUniformLocation(const char* _uniformName) override;
+			int			getUniformLocation(const char* _uniformName);
 
 			// --- Render targets ---
-			void		setRenderTarget(RenderTarget* _rt) override;
+			void		setRenderTarget(RenderTarget* _rt);
 
 			// --- Attributes and uniforms
-			void		setAttribBuffer(unsigned _id, unsigned _nElements, const float * _buffer) override;
-			void		setAttribBuffer(unsigned _id, unsigned _nElements, const uint16_t* _buffer) override;
-			void		setAttribBuffer(unsigned _id, unsigned _nElements, const int16_t* _buffer) override;
-			void		setAttribBuffer(unsigned _id, unsigned _nElements, const math::Vec2f* _buffer) override;
-			void		setAttribBuffer(unsigned _id, unsigned _nElements, const math::Vec3f* _buffer) override;
+			void		setAttribBuffer(unsigned _id, unsigned _nElements, const float * _buffer);
+			void		setAttribBuffer(unsigned _id, unsigned _nElements, const uint16_t* _buffer);
+			void		setAttribBuffer(unsigned _id, unsigned _nElements, const int16_t* _buffer);
+			void		setAttribBuffer(unsigned _id, unsigned _nElements, const math::Vec2f* _buffer);
+			void		setAttribBuffer(unsigned _id, unsigned _nElements, const math::Vec3f* _buffer);
 
-			void		setUniform(int _id, float _value) override;
-			void		setUniform(int _id, const math::Vec2f& _value) override;
-			void		setUniform(int _id, const math::Vec3f& _value) override;
-			void		setUniform(int _id, const math::Mat33f& _value) override;
-			void		setUniform(int _id, const math::Mat44f& _value) override;
-			void		setUniform(int _id, const Color& _value) override;
-			void		setUniform(int _id, const Texture* _rt) override;
+			void		setUniform(int _id, float _value);
+			void		setUniform(int _id, const math::Vec2f& _value);
+			void		setUniform(int _id, const math::Vec3f& _value);
+			void		setUniform(int _id, const math::Mat33f& _value);
+			void		setUniform(int _id, const math::Mat44f& _value);
+			void		setUniform(int _id, const Color& _value);
+			void		setUniform(int _id, const Texture* _rt);
 
 			// --- Draw ---
-			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive) override;
+			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive);
 
 		private:
-			Window*	mWindow;
 			GLuint	mProgram;
 			GLuint mCurTexStage = GL_TEXTURE0;
 

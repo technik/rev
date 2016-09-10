@@ -32,7 +32,7 @@
 namespace rev {
 	namespace video {
 
-		class OpenGLDriverAndroid : public OpenGLDriver {
+		class OpenGLDriverAndroid : OpenGLDriver {
 		public:
 			OpenGLDriverAndroid();
 		};
