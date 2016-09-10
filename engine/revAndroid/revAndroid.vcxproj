@@ -161,6 +161,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\src\math\algebra\quaternion.h" />
     <ClInclude Include="..\src\math\algebra\vector.h" />
@@ -168,11 +169,9 @@
     <ClInclude Include="..\src\math\geometry\types.h" />
     <ClInclude Include="..\src\math\noise.h" />
     <ClInclude Include="..\src\math\numericTraits.h" />
-    <ClInclude Include="android_glue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp" />
-    <ClCompile Include="android_glue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\math\algebra\matrix.inl" />

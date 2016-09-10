@@ -22,8 +22,8 @@
     <ClInclude Include="..\src\math\geometry\types.h">
       <Filter>math\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="android_glue.h">
-      <Filter>core</Filter>
+    <ClInclude Include="..\src\input\sensors\accelerometer.h">
+      <Filter>input\sensors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -42,13 +42,16 @@
     <Filter Include="math\algebra">
       <UniqueIdentifier>{3e9bcc80-536a-41ac-b13c-9b6f1477fef9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{a15a28b9-91f7-4662-a29e-d21c67a05eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input\sensors">
+      <UniqueIdentifier>{df4f7915-c45a-4787-81dc-32d64cd3cf6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
       <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="android_glue.cpp">
-      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
