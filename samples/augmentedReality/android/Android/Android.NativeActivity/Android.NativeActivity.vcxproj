@@ -156,6 +156,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\engine\src;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <PreprocessorDefinitions>ANDROID;</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv1_CM;EGL;</LibraryDependencies>
@@ -170,6 +171,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\engine\src;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;revAndroid</LibraryDependencies>

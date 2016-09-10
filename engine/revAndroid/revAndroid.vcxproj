@@ -159,6 +159,7 @@
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ANDROID;</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -168,6 +169,7 @@
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -194,6 +196,7 @@
     <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />
+    <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
   </ItemGroup>
   <ItemGroup>

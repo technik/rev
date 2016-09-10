@@ -22,7 +22,7 @@
 // SOFTWARE.
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
-// Accelerometer
+// Android's OpenGL driver
 //----------------------------------------------------------------------------------------------------------------------
 #ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_ANDROID_OPENGLDRIVERANDROID_H_
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_ANDROID_OPENGLDRIVERANDROID_H_
@@ -32,9 +32,14 @@
 namespace rev {
 	namespace video {
 
-		class OpenGLDriverAndroid : OpenGLDriver {
+		class OpenGLDriverAndroid : public OpenGLDriver {
 		public:
 			OpenGLDriverAndroid();
+
+		private:
+			void swapBuffers() override;
+			EGLSurface mSurface;
+			EGLDisplay mDisplay;
 		};
 } }
 

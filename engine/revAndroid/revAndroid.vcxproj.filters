@@ -110,6 +110,9 @@
     <ClCompile Include="..\src\video\basicTypes\texture.cpp">
       <Filter>video\basicTypes</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp">
+      <Filter>video\graphics\driver\OpenGL\android</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\math\algebra\matrix.inl">
