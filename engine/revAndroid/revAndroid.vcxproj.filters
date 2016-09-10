@@ -46,6 +46,15 @@
     <ClInclude Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.h">
       <Filter>video\graphics\driver\OpenGL\android</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\basicTypes\camera.h">
+      <Filter>video\basicTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\basicTypes\color.h">
+      <Filter>video\basicTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\basicTypes\texture.h">
+      <Filter>video\basicTypes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -84,6 +93,9 @@
     <Filter Include="video\graphics\driver\OpenGL\android">
       <UniqueIdentifier>{db5d693c-5bb9-43b5-8b3f-2f97669fbd25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="video\basicTypes">
+      <UniqueIdentifier>{e62b1b3a-60a2-46d5-864e-274c29720621}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -94,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp">
       <Filter>video\graphics\driver\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\basicTypes\texture.cpp">
+      <Filter>video\basicTypes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -8,18 +8,35 @@
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 
 #include "glew.h"
-#include <core/containers/map.h>
 
-#include <video/basicTypes/texture.h>
-#include <video/graphics/renderer/types/renderTarget.h>
-#include <utility>
 #include <map>
+
+#include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video{
 
+		class Color;
+		class RenderTarget;
+		class Texture;
+
 		class OpenGLDriver {
 		public:
+			enum class EPrimitiveType
+			{
+				triangles,
+				triStrip,
+				lines,
+				lineStrip,
+				points
+			};
+
+			enum class ECulling {
+				eBack,
+				eFront,
+				eNone
+			};
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);
