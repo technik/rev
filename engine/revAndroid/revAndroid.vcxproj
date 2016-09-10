@@ -161,6 +161,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\src\math\algebra\quaternion.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="..\src\math\numericTraits.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
   </ItemGroup>
   <ItemGroup>

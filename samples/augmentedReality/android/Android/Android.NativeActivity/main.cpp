@@ -16,6 +16,9 @@
 */
 
 #include "android_native_app_glue.h"
+#include <core/time/time.h>
+
+using namespace rev;
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
@@ -219,6 +222,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 * event loop for receiving input events and doing other things.
 */
 void android_main(struct android_app* state) {
+
+	core::Time::init();
+
 	struct engine engine;
 
 	memset(&engine, 0, sizeof(engine));
@@ -244,6 +250,8 @@ void android_main(struct android_app* state) {
 	// loop waiting for stuff to do.
 
 	while (1) {
+		core::Time::get()->update();
+		float dt = core::Time::get()->frameTime();
 		// Read all pending events.
 		int ident;
 		int events;
@@ -282,7 +290,7 @@ void android_main(struct android_app* state) {
 
 		if (engine.animating) {
 			// Done with events; draw next animation frame.
-			engine.state.angle += .01f;
+			engine.state.angle += dt/2.0f;
 			if (engine.state.angle > 1) {
 				engine.state.angle = 0;
 			}

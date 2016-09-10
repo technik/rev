@@ -25,6 +25,9 @@
     <ClInclude Include="..\src\input\sensors\accelerometer.h">
       <Filter>input\sensors</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\time\time.h">
+      <Filter>core\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -48,10 +51,16 @@
     <Filter Include="input\sensors">
       <UniqueIdentifier>{df4f7915-c45a-4787-81dc-32d64cd3cf6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\time">
+      <UniqueIdentifier>{bcad4503-73bb-41ff-bb41-c4323d0528b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\time\time.cpp">
+      <Filter>core\time</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

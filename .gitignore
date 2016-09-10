@@ -10,3 +10,12 @@ build
 *.user
 *.ipch
 *.db
+/engine/revAndroid/ARM/Debug
+/samples/augmentedReality/android/Android/Android.NativeActivity/ARM/Debug
+/samples/augmentedReality/android/Android/Android.Packaging/ARM/Debug/.gdb
+/samples/augmentedReality/android/Android/Android.Packaging/ARM/Debug/Package/bin/AndroidManifest.xml.d
+*.a
+*.so
+/samples/augmentedReality/android/Android/Android.Packaging/ARM/Debug/Package/libs/armeabi-v7a/gdbserver
+/samples/augmentedReality/android/Android/Android.Packaging/ARM/Debug
+/samples/augmentedReality/android/ARM/Debug
