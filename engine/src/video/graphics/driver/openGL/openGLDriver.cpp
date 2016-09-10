@@ -5,15 +5,18 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL
 #include "openGLDriver.h"
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-#include <GL/gl.h>
-#ifdef _WIN32
-#include "glew.h"
-#else
-#include <GL/glew.h>
-#endif // !_WIN32
+
+#ifndef ANDROID
+#	ifdef _WIN32
+#		include <Windows.h>
+#	endif
+#	include <GL/gl.h>
+#	ifdef _WIN32
+#		include "glew.h"
+#	else
+#		include <GL/glew.h>
+#	endif // !_WIN32
+#endif // !ANDROID
 
 #include <core/platform/fileSystem/fileSystem.h>
 #include <video/basicTypes/color.h>
@@ -25,6 +28,8 @@ using namespace rev::core;
 
 namespace rev {
 	namespace video {
+
+#if defined(_WIN32) || defined(__linux__)
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriver::OpenGLDriver(Window* _window) : OpenGLDriverBase(_window), mWindow(_window) {
 			GLenum res = glewInit();
@@ -61,6 +66,7 @@ namespace rev {
 				setViewport(math::Vec2i(0,0), mWindow->size());
 			};
 		}
+#endif // WIN32 || LINUX
 
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setViewport(const math::Vec2i& _position, const math::Vec2u& _size) {

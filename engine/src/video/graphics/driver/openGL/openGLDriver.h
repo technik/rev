@@ -7,7 +7,14 @@
 #ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
 
+#ifdef ANDROID
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
+#else // !ANDROID
 #include "glew.h"
+#endif // !ANDROID
 
 #include <map>
 
@@ -19,6 +26,7 @@ namespace rev {
 
 		class Color;
 		class RenderTarget;
+		class Shader;
 		class Texture;
 
 		class OpenGLDriver {
@@ -37,6 +45,9 @@ namespace rev {
 				eFront,
 				eNone
 			};
+#if defined(_WIN32) || defined(__linux__)
+			OpenGLDriver(Window* _window);
+#endif // defined(_WIN32) || defined(__linux__)
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);
