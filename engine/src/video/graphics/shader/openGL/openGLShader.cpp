@@ -4,6 +4,7 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Generic shader interface
+#ifndef ANDROID
 #include "openGLShader.h"
 
 #include <iostream>
@@ -169,3 +170,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // !ANDROID

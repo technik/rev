@@ -191,6 +191,12 @@
     <ClInclude Include="..\src\video\graphics\driver\openGL\glxew.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\wglew.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\material.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\renderContext.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\renderMesh.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\renderObj.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\types\renderTarget.h" />
     <ClInclude Include="..\src\video\graphics\shader\openGL\openGLShader.h" />
     <ClInclude Include="..\src\video\graphics\shader\shader.h" />
   </ItemGroup>

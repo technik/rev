@@ -61,6 +61,24 @@
     <ClInclude Include="..\src\video\graphics\shader\openGL\openGLShader.h">
       <Filter>video\graphics\shader\openGL</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h">
+      <Filter>video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\material.h">
+      <Filter>video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\renderContext.h">
+      <Filter>video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\renderMesh.h">
+      <Filter>video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\renderObj.h">
+      <Filter>video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\types\renderTarget.h">
+      <Filter>video\graphics\renderer\types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -107,6 +125,15 @@
     </Filter>
     <Filter Include="video\graphics\shader\openGL">
       <UniqueIdentifier>{022de77e-d6b5-4cc4-9dd3-1b2e87c33f58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\renderer">
+      <UniqueIdentifier>{a76923d3-70c5-48e5-ab8d-531d24d6263a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\renderer\backend">
+      <UniqueIdentifier>{e9be2d3c-f729-49dd-83b0-78ff71376245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\renderer\types">
+      <UniqueIdentifier>{7b5fa294-5cf8-4655-8caf-5cb7d9f78d56}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
