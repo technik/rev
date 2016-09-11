@@ -55,7 +55,7 @@ struct engine {
 * Just the current frame in the display.
 */
 static void engine_draw_frame(video::GraphicsDriver* _gfx, struct engine* engine) {
-	if (engine->display == NULL) {
+	if (!_gfx || !_gfx->display()) {
 		// No display.
 		return;
 	}
