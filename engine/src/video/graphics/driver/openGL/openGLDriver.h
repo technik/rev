@@ -10,7 +10,8 @@
 #ifdef ANDROID
 
 #include <EGL/egl.h>
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #else // !ANDROID
 #include "glew.h"
@@ -20,13 +21,13 @@
 
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
+#include <video/graphics/shader/shader.h>
 
 namespace rev {
 	namespace video{
 
 		class Color;
 		class RenderTarget;
-		class Shader;
 		class Texture;
 
 		class OpenGLDriver {
@@ -57,7 +58,9 @@ namespace rev {
 			void		setClearColor(const Color&);
 			void		setZCompare(bool _enable);
 			void		setCulling(ECulling);
+#ifndef ANDROID
 			void		setMultiSampling(bool _enable);
+#endif //!ANDROID
 
 			void		finishFrame();
 

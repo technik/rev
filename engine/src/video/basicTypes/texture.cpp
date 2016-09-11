@@ -3,6 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Textures
+#ifndef ANDROID
 
 #include <video/basicTypes/texture.h>
 #include <freeImage/FreeImage.h>
@@ -145,3 +146,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // !ANDROID

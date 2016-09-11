@@ -7,19 +7,20 @@
 #ifndef _REV_VIDEO_GRAPHICS_SHADER_OPENGL_OPENGLSHADER_H_
 #define _REV_VIDEO_GRAPHICS_SHADER_OPENGL_OPENGLSHADER_H_
 
-#include "../shader.h"
-#include <core/types.h>
+#include <string>
 
 namespace rev {
 	namespace video {
-		class OpenGLShader : public Shader {
+
+		class OpenGLShader {
 		public:
 			OpenGLShader() = default;
 			OpenGLShader(unsigned _vtx, unsigned _pxl);
 			~OpenGLShader();
-			static OpenGLShader* loadFromFiles(const core::string& _vtxName, const core::string& _pxlName);
-			static void loadFromFiles(const core::string& _vtxName, const core::string& _pxlName, OpenGLShader& _dst);
+			static OpenGLShader* loadFromFiles(const std::string& _vtxName, const std::string& _pxlName);
+			static void loadFromFiles(const std::string& _vtxName, const std::string& _pxlName, OpenGLShader& _dst);
 			inline unsigned program() const { return mProgram; }
+
 		private:
 			unsigned mProgram = 0;
 			unsigned mVtx = 0;

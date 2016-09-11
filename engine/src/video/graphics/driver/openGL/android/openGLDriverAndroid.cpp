@@ -37,7 +37,9 @@ namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriverAndroid::OpenGLDriverAndroid() {
+		OpenGLDriverAndroid::OpenGLDriverAndroid(ANativeWindow* _window) 
+			:mWindow(_window)
+		{
 			// initialize OpenGL ES and EGL
 
 			const EGLint attribs[] = {
@@ -67,9 +69,9 @@ namespace rev {
 			* ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 			eglGetConfigAttrib(mDisplay, config, EGL_NATIVE_VISUAL_ID, &format);
 
-			//ANativeWindow_setBuffersGeometry(engine->app->window, 0, 0, format);
+			ANativeWindow_setBuffersGeometry(mWindow, 0, 0, format);
 
-			mSurface = eglCreateWindowSurface(mDisplay, config, engine->app->window, NULL);
+			mSurface = eglCreateWindowSurface(mDisplay, config, mWindow, NULL);
 			context = eglCreateContext(mDisplay, config, NULL, NULL);
 
 			if (eglMakeCurrent(mDisplay, mSurface, mSurface, context) == EGL_FALSE) {
@@ -86,9 +88,7 @@ namespace rev {
 			//engine->state.angle = 0;
 
 			// Initialize GL state.
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 			glEnable(GL_CULL_FACE);
-			glShadeModel(GL_SMOOTH);
 			glDisable(GL_DEPTH_TEST);
 		}
 

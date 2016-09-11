@@ -4,7 +4,7 @@
     <ClInclude Include="android_native_app_glue.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="android_native_app_glue.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="android_native_app_glue.cpp" />
   </ItemGroup>
 </Project>

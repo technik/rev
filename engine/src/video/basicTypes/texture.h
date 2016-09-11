@@ -6,15 +6,23 @@
 #ifndef _REV_VIDEO_BASICTYPES_TEXTURE_H_
 #define _REV_VIDEO_BASICTYPES_TEXTURE_H_
 
-#ifdef _WIN32
-#include <Windows.h>
-#include <video/graphics/driver/openGL/glew.h>
-#else
-#include <GL/glew.h>
-#endif // !_WIN32
+#ifdef ANDROID
 
-#include <GL/gl.h>
+#	include <EGL/egl.h>
+#	include <GLES/gl.h>
 
+#else // !ANDROID
+#	include "glew.h"
+
+#	ifdef _WIN32
+#		include <Windows.h>
+#		include <video/graphics/driver/openGL/glew.h>
+#	else
+#		include <GL/glew.h>
+#	endif // !_WIN32
+
+#	include <GL/gl.h>
+#endif // !ANDROID
 #include <math/algebra/vector.h>
 #include <string>
 
@@ -26,6 +34,13 @@ namespace rev {
 		class Texture {
 		public:
 			enum class InternalFormat {
+#ifdef ANDROID
+				a = GL_ALPHA,
+				rgb = GL_RGB,
+				rgba = GL_RGBA,
+				luminance = GL_LUMINANCE,
+				lumin_alpha = GL_LUMINANCE_ALPHA
+#else
 				r = GL_RED,
 				rg = GL_RG8,
 				rgb = GL_RGB8,
@@ -33,15 +48,24 @@ namespace rev {
 				rg16f = GL_RG16F,
 				rg32f = GL_RG32F,
 				depth = GL_DEPTH_COMPONENT
+#endif // !ANDROID
 			};
 
 			enum class SourceFormat {
+#ifdef ANDROID
+				a = GL_ALPHA,
+				rgb = GL_RGB,
+				rgba = GL_RGBA,
+				luminance = GL_LUMINANCE,
+				lumin_alpha = GL_LUMINANCE_ALPHA
+#else
 				r = GL_RED,
 				rg = GL_RG,
 				rgb = GL_RGB,
 				rgba = GL_RGBA,
 				depth = GL_DEPTH,
 				depthStencil = GL_DEPTH_STENCIL
+#endif
 			};
 
 		public:
@@ -66,7 +90,7 @@ namespace rev {
 
 		private:
 			math::Vec2u mSize;
-			GLuint mId = GL_INVALID_INDEX;
+			GLuint mId = 0;
 			bool mMultiSample = false;
 		};
 	}

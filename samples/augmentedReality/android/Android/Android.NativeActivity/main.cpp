@@ -17,7 +17,6 @@
 
 #include "android_native_app_glue.h"
 #include <core/time/time.h>
-#include <video/graphics/driver/graphicsDriver.h>
 
 using namespace rev;
 
@@ -53,19 +52,9 @@ struct engine {
 };
 
 /**
-* Initialize an EGL context for the current display.
-*/
-video::OpenGLDriverAndroid* gfx = nullptr;
-static int engine_init_display(struct engine* engine) {
-	gfx = new video::OpenGLDriverAndroid();
-
-	return 0;
-}
-
-/**
 * Just the current frame in the display.
 */
-static void engine_draw_frame(struct engine* engine) {
+static void engine_draw_frame(video::GraphicsDriver* _gfx, struct engine* engine) {
 	if (engine->display == NULL) {
 		// No display.
 		return;
@@ -76,7 +65,7 @@ static void engine_draw_frame(struct engine* engine) {
 		((float)engine->state.y) / engine->height, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	gfx->finishFrame();
+	_gfx->finishFrame();
 }
 
 /**
@@ -126,9 +115,8 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		break;
 	case APP_CMD_INIT_WINDOW:
 		// The window is being shown, get it ready.
-		if (engine->app->window != NULL) {
-			engine_init_display(engine);
-			engine_draw_frame(engine);
+		if (app->gfx->window() != NULL) {
+			engine_draw_frame(app->gfx, engine);
 		}
 		break;
 	case APP_CMD_TERM_WINDOW:
@@ -154,7 +142,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		}
 		// Also stop animating.
 		engine->animating = 0;
-		engine_draw_frame(engine);
+		engine_draw_frame(app->gfx, engine);
 		break;
 	}
 }
@@ -241,7 +229,7 @@ void android_main(struct android_app* state) {
 
 			// Drawing is throttled to the screen update rate, so there
 			// is no need to do timing here.
-			engine_draw_frame(&engine);
+			engine_draw_frame(engine.app->gfx, &engine);
 		}
 	}
 }

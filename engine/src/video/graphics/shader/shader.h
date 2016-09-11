@@ -7,20 +7,11 @@
 #ifndef _REV_VIDEO_GRAPHICS_SHADER_SHADER_H_
 #define _REV_VIDEO_GRAPHICS_SHADER_SHADER_H_
 
-#include <core/resources/creator/virtualConstructor.h>
-#include <core/resources/ownership/refLink.h>
-#include <core/resources/resourceManager.h>
-#include <core/types.h>
+#include "openGL/openGLShader.h"
 
 namespace rev {
 	namespace video {
-
-		class Shader
-			: public core::ManagedResource<core::string, Shader, 
-				core::VirtualConstructor<Shader,core::string>, core::RefLink>{
-		public:
-			virtual ~Shader() = default;
-		};
+		typedef OpenGLShader Shader;
 	}
 }
 

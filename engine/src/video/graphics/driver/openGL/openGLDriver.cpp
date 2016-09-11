@@ -18,18 +18,14 @@
 #	endif // !_WIN32
 #endif // !ANDROID
 
-#include <core/platform/fileSystem/fileSystem.h>
 #include <video/basicTypes/color.h>
-#include <video/graphics/shader/openGL/openGLShader.h>
-#include <video/window/window.h>
+#include <video/graphics/shader/shader.h>
 #include <iostream>
-
-using namespace rev::core;
 
 namespace rev {
 	namespace video {
 
-#if defined(_WIN32) || defined(__linux__)
+#if defined(_WIN32)
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriver::OpenGLDriver(Window* _window) : OpenGLDriverBase(_window), mWindow(_window) {
 			GLenum res = glewInit();
@@ -66,7 +62,7 @@ namespace rev {
 				setViewport(math::Vec2i(0,0), mWindow->size());
 			};
 		}
-#endif // WIN32 || LINUX
+#endif // _WIN32
 
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setViewport(const math::Vec2i& _position, const math::Vec2u& _size) {
@@ -111,6 +107,7 @@ namespace rev {
 			}
 		}
 
+#ifndef ANDROID
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setMultiSampling(bool _enable) {
 			if(_enable)
@@ -118,6 +115,7 @@ namespace rev {
 			else
 				glDisable(GL_MULTISAMPLE);
 		}
+#endif // !ANDROID
 
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::finishFrame()
@@ -150,9 +148,8 @@ namespace rev {
 		void OpenGLDriver::setShader(const Shader* _shader) {
 			if(!_shader)
 				return;
-			const OpenGLShader* shader = static_cast<const OpenGLShader*>(_shader);
 			//logGlError();
-			mProgram = shader->program();
+			mProgram = _shader->program();
 			glUseProgram(mProgram);
 			//logGlError();
 			glEnableVertexAttribArray(0);

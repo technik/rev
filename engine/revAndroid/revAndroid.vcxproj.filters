@@ -55,6 +55,12 @@
     <ClInclude Include="..\src\video\basicTypes\texture.h">
       <Filter>video\basicTypes</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\shader\shader.h">
+      <Filter>video\graphics\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\shader\openGL\openGLShader.h">
+      <Filter>video\graphics\shader\openGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -96,6 +102,12 @@
     <Filter Include="video\basicTypes">
       <UniqueIdentifier>{e62b1b3a-60a2-46d5-864e-274c29720621}</UniqueIdentifier>
     </Filter>
+    <Filter Include="video\graphics\shader">
+      <UniqueIdentifier>{40b234a9-cdd1-4fa5-948e-8eb681607298}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\graphics\shader\openGL">
+      <UniqueIdentifier>{022de77e-d6b5-4cc4-9dd3-1b2e87c33f58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -112,6 +124,12 @@
     </ClCompile>
     <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp">
       <Filter>video\graphics\driver\OpenGL\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\shader\shader.cpp">
+      <Filter>video\graphics\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\shader\openGL\openGLShader.cpp">
+      <Filter>video\graphics\shader\openGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

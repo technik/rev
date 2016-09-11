@@ -32,14 +32,17 @@
 namespace rev {
 	namespace video {
 
-		class OpenGLDriverAndroid : public OpenGLDriver {
+		class OpenGLDriverAndroid final : public OpenGLDriver {
 		public:
-			OpenGLDriverAndroid();
+			OpenGLDriverAndroid(ANativeWindow* _window);
+			ANativeWindow* window() const { return mWindow; }
+			EGLDisplay	display() const { return mDisplay; }
 
 		private:
 			void swapBuffers() override;
 			EGLSurface mSurface;
 			EGLDisplay mDisplay;
+			ANativeWindow* mWindow = nullptr;
 		};
 } }
 
