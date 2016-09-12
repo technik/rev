@@ -158,7 +158,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ANDROID;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANDROID;_DEBUG;</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -179,6 +179,7 @@
     <ClInclude Include="..\src\core\platform\platform.h" />
     <ClInclude Include="..\src\core\resources\creator\stringConstructor.h" />
     <ClInclude Include="..\src\core\resources\creator\virtualConstructor.h" />
+    <ClInclude Include="..\src\core\resources\namedResourceMgr.h" />
     <ClInclude Include="..\src\core\resources\ownership\refLink.h" />
     <ClInclude Include="..\src\core\resources\resourceManager.h" />
     <ClInclude Include="..\src\core\resources\smartPtr.h" />

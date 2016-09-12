@@ -49,9 +49,9 @@ namespace rev {
 			if (resIterator == mResources.end()) {
 				Val_* newResource = Creator_::create(_key);
 				mResources.insert(std::make_pair(_key, newResource));
-				return Ptr(newResource);
+				return Ptr(newResource, Destroy());
 			}
-			return Ptr(resIterator->second);
+			return Ptr(resIterator->second, Destroy());
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

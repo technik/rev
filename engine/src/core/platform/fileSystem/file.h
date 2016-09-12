@@ -7,23 +7,16 @@
 #ifndef _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
 #define _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
 
-#include <core/resources/resourceManager.h>
-#include <core/resources/creator/virtualConstructor.h>
-#include <core/resources/ownership/refLink.h>
+#include <core/resources/namedResourceMgr.h>
 
 namespace rev {
 	namespace core {
 		
-		class File : public ManagedResource<std::string, File, VirtualConstructor<File, std::string>, RefLink>
+		class File
 		{
 		public:
 			File(const std::string& _path); // File must exist
 			~File();
-
-			static File* openExisting(const std::string& _path); // Returns nullptr if the file doesn't exist already
-
-			bool			readAll		();
-			void			setContent	(const void* _buffer, size_t, bool _hardCopy = true);
 
 			const void *	buffer		() const;
 			const char *	bufferAsText() const;
@@ -32,8 +25,9 @@ namespace rev {
 		private:
 			size_t		mSize = 0;
 			const void*	mBuffer = nullptr;
-			bool		mMustWrite = false;
+#if _DEBUG
 			std::string	mPath;
+#endif // _DEBUG
 		};
 
 		//------------------------------------------------------------------------------------------------------------------

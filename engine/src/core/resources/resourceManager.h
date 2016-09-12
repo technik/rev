@@ -12,11 +12,12 @@
 #include <cassert>
 #include <functional>
 #include <map>
+#include <memory>
 
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
+		template<class Key_, class Val_, class Creator_>
 		class ResourceMgr : public Creator_ {
 		public:
 
@@ -35,7 +36,7 @@ namespace rev {
 			};
 
 		public:
-			typedef SmartPtr<Val_, Ownership_, Destroy>	Ptr;
+			typedef std::shared_ptr<Val_>	Ptr;
 			// Resource manager interface
 			Ptr get(const Key_&);
 
@@ -51,10 +52,10 @@ namespace rev {
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
+		template<class Key_, class Val_, class Creator_, template<class, class>>
 		class ManagedResource {
 		public:
-			typedef ResourceMgr<Key_, Val_, Creator_, Ownership_>	Mgr;
+			typedef ResourceMgr<Key_, Val_, Creator_>	Mgr;
 			typedef typename Mgr::Ptr	Ptr;
 			inline static Mgr*	manager() { return Mgr::manager(); }
 		};

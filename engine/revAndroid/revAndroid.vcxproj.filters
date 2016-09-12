@@ -109,6 +109,9 @@
     <ClInclude Include="..\src\core\resources\creator\stringConstructor.h">
       <Filter>core\resources\creator</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\resources\namedResourceMgr.h">
+      <Filter>core\resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
