@@ -173,6 +173,15 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\core\platform\fileSystem\android\androidFileSystem.h" />
+    <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
+    <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h" />
+    <ClInclude Include="..\src\core\platform\osHandler.h" />
+    <ClInclude Include="..\src\core\platform\platform.h" />
+    <ClInclude Include="..\src\core\resources\creator\virtualConstructor.h" />
+    <ClInclude Include="..\src\core\resources\ownership\refLink.h" />
+    <ClInclude Include="..\src\core\resources\resourceManager.h" />
+    <ClInclude Include="..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
@@ -189,6 +198,7 @@
     <ClInclude Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\glew.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\glxew.h" />
+    <ClInclude Include="..\src\video\graphics\driver\openGL\openGL.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\wglew.h" />
     <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h" />
@@ -201,6 +211,9 @@
     <ClInclude Include="..\src\video\graphics\shader\shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\core\platform\fileSystem\file.cpp" />
+    <ClCompile Include="..\src\core\platform\fileSystem\fileSystem.cpp" />
+    <ClCompile Include="..\src\core\platform\osHandler.cpp" />
     <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />
@@ -210,6 +223,9 @@
     <ClCompile Include="..\src\video\graphics\shader\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\src\core\platform\osHandler.inl" />
+    <None Include="..\src\core\platform\platform.inl" />
+    <None Include="..\src\core\resources\resourceManager.inl" />
     <None Include="..\src\math\algebra\matrix.inl" />
     <None Include="..\src\math\algebra\vector.inl" />
   </ItemGroup>

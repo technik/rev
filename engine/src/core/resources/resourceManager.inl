@@ -16,31 +16,27 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename Key_, typename Val_, typename Creator_, template<class, class> class Ownership_>
 		ResourceMgr<Key_, Val_, Creator_, Ownership_>*
-			ResourceMgr<Key_, Val_, Creator_, Ownership_>::manager() {
-				assert(sInstance);
-				return sInstance;
+			ResourceMgr<Key_, Val_, Creator_, Ownership_>::manager() 
+		{
+			if(!sInstance)
+				startUp();
+			return sInstance;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		template<class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::startUp(
-				SingAlloc_& _singAlloc)
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::startUp()
 		{
 			assert(!sInstance);
-			sInstance = _singAlloc.template allocate<ResourceMgr>();
-			new(sInstance)ResourceMgr();
+			sInstance = new ResourceMgr();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		template<class SingAlloc_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::shutDown(
-			SingAlloc_& _singAlloc)
+		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::shutDown()
 		{
 			assert(sInstance);
-			sInstance->~ResourceMgr();
-			_singAlloc.deallocate(sInstance);
+			delete sInstance;
 			sInstance = nullptr;
 		}
 

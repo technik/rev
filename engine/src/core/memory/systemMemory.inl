@@ -34,7 +34,7 @@ namespace rev {
 				SystemMemoryFinal(Alloc_* _alloc) : mAlloc(*_alloc) {}
 
 				void*	allocBuffer(size_t _size) {
-					return mAlloc.allocate<>(_size);
+					return mAlloc. template allocate<>(_size);
 				}
 				void	freeBuffer(const void* _ptr, size_t _size) {
 					mAlloc.deallocate(_ptr, _size);

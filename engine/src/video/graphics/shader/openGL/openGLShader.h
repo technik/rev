@@ -8,11 +8,18 @@
 #define _REV_VIDEO_GRAPHICS_SHADER_OPENGL_OPENGLSHADER_H_
 
 #include <string>
+#include <core/resources/creator/virtualConstructor.h>
+#include <core/resources/ownership/refLink.h>
+#include <core/resources/resourceManager.h>
+
+#include <video/graphics/driver/openGL/openGL.h>
 
 namespace rev {
 	namespace video {
 
-		class OpenGLShader {
+		class OpenGLShader : public core::ManagedResource<std::string, OpenGLShader,
+										core::VirtualConstructor<OpenGLShader, std::string>, core::RefLink>
+		{
 		public:
 			OpenGLShader() = default;
 			OpenGLShader(unsigned _vtx, unsigned _pxl);

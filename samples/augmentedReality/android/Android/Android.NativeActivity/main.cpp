@@ -16,6 +16,7 @@
 */
 
 #include "android_native_app_glue.h"
+#include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
 
 using namespace rev;
@@ -155,6 +156,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 void android_main(struct android_app* state) {
 
 	core::Time::init();
+	core::FileSystem::init(state->activity->assetManager);
 
 	struct engine engine;
 

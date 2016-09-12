@@ -4,15 +4,19 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Generic shader interface
-#ifndef ANDROID
+
 #include "openGLShader.h"
 
 #include <iostream>
 
 #include <core/platform/fileSystem/file.h>
-#include <video/graphics/driver/openGL/glew.h>
 
 using namespace rev::core;
+
+namespace rev {
+	namespace core {
+		template<> video::OpenGLShader::Mgr* video::OpenGLShader::Mgr::sInstance = nullptr;
+} }
 
 namespace rev {
 	namespace video {
@@ -170,5 +174,3 @@ namespace rev {
 		}
 	}
 }
-
-#endif // !ANDROID

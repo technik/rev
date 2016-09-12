@@ -7,12 +7,11 @@
 #ifndef _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
 #define _REV_CORE_RESOURCES_RESOURCEMANAGER_H_
 
-#include "../memory/defaultAllocator.h"
-#include <core/containers/map.h>
 #include <core/resources/smartPtr.h>
 
 #include <cassert>
 #include <functional>
+#include <map>
 
 namespace rev {
 	namespace core {
@@ -23,10 +22,8 @@ namespace rev {
 
 			// Singleton interface
 			static ResourceMgr* manager();
-			template<typename Alloc_>
-			static void startUp(Alloc_& = Alloc_());
-			template<typename Alloc_>
-			static void shutDown(Alloc_& = Alloc_());
+			static void startUp();
+			static void shutDown();
 			void setOnRelease(std::function<void(const Key_&, Val_*)> _fn) { onRelease = _fn; }
 
 		private:
@@ -50,7 +47,7 @@ namespace rev {
 
 			static ResourceMgr*			sInstance;
 			std::function<void(const Key_&, Val_*)>	onRelease = [](const Key_&, Val_*){ assert(false); };
-			map<Key_, Val_*>	mResources;
+			std::map<Key_, Val_*>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------

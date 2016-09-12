@@ -27,11 +27,14 @@
 #ifdef ANDROID
 
 #include "openGLDriverAndroid.h"
+#include <video/graphics/shader/shader.h>
 
 #include <android/log.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
+
+using namespace std;
 
 namespace rev {
 	namespace video {
@@ -88,8 +91,22 @@ namespace rev {
 			//engine->state.angle = 0;
 
 			// Initialize GL state.
+
+			Shader::manager()->setCreator(
+				[](const string& _name) -> Shader* {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+				OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
+				return shader;
+			});
+			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+			});
 			glEnable(GL_CULL_FACE);
-			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
+			glLineWidth(2.f);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
