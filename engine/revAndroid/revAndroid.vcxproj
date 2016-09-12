@@ -173,11 +173,11 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\core\platform\fileSystem\android\androidFileSystem.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h" />
     <ClInclude Include="..\src\core\platform\osHandler.h" />
     <ClInclude Include="..\src\core\platform\platform.h" />
+    <ClInclude Include="..\src\core\resources\creator\stringConstructor.h" />
     <ClInclude Include="..\src\core\resources\creator\virtualConstructor.h" />
     <ClInclude Include="..\src\core\resources\ownership\refLink.h" />
     <ClInclude Include="..\src\core\resources\resourceManager.h" />

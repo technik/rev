@@ -22,20 +22,26 @@
 // SOFTWARE.
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
-// Android's File System
+// Creator policy based on string-recieving constructors
 //----------------------------------------------------------------------------------------------------------------------
-#ifndef _REV_CORE_PLATFORM_FILESYSTEM_ANDROID_ANDROIDFILESYSTEM_H_
-#define _REV_CORE_PLATFORM_FILESYSTEM_ANDROID_ANDROIDFILESYSTEM_H_
+#ifndef _REV_RESOURCES_CREATOR_STRINGCONSTRUCTOR_H_
+#define _REV_RESOURCES_CREATOR_STRINGCONSTRUCTOR_H_
 
-#include "../fileSystem.h"
+#include <string>
 
 namespace rev {
-	namespace core {
+	//-----------------------------------------------------------------------------------------------------
+	template<class T_>
+	class StringConstructor {
+	public:
+		T_* create(const std::string& _id) {
+			return new T_(_id);
+		}
 
-		class AndroidFileSystem : public FileSystem {
-		public:
-			static FileSystem*	get(); // Must be implemented in derived class' cpp.
-		};
-} }
+		void destroy(const T_* _resource) {
+			delete _resource;
+		}
+	};
+}
 
-#endif // _REV_CORE_PLATFORM_FILESYSTEM_ANDROID_ANDROIDFILESYSTEM_H_
+#endif // _REV_RESOURCES_CREATOR_STRINGCONSTRUCTOR_H_

@@ -106,8 +106,8 @@
     <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h">
       <Filter>core\platform\fileSystem</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\core\platform\fileSystem\android\androidFileSystem.h">
-      <Filter>core\platform\fileSystem\android</Filter>
+    <ClInclude Include="..\src\core\resources\creator\stringConstructor.h">
+      <Filter>core\resources\creator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

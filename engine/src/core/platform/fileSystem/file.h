@@ -7,12 +7,15 @@
 #ifndef _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
 #define _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
 
-#include <core/types.h>
+#include <core/resources/resourceManager.h>
+#include <core/resources/creator/virtualConstructor.h>
+#include <core/resources/ownership/refLink.h>
 
 namespace rev {
 	namespace core {
 		
-		class File {
+		class File : public ManagedResource<std::string, File, VirtualConstructor<File, std::string>, RefLink>
+		{
 		public:
 			File(const std::string& _path); // File must exist
 			~File();
