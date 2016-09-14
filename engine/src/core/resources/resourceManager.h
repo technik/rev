@@ -52,7 +52,7 @@ namespace rev {
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class>>
+		template<class Key_, class Val_, class Creator_>
 		class ManagedResource {
 		public:
 			typedef ResourceMgr<Key_, Val_, Creator_>	Mgr;

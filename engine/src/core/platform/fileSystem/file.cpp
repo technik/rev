@@ -15,9 +15,11 @@ using namespace std;
 
 namespace rev { namespace core {
 
+	// Static data definitions
 #ifdef ANDROID
 	AAssetManager* File::sAssetMgr = nullptr;
 #endif // ANDROID
+	NamedResource<File>::Mgr* File::Mgr::sInstance = nullptr;
 
 	//--------------------------------------------------------------------------------------------------------------
 	File::File(const string& _path) {

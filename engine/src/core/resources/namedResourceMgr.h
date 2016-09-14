@@ -37,8 +37,8 @@ namespace rev {
 		template<class Key_>
 		class NamedResourceMgr {
 		public:
-			ResourceMgr() = default;
-			~ResourceMgr() = default;
+			static void init() { sInstance = new NamedResourceMgr<Key_>; }
+			static void end() { delete sInstance; sInstance = nullptr; }
 
 			typedef std::shared_ptr<Val_>	Ptr;
 
@@ -46,16 +46,18 @@ namespace rev {
 			Ptr get(const std::string&);
 
 		private:
+			ResourceMgr() = default;
+			~ResourceMgr() = default;
 
 			static ResourceMgr*			sInstance;
 			std::map<Key_, Val_*>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_>
+		template<class Val_>
 		class NamedResource {
 		public:
-			typedef NamedResourceMgr<Key_>	Mgr;
+			typedef NamedResourceMgr<Val_>	Mgr;
 			typedef typename Mgr::Ptr	Ptr;
 
 			inline static Mgr*	manager() {

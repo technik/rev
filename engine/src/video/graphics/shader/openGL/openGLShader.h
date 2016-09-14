@@ -18,7 +18,7 @@ namespace rev {
 	namespace video {
 
 		class OpenGLShader : public core::ManagedResource<std::string, OpenGLShader,
-										core::VirtualConstructor<OpenGLShader, std::string>, core::RefLink>
+										core::VirtualConstructor<OpenGLShader, std::string>>
 		{
 		public:
 			OpenGLShader() = default;

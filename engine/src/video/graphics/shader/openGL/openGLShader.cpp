@@ -91,7 +91,7 @@ namespace rev {
 			logGlErrors();
 			unsigned shaderId = glCreateShader(_type);
 			logGlErrors();
-			File* shaderFile = File::openExisting(_fileName);
+			auto shaderFile = File::manager()->get(_fileName);
 			if(!shaderFile)
 			{
 				std::cout << "Error: Unable to open shader file \"" << _fileName << "\"\n";
