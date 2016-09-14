@@ -8,6 +8,10 @@
 #define _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
 
 #include <core/resources/namedResourceMgr.h>
+#ifdef ANDROID
+#include <android/asset_manager.h>
+#endif // ANDROID
+
 
 namespace rev {
 	namespace core {
@@ -22,12 +26,20 @@ namespace rev {
 			const char *	bufferAsText() const;
 			size_t			sizeInBytes	() const;
 
+
+#ifdef ANDROID
+			static void setAssetMgr( AAssetManager* _mgr ) { sAssetMgr = _mgr; }
+#endif // ANDROID
+
 		private:
 			size_t		mSize = 0;
 			const void*	mBuffer = nullptr;
 #if _DEBUG
 			std::string	mPath;
 #endif // _DEBUG
+#ifdef ANDROID
+			static AAssetManager* sAssetMgr;
+#endif // ANDROID
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
