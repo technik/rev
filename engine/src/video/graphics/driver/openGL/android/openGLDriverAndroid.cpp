@@ -40,9 +40,25 @@ namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriverAndroid::OpenGLDriverAndroid(ANativeWindow* _window) 
-			:mWindow(_window)
+		OpenGLDriverAndroid::OpenGLDriverAndroid()
 		{
+			Shader::manager()->setCreator(
+				[](const string& _name) -> Shader* {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+				OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
+				return shader;
+			});
+			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+			});
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void OpenGLDriverAndroid::setWindow(ANativeWindow* _window)
+		{
+			mWindow = _window;
 			// initialize OpenGL ES and EGL
 
 			const EGLint attribs[] = {
@@ -55,7 +71,6 @@ namespace rev {
 			EGLint w, h, format;
 			EGLint numConfigs;
 			EGLConfig config;
-			EGLContext context;
 
 			mDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -71,10 +86,10 @@ namespace rev {
 			* As soon as we picked a EGLConfig, we can safely reconfigure the
 			* ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 			eglGetConfigAttrib(mDisplay, config, EGL_NATIVE_VISUAL_ID, &format);
-
 			ANativeWindow_setBuffersGeometry(mWindow, 0, 0, format);
 
 			mSurface = eglCreateWindowSurface(mDisplay, config, mWindow, NULL);
+			EGLContext context;
 			context = eglCreateContext(mDisplay, config, NULL, NULL);
 
 			if (eglMakeCurrent(mDisplay, mSurface, mSurface, context) == EGL_FALSE) {
@@ -85,30 +100,11 @@ namespace rev {
 			eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &w);
 			eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &h);
 
-			//engine->context = context;
-			//engine->width = w;
-			//engine->height = h;
-			//engine->state.angle = 0;
-
-			// Initialize GL state.
-
-			Shader::manager()->setCreator(
-				[](const string& _name) -> Shader* {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
-				OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
-				return shader;
-			});
-			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
-			});
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);
 			glLineWidth(2.f);
 		}
-
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriverAndroid::swapBuffers() {
 			eglSwapBuffers(mDisplay, mSurface);

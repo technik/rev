@@ -92,12 +92,11 @@ namespace rev {
 			unsigned shaderId = glCreateShader(_type);
 			logGlErrors();
 			auto shaderFile = File::manager()->get(_fileName);
-			if(!shaderFile)
+			if(!shaderFile->buffer())
 			{
 				std::cout << "Error: Unable to open shader file \"" << _fileName << "\"\n";
 				return 0;
 			}
-			shaderFile->readAll();
 			const char * code[1];
 			code[0] = shaderFile->bufferAsText();
 			logGlErrors();
@@ -142,7 +141,7 @@ namespace rev {
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
-		OpenGLShader* OpenGLShader::loadFromFiles(const core::string& _vtxName, const core::string& _pxlName) {
+		OpenGLShader* OpenGLShader::loadFromFiles(const std::string& _vtxName, const std::string& _pxlName) {
 			unsigned vtx = createShader(_vtxName.c_str(), GL_VERTEX_SHADER);
 			if (!vtx) {
 				std::cout << "Error creating vertex shader from " << _vtxName << "\n";
@@ -157,7 +156,7 @@ namespace rev {
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
-		void OpenGLShader::loadFromFiles(const core::string& _vtxName, const core::string& _pxlName, OpenGLShader& _dst) {
+		void OpenGLShader::loadFromFiles(const std::string& _vtxName, const std::string& _pxlName, OpenGLShader& _dst) {
 			unsigned vtx = createShader(_vtxName.c_str(), GL_VERTEX_SHADER);
 			if (!vtx) {
 				std::cout << "Error creating vertex shader from " << _vtxName << "\n";

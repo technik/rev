@@ -28,12 +28,12 @@ namespace rev {
 
 
 #ifdef ANDROID
-			static void setAssetMgr( AAssetManager* _mgr ) { sAssetMgr = _mgr; }
+			static void setAssetMgr( AAssetManager* _mgr );
 #endif // ANDROID
 
 		private:
 			size_t		mSize = 0;
-			const void*	mBuffer = nullptr;
+			void*		mBuffer = nullptr;
 #if _DEBUG
 			std::string	mPath;
 #endif // _DEBUG

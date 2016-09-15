@@ -34,7 +34,8 @@ namespace rev {
 
 		class OpenGLDriverAndroid final : public OpenGLDriver {
 		public:
-			OpenGLDriverAndroid(ANativeWindow* _window);
+			OpenGLDriverAndroid();
+			void setWindow(ANativeWindow* _window);
 			ANativeWindow* window() const { return mWindow; }
 			EGLDisplay	display() const { return mDisplay; }
 

@@ -5,6 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // File implementation for platforms conforming to C++ standard
 
+#include <cassert>
 #include <cstring>
 #include <fstream>
 
@@ -19,18 +20,25 @@ namespace rev { namespace core {
 #ifdef ANDROID
 	AAssetManager* File::sAssetMgr = nullptr;
 #endif // ANDROID
-	NamedResource<File>::Mgr* File::Mgr::sInstance = nullptr;
+	template<>
+	NamedResource<File>::Mgr* NamedResource<File>::sInstance = nullptr;
+
+	//--------------------------------------------------------------------------------------------------------------
+	void File::setAssetMgr(AAssetManager* _mgr) {
+		sAssetMgr = _mgr;
+	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	File::File(const string& _path) {
 		mPath = _path; 
 #ifdef ANDROID
+		assert(sAssetMgr != nullptr);
 		AAsset* srcAsset = AAssetManager_open(sAssetMgr, _path.c_str(), AASSET_MODE_STREAMING);
 		if(!srcAsset)
 			return;
 		mSize = (size_t)AAsset_getLength(srcAsset);
 		mBuffer = new char[mSize+1];
-		memcpy(AAsset_getBuffer, AAsset_getBuffer(srcAsset), mSize);
+		memcpy(mBuffer, AAsset_getBuffer(srcAsset), mSize);
 		((char*)mBuffer)[mSize] = '\0';
 		AAsset_close(srcAsset);
 #else // !ANDROID

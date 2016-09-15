@@ -29,8 +29,8 @@ namespace rev {
 
 		private:
 			class Destroy {
-			protected:
-				void destroy(Val_* _v) {
+			public:
+				void operator()(Val_* _v) {
 					ResourceMgr::manager()->release(_v);
 				}
 			};

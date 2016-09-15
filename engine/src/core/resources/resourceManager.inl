@@ -14,9 +14,9 @@
 namespace rev {
 	namespace core {
 		//--------------------------------------------------------------------------------------------------------------
-		template<typename Key_, typename Val_, typename Creator_, template<class, class> class Ownership_>
-		ResourceMgr<Key_, Val_, Creator_, Ownership_>*
-			ResourceMgr<Key_, Val_, Creator_, Ownership_>::manager() 
+		template<typename Key_, typename Val_, typename Creator_>
+		ResourceMgr<Key_, Val_, Creator_>*
+			ResourceMgr<Key_, Val_, Creator_>::manager() 
 		{
 			if(!sInstance)
 				startUp();
@@ -24,16 +24,16 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::startUp()
+		template<typename Key_, typename Val_, typename Creator_>
+		void ResourceMgr<Key_, Val_, Creator_>::startUp()
 		{
 			assert(!sInstance);
 			sInstance = new ResourceMgr();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::shutDown()
+		template<typename Key_, typename Val_, typename Creator_>
+		void ResourceMgr<Key_, Val_, Creator_>::shutDown()
 		{
 			assert(sInstance);
 			delete sInstance;
@@ -41,9 +41,9 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		typename ResourceMgr<Key_, Val_, Creator_, Ownership_>::Ptr
-			ResourceMgr<Key_, Val_, Creator_, Ownership_>::get(const Key_& _key)
+		template<typename Key_, typename Val_, typename Creator_>
+		typename ResourceMgr<Key_, Val_, Creator_>::Ptr
+			ResourceMgr<Key_, Val_, Creator_>::get(const Key_& _key)
 		{
 			auto resIterator = mResources.find(_key);
 			if (resIterator == mResources.end()) {
@@ -55,14 +55,14 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		ResourceMgr<Key_, Val_, Creator_, Ownership_>::ResourceMgr()
+		template<typename Key_, typename Val_, typename Creator_>
+		ResourceMgr<Key_, Val_, Creator_>::ResourceMgr()
 		{
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Key_, class Val_, class Creator_, template<class, class> class Ownership_>
-		void ResourceMgr<Key_, Val_, Creator_, Ownership_>::release(
+		template<typename Key_, typename Val_, typename Creator_>
+		void ResourceMgr<Key_, Val_, Creator_>::release(
 			Val_* _v)
 		{
 			for (auto element : mResources) {

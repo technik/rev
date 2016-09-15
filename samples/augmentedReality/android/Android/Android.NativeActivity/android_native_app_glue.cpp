@@ -99,15 +99,13 @@ void android_app_pre_exec_cmd(struct android_app* android_app, int8_t cmd) {
 		case APP_CMD_INIT_WINDOW:
 			LOGV("APP_CMD_INIT_WINDOW\n");
 			pthread_mutex_lock(&android_app->mutex);
-			android_app->gfx = new rev::video::OpenGLDriverAndroid(android_app->pendingWindow);
+			android_app->gfx->setWindow(android_app->pendingWindow);
 			pthread_cond_broadcast(&android_app->cond);
 			pthread_mutex_unlock(&android_app->mutex);
 			break;
 
 		case APP_CMD_TERM_WINDOW:
 			LOGV("APP_CMD_TERM_WINDOW\n");
-			delete android_app->gfx;
-			android_app->gfx = nullptr;
 			pthread_cond_broadcast(&android_app->cond);
 			break;
 

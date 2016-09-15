@@ -7,6 +7,8 @@
 #ifndef _REV_CORE_PLATFORM_OSHANDLER_INL_
 #define _REV_CORE_PLATFORM_OSHANDLER_INL_
 
+#ifdef _WIN32
+
 #include "osHandler.h"
 
 #include <cassert>
@@ -50,5 +52,7 @@ namespace rev {
 
 	}	// namespace core
 }	// namespace rev
+
+#endif // _WIN32
 
 #endif // _REV_CORE_PLATFORM_OSHANDLER_INL_

@@ -34,23 +34,28 @@
 namespace rev {
 	namespace core {
 		//-----------------------------------------------------------------------------------------------------
-		template<class Key_>
+		template<class Val_>
 		class NamedResourceMgr {
 		public:
-			static void init() { sInstance = new NamedResourceMgr<Key_>; }
-			static void end() { delete sInstance; sInstance = nullptr; }
+			NamedResourceMgr() = default;
+			~NamedResourceMgr() = default;
 
 			typedef std::shared_ptr<Val_>	Ptr;
 
 			// Resource manager interface
-			Ptr get(const std::string&);
+			Ptr get(const std::string& _key) {
+				auto resIterator = mResources.find(_key);
+				if (resIterator == mResources.end()) {
+					Val_* newResource = new Val_(_key);
+					mResources.insert(std::make_pair(_key, newResource));
+					return Ptr(newResource);
+				}
+				return Ptr(resIterator->second);
+			}
 
 		private:
-			ResourceMgr() = default;
-			~ResourceMgr() = default;
 
-			static ResourceMgr*			sInstance;
-			std::map<Key_, Val_*>	mResources;
+			std::map<std::string, Val_*>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------

@@ -16,8 +16,10 @@
 */
 
 #include "android_native_app_glue.h"
-#include <core/platform/fileSystem/fileSystem.h>
+#include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
+#include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/shader/shader.h>
 
 using namespace rev;
 
@@ -153,10 +155,13 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 * android_native_app_glue.  It runs in its own thread, with its own
 * event loop for receiving input events and doing other things.
 */
+
 void android_main(struct android_app* state) {
 
 	core::Time::init();
-	core::FileSystem::init(state->activity->assetManager);
+	core::File::setAssetMgr(state->activity->assetManager);
+	state->gfx = new video::OpenGLDriverAndroid();
+	auto shader = video::Shader::manager()->get("solid");
 
 	struct engine engine;
 

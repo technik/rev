@@ -4,6 +4,9 @@
 // 2014/April/18
 //----------------------------------------------------------------------------------------------------------------------
 // File system interface
+
+#ifdef _WIN32
+
 #include "fileSystem.h"
 #include <cassert>
 
@@ -33,3 +36,5 @@ namespace rev {
 
 	}
 }	// namespace rev
+
+#endif // _WIN32
