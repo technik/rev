@@ -7,18 +7,18 @@
 #include "app3d.h"
 
 #include <video/basicTypes/color.h>
-#include <video/graphics/driver/openGL/openGLDriver.h>
+#include <video/graphics/driver/graphicsDriver.h>
+#include <core/time/time.h>
 
 using namespace rev::core;
+#ifndef ANDROID
 using namespace rev::input;
+#endif // !ANDROID
 using namespace rev::video;
 
 namespace rev {
 
-	//------------------------------------------------------------------------------------------------------------------
-	App3d::App3d() : App3d(0,nullptr) {
-	}
-
+#ifndef ANDROID
 	//------------------------------------------------------------------------------------------------------------------
 	App3d::App3d(int _argc, const char** _argv)
 		: mEngine(_argc,_argv)
@@ -31,13 +31,37 @@ namespace rev {
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
 	}
+#endif // !ANDROID
+
+#ifdef ANDROID
+	//------------------------------------------------------------------------------------------------------------------
+	App3d::App3d(ANativeActivity* _activity)
+		:mEngine(_activity)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void App3d::initGraphics(ANativeWindow* _window) {
+		mDriver = new GraphicsDriver();
+		mDriver->setWindow(_window);
+		mShader = Shader::manager()->get("solid");
+		mDriver->setShader(mShader);
+	}
+#endif // ANDROID
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::update() {
+#ifdef ANDROID
+		if(!mDriver)
+			return true;
+#endif // ANDROID
+
 		preFrame();
 
+#ifndef ANDROID
 		if(mKeyboard->pressed(input::KeyboardInput::eEscape))
 			return false;
+#endif // !ANDROID
 
 		float dt = core::Time::get()->frameTime();
 		if(frame(dt)) {

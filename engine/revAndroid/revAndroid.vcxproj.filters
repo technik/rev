@@ -112,6 +112,16 @@
     <ClInclude Include="..\src\core\resources\namedResourceMgr.h">
       <Filter>core\resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\backend\rendererBackEnd.h">
+      <Filter>video\graphics\renderer\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\forward\forwardRenderer.h">
+      <Filter>video\graphics\renderer\forward</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\app\app3d.h">
+      <Filter>util\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\engine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -186,6 +196,15 @@
     <Filter Include="core\platform\fileSystem\android">
       <UniqueIdentifier>{991af5a8-69b7-426a-ae37-46c5fe76c388}</UniqueIdentifier>
     </Filter>
+    <Filter Include="video\graphics\renderer\forward">
+      <UniqueIdentifier>{447c7047-c463-41e0-a541-2e8346ceab0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{5ea0dc43-9554-4fd0-b8bf-430eaf5b3fcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\app">
+      <UniqueIdentifier>{28d5c1da-9270-4676-86d9-05ec3be8953a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -218,6 +237,16 @@
     <ClCompile Include="..\src\core\platform\fileSystem\fileSystem.cpp">
       <Filter>core\platform\fileSystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\video\graphics\renderer\backend\rendererBackEnd.cpp">
+      <Filter>video\graphics\renderer\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\renderer\forward\forwardRenderer.cpp">
+      <Filter>video\graphics\renderer\forward</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\app\app3d.cpp">
+      <Filter>util\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\math\algebra\matrix.inl">

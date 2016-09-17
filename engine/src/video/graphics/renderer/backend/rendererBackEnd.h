@@ -12,12 +12,12 @@
 
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/shader.h>
+#include <video/graphics/driver/graphicsDriver.h>
 #include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video {
 
-		class GraphicsDriver;
 		class RenderTarget;
 
 		class RendererBackEnd {

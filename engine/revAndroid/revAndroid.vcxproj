@@ -184,6 +184,7 @@
     <ClInclude Include="..\src\core\resources\resourceManager.h" />
     <ClInclude Include="..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\src\core\time\time.h" />
+    <ClInclude Include="..\src\engine.h" />
     <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\src\math\algebra\quaternion.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="..\src\math\geometry\types.h" />
     <ClInclude Include="..\src\math\noise.h" />
     <ClInclude Include="..\src\math\numericTraits.h" />
+    <ClInclude Include="..\src\util\app\app3d.h" />
     <ClInclude Include="..\src\video\basicTypes\camera.h" />
     <ClInclude Include="..\src\video\basicTypes\color.h" />
     <ClInclude Include="..\src\video\basicTypes\texture.h" />
@@ -202,7 +204,9 @@
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGL.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\wglew.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\backend\rendererBackEnd.h" />
     <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h" />
+    <ClInclude Include="..\src\video\graphics\renderer\forward\forwardRenderer.h" />
     <ClInclude Include="..\src\video\graphics\renderer\material.h" />
     <ClInclude Include="..\src\video\graphics\renderer\renderContext.h" />
     <ClInclude Include="..\src\video\graphics\renderer\renderMesh.h" />
@@ -216,10 +220,14 @@
     <ClCompile Include="..\src\core\platform\fileSystem\fileSystem.cpp" />
     <ClCompile Include="..\src\core\platform\osHandler.cpp" />
     <ClCompile Include="..\src\core\time\time.cpp" />
+    <ClCompile Include="..\src\engine.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
+    <ClCompile Include="..\src\util\app\app3d.cpp" />
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
+    <ClCompile Include="..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />
+    <ClCompile Include="..\src\video\graphics\renderer\forward\forwardRenderer.cpp" />
     <ClCompile Include="..\src\video\graphics\shader\openGL\openGLShader.cpp" />
     <ClCompile Include="..\src\video\graphics\shader\shader.cpp" />
   </ItemGroup>

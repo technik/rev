@@ -20,6 +20,7 @@
 #include <core/time/time.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
+#include <util/app/app3d.h>
 
 using namespace rev;
 
@@ -156,10 +157,19 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 * event loop for receiving input events and doing other things.
 */
 
+class AugmentedReality : public rev::App3d {
+public:
+	AugmentedReality(ANativeActivity* _activity)
+		: App3d(_activity) {
+		// Intentionally blank
+	}
+};
+
 void android_main(struct android_app* state) {
 
-	core::Time::init();
-	core::File::setAssetMgr(state->activity->assetManager);
+	AugmentedReality app(state->activity);
+	//core::Time::init();
+	//core::File::setAssetMgr(state->activity->assetManager);
 
 	struct engine engine;
 

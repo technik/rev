@@ -20,10 +20,8 @@ namespace rev {
 		class OSHandler : public OSHandlerBase {
 		public:
 			// Singleton interface
-			template<class Allocator_>
-			static void startUp		(Allocator_&);
-			template<class Allocator_>
-			static void shutDown	(Allocator_&);
+			static void startUp		();
+			static void shutDown	();
 
 			static OSHandler* get();
 			bool update		();

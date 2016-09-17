@@ -60,7 +60,7 @@ namespace rev {
 			void render() {
 				mDriver->setCulling(GraphicsDriver::ECulling::eNone);
 				//mDriver->setZCompare(false);
-				mDriver->setShader((Shader*)mShader);
+				mDriver->setShader(mShader);
 				unsigned uColor = mDriver->getUniformLocation("color");
 				unsigned uVp = mDriver->getUniformLocation("vp");
 				mDriver->setUniform(uVp, mVp);

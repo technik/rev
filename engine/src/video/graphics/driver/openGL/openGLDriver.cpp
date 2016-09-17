@@ -146,7 +146,7 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setShader(const Shader* _shader) {
+		void OpenGLDriver::setShader(const Shader::Ptr _shader) {
 			if(!_shader)
 				return;
 			//logGlError();

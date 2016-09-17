@@ -9,7 +9,6 @@
 
 #include "platform.h"
 
-#include <core/memory/systemMemory.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
 #include <core/time/time.h>
@@ -18,21 +17,29 @@ namespace rev {
 	namespace core {
 
 		//----------------------------------------------------------------------------------------------------------------------
-		template<typename Alloc_>
-		void Platform::startUp(Alloc_& _alloc) {
-			SystemMemory::startUp(_alloc);
-			OSHandler::startUp(_alloc);
+#ifdef ANDROID
+		inline void Platform::startUp(ANativeActivity* _activity) {
+#else // !ANDROID
+		inline void Platform::startUp() {
+			OSHandler::startUp();
+#endif // !ANDROID
 			Time::init();
+#ifdef ANDROID
+			FileSystem::init(_activity->assetManager);
+#else // !ANDROID
 			FileSystem::init();
+#endif // !ANDROID
 		}
 		
 		//----------------------------------------------------------------------------------------------------------------------
-		template<typename Alloc_>
-		void Platform::shutDown(Alloc_& _alloc) {
+		inline void Platform::shutDown() {
+#ifndef ANDROID
 			FileSystem::end();
+#endif // !ANDROID
 			Time::end();
-			OSHandler::shutDown(_alloc);
-			SystemMemory::shutDown(_alloc);
+#ifndef ANDROID
+			OSHandler::shutDown();
+#endif // !ANDROID
 		}
 
 	}	// namespace core

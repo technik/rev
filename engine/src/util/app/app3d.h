@@ -7,43 +7,53 @@
 #ifndef _REV_UTIL_APP_APP3D_H_
 #define _REV_UTIL_APP_APP3D_H_
 
-#include <core/memory/newAllocator.h>
 #include <core/tools/profiler.h>
+#ifndef ANDROID
 #include <input/keyboard/keyboardInput.h>
+#endif // !ANDROID
 #include <engine.h>
+
+#ifdef ANDROID
+#include <android/native_activity.h>
+#endif // ANDROID
+
+#include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/shader/shader.h>
 
 namespace rev {
 
-	namespace video {
-		class GraphicsDriver;
-	}
-
 	class App3d {
 	public:
-		App3d();
-		App3d(int _argc, const char** _argv);
+#ifndef ANDROID
+		App3d(int _argc = 0, const char** _argv = nullptr);
+#endif // !ANDROID
 
+#ifdef ANDROID
+		App3d(ANativeActivity* _activity);
+		void initGraphics(ANativeWindow*);
+#endif // ANDROID
 		bool update();
 
 	protected:
 		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
+#ifndef ANDROID
 		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
 		rev::video::Window&			window		() const { return *mWindow; }
+#endif // !ANDROID
 
 		virtual bool				frame	(float _dt); // Usually override this
 	private:
 		void preFrame();
 		void postFrame();
 
-	protected:
-		typedef rev::Engine<rev::core::NewAllocator>	Engine;
-
 	private:
 		Engine						mEngine;
-		rev::video::GraphicsDriver*	mDriver;
+		rev::video::GraphicsDriver*	mDriver = nullptr;
 		rev::video::Shader::Ptr		mShader;
+#ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;
 		rev::video::Window*			mWindow;
+#endif // !ANDROID
 		rev::core::Profiler			mProfiler;
 	};
 

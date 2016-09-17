@@ -65,7 +65,7 @@ namespace rev {
 			void		finishFrame();
 
 			// --- Vertex config and surface config ---
-			void		setShader(const Shader*);
+			void		setShader(const Shader::Ptr);
 
 			int			getUniformLocation(const char* _uniformName);
 

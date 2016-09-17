@@ -7,13 +7,13 @@
 
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
+#include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 
 namespace rev {
 	namespace video {
 
-		class GraphicsDriver;
 		class RenderObj;
 		class RendererBackEnd;
 		class DebugDrawer;

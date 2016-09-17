@@ -12,10 +12,12 @@ namespace rev {
 
 		class Platform {
 		public:
-			template<typename Allocator_>
-			static void startUp(Allocator_&);
-			template<typename Allocator_>
-			static void shutDown(Allocator_&);
+#ifdef ANDROID
+			static void startUp(ANativeActivity* _activity);
+#else // !ANDROID
+			static void startUp();
+#endif // !ANDROID
+			static void shutDown();
 		};
 
 	}	// namespace core

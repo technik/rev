@@ -6,30 +6,13 @@
 #ifndef _REV_VIDEO_BASICTYPES_TEXTURE_H_
 #define _REV_VIDEO_BASICTYPES_TEXTURE_H_
 
-#ifdef ANDROID
-
-#	include <EGL/egl.h>
-#	include <GLES/gl.h>
-
-#else // !ANDROID
-#	include "glew.h"
-
-#	ifdef _WIN32
-#		include <Windows.h>
-#		include <video/graphics/driver/openGL/glew.h>
-#	else
-#		include <GL/glew.h>
-#	endif // !_WIN32
-
-#	include <GL/gl.h>
-#endif // !ANDROID
+#include <video/graphics/driver/openGL/openGL.h>
+#include <video/graphics/driver/graphicsDriver.h>
 #include <math/algebra/vector.h>
 #include <string>
 
 namespace rev {
 	namespace video {
-
-		class GraphicsDriver;
 
 		class Texture {
 		public:

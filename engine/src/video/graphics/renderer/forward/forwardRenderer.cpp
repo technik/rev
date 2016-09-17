@@ -76,7 +76,7 @@ namespace rev {
 			// Render skybox
 			if (_context.skyBox) {
 				mDriver->setZCompare(false); // Use the skybox to clear the buffer
-				mDriver->setShader((Shader*)mSkyShader);
+				mDriver->setShader(mSkyShader);
 				int uMap = mDriver->getUniformLocation("uSkyMap");
 				mDriver->setUniform(uMap, _context.skyBox->mMaterial->mDiffMap);
 				Mat34f centeredView = pov;

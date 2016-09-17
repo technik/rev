@@ -7,6 +7,10 @@
 #ifndef _REV_ENGINE_H_
 #define _REV_ENGINE_H_
 
+#ifdef ANDROID
+#include <android/native_activity.h>
+#endif // ANDROID
+
 namespace rev {
 	namespace video {
 		class Window;
@@ -14,10 +18,13 @@ namespace rev {
 		class RenderObj;
 	} // namespace rev
 
-	template <class Allocator_>
-	class Engine : public Allocator_ {
+	class Engine {
 	public:
+#ifdef ANDROID
+		Engine(ANativeActivity* _activity);
+#else // !ANDROID
 		Engine(int _argc, const char** _argv);
+#endif // !ANDROID
 		~Engine();
 
 		bool update();
@@ -36,7 +43,5 @@ namespace rev {
 	};
 
 }	// namespace rev
-
-#include "engine.inl"
 
 #endif // _REV_ENGINE_H_

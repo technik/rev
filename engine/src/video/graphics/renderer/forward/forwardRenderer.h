@@ -14,14 +14,12 @@
 #include <video/graphics/driver/openGL/openGLDriver.h>
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 #include <video/graphics/shader/shader.h>
-#include <video/window/window.h>
 #include <video/graphics/renderer/renderPass/shadowPass.h>
 #include <video/graphics/renderer/debugDrawer.h>
 
 namespace rev {
 	namespace video {
 
-		class GraphicsDriver;
 		class RenderContext;
 		class Window;
 		class RenderObj;
@@ -70,12 +68,14 @@ namespace rev {
 			mShadowPass[1] = new ShadowPass(mDriver, mBackEnd, 1024);
 			mShadowPass[2] = new ShadowPass(mDriver, mBackEnd, 1024);
 
-			mDriver->setShader((Shader*)mShader);
+			mDriver->setShader(mShader);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
-			delete[] mShadowPass;
+			delete mShadowPass[0];
+			delete mShadowPass[1];
+			delete mShadowPass[2];
 			_alloc.destroy(mBackEnd);
 		}
 	}

@@ -59,7 +59,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::setShader(Shader::Ptr _newShader) {
-			mDriver->setShader((Shader*)_newShader);
+			mDriver->setShader(_newShader);
 			mMvpUniform = mDriver->getUniformLocation("uMvp");
 			mShadowMvpUniform[0] = mDriver->getUniformLocation("uShadowMvp0");
 			mShadowMvpUniform[1] = mDriver->getUniformLocation("uShadowMvp1");
