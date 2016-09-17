@@ -173,6 +173,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\core\components\component.h" />
+    <ClInclude Include="..\src\core\components\sceneNode.h" />
+    <ClInclude Include="..\src\core\components\transformSrc.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h" />
     <ClInclude Include="..\src\core\platform\osHandler.h" />
@@ -185,6 +188,8 @@
     <ClInclude Include="..\src\core\resources\smartPtr.h" />
     <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\engine.h" />
+    <ClInclude Include="..\src\game\geometry\procedural\basic.h" />
+    <ClInclude Include="..\src\game\scene\camera\flyByCamera.h" />
     <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\src\math\algebra\quaternion.h" />
@@ -216,11 +221,16 @@
     <ClInclude Include="..\src\video\graphics\shader\shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\core\components\component.cpp" />
+    <ClCompile Include="..\src\core\components\sceneNode.cpp" />
+    <ClCompile Include="..\src\core\components\transformSrc.cpp" />
     <ClCompile Include="..\src\core\platform\fileSystem\file.cpp" />
     <ClCompile Include="..\src\core\platform\fileSystem\fileSystem.cpp" />
     <ClCompile Include="..\src\core\platform\osHandler.cpp" />
     <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
+    <ClCompile Include="..\src\game\geometry\procedural\basic.cpp" />
+    <ClCompile Include="..\src\game\scene\camera\flyByCamera.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
     <ClCompile Include="..\src\util\app\app3d.cpp" />
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />

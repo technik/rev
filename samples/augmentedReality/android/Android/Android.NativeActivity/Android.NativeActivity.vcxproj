@@ -159,7 +159,7 @@
       <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv2;EGL;</LibraryDependencies>
+      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv2;EGL;m;</LibraryDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

@@ -21,8 +21,13 @@
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
 #include <util/app/app3d.h>
+#include <video/graphics/renderer/renderMesh.h>
+#include <video/graphics/renderer/backend/rendererBackEnd.h>
+#include <game/scene/camera/flyByCamera.h>
+#include <game/geometry/procedural/basic.h>
 
 using namespace rev;
+using namespace rev::video;
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
@@ -43,10 +48,24 @@ struct saved_state {
 class AugmentedReality : public rev::App3d {
 public:
 	float t = 0.f;
+	RendererBackEnd* backEnd = nullptr;
+	RendererBackEnd::StaticGeometry geom;
+	video::RenderMesh* box;
+	game::FlyByCamera* cam;
+	
 
 	AugmentedReality(ANativeActivity* _activity)
 		: App3d(_activity) {
-		// Intentionally blank
+		box = game::Procedural::box(math::Vec3f(1.f));
+		geom.color = Color(1.f);
+		geom.indices = box->indices;
+		geom.nIndices = box->nIndices;
+		geom.vertices = box->vertices;
+		geom.nVertices = box->nVertices;
+		geom.transform = math::Mat34f::identity();
+
+		cam = new game::FlyByCamera(1.57f, 1.33f, 0.01f, 1000.f);
+		cam->setPos(math::Vec3f(0.f, -4.f, 0.f));
 	}
 
 	bool frame(float _dt) {
@@ -54,13 +73,21 @@ public:
 			// No display.
 			return true;
 		}
+		else {
+			if (!backEnd) {
+				backEnd = new RendererBackEnd(&driver3d());
+			}
 
-		t += _dt;
-		if (t > 1.f)
-			t = 0.f;
-		// Just fill the screen with a color.
-		glClearColor(t, 0.f, 1.f, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+			t += _dt;
+			if (t > 1.f)
+				t = 0.f;
+			// Just fill the screen with a color.
+			glClearColor(t, 0.f, 1.f, 1);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			backEnd->setCamera(cam->view(), cam->projection());
+			backEnd->render(geom);
+		}
 
 		return true;
 	}

@@ -7,9 +7,11 @@
 
 #include "flyByCamera.h"
 
+#ifndef ANDROID
 #include <input/keyboard/keyboardInput.h>
 
 using namespace rev::input;
+#endif // !ANDROID
 using namespace rev::math;
 
 namespace rev { namespace game {
@@ -31,6 +33,7 @@ namespace rev { namespace game {
 	void FlyByCamera::update(float _dt)
 	{
 		static float mult = 1.f;
+#ifndef ANDROID
 		KeyboardInput* input = KeyboardInput::get();
 		if(input->pressed(KeyboardInput::eV))
 			mult *= 2.f;
@@ -54,6 +57,7 @@ namespace rev { namespace game {
 		if(input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
 	 	if(input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
 		rotate(Vec3f::zAxis(), angSpd * _dt);
+#endif // ANDROID
 	}
 
 }	// namespace game

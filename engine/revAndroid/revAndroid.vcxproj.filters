@@ -122,6 +122,21 @@
       <Filter>util\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\engine.h" />
+    <ClInclude Include="..\src\game\geometry\procedural\basic.h">
+      <Filter>game\geometry\procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\camera\flyByCamera.h">
+      <Filter>game\scene\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\components\component.h">
+      <Filter>core\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\components\sceneNode.h">
+      <Filter>core\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\components\transformSrc.h">
+      <Filter>core\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -205,6 +220,24 @@
     <Filter Include="util\app">
       <UniqueIdentifier>{28d5c1da-9270-4676-86d9-05ec3be8953a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{5e73803b-2bd8-48cd-8f02-9f317f45d358}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\geometry">
+      <UniqueIdentifier>{c9f42ec3-315b-40d2-b207-8e6f3d3b51d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\geometry\procedural">
+      <UniqueIdentifier>{958d0a7b-1c02-4032-aa86-af35582bc2c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\scene">
+      <UniqueIdentifier>{fdc36165-ea75-40db-b9dc-29a56c1a7471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\scene\camera">
+      <UniqueIdentifier>{052f861d-95f6-48e9-b074-b2451747d4ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\components">
+      <UniqueIdentifier>{167b60ca-e1bc-4087-bf8a-a9a830acdf3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -247,6 +280,21 @@
       <Filter>util\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\engine.cpp" />
+    <ClCompile Include="..\src\game\geometry\procedural\basic.cpp">
+      <Filter>game\geometry\procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\camera\flyByCamera.cpp">
+      <Filter>game\scene\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\components\component.cpp">
+      <Filter>core\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\components\sceneNode.cpp">
+      <Filter>core\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\components\transformSrc.cpp">
+      <Filter>core\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\math\algebra\matrix.inl">
