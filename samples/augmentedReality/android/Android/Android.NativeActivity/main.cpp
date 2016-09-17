@@ -160,8 +160,6 @@ void android_main(struct android_app* state) {
 
 	core::Time::init();
 	core::File::setAssetMgr(state->activity->assetManager);
-	state->gfx = new video::OpenGLDriverAndroid();
-	auto shader = video::Shader::manager()->get("solid");
 
 	struct engine engine;
 

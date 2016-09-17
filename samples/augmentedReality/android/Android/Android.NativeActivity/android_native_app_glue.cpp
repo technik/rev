@@ -100,6 +100,7 @@ void android_app_pre_exec_cmd(struct android_app* android_app, int8_t cmd) {
 			LOGV("APP_CMD_INIT_WINDOW\n");
 			pthread_mutex_lock(&android_app->mutex);
 			android_app->gfx->setWindow(android_app->pendingWindow);
+			android_app->shader = rev::video::Shader::manager()->get("solid");
 			pthread_cond_broadcast(&android_app->cond);
 			pthread_mutex_unlock(&android_app->mutex);
 			break;
@@ -259,6 +260,8 @@ static struct android_app* android_app_create(ANativeActivity* activity,
 		pthread_cond_wait(&android_app->cond, &android_app->mutex);
 	}
 	pthread_mutex_unlock(&android_app->mutex);
+
+	android_app->gfx = new rev::video::OpenGLDriverAndroid();
 
 	return android_app;
 }

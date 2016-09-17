@@ -124,6 +124,7 @@ struct android_poll_source {
 struct android_app {
 
 	rev::video::OpenGLDriverAndroid* gfx = nullptr; ///< Graphics driver
+	rev::video::Shader::Ptr shader;
 	// The application can place a pointer to its own state object
 	// here if it likes.
 	void* userData;
