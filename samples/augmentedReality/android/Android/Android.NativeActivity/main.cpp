@@ -110,23 +110,6 @@ struct engine {
 };
 
 /**
-* Just the current frame in the display.
-*/
-static void engine_draw_frame(video::GraphicsDriver* _gfx, struct engine* engine) {
-	if (!_gfx || !_gfx->display()) {
-		// No display.
-		return;
-	}
-
-	// Just fill the screen with a color.
-	glClearColor(((float)engine->state.x) / engine->width, engine->state.angle,
-		((float)engine->state.y) / engine->height, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	_gfx->finishFrame();
-}
-
-/**
 * Tear down the EGL context currently associated with the display.
 */
 static void engine_term_display(struct engine* engine) {
@@ -170,12 +153,6 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		engine->app->savedState = malloc(sizeof(struct saved_state));
 		*((struct saved_state*)engine->app->savedState) = engine->state;
 		engine->app->savedStateSize = sizeof(struct saved_state);
-		break;
-	case APP_CMD_INIT_WINDOW:
-		// The window is being shown, get it ready.
-		//if (engine->sample->gfxDriver()->window() != NULL) {
-		//	//engine_draw_frame(app->gfx, engine);
-		//}
 		break;
 	case APP_CMD_TERM_WINDOW:
 		// The window is being hidden or closed, clean it up.
@@ -280,18 +257,8 @@ void android_main(struct android_app* state) {
 		}
 
 		if (engine.animating) {
-
 			// Update time
 			app.update();
-			// Done with events; draw next animation frame.
-			//engine.state.angle += 0.01/2.0f;
-			//if (engine.state.angle > 1) {
-			//	engine.state.angle = 0;
-			//}
-
-			// Drawing is throttled to the screen update rate, so there
-			// is no need to do timing here.
-			//engine_draw_frame(engine.app->revApp->gfxDriver(), &engine);
 		}
 	}
 }

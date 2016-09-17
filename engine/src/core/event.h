@@ -8,7 +8,7 @@
 #define _REV_CORE_EVENT_H_
 
 #include <functional>
-#include <core/containers/vector.h>
+#include <vector>
 
 namespace rev {
 	namespace core {
@@ -26,7 +26,7 @@ namespace rev {
 			void operator()(Arg_...) const;
 
 		private:
-			vector<Delegate>	mDelegates;
+			std::vector<Delegate>	mDelegates;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------

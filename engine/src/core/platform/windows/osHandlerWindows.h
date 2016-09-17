@@ -13,7 +13,7 @@
 
 #include <functional>
 
-#include <core/containers/vector.h>
+#include <vector>
 
 namespace rev {
 	namespace core {
@@ -28,7 +28,7 @@ namespace rev {
 		protected:
 			bool update();
 		private:
-			vector<OSDelegate>	mMsgProcessors;
+			std::vector<OSDelegate>	mMsgProcessors;
 			bool				mMustQuit = false;
 		};
 

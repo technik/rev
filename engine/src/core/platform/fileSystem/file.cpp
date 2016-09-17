@@ -23,10 +23,12 @@ namespace rev { namespace core {
 	template<>
 	NamedResource<File>::Mgr* NamedResource<File>::sInstance = nullptr;
 
+#ifdef ANDROID
 	//--------------------------------------------------------------------------------------------------------------
 	void File::setAssetMgr(AAssetManager* _mgr) {
 		sAssetMgr = _mgr;
 	}
+#endif // ANDROID
 
 	//--------------------------------------------------------------------------------------------------------------
 	File::File(const string& _path) {

@@ -32,6 +32,4 @@ namespace rev {
 	}	// namespace core
 }	// namespace rev
 
-#include "osHandler.inl"
-
 #endif // _REV_CORE_PLATFORM_OSHANDLER_H_

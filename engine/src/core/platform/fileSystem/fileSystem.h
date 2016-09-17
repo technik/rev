@@ -22,8 +22,10 @@ namespace rev {
 		class FileSystem {
 #endif
 		public:
+#ifdef ANDROID
 			static void init(AAssetManager* _mgr);
 			static void end();
+#endif // ANDROID
 #ifdef _WIN32
 			static void init();
 			static void end();

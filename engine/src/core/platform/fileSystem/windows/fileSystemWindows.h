@@ -10,9 +10,9 @@
 #include <Windows.h>
 #include <cstdint>
 
-#include <core/containers/map.h>
 #include <core/event.h>
 #include <core/types.h>
+#include <map>
 
 namespace rev {
 	namespace core {
@@ -23,7 +23,7 @@ namespace rev {
 			void		update();
 
 		protected:
-			map<const std::string, FileEvent>	mFileChangedEvents;
+			std::map<const std::string, FileEvent>	mFileChangedEvents;
 
 		protected:
 			FileSystemWindows();
