@@ -31,6 +31,7 @@ namespace rev {
 #ifdef ANDROID
 		App3d(ANativeActivity* _activity);
 		void initGraphics(ANativeWindow*);
+		rev::video::GraphicsDriver* gfxDriver() { return mDriver; }
 #endif // ANDROID
 		bool update();
 

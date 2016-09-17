@@ -16,6 +16,7 @@
  */
 
 #include "android_native_app_glue.h"
+#include <util/app/app3d.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "threaded_app", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "threaded_app", __VA_ARGS__))
@@ -99,8 +100,7 @@ void android_app_pre_exec_cmd(struct android_app* android_app, int8_t cmd) {
 		case APP_CMD_INIT_WINDOW:
 			LOGV("APP_CMD_INIT_WINDOW\n");
 			pthread_mutex_lock(&android_app->mutex);
-			android_app->gfx->setWindow(android_app->pendingWindow);
-			android_app->shader = rev::video::Shader::manager()->get("solid");
+			android_app->revApp->initGraphics(android_app->pendingWindow);
 			pthread_cond_broadcast(&android_app->cond);
 			pthread_mutex_unlock(&android_app->mutex);
 			break;
@@ -261,8 +261,6 @@ static struct android_app* android_app_create(ANativeActivity* activity,
 	}
 	pthread_mutex_unlock(&android_app->mutex);
 
-	android_app->gfx = new rev::video::OpenGLDriverAndroid();
-
 	return android_app;
 }
 
@@ -287,14 +285,14 @@ static void android_app_set_window(struct android_app* android_app, ANativeWindo
 	if (android_app->pendingWindow != NULL) {
 		android_app_write_cmd(android_app, APP_CMD_TERM_WINDOW);
 	}
-	android_app->pendingWindow = window;
 	if (window != NULL) {
+		android_app->pendingWindow = window;
 		android_app_write_cmd(android_app, APP_CMD_INIT_WINDOW);
-		while (!android_app->gfx || android_app->gfx->window() != android_app->pendingWindow) {
+		while (!android_app->hasGraphics) {
 			pthread_cond_wait(&android_app->cond, &android_app->mutex);
 		}
 	} else {
-		while (android_app->gfx) {
+		while (android_app->hasGraphics) {
 			pthread_cond_wait(&android_app->cond, &android_app->mutex);
 		}
 	}

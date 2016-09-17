@@ -39,6 +39,33 @@ struct saved_state {
 /**
 * Shared state for our app.
 */
+
+class AugmentedReality : public rev::App3d {
+public:
+	float t = 0.f;
+
+	AugmentedReality(ANativeActivity* _activity)
+		: App3d(_activity) {
+		// Intentionally blank
+	}
+
+	bool frame(float _dt) {
+		if (!&driver3d() || !driver3d().display()) {
+			// No display.
+			return true;
+		}
+
+		t += _dt;
+		if (t > 1.f)
+			t = 0.f;
+		// Just fill the screen with a color.
+		glClearColor(t, 0.f, 1.f, 1);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		return true;
+	}
+};
+
 struct engine {
 	struct android_app* app;
 
@@ -119,9 +146,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		break;
 	case APP_CMD_INIT_WINDOW:
 		// The window is being shown, get it ready.
-		if (app->gfx->window() != NULL) {
-			engine_draw_frame(app->gfx, engine);
-		}
+		//if (engine->sample->gfxDriver()->window() != NULL) {
+		//	//engine_draw_frame(app->gfx, engine);
+		//}
 		break;
 	case APP_CMD_TERM_WINDOW:
 		// The window is being hidden or closed, clean it up.
@@ -146,7 +173,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		}
 		// Also stop animating.
 		engine->animating = 0;
-		engine_draw_frame(app->gfx, engine);
+		//engine_draw_frame(app->gfx, engine);
 		break;
 	}
 }
@@ -156,14 +183,6 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 * android_native_app_glue.  It runs in its own thread, with its own
 * event loop for receiving input events and doing other things.
 */
-
-class AugmentedReality : public rev::App3d {
-public:
-	AugmentedReality(ANativeActivity* _activity)
-		: App3d(_activity) {
-		// Intentionally blank
-	}
-};
 
 void android_main(struct android_app* state) {
 
@@ -178,6 +197,7 @@ void android_main(struct android_app* state) {
 	state->onAppCmd = engine_handle_cmd;
 	state->onInputEvent = engine_handle_input;
 	engine.app = state;
+	state->revApp = &app;
 
 	// Prepare to monitor accelerometer
 	engine.sensorManager = ASensorManager_getInstance();
@@ -195,10 +215,7 @@ void android_main(struct android_app* state) {
 
 	// loop waiting for stuff to do.
 
-	while (1) {
-		// Update time
-		core::Time::get()->update();
-		float dt = core::Time::get()->frameTime();
+	while (1) {;
 		// Read all pending events.
 		int ident;
 		int events;
@@ -236,15 +253,18 @@ void android_main(struct android_app* state) {
 		}
 
 		if (engine.animating) {
+
+			// Update time
+			//app.update();
 			// Done with events; draw next animation frame.
-			engine.state.angle += dt/2.0f;
-			if (engine.state.angle > 1) {
-				engine.state.angle = 0;
-			}
+			//engine.state.angle += 0.01/2.0f;
+			//if (engine.state.angle > 1) {
+			//	engine.state.angle = 0;
+			//}
 
 			// Drawing is throttled to the screen update rate, so there
 			// is no need to do timing here.
-			engine_draw_frame(engine.app->gfx, &engine);
+			engine_draw_frame(engine.app->revApp->gfxDriver(), &engine);
 		}
 	}
 }

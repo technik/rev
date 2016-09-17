@@ -42,10 +42,11 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::initGraphics(ANativeWindow* _window) {
-		mDriver = new GraphicsDriver();
-		mDriver->setWindow(_window);
+		GraphicsDriver* driver = new GraphicsDriver();
+		driver->setWindow(_window);
+		mDriver = driver;
 		mShader = Shader::manager()->get("solid");
-		mDriver->setShader(mShader);
+		driver->setShader(mShader);
 	}
 #endif // ANDROID
 
@@ -80,6 +81,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::preFrame(){
 		mEngine.update();
+		Time::get()->update();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

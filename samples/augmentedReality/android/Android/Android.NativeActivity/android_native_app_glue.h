@@ -94,6 +94,8 @@
  * full usage example.  Also look at the JavaDoc of NativeActivity.
  */
 
+#include <util/app/app3d.h>
+
 struct android_app;
 
 /**
@@ -122,12 +124,11 @@ struct android_poll_source {
  * Java objects.
  */
 struct android_app {
-
-	rev::video::OpenGLDriverAndroid* gfx = nullptr; ///< Graphics driver
-	rev::video::Shader::Ptr shader;
+	rev::App3d* revApp = nullptr;
+	bool hasGraphics = false;
 	// The application can place a pointer to its own state object
 	// here if it likes.
-	void* userData;
+	void* userData = nullptr;
 
 	// Fill this in with the function to process main app commands (APP_CMD_*)
 	void (*onAppCmd)(struct android_app* app, int32_t cmd);
