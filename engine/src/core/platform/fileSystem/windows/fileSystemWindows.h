@@ -11,7 +11,6 @@
 #include <cstdint>
 
 #include <core/event.h>
-#include <core/types.h>
 #include <map>
 
 namespace rev {

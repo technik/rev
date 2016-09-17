@@ -10,13 +10,17 @@
 #include "openGLDriverWindows.h"
 #include <video/window/window.h>
 #include <core/platform/osHandler.h>
-
+#include <string>
 #include <gl/GL.h>
+#include <core/platform/fileSystem/fileSystem.h>
+
+using namespace std;
+using namespace rev::core;
 
 namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriverWindows::OpenGLDriverWindows(const Window* _window) {
+		OpenGLDriverWindows::OpenGLDriverWindows(Window* _window) {
 			mWindowHandle = _window->winapiHandle();
 
 			static PIXELFORMATDESCRIPTOR pfd =				// pfd Tells Windows How We Want Things To Be
@@ -46,7 +50,41 @@ namespace rev {
 			GLuint pixelFormat = ChoosePixelFormat(mDevCtxHandle, &pfd);
 			SetPixelFormat(mDevCtxHandle, pixelFormat, &pfd);
 			HGLRC renderCtxHandle = wglCreateContext(mDevCtxHandle);
-			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);			
+			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);
+
+			GLenum res = glewInit();
+			assert(res == GLEW_OK);
+			Shader::manager()->setCreator(
+				[](const string& _name) -> Shader* {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+				OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
+				if (shader) {
+					auto refreshShader = [=](const string&) {
+						// Recreate shader
+						shader->~OpenGLShader();
+						OpenGLShader::loadFromFiles(vtxName, pxlName, *shader);
+					};
+					FileSystem::get()->onFileChanged(pxlName) += refreshShader;
+					FileSystem::get()->onFileChanged(vtxName) += refreshShader;
+				}
+				return shader;
+			});
+			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
+				string pxlName = _name + ".pxl";
+				string vtxName = _name + ".vtx";
+				FileSystem::get()->onFileChanged(pxlName).clear();
+				FileSystem::get()->onFileChanged(vtxName).clear();
+			});
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
+			glLineWidth(2.f);
+			glPointSize(4.f);
+
+			_window->onResize() += [=]() {
+				setViewport(math::Vec2i(0, 0), _window->size());
+			};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

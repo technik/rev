@@ -23,10 +23,10 @@ namespace rev {
 	App3d::App3d(int _argc, const char** _argv)
 		: mEngine(_argc,_argv)
 	{
-		mDriver = new OpenGLDriver(mEngine.mainWindow());
+		mDriver = new OpenGLDriverWindows(mEngine.mainWindow());
 		mDriver->setClearColor(Color(0.7f));
 		mShader = Shader::manager()->get("shader");
-		mDriver->setShader((Shader*)mShader);
+		mDriver->setShader(mShader);
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();

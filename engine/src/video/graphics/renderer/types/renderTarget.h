@@ -55,7 +55,7 @@ namespace rev {
 #ifdef ANDROID
 				GLenum target = GL_TEXTURE_2D;
 #else // !ANDROID
-				GLenum target = _color->multiSample() ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+				GLenum target = _depth->multiSample() ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 #endif // !ANDROID
 
 				mDepth = _depth;

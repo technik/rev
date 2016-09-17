@@ -11,24 +11,22 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-#include "../../graphicsDriver.h"
+#include "../openGLDriver.h"
 
 namespace rev {
 	namespace video {
 
 		class Window;
 
-		class OpenGLDriverWindows : public GraphicsDriver {
+		class OpenGLDriverWindows final : public OpenGLDriver {
 		public:
-			OpenGLDriverWindows(const Window*);
-			void	swapBuffers();
+			OpenGLDriverWindows(Window*);
+			void	swapBuffers() override;
 
 		private:
 			HWND	mWindowHandle;
 			HDC		mDevCtxHandle;
 		};
-		
-		typedef OpenGLDriverWindows OpenGLDriverBase;
 
 	}	// namespace video
 }	// namespace rev

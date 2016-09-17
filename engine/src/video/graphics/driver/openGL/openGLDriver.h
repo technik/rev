@@ -47,9 +47,6 @@ namespace rev {
 				eNone
 			};
 
-#if defined(_WIN32)
-			OpenGLDriver(Window* _window);
-#endif // defined(_WIN32)
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);

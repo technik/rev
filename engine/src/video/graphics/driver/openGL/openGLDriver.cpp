@@ -26,45 +26,6 @@
 namespace rev {
 	namespace video {
 
-#if defined(_WIN32)
-		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriver::OpenGLDriver(Window* _window) : OpenGLDriverBase(_window), mWindow(_window) {
-			GLenum res = glewInit();
-			assert(res == GLEW_OK);
-			Shader::manager()->setCreator(
-				[](const string& _name) -> Shader* {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
-					OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
-					if(shader) {
-						auto refreshShader = [=](const string&) {
-							// Recreate shader
-							shader->~OpenGLShader();
-							OpenGLShader::loadFromFiles(vtxName, pxlName, *shader);
-						};
-						FileSystem::get()->onFileChanged(pxlName) += refreshShader;
-						FileSystem::get()->onFileChanged(vtxName) += refreshShader;
-					}
-					return shader;
-				});
-			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
-				FileSystem::get()->onFileChanged(pxlName).clear();
-				FileSystem::get()->onFileChanged(vtxName).clear();
-			});
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LEQUAL);
-			glLineWidth(2.f);
-			glPointSize(4.f);
-
-			_window->onResize() += [this]() { 
-				setViewport(math::Vec2i(0,0), mWindow->size());
-			};
-		}
-#endif // _WIN32
-
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setViewport(const math::Vec2i& _position, const math::Vec2u& _size) {
 			glViewport(_position.x, _position.y, _size.x, _size.y);

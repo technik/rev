@@ -8,6 +8,9 @@
 
 #include "fileSystemWindows.h"
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 namespace rev {
 	namespace core {
