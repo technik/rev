@@ -288,11 +288,11 @@ static void android_app_set_window(struct android_app* android_app, ANativeWindo
 	if (window != NULL) {
 		android_app->pendingWindow = window;
 		android_app_write_cmd(android_app, APP_CMD_INIT_WINDOW);
-		while (!android_app->hasGraphics) {
+		while (!android_app->revApp->gfxDriver() || android_app->revApp->gfxDriver()->window() != android_app->pendingWindow) {
 			pthread_cond_wait(&android_app->cond, &android_app->mutex);
 		}
 	} else {
-		while (android_app->hasGraphics) {
+		while (android_app->revApp->gfxDriver()) {
 			pthread_cond_wait(&android_app->cond, &android_app->mutex);
 		}
 	}

@@ -255,7 +255,7 @@ void android_main(struct android_app* state) {
 		if (engine.animating) {
 
 			// Update time
-			//app.update();
+			app.update();
 			// Done with events; draw next animation frame.
 			//engine.state.angle += 0.01/2.0f;
 			//if (engine.state.angle > 1) {
@@ -264,7 +264,7 @@ void android_main(struct android_app* state) {
 
 			// Drawing is throttled to the screen update rate, so there
 			// is no need to do timing here.
-			engine_draw_frame(engine.app->revApp->gfxDriver(), &engine);
+			//engine_draw_frame(engine.app->revApp->gfxDriver(), &engine);
 		}
 	}
 }

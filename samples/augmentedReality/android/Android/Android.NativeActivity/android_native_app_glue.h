@@ -125,7 +125,6 @@ struct android_poll_source {
  */
 struct android_app {
 	rev::App3d* revApp = nullptr;
-	bool hasGraphics = false;
 	// The application can place a pointer to its own state object
 	// here if it likes.
 	void* userData = nullptr;
