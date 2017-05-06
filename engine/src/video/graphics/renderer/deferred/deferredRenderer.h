@@ -10,7 +10,6 @@
 #include <math/algebra/vector.h>
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
-#include <video/graphics/driver/openGL/openGLDriver.h>
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 #include <video/graphics/shader/shader.h>
 #include <video/window/window.h>
@@ -18,15 +17,14 @@
 namespace rev {
 	namespace video {
 
-		class GraphicsDriver;
 		class RenderContext;
 		class Window;
 		class RenderObj;
 
 		class DeferredRenderer {
 		public:
-			template<class Alloc_> void init(GraphicsDriver* _driver, Alloc_& _alloc);
-			template<class Alloc_> void end(Alloc_& _alloc);
+			void init(GraphicsDriver* _driver);
+			void end();
 
 			void startFrame();
 			void finishFrame();
@@ -43,19 +41,16 @@ namespace rev {
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Alloc_> void DeferredRenderer::init(GraphicsDriver* _driver, Alloc_& _alloc){
+		inline void DeferredRenderer::init(GraphicsDriver* _driver){
 			mDriver = _driver;
-			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
+			mBackEnd = new RendererBackEnd(mDriver);
 			mGeometryShader = Shader::manager()->get("geometry");
 			mLightShader = Shader::manager()->get("light");
-
-			//mDriver->setShader((Shader*)mShader);
-			//mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		template<class Alloc_> void DeferredRenderer::end(Alloc_& _alloc){
-			_alloc.destroy(mBackEnd);
+		inline void DeferredRenderer::end(){
+			delete mBackEnd;
 		}
 	}
 }

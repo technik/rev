@@ -25,6 +25,7 @@
 #include <input/keyboard/keyboardInput.h>
 #include <video/basicTypes/texture.h>
 #include <video/graphics/renderer/material.h>
+#include <video/window/window.h>
 #include <vector>
 #include <iostream>
 
