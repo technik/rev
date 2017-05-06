@@ -31,7 +31,7 @@ if(MSVC)
 	add_definitions(-DNOMINMAX)
 endif(MSVC)
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++11)
+	add_definitions(-std=c++11)
 endif()
 
 #link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/glew)

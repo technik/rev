@@ -12,6 +12,8 @@
 
 #include "engine.h"
 
+#include <core/platform/osHandler.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
 #include <math/algebra/vector.h>
 #include <core/platform/platform.h>
@@ -29,13 +31,16 @@ namespace rev {
 	//----------------------------------------------------------------------------------------------------------------------
 #ifdef ANDROID
 	Engine::Engine(ANativeActivity* _activity) {
+		core::Platform::startUp(_activity);
 #else // !ANDROID
 	Engine::Engine(int, const char** ) {
 #endif // !ANDROID
-		// Create window
-		core::Platform::startUp(_activity);
 #ifndef ANDROID
+		core::OSHandler::startUp();
+		core::Time::init();
+		core::FileSystem::init();
 		input::KeyboardInput::init();
+		// Create window
 		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
 #endif // !ANDROID
 	}

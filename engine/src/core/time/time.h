@@ -4,6 +4,7 @@
 // On 2011/August/22
 //----------------------------------------------------------------------------------------------------------------------
 // Time
+#include <cassert>
 
 #ifndef _REV_CORE_TIME_TIME_H_
 #define _REV_CORE_TIME_TIME_H_
@@ -56,6 +57,7 @@ namespace rev
 		//------------------------------------------------------------------------------------------------------------------
 		inline Time * Time::get()
 		{
+			assert(sTime);
 			return sTime;
 		}
 	}	// namespace core
