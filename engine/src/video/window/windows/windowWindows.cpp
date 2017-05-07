@@ -19,7 +19,7 @@ using namespace rev::math;
 namespace rev {
 	namespace video {
 
-		const size_t MAX_NAME_SIZE = 1024;
+		const size_t MAX_NAME_SIZE = 512;
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool WindowWindows::sIsClassRegistered = false;
@@ -33,15 +33,9 @@ namespace rev {
 			mPosition = _pos;
 			mSize = _size;
 
-			// Convert window name to utf16 for windows
-			size_t nameSize = strlen(_windowName);
-			assert(nameSize < MAX_NAME_SIZE);
-			wchar_t utf16Name[MAX_NAME_SIZE];
-			mbstowcs_s(&nameSize, utf16Name, _windowName, MAX_NAME_SIZE);
-
 			// Create a windown through the windows API
-			mWinapiHandle = CreateWindowW(L"RevWindowClass",	// Class name, registered by the video driver
-				utf16Name,								// Window name (currently unsupported
+			mWinapiHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
+				_windowName,								// Window name (currently unsupported
 				WS_SIZEBOX | WS_CAPTION | WS_POPUP | WS_VISIBLE,	// Creation options
 				_pos.x,						// X Position
 				_pos.y,						// Y Position
@@ -100,7 +94,7 @@ namespace rev {
 		void WindowWindows::registerClass() {
 			HINSTANCE moduleHandle = GetModuleHandle(NULL);
 			// -- Register a new window class --
-			WNDCLASSW winClass = {
+			WNDCLASS winClass = {
 				CS_OWNDC, // Class style
 				WindowProc,
 				0,
@@ -110,9 +104,9 @@ namespace rev {
 				NULL,	// No cursor shape
 				NULL,
 				NULL,
-				L"RevWindowClass" };
+				"RevWindowClass" };
 
-			RegisterClassW(&winClass);
+			RegisterClass(&winClass);
 		}
 
 	}	// namespace video
