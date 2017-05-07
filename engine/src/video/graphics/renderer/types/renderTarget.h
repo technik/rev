@@ -67,6 +67,8 @@ namespace rev {
 			Texture* color() const { return mColor; }
 			Texture* depth() const { return mDepth; }
 
+			float aspectRatio() const { return (float(mColor->size().y)) / mColor->size().x; }
+
 		private:
 			Texture* mColor = nullptr;
 			Texture* mDepth = nullptr;

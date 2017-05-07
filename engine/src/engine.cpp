@@ -4,9 +4,6 @@
 // 2014/April/03
 //----------------------------------------------------------------------------------------------------------------------
 // Engine class
-#ifndef _REV_ENGINE_INL_
-#define _REV_ENGINE_INL_
-
 #include <cassert>
 #include <cstdint>
 
@@ -70,5 +67,3 @@ namespace rev {
 	}
 
 }	// namespace rev
-
-#endif // _REV_ENGINE_INL_

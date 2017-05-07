@@ -15,27 +15,35 @@
 namespace rev {
 	namespace video {
 
+		class RenderTarget;
+
 		class Camera : public core::Component
 		{
 		public:
-			Camera(const math::Mat44f& _proj = math::Mat44f::identity(), const math::Frustum& _f = math::Frustum())
-				: mProj(_proj)
-				, mFrustum(_f)
-			{}
+			/// Create a camera that renders into dst target (either a viewport or a render texture)
+			/// if dst is nullptr, then the default Viewport will be used as target
+			/// near and far ar clipping plane distances
+			Camera(float fov, bool ortho, float near, float far, RenderTarget* dst);
 
-			const math::Frustum&	frustum() const		{ return mFrustum; }
-			math::Mat34f			view() const		{ return node()?node()->transform():math::Mat34f::identity(); }
-			const math::Mat44f&		projection() const	{ return mProj; };
+			// Public accessors
+			void setRenderTarget(RenderTarget* _rt)		{ mRt = _rt; }
+			void setFov(float _fov)						{ mFov = _fov; }
+			void setClipPlanes(float near, float far)	{ mNear = near; mFar = far;}
 
-		protected:
-			void setProjection(const math::Mat44f& _proj) {
-				mProj = _proj;
-			}
+			float fov() const							{ return mFov; }
+			float near() const							{ return mNear; }
+			float far() const							{ return mFar; }
+
+			math::Frustum	frustum		() const;
+			math::Mat44f	projection	() const;
 
 		private:
-			math::Mat34f mView;
-			math::Mat44f mProj;
-			math::Frustum mFrustum;
+			float aspectRatio() const;
+
+			RenderTarget*	mRt;
+			float	mFov;
+			float	mNear, mFar;
+			bool	mOrtho;
 		};
 
 	}	// namespace video

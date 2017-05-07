@@ -9,8 +9,7 @@
 #include <core/components/sceneNode.h>
 #include <video/graphics/renderer/renderContext.h>
 #include <core/components/sceneNode.h>
-#include <map>
-#include <string>
+#include <vector>
 
 namespace rev {
 	namespace game {
@@ -22,8 +21,11 @@ namespace rev {
 			/// \return true on succuess importing the scene
 			static Scene* import(const char* _fileName);
 
+			void addNode(core::SceneNode* node);
+
 			video::RenderContext*			mRenderContext;
-			std::map<std::string,core::SceneNode*>	mSceneGraph;
+		private:
+			std::vector<core::SceneNode*>	mSceneGraph;
 		};
 
 	}	// namespace game
