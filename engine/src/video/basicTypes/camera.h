@@ -28,7 +28,8 @@ namespace rev {
 			// Public accessors
 			void setRenderTarget(RenderTarget* _rt)		{ mRt = _rt; }
 			void setFov(float _fov)						{ mFov = _fov; }
-			void setClipPlanes(float near, float far)	{ mNear = near; mFar = far;}
+			void setClipPlanes(float near, float far)	{ mNear = near; mFar = far; }
+			math::Mat34f view() const;
 
 			float fov() const							{ return mFov; }
 			float near() const							{ return mNear; }

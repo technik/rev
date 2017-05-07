@@ -30,6 +30,14 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		Mat34f Camera::view() const {
+			if(node())
+				return node()->transform();
+			else
+				return Mat34f::identity();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		float Camera::aspectRatio() const {
 			if(mRt)
 				return mRt->aspectRatio();

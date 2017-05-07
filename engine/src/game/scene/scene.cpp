@@ -107,8 +107,6 @@ namespace rev {
 				obj->attachTo(node);
 				std::string name = colNode->mName.C_Str();
 				node->setTransform(globalTransform(colNode));
-				
-				scene->mSceneGraph.insert(std::make_pair(name,node));
 			}
 			return scene;
 		}
