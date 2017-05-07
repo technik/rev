@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Transform source for the component system
 #include "sceneNode.h"
+#include <core/components/component.h>
 
 namespace rev {
 	namespace core {
@@ -52,12 +53,18 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::addComponent(Component* _c) {
-			mComponents.insert(_c);
+			if(_c->node() != this) {
+				_c->attachTo(this);
+				mComponents.insert(_c);
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::removeComponent(Component* _c) {
-			mComponents.erase(_c);
+			if(_c->node()) {
+				_c->dettach();
+				mComponents.erase(_c);
+			}
 		}
 
 	}

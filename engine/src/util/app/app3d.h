@@ -18,20 +18,19 @@
 #endif // ANDROID
 
 #include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/shader/shader.h>
 
 namespace rev {
 
 	class App3d {
 	public:
-#ifndef ANDROID
-		App3d(int _argc = 0, const char** _argv = nullptr);
-#endif // !ANDROID
-
 #ifdef ANDROID
 		App3d(ANativeActivity* _activity);
 		void initGraphics(ANativeWindow*);
 		rev::video::GraphicsDriver* gfxDriver() { return mDriver; }
+#else
+		App3d(int _argc = 0, const char** _argv = nullptr);
 #endif // ANDROID
 		bool update();
 
@@ -43,6 +42,8 @@ namespace rev {
 #endif // !ANDROID
 
 		virtual bool				frame	(float _dt); // Usually override this
+
+		rev::video::RenderContext*	renderContext;
 	private:
 		void preFrame();
 		void postFrame();
@@ -50,7 +51,8 @@ namespace rev {
 	private:
 		Engine						mEngine;
 		rev::video::GraphicsDriver*	mDriver = nullptr;
-		rev::video::Shader::Ptr		mShader;
+		rev::video::ForwardRenderer* mRenderer = nullptr;
+
 #ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;
 		rev::video::Window*			mWindow;

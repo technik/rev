@@ -18,6 +18,30 @@ using namespace rev::math;
 
 namespace rev {
 	namespace video {
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::init(GraphicsDriver* _driver) {
+			mDriver = _driver;
+			mBackEnd = new RendererBackEnd(mDriver);
+			mShader = Shader::manager()->get("forward");
+			mSkyShader = Shader::manager()->get("skybox");
+			mDebug = new DebugDrawer(mDriver, mBackEnd);
+
+			mShadowPass[0] = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass[1] = new ShadowPass(mDriver, mBackEnd, 1024);
+			mShadowPass[2] = new ShadowPass(mDriver, mBackEnd, 1024);
+
+			mDriver->setShader(mShader);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::end() {
+			delete mShadowPass[0];
+			delete mShadowPass[1];
+			delete mShadowPass[2];
+			delete mBackEnd;
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::startFrame()
 		{

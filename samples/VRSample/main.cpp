@@ -24,25 +24,33 @@ public:
 	{
 		processArgs(_argc, _argv);
 
-		// Create basic game objects
-		Material defMaterial;
+		// --- Create basic game objects
 		defMaterial.shader = Shader::manager()->get("red");
 		RenderMesh* cube = Procedural::box(Vec3f(1.f));
-		RenderObj cubeObj(cube);
-		cubeObj.mMaterial = &defMaterial;
-		// -- Camera --
-		camera.addComponent(new Camera(1.5f, 0.1f, 1000.f));
+		cubeObj = new RenderObj(cube);
+		cubeObj->mMaterial = &defMaterial;
+		// Camera
+		cam = new Camera(1.5f, 0.1f, 1000.f);
+		camera.addComponent(cam);
 		camera.setPos(Vec3f(0.f, -1.f, 0.f));
-		world.addComponent(&cubeObj);
+		// World
+		world.addComponent(cubeObj);
 		world.setPos(Vec3f(0.f, 1.f, 0.f));
+
+		// --- Config scene
+		renderContext->insert(cubeObj);
+		renderContext->setCamera(cam);
 	}
 
 	~VRSample() {
 	}
 
+	Material defMaterial;
+	RenderObj* cubeObj;
+	Camera* cam;
 	SceneNode camera;
 	SceneNode world;
-	SceneNode light;
+	//SceneNode light;
 
 private:
 	

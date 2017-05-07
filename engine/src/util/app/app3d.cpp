@@ -8,6 +8,7 @@
 
 #include <video/basicTypes/color.h>
 #include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/renderer/renderContext.h>
 #include <core/time/time.h>
 
 using namespace rev::core;
@@ -25,11 +26,13 @@ namespace rev {
 	{
 		mDriver = new OpenGLDriverWindows(mEngine.mainWindow());
 		mDriver->setClearColor(Color(0.7f));
-		mShader = Shader::manager()->get("shader");
-		mDriver->setShader(mShader);
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
+		// Init renderer
+		mRenderer = new ForwardRenderer();
+		mRenderer->init(mDriver);
+		renderContext = new RenderContext();
 	}
 #endif // !ANDROID
 
@@ -82,10 +85,13 @@ namespace rev {
 	void App3d::preFrame(){
 		mEngine.update();
 		Time::get()->update();
+		mRenderer->startFrame();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::postFrame() {
+		mRenderer->renderContext(*renderContext);
+		mRenderer->finishFrame();
 		mDriver->finishFrame();
 	}
 

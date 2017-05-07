@@ -27,8 +27,8 @@ namespace rev {
 
 		class ForwardRenderer {
 		public:
-			template<class Alloc_> void init(GraphicsDriver* _driver, Alloc_& _alloc);
-			template<class Alloc_> void end(Alloc_& _alloc);
+			void init(GraphicsDriver* _driver);
+			void end();
 
 			void startFrame();
 			void finishFrame();
@@ -55,29 +55,6 @@ namespace rev {
 			GraphicsDriver*		mDriver;
 			ShadowPass*			mShadowPass[3];
 		};
-
-		//--------------------------------------------------------------------------------------------------------------
-		template<class Alloc_> void ForwardRenderer::init(GraphicsDriver* _driver, Alloc_& _alloc){
-			mDriver = _driver;
-			mBackEnd = _alloc.template create<RendererBackEnd>(mDriver);
-			mShader = Shader::manager()->get("forward");
-			mSkyShader = Shader::manager()->get("skybox");
-			mDebug = new DebugDrawer(mDriver, mBackEnd);
-
-			mShadowPass[0] = new ShadowPass(mDriver, mBackEnd, 1024);
-			mShadowPass[1] = new ShadowPass(mDriver, mBackEnd, 1024);
-			mShadowPass[2] = new ShadowPass(mDriver, mBackEnd, 1024);
-
-			mDriver->setShader(mShader);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		template<class Alloc_> void ForwardRenderer::end(Alloc_& _alloc){
-			delete mShadowPass[0];
-			delete mShadowPass[1];
-			delete mShadowPass[2];
-			_alloc.destroy(mBackEnd);
-		}
 	}
 }
 

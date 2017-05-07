@@ -16,7 +16,7 @@ namespace rev {
 
 			//--------------------------------------------------
 			virtual ~ContextObj() {
-				setContext(nullptr);
+				setContext(defaultContext());
 			}
 
 			//--------------------------------------------------
