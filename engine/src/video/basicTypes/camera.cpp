@@ -11,7 +11,7 @@ namespace rev {
 		using namespace math;
 
 		//--------------------------------------------------------------------------------------------------------------
-		Camera::Camera(float fov, bool ortho, float near, float far, RenderTarget* dst)
+		Camera::Camera(float fov, float near, float far, bool ortho, RenderTarget* dst)
 			: mRt(dst)
 			, mFov(fov)
 			, mNear(near)

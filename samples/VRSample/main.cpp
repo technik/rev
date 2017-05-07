@@ -23,6 +23,7 @@ public:
 
 		// Create basic game objects
 		// -- Camera --
+		camera.addComponent(new Camera(45.f, 0.1f, 1000.f));
 	}
 
 	~VRSample() {

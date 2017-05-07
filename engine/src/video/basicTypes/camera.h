@@ -23,7 +23,7 @@ namespace rev {
 			/// Create a camera that renders into dst target (either a viewport or a render texture)
 			/// if dst is nullptr, then the default Viewport will be used as target
 			/// near and far ar clipping plane distances
-			Camera(float fov, bool ortho, float near, float far, RenderTarget* dst);
+			Camera(float fov, float near, float far, bool ortho = false, RenderTarget* dst = nullptr);
 
 			// Public accessors
 			void setRenderTarget(RenderTarget* _rt)		{ mRt = _rt; }
