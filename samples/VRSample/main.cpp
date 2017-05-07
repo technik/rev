@@ -6,9 +6,13 @@
 
 #include <util/app/app3d.h>
 #include <core/components/sceneNode.h>
+#include <game/geometry/procedural/basic.h>
 #include <video/basicTypes/camera.h>
+#include <video/graphics/renderer/material.h>
+#include <video/graphics/renderer/renderObj.h>
 
 using namespace rev::core;
+using namespace rev::game;
 using namespace rev::input;
 using namespace rev::math;
 using namespace rev::video;
@@ -21,8 +25,16 @@ public:
 		processArgs(_argc, _argv);
 
 		// Create basic game objects
+		Material defMaterial;
+		defMaterial.shader = Shader::manager()->get("red");
+		RenderMesh* cube = Procedural::box(Vec3f(1.f));
+		RenderObj cubeObj(cube);
+		cubeObj.mMaterial = &defMaterial;
 		// -- Camera --
 		camera.addComponent(new Camera(1.5f, 0.1f, 1000.f));
+		camera.setPos(Vec3f(0.f, -1.f, 0.f));
+		world.addComponent(&cubeObj);
+		world.setPos(Vec3f(0.f, 1.f, 0.f));
 	}
 
 	~VRSample() {

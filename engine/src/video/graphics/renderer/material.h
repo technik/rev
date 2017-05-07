@@ -6,17 +6,14 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_MATERIAL_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_MATERIAL_H_
 
-#include <video/basicTypes/color.h>
+#include <video/graphics/shader/shader.h>
 
 namespace rev {
 	namespace video {
 
-		class Texture;
-
 		class Material {
 		public:
-			Texture* mDiffMap;
-			Color mDiffuse;
+			Shader::Ptr shader;
 		};
 	}
 }
