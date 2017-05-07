@@ -41,57 +41,10 @@ public:
 		: App3d(_argc, _argv)
 	{
 		processArgs(_argc, _argv);
-
-		// Construct global objects
-		mKey = KeyboardInput::get();
-		mRenderer = new ForwardRenderer();
-		mRenderer->init<NewAllocator>(&driver3d(), mAlloc);
-		mRenderer->setWindowSize(window().size());
-		mWorld = new PhysicsWorld();
-		mScene = Scene::import("scene.DAE");
-
-		mCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 100.f);
-		mDebugCam = new FlyByCamera(1.5f, 1.333f, 0.1f, 500.f);
-		mCam->setPos({0.f,0.f,1.f});
-		mDebugCam->setPos({ 0.f,0.f,1.f });
-
-		mScene->mRenderContext->setCamera(mCam);
-		mScene->mRenderContext->setLightDir(Vec3f(-0.8f,-0.5f,-1.f).normalized());
-
-		Vec3f groundSize = {1000.f, 1000.f, 2.f};
-		RigidBody* groundBd = RigidBody::box(0.f, groundSize);
-		RenderObj* groundRo = new RenderObj(Procedural::box(groundSize));
-		groundRo->castShadows = false;
-		SceneNode* ground = new SceneNode;
-		ground->attachTo(groundBd);
-		groundRo->attachTo(ground);
-		groundBd->setPosition({0.f,0.f,-groundSize.z*0.5f});
-		mWorld->addRigidBody(groundBd);
-		mScene->mRenderContext->insert(groundRo);
-
-		// Obstacles
-		for(auto i = 0; i < 10; ++i)
-			for (auto j = 0; j < 8; ++j)
-				createCube({-22.f+4.f*i, 20.f-2*j, 0.5f+0.1f*i}, mWorld, mScene->mRenderContext);
 	}
 
 	~VRSample() {
-		mRenderer->end<NewAllocator>(mAlloc);
 	}
-
-	KeyboardInput* mKey;
-	FlyByCamera* mCam;
-	FlyByCamera* mDebugCam;
-	ForwardRenderer* mRenderer;
-	Scene* mScene;
-	NewAllocator mAlloc;
-	PhysicsWorld* mWorld;
-
-	Material mSkyMaterial;
-	float t = 0;
-	bool mDebug = false;
-	bool mDebugMove = false;
-
 private:
 	
 	//----------------------------------------------------------------
@@ -102,61 +55,14 @@ private:
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
-		t += _dt;
-
-		if (mKey->pressed(KeyboardInput::eTab)) {
-			if (!mDebug) {
-				mDebug = true;
-				mDebugMove = true;
-			}
-			else {
-				mDebug = false;
-				mDebugMove = false;
-			}
-		}
-
-		if (mKey->pressed(KeyboardInput::eQ) && mDebug) {
-			mDebugMove = !mDebugMove;
-		}
-
-
-		if(mDebugMove)
-			mDebugCam->update(_dt);
-		else
-			mCam->update(_dt);
-
-		if(mDebug) {
-			mRenderer->setDebugCamera(mDebugCam);
-		}
-		else {
-			mRenderer->setDebugCamera(nullptr);
-		}
-		mWorld->simulate(_dt);
-
-
-		mRenderer->renderContext(*mScene->mRenderContext);
-		mRenderer->finishFrame();
 		return true;
-	}
-
-	//----------------------------------------------------------------
-	void createCube(const Vec3f& _pos, PhysicsWorld* _w, RenderContext* _renderCtxt) {
-		SceneNode* node = new SceneNode();
-		Vec3f size = Vec3f(1.f);
-		RigidBody* bd = RigidBody::box(0.f, size);
-		_w->addRigidBody(bd);
-		RenderObj* model = new RenderObj(Procedural::box(size));
-		_renderCtxt->insert(model);
-		model->attachTo(node);
-		node->attachTo(bd);
-		bd->setPosition(_pos);
 	}
 };
 
 // ---- Generic main loop ----
 int main(int _argc, const char** _argv) {
 	
-	RacingDemo app(_argc,_argv);
+	VRSample app(_argc,_argv);
 
 	while(app.update());
 	return 0;
