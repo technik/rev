@@ -1,0 +1,16 @@
+//----------------------------------------------------------------------------------------------------------------------
+// Basic shader
+//----------------------------------------------------------------------------------------------------------------------
+// Vertex shader
+uniform 	mat4 uMvp;
+attribute 	vec3 vertex;
+attribute 	vec3 normal;
+attribute	vec2 uv;
+varying		float vMoment;
+
+void main ( void )
+{
+
+	gl_Position = uMvp*vec4(vertex, 1.0);
+	vMoment = gl_Position.z / gl_Position.w * 0.5 + 0.5; // Depth in [0,1] range
+}
