@@ -34,7 +34,7 @@ Player::Player(PhysicsWorld* _world)
 	// Camera
 	mCamPivot = new SceneNode();
 	mCamPivot->attachTo(mNode);
-	mCamera = new Camera(Mat44f::frustrum(1.5f, 4.f/3.f, 0.1f, 100.f));
+	mCamera = new Camera(1.5f, 0.1f, 100.f);
 	mCamNode = new SceneNode();
 	mCamNode->attachTo(mCamPivot);
 	mCamNode->setPos({0.f, -6.f, 1.f});
@@ -51,9 +51,9 @@ void Player::update(float _dt) {
 	if(input->held(KeyboardInput::eKeyLeft))
 		mCamPivot->rotate(Vec3f::zAxis(), -camSpd);
 	if(input->held(KeyboardInput::eKeyUp))
-		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), -0.4*camSpd);
+		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), -0.4f*camSpd);
 	if(input->held(KeyboardInput::eKeyDown))
-		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), 0.4*camSpd);
+		mCamPivot->rotate(mCamPivot->transform().rotate(Vec3f::xAxis()), 0.4f*camSpd);
 
 	// Move car
 	float v = 0.f;

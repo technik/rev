@@ -6,10 +6,9 @@
 
 #include <util/app/app3d.h>
 #include <core/components/sceneNode.h>
-#include <game/scene/camera/flyByCamera.h>
+#include <video/basicTypes/camera.h>
 
 using namespace rev::core;
-using namespace rev::game;
 using namespace rev::input;
 using namespace rev::math;
 using namespace rev::video;
@@ -23,7 +22,7 @@ public:
 
 		// Create basic game objects
 		// -- Camera --
-		camera.addComponent(new Camera(45.f, 0.1f, 1000.f));
+		camera.addComponent(new Camera(1.5f, 0.1f, 1000.f));
 	}
 
 	~VRSample() {

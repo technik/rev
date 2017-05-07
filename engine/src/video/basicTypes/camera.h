@@ -23,17 +23,17 @@ namespace rev {
 			/// Create a camera that renders into dst target (either a viewport or a render texture)
 			/// if dst is nullptr, then the default Viewport will be used as target
 			/// near and far ar clipping plane distances
-			Camera(float fov, float near, float far, bool ortho = false, RenderTarget* dst = nullptr);
+			Camera(float _fov, float _near, float _far, bool ortho = false, RenderTarget* dst = nullptr);
 
 			// Public accessors
 			void setRenderTarget(RenderTarget* _rt)		{ mRt = _rt; }
 			void setFov(float _fov)						{ mFov = _fov; }
-			void setClipPlanes(float near, float far)	{ mNear = near; mFar = far; }
+			void setClipPlanes(float _near, float _far)	{ mNear = _near; mFar = _far; }
 			math::Mat34f view() const;
 
-			float fov() const							{ return mFov; }
-			float near() const							{ return mNear; }
-			float far() const							{ return mFar; }
+			float fov		() const					{ return mFov; }
+			float nearPlane	() const					{ return mNear; }
+			float farPlane	() const					{ return mFar; }
 
 			math::Frustum	frustum		() const;
 			math::Mat44f	projection	() const;
