@@ -24,7 +24,7 @@ namespace rev {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(mDriver);
 			mShader = Shader::manager()->get("forward");
-			mSkyShader = Shader::manager()->get("skybox");
+			//mSkyShader = Shader::manager()->get("skybox");
 			mDebug = new DebugDrawer(mDriver, mBackEnd);
 
 			mShadowPass[0] = new ShadowPass(mDriver, mBackEnd, 1024);
@@ -65,7 +65,7 @@ namespace rev {
 			auto camView = _context.camera()->view();
 			auto pov = (mDebugCamera?mDebugCamera:_context.camera())->view();
 			// Render shadow pass
-			Frustum globalFrustum = adjustShadowFrustum(_context);
+			/*Frustum globalFrustum = adjustShadowFrustum(_context);
 			float maxFar = globalFrustum.farPlane();
 			float farPlane[3] = {maxFar*0.1f, maxFar * 0.3f, maxFar };
 			for(size_t i = 0; i < 3; ++i) {
@@ -92,7 +92,7 @@ namespace rev {
 				for (size_t i = 0; i < 3; ++i)
 					mShadowPass[i]->mDebug = nullptr;
 				mDebug->setViewProj(pov, _context.camera()->projection());
-			}
+			}*/
 			// Render pass
 			//mDriver->setMultiSampling(false);
 			mDriver->setRenderTarget(nullptr);

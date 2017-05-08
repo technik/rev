@@ -45,8 +45,7 @@ namespace rev { namespace core {
 		AAsset_close(srcAsset);
 #else // !ANDROID
 		ifstream srcFile(_path.c_str(), ios_base::binary);
-		if (srcFile.good()) {
-			fstream srcFile;
+		if (srcFile.is_open()) {
 			// Open the file
 			// Meassure it's size
 			srcFile.seekg(0, ios::end);

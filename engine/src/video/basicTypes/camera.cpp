@@ -11,12 +11,12 @@ namespace rev {
 		using namespace math;
 
 		//--------------------------------------------------------------------------------------------------------------
-		Camera::Camera(float fov, float near, float far, bool ortho, RenderTarget* dst)
-			: mRt(dst)
-			, mFov(fov)
-			, mNear(near)
-			, mFar(far)
-			, mOrtho(ortho)
+		Camera::Camera(float _fov, float _near, float _far, bool _ortho, RenderTarget* _dst)
+			: mRt(_dst)
+			, mFov(_fov)
+			, mNear(_near)
+			, mFar(_far)
+			, mOrtho(_ortho)
 		{}
 
 		//--------------------------------------------------------------------------------------------------------------
