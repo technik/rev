@@ -7,12 +7,11 @@
 
 #include "forwardRenderer.h"
 #include "../backend/rendererBackEnd.h"
-#include "../renderContext.h"
-#include "../renderMesh.h"
-#include "../renderObj.h"
-#include <video/basicTypes/camera.h>
-#include <video/graphics/renderer/material.h>
-#include <video/graphics/renderer/types/renderTarget.h>
+//#include "../renderMesh.h"
+//#include "../../renderObj.h"
+//#include <video/basicTypes/camera.h>
+//#include <video/graphics/renderer/material.h>
+//#include <video/graphics/renderer/types/renderTarget.h>
 
 using namespace rev::math;
 
@@ -21,6 +20,11 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
+			mBackEnd = new RendererBackEnd(_driver);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		/*void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(mDriver);
 			mShader = Shader::manager()->get("forward");
@@ -95,8 +99,8 @@ namespace rev {
 			}*/
 			// Render pass
 			//mDriver->setMultiSampling(false);
-			mDriver->setRenderTarget(nullptr);
-			mDriver->setViewport(math::Vec2i(0, 0), mWindowSize);
+			//mDriver->setRenderTarget(nullptr);
+			//mDriver->setViewport(math::Vec2i(0, 0), mWindowSize);
 			// Render skybox
 /*			if (_context.skyBox) {
 				mDriver->setZCompare(false); // Use the skybox to clear the buffer
@@ -112,10 +116,10 @@ namespace rev {
 				renderObject(*_context.skyBox);
 				mDriver->setZCompare(true);
 			} else {*/
-				mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
-				mDriver->clearColorBuffer();
+				//mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
+				//mDriver->clearColorBuffer();
 			//}
-			mDriver->clearZBuffer();
+			/*mDriver->clearZBuffer();
 			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
 			mBackEnd->setShadowVp(0, mShadowPass[0]->viewProj());
 			mBackEnd->setShadowVp(1, mShadowPass[1]->viewProj());
@@ -187,6 +191,6 @@ namespace rev {
 			if(adjFar < adjNear) // No casters in the frustum
 				adjFar = adjNear;
 			return Frustum(camF.aspectRatio(), camF.fov(), adjNear, adjFar);
-		}
+		}*/
 	}
 }

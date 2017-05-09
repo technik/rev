@@ -6,12 +6,12 @@
 #ifndef _REV_GAME_SCENE_SCENE_H_
 #define _REV_GAME_SCENE_SCENE_H_
 
-#include <core/components/sceneNode.h>
-#include <video/graphics/renderer/renderContext.h>
-#include <core/components/sceneNode.h>
 #include <vector>
 
 namespace rev {
+
+	namespace core { class SceneNode; }
+
 	namespace game {
 		
 		class Scene {
@@ -22,8 +22,6 @@ namespace rev {
 			static Scene* import(const char* _fileName);
 
 			void addNode(core::SceneNode* node);
-
-			video::RenderContext*			mRenderContext;
 		private:
 			std::vector<core::SceneNode*>	mSceneGraph;
 		};

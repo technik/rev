@@ -18,7 +18,6 @@
 #endif // ANDROID
 
 #include <video/graphics/driver/graphicsDriver.h>
-#include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/shader/shader.h>
 
 namespace rev {
@@ -43,7 +42,6 @@ namespace rev {
 
 		virtual bool				frame	(float _dt); // Usually override this
 
-		rev::video::RenderContext*	renderContext;
 	private:
 		void preFrame();
 		void postFrame();
@@ -51,7 +49,6 @@ namespace rev {
 	private:
 		Engine						mEngine;
 		rev::video::GraphicsDriver*	mDriver = nullptr;
-		rev::video::ForwardRenderer* mRenderer = nullptr;
 
 #ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;

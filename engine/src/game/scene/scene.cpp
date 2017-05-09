@@ -7,7 +7,7 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
-#include <video/graphics/renderer/renderObj.h>
+#include <video/graphics/renderObj.h>
 #include <core/components/sceneNode.h>
 #include <video/graphics/renderer/renderMesh.h>
 
@@ -76,7 +76,6 @@ namespace rev {
 	namespace game {
 		//--------------------------------------------------------------------------------------------------------------
 		Scene::Scene() {
-			mRenderContext = new RenderContext;
 		}
 		
 		//--------------------------------------------------------------------------------------------------------------
@@ -91,7 +90,7 @@ namespace rev {
 			}
 
 			Scene* scene = new Scene;
-			const aiNode* colRoot = colScene->mRootNode;
+			/*const aiNode* colRoot = colScene->mRootNode;
 			unsigned nNodes = colRoot->mNumChildren + 1; // Root plus children
 			std::vector<const aiNode*> colNodes;
 			colNodes.push_back(colRoot);
@@ -107,7 +106,7 @@ namespace rev {
 				obj->attachTo(node);
 				std::string name = colNode->mName.C_Str();
 				node->setTransform(globalTransform(colNode));
-			}
+			}*/
 			return scene;
 		}
 	}

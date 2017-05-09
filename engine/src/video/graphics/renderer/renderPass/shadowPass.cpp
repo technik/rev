@@ -9,7 +9,6 @@
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 #include <video/graphics/renderer/debugDrawer.h>
-#include <video/graphics/renderer/renderContext.h>
 #include <video/basicTypes/camera.h>
 
 using namespace rev::math;
@@ -18,7 +17,7 @@ namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		ShadowPass::ShadowPass(GraphicsDriver* _driver, RendererBackEnd* _backEnd, size_t _bufferSize)
+		/*ShadowPass::ShadowPass(GraphicsDriver* _driver, RendererBackEnd* _backEnd, size_t _bufferSize)
 			: mDriver(_driver)
 			, mBackEnd(_backEnd)
 		{
@@ -117,6 +116,6 @@ namespace rev {
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mShadowBuffer->glId());   // Make sure no FBO is set as the draw framebuffer
 			glBlitFramebuffer(0,0, (GLint)size.x, (GLint)size.y,0,0, (GLint)size.x, (GLint)size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 			mShadowBuffer->color()->generateMipMaps();
-		}
+		}*/
 	}
 }

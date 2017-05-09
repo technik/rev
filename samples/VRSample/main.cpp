@@ -8,8 +8,9 @@
 #include <core/components/sceneNode.h>
 #include <game/geometry/procedural/basic.h>
 #include <video/basicTypes/camera.h>
-#include <video/graphics/renderer/material.h>
-#include <video/graphics/renderer/renderObj.h>
+#include <video/graphics/renderObj.h>
+#include <video/graphics/renderScene.h>
+#include <video/graphics/renderer/forward/forwardRenderer.h>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -24,11 +25,12 @@ public:
 	{
 		processArgs(_argc, _argv);
 
+		renderer.init(driver3d());
+
 		// --- Create basic game objects
-		//defMaterial.shader = Shader::manager()->get("red");
 		RenderMesh* cube = Procedural::box(Vec3f(1.f));
 		cubeObj = new RenderObj(cube);
-		cubeObj->mMaterial = &defMaterial;
+		renderScene.objects.push_back(cubeObj);
 		// Camera
 		cam = new Camera(1.5f, 0.1f, 1000.f);
 		camera.addComponent(cam);
@@ -36,20 +38,17 @@ public:
 		// World
 		world.addComponent(cubeObj);
 		world.setPos(Vec3f(0.f, 1.f, 0.f));
-
-		// --- Config scene
-		renderContext->insert(cubeObj);
-		renderContext->setCamera(cam);
 	}
 
 	~VRSample() {
 	}
 
-	Material defMaterial;
+	ForwardRenderer	renderer;
 	RenderObj* cubeObj;
 	Camera* cam;
 	SceneNode camera;
 	SceneNode world;
+	RenderScene renderScene;
 	//SceneNode light;
 
 private:
@@ -62,6 +61,7 @@ private:
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
+		renderer.render(renderScene);
 		return true;
 	}
 };
