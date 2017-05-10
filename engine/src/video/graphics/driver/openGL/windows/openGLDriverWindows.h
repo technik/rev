@@ -18,7 +18,7 @@ namespace rev {
 
 		class Window;
 
-		class OpenGLDriverWindows final : public OpenGLDriver {
+		class OpenGLDriverWindows : public OpenGLDriver {
 		public:
 			OpenGLDriverWindows(Window*);
 			void	swapBuffers() override;

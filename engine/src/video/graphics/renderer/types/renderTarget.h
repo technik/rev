@@ -30,7 +30,8 @@ namespace rev {
 
 		class RenderTarget {
 		public:
-			RenderTarget() {
+			float aspectRatio() { return 1.f; } ///< 666 TODO!
+			/*RenderTarget() {
 				glGenFramebuffers(1, &mId);
 			}
 
@@ -74,7 +75,7 @@ namespace rev {
 			Texture* mDepth = nullptr;
 
 			// OpenGL specific
-			unsigned mId;
+			unsigned mId;*/
 		};
 	}
 }

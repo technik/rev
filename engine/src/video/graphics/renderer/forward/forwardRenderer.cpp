@@ -7,6 +7,9 @@
 
 #include "forwardRenderer.h"
 #include "../backend/rendererBackEnd.h"
+#include <video/graphics/renderScene.h>
+#include <video/graphics/renderObj.h>
+#include <video/graphics/renderer/renderMesh.h>
 //#include "../renderMesh.h"
 //#include "../../renderObj.h"
 //#include <video/basicTypes/camera.h>
@@ -20,7 +23,26 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
-			mBackEnd = new RendererBackEnd(_driver);
+			mDriver = _driver;
+			mProgram = Shader::manager()->get("shader");
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::render(const RenderScene& _scene, const Camera& _cam, const RenderTarget* _rt) const {
+			// TODO: ShadowPass?
+			// TODO: Sort into render queues based on material
+			// Set global uniforms
+			mDriver->setRenderTarget(_rt);
+			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
+			mDriver->clearZBuffer();
+			mDriver->clearColorBuffer();
+			mDriver->setShader(mProgram);
+			// render objects
+			for (const auto obj : _scene.objects) {
+				RenderMesh* mesh = obj->mesh();
+				mDriver->setAttribBuffer(0, mesh->nVertices, mesh->vertices);
+				mDriver->drawIndexBuffer(mesh->nIndices, mesh->indices, GraphicsDriver::EPrimitiveType::triangles);
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

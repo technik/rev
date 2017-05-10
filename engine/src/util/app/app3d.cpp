@@ -24,7 +24,7 @@ namespace rev {
 	App3d::App3d(int _argc, const char** _argv)
 		: mEngine(_argc,_argv)
 	{
-		mDriver = new OpenGLDriverWindows(mEngine.mainWindow());
+		mDriver = new GraphicsDriver(mEngine.mainWindow());
 		mDriver->setClearColor(Color(0.7f));
 
 		mKeyboard = input::KeyboardInput::get();

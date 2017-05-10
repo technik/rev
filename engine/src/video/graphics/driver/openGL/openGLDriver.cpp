@@ -143,8 +143,8 @@ namespace rev {
 			return loc;
 		}
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setRenderTarget(RenderTarget* _rt) {
-			glFinish();
+		void OpenGLDriver::setRenderTarget(const RenderTarget* _rt) {
+			/*glFinish();
 			if (_rt) {
 				glBindFramebuffer(GL_FRAMEBUFFER, _rt->glId());
 				GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -156,9 +156,9 @@ namespace rev {
 				//GLenum db = GL_COLOR_ATTACHMENT0;
 				//glDrawBuffers(1, &db);
 			}
-			else {
+			else {*/
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			}
+			//}
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

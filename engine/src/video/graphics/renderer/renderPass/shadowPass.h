@@ -27,7 +27,7 @@ namespace rev {
 			void finishPass();
 
 			const math::Mat44f& viewProj() const { return mViewProj; }
-			Texture* tex() const { return mShadowBuffer->color(); }
+			Texture* tex() const { return nullptr;}//mShadowBuffer->color(); }
 
 			DebugDrawer* mDebug = nullptr;
 

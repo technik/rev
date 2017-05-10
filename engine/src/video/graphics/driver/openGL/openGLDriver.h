@@ -67,7 +67,7 @@ namespace rev {
 			int			getUniformLocation(const char* _uniformName);
 
 			// --- Render targets ---
-			void		setRenderTarget(RenderTarget* _rt);
+			void		setRenderTarget(const RenderTarget* _rt);
 
 			// --- Attributes and uniforms
 			void		setAttribBuffer(unsigned _id, unsigned _nElements, const float * _buffer);
