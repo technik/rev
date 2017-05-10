@@ -2,10 +2,9 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
-// Simple deferred renderer
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_TYPES_RENDERTARGET_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_TYPES_RENDERTARGET_H_
-
+/*
 #ifdef ANDROID
 
 #include <EGL/egl.h>
@@ -23,14 +22,19 @@
 #include <GL/gl.h>
 #endif // !ANDROID
 
-#include <video/basicTypes/texture.h>
+#include <video/basicTypes/texture.h>*/
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {
 
 		class RenderTarget {
 		public:
-			float aspectRatio() { return 1.f; } ///< 666 TODO!
+			virtual float aspectRatio() const = 0;
+			virtual math::Vec2u size() const = 0;
+			virtual unsigned glId() const = 0;
+			// pos?
+
 			/*RenderTarget() {
 				glGenFramebuffers(1, &mId);
 			}
