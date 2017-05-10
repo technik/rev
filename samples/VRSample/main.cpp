@@ -10,7 +10,10 @@
 #include <video/basicTypes/camera.h>
 #include <video/graphics/renderObj.h>
 #include <video/graphics/renderScene.h>
+#include <video/graphics/renderer/backend/rendererBackEnd.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
+#include <video/graphics/renderer/renderContext.h>
+#include <video/window/window.h>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -24,8 +27,7 @@ public:
 		: App3d(_argc, _argv)
 	{
 		processArgs(_argc, _argv);
-
-		renderer.init(driver3d());
+		mBackEnd = new RendererBackEnd(&driver3d());
 
 		// --- Create basic game objects
 		RenderMesh* cube = Procedural::box(Vec3f(1.f));
@@ -38,18 +40,22 @@ public:
 		// World
 		world.addComponent(cubeObj);
 		world.setPos(Vec3f(0.f, 1.f, 0.f));
+
+		program = Shader::manager()->get("shader");
 	}
 
 	~VRSample() {
 	}
 
-	ForwardRenderer	renderer;
+	RendererBackEnd* mBackEnd;
 	RenderObj* cubeObj;
 	Camera* cam;
 	SceneNode camera;
 	SceneNode world;
 	RenderScene renderScene;
-	//SceneNode light;
+	Shader::Ptr	program;
+
+	// Temp stuff
 
 private:
 	
@@ -61,7 +67,14 @@ private:
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
-		renderer.render(renderScene);
+		GraphicsDriver* driver = &driver3d();
+		// start frame
+		driver->setViewport(Vec2i(0,0), window().size());
+		driver->clearZBuffer();
+		driver->clearColorBuffer();
+		driver->setShader(program);
+		driver->setAttribBuffer(0, cubeObj->mesh()->nVertices, cubeObj->mesh()->vertices);
+		driver->drawIndexBuffer(cubeObj->mesh()->nIndices, cubeObj->mesh()->indices, GraphicsDriver::EPrimitiveType::triangles);
 		return true;
 	}
 };
