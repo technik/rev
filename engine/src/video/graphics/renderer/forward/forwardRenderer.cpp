@@ -32,13 +32,13 @@ namespace rev {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
-			mDriver->setRenderTarget(_rt);
+			// mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
 			mDriver->setShader(mProgram);
-			int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
-			if(uWorldViewProj != -1)
+			/*int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
+			if(uWorldViewProj == -1)
 				return;
 			// Camera 
 			Mat34f invView;
@@ -51,7 +51,11 @@ namespace rev {
 				mDriver->setUniform(uWorldViewProj, worldViewProj);
 				StaticRenderMesh* mesh = obj->mesh();
 				// TODO
-			}
+				glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+				glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (GLvoid*)0);
+				glEnableVertexAttribArray(0);
+				glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_SHORT, mesh->indices);
+			}*/
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

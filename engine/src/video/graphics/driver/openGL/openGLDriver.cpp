@@ -115,9 +115,9 @@ namespace rev {
 			mProgram = _shader->program();
 			glUseProgram(mProgram);
 			//logGlError();
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
+			//glEnableVertexAttribArray(0);
+			//glEnableVertexAttribArray(1);
+			//glEnableVertexAttribArray(2);
 			//logGlError();
 		}
 

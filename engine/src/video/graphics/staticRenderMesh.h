@@ -13,20 +13,34 @@
 namespace rev {
 	namespace video {
 		struct StaticRenderMesh {
-			GLuint			vbo; ///< vertex data
-			uint16_t*		indices = nullptr;
+			GLuint			vbo = 0; ///< vertex data
+			GLuint			vao = 0; ///< vertex array object
+			const uint16_t*	indices = nullptr;
 			uint16_t		nIndices = 0;
 
 		public:
-			StaticRenderMesh(uint16_t nVertices, const math::Vec3f*	vertexData, uint16_t nIndices, const uint16_t* indices) {
+			StaticRenderMesh(uint16_t _nVertices, const math::Vec3f* _vertexData, uint16_t _nIndices, const uint16_t* _indices) 
+				: indices(_indices)
+				, nIndices(_nIndices)
+			{
 				glGenBuffers(1,&vbo);
+				glGenVertexArrays(1, &vao);
+
+				glBindVertexArray(vao);
+
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				glBufferData(GL_ARRAY_BUFFER, nVertices*sizeof(math::Vec3f), vertexData, GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, _nVertices * sizeof(math::Vec3f), _vertexData, GL_STATIC_DRAW);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+				glEnableVertexAttribArray(0);
+
+				glBindVertexArray(0);
 			}
 
 			~StaticRenderMesh() {
 				if(vbo)
 					glDeleteBuffers(1,&vbo);
+				if(vao)
+					glDeleteVertexArrays(1, &vao);
 				if(indices)
 					delete[] indices;
 			}
