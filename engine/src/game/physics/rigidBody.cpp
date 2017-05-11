@@ -8,7 +8,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "bulletMath.h"
 #include <VHACD.h>
-#include <video/graphics/renderer/renderMesh.h>
+#include <video/graphics/staticRenderMesh.h>
 #include <iostream>
 
 using namespace rev::math;
@@ -16,7 +16,7 @@ using namespace rev::math;
 namespace rev {
 	namespace game {
 
-		namespace {
+		/*namespace {
 			//----------------------------------------------------------------------------------------------------------------------
 			btConvexHullShape* createHull(const VHACD::IVHACD::ConvexHull& _piece) {
 				btConvexHullShape* blockShape = new btConvexHullShape();
@@ -195,6 +195,6 @@ namespace rev {
 			// Do not affect btRigidBody's internal transform.
 			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
 			mBd->TransformSrc::setRotation(rot, TransformSrc::local);
-		}
+		}*/
 }
 }

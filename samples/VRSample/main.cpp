@@ -29,7 +29,7 @@ public:
 		mRenderer.init(&driver3d());
 
 		// --- Create basic game objects
-		RenderMesh* cube = Procedural::box(Vec3f(1.f));
+		StaticRenderMesh* cube = Procedural::box(Vec3f(1.f));
 		cubeObj = new RenderObj(cube);
 		renderScene.objects.push_back(cubeObj);
 		// Camera

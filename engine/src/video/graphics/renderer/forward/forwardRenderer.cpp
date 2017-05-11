@@ -7,12 +7,12 @@
 
 #include "forwardRenderer.h"
 #include "../backend/rendererBackEnd.h"
+#include <video/basicTypes/camera.h>
 #include <video/graphics/renderScene.h>
 #include <video/graphics/renderObj.h>
-#include <video/graphics/renderer/renderMesh.h>
+#include <video/graphics/staticRenderMesh.h>
 //#include "../renderMesh.h"
 //#include "../../renderObj.h"
-//#include <video/basicTypes/camera.h>
 //#include <video/graphics/renderer/material.h>
 //#include <video/graphics/renderer/types/renderTarget.h>
 
@@ -37,11 +37,20 @@ namespace rev {
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
 			mDriver->setShader(mProgram);
+			int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
+			if(uWorldViewProj != -1)
+				return;
+			// Camera 
+			Mat34f invView;
+			_cam.view().inverse(invView);
+			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
+			Mat44f worldViewProj;
 			for (const auto obj : _scene.objects) {
-				RenderMesh* mesh = obj->mesh();
-				mDriver->setAttribBuffer(0, mesh->nVertices, mesh->vertices);
-				mDriver->drawIndexBuffer(mesh->nIndices, mesh->indices, GraphicsDriver::EPrimitiveType::triangles);
+				worldViewProj = viewProj * obj->transform();
+				mDriver->setUniform(uWorldViewProj, worldViewProj);
+				StaticRenderMesh* mesh = obj->mesh();
+				// TODO
 			}
 		}
 

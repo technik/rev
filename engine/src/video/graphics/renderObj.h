@@ -10,7 +10,7 @@
 #include <core/components/sceneNode.h>
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
-#include <video/graphics/renderer/renderMesh.h>
+#include <video/graphics/staticRenderMesh.h>
 
 namespace rev {
 	namespace video {
@@ -19,22 +19,15 @@ namespace rev {
 
 		class RenderObj : public core::Component {
 		public:
-			RenderObj(RenderMesh* _mesh) : mMesh(_mesh) {
-				mBBox.min = _mesh->bbMin;
-				mBBox.max = _mesh->bbMax;
+			RenderObj(StaticRenderMesh* _mesh) : mMesh(_mesh) {
 			}
 
-			RenderMesh*			mesh() const { return mMesh; }
+			StaticRenderMesh*	mesh() const { return mMesh; }
 			const math::Mat34f&	transform() const { return node()->transform(); }
 
-			Material* mMaterial = nullptr;
-
-			bool castShadows = true;
-			bool recvShadows = true;
-
-			math::BBox mBBox;
+			//Material* mMaterial = nullptr;
 		private:
-			RenderMesh* mMesh;
+			StaticRenderMesh* mMesh;
 
 		};
 	}	// namespace video

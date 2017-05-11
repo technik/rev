@@ -9,7 +9,7 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #include <video/graphics/renderObj.h>
 #include <core/components/sceneNode.h>
-#include <video/graphics/renderer/renderMesh.h>
+#include <video/graphics/staticRenderMesh.h>
 
 using namespace rev::core;
 using namespace rev::math;
@@ -17,7 +17,7 @@ using namespace rev::video;
 
 namespace {
 	//----------------------------------------------------------------------------------------
-	RenderMesh* createMesh(const aiMesh* _mesh) {
+	/*RenderMesh* createMesh(const aiMesh* _mesh) {
 		unsigned nVertices = _mesh->mNumVertices;
 		Vec3f* vertices = new Vec3f[nVertices];
 		Vec3f* normals = new Vec3f[nVertices];
@@ -67,7 +67,7 @@ namespace {
 			transform = ai2Mat(p->mTransformation) * transform;
 		normalizeTr(transform);
 		return transform;
-	}
+	}*/
 
 }	// Anonymous namespace
 

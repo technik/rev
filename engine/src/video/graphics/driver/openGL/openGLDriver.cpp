@@ -21,6 +21,7 @@
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
+#include <video/basicTypes/texture.h>
 #include <iostream>
 
 namespace rev {

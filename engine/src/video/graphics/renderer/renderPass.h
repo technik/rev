@@ -15,7 +15,7 @@ namespace rev {
 			
 
 		private:
-			RendererBackEnd*	mBackEnd;
+			//RendererBackEnd*	mBackEnd;
 		};
 	}
 }

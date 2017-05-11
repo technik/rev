@@ -13,8 +13,7 @@ namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		video::RenderMesh* Procedural::plane(const math::Vec2f& _size) {
-			RenderMesh * plane = new RenderMesh;
+		video::StaticRenderMesh* Procedural::plane(const math::Vec2f& _size) {
 			// Fill vertex data
 			Vec2f halfSize = _size * 0.5f;
 			Vec3f * vertices = new Vec3f[4];
@@ -22,15 +21,15 @@ namespace rev {
 			vertices[1] = Vec3f(halfSize.x, halfSize.y, 0.f);
 			vertices[2] = Vec3f(-halfSize.x, halfSize.y, 0.f);
 			vertices[3] = Vec3f(-halfSize.x, -halfSize.y, 0.f);
-			Vec3f * normals = new Vec3f[4];
-			for (int i = 0; i < 4; ++i)
-				normals[i] = Vec3f(0.f, 0.f, 1.f);
-			Vec2f * uvs = new Vec2f[4];
-			uvs[0] = Vec2f(1.0f, 0.0f);
-			uvs[1] = Vec2f(1.0f, 1.0f);
-			uvs[2] = Vec2f(0.0f, 1.0f);
-			uvs[3] = Vec2f(0.0f, 0.0f);
-			plane->setVertexData(4, vertices, normals, uvs);
+			//Vec3f * normals = new Vec3f[4];
+			//for (int i = 0; i < 4; ++i)
+			//	normals[i] = Vec3f(0.f, 0.f, 1.f);
+			//Vec2f * uvs = new Vec2f[4];
+			//uvs[0] = Vec2f(1.0f, 0.0f);
+			//uvs[1] = Vec2f(1.0f, 1.0f);
+			//uvs[2] = Vec2f(0.0f, 1.0f);
+			//uvs[3] = Vec2f(0.0f, 0.0f);
+			//plane->setVertexData(4, vertices, normals, uvs);
 			// Fill faces
 			uint16_t * faces = new uint16_t[6];
 			faces[0] = 0;
@@ -39,8 +38,7 @@ namespace rev {
 			faces[3] = 2;
 			faces[4] = 3;
 			faces[5] = 0;
-			plane->setFaceIndices(6, faces);
-			return plane;
+			return new StaticRenderMesh(4, vertices, 6, faces);
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
@@ -81,22 +79,22 @@ namespace rev {
 			}
 			binormal = tangent ^ normal;
 			// Set normals
-			for (int i = 0; i < 4; ++i)
-			{
-				_norms[i] = normal;
-			}
+			//for (int i = 0; i < 4; ++i)
+			//{
+			//	_norms[i] = normal;
+			//}
 			_verts[0] = normal * height - tangent * width - binormal * depth;
 			_verts[1] = normal * height + tangent * width - binormal * depth;
 			_verts[2] = normal * height + tangent * width + binormal * depth;
 			_verts[3] = normal * height - tangent * width + binormal * depth;
-			_uvs[0] = Vec2f(0.0f, 0.0f);
-			_uvs[1] = Vec2f(0.0f, 1.0f);
-			_uvs[2] = Vec2f(1.0f, 1.0f);
-			_uvs[3] = Vec2f(1.0f, 0.0f);
+			//_uvs[0] = Vec2f(0.0f, 0.0f);
+			//_uvs[1] = Vec2f(0.0f, 1.0f);
+			//_uvs[2] = Vec2f(1.0f, 1.0f);
+			//_uvs[3] = Vec2f(1.0f, 0.0f);
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
-		RenderMesh* Procedural::box(const Vec3f& _size)
+		StaticRenderMesh* Procedural::box(const Vec3f& _size)
 		{
 			// 4 vertices times 6 faces
 			Vec3f * verts = new Vec3f[24];
@@ -113,10 +111,7 @@ namespace rev {
 				indices[6 * i + 4] = 4 * i + 1;
 				indices[6 * i + 5] = 4 * i + 0;
 			}
-			RenderMesh * box = new RenderMesh;
-			box->setVertexData(24, verts, norms, uvs);
-			box->setFaceIndices(36, indices);
-			return box;
+			return new StaticRenderMesh(24, verts, 36, indices);
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
@@ -230,21 +225,20 @@ namespace rev {
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
-		RenderMesh * Procedural::geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels)
+		StaticRenderMesh * Procedural::geoSphere(float _radius, uint16_t _nMeridians, uint16_t _nParallels)
 		{
 			// Create vertices
 			Vec3f * verts = generateSphereVertices(_radius, _nMeridians, _nParallels);
 			// Create normals
-			Vec3f * norms = generateSphereNormals(_nMeridians, _nParallels);
+			//Vec3f * norms = generateSphereNormals(_nMeridians, _nParallels);
 			// Create uvs
-			Vec2f * uvs = generateSphereUVs(_nMeridians, _nParallels);
+			//Vec2f * uvs = generateSphereUVs(_nMeridians, _nParallels);
 			// Create indices
 			uint16_t * indices = generateSphereIndices(_nMeridians, _nParallels);
 			// Create the model itself
-			RenderMesh * sphere = new RenderMesh();
-			sphere->setVertexData(uint16_t(nVerticesInSphere(_nMeridians, _nParallels)), verts, norms, uvs);
-			sphere->setFaceIndices(uint16_t(nIndicesInSphere(_nMeridians, _nParallels)), indices, true);
-			return sphere;
+			uint16_t nVertices = uint16_t(nVerticesInSphere(_nMeridians, _nParallels));
+			uint16_t nIndices = uint16_t(nIndicesInSphere(_nMeridians, _nParallels));
+			return new StaticRenderMesh(nVertices, verts, nIndices, indices);
 		}
 	}
 }
