@@ -31,8 +31,9 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Mat34f Camera::view() const {
-			if(node())
+			if(node()) {
 				return node()->transform();
+			}
 			else
 				return Mat34f::identity();
 		}
@@ -42,7 +43,7 @@ namespace rev {
 			if(mRt)
 				return mRt->aspectRatio();
 			else // Use default viewport
-				return 3.f/4.f;
+				return 4.f/3.f;
 		}
 	}
 }

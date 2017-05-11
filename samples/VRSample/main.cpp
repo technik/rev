@@ -35,10 +35,10 @@ public:
 		// Camera
 		cam = new Camera(1.5f, 0.1f, 1000.f);
 		camera.addComponent(cam);
-		camera.setPos(Vec3f(0.f, 0.f, -10.f));
+		camera.setPos(Vec3f(0.f, -10.f, 0.f));
 		// World
 		world.addComponent(cubeObj);
-		world.setPos(Vec3f(0.f, 1.f, 0.f));
+		world.setPos(Vec3f(0.f, 10.f, 0.f));
 	}
 
 	~VRSample() {
