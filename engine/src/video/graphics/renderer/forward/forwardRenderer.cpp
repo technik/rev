@@ -37,25 +37,24 @@ namespace rev {
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
 			mDriver->setShader(mProgram);
-			/*int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
-			if(uWorldViewProj == -1)
-				return;
+			//int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
+			//if(uWorldViewProj == -1)
+			//	return;
 			// Camera 
-			Mat34f invView;
-			_cam.view().inverse(invView);
-			Mat44f viewProj = _cam.projection() * invView;
+			//Mat34f invView;
+			//_cam.view().inverse(invView);
+			//Mat44f viewProj = _cam.projection() * invView;
 			// render objects
-			Mat44f worldViewProj;
+			//Mat44f worldViewProj;
 			for (const auto obj : _scene.objects) {
-				worldViewProj = viewProj * obj->transform();
-				mDriver->setUniform(uWorldViewProj, worldViewProj);
+				//worldViewProj = viewProj * obj->transform();
+				//mDriver->setUniform(uWorldViewProj, worldViewProj);
 				StaticRenderMesh* mesh = obj->mesh();
-				// TODO
-				glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-				glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (GLvoid*)0);
-				glEnableVertexAttribArray(0);
-				glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_SHORT, mesh->indices);
-			}*/
+
+				glBindVertexArray(mesh->vao);
+				glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
+			}
+			glBindVertexArray(0);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

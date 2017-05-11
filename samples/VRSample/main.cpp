@@ -63,9 +63,6 @@ private:
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
 		mRenderer.render(renderScene, *cam);
-		glBindVertexArray(cubeObj->mesh()->vao);
-		glDrawElements(GL_TRIANGLES, cubeObj->mesh()->nIndices, GL_UNSIGNED_SHORT, cubeObj->mesh()->indices);
-		glBindVertexArray(0);
 		return true;
 	}
 };
