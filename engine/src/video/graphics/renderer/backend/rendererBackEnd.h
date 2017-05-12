@@ -8,18 +8,41 @@
 #define _REV_VIDEO_GRAPHICS_RENDERER_BACKEND_RENDERERBACKEND_H_
 
 #include <cstdint>
-#include <math/algebra/vector.h>
 
-#include <video/basicTypes/color.h>
-#include <video/graphics/shader/shader.h>
+
+#include <math/algebra/vector.h>
 #include <video/graphics/driver/graphicsDriver.h>
-#include <math/algebra/matrix.h>
+
+//#include <video/basicTypes/color.h>
+//#include <video/graphics/shader/shader.h>
+//#include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video {
 
-		class RenderTarget;
+		struct StaticRenderMesh;
 
+		class RendererBackEnd {
+		public:
+			struct DrawInfo {
+				GLuint			program;
+				math::Vec3f		lightDir;
+				math::Vec3f		lightClr;
+			};
+
+			struct DrawCall {
+				/// Things line uniforms, and render config
+				DrawInfo			renderStateInfo;
+				StaticRenderMesh*	mesh;
+			};
+
+			RendererBackEnd(GraphicsDriver* _driver) : mDriver(_driver) {}
+			void draw(const DrawCall&);
+
+		private:
+			GraphicsDriver* mDriver = nullptr;
+		}
+		/*
 		class RendererBackEnd {
 		public:
 			struct StaticGeometry {
@@ -62,5 +85,7 @@ namespace rev {
 
 	}
 }
+
+*/
 
 #endif // _REV_VIDEO_GRAPHICS_RENDERER_BACKEND_BACKENDRENDERER_H_
