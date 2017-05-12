@@ -29,14 +29,14 @@ public:
 		mRenderer.init(&driver3d());
 
 		// --- Create basic game objects
-		StaticRenderMesh* cube = Procedural::box(Vec3f(1.f));
-		cubeObj = new RenderObj(cube);
-		renderScene.objects.push_back(cubeObj);
 		// Camera
 		cam = new Camera(1.5f, 0.1f, 1000.f);
 		camera.addComponent(cam);
 		camera.setPos(Vec3f(0.f, -10.f, 0.f));
 		// World
+		StaticRenderMesh* cube = Procedural::box(Vec3f(1.f));
+		RenderObj* cubeObj = new RenderObj(cube);
+		renderScene.objects.push_back(cubeObj);
 		world.addComponent(cubeObj);
 		world.setPos(Vec3f(0.f, 10.f, 0.f));
 	}
@@ -44,7 +44,7 @@ public:
 	~VRSample() {
 	}
 
-	RenderObj* cubeObj;
+	//RenderObj* cubeObj;
 	Camera* cam;
 	SceneNode camera;
 	SceneNode world;

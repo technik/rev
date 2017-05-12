@@ -32,7 +32,7 @@ namespace rev {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
-			// mDriver->setRenderTarget(_rt);
+			mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
