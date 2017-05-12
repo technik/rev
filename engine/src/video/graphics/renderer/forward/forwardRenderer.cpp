@@ -24,6 +24,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
+			mBackEnd = new RendererBackEnd(_driver);
 			mProgram = Shader::manager()->get("shader");
 		}
 
@@ -36,23 +37,20 @@ namespace rev {
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
-			mDriver->setShader(mProgram);
-			int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
-			if(uWorldViewProj == -1)
-				return;
-			// Camera 
+			// Render state info
+			RendererBackEnd::DrawCall	draw;
+			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
+			drawInfo.program = mProgram;
+			drawInfo.lightDir = -Vec3f::xAxis();
+			// Camera
 			Mat34f invView;
 			_cam.view().inverse(invView);
 			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
-			Mat44f worldViewProj;
 			for (const auto obj : _scene.objects) {
-				worldViewProj = viewProj * obj->transform();
-				mDriver->setUniform(uWorldViewProj, worldViewProj);
-				StaticRenderMesh* mesh = obj->mesh();
-
-				glBindVertexArray(mesh->vao);
-				glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
+				drawInfo.wvp = viewProj * obj->transform();
+				draw.mesh = obj->mesh();
+				mBackEnd->draw(draw);
 			}
 			glBindVertexArray(0);
 		}

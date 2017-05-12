@@ -125,22 +125,6 @@ namespace rev {
 		int OpenGLDriver::getUniformLocation(const char* _uniform)
 		{
 			int loc = glGetUniformLocation(mProgram, _uniform);
-			/*if (loc == -1) {
-				GLenum error = glGetError();
-				std::cout << "Uniform " << _uniform << " not found. Error ";
-				switch (error)
-				{
-				case GL_INVALID_VALUE:
-					std::cout << "GL_INVALID_VALUE\n";
-					break;
-				case GL_INVALID_OPERATION:
-					std::cout << "GL_INVALID_OPERATION\n";
-					break;
-				default:
-					std::cout << error << "\n";
-					break;
-				}
-			}*/
 			return loc;
 		}
 		//------------------------------------------------------------------------------------------------------------------

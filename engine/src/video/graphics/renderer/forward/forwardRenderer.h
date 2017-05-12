@@ -26,8 +26,9 @@ namespace rev {
 			void render(const RenderScene& _scene, const Camera& _cam, const RenderTarget* _rt = nullptr) const;
 
 		private:
-			GraphicsDriver*	mDriver;
-			Shader::Ptr	mProgram;
+			GraphicsDriver*		mDriver = nullptr;
+			RendererBackEnd*	mBackEnd = nullptr;
+			Shader::Ptr			mProgram = nullptr;
 		};
 	}
 }
