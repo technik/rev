@@ -39,6 +39,7 @@ namespace rev {
 
 			RendererBackEnd(GraphicsDriver* _driver) : mDriver(_driver) {}
 			void draw(const DrawCall&);
+			void flush();
 
 		private:
 			GraphicsDriver* mDriver = nullptr;

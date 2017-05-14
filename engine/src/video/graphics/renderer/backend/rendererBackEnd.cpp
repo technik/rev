@@ -30,5 +30,10 @@ namespace rev {
 			glBindVertexArray(mesh->vao);
 			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
 		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::flush() {
+			glBindVertexArray(0);
+		}
 	}
 }

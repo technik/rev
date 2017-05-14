@@ -52,7 +52,7 @@ namespace rev {
 				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
 			}
-			glBindVertexArray(0);
+			mBackEnd->flush();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

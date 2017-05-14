@@ -38,7 +38,10 @@ namespace rev {
 			faces[3] = 2;
 			faces[4] = 3;
 			faces[5] = 0;
-			return new StaticRenderMesh(4, vertices, 6, faces);
+			StaticRenderMesh::VertexFormat fmt;
+			fmt.uvChannels = 0;
+			fmt.normals = StaticRenderMesh::VertexFormat::NormalFormat::none;
+			return new StaticRenderMesh(fmt, 4, vertices, 6, faces);
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
@@ -79,31 +82,36 @@ namespace rev {
 			}
 			binormal = tangent ^ normal;
 			// Set normals
-			//for (int i = 0; i < 4; ++i)
-			//{
-			//	_norms[i] = normal;
-			//}
+			for (int i = 0; i < 4; ++i)
+			{
+				_norms[i] = normal;
+			}
 			_verts[0] = normal * height - tangent * width - binormal * depth;
 			_verts[1] = normal * height + tangent * width - binormal * depth;
 			_verts[2] = normal * height + tangent * width + binormal * depth;
 			_verts[3] = normal * height - tangent * width + binormal * depth;
-			//_uvs[0] = Vec2f(0.0f, 0.0f);
-			//_uvs[1] = Vec2f(0.0f, 1.0f);
-			//_uvs[2] = Vec2f(1.0f, 1.0f);
-			//_uvs[3] = Vec2f(1.0f, 0.0f);
+			_uvs[0] = Vec2f(0.0f, 0.0f);
+			_uvs[1] = Vec2f(0.0f, 1.0f);
+			_uvs[2] = Vec2f(1.0f, 1.0f);
+			_uvs[3] = Vec2f(1.0f, 0.0f);
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
 		StaticRenderMesh* Procedural::box(const Vec3f& _size)
 		{
 			// 4 vertices times 6 faces
-			Vec3f * verts = new Vec3f[24];
-			Vec3f * norms = new Vec3f[24];
-			Vec2f * uvs = new Vec2f[24];
-			uint16_t * indices = new uint16_t[6 * 6];
+			constexpr uint16_t nVertices = 24;
+			Vec3f* vertices = new Vec3f[nVertices];
+			Vec3f* normals = new Vec3f[nVertices];
+			Vec2f* uvs = new Vec2f[nVertices];
+			uint16_t nIndices = 36;
+			uint16_t * indices = new uint16_t[nIndices];
 			for (uint16_t i = 0; i < 6; ++i)
 			{
-				fillBoxFace(i, _size, &verts[4 * i], &norms[4 * i], &uvs[4 * i]);
+				Vec3f* v0 = &vertices[4*i];
+				Vec3f* n0 = &normals[4 * i];
+				Vec2f* uv0 = &uvs[4 * i];
+				fillBoxFace(i, _size, v0, n0, uv0);
 				indices[6 * i + 0] = 4 * i + 0;
 				indices[6 * i + 1] = 4 * i + 3;
 				indices[6 * i + 2] = 4 * i + 2;
@@ -111,7 +119,27 @@ namespace rev {
 				indices[6 * i + 4] = 4 * i + 1;
 				indices[6 * i + 5] = 4 * i + 0;
 			}
-			return new StaticRenderMesh(24, verts, 36, indices);
+			// Collapse into a single structure
+			struct CompactData {
+				Vec3f v;
+				Vec3f n;
+				Vec2f uv;
+			};
+			CompactData* vertexData = new CompactData[nVertices];
+			for (auto i = 0; i < nVertices; ++i) {
+				vertexData[i].v = vertices[i];
+				vertexData[i].n = normals[i];
+				vertexData[i].uv = uvs[i];
+			}
+			delete[] vertices;
+			delete[] normals;
+			delete[] uvs;
+			StaticRenderMesh::VertexFormat fmt;
+			fmt.normals = StaticRenderMesh::VertexFormat::NormalFormat::normal3;
+			fmt.uvChannels = 1;
+			auto ret = new StaticRenderMesh(fmt, nVertices, vertexData, nIndices, indices);
+			delete[] vertexData;
+			return ret;
 		}
 
 		//---------------------------------------------------------------------------------------------------------------
@@ -238,7 +266,10 @@ namespace rev {
 			// Create the model itself
 			uint16_t nVertices = uint16_t(nVerticesInSphere(_nMeridians, _nParallels));
 			uint16_t nIndices = uint16_t(nIndicesInSphere(_nMeridians, _nParallels));
-			return new StaticRenderMesh(nVertices, verts, nIndices, indices);
+			StaticRenderMesh::VertexFormat fmt;
+			fmt.uvChannels = 0;
+			fmt.normals = StaticRenderMesh::VertexFormat::NormalFormat::none;
+			return new StaticRenderMesh(fmt, nVertices, verts, nIndices, indices);
 		}
 	}
 }
