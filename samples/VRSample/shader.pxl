@@ -2,13 +2,13 @@
 // Basic shader
 //----------------------------------------------------------------------------------------------------------------------
 // Pixel
-uniform vec3 lightDir; // In object space
-uniform vec3 lightClr;
+uniform vec3 uLightDir; // In object space
+uniform vec3 uLightClr;
 
-//varying vec3 vNormal; // In object space
+varying vec3 vNormal; // In object space
 
 void main (void) {
-//	float intensity = max(0.0, dot(lightDir, vNormal));
-	vec3 color = vec3(0.0,0.0,1.0);// * lightClr *intensity;
+	float intensity = max(0.25, dot(uLightDir, vNormal));
+	vec3 color = vec3(0.2,0.0,1.0) * uLightClr *intensity;
 	gl_FragColor = vec4(color, 1.0);
 }

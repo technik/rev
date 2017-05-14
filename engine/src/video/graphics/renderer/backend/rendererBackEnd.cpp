@@ -25,6 +25,12 @@ namespace rev {
 			int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
 			mDriver->setUniform(uWorldViewProj, info.wvp);
 
+			int uLightClr = mDriver->getUniformLocation("uLightClr");
+			mDriver->setUniform(uLightClr, info.lightClr);
+
+			int uLightDir = mDriver->getUniformLocation("uLightDir");
+			mDriver->setUniform(uLightDir, info.lightDir);
+
 			// Actual draw
 			StaticRenderMesh* mesh = _dc.mesh;
 			glBindVertexArray(mesh->vao);

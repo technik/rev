@@ -41,15 +41,20 @@ namespace rev {
 			RendererBackEnd::DrawCall	draw;
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
-			drawInfo.lightDir = -Vec3f::xAxis();
+			Vec3f globalLightDir = -Vec3f::xAxis();
+			drawInfo.lightClr = Vec3f(1.f);
 			// Camera
 			Mat34f invView;
 			_cam.view().inverse(invView);
 			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
 			for (const auto obj : _scene.objects) {
-				drawInfo.wvp = viewProj * obj->transform();
+				Mat34f modelMatrix = obj->transform();
+				Mat34f invModelMtx;
+				modelMatrix.inverse(invModelMtx);
+				drawInfo.wvp = viewProj * modelMatrix;
 				draw.mesh = obj->mesh();
+				drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
 				mBackEnd->draw(draw);
 			}
 			mBackEnd->flush();

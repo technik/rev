@@ -4,12 +4,12 @@
 // Vertex
 uniform	mat4	uWorldViewProj;
 attribute vec3 vertex;
-//attribute vec3 normal;
+attribute vec3 normal;
 
-//varying vec3 vNormal;
+varying vec3 vNormal;
 
 void main ( void )
 {
-	//vNormal = normal;
+	vNormal = normal;
 	gl_Position = uWorldViewProj * vec4(vertex, 1.0);
 }
