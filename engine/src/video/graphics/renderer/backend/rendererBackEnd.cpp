@@ -31,6 +31,9 @@ namespace rev {
 			int uLightDir = mDriver->getUniformLocation("uLightDir");
 			mDriver->setUniform(uLightDir, info.lightDir);
 
+			int uViewPos = mDriver->getUniformLocation("uViewPos");
+			mDriver->setUniform(uViewPos, info.viewPos);
+
 			// Actual draw
 			StaticRenderMesh* mesh = _dc.mesh;
 			glBindVertexArray(mesh->vao);

@@ -3,13 +3,16 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Vertex
 uniform	mat4	uWorldViewProj;
+uniform	vec3	uViewPos;
 attribute vec3 vertex;
 attribute vec3 normal;
 
 varying vec3 vNormal;
+varying vec3 vViewDir;
 
 void main ( void )
 {
 	vNormal = normal;
+	vViewDir = normalize(vertex - uViewPos);
 	gl_Position = uWorldViewProj * vec4(vertex, 1.0);
 }

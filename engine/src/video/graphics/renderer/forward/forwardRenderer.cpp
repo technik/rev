@@ -41,7 +41,8 @@ namespace rev {
 			RendererBackEnd::DrawCall	draw;
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
-			Vec3f globalLightDir = -Vec3f::xAxis();
+			Vec3f globalLightDir = (Vec3f(1.0,1.0,-1.0)).normalized();
+			Vec3f viewPos = _cam.node()->position();
 			drawInfo.lightClr = Vec3f(1.f);
 			// Camera
 			Mat34f invView;
@@ -52,9 +53,12 @@ namespace rev {
 				Mat34f modelMatrix = obj->transform();
 				Mat34f invModelMtx;
 				modelMatrix.inverse(invModelMtx);
+
 				drawInfo.wvp = viewProj * modelMatrix;
-				draw.mesh = obj->mesh();
 				drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
+				drawInfo.viewPos = invModelMtx * viewPos;
+
+				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
 			}
 			mBackEnd->flush();

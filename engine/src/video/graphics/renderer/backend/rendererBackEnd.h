@@ -28,6 +28,7 @@ namespace rev {
 				Shader::Ptr		program;
 				math::Vec3f		lightDir;
 				math::Vec3f		lightClr;
+				math::Vec3f		viewPos;
 				math::Mat44f	wvp; // Model view projection
 			};
 
