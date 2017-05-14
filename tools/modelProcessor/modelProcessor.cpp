@@ -57,12 +57,16 @@ struct IntermediateModel {
 		}
 		collapseVertexData(vertexData, stride);
 		// Save header
-		_out << nVertices;
-		_out << nIndices;
+		_out.write((char*)&nVertices, 2);
+		_out.write((char*)&nIndices, 2);
 		// Save vertex data
-		_out.write((const char*)vertexData, stride*nVertices);
+		_out.write((const char*)vertexData, stride*(size_t)nVertices);
+		if(!_out)
+			return false;
 		// Save index data
-		_out.write((const char*)indices, sizeof(uint16_t)*nIndices);
+		_out.write((const char*)indices, sizeof(uint16_t)*(size_t)nIndices);
+		if (!_out)
+			return false;
 		return true;
 	}
 };
@@ -135,7 +139,7 @@ int main(int _argc, const char** _argv) {
 		cout << "Error loading model: " << src << "\n";
 		return -1;
 	}
-	ofstream outFile(dst);
+	ofstream outFile(dst, std::ofstream::binary);
 	if (outFile.is_open()) {
 		uncompressedModel.saveToStream(outFile);
 		outFile.close();

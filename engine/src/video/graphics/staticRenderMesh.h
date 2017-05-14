@@ -6,6 +6,7 @@
 #define _REV_VIDEO_GRAPHICS_STATICRENDERMESH_H_
 
 #include <cstdint>
+#include <fstream>
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <video/graphics/driver/graphicsDriver.h>
@@ -82,6 +83,28 @@ namespace rev {
 					glDeleteVertexArrays(1, &vao);
 				if(indices)
 					delete[] indices;
+			}
+
+			static StaticRenderMesh* loadFromFile(const std::string& _fileName) {
+				std::ifstream file(_fileName, std::ifstream::binary);
+				if(!file.is_open())
+					return nullptr;
+				// Read header
+				VertexFormat format;
+				format.normals = VertexFormat::NormalFormat::normal3;
+				format.uvChannels = 1;
+				uint16_t nVertices, nIndices;
+				file.read((char*)&nVertices, 2);
+				file.read((char*)&nIndices, 2);
+				// Read vertex data
+				size_t vtxDataSize = format.stride()*nVertices;
+				char* vertexData = new char[vtxDataSize];
+				file.read(vertexData, vtxDataSize);
+				// Read index data
+				size_t idxDataSize = nIndices * sizeof(uint16_t);
+				uint16_t* indices = new uint16_t[nIndices];
+				file.read((char*)indices, idxDataSize);
+				return new StaticRenderMesh(format, nVertices, vertexData, nIndices, indices);
 			}
 		};
 	}
