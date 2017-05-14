@@ -3,7 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Physics simulation context
-#include "physicsWorld.h"
+/*#include "physicsWorld.h"
 #include "rigidBody.h"
 #include <game/physics/bulletMath.h>
 
@@ -60,4 +60,4 @@ namespace rev {
 			mWorld->stepSimulation(_dt, 1, _dt);
 		}
 	}
-}
+}*/

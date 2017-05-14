@@ -5,7 +5,7 @@
 cmake_minimum_required (VERSION 2.6)
 project(VRSample)
 
-add_executable(VRSample main.cpp player.cpp)
+add_executable(VRSample main.cpp)
 # Visual studio specifics
 if(MSVC)
 	add_definitions(-DNOMINMAX)

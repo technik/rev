@@ -3,7 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Physics simulation context
-#include "rigidBody.h"
+/*#include "rigidBody.h"
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include "bulletMath.h"
@@ -16,7 +16,7 @@ using namespace rev::math;
 namespace rev {
 	namespace game {
 
-		/*namespace {
+		namespace {
 			//----------------------------------------------------------------------------------------------------------------------
 			btConvexHullShape* createHull(const VHACD::IVHACD::ConvexHull& _piece) {
 				btConvexHullShape* blockShape = new btConvexHullShape();
@@ -195,6 +195,6 @@ namespace rev {
 			// Do not affect btRigidBody's internal transform.
 			mBd->TransformSrc::setPosition(origin, TransformSrc::local);
 			mBd->TransformSrc::setRotation(rot, TransformSrc::local);
-		}*/
+		}
 }
-}
+}*/

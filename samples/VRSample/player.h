@@ -10,7 +10,7 @@
 #include <video/basicTypes/camera.h>
 #include <game/physics/physicsWorld.h>
 #include <game/physics/rigidBody.h>
-#include <video/graphics/renderer/renderObj.h>
+#include <video/graphics/renderObj.h>
 
 class Player {
 public:

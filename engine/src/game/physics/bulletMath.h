@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Useful conversions between rev and bullet math types
 
-#include <btBulletDynamicsCommon.h>
+/*#include <btBulletDynamicsCommon.h>
 #include <math/algebra/vector.h>
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -30,4 +30,4 @@ inline btQuaternion rev2bt(const rev::math::Quatf& _q) {
 
 //----------------------------------------------------------------------------------------------------------------------
 // Matrices
-// TODO
+// TODO*/

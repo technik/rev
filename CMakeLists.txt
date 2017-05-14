@@ -7,4 +7,5 @@ project(revAll)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(engine)
+add_subdirectory(tools)
 add_subdirectory(samples/VRSample)

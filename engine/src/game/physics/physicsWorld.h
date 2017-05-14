@@ -6,7 +6,7 @@
 #ifndef _REV_GAME_PHYSICS_PHYSICSWORLD_H_
 #define _REV_GAME_PHYSICS_PHYSICSWORLD_H_
 
-#include <btBulletDynamicsCommon.h>
+/*#include <btBulletDynamicsCommon.h>
 #include <set>
 #include <math/algebra/vector.h>
 
@@ -40,6 +40,6 @@ namespace rev {
 			std::set<RigidBody*>				mBodies;
 		};
 	}
-}
+}*/
 
 #endif // _REV_GAME_PHYSICS_PHYSICSWORLD_H_

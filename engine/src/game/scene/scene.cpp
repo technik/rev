@@ -4,9 +4,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Simple scene manager
 #include "scene.h"
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
+//#include <assimp/Importer.hpp>      // C++ importer interface
+//#include <assimp/scene.h>           // Output data structure
+//#include <assimp/postprocess.h>     // Post processing flags
 #include <video/graphics/renderObj.h>
 #include <core/components/sceneNode.h>
 #include <video/graphics/staticRenderMesh.h>
@@ -81,13 +81,13 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Scene* Scene::import(const char* _fileName) {
 			// Try to open the file
-			Assimp::Importer colladaImp;
+/*			Assimp::Importer colladaImp;
 			const aiScene* colScene = colladaImp.ReadFile(_fileName,
 				aiProcess_GenNormals | aiProcess_Triangulate |
 				aiProcess_JoinIdenticalVertices);
 			if (!colScene) {
 				return nullptr; // No file exists
-			}
+			}*/
 
 			Scene* scene = new Scene;
 			/*const aiNode* colRoot = colScene->mRootNode;
