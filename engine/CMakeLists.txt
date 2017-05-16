@@ -34,6 +34,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-std=c++11)
 endif()
 
+file(GLOB_RECURSE CJSON_SOURCE_FILES "lib/cjson/*.cpp" "lib/cjson/*.h" "lib/cjson/*.inl")
+add_library(cjson STATIC ${CJSON_SOURCE_FILES})
+target_include_directories(cjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/cjson)
+set_target_properties(cjson PROPERTIES FOLDER "libs")
+
 #link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/glew)
 #link_directories (${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)
 add_library(rev STATIC ${PROJECT_SOURCE_FILES})
@@ -51,11 +56,10 @@ if(WIN32)
 endif(WIN32)
 find_library(FREEIMAGE_LIB FreeImage ${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)
 
-target_link_libraries (rev LINK_PUBLIC ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} ${FREEIMAGE_LIB})
+target_link_libraries (rev LINK_PUBLIC ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} ${FREEIMAGE_LIB} cjson)
 
 #add_subdirectory(lib/vhacd)
 #target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/inc)
 #target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/public)
 #target_link_libraries(rev LINK_PUBLIC BulletDynamics Bullet3Common BulletCollision LinearMath)
 #target_link_libraries(rev LINK_PUBLIC VHACD_LIB)
-
