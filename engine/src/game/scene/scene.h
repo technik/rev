@@ -6,22 +6,24 @@
 #ifndef _REV_GAME_SCENE_SCENE_H_
 #define _REV_GAME_SCENE_SCENE_H_
 
+#include <iostream>
 #include <vector>
 
 namespace rev {
 
 	namespace core { class SceneNode; }
+	namespace video { class ForwardRenderer; }
 
 	namespace game {
 		
 		class Scene {
 		public:
 			Scene();
-			/// Open a scene and return it as a vector of scene nodes.
-			/// \return true on succuess importing the scene
-			static Scene* import(const char* _fileName);
 
-			void addNode(core::SceneNode* node);
+			bool load(const std::string& _fileName);
+
+			bool update(float _dt);
+			void render(ForwardRenderer&);
 		private:
 			std::vector<core::SceneNode*>	mSceneGraph;
 		};

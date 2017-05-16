@@ -79,18 +79,18 @@ namespace rev {
 		}
 		
 		//--------------------------------------------------------------------------------------------------------------
-		Scene* Scene::import(const char* _fileName) {
+		/*Scene* Scene::import(const char* _fileName) {
 			// Try to open the file
-/*			Assimp::Importer colladaImp;
+			Assimp::Importer colladaImp;
 			const aiScene* colScene = colladaImp.ReadFile(_fileName,
 				aiProcess_GenNormals | aiProcess_Triangulate |
 				aiProcess_JoinIdenticalVertices);
 			if (!colScene) {
 				return nullptr; // No file exists
-			}*/
+			}
 
 			Scene* scene = new Scene;
-			/*const aiNode* colRoot = colScene->mRootNode;
+			const aiNode* colRoot = colScene->mRootNode;
 			unsigned nNodes = colRoot->mNumChildren + 1; // Root plus children
 			std::vector<const aiNode*> colNodes;
 			colNodes.push_back(colRoot);
@@ -106,8 +106,8 @@ namespace rev {
 				obj->attachTo(node);
 				std::string name = colNode->mName.C_Str();
 				node->setTransform(globalTransform(colNode));
-			}*/
+			}
 			return scene;
-		}
+		}*/
 	}
 }
