@@ -1,0 +1,26 @@
+{
+	graph : [
+		{
+			name : "ball",
+			pos : [0, 2, 0],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/unitSphere.rmd"
+				}
+			]
+		},
+		{
+			name : "Camera",
+			pos : [0, -3, 0],
+			components : [
+				{
+					type : "Camera",
+					fov : 1.5,
+					near : 0.1,
+					far : 1000
+				}
+			]
+		}
+	]
+}

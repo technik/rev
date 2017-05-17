@@ -22,8 +22,13 @@ namespace rev {
 		public:
 			// Constructor & destructor
 			SceneNode() {}
+			SceneNode(const std::string& _name):mName(_name) {}
 
-			// Accessors
+			// Node interface
+			const std::string&	name		() const { return mName; }
+			void				setName		(const std::string& _name) { mName = _name; }
+
+			// transform
 			void			move		(const math::Vec3f& _translation);
 			void			moveLocal	(const math::Vec3f& _translation);
 			void			setPos		(const math::Vec3f& _position);
@@ -38,6 +43,7 @@ namespace rev {
 			void			removeComponent	(Component * _component);
 
 		private:
+			std::string				mName;
 			std::set<Component*>	mComponents;
 		};
 	}

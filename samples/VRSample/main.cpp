@@ -5,20 +5,21 @@
 // Sample racing game
 
 #include <util/app/app3d.h>
-#include <core/components/sceneNode.h>
-#include <game/geometry/procedural/basic.h>
+#include <iostream>
+#include <game/scene/scene.h>
 #include <video/basicTypes/camera.h>
 #include <video/graphics/renderObj.h>
-#include <video/graphics/renderScene.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
-#include <video/graphics/renderer/renderContext.h>
-#include <video/window/window.h>
+#include <video/graphics/staticRenderMesh.h>
+#include <cjson/json.h>
 
 using namespace rev::core;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::math;
 using namespace rev::video;
+
+using namespace std;
 
 class VRSample : public rev::App3d {
 public:
@@ -27,42 +28,59 @@ public:
 	{
 		processArgs(_argc, _argv);
 		mRenderer.init(&driver3d());
+		// Component factories
+		mGameScene.registerFactory("RenderObj", [](const cjson::Json& _data) {
+			string fileName = _data["file"];
+			return new RenderObj(StaticRenderMesh::loadFromFile(fileName));
+		});
+		mGameScene.registerFactory("Camera", [](const cjson::Json& _data) {
+			float fov = (float)_data["fov"];
+			float nearPlane = (float)_data["near"];
+			float farPlane = (float)_data["far"];
+			return new Camera(fov, nearPlane, farPlane);
+		});
+		mGameScene.load(mSceneName);
 
 		// --- Create basic game objects
 		// Camera
-		cam = new Camera(1.5f, 0.1f, 1000.f);
-		camera.addComponent(cam);
-		camera.setPos(Vec3f(0.f, -3.f, 0.f));
-		// World
-		StaticRenderMesh* cube = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
-		RenderObj* cubeObj = new RenderObj(cube);
-		renderScene.objects.push_back(cubeObj);
-		world.addComponent(cubeObj);
-		world.setPos(Vec3f(0.f, 2.f, 0.f));
+		//cam = new Camera(1.5f, 0.1f, 1000.f);
+		//camera.addComponent(cam);
+		//camera.setPos(Vec3f(0.f, -3.f, 0.f));
+		//// World
+		//StaticRenderMesh* cube = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
+		//RenderObj* cubeObj = new RenderObj(cube);
+		//renderScene.objects.push_back(cubeObj);
+		//world.addComponent(cubeObj);
+		//world.setPos(Vec3f(0.f, 2.f, 0.f));
 	}
 
 	~VRSample() {
 	}
 
 	//RenderObj* cubeObj;
-	Camera* cam;
-	SceneNode camera;
-	SceneNode world;
-	RenderScene renderScene;
+	//Camera* cam;
+	//SceneNode camera;
+	//SceneNode world;
+	//RenderScene renderScene;
+	Scene			mGameScene;
 	ForwardRenderer mRenderer;
-
+	std::string		mSceneName;
 
 private:
 	
 	//----------------------------------------------------------------
 	void processArgs(int _argc, const char** _argv) {
-		_argc;
-		_argv;
+		if (_argc > 1) {
+			mSceneName = _argv[1];
+		}
 	}
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
-		mRenderer.render(renderScene, *cam);
+		//mRenderer.render(renderScene, *cam);
+		if(!mGameScene.update(_dt))
+			return false;
+		mGameScene.render(mRenderer);
 		return true;
 	}
 };

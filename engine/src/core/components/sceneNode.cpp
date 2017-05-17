@@ -53,6 +53,8 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::addComponent(Component* _c) {
+			if(!_c)
+				return;
 			if(_c->node() != this) {
 				_c->attachTo(this);
 				mComponents.insert(_c);
@@ -61,6 +63,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::removeComponent(Component* _c) {
+			assert(_c);
 			if(_c->node()) {
 				_c->dettach();
 				mComponents.erase(_c);

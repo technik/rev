@@ -261,8 +261,8 @@ namespace cjson {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Json::operator float() const {
-		assert(mType == DataType::real);
-		return mNumber.f;
+		assert(mType == DataType::real || mType == DataType::integer);
+		return (mType == DataType::real)?mNumber.f:float(mNumber.i);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -4,9 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Simple scene manager
 #include "scene.h"
-//#include <assimp/Importer.hpp>      // C++ importer interface
-//#include <assimp/scene.h>           // Output data structure
-//#include <assimp/postprocess.h>     // Post processing flags
+#include <cjson/json.h>
 #include <video/graphics/renderObj.h>
 #include <core/components/sceneNode.h>
 #include <video/graphics/staticRenderMesh.h>
@@ -15,7 +13,78 @@ using namespace rev::core;
 using namespace rev::math;
 using namespace rev::video;
 
-namespace {
+using namespace std;
+using namespace cjson;
+
+namespace rev { namespace game {
+
+	//----------------------------------------------------------------------------------------
+	Scene::Scene() {
+		mSceneGraph.push_back(new SceneNode("root")); /// < push back root node
+	}
+
+	//----------------------------------------------------------------------------------------
+	bool Scene::load(const string& _fileName) {
+		ifstream levelFile(_fileName);
+		if(!levelFile.is_open())
+			return false;
+		Json levelDat;
+		if(!levelDat.parse(levelFile))
+			return false;
+		const Json& sceneGraph = levelDat["graph"];
+		// Create scene root, and attach it to global root
+		SceneNode* sceneRoot = new SceneNode(_fileName);
+		sceneRoot->attachTo(mSceneGraph.front());
+		mSceneGraph.push_back(sceneRoot);
+		for (const auto& nodeData : sceneGraph) {
+			createSceneNode(nodeData, sceneRoot);
+		}
+		return true;
+	}
+
+	//----------------------------------------------------------------------------------------
+	bool Scene::update(float _dt) {
+		return false;
+	}
+
+	//----------------------------------------------------------------------------------------
+	void Scene::render(ForwardRenderer& renderer) {
+	}
+
+	//----------------------------------------------------------------------------------------
+	void Scene::registerFactory(const std::string& _type, Scene::Factory _factory) {
+		mFactories[_type] = _factory;
+	}
+
+	//----------------------------------------------------------------------------------------
+	void Scene::createSceneNode(const Json& _nodeData, SceneNode* _parent) {
+		// Add node to the scene graph
+		SceneNode* newNode = new SceneNode(_nodeData["name"]);
+		mSceneGraph.push_back(newNode);
+		newNode->attachTo(_parent);
+		// set transform
+		if (_nodeData.contains("pos")) {
+			const Json& pos = _nodeData["pos"];
+			newNode->setPos(Vec3f(pos(0), pos(1), pos(2)));
+		}
+		// Add components
+		if (_nodeData.contains("components")) {
+			for(const auto& componentData : _nodeData["components"])
+				newNode->addComponent(createComponent(componentData));
+		}
+	}
+
+	//----------------------------------------------------------------------------------------
+	Component* Scene::createComponent(const Json& _componentData) {
+		std::string type = _componentData["type"];
+		auto& factoryIter = mFactories.find(type);
+		if (factoryIter != mFactories.end()) {
+			auto& factory = factoryIter->second;
+			return factory(_componentData);
+		}
+		return nullptr;
+	}
+
 	//----------------------------------------------------------------------------------------
 	/*RenderMesh* createMesh(const aiMesh* _mesh) {
 		unsigned nVertices = _mesh->mNumVertices;
@@ -67,19 +136,11 @@ namespace {
 			transform = ai2Mat(p->mTransformation) * transform;
 		normalizeTr(transform);
 		return transform;
-	}*/
+	}
 
-}	// Anonymous namespace
-
-
-namespace rev {
-	namespace game {
-		//--------------------------------------------------------------------------------------------------------------
-		Scene::Scene() {
-		}
 		
 		//--------------------------------------------------------------------------------------------------------------
-		/*Scene* Scene::import(const char* _fileName) {
+		Scene* Scene::import(const char* _fileName) {
 			// Try to open the file
 			Assimp::Importer colladaImp;
 			const aiScene* colScene = colladaImp.ReadFile(_fileName,
