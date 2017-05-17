@@ -7,7 +7,7 @@
 #define _REV_CORE_COMPONENT_SCENENODE_H_
 
 #include "transformSrc.h"
-#include <set>
+#include <vector>
 
 namespace rev {
 	namespace core {
@@ -41,10 +41,12 @@ namespace rev {
 			// Components
 			void			addComponent	(Component * _component);
 			void			removeComponent	(Component * _component);
+			size_t			nComponents		() const { return mComponents.size(); }
+			Component*		component		(size_t _i) const { return mComponents[_i]; }
 
 		private:
 			std::string				mName;
-			std::set<Component*>	mComponents;
+			std::vector<Component*>	mComponents;
 		};
 	}
 }

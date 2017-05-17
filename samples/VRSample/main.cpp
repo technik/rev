@@ -40,18 +40,6 @@ public:
 			return new Camera(fov, nearPlane, farPlane);
 		});
 		mGameScene.load(mSceneName);
-
-		// --- Create basic game objects
-		// Camera
-		//cam = new Camera(1.5f, 0.1f, 1000.f);
-		//camera.addComponent(cam);
-		//camera.setPos(Vec3f(0.f, -3.f, 0.f));
-		//// World
-		//StaticRenderMesh* cube = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
-		//RenderObj* cubeObj = new RenderObj(cube);
-		//renderScene.objects.push_back(cubeObj);
-		//world.addComponent(cubeObj);
-		//world.setPos(Vec3f(0.f, 2.f, 0.f));
 	}
 
 	~VRSample() {

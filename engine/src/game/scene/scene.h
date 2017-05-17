@@ -19,7 +19,9 @@ namespace rev {
 		class SceneNode; 
 		class Component;
 	}
-	namespace video { class ForwardRenderer; }
+	namespace video {
+		class ForwardRenderer;
+	}
 
 	namespace game {
 		
@@ -29,9 +31,10 @@ namespace rev {
 			bool load(const std::string& _fileName);
 
 			bool update(float _dt);
-			void render(video::ForwardRenderer&);
+			void render(video::ForwardRenderer&) const;
 
-			typedef std::function<core::Component*(const cjson::Json&)>	Factory;
+			// --- Component factories ---
+			typedef std::function<core::Component*	(const cjson::Json&)>	Factory;
 
 			void registerFactory(const std::string& type, Factory);
 
@@ -39,8 +42,8 @@ namespace rev {
 			void createSceneNode(const cjson::Json& _data, core::SceneNode* _parent);
 			core::Component* createComponent(const cjson::Json& _data);
 			// Node 0 is always scene's root
-			std::vector<core::SceneNode*>	mSceneGraph;
-			std::map<std::string,Factory>	mFactories;
+			std::vector<core::SceneNode*>			mSceneGraph;
+			std::map<std::string,Factory>			mFactories;
 		};
 
 	}	// namespace game

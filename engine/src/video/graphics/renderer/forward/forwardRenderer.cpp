@@ -29,11 +29,11 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::render(const RenderScene& _scene, const Camera& _cam, const RenderTarget* _rt) const {
+		void ForwardRenderer::render(const std::vector<RenderObj*>& _scene, const Camera& _cam) const {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
-			mDriver->setRenderTarget(_rt);
+			//mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
@@ -49,7 +49,7 @@ namespace rev {
 			_cam.view().inverse(invView);
 			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
-			for (const auto obj : _scene.objects) {
+			for (const auto obj : _scene) {
 				Mat34f modelMatrix = obj->transform();
 				Mat34f invModelMtx;
 				modelMatrix.inverse(invModelMtx);

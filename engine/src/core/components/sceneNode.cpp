@@ -57,7 +57,7 @@ namespace rev {
 				return;
 			if(_c->node() != this) {
 				_c->attachTo(this);
-				mComponents.insert(_c);
+				mComponents.push_back(_c);
 			}
 		}
 
@@ -66,7 +66,12 @@ namespace rev {
 			assert(_c);
 			if(_c->node()) {
 				_c->dettach();
-				mComponents.erase(_c);
+				for (auto c = mComponents.begin(); c != mComponents.end(); ++c) {
+					if (*c == _c) {
+						mComponents.erase(c);
+						return;
+					}
+				}
 			}
 		}
 

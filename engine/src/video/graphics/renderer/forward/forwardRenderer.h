@@ -6,6 +6,7 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_FORWARD_FORWARDRENDERER_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_FORWARD_FORWARDRENDERER_H_
 
+#include <vector>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
 
@@ -14,8 +15,7 @@ namespace rev {
 
 		class Camera;
 		class RendererBackEnd;
-		struct RenderScene;
-		class RenderTarget;
+		class RenderObj;
 
 		class ForwardRenderer {
 		public:
@@ -23,7 +23,7 @@ namespace rev {
 			// TODO: Instead of a camera, this should receive a "render info" struct with
 			// information like: use shadows? LOD bias? cam, etc
 			// nullptr render target means: use framebuffer
-			void render(const RenderScene& _scene, const Camera& _cam, const RenderTarget* _rt = nullptr) const;
+			void render(const std::vector<RenderObj*>& _scene, const Camera& _cam) const;
 
 		private:
 			GraphicsDriver*		mDriver = nullptr;

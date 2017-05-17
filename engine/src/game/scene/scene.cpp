@@ -4,10 +4,14 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Simple scene manager
 #include "scene.h"
+
+#include <cassert>
 #include <cjson/json.h>
 #include <video/graphics/renderObj.h>
 #include <core/components/sceneNode.h>
+#include <video/basicTypes/camera.h>
 #include <video/graphics/staticRenderMesh.h>
+#include <video/graphics/renderer/forward/forwardRenderer.h>
 
 using namespace rev::core;
 using namespace rev::math;
@@ -44,11 +48,29 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------
 	bool Scene::update(float _dt) {
-		return false;
+		// Traverse tree
+		return true;
 	}
 
 	//----------------------------------------------------------------------------------------
-	void Scene::render(ForwardRenderer& renderer) {
+	void Scene::render(ForwardRenderer& renderer) const {
+		// Parse scene graph looking for cameras and renderObj's
+		vector<RenderObj*>	activeRObjs;
+		vector<Camera*>		activeCams;
+		for (auto node : mSceneGraph) {
+			for (size_t i = 0; i < node->nComponents(); ++i)
+			{
+				Component* comp = node->component(i);
+				if(typeid(*comp) == typeid(Camera))
+					activeCams.push_back(static_cast<Camera*>(comp));
+				else if(typeid(*comp) == typeid(RenderObj))
+					activeRObjs.push_back(static_cast<RenderObj*>(comp));
+			}
+		}
+		for(auto cam : activeCams) {
+			assert(cam);
+			renderer.render(activeRObjs, *cam);
+		}
 	}
 
 	//----------------------------------------------------------------------------------------
@@ -81,7 +103,7 @@ namespace rev { namespace game {
 		if (factoryIter != mFactories.end()) {
 			auto& factory = factoryIter->second;
 			return factory(_componentData);
-		}
+		} 
 		return nullptr;
 	}
 
