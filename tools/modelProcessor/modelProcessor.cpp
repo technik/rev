@@ -30,7 +30,7 @@ struct IntermediateModel {
 	Vec2f* uvs = nullptr;
 	uint16_t* indices = nullptr;
 
-	uint16_t nIndices = 0;
+	uint32_t nIndices = 0;
 	uint16_t nVertices = 0;
 
 	void collapseVertexData(void* _dst, size_t stride) {
@@ -57,8 +57,8 @@ struct IntermediateModel {
 		}
 		collapseVertexData(vertexData, stride);
 		// Save header
-		_out.write((char*)&nVertices, 2);
-		_out.write((char*)&nIndices, 2);
+		_out.write((char*)&nVertices, sizeof(nVertices));
+		_out.write((char*)&nIndices, sizeof(nIndices));
 		// Save vertex data
 		_out.write((const char*)vertexData, stride*(size_t)nVertices);
 		if(!_out)

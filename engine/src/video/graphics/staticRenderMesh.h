@@ -40,10 +40,10 @@ namespace rev {
 			GLuint			vbo = 0; ///< vertex data
 			GLuint			vao = 0; ///< vertex array object
 			const uint16_t*	indices = nullptr;
-			uint16_t		nIndices = 0;
+			uint32_t		nIndices = 0;
 
 		public:
-			StaticRenderMesh(VertexFormat _format, uint16_t _nVertices, const void* _vertexData, uint16_t _nIndices, const uint16_t* _indices) 
+			StaticRenderMesh(VertexFormat _format, uint16_t _nVertices, const void* _vertexData, uint32_t _nIndices, const uint16_t* _indices) 
 				: indices(_indices)
 				, nIndices(_nIndices)
 			{
@@ -93,9 +93,10 @@ namespace rev {
 				VertexFormat format;
 				format.normals = VertexFormat::NormalFormat::normal3;
 				format.uvChannels = 1;
-				uint16_t nVertices, nIndices;
-				file.read((char*)&nVertices, 2);
-				file.read((char*)&nIndices, 2);
+				uint16_t nVertices;
+				uint32_t nIndices;
+				file.read((char*)&nVertices, sizeof(nVertices));
+				file.read((char*)&nIndices, sizeof(nIndices));
 				// Read vertex data
 				size_t vtxDataSize = format.stride()*nVertices;
 				char* vertexData = new char[vtxDataSize];

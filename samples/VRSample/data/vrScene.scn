@@ -1,18 +1,58 @@
 {
 	graph : [
 		{
-			name : "car",
+			name : "b1",
+			pos : [-0.9, 5, 0],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/barrel.rmd"
+				}
+			]
+		},
+		{
+			name : "b2",
 			pos : [0, 5, 0],
 			components : [
 				{
 					type : "RenderObj",
-					file : "data/mercedes.rmd"
+					file : "data/barrel.rmd"
+				}
+			]
+		},
+		{
+			name : "b3",
+			pos : [0.9, 5, 0],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/barrel.rmd"
+				}
+			]
+		},
+		{
+			name : "b4",
+			pos : [-0.45, 5, 0.6],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/barrel.rmd"
+				}
+			]
+		},
+		{
+			name : "b4",
+			pos : [0.45, 5, 0.6],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/barrel.rmd"
 				}
 			]
 		},
 		{
 			name : "Camera",
-			pos : [0, -3, 0],
+			pos : [0.4, -3, 0],
 			components : [
 				{
 					type : "Camera",
