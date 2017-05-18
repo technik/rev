@@ -11,6 +11,27 @@
 			]
 		},
 		{
+			name : "barrel",
+			pos : [-2, 2, 0],
+			rot : [90, 0, 0]
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/barrel.rmd"
+				}
+			]
+		},
+		{
+			name : "ball3",
+			pos : [2, 2, 0],
+			components : [
+				{
+					type : "RenderObj",
+					file : "data/unitSphere.rmd"
+				}
+			]
+		},
+		{
 			name : "Camera",
 			pos : [0, -3, 0],
 			components : [

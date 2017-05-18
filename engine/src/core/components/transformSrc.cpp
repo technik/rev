@@ -67,7 +67,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void TransformSrc::setRotation(const Quatf& _rot, TransformSrc::CoordinateSystem _base) {
 			if (mParent) {
-				if (_base == local) {
+				if (_base == global) {
 					setWorldRot(_rot);
 					setLocalRot(mParent->mWorldRot.inverse() * _rot);
 				}
