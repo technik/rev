@@ -24,8 +24,8 @@ namespace rev {
 			OpenGLShader() = default;
 			OpenGLShader(unsigned _vtx, unsigned _pxl);
 			~OpenGLShader();
-			static OpenGLShader* loadFromFiles(const std::string& _vtxName, const std::string& _pxlName);
-			static void loadFromFiles(const std::string& _vtxName, const std::string& _pxlName, OpenGLShader& _dst);
+			static OpenGLShader* loadFromFile(const std::string& _sourceFileName);
+			static void loadFromFile(const std::string& _sourceFileName, OpenGLShader& _dst);
 			inline unsigned program() const { return mProgram; }
 
 		private:

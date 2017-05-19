@@ -46,16 +46,16 @@ namespace rev {
 			Ptr get(const std::string& _key) {
 				auto resIterator = mResources.find(_key);
 				if (resIterator == mResources.end()) {
-					Val_* newResource = new Val_(_key);
+					Ptr newResource = Ptr(new Val_(_key));
 					mResources.insert(std::make_pair(_key, newResource));
-					return Ptr(newResource);
+					return newResource;
 				}
-				return Ptr(resIterator->second);
+				return resIterator->second;
 			}
 
 		private:
 
-			std::map<std::string, Val_*>	mResources;
+			std::map<std::string, Ptr>	mResources;
 		};
 
 		//-----------------------------------------------------------------------------------------------------

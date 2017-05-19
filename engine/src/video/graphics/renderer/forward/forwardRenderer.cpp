@@ -25,7 +25,7 @@ namespace rev {
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(_driver);
-			mProgram = Shader::manager()->get("shader");
+			mProgram = Shader::manager()->get("data/pbr");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

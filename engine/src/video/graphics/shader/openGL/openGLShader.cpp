@@ -97,10 +97,13 @@ namespace rev {
 				std::cout << "Error: Unable to open shader file \"" << _fileName << "\"\n";
 				return 0;
 			}
-			const char * code[1];
-			code[0] = shaderFile->bufferAsText();
+			char vtxDefine[] = "#define VERTEX_SHADER";
+			char frgDefine[] = "#define FRAGMENT_SHADER";
+			const char * code[2];
+			code[0] = (_type == GL_VERTEX_SHADER)?vtxDefine:frgDefine;
+			code[1] = shaderFile->bufferAsText();
 			logGlErrors();
-			glShaderSource(shaderId, 1, code, 0); // Attach source
+			glShaderSource(shaderId, 2, code, 0); // Attach source
 			logGlErrors();
 			glCompileShader(shaderId); // Compile
 			logGlErrors();
@@ -141,31 +144,31 @@ namespace rev {
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
-		OpenGLShader* OpenGLShader::loadFromFiles(const std::string& _vtxName, const std::string& _pxlName) {
-			unsigned vtx = createShader(_vtxName.c_str(), GL_VERTEX_SHADER);
+		OpenGLShader* OpenGLShader::loadFromFile(const std::string& _fileName) {
+			unsigned vtx = createShader(_fileName.c_str(), GL_VERTEX_SHADER);
 			if (!vtx) {
-				std::cout << "Error creating vertex shader from " << _vtxName << "\n";
+				std::cout << "Error creating vertex shader from " << _fileName << "\n";
 				return nullptr; // Failure
 			}
-			unsigned pxl = createShader(_pxlName.c_str(), GL_FRAGMENT_SHADER);
+			unsigned pxl = createShader(_fileName.c_str(), GL_FRAGMENT_SHADER);
 			if (!pxl) {
-				std::cout << "Error creating pixel shader from " << _pxlName << "\n";
+				std::cout << "Error creating pixel shader from " << _fileName << "\n";
 				return nullptr; // Failure
 			}
 			return new OpenGLShader(vtx,pxl);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
-		void OpenGLShader::loadFromFiles(const std::string& _vtxName, const std::string& _pxlName, OpenGLShader& _dst) {
-			unsigned vtx = createShader(_vtxName.c_str(), GL_VERTEX_SHADER);
+		void OpenGLShader::loadFromFile(const std::string& _fileName, OpenGLShader& _dst) {
+			unsigned vtx = createShader(_fileName.c_str(), GL_VERTEX_SHADER);
 			if (!vtx) {
-				std::cout << "Error creating vertex shader from " << _vtxName << "\n";
+				std::cout << "Error creating vertex shader from " << _fileName << "\n";
 				new(&_dst)OpenGLShader(); // Failure
 				return;
 			}
-			unsigned pxl = createShader(_pxlName.c_str(), GL_FRAGMENT_SHADER);
+			unsigned pxl = createShader(_fileName.c_str(), GL_FRAGMENT_SHADER);
 			if (!pxl) {
-				std::cout << "Error creating pixel shader from " << _pxlName << "\n";
+				std::cout << "Error creating pixel shader from " << _fileName << "\n";
 				new(&_dst)OpenGLShader(); // Failure
 				return;
 			}

@@ -56,25 +56,21 @@ namespace rev {
 			assert(res == GLEW_OK);
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
-				OpenGLShader* shader = OpenGLShader::loadFromFiles(vtxName, pxlName);
+				string sourceFileName = _name + ".glsl";
+				OpenGLShader* shader = OpenGLShader::loadFromFile(sourceFileName);
 				if (shader) {
 					auto refreshShader = [=](const string&) {
 						// Recreate shader
 						shader->~OpenGLShader();
-						OpenGLShader::loadFromFiles(vtxName, pxlName, *shader);
+						OpenGLShader::loadFromFile(sourceFileName, *shader);
 					};
-					FileSystem::get()->onFileChanged(pxlName) += refreshShader;
-					FileSystem::get()->onFileChanged(vtxName) += refreshShader;
+					FileSystem::get()->onFileChanged(sourceFileName) += refreshShader;
 				}
 				return shader;
 			});
 			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
-				string pxlName = _name + ".pxl";
-				string vtxName = _name + ".vtx";
+				string pxlName = _name + ".glsl";
 				FileSystem::get()->onFileChanged(pxlName).clear();
-				FileSystem::get()->onFileChanged(vtxName).clear();
 			});
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
