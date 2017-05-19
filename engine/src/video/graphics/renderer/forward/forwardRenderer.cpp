@@ -25,7 +25,7 @@ namespace rev {
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(_driver);
-			mProgram = Shader::manager()->get("data/pbr");
+			mProgram = Shader::manager()->get("data\\pbr");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ namespace rev {
 			RendererBackEnd::DrawCall	draw;
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
-			Vec3f globalLightDir = (Vec3f(1.0,1.0,-1.0)).normalized();
+			Vec3f globalLightDir = (Vec3f(1.f,1.f,-2.f)).normalized();
 			Vec3f viewPos = _cam.node()->position();
-			drawInfo.lightClr = Vec3f(1.f);
+			drawInfo.lightClr = Vec3f(1.f,1.f,0.9f)*1000.f;
 			// Camera
 			Mat34f invView;
 			_cam.view().inverse(invView);

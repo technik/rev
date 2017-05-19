@@ -10,6 +10,7 @@
 #include "openGLDriverWindows.h"
 #include <video/window/window.h>
 #include <core/platform/osHandler.h>
+#include <core/platform/fileSystem/file.h>
 #include <string>
 #include <gl/GL.h>
 #include <core/platform/fileSystem/fileSystem.h>
@@ -61,7 +62,7 @@ namespace rev {
 				if (shader) {
 					auto refreshShader = [=](const string&) {
 						// Recreate shader
-						shader->~OpenGLShader();
+						//shader->~OpenGLShader();
 						OpenGLShader::loadFromFile(sourceFileName, *shader);
 					};
 					FileSystem::get()->onFileChanged(sourceFileName) += refreshShader;

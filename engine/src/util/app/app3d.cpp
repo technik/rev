@@ -67,7 +67,7 @@ namespace rev {
 		float dt = core::Time::get()->frameTime();
 		if(frame(dt)) {
 			postFrame();
-			mProfiler.update(dt);
+			//mProfiler.update(dt);
 			return true;
 		}
 		return false;

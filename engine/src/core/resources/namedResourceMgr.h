@@ -53,6 +53,13 @@ namespace rev {
 				return resIterator->second;
 			}
 
+			void release(const std::string& _key) {
+				auto resIterator = mResources.find(_key);
+				if (resIterator == mResources.end()) {
+					mResources.erase(resIterator);
+				}
+			}
+
 		private:
 
 			std::map<std::string, Ptr>	mResources;
