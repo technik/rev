@@ -48,19 +48,19 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void FlyBySrc::setPosition(const math::Vec3f& _position) {
-			TransformSrc::setPosition(_position, CoordinateSystem::global);
+			TransformSrc::setWorldPosition(_position);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void FlyBySrc::moveLocal(const math::Vec3f& _translation) {
-			TransformSrc::setPosition(position() + transform().rotate(_translation), TransformSrc::local);
+			TransformSrc::setPosition(position() + transform().rotate(_translation));
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		void FlyBySrc::rotate(const math::Vec3f& _axis, float _angle)
 		{
 			math::Quatf turn = math::Quatf(_axis, _angle);
-			setRotation(turn * rotation(), TransformSrc::global);
+			setWorldRotation(turn * rotation());
 		}
 
 	}	// namespace game
