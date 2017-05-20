@@ -38,8 +38,7 @@ namespace rev {
 			}
 
 			void setViewProj(const math::Mat34f& _view, const math::Mat44f& _proj) {
-				math::Mat34f invView;
-				_view.inverse(invView);
+				math::Mat34f invView = _view.inverse();
 				mVp = _proj * invView; 
 			}
 
