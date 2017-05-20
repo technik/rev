@@ -22,7 +22,8 @@ namespace rev {
 				,mLocalTransform(math::Mat34f::identity())
 			{
 			}
-			virtual ~TransformSrc() {}
+			// Deletes all children too
+			virtual ~TransformSrc();
 
 			// Accessors for local coordinates
 			const	math::Vec3f&	position	()	const;
@@ -30,36 +31,29 @@ namespace rev {
 			const	math::Mat34f&	transform	()	const;
 
 			// Accessors for local coordinates
-			const	math::Vec3f&	worldPosition	()	const;
-			const	math::Quatf&	worldRotation	()	const;
-			const	math::Mat34f&	worldTransform	()	const;
+			math::Vec3f		worldPosition	()	const;
+			math::Quatf		worldRotation	()	const;
+			math::Mat34f	worldTransform	()	const;
 
 			// Hierarchy traversal
 			TransformSrc*	parent		()	const;
 			unsigned		nChildren	()	const;
 			TransformSrc*	child		(unsigned _pos);
+
 			void			attachTo	(TransformSrc* _parent);
+			void			addChild	(TransformSrc* _child);
 			void			dettach		();
 
 		protected:
-			enum CoordinateSystem {
-				local,
-				global
-			};
-
 			// Interface for derived classes to update source's state
-			void			setRotation			(const math::Quatf& _rotation);
 			void			setPosition			(const math::Vec3f& _position);
+			void			setRotation			(const math::Quatf& _rotation);
 			void			setTransform		(const math::Mat34f& _transform);
 			void			setWorldPosition	(const math::Vec3f& _position);
 			void			setWorldRotation	(const math::Quatf& _rotation);
 			void			setWorldTransform	(const math::Mat34f& _transform);
 
 		private:
-			// Methods for internal use
-			void			refreshChildren	() const;
-			void			refreshWorld	();
-
 			// Internal data
 			math::Mat34f				mLocalTransform;
 			TransformSrc*				mParent;
@@ -70,8 +64,10 @@ namespace rev {
 		// Inline methods
 		//--------------------------------------------------------------------------------------------------------------
 		inline const math::Vec3f&	TransformSrc::position	() const { return mLocalTransform.col(3); }
-		inline const math::Quatf&	TransformSrc::rotation	() const { return Quatf(mLocalTransform); }
+		inline const math::Quatf&	TransformSrc::rotation	() const { return math::Quatf(mLocalTransform); }
 		inline const math::Mat34f&	TransformSrc::transform	() const { return mLocalTransform; }
+		inline math::Vec3f			TransformSrc::worldPosition() const { return worldTransform().col(3); }
+		inline math::Quatf			TransformSrc::worldRotation() const { return math::Quatf(worldTransform()); }
 		inline TransformSrc*		TransformSrc::parent	()	const { return mParent;  }
 		inline unsigned				TransformSrc::nChildren	()	const { return mChildren.size(); }
 		inline TransformSrc*		TransformSrc::child		(unsigned _pos) { return mChildren[_pos]; }

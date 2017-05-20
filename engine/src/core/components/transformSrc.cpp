@@ -10,23 +10,45 @@ using std::vector;
 
 namespace rev {
 	namespace core {
+
+		//--------------------------------------------------------------------------------------------------------------
+		TransformSrc::~TransformSrc() {
+			for(auto child : mChildren)
+				delete child;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		Mat34f TransformSrc::worldTransform() const {
+			Mat34f wt = mLocalTransform;
+			TransformSrc* parent = mParent;
+			while (parent) {
+				wt = parent->mLocalTransform * wt; // Update matrix to parent coordinates
+				parent = parent->mParent;
+			}
+			return wt;
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		void TransformSrc::attachTo(TransformSrc* _parent) {
 			dettach();
 			mParent = _parent;
 			if (!mParent)
 				return;
-			Mat34f parentInvTransform;
-			mParent->mWorldTrans.inverse(parentInvTransform);
-			mLocalPos = parentInvTransform * mWorldPos;
-			mLocalRot = mParent->mWorldRot.inverse() * mWorldRot;
+			Mat34f parentInvTransform = mParent->worldTransform().inverse();
+			mLocalTransform = parentInvTransform * mLocalTransform;
 			mParent->mChildren.push_back(this);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void TransformSrc::addChild(TransformSrc* _child) {
+			_child->attachTo(this);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void TransformSrc::dettach() {
 			if (mParent)
 			{
+				// Remove from parent's children list
 				for (auto i = mParent->mChildren.begin(); i != mParent->mChildren.end(); ++i)
 				{
 					if ((*i) == this)
@@ -35,98 +57,51 @@ namespace rev {
 						break;
 					}
 				}
-				TransformSrc * oldParent = mParent;
+				// Collapse transform
+				mLocalTransform = mParent->worldTransform() * mLocalTransform;
 				mParent = nullptr;
-				Mat34f parentTrans = oldParent->mWorldTrans;
-				setPosition(oldParent->mWorldTrans * mLocalPos, global);
-				setRotation(oldParent->mWorldRot * mLocalRot, global);
 			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setPosition(const Vec3f& _pos, TransformSrc::CoordinateSystem _base) {
+		void TransformSrc::setPosition(const Vec3f& _pos) {
+			mLocalTransform.setCol(3, _pos);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void TransformSrc::setRotation(const Quatf& _rot) {
+			mLocalTransform = Mat34f(_rot, position());
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void TransformSrc::setTransform(const Mat34f& _trans) {
+			mLocalTransform = _trans;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void TransformSrc::setWorldPosition(const Vec3f& _pos) {
+			if (mParent)
+				setPosition(mParent->worldTransform().inverse() * _pos);
+			else
+				setPosition(_pos);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void TransformSrc::setWorldRotation(const Quatf& _rot) {
 			if(mParent) {
-				if (_base == local) {
-					setWorldPos(_pos);
-					Mat34f parentInvTransform;
-					mParent->mWorldTrans.inverse(parentInvTransform);
-					setLocalPos(parentInvTransform * _pos);
-				}
-				else {
-					setLocalPos(_pos);
-					setWorldPos(mParent->mWorldTrans * _pos);
-				}
+				Mat34f worldTrans(_rot, worldPosition());
+				setTransform(mParent->transform().inverse() * worldTrans);
 			}
-			else {
-				setWorldPos(_pos);
-				setLocalPos(_pos);
-			}
-			refreshChildren();
+			else
+				setRotation(_rot);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setRotation(const Quatf& _rot, TransformSrc::CoordinateSystem _base) {
-			if (mParent) {
-				if (_base == global) {
-					setWorldRot(_rot);
-					setLocalRot(mParent->mWorldRot.inverse() * _rot);
-				}
-				else {
-					setLocalRot(_rot);
-					setWorldRot(mParent->mWorldRot * _rot);
-				}
-			}
-			else {
-				setWorldRot(_rot);
-				setLocalRot(_rot);
-			}
-			refreshChildren();
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setTransform(const Mat34f& _trans, TransformSrc::CoordinateSystem _base) {
-			mWorldTrans = _trans;
-			Vec3f pos(_trans[0][3], _trans[1][3], _trans[2][3]);
-			Quatf rot(_trans);
-			setRotation(rot, _base);
-			setPosition(pos, _base);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::refreshChildren() const {
-			for(auto child : mChildren)
-				child->refreshWorld();
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::refreshWorld() {
-			setWorldPos(mParent->mWorldTrans * mLocalPos);
-			setWorldRot(mParent->mWorldRot * mLocalRot);
-			refreshChildren();
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setWorldPos(const Vec3f& _pos) {
-			mWorldPos = _pos;
-			mWorldTrans[0][3] = _pos.x;
-			mWorldTrans[1][3] = _pos.y;
-			mWorldTrans[2][3] = _pos.z;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setLocalPos(const Vec3f& _pos) {
-			mLocalPos = _pos;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setWorldRot(const Quatf& _rot) {
-			mWorldRot = _rot;
-			mWorldTrans = Mat34f(_rot, mWorldPos);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void TransformSrc::setLocalRot(const Quatf& _rot) {
-			mLocalRot = _rot;
+		void TransformSrc::setWorldTransform(const math::Mat34f& _transform) {
+			if(mParent)
+				setTransform(mParent->transform().inverse() * _transform);
+			else
+				setTransform(_transform);
 		}
 
 	}	// namespace core
