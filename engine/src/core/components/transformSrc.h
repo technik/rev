@@ -26,8 +26,8 @@ namespace rev {
 			virtual ~TransformSrc();
 
 			// Accessors for local coordinates
-			const	math::Vec3f&	position	()	const;
-			const	math::Quatf&	rotation	()	const;
+					math::Vec3f		position	()	const;
+					math::Quatf		rotation	()	const;
 			const	math::Mat34f&	transform	()	const;
 
 			// Accessors for local coordinates
@@ -63,8 +63,8 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		// Inline methods
 		//--------------------------------------------------------------------------------------------------------------
-		inline const math::Vec3f&	TransformSrc::position	() const { return mLocalTransform.col(3); }
-		inline const math::Quatf&	TransformSrc::rotation	() const { return math::Quatf(mLocalTransform); }
+		inline math::Vec3f			TransformSrc::position	() const { return mLocalTransform.col(3); }
+		inline math::Quatf			TransformSrc::rotation	() const { return math::Quatf(mLocalTransform); }
 		inline const math::Mat34f&	TransformSrc::transform	() const { return mLocalTransform; }
 		inline math::Vec3f			TransformSrc::worldPosition() const { return worldTransform().col(3); }
 		inline math::Quatf			TransformSrc::worldRotation() const { return math::Quatf(worldTransform()); }

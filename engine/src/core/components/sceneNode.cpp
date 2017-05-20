@@ -11,44 +11,19 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::move(const math::Vec3f& _translation) {
-			setPosition(position() + _translation, TransformSrc::global);
+			setPosition(position() + transform().rotate(_translation));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void SceneNode::moveLocal(const math::Vec3f& _translation) {
-			setPosition(position() + transform().rotate(_translation), TransformSrc::local);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void SceneNode::setPos(const math::Vec3f& _pos) {
-			setPosition(_pos, TransformSrc::global);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void SceneNode::setPosLocal(const math::Vec3f& _pos) {
-			setPosition(_pos, TransformSrc::local);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void SceneNode::setRot(const math::Quatf& _rot) {
-			setRotation(_rot, TransformSrc::global);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void SceneNode::setRotLocal(const math::Quatf& _rot) {
-			setRotation(_rot, TransformSrc::local);
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		void SceneNode::setTransform(const math::Mat34f& _m) {
-			TransformSrc::setTransform(_m, TransformSrc::global);
+		void SceneNode::moveWorld(const math::Vec3f& _translation) {
+			setWorldPosition(position() + _translation);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		void SceneNode::rotate(const math::Vec3f& _axis, float _angle)
 		{
 			math::Quatf turn = math::Quatf(_axis, _angle);
-			setRotation(turn * rotation(), TransformSrc::global);
+			setWorldRotation(turn * rotation());
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
