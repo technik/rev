@@ -146,19 +146,21 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
-		inline void Matrix3x4<Number_>::inverse(Matrix3x4<Number_>& _dst) const
+		inline Matrix3x4<Number_> Matrix3x4<Number_>::inverse() const
 		{
 			// Affine transformation's inverse
 			//     | A ··· b |         | A^-1 ··· -(A^-1)b |
 			// m = | 0 ··· 1 |, m^-1 = |  0   ···     1    |
 			// Since A is indeed orthonormal, A^-1 = transpose(A)
+			Matrix3x4<Number_> dst;
 			for (unsigned int row = 0; row < 3; ++row)
 			{
-				Vector4<Number_>& dstRow = _dst[row];
+				Vector4<Number_>& dstRow = dst[row];
 				for (unsigned int col = 0; col < 3; ++col)
 					dstRow[col] = m[col][row]; // Transpose the core matrix
 				dstRow[3] = -(dstRow[0] * m[0][3] + dstRow[1] * m[1][3] + dstRow[2] * m[2][3]); // Invert the translation
 			}
+			return dst;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

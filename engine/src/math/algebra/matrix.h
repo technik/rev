@@ -61,7 +61,7 @@ namespace rev {
 			Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
 			Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
 			Matrix3x4<Number_>	operator*	(const Matrix3x4&) const;
-			void				inverse(Matrix3x4<Number_>& _dst) const; // Matrix is treated like an affine transform
+			Matrix3x4<Number_>	inverse() const;
 			Vector3<Number_>	rotate(const Vector3<Number_>&) const;
 
 			// Useful matrices
