@@ -13,20 +13,70 @@ uniform vec3 	uLightClr;
 varying vec3 vNormal;
 varying vec3 vViewDir;
 
-vec3 lightClr = vec3(1);
+vec3 lightClr = vec3(1,1,0.9);
+
+float PI = 3.14159;
+
+float DistributionGGX(float ndh, float a)
+{
+    float a2     = a*a;
+    float ndh2 = ndh*ndh;
+	
+    float nom    = a2;
+    float denom  = (ndh2 * (a2 - 1.0) + 1.0);
+    denom        = PI * denom * denom;
+	
+    return nom / denom;
+}
+
+float GeometrySchlickGGX(float ndv, float k)
+{
+    float nom   = ndv;
+    float denom = ndv * (1.0 - k) + k;
+	
+    return nom / denom;
+}
+  
+float GeometrySmith(float ndv, float ndl, float k)
+{
+    float ggx1 = GeometrySchlickGGX(ndv, k);
+    float ggx2 = GeometrySchlickGGX(ndl, k);
+	
+    return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float ndv, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - ndv, 5.0);
+}
 
 vec4 fragment_shader() {
-	float reflective = 1.0;
-	vec3 albedo = vec3(0.8,0.8,0.8);
+	vec3 albedo = vec3(0.8,0.8,0.9);
+	float reflectivity = 0.9;
+	float metalness = 1.0;
+	float roughness = 0.1;
+	// Tint reflections for metals
+	vec3 F0 = mix(vec3(reflectivity), albedo, metalness);
+	//// BRDF params
 	vec3 normal = normalize(vNormal);
 	vec3 halfV = -normalize(uLightDir + vViewDir);
-	float spec = max(0.0, dot(halfV, normal));
-	spec *= spec;
-	spec *= spec * reflective;
-	float diff = max(0.0, dot(-uLightDir, normal));
-	diff *= 1-reflective;
-	vec3 color = lightClr * ((albedo*diff)+vec3(spec));
-	return vec4(color , 1.0);
+	float ndh = max(0.0, dot(halfV, normal));
+	float ndl = max(0.0, dot(-uLightDir, normal));
+	float ndv = max(0.0, dot(-vViewDir, normal));
+	// Specular
+	vec3 Fs = fresnelSchlick(ndv, F0);
+	float NDF = DistributionGGX(ndh, roughness);
+	float G = GeometrySmith(ndv, ndl, roughness);
+	
+	vec3 Ks = Fs;
+	vec3 Kd = vec3(1)-Ks;
+	Kd *= 1-metalness;
+	
+	vec3 nom = NDF * G * Fs;
+	float den = 1.0/(4*ndv*ndl*1.0);
+	vec3 spec = nom * den;
+	vec3 L0 = (Kd*albedo / PI + spec) * lightClr * ndl;
+	return vec4(L0, 1.0);
 }
 
 // ----- Vertex shader -----
