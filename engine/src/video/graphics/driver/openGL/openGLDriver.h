@@ -59,6 +59,7 @@ namespace rev {
 			void		setMultiSampling(bool _enable);
 #endif //!ANDROID
 
+			void		beginFrame() { glFinish(); }
 			void		finishFrame();
 
 			// --- Vertex config and surface config ---
