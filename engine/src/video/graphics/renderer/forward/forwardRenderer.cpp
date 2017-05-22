@@ -62,6 +62,9 @@ namespace rev {
 				else
 					drawInfo.vec3Uniforms.push_back({"uAlbedo", Vec3f(1.f, 0.f, 0.5f)});
 
+				if (obj->material && obj->material->physics)
+					drawInfo.texUniforms.push_back({ "uPhysicsMap", obj->material->physics });
+
 				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
 			}

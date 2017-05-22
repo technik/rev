@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #define USE_GAMMA_CORRECTION
 #define ALBEDO_MAP
+#define PHYSICS_MAP
 // ----- Common code -----
 // Uniforms
 uniform	mat4	uWorldViewProj;
@@ -15,11 +16,21 @@ varying vec3 vNormal;
 varying vec3 vViewDir;
 
 #ifdef ALBEDO_MAP
+#define USE_UV0
 uniform sampler2D uAlbedoMap;
-varying vec2 vUV0;
 #else // !ALBEDO_MAP
 uniform vec3 uAlbedo;
 #endif // !ALBEDO_MAP
+#ifdef PHYSICS_MAP
+#define USE_UV0
+uniform sampler2D uPhysicsMap;
+#else // !PHYSICS_MAP
+float roughness = 0.1;
+#endif // !PHYSICS_MAP
+
+
+varying vec2 vUV0;
+
 
 vec3 lightClr = vec3(1,1,0.9);
 
@@ -60,8 +71,13 @@ vec3 fresnelSchlick(float ndv, vec3 F0)
 
 vec4 fragment_shader(vec3 albedo) {
 	float reflectivity = 0.9;
-	float metalness = 0.01;
-	float roughness = 0.1;
+#ifdef PHYSICS_MAP
+	vec2 phy = texture(uPhysicsMap, vUV0).xz;
+	float roughness = phy.x;
+	float metalness = phy.y;
+#else
+	float metalness = 0.1;
+#endif // PHYSICS_MAP
 	// Tint reflections for metals
 	vec3 F0 = mix(vec3(reflectivity), albedo, metalness);
 	//// BRDF params
@@ -91,13 +107,17 @@ vec4 fragment_shader(vec3 albedo) {
 // Attributes
 attribute vec3 vertex;
 attribute vec3 normal;
+#ifdef USE_UV0
 attribute vec2 uv;
+#endif // USE_UV0
 
 void main ( void )
 {
 	vNormal = normal;
 	vViewDir = normalize(vertex - uViewPos);
+#ifdef USE_UV0
 	vUV0 = uv;
+#endif // USE_UV0
 	gl_Position = uWorldViewProj * vec4(vertex, 1.0);
 }
 #endif // VERTEX_SHADER

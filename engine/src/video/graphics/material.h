@@ -20,6 +20,7 @@ namespace rev {
 			Shader::Ptr shader;
 
 			Texture* albedo;
+			Texture* physics;
 		};
 	}
 }

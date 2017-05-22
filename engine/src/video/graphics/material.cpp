@@ -20,6 +20,7 @@ namespace rev {
 				return nullptr;
 			Material* m = new Material;
 			m->albedo = Texture::loadFromFile((string)materialData["albedoMap"]);
+			m->physics = Texture::loadFromFile((string)materialData["physicsMap"]);
 			return m;
 		}
 } }

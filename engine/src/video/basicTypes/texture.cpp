@@ -88,8 +88,9 @@ namespace rev {
 			else
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint)_desc.repeat);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint)_desc.repeat);
+			GLint repeatMode = _desc.repeat?GL_REPEAT:GL_CLAMP;
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeatMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeatMode);
 
 			// Load mipmaps
 			constexpr int borderSize = 0;
