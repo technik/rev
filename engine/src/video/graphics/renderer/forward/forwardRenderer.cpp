@@ -11,9 +11,9 @@
 #include <video/graphics/renderScene.h>
 #include <video/graphics/renderObj.h>
 #include <video/graphics/staticRenderMesh.h>
+#include <video/graphics/material.h>
 //#include "../renderMesh.h"
 //#include "../../renderObj.h"
-//#include <video/graphics/renderer/material.h>
 //#include <video/graphics/renderer/types/renderTarget.h>
 
 using namespace rev::math;
@@ -26,6 +26,7 @@ namespace rev {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(_driver);
 			mProgram = Shader::manager()->get("data\\pbr");
+			mSkyboxShader = Shader::manager()->get("data\\skybox");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -56,11 +57,27 @@ namespace rev {
 				drawInfo.wvp = viewProj * modelMatrix;
 				drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
 				drawInfo.viewPos = invModelMtx * viewPos;
+				if(obj->material && obj->material->albedo)
+					drawInfo.texUniforms.push_back({"uAlbedoMap", obj->material->albedo});
+				else
+					drawInfo.vec3Uniforms.push_back({"uAlbedo", Vec3f(1.f, 0.f, 0.5f)});
 
 				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
 			}
+			// Draw skybox cubemap
+			drawSkyboxCubemap(_cam);
 			mBackEnd->flush();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::drawSkyboxCubemap(const Camera& _cam) const {
+			RendererBackEnd::DrawInfo cubeMapInfo;
+			cubeMapInfo.program = mSkyboxShader;
+			Mat34f centeredView = _cam.view();
+			centeredView.setCol(3, Vec3f(0));
+			cubeMapInfo.wvp = _cam.projection() * centeredView.inverse();
+			mBackEnd->drawSkybox(cubeMapInfo);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

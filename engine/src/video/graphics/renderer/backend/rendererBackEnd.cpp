@@ -34,10 +34,37 @@ namespace rev {
 			int uViewPos = mDriver->getUniformLocation("uViewPos");
 			mDriver->setUniform(uViewPos, info.viewPos);
 
+			for (const auto& map : info.texUniforms) {
+				int uLoc = mDriver->getUniformLocation(map.name.c_str());
+				if (uViewPos >= 0) {
+					mDriver->setUniform(uLoc, map.value);
+				}
+			}
+
+			for (const auto& map : info.vec3Uniforms) {
+				int uLoc = mDriver->getUniformLocation(map.name.c_str());
+				if (uViewPos >= 0) {
+					mDriver->setUniform(uLoc, map.value);
+				}
+			}
+
 			// Actual draw
 			StaticRenderMesh* mesh = _dc.mesh;
 			glBindVertexArray(mesh->vao);
 			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::drawSkybox(const DrawInfo& _info) {
+			if (!mSkyBox) {
+				mSkyBox = game::Procedural::box(Vec3f(100.f));
+			}
+			DrawCall dc;
+			dc.renderStateInfo = _info;
+			dc.mesh = mSkyBox;
+			glDisable(GL_CULL_FACE);
+			draw(dc);
+			glEnable(GL_CULL_FACE);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

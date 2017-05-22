@@ -9,6 +9,7 @@
 #include <vector>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
+#include <video/basicTypes/texture.h>
 
 namespace rev {
 	namespace video {
@@ -26,6 +27,11 @@ namespace rev {
 			void render(const std::vector<RenderObj*>& _scene, const Camera& _cam) const;
 
 		private:
+			void drawSkyboxCubemap(const Camera& _cam) const;
+
+			Texture*			mSkybox;
+			Shader::Ptr			mSkyboxShader;
+
 			GraphicsDriver*		mDriver = nullptr;
 			RendererBackEnd*	mBackEnd = nullptr;
 			Shader::Ptr			mProgram = nullptr;

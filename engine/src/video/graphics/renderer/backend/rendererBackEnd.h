@@ -10,17 +10,18 @@
 #include <cstdint>
 
 
+#include <game/geometry/procedural/basic.h>
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
-
-//#include <video/basicTypes/color.h>
+#include <vector>
 
 namespace rev {
 	namespace video {
 
 		struct StaticRenderMesh;
+		class Texture;
 
 		class RendererBackEnd {
 		public:
@@ -30,6 +31,15 @@ namespace rev {
 				math::Vec3f		lightClr;
 				math::Vec3f		viewPos;
 				math::Mat44f	wvp; // Model view projection
+
+				template<typename Type_>
+				struct Uniform {
+					std::string name;
+					Type_ value;
+				};
+
+				std::vector<Uniform<math::Vec3f>>	vec3Uniforms;
+				std::vector<Uniform<Texture*>>		texUniforms;
 			};
 
 			struct DrawCall {
@@ -40,9 +50,11 @@ namespace rev {
 
 			RendererBackEnd(GraphicsDriver* _driver) : mDriver(_driver) {}
 			void draw(const DrawCall&);
+			void drawSkybox(const DrawInfo&);
 			void flush();
 
 		private:
+			StaticRenderMesh* mSkyBox = nullptr;
 			GraphicsDriver* mDriver = nullptr;
 		};
 

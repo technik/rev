@@ -57,7 +57,7 @@ namespace rev {
 			Texture(const math::Vec2u& _size, InternalFormat _if, bool _multiSample = false);
 			~Texture();
 
-			static Texture* load(const std::string& _fileName, GraphicsDriver* _driver);
+			static Texture* load(const std::string& _fileName);
 
 			// Texture options
 			// Set wrapping

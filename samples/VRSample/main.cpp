@@ -8,6 +8,7 @@
 #include <iostream>
 #include <game/scene/scene.h>
 #include <video/basicTypes/camera.h>
+#include <video/graphics/material.h>
 #include <video/graphics/renderObj.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/staticRenderMesh.h>
@@ -31,7 +32,10 @@ public:
 		// Component factories
 		mGameScene.registerFactory("RenderObj", [](const cjson::Json& _data) {
 			string fileName = _data["file"];
-			return new RenderObj(StaticRenderMesh::loadFromFile(fileName));
+			RenderObj* obj = new RenderObj(StaticRenderMesh::loadFromFile(fileName));
+			string materialName = _data["material"];
+			obj->material = Material::loadFromFile(materialName);
+			return obj;
 		});
 		mGameScene.registerFactory("Camera", [](const cjson::Json& _data) {
 			float fov = (float)_data["fov"];
@@ -40,6 +44,7 @@ public:
 			return new Camera(fov, nearPlane, farPlane);
 		});
 		mGameScene.load(mSceneName);
+
 	}
 
 	~VRSample() {

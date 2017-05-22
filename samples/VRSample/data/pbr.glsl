@@ -2,6 +2,7 @@
 // Unified PBR shader
 //----------------------------------------------------------------------------------------------------------------------
 #define USE_GAMMA_CORRECTION
+#define ALBEDO_MAP
 // ----- Common code -----
 // Uniforms
 uniform	mat4	uWorldViewProj;
@@ -12,6 +13,13 @@ uniform vec3 	uLightClr;
 // Varyings
 varying vec3 vNormal;
 varying vec3 vViewDir;
+
+#ifdef ALBEDO_MAP
+uniform sampler2D uAlbedoMap;
+varying vec2 vUV0;
+#else // !ALBEDO_MAP
+uniform vec3 uAlbedo;
+#endif // !ALBEDO_MAP
 
 vec3 lightClr = vec3(1,1,0.9);
 
@@ -50,10 +58,9 @@ vec3 fresnelSchlick(float ndv, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - ndv, 5.0);
 }
 
-vec4 fragment_shader() {
-	vec3 albedo = vec3(0.8,0.8,0.9);
-	float reflectivity = 0.9;
-	float metalness = 1.0;
+vec4 fragment_shader(vec3 albedo) {
+	float reflectivity = 0.49;
+	float metalness = 0.01;
 	float roughness = 0.1;
 	// Tint reflections for metals
 	vec3 F0 = mix(vec3(reflectivity), albedo, metalness);
@@ -84,20 +91,29 @@ vec4 fragment_shader() {
 // Attributes
 attribute vec3 vertex;
 attribute vec3 normal;
+attribute vec2 uv;
 
 void main ( void )
 {
 	vNormal = normal;
 	vViewDir = normalize(vertex - uViewPos);
+	vUV0 = uv;
 	gl_Position = uWorldViewProj * vec4(vertex, 1.0);
 }
 #endif // VERTEX_SHADER
 
 // ----- Fragment shader -----
 #ifdef FRAGMENT_SHADER
+
 void main (void) {
+#ifdef ALBEDO_MAP
+	vec3 albedo = texture(uAlbedoMap, vUV0).xyz;
+#else //!ALBEDO_MAP
+	vec3 albedo = uAlbedo;
+#endif // !ALBEDO_MAP
+	
 #ifdef USE_GAMMA_CORRECTION
-	vec4 linearColor = max(fragment_shader(), vec4(0));
+	vec4 linearColor = max(fragment_shader(albedo), vec4(0));
 	vec3 gammaColor = pow(linearColor.xyz, vec3(0.4545));
 	gl_FragColor = vec4(gammaColor, linearColor.a);
 #else

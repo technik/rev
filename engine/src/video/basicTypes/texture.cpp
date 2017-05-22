@@ -85,7 +85,7 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		Texture* Texture::load(const std::string& _fileName, GraphicsDriver* _driver){
+		Texture* Texture::load(const std::string& _fileName){
 			auto fIFormat = FreeImage_GetFIFFromFilename(_fileName.c_str());
 			int flags = 0;
 			if(fIFormat == FIF_JPEG)
