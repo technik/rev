@@ -52,19 +52,11 @@ namespace rev {
 			};
 
 		public:
-			Texture(const math::Vec2u& _size, InternalFormat _targetFormat, SourceFormat _srcFormat, uint8_t* _data);
-			// Empty texture
+			// Empty texture, use this for render targets
 			Texture(const math::Vec2u& _size, InternalFormat _if, bool _multiSample = false);
 			~Texture();
 
-			static Texture* load(const std::string& _fileName);
-
-			// Texture options
-			// Set wrapping
-			// Set filtering
-			// Set mipmaping
-			void enableMipMaps	();
-			void generateMipMaps();
+			static Texture* loadFromFile(const std::string& _fileName);
 
 			bool	multiSample	() const { return mMultiSample; }
 			GLuint	glId		() const { return mId; }
@@ -72,6 +64,32 @@ namespace rev {
 			const math::Vec2u& size() const { return mSize; }
 
 		private:
+			struct ImageBuffer{
+				uint8_t* data = nullptr;
+				math::Vec2u size;
+				SourceFormat fmt;
+			};
+
+
+			enum class FilterMode {
+				nearest = GL_NEAREST,
+				linear = GL_LINEAR,
+			};
+
+			struct TextureInfo {
+				InternalFormat gpuFormat;
+				bool genMips;
+				bool repeat;
+				FilterMode filter;
+				math::Vec2u size;
+			} mInfo;
+
+
+			static FilterMode filterMode(const std::string&);
+			static InternalFormat colorBufferFormat(const std::string&);
+			static bool loadBuffer(const std::string& _fileName, ImageBuffer& _buff);
+			Texture(const TextureInfo&, const ImageBuffer* _buffArray, size_t _nMips);
+
 			math::Vec2u mSize;
 			GLuint mId = 0;
 			bool mMultiSample = false;

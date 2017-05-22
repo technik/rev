@@ -19,7 +19,7 @@ namespace rev {
 			if(!materialData.parse(ifstream(_fileName)))
 				return nullptr;
 			Material* m = new Material;
-			m->albedo = Texture::load((string)materialData["albedoMap"]);
+			m->albedo = Texture::loadFromFile((string)materialData["albedoMap"]);
 			return m;
 		}
 } }

@@ -59,7 +59,7 @@ vec3 fresnelSchlick(float ndv, vec3 F0)
 }
 
 vec4 fragment_shader(vec3 albedo) {
-	float reflectivity = 0.49;
+	float reflectivity = 0.9;
 	float metalness = 0.01;
 	float roughness = 0.1;
 	// Tint reflections for metals
