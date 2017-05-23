@@ -53,6 +53,8 @@ namespace rev {
 				}
 			}
 
+			static SceneNode* construct(const cjson::Json&);
+
 		private:
 			std::string				mName;
 			std::vector<Component*>	mComponents;

@@ -32,6 +32,7 @@ namespace rev {
 		video::Window* mainWindow() const;
 
 	private:
+		static void registerDataFactories();
 		video::Window*			mMainWindow = nullptr;
 
 	private:

@@ -41,7 +41,7 @@ namespace rev { namespace game {
 		sceneRoot->attachTo(mSceneGraph.front());
 		mSceneGraph.push_back(sceneRoot);
 		for (const auto& nodeData : sceneGraph) {
-			createSceneNode(nodeData, sceneRoot);
+			sceneRoot->addChild(TransformSrc::construct(nodeData));
 		}
 		return true;
 	}
@@ -76,31 +76,6 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------
 	void Scene::registerFactory(const std::string& _type, Scene::Factory _factory) {
 		mFactories[_type] = _factory;
-	}
-
-	//----------------------------------------------------------------------------------------
-	void Scene::createSceneNode(const Json& _nodeData, SceneNode* _parent) {
-		// Add node to the scene graph
-		SceneNode* newNode = new SceneNode(_nodeData["name"]);
-		mSceneGraph.push_back(newNode);
-		newNode->attachTo(_parent);
-		// set transform
-		if (_nodeData.contains("pos")) {
-			const Json& pos = _nodeData["pos"];
-			newNode->setPos(Vec3f(pos(0), pos(1), pos(2)));
-		}
-		if (_nodeData.contains("rot")) {
-			const Json& rot = _nodeData["rot"];
-			Vec3f rotAxis = Vec3f(rot(0), rot(1), rot(2));
-			Quatf quat = Quatf(rotAxis.normalized(), rotAxis.norm() * (3.14159f / 180.f));
-			//newNode->setRotLocal(quat);
-		}
-		// Add components
-		if (_nodeData.contains("components")) {
-			for(const auto& componentData : _nodeData["components"])
-				newNode->addComponent(createComponent(componentData));
-		}
-		// TODO: Add children
 	}
 
 	//----------------------------------------------------------------------------------------

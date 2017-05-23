@@ -50,5 +50,21 @@ namespace rev {
 			}
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		SceneNode* SceneNode::construct(const cjson::Json& _nodeData) {
+			SceneNode* newNode = new SceneNode(_nodeData["name"]);
+			// set transform
+			if (_nodeData.contains("pos")) {
+				const cjson::Json& pos = _nodeData["pos"];
+				newNode->setPos(math::Vec3f(pos(0), pos(1), pos(2)));
+			}
+			// Add components
+			//if (_nodeData.contains("components")) {
+			//	for (const auto& componentData : _nodeData["components"])
+			//		newNode->addComponent(createComponent(componentData));
+			//}
+			return newNode;
+		}
+
 	}
 }

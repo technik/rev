@@ -9,6 +9,8 @@
 
 #include "engine.h"
 
+#include <core/components/sceneNode.h>
+#include <core/components/transformSrc.h>
 #include <core/platform/osHandler.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
@@ -40,6 +42,7 @@ namespace rev {
 		// Create window
 		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
 #endif // !ANDROID
+		registerDataFactories();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -65,5 +68,11 @@ namespace rev {
 		assert(mMainWindow);
 		return mMainWindow;
 	}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	void Engine::registerDataFactories() {
+		core::TransformSrc::registerFactory("SceneNode", core::SceneNode::construct);
+	}
+
 
 }	// namespace rev

@@ -1,6 +1,7 @@
 {
 	graph : [
 		{
+			_type : "SceneNode",
 			name : "b1",
 			pos : [0, 2.5, 0],
 			components : [
@@ -12,6 +13,7 @@
 			]
 		},
 		{
+			_type : "SceneNode",
 			name : "Camera",
 			pos : [0, -1, 0],
 			components : [
