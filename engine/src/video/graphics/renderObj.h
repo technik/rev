@@ -11,11 +11,10 @@
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
 #include <video/graphics/staticRenderMesh.h>
+#include <video/graphics/material.h>
 
 namespace rev {
 	namespace video {
-
-		class Material;
 
 		class RenderObj : public core::Component {
 		public:
@@ -26,9 +25,16 @@ namespace rev {
 			const math::Mat34f&	transform() const { return node()->transform(); }
 
 			Material* material = nullptr;
+
+			static RenderObj* construct(const cjson::Json& _data) {
+				std::string fileName = _data["file"];
+				RenderObj* obj = new RenderObj(StaticRenderMesh::loadFromFile(fileName));
+				string materialName = _data["material"];
+				obj->material = Material::loadFromFile(materialName);
+				return obj;
+			}
 		private:
 			StaticRenderMesh* mMesh;
-
 		};
 	}	// namespace video
 }	// namespace rev

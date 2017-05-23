@@ -29,14 +29,6 @@ public:
 	{
 		processArgs(_argc, _argv);
 		mRenderer.init(&driver3d());
-		// Component factories
-		mGameScene.registerFactory("RenderObj", [](const cjson::Json& _data) {
-			string fileName = _data["file"];
-			RenderObj* obj = new RenderObj(StaticRenderMesh::loadFromFile(fileName));
-			string materialName = _data["material"];
-			obj->material = Material::loadFromFile(materialName);
-			return obj;
-		});
 		mGameScene.registerFactory("Camera", [](const cjson::Json& _data) {
 			float fov = (float)_data["fov"];
 			float nearPlane = (float)_data["near"];

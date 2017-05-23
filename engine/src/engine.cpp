@@ -19,6 +19,7 @@
 #ifndef ANDROID
 #include <core/platform/osHandler.h>
 #include <input/keyboard/keyboardInput.h>
+#include <video/graphics/renderObj.h>
 #include <video/window/window.h>
 #endif // !ANDROID
 #include <video/graphics/shader/shader.h>
@@ -71,7 +72,10 @@ namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	void Engine::registerDataFactories() {
+		// TransformSrc factories
 		core::TransformSrc::registerFactory("SceneNode", core::SceneNode::construct);
+		// Component factories
+		core::Component::registerFactory("RenderObj", video::RenderObj::construct);
 	}
 
 
