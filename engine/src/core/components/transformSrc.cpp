@@ -11,6 +11,9 @@ using std::vector;
 namespace rev {
 	namespace core {
 
+		// Static data
+		DataConstructible<TransformSrc>::FactoryMap DataConstructible<TransformSrc>::sFactories;
+
 		//--------------------------------------------------------------------------------------------------------------
 		TransformSrc::~TransformSrc() {
 			for(auto child : mChildren)

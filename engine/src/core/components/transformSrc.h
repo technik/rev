@@ -9,12 +9,13 @@
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 #include <math/algebra/quaternion.h>
+#include <core/resources/dataConstructible.h>
 #include <vector>
 
 namespace rev {
 	namespace core {
 
-		class TransformSrc {
+		class TransformSrc : public DataConstructible<TransformSrc> {
 		public:
 			// Constructor and virtual destructor
 			TransformSrc() 
@@ -22,6 +23,7 @@ namespace rev {
 				,mLocalTransform(math::Mat34f::identity())
 			{
 			}
+
 			// Deletes all children too
 			virtual ~TransformSrc();
 
@@ -58,6 +60,8 @@ namespace rev {
 			math::Mat34f				mLocalTransform;
 			TransformSrc*				mParent;
 			std::vector<TransformSrc*>	mChildren;
+
+			static std::map<std::string,Factory>	sFactories;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
