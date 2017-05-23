@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cjson/json.h>
+#include <functional>
 #include <map>
 #include <string>
 
@@ -13,17 +14,18 @@ namespace rev {
 
 		template<class Derived_>
 		struct DataConstructible {
-			typedef std::function<TransformSrc*(const cjson::Json&)>	Factory;
+			typedef std::function<Derived_*(const cjson::Json&)>	Factory;
 			
 			static Derived_* construct(const cjson::Json&);
 			static void registerFactory(const std::string&, Factory);
 
 		private:
-			static std::map<std::string, Factory>	sFactories;
+			typedef std::map<std::string, Factory>	FactoryMap;
+			static FactoryMap	sFactories;
 		};
 
 		template<class Derived_>
-		DataConstructible<Derived_>::Derived_* DataConstructible<Derived_>::construct(const cjson::Json& _data) {
+		Derived_* DataConstructible<Derived_>::construct(const cjson::Json& _data) {
 			// Locate factory
 			auto iter = sFactories.find((std::string)_data["_type"]);
 			if (iter != sFactories.end()) {
