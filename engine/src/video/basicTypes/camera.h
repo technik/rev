@@ -38,6 +38,8 @@ namespace rev {
 			math::Frustum	frustum		() const;
 			math::Mat44f	projection	() const;
 
+			static Camera* construct(const cjson::Json&);
+
 		private:
 			float aspectRatio() const;
 

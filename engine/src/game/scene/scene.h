@@ -16,7 +16,7 @@ namespace cjson { class Json; }
 namespace rev {
 
 	namespace core {
-		class SceneNode; 
+		class TransformSrc; 
 		class Component;
 	}
 	namespace video {
@@ -33,17 +33,34 @@ namespace rev {
 			bool update(float _dt);
 			void render(video::ForwardRenderer&) const;
 
-			// --- Component factories ---
-			typedef std::function<core::Component*	(const cjson::Json&)>	Factory;
-
-			void registerFactory(const std::string& type, Factory);
-
 		private:
-			core::Component* createComponent(const cjson::Json& _data);
-			// Node 0 is always scene's root
-			std::vector<core::SceneNode*>			mSceneGraph;
-			std::map<std::string,Factory>			mFactories;
+			void setSceneRoot(TransformSrc* src);
+			TransformSrc* mSceneRoot;
+
+			template<class TreeNode_>
+			void traverseTree(TreeNode_* _root, std::function<void(TreeNode_*)> _visitor);
 		};
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<class TreeNode_>
+		void Scene::traverseTree(TreeNode_* _root, std::function<void(TreeNode_*)> _visitor) {
+			if(!_root)
+				return;
+			std::vector<TreeNode*>	nodeStack;
+			nodeStack.reserve(1+_root->nChildren());
+			nodeStack.push_back(_root);
+			while (nodeStack.size()) {
+				TreeNode_* parent = nodeStack.back();
+				_visitor(parent); // Process parent
+				nodeStack.pop_back();
+				// Prepare children for processing
+				size_t nChildren = parent->nChildren();
+				nodeStack.reserve(nodeStack.size() + nChildren);
+				for (size_t i = 0; i < nChildren; ++i) {
+					nodeStack.push_back(parent->child(i));
+				}
+			}
+		}
 
 	}	// namespace game
 }	// namespace rev

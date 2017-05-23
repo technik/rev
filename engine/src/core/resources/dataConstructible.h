@@ -27,7 +27,7 @@ namespace rev {
 		template<class Derived_>
 		Derived_* DataConstructible<Derived_>::construct(const cjson::Json& _data) {
 			// Locate factory
-			auto iter = sFactories.find((std::string)_data["_type"]);
+			auto iter = sFactories.find((std::string)_data["type"]);
 			if (iter != sFactories.end()) {
 				// Invoke construction
 				return (iter->second)(_data);

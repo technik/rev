@@ -29,7 +29,7 @@ namespace rev {
 			static RenderObj* construct(const cjson::Json& _data) {
 				std::string fileName = _data["file"];
 				RenderObj* obj = new RenderObj(StaticRenderMesh::loadFromFile(fileName));
-				string materialName = _data["material"];
+				std::string materialName = _data["material"];
 				obj->material = Material::loadFromFile(materialName);
 				return obj;
 			}

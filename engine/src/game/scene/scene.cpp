@@ -24,7 +24,6 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------
 	Scene::Scene() {
-		mSceneGraph.push_back(new SceneNode("root")); /// < push back root node
 	}
 
 	//----------------------------------------------------------------------------------------
@@ -36,12 +35,10 @@ namespace rev { namespace game {
 		if(!levelDat.parse(levelFile))
 			return false;
 		const Json& sceneGraph = levelDat["graph"];
-		// Create scene root, and attach it to global root
-		SceneNode* sceneRoot = new SceneNode(_fileName);
-		sceneRoot->attachTo(mSceneGraph.front());
-		mSceneGraph.push_back(sceneRoot);
+		// Create scene root and load scene as child to it
+		setSceneRoot(new SceneNode(_fileName));
 		for (const auto& nodeData : sceneGraph) {
-			sceneRoot->addChild(TransformSrc::construct(nodeData));
+			mSceneRoot->addChild(TransformSrc::construct(nodeData));
 		}
 		return true;
 	}
@@ -74,19 +71,10 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------
-	void Scene::registerFactory(const std::string& _type, Scene::Factory _factory) {
-		mFactories[_type] = _factory;
-	}
-
-	//----------------------------------------------------------------------------------------
-	Component* Scene::createComponent(const Json& _componentData) {
-		std::string type = _componentData["type"];
-		auto& factoryIter = mFactories.find(type);
-		if (factoryIter != mFactories.end()) {
-			auto& factory = factoryIter->second;
-			return factory(_componentData);
-		} 
-		return nullptr;
+	void Scene::setSceneRoot(TransformSrc* _newRoot) {
+		if(mSceneRoot)
+			delete mSceneRoot;
+		mSceneRoot = _newRoot;
 	}
 
 	//----------------------------------------------------------------------------------------

@@ -29,14 +29,7 @@ public:
 	{
 		processArgs(_argc, _argv);
 		mRenderer.init(&driver3d());
-		mGameScene.registerFactory("Camera", [](const cjson::Json& _data) {
-			float fov = (float)_data["fov"];
-			float nearPlane = (float)_data["near"];
-			float farPlane = (float)_data["far"];
-			return new Camera(fov, nearPlane, farPlane);
-		});
 		mGameScene.load(mSceneName);
-
 	}
 
 	~VRSample() {

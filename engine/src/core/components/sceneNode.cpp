@@ -59,10 +59,10 @@ namespace rev {
 				newNode->setPos(math::Vec3f(pos(0), pos(1), pos(2)));
 			}
 			// Add components
-			//if (_nodeData.contains("components")) {
-			//	for (const auto& componentData : _nodeData["components"])
-			//		newNode->addComponent(createComponent(componentData));
-			//}
+			if (_nodeData.contains("components")) {
+				for (const auto& componentData : _nodeData["components"])
+					newNode->addComponent(Component::construct(componentData));
+			}
 			return newNode;
 		}
 
