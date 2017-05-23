@@ -6,12 +6,14 @@
 #ifndef _REV_CORE_COMPONENT_COMPONENT_H_
 #define _REV_CORE_COMPONENT_COMPONENT_H_
 
+#include <core/resources/dataConstructible.h>
+
 namespace rev {
 	namespace core {
 
 		class SceneNode;
 
-		class Component {
+		class Component : public DataConstructible<Component> {
 		public:
 			// -- Constructor & destructor --
 			Component() : mNode(nullptr) {}
