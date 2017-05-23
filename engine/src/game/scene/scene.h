@@ -16,7 +16,7 @@ namespace cjson { class Json; }
 namespace rev {
 
 	namespace core {
-		class TransformSrc; 
+		class SceneNode;
 		class Component;
 	}
 	namespace video {
@@ -34,19 +34,16 @@ namespace rev {
 			void render(video::ForwardRenderer&) const;
 
 		private:
-			void setSceneRoot(TransformSrc* src);
-			TransformSrc* mSceneRoot;
+			void setSceneRoot(core::SceneNode* src);
+			core::SceneNode* mSceneRoot;
 
-			template<class TreeNode_>
-			void traverseTree(TreeNode_* _root, std::function<void(TreeNode_*)> _visitor);
 		};
 
-		//--------------------------------------------------------------------------------------------------------------
 		template<class TreeNode_>
-		void Scene::traverseTree(TreeNode_* _root, std::function<void(TreeNode_*)> _visitor) {
+		void traverseTree(TreeNode_* _root, std::function<void(TreeNode_*)> _visitor) {
 			if(!_root)
 				return;
-			std::vector<TreeNode*>	nodeStack;
+			std::vector<TreeNode_*>	nodeStack;
 			nodeStack.reserve(1+_root->nChildren());
 			nodeStack.push_back(_root);
 			while (nodeStack.size()) {

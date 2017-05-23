@@ -54,16 +54,17 @@ namespace rev { namespace game {
 		// Parse scene graph looking for cameras and renderObj's
 		vector<RenderObj*>	activeRObjs;
 		vector<Camera*>		activeCams;
-		for (auto node : mSceneGraph) {
-			for (size_t i = 0; i < node->nComponents(); ++i)
+
+		traverseTree<const SceneNode>(mSceneRoot, [&](const SceneNode* _node) {
+			for (size_t i = 0; i < _node->nComponents(); ++i)
 			{
-				Component* comp = node->component(i);
+				Component* comp = _node->component(i);
 				if(typeid(*comp) == typeid(Camera))
 					activeCams.push_back(static_cast<Camera*>(comp));
 				else if(typeid(*comp) == typeid(RenderObj))
 					activeRObjs.push_back(static_cast<RenderObj*>(comp));
 			}
-		}
+		});
 		for(auto cam : activeCams) {
 			assert(cam);
 			renderer.render(activeRObjs, *cam);
@@ -71,7 +72,7 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------
-	void Scene::setSceneRoot(TransformSrc* _newRoot) {
+	void Scene::setSceneRoot(SceneNode* _newRoot) {
 		if(mSceneRoot)
 			delete mSceneRoot;
 		mSceneRoot = _newRoot;
