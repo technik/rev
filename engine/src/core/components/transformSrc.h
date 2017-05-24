@@ -40,7 +40,7 @@ namespace rev {
 			// Hierarchy traversal
 			TransformSrc*	parent		()	const;
 			unsigned		nChildren	()	const;
-			TransformSrc*	child		(unsigned _pos);
+			TransformSrc*	child		(unsigned _pos) const;
 
 			void			attachTo	(TransformSrc* _parent);
 			void			addChild	(TransformSrc* _child);
@@ -74,7 +74,7 @@ namespace rev {
 		inline math::Quatf			TransformSrc::worldRotation() const { return math::Quatf(worldTransform()); }
 		inline TransformSrc*		TransformSrc::parent	()	const { return mParent;  }
 		inline unsigned				TransformSrc::nChildren	()	const { return mChildren.size(); }
-		inline TransformSrc*		TransformSrc::child		(unsigned _pos) { return mChildren[_pos]; }
+		inline TransformSrc*		TransformSrc::child		(unsigned _pos) const { return mChildren[_pos]; }
 	}
 }
 
