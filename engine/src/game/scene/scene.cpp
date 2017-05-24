@@ -55,16 +55,16 @@ namespace rev { namespace game {
 		vector<RenderObj*>	activeRObjs;
 		vector<Camera*>		activeCams;
 
-		traverseTree<const SceneNode>(mSceneRoot, [&](const SceneNode* _node) {
-			for (size_t i = 0; i < _node->nComponents(); ++i)
-			{
-				Component* comp = _node->component(i);
-				if(typeid(*comp) == typeid(Camera))
-					activeCams.push_back(static_cast<Camera*>(comp));
-				else if(typeid(*comp) == typeid(RenderObj))
-					activeRObjs.push_back(static_cast<RenderObj*>(comp));
-			}
-		});
+		//traverseTree<const SceneNode>(mSceneRoot, [&](const SceneNode* _node) {
+		//	for (size_t i = 0; i < _node->nComponents(); ++i)
+		//	{
+		//		Component* comp = _node->component(i);
+		//		if(typeid(*comp) == typeid(Camera))
+		//			activeCams.push_back(static_cast<Camera*>(comp));
+		//		else if(typeid(*comp) == typeid(RenderObj))
+		//			activeRObjs.push_back(static_cast<RenderObj*>(comp));
+		//	}
+		//});
 		for(auto cam : activeCams) {
 			assert(cam);
 			renderer.render(activeRObjs, *cam);

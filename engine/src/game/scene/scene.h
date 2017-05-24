@@ -35,7 +35,7 @@ namespace rev {
 
 		private:
 			void setSceneRoot(core::SceneNode* src);
-			core::SceneNode* mSceneRoot;
+			core::SceneNode* mSceneRoot = nullptr;
 
 		};
 
