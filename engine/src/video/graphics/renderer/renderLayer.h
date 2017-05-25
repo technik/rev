@@ -17,7 +17,7 @@ namespace rev {
 		class RenderLayer : public core::WorldLayer {
 		public:
 			RenderLayer(ForwardRenderer& _r) : mRenderer (_r) {}
-			void update(float _dt) override;
+			bool update(float _dt) override;
 
 			RenderObj* createRenderObj(const cjson::Json&);
 

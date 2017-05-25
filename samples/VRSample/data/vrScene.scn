@@ -1,27 +1,34 @@
 {
 	graph : [
 		{
-			type : "SceneNode",
 			name : "b1",
 			pos : [0, 2.5, 0],
 			components : [
 				{
-					type : "RenderObj",
-					file : "data/unitSphere.rmd"
+					_type : "RenderObj",
+					model : "data/unitSphere.rmd"
 					material : "data/albedo.mat"
+				}
+				{
+					_type : "transform",
+					mat : [ 1, 0, 0, 0,
+							0, 0,-1, 2,
+							0, 1, 0, 0]
 				}
 			]
 		},
 		{
-			type : "SceneNode",
 			name : "Camera",
-			pos : [0, -1, 0],
 			components : [
 				{
-					type : "Camera",
+					_type : "Camera",
 					fov : 1.5,
 					near : 0.1,
 					far : 1000
+				},
+				{
+					_type : "transform",
+					pos : [0, -1, 0],
 				}
 			]
 		}

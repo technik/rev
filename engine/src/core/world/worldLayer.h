@@ -21,6 +21,6 @@ namespace rev {
 
 			virtual void init() {}
 			/// \return true if the game should stop
-			virtual bool update(float _dt) {};
+			virtual bool update(float _dt) { return true; }
 		};
 } }
