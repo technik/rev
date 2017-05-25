@@ -19,9 +19,7 @@ namespace rev {
 		public:
 			virtual ~WorldLayer() = 0;
 
-			virtual void RegisterFactories(World*) = 0;
-
 			virtual void init() {}
-			virtual void update(float _dt) = 0;
+			virtual void update(float _dt) {};
 		};
 } }

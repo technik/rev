@@ -13,6 +13,7 @@
 #include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/staticRenderMesh.h>
 #include <cjson/json.h>
+#include <core/world/world.h>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -43,6 +44,8 @@ public:
 	Scene			mGameScene;
 	ForwardRenderer mRenderer;
 	std::string		mSceneName;
+
+	World			mGameWorld;
 
 private:
 	
