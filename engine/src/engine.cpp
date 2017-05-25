@@ -44,7 +44,6 @@ namespace rev {
 		// Create window
 		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
 #endif // !ANDROID
-		registerDataFactories();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -69,15 +68,6 @@ namespace rev {
 	video::Window* Engine::mainWindow() const {
 		assert(mMainWindow);
 		return mMainWindow;
-	}
-
-	//----------------------------------------------------------------------------------------------------------------------
-	void Engine::registerDataFactories() {
-		// TransformSrc factories
-		core::TransformSrc::registerFactory("SceneNode", core::SceneNode::construct);
-		// Component factories
-		core::Component::registerFactory("RenderObj", video::RenderObj::construct);
-		core::Component::registerFactory("Camera", video::Camera::construct);
 	}
 
 

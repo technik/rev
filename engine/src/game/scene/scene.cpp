@@ -28,7 +28,7 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------
 	bool Scene::load(const string& _fileName) {
-		ifstream levelFile(_fileName);
+		/*ifstream levelFile(_fileName);
 		if(!levelFile.is_open())
 			return false;
 		Json levelDat;
@@ -39,7 +39,7 @@ namespace rev { namespace game {
 		setSceneRoot(new SceneNode(_fileName));
 		for (const auto& nodeData : sceneGraph) {
 			mSceneRoot->addChild(TransformSrc::construct(nodeData));
-		}
+		}*/
 		return true;
 	}
 

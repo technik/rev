@@ -33,5 +33,5 @@ namespace rev {
 			}
 		}
 
-	}
+	} // namespace core
 }

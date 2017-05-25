@@ -22,7 +22,7 @@ namespace rev {
 			}
 
 			StaticRenderMesh*	mesh() const { return mMesh; }
-			const math::Mat34f&	transform() const { return node()->transform(); }
+			//const math::Mat34f&	transform() const { return node()->component<Transform>()->worldMatrix(); }
 
 			Material* material = nullptr;
 

@@ -31,10 +31,10 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Mat34f Camera::view() const {
-			if(node()) {
-				return node()->transform();
-			}
-			else
+			//if(node()) {
+			//	return node()->transform();
+			//}
+			//else
 				return Mat34f::identity();
 		}
 
