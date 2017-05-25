@@ -29,7 +29,6 @@ namespace rev {
 
 			/// \return the new node
 			SceneNode*	createNode	(const std::string& _name);
-			SceneNode*	findNode	(const std::string& _name) const;
 			void		destroyNode	(SceneNode*);
 			
 		private:
