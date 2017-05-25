@@ -23,7 +23,7 @@ namespace rev {
 
 		public:
 			void registerFactory(const std::string& _componentType, ComponentFactory);
-			void loadScene(const std::string& _fileName, core::World* _w);
+			void loadScene(const std::string& _fileName, core::World& _w);
 
 		private:
 			std::map<std::string, ComponentFactory>	mFactories;

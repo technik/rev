@@ -24,7 +24,8 @@ namespace rev {
 
 			void init();
 			/// \brief Update all layers
-			void update(float _dt);
+			/// \return false if the application should close
+			bool update(float _dt);
 
 			/// \return the new node
 			SceneNode*	createNode	(const std::string& _name);

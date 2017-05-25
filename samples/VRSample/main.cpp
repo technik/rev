@@ -6,7 +6,7 @@
 
 #include <util/app/app3d.h>
 #include <iostream>
-#include <game/scene/scene.h>
+#include <game/sceneLoader.h>
 #include <video/basicTypes/camera.h>
 #include <video/graphics/material.h>
 #include <video/graphics/renderObj.h>
@@ -31,18 +31,19 @@ public:
 	{
 		processArgs(_argc, _argv);
 		mRenderer.init(&driver3d());
+		SceneLoader mLoader;
+
+		mRenderScene = new RenderLayer(mRenderer);
+		mGameWorld.addLayer(mRenderScene);
+		mLoader.registerFactory("RenderObj", [=](const cjson::Json& _j) { return mRenderScene->createRenderObj(_j); });
 		//mGameScene.load(mSceneName);
+		mGameWorld.init();
+		mLoader.loadScene(mSceneName, mGameWorld);
 	}
 
 	~VRSample() {
 	}
 
-	//RenderObj* cubeObj;
-	//Camera* cam;
-	//SceneNode camera;
-	//SceneNode world;
-	//RenderScene renderScene;
-	//Scene			mGameScene;
 	std::string		mSceneName;
 
 	// World & world layers
@@ -63,11 +64,7 @@ private:
 
 	//----------------------------------------------------------------
 	bool frame(float _dt) override {
-		//mRenderer.render(renderScene, *cam);
-		if(!mGameScene.update(_dt))
-			return false;
-		mGameScene.render(mRenderer);
-		return true;
+		return mGameWorld.update(_dt);
 	}
 };
 
