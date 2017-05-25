@@ -33,6 +33,7 @@ namespace rev {
 			void		destroyNode	(SceneNode*);
 			
 		private:
-			std::vector<SceneNode*>			mObjects;
+			std::vector<WorldLayer*>	mLayers;
+			std::vector<SceneNode*>		mObjects;
 		};
 } }

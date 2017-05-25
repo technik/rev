@@ -20,6 +20,7 @@ namespace rev {
 			virtual ~WorldLayer() = 0;
 
 			virtual void init() {}
-			virtual void update(float _dt) {};
+			/// \return true if the game should stop
+			virtual bool update(float _dt) {};
 		};
 } }
