@@ -12,6 +12,7 @@
 #include <video/graphics/renderObj.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/staticRenderMesh.h>
+#include <video/graphics/renderer/renderLayer.h>
 #include <cjson/json.h>
 #include <core/world/world.h>
 
@@ -30,7 +31,7 @@ public:
 	{
 		processArgs(_argc, _argv);
 		mRenderer.init(&driver3d());
-		mGameScene.load(mSceneName);
+		//mGameScene.load(mSceneName);
 	}
 
 	~VRSample() {
@@ -41,11 +42,15 @@ public:
 	//SceneNode camera;
 	//SceneNode world;
 	//RenderScene renderScene;
-	Scene			mGameScene;
-	ForwardRenderer mRenderer;
+	//Scene			mGameScene;
 	std::string		mSceneName;
 
+	// World & world layers
 	World			mGameWorld;
+	RenderLayer*	mRenderScene;
+
+	// Common components
+	ForwardRenderer mRenderer;
 
 private:
 	
