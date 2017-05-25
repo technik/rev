@@ -6,25 +6,32 @@
 
 #include <vector>
 #include <core/components/sceneNode.h>
+#include <functional>
+#include <cjson/json.h>
 
 namespace rev {
 	namespace core {
 
 		class WorldLayer;
+		class Component;
+		class WorldNode;
 
 		/// A world is a self-contained group of objects (SceneNode), organized in layers, that will be updated together.
 		class World {
 		public:
+			/// \Add the layer and register its factories
 			void addLayer(WorldLayer* layer);
-			/// \brief Init the layers and register factories for scene loading
-			void init();
 
+			void init();
 			/// \brief Update all layers
 			void update(float _dt);
 
-		private:
-			void registerFactories();
+			/// \return the new node
+			SceneNode*	createNode	(const std::string& _name);
+			SceneNode*	findNode	(const std::string& _name);
+			void		destroyNode	(SceneNode*);
 			
-			std::vector<SceneNode>	objects;
+		private:
+			std::vector<SceneNode*>			mObjects;
 		};
 } }
