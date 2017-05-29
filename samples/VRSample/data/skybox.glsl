@@ -4,10 +4,8 @@
 #define USE_GAMMA_CORRECTION
 // ----- Common code -----
 // Uniforms
-uniform	mat4	uWorldViewProj;
-uniform	vec3	uViewPos;
-uniform vec3 	uLightDir; // In object space
-uniform vec3 	uLightClr;
+uniform	mat4		uWorldViewProj;
+uniform samplerCube albedo;
 
 // Varyings
 varying vec3 vPos;
@@ -17,20 +15,19 @@ vec3 skyColor(vec3 dir) {
 }
 
 vec4 fragment_shader() {
-	vec3 L0 = skyColor(normalize(vPos));
-	return vec4(L0, 1.0);
+	return texture(albedo, vPos);
 }
 
 // ----- Vertex shader -----
 #ifdef VERTEX_SHADER
 // Attributes
 attribute vec3 vertex;
-attribute vec3 normal;
 
 void main ( void )
 {
+	vec4 pos = uWorldViewProj * vec4(vertex, 1.0);
 	vPos = vertex;
-	gl_Position = uWorldViewProj * vec4(vertex, 1.0);
+	gl_Position = pos.xyww;
 }
 #endif // VERTEX_SHADER
 

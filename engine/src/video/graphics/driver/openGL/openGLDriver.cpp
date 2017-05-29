@@ -239,7 +239,8 @@ namespace rev {
 			//logGlError();
 			if(hasTexStage(_tex)) {
 				glActiveTexture(mAssignedTexStages[_tex->glId()]);
-				glBindTexture(GL_TEXTURE_2D, _tex->glId());
+				GLenum target = _tex->type() == Texture::TexType::tex2d ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
+				glBindTexture(target, _tex->glId());
 			} else {
 				assignTexStage(_tex);
 			}

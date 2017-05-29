@@ -17,9 +17,9 @@ varying vec3 vViewDir;
 
 #ifdef ALBEDO_MAP
 #define USE_UV0
-uniform sampler2D uAlbedoMap;
+uniform sampler2D albedoMap;
 #else // !ALBEDO_MAP
-uniform vec3 uAlbedo;
+uniform vec3 albedo;
 #endif // !ALBEDO_MAP
 #ifdef PHYSICS_MAP
 #define USE_UV0
@@ -28,7 +28,7 @@ uniform sampler2D uPhysicsMap;
 uniform float roughness;
 uniform float metalness;
 #endif // !PHYSICS_MAP
-
+uniform samplerCube environmentMap;
 
 varying vec2 vUV0;
 
@@ -71,14 +71,13 @@ vec3 fresnelSchlick(float ndv, vec3 F0)
 }
 
 vec4 fragment_shader(vec3 albedo) {
-	float reflectivity = 0.9;
 #ifdef PHYSICS_MAP
 	vec2 phy = texture(uPhysicsMap, vUV0).xz;
 	float roughness = phy.x;
 	float metalness = phy.y;
 #endif // PHYSICS_MAP
 	// Tint reflections for metals
-	vec3 F0 = mix(vec3(reflectivity), albedo, metalness);
+	vec3 F0 = mix(albedo, vec3(1.0), metalness);
 	//// BRDF params
 	vec3 normal = normalize(vNormal);
 	vec3 halfV = -normalize(uLightDir + vViewDir);
@@ -95,10 +94,19 @@ vec4 fragment_shader(vec3 albedo) {
 	kD *= 1-metalness;
 	
 	vec3 nom = NDF * G * Fs;
-	float den = 1.0/(4*ndv*ndl*1.0);
+	float den = 1.0/max(0.001,(4*ndv*ndl*1.0));
 	vec3 spec = nom * den;
-	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 10 *ndl;
-	return vec4(L0, 1.0);
+	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 4 *ndl;
+	
+	vec3 skyClr = vec3(0.0, 0.55, 0.8);
+	vec3 floorClr = vec3(1.0);
+	vec3 reflDir = reflect(vViewDir, normal);
+	vec3 env = texture(environmentMap, reflDir).xyz;
+	vec3 ambient = mix(floorClr, skyClr, 0.5+0.5*normal.z);
+	
+	vec3 indirect = ambient*kD + env *Ks;
+	
+	return vec4(L0+0.1*indirect, 1.0);
 }
 
 // ----- Vertex shader -----
@@ -126,10 +134,8 @@ void main ( void )
 
 void main (void) {
 #ifdef ALBEDO_MAP
-	vec3 albedo = texture(uAlbedoMap, vUV0).xyz;
-#else //!ALBEDO_MAP
-	vec3 albedo = uAlbedo;
-#endif // !ALBEDO_MAP
+	vec3 albedo = texture(albedoMap, vUV0).xyz;
+#endif // ALBEDO_MAP
 	
 #ifdef USE_GAMMA_CORRECTION
 	vec4 linearColor = max(fragment_shader(albedo), vec4(0));

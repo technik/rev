@@ -75,32 +75,50 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		Texture::Texture(const TextureInfo& _desc, const ImageBuffer* _buffers, size_t nMips)
+		Texture::Texture(const TextureInfo& _desc, const ImageBuffer* _buffers, size_t nMaps)
 			: mSize(_desc.size)
 			, mMultiSample(false)
 		{
+			constexpr int borderSize = 0;
 			// Generate OpenGL texture buffer
 			glGenTextures(1, &mId);
-			glBindTexture(GL_TEXTURE_2D, mId);
+			if(_desc.type == TexType::tex2d) {
+				glBindTexture(GL_TEXTURE_2D, mId);
 
-			if(_desc.genMips)
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			else
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
-			GLint repeatMode = _desc.repeat?GL_REPEAT:GL_CLAMP;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeatMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeatMode);
+				if(_desc.genMips)
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				else
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
+				GLint repeatMode = _desc.repeat?GL_REPEAT:GL_CLAMP;
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeatMode);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeatMode);
 
-			// Load mipmaps
-			constexpr int borderSize = 0;
-			for (size_t mipLevel = 0; mipLevel < nMips; ++mipLevel) {
-				const ImageBuffer& buffer = _buffers[mipLevel];
-				glTexImage2D(GL_TEXTURE_2D, mipLevel, (GLint)_desc.gpuFormat,
-					_desc.size.x, _desc.size.y, borderSize, (GLenum)buffer.fmt, GL_UNSIGNED_BYTE, buffer.data);
+				// Load mipmaps
+				for (size_t mipLevel = 0; mipLevel < nMaps; ++mipLevel) {
+					const ImageBuffer& buffer = _buffers[mipLevel];
+					glTexImage2D(GL_TEXTURE_2D, mipLevel, (GLint)_desc.gpuFormat,
+						_desc.size.x, _desc.size.y, borderSize, (GLenum)buffer.fmt, GL_UNSIGNED_BYTE, buffer.data);
+				}
+				if (_desc.genMips)
+					glGenerateMipmap(GL_TEXTURE_2D);
 			}
-			if (_desc.genMips)
-				glGenerateMipmap(GL_TEXTURE_2D);
+			else if (_desc.type == TexType::cubemap) {
+				glBindTexture(GL_TEXTURE_CUBE_MAP, mId);
+				// Config filtering
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+				// Load faces
+				for(size_t face = 0; face < nMaps; ++face) {
+					const ImageBuffer& buffer = _buffers[face];
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+					0, (GLint)_desc.gpuFormat, _desc.size.x, _desc.size.y, borderSize, (GLenum)buffer.fmt, GL_UNSIGNED_BYTE, buffer.data);
+					
+				}
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -109,11 +127,14 @@ namespace rev {
 			textureData.parse(std::ifstream(_fileName));
 			// Load format and texture info
 			TextureInfo desc;
+			const Json& texType = textureData["type"];
+			if(std::string(texType) == "cubemap")
+				desc.type = TexType::cubemap;
 			desc.gpuFormat = colorBufferFormat(textureData["channels"]);
 			desc.genMips = (bool)textureData["genMips"];
 			desc.repeat = (bool)textureData["repeat"];
 			desc.filter = filterMode(textureData["filter"]);
-			const Json& mips = textureData["mips"];
+			const Json& mips = textureData["maps"];
 			// Load buffers
 			ImageBuffer mipBuffers[16];
 			for (size_t i = 0; i < mips.size(); ++i) {

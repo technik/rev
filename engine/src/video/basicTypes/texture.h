@@ -51,6 +51,11 @@ namespace rev {
 #endif
 			};
 
+			enum class TexType {
+				tex2d,
+				cubemap
+			};
+
 		public:
 			// Empty texture, use this for render targets
 			Texture(const math::Vec2u& _size, InternalFormat _if, bool _multiSample = false);
@@ -60,6 +65,7 @@ namespace rev {
 
 			bool	multiSample	() const { return mMultiSample; }
 			GLuint	glId		() const { return mId; }
+			TexType	type		() const { return mInfo.type; }
 
 			const math::Vec2u& size() const { return mSize; }
 
@@ -70,17 +76,17 @@ namespace rev {
 				SourceFormat fmt;
 			};
 
-
 			enum class FilterMode {
 				nearest = GL_NEAREST,
 				linear = GL_LINEAR,
 			};
 
 			struct TextureInfo {
-				InternalFormat gpuFormat;
-				bool genMips;
-				bool repeat;
-				FilterMode filter;
+				TexType	type = TexType::tex2d;
+				InternalFormat gpuFormat = InternalFormat::rgba;
+				bool genMips = false;
+				bool repeat = false;
+				FilterMode filter = FilterMode::linear;
 				math::Vec2u size;
 			} mInfo;
 

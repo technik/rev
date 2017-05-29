@@ -1,0 +1,10 @@
+{
+	shader : "pbr",
+	vectors : {
+		albedo : [1.0, 1.0, 1.0],
+	}
+	floats : {
+		roughness : 0.10,
+		metalness : 0.0
+	}
+}

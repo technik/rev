@@ -28,6 +28,7 @@ namespace rev {
 			mBackEnd = new RendererBackEnd(_driver);
 			mProgram = Shader::manager()->get("data\\pbr");
 			mSkyboxShader = Shader::manager()->get("data\\skybox");
+			mSkybox = Texture::loadFromFile("data\\skybox.tex");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -62,6 +63,8 @@ namespace rev {
 				if (obj->material) {
 					for(const auto& m : obj->material->mMaps)
 						drawInfo.texUniforms.push_back(m);
+					if(mSkybox)
+						drawInfo.texUniforms.push_back(std::make_pair("environmentMap", mSkybox));
 					for (const auto& v3 : obj->material->mVec3s)
 						drawInfo.vec3Uniforms.push_back(v3);
 					for(const auto& f : obj->material->mFloats)
@@ -80,6 +83,7 @@ namespace rev {
 		void ForwardRenderer::drawSkyboxCubemap(const Camera& _cam) const {
 			RendererBackEnd::DrawInfo cubeMapInfo;
 			cubeMapInfo.program = mSkyboxShader;
+			cubeMapInfo.texUniforms.push_back(std::make_pair("albedo", mSkybox));
 			Mat34f centeredView = _cam.view();
 			centeredView.setCol(3, Vec3f(0));
 			cubeMapInfo.wvp = _cam.projection() * centeredView.inverse();

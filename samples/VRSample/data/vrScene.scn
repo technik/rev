@@ -6,7 +6,7 @@
 				{
 					_type : "RenderObj",
 					file : "data/floorPlane.rmd"
-					material : "data/albedo.mat"
+					material : "data/solidWhite.mat"
 				}
 				{
 					_type : "Transform",
@@ -22,12 +22,12 @@
 				{
 					_type : "RenderObj",
 					file : "data/unitSphere.rmd"
-					material : "data/albedo.mat"
+					material : "data/solidWhite.mat"
 				}
 				{
 					_type : "Transform",
 					mat : [ 1, 0, 0, 0,
-							0, 1, 0, 5,
+							0, 1, 0, 3,
 							0, 0, 1, 0.5]
 				}
 			]
@@ -43,7 +43,7 @@
 				},
 				{
 					_type : "Transform",
-					pos : [0, -1, 1.7],
+					pos : [0, -1, 1],
 				}
 			]
 		}
