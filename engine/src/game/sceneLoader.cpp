@@ -25,10 +25,19 @@ namespace rev {
 			Json sceneData;
 			sceneData.parse(ifstream(_fileName));
 			for (const auto& objectData : sceneData["objects"]) {
-				SceneNode* obj = _w.createNode(objectData);
+				SceneNode* obj = _w.createNode(objectData["name"]);
 				if(objectData.contains("components"))
-					for(const auto& c : objectData["components"])
-						obj->addComponent(mFactories[string(c["_type"])](c));
+					for (const auto& c : objectData["components"])
+					{
+						const std::string& componentType = c["_type"];
+						auto iter = mFactories.find(componentType);
+						if (iter == mFactories.end())
+						{
+							cout << "Error: Unable to find factory for component of type " << componentType << "\n";
+							continue;
+						}
+						obj->addComponent(iter->second(c));
+					}
 			}
 		}
 } }

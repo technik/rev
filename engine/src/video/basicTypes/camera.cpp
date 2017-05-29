@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "camera.h"
 #include <video/graphics/renderer/types/renderTarget.h>
+#include <core/components/affineTransform.h>
 
 namespace rev {
 	namespace video {
@@ -31,10 +32,10 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Mat34f Camera::view() const {
-			//if(node()) {
-			//	return node()->transform();
-			//}
-			//else
+			if(node()) {
+				return node()->component<core::AffineTransform>()->transform();
+			}
+			else
 				return Mat34f::identity();
 		}
 

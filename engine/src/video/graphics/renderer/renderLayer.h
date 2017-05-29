@@ -11,6 +11,7 @@
 namespace rev {
 	namespace video {
 
+		class Camera;
 		class ForwardRenderer;
 		class RenderObj;
 
@@ -19,9 +20,11 @@ namespace rev {
 			RenderLayer(ForwardRenderer& _r) : mRenderer (_r) {}
 			bool update(float _dt) override;
 
-			RenderObj* createRenderObj(const cjson::Json&);
+			RenderObj* createRenderObj	(const cjson::Json&);
+			Camera*		createCamera	(const cjson::Json&);
 
 		private:
+			std::vector<Camera*>	mCameras;
 			std::vector<RenderObj*>	mObjects;
 			ForwardRenderer&		mRenderer;
 		};

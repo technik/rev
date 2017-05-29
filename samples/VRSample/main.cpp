@@ -15,6 +15,7 @@
 #include <video/graphics/renderer/renderLayer.h>
 #include <cjson/json.h>
 #include <core/world/world.h>
+#include <core/components/affineTransform.h>
 
 using namespace rev::core;
 using namespace rev::game;
@@ -36,6 +37,8 @@ public:
 		mRenderScene = new RenderLayer(mRenderer);
 		mGameWorld.addLayer(mRenderScene);
 		mLoader.registerFactory("RenderObj", [=](const cjson::Json& _j) { return mRenderScene->createRenderObj(_j); });
+		mLoader.registerFactory("Camera", [=](const cjson::Json& _j) { return mRenderScene->createCamera(_j); });
+		mLoader.registerFactory("Transform", [](const cjson::Json& _j) { return AffineTransform::construct(_j); });
 		//mGameScene.load(mSceneName);
 		mGameWorld.init();
 		mLoader.loadScene(mSceneName, mGameWorld);

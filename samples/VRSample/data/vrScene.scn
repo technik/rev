@@ -1,16 +1,16 @@
 {
-	graph : [
+	objects : [
 		{
 			name : "b1",
 			pos : [0, 2.5, 0],
 			components : [
 				{
 					_type : "RenderObj",
-					model : "data/unitSphere.rmd"
+					file : "data/unitSphere.rmd"
 					material : "data/albedo.mat"
 				}
 				{
-					_type : "transform",
+					_type : "Transform",
 					mat : [ 1, 0, 0, 0,
 							0, 0,-1, 2,
 							0, 1, 0, 0]
@@ -27,7 +27,7 @@
 					far : 1000
 				},
 				{
-					_type : "transform",
+					_type : "Transform",
 					pos : [0, -1, 0],
 				}
 			]

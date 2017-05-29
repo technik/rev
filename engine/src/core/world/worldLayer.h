@@ -17,7 +17,7 @@ namespace rev {
 		/// for the layer's components.
 		class WorldLayer {
 		public:
-			virtual ~WorldLayer() = 0;
+			virtual ~WorldLayer() = 0 {}
 
 			virtual void init() {}
 			/// \return true if the game should stop

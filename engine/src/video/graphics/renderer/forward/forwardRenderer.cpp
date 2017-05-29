@@ -6,6 +6,7 @@
 // Simple forward renderer
 
 #include "forwardRenderer.h"
+#include <core/components/affineTransform.h>
 #include "../backend/rendererBackEnd.h"
 #include <video/basicTypes/camera.h>
 #include <video/graphics/renderScene.h>
@@ -44,19 +45,19 @@ namespace rev {
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
 			Vec3f globalLightDir = (Vec3f(1.f,1.f,-2.f)).normalized();
-			//Vec3f viewPos = _cam.node()->position();
+			Vec3f viewPos = _cam.node()->component<core::AffineTransform>()->position();
 			drawInfo.lightClr = Vec3f(1.f,1.f,0.9f)*1000.f;
 			// Camera
 			Mat34f invView = _cam.view().inverse();
 			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
 			for (const auto obj : _scene) {
-				//Mat34f modelMatrix = obj->transform();
-				//Mat34f invModelMtx = modelMatrix.inverse();
+				Mat34f modelMatrix = obj->node()->component<core::AffineTransform>()->transform();
+				Mat34f invModelMtx = modelMatrix.inverse();
 
-				//drawInfo.wvp = viewProj * modelMatrix;
-				//drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
-				//drawInfo.viewPos = invModelMtx * viewPos;
+				drawInfo.wvp = viewProj * modelMatrix;
+				drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
+				drawInfo.viewPos = invModelMtx * viewPos;
 				if(obj->material && obj->material->albedo)
 					drawInfo.texUniforms.push_back({"uAlbedoMap", obj->material->albedo});
 				else
