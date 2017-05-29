@@ -35,16 +35,23 @@ namespace rev {
 			mDriver->setUniform(uViewPos, info.viewPos);
 
 			for (const auto& map : info.texUniforms) {
-				int uLoc = mDriver->getUniformLocation(map.name.c_str());
+				int uLoc = mDriver->getUniformLocation(map.first.c_str());
 				if (uViewPos >= 0) {
-					mDriver->setUniform(uLoc, map.value);
+					mDriver->setUniform(uLoc, map.second);
 				}
 			}
 
-			for (const auto& map : info.vec3Uniforms) {
-				int uLoc = mDriver->getUniformLocation(map.name.c_str());
+			for (const auto& v : info.vec3Uniforms) {
+				int uLoc = mDriver->getUniformLocation(v.first.c_str());
 				if (uViewPos >= 0) {
-					mDriver->setUniform(uLoc, map.value);
+					mDriver->setUniform(uLoc, v.second);
+				}
+			}
+
+			for (const auto& f : info.floatUniforms) {
+				int uLoc = mDriver->getUniformLocation(f.first.c_str());
+				if (uViewPos >= 0) {
+					mDriver->setUniform(uLoc, f.second);
 				}
 			}
 

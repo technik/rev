@@ -2,8 +2,8 @@
 // Unified PBR shader
 //----------------------------------------------------------------------------------------------------------------------
 #define USE_GAMMA_CORRECTION
-#define ALBEDO_MAP
-#define PHYSICS_MAP
+//#define ALBEDO_MAP
+//#define PHYSICS_MAP
 // ----- Common code -----
 // Uniforms
 uniform	mat4	uWorldViewProj;
@@ -25,7 +25,8 @@ uniform vec3 uAlbedo;
 #define USE_UV0
 uniform sampler2D uPhysicsMap;
 #else // !PHYSICS_MAP
-float roughness = 0.1;
+uniform float roughness;
+uniform float metalness;
 #endif // !PHYSICS_MAP
 
 
@@ -75,8 +76,6 @@ vec4 fragment_shader(vec3 albedo) {
 	vec2 phy = texture(uPhysicsMap, vUV0).xz;
 	float roughness = phy.x;
 	float metalness = phy.y;
-#else
-	float metalness = 0.1;
 #endif // PHYSICS_MAP
 	// Tint reflections for metals
 	vec3 F0 = mix(vec3(reflectivity), albedo, metalness);
@@ -92,13 +91,13 @@ vec4 fragment_shader(vec3 albedo) {
 	float G = GeometrySmith(ndv, ndl, roughness);
 	
 	vec3 Ks = Fs;
-	vec3 Kd = vec3(1)-Ks;
-	Kd *= 1-metalness;
+	vec3 kD = vec3(1)-Ks;
+	kD *= 1-metalness;
 	
 	vec3 nom = NDF * G * Fs;
 	float den = 1.0/(4*ndv*ndl*1.0);
 	vec3 spec = nom * den;
-	vec3 L0 = (Kd*albedo / PI + spec) * lightClr * ndl;
+	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 10 *ndl;
 	return vec4(L0, 1.0);
 }
 

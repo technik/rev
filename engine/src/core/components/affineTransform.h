@@ -14,7 +14,6 @@ namespace rev {
 
 		class AffineTransform : public Component {
 		public:
-					math::Vec3f&	position	()			{ return matrix.col(3); }
 			const	math::Vec3f&	position	() const	{ return matrix.col(3); }
 
 					math::Mat34f&	transform	()			{ return matrix; }

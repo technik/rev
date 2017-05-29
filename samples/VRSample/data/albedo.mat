@@ -1,4 +1,10 @@
 {
-	albedoMap : "data/albedo.tex"
-	physicsMap : "data/physics.tex"
+	shader : "pbr",
+	vectors : {
+		albedo : [1.0, 1.0, 1.0],
+	}
+	floats : {
+		roughness : 1.0,
+		metalness : 0.0
+	}
 }

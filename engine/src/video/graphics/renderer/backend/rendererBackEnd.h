@@ -33,13 +33,11 @@ namespace rev {
 				math::Mat44f	wvp; // Model view projection
 
 				template<typename Type_>
-				struct Uniform {
-					std::string name;
-					Type_ value;
-				};
+				using Uniform = std::pair<std::string, Type_>;
 
 				std::vector<Uniform<math::Vec3f>>	vec3Uniforms;
 				std::vector<Uniform<Texture*>>		texUniforms;
+				std::vector<Uniform<float>>			floatUniforms;
 			};
 
 			struct DrawCall {

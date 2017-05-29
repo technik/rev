@@ -58,13 +58,15 @@ namespace rev {
 				drawInfo.wvp = viewProj * modelMatrix;
 				drawInfo.lightDir = invModelMtx.rotate(globalLightDir);
 				drawInfo.viewPos = invModelMtx * viewPos;
-				if(obj->material && obj->material->albedo)
-					drawInfo.texUniforms.push_back({"uAlbedoMap", obj->material->albedo});
-				else
-					drawInfo.vec3Uniforms.push_back({"uAlbedo", Vec3f(1.f, 0.f, 0.5f)});
 
-				if (obj->material && obj->material->physics)
-					drawInfo.texUniforms.push_back({ "uPhysicsMap", obj->material->physics });
+				if (obj->material) {
+					for(const auto& m : obj->material->mMaps)
+						drawInfo.texUniforms.push_back(m);
+					for (const auto& v3 : obj->material->mVec3s)
+						drawInfo.vec3Uniforms.push_back(v3);
+					for(const auto& f : obj->material->mFloats)
+						drawInfo.floatUniforms.push_back(f);
+				}
 
 				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
