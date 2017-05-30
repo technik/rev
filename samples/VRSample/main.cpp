@@ -19,10 +19,13 @@
 #include <network/http/httpServer.h>
 #include <network/http/httpResponse.h>
 
+using namespace cjson;
+
 using namespace rev::core;
 using namespace rev::game;
 using namespace rev::input;
 using namespace rev::math;
+using namespace rev::net;
 using namespace rev::video;
 
 using namespace std;
@@ -39,12 +42,16 @@ public:
 		// Prepare factories and game world
 		mRenderScene = new RenderLayer(mRenderer);
 		mGameWorld.addLayer(mRenderScene);
-		mLoader.registerFactory("RenderObj", [=](const cjson::Json& _j) { return mRenderScene->createRenderObj(_j); });
-		mLoader.registerFactory("Camera", [=](const cjson::Json& _j) { return mRenderScene->createCamera(_j); });
-		mLoader.registerFactory("Transform", [](const cjson::Json& _j) { return AffineTransform::construct(_j); });
+		mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
+		mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
+		mLoader.registerFactory("Transform", [](const Json& _j) { return AffineTransform::construct(_j); });
 
 		// Expose API
-		jsonAPI()->setResponder("/graph", rev::net::http::Response("hello from VR Sample"));
+		jsonAPI()->setResponder("/graph", [&](http::Server* _srv, unsigned _conId, const http::Request&) {
+			Json graphData;
+			mGameWorld.getGraphData(graphData);
+			_srv->respond(_conId, http::Response::jsonResponse(graphData));
+		});
 
 		// Load scene
 		mGameWorld.init();

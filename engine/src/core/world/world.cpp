@@ -49,4 +49,10 @@ namespace rev {
 			}
 			delete _node;
 		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void World::getGraphData(cjson::Json& _dst) {
+			for(auto obj : mObjects)
+				_dst.push_back(obj->name());
+		}
 } }

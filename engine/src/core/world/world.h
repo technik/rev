@@ -30,6 +30,8 @@ namespace rev {
 			/// \return the new node
 			SceneNode*	createNode	(const std::string& _name);
 			void		destroyNode	(SceneNode*);
+
+			void		getGraphData	(cjson::Json& _dst);
 			
 		private:
 			std::vector<WorldLayer*>	mLayers;

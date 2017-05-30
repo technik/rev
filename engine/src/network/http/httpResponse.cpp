@@ -16,7 +16,10 @@ namespace rev {
 
 			//----------------------------------------------------------------------------------------------------------
 			Response::Response(const string& _rawResponse) {
-				this->operator<<(_rawResponse);
+				if(_rawResponse.size() >= 2 && _rawResponse.back() == '\n' && _rawResponse[_rawResponse.size()-2] == '\r')
+					this->operator<<(_rawResponse);
+				else
+					this->operator<<(_rawResponse+"\r\n");
 			}
 
 			//------------------------------------------------------------------------------------------------------------------

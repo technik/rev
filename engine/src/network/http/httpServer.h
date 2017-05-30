@@ -40,7 +40,7 @@ namespace rev {
 				bool dispatchPetition(Server*, const std::string& _url, unsigned _conId, const Request& _petition);
 
 			private:
-				SocketServer*	mSocket;
+				SocketServer*	mSocket = nullptr;
 
 				std::unordered_map<std::string, UrlHandler>	mHandlers;
 				std::unordered_map<unsigned, Socket*>		mConnections;

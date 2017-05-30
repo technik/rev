@@ -58,6 +58,10 @@ find_library(FREEIMAGE_LIB FreeImage ${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)
 
 target_link_libraries (rev LINK_PUBLIC ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} ${FREEIMAGE_LIB} cjson)
 
+if(MSVC)
+	target_link_libraries(rev LINK_PUBLIC Ws2_32 Mswsock)
+endif(MSVC)
+
 #add_subdirectory(lib/vhacd)
 #target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/inc)
 #target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/public)
