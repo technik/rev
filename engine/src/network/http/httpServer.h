@@ -13,6 +13,7 @@
 namespace rev {
 	namespace net {
 
+		class Socket;
 		class SocketServer;
 
 		namespace http {
@@ -22,6 +23,8 @@ namespace rev {
 
 			class Server {
 			public:
+				~Server();
+
 				void init(unsigned _port);
 
 				/// Send response to an active connection
