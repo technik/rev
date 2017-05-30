@@ -41,6 +41,7 @@ namespace rev {
 #endif // !ANDROID
 
 		virtual bool				frame	(float _dt); // Usually override this
+		net::http::Server*			jsonAPI	() const { return mEngine.jsonAPI(); }
 
 	private:
 		void preFrame();
