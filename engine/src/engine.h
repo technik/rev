@@ -32,6 +32,7 @@ namespace rev {
 		bool update();
 
 		video::Window* mainWindow() const;
+		net::http::Server*		jsonAPI()	const { return mAPIService; }
 
 	private:
 		video::Window*			mMainWindow = nullptr;
