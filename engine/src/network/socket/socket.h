@@ -37,12 +37,8 @@ namespace rev {
 
 		class Socket : private SocketBase {
 		public:
-#ifdef __linux__
-			typedef int	SocketDesc;
-#endif // __linux__
-#ifdef _WIN32
-			typedef SOCKET SocketDesc;
-#endif // _WIN32
+			typedef SocketBase::SocketDesc	SocketDesc;
+
 			enum class Protocol {
 				TCP,
 				UDP

@@ -9,6 +9,8 @@ namespace rev {
 
 		class SocketWin32 {
 		protected:
+			typedef SOCKET SocketDesc;
+
 			SocketWin32();
 
 		private:
