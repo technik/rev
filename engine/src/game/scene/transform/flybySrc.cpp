@@ -17,7 +17,7 @@ namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		void FlyBySrc::update(float _dt) {
+		bool FlyBySrc::update(float _dt) {
 			static float mult = 1.f;
 #ifndef ANDROID
 			KeyboardInput* input = KeyboardInput::get();
@@ -30,37 +30,25 @@ namespace rev {
 			Vec3f velocity = Vec3f::zero();
 			if (input->held(KeyboardInput::eD))			velocity.x += deltaV;
 			if (input->held(KeyboardInput::eA))			velocity.x -= deltaV;
-			if (input->held(KeyboardInput::eW))			velocity.y += deltaV;
+			if (input->held(KeyboardInput::eW))			
+				velocity.y += deltaV;
 			if (input->held(KeyboardInput::eS))			velocity.y -= deltaV;
 			if (input->held(KeyboardInput::eKeyUp))
 				velocity.z += deltaV;
 			if (input->held(KeyboardInput::eKeyDown))
 				velocity.z -= deltaV;
-			moveLocal(velocity * mSpeed * _dt);
+			Vec3f newPos = transform->position() + transform->transform().rotate(velocity) * _dt * mSpeed;
+			transform->setPosition(newPos);
+
 			// Rotation
 			float angSpd = 0.f;
 			float deltaG = 0.8f;
 			if (input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
 			if (input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
-			rotate(Vec3f::zAxis(), angSpd * _dt);
+
+			//rotate(Vec3f::zAxis(), angSpd * _dt);
 #endif // ANDROID
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void FlyBySrc::setPosition(const math::Vec3f& _position) {
-			TransformSrc::setWorldPosition(_position);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void FlyBySrc::moveLocal(const math::Vec3f& _translation) {
-			TransformSrc::setPosition(position() + transform().rotate(_translation));
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		void FlyBySrc::rotate(const math::Vec3f& _axis, float _angle)
-		{
-			math::Quatf turn = math::Quatf(_axis, _angle);
-			setWorldRotation(turn * rotation());
+			return true;
 		}
 
 	}	// namespace game

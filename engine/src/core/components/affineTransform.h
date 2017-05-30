@@ -14,10 +14,11 @@ namespace rev {
 
 		class AffineTransform : public Component {
 		public:
-			const	math::Vec3f&	position	() const	{ return matrix.col(3); }
+					void			setPosition	(const math::Vec3f& _p)	{ matrix.setCol(3,_p); }
+			const	math::Vec3f&	position	() const				{ return matrix.col(3); }
 
-					math::Mat34f&	transform	()			{ return matrix; }
-			const	math::Mat34f&	transform	() const	{ return matrix; }
+					math::Mat34f&	transform	()						{ return matrix; }
+			const	math::Mat34f&	transform	() const				{ return matrix; }
 
 			static AffineTransform* construct(const cjson::Json& _data) {
 				AffineTransform* t = new AffineTransform;

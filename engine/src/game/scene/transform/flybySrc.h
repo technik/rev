@@ -7,26 +7,28 @@
 #ifndef _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 #define _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 
-#include <core/components/transformSrc.h>
+#include <game/logicComponent.h>
+#include <core/components/sceneNode.h>
+#include <core/components/affineTransform.h>
 
 namespace rev {
 	namespace game {
 
-		class FlyBySrc : public core::TransformSrc
+		class FlyBySrc : public LogicComponent
 		{
 		public:
 			FlyBySrc(float _spd) : mSpeed(_spd) {}
 
-			void setPosition(const math::Vec3f& _position);
+			void init() override {
+				transform = node()->component<core::AffineTransform>();
+			}
 
-			void update(float _dt);
+			bool update(float _dt) override;
 			void setSpeed(float _speed) { mSpeed = _speed; }
 
 		private:
-			void			moveLocal(const math::Vec3f& _translation);
-			void			rotate(const math::Vec3f& _axis, float _angle);
-
 			float mSpeed;
+			core::AffineTransform*	transform = nullptr;
 		};
 
 	}	// namespace game

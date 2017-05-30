@@ -44,6 +44,9 @@
 				{
 					_type : "Transform",
 					pos : [0, -1, 1],
+				},
+				{
+					_type : "Flyby"
 				}
 			]
 		}

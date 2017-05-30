@@ -7,6 +7,7 @@
 #include <util/app/app3d.h>
 #include <iostream>
 #include <game/sceneLoader.h>
+#include <game/logicLayer.h>
 #include <video/basicTypes/camera.h>
 #include <video/graphics/material.h>
 #include <video/graphics/renderObj.h>
@@ -18,6 +19,7 @@
 #include <core/components/affineTransform.h>
 #include <network/http/httpServer.h>
 #include <network/http/httpResponse.h>
+#include <game/scene/transform/flybySrc.h>
 
 using namespace cjson;
 
@@ -40,6 +42,13 @@ public:
 		SceneLoader mLoader;
 
 		// Prepare factories and game world
+		mSceneLogic = new LogicLayer;
+		mGameWorld.addLayer(mSceneLogic);
+		mLoader.registerFactory("Flyby", [=](const Json& _j) {
+			LogicComponent* c = new FlyBySrc(1.f);
+			mSceneLogic->add(c);
+			return c;
+		});
 		mRenderScene = new RenderLayer(mRenderer);
 		mGameWorld.addLayer(mRenderScene);
 		mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
@@ -66,6 +75,7 @@ public:
 	// World & world layers
 	World			mGameWorld;
 	RenderLayer*	mRenderScene;
+	LogicLayer*		mSceneLogic;
 
 	// Common components
 	ForwardRenderer mRenderer;
