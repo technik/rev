@@ -7,6 +7,9 @@
 #include <functional>
 #include <string>
 
+#include <string>
+#include <unordered_map>
+
 namespace rev {
 	namespace net {
 
@@ -29,7 +32,15 @@ namespace rev {
 				void setResponder(const std::string& _url, const http::Response&); // Sets static response for an url
 
 			private:
+				void onNewConnection(Socket* _socket);
+				void sendError404(Socket* _connection) const;
+				bool dispatchPetition(Server*, const std::string& _url, unsigned _conId, const Request& _petition);
+
+			private:
 				SocketServer*	mSocket;
+
+				std::unordered_map<std::string, UrlHandler>	mHandlers;
+				std::unordered_map<unsigned, Socket*>		mConnections;
 			};
 
 		}	// namespace http
