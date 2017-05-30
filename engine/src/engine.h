@@ -18,6 +18,8 @@ namespace rev {
 		class RenderObj;
 	} // namespace rev
 
+	namespace net { namespace http { class Server; } }
+
 	class Engine {
 	public:
 #ifdef ANDROID
@@ -33,6 +35,7 @@ namespace rev {
 
 	private:
 		video::Window*			mMainWindow = nullptr;
+		net::http::Server*		mAPIService = nullptr;
 
 	private:
 		// Disable copy

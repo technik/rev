@@ -24,6 +24,7 @@
 #include <video/window/window.h>
 #endif // !ANDROID
 #include <video/graphics/shader/shader.h>
+#include <network/http/httpServer.h>
 
 using namespace rev::math;
 
@@ -44,6 +45,9 @@ namespace rev {
 		// Create window
 		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
 #endif // !ANDROID
+		// Init Json API service
+		mAPIService = new net::http::Server;
+		mAPIService->init(5000);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
