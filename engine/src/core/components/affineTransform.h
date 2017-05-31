@@ -17,6 +17,9 @@ namespace rev {
 					void			setPosition	(const math::Vec3f& _p)	{ matrix.setCol(3,_p); }
 			const	math::Vec3f&	position	() const				{ return matrix.col(3); }
 
+					void			setRotation	(const math::Quatf& _q) { matrix = Mat34f(_q, position()); }
+					void			rotate		(const math::Quatf& _q);
+
 					math::Mat34f&	transform	()						{ return matrix; }
 			const	math::Mat34f&	transform	() const				{ return matrix; }
 
@@ -42,5 +45,12 @@ namespace rev {
 			math::Mat34f matrix;
 
 		};
+
+		//-------------------------------------------------------------------------------------------
+		inline void AffineTransform::rotate(const math::Quatf& _q) {
+			Vec3f pos = position();
+			matrix = Mat34f(_q) * matrix;
+			setPosition(pos);
+		}
 
 } }	// namespace rev::core
