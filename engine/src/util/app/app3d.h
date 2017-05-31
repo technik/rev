@@ -48,6 +48,7 @@ namespace rev {
 		void postFrame();
 
 	private:
+		float						mMinFrameTime;
 		Engine						mEngine;
 		rev::video::GraphicsDriver*	mDriver = nullptr;
 

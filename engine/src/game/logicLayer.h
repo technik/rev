@@ -18,13 +18,9 @@ namespace rev {
 				for (auto c : mUninitialized)
 					c->init();
 				mUninitialized.clear();
-				// Ensure a reasonable minimun dt
-				mAccumDt += _dt;
-				if(mAccumDt <= 1/120.f)
-					return true;
 				// Update all objects
 				for(auto c : mComponents)
-					c->update(mAccumDt);
+					c->update(_dt);
 				mAccumDt = 0.f;
 				return true;
 			}

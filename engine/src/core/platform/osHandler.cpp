@@ -39,7 +39,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool OSHandler::update() {
-			input::KeyboardInput::get()->refresh(); // Important: refresh before BaseUpdate
+			input::KeyboardInput::get()->refresh(); // Important: refresh before OSHandler. Otherwise, keyboard messages may be discarded
 			if (!OSHandlerBase::update())
 				return false;
 			FileSystem::get()->update();

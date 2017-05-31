@@ -51,8 +51,6 @@ namespace rev { namespace input
 
 		void refresh	();
 
-		bool processWindowsMessage(MSG _msg);	// Returns true if the message was processed.
-
 	private:
 		int keyState[eMaxKeyCode];
 		int oldKeyState[eMaxKeyCode];

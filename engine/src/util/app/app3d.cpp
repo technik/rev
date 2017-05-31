@@ -10,6 +10,8 @@
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/window/window.h>
 #include <core/time/time.h>
+#include <thread>
+#include <chrono>
 
 using namespace rev::core;
 #ifndef ANDROID
@@ -24,12 +26,12 @@ namespace rev {
 	App3d::App3d(int _argc, const char** _argv)
 		: mEngine(_argc,_argv)
 	{
+		mMinFrameTime = 1.f/120;
 		mDriver = new GraphicsDriver(mEngine.mainWindow());
 		mDriver->setClearColor(Color(0.7f));
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
-		// Init renderer
 	}
 #endif // !ANDROID
 
@@ -65,6 +67,12 @@ namespace rev {
 #endif // !ANDROID
 
 		float dt = core::Time::get()->frameTime();
+		if (dt < mMinFrameTime) // Limit framerate
+		{
+			int timeLeft = (int)(1000.f*(mMinFrameTime - dt));
+			std::this_thread::sleep_for(std::chrono::milliseconds(timeLeft));
+			dt = mMinFrameTime;
+		}
 		if(frame(dt)) {
 			postFrame();
 			//mProfiler.update(dt);

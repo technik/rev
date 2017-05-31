@@ -22,11 +22,6 @@ namespace rev { namespace input
 			keyState[key] = 0;
 			oldKeyState[key] = 0;
 		}
-
-		// Register in osHandler for message processing
-		(*OSHandler::get()) += [this](MSG _msg){
-			return processWindowsMessage(_msg);
-		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -55,32 +50,30 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void KeyboardInputWindows::refresh()
 	{
+		// Save old state
 		for (int key = 0; key < eMaxKeyCode; ++key)
 		{
 			oldKeyState[key] = keyState[key];
 		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	bool KeyboardInputWindows::processWindowsMessage(MSG _msg)
-	{
-		if(_msg.message == WM_KEYDOWN)
+		// Process windows messages
+		MSG msg;
+		while (PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE | PM_QS_INPUT))
 		{
-			if(_msg.wParam < eMaxKeyCode)
+			if (msg.message == WM_KEYDOWN)
 			{
-				keyState[_msg.wParam] = 1;
-				return true;
+				if (msg.wParam < eMaxKeyCode)
+				{
+					keyState[msg.wParam] = 1;
+				}
+			}
+			else if (msg.message == WM_KEYUP)
+			{
+				if (msg.wParam < eMaxKeyCode)
+				{
+					keyState[msg.wParam] = 0;
+				}
 			}
 		}
-		else if(_msg.message == WM_KEYUP)
-		{
-			if(_msg.wParam < eMaxKeyCode)
-			{
-				keyState[_msg.wParam] = 0;
-				return true;
-			}
-		}
-		return false;
 	}
 
 }	// namespace input

@@ -37,7 +37,7 @@ namespace rev {
 				velocity.z += deltaV;
 			if (input->held(KeyboardInput::eKeyDown))
 				velocity.z -= deltaV;
-			Vec3f newPos = transform->position() + transform->transform().rotate(velocity) * _dt * mSpeed;
+			Vec3f newPos = transform->position() + transform->transform().rotate(velocity) * (_dt * mSpeed);
 			transform->setPosition(newPos);
 
 			// Rotation
