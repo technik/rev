@@ -77,7 +77,7 @@ vec4 fragment_shader(vec3 albedo) {
 	float metalness = phy.y;
 #endif // PHYSICS_MAP
 	// Tint reflections for metals
-	vec3 F0 = mix(albedo, vec3(1.0), metalness);
+	vec3 F0 = mix(vec3(0.0), albedo, metalness);
 	//// BRDF params
 	vec3 viewDir = normalize(vViewDir);
 	vec3 normal = normalize(vNormal);
@@ -97,17 +97,17 @@ vec4 fragment_shader(vec3 albedo) {
 	vec3 nom = NDF * G * Fs;
 	float den = 1.0/max(0.001,(4*ndv*ndl*1.0));
 	vec3 spec = nom * den;
-	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 1 *ndl;
+	vec3 L0 = (kD*albedo / PI + spec) * lightClr *ndl;
 	
-	vec3 skyClr = vec3(0.0, 0.55, 0.8);
-	vec3 floorClr = vec3(1.0);
+	vec3 skyClr = vec3(0.3, 0.55, 0.6);
+	vec3 floorClr = vec3(0.5,0.5,0.6);
 	vec3 reflDir = reflect(viewDir, normal);
 	vec3 env = texture(environmentMap, reflDir).xyz;
 	vec3 ambient = mix(floorClr, skyClr, 0.5+0.5*normal.z);
 	
 	vec3 indirect = ambient*kD + env *kS;
 	
-	return vec4(env, 1.0);
+	return vec4(L0+indirect, 1.0);
 }
 
 // ----- Vertex shader -----
