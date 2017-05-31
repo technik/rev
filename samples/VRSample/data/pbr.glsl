@@ -79,34 +79,35 @@ vec4 fragment_shader(vec3 albedo) {
 	// Tint reflections for metals
 	vec3 F0 = mix(albedo, vec3(1.0), metalness);
 	//// BRDF params
+	vec3 viewDir = normalize(vViewDir);
 	vec3 normal = normalize(vNormal);
-	vec3 halfV = -normalize(uLightDir + vViewDir);
+	vec3 halfV = -normalize(uLightDir + viewDir);
 	float ndh = max(0.0, dot(halfV, normal));
 	float ndl = max(0.0, dot(-uLightDir, normal));
-	float ndv = max(0.0, dot(-vViewDir, normal));
+	float ndv = max(0.0, dot(-viewDir, normal));
 	// Specular
 	vec3 Fs = fresnelSchlick(ndv, F0);
 	float NDF = DistributionGGX(ndh, roughness);
 	float G = GeometrySmith(ndv, ndl, roughness);
 	
-	vec3 Ks = Fs;
-	vec3 kD = vec3(1)-Ks;
+	vec3 kS = Fs;
+	vec3 kD = vec3(1)-kS;
 	kD *= 1-metalness;
 	
 	vec3 nom = NDF * G * Fs;
 	float den = 1.0/max(0.001,(4*ndv*ndl*1.0));
 	vec3 spec = nom * den;
-	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 4 *ndl;
+	vec3 L0 = (kD*albedo / PI + spec) * lightClr * 1 *ndl;
 	
 	vec3 skyClr = vec3(0.0, 0.55, 0.8);
 	vec3 floorClr = vec3(1.0);
-	vec3 reflDir = reflect(vViewDir, normal);
+	vec3 reflDir = reflect(viewDir, normal);
 	vec3 env = texture(environmentMap, reflDir).xyz;
 	vec3 ambient = mix(floorClr, skyClr, 0.5+0.5*normal.z);
 	
-	vec3 indirect = ambient*kD + env *Ks;
+	vec3 indirect = ambient*kD + env *kS;
 	
-	return vec4(L0+0.1*indirect, 1.0);
+	return vec4(env, 1.0);
 }
 
 // ----- Vertex shader -----

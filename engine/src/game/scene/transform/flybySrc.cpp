@@ -37,7 +37,7 @@ namespace rev {
 				velocity.z += deltaV;
 			if (input->held(KeyboardInput::eKeyDown))
 				velocity.z -= deltaV;
-			Vec3f newPos = transform->position() + transform->transform().rotate(velocity) * (_dt * mSpeed);
+			Vec3f newPos = transform->position() + transform->matrix().rotate(velocity) * (_dt * mSpeed);
 			transform->setPosition(newPos);
 
 			// Rotation
@@ -46,7 +46,7 @@ namespace rev {
 			if (input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
 			if (input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
 
-			//rotate(Vec3f::zAxis(), angSpd * _dt);
+			transform->rotate(Quatf(Vec3f::zAxis(), angSpd * _dt));
 #endif // ANDROID
 			return true;
 		}

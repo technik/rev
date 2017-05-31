@@ -34,10 +34,12 @@ namespace rev {
 			int uViewPos = mDriver->getUniformLocation("uViewPos");
 			mDriver->setUniform(uViewPos, info.viewPos);
 
+			GLenum stage = 0;
 			for (const auto& map : info.texUniforms) {
 				int uLoc = mDriver->getUniformLocation(map.first.c_str());
 				if (uViewPos >= 0) {
-					mDriver->setUniform(uLoc, map.second);
+					mDriver->setUniform(uLoc, map.second, stage);
+					++stage;
 				}
 			}
 

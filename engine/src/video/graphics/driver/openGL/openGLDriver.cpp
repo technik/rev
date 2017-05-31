@@ -235,34 +235,18 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex) {
+		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex, GLenum _texStage) {
 			//logGlError();
-			if(hasTexStage(_tex)) {
-				glActiveTexture(mAssignedTexStages[_tex->glId()]);
+			//if(hasTexStage(_tex)) {
+				glActiveTexture(_texStage + GL_TEXTURE0);
 				GLenum target = _tex->type() == Texture::TexType::tex2d ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
 				glBindTexture(target, _tex->glId());
-			} else {
-				assignTexStage(_tex);
-			}
+		//	} else {
+		//		assignTexStage(_tex);
+		//	}
 			//logGlError();
-			glUniform1i(_uniformId, mAssignedTexStages[_tex->glId()] - GL_TEXTURE0);
+			glUniform1i(_uniformId, _texStage);
 			//logGlError();
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::assignTexStage(const Texture* _tex) {
-			glActiveTexture(mCurTexStage);
-			glBindTexture(GL_TEXTURE_2D, _tex->glId());
-			mAssignedTexStages[_tex->glId()] = mCurTexStage;
-
-			mCurTexStage++;
-			if (mCurTexStage > GL_TEXTURE31)
-				mCurTexStage = GL_TEXTURE0;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		bool OpenGLDriver::hasTexStage(const Texture* _tex) const {
-			return mAssignedTexStages.find(_tex->glId()) != mAssignedTexStages.end();
 		}
 
 	}	// namespace video

@@ -33,7 +33,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Mat34f Camera::view() const {
 			if(node()) {
-				return node()->component<core::AffineTransform>()->transform();
+				return node()->component<core::AffineTransform>()->matrix();
 			}
 			else
 				return Mat34f::identity();

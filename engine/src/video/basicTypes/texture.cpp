@@ -76,7 +76,8 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Texture::Texture(const TextureInfo& _desc, const ImageBuffer* _buffers, size_t nMaps)
-			: mSize(_desc.size)
+			: mInfo(_desc)
+			, mSize(_desc.size)
 			, mMultiSample(false)
 		{
 			constexpr int borderSize = 0;

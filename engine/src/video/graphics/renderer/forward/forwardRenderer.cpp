@@ -45,7 +45,7 @@ namespace rev {
 			RendererBackEnd::DrawCall	draw;
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
-			Vec3f globalLightDir = (Vec3f(1.f,1.f,-2.f)).normalized();
+			Vec3f globalLightDir = (Vec3f(0.8f,-1.f,-0.9f)).normalized();
 			Vec3f viewPos = _cam.node()->component<core::AffineTransform>()->position();
 			drawInfo.lightClr = Vec3f(1.f,1.f,0.9f)*1000.f;
 			// Camera
@@ -53,7 +53,7 @@ namespace rev {
 			Mat44f viewProj = _cam.projection() * invView;
 			// render objects
 			for (const auto obj : _scene) {
-				Mat34f modelMatrix = obj->node()->component<core::AffineTransform>()->transform();
+				Mat34f modelMatrix = obj->node()->component<core::AffineTransform>()->matrix();
 				Mat34f invModelMtx = modelMatrix.inverse();
 
 				drawInfo.wvp = viewProj * modelMatrix;

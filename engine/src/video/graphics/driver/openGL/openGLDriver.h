@@ -83,7 +83,7 @@ namespace rev {
 			void		setUniform(int _id, const math::Mat33f& _value);
 			void		setUniform(int _id, const math::Mat44f& _value);
 			void		setUniform(int _id, const Color& _value);
-			void		setUniform(int _id, const Texture* _rt);
+			void		setUniform(int _id, const Texture* _rt, GLenum _texStage);
 
 			// --- Draw ---
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive);
@@ -91,10 +91,6 @@ namespace rev {
 		private:
 			GLuint	mProgram;
 			GLuint mCurTexStage = GL_TEXTURE0;
-
-			void assignTexStage(const Texture*);
-			bool hasTexStage(const Texture*) const;
-			std::map<unsigned,GLuint> mAssignedTexStages; // Texture id, tex stage.
 
 			virtual void swapBuffers() = 0;
 		};

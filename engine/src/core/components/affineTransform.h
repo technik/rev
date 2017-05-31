@@ -14,14 +14,14 @@ namespace rev {
 
 		class AffineTransform : public Component {
 		public:
-					void			setPosition	(const math::Vec3f& _p)	{ matrix.setCol(3,_p); }
-			const	math::Vec3f&	position	() const				{ return matrix.col(3); }
+					void			setPosition	(const math::Vec3f& _p)	{ mMatrix.setCol(3,_p); }
+					math::Vec3f		position	() const				{ return mMatrix.col(3); }
 
-					void			setRotation	(const math::Quatf& _q) { matrix = Mat34f(_q, position()); }
+					void			setRotation	(const math::Quatf& _q) { mMatrix = math::Mat34f(_q, position()); }
 					void			rotate		(const math::Quatf& _q);
 
-					math::Mat34f&	transform	()						{ return matrix; }
-			const	math::Mat34f&	transform	() const				{ return matrix; }
+					math::Mat34f&	matrix	()						{ return mMatrix; }
+			const	math::Mat34f&	matrix	() const				{ return mMatrix; }
 
 			static AffineTransform* construct(const cjson::Json& _data) {
 				AffineTransform* t = new AffineTransform;
@@ -29,27 +29,27 @@ namespace rev {
 					const cjson::Json& mat = _data["mat"];
 					for(auto i = 0; i < 4; ++i) {
 						math::Vec3f col = math::Vec3f(mat(i + 0), mat(i + 4), mat(i + 8));
-						t->matrix.setCol(i, col);
+						t->mMatrix.setCol(i, col);
 					}
 				}
 				else if (_data.contains("pos")) {
 					const cjson::Json& pos = _data["pos"];
-					t->matrix = math::Mat34f::identity();
+					t->mMatrix = math::Mat34f::identity();
 					math::Vec3f col = math::Vec3f(pos(0), pos(1), pos(2));
-					t->matrix.setCol(3, col);
+					t->mMatrix.setCol(3, col);
 				}
 				return t;
 			}
 
 		private:
-			math::Mat34f matrix;
+			math::Mat34f mMatrix;
 
 		};
 
 		//-------------------------------------------------------------------------------------------
 		inline void AffineTransform::rotate(const math::Quatf& _q) {
-			Vec3f pos = position();
-			matrix = Mat34f(_q) * matrix;
+			math::Vec3f pos = position();
+			mMatrix = math::Mat34f(_q) * mMatrix;
 			setPosition(pos);
 		}
 
