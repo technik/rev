@@ -79,7 +79,7 @@ namespace cjson {
 		case '{': return parseObject(_dst);
 		default:
 			// Is it a number?
-			if(c >= '0' && c <= '9' || c == '+' || c == '-')
+			if((c >= '0' && c <= '9') || c == '+' || c == '-')
 				return parseNumber(_dst);
 			// Unsupported, return parsing error
 			return false;

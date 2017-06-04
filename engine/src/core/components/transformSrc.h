@@ -19,8 +19,8 @@ namespace rev {
 		public:
 			// Constructor and virtual destructor
 			TransformSrc() 
-				:mParent(0)
-				,mLocalTransform(math::Mat34f::identity())
+				: mLocalTransform(math::Mat34f::identity())
+				, mParent(0)
 			{
 			}
 

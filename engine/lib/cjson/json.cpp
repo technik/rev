@@ -105,22 +105,22 @@ namespace cjson {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Json::Json(const char* _s)
-		: mText(_s)
-		, mType(DataType::text)
+		: mType(DataType::text)
+		, mText(_s)
 	{
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Json::Json(const std::string& _s)
-		: mText(_s)
-		, mType(DataType::text)
+		: mType(DataType::text)
+		, mText(_s)
 	{
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	Json::Json(std::string&& _s)
-		: mText(std::move(_s))
-		, mType(DataType::text)
+		: mType(DataType::text)
+		, mText(std::move(_s))
 	{
 	}
 
