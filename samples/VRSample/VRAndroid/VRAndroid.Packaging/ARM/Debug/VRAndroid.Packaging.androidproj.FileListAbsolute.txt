@@ -1,0 +1,12 @@
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\VRAndroid.apk.recipe
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\VRAndroid.apk.recipe.merged
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libVRAndroid.so
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\libs\armeabi-v7a\gdbserver
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libgnustl_static.a
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\res\values\strings.xml
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\AndroidManifest.xml
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\project.properties
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\Package\build.xml
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\FileStringReplace.incremental
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\VRAndroid.apk
+C:\programming\rev\samples\VRSample\VRAndroid\VRAndroid.Packaging\ARM\Debug\VRAndroid.lastsuccessfuldeploy
