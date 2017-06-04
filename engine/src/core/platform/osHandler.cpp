@@ -39,10 +39,14 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool OSHandler::update() {
+#ifndef ANDROID
 			input::KeyboardInput::get()->refresh(); // Important: refresh before OSHandler. Otherwise, keyboard messages may be discarded
+#endif // ANDROID
 			if (!OSHandlerBase::update())
 				return false;
+#ifndef ANDROID
 			FileSystem::get()->update();
+#endif // ANDROID
 			Time::get()->update();
 			return true;
 		}

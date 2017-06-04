@@ -7,6 +7,7 @@
 #define _REV_CORE_COMPONENT_SCENENODE_H_
 
 #include "transformSrc.h"
+#include "component.h"
 #include <vector>
 
 namespace rev {

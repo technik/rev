@@ -12,3 +12,10 @@ build
 *.a
 *.so
 profiler.txt
+*.tlog
+/player/androidPlayer/androidPlayer.NativeActivity/ARM/Debug
+/player/androidPlayer/androidPlayer.NativeActivity/x86/Debug/*.log
+/player/androidPlayer/androidPlayer.NativeActivity/x86/Debug
+/player/androidPlayer/androidPlayer.Packaging/ARM/Debug
+/player/x86/Debug
+/player/ARM/Debug

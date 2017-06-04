@@ -151,6 +151,18 @@
     <ClInclude Include="..\lib\cjson\serializer.h">
       <Filter>libs\cjson</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\world\world.h">
+      <Filter>src\core\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\world\worldLayer.h">
+      <Filter>src\core\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\types\typeTraits.h">
+      <Filter>src\core\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\event.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="libs">
@@ -261,6 +273,12 @@
     <Filter Include="libs\cjson">
       <UniqueIdentifier>{fe6e20c1-573c-4b5a-89b7-3126be10fbe8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\world">
+      <UniqueIdentifier>{a16f1092-54ef-4015-a9d8-34e674a6b0cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\types">
+      <UniqueIdentifier>{5681bab6-bf3a-4804-90da-1928e1ce2435}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -328,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="..\lib\cjson\serializer.cpp">
       <Filter>libs\cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\world\world.cpp">
+      <Filter>src\core\world</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
