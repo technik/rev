@@ -1,1 +1,0 @@
-$(AntDependencies)=;$(ApplicationId)=applicationId = "";$(ConfigurationType)=application;$(AarDependencies)=;$(AarDependenciesSettings)=;$(ApplicationName)=VRAndroid;$(AndroidAppLibName)=VRAndroid;$(AndroidBuildToolsVersion)=19.1.0;$(AndroidAPILevelNumber)=19;$(androidapilevel)=android-19;$(projectname)=VRAndroid.Packaging;
