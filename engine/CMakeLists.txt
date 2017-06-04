@@ -39,8 +39,6 @@ add_library(cjson STATIC ${CJSON_SOURCE_FILES})
 target_include_directories(cjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/cjson)
 set_target_properties(cjson PROPERTIES FOLDER "libs")
 
-#link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/glew)
-#link_directories (${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)
 add_library(rev STATIC ${PROJECT_SOURCE_FILES})
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 if(UNIX)
@@ -61,9 +59,3 @@ target_link_libraries (rev LINK_PUBLIC ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} ${F
 if(MSVC)
 	target_link_libraries(rev LINK_PUBLIC Ws2_32 Mswsock)
 endif(MSVC)
-
-#add_subdirectory(lib/vhacd)
-#target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/inc)
-#target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/vhacd/public)
-#target_link_libraries(rev LINK_PUBLIC BulletDynamics Bullet3Common BulletCollision LinearMath)
-#target_link_libraries(rev LINK_PUBLIC VHACD_LIB)

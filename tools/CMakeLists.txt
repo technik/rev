@@ -6,7 +6,6 @@ cmake_minimum_required (VERSION 2.6)
 project(revTools)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-#set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake-modules)
 
 macro(GroupSources curdir)
 	file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir}
@@ -41,9 +40,6 @@ file(GLOB_RECURSE MDLPROC_SOURCE_FILES "modelProcessor/*.cpp" "modelProcessor/*.
 add_executable(modelProcessor ${MDLPROC_SOURCE_FILES})
 set_target_properties(modelProcessor PROPERTIES FOLDER "tools")
 
-message(STATUS "Found asset importer library: ${ASSIMP_LIBRARY_DIRS}")
-message(STATUS "Found asset importer library: ${ASSIMP_INCLUDE_DIRS}")
-message(STATUS "Found asset importer library: ${ASSIMP_LIBRARIES}")
 target_include_directories(modelProcessor PUBLIC ${ASSIMP_INCLUDE_DIRS})
 target_link_libraries(modelProcessor LINK_PUBLIC ${ASSIMP_LIBRARIES} zlibstatic)
 target_link_libraries(modelProcessor LINK_PUBLIC rev)
