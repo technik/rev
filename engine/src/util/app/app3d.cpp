@@ -40,6 +40,7 @@ namespace rev {
 	App3d::App3d(ANativeActivity* _activity)
 		:mEngine(_activity)
 	{
+		mMinFrameTime = 1.f/120;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -47,8 +48,6 @@ namespace rev {
 		GraphicsDriver* driver = new GraphicsDriver();
 		driver->setWindow(_window);
 		mDriver = driver;
-		mShader = Shader::manager()->get("solid");
-		driver->setShader(mShader);
 	}
 #endif // ANDROID
 

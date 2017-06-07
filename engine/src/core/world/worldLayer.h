@@ -16,8 +16,10 @@ namespace rev {
 		/// World layers register their factories to a world, so when the world loads a new scene, the factories will be invoked
 		/// for the layer's components.
 		class WorldLayer {
+		protected:
+			WorldLayer() = default; // Enforce derivation
 		public:
-			virtual ~WorldLayer() = 0 {}
+			virtual ~WorldLayer() {}
 
 			virtual void init() {}
 			/// \return true if the game should stop

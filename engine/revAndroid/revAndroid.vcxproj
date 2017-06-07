@@ -107,11 +107,12 @@
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <IncludePath>$(ProjectDir)..\lib;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\src;$(ProjectDir)..\lib;$(IncludePath)</IncludePath>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <UseMultiToolTask>true</UseMultiToolTask>
+    <IncludePath>$(ProjectDir)..\src;$(ProjectDir)..\lib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -214,7 +215,10 @@
     <ClInclude Include="..\src\core\world\worldLayer.h" />
     <ClInclude Include="..\src\engine.h" />
     <ClInclude Include="..\src\game\geometry\procedural\basic.h" />
-    <ClInclude Include="..\src\game\scene\camera\flyByCamera.h" />
+    <ClInclude Include="..\src\game\logicComponent.h" />
+    <ClInclude Include="..\src\game\logicLayer.h" />
+    <ClInclude Include="..\src\game\sceneLoader.h" />
+    <ClInclude Include="..\src\game\scene\transform\flybySrc.h" />
     <ClInclude Include="..\src\input\sensors\accelerometer.h" />
     <ClInclude Include="..\src\math\algebra\matrix.h" />
     <ClInclude Include="..\src\math\algebra\quaternion.h" />
@@ -244,6 +248,8 @@
     <ClInclude Include="..\src\video\graphics\renderer\types\renderTarget.h" />
     <ClInclude Include="..\src\video\graphics\shader\openGL\openGLShader.h" />
     <ClInclude Include="..\src\video\graphics\shader\shader.h" />
+    <ClInclude Include="..\src\video\window\window.h" />
+    <ClInclude Include="..\src\video\window\windowAndroid.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\cjson\json.cpp" />
@@ -259,7 +265,8 @@
     <ClCompile Include="..\src\core\world\world.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
     <ClCompile Include="..\src\game\geometry\procedural\basic.cpp" />
-    <ClCompile Include="..\src\game\scene\camera\flyByCamera.cpp" />
+    <ClCompile Include="..\src\game\sceneLoader.cpp" />
+    <ClCompile Include="..\src\game\scene\transform\flybySrc.cpp" />
     <ClCompile Include="..\src\math\noise.cpp" />
     <ClCompile Include="..\src\util\app\app3d.cpp" />
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />

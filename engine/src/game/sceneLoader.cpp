@@ -23,7 +23,8 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void SceneLoader::loadScene(const std::string& _fileName, core::World& _w) {
 			Json sceneData;
-			sceneData.parse(ifstream(_fileName));
+			ifstream fileStream(_fileName);
+			sceneData.parse(fileStream);
 			for (const auto& objectData : sceneData["objects"]) {
 				SceneNode* obj = _w.createNode(objectData["name"]);
 				if(objectData.contains("components"))

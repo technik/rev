@@ -7,11 +7,9 @@
 #define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGL_H_
 
 #ifdef ANDROID
-
-#include <EGL/egl.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-
+	#include <EGL/egl.h>
+	#include <GLES3/gl3.h>
+	#include <GLES3/gl3ext.h>
 #else // !ANDROID
 #	include "glew.h"
 #	ifdef _WIN32

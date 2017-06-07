@@ -8,13 +8,18 @@
 #define _REV_VIDEO_WINDOW_WINDOW_H_
 
 #ifdef _WIN32
-#include "windows/windowWindows.h"
+	#include "windows/windowWindows.h"
 #endif // _WIN32
 #ifdef __linux__
-#include "linux/windowLinux.h"
+	#ifdef ANDROID
+		#include "windowAndroid.h"
+	#else // !ANDROID
+		#include "linux/windowLinux.h"
+	#endif // !ANDROID
 #endif //__linux__
 
 #include <core/event.h>
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {

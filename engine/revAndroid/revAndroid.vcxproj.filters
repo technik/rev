@@ -124,9 +124,6 @@
     <ClInclude Include="..\src\game\geometry\procedural\basic.h">
       <Filter>src\game\geometry\procedural</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\game\scene\camera\flyByCamera.h">
-      <Filter>src\game\scene\camera</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\core\components\component.h">
       <Filter>src\core\components</Filter>
     </ClInclude>
@@ -162,6 +159,24 @@
     </ClInclude>
     <ClInclude Include="..\src\core\event.h">
       <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\transform\flybySrc.h">
+      <Filter>src\game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\logicComponent.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\logicLayer.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\sceneLoader.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\window\window.h">
+      <Filter>src\video\window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\window\windowAndroid.h">
+      <Filter>src\video\window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -209,9 +224,6 @@
     </Filter>
     <Filter Include="src\game\scene">
       <UniqueIdentifier>{fdc36165-ea75-40db-b9dc-29a56c1a7471}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\game\scene\camera">
-      <UniqueIdentifier>{052f861d-95f6-48e9-b074-b2451747d4ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\input">
       <UniqueIdentifier>{a15a28b9-91f7-4662-a29e-d21c67a05eff}</UniqueIdentifier>
@@ -279,6 +291,12 @@
     <Filter Include="src\core\types">
       <UniqueIdentifier>{5681bab6-bf3a-4804-90da-1928e1ce2435}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\game\scene\transform">
+      <UniqueIdentifier>{7bc2435a-120b-4d7a-a4db-428e2e49a6e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video\window">
+      <UniqueIdentifier>{4bc95aff-1590-4d92-9f9f-e29587066983}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -323,9 +341,6 @@
     <ClCompile Include="..\src\game\geometry\procedural\basic.cpp">
       <Filter>src\game\geometry\procedural</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\game\scene\camera\flyByCamera.cpp">
-      <Filter>src\game\scene\camera</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\core\components\component.cpp">
       <Filter>src\core\components</Filter>
     </ClCompile>
@@ -349,6 +364,12 @@
     </ClCompile>
     <ClCompile Include="..\src\core\world\world.cpp">
       <Filter>src\core\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\transform\flybySrc.cpp">
+      <Filter>src\game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\sceneLoader.cpp">
+      <Filter>src\game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

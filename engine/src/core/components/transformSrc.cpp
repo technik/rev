@@ -12,6 +12,7 @@ namespace rev {
 	namespace core {
 
 		// Static data
+		template<>
 		DataConstructible<TransformSrc>::FactoryMap DataConstructible<TransformSrc>::sFactories;
 
 		//--------------------------------------------------------------------------------------------------------------

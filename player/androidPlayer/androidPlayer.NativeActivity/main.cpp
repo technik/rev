@@ -15,6 +15,8 @@
 *
 */
 
+#include <player.h>
+
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
 
@@ -211,12 +213,15 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 	}
 }
 
+using namespace rev;
+
 /**
 * This is the main entry point of a native application that is using
 * android_native_app_glue.  It runs in its own thread, with its own
 * event loop for receiving input events and doing other things.
 */
 void android_main(struct android_app* state) {
+	Player revPlayer(0, nullptr);
 	struct engine engine;
 
 	memset(&engine, 0, sizeof(engine));

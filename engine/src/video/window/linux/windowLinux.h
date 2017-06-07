@@ -7,7 +7,7 @@
 #ifndef _REV_VIDEO_WINDOW_LINUX_WINDOWLINUX_H_
 #define _REV_VIDEO_WINDOW_LINUX_WINDOWLINUX_H_
 
-#ifdef __linux__
+#if defined( __linux__ ) && !defined(ANDROID)
 
 #include <math/algebra/vector.h>
 
@@ -43,6 +43,6 @@ namespace rev {
 	}	// namespace video
 }	// namespace rev
 
-#endif // __linux__
+#endif // __linux__ && !ANDROID
 
 #endif // _REV_VIDEO_WINDOW_LINUX_WINDOWLINUX_H_

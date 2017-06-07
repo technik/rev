@@ -28,6 +28,7 @@
 
 #include "openGLDriverAndroid.h"
 #include <video/graphics/shader/shader.h>
+#include <android/native_activity.h>
 
 #include <android/log.h>
 
@@ -42,7 +43,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		OpenGLDriverAndroid::OpenGLDriverAndroid()
 		{
-			Shader::manager()->setCreator(
+			/*Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
 				string pxlName = _name + ".pxl";
 				string vtxName = _name + ".vtx";
@@ -52,7 +53,7 @@ namespace rev {
 			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
 				string pxlName = _name + ".pxl";
 				string vtxName = _name + ".vtx";
-			});
+			});*/
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
