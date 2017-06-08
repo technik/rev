@@ -1,0 +1,26 @@
+//----------------------------------------------------------------------------------------------------------------------
+// Revolution Engine
+// Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
+//----------------------------------------------------------------------------------------------------------------------
+#pragma once
+
+#ifdef ANDROID
+#include <android/native_activity.h>
+#endif // ANDROID
+
+namespace rev {
+	namespace core {
+
+#ifdef ANDROID
+		struct PlatformInfo {
+			ANativeActivity* activity;
+		};
+
+#else //!ANDROID
+		struct PlatformInfo {
+			int argC;
+			const char** argV;
+		};
+#endif // !ANDROID
+
+} }

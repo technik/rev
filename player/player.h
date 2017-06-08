@@ -21,12 +21,17 @@
 #include <network/http/httpResponse.h>
 #include <game/scene/transform/flybySrc.h>
 
+using namespace cjson;
+using namespace rev::video;
+using namespace rev::core;
+using namespace rev::game;
+
 namespace rev {
 
 	class Player : public rev::App3d {
 	public:
 		Player(int _argc, const char** _argv)
-			: App3d(_argc, _argv)
+			: rev::App3d(_argc, _argv)
 		{
 			processArgs(_argc, _argv);
 			mRenderer.init(&driver3d());
@@ -64,12 +69,12 @@ namespace rev {
 		std::string		mSceneName;
 
 		// World & world layers
-		World			mGameWorld;
-		RenderLayer*	mRenderScene;
-		LogicLayer*		mSceneLogic;
+		core::World			mGameWorld;
+		video::RenderLayer*	mRenderScene;
+		game::LogicLayer*		mSceneLogic;
 
 		// Common components
-		ForwardRenderer mRenderer;
+		video::ForwardRenderer mRenderer;
 
 	private:
 

@@ -202,7 +202,7 @@
     <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h" />
     <ClInclude Include="..\src\core\platform\osHandler.h" />
-    <ClInclude Include="..\src\core\platform\platform.h" />
+    <ClInclude Include="..\src\core\platform\platformInfo.h" />
     <ClInclude Include="..\src\core\resources\creator\stringConstructor.h" />
     <ClInclude Include="..\src\core\resources\creator\virtualConstructor.h" />
     <ClInclude Include="..\src\core\resources\namedResourceMgr.h" />
@@ -281,7 +281,6 @@
     <None Include="..\lib\cjson\json.inl" />
     <None Include="..\lib\cjson\JsonIterator.inl" />
     <None Include="..\src\core\platform\osHandler.inl" />
-    <None Include="..\src\core\platform\platform.inl" />
     <None Include="..\src\core\resources\resourceManager.inl" />
     <None Include="..\src\math\algebra\matrix.inl" />
     <None Include="..\src\math\algebra\vector.inl" />
