@@ -12,6 +12,9 @@
 #endif // ANDROID
 
 namespace rev {
+	namespace core {
+		struct PlatformInfo;
+	}
 	namespace video {
 		class Window;
 		class ForwardRenderer;
@@ -22,11 +25,7 @@ namespace rev {
 
 	class Engine {
 	public:
-#ifdef ANDROID
-		Engine(ANativeActivity* _activity);
-#else // !ANDROID
-		Engine(int _argc, const char** _argv);
-#endif // !ANDROID
+		Engine(const core::PlatformInfo& _activity);
 		~Engine();
 
 		bool update();

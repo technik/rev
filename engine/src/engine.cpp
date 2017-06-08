@@ -14,7 +14,7 @@
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
 #include <math/algebra/vector.h>
-#include <core/platform/platform.h>
+#include <core/platform/platformInfo.h>
 #ifndef ANDROID
 #include <core/platform/osHandler.h>
 #include <input/keyboard/keyboardInput.h>
@@ -30,12 +30,7 @@ using namespace rev::math;
 namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
-#ifdef ANDROID
-	Engine::Engine(ANativeActivity* _activity) {
-		core::Platform::startUp(_activity);
-#else // !ANDROID
-	Engine::Engine(int, const char** ) {
-#endif // !ANDROID
+	Engine::Engine(const core::PlatformInfo& _activity) {
 #ifndef ANDROID
 		core::OSHandler::startUp();
 		core::Time::init();
