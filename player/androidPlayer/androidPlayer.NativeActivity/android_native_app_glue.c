@@ -14,6 +14,17 @@
  * limitations under the License.
  *
  */
+#include <jni.h>
+#include <errno.h>
+
+#include <string.h>
+#include <unistd.h>
+#include <sys/resource.h>
+
+#include <android/sensor.h>
+
+#include "android_native_app_glue.h"
+#include <android/log.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "threaded_app", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "threaded_app", __VA_ARGS__))
@@ -36,7 +47,7 @@ static void free_saved_state(struct android_app* android_app) {
 }
 
 int8_t android_app_read_cmd(struct android_app* android_app) {
-    int8_t cmd;
+    /*int8_t cmd;
     if (read(android_app->msgread, &cmd, sizeof(cmd)) == sizeof(cmd)) {
         switch (cmd) {
             case APP_CMD_SAVE_STATE:
@@ -46,7 +57,7 @@ int8_t android_app_read_cmd(struct android_app* android_app) {
         return cmd;
     } else {
         LOGE("No data on command pipe!");
-    }
+    }*/
     return -1;
 }
 

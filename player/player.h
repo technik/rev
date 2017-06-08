@@ -22,18 +22,19 @@
 #include <game/scene/transform/flybySrc.h>
 
 using namespace cjson;
-using namespace rev::video;
 using namespace rev::core;
 using namespace rev::game;
+using namespace rev::net;
+using namespace rev::video;
 
 namespace rev {
 
 	class Player : public rev::App3d {
 	public:
-		Player(int _argc, const char** _argv)
-			: rev::App3d(_argc, _argv)
+		Player(const PlatformInfo& _platformInfo)
+			: rev::App3d(_platformInfo)
 		{
-			processArgs(_argc, _argv);
+			processArgs(_platformInfo);
 			mRenderer.init(&driver3d());
 			SceneLoader mLoader;
 
@@ -79,7 +80,7 @@ namespace rev {
 	private:
 
 		//----------------------------------------------------------------
-		void processArgs(int _argc, const char** _argv);
+		void processArgs(const PlatformInfo& _info);
 
 		//----------------------------------------------------------------
 		bool frame(float _dt) override;

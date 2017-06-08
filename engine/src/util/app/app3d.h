@@ -24,13 +24,7 @@ namespace rev {
 
 	class App3d {
 	public:
-#ifdef ANDROID
-		App3d(ANativeActivity* _activity);
-		void initGraphics(ANativeWindow*);
-		rev::video::GraphicsDriver* gfxDriver() { return mDriver; }
-#else
-		App3d(int _argc = 0, const char** _argv = nullptr);
-#endif // ANDROID
+		App3d(const core::PlatformInfo& _platformInfo);
 		bool update();
 
 	protected:

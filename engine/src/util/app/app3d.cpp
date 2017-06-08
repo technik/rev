@@ -12,6 +12,7 @@
 #include <core/time/time.h>
 #include <thread>
 #include <chrono>
+#include <core/platform/platformInfo.h>
 
 using namespace rev::core;
 #ifndef ANDROID
@@ -21,36 +22,23 @@ using namespace rev::video;
 
 namespace rev {
 
-#ifndef ANDROID
 	//------------------------------------------------------------------------------------------------------------------
-	App3d::App3d(int _argc, const char** _argv)
-		: mEngine(_argc,_argv)
+	App3d::App3d(const PlatformInfo& _info)
+		:mEngine(_info)
 	{
 		mMinFrameTime = 1.f/120;
+#ifdef ANDROID
+		GraphicsDriver* driver = new GraphicsDriver();
+		//driver->setWindow(_info.activity->);
+		mDriver = driver;
+#else
 		mDriver = new GraphicsDriver(mEngine.mainWindow());
 		mDriver->setClearColor(Color(0.7f));
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
-	}
 #endif // !ANDROID
-
-#ifdef ANDROID
-	//------------------------------------------------------------------------------------------------------------------
-	App3d::App3d(ANativeActivity* _activity)
-		:mEngine(_activity)
-	{
-		mMinFrameTime = 1.f/120;
 	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void App3d::initGraphics(ANativeWindow* _window) {
-		GraphicsDriver* driver = new GraphicsDriver();
-		driver->setWindow(_window);
-		mDriver = driver;
-	}
-#endif // ANDROID
-
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::update() {
 #ifdef ANDROID

@@ -8,7 +8,9 @@ using namespace cjson;
 
 using namespace rev::core;
 using namespace rev::game;
+#ifndef ANDROID
 using namespace rev::input;
+#endif
 using namespace rev::math;
 using namespace rev::net;
 using namespace rev::video;
@@ -18,10 +20,14 @@ using namespace std;
 namespace rev {
 
 	//----------------------------------------------------------------
-	void Player::processArgs(int _argc, const char** _argv) {
-		if (_argc > 1) {
-			mSceneName = _argv[1];
+	void Player::processArgs(const PlatformInfo& _info) {
+#ifdef ANDROID
+		mSceneName = "vrScene.scn";
+#else
+		if (_info.argC > 1) {
+			mSceneName = _info.argV[1];
 		}
+#endif
 	}
 
 	//----------------------------------------------------------------

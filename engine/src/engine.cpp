@@ -49,7 +49,6 @@ namespace rev {
 #ifndef ANDROID
 		input::KeyboardInput::end();
 #endif //!ANDROID
-		core::Platform::shutDown();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
