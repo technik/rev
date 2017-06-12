@@ -3,13 +3,14 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL
-#ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGL_H_
-#define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGL_H_
+#pragma once
 
 #ifdef ANDROID
 	#include <EGL/egl.h>
 	#include <GLES3/gl3.h>
-	#include <GLES3/gl3ext.h>
+#define __gl2_h_ // This is a workaround for lower api levels
+	#include <GLES2/gl2ext.h>
+	#include <GLES3/gl3platform.h>
 #else // !ANDROID
 #	include "glew.h"
 #	ifdef _WIN32
@@ -22,6 +23,3 @@
 #		include <GL/glew.h>
 #	endif // !_WIN32
 #endif // !ANDROID
-
-
-#endif // _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGL_H_

@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "httpResponse.h"
 
+#include <cstdlib>
 #include <cassert>
 #include <sstream>
 #include <core/platform/fileSystem/file.h>

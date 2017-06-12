@@ -3,8 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Textures
-#ifndef _REV_VIDEO_BASICTYPES_TEXTURE_H_
-#define _REV_VIDEO_BASICTYPES_TEXTURE_H_
+#pragma once
 
 #include <video/graphics/driver/openGL/openGL.h>
 #include <video/graphics/driver/graphicsDriver.h>
@@ -22,7 +21,7 @@ namespace rev {
 				rgb = GL_RGB,
 				rgba = GL_RGBA,
 				luminance = GL_LUMINANCE,
-				lumin_alpha = GL_LUMINANCE_ALPHA
+				lumin_alpha = GL_LUMINANCE_ALPHA,
 #else
 				r = GL_RED,
 				rg = GL_RG8,
@@ -30,8 +29,8 @@ namespace rev {
 				rgba = GL_RGBA8,
 				rg16f = GL_RG16F,
 				rg32f = GL_RG32F,
-				depth = GL_DEPTH_COMPONENT
 #endif // !ANDROID
+				depth = GL_DEPTH_COMPONENT
 			};
 
 			enum class SourceFormat {
@@ -102,5 +101,3 @@ namespace rev {
 		};
 	}
 }
-
-#endif // _REV_VIDEO_BASICTYPES_TEXTURE_H_

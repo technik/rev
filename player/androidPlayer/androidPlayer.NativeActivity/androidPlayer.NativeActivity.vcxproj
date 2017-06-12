@@ -118,9 +118,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <IncludePath>$(ProjectDir)..\..\;$(ProjectDir)..\..\..\engine\src;$(ProjectDir)..\..\..\engine\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <IncludePath>$(ProjectDir)..\..\;$(ProjectDir)..\..\..\engine\src;$(ProjectDir)..\..\..\engine\lib;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\..\engine\revAndroid\ARM\Release</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
@@ -157,7 +159,10 @@
       <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;</LibraryDependencies>
+      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv1_CM;EGL;GLESv3</LibraryDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\programming\rev\engine\revAndroid\ARM\Debug;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">

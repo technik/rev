@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "httpMessage.h"
 
+#include <cstdlib>
 #include <cassert>
 #include <iostream>
 #include <sstream>

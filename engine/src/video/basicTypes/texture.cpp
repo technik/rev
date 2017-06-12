@@ -3,7 +3,6 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Textures
-#ifndef ANDROID
 
 #include <video/basicTypes/texture.h>
 #include <freeImage/FreeImage.h>
@@ -21,6 +20,7 @@ namespace rev {
 			: mSize(_size)
 			, mMultiSample(_multiSample)
 		{
+#ifndef ANDROID
 			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 			glGenTextures(1, &mId);
 			glBindTexture(target, mId);
@@ -32,7 +32,9 @@ namespace rev {
 				//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
 				//glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
 			}
-			else {
+			else
+#endif // ANDROID
+			{
 				GLenum srcFormat = (GLenum)_targetFormat;
 				if (_targetFormat == InternalFormat::rgb)
 					srcFormat = GL_RGB;
@@ -40,29 +42,31 @@ namespace rev {
 					srcFormat = GL_RGBA;
 				if (_targetFormat == InternalFormat::rgb)
 					srcFormat = GL_RGB;
+#ifndef ANDROID
+				else if (_targetFormat == InternalFormat::r)
+					srcFormat = GL_RED;
 				else if (_targetFormat == InternalFormat::rg)
 					srcFormat = GL_RG;
 				else if (_targetFormat == InternalFormat::rg32f)
 					srcFormat = GL_RG;
 				else if (_targetFormat == InternalFormat::rg16f)
 					srcFormat = GL_RG;
-				else if (_targetFormat == InternalFormat::r)
-					srcFormat = GL_RED;
+#endif // ANDROID
 				if(_targetFormat == InternalFormat::depth) {
 					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, (GLint)_targetFormat, GL_FLOAT, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 					// Remove artefact on the edges of the shadowmap
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				}
 				else {
 					glTexImage2D(GL_TEXTURE_2D, 0, (GLint)_targetFormat, _size.x, _size.y, 0, srcFormat, GL_UNSIGNED_BYTE, nullptr);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				}
 			}
 		}
@@ -91,7 +95,7 @@ namespace rev {
 				else
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
-				GLint repeatMode = _desc.repeat?GL_REPEAT:GL_CLAMP;
+				GLint repeatMode = _desc.repeat?GL_REPEAT: GL_CLAMP_TO_EDGE;
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeatMode);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeatMode);
 
@@ -109,9 +113,9 @@ namespace rev {
 				// Config filtering
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 				// Load faces
 				for(size_t face = 0; face < nMaps; ++face) {
 					const ImageBuffer& buffer = _buffers[face];
@@ -125,7 +129,8 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Texture* Texture::loadFromFile(const std::string& _fileName) {
 			Json textureData;
-			textureData.parse(std::ifstream(_fileName));
+			std::ifstream file(_fileName);
+			textureData.parse(file);
 			// Load format and texture info
 			TextureInfo desc;
 			const Json& texType = textureData["type"];
@@ -164,10 +169,12 @@ namespace rev {
 			InternalFormat fmt = InternalFormat::rgba;
 			if(_s == "rgb")
 				fmt = InternalFormat::rgb;
+#ifndef ANDROID
 			else if(_s == "rg")
 				fmt = InternalFormat::rg;
 			else if (_s == "r")
 				fmt = InternalFormat::r;
+#endif // ANDROID
 			return fmt;
 		}
 
@@ -199,12 +206,14 @@ namespace rev {
 			case 24:
 				_dst.fmt = SourceFormat::rgb;
 				break;
+#ifndef ANDROID
 			case 16:
 				_dst.fmt = SourceFormat::rg;
 				break;
 			case 8:
 				_dst.fmt = SourceFormat::r;
 				break;
+#endif // ANDROID
 			default:
 				// Unsupported image format
 				FreeImage_Unload(bitmap);
@@ -230,5 +239,3 @@ namespace rev {
 		}
 	}
 }
-
-#endif // !ANDROID

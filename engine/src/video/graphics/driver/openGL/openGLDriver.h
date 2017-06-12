@@ -4,8 +4,7 @@
 // 2014/April/05
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL
-#ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
-#define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_
+#pragma once
 
 #include "openGL.h"
 
@@ -82,12 +81,9 @@ namespace rev {
 
 		private:
 			GLuint	mProgram;
-			GLuint mCurTexStage = GL_TEXTURE0;
 
 			virtual void swapBuffers() = 0;
 		};
 
 	}	// namespace video
 }	// namespave rev
-
-#endif // _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_OPENGLDRIVER_H_

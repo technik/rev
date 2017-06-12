@@ -64,16 +64,7 @@
     <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h">
       <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\video\graphics\renderer\material.h">
-      <Filter>src\video\graphics\renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\video\graphics\renderer\renderContext.h">
-      <Filter>src\video\graphics\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\video\graphics\renderer\renderMesh.h">
-      <Filter>src\video\graphics\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\video\graphics\renderer\renderObj.h">
       <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video\graphics\renderer\types\renderTarget.h">
@@ -177,6 +168,36 @@
     </ClInclude>
     <ClInclude Include="..\src\core\platform\platformInfo.h">
       <Filter>src\core\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\http\httpMessage.h">
+      <Filter>src\network\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\http\httpRequest.h">
+      <Filter>src\network\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\http\httpResponse.h">
+      <Filter>src\network\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\http\httpServer.h">
+      <Filter>src\network\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\socket\socket.h">
+      <Filter>src\network\socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\socket\socketServer.h">
+      <Filter>src\network\socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\socket\socketWin32.h">
+      <Filter>src\network\socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\network\socket\socketLinux.h">
+      <Filter>src\network\socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\renderLayer.h">
+      <Filter>src\video\graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\renderer\renderPass.h">
+      <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +318,15 @@
     <Filter Include="src\video\window">
       <UniqueIdentifier>{4bc95aff-1590-4d92-9f9f-e29587066983}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\network">
+      <UniqueIdentifier>{3043cd83-0720-4802-9695-1d67a1841ed1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\network\http">
+      <UniqueIdentifier>{2b63cd56-e835-48fd-884b-f6a6f3d7318b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\network\socket">
+      <UniqueIdentifier>{37f26d87-1659-4d69-9de9-403704953f64}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -370,6 +400,30 @@
     </ClCompile>
     <ClCompile Include="..\src\game\sceneLoader.cpp">
       <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\http\httpMessage.cpp">
+      <Filter>src\network\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\http\httpRequest.cpp">
+      <Filter>src\network\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\http\httpResponse.cpp">
+      <Filter>src\network\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\http\httpServer.cpp">
+      <Filter>src\network\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\socket\socket.cpp">
+      <Filter>src\network\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\socket\socketServer.cpp">
+      <Filter>src\network\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\network\socket\socketWin32.cpp">
+      <Filter>src\network\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\renderer\renderLayer.cpp">
+      <Filter>src\video\graphics\renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
