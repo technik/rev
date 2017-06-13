@@ -3,6 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
+#include <vulkan/vulkan.h>
 
 namespace rev {
 	namespace video {
@@ -12,5 +13,10 @@ namespace rev {
 		class VulkanDriver {
 		public:
 			VulkanDriver(Window*);
+
+		private:
+			void createInstance();
+
+			VkInstance	mApiInstance;
 		};
 } }
