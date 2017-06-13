@@ -18,20 +18,32 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		VulkanDriver::~VulkanDriver() {
+			vkDestroyInstance(mApiInstance, nullptr);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createInstance() {
 			// Basic application info
-			VkApplicationInfo appInfo;
+			VkApplicationInfo appInfo = {};
 			appInfo.apiVersion = VK_API_VERSION_1_0;
 			appInfo.pEngineName = "RevEngine";
 			appInfo.pApplicationName = "RevPlayer";
 			appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 			// Instance creation info
-			VkInstanceCreateInfo createInfo;
+			VkInstanceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			createInfo.pApplicationInfo = &appInfo;
+			createInfo.enabledLayerCount = 0;
 
 			// Query extensions
 			queryExtensions(createInfo);
+
+			VkResult res = vkCreateInstance(&createInfo, nullptr, &mApiInstance);
+			if (res != VK_SUCCESS)
+			{
+				std::cout << "Error: Unable to create vulkan instance.\n";
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

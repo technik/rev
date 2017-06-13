@@ -13,6 +13,7 @@ namespace rev {
 		class VulkanDriver {
 		public:
 			VulkanDriver(Window*);
+			~VulkanDriver();
 
 		private:
 			void createInstance();
