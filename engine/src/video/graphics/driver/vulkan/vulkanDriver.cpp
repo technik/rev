@@ -15,6 +15,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::VulkanDriver(Window* _wnd) {
 			createInstance();
+			getPhysicalDevice();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -63,6 +64,13 @@ namespace rev {
 				extensionNames[i] = mExtensions[i].extensionName;
 				std::cout << "- " << mExtensions[i].extensionName << "\n";
 			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::getPhysicalDevice() {
+			uint32_t deviceCount = 0;
+			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, nullptr);
+			std::cout << "Vulkan: Found " << deviceCount << " physical devices\n";
 		}
 	}
 }

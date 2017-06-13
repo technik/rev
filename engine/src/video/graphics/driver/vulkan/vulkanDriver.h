@@ -18,8 +18,10 @@ namespace rev {
 		private:
 			void createInstance();
 			void queryExtensions(VkInstanceCreateInfo&);
+			void getPhysicalDevice();
 
-			VkInstance	mApiInstance;
+			VkInstance			mApiInstance;
+			VkPhysicalDevice	mDevice = VK_NULL_HANDLE;
 			VkExtensionProperties * mExtensions = nullptr;
 		};
 } }
