@@ -16,7 +16,9 @@ namespace rev {
 
 		private:
 			void createInstance();
+			void queryExtensions(VkInstanceCreateInfo&);
 
 			VkInstance	mApiInstance;
+			VkExtensionProperties * mExtensions = nullptr;
 		};
 } }

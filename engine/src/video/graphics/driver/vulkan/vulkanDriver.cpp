@@ -31,18 +31,25 @@ namespace rev {
 			createInfo.pApplicationInfo = &appInfo;
 
 			// Query extensions
-			uint32_t extensionCount = 0;
-			vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+			queryExtensions(createInfo);
+		}
 
-			std::cout << "Found " << extensionCount << " vulkan extensions:\n";
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {
+			// Query available extensions count
+			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, nullptr);
+			std::cout << "Found " << _ci.enabledExtensionCount << " vulkan extensions:\n";
 
-			constexpr size_t MAX_EXTENSIONS = 32;
-			extensionCount = std::min(extensionCount, MAX_EXTENSIONS);
-			VkExtensionProperties extensions[MAX_EXTENSIONS];
-			vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
+			// Allocate space for extension names
+			mExtensions = new VkExtensionProperties[_ci.enabledExtensionCount];
+			char** extensionNames = new char*[_ci.enabledExtensionCount];
+			_ci.ppEnabledExtensionNames = extensionNames;
+			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, mExtensions);
 
-			for (size_t i = 0; i < extensionCount; ++i) {
-				std::cout << "- " << extensions[i].extensionName << "\n";
+			// Copy extension names into createInfo
+			for (size_t i = 0; i < _ci.enabledExtensionCount; ++i) {
+				extensionNames[i] = mExtensions[i].extensionName;
+				std::cout << "- " << mExtensions[i].extensionName << "\n";
 			}
 		}
 	}
