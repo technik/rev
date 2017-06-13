@@ -1,7 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
-// 2014/April/05
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with graphics hardware
 
@@ -12,7 +11,8 @@
 #include "openGL/android/openGLDriverAndroid.h"
 #endif // ANDROID
 #ifdef _WIN32
-#include "openGL/windows/openGLDriverWindows.h"
+//#include "openGL/windows/openGLDriverWindows.h"
+#include "vulkan/vulkanDriver.h"
 #endif // _WIN32
 
 namespace rev {
@@ -23,7 +23,8 @@ namespace rev {
 		typedef OpenGLDriverAndroid GraphicsDriver;
 #endif // ANDROID
 #ifdef _WIN32
-		typedef OpenGLDriverWindows GraphicsDriver; 
+		//typedef OpenGLDriverWindows GraphicsDriver; 
+		typedef VulkanDriver	GraphicsDriver;
 #endif // _WIN32
 
 	}	// namespace video

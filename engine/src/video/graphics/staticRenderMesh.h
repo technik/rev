@@ -37,8 +37,8 @@ namespace rev {
 				}
 			};
 
-			GLuint			vbo = 0; ///< vertex data
-			GLuint			vao = 0; ///< vertex array object
+			//GLuint			vbo = 0; ///< vertex data
+			//GLuint			vao = 0; ///< vertex array object
 			const uint16_t*	indices = nullptr;
 			uint32_t		nIndices = 0;
 
@@ -47,7 +47,7 @@ namespace rev {
 				: indices(_indices)
 				, nIndices(_nIndices)
 			{
-				glGenBuffers(1,&vbo);
+				/*glGenBuffers(1,&vbo);
 				glGenVertexArrays(1, &vao);
 
 				glBindVertexArray(vao);
@@ -73,16 +73,16 @@ namespace rev {
 					glEnableVertexAttribArray(2+i);
 					bindOffset += sizeof(Vec2f);
 				}
-				glBindVertexArray(0);
+				glBindVertexArray(0);*/
 			}
 
 			~StaticRenderMesh() {
-				if(vbo)
+				/*if(vbo)
 					glDeleteBuffers(1,&vbo);
 				if(vao)
 					glDeleteVertexArrays(1, &vao);
 				if(indices)
-					delete[] indices;
+					delete[] indices;*/
 			}
 
 			static StaticRenderMesh* loadFromFile(const std::string& _fileName) {

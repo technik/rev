@@ -19,7 +19,7 @@ namespace rev {
 		void RendererBackEnd::draw(const DrawCall& _dc) {
 			const DrawInfo& info = _dc.renderStateInfo;
 			// Set shader
-			mDriver->setShader(info.program);
+			/*mDriver->setShader(info.program);
 
 			// Set global uniforms
 			int uWorldViewProj = mDriver->getUniformLocation("uWorldViewProj");
@@ -60,7 +60,7 @@ namespace rev {
 			// Actual draw
 			StaticRenderMesh* mesh = _dc.mesh;
 			glBindVertexArray(mesh->vao);
-			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
+			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);*/
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -71,14 +71,14 @@ namespace rev {
 			DrawCall dc;
 			dc.renderStateInfo = _info;
 			dc.mesh = mSkyBox;
-			glDisable(GL_CULL_FACE);
+			//glDisable(GL_CULL_FACE);
 			draw(dc);
-			glEnable(GL_CULL_FACE);
+			//glEnable(GL_CULL_FACE);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::flush() {
-			glBindVertexArray(0);
+			//glBindVertexArray(0);
 		}
 	}
 }

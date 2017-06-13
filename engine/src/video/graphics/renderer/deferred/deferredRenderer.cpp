@@ -9,14 +9,14 @@ namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
 		void DeferredRenderer::startFrame() {
-			mDriver->clearColorBuffer();
-			mDriver->clearZBuffer();
+			//mDriver->clearColorBuffer();
+			//mDriver->clearZBuffer();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void DeferredRenderer::finishFrame()
 		{
-			mDriver->finishFrame();
+			//mDriver->finishFrame();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

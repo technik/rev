@@ -33,7 +33,6 @@ namespace rev {
 		mDriver = driver;
 #else
 		mDriver = new GraphicsDriver(mEngine.mainWindow());
-		mDriver->setClearColor(Color(0.7f));
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
@@ -81,7 +80,7 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::postFrame() {
-		mDriver->finishFrame();
+		//mDriver->finishFrame();
 	}
 
 }	// namespace rev
