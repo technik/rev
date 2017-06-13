@@ -3,6 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa
 //----------------------------------------------------------------------------------------------------------------------
 #include "player.h"
+#include <core/platform/platformInfo.h>
 
 using namespace cjson;
 

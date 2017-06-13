@@ -5,7 +5,7 @@
 cmake_minimum_required (VERSION 2.6)
 project(revPlayer)
 
-add_executable(revPlayer main.cpp)
+add_executable(revPlayer main.cpp player.cpp player.h)
 # Visual studio specifics
 if(MSVC)
 	add_definitions(-DNOMINMAX)
