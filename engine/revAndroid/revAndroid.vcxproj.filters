@@ -425,6 +425,9 @@
     <ClCompile Include="..\src\video\graphics\renderer\renderLayer.cpp">
       <Filter>src\video\graphics\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\video\basicTypes\camera.cpp">
+      <Filter>src\video\basicTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\math\algebra\matrix.inl">

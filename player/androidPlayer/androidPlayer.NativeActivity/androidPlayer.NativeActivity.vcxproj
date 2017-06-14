@@ -159,7 +159,7 @@
       <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv1_CM;EGL;GLESv3</LibraryDependencies>
+      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv1_CM;EGL;GLESv3;m</LibraryDependencies>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\programming\rev\engine\revAndroid\ARM\Debug;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
@@ -176,7 +176,9 @@
       <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;</LibraryDependencies>
+      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;m</LibraryDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
