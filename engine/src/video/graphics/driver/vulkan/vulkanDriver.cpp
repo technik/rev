@@ -9,11 +9,24 @@
 #include <video/window/window.h>
 #include <iostream>
 
+#ifdef ANDROID
+#include <android/log.h>
+
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rev.AndroidPlayer", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "rev.AndroidPlayer", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "rev.AndroidPlayer", __VA_ARGS__))
+#endif // ANDROID
+
 namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
+#ifdef ANDROID
+		VulkanDriver::VulkanDriver() {
+#else
 		VulkanDriver::VulkanDriver(Window* _wnd) {
+#endif
+			LOGI("---------------Vulkan Driver Construction----------------------");
 			createInstance();
 			getPhysicalDevice();
 		}
@@ -43,7 +56,8 @@ namespace rev {
 			VkResult res = vkCreateInstance(&createInfo, nullptr, &mApiInstance);
 			if (res != VK_SUCCESS)
 			{
-				std::cout << "Error: Unable to create vulkan instance.\n";
+
+				LOGE("Error: Unable to create vulkan instance.\n");
 			}
 		}
 
@@ -51,7 +65,7 @@ namespace rev {
 		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {
 			// Query available extensions count
 			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, nullptr);
-			std::cout << "Found " << _ci.enabledExtensionCount << " vulkan extensions:\n";
+			LOGI("Found %d vulkan extensions:\n" , _ci.enabledExtensionCount);
 
 			// Allocate space for extension names
 			mExtensions = new VkExtensionProperties[_ci.enabledExtensionCount];
@@ -70,7 +84,7 @@ namespace rev {
 		void VulkanDriver::getPhysicalDevice() {
 			uint32_t deviceCount = 0;
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, nullptr);
-			std::cout << "Vulkan: Found " << deviceCount << " physical devices\n";
+			LOGI("Vulkan: Found  %d physical devices\n", deviceCount);
 		}
 	}
 }

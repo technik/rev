@@ -199,6 +199,9 @@
     <ClInclude Include="..\src\video\graphics\renderer\renderPass.h">
       <Filter>src\video\graphics\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\vulkan\vulkanDriver.h">
+      <Filter>src\video\graphics\driver\vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="libs">
@@ -327,6 +330,9 @@
     <Filter Include="src\network\socket">
       <UniqueIdentifier>{37f26d87-1659-4d69-9de9-403704953f64}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\driver\vulkan">
+      <UniqueIdentifier>{b610d671-fb86-45eb-8787-193627473e47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -427,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="..\src\video\basicTypes\camera.cpp">
       <Filter>src\video\basicTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\driver\vulkan\vulkanDriver.cpp">
+      <Filter>src\video\graphics\driver\vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

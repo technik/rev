@@ -12,7 +12,11 @@ namespace rev {
 
 		class VulkanDriver {
 		public:
+#ifdef ANDROID
+			VulkanDriver();
+#else
 			VulkanDriver(Window*);
+#endif
 			~VulkanDriver();
 
 		private:

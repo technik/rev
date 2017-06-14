@@ -77,11 +77,13 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -247,6 +249,7 @@
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGL.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\openGLDriver.h" />
     <ClInclude Include="..\src\video\graphics\driver\openGL\wglew.h" />
+    <ClInclude Include="..\src\video\graphics\driver\vulkan\vulkanDriver.h" />
     <ClInclude Include="..\src\video\graphics\renderer\backend\rendererBackEnd.h" />
     <ClInclude Include="..\src\video\graphics\renderer\debugDrawer.h" />
     <ClInclude Include="..\src\video\graphics\renderer\forward\forwardRenderer.h" />
@@ -288,6 +291,7 @@
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
+    <ClCompile Include="..\src\video\graphics\driver\vulkan\vulkanDriver.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\forward\forwardRenderer.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\renderLayer.cpp" />

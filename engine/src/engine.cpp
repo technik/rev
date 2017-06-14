@@ -31,17 +31,19 @@ namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	Engine::Engine(const core::PlatformInfo& _activity) {
-#ifndef ANDROID
 		core::OSHandler::startUp();
 		core::Time::init();
+#ifndef ANDROID
 		core::FileSystem::init();
 		input::KeyboardInput::init();
 		// Create window
 		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
 #endif // !ANDROID
+#ifndef ANDROID
 		// Init Json API service
 		mAPIService = new net::http::Server;
 		mAPIService->init(5000);
+#endif
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
