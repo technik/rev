@@ -20,14 +20,23 @@ namespace rev {
 			~VulkanDriver();
 
 		private:
+			// Vulkan initialization
 			void createInstance();
 			void queryExtensions(VkInstanceCreateInfo&);
 			void getPhysicalDevice();
+			void findQueueFamilies();
+			void createLogicalDevice();
 
+			// Device
 			VkInstance					mApiInstance;
-			VkPhysicalDevice			mDevice = VK_NULL_HANDLE;
+			VkPhysicalDevice			mPhysicalDevice = VK_NULL_HANDLE;
 			VkPhysicalDeviceProperties	mDeviceProps;
 			VkPhysicalDeviceFeatures	mDeviceFeatures;
 			VkExtensionProperties*		mExtensions = nullptr;
+			VkDevice					mDevice;
+			VkQueue						mGraphicsQueue;
+
+			// Queues
+			int		mQueueFamilyIndex = -1;
 		};
 } }

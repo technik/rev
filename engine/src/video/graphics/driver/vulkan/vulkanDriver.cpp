@@ -8,6 +8,7 @@
 
 #include <video/window/window.h>
 #include <iostream>
+#include <vector>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -26,13 +27,17 @@ namespace rev {
 #else
 		VulkanDriver::VulkanDriver(Window* _wnd) {
 #endif
-			LOGI("---------------Vulkan Driver Construction----------------------");
+			LOGI("---------------Vulkan Driver Construction-------------------------------");
 			createInstance();
 			getPhysicalDevice();
+			findQueueFamilies();
+			createLogicalDevice();
+			LOGI("---------------Finished Vulkan Driver Construction----------------------");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::~VulkanDriver() {
+			vkDestroyDevice(mDevice, nullptr);
 			delete[] mExtensions;
 			vkDestroyInstance(mApiInstance, nullptr);
 		}
@@ -89,13 +94,57 @@ namespace rev {
 
 			VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, devices);	
-			mDevice = devices[0];
+			mPhysicalDevice = devices[0];
 			delete[] devices;
 
 			// Get device properties
-			vkGetPhysicalDeviceProperties(mDevice, &mDeviceProps);
+			vkGetPhysicalDeviceProperties(mPhysicalDevice, &mDeviceProps);
 			LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
-			vkGetPhysicalDeviceFeatures(mDevice, &mDeviceFeatures);
+			vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mDeviceFeatures);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::findQueueFamilies() {
+			uint32_t familyCount = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &familyCount, nullptr);
+
+			std::vector<VkQueueFamilyProperties>	families(familyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &familyCount, families.data());
+
+			int index = 0;
+			for (const auto& family : families) {
+				if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT && family.queueCount > 0)
+					mQueueFamilyIndex = index;
+
+				++index;
+			}
+			
+			assert(mQueueFamilyIndex >= 0);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::createLogicalDevice() {
+			VkDeviceQueueCreateInfo queueCreateInfo = {};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = mQueueFamilyIndex;
+			queueCreateInfo.queueCount = 1;
+			float queuePriority = 1.0f;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+
+			VkDeviceCreateInfo createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			createInfo.pQueueCreateInfos = &queueCreateInfo;
+			createInfo.queueCreateInfoCount = 1;
+			VkPhysicalDeviceFeatures deviceFeatures = {};
+			createInfo.pEnabledFeatures = &deviceFeatures;
+			createInfo.enabledExtensionCount = 0;
+			createInfo.enabledLayerCount = 0;
+
+			if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
+				 LOGE("failed to create logical device!");
+			}
+
+			vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
 		}
 	}
 }
