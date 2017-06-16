@@ -33,6 +33,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::~VulkanDriver() {
+			delete[] mExtensions;
 			vkDestroyInstance(mApiInstance, nullptr);
 		}
 
@@ -85,6 +86,16 @@ namespace rev {
 			uint32_t deviceCount = 0;
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, nullptr);
 			LOGI("Vulkan: Found  %d physical devices\n", deviceCount);
+
+			VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
+			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, devices);	
+			mDevice = devices[0];
+			delete[] devices;
+
+			// Get device properties
+			vkGetPhysicalDeviceProperties(mDevice, &mDeviceProps);
+			LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
+			vkGetPhysicalDeviceFeatures(mDevice, &mDeviceFeatures);
 		}
 	}
 }

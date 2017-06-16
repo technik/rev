@@ -24,8 +24,10 @@ namespace rev {
 			void queryExtensions(VkInstanceCreateInfo&);
 			void getPhysicalDevice();
 
-			VkInstance			mApiInstance;
-			VkPhysicalDevice	mDevice = VK_NULL_HANDLE;
-			VkExtensionProperties * mExtensions = nullptr;
+			VkInstance					mApiInstance;
+			VkPhysicalDevice			mDevice = VK_NULL_HANDLE;
+			VkPhysicalDeviceProperties	mDeviceProps;
+			VkPhysicalDeviceFeatures	mDeviceFeatures;
+			VkExtensionProperties*		mExtensions = nullptr;
 		};
 } }
