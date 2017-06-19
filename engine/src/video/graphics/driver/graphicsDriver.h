@@ -24,7 +24,7 @@ namespace rev {
 		typedef OpenGLDriverAndroid	GraphicsDriver;
 #endif // ANDROID
 #ifdef _WIN32
-		typedef OpenGLDriverWindows GraphicsDriver; 
+		typedef OpenGL45DriverWindows GraphicsDriver; 
 		//typedef VulkanDriver	GraphicsDriver;
 #endif // _WIN32
 

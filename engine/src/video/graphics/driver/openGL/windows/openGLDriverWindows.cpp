@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 
-#include "openGLDriverWindows.h"
+#include "openGL45DriverWindows.h"
 #include <video/window/window.h>
 #include <core/platform/osHandler.h>
 #include <core/platform/fileSystem/file.h>

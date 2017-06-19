@@ -6,18 +6,6 @@
 // Interface with OpenGL
 #include "openGLDriver.h"
 
-#ifndef ANDROID
-#	ifdef _WIN32
-#		include <Windows.h>
-#	endif
-#	include <GL/gl.h>
-#	ifdef _WIN32
-#		include "glew.h"
-#	else
-#		include <GL/glew.h>
-#	endif // !_WIN32
-#endif // !ANDROID
-
 #include <video/basicTypes/color.h>
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>

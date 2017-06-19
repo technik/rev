@@ -4,9 +4,7 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL for Windows platforms
-
-#ifndef _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_WINDOWS_OPENGLDRIVERWINDOWS_H_
-#define _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_WINDOWS_OPENGLDRIVERWINDOWS_H_
+#pragma once
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -18,10 +16,11 @@ namespace rev {
 
 		class Window;
 
-		class OpenGLDriverWindows : public OpenGLDriver {
+		class OpenGLDriverWindows  {
 		public:
 			OpenGLDriverWindows(Window*);
-			void	swapBuffers() override;
+
+			void	swapBuffers();
 
 		private:
 			HWND	mWindowHandle;
@@ -32,5 +31,3 @@ namespace rev {
 }	// namespace rev
 
 #endif // _WIN32
-
-#endif // _REV_VIDEO_GRAPHICS_DRIVER_OPENGL_WINDOWS_OPENGLDRIVERWINDOWS_H_
