@@ -13,6 +13,7 @@
 
 #include "windowWindows.h"
 #include <core/platform/osHandler.h>
+#include <iostream>
 
 using namespace rev::math;
 
@@ -22,93 +23,20 @@ namespace rev {
 		const size_t MAX_NAME_SIZE = 512;
 
 		//--------------------------------------------------------------------------------------------------------------
-		bool WindowWindows::sIsClassRegistered = false;
-
-		//--------------------------------------------------------------------------------------------------------------
-		WindowWindows::WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName) {
-			if (!sIsClassRegistered)
-				registerClass();
-
-			// Assign internal values
-			mPosition = _pos;
-			mSize = _size;
-
-			// Create a windown through the windows API
-			mWinapiHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
-				_windowName,								// Window name (currently unsupported
-				WS_SIZEBOX | WS_CAPTION | WS_POPUP | WS_VISIBLE,	// Creation options
-				_pos.x,						// X Position
-				_pos.y,						// Y Position
-				int(_size.x),				// Width
-				int(_size.y),				// Height
-				0, 0, 0, 0);				// Windows specific parameters that we don't need
-
-			// Resize client area
-			RECT rcClient;
-			POINT ptDiff;
-			GetClientRect(mWinapiHandle, &rcClient);
-			ptDiff.x = mSize.x - rcClient.right;
-			ptDiff.y = mSize.y - rcClient.bottom;
-			MoveWindow(mWinapiHandle, mPosition.x, mPosition.y, mSize.x + ptDiff.x, mSize.y + ptDiff.y, TRUE);
-			// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
-
-			// Register for system messages
-			// Register in osHandler for message processing
-			(*core::OSHandler::get()) += [this](MSG _msg){
-				return processWin32Message(_msg);
-			};
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		bool WindowWindows::processWin32Message(MSG _msg) {
-			if(_msg.message == WM_SIZE)
-			{
-				LPARAM lparam = _msg.lParam;
-				mSize = Vec2u(LOWORD(lparam), HIWORD(lparam));
-				invokeOnResize();
-				return true;
+		WindowWindows::WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName) 
+			: mPosition(_pos)
+			, mSize(_size)
+		{
+			if (!glfwInit()) {
+				std::cout << "ERROR: could not start GLFW3\n";
 			}
-			if(_msg.message == WM_SIZING)
-			{
-				RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
-				mSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
-				invokeOnResize();
-				return true;
-			}
-			return false;
+			mNativeWindow = glfwCreateWindow((int)_size.x, (int)_size.y, _windowName, nullptr, nullptr);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
-			MSG msg;
-			msg.hwnd = _hwnd;
-			msg.lParam = _lParam;
-			msg.wParam = _wParam;
-			msg.message = _uMsg;
-			if(core::OSHandler::get()->processMessage(msg))
-				return 0;
-			return DefWindowProc(_hwnd, _uMsg, _wParam, _lParam);
+		void WindowWindows::update() {
+			glfwPollEvents();
 		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void WindowWindows::registerClass() {
-			HINSTANCE moduleHandle = GetModuleHandle(NULL);
-			// -- Register a new window class --
-			WNDCLASS winClass = {
-				CS_OWNDC, // Class style
-				WindowProc,
-				0,
-				0,
-				moduleHandle,
-				NULL,	// Default icon
-				NULL,	// No cursor shape
-				NULL,
-				NULL,
-				"RevWindowClass" };
-
-			RegisterClass(&winClass);
-		}
-
 	}	// namespace video
 }	// namespace rev
 

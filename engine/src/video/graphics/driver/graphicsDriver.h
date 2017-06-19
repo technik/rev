@@ -8,25 +8,22 @@
 #define _REV_VIDEO_GRAPHICS_DRIVER_GRAPHICSDRIVER_H_
 
 #ifdef ANDROID
-#include "openGL/android/openGLDriverAndroid.h"
+	#include "openGL/android/openGLDriverAndroid.h"
 //#include "vulkan/vulkanDriver.h"
-#endif // ANDROID
-#ifdef _WIN32
-#include "openGL/windows/openGLDriverWindows.h"
-#endif // _WIN32
+#else // !ANDROID
+	#include "openGL/openGLDriver.h"
+#endif // !ANDROID
 
 namespace rev {
 	namespace video
 	{
-
 #ifdef ANDROID
 		//typedef VulkanDriver GraphicsDriver;
 		typedef OpenGLDriverAndroid	GraphicsDriver;
-#endif // ANDROID
-#ifdef _WIN32
-		typedef OpenGL45DriverWindows GraphicsDriver; 
+#else // !ANDROID
+		typedef OpenGLDriver GraphicsDriver; 
 		//typedef VulkanDriver	GraphicsDriver;
-#endif // _WIN32
+#endif // !_WIN32
 
 	}	// namespace video
 }	// namespace rev

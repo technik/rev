@@ -2,6 +2,7 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
+#ifndef _WIN32
 #include "vulkanDriver.h"
 
 #define VK_USE_PLATFORM_ANDROID_KHR 1
@@ -176,3 +177,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // !_WIN32

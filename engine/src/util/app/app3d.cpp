@@ -80,7 +80,7 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void App3d::postFrame() {
-		//mDriver->finishFrame();
+		mDriver->finishFrame();
 	}
 
 }	// namespace rev

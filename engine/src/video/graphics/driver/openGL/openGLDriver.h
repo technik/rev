@@ -20,6 +20,7 @@ namespace rev {
 		class Color;
 		class RenderTarget;
 		class Texture;
+		class Window;
 
 		class OpenGLDriver {
 		public:
@@ -38,6 +39,7 @@ namespace rev {
 				eNone
 			};
 
+			OpenGLDriver(Window*);
 
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);
@@ -80,9 +82,10 @@ namespace rev {
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive);
 
 		private:
+			Window*	mWindow = nullptr;
 			GLuint	mProgram;
 
-			virtual void swapBuffers() = 0;
+			void swapBuffers();
 		};
 
 	}	// namespace video

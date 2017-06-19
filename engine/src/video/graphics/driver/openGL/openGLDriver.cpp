@@ -10,10 +10,16 @@
 #include <video/graphics/shader/shader.h>
 #include <video/graphics/renderer/types/renderTarget.h>
 #include <video/basicTypes/texture.h>
+#include <video/window/window.h>
 #include <iostream>
 
 namespace rev {
 	namespace video {
+
+		//--------------------------------------------------------------------------------------------------------------
+		OpenGLDriver::OpenGLDriver(Window* _w) {
+			mWindow = _w;
+		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setViewport(const math::Vec2i& _position, const math::Vec2u& _size) {
@@ -235,6 +241,11 @@ namespace rev {
 			//logGlError();
 			glUniform1i(_uniformId, _texStage);
 			//logGlError();
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::swapBuffers() {
+			glfwSwapBuffers(mWindow->nativeWindow());
 		}
 
 	}	// namespace video

@@ -10,6 +10,7 @@
 #ifdef _WIN32
 
 #include <Windows.h>
+#include <video/graphics/driver/openGL/openGL.h>
 
 #include <math/algebra/vector.h>
 
@@ -19,22 +20,17 @@ namespace rev {
 		class WindowWindows {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
-			inline HWND		winapiHandle() const { return mWinapiHandle; }
+			void update();
 
 			const math::Vec2u& size() const { return mSize; }
 			const math::Vec2u& pos() const { return mPosition; }
 
+			GLFWwindow* nativeWindow() const { return mNativeWindow; }
+
 		private:
 			math::Vec2u mPosition;
 			math::Vec2u mSize;
-			HWND	mWinapiHandle; // Winapi handle to the window
-
-		private:
-			virtual void invokeOnResize() const = 0;
-
-			bool processWin32Message(MSG _msg);
-			static bool sIsClassRegistered;
-			static void registerClass();
+			GLFWwindow* mNativeWindow;
 		};
 
 		typedef WindowWindows	WindowBase;
