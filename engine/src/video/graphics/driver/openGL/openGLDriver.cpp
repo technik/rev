@@ -11,14 +11,52 @@
 #include <video/graphics/renderer/types/renderTarget.h>
 #include <video/basicTypes/texture.h>
 #include <video/window/window.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriver::OpenGLDriver(Window* _w) {
-			mWindow = _w;
+		OpenGLDriver::OpenGLDriver(Window* _window) {
+			mWindow = _window;
+
+			glfwMakeContextCurrent(_window->nativeWindow());
+			GLenum res = glewInit();
+			if (res != GLEW_OK) {
+				cout << "Error: " << glewGetErrorString(res) << "\n";
+				assert(false);
+			}
+			Shader::manager()->setCreator(
+				[](const string& _name) -> Shader* {
+				string sourceFileName = _name + ".glsl";
+				OpenGLShader* shader = OpenGLShader::loadFromFile(sourceFileName);
+				if (shader) {
+					auto refreshShader = [=](const string&) {
+						// Recreate shader
+						//shader->~OpenGLShader();
+						OpenGLShader::loadFromFile(sourceFileName, *shader);
+					};
+					core::FileSystem::get()->onFileChanged(sourceFileName) += refreshShader;
+				}
+				return shader;
+			});
+			Shader::manager()->setOnRelease([](const string& _name, Shader*) {
+				string pxlName = _name + ".glsl";
+				core::FileSystem::get()->onFileChanged(pxlName).clear();
+			});
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LEQUAL);
+			glLineWidth(2.f);
+			glPointSize(4.f);
+
+			_window->onResize() += [=]() {
+				setViewport(math::Vec2i(0, 0), _window->size());
+			};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

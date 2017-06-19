@@ -20,6 +20,7 @@ namespace rev {
 		class WindowWindows {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
+			~WindowWindows();
 			void update();
 
 			const math::Vec2u& size() const { return mSize; }

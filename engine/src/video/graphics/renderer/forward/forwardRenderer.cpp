@@ -26,9 +26,9 @@ namespace rev {
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(_driver);
-			//mProgram = Shader::manager()->get("data\\pbr");
-			//mSkyboxShader = Shader::manager()->get("data\\skybox");
-			//mSkybox = Texture::loadFromFile("data\\skybox.tex");
+			mProgram = Shader::manager()->get("data\\pbr");
+			mSkyboxShader = Shader::manager()->get("data\\skybox");
+			mSkybox = Texture::loadFromFile("data\\skybox.tex");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ namespace rev {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
-/*			mDriver->beginFrame();
+			mDriver->beginFrame();
 			//mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
 			mDriver->clearZBuffer();
@@ -76,22 +76,22 @@ namespace rev {
 			}
 			// Draw skybox cubemap
 			drawSkyboxCubemap(_cam);
-			mBackEnd->flush();*/
+			mBackEnd->flush();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::drawSkyboxCubemap(const Camera& _cam) const {
-			//RendererBackEnd::DrawInfo cubeMapInfo;
-			//cubeMapInfo.program = mSkyboxShader;
-			//cubeMapInfo.texUniforms.push_back(std::make_pair("albedo", mSkybox));
-			//Mat34f centeredView = _cam.view();
-			//centeredView.setCol(3, Vec3f(0));
-			//cubeMapInfo.wvp = _cam.projection() * centeredView.inverse();
-			//mBackEnd->drawSkybox(cubeMapInfo);
+			RendererBackEnd::DrawInfo cubeMapInfo;
+			cubeMapInfo.program = mSkyboxShader;
+			cubeMapInfo.texUniforms.push_back(std::make_pair("albedo", mSkybox));
+			Mat34f centeredView = _cam.view();
+			centeredView.setCol(3, Vec3f(0));
+			cubeMapInfo.wvp = _cam.projection() * centeredView.inverse();
+			mBackEnd->drawSkybox(cubeMapInfo);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		/*void ForwardRenderer::init(GraphicsDriver* _driver) {
+/*		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(mDriver);
 			mShader = Shader::manager()->get("forward");

@@ -126,9 +126,9 @@ namespace rev {
 
 		//----------------------------------------------------------------------------------------------------------------------
 		OpenGLShader::~OpenGLShader() {
-			//glDeleteProgram(mProgram);
-			//glDeleteShader(mVtx);
-			//glDeleteShader(mPxl);
+			glDeleteProgram(mProgram);
+			glDeleteShader(mVtx);
+			glDeleteShader(mPxl);
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------

@@ -30,7 +30,20 @@ namespace rev {
 			if (!glfwInit()) {
 				std::cout << "ERROR: could not start GLFW3\n";
 			}
+
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
+
 			mNativeWindow = glfwCreateWindow((int)_size.x, (int)_size.y, _windowName, nullptr, nullptr);
+			if (!mNativeWindow) {
+				std::cout << "Unable to create window\n";
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		WindowWindows::~WindowWindows() {
+			glfwTerminate();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
