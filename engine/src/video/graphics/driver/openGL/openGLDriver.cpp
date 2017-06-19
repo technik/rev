@@ -25,6 +25,7 @@ namespace rev {
 			mWindow = _window;
 
 			glfwMakeContextCurrent(_window->nativeWindow());
+			glewExperimental = TRUE;
 			GLenum res = glewInit();
 			if (res != GLEW_OK) {
 				cout << "Error: " << glewGetErrorString(res) << "\n";

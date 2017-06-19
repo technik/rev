@@ -39,7 +39,7 @@ namespace rev {
 			SceneLoader mLoader;
 
 			// Prepare factories and game world
-			/*mSceneLogic = new LogicLayer;
+			mSceneLogic = new LogicLayer;
 			mGameWorld.addLayer(mSceneLogic);
 			mLoader.registerFactory("Flyby", [=](const Json& _j) {
 				LogicComponent* c = new FlyBySrc(1.f);
@@ -61,7 +61,7 @@ namespace rev {
 
 			// Load scene
 			mGameWorld.init();
-			mLoader.loadScene(mSceneName, mGameWorld);*/
+			mLoader.loadScene(mSceneName, mGameWorld);
 		}
 
 		~Player() {
