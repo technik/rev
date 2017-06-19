@@ -4,18 +4,22 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "vulkanDriver.h"
 
+#define VK_USE_PLATFORM_ANDROID_KHR 1
 #include <vulkan/vulkan.h>
+#include <vulkan/vk_platform.h>
 
 #include <video/window/window.h>
 #include <iostream>
 #include <vector>
 
 #ifdef ANDROID
+#include <android/native_window.h>
 #include <android/log.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rev.AndroidPlayer", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "rev.AndroidPlayer", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "rev.AndroidPlayer", __VA_ARGS__))
+
 #endif // ANDROID
 
 namespace rev {
@@ -30,6 +34,7 @@ namespace rev {
 			LOGI("---------------Vulkan Driver Construction-------------------------------");
 			createInstance();
 			getPhysicalDevice();
+			initSurface();
 			findQueueFamilies();
 			createLogicalDevice();
 			LOGI("---------------Finished Vulkan Driver Construction----------------------");
@@ -68,6 +73,29 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::initSurface() {
+			LOGI("Init surface");
+			// Get display information
+			//uint32_t displayPropCount = 0;
+			//vkGetPhysicalDeviceDisplayPropertiesKHR(mPhysicalDevice, &displayPropCount, nullptr);
+
+			// Get extension
+			auto fpCreateAndroidSurfaceKHR = (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(mApiInstance, "vkCreateAndroidSurfaceKHR");
+			if (fpCreateAndroidSurfaceKHR == nullptr) {
+				LOGE("Unable to get create surface extension");
+				return;
+			}
+
+			// Set display mode
+			/*VkDisplayModeKHR
+
+			VkDisplaySurfaceCreateInfoKHR	createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+			createInfo.*/
+			LOGI("Finish Init surface");
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {
 			// Query available extensions count
 			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, nullptr);
@@ -82,7 +110,7 @@ namespace rev {
 			// Copy extension names into createInfo
 			for (size_t i = 0; i < _ci.enabledExtensionCount; ++i) {
 				extensionNames[i] = mExtensions[i].extensionName;
-				std::cout << "- " << mExtensions[i].extensionName << "\n";
+				LOGI((std::string("- ") + mExtensions[i].extensionName).c_str());
 			}
 		}
 

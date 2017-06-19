@@ -8,8 +8,8 @@
 #define _REV_VIDEO_GRAPHICS_DRIVER_GRAPHICSDRIVER_H_
 
 #ifdef ANDROID
-//#include "openGL/android/openGLDriverAndroid.h"
-#include "vulkan/vulkanDriver.h"
+#include "openGL/android/openGLDriverAndroid.h"
+//#include "vulkan/vulkanDriver.h"
 #endif // ANDROID
 #ifdef _WIN32
 #include "openGL/windows/openGLDriverWindows.h"
@@ -20,7 +20,8 @@ namespace rev {
 	{
 
 #ifdef ANDROID
-		typedef VulkanDriver GraphicsDriver;
+		//typedef VulkanDriver GraphicsDriver;
+		typedef OpenGLDriverAndroid	GraphicsDriver;
 #endif // ANDROID
 #ifdef _WIN32
 		typedef OpenGLDriverWindows GraphicsDriver; 

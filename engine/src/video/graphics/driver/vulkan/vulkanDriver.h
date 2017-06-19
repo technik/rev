@@ -22,6 +22,7 @@ namespace rev {
 		private:
 			// Vulkan initialization
 			void createInstance();
+			void initSurface();
 			void queryExtensions(VkInstanceCreateInfo&);
 			void getPhysicalDevice();
 			void findQueueFamilies();
@@ -35,6 +36,9 @@ namespace rev {
 			VkExtensionProperties*		mExtensions = nullptr;
 			VkDevice					mDevice;
 			VkQueue						mGraphicsQueue;
+
+			// Main window surface
+			VkSurfaceKHR				mSurface;
 
 			// Queues
 			int		mQueueFamilyIndex = -1;

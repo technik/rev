@@ -291,7 +291,6 @@
     <ClCompile Include="..\src\video\basicTypes\texture.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\android\openGLDriverAndroid.cpp" />
     <ClCompile Include="..\src\video\graphics\driver\openGL\openGLDriver.cpp" />
-    <ClCompile Include="..\src\video\graphics\driver\vulkan\vulkanDriver.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\backend\rendererBackEnd.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\forward\forwardRenderer.cpp" />
     <ClCompile Include="..\src\video\graphics\renderer\renderLayer.cpp" />
