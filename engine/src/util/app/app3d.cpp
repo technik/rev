@@ -45,7 +45,8 @@ namespace rev {
 			return true;
 #endif // ANDROID
 
-		preFrame();
+		if (!mEngine.update())
+			return false;
 
 #ifndef ANDROID
 		if(mKeyboard->pressed(input::KeyboardInput::eEscape))
@@ -59,28 +60,16 @@ namespace rev {
 			std::this_thread::sleep_for(std::chrono::milliseconds(timeLeft));
 			dt = mMinFrameTime;
 		}
-		if(frame(dt)) {
-			postFrame();
-			//mProfiler.update(dt);
-			return true;
-		}
-		return false;
+		if(!frame(dt))
+			return false;
+
+		mDriver->finishFrame();
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::frame(float) {
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void App3d::preFrame(){
-		mEngine.update();
-		Time::get()->update();
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void App3d::postFrame() {
-		mDriver->finishFrame();
 	}
 
 }	// namespace rev

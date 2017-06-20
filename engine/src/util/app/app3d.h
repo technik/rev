@@ -38,8 +38,6 @@ namespace rev {
 		net::http::Server*			jsonAPI	() const { return mEngine.jsonAPI(); }
 
 	private:
-		void preFrame();
-		void postFrame();
 
 	private:
 		float						mMinFrameTime;

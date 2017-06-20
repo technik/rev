@@ -55,7 +55,8 @@ namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	bool Engine::update() {
-		mMainWindow->update();
+		if (!mMainWindow->update())
+			return false;
 #ifndef ANDROID
 		if(!core::OSHandler::get()->update())
 			return false;

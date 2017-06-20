@@ -21,13 +21,13 @@ namespace rev {
 		public:
 			WindowWindows(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
 			~WindowWindows();
-			void update();
+			bool update();
 
 			const math::Vec2u& size() const { return mSize; }
 			const math::Vec2u& pos() const { return mPosition; }
 
 			GLFWwindow* nativeWindow() const { return mNativeWindow; }
-
+				
 		private:
 			math::Vec2u mPosition;
 			math::Vec2u mSize;
