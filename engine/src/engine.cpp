@@ -55,12 +55,17 @@ namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	bool Engine::update() {
+#ifndef ANDROID
+		input::KeyboardInput::get()->refresh(); // Important: refresh before OSHandler. Otherwise, keyboard messages may be discarded
+#endif // ANDROID
 		if (!mMainWindow->update())
 			return false;
+		core::Time::get()->update();
+
 #ifndef ANDROID
 		if(!core::OSHandler::get()->update())
 			return false;
-#endif // !ANDROID
+#endif // ANDROID
 		
 		return true;
 	}
