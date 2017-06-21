@@ -5,9 +5,9 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <fstream>
 
+// Separated into an hpp so it can be unit-tested independently
 #include "shaderProcessor.hpp"
 
 using namespace std;
@@ -17,12 +17,18 @@ struct Params {
 	const char* out = nullptr;
 	vector<const char*>	defines;
 
+#ifdef _WIN32
+	static constexpr size_t arg0 = 1;
+#else
+	static constexpr size_t arg0 = 0;
+#endif
+
 	bool parseArguments(int _argc, const char** _argv) {
-		for (int i = 0; i < _argc; ++i) {
+		for (int i = arg0; i < _argc; ++i) {
 			const char* arg = _argv[i];
 			if (0 == strcmp(arg, "-i")) { // Input file
 				++i;
-				if (i < _argc) {
+				if (i == _argc) {
 					cout << "Error: missing input filename after -i\n";
 					return false;
 				}
@@ -30,7 +36,7 @@ struct Params {
 			}
 			else if (0 == strcmp(arg, "-o")) { // Output file
 				++i;
-				if (i < _argc) {
+				if (i == _argc) {
 					cout << "Error: missing output filename after -o\n";
 					return false;
 				}
@@ -70,8 +76,12 @@ int main(int _argc, const char** _argv) {
 	// Process shader
 	ifstream inFile(params.in);
 	ofstream outFile(params.out);
-	if (!preprocessIncludes(inFile, outFile)) {
-		cout << "Error processing shader file " << params.in << "\n";
+	// Find include folders
+	vector<string>	includePaths;
+	includePaths.push_back(getFolder(params.in));
+	vector<char>	lineBuffer(2048);
+	if (!preprocessIncludes(inFile, outFile, includePaths, lineBuffer, unordered_set<string>())) {
+		cout << "\n of file " << params.in << "\n";
 		return - 1;
 	}
 	return 0;
