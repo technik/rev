@@ -1,7 +1,7 @@
 {
-	shader : "pbr",
+	effect : "pbr",
 	vectors : {
-		albedo : [1.0, 1.0, 1.0],
+		albedo : [1.0, 1.0, 1.0]
 	}
 	floats : {
 		roughness : 1.0,

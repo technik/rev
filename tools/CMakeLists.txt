@@ -43,3 +43,10 @@ set_target_properties(modelProcessor PROPERTIES FOLDER "tools")
 target_include_directories(modelProcessor PUBLIC ${ASSIMP_INCLUDE_DIRS})
 target_link_libraries(modelProcessor LINK_PUBLIC ${ASSIMP_LIBRARIES} zlibstatic)
 target_link_libraries(modelProcessor LINK_PUBLIC rev)
+
+# shader processor
+file(GLOB_RECURSE SHDPROC_SOURCE_FILES "shaderProcessor/*.cpp" "shaderProcessor/*.h" "shaderProcessor/*.inl")
+add_executable(shaderProcessor ${SHDPROC_SOURCE_FILES})
+set_target_properties(shaderProcessor PROPERTIES FOLDER "tools")
+
+target_link_libraries(shaderProcessor LINK_PUBLIC rev)
