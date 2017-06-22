@@ -48,8 +48,7 @@ if(UNIX)
 endif(UNIX)
 
 find_library(GLEW glew32 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew/x86/)
-find_library(GLFW glfw3 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw)
-target_link_libraries (rev LINK_PUBLIC ${GLEW} ${GLFW})
+target_link_libraries (rev LINK_PUBLIC ${GLEW})
 
 target_include_directories (rev PUBLIC ${OPENGL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 find_library(FREEIMAGE_LIB FreeImage ${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)

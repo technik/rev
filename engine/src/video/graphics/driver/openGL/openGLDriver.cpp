@@ -21,11 +21,9 @@ namespace rev {
 	namespace video {
 
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriver::OpenGLDriver(Window* _window) {
+		void OpenGLDriver::init(Window* _window) {
 			mWindow = _window;
 
-			glfwMakeContextCurrent(_window->nativeWindow());
-			glewExperimental = TRUE;
 			GLenum res = glewInit();
 			if (res != GLEW_OK) {
 				cout << "Error: " << glewGetErrorString(res) << "\n";
@@ -280,11 +278,6 @@ namespace rev {
 			//logGlError();
 			glUniform1i(_uniformId, _texStage);
 			//logGlError();
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		void OpenGLDriver::swapBuffers() {
-			glfwSwapBuffers(mWindow->nativeWindow());
 		}
 
 	}	// namespace video

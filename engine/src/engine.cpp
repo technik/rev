@@ -58,8 +58,6 @@ namespace rev {
 #ifndef ANDROID
 		input::KeyboardInput::get()->refresh(); // Important: refresh before OSHandler. Otherwise, keyboard messages may be discarded
 #endif // ANDROID
-		if (!mMainWindow->update())
-			return false;
 		core::Time::get()->update();
 
 #ifndef ANDROID

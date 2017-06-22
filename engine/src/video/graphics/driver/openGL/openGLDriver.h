@@ -39,8 +39,6 @@ namespace rev {
 				eNone
 			};
 
-			OpenGLDriver(Window*);
-
 			// Note: position correspond to the lower left corner of the rectangle and the window, starting at (0,0)
 			void		setViewport(const math::Vec2i& position, const math::Vec2u& size);
 			void		clearZBuffer();
@@ -80,12 +78,14 @@ namespace rev {
 
 			// --- Draw ---
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive);
+		protected:
+			void init(Window*);
 
 		private:
 			Window*	mWindow = nullptr;
 			GLuint	mProgram;
 
-			void swapBuffers();
+			virtual void swapBuffers() = 0;
 		};
 
 	}	// namespace video

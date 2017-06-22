@@ -32,7 +32,7 @@ namespace rev { namespace core {
 
 	//--------------------------------------------------------------------------------------------------------------
 	File::File(const string& _path) {
-		mPath = _path; 
+		//mPath = _path; 
 #ifdef ANDROID
 		assert(sAssetMgr != nullptr);
 		AAsset* srcAsset = AAssetManager_open(sAssetMgr, _path.c_str(), AASSET_MODE_STREAMING);
