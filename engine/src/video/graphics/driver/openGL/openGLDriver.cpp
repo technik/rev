@@ -14,6 +14,7 @@
 #include <core/platform/fileSystem/fileSystem.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -24,11 +25,6 @@ namespace rev {
 		void OpenGLDriver::init(Window* _window) {
 			mWindow = _window;
 
-			GLenum res = glewInit();
-			if (res != GLEW_OK) {
-				cout << "Error: " << glewGetErrorString(res) << "\n";
-				assert(false);
-			}
 			Shader::manager()->setCreator(
 				[](const string& _name) -> Shader* {
 				string sourceFileName = _name + ".glsl";
@@ -278,6 +274,29 @@ namespace rev {
 			//logGlError();
 			glUniform1i(_uniformId, _texStage);
 			//logGlError();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void OpenGLDriver::queryExtensions() {
+			const GLubyte* sExtensions = glGetString(GL_EXTENSIONS);
+			cout << "OpenGL Extensions:\n";
+			std::stringstream ss;
+			ss << sExtensions;
+			char extBuffer[256];
+			while (!ss.eof()) {
+				ss.getline(extBuffer, 256, ' ');
+				if (strncmp(extBuffer, "GL_EXT", 6) == 0)
+					mGL_EXT_Extensions.insert(string(extBuffer));
+				else if (strncmp(extBuffer, "GL_ARB", 6) == 0)
+					mGL_ARB_Extensions.insert(string(extBuffer));
+				else
+					cout << "Other: " << extBuffer << "\n";
+			}
+			// Show common extensions
+			if (mGL_ARB_Extensions.find("GL_ARB_create_context") != mGL_ARB_Extensions.end())
+				cout << "Found WGL_ARB_create_context extension\n";
+			if (mGL_ARB_Extensions.find("GL_ARB_create_context_profile ") != mGL_ARB_Extensions.end())
+				cout << "Found WGL_ARB_create_context_profile  extension\n";
 		}
 
 	}	// namespace video

@@ -13,6 +13,9 @@
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 #include <video/graphics/shader/shader.h>
+#include <vector>
+#include <set>
+#include <string>
 
 namespace rev {
 	namespace video{
@@ -80,8 +83,11 @@ namespace rev {
 			void		drawIndexBuffer(int _nIndices, unsigned short * _indices, EPrimitiveType _primitive);
 		protected:
 			void init(Window*);
+			void queryExtensions();
 
 		private:
+			std::set<std::string>	mGL_EXT_Extensions;
+			std::set<std::string>	mGL_ARB_Extensions;
 			Window*	mWindow = nullptr;
 			GLuint	mProgram;
 

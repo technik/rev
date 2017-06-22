@@ -58,9 +58,38 @@ namespace rev {
 				<< "Stencil depth: " << (size_t)pfd.cStencilBits << "\n";
 			SetPixelFormat(mDevCtxHandle, pixelFormat, &pfd);
 
-			// Set context
-			HGLRC renderCtxHandle = wglCreateContext(mDevCtxHandle);
-			wglMakeCurrent(mDevCtxHandle, renderCtxHandle);
+			// Create a dummy context to retrieve glew extensions, so we can then create a proper context
+			HGLRC dummyCtxHandle = wglCreateContext(mDevCtxHandle);
+			wglMakeCurrent(mDevCtxHandle, dummyCtxHandle);
+			// Load extensions
+#ifdef _DEBUG
+			queryExtensions();
+#endif // _DEBUG
+			GLenum res = glewInit();
+			if (res != GLEW_OK) {
+				cout << "Error: " << glewGetErrorString(res) << "\n";
+				assert(false);
+			}
+			// Try to create context with attributes
+			if (wglCreateContextAttribsARB) { // Advanced context creation is available
+				// Destroy dummy context ...
+				// ... and create a new one
+				int contextAttribs[] = {
+					WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+					WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+					WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+					NULL
+				};
+				HGLRC renderContext = wglCreateContextAttribsARB(mDevCtxHandle, NULL, contextAttribs);
+				if (renderContext) {
+					wglMakeCurrent(mDevCtxHandle, renderContext);
+					wglDeleteContext(dummyCtxHandle);
+				}
+				else
+					cout << "Unable to create render context with attributes. Using default context\n";
+			}
+			cout << "OpenGL Version " << (char*)glGetString(GL_VERSION) << "\n";
+			cout << "GLSL Version " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 
 			OpenGLDriver::init(_window);
 		}
