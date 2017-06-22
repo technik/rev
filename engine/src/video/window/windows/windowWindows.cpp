@@ -48,7 +48,6 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool WindowWindows::update() {
-			glfwPollEvents();
 			return !glfwWindowShouldClose(mNativeWindow);
 		}
 	}	// namespace video

@@ -6,10 +6,11 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_MATERIAL_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_MATERIAL_H_
 
-#include <video/graphics/shader/shader.h>
+#include "effect.h"
 #include <math/algebra/vector.h>
-#include <vector>
 #include <string>
+#include <vector>
+#include <video/graphics/shader/shader.h>
 
 namespace rev {
 	namespace video {
@@ -23,7 +24,7 @@ namespace rev {
 			template<typename T_>
 			using Param = std::pair<std::string, T_>;
 
-			std::string						mShader;
+			Effect*							mEffect;
 			std::vector<Param<Texture*>>	mMaps;
 			std::vector<Param<float>>		mFloats;
 			std::vector<Param<math::Vec3f>>	mVec3s;

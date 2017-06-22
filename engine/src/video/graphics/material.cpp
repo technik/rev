@@ -7,6 +7,7 @@
 #include <video/basicTypes/texture.h>
 #include <cjson/json.h>
 #include <fstream>
+#include "effect.h"
 
 using namespace cjson;
 using namespace std;
@@ -20,7 +21,7 @@ namespace rev {
 			if(!materialData.parse(ifstream(_fileName)))
 				return nullptr;
 			Material* m = new Material;
-			m->mShader = materialData["shader"];
+			m->mEffect = Effect::loadFromFile(materialData["effect"]);
 
 			const Json& vectors = materialData["vectors"];
 			for (auto i = vectors.begin(); i != vectors.end(); ++i) {
