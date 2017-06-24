@@ -54,6 +54,7 @@ namespace rev { namespace input
 	private:
 		int keyState[eMaxKeyCode];
 		int oldKeyState[eMaxKeyCode];
+		bool processWin32Message(MSG);
 	};
 
 	typedef KeyboardInputWindows	KeyboardInputBase;

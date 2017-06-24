@@ -13,6 +13,8 @@
 #include <thread>
 #include <chrono>
 #include <core/platform/platformInfo.h>
+#include <cjson/json.h>
+#include <fstream>
 
 using namespace rev::core;
 #ifndef ANDROID
@@ -27,12 +29,14 @@ namespace rev {
 		:mEngine(_info)
 	{
 		mMinFrameTime = 1.f/120;
+		// Open config file
+		cjson::Json config;// = loadConfig();
 #ifdef ANDROID
-		GraphicsDriver* driver = new GraphicsDriver();
+		GraphicsDriver* driver = new GraphicsDriver(config);
 		//driver->setWindow(_info.activity->);
 		mDriver = driver;
 #else
-		mDriver = new GraphicsDriver(mEngine.mainWindow());
+		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();

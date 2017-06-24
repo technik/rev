@@ -18,7 +18,7 @@ namespace rev {
 
 		class OpenGLDriverWindows : public OpenGLDriver {
 		public:
-			OpenGLDriverWindows(Window*);
+			OpenGLDriverWindows(Window*, const cjson::Json& _config);
 
 			void	swapBuffers();
 

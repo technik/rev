@@ -20,12 +20,14 @@
 #include <network/http/httpServer.h>
 #include <network/http/httpResponse.h>
 #include <game/scene/transform/flybySrc.h>
+#include <map>
 
 using namespace cjson;
 using namespace rev::core;
 using namespace rev::game;
 using namespace rev::net;
 using namespace rev::video;
+using namespace std;
 
 namespace rev {
 
@@ -62,6 +64,32 @@ namespace rev {
 			// Load scene
 			mGameWorld.init();
 			mLoader.loadScene(mSceneName, mGameWorld);
+
+			// Create extra objects
+			StaticRenderMesh* mesh = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
+			float roughness = 0.01f;
+			for (int i = -3; i <= 3; ++i) {
+				float metalness = 0.0f;
+				for (int j = -2; j <= 2; ++j) {
+					SceneNode* node = mGameWorld.createNode("procBall");
+					RenderObj* obj = new RenderObj(mesh);
+					mRenderScene->addRenderObj(obj);
+					Effect* fx = new Effect;
+					fx->loadFromFile("data/pbr.effect");
+					obj->material = new Material;
+					obj->material->mEffect = fx;
+					obj->material->mFloats.push_back(make_pair("roughness", roughness));
+					obj->material->mFloats.push_back(make_pair("metalness", metalness));
+					obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(1)));
+					metalness += 0.2f;
+					node->addComponent(obj);
+					AffineTransform* m = new AffineTransform;
+					m->matrix() = Mat34f::identity();
+					m->setPosition(Vec3f(i*1.f, 3.f, j*1.f));
+					node->addComponent(m);
+				}
+				roughness += 0.11f;
+			}
 		}
 
 		~Player() {

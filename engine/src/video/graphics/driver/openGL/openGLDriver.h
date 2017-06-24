@@ -16,6 +16,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <cjson/json.h>
 
 namespace rev {
 	namespace video{
@@ -53,7 +54,7 @@ namespace rev {
 			void		setMultiSampling(bool _enable);
 #endif //!ANDROID
 
-			void		beginFrame() { glFinish(); }
+			void		beginFrame() {}
 			void		finishFrame();
 
 			// --- Vertex config and surface config ---
@@ -84,6 +85,12 @@ namespace rev {
 		protected:
 			void init(Window*);
 			void queryExtensions();
+
+			struct DriverConfig {
+				bool useMultisampling;
+				bool sRGBFrameBuffer;
+			};
+			static void parseConfig(const cjson::Json& _cfg, DriverConfig& _dst);
 
 		private:
 			std::set<std::string>	mGL_EXT_Extensions;

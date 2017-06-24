@@ -18,9 +18,10 @@ namespace rev {
 			if (!effectData.parse(ifstream(_fileName)))
 				return nullptr;
 			Effect* fx = new Effect;
-			fx->mShader = effectData["shader"];
-			fx->blend = string(effectData["blend"]) == "on";
-			fx->zWrite = string(effectData["blend"]) == "on";
+			// Assuming single pass effects
+			fx->mShader = effectData(0)["shader"];
+			fx->blend = string(effectData(0)["blend"]) == "on";
+			fx->zWrite = string(effectData(0)["blend"]) == "on";
 			return fx;
 		}
 

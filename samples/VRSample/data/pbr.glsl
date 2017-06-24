@@ -100,7 +100,7 @@ vec4 fragment_shader(vec3 albedo) {
 	vec3 L0 = (kD*albedo / PI + spec) * lightClr *ndl;
 	
 	vec3 skyClr = vec3(0.3, 0.55, 0.6);
-	vec3 floorClr = vec3(0.5,0.5,0.6);
+	vec3 floorClr = vec3(0.2,0.2,0.3);
 	vec3 reflDir = reflect(viewDir, normal);
 	vec3 env = texture(environmentMap, reflDir).xyz;
 	vec3 ambient = mix(floorClr, skyClr, 0.5+0.5*normal.z);
@@ -108,6 +108,7 @@ vec4 fragment_shader(vec3 albedo) {
 	vec3 indirect = ambient*kD + env *kS;
 	
 	return vec4(L0+indirect, 1.0);
+	//return vec4(floorClr, 1.0);
 }
 
 // ----- Vertex shader -----

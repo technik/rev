@@ -38,6 +38,7 @@ namespace rev {
 		net::http::Server*			jsonAPI	() const { return mEngine.jsonAPI(); }
 
 	private:
+		cjson::Json					loadConfig();
 
 	private:
 		float						mMinFrameTime;

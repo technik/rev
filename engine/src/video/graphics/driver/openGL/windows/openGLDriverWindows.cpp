@@ -22,7 +22,7 @@ using namespace rev::core;
 namespace rev {
 	namespace video {
 		//--------------------------------------------------------------------------------------------------------------
-		OpenGLDriverWindows::OpenGLDriverWindows(Window* _window)
+		OpenGLDriverWindows::OpenGLDriverWindows(Window* _window, const cjson::Json& _config)
 		{
 			mWindowHandle = _window->winapiHandle();
 			mDevCtxHandle = GetDC(mWindowHandle); // Device contex

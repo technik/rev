@@ -23,6 +23,8 @@ namespace rev {
 			RenderObj* createRenderObj	(const cjson::Json&);
 			Camera*		createCamera	(const cjson::Json&);
 
+			void addRenderObj(RenderObj* _obj) { mObjects.push_back(_obj); }
+
 		private:
 			std::vector<Camera*>	mCameras;
 			std::vector<RenderObj*>	mObjects;

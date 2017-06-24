@@ -22,6 +22,11 @@ namespace rev { namespace input
 			keyState[key] = 0;
 			oldKeyState[key] = 0;
 		}
+		// Register for system messages
+		// Register in osHandler for message processing
+		(*core::OSHandler::get()) += [this](MSG _msg) {
+			return processWin32Message(_msg);
+		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -55,26 +60,29 @@ namespace rev { namespace input
 		{
 			oldKeyState[key] = keyState[key];
 		}
-		// Process windows messages
-		MSG msg;
-		while (PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE | PM_QS_INPUT))
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool KeyboardInputWindows::processWin32Message(MSG msg) {
+		if (msg.message == WM_KEYDOWN)
 		{
-			if (msg.message == WM_KEYDOWN)
+			if (msg.wParam < eMaxKeyCode)
 			{
-				if (msg.wParam < eMaxKeyCode)
-				{
-					keyState[msg.wParam] = 1;
-				}
-			}
-			else if (msg.message == WM_KEYUP)
-			{
-				if (msg.wParam < eMaxKeyCode)
-				{
-					keyState[msg.wParam] = 0;
-				}
+				keyState[msg.wParam] = 1;
+				return true;
 			}
 		}
+		else if (msg.message == WM_KEYUP)
+		{
+			if (msg.wParam < eMaxKeyCode)
+			{
+				keyState[msg.wParam] = 0;
+				return true;
+			}
+		}
+		return false;
 	}
+
 
 }	// namespace input
 }	// namespace rev

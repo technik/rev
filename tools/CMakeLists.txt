@@ -35,7 +35,11 @@ endif()
 find_package(assimp REQUIRED)
 link_directories(${ASSIMP_LIBRARY_DIRS})
 
-# tool folders
+# --- tool folders ---
+# Cubemap processor
+
+
+# model processor
 file(GLOB_RECURSE MDLPROC_SOURCE_FILES "modelProcessor/*.cpp" "modelProcessor/*.h" "modelProcessor/*.inl")
 add_executable(modelProcessor ${MDLPROC_SOURCE_FILES})
 set_target_properties(modelProcessor PROPERTIES FOLDER "tools")
