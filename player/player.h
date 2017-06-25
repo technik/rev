@@ -70,7 +70,7 @@ namespace rev {
 			float roughness = 0.01f;
 			for (int i = -3; i <= 3; ++i) {
 				float metalness = 0.0f;
-				for (int j = -2; j <= 2; ++j) {
+				for (int j = -3; j <= 3; ++j) {
 					SceneNode* node = mGameWorld.createNode("procBall");
 					RenderObj* obj = new RenderObj(mesh);
 					mRenderScene->addRenderObj(obj);
@@ -81,7 +81,7 @@ namespace rev {
 					obj->material->mFloats.push_back(make_pair("roughness", roughness));
 					obj->material->mFloats.push_back(make_pair("metalness", metalness));
 					obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(1)));
-					metalness += 0.2f;
+					metalness += 0.11f;
 					node->addComponent(obj);
 					AffineTransform* m = new AffineTransform;
 					m->matrix() = Mat34f::identity();

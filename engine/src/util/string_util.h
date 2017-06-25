@@ -14,7 +14,7 @@ namespace rev {
 			if (pos == std::string::npos)
 				return "";
 			else
-				return _s.substr(pos);
+				return _s.substr(pos+1);
 		}
 
 	}

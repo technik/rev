@@ -1,6 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Unified PBR shader
 //----------------------------------------------------------------------------------------------------------------------
+#version 330 core
 #define USE_GAMMA_CORRECTION
 //#define ALBEDO_MAP
 //#define PHYSICS_MAP
@@ -99,11 +100,9 @@ vec4 fragment_shader(vec3 albedo) {
 	vec3 spec = nom * den;
 	vec3 L0 = (kD*albedo / PI + spec) * lightClr *ndl;
 	
-	vec3 skyClr = vec3(0.3, 0.55, 0.6);
-	vec3 floorClr = vec3(0.2,0.2,0.3);
 	vec3 reflDir = reflect(viewDir, normal);
-	vec3 env = texture(environmentMap, reflDir).xyz;
-	vec3 ambient = mix(floorClr, skyClr, 0.5+0.5*normal.z);
+	vec3 env = textureLod(environmentMap, reflDir, 10*roughness).xyz;
+	vec3 ambient = textureLod(environmentMap, normal, 6).xyz;
 	
 	vec3 indirect = ambient*kD + env *kS;
 	

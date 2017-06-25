@@ -75,12 +75,11 @@ namespace rev {
 				InternalFormat gpuFormat = InternalFormat::rgba;
 				bool genMips = false;
 				bool repeat = false;
-				FilterMode filter = FilterMode::linear;
 				math::Vec3u size;
 			} mInfo;
 
 		private:
-			Texture();
+			Texture() {}
 			struct ImageBuffer{
 				uint8_t* data = nullptr;
 				math::Vec3u size;

@@ -263,17 +263,10 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		void OpenGLDriver::setUniform(int _uniformId, const Texture* _tex, GLenum _texStage) {
-			//logGlError();
-			//if(hasTexStage(_tex)) {
-				glActiveTexture(_texStage + GL_TEXTURE0);
-				GLenum target = _tex->type() == Texture::TexType::tex2d ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
-				glBindTexture(target, _tex->glId());
-		//	} else {
-		//		assignTexStage(_tex);
-		//	}
-			//logGlError();
+			glActiveTexture(_texStage + GL_TEXTURE0);
+			GLenum target = _tex->type() == Texture::TexType::tex2d ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
+			glBindTexture(target, _tex->glId());
 			glUniform1i(_uniformId, _texStage);
-			//logGlError();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

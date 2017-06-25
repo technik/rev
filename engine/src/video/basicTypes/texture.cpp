@@ -28,11 +28,11 @@ namespace rev {
 				uint64_t	pixelFormat;
 				uint32_t	colourSpace;
 				uint32_t	channelType;
-				uint64_t	height;
+				uint32_t	height;
 				uint32_t	width;
 				uint32_t	depth;
 				uint32_t	numSurfaces;
-				uint64_t	numFaces;
+				uint32_t	numFaces;
 				uint32_t	mipMapCount;
 				uint32_t	metaDataSize;
 
@@ -47,11 +47,21 @@ namespace rev {
 						return false;
 					}
 					uint32_t formatHigh = uint32_t(pixelFormat >> 32);
-					if (formatHigh & 0xffffffff == 0) {
+					if (formatHigh == 0) {
 						cout << "Error: Compressed formats are not supported\n";
 						return false;
 					}
 					return true;
+				}
+
+				//-------------------------------------------------------------------------------------
+				GLint pixelChannels() const {
+					char* format = (char*)&pixelFormat;
+					if (format[7] == 'a') // Contains alpha
+						return (GLint)Texture::SourceFormat::rgba;
+					else
+						return (GLint)Texture::SourceFormat::rgb;
+
 				}
 
 				//-------------------------------------------------------------------------------------
@@ -120,32 +130,32 @@ namespace rev {
 			//--------------------------------------------------------------------------------------------------------------
 			bool loadPVRImageToGL(istream& pvrFile, const Texture::TextureInfo& tInfo, const PVRHeader& header, GLint texId, GLenum glTarget) {
 				math::Vec3u mipSize = tInfo.size;
-				uint32_t mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z;
-				GLint sourceFormat = (GLint)tInfo.gpuFormat;
+				GLenum dataType = header.floatData() ? GL_FLOAT : GL_UNSIGNED_BYTE;
+				GLint sourceFormat = header.pixelChannels();
+				uint32_t bytesPerPixel = (sourceFormat == GL_RGB ? 3 : 4) * (dataType == GL_FLOAT ? 4 : 1);
 				GLint internalFormat = (GLint)tInfo.gpuFormat;
-				GLenum dataType = header.floatData ? GL_FLOAT : GL_UNSIGNED_BYTE;
-				char* buffer = new char[mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z];
+				uint32_t mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z * bytesPerPixel *header.numSurfaces;
+				char* buffer = new char[mipSizeInBytes];
+				for(size_t i = 0; i < mipSizeInBytes; ++i)
+					buffer[i] = char(0x55);
 				// Read one mip level at a time
 				for (size_t mipLevel = 0; mipLevel < header.mipMapCount; ++mipLevel) {
-					uint32_t curMipSize = mipSizeInBytes;
+					uint32_t curMipBytes = mipSize.x*mipSize.y*mipSize.z *header.numSurfaces * bytesPerPixel;
 					if (glTarget == GL_TEXTURE_1D) { // Single dimension textures
-						pvrFile.read(buffer, mipSizeInBytes);
+						pvrFile.read(buffer, curMipBytes);
 						glTexImage1D(glTarget, mipLevel, sourceFormat, mipSize.x, 0, internalFormat, dataType, buffer);
 					}
 					else {
 						// Bidimensional textures
 						if (glTarget == GL_TEXTURE_CUBE_MAP || glTarget == GL_TEXTURE_1D_ARRAY || glTarget == GL_TEXTURE_2D) {
-							uint32_t faceSize = mipSize.x * mipSize.y * header.numSurfaces;
 							if (header.numFaces == 6) { // Cubemap
-								GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-								for (size_t face = 0; face < header.numFaces; ++face) {
-									pvrFile.read(buffer, faceSize);
+								for (GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X; face <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; ++face) {
+									pvrFile.read(buffer, curMipBytes);
 									glTexImage2D(face, mipLevel, internalFormat, mipSize.x, mipSize.y, 0, sourceFormat, dataType, buffer);
-									++face;
 								}
 							}
 							else { // 2D or 1D_array
-								pvrFile.read(buffer, faceSize);
+								pvrFile.read(buffer, curMipBytes);
 								assert(header.numFaces == 1);
 								uint32_t height = mipSize.y * header.numSurfaces;
 								glTexImage2D(glTarget, mipLevel, internalFormat, mipSize.x, height, 0, sourceFormat, dataType, buffer);
@@ -153,8 +163,7 @@ namespace rev {
 						}
 						else { // Tridimensional textures
 							assert(glTarget == GL_TEXTURE_3D || glTarget == GL_TEXTURE_2D_ARRAY); // Cubemap array not supported
-							uint32_t faceSize = mipSize.x * mipSize.y * mipSize.z;
-							pvrFile.read(buffer, faceSize);
+							pvrFile.read(buffer, curMipBytes);
 							uint32_t depth = mipSize.z * header.numSurfaces;
 							glTexImage3D(glTarget, mipLevel, internalFormat, mipSize.x, mipSize.y, depth, 0, sourceFormat, dataType, buffer);
 							mipSize.z = max(1u, mipSize.z >> 1);
@@ -162,7 +171,6 @@ namespace rev {
 						mipSize.y = max(1u, mipSize.y >> 1);
 					}
 					mipSize.x = max(1u, mipSize.x >> 1);
-					mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z;
 				}
 				// Release temp buffer
 				delete[] buffer;
@@ -246,8 +254,8 @@ namespace rev {
 				if(_desc.genMips)
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				else
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				GLint repeatMode = _desc.repeat?GL_REPEAT: GL_CLAMP_TO_EDGE;
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeatMode);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeatMode);
@@ -264,16 +272,17 @@ namespace rev {
 			else if (_desc.type == TexType::cubemap) {
 				glBindTexture(GL_TEXTURE_CUBE_MAP, mId);
 				// Config filtering
-				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, (GLint)_desc.filter);
-				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, (GLint)_desc.filter);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
 				// Load faces
 				for(size_t face = 0; face < nMaps; ++face) {
 					const ImageBuffer& buffer = _buffers[face];
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
-					0, (GLint)_desc.gpuFormat, _desc.size.x, _desc.size.y, borderSize, (GLenum)buffer.fmt, GL_UNSIGNED_BYTE, buffer.data);
+						0, (GLint)_desc.gpuFormat, _desc.size.x, _desc.size.y, borderSize, (GLenum)buffer.fmt, GL_UNSIGNED_BYTE, buffer.data);
 					
 				}
 			}
@@ -285,14 +294,14 @@ namespace rev {
 				cout << "Error loading texture " << _fileName << ". Only PVR textures are supported\n";
 				return nullptr;
 			}
-			fstream pvrFile(_fileName);
+			ifstream pvrFile(_fileName, fstream::binary);
 			if (!pvrFile.is_open()) {
 				cout << "Error: unable to open PVR file " << _fileName << "\n";
 				return nullptr;
 			}
 
 			PVRHeader header;
-			pvrFile.read((char*)&header, sizeof(PVRHeader));
+			pvrFile.read((char*)&header, 52);
 			if (!header.checkHeader()) {
 				cout << "Error loading PVR file " << _fileName << "\n";
 				return nullptr;
@@ -303,15 +312,16 @@ namespace rev {
 			tInfo.type = header.numFaces == 6 ? Texture::TexType::cubemap : Texture::TexType::tex2d;
 
 			// Skip metadata
+			char buffer[1024];
 			if (header.metaDataSize > 0) {
 				assert(header.metaDataSize <= 1024);
-				char buffer[1024];
 				pvrFile.read(buffer, header.metaDataSize);
 			}
 			// Generate GL texture
 			Texture* texture = new Texture();
 			glGenTextures(1, &texture->mId);
 			GLenum glTarget = header.glTarget();
+			texture->mInfo.type = (glTarget == GL_TEXTURE_CUBE_MAP ? Texture::TexType::cubemap : Texture::TexType::tex2d);
 			glBindTexture(glTarget, texture->mId);
 			// Load actual data
 			if (!loadPVRImageToGL(pvrFile, tInfo, header, texture->mId, glTarget)) {
@@ -319,6 +329,13 @@ namespace rev {
 				delete texture;
 				return nullptr;
 			}
+			glTexParameteri(glTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(glTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(glTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(glTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(glTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameteri(glTarget, GL_TEXTURE_MAX_LEVEL, header.mipMapCount - 1);
+			glBindTexture(glTarget, 0);
 			return texture;
 		}
 

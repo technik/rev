@@ -28,7 +28,7 @@ namespace rev {
 			mBackEnd = new RendererBackEnd(_driver);
 			mProgram = Shader::manager()->get("data\\pbr");
 			mSkyboxShader = Shader::manager()->get("data\\skybox");
-			mSkybox = Texture::loadFromFile("data\\skybox.tex");
+			mSkybox = Texture::loadFromFile("data\\skybox.pvr");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -73,6 +73,9 @@ namespace rev {
 
 				draw.mesh = obj->mesh();
 				mBackEnd->draw(draw);
+				draw.renderStateInfo.texUniforms.clear();
+				draw.renderStateInfo.vec3Uniforms.clear();
+				draw.renderStateInfo.floatUniforms.clear();
 			}
 			// Draw skybox cubemap
 			drawSkyboxCubemap(_cam);
