@@ -29,6 +29,8 @@ namespace rev {
 				rgba = GL_RGBA8,
 				rg16f = GL_RG16F,
 				rg32f = GL_RG32F,
+				rgb32f = GL_RGB32F,
+				rgba32f = GL_RGBA32F,
 #endif // !ANDROID
 				depth = GL_DEPTH_COMPONENT
 			};
@@ -66,12 +68,22 @@ namespace rev {
 			GLuint	glId		() const { return mId; }
 			TexType	type		() const { return mInfo.type; }
 
-			const math::Vec2u& size() const { return mSize; }
+			const math::Vec3u& size() const { return mInfo.size; }
+
+			struct TextureInfo {
+				TexType	type = TexType::tex2d;
+				InternalFormat gpuFormat = InternalFormat::rgba;
+				bool genMips = false;
+				bool repeat = false;
+				FilterMode filter = FilterMode::linear;
+				math::Vec3u size;
+			} mInfo;
 
 		private:
+			Texture();
 			struct ImageBuffer{
 				uint8_t* data = nullptr;
-				math::Vec2u size;
+				math::Vec3u size;
 				SourceFormat fmt;
 			};
 
@@ -80,22 +92,10 @@ namespace rev {
 				linear = GL_LINEAR,
 			};
 
-			struct TextureInfo {
-				TexType	type = TexType::tex2d;
-				InternalFormat gpuFormat = InternalFormat::rgba;
-				bool genMips = false;
-				bool repeat = false;
-				FilterMode filter = FilterMode::linear;
-				math::Vec2u size;
-			} mInfo;
-
-
 			static FilterMode filterMode(const std::string&);
 			static InternalFormat colorBufferFormat(const std::string&);
-			static bool loadBuffer(const std::string& _fileName, ImageBuffer& _buff);
 			Texture(const TextureInfo&, const ImageBuffer* _buffArray, size_t _nMips);
 
-			math::Vec2u mSize;
 			GLuint mId = 0;
 			bool mMultiSample = false;
 		};

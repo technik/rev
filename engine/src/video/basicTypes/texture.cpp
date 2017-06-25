@@ -8,17 +8,171 @@
 #include <freeImage/FreeImage.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <cjson/json.h>
+#include <iostream>
 #include <fstream>
+#include <util/string_util.h>
+#include <cmath>
 
 using namespace cjson;
+using namespace std;
 
 namespace rev {
 	namespace video {
+
+		namespace { // PVR loading
+			
+			//---------------------------------------------------------------------------------------------------------
+			struct PVRHeader{
+				uint32_t	version;
+				uint32_t	flags;
+				uint64_t	pixelFormat;
+				uint32_t	colourSpace;
+				uint32_t	channelType;
+				uint64_t	height;
+				uint32_t	width;
+				uint32_t	depth;
+				uint32_t	numSurfaces;
+				uint64_t	numFaces;
+				uint32_t	mipMapCount;
+				uint32_t	metaDataSize;
+
+				//-------------------------------------------------------------------------------------
+				bool checkHeader() const {
+					if (!checkVersion()) {
+						if (checkWrongEndian()) {
+							cout << "Error: wrong endian loading PVR\n";
+						}
+						else
+							cout << "Unsupported version loading PVR\n";
+						return false;
+					}
+					uint32_t formatHigh = uint32_t(pixelFormat >> 32);
+					if (formatHigh & 0xffffffff == 0) {
+						cout << "Error: Compressed formats are not supported\n";
+						return false;
+					}
+					return true;
+				}
+
+				//-------------------------------------------------------------------------------------
+				Texture::InternalFormat gpuFormat() const {
+					char* format = (char*)&pixelFormat;
+					if (format[7] == 'a') {// Contains alpha
+						if (format[0] == 32) {
+							return Texture::InternalFormat::rgba32f;
+						}
+						else {
+							return Texture::InternalFormat::rgba;
+						}
+					}
+					else { // no alpha
+						if (format[0] == 32) {
+							return Texture::InternalFormat::rgb32f;
+						}
+						else {
+							return Texture::InternalFormat::rgb;
+						}
+					}
+				}
+
+				bool floatData() const {
+					return channelType == 12;
+				}
+
+				//-------------------------------------------------------------------------------------
+				GLenum glTarget() const {
+					if (depth > 1) {
+						return GL_TEXTURE_3D;
+					}
+					else if (height > 1) {
+						if (numFaces == 6) {
+							if (numSurfaces > 1)
+								return GL_TEXTURE_CUBE_MAP_ARRAY;
+							else
+								return GL_TEXTURE_CUBE_MAP;
+						}
+						else {
+							assert(numFaces == 1);
+							if (numSurfaces > 1)
+								return GL_TEXTURE_2D_ARRAY;
+							else
+								return GL_TEXTURE_2D;
+						}
+					}
+					else {
+						if (numSurfaces > 1)
+							return GL_TEXTURE_1D_ARRAY;
+						else
+							return GL_TEXTURE_1D;
+					}
+				}
+
+			private:
+				bool checkVersion() const {
+					return 0x03525650 == version;
+				};
+
+				bool checkWrongEndian() const {
+					return 0x50565203 == version;
+				}
+			};
+
+			//--------------------------------------------------------------------------------------------------------------
+			bool loadPVRImageToGL(istream& pvrFile, const Texture::TextureInfo& tInfo, const PVRHeader& header, GLint texId, GLenum glTarget) {
+				math::Vec3u mipSize = tInfo.size;
+				uint32_t mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z;
+				GLint sourceFormat = (GLint)tInfo.gpuFormat;
+				GLint internalFormat = (GLint)tInfo.gpuFormat;
+				GLenum dataType = header.floatData ? GL_FLOAT : GL_UNSIGNED_BYTE;
+				char* buffer = new char[mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z];
+				// Read one mip level at a time
+				for (size_t mipLevel = 0; mipLevel < header.mipMapCount; ++mipLevel) {
+					uint32_t curMipSize = mipSizeInBytes;
+					if (glTarget == GL_TEXTURE_1D) { // Single dimension textures
+						pvrFile.read(buffer, mipSizeInBytes);
+						glTexImage1D(glTarget, mipLevel, sourceFormat, mipSize.x, 0, internalFormat, dataType, buffer);
+					}
+					else {
+						// Bidimensional textures
+						if (glTarget == GL_TEXTURE_CUBE_MAP || glTarget == GL_TEXTURE_1D_ARRAY || glTarget == GL_TEXTURE_2D) {
+							uint32_t faceSize = mipSize.x * mipSize.y * header.numSurfaces;
+							if (header.numFaces == 6) { // Cubemap
+								GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+								for (size_t face = 0; face < header.numFaces; ++face) {
+									pvrFile.read(buffer, faceSize);
+									glTexImage2D(face, mipLevel, internalFormat, mipSize.x, mipSize.y, 0, sourceFormat, dataType, buffer);
+									++face;
+								}
+							}
+							else { // 2D or 1D_array
+								pvrFile.read(buffer, faceSize);
+								assert(header.numFaces == 1);
+								uint32_t height = mipSize.y * header.numSurfaces;
+								glTexImage2D(glTarget, mipLevel, internalFormat, mipSize.x, height, 0, sourceFormat, dataType, buffer);
+							}
+						}
+						else { // Tridimensional textures
+							assert(glTarget == GL_TEXTURE_3D || glTarget == GL_TEXTURE_2D_ARRAY); // Cubemap array not supported
+							uint32_t faceSize = mipSize.x * mipSize.y * mipSize.z;
+							pvrFile.read(buffer, faceSize);
+							uint32_t depth = mipSize.z * header.numSurfaces;
+							glTexImage3D(glTarget, mipLevel, internalFormat, mipSize.x, mipSize.y, depth, 0, sourceFormat, dataType, buffer);
+							mipSize.z = max(1u, mipSize.z >> 1);
+						}
+						mipSize.y = max(1u, mipSize.y >> 1);
+					}
+					mipSize.x = max(1u, mipSize.x >> 1);
+					mipSizeInBytes = mipSize.x*mipSize.y*mipSize.z;
+				}
+				// Release temp buffer
+				delete[] buffer;
+				return true;
+			}
+		}
 		
 		//--------------------------------------------------------------------------------------------------------------
 		Texture::Texture(const math::Vec2u& _size, InternalFormat _targetFormat, bool _multiSample)
-			: mSize(_size)
-			, mMultiSample(_multiSample)
+			: mMultiSample(_multiSample)
 		{
 #ifndef ANDROID
 			GLenum target = _multiSample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -81,7 +235,6 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Texture::Texture(const TextureInfo& _desc, const ImageBuffer* _buffers, size_t nMaps)
 			: mInfo(_desc)
-			, mSize(_desc.size)
 			, mMultiSample(false)
 		{
 			constexpr int borderSize = 0;
@@ -128,32 +281,45 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Texture* Texture::loadFromFile(const std::string& _fileName) {
-			Json textureData;
-			std::ifstream file(_fileName);
-			textureData.parse(file);
-			// Load format and texture info
-			TextureInfo desc;
-			const Json& texType = textureData["type"];
-			if(std::string(texType) == "cubemap")
-				desc.type = TexType::cubemap;
-			desc.gpuFormat = colorBufferFormat(textureData["channels"]);
-			desc.genMips = (bool)textureData["genMips"];
-			desc.repeat = (bool)textureData["repeat"];
-			desc.filter = filterMode(textureData["filter"]);
-			const Json& mips = textureData["maps"];
-			// Load buffers
-			ImageBuffer mipBuffers[16];
-			for (size_t i = 0; i < mips.size(); ++i) {
-				if (!loadBuffer((std::string)mips(i), mipBuffers[i])) {
-					// clear previous mipmaps
-					for (size_t j = 0; j < i; ++j) {
-						delete[] mipBuffers[j].data;
-					}
-					return nullptr;
-				}
+			if (util::getFileExtension(_fileName) != "pvr") {
+				cout << "Error loading texture " << _fileName << ". Only PVR textures are supported\n";
+				return nullptr;
 			}
-			desc.size = mipBuffers[0].size;
-			return new Texture(desc, mipBuffers, mips.size());
+			fstream pvrFile(_fileName);
+			if (!pvrFile.is_open()) {
+				cout << "Error: unable to open PVR file " << _fileName << "\n";
+				return nullptr;
+			}
+
+			PVRHeader header;
+			pvrFile.read((char*)&header, sizeof(PVRHeader));
+			if (!header.checkHeader()) {
+				cout << "Error loading PVR file " << _fileName << "\n";
+				return nullptr;
+			}
+			TextureInfo tInfo;
+			tInfo.gpuFormat = header.gpuFormat();
+			tInfo.size = math::Vec3u(header.width, header.height, header.depth);
+			tInfo.type = header.numFaces == 6 ? Texture::TexType::cubemap : Texture::TexType::tex2d;
+
+			// Skip metadata
+			if (header.metaDataSize > 0) {
+				assert(header.metaDataSize <= 1024);
+				char buffer[1024];
+				pvrFile.read(buffer, header.metaDataSize);
+			}
+			// Generate GL texture
+			Texture* texture = new Texture();
+			glGenTextures(1, &texture->mId);
+			GLenum glTarget = header.glTarget();
+			glBindTexture(glTarget, texture->mId);
+			// Load actual data
+			if (!loadPVRImageToGL(pvrFile, tInfo, header, texture->mId, glTarget)) {
+				glDeleteTextures(1, &texture->mId);
+				delete texture;
+				return nullptr;
+			}
+			return texture;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -176,66 +342,6 @@ namespace rev {
 				fmt = InternalFormat::r;
 #endif // ANDROID
 			return fmt;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		bool Texture::loadBuffer(const std::string& _fileName, ImageBuffer& _dst) {
-			auto fIFormat = FreeImage_GetFIFFromFilename(_fileName.c_str());
-			int flags = 0;
-			if (fIFormat == FIF_JPEG)
-				flags = JPEG_ACCURATE;
-			FIBITMAP * bitmap = FreeImage_Load(fIFormat, _fileName.c_str(), flags);
-			if (!bitmap)
-				return false;
-			auto imgType = FreeImage_GetImageType(bitmap);
-			auto colorType = FreeImage_GetColorType(bitmap);
-			if (imgType != FIT_BITMAP || colorType != FIC_RGB) {
-				FreeImage_Unload(bitmap);
-				return false;
-			}
-
-			_dst.size.x = FreeImage_GetWidth(bitmap);
-			_dst.size.y = FreeImage_GetHeight(bitmap);
-
-			auto bitsPerPixel = FreeImage_GetBPP(bitmap);
-			switch (bitsPerPixel)
-			{
-			case 32:
-				_dst.fmt = SourceFormat::rgba;
-				break;
-			case 24:
-				_dst.fmt = SourceFormat::rgb;
-				break;
-#ifndef ANDROID
-			case 16:
-				_dst.fmt = SourceFormat::rg;
-				break;
-			case 8:
-				_dst.fmt = SourceFormat::r;
-				break;
-#endif // ANDROID
-			default:
-				// Unsupported image format
-				FreeImage_Unload(bitmap);
-				return false;
-			}
-			// Copy data
-			size_t nPixels = _dst.size.x*_dst.size.y;
-			size_t buffSize = nPixels * bitsPerPixel / 8;
-			_dst.data = new uint8_t[buffSize];
-			memcpy(_dst.data, FreeImage_GetBits(bitmap), buffSize);
-			FreeImage_Unload(bitmap); // Release FreeImage's copy of the data
-			// Correct channels order if necessary
-			if(bitsPerPixel  == 24) {
-				// Swap b and r channels
-				for (unsigned i = 0; i < nPixels; ++i)
-				{
-					uint8_t r = _dst.data[3 * i + 2];
-					_dst.data[3 * i + 2] = _dst.data[3 * i];
-					_dst.data[3 * i] = r;
-				}
-			}
-			return true;
 		}
 	}
 }
