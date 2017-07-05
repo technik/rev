@@ -31,7 +31,7 @@ namespace rev {
 		mRenderScene = new RenderLayer(mRenderer);
 		mGameWorld.addLayer(mRenderScene);
 		mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
-		mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
+		//mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
 		mLoader.registerFactory("Transform", [](const Json& _j) { return AffineTransform::construct(_j); });
 
 		// Expose API
@@ -44,6 +44,7 @@ namespace rev {
 		// Load scene
 		mGameWorld.init();
 		mLoader.loadScene(mSceneName, mGameWorld);
+		mCamTransform = mRenderScene->cameraByNdx(0)->node()->component<AffineTransform>();
 
 		// Create extra objects
 		StaticRenderMesh* mesh = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
@@ -77,8 +78,10 @@ namespace rev {
 #ifdef ANDROID
 		mSceneName = "vrScene.scn";
 #else
-		if (_info.argC > 1) {
+		if (_info.argC > 2) {
 			mSceneName = _info.argV[1];
+			string datasetName = _info.argV[2];
+			mSlamTracker = new HeadTracker(datasetName);
 		}
 #endif
 	}
@@ -88,6 +91,9 @@ namespace rev {
 		mAccumTime += _dt; // Fixed time step
 		while (mAccumTime >= mFixedDt) {
 			mAccumTime -= mFixedDt;
+			if (!mSlamTracker->update(mFixedDt))
+				return false;
+			mCamTransform->matrix() = mSlamTracker->headTransform();
 			if (!mGameWorld.update(mFixedDt))
 				return false;
 		}

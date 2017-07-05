@@ -22,6 +22,8 @@
 #include <game/scene/transform/flybySrc.h>
 #include <map>
 
+#include "HeadTracker.h"
+
 using namespace cjson;
 using namespace rev::core;
 using namespace rev::game;
@@ -49,6 +51,9 @@ namespace rev {
 		// Common components
 		video::ForwardRenderer mRenderer;
 
+		// Head tracking data
+		HeadTracker* mSlamTracker = nullptr;
+		core::AffineTransform*	camTransform = nullptr;
 	private:
 
 		//----------------------------------------------------------------

@@ -22,6 +22,7 @@ namespace rev {
 
 			RenderObj* createRenderObj	(const cjson::Json&);
 			Camera*		createCamera	(const cjson::Json&);
+			Camera*		cameraByNdx		(size_t _ndx) const { return mCameras[_ndx]; }
 
 			void addRenderObj(RenderObj* _obj) { mObjects.push_back(_obj); }
 
