@@ -67,7 +67,7 @@ namespace rev {
 
 			// Create extra objects
 			StaticRenderMesh* mesh = StaticRenderMesh::loadFromFile("data/unitSphere.rmd");
-			float roughness = 0.01f;
+			float roughness = 0.0f;
 			for (int i = -3; i <= 3; ++i) {
 				float metalness = 0.0f;
 				for (int j = -3; j <= 3; ++j) {
@@ -80,7 +80,7 @@ namespace rev {
 					obj->material->mEffect = fx;
 					obj->material->mFloats.push_back(make_pair("roughness", roughness));
 					obj->material->mFloats.push_back(make_pair("metalness", metalness));
-					obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(1)));
+					obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(1.f, 0.0f, 0.0f)));
 					metalness += 0.11f;
 					node->addComponent(obj);
 					AffineTransform* m = new AffineTransform;

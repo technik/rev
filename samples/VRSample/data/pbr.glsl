@@ -34,13 +34,13 @@ uniform samplerCube environmentMap;
 varying vec2 vUV0;
 
 
-vec3 lightClr = vec3(1,1,0.9);
+vec3 lightClr = 4.0*vec3(1,1,0.9);
 
-float PI = 3.14159;
+float PI = 3.14159265359;
 
 float DistributionGGX(float ndh, float a)
 {
-    float a2     = a*a;
+    float a2     = max(0.01,a*a);
     float ndh2 = ndh*ndh;
 	
     float nom    = a2;
@@ -50,25 +50,29 @@ float DistributionGGX(float ndh, float a)
     return nom / denom;
 }
 
-float GeometrySchlickGGX(float ndv, float k)
+vec2 GeometrySchlickGGX(vec2 ndv, float k)
 {
-    float nom   = ndv;
-    float denom = ndv * (1.0 - k) + k;
+    vec2 nom   = ndv;
+    vec2 denom = ndv * (1.0 - k) + k;
 	
     return nom / denom;
 }
   
-float GeometrySmith(float ndv, float ndl, float k)
+float GeometrySmith(float ndv, float ndl, float roughness)
 {
-    float ggx1 = GeometrySchlickGGX(ndv, k);
-    float ggx2 = GeometrySchlickGGX(ndl, k);
+	float r = roughness+1.0;
+	float k = r*r / 8.0;
+    vec2 ggx = GeometrySchlickGGX(vec2(ndv,ndl), k);
 	
-    return ggx1 * ggx2;
+    return ggx.x * ggx.y;
 }
 
 vec3 fresnelSchlick(float ndv, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(1.0 - ndv, 5.0);
+	float oneMinusNdV = 1.0 - ndv;
+	float p2 = oneMinusNdV * oneMinusNdV;
+	float p3 = oneMinusNdV * p2;
+    return F0 + (1.0 - F0) * p3*p2;
 }
 
 vec4 fragment_shader(vec3 albedo) {
@@ -78,7 +82,7 @@ vec4 fragment_shader(vec3 albedo) {
 	float metalness = phy.y;
 #endif // PHYSICS_MAP
 	// Tint reflections for metals
-	vec3 F0 = mix(vec3(0.0), albedo, metalness);
+	vec3 F0 = mix(vec3(0.01), albedo, metalness);
 	//// BRDF params
 	vec3 viewDir = normalize(vViewDir);
 	vec3 normal = normalize(vNormal);
@@ -92,12 +96,12 @@ vec4 fragment_shader(vec3 albedo) {
 	float G = GeometrySmith(ndv, ndl, roughness);
 	
 	vec3 kS = Fs;
-	vec3 kD = vec3(1)-kS;
+	vec3 kD = vec3(1.0)-kS;
 	kD *= 1-metalness;
 	
 	vec3 nom = NDF * G * Fs;
-	float den = 1.0/max(0.001,(4*ndv*ndl*1.0));
-	vec3 spec = nom * den;
+	float den = max(4.0 * ndv * ndl, 0.001);
+	vec3 spec = nom / den;
 	vec3 L0 = (kD*albedo / PI + spec) * lightClr *ndl;
 	
 	vec3 reflDir = reflect(viewDir, normal);
@@ -107,7 +111,7 @@ vec4 fragment_shader(vec3 albedo) {
 	vec3 indirect = ambient*kD + env *kS;
 	
 	return vec4(L0+indirect, 1.0);
-	//return vec4(floorClr, 1.0);
+	//return vec4(L0, 1.0);
 }
 
 // ----- Vertex shader -----
@@ -137,13 +141,13 @@ void main (void) {
 #ifdef ALBEDO_MAP
 	vec3 albedo = texture(albedoMap, vUV0).xyz;
 #endif // ALBEDO_MAP
-	
-#ifdef USE_GAMMA_CORRECTION
 	vec4 linearColor = max(fragment_shader(albedo), vec4(0));
+	//linearColor = linearColor / (linearColor + vec3(1.0));
+#ifdef USE_GAMMA_CORRECTION
 	vec3 gammaColor = pow(linearColor.xyz, vec3(0.4545));
 	gl_FragColor = vec4(gammaColor, linearColor.a);
 #else
-	gl_FragColor = fragment_shader();
+	gl_FragColor = linearColor;
 #endif
 }
 #endif // FRAGMENT_SHADER
