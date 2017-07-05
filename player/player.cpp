@@ -31,7 +31,7 @@ namespace rev {
 		mRenderScene = new RenderLayer(mRenderer);
 		mGameWorld.addLayer(mRenderScene);
 		mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
-		//mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
+		mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
 		mLoader.registerFactory("Transform", [](const Json& _j) { return AffineTransform::construct(_j); });
 
 		// Expose API
@@ -61,12 +61,12 @@ namespace rev {
 				obj->material->mEffect = fx;
 				obj->material->mFloats.push_back(make_pair("roughness", roughness));
 				obj->material->mFloats.push_back(make_pair("metalness", metalness));
-				obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(1.f, 0.0f, 0.0f)));
+				obj->material->mVec3s.push_back(make_pair("albedo", Vec3f(0.f, 0.0f, 1.0f)));
 				metalness += 0.11f;
 				node->addComponent(obj);
 				AffineTransform* m = new AffineTransform;
 				m->matrix() = Mat34f::identity();
-				m->setPosition(Vec3f(i*1.f, 10.f, j*1.f));
+				m->setPosition(Vec3f(i*1.f, 5.f, j*1.f));
 				node->addComponent(m);
 			}
 			roughness += 0.11f;

@@ -53,7 +53,7 @@ namespace rev {
 
 		// Head tracking data
 		HeadTracker* mSlamTracker = nullptr;
-		core::AffineTransform*	camTransform = nullptr;
+		core::AffineTransform*	mCamTransform = nullptr;
 	private:
 
 		//----------------------------------------------------------------

@@ -71,7 +71,7 @@ namespace rev { namespace math {
 		N_ halfRadians = _rotationVector.norm() * 0.5f;
 		Vector3<N_> axis  = _rotationVector.normalized();
 		w = cos(halfRadians);
-		N_ sinus = aqrt(NumericTraits<N_>::one() - w*w); // sin(halfRadians);
+		N_ sinus = sqrt(NumericTraits<N_>::one() - w*w); // sin(halfRadians);
 		x = axis.x * sinus;
 		y = axis.y * sinus;
 		z = axis.z * sinus;
