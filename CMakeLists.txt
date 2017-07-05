@@ -5,10 +5,16 @@
 cmake_minimum_required (VERSION 2.6)
 project(revAll)
 
+# --- Configurable options -----
+option(REV_BUILD_TOOLS "Build the asset processing tools" OFF)
+option(REV_BUILD_PLAYER "Build rev player. This is rev's default client application")
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(engine)
-option(REV_BUILD_TOOLS "Build the asset processing tools" OFF)
 if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
-add_subdirectory(player)
+
+if(REV_BUILD_TOOLS)
+	add_subdirectory(player)
+endif()
