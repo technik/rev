@@ -25,6 +25,7 @@ namespace rev {
 
 			static AffineTransform* construct(const cjson::Json& _data) {
 				AffineTransform* t = new AffineTransform;
+				t->mMatrix = math::Mat34f::identity();
 				if (_data.contains("mat")) {
 					const cjson::Json& mat = _data["mat"];
 					for(auto i = 0; i < 4; ++i) {
@@ -34,7 +35,6 @@ namespace rev {
 				}
 				else if (_data.contains("pos")) {
 					const cjson::Json& pos = _data["pos"];
-					t->mMatrix = math::Mat34f::identity();
 					math::Vec3f col = math::Vec3f(pos(0), pos(1), pos(2));
 					t->mMatrix.setCol(3, col);
 				}

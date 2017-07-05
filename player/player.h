@@ -85,7 +85,7 @@ namespace rev {
 					node->addComponent(obj);
 					AffineTransform* m = new AffineTransform;
 					m->matrix() = Mat34f::identity();
-					m->setPosition(Vec3f(i*1.f, 3.f, j*1.f));
+					m->setPosition(Vec3f(i*1.f, 10.f, j*1.f));
 					node->addComponent(m);
 				}
 				roughness += 0.11f;

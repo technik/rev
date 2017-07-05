@@ -78,7 +78,7 @@ namespace rev {
 				draw.renderStateInfo.floatUniforms.clear();
 			}
 			// Draw skybox cubemap
-			drawSkyboxCubemap(_cam);
+			//drawSkyboxCubemap(_cam);
 			mBackEnd->flush();
 		}
 
