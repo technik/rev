@@ -19,9 +19,6 @@ file(GLOB_RECURSE MDLPROC_SOURCE_FILES "modelProcessor/*.cpp" "modelProcessor/*.
 add_executable(modelProcessor ${MDLPROC_SOURCE_FILES})
 set_target_properties(modelProcessor PROPERTIES FOLDER "tools")
 
-#find_package(zlib REQUIRED)
-#target_link_libraries(modelProcessor LINK_PUBLIC zlib)
-
 target_include_directories(modelProcessor PUBLIC ${ASSIMP_INCLUDE_DIRS})
 target_link_libraries(modelProcessor LINK_PUBLIC ${ASSIMP_LIBRARIES} zlibstatic)
 target_link_libraries(modelProcessor LINK_PUBLIC rev)
