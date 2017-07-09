@@ -5,6 +5,7 @@
 
 #include <Eigen/Core>
 #include <string>
+#include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <fstream>
 
@@ -33,8 +34,10 @@ namespace rev
 		rev::math::Vec3f	mAccelDrift = rev::math::Vec3f::zero();
 		rev::math::Vec3f	mGyroDrift = rev::math::Vec3f::zero();
 
+		rev::math::Mat33f	mImuBase; // Rotation only, orthonormal transform
+
 		static constexpr float	Ca = 0.15f;
-		static constexpr float	Cg = 0.15f;
+		static constexpr float	Cg = 0.05f;
 		static constexpr float	SAMPLE_PERIOD = 0.1f;
 	};
 

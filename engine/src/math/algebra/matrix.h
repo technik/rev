@@ -30,6 +30,11 @@ namespace rev {
 			Vector3<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
 			const Vector3<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
 			Vector3<Number_>		col(unsigned _col) const	{ return Vector3<Number_>(m[0][_col], m[1][_col], m[1][_col]); }
+			void					setCol(unsigned _n, const Vector3<Number_>& _col) {
+				m[0][_n] = _col.x;
+				m[1][_n] = _col.y;
+				m[2][_n] = _col.z;
+			}
 
 			// Useful matrices
 			static Matrix3x3<Number_>		identity();

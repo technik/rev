@@ -14,6 +14,10 @@ namespace rev {
 			std::cout << "Error: Unable to open csv file \"" << _fileName << "\"\n";
 			return false;
 		}
+		mImuBase = Mat33f::identity();
+		mImuBase.setCol(0, { 0.f, -1.f,  0.f });
+		mImuBase.setCol(0, { 0.f,  0.f, -1.f });
+		mImuBase.setCol(0, { 1.f,  0.f,  0.f });
 		return true;
 	}
 
@@ -34,10 +38,10 @@ namespace rev {
 				ptr = strstr(ptr, ",")+1;
 			}
 			Vec3f rawAccel = *((Vec3f*)rawData);
-			_accel = rawAccel - mAccelDrift;
+			_accel = mImuBase * (rawAccel - mAccelDrift);
 			mAccelDrift = mAccelDrift * Ca + rawAccel * (1.f-Ca);
 			Vec3f rawGyro = *((Vec3f*)&rawData[3]);
-			_gyro = rawGyro - mGyroDrift;
+			_gyro = mImuBase * (rawGyro - mGyroDrift);
 			mGyroDrift = mGyroDrift * Cg + rawGyro * (1.f-Cg);
 
 			return true;

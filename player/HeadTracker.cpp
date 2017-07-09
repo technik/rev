@@ -25,6 +25,7 @@ namespace rev {
 		if (!mImu->update(_dt)) {
 			return false;
 		}
+		mCam.predict(_dt);
 		if (mImu->available()) {
 			// Get raw sensor data
 			Vec3f accel, angRate;

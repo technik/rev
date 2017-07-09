@@ -43,6 +43,27 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
+		inline Vector3<Number_> Matrix3x3<Number_>::operator*(const Vector3<Number_>& _v) const
+		{
+			Vector3<Number_>	v;
+			for (unsigned i = 0; i < 3; ++i)
+				v[i] = _v[0] * m[i][0] + _v[1] * m[i][1] + _v[2] * m[i][2];
+			return v;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
+		inline Matrix3x3<Number_> Matrix3x3<Number_>::operator*(const Matrix3x3<Number_>& _b) const
+		{
+			Matrix3x3<Number_>	ab;
+			for (unsigned i = 0; i < 3; ++i)
+				for (unsigned j = 0; j < 3; ++j)
+					ab[i][j] = m[i][0] * _b[0][j] + m[i][1] * _b[1][j] + m[i][2] * _b[2][j];
+			return ab;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
 		inline Matrix3x4<Number_>::Matrix3x4(const Quaternion<Number_>& _q)
 		{
 			Number_ a2 = _q.w*_q.w;
