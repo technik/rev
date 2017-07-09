@@ -26,6 +26,7 @@ namespace rev {
 		if (mSrcFile.eof())
 			return false;
 		else {
+			// Read data from file
 			mTimeSinceLastFrame = 0.f;
 			char buffer[1024];
 
@@ -37,12 +38,12 @@ namespace rev {
 				rawData[i] = (float)atof(ptr);
 				ptr = strstr(ptr, ",")+1;
 			}
+
+			// Filter data
 			Vec3f rawAccel = *((Vec3f*)rawData);
-			_accel = mImuBase * (rawAccel - mAccelDrift);
-			mAccelDrift = mAccelDrift * Ca + rawAccel * (1.f-Ca);
+			_accel = mImuBase * mAccelFilter(rawAccel);
 			Vec3f rawGyro = *((Vec3f*)&rawData[3]);
-			_gyro = mImuBase * (rawGyro - mGyroDrift);
-			mGyroDrift = mGyroDrift * Cg + rawGyro * (1.f-Cg);
+			_gyro = mImuBase * mGyroFilter(rawGyro);
 
 			return true;
 		}
