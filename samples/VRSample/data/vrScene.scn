@@ -5,7 +5,7 @@
 			components : [
 				{
 					_type : "Camera",
-					fov : 1.5,
+					fov : 1.97136,
 					near : 0.1,
 					far : 1000
 				},

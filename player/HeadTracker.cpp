@@ -12,6 +12,17 @@ using namespace std;
 using namespace rev::math;
 
 namespace rev {
+
+	namespace {
+		//-------------------------------------------------------------------
+		void drawRect(cv::Mat& _img, cv::Point2i _center, float _size, cv::Scalar _clr) {
+			float halfSize = _size * 0.5f;
+			cv::Point2i a = cv::Point2i(int(_center.x - halfSize), int(_center.y - halfSize));
+			cv::Point2i b = cv::Point2i(int(_center.x + halfSize), int(_center.y + halfSize));
+			cv::rectangle(_img, a, b, _clr);
+		}
+	}	// anonymous namespace
+
 	//------------------------------------------------------------------------------------------------------------------
 	HeadTracker::HeadTracker(const std::string& _datasetName) {
 		string csvFileName = _datasetName + ".csv";
@@ -24,16 +35,6 @@ namespace rev {
 			return;
 	}
 
-
-
-	//-------------------------------------------------------------------
-	void drawRect(cv::Mat& _img, cv::Point2i _center, float _size, cv::Scalar _clr) {
-		float halfSize = _size * 0.5f;
-		cv::Point2i a = cv::Point2i(int(_center.x - halfSize), int(_center.y - halfSize));
-		cv::Point2i b = cv::Point2i(int(_center.x + halfSize), int(_center.y + halfSize));
-		cv::rectangle(_img, a, b, _clr);
-	}
-
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::update(float _dt) {
 		mImuDt += _dt;
@@ -42,6 +43,14 @@ namespace rev {
 		}
 		mCam.predict(_dt);
 		// Update with accelerometer info
+		if (!updateImu(_dt))
+			return false;
+		// Update with video info
+		return updateVideo(_dt);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool HeadTracker::updateImu(float _dt) {
 		if (mImu->available()) {
 			// Get raw sensor data
 			Vec3f accel, angRate;
@@ -51,7 +60,11 @@ namespace rev {
 			mCam.update(accel, angRate, mImuDt);
 			mImuDt = 0.f;
 		}
-		// Update with video info
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool HeadTracker::updateVideo(float _dt) {
 		mVideoSrc->update(_dt);
 		if (mVideoSrc->available()) {
 			cv::Mat frame;
