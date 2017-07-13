@@ -41,16 +41,25 @@ namespace rev {
 
 		struct PartialHypothesis {
 			typedef cv::Point2i		FeatureDesc;
-			PartialHypothesis(const math::Ray& _ray, const FeatureDesc& _startPos);
-
-			cv::Mat			imgPatch;
-			std::vector<PointEstimate>	hypotheses;
+			static constexpr size_t NEstimates = 50;
+			static constexpr float depthStep = 10.f;
+			PartialHypothesis(const math::Ray& _ray, const FeatureDesc& _desc) {
+				hypotheses.resize(NEstimates);
+				for (size_t i = 0; i < NEstimates; ++i) {
+					float depth = i*depthStep;
+					hypotheses[i].pos = _ray.origin + _ray.direction * depth;
+					hypotheses[i].variance = Vec3f(1.f) * depthStep;
+				}
+			}
 
 			void update(const math::Ray&);
 			bool matches(const cv::Point2i& _corner) const;
 
 			bool isComplete() const; // True when all hypotheses have collapsed to a single point
 			MapFeature&	collapsedEstimate() const;
+
+			FeatureDesc					descriptor;
+			std::vector<PointEstimate>	hypotheses;
 		};
 
 		float mImuDt = 0.f;
