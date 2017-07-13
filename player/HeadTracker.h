@@ -17,7 +17,7 @@ namespace rev {
 
 	class HeadTracker : public core::Component {
 	public:
-		HeadTracker(const std::string& _datasetName);
+		HeadTracker(const std::string& _datasetName, bool _noVideo);
 
 		bool update(float _dt);
 

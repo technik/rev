@@ -78,10 +78,15 @@ namespace rev {
 #ifdef ANDROID
 		mSceneName = "vrScene.scn";
 #else
+		for (int i = 0; i < _info.argC) {
+			if (string("-novideo") == _info.argV[i]) {
+				mNoVideo = true;
+			}
+		}
 		if (_info.argC > 2) {
 			mSceneName = _info.argV[1];
 			string datasetName = _info.argV[2];
-			mSlamTracker = new HeadTracker(datasetName);
+			mSlamTracker = new HeadTracker(datasetName, mNoVideo);
 		}
 #endif
 	}

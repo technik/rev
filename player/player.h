@@ -54,6 +54,7 @@ namespace rev {
 		// Head tracking data
 		HeadTracker* mSlamTracker = nullptr;
 		core::AffineTransform*	mCamTransform = nullptr;
+		bool mNoVideo = false;
 	private:
 
 		//----------------------------------------------------------------

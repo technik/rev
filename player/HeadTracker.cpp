@@ -24,10 +24,12 @@ namespace rev {
 	}	// anonymous namespace
 
 	//------------------------------------------------------------------------------------------------------------------
-	HeadTracker::HeadTracker(const std::string& _datasetName) {
+	HeadTracker::HeadTracker(const std::string& _datasetName, bool _noVideo) {
 		string csvFileName = _datasetName + ".csv";
 		mImu = new ImuProvider();
 		if (!mImu->init(csvFileName))
+			return;
+		if (!_noVideo)
 			return;
 		mVideoSrc = new ImageProvider();
 		string videoFileName = _datasetName + ".mp4";
@@ -65,6 +67,8 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::updateVideo(float _dt) {
+		if (mVideoSrc = nullptr)
+			return true;
 		mVideoSrc->update(_dt);
 		if (mVideoSrc->available()) {
 			cv::Mat reduced;
