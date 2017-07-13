@@ -78,8 +78,8 @@ namespace rev {
 #ifdef ANDROID
 		mSceneName = "vrScene.scn";
 #else
-		for (int i = 0; i < _info.argC) {
-			if (string("-novideo") == _info.argV[i]) {
+		for (int i = 0; i < _info.argC; ++i) {
+			if (string("-noVideo") == _info.argV[i]) {
 				mNoVideo = true;
 			}
 		}

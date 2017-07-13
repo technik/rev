@@ -29,7 +29,7 @@ namespace rev {
 		mImu = new ImuProvider();
 		if (!mImu->init(csvFileName))
 			return;
-		if (!_noVideo)
+		if (_noVideo)
 			return;
 		mVideoSrc = new ImageProvider();
 		string videoFileName = _datasetName + ".mp4";
@@ -67,7 +67,7 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::updateVideo(float _dt) {
-		if (mVideoSrc = nullptr)
+		if (!mVideoSrc)
 			return true;
 		mVideoSrc->update(_dt);
 		if (mVideoSrc->available()) {
