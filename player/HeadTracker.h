@@ -40,12 +40,14 @@ namespace rev {
 		};
 
 		struct PartialHypothesis {
-			PartialHypothesis(const math::Ray& _ray, const cv::Mat& _imgPatch);
+			typedef cv::Point2i		FeatureDesc;
+			PartialHypothesis(const math::Ray& _ray, const FeatureDesc& _startPos);
 
 			cv::Mat			imgPatch;
 			std::vector<PointEstimate>	hypotheses;
 
 			void update(const math::Ray&);
+			bool matches(const cv::Point2i& _corner) const;
 
 			bool isComplete() const; // True when all hypotheses have collapsed to a single point
 			MapFeature&	collapsedEstimate() const;
@@ -55,6 +57,7 @@ namespace rev {
 		ImuProvider*	mImu = nullptr;
 		ImageProvider*	mVideoSrc = nullptr;
 		CamEstimate		mCam;
+		vector<PartialHypothesis>	mOpenHypotheses;
 	};
 
 }

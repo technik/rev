@@ -1,11 +1,15 @@
 <xml>
-	<target name="common">
-		<rule />
-	</target>
-	<target name="win32" inherit="common">
-	</target>
-	<target name="android" inherit="common">
-	</target>
-	<target name="galaxyS7" inherit="android">
-	</target>
+	<target name="common"/>
+	<target name="win32" inherit="common"/>
+	<target name="android" inherit="common"/>
+	<target name="galaxyS7" inherit="android"/>
+	<folder name="data">
+		<folder name="textures">
+			<rule input="%.png" target="common">
+				imgConvert.exe -i %.png -o %.etc -size=1024
+			</rule>
+			<file>
+			</file>
+		</folder>
+	</folder>
 </xml>

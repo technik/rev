@@ -7,6 +7,7 @@
 
 namespace rev {
 	bool ImageProvider::init(const std::string& _fileName) {
+		workSize = cv::Size(640, 360);
 		cv::namedWindow("frame");
 		mSrc.open(_fileName);
 		if (!mSrc.isOpened()) {
@@ -17,7 +18,6 @@ namespace rev {
 	}
 
 	bool ImageProvider::getFrame(cv::Mat& _dst) {
-		cv::Size workSize(640, 360);
 		cv::Mat frame;
 		mSrc >> frame;
 		mTimeSinceLastFrame = 0.f;

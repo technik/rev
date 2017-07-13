@@ -71,13 +71,29 @@ namespace rev {
 			if (!mVideoSrc->getFrame(frame))
 				return false;
 			// --- Update map features & cam
-			// --- Update hypotheses
 			// --- Find corners
 			std::vector<cv::Point2i>	corners;
 			cv::goodFeaturesToTrack(frame, corners, 25, 0.01, 5.0);
-			for (const auto& c : corners)
+			for (const auto& c : corners) {
 				drawRect(frame, c, 5.f, cv::Scalar(255.0, 0.0, 0.0));
-			// --- Generate hypotheses
+				math::Vec2f ssPoint = mVideoSrc->toClipSpace(c);
+				math::Vec3f ssRayDir{ ssPoint.x, ssPoint.y, 1.f };
+				math::Ray cornerRay = { mCam.pos, mCam.view().rotate(ssRayDir.normalized()) };
+				// --- Update hypotheses
+				bool matchedCorner = false;
+				for (const auto& h : mOpenHypotheses) {
+					if (h.matches(c)) // If this corner can match an old hypothesis
+					{
+						matchedCorner = true;
+						h.update(cornerRay);
+						break;
+					}
+				}
+				// --- Generate hypotheses
+				if (!matchedCorner) {
+					mOpenHypotheses.push_back(PartialHypothesis(cornerRay, c));
+				}
+			}
 			cv::imshow("frame", frame);
 		}
 		return true;

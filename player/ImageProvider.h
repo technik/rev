@@ -23,7 +23,16 @@ namespace rev {
 
 		bool getFrame(cv::Mat& _dst);
 
+		math::Vec2f toClipSpace(const cv::Point2i& _imageSpacePoint) {
+			cv::Size halfImageSize = workSize / 2;
+			// Center coordinates, change y axis direction
+			math::Vec2f centeredPoint = { float(_imageSpacePoint.x - halfImageSize.width), float(halfImageSize.height - _imageSpacePoint.y) };
+			float halfImgWidth = float(halfImageSize.width);
+			return centeredPoint / halfImgWidth;
+		}
+
 	private:
+		cv::Size			workSize;
 		cv::VideoCapture	mSrc;
 		cv::Mat				mReducedImg;
 		float				mTimeSinceLastFrame = 0.f;
