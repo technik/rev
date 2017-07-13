@@ -1,0 +1,11 @@
+<xml>
+	<target name="common">
+		<rule />
+	</target>
+	<target name="win32" inherit="common">
+	</target>
+	<target name="android" inherit="common">
+	</target>
+	<target name="galaxyS7" inherit="android">
+	</target>
+</xml>

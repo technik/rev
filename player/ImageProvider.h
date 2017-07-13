@@ -21,14 +21,11 @@ namespace rev {
 			return mTimeSinceLastFrame >= SAMPLE_PERIOD;
 		}
 
-		bool getFrame(cv::Mat& _dst) {
-			mSrc >> _dst;
-			mTimeSinceLastFrame = 0.f;
-			return !_dst.empty();
-		}
+		bool getFrame(cv::Mat& _dst);
 
 	private:
 		cv::VideoCapture	mSrc;
+		cv::Mat				mReducedImg;
 		float				mTimeSinceLastFrame = 0.f;
 
 		static constexpr float SAMPLE_PERIOD = 0.033f;

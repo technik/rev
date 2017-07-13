@@ -66,7 +66,7 @@ namespace rev {
 				node->addComponent(obj);
 				AffineTransform* m = new AffineTransform;
 				m->matrix() = Mat34f::identity();
-				m->setPosition(Vec3f(i*3.f, j*3.f, -1.7f));
+				m->setPosition(Vec3f(i*5.f, j*5.f, -1.7f));
 				node->addComponent(m);
 			}
 			roughness += 0.11f;
@@ -89,6 +89,8 @@ namespace rev {
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
 		mAccumTime += _dt; // Fixed time step
+		if (mAccumTime > 0.2f)
+			mAccumTime = 0.2f;
 		while (mAccumTime >= mFixedDt) {
 			mAccumTime -= mFixedDt;
 			if (!mSlamTracker->update(mFixedDt))

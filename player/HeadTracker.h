@@ -11,6 +11,7 @@
 namespace rev {
 
 	class ImuProvider;
+	class ImageProvider;
 
 	class HeadTracker : public core::Component {
 	public:
@@ -18,11 +19,12 @@ namespace rev {
 
 		bool update(float _dt);
 
-		const math::Mat34f& headTransform() const { return mCam.view(); }
+		math::Mat34f headTransform() const { return mCam.view(); }
 
 	private:
 		float mImuDt = 0.f;
-		ImuProvider*	mImu;
+		ImuProvider*	mImu = nullptr;
+		ImageProvider*	mVideoSrc = nullptr;
 		CamEstimate		mCam;
 	};
 
