@@ -48,12 +48,18 @@ namespace rev {
 				for (size_t i = 0; i < NEstimates; ++i) {
 					float depth = i*depthStep;
 					hypotheses[i].pos = _ray.origin + _ray.direction * depth;
-					hypotheses[i].variance = Vec3f(1.f) * depthStep;
+					hypotheses[i].variance = math::Vec3f(1.f) * depthStep;
 				}
 			}
 
-			void update(const math::Ray&);
-			bool matches(const cv::Point2i& _corner) const;
+			void update(const math::Ray&) {
+				// 666 TODO
+			}
+
+			bool matches(const cv::Point2i& _corner) const {
+				math::Vec2f dist(float(_corner.x - descriptor.x), float(_corner.y - descriptor.y));
+				return dist.norm() < 60.f;
+			}
 
 			bool isComplete() const; // True when all hypotheses have collapsed to a single point
 			MapFeature&	collapsedEstimate() const;
@@ -66,7 +72,7 @@ namespace rev {
 		ImuProvider*	mImu = nullptr;
 		ImageProvider*	mVideoSrc = nullptr;
 		CamEstimate		mCam;
-		vector<PartialHypothesis>	mOpenHypotheses;
+		std::vector<PartialHypothesis>	mOpenHypotheses;
 	};
 
 }

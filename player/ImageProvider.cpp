@@ -24,8 +24,7 @@ namespace rev {
 		if (frame.empty())
 			return false;
 		
-		cv::resize(frame, mReducedImg, workSize);
-		cvtColor(mReducedImg, _dst, CV_BGR2GRAY);
+		cv::resize(frame, _dst, workSize);
 		return true;
 	}
 }

@@ -67,34 +67,37 @@ namespace rev {
 	bool HeadTracker::updateVideo(float _dt) {
 		mVideoSrc->update(_dt);
 		if (mVideoSrc->available()) {
+			cv::Mat reduced;
 			cv::Mat frame;
-			if (!mVideoSrc->getFrame(frame))
+			if (!mVideoSrc->getFrame(reduced))
 				return false;
+			cvtColor(reduced, frame, CV_BGR2GRAY);
 			// --- Update map features & cam
 			// --- Find corners
 			std::vector<cv::Point2i>	corners;
 			cv::goodFeaturesToTrack(frame, corners, 25, 0.01, 5.0);
 			for (const auto& c : corners) {
-				drawRect(frame, c, 5.f, cv::Scalar(255.0, 0.0, 0.0));
 				math::Vec2f ssPoint = mVideoSrc->toClipSpace(c);
 				math::Vec3f ssRayDir{ ssPoint.x, ssPoint.y, 1.f };
 				math::Ray cornerRay = { mCam.pos, mCam.view().rotate(ssRayDir.normalized()) };
 				// --- Update hypotheses
 				bool matchedCorner = false;
-				for (const auto& h : mOpenHypotheses) {
+				for (auto& h : mOpenHypotheses) {
 					if (h.matches(c)) // If this corner can match an old hypothesis
 					{
 						matchedCorner = true;
 						h.update(cornerRay);
+						drawRect(reduced, c, 5.f, cv::Scalar(0.0, 255.0, 0.0));
 						break;
 					}
 				}
 				// --- Generate hypotheses
 				if (!matchedCorner) {
+					drawRect(reduced, c, 5.f, cv::Scalar(0, 0, 255));
 					mOpenHypotheses.push_back(PartialHypothesis(cornerRay, c));
 				}
 			}
-			cv::imshow("frame", frame);
+			cv::imshow("frame", reduced);
 		}
 		return true;
 	}
