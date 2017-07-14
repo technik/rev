@@ -92,7 +92,6 @@ for i in range(nSteps):
 	py.append(x[1])
 	ddx.append(x[6])
 	ddy.append(x[7])
-
 	
 plt.plot(ddx, ddy)
 

@@ -41,26 +41,21 @@ namespace rev {
 	bool HeadTracker::update(float _dt) {
 		mCam.predict(_dt);
 		// Update with accelerometer info
-		if (!updateImu(_dt))
-			return false;
-		// Update with video info
-		return updateVideo(_dt);
+		return updateImu(_dt);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::updateImu(float _dt) {
-		mImuDt += _dt;
 		if (!mImu->update(_dt)) {
 			return false;
 		}
-		if (mImu->available()) {
+		while (mImu->available()) {
 			// Get raw sensor data
 			Vec3f accel, angRate;
 			if (!mImu->getData(accel, angRate))
 				return false;
 			// Fuse sensor data
-			mCam.update(accel, angRate, mImuDt);
-			mImuDt = 0.f;
+			mCam.update(accel, angRate);
 		}
 		return true;
 	}
@@ -83,7 +78,7 @@ namespace rev {
 			for (const auto& c : corners) {
 				math::Vec2f ssPoint = mVideoSrc->toClipSpace(c);
 				math::Vec3f ssRayDir{ ssPoint.x, ssPoint.y, 1.f };
-				math::Ray cornerRay = { mCam.pos, mCam.view().rotate(ssRayDir.normalized()) };
+				math::Ray cornerRay = { mCam.pos(), mCam.view().rotate(ssRayDir.normalized()) };
 				// --- Update hypotheses
 				bool matchedCorner = false;
 				for (auto& h : mOpenHypotheses) {

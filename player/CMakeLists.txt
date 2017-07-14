@@ -18,6 +18,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 endif(REV_WITH_HEADTRACKING)
 
 file(GLOB_RECURSE PLAYER_SOURCE_FILES "*.cpp" "*.h" "*.inl")
+GroupSources(./ player)
 add_executable(revPlayer ${PLAYER_SOURCE_FILES})
 # Visual studio specifics
 if(MSVC)
@@ -27,4 +28,4 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=c++11)
 endif()
 
-target_link_libraries (revPlayer LINK_PUBLIC rev ${OpenCV_LIBS})
+target_link_libraries (revPlayer LINK_PUBLIC rev ${OpenCV_LIBS} ${Eigen3_LIBS})

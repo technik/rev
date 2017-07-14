@@ -2,14 +2,22 @@
 	<target name="common"/>
 	<target name="win32" inherit="common"/>
 	<target name="android" inherit="common"/>
-	<target name="galaxyS7" inherit="android"/>
 	<folder name="data">
+		<rule input="%.fbx" target="common">
+			convert fbx model
+		</rule>
 		<folder name="textures">
-			<rule input="%.png" target="common">
-				imgConvert.exe -i %.png -o %.etc -size=1024
+			<rule input="%.png" target="win32">
+				convert texture win32
 			</rule>
-			<file>
-			</file>
+			<rule input="%.png" target="android">
+				convert texture android
+			</rule>
+		</folder>
+		<folder name="sounds">
+			<rule input="%.mp3" target="common">
+				convert sound
+			</rule>
 		</folder>
 	</folder>
 </xml>

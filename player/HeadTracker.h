@@ -68,7 +68,6 @@ namespace rev {
 			std::vector<PointEstimate>	hypotheses;
 		};
 
-		float mImuDt = 0.f;
 		ImuProvider*	mImu = nullptr;
 		ImageProvider*	mVideoSrc = nullptr;
 		CamEstimate		mCam;
