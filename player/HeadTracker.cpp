@@ -39,10 +39,6 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::update(float _dt) {
-		mImuDt += _dt;
-		if (!mImu->update(_dt)) {
-			return false;
-		}
 		mCam.predict(_dt);
 		// Update with accelerometer info
 		if (!updateImu(_dt))
@@ -53,6 +49,10 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::updateImu(float _dt) {
+		mImuDt += _dt;
+		if (!mImu->update(_dt)) {
+			return false;
+		}
 		if (mImu->available()) {
 			// Get raw sensor data
 			Vec3f accel, angRate;
