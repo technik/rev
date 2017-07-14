@@ -23,7 +23,6 @@ vel = []
 for i in range(nSteps):
 	t = i*dt
 	angle = t*2*pi / period
-	vel.append(-sin(angle)*radius*w)
 	ddx = -cos(angle)*radius*w*w
 	ddy = -sin(angle)*radius*w*w
 	row = [ddx, ddy, 0.0, 0.0, 0.0, 0.0]
@@ -37,11 +36,8 @@ x = [r[0] for r in data]
 plt.plot(vel)
 
 # --------------------- Reconstruction ---------------------
-#x = np.array([radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0]) # State estimate: pos, vel, accel
-x = np.array([radius, 0])
+x = np.array([radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0]) # State estimate: pos, vel, accel
 # Model transition function
-F = np.array([[1, dt], [0, 1]]);
-"""
 F = np.array([	[1, 0, 0,dt, 0, 0, 0, 0, 0], # p' = p + dt*v
 				[0, 1, 0, 0,dt, 0, 0, 0, 0],
 				[0, 0, 1, 0, 0,dt, 0, 0, 0],
@@ -51,55 +47,39 @@ F = np.array([	[1, 0, 0,dt, 0, 0, 0, 0, 0], # p' = p + dt*v
 				[0, 0, 0, 0, 0, 0, 1, 0, 0], # a' = a
 				[0, 0, 0, 0, 0, 0, 0, 1, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 1] ])
-"""
 p0p = 0.0001 # initial uncertainty on position
 p0va = 1000.0 # initial uncertainty on vel and accel
-"""P = np.identity(9) * p0va
+P = np.identity(9) * p0va
 P[0,0] = p0p
 P[1,1] = p0p
 P[2,2] = p0p
-"""
-P = np.array([	[p0p,    0],
-				[  0, p0va]])
 
-Q = np.identity(2) * dt * radius * w;
+Q = np.identity(9) * dt * radius * w; # This can actually be improved. Maybe derived from actual data
 
 # Observation model
-"""
 H = np.array([	[0, 0, 0, 0, 0, 0, 1, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 1, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 1] ])
-"""
-H = np.array([[0, 1]])
 
-"""
 R = np.identity(3)*0.0001 # measurement noise
 I = np.identity(9)
-"""
-R = np.identity(1)*0.0001 # measurement noise
-I = np.identity(2)
 
 # Aux variables to store simulation signals for later analysis
-"""px = [x[0]]
+px = [x[0]]
 py = [x[1]]
 ppx = [p0va]
 ddx = [x[6]]
-ddy = [x[7]]"""
-ppv = [p0va]
-dx = [x[1]]
+ddy = [x[7]]
 # Actual reconstruction loop
 # Update occurs before prediction because first measurement occurs at time t=0
 for i in range(nSteps):
 	# Update
-	#z = data[i][0:3] # read accelerations
-	z = vel[i] # read x velocity
+	z = data[i][0:3] # read accelerations
 	y = z - np.dot(H,x)
 	S = np.dot(np.dot(H,P),H.transpose()) + R
-	#print(P)
 	invS = np.linalg.inv(S)
 	HinvS = np.dot(H.transpose(),invS)
 	K = np.dot(P,HinvS)
-	#print(K)
 	deltaX = np.dot(K,y)
 	x = x + deltaX
 	P = np.dot(I-np.dot(K,H),P)
@@ -107,20 +87,14 @@ for i in range(nSteps):
 	x = np.dot(F,x)
 	P = np.dot(np.dot(F,P),F.transpose()) + Q
 	# extract data
-	dx.append(x[1])
-	ppv.append(P[1,1])
-	"""
 	ppx.append(P[6,6])
 	px.append(x[0])
 	py.append(x[1])
 	ddx.append(x[6])
-	ddy.append(x[7])"""
+	ddy.append(x[7])
 
-plt.plot(dx)
-plt.show()
 	
-"""plt.plot(ddx, ddy)
-#plt.show()
+plt.plot(ddx, ddy)
 
 plt.figure(2)
 plt.plot([r[0] for r in data])
@@ -128,4 +102,4 @@ plt.plot([x for x in ddx])
 
 plt.figure(3)
 plt.plot(ppx)
-plt.show()"""
+plt.show()
