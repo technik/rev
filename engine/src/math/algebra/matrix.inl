@@ -15,6 +15,31 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
+		inline Matrix3x3<Number_>::Matrix3x3(const Quaternion<Number_>& _q)
+		{
+			Number_ w2 = _q.w*_q.w;
+			Number_ x2 = _q.x*_q.x;
+			Number_ y2 = _q.y*_q.y;
+			Number_ z2 = _q.z*_q.z;
+			Number_ wx = 2 * _q.w*_q.x;
+			Number_ wy = 2 * _q.w*_q.y;
+			Number_ wz = 2 * _q.w*_q.z;
+			Number_ xy = 2 * _q.x*_q.y;
+			Number_ xz = 2 * _q.x*_q.z;
+			Number_ yz = 2 * _q.y*_q.z;
+			m[0][0] = w2 + x2 - y2 - z2;
+			m[0][1] = xy - wz;
+			m[0][2] = xz + wy;
+			m[1][0] = xy + wz;
+			m[1][1] = w2 - x2 + y2 - z2;
+			m[1][2] = yz - wx;
+			m[2][0] = xz - wy;
+			m[2][1] = yz + wx;
+			m[2][2] = w2 - x2 - y2 + z2;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
 		inline Matrix3x3<Number_>::Matrix3x3(const Matrix3x4<Number_>& _x)
 		{
 			for (unsigned i = 0; i < 3; ++i) {
