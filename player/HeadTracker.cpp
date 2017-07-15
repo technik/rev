@@ -55,7 +55,7 @@ namespace rev {
 			if (!mImu->getData(accel, angRate))
 				return false;
 			// Fuse sensor data
-			mCam.update(accel, angRate);
+			mCam.update(mCam.view().rotate(accel), angRate);
 		}
 		return true;
 	}
