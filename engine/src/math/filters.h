@@ -5,7 +5,7 @@
 #pragma once
 
 #include <cmath>
-#include <math/constants.h>
+#include "constants.h"
 #include <Eigen/Core>
 
 namespace rev {

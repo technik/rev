@@ -18,7 +18,6 @@ csvFile = open("circle.csv", 'w', newline='\n');
 csvWriter = csv.writer(csvFile, delimiter=",");
 
 data = [] # Accumulate data here so we can reconstruct the trajectory with a filter later
-vel = []
 
 for i in range(nSteps):
 	t = i*dt
