@@ -71,6 +71,7 @@ namespace rev {
 		ImuProvider*	mImu = nullptr;
 		ImageProvider*	mVideoSrc = nullptr;
 		CamEstimate		mCam;
+		Mat33f			mDev2View; // Transforms from device space (IMU space) to View space
 		std::vector<PartialHypothesis>	mOpenHypotheses;
 	};
 

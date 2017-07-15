@@ -35,6 +35,9 @@ namespace rev {
 		string videoFileName = _datasetName + ".mp4";
 		if (!mVideoSrc->init(videoFileName))
 			return;
+		mDev2View.col(0) = Vec3f::zAxis();
+		mDev2View.col(1) = -Vec3f::xAxis();
+		mDev2View.col(2) = -Vec3f::yAxis();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -50,12 +53,16 @@ namespace rev {
 			return false;
 		}
 		while (mImu->available()) {
-			// Get raw sensor data
-			Vec3f accel, angRate;
-			if (!mImu->getData(accel, angRate))
+			// Get raw sensor data (all in device space)
+			Vec3f dsAccel, dsAngRate;
+			if (!mImu->getData(dsAccel, dsAngRate))
 				return false;
+			// Transform data to view space. This transform is fixed, and assumed to carry no uncertainty, so we can
+			// perform it outside the kalman filter.
+			Vec3f vsAccel = mDev2View * dsAccel;
+			Vec3f vsRate = mDev2View * dsAngRate;
 			// Fuse sensor data
-			mCam.update(mCam.view().rotate(accel), angRate);
+			mCam.update(vsAccel, vsRate);
 		}
 		return true;
 	}
