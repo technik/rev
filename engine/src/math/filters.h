@@ -44,6 +44,7 @@ namespace rev {
 			typedef Eigen::MatrixXf		Matrix;
 			typedef Eigen::VectorXf		Vector;
 
+			KalmanFilter() = default;
 			/// Create a filter using the initial state estimate and uncertainty
 			KalmanFilter(const Vector& X, const Matrix& P);
 

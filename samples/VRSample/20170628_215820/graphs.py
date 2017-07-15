@@ -8,8 +8,11 @@ z = []
 dx = []
 dy = []
 dz = []
+ddx = []
+ddy = []
+ddz = []
 
-camLogFile = open('camLog.csv', 'rt')
+camLogFile = open('../camLog.csv', 'rt')
 camLog = csv.reader(camLogFile, delimiter=',')
 
 for row in camLog:
@@ -19,19 +22,31 @@ for row in camLog:
 	dx.append(float(row[3]))
 	dy.append(float(row[4]))
 	dz.append(float(row[5]))
+	ddx.append(float(row[6]))
+	ddy.append(float(row[7]))
+	ddz.append(float(row[8]))
 nSamples = len(x);
 
 dt = 0.1
 t = np.arange(0.0, dt*nSamples, dt)
 
 plot.figure(1)
-plot.plot(t,x)
-plot.plot(t,y)
-plot.plot(t,z)
+plot.plot(t,x,'r')
+plot.plot(t,y,'g')
+plot.plot(t,z,'b')
+
 plot.figure(2)
-plot.plot(t,dx)
-plot.plot(t,dy)
-plot.plot(t,dz)
+plot.plot(x, y)
+plot.figure(3)
+plot.plot(t,dx,'r')
+plot.plot(t,dy,'g')
+plot.figure(4)
+plot.plot(dx, dy)
+plot.figure(5)
+plot.plot(t,ddx,'r')
+plot.plot(t,ddy,'g')
+plot.figure(6)
+plot.plot(ddx, ddy)
 
 """
 x = [0]
