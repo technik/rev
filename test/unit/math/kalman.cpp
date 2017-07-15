@@ -35,7 +35,7 @@ int main() {
 
 	// ----- Model definition -----
 	// Model transition function
-	MatrixXf F;
+	MatrixXf F(9,9);
 	F << 1, 0, 0,dt, 0, 0, 0, 0, 0, // p' = p + dt*v
 		 0, 1, 0, 0,dt, 0, 0, 0, 0,
 		 0, 0, 1, 0, 0,dt, 0, 0, 0,
@@ -52,10 +52,10 @@ int main() {
 	MatrixXf R = MatrixXf::Identity(3, 3)*0.0001; // measurement noise
 
 	// ----- Initial state estimation -----
-	VectorXf x0;
+	VectorXf x0(9);
 	x0 << radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0; // State estimate : pos, vel, accel
-	float p0p = 0.0001; // initial uncertainty on position
-	float p0va = 1000.0; // initial uncertainty on vel and accel
+	float p0p = 0.0001f; // initial uncertainty on position
+	float p0va = 1000.0f; // initial uncertainty on vel and accel
 	MatrixXf P0 = MatrixXf::Identity(9, 9) * p0va;
 	P0.block<3, 3>(0, 0) = Matrix3f::Identity() * p0p;
 
@@ -67,7 +67,9 @@ int main() {
 		filter.update(z, H, R);
 		filter.predict(F, Q);
 		// Compare reconstructed data with ground truth
-		assert((filter.x() - groundTruth[i]).norm() <= 0.001f);
+		Vector3f error = filter.X().bottomRows(3) - acceleration[i];
+		assert(abs(error(0)) < 1e-4f);
+		assert(abs(error(1)) < 1e-4f);
 	}
 	return 0;
 }

@@ -58,14 +58,18 @@ namespace rev {
 			/// \param R observation noise
 			void update(const Vector& z, const Matrix& H, const Matrix& R);
 
+			// ---- Accessors ----
+			const Vector& X() const { return x; }
+
 		private:
 			// State
-			Eigen::VectorXf	x; // Current state estimate
-			Eigen::MatrixXf P; // State uncertainty
+			Vector x; // Current state estimate
+			Matrix P; // State uncertainty
 		// Temporary matrices
-			Eigen::MatrixXf I;
-			Eigen::MatrixXf S;
-			Eigen::MatrixXf K;
+			Vector y;
+			Matrix I;
+			Matrix S;
+			Matrix K;
 		};
 	}
 }
