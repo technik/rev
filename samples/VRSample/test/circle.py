@@ -18,21 +18,23 @@ csvFile = open("circle.csv", 'w', newline='\n');
 csvWriter = csv.writer(csvFile, delimiter=",");
 
 data = [] # Accumulate data here so we can reconstruct the trajectory with a filter later
+gt = []
+T = []
 
 for i in range(nSteps):
 	t = i*dt
+	T.append(t)
 	angle = t*2*pi / period
 	ddx = -cos(angle)*radius*w*w
 	ddy = -sin(angle)*radius*w*w
+	gt.append([cos(angle)*radius, sin(angle)*radius])
 	row = [ddx, ddy, 0.0, 0.0, 0.0, 0.0]
 	csvWriter.writerow(row)
 	data.append(row)
 	
-x = [r[0] for r in data]
-#y = [r[1] for r in data]
-	
-#plt.plot(x,y)
-plt.plot(vel)
+# ground truth
+gtx = np.array([r[0] for r in gt])
+gty = np.array([r[1] for r in gt])
 
 # --------------------- Reconstruction ---------------------
 x = np.array([radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0]) # State estimate: pos, vel, accel
@@ -91,13 +93,21 @@ for i in range(nSteps):
 	py.append(x[1])
 	ddx.append(x[6])
 	ddy.append(x[7])
-	
-plt.plot(ddx, ddy)
 
-plt.figure(2)
-plt.plot([r[0] for r in data])
-plt.plot([x for x in ddx])
-
-plt.figure(3)
-plt.plot(ppx)
+"""
+plt.plot(px, py)
+plt.plot(gtx, gty)
 plt.show()
+"""
+
+# accel error
+errorX = np.abs(np.array(ddx[1:]) - np.array([r[0] for r in data]));
+print("Max error in x accel axis: ", np.max(errorX));
+errorY = np.abs(np.array(ddy[1:]) - np.array([r[1] for r in data]));
+print("Max error in y accel axis: ", np.max(errorY));
+# pos error (drifts with time)
+minDriftT = 50;
+errorX = np.abs((np.array(ddx[minDriftT+2:]) - gtx[minDriftT+1:]) / (T[minDriftT+1:]));
+print("Max time corrected error in x axis: ", np.max(errorX));
+errorY = np.abs((np.array(ddy[minDriftT+2:]) - gty[minDriftT+1:]) / (T[minDriftT+1:]));
+print("Max time corrected error in y axis: ", np.max(errorY));
