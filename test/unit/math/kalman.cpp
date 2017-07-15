@@ -50,17 +50,16 @@ int main() {
 	// Observation model
 	MatrixXf H = MatrixXf::Zero(3, 9);
 	H.block<3, 3>(0, 6) = Matrix3f::Identity();
-	MatrixXf R = MatrixXf::Identity(3,3)*0.0001 // measurement noise
+	MatrixXf R = MatrixXf::Identity(3, 3)*0.0001; // measurement noise
 
+	// ----- Initial state estimation -----
+	VectorXf x0;
+	x0 << radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0; // State estimate : pos, vel, accel
+	float p0p = 0.0001; // initial uncertainty on position
+	float p0va = 1000.0; // initial uncertainty on vel and accel
+	MatrixXf P = MatrixXf::Identity(9, 9) * p0va;
+	P.block<3, 3>(0, 0) = Matrix3f::Identity() * p0p;
 
-	/*
-	Q = np.identity(9) * dt * radius * w; # This can actually be improved.Maybe derived from actual data
-	x = np.array([radius, 0, 0, 0, radius*w, 0, -radius*w*w, 0, 0]) # State estimate : pos, vel, accel
-	p0p = 0.0001 # initial uncertainty on position
-		p0va = 1000.0 # initial uncertainty on vel and accel
-		P = np.identity(9) * p0va
-		P[0, 0] = p0p
-		P[1, 1] = p0p
-		P[2, 2] = p0p*/
+	//
 	return 0;
 }
