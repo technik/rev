@@ -17,6 +17,10 @@ if(REV_WITH_OPENGL)
 	find_package(OpenGL REQUIRED)
 	add_definitions(-DOPENGL_45)
 endif()
+# ---- Eigen ----
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src rev)

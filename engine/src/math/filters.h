@@ -6,10 +6,12 @@
 
 #include <cmath>
 #include <math/constants.h>
+#include <Eigen/Core>
 
 namespace rev {
 	namespace math {
 		
+		//----------------------------------------------------------------------------------------------
 		/// First order Low pass linear filter
 		template<typename T_>
 		struct LinearLowPass1stOrderFilter {
@@ -36,5 +38,34 @@ namespace rev {
 
 		template<typename T_>
 		using LowPassFilter1st = LinearLowPass1stOrderFilter<T_>;
+
+		//----------------------------------------------------------------------------------------------
+		struct KalmanFilter {
+			typedef Eigen::MatrixXf		Matrix;
+			typedef Eigen::VectorXf		Vector;
+
+			/// Create a filter using the initial state estimate and uncertainty
+			KalmanFilter(const Vector& X, const Matrix& P);
+
+			/// Predict state 
+			/// \param F transition model matrix
+			/// \param Q noise from model transition
+			void predict(const Matrix& F, const Matrix& Q);
+
+			/// Update estimate with an observation
+			/// \param z observed signal
+			/// \param H observation matrix
+			/// \param R observation noise
+			void update(const Vector& z, const Matrix& H, const Matrix& R);
+
+		private:
+			// State
+			Eigen::VectorXf	x; // Current state estimate
+			Eigen::MatrixXf P; // State uncertainty
+		// Temporary matrices
+			Eigen::MatrixXf I;
+			Eigen::MatrixXf S;
+			Eigen::MatrixXf K;
+		};
 	}
 }

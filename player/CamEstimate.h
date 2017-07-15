@@ -33,8 +33,10 @@ namespace rev {
 
 		void predict(float _dt) {
 			// Recompute state dependent matrices
-			for (size_t i = 0; i < 6; ++i)
-				F(i, 3 + i) = _dt;
+			//for (size_t i = 0; i < 6; ++i)
+			//	F(i, 3 + i) = _dt;
+			F.block<3, 3>(0, 3) = Eigen::Matrix3f::Identity() * _dt;
+			F.block<3, 3>(3, 6) = Eigen::Matrix3f::Identity() * _dt;
 			// Perform actual prediction using those matrices
 			x = F*x;
 			P = F*P*F.transpose() + Q;

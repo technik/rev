@@ -8,10 +8,6 @@ project(revPlayer)
 include(../cmake/common.cmake)
 
 if(REV_WITH_HEADTRACKING)
-# Eigen
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
-
 #OpenCV
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
@@ -28,4 +24,4 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=c++11)
 endif()
 
-target_link_libraries (revPlayer LINK_PUBLIC rev ${OpenCV_LIBS} ${Eigen3_LIBS})
+target_link_libraries (revPlayer LINK_PUBLIC rev ${OpenCV_LIBS})
