@@ -29,7 +29,7 @@ nSamples = len(x);
 
 dt = 0.1
 t = np.arange(0.0, dt*nSamples, dt)
-
+"""
 plot.figure(1)
 plot.plot(t,x,'r')
 plot.plot(t,y,'g')
@@ -40,15 +40,18 @@ plot.plot(x, y)
 plot.figure(3)
 plot.plot(t,dx,'r')
 plot.plot(t,dy,'g')
+plot.plot(t,dz,'b')
 plot.figure(4)
 plot.plot(dx, dy)
+"""
 plot.figure(5)
 plot.plot(t,ddx,'r')
 plot.plot(t,ddy,'g')
+plot.plot(t,ddz,'b')
 plot.figure(6)
 plot.plot(ddx, ddy)
 
-"""
+
 x = [0]
 y = [0]
 z = [0]
@@ -66,7 +69,7 @@ for row in rawData:
 	ddy.append(float(row[1]))
 	ddz.append(float(row[2]))
 nSamples = len(ddx);
-
+"""
 ddx = np.array(ddx).astype(np.float)
 ddy = np.array(ddy).astype(np.float)
 ddz = np.array(ddz).astype(np.float)
@@ -100,4 +103,10 @@ plot.plot(t,z[0:nSamples])
 #plot.plot(t,dy[0:nSamples])
 #plot.plot(t,dz[0:nSamples])
 """
+plot.figure(1)
+plot.plot(t,ddx,'r')
+plot.plot(t,ddy,'g')
+plot.plot(t,ddz,'b')
+plot.figure(2)
+plot.plot(ddx, ddy)
 plot.show()

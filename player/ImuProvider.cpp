@@ -40,12 +40,12 @@ namespace rev {
 			}
 
 			// Filter data
-			/*Vec3f rawAccel = *((Vec3f*)rawData);
+			Vec3f rawAccel = *((Vec3f*)rawData);
 			_accel = mImuBase * mAccelFilter(rawAccel);
 			Vec3f rawGyro = *((Vec3f*)&rawData[3]);
-			_gyro = mImuBase * mGyroFilter(rawGyro);*/
-			_accel = *((Vec3f*)rawData);
-			_gyro = *((Vec3f*)&rawData[3]);
+			_gyro = mImuBase * mGyroFilter(rawGyro);
+			//_accel = *((Vec3f*)rawData);
+			//_gyro = *((Vec3f*)&rawData[3]);
 			return true;
 		}
 	}

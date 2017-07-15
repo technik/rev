@@ -35,14 +35,13 @@ namespace rev {
 		string videoFileName = _datasetName + ".mp4";
 		if (!mVideoSrc->init(videoFileName))
 			return;
-		mDev2View.col(0) = Vec3f::zAxis();
-		mDev2View.col(1) = -Vec3f::xAxis();
-		mDev2View.col(2) = -Vec3f::yAxis();
+		mDev2View.setCol(0, Vec3f::zAxis());
+		mDev2View.setCol(1, -Vec3f::xAxis());
+		mDev2View.setCol(2, -Vec3f::yAxis());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool HeadTracker::update(float _dt) {
-		mCam.predict(_dt);
 		// Update with accelerometer info
 		return updateImu(_dt);
 	}
@@ -53,6 +52,7 @@ namespace rev {
 			return false;
 		}
 		while (mImu->available()) {
+			mCam.predict(0.1f);
 			// Get raw sensor data (all in device space)
 			Vec3f dsAccel, dsAngRate;
 			if (!mImu->getData(dsAccel, dsAngRate))
