@@ -12,18 +12,7 @@ add_library(cjson STATIC ${CJSON_SOURCE_FILES})
 target_include_directories(cjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/cjson)
 set_target_properties(cjson PROPERTIES FOLDER "libs")
 
-# ---- OpenGL ----
-if(REV_WITH_OPENGL)
-	find_package(OpenGL REQUIRED)
-	add_definitions(-DOPENGL_45)
-endif()
-
 ## -------------- The engine itself ----------------
-# Config build options
-if(REV_USE_VULKAN)
-	find_package(Vulkan REQUIRED)
-	add_definitions(-DREV_USE_VULKAN)
-endif()
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src rev)

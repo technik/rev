@@ -11,9 +11,13 @@ option(REV_BUILD_PLAYER "Build rev player. This is rev's default client applicat
 option(REV_USE_VULKAN "Use vulkan back end for rendering" ON)
 
 if(REV_USE_VULKAN)
-set(REV_WITH_OPENGL OFF)
+	set(REV_WITH_OPENGL OFF)
+	find_package(Vulkan REQUIRED)
+	add_definitions(-DREV_USE_VULKAN)
 else()
-set(REV_WITH_OPENGL ON)
+	find_package(OpenGL REQUIRED)
+	add_definitions(-DOPENGL_45)
+	set(REV_WITH_OPENGL ON)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

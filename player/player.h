@@ -8,6 +8,7 @@
 #include <iostream>
 #include <game/sceneLoader.h>
 #include <game/logicLayer.h>
+#include <math/algebra/vector.h>
 #include <video/basicTypes/camera.h>
 #include <video/graphics/material.h>
 #include <video/graphics/renderObj.h>
@@ -27,6 +28,7 @@ using namespace rev::core;
 using namespace rev::game;
 using namespace rev::net;
 using namespace rev::video;
+using namespace rev::math;
 using namespace std;
 
 namespace rev {
@@ -37,7 +39,9 @@ namespace rev {
 			: rev::App3d(_platformInfo)
 		{
 			processArgs(_platformInfo);
+#ifdef OPENGL_45
 			mRenderer.init(&driver3d());
+#endif //
 			SceneLoader mLoader;
 
 			// Prepare factories and game world
@@ -48,11 +52,13 @@ namespace rev {
 				mSceneLogic->add(c);
 				return c;
 			});
+#ifdef OPENGL_45
 			mRenderScene = new RenderLayer(mRenderer);
+#endif //
 			mGameWorld.addLayer(mRenderScene);
-			mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
-			mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
-			mLoader.registerFactory("Transform", [](const Json& _j) { return AffineTransform::construct(_j); });
+//			mLoader.registerFactory("RenderObj", [=](const Json& _j) { return mRenderScene->createRenderObj(_j); });
+//			mLoader.registerFactory("Camera", [=](const Json& _j) { return mRenderScene->createCamera(_j); });
+//			mLoader.registerFactory("Transform", [](const Json& _j) { return AffineTransform::construct(_j); });
 
 			// Expose API
 			jsonAPI()->setResponder("/graph", [&](http::Server* _srv, unsigned _conId, const http::Request&) {
@@ -62,7 +68,7 @@ namespace rev {
 			});
 
 			// Load scene
-			mGameWorld.init();
+/*			mGameWorld.init();
 			mLoader.loadScene(mSceneName, mGameWorld);
 
 			// Create extra objects
@@ -89,7 +95,7 @@ namespace rev {
 					node->addComponent(m);
 				}
 				roughness += 0.11f;
-			}
+			}*/
 		}
 
 		~Player() {
@@ -103,7 +109,9 @@ namespace rev {
 		game::LogicLayer*		mSceneLogic;
 
 		// Common components
+#ifdef OPENGL_45
 		video::ForwardRenderer mRenderer;
+#endif
 
 	private:
 

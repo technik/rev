@@ -11,6 +11,7 @@
 
 #include <video/window/window.h>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #ifdef ANDROID
@@ -32,12 +33,12 @@ namespace rev {
 #ifdef ANDROID
 		VulkanDriver::VulkanDriver() {
 #else
-		VulkanDriver::VulkanDriver(Window* _wnd) {
+		VulkanDriver::VulkanDriver() {
 #endif
 			//LOGI("---------------Vulkan Driver Construction-------------------------------");
 			createInstance();
-			getPhysicalDevice();
 			initSurface();
+			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
 			//LOGI("---------------Finished Vulkan Driver Construction----------------------");
@@ -113,6 +114,9 @@ namespace rev {
 			// Copy extension names into createInfo
 			for (size_t i = 0; i < _ci.enabledExtensionCount; ++i) {
 				extensionNames[i] = mExtensions[i].extensionName;
+#if _DEBUG
+				cout << "- " << mExtensions[i].extensionName << "\n";
+#endif
 				//LOGI((std::string("- ") + mExtensions[i].extensionName).c_str());
 			}
 		}

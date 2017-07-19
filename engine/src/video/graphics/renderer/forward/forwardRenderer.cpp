@@ -4,6 +4,7 @@
 // 2014/April/15
 //----------------------------------------------------------------------------------------------------------------------
 // Simple forward renderer
+#ifdef OPENGL_45
 
 #include "forwardRenderer.h"
 #include <core/components/affineTransform.h>
@@ -39,16 +40,16 @@ namespace rev {
 #ifdef OPENGL_45
 			mDriver->beginFrame();
 			//mDriver->setRenderTarget(_rt);
-			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
+			mDriver->setViewport(Vec2i(0, 0), Vec2u(800, 600));
 			mDriver->clearZBuffer();
 			mDriver->clearColorBuffer();
 			// Render state info
 			RendererBackEnd::DrawCall	draw;
 			RendererBackEnd::DrawInfo&	drawInfo = draw.renderStateInfo;
 			drawInfo.program = mProgram;
-			Vec3f globalLightDir = (Vec3f(0.8f,-1.f,-0.9f)).normalized();
+			Vec3f globalLightDir = (Vec3f(0.8f, -1.f, -0.9f)).normalized();
 			Vec3f viewPos = _cam.node()->component<core::AffineTransform>()->position();
-			drawInfo.lightClr = Vec3f(1.f,1.f,0.9f)*1000.f;
+			drawInfo.lightClr = Vec3f(1.f, 1.f, 0.9f)*1000.f;
 			// Camera
 			Mat34f invView = _cam.view().inverse();
 			Mat44f viewProj = _cam.projection() * invView;
@@ -62,13 +63,13 @@ namespace rev {
 				drawInfo.viewPos = invModelMtx * viewPos;
 
 				if (obj->material) {
-					for(const auto& m : obj->material->mMaps)
+					for (const auto& m : obj->material->mMaps)
 						drawInfo.texUniforms.push_back(m);
-					if(mSkybox)
+					if (mSkybox)
 						drawInfo.texUniforms.push_back(std::make_pair("environmentMap", mSkybox));
 					for (const auto& v3 : obj->material->mVec3s)
 						drawInfo.vec3Uniforms.push_back(v3);
-					for(const auto& f : obj->material->mFloats)
+					for (const auto& f : obj->material->mFloats)
 						drawInfo.floatUniforms.push_back(f);
 				}
 
@@ -147,7 +148,7 @@ namespace rev {
 			for(size_t i = 0; i < 3; ++i) {
 				Frustum cascadeFrustum = Frustum(globalFrustum.aspectRatio(), globalFrustum.fov(), globalFrustum.nearPlane(), farPlane[i]);
 				mShadowPass[i]->config(_context.lightDir(), camView, cascadeFrustum, maxFar);
-				
+
 				for (auto obj : _context) {
 					if(obj->castShadows)
 						renderObject(*obj);
@@ -188,81 +189,82 @@ namespace rev {
 				renderObject(*_context.skyBox);
 				mDriver->setZCompare(true);
 			} else {*/
-				//mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
-				//mDriver->clearColorBuffer();
-			//}
-			/*mDriver->clearZBuffer();
-			mDriver->setCulling(GraphicsDriver::ECulling::eBack);
-			mBackEnd->setShadowVp(0, mShadowPass[0]->viewProj());
-			mBackEnd->setShadowVp(1, mShadowPass[1]->viewProj());
-			mBackEnd->setShadowVp(2, mShadowPass[2]->viewProj());
-			mBackEnd->setShader(mShader);
-			int uLightDir = mDriver->getUniformLocation("uLightDir");
-			mDriver->setUniform(uLightDir, _context.lightDir());
-			int uShadowMap0 = mDriver->getUniformLocation("uShadowMap0");
-			mDriver->setUniform(uShadowMap0, mShadowPass[0]->tex());
-			int uShadowMap1 = mDriver->getUniformLocation("uShadowMap1");
-			mDriver->setUniform(uShadowMap1, mShadowPass[1]->tex());
-			int uShadowMap2 = mDriver->getUniformLocation("uShadowMap2");
-			mDriver->setUniform(uShadowMap2, mShadowPass[2]->tex());
-			//int uFarShadowMap = mDriver->getUniformLocation("uFarShadowMap");
-			//mDriver->setUniform(uFarShadowMap, mFarShadowPass->tex());
-			if(mDebugCamera)
-				mBackEnd->setCamera(pov, mDebugCamera->projection());
-			else
-				mBackEnd->setCamera(pov, _context.camera()->projection());
-			// Render all objects
-			for (auto obj : _context) {
-				renderObject(*obj);
+			//mDriver->setClearColor(Color(0.7f, 0.8f, 1.f, 1.f));
+			//mDriver->clearColorBuffer();
+		//}
+		/*mDriver->clearZBuffer();
+		mDriver->setCulling(GraphicsDriver::ECulling::eBack);
+		mBackEnd->setShadowVp(0, mShadowPass[0]->viewProj());
+		mBackEnd->setShadowVp(1, mShadowPass[1]->viewProj());
+		mBackEnd->setShadowVp(2, mShadowPass[2]->viewProj());
+		mBackEnd->setShader(mShader);
+		int uLightDir = mDriver->getUniformLocation("uLightDir");
+		mDriver->setUniform(uLightDir, _context.lightDir());
+		int uShadowMap0 = mDriver->getUniformLocation("uShadowMap0");
+		mDriver->setUniform(uShadowMap0, mShadowPass[0]->tex());
+		int uShadowMap1 = mDriver->getUniformLocation("uShadowMap1");
+		mDriver->setUniform(uShadowMap1, mShadowPass[1]->tex());
+		int uShadowMap2 = mDriver->getUniformLocation("uShadowMap2");
+		mDriver->setUniform(uShadowMap2, mShadowPass[2]->tex());
+		//int uFarShadowMap = mDriver->getUniformLocation("uFarShadowMap");
+		//mDriver->setUniform(uFarShadowMap, mFarShadowPass->tex());
+		if(mDebugCamera)
+			mBackEnd->setCamera(pov, mDebugCamera->projection());
+		else
+			mBackEnd->setCamera(pov, _context.camera()->projection());
+		// Render all objects
+		for (auto obj : _context) {
+			renderObject(*obj);
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	void ForwardRenderer::renderObject(const RenderObj& _obj)
+	{
+		RendererBackEnd::StaticGeometry geom;
+		if (_obj.mesh()->stripLength > 0) {
+			geom.strip = true;
+			geom.indices = _obj.mesh()->triStrip;
+			geom.nIndices = _obj.mesh()->stripLength;
+		} else {
+			geom.strip = false;
+			geom.indices = _obj.mesh()->indices;
+			geom.nIndices = _obj.mesh()->nIndices;
+		}
+		geom.vertices = _obj.mesh()->vertices;
+		geom.normals = _obj.mesh()->normals;
+		geom.uvs = _obj.mesh()->uvs;
+		geom.nVertices = _obj.mesh()->nVertices;
+		geom.transform = _obj.transform();
+		//if (_obj.mMaterial)
+		//	geom.color = _obj.mMaterial->mDiffuse;
+		//else
+			geom.color = Color(1.f, 1.f, 1.f);
+		mBackEnd->render(geom);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	Frustum ForwardRenderer::adjustShadowFrustum(const RenderContext& _context) {
+		Mat34f invView;
+		_context.camera()->view().inverse(invView);
+		Frustum camF = _context.camera()->frustum();
+		float minCaster = camF.farPlane();
+		float maxCaster = camF.nearPlane();
+		for (auto obj : _context) {
+			if (obj->castShadows)
+			{
+				float objDist = (invView*obj->node()->position()).y;
+				// Contribute to frustum adjustment
+				minCaster = std::min(minCaster, objDist - obj->mBBox.radius());
+				maxCaster = std::max(maxCaster, objDist + obj->mBBox.radius());
 			}
 		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::renderObject(const RenderObj& _obj)
-		{
-			RendererBackEnd::StaticGeometry geom;
-			if (_obj.mesh()->stripLength > 0) {
-				geom.strip = true;
-				geom.indices = _obj.mesh()->triStrip;
-				geom.nIndices = _obj.mesh()->stripLength;
-			} else {
-				geom.strip = false;
-				geom.indices = _obj.mesh()->indices;
-				geom.nIndices = _obj.mesh()->nIndices;
-			}
-			geom.vertices = _obj.mesh()->vertices;
-			geom.normals = _obj.mesh()->normals;
-			geom.uvs = _obj.mesh()->uvs;
-			geom.nVertices = _obj.mesh()->nVertices;
-			geom.transform = _obj.transform();
-			//if (_obj.mMaterial)
-			//	geom.color = _obj.mMaterial->mDiffuse;
-			//else
-				geom.color = Color(1.f, 1.f, 1.f);
-			mBackEnd->render(geom);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		Frustum ForwardRenderer::adjustShadowFrustum(const RenderContext& _context) {
-			Mat34f invView;
-			_context.camera()->view().inverse(invView);
-			Frustum camF = _context.camera()->frustum();
-			float minCaster = camF.farPlane();
-			float maxCaster = camF.nearPlane();
-			for (auto obj : _context) {
-				if (obj->castShadows)
-				{
-					float objDist = (invView*obj->node()->position()).y;
-					// Contribute to frustum adjustment
-					minCaster = std::min(minCaster, objDist - obj->mBBox.radius());
-					maxCaster = std::max(maxCaster, objDist + obj->mBBox.radius());
-				}
-			}
-			float adjNear = std::max(camF.nearPlane(), minCaster);
-			float adjFar = std::min(camF.farPlane(), maxCaster);
-			if(adjFar < adjNear) // No casters in the frustum
-				adjFar = adjNear;
-			return Frustum(camF.aspectRatio(), camF.fov(), adjNear, adjFar);
-		}*/
+		float adjNear = std::max(camF.nearPlane(), minCaster);
+		float adjFar = std::min(camF.farPlane(), maxCaster);
+		if(adjFar < adjNear) // No casters in the frustum
+			adjFar = adjNear;
+		return Frustum(camF.aspectRatio(), camF.fov(), adjNear, adjFar);
+	}*/
 	}
 }
+#endif // OPENGL_45

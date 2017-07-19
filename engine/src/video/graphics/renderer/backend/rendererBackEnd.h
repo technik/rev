@@ -22,7 +22,7 @@ namespace rev {
 
 		struct StaticRenderMesh;
 		class Texture;
-
+#ifdef OPENGL_45
 		class RendererBackEnd {
 		public:
 			struct DrawInfo {
@@ -55,7 +55,7 @@ namespace rev {
 			StaticRenderMesh* mSkyBox = nullptr;
 			GraphicsDriver* mDriver = nullptr;
 		};
-
+#endif // OPENGL_45
 	}
 }
 

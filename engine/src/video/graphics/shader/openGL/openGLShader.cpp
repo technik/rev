@@ -4,6 +4,7 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Generic shader interface
+#ifdef OPENGL_45
 
 #include "openGLShader.h"
 
@@ -168,3 +169,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // OPENGL_45

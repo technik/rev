@@ -6,6 +6,7 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_FORWARD_FORWARDRENDERER_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_FORWARD_FORWARDRENDERER_H_
 
+#ifdef OPENGL_45
 #include <vector>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
@@ -38,5 +39,7 @@ namespace rev {
 		};
 	}
 }
+#endif // OPENGL_45
+
 
 #endif // _REV_VIDEO_GRAPHICS_RENDERER_FORWARD_FORWARDRENDERER_H_

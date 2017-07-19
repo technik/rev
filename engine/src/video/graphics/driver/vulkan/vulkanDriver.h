@@ -15,7 +15,7 @@ namespace rev {
 #ifdef ANDROID
 			VulkanDriver();
 #else
-			VulkanDriver(Window*);
+			VulkanDriver();
 #endif
 			~VulkanDriver();
 

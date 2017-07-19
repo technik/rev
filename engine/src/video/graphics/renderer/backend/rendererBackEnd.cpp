@@ -4,6 +4,7 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Render system's back end, the layer right on top of the video driver
+#ifdef OPENGL_45
 #include "rendererBackEnd.h"
 
 #include <math/algebra/matrix.h>
@@ -14,7 +15,7 @@ using namespace rev::math;
 
 namespace rev {
 	namespace video {
-		
+
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::draw(const DrawCall& _dc) {
 #ifndef REV_USE_VULKAN
@@ -63,14 +64,14 @@ namespace rev {
 			glBindVertexArray(mesh->vao);
 			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
 #endif // !REV_USE_VULKAN
-		}
+	}
 
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::drawSkybox(const DrawInfo& _info) {
 #ifndef REV_USE_VULKAN
 			if (!mSkyBox) {
 				mSkyBox = game::Procedural::box(Vec3f(100.f));
-			}
+}
 #endif // !REV_USE_VULKAN
 			DrawCall dc;
 			dc.renderStateInfo = _info;
@@ -86,3 +87,4 @@ namespace rev {
 		}
 	}
 }
+#endif // OPENGL_45

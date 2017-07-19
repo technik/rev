@@ -14,8 +14,10 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool RenderLayer::update(float _dt) {
+#ifdef OPENGL_45
 			for (auto cam : mCameras)
 				mRenderer.render(mObjects, *cam);
+#endif // OPENGL_45
 			return true;
 		}
 

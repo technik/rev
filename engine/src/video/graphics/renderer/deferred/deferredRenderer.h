@@ -6,6 +6,7 @@
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_DEFERRED_DEFERREDRENDERER_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_DEFERRED_DEFERREDRENDERER_H_
 
+#ifdef OPENGL_45
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <video/basicTypes/color.h>
@@ -41,7 +42,7 @@ namespace rev {
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
-		inline void DeferredRenderer::init(GraphicsDriver* _driver){
+		inline void DeferredRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
 			mBackEnd = new RendererBackEnd(mDriver);
 			mGeometryShader = Shader::manager()->get("geometry");
@@ -49,10 +50,12 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		inline void DeferredRenderer::end(){
+		inline void DeferredRenderer::end() {
 			delete mBackEnd;
 		}
 	}
 }
+#endif // OPENGL_45
+
 
 #endif // _REV_VIDEO_GRAPHICS_RENDERER_DEFERRED_DEFERREDRENDERER_H_
