@@ -36,6 +36,7 @@ namespace rev {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
+#ifdef OPENGL_45
 			mDriver->beginFrame();
 			//mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800,600));
@@ -80,6 +81,7 @@ namespace rev {
 			// Draw skybox cubemap
 			drawSkyboxCubemap(_cam);
 			mBackEnd->flush();
+#endif // OPENGL_45
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

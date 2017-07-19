@@ -19,12 +19,13 @@
 
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/shader/shader.h>
+#include <cjson/json.h>
 
 namespace rev {
 
 	class App3d {
 	public:
-		App3d(const core::PlatformInfo& _platformInfo);
+		App3d(const core::StartUpInfo& _platformInfo);
 		bool update();
 
 	protected:

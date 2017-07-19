@@ -4,6 +4,7 @@
 // 2014/April/06
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL
+#ifdef OPENGL_45
 #include "openGLDriver.h"
 
 #include <video/basicTypes/color.h>
@@ -294,3 +295,5 @@ namespace rev {
 
 	}	// namespace video
 }	// namespace rev
+
+#endif // OPENGL_45

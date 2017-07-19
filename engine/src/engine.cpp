@@ -30,7 +30,7 @@ using namespace rev::math;
 namespace rev {
 
 	//----------------------------------------------------------------------------------------------------------------------
-	Engine::Engine(const core::PlatformInfo& _activity) {
+	Engine::Engine(const core::StartUpInfo& _activity) {
 		core::OSHandler::startUp();
 		core::Time::init();
 #ifndef ANDROID

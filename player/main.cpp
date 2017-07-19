@@ -8,7 +8,7 @@
 #include <core/platform/platformInfo.h>
 
 int main(int _argc, const char** _argv) {
-	rev::core::PlatformInfo pi{ _argc, _argv };
+	rev::core::StartUpInfo pi{ _argc, _argv };
 	rev::Player app(pi);
 
 	while(app.update());

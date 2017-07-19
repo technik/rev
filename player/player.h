@@ -33,7 +33,7 @@ namespace rev {
 
 	class Player : public rev::App3d {
 	public:
-		Player(const PlatformInfo& _platformInfo)
+		Player(const StartUpInfo& _platformInfo)
 			: rev::App3d(_platformInfo)
 		{
 			processArgs(_platformInfo);
@@ -108,7 +108,7 @@ namespace rev {
 	private:
 
 		//----------------------------------------------------------------
-		void processArgs(const PlatformInfo& _info);
+		void processArgs(const StartUpInfo& _info);
 
 		//----------------------------------------------------------------
 		bool frame(float _dt) override;

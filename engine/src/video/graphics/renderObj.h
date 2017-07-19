@@ -5,6 +5,7 @@
 // Base renderable object
 #ifndef _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
 #define _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_
+#ifndef REV_USE_VULKAN
 
 #include <core/components/component.h>
 #include <core/components/sceneNode.h>
@@ -42,4 +43,5 @@ namespace rev {
 	}	// namespace video
 }	// namespace rev
 
+#endif // !REV_USE_VULKAN
 #endif // _REV_VIDEO_GRAPHICS_RENDERER_RENDEROBJ_H_

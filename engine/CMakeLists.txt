@@ -19,6 +19,11 @@ if(REV_WITH_OPENGL)
 endif()
 
 ## -------------- The engine itself ----------------
+# Config build options
+if(REV_USE_VULKAN)
+	find_package(Vulkan REQUIRED)
+	add_definitions(-DREV_USE_VULKAN)
+endif()
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src rev)
@@ -31,6 +36,10 @@ endif(UNIX)
 if(MSVC) # Windows sockets
 	target_link_libraries(rev LINK_PUBLIC Ws2_32 Mswsock)
 endif(MSVC)
+if(REV_USE_VULKAN)
+	target_include_directories (rev PUBLIC ${Vulkan_INCLUDE_DIR})
+	target_link_libraries(rev LINK_PUBLIC ${Vulkan_LIBRARY})
+endif()
 target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 # ---- More OpenGL ----

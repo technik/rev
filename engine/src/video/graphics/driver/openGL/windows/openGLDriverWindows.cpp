@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with OpenGL for Windows platforms
 
-#ifdef _WIN32
+#if defined( _WIN32) && defined(OPENGL_45)
 
 #include "openGLDriverWindows.h"
 #include <video/window/window.h>
@@ -102,4 +102,4 @@ namespace rev {
 	}	// namespace video
 }	// namespace rev
 
-#endif // _WIN32
+#endif // _WIN32 && OPENGL_45

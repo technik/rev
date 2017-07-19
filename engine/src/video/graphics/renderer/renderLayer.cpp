@@ -21,7 +21,12 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		RenderObj* RenderLayer::createRenderObj(const Json& _data) {
+#ifdef OPENGL_45
 			RenderObj* obj = RenderObj::construct(_data);
+#else
+			RenderObj* obj = nullptr;
+			assert(false);
+#endif
 			if(obj)
 				mObjects.push_back(obj);
 			return obj;

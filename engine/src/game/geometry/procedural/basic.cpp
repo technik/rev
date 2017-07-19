@@ -4,6 +4,7 @@
 // 2014/April/16
 //----------------------------------------------------------------------------------------------------------------------
 // Basic procedurally generated meshes
+#ifndef REV_USE_VULKAN
 #include "basic.h"
 
 using namespace rev::math;
@@ -273,3 +274,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // !REV_USE_VULKAN

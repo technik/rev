@@ -13,7 +13,7 @@
 
 namespace rev {
 	namespace core {
-		struct PlatformInfo;
+		struct StartUpInfo;
 	}
 	namespace video {
 		class Window;
@@ -25,7 +25,7 @@ namespace rev {
 
 	class Engine {
 	public:
-		Engine(const core::PlatformInfo& _activity);
+		Engine(const core::StartUpInfo& _activity);
 		~Engine();
 
 		bool update();

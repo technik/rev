@@ -4,19 +4,21 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Interface with graphics hardware
 
-#ifndef _REV_VIDEO_GRAPHICS_DRIVER_GRAPHICSDRIVER_H_
-#define _REV_VIDEO_GRAPHICS_DRIVER_GRAPHICSDRIVER_H_
+#pragma once
 
-#ifdef ANDROID
-	#include "openGL/android/openGLDriverAndroid.h"
-//#include "vulkan/vulkanDriver.h"
-#else // !ANDROID
-	#ifdef _WIN32
-		#include "openGL/windows/openGLDriverWindows.h"
-	#else // !_WIN32
-		#include "openGL/openGLDriver.h"
-	#endif // !_WIN32
-#endif // !ANDROID
+#ifdef REV_USE_VULKAN
+#include "vulkan/vulkanDriver.h"
+#else // !REV_USE_VULKAN
+	#ifdef ANDROID
+		#include "openGL/android/openGLDriverAndroid.h"
+	#else // !ANDROID
+		#ifdef _WIN32
+			#include "openGL/windows/openGLDriverWindows.h"
+		#else // !_WIN32
+			#include "openGL/openGLDriver.h"
+		#endif // !_WIN32
+	#endif // !ANDROID
+#endif // !REV_USE_VULKAN
 
 namespace rev {
 	namespace video
@@ -26,11 +28,14 @@ namespace rev {
 		typedef OpenGLDriverAndroid	GraphicsDriver;
 #endif // ANDROID
 #ifdef _WIN32
+	#if REV_USE_VULKAN
+		typedef VulkanDriver	GraphicsDriver;
+	#endif // REV_USE_VULKAN
+	#ifdef OPENGL_45
 		typedef OpenGLDriverWindows GraphicsDriver; 
-		//typedef VulkanDriver	GraphicsDriver;
+	#endif // OPENGL_45
 #endif // _WIN32
 
 	}	// namespace video
 }	// namespace rev
 
-#endif // _REV_VIDEO_GRAPHICS_DRIVER_GRAPHICSDRIVER_H_

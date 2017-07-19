@@ -2,7 +2,7 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
-#ifndef _WIN32
+#ifdef REV_USE_VULKAN
 #include "vulkanDriver.h"
 
 #define VK_USE_PLATFORM_ANDROID_KHR 1
@@ -23,6 +23,8 @@
 
 #endif // ANDROID
 
+using namespace std;
+
 namespace rev {
 	namespace video {
 
@@ -32,13 +34,13 @@ namespace rev {
 #else
 		VulkanDriver::VulkanDriver(Window* _wnd) {
 #endif
-			LOGI("---------------Vulkan Driver Construction-------------------------------");
+			//LOGI("---------------Vulkan Driver Construction-------------------------------");
 			createInstance();
 			getPhysicalDevice();
 			initSurface();
 			findQueueFamilies();
 			createLogicalDevice();
-			LOGI("---------------Finished Vulkan Driver Construction----------------------");
+			//LOGI("---------------Finished Vulkan Driver Construction----------------------");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -68,14 +70,14 @@ namespace rev {
 			VkResult res = vkCreateInstance(&createInfo, nullptr, &mApiInstance);
 			if (res != VK_SUCCESS)
 			{
-
-				LOGE("Error: Unable to create vulkan instance.\n");
+				cout << "Error: Unable to create vulkan instance.\n";
+				//LOGE("Error: Unable to create vulkan instance.\n");
 			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::initSurface() {
-			LOGI("Init surface");
+			//LOGI("Init surface");
 			// Get display information
 			//uint32_t displayPropCount = 0;
 			//vkGetPhysicalDeviceDisplayPropertiesKHR(mPhysicalDevice, &displayPropCount, nullptr);
@@ -83,7 +85,7 @@ namespace rev {
 			// Get extension
 			auto fpCreateAndroidSurfaceKHR = (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(mApiInstance, "vkCreateAndroidSurfaceKHR");
 			if (fpCreateAndroidSurfaceKHR == nullptr) {
-				LOGE("Unable to get create surface extension");
+				//LOGE("Unable to get create surface extension");
 				return;
 			}
 
@@ -93,14 +95,14 @@ namespace rev {
 			VkDisplaySurfaceCreateInfoKHR	createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
 			createInfo.*/
-			LOGI("Finish Init surface");
+			//LOGI("Finish Init surface");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {
 			// Query available extensions count
 			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, nullptr);
-			LOGI("Found %d vulkan extensions:\n" , _ci.enabledExtensionCount);
+			//LOGI("Found %d vulkan extensions:\n" , _ci.enabledExtensionCount);
 
 			// Allocate space for extension names
 			mExtensions = new VkExtensionProperties[_ci.enabledExtensionCount];
@@ -111,7 +113,7 @@ namespace rev {
 			// Copy extension names into createInfo
 			for (size_t i = 0; i < _ci.enabledExtensionCount; ++i) {
 				extensionNames[i] = mExtensions[i].extensionName;
-				LOGI((std::string("- ") + mExtensions[i].extensionName).c_str());
+				//LOGI((std::string("- ") + mExtensions[i].extensionName).c_str());
 			}
 		}
 
@@ -119,7 +121,7 @@ namespace rev {
 		void VulkanDriver::getPhysicalDevice() {
 			uint32_t deviceCount = 0;
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, nullptr);
-			LOGI("Vulkan: Found  %d physical devices\n", deviceCount);
+			//LOGI("Vulkan: Found  %d physical devices\n", deviceCount);
 
 			VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, devices);	
@@ -128,7 +130,7 @@ namespace rev {
 
 			// Get device properties
 			vkGetPhysicalDeviceProperties(mPhysicalDevice, &mDeviceProps);
-			LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
+			//LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
 			vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mDeviceFeatures);
 		}
 
@@ -170,7 +172,7 @@ namespace rev {
 			createInfo.enabledLayerCount = 0;
 
 			if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
-				 LOGE("failed to create logical device!");
+				 //LOGE("failed to create logical device!");
 			}
 
 			vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
@@ -178,4 +180,4 @@ namespace rev {
 	}
 }
 
-#endif // !_WIN32
+#endif // REV_USE_VULKAN

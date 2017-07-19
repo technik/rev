@@ -5,6 +5,7 @@
 #ifndef _REV_VIDEO_GRAPHICS_STATICRENDERMESH_H_
 #define _REV_VIDEO_GRAPHICS_STATICRENDERMESH_H_
 
+#ifndef REV_USE_VULKAN
 #include <cstdint>
 #include <fstream>
 #include <math/algebra/matrix.h>
@@ -111,4 +112,5 @@ namespace rev {
 	}
 }
 
+#endif // !REV_USE_VULKAN
 #endif // _REV_VIDEO_GRAPHICS_STATICRENDERMESH_H_

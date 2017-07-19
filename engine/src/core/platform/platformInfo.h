@@ -12,12 +12,12 @@ namespace rev {
 	namespace core {
 
 #ifdef ANDROID
-		struct PlatformInfo {
+		struct StartUpInfo {
 			ANativeActivity* activity;
 		};
 
 #else //!ANDROID
-		struct PlatformInfo {
+		struct StartUpInfo {
 			int argC;
 			const char** argV;
 		};

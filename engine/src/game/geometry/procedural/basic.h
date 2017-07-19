@@ -7,6 +7,7 @@
 #ifndef _REV_GAME_GEOMETRY_PROCEDURAL_BASIC_H_
 #define _REV_GAME_GEOMETRY_PROCEDURAL_BASIC_H_
 
+#ifndef REV_USE_VULKAN
 #include <functional>
 
 #include <math/algebra/vector.h>
@@ -31,4 +32,5 @@ namespace rev {
 	}
 }
 
+#endif // !REV_USE_VULKAN
 #endif // _REV_GAME_GEOMETRY_PROCEDURAL_BASIC_H_

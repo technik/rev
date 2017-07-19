@@ -25,7 +25,7 @@ using namespace rev::video;
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
-	App3d::App3d(const PlatformInfo& _info)
+	App3d::App3d(const StartUpInfo& _info)
 		:mEngine(_info)
 	{
 		mMinFrameTime = 1.f/120;
@@ -36,7 +36,9 @@ namespace rev {
 		//driver->setWindow(_info.activity->);
 		mDriver = driver;
 #else
+#ifdef OPENGL_45
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
+#endif // OPENGL_45
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
@@ -66,8 +68,9 @@ namespace rev {
 		}
 		if(!frame(dt))
 			return false;
-
+#ifdef OPENGL_45
 		mDriver->finishFrame();
+#endif OPENGL_45
 		return true;
 	}
 

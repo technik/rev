@@ -214,7 +214,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 using namespace rev;
 
 void android_main(struct android_app* state) {
-	rev::core::PlatformInfo info;
+	rev::core::StartUpInfo info;
 	info.activity = state->activity;
 	Player revPlayer(info);
 	//struct engine engine;

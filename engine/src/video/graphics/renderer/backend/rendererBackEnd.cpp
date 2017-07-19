@@ -17,6 +17,7 @@ namespace rev {
 		
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::draw(const DrawCall& _dc) {
+#ifndef REV_USE_VULKAN
 			const DrawInfo& info = _dc.renderStateInfo;
 			// Set shader
 			mDriver->setShader(info.program);
@@ -61,13 +62,16 @@ namespace rev {
 			StaticRenderMesh* mesh = _dc.mesh;
 			glBindVertexArray(mesh->vao);
 			glDrawElements(GL_TRIANGLES, mesh->nIndices, GL_UNSIGNED_SHORT, mesh->indices);
+#endif // !REV_USE_VULKAN
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::drawSkybox(const DrawInfo& _info) {
+#ifndef REV_USE_VULKAN
 			if (!mSkyBox) {
 				mSkyBox = game::Procedural::box(Vec3f(100.f));
 			}
+#endif // !REV_USE_VULKAN
 			DrawCall dc;
 			dc.renderStateInfo = _info;
 			dc.mesh = mSkyBox;

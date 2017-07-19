@@ -21,7 +21,7 @@ using namespace std;
 namespace rev {
 
 	//----------------------------------------------------------------
-	void Player::processArgs(const PlatformInfo& _info) {
+	void Player::processArgs(const StartUpInfo& _info) {
 #ifdef ANDROID
 		mSceneName = "vrScene.scn";
 #else
