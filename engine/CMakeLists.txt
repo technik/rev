@@ -17,6 +17,8 @@ if(REV_WITH_OPENGL)
 	find_package(OpenGL REQUIRED)
 	add_definitions(-DOPENGL_45)
 endif()
+
+## -------------- The engine itself ----------------
 # Collect all sources
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src rev)
@@ -29,13 +31,14 @@ endif(UNIX)
 if(MSVC) # Windows sockets
 	target_link_libraries(rev LINK_PUBLIC Ws2_32 Mswsock)
 endif(MSVC)
+target_include_directories (rev PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 # ---- More OpenGL ----
 if(REV_WITH_OPENGL)
 	find_library(GLEW glew32 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew/x86/)
 	target_link_libraries (rev LINK_PUBLIC ${GLEW})
 
-	target_include_directories (rev PUBLIC ${OPENGL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+	target_include_directories (rev PUBLIC ${OPENGL_INCLUDE_DIR})
 	target_link_libraries (rev LINK_PUBLIC ${OPENGL_gl_LIBRARY})
 endif()
 

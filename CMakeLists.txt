@@ -8,7 +8,13 @@ project(revAll)
 # --- Configurable options -----
 option(REV_BUILD_TOOLS "Build the asset processing tools" OFF)
 option(REV_BUILD_PLAYER "Build rev player. This is rev's default client application" ON)
-option(REV_WITH_OPENGL "Build OpenGL driver and related components. This allows using OpenGL as graphics back end" ON)
+option(REV_USE_VULKAN "Use vulkan back end for rendering" ON)
+
+if(REV_USE_VULKAN)
+set(REV_WITH_OPENGL OFF)
+else()
+set(REV_WITH_OPENGL ON)
+endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(engine)
