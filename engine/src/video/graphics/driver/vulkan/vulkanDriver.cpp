@@ -26,6 +26,47 @@
 
 using namespace std;
 
+namespace // Anonymous namespace for vulkan utilities
+{
+	//----------------------------------------------------------------------------------------------------------
+	const std::vector<const char*> validationLayers = {
+		"VK_LAYER_LUNARG_standard_validation"
+	};
+
+	//----------------------------------------------------------------------------------------------------------
+	std::vector<const char*> getRequiredExtensions() {
+		std::vector<const char*> extensions;
+#ifdef _DEBUG
+		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+#endif
+
+		return extensions;
+	}
+
+	//----------------------------------------------------------------------------------------------------------
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+		VkDebugReportFlagsEXT flags,
+		VkDebugReportObjectTypeEXT objType,
+		uint64_t obj,
+		size_t location,
+		int32_t code,
+		const char* layerPrefix,
+		const char* msg,
+		void* userData) {
+
+		std::cout << "validation layer: " << msg << std::endl;
+
+		return VK_FALSE;
+	}
+
+	void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* pAllocator) {
+		auto func = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
+		if (func != nullptr) {
+			func(instance, callback, pAllocator);
+		}
+	}
+}
+
 namespace rev {
 	namespace video {
 
@@ -56,41 +97,8 @@ namespace rev {
 			vkDestroyDevice(mDevice, nullptr);
 			delete[] mExtensions;
 			vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
+			DestroyDebugReportCallbackEXT(mApiInstance, mDebugCallback, nullptr);
 			vkDestroyInstance(mApiInstance, nullptr);
-		}
-
-		namespace
-		{
-			//----------------------------------------------------------------------------------------------------------
-			const std::vector<const char*> validationLayers = {
-				"VK_LAYER_LUNARG_standard_validation"
-			};
-
-			//----------------------------------------------------------------------------------------------------------
-			std::vector<const char*> getRequiredExtensions() {
-				std::vector<const char*> extensions;
-#ifdef _DEBUG
-					extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-#endif
-
-				return extensions;
-			}
-
-			//----------------------------------------------------------------------------------------------------------
-			static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-				VkDebugReportFlagsEXT flags,
-				VkDebugReportObjectTypeEXT objType,
-				uint64_t obj,
-				size_t location,
-				int32_t code,
-				const char* layerPrefix,
-				const char* msg,
-				void* userData) {
-
-				std::cout << "validation layer: " << msg << std::endl;
-
-				return VK_FALSE;
-			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
