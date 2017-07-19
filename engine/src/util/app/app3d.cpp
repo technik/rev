@@ -37,7 +37,7 @@ namespace rev {
 		mDriver = driver;
 #else
 #ifdef REV_USE_VULKAN
-		mDriver = new GraphicsDriver();
+		mDriver = new GraphicsDriver(mEngine.mainWindow());
 #endif // REV_USE_VULKAN
 #ifdef OPENGL_45
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);

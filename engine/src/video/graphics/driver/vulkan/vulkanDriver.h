@@ -15,14 +15,18 @@ namespace rev {
 #ifdef ANDROID
 			VulkanDriver();
 #else
-			VulkanDriver();
+			VulkanDriver(Window* _wnd);
 #endif
 			~VulkanDriver();
 
 		private:
 			// Vulkan initialization
 			void createInstance();
-			void initSurface();
+#ifdef _WIN32
+			bool initSurface(Window* _wnd);
+#else
+			bool initSurface();
+#endif
 			void queryExtensions(VkInstanceCreateInfo&);
 			void getPhysicalDevice();
 			void findQueueFamilies();
