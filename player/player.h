@@ -42,7 +42,7 @@ namespace rev {
 #ifdef OPENGL_45
 			mRenderer.init(&driver3d());
 #endif //
-			SceneLoader mLoader;
+/*			SceneLoader mLoader;
 
 			// Prepare factories and game world
 			mSceneLogic = new LogicLayer;
@@ -68,7 +68,7 @@ namespace rev {
 			});
 
 			// Load scene
-/*			mGameWorld.init();
+			mGameWorld.init();
 			mLoader.loadScene(mSceneName, mGameWorld);
 
 			// Create extra objects

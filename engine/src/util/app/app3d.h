@@ -26,6 +26,7 @@ namespace rev {
 	class App3d {
 	public:
 		App3d(const core::StartUpInfo& _platformInfo);
+		~App3d();
 		bool update();
 
 	protected:

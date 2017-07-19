@@ -42,11 +42,19 @@ namespace rev {
 #ifdef OPENGL_45
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
 #endif // OPENGL_45
+		assert(mDriver);
 
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
 #endif // !ANDROID
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	App3d::~App3d()
+	{
+		delete mDriver;
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	bool App3d::update() {
 #ifdef ANDROID

@@ -35,8 +35,10 @@ namespace rev {
 #else
 		VulkanDriver::VulkanDriver(Window* _wnd) {
 #endif
-			//LOGI("---------------Vulkan Driver Construction-------------------------------");
 			createInstance();
+#if _DEBUG
+			setupDebugCallback();
+#endif
 #ifdef _WIN32
 			if(!initSurface(_wnd))
 				return;
@@ -47,7 +49,6 @@ namespace rev {
 			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
-			//LOGI("---------------Finished Vulkan Driver Construction----------------------");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -60,10 +61,12 @@ namespace rev {
 
 		namespace
 		{
+			//----------------------------------------------------------------------------------------------------------
 			const std::vector<const char*> validationLayers = {
 				"VK_LAYER_LUNARG_standard_validation"
 			};
 
+			//----------------------------------------------------------------------------------------------------------
 			std::vector<const char*> getRequiredExtensions() {
 				std::vector<const char*> extensions;
 #ifdef _DEBUG
@@ -71,6 +74,22 @@ namespace rev {
 #endif
 
 				return extensions;
+			}
+
+			//----------------------------------------------------------------------------------------------------------
+			static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+				VkDebugReportFlagsEXT flags,
+				VkDebugReportObjectTypeEXT objType,
+				uint64_t obj,
+				size_t location,
+				int32_t code,
+				const char* layerPrefix,
+				const char* msg,
+				void* userData) {
+
+				std::cout << "validation layer: " << msg << std::endl;
+
+				return VK_FALSE;
 			}
 		}
 
@@ -136,10 +155,28 @@ namespace rev {
 			return true;
 		}
 
+		//----------------------------------------------------------------------------------------------------------
+		void VulkanDriver::setupDebugCallback() {
+			VkDebugReportCallbackCreateInfoEXT createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+			createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+			createInfo.pfnCallback = debugCallback;
+
+			auto func = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(mApiInstance, 
+																"vkCreateDebugReportCallbackEXT");
+			if ((func == nullptr)
+			  ||(func(mApiInstance, &createInfo, nullptr, &mDebugCallback) != VK_SUCCESS))
+			{
+				cout << "Warning: Unable to set Vulkan debug callback.\n"
+					<< "You won't be receiving notifications from validation layers\n";
+				return;
+			}
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 		bool VulkanDriver::initSurface(Window* _wnd) {
-			VkWin32SurfaceCreateInfoKHR createInfo;
+			VkWin32SurfaceCreateInfoKHR createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 			createInfo.hwnd = _wnd->winapiHandle();
 			createInfo.hinstance = GetModuleHandle(nullptr);

@@ -29,6 +29,7 @@ namespace rev {
 			bool initSurface();
 #endif
 			void queryExtensions(VkInstanceCreateInfo&);
+			void setupDebugCallback();
 			void getPhysicalDevice();
 			void findQueueFamilies();
 			void createLogicalDevice();
@@ -47,6 +48,10 @@ namespace rev {
 
 			// Queues
 			int		mQueueFamilyIndex = -1;
+
+#ifdef _DEBUG
+			VkDebugReportCallbackEXT mDebugCallback;
+#endif 
 
 		};
 } }

@@ -33,7 +33,8 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
-		return mGameWorld.update(_dt);
+		return false;
+		//return mGameWorld.update(_dt);
 	}
 
 }	// namespace rev
