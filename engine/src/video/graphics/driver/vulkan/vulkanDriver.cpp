@@ -58,8 +58,27 @@ namespace rev {
 			vkDestroyInstance(mApiInstance, nullptr);
 		}
 
+		namespace
+		{
+			const std::vector<const char*> validationLayers = {
+				"VK_LAYER_LUNARG_standard_validation"
+			};
+
+			std::vector<const char*> getRequiredExtensions() {
+				std::vector<const char*> extensions;
+#ifdef _DEBUG
+					extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+#endif
+
+				return extensions;
+			}
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createInstance() {
+			if(!checkValidationLayerSupport())
+				return;
+
 			// Basic application info
 			VkApplicationInfo appInfo = {};
 			appInfo.apiVersion = VK_API_VERSION_1_0;
@@ -70,7 +89,15 @@ namespace rev {
 			VkInstanceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			createInfo.pApplicationInfo = &appInfo;
+#ifdef _DEBUG
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+#else
 			createInfo.enabledLayerCount = 0;
+#endif
+			auto extensions = getRequiredExtensions();
+			createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+			createInfo.ppEnabledExtensionNames = extensions.data();
 
 			// Query extensions
 			queryExtensions(createInfo);
@@ -81,6 +108,32 @@ namespace rev {
 				cout << "Error: Unable to create vulkan instance.\n";
 				//LOGE("Error: Unable to create vulkan instance.\n");
 			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool VulkanDriver::checkValidationLayerSupport() {
+			uint32_t layerCount;
+			vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+			std::vector<VkLayerProperties> availableLayers(layerCount);
+			vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+			for (const char* layerName : validationLayers) {
+				bool layerFound = false;
+
+				for (const auto& layerProperties : availableLayers) {
+					if (strcmp(layerName, layerProperties.layerName) == 0) {
+						layerFound = true;
+						break;
+					}
+				}
+
+				if (!layerFound) {
+					assert(false);
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -163,6 +216,7 @@ namespace rev {
 
 			// Get device properties
 			vkGetPhysicalDeviceProperties(mPhysicalDevice, &mDeviceProps);
+			cout << "Vulkan device name: " << mDeviceProps.deviceName << "\n";
 			//LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
 			vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mDeviceFeatures);
 		}
@@ -199,10 +253,15 @@ namespace rev {
 			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 			createInfo.pQueueCreateInfos = &queueCreateInfo;
 			createInfo.queueCreateInfoCount = 1;
-			VkPhysicalDeviceFeatures deviceFeatures = {};
-			createInfo.pEnabledFeatures = &deviceFeatures;
+			createInfo.pEnabledFeatures = &mDeviceFeatures;
+
 			createInfo.enabledExtensionCount = 0;
+#if _DEBUG
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+#else
 			createInfo.enabledLayerCount = 0;
+#endif
 
 			if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
 				 //LOGE("failed to create logical device!");

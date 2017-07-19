@@ -22,6 +22,7 @@ namespace rev {
 		private:
 			// Vulkan initialization
 			void createInstance();
+			bool checkValidationLayerSupport();
 #ifdef _WIN32
 			bool initSurface(Window* _wnd);
 #else
@@ -46,5 +47,6 @@ namespace rev {
 
 			// Queues
 			int		mQueueFamilyIndex = -1;
+
 		};
 } }
