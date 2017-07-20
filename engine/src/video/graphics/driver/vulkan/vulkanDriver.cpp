@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <set>
 
 #ifdef ANDROID
 #include <android/native_window.h>
@@ -32,6 +33,27 @@ namespace // Anonymous namespace for vulkan utilities
 	const std::vector<const char*> validationLayers = {
 		"VK_LAYER_LUNARG_standard_validation"
 	};
+
+	const std::vector<const char*> deviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
+	//----------------------------------------------------------------------------------------------------------
+	bool isDeviceSuitable(VkPhysicalDevice device) {
+		uint32_t extensionCount;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+		for (const auto& extension : availableExtensions) {
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		return requiredExtensions.empty();
+	}
 
 	//----------------------------------------------------------------------------------------------------------
 	std::vector<const char*> getRequiredExtensions() {
@@ -254,10 +276,14 @@ namespace rev {
 			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, nullptr);
 			//LOGI("Vulkan: Found  %d physical devices\n", deviceCount);
 
-			VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
-			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, devices);	
-			mPhysicalDevice = devices[0];
-			delete[] devices;
+			vector<VkPhysicalDevice> devices(deviceCount);
+			vkEnumeratePhysicalDevices(mApiInstance, &deviceCount, devices.data());
+			for(auto dev : devices) {
+				if(isDeviceSuitable(dev)) {
+					mPhysicalDevice = dev;
+					break;
+				}
+			}
 
 			// Get device properties
 			vkGetPhysicalDeviceProperties(mPhysicalDevice, &mDeviceProps);
@@ -300,7 +326,8 @@ namespace rev {
 			createInfo.queueCreateInfoCount = 1;
 			createInfo.pEnabledFeatures = &mDeviceFeatures;
 
-			createInfo.enabledExtensionCount = 0;
+			createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+			createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 #if _DEBUG
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();

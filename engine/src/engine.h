@@ -30,11 +30,14 @@ namespace rev {
 
 		bool update();
 
-		video::Window* mainWindow() const;
-		net::http::Server*		jsonAPI()	const { return mAPIService; }
+		video::Window*			nativeWindow		() const { return mNativeWindow; }
+#ifndef ANDROID
+		video::Window*			createNativeWindow	();
+#endif
+		net::http::Server*		jsonAPI				() const { return mAPIService; }
 
 	private:
-		video::Window*			mMainWindow = nullptr;
+		video::Window*			mNativeWindow = nullptr;
 		net::http::Server*		mAPIService = nullptr;
 
 	private:

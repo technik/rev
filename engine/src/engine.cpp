@@ -36,10 +36,6 @@ namespace rev {
 #ifndef ANDROID
 		core::FileSystem::init();
 		input::KeyboardInput::init();
-		// Create window
-		mMainWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
-#endif // !ANDROID
-#ifndef ANDROID
 		// Init Json API service
 		mAPIService = new net::http::Server;
 		mAPIService->init(5000);
@@ -50,6 +46,8 @@ namespace rev {
 	Engine::~Engine() {
 #ifndef ANDROID
 		input::KeyboardInput::end();
+		if(mNativeWindow)
+			delete mNativeWindow;
 #endif //!ANDROID
 	}
 
@@ -68,11 +66,12 @@ namespace rev {
 		return true;
 	}
 
+#ifndef ANDROID
 	//----------------------------------------------------------------------------------------------------------------------
-	video::Window* Engine::mainWindow() const {
-		assert(mMainWindow);
-		return mMainWindow;
+	video::Window* Engine::createNativeWindow() {
+		mNativeWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
+		return mNativeWindow;
 	}
-
+#endif
 
 }	// namespace rev
