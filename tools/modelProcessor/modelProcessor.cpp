@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>     // Post processing flags
 
 #include <video/graphics/staticRenderMesh.h>
+#include <math/algebra/vector.h>
 
 #include <cassert>
 #include <fstream>
@@ -16,6 +17,7 @@
 using namespace std;
 using namespace rev::core;
 using namespace rev::video;
+using namespace rev::math;
 
 typedef rev::video::StaticRenderMesh::VertexFormat	VertexFormat;
 
