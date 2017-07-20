@@ -9,25 +9,26 @@ namespace rev {
 	namespace video {
 
 		class Window;
+		class NativeFrameBufferVulkan;
 
 		class VulkanDriver {
 		public:
 #ifdef ANDROID
 			VulkanDriver();
 #else
-			VulkanDriver(Window* _wnd);
+			// If _wnd is not null, the driver will try to create a native frame buffer for that window
+			VulkanDriver(Window* _wnd = nullptr);
 #endif
 			~VulkanDriver();
+
+			NativeFrameBufferVulkan* createNativeFrameBuffer(Window* _wnd = nullptr);
+			// Vulkan driver supports window-less contexts, so a nativeFrameBuffer may not exist
+			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
 		private:
 			// Vulkan initialization
 			void createInstance();
 			bool checkValidationLayerSupport();
-#ifdef _WIN32
-			bool initSurface(Window* _wnd);
-#else
-			bool initSurface();
-#endif
 			void queryExtensions(VkInstanceCreateInfo&);
 			void setupDebugCallback();
 			void getPhysicalDevice();
@@ -43,8 +44,8 @@ namespace rev {
 			VkDevice					mDevice;
 			VkQueue						mGraphicsQueue;
 
-			// Main window surface
-			VkSurfaceKHR				mSurface;
+			// Main window
+			NativeFrameBufferVulkan*	mNativeFB = nullptr;
 
 			// Queues
 			int		mQueueFamilyIndex = -1;

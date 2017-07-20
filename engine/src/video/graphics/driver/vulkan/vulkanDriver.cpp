@@ -9,7 +9,8 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_platform.h>
 
-#include <video/window/window.h>
+#include "NativeFrameBufferVulkan.h"
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -102,23 +103,26 @@ namespace rev {
 #if _DEBUG
 			setupDebugCallback();
 #endif
-#ifdef _WIN32
-			if(!initSurface(_wnd))
-				return;
-#else
-			if(!initSurface())
-				return;
-#endif
+			if(_wnd) {
+				createNativeFrameBuffer(_wnd);
+			}
 			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(Window* _wnd) {
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance);
+			return mNativeFB;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::~VulkanDriver() {
 			vkDestroyDevice(mDevice, nullptr);
 			delete[] mExtensions;
-			vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
+			if(mNativeFB)
+				delete mNativeFB;
 			DestroyDebugReportCallbackEXT(mApiInstance, mDebugCallback, nullptr);
 			vkDestroyInstance(mApiInstance, nullptr);
 		}
@@ -202,51 +206,6 @@ namespace rev {
 				return;
 			}
 		}
-
-		//--------------------------------------------------------------------------------------------------------------
-#ifdef _WIN32
-		bool VulkanDriver::initSurface(Window* _wnd) {
-			VkWin32SurfaceCreateInfoKHR createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-			createInfo.hwnd = _wnd->winapiHandle();
-			createInfo.hinstance = GetModuleHandle(nullptr);
-
-			// Get the extension
-			auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) vkGetInstanceProcAddr(mApiInstance, "vkCreateWin32SurfaceKHR");
-
-			// Create the surface
-			if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface) != VK_SUCCESS) {
-				cout << "failed to create window surface!\n";
-				return false;
-			}
-
-			return true;
-		}
-#endif // _WIN32
-#ifdef ANDROID
-		bool VulkanDriver::initSurface() {
-			LOGI("Init surface");
-			// Get display information
-			//uint32_t displayPropCount = 0;
-			//vkGetPhysicalDeviceDisplayPropertiesKHR(mPhysicalDevice, &displayPropCount, nullptr);
-
-			// Get extension
-			auto fpCreateAndroidSurfaceKHR = (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(mApiInstance, "vkCreateAndroidSurfaceKHR");
-			if (fpCreateAndroidSurfaceKHR == nullptr) {
-				//LOGE("Unable to get create surface extension");
-				return false;
-			}
-
-			// Set display mode
-			/*VkDisplayModeKHR
-
-			VkDisplaySurfaceCreateInfoKHR	createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-			createInfo.*/
-			LOGI("Finish Init surface");
-			return true;
-		}
-#endif // ANDROID
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {

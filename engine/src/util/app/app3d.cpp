@@ -36,17 +36,17 @@ namespace rev {
 		//driver->setWindow(_info.activity->);
 		mDriver = driver;
 #else
-#ifdef REV_USE_VULKAN
-		mDriver = new GraphicsDriver(mEngine.mainWindow());
-#endif // REV_USE_VULKAN
-#ifdef OPENGL_45
+		mWindow = mEngine.createNativeWindow();
+	#ifdef REV_USE_VULKAN
+		mDriver = new GraphicsDriver(mWindow);
+	#endif // REV_USE_VULKAN
+	#ifdef OPENGL_45
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
-#endif // OPENGL_45
-		assert(mDriver);
+	#endif // OPENGL_45
 
 		mKeyboard = input::KeyboardInput::get();
-		mWindow = mEngine.mainWindow();
 #endif // !ANDROID
+		assert(mDriver);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
