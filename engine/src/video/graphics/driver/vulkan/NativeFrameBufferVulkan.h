@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include "vulkanDriver.h"
 
 namespace rev {
 	namespace video {
@@ -16,9 +17,11 @@ namespace rev {
 #ifdef ANDROID
 			NativeFrameBufferVulkan();
 #else
-			NativeFrameBufferVulkan(Window*, VkInstance _apiInstance);
+			NativeFrameBufferVulkan(Window*, VkInstance _apiInstance, VulkanDriver*);
 #endif
 			~NativeFrameBufferVulkan();
+
+			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 
 		private:
 #ifdef ANDROID
@@ -26,8 +29,12 @@ namespace rev {
 #else
 			bool initSurface(Window* _wnd, VkInstance _apiInstance);
 #endif
-			VkSurfaceKHR mSurface;
-			VkInstance mApiInstance;
+			VkInstance		mApiInstance;
+			VkDevice		mDevice;
+
+			VkSurfaceKHR	mSurface;
+			VkSwapchainKHR	mSwapChain;
+			VkColorSpaceKHR	mColorSpace;
 		};
 	}
 }

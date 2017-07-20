@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 #include <vulkan/vulkan.h>
+#include <vector>
 
 namespace rev {
 	namespace video {
@@ -21,9 +22,20 @@ namespace rev {
 #endif
 			~VulkanDriver();
 
+			VkDevice device() const { return mDevice; }
+
 			NativeFrameBufferVulkan* createNativeFrameBuffer(Window* _wnd = nullptr);
 			// Vulkan driver supports window-less contexts, so a nativeFrameBuffer may not exist
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
+
+			// Driver capabilities
+			struct SwapChainSupportDetails {
+				VkSurfaceCapabilitiesKHR capabilities;
+				std::vector<VkSurfaceFormatKHR> formats;
+				std::vector<VkPresentModeKHR> presentModes;
+			};
+
+			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface);
 
 		private:
 			// Vulkan initialization

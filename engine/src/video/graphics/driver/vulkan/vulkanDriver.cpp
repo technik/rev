@@ -113,8 +113,33 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(Window* _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance);
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, this);
 			return mNativeFB;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR surface) {
+			SwapChainSupportDetails details;
+			// Capabilities
+			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, surface, &details.capabilities);
+			// Formats
+			uint32_t formatCount;
+			vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, surface, &formatCount, nullptr);
+
+			if (formatCount != 0) {
+				details.formats.resize(formatCount);
+				vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, surface, &formatCount, details.formats.data());
+			}
+			// Present modes
+			uint32_t presentModeCount;
+			vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, surface, &presentModeCount, nullptr);
+
+			if (presentModeCount != 0) {
+				details.presentModes.resize(presentModeCount);
+				vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, surface, &presentModeCount, details.presentModes.data());
+			}
+
+			return details;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
