@@ -88,6 +88,12 @@ namespace rev { namespace video {
 			cout << "failed to create swap chain!";
 			return;
 		}
+
+		// Retrieve buffer image handles
+		uint32_t imageCount;
+		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, nullptr);
+		mSwapChainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, mSwapChainImages.data());
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

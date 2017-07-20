@@ -35,6 +35,8 @@ namespace rev {
 			VkSurfaceKHR	mSurface;
 			VkSwapchainKHR	mSwapChain;
 			VkColorSpaceKHR	mColorSpace;
+
+			std::vector<VkImage> mSwapChainImages;
 		};
 	}
 }
