@@ -44,19 +44,19 @@ namespace rev { namespace video {
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
-	NativeFrameBufferVulkan::NativeFrameBufferVulkan(Window* _wnd, VkInstance _apiInstance, VulkanDriver* _driver)
+	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance, const VulkanDriver& _driver)
 		: mApiInstance(_apiInstance)
-		, mDevice(_driver->device())
+		, mDevice(_driver.device())
 	{
 #ifdef _WIN32
-		if(!initSurface(_wnd, _apiInstance))
+		if(!initSurface(_wnd, _driver))
 			return;
 #else
 		if(!initSurface())
 			return;
 #endif
 		// Swap chain options
-		auto support = _driver->querySwapChainSupport(mSurface);
+		auto support = _driver.querySwapChainSupport(mSurface);
 		auto surfaceFormat = chooseSwapSurfaceFormat(support.formats);
 		auto presentMode = chooseSwapPresentMode(support.presentModes);
 		auto bufferExtent = support.capabilities.currentExtent;
@@ -94,32 +94,62 @@ namespace rev { namespace video {
 		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, nullptr);
 		mSwapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, mSwapChainImages.data());
+
+		// Create image views for the images
+		mSwapChainImageViews.reserve(imageCount);
+		for(auto image : mSwapChainImages) {
+			VkImageViewCreateInfo createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = image;
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = surfaceFormat.format;
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			VkImageView view;
+			if (vkCreateImageView(mDevice, &createInfo, nullptr, &view) != VK_SUCCESS) {
+				cout << "failed to create image views within the native frame buffer\n";
+			}
+			mSwapChainImageViews.push_back(view);
+		}
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	NativeFrameBufferVulkan::~NativeFrameBufferVulkan() {
+		for(auto view : mSwapChainImageViews)
+			vkDestroyImageView(mDevice, view, nullptr);
 		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
 		vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
-	bool NativeFrameBufferVulkan::initSurface(Window* _wnd, VkInstance _apiInstance) {
+	bool NativeFrameBufferVulkan::initSurface(const Window& _wnd, const VulkanDriver& _driver) {
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		createInfo.hwnd = _wnd->winapiHandle();
+		createInfo.hwnd = _wnd.winapiHandle();
 		createInfo.hinstance = GetModuleHandle(nullptr);
 
 		// Get the extension
-		auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) vkGetInstanceProcAddr(_apiInstance, "vkCreateWin32SurfaceKHR");
+		auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) vkGetInstanceProcAddr(mApiInstance, "vkCreateWin32SurfaceKHR");
 
 		// Create the surface
-		if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(_apiInstance, &createInfo, nullptr, &mSurface) != VK_SUCCESS) {
+		if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface) != VK_SUCCESS) {
 			cout << "failed to create window surface!\n";
 			return false;
 		}
 
-		return true;
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(_driver.physicalDevice(), _driver.graphicsFamily(), mSurface, &presentSupport);
+
+		return presentSupport;
 	}
 #endif // _WIN32
 #ifdef ANDROID

@@ -18,13 +18,16 @@ namespace rev {
 			VulkanDriver();
 #else
 			// If _wnd is not null, the driver will try to create a native frame buffer for that window
-			VulkanDriver(Window* _wnd = nullptr);
+			VulkanDriver(const Window* _wnd = nullptr);
 #endif
 			~VulkanDriver();
 
 			VkDevice device() const { return mDevice; }
+			VkPhysicalDevice physicalDevice() const { return mPhysicalDevice; }
+			VkQueue graphicsQueue() const { return mGraphicsQueue; }
+			int graphicsFamily() const { return mQueueFamilyIndex; }
 
-			NativeFrameBufferVulkan* createNativeFrameBuffer(Window* _wnd = nullptr);
+			NativeFrameBufferVulkan* createNativeFrameBuffer(const Window& _wnd);
 			// Vulkan driver supports window-less contexts, so a nativeFrameBuffer may not exist
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
@@ -35,7 +38,7 @@ namespace rev {
 				std::vector<VkPresentModeKHR> presentModes;
 			};
 
-			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface);
+			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
 
 		private:
 			// Vulkan initialization

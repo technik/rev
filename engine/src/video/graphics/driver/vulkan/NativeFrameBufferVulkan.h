@@ -17,7 +17,7 @@ namespace rev {
 #ifdef ANDROID
 			NativeFrameBufferVulkan();
 #else
-			NativeFrameBufferVulkan(Window*, VkInstance _apiInstance, VulkanDriver*);
+			NativeFrameBufferVulkan(const Window&, VkInstance _apiInstance, const VulkanDriver&);
 #endif
 			~NativeFrameBufferVulkan();
 
@@ -27,7 +27,7 @@ namespace rev {
 #ifdef ANDROID
 			bool initSurface(VkInstance _apiInstance);
 #else
-			bool initSurface(Window* _wnd, VkInstance _apiInstance);
+			bool initSurface(const Window& _wnd, const VulkanDriver& _driver);
 #endif
 			VkInstance		mApiInstance;
 			VkDevice		mDevice;
@@ -36,7 +36,8 @@ namespace rev {
 			VkSwapchainKHR	mSwapChain;
 			VkColorSpaceKHR	mColorSpace;
 
-			std::vector<VkImage> mSwapChainImages;
+			std::vector<VkImage>		mSwapChainImages;
+			std::vector<VkImageView>	mSwapChainImageViews;
 		};
 	}
 }

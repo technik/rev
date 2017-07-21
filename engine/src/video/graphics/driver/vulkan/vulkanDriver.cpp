@@ -97,28 +97,38 @@ namespace rev {
 #ifdef ANDROID
 		VulkanDriver::VulkanDriver() {
 #else
-		VulkanDriver::VulkanDriver(Window* _wnd) {
+		VulkanDriver::VulkanDriver(const Window* _wnd) {
 #endif
 			createInstance();
 #if _DEBUG
 			setupDebugCallback();
 #endif
-			if(_wnd) {
-				createNativeFrameBuffer(_wnd);
-			}
 			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
+			if(_wnd) {
+				createNativeFrameBuffer(*_wnd);
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(Window* _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, this);
+		VulkanDriver::~VulkanDriver() {
+			if(mNativeFB)
+				delete mNativeFB;
+			vkDestroyDevice(mDevice, nullptr);
+			delete[] mExtensions;
+			DestroyDebugReportCallbackEXT(mApiInstance, mDebugCallback, nullptr);
+			vkDestroyInstance(mApiInstance, nullptr);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd) {
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, *this);
 			return mNativeFB;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR surface) {
+		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR surface) const {
 			SwapChainSupportDetails details;
 			// Capabilities
 			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, surface, &details.capabilities);
@@ -140,16 +150,6 @@ namespace rev {
 			}
 
 			return details;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		VulkanDriver::~VulkanDriver() {
-			vkDestroyDevice(mDevice, nullptr);
-			delete[] mExtensions;
-			if(mNativeFB)
-				delete mNativeFB;
-			DestroyDebugReportCallbackEXT(mApiInstance, mDebugCallback, nullptr);
-			vkDestroyInstance(mApiInstance, nullptr);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
