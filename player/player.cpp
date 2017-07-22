@@ -240,7 +240,6 @@ namespace rev {
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 	}
 
