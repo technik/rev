@@ -22,8 +22,6 @@ namespace rev {
 		video::ForwardRenderer mRenderer;
 
 	private:
-		VkPipelineLayout pipelineLayout;
-		VkPipeline graphicsPipeline;
 		std::vector<VkFramebuffer>	swapChainFramebuffers;
 
 		VkCommandPool commandPool;

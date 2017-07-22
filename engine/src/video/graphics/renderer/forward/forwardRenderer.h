@@ -33,14 +33,18 @@ namespace rev {
 			void endFrame();
 
 #ifdef REV_USE_VULKAN
+			VkPipeline	pipeline() const { return mPipeline; }
 			VkRenderPass renderPass() const { return mRenderPass; }
 
 		private:
 			bool createRenderPass(const NativeFrameBuffer&);
+			bool createPipeline(const VkExtent2D& _viewportSize);
 
 		private:
 			VkDevice		mDevice = VK_NULL_HANDLE;
 			VkRenderPass	mRenderPass = VK_NULL_HANDLE;
+			VkPipeline		mPipeline = VK_NULL_HANDLE;
+			VkPipelineLayout mPipelineLayout;
 
 #endif // REV_USE_VULKAN
 

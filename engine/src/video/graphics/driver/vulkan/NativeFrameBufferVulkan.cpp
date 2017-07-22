@@ -61,6 +61,7 @@ namespace rev { namespace video {
 		mImageFormat = surfaceFormat.format;
 		auto presentMode = chooseSwapPresentMode(support.presentModes);
 		auto bufferExtent = support.capabilities.currentExtent;
+		mSize = { bufferExtent.width, bufferExtent.height };
 
 		// Swap chain creation info
 		VkSwapchainCreateInfoKHR createInfo = {};

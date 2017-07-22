@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.h>
 #include "vulkanDriver.h"
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {
@@ -21,6 +22,7 @@ namespace rev {
 #endif
 			~NativeFrameBufferVulkan();
 
+			const math::Vec2u& size() const { return mSize; }
 			const auto& imageViews() const { return mSwapChainImageViews; }
 			VkSwapchainKHR swapChain() const { return mSwapChain; }
 			//VkFormat imageFormat() const { return mImageFormat; }
@@ -43,6 +45,8 @@ namespace rev {
 			VkSurfaceKHR	mSurface;
 			VkSwapchainKHR	mSwapChain;
 			VkColorSpaceKHR	mColorSpace;
+
+			math::Vec2u	mSize;
 
 			// Descriptor to use this FB as attachment inside a render pass
 			VkAttachmentDescription mAttachDesc = {}; // Initially clear
