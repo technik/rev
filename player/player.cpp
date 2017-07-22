@@ -55,7 +55,7 @@ namespace rev {
 #ifdef REV_USE_VULKAN
 		// Create a render pass
 		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = mEngine.nativeWindow().frameBuffer() swapChainImageFormat;
+		colorAttachment.format = window().frameBuffer().imageFormat();
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
 		// ----- Create a graphics pipeline -----

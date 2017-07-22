@@ -58,6 +58,7 @@ namespace rev { namespace video {
 		// Swap chain options
 		auto support = _driver.querySwapChainSupport(mSurface);
 		auto surfaceFormat = chooseSwapSurfaceFormat(support.formats);
+		mImageFormat = surfaceFormat.format;
 		auto presentMode = chooseSwapPresentMode(support.presentModes);
 		auto bufferExtent = support.capabilities.currentExtent;
 

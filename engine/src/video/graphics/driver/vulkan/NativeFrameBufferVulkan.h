@@ -21,6 +21,7 @@ namespace rev {
 #endif
 			~NativeFrameBufferVulkan();
 
+			VkFormat imageFormat() const { return mImageFormat; }
 			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 
 		private:
@@ -29,6 +30,7 @@ namespace rev {
 #else
 			bool initSurface(const Window& _wnd, const VulkanDriver& _driver);
 #endif
+			VkFormat		mImageFormat;
 			VkInstance		mApiInstance;
 			VkDevice		mDevice;
 
