@@ -25,7 +25,7 @@ namespace rev {
 		class ForwardRenderer {
 		public:
 			// Set up the renderer to render into the given frame buffer
-			void init(const NativeFrameBuffer&);
+			bool init(const NativeFrameBuffer&);
 
 			void beginFrame();
 			void renderScene();
@@ -33,7 +33,11 @@ namespace rev {
 
 #ifdef REV_USE_VULKAN
 		private:
-			VkDevice	mDevice = VK_NULL_HANDLE;
+			bool createRenderPass(const NativeFrameBuffer&);
+
+		private:
+			VkDevice		mDevice = VK_NULL_HANDLE;
+			VkRenderPass	renderPass = VK_NULL_HANDLE;
 
 #endif // REV_USE_VULKAN
 

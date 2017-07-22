@@ -20,7 +20,11 @@ using namespace rev::math;
 #endif // OPENGL_45
 
 #ifdef REV_USE_VULKAN
+#include <iostream>
 #include <video/graphics/driver/graphicsDriver.h>
+
+using namespace std;
+
 #endif // REV_USE_VULKAN
 
 namespace rev {
@@ -28,9 +32,51 @@ namespace rev {
 
 #ifdef REV_USE_VULKAN
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::init(const NativeFrameBuffer& _dstFrameBuffer) {
+		bool ForwardRenderer::init(const NativeFrameBuffer& _dstFrameBuffer) {
 			mDevice = GraphicsDriver::get().device(); // Vulkan device
 			assert(mDevice);
+
+			return createRenderPass(_dstFrameBuffer);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool ForwardRenderer::createRenderPass(const NativeFrameBuffer& _dstFB) {
+			const VkAttachmentDescription& colorAttachment = _dstFB.attachmentDescription();
+
+			// Subpasses
+			VkAttachmentReference colorAttachmentRef = {};
+			colorAttachmentRef.attachment = 0;
+			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			VkSubpassDescription subpass = {};
+			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			subpass.colorAttachmentCount = 1;
+			subpass.pColorAttachments = &colorAttachmentRef;
+
+			// Pass
+			VkSubpassDependency dependency = {};
+			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+			dependency.dstSubpass = 0;
+			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.srcAccessMask = 0;
+			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+			VkRenderPassCreateInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+			renderPassInfo.attachmentCount = 1;
+			renderPassInfo.pAttachments = &colorAttachment;
+			renderPassInfo.subpassCount = 1;
+			renderPassInfo.pSubpasses = &subpass;
+			renderPassInfo.dependencyCount = 1;
+			renderPassInfo.pDependencies = &dependency;
+
+			if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+				cout << "Forward renderer: failed to create render pass!\n";
+				return false;
+			}
+
+			return true;
 		}
 
 #endif // REV_USE_VULKAN
