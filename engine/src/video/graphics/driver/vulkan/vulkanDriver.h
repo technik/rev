@@ -5,6 +5,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
+#include "../GraphicsDriverBase.h"
 
 namespace rev {
 	namespace video {
@@ -12,7 +13,7 @@ namespace rev {
 		class Window;
 		class NativeFrameBufferVulkan;
 
-		class VulkanDriver {
+		class VulkanDriver : public GraphicsDriverBase<VulkanDriver> {
 		public:
 #ifdef ANDROID
 			VulkanDriver();
@@ -68,6 +69,5 @@ namespace rev {
 #ifdef _DEBUG
 			VkDebugReportCallbackEXT mDebugCallback;
 #endif 
-
 		};
 } }

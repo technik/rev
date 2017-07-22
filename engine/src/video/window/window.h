@@ -20,15 +20,20 @@
 
 #include <core/event.h>
 #include <math/algebra/vector.h>
+#include <video/graphics/driver/graphicsDriver.h>
 
 namespace rev {
 	namespace video {
+
+		class NativeFrameBuffer;
 
 		class Window : public WindowBase {
 		public:
 			Window(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName)
 				:WindowBase(_pos, _size, _windowName)
 			{}
+
+			NativeFrameBuffer& frameBuffer() const { return GraphicsDriver::get()->}
 
 			typedef rev::core::Event<>	ResizeEvent;
 			ResizeEvent& onResize() { return mOnResize; }

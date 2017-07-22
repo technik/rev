@@ -8,6 +8,9 @@ namespace rev { namespace video {
 
 	template<class Derived_>
 	class GraphicsDriverBase {
+	public:
+		static Derived_& get() { return *sInstance; }
+
 	protected:
 		GraphicsDriverBase() {
 			assert(!sInstance); // Do not create the driver more than once
@@ -17,8 +20,6 @@ namespace rev { namespace video {
 		~GraphicsDriverBase() {
 			sInstance = nullptr; // Clean instance, so we can safely re-create
 		}
-
-		static Derived_& get() { return *sInstance; }
 
 	private:
 		static Derived_* sInstance;
