@@ -31,6 +31,11 @@ namespace rev {
 	namespace video {
 
 #ifdef REV_USE_VULKAN
+		ForwardRenderer::~ForwardRenderer() {
+			if(mDevice && mRenderPass)
+				vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::init(const NativeFrameBuffer& _dstFrameBuffer) {
 			mDevice = GraphicsDriver::get().device(); // Vulkan device
@@ -71,7 +76,7 @@ namespace rev {
 			renderPassInfo.dependencyCount = 1;
 			renderPassInfo.pDependencies = &dependency;
 
-			if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+			if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) != VK_SUCCESS) {
 				cout << "Forward renderer: failed to create render pass!\n";
 				return false;
 			}

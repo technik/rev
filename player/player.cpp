@@ -186,7 +186,7 @@ namespace rev {
 
 		pipelineInfo.layout = pipelineLayout;
 
-		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.renderPass = mRenderer.renderPass();
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
@@ -206,7 +206,7 @@ namespace rev {
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.renderPass = mRenderer.renderPass();
 			framebufferInfo.attachmentCount = 1;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = window().size().x;
@@ -245,7 +245,7 @@ namespace rev {
 			// Begin render pass
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.renderPass = mRenderer.renderPass();
 			renderPassInfo.framebuffer = swapChainFramebuffers[i];
 
 			renderPassInfo.renderArea.offset = {0, 0};
@@ -293,8 +293,6 @@ namespace rev {
 
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-
-		vkDestroyRenderPass(device, renderPass, nullptr);
 	}
 
 	//----------------------------------------------------------------
