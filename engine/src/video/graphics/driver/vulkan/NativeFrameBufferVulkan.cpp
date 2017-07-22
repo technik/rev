@@ -120,6 +120,8 @@ namespace rev { namespace video {
 			}
 			mSwapChainImageViews.push_back(view);
 		}
+		// Set up attachment desc so this FB can be used in a render pass
+		setupAttachmentDesc(); // Depends on FB configuration being ready
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -177,4 +179,19 @@ namespace rev { namespace video {
 		return true;
 	}
 #endif // ANDROID
+
+	//--------------------------------------------------------------------------------------------------------------
+	void NativeFrameBufferVulkan::setupAttachmentDesc() {
+		mAttachDesc.format = mImageFormat;
+		mAttachDesc.samples = VK_SAMPLE_COUNT_1_BIT; // No multisampling
+		// Color and depth persistency
+		mAttachDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Clear buffer on load
+		mAttachDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // Keep contents after the pass
+		// Stencil persistency
+		mAttachDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		mAttachDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		// tiling layout
+		mAttachDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Don't care, we're clearing it
+		mAttachDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Prepare to present, this goes directly to a swapchain
+	}
 }}

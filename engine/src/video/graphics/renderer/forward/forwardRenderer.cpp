@@ -4,9 +4,9 @@
 // 2014/April/15
 //----------------------------------------------------------------------------------------------------------------------
 // Simple forward renderer
-#ifdef OPENGL_45
-
 #include "forwardRenderer.h"
+
+#ifdef OPENGL_45
 #include <core/components/affineTransform.h>
 #include "../backend/rendererBackEnd.h"
 #include <video/basicTypes/camera.h>
@@ -14,15 +14,28 @@
 #include <video/graphics/renderObj.h>
 #include <video/graphics/staticRenderMesh.h>
 #include <video/graphics/material.h>
-//#include "../renderMesh.h"
-//#include "../../renderObj.h"
-//#include <video/graphics/renderer/types/renderTarget.h>
 
 using namespace rev::math;
+
+#endif // OPENGL_45
+
+#ifdef REV_USE_VULKAN
+#include <video/graphics/driver/graphicsDriver.h>
+#endif // REV_USE_VULKAN
 
 namespace rev {
 	namespace video {
 
+#ifdef REV_USE_VULKAN
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::init(const NativeFrameBuffer& _dstFrameBuffer) {
+			mDevice = GraphicsDriver::get().device(); // Vulkan device
+			assert(mDevice);
+		}
+
+#endif // REV_USE_VULKAN
+
+#ifdef OPENGL_45
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::init(GraphicsDriver* _driver) {
 			mDriver = _driver;
@@ -37,7 +50,6 @@ namespace rev {
 			// TODO: ShadowPass?
 			// TODO: Sort into render queues based on material
 			// Set global uniforms
-#ifdef OPENGL_45
 			mDriver->beginFrame();
 			//mDriver->setRenderTarget(_rt);
 			mDriver->setViewport(Vec2i(0, 0), Vec2u(800, 600));
@@ -82,7 +94,6 @@ namespace rev {
 			// Draw skybox cubemap
 			drawSkyboxCubemap(_cam);
 			mBackEnd->flush();
-#endif // OPENGL_45
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -265,6 +276,6 @@ namespace rev {
 			adjFar = adjNear;
 		return Frustum(camF.aspectRatio(), camF.fov(), adjNear, adjFar);
 	}*/
+#endif // OPENGL_45
 	}
 }
-#endif // OPENGL_45

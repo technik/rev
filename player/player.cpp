@@ -10,7 +10,6 @@
 using namespace cjson;
 
 using namespace rev::core;
-using namespace rev::game;
 #ifndef ANDROID
 using namespace rev::input;
 #endif
@@ -56,15 +55,7 @@ namespace rev {
 		VkDevice device = driver3d().device();
 
 		// ----- Create a render pass -----
-		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = window().frameBuffer().imageFormat();
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		VkAttachmentDescription colorAttachment = window().frameBuffer().attachmentDescription();
 
 		// Subpasses
 		VkAttachmentReference colorAttachmentRef = {};
@@ -346,7 +337,7 @@ namespace rev {
 		mSceneName = "vrScene.scn";
 #else
 		if (_info.argC > 1) {
-			mSceneName = _info.argV[1];
+//			mSceneName = _info.argV[1];
 		}
 #endif
 	}

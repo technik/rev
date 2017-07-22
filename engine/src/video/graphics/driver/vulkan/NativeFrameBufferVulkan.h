@@ -23,8 +23,11 @@ namespace rev {
 
 			const auto& imageViews() const { return mSwapChainImageViews; }
 			VkSwapchainKHR swapChain() const { return mSwapChain; }
-			VkFormat imageFormat() const { return mImageFormat; }
+			//VkFormat imageFormat() const { return mImageFormat; }
 			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
+
+			// Returns a description to use this framebuffer as an attachment inside a render pass
+			const VkAttachmentDescription&	attachmentDescription() const { return mAttachDesc; }
 
 		private:
 #ifdef ANDROID
@@ -32,6 +35,7 @@ namespace rev {
 #else
 			bool initSurface(const Window& _wnd, const VulkanDriver& _driver);
 #endif
+			void setupAttachmentDesc();
 			VkFormat		mImageFormat;
 			VkInstance		mApiInstance;
 			VkDevice		mDevice;
@@ -39,6 +43,9 @@ namespace rev {
 			VkSurfaceKHR	mSurface;
 			VkSwapchainKHR	mSwapChain;
 			VkColorSpaceKHR	mColorSpace;
+
+			// Descriptor to use this FB as attachment inside a render pass
+			VkAttachmentDescription mAttachDesc = {}; // Initially clear
 
 			std::vector<VkImage>		mSwapChainImages;
 			std::vector<VkImageView>	mSwapChainImageViews;
