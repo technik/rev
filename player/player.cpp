@@ -391,6 +391,8 @@ namespace rev {
 		presentInfo.pResults = nullptr; // Optional
 		vkQueuePresentKHR(driver3d().graphicsQueue(), &presentInfo);
 
+		vkQueueWaitIdle(driver3d().graphicsQueue());
+
 		return true;
 		//return mGameWorld.update(_dt);
 	}
