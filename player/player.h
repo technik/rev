@@ -62,6 +62,9 @@ namespace rev {
 		VkCommandPool commandPool;
 		std::vector<VkCommandBuffer> commandBuffers;
 
+		VkSemaphore imageAvailableSemaphore;
+		VkSemaphore renderFinishedSemaphore;
+
 		//----------------------------------------------------------------
 		void processArgs(const StartUpInfo& _info);
 

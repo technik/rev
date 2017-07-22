@@ -77,12 +77,22 @@ namespace rev {
 		subpass.pColorAttachments = &colorAttachmentRef;
 
 		// Pass
+		VkSubpassDependency dependency = {};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			cout << "failed to create render pass!\n";
@@ -300,6 +310,12 @@ namespace rev {
 			vkEndCommandBuffer(commandBuffers[i]);
 		}
 
+		// Create rendering semaphores
+		VkSemaphoreCreateInfo semaphoreInfo = {};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+		vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
+
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 #endif
@@ -308,6 +324,9 @@ namespace rev {
 	//----------------------------------------------------------------
 	Player::~Player() {
 		VkDevice device = driver3d().device();
+
+		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
 
 		// vkDestroyCommandPool(device, commandPool, nullptr);
 
@@ -334,7 +353,45 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
-		return false;
+		uint32_t imageIndex;
+		// Get target image from the swapchain
+		vkAcquireNextImageKHR(driver3d().device(), window().frameBuffer().swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		// Submit command buffers
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+
+		VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		vkQueueSubmit(driver3d().graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+		// Present
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { window().frameBuffer().swapChain() };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &imageIndex;
+
+		presentInfo.pResults = nullptr; // Optional
+		vkQueuePresentKHR(driver3d().graphicsQueue(), &presentInfo);
+
+		return true;
 		//return mGameWorld.update(_dt);
 	}
 
