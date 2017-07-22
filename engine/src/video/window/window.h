@@ -18,14 +18,14 @@
 	#endif // !ANDROID
 #endif //__linux__
 
+#include <cassert>
 #include <core/event.h>
 #include <math/algebra/vector.h>
 #include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/driver/NativeFrameBuffer.h>
 
 namespace rev {
 	namespace video {
-
-		class NativeFrameBuffer;
 
 		class Window : public WindowBase {
 		public:
@@ -33,7 +33,11 @@ namespace rev {
 				:WindowBase(_pos, _size, _windowName)
 			{}
 
-			NativeFrameBuffer& frameBuffer() const { return GraphicsDriver::get()->}
+			NativeFrameBuffer& frameBuffer() const { 
+				// If the window exists, and the driver exists, then it must have been created with a native frame buffer
+				assert(GraphicsDriver::get().nativeFrameBuffer());
+				return *GraphicsDriver::get().nativeFrameBuffer(); 
+			}
 
 			typedef rev::core::Event<>	ResizeEvent;
 			ResizeEvent& onResize() { return mOnResize; }
