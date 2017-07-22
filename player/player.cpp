@@ -53,16 +53,45 @@ namespace rev {
 		mRenderer.init(&driver3d());
 #endif
 #ifdef REV_USE_VULKAN
-		// Create a render pass
+		VkDevice device = driver3d().device();
+
+		// ----- Create a render pass -----
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = window().frameBuffer().imageFormat();
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		// Subpasses
+		VkAttachmentReference colorAttachmentRef = {};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		// Pass
+		VkRenderPassCreateInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+			cout << "failed to create render pass!\n";
+			return;
+		}
 
 		// ----- Create a graphics pipeline -----
-		auto vertexShader = core::File("data\vert.spv");
-		auto pixelShader = core::File("data\frag.spv");
-
-		VkDevice device = driver3d().device();
+		auto vertexShader = core::File("data/vert.spv");
+		auto pixelShader = core::File("data/frag.spv");
 
 		VkShaderModule vertShaderModule = createShaderModule(device, vertexShader);
 		VkShaderModule fragShaderModule = createShaderModule(device, pixelShader);
@@ -173,6 +202,33 @@ namespace rev {
 			return;
 		}
 
+		// Actual pipeline
+		VkGraphicsPipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pDepthStencilState = nullptr; // Optional
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDynamicState = nullptr; // Optional
+
+		pipelineInfo.layout = pipelineLayout;
+
+		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.subpass = 0;
+
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+		pipelineInfo.basePipelineIndex = -1; // Optional
+
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+			cout << "failed to create graphics pipeline!";
+		}
+
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 #endif
@@ -180,7 +236,12 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	Player::~Player() {
-		vkDestroyPipelineLayout(driver3d().device(), pipelineLayout, nullptr);
+		VkDevice device = driver3d().device();
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+		vkDestroyRenderPass(device, renderPass, nullptr);
 	}
 
 	//----------------------------------------------------------------

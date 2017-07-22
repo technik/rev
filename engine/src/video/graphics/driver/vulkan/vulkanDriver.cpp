@@ -93,6 +93,9 @@ namespace // Anonymous namespace for vulkan utilities
 namespace rev {
 	namespace video {
 
+		// Static singleton data
+		VulkanDriver* GraphicsDriverBase<VulkanDriver>::sInstance = nullptr;
+
 		//--------------------------------------------------------------------------------------------------------------
 #ifdef ANDROID
 		VulkanDriver::VulkanDriver() {

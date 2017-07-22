@@ -4,6 +4,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
+#include <cassert>
+
 namespace rev { namespace video {
 
 	template<class Derived_>

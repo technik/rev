@@ -54,7 +54,9 @@ namespace rev {
 #endif
 
 	private:
+		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
 
 		//----------------------------------------------------------------
 		void processArgs(const StartUpInfo& _info);
