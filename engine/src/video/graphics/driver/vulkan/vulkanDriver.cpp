@@ -131,6 +131,21 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		VkCommandPool VulkanDriver::createCommandPool() const {
+			VkCommandPoolCreateInfo poolInfo = {};
+			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+			poolInfo.queueFamilyIndex = mQueueFamilyIndex;
+			poolInfo.flags = 0; // Optional
+
+			VkCommandPool commandPool;
+			if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+				cout <<"failed to create command pool!\n";
+			}
+
+			return commandPool;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR surface) const {
 			SwapChainSupportDetails details;
 			// Capabilities

@@ -21,6 +21,7 @@ namespace rev {
 #endif
 			~NativeFrameBufferVulkan();
 
+			const auto& imageViews() const { return mSwapChainImageViews; }
 			VkFormat imageFormat() const { return mImageFormat; }
 			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 

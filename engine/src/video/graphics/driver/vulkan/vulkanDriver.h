@@ -32,6 +32,8 @@ namespace rev {
 			// Vulkan driver supports window-less contexts, so a nativeFrameBuffer may not exist
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
+			VkCommandPool createCommandPool() const;
+
 			// Driver capabilities
 			struct SwapChainSupportDetails {
 				VkSurfaceCapabilitiesKHR capabilities;

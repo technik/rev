@@ -57,6 +57,10 @@ namespace rev {
 		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
+		std::vector<VkFramebuffer>	swapChainFramebuffers;
+
+		VkCommandPool commandPool;
+		std::vector<VkCommandBuffer> commandBuffers;
 
 		//----------------------------------------------------------------
 		void processArgs(const StartUpInfo& _info);
