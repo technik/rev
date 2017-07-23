@@ -154,7 +154,8 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::renderScene() {
+		void ForwardRenderer::render(const RenderGeom&) {
+
 			// Draw
 			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			vkCmdDraw(mCommandBuffer, 3, 1, 0, 0);

@@ -14,6 +14,7 @@
 #endif
 
 #include <video/graphics/driver/NativeFrameBuffer.h>
+#include <video/graphics/geometry/RenderGeom.h>
 
 #ifdef REV_USE_VULKAN
 #include <vulkan/vulkan.h>
@@ -29,7 +30,7 @@ namespace rev {
 			bool init(const NativeFrameBuffer&);
 
 			void beginFrame();
-			void renderScene();
+			void render(const RenderGeom&);
 			void endFrame();
 
 #ifdef REV_USE_VULKAN
