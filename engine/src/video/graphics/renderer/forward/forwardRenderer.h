@@ -49,7 +49,7 @@ namespace rev {
 			VkPipeline		mPipeline = VK_NULL_HANDLE;
 			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
 			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
-			std::vector<VkCommandBuffer> mCommandBuffers;
+			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
 			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
 
 			VkSemaphore imageAvailableSemaphore;

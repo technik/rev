@@ -131,11 +131,11 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		VkCommandPool VulkanDriver::createCommandPool() const {
+		VkCommandPool VulkanDriver::createCommandPool(bool _resetOften) const {
 			VkCommandPoolCreateInfo poolInfo = {};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			poolInfo.queueFamilyIndex = mQueueFamilyIndex;
-			poolInfo.flags = 0; // Optional
+			poolInfo.flags = _resetOften?(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT|VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT):0; // Optional
 
 			VkCommandPool commandPool;
 			if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {

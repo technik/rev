@@ -100,17 +100,16 @@ namespace rev {
 				return false;
 			}
 
-			// Allocate command buffers
-			mCommandPool = GraphicsDriver::get().createCommandPool();
-			mCommandBuffers.resize(mSwapChainFramebuffers.size());
+			// Allocate command buffer
+			mCommandPool = GraphicsDriver::get().createCommandPool(true); // The command buffers get reset every frame
 
 			VkCommandBufferAllocateInfo allocInfo = {};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 			allocInfo.commandPool = mCommandPool;
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandBufferCount = (uint32_t) mCommandBuffers.size();
+			allocInfo.commandBufferCount = 1;
 
-			if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()) != VK_SUCCESS) {
+			if (vkAllocateCommandBuffers(mDevice, &allocInfo, &mCommandBuffer) != VK_SUCCESS) {
 				return false;
 			}
 
@@ -129,46 +128,44 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::renderScene() {
-			// Record command buffers
-			for (size_t i = 0; i < mCommandBuffers.size(); i++) {
-				// Begin command buffer
-				VkCommandBufferBeginInfo beginInfo = {};
-				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-				beginInfo.pInheritanceInfo = nullptr; // Optional
-
-				vkBeginCommandBuffer(mCommandBuffers[i], &beginInfo);
-
-				// Begin render pass
-				VkRenderPassBeginInfo renderPassInfo = {};
-				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-				renderPassInfo.renderPass = mRenderPass;
-				renderPassInfo.framebuffer = mSwapChainFramebuffers[i];
-
-				renderPassInfo.renderArea.offset = {0, 0};
-				renderPassInfo.renderArea.extent = { mFrameBuffer->size().x, mFrameBuffer->size().y};
-
-				VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-				renderPassInfo.clearValueCount = 1;
-				renderPassInfo.pClearValues = &clearColor;
-
-				vkCmdBeginRenderPass(mCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-				// Draw
-				vkCmdBindPipeline(mCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
-				vkCmdDraw(mCommandBuffers[i], 3, 1, 0, 0);
-
-				// End render pass
-				vkCmdEndRenderPass(mCommandBuffers[i]);
-
-				vkEndCommandBuffer(mCommandBuffers[i]);
-			}
-
 			uint32_t imageIndex;
 			// Get target image from the swapchain
 			vkAcquireNextImageKHR(mDevice, mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-			// Submit command buffers
+			// ----- Record command buffer -----
+			// Begin command buffer
+			VkCommandBufferBeginInfo beginInfo = {};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+			beginInfo.pInheritanceInfo = nullptr; // Optional
+
+			vkBeginCommandBuffer(mCommandBuffer, &beginInfo);
+
+			// Begin render pass
+			VkRenderPassBeginInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = mRenderPass;
+			renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex];
+
+			renderPassInfo.renderArea.offset = {0, 0};
+			renderPassInfo.renderArea.extent = { mFrameBuffer->size().x, mFrameBuffer->size().y};
+
+			VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+
+			vkCmdBeginRenderPass(mCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+			// Draw
+			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+			vkCmdDraw(mCommandBuffer, 3, 1, 0, 0);
+
+			// End render pass
+			vkCmdEndRenderPass(mCommandBuffer);
+
+			vkEndCommandBuffer(mCommandBuffer);
+			
+			// ----- Submit command buffer -----
 			VkSubmitInfo submitInfo = {};
 			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -179,7 +176,7 @@ namespace rev {
 			submitInfo.pWaitDstStageMask = waitStages;
 
 			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &mCommandBuffers[imageIndex];
+			submitInfo.pCommandBuffers = &mCommandBuffer;
 
 			VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
 			submitInfo.signalSemaphoreCount = 1;
