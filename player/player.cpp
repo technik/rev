@@ -53,7 +53,7 @@ namespace rev {
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
 		mRenderer.beginFrame();
-		mRenderer.renderScene();
+		mRenderer.render(mTriangle);
 		mRenderer.endFrame();
 
 		return true;

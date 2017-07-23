@@ -7,6 +7,7 @@
 #include <core/platform/platformInfo.h>
 #include <util/app/app3d.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
+#include <video/graphics/geometry/RenderGeom.h>
 
 #include <vulkan/vulkan.h>
 
@@ -22,11 +23,12 @@ namespace rev {
 		video::ForwardRenderer mRenderer;
 
 	private:
-		//----------------------------------------------------------------
 		void processArgs(const core::StartUpInfo& _info);
-
-		//----------------------------------------------------------------
 		bool frame(float _dt) override;
+
+	private:
+		video::RenderGeom	mTriangle;
+
 	};
 
 }	// namespace rev

@@ -154,11 +154,14 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::render(const RenderGeom&) {
+		void ForwardRenderer::render(const RenderGeom& _geom) {
+			VkBuffer vertexBuffers[] = { (VkBuffer)_geom.mVertexBuffer };
+			VkDeviceSize offsets[] = {0};
+			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
 
 			// Draw
 			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
-			vkCmdDraw(mCommandBuffer, 3, 1, 0, 0);
+			vkCmdDraw(mCommandBuffer, _geom.nVertices(), 1, 0, 0);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -274,10 +277,6 @@ namespace rev {
 			vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 			vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 			vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-			vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-			vertexInputInfo.vertexAttributeDescriptionCount = 0;
-			vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
 
 																	// Topology
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};

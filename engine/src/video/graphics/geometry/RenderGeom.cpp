@@ -40,13 +40,15 @@ namespace video {
 			Vec3f(-0.5f, 0.5f, 0.f), Vec3f(255.f/255.0f, 51.0f/255.0f, 153.0f/255.0f)
 		};
 
+		mNVerts = 3;
+
 		vk::BufferCreateInfo createInfo = vk::BufferCreateInfo({}, // No flags
 										rawVertexBuffer.size()*sizeof(Vec3f), // Size in bytes
 										vk::BufferUsageFlagBits::eVertexBuffer, // Usage
 										vk::SharingMode::eExclusive); // Sharing mode between queue families
 		vk::Device device(GraphicsDriver::get().device());
 		mVertexBuffer = device.createBuffer(createInfo);
-
+		
 		vk::MemoryRequirements memRequirements;
 		device.getBufferMemoryRequirements(mVertexBuffer, &memRequirements);
 
@@ -54,5 +56,10 @@ namespace video {
 			findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 
 		mVertexBufferMemory = device.allocateMemory(allocInfo);
+		device.bindBufferMemory(mVertexBuffer, mVertexBufferMemory, 0);
+
+		void* gpuMem = device.mapMemory(mVertexBufferMemory, 0, createInfo.size);
+		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)createInfo.size);
+		device.unmapMemory(mVertexBufferMemory);
 	}
 }}

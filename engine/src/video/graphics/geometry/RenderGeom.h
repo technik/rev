@@ -15,10 +15,14 @@ namespace rev {
 		class RenderGeom {
 		public:
 			RenderGeom();
+			uint32_t nVertices() const { return mNVerts; }
 
 #ifdef REV_USE_VULKAN
 			vk::Buffer			mVertexBuffer;
 			vk::DeviceMemory	mVertexBufferMemory;
 #endif // REV_USE_VULKAN
+
+		private:
+			uint32_t mNVerts;
 		};
 }}
