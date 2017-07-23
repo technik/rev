@@ -43,6 +43,7 @@ namespace rev {
 
 		private:
 			const NativeFrameBuffer* mFrameBuffer;
+			uint32_t mCurFBImageIndex;
 
 			VkDevice		mDevice = VK_NULL_HANDLE;
 			VkRenderPass	mRenderPass = VK_NULL_HANDLE;

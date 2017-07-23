@@ -124,13 +124,8 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::beginFrame() {
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::renderScene() {
-			uint32_t imageIndex;
 			// Get target image from the swapchain
-			vkAcquireNextImageKHR(mDevice, mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+			vkAcquireNextImageKHR(mDevice, mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &mCurFBImageIndex);
 
 			// ----- Record command buffer -----
 			// Begin command buffer
@@ -145,7 +140,7 @@ namespace rev {
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = mRenderPass;
-			renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex];
+			renderPassInfo.framebuffer = mSwapChainFramebuffers[mCurFBImageIndex];
 
 			renderPassInfo.renderArea.offset = {0, 0};
 			renderPassInfo.renderArea.extent = { mFrameBuffer->size().x, mFrameBuffer->size().y};
@@ -155,16 +150,22 @@ namespace rev {
 			renderPassInfo.pClearValues = &clearColor;
 
 			vkCmdBeginRenderPass(mCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::renderScene() {
 			// Draw
 			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			vkCmdDraw(mCommandBuffer, 3, 1, 0, 0);
+		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::endFrame() {
 			// End render pass
 			vkCmdEndRenderPass(mCommandBuffer);
 
 			vkEndCommandBuffer(mCommandBuffer);
-			
+
 			// ----- Submit command buffer -----
 			VkSubmitInfo submitInfo = {};
 			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -194,16 +195,12 @@ namespace rev {
 			VkSwapchainKHR swapChains[] = { mFrameBuffer->swapChain() };
 			presentInfo.swapchainCount = 1;
 			presentInfo.pSwapchains = swapChains;
-			presentInfo.pImageIndices = &imageIndex;
+			presentInfo.pImageIndices = &mCurFBImageIndex;
 
 			presentInfo.pResults = nullptr; // Optional
 			vkQueuePresentKHR(GraphicsDriver::get().graphicsQueue(), &presentInfo);
 
 			vkQueueWaitIdle(GraphicsDriver::get().graphicsQueue());
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::endFrame() {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
