@@ -23,6 +23,7 @@ using namespace rev::math;
 #include <iostream>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <core/platform/fileSystem/file.h>
+#include <video/graphics/geometry/VertexFormat.h>
 
 using namespace std;
 
@@ -264,7 +265,15 @@ namespace rev {
 			// Vertex input stage
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			vertexInputInfo.vertexBindingDescriptionCount = 0;
+
+			auto bindingDescription = VertexFormat::getBindingDescription();
+			auto attributeDescriptions = VertexFormat::getAttributeDescriptions();
+
+			vertexInputInfo.vertexBindingDescriptionCount = 1;
+			vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+			vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+			vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
 			vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
 			vertexInputInfo.vertexAttributeDescriptionCount = 0;
 			vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
