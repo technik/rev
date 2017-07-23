@@ -12,21 +12,6 @@
 using namespace rev::math;
 using namespace std;
 
-namespace {
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(rev::video::GraphicsDriver::get().physicalDevice(), &memProperties);
-
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i))  && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-				return i;
-			}
-		}
-
-		return uint32_t(-1);
-	}
-}
-
 namespace rev {
 namespace video {
 
@@ -42,24 +27,13 @@ namespace video {
 
 		mNVerts = 3;
 
-		vk::BufferCreateInfo createInfo = vk::BufferCreateInfo({}, // No flags
-										rawVertexBuffer.size()*sizeof(Vec3f), // Size in bytes
-										vk::BufferUsageFlagBits::eVertexBuffer, // Usage
-										vk::SharingMode::eExclusive); // Sharing mode between queue families
+		vk::DeviceSize bufferSizeInBytes = rawVertexBuffer.size()*sizeof(Vec3f);
+		GraphicsDriver::get().createBuffer(bufferSizeInBytes, vk::BufferUsageFlagBits::eVertexBuffer, 
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mVertexBuffer, mVertexBufferMemory);
+
 		vk::Device device(GraphicsDriver::get().device());
-		mVertexBuffer = device.createBuffer(createInfo);
-		
-		vk::MemoryRequirements memRequirements;
-		device.getBufferMemoryRequirements(mVertexBuffer, &memRequirements);
-
-		vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo(memRequirements.size, 
-			findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
-
-		mVertexBufferMemory = device.allocateMemory(allocInfo);
-		device.bindBufferMemory(mVertexBuffer, mVertexBufferMemory, 0);
-
-		void* gpuMem = device.mapMemory(mVertexBufferMemory, 0, createInfo.size);
-		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)createInfo.size);
+		void* gpuMem = device.mapMemory(mVertexBufferMemory, 0, bufferSizeInBytes);
+		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)bufferSizeInBytes);
 		device.unmapMemory(mVertexBufferMemory);
 	}
 }}

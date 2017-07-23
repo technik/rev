@@ -34,6 +34,7 @@ namespace rev {
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
 			VkCommandPool createCommandPool(bool _resetOften) const;
+			void createBuffer(vk::DeviceSize _size, vk::BufferUsageFlags _usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& bufferMemory) const;
 
 			// Driver capabilities
 			struct SwapChainSupportDetails {

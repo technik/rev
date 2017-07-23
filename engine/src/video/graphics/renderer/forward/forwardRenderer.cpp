@@ -75,6 +75,8 @@ namespace rev {
 				vkDestroyPipelineLayout(mDevice, mPipelineLayout, nullptr);
 			}
 
+			vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout, nullptr);
+
 			if(mRenderPass)
 				vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
 		}
@@ -87,6 +89,11 @@ namespace rev {
 
 			if(!createRenderPass()) {
 				cout << "Forward renderer: failed to create render pass!\n";
+				return false;
+			}
+
+			if(!createDescriptorSetLayout()) {
+				cout << "Failed to create descriptor set layout\n";
 				return false;
 			}
 
@@ -244,6 +251,26 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		bool ForwardRenderer::createDescriptorSetLayout() {
+			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+			uboLayoutBinding.binding = 0;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+			uboLayoutBinding.pImmutableSamplers = nullptr;
+
+			VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutInfo.bindingCount = 1;
+			layoutInfo.pBindings = &uboLayoutBinding;
+
+			if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create descriptor set layout!");
+				return false;
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::createPipeline(const VkExtent2D& _viewportSize) {
 			// ----- Create a graphics pipeline -----
 			auto vertexShader = core::File("data/vert.spv");
@@ -394,7 +421,7 @@ namespace rev {
 		}
 
 		bool ForwardRenderer::createFrameBufferViews() {
-			// Create frame buffers to store the views
+			// Create frame buffers to store the views 
 			const auto& imageViews = mFrameBuffer->imageViews();
 			mSwapChainFramebuffers.resize(imageViews.size());
 			for (size_t i = 0; i < imageViews.size(); i++) {

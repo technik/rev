@@ -18,6 +18,7 @@
 
 #ifdef REV_USE_VULKAN
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #endif // REV_USE_VULKAN
 
 namespace rev {
@@ -39,6 +40,7 @@ namespace rev {
 
 		private:
 			bool createRenderPass();
+			bool createDescriptorSetLayout();
 			bool createPipeline(const VkExtent2D& _viewportSize);
 			bool createFrameBufferViews();
 
@@ -49,10 +51,14 @@ namespace rev {
 			VkDevice		mDevice = VK_NULL_HANDLE;
 			VkRenderPass	mRenderPass = VK_NULL_HANDLE;
 			VkPipeline		mPipeline = VK_NULL_HANDLE;
+			VkDescriptorSetLayout mDescriptorSetLayout;
 			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
 			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
 			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
 			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
+
+			VkBuffer uniformBuffer;
+			VkDeviceMemory uniformBufferMemory;
 
 			VkSemaphore imageAvailableSemaphore;
 			VkSemaphore renderFinishedSemaphore;

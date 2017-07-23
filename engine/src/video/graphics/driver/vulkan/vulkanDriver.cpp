@@ -88,6 +88,20 @@ namespace // Anonymous namespace for vulkan utilities
 			func(instance, callback, pAllocator);
 		}
 	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
+		vk::PhysicalDeviceMemoryProperties memProperties;
+		vk::PhysicalDevice(rev::video::VulkanDriver::get().physicalDevice()).getMemoryProperties(&memProperties);
+
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+			if ((typeFilter & (1 << i))  && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+				return i;
+			}
+		}
+
+		return uint32_t(-1);
+	}
 }
 
 namespace rev {
@@ -143,6 +157,26 @@ namespace rev {
 			}
 
 			return commandPool;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::createBuffer(vk::DeviceSize _size, vk::BufferUsageFlags _usage, vk::MemoryPropertyFlags _properties, vk::Buffer& _buffer, vk::DeviceMemory& _bufferMemory) const 
+		{
+			vk::BufferCreateInfo createInfo = vk::BufferCreateInfo({}, // No flags
+				_size, // Size in bytes
+				_usage, // Usage
+				vk::SharingMode::eExclusive); // Sharing mode between queue families
+			vk::Device device(mDevice);
+			_buffer = device.createBuffer(createInfo);
+
+			vk::MemoryRequirements memRequirements;
+			device.getBufferMemoryRequirements(_buffer, &memRequirements);
+
+			vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo(memRequirements.size, 
+				findMemoryType(memRequirements.memoryTypeBits, _properties));
+
+			_bufferMemory = device.allocateMemory(allocInfo);
+			device.bindBufferMemory(_buffer, _bufferMemory, 0);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
