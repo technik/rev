@@ -22,14 +22,6 @@ namespace rev {
 		video::ForwardRenderer mRenderer;
 
 	private:
-		std::vector<VkFramebuffer>	swapChainFramebuffers;
-
-		VkCommandPool commandPool;
-		std::vector<VkCommandBuffer> commandBuffers;
-
-		VkSemaphore imageAvailableSemaphore;
-		VkSemaphore renderFinishedSemaphore;
-
 		//----------------------------------------------------------------
 		void processArgs(const core::StartUpInfo& _info);
 

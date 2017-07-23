@@ -59,37 +59,159 @@ namespace rev {
 			if(!mDevice)
 				return;
 
+			vkDestroySemaphore(mDevice, renderFinishedSemaphore, nullptr);
+			vkDestroySemaphore(mDevice, imageAvailableSemaphore, nullptr);
+
+			if(mCommandPool)
+				vkDestroyCommandPool(mDevice, mCommandPool, nullptr);
+
+			for (size_t i = 0; i < mSwapChainFramebuffers.size(); i++) {
+				vkDestroyFramebuffer(mDevice, mSwapChainFramebuffers[i], nullptr);
+			}
+
 			if(mPipeline) {
 				vkDestroyPipeline(mDevice, mPipeline, nullptr);
 				vkDestroyPipelineLayout(mDevice, mPipelineLayout, nullptr);
 			}
 
-			if(mDevice && mRenderPass)
+			if(mRenderPass)
 				vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::init(const NativeFrameBuffer& _dstFrameBuffer) {
 			mDevice = GraphicsDriver::get().device(); // Vulkan device
+			mFrameBuffer = &_dstFrameBuffer;
 			assert(mDevice);
 
-			if(!createRenderPass(_dstFrameBuffer)) {
+			if(!createRenderPass()) {
 				cout << "Forward renderer: failed to create render pass!\n";
 				return false;
 			}
 
-			auto viewportSize = _dstFrameBuffer.size();
+			auto viewportSize = mFrameBuffer->size();
 			if(!createPipeline({viewportSize.x, viewportSize.y })) {
 				cout << "failed to create graphics pipeline!";
 				return false;
 			}
 
+			if(!createFrameBufferViews()) {
+				cout << "failed to create frame buffer views\n";
+				return false;
+			}
+
+			// Allocate command buffers
+			mCommandPool = GraphicsDriver::get().createCommandPool();
+			mCommandBuffers.resize(mSwapChainFramebuffers.size());
+
+			VkCommandBufferAllocateInfo allocInfo = {};
+			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			allocInfo.commandPool = mCommandPool;
+			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			allocInfo.commandBufferCount = (uint32_t) mCommandBuffers.size();
+
+			if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()) != VK_SUCCESS) {
+				return false;
+			}
+
+			// Create rendering semaphores
+			VkSemaphoreCreateInfo semaphoreInfo = {};
+			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+			vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+			vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
+
 			return true;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		bool ForwardRenderer::createRenderPass(const NativeFrameBuffer& _dstFB) {
-			const VkAttachmentDescription& colorAttachment = _dstFB.attachmentDescription();
+		void ForwardRenderer::beginFrame() {
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::renderScene() {
+			// Record command buffers
+			for (size_t i = 0; i < mCommandBuffers.size(); i++) {
+				// Begin command buffer
+				VkCommandBufferBeginInfo beginInfo = {};
+				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+				beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+				beginInfo.pInheritanceInfo = nullptr; // Optional
+
+				vkBeginCommandBuffer(mCommandBuffers[i], &beginInfo);
+
+				// Begin render pass
+				VkRenderPassBeginInfo renderPassInfo = {};
+				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+				renderPassInfo.renderPass = mRenderPass;
+				renderPassInfo.framebuffer = mSwapChainFramebuffers[i];
+
+				renderPassInfo.renderArea.offset = {0, 0};
+				renderPassInfo.renderArea.extent = { mFrameBuffer->size().x, mFrameBuffer->size().y};
+
+				VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+				renderPassInfo.clearValueCount = 1;
+				renderPassInfo.pClearValues = &clearColor;
+
+				vkCmdBeginRenderPass(mCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+				// Draw
+				vkCmdBindPipeline(mCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+				vkCmdDraw(mCommandBuffers[i], 3, 1, 0, 0);
+
+				// End render pass
+				vkCmdEndRenderPass(mCommandBuffers[i]);
+
+				vkEndCommandBuffer(mCommandBuffers[i]);
+			}
+
+			uint32_t imageIndex;
+			// Get target image from the swapchain
+			vkAcquireNextImageKHR(mDevice, mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+			// Submit command buffers
+			VkSubmitInfo submitInfo = {};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+			VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+			VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+			submitInfo.waitSemaphoreCount = 1;
+			submitInfo.pWaitSemaphores = waitSemaphores;
+			submitInfo.pWaitDstStageMask = waitStages;
+
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &mCommandBuffers[imageIndex];
+
+			VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+			submitInfo.signalSemaphoreCount = 1;
+			submitInfo.pSignalSemaphores = signalSemaphores;
+
+			vkQueueSubmit(GraphicsDriver::get().graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+			// Present
+			VkPresentInfoKHR presentInfo = {};
+			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = signalSemaphores;
+
+			VkSwapchainKHR swapChains[] = { mFrameBuffer->swapChain() };
+			presentInfo.swapchainCount = 1;
+			presentInfo.pSwapchains = swapChains;
+			presentInfo.pImageIndices = &imageIndex;
+
+			presentInfo.pResults = nullptr; // Optional
+			vkQueuePresentKHR(GraphicsDriver::get().graphicsQueue(), &presentInfo);
+
+			vkQueueWaitIdle(GraphicsDriver::get().graphicsQueue());
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::endFrame() {
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool ForwardRenderer::createRenderPass() {
+			const VkAttachmentDescription& colorAttachment = mFrameBuffer->attachmentDescription();
 
 			// Subpasses
 			VkAttachmentReference colorAttachmentRef = {};
@@ -266,6 +388,30 @@ namespace rev {
 			vkDestroyShaderModule(mDevice, vertShaderModule, nullptr);
 
 			return ok;
+		}
+
+		bool ForwardRenderer::createFrameBufferViews() {
+			// Create frame buffers to store the views
+			const auto& imageViews = mFrameBuffer->imageViews();
+			mSwapChainFramebuffers.resize(imageViews.size());
+			for (size_t i = 0; i < imageViews.size(); i++) {
+				VkImageView attachments[] = {
+					imageViews[i]
+				};
+
+				VkFramebufferCreateInfo framebufferInfo = {};
+				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebufferInfo.renderPass = mRenderPass;
+				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.pAttachments = attachments;
+				framebufferInfo.width = mFrameBuffer->size().x;
+				framebufferInfo.height = mFrameBuffer->size().y;
+				framebufferInfo.layers = 1;
+
+				if(VK_SUCCESS != vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainFramebuffers[i]))
+					return false;
+			}
+			return true;
 		}
 
 #endif // REV_USE_VULKAN

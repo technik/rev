@@ -37,14 +37,23 @@ namespace rev {
 			VkRenderPass renderPass() const { return mRenderPass; }
 
 		private:
-			bool createRenderPass(const NativeFrameBuffer&);
+			bool createRenderPass();
 			bool createPipeline(const VkExtent2D& _viewportSize);
+			bool createFrameBufferViews();
 
 		private:
+			const NativeFrameBuffer* mFrameBuffer;
+
 			VkDevice		mDevice = VK_NULL_HANDLE;
 			VkRenderPass	mRenderPass = VK_NULL_HANDLE;
 			VkPipeline		mPipeline = VK_NULL_HANDLE;
-			VkPipelineLayout mPipelineLayout;
+			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
+			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
+			std::vector<VkCommandBuffer> mCommandBuffers;
+			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
+
+			VkSemaphore imageAvailableSemaphore;
+			VkSemaphore renderFinishedSemaphore;
 
 #endif // REV_USE_VULKAN
 

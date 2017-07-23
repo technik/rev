@@ -121,6 +121,9 @@ namespace rev { namespace video {
 			}
 			mSwapChainImageViews.push_back(view);
 		}
+
+		
+
 		// Set up attachment desc so this FB can be used in a render pass
 		setupAttachmentDesc(); // Depends on FB configuration being ready
 	}
