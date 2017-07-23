@@ -108,6 +108,10 @@ namespace rev {
 				return false;
 			}
 
+			// Allocate uniform buffer
+			VkDeviceSize bufferSize = sizeof(math::Vec2f);
+			GraphicsDriver::get().createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mUniformBuffer, mUniformBufferMemory);
+
 			// Allocate command buffer
 			mCommandPool = GraphicsDriver::get().createCommandPool(true); // The command buffers get reset every frame
 
@@ -116,6 +120,9 @@ namespace rev {
 			allocInfo.commandPool = mCommandPool;
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocInfo.commandBufferCount = 1;
+
+			createDescriptorPool();
+			createDescriptorSet();
 
 			if (vkAllocateCommandBuffers(mDevice, &allocInfo, &mCommandBuffer) != VK_SUCCESS) {
 				return false;
@@ -162,12 +169,23 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::render(const RenderGeom& _geom) {
+
+			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+
+			math::Vec2f offset(0.25f, 0.25f);
+
+			vk::Device device(mDevice);
+			void* data = device.mapMemory(mUniformBufferMemory, 0, sizeof(offset));
+			memcpy(data, &offset, sizeof(offset));
+			device.unmapMemory(mUniformBufferMemory);
+
 			VkBuffer vertexBuffers[] = { (VkBuffer)_geom.mVertexBuffer };
 			VkDeviceSize offsets[] = {0};
 			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
 
+			vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSet, 0, nullptr);
+
 			// Draw
-			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			vkCmdDraw(mCommandBuffer, _geom.nVertices(), 1, 0, 0);
 		}
 
@@ -268,6 +286,8 @@ namespace rev {
 				throw std::runtime_error("failed to create descriptor set layout!");
 				return false;
 			}
+
+			return true;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -379,8 +399,8 @@ namespace rev {
 													// Pipeline layout
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 0; // Optional
-			pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+			pipelineLayoutInfo.setLayoutCount = 1; // Optional
+			pipelineLayoutInfo.pSetLayouts = &mDescriptorSetLayout; // Optional
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
 
@@ -420,6 +440,7 @@ namespace rev {
 			return ok;
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::createFrameBufferViews() {
 			// Create frame buffers to store the views 
 			const auto& imageViews = mFrameBuffer->imageViews();
@@ -441,6 +462,58 @@ namespace rev {
 				if(VK_SUCCESS != vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainFramebuffers[i]))
 					return false;
 			}
+			return true;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool ForwardRenderer::createDescriptorPool() {
+			VkDescriptorPoolSize poolSize = {};
+			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			poolSize.descriptorCount = 1;
+
+			VkDescriptorPoolCreateInfo poolInfo = {};
+			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			poolInfo.poolSizeCount = 1;
+			poolInfo.pPoolSizes = &poolSize;
+
+			poolInfo.maxSets = 1;
+
+			if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
+				return false;
+			}
+
+			return true;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		bool ForwardRenderer::createDescriptorSet() {
+			VkDescriptorSetLayout layouts[] = {mDescriptorSetLayout};
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = mDescriptorPool;
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.pSetLayouts = layouts;
+
+			if (vkAllocateDescriptorSets(mDevice, &allocInfo, &mDescriptorSet) != VK_SUCCESS) {
+				return false;
+			}
+
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = (VkBuffer)mUniformBuffer;
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(math::Vec2f);
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = mDescriptorSet;
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.dstArrayElement = 0;
+
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			vkUpdateDescriptorSets(mDevice, 1, &descriptorWrite, 0, nullptr);
+
 			return true;
 		}
 

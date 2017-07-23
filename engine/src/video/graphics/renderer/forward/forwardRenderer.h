@@ -43,6 +43,8 @@ namespace rev {
 			bool createDescriptorSetLayout();
 			bool createPipeline(const VkExtent2D& _viewportSize);
 			bool createFrameBufferViews();
+			bool createDescriptorPool();
+			bool createDescriptorSet();
 
 		private:
 			const NativeFrameBuffer* mFrameBuffer;
@@ -56,9 +58,11 @@ namespace rev {
 			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
 			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
 			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
+			VkDescriptorPool mDescriptorPool;
+			VkDescriptorSet mDescriptorSet;
 
-			VkBuffer uniformBuffer;
-			VkDeviceMemory uniformBufferMemory;
+			vk::Buffer mUniformBuffer;
+			vk::DeviceMemory mUniformBufferMemory;
 
 			VkSemaphore imageAvailableSemaphore;
 			VkSemaphore renderFinishedSemaphore;
