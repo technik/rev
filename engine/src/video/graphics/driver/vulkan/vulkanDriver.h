@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vector>
 #include "../GraphicsDriverBase.h"
 
@@ -36,12 +37,12 @@ namespace rev {
 
 			// Driver capabilities
 			struct SwapChainSupportDetails {
-				VkSurfaceCapabilitiesKHR capabilities;
-				std::vector<VkSurfaceFormatKHR> formats;
-				std::vector<VkPresentModeKHR> presentModes;
+				vk::SurfaceCapabilitiesKHR capabilities;
+				std::vector<vk::SurfaceFormatKHR> formats;
+				std::vector<vk::PresentModeKHR> presentModes;
 			};
 
-			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
+			SwapChainSupportDetails querySwapChainSupport(vk::SurfaceKHR surface) const;
 
 		private:
 			// Vulkan initialization

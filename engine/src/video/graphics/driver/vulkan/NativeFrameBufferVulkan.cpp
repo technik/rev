@@ -13,38 +13,38 @@ namespace rev { namespace video {
 
 	namespace {	// anonymous namespace for vulkan utilities
 
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+		vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
 			assert(!availableFormats.empty());
 			// When format is undefined, it means we get to choose whatever format we want
-			if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
-				return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+			if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined) {
+				return { vk::Format::eR8G8B8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear };
 			}
 
 			// Prefer rgba8 + sRGB
 			for (const auto& availableFormat : availableFormats) {
-				if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+				if (availableFormat.format == vk::Format::eR8G8B8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
 					return availableFormat;
 				}
 			}
 
 			// Prefer rgba8
 			for (const auto& availableFormat : availableFormats) {
-				if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM) {
+				if (availableFormat.format == vk::Format::eR8G8B8A8Unorm) {
 					return availableFormat;
 				}
 			}
 
-			// Return watever we have
+			// Return whatever we have
 			return availableFormats[0];
 		}
 
-		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes) {
-			return VK_PRESENT_MODE_FIFO_KHR;
+		vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR> availablePresentModes) {
+			return vk::PresentModeKHR::eFifo;
 		}
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
-	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance, const VulkanDriver& _driver)
+	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, vk::Instance _apiInstance, const VulkanDriver& _driver)
 		: mApiInstance(_apiInstance)
 		, mDevice(_driver.device())
 	{
@@ -64,59 +64,33 @@ namespace rev { namespace video {
 		mSize = { bufferExtent.width, bufferExtent.height };
 
 		// Swap chain creation info
-		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = mSurface;
-		createInfo.minImageCount = 2; // To support double buffering
-		createInfo.imageFormat = surfaceFormat.format;
-		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = bufferExtent;
-		createInfo.imageArrayLayers = 1; // Modify this for stereoscopic rendering
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		// TODO: Maybe support concurrent queue families (one for graphics, one for swap)
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		createInfo.queueFamilyIndexCount = 0; // Optional
-		createInfo.pQueueFamilyIndices = nullptr; // Optional
-
-		createInfo.preTransform = support.capabilities.currentTransform; // This means no transform
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = presentMode;
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
+		auto createInfo = vk::SwapchainCreateInfoKHR({}, mSurface, 2, surfaceFormat.format, surfaceFormat.colorSpace, bufferExtent, 1,
+			vk::ImageUsageFlagBits::eColorAttachment, vk::SharingMode::eExclusive, 0, nullptr, vk::SurfaceTransformFlagBitsKHR::eIdentity,
+			vk::CompositeAlphaFlagBitsKHR::eOpaque, presentMode, VK_TRUE);
 
 		// Create the swap chain
-		if (vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
+		if (mDevice.createSwapchainKHR(&createInfo, nullptr, &mSwapChain) != vk::Result::eSuccess) {
 			cout << "failed to create swap chain!";
 			return;
 		}
 
 		// Retrieve buffer image handles
 		uint32_t imageCount;
-		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, nullptr);
+		mDevice.getSwapchainImagesKHR(mSwapChain, &imageCount, nullptr);
 		mSwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, mSwapChainImages.data());
+		mDevice.getSwapchainImagesKHR(mSwapChain, &imageCount, mSwapChainImages.data());
 
 		// Create image views for the images
 		mSwapChainImageViews.reserve(imageCount);
 		for(auto image : mSwapChainImages) {
-			VkImageViewCreateInfo createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = image;
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = surfaceFormat.format;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
+			auto createInfo = vk::ImageViewCreateInfo({}, image,
+				vk::ImageViewType::e2D,
+				surfaceFormat.format,
+				vk::ComponentMapping(),
+				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 
-			VkImageView view;
-			if (vkCreateImageView(mDevice, &createInfo, nullptr, &view) != VK_SUCCESS) {
+			vk::ImageView view;
+			if(mDevice.createImageView(&createInfo, nullptr, &view) != vk::Result::eSuccess) {
 				cout << "failed to create image views within the native frame buffer\n";
 			}
 			mSwapChainImageViews.push_back(view);
@@ -131,30 +105,27 @@ namespace rev { namespace video {
 	//--------------------------------------------------------------------------------------------------------------
 	NativeFrameBufferVulkan::~NativeFrameBufferVulkan() {
 		for(auto view : mSwapChainImageViews)
-			vkDestroyImageView(mDevice, view, nullptr);
-		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
-		vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
+			mDevice.destroyImageView(view);
+		mDevice.destroySwapchainKHR(mSwapChain);
+		mApiInstance.destroySurfaceKHR(mSurface);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 	bool NativeFrameBufferVulkan::initSurface(const Window& _wnd, const VulkanDriver& _driver) {
-		VkWin32SurfaceCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		createInfo.hwnd = _wnd.winapiHandle();
-		createInfo.hinstance = GetModuleHandle(nullptr);
+		auto createInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), _wnd.winapiHandle());
 
 		// Get the extension
-		auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) vkGetInstanceProcAddr(mApiInstance, "vkCreateWin32SurfaceKHR");
+		auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) mApiInstance.getProcAddr("vkCreateWin32SurfaceKHR");
 
 		// Create the surface
-		if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface) != VK_SUCCESS) {
+		if (!CreateWin32SurfaceKHR || mApiInstance.createWin32SurfaceKHR(&createInfo, nullptr, &mSurface) != vk::Result::eSuccess) {
 			cout << "failed to create window surface!\n";
 			return false;
 		}
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(_driver.physicalDevice(), _driver.graphicsFamily(), mSurface, &presentSupport);
+		vk::PhysicalDevice(_driver.physicalDevice()).getSurfaceSupportKHR(_driver.graphicsFamily(), mSurface, &presentSupport);
 
 		return presentSupport;
 	}
@@ -186,16 +157,11 @@ namespace rev { namespace video {
 
 	//--------------------------------------------------------------------------------------------------------------
 	void NativeFrameBufferVulkan::setupAttachmentDesc() {
-		mAttachDesc.format = mImageFormat;
-		mAttachDesc.samples = VK_SAMPLE_COUNT_1_BIT; // No multisampling
-		// Color and depth persistency
-		mAttachDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Clear buffer on load
-		mAttachDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // Keep contents after the pass
-		// Stencil persistency
-		mAttachDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		mAttachDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		// tiling layout
-		mAttachDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Don't care, we're clearing it
-		mAttachDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Prepare to present, this goes directly to a swapchain
+		mAttachDesc = vk::AttachmentDescription({}, mImageFormat,
+			vk::SampleCountFlagBits::e1, // No multisampling
+			vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, // Color and depth persistency
+			vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, // Stencil persistency
+			vk::ImageLayout::eUndefined, // Don't care, we're clearing it
+			vk::ImageLayout::ePresentSrcKHR); // Prepare to present, this goes directly to a swapchain
 	}
 }}

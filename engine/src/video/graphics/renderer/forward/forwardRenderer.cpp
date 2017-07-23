@@ -126,7 +126,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::beginFrame() {
 			// Get target image from the swapchain
-			vkAcquireNextImageKHR(mDevice, mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &mCurFBImageIndex);
+			vkAcquireNextImageKHR(mDevice, (VkSwapchainKHR)mFrameBuffer->swapChain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &mCurFBImageIndex);
 
 			// ----- Record command buffer -----
 			// Begin command buffer
@@ -197,7 +197,7 @@ namespace rev {
 			presentInfo.waitSemaphoreCount = 1;
 			presentInfo.pWaitSemaphores = signalSemaphores;
 
-			VkSwapchainKHR swapChains[] = { mFrameBuffer->swapChain() };
+			VkSwapchainKHR swapChains[] = {(VkSwapchainKHR) mFrameBuffer->swapChain() };
 			presentInfo.swapchainCount = 1;
 			presentInfo.pSwapchains = swapChains;
 			presentInfo.pImageIndices = &mCurFBImageIndex;
@@ -399,7 +399,7 @@ namespace rev {
 			mSwapChainFramebuffers.resize(imageViews.size());
 			for (size_t i = 0; i < imageViews.size(); i++) {
 				VkImageView attachments[] = {
-					imageViews[i]
+					(VkImageView)imageViews[i]
 				};
 
 				VkFramebufferCreateInfo framebufferInfo = {};

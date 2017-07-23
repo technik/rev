@@ -126,7 +126,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, *this);
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, vk::Instance(mApiInstance), *this);
 			return mNativeFB;
 		}
 
@@ -146,25 +146,26 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR surface) const {
+		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(vk::SurfaceKHR surface) const {
 			SwapChainSupportDetails details;
 			// Capabilities
-			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, surface, &details.capabilities);
+			vk::PhysicalDevice physicalDevice(mPhysicalDevice);
+			physicalDevice.getSurfaceCapabilitiesKHR(surface, &details.capabilities);
 			// Formats
 			uint32_t formatCount;
-			vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, surface, &formatCount, nullptr);
+			physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, nullptr);
 
-			if (formatCount != 0) {
+			if (formatCount > 0) {
 				details.formats.resize(formatCount);
-				vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, surface, &formatCount, details.formats.data());
+				physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, details.formats.data());
 			}
 			// Present modes
 			uint32_t presentModeCount;
-			vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, surface, &presentModeCount, nullptr);
+			physicalDevice.getSurfacePresentModesKHR(surface, &presentModeCount, nullptr);
 
-			if (presentModeCount != 0) {
+			if (presentModeCount > 0) {
 				details.presentModes.resize(presentModeCount);
-				vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, surface, &presentModeCount, details.presentModes.data());
+				physicalDevice.getSurfacePresentModesKHR(surface, &presentModeCount, details.presentModes.data());
 			}
 
 			return details;

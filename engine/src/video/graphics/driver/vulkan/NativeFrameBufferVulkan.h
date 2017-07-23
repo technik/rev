@@ -4,7 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include "vulkanDriver.h"
 #include <math/algebra/vector.h>
 
@@ -18,15 +18,15 @@ namespace rev {
 #ifdef ANDROID
 			NativeFrameBufferVulkan();
 #else
-			NativeFrameBufferVulkan(const Window&, VkInstance _apiInstance, const VulkanDriver&);
+			NativeFrameBufferVulkan(const Window&, vk::Instance _apiInstance, const VulkanDriver&);
 #endif
 			~NativeFrameBufferVulkan();
 
 			const math::Vec2u& size() const { return mSize; }
 			const auto& imageViews() const { return mSwapChainImageViews; }
-			VkSwapchainKHR swapChain() const { return mSwapChain; }
+			vk::SwapchainKHR swapChain() const { return mSwapChain; }
 			//VkFormat imageFormat() const { return mImageFormat; }
-			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
+			bool sRGBColorSpace() const { return vk::ColorSpaceKHR::eSrgbNonlinear == mColorSpace; }
 
 			// Returns a description to use this framebuffer as an attachment inside a render pass
 			const VkAttachmentDescription&	attachmentDescription() const { return mAttachDesc; }
@@ -38,21 +38,21 @@ namespace rev {
 			bool initSurface(const Window& _wnd, const VulkanDriver& _driver);
 #endif
 			void setupAttachmentDesc();
-			VkFormat		mImageFormat;
-			VkInstance		mApiInstance;
-			VkDevice		mDevice;
+			vk::Format			mImageFormat;
+			vk::Instance		mApiInstance;
+			vk::Device			mDevice;
 
-			VkSurfaceKHR	mSurface;
-			VkSwapchainKHR	mSwapChain;
-			VkColorSpaceKHR	mColorSpace;
+			vk::SurfaceKHR		mSurface;
+			vk::SwapchainKHR	mSwapChain;
+			vk::ColorSpaceKHR	mColorSpace;
 
 			math::Vec2u	mSize;
 
 			// Descriptor to use this FB as attachment inside a render pass
-			VkAttachmentDescription mAttachDesc = {}; // Initially clear
+			vk::AttachmentDescription mAttachDesc = {}; // Initially clear
 
-			std::vector<VkImage>		mSwapChainImages;
-			std::vector<VkImageView>	mSwapChainImageViews;
+			std::vector<vk::Image>		mSwapChainImages;
+			std::vector<vk::ImageView>	mSwapChainImageViews;
 		};
 	}
 }
