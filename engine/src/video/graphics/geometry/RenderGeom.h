@@ -12,6 +12,7 @@ namespace rev {
 	namespace video {
 
 		// Basic element of geometry that can be used for rendering.
+		// It is comprised of a set of interleaved buffers of data per vertex, plus a buffer of indices
 		class RenderGeom {
 		public:
 			RenderGeom();
@@ -20,6 +21,8 @@ namespace rev {
 #ifdef REV_USE_VULKAN
 			vk::Buffer			mVertexBuffer;
 			vk::DeviceMemory	mVertexBufferMemory;
+			vk::Buffer			mIndexBuffer;
+			vk::DeviceMemory	mIndexBufferMemory;
 #endif // REV_USE_VULKAN
 
 		private:

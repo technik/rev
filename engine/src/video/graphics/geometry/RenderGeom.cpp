@@ -35,5 +35,18 @@ namespace video {
 		void* gpuMem = device.mapMemory(mVertexBufferMemory, 0, bufferSizeInBytes);
 		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)bufferSizeInBytes);
 		device.unmapMemory(mVertexBufferMemory);
+
+		// Index buffer
+		const std::vector<uint16_t> indices = {
+			0, 1, 2
+		};
+
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+		GraphicsDriver::get().createBuffer(bufferSize, vk::BufferUsageFlagBits::eIndexBuffer,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mIndexBuffer, mIndexBufferMemory);
+
+		gpuMem = device.mapMemory(mIndexBufferMemory, 0, bufferSize);
+		memcpy(gpuMem, indices.data(), (size_t) bufferSize);
+		device.unmapMemory(mIndexBufferMemory);
 	}
 }}

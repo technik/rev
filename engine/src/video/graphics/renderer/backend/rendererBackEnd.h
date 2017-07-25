@@ -20,10 +20,19 @@
 namespace rev {
 	namespace video {
 
-		struct StaticRenderMesh;
-		class Texture;
-#ifdef OPENGL_45
+		
 		class RendererBackEnd {
+		public:
+			struct DrawInfo {
+				// Per instance uniform data
+				// Textures
+				// Geometry: vertices, indices
+			};
+
+			struct BatchInfo {
+			};
+
+#ifdef OPENGL_45
 		public:
 			struct DrawInfo {
 				Shader::Ptr		program;
@@ -54,8 +63,8 @@ namespace rev {
 		private:
 			StaticRenderMesh* mSkyBox = nullptr;
 			GraphicsDriver* mDriver = nullptr;
-		};
 #endif // OPENGL_45
+		};
 	}
 }
 
