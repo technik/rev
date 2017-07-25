@@ -15,6 +15,7 @@
 
 #include <video/graphics/driver/NativeFrameBuffer.h>
 #include <video/graphics/geometry/RenderGeom.h>
+#include <video/graphics/renderer/backend/rendererBackEnd.h>
 
 #ifdef REV_USE_VULKAN
 #include <vulkan/vulkan.h>
@@ -34,7 +35,11 @@ namespace rev {
 			void render(const RenderGeom&);
 			void endFrame();
 
+		private:
+			RendererBackEnd	mBackEnd;
+
 #ifdef REV_USE_VULKAN
+		public:
 			VkPipeline	pipeline() const { return mPipeline; }
 			VkRenderPass renderPass() const { return mRenderPass; }
 
@@ -56,7 +61,6 @@ namespace rev {
 			VkDescriptorSetLayout mDescriptorSetLayout;
 			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
 			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
-			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
 			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
 			VkDescriptorPool mDescriptorPool;
 			VkDescriptorSet mDescriptorSet;
@@ -83,7 +87,6 @@ namespace rev {
 			Shader::Ptr			mSkyboxShader;
 
 			GraphicsDriver*		mDriver = nullptr;
-			RendererBackEnd*	mBackEnd = nullptr;
 			Shader::Ptr			mProgram = nullptr;
 #endif // OPENGL_45
 		};

@@ -4,18 +4,39 @@
 // 2014/April/07
 //----------------------------------------------------------------------------------------------------------------------
 // Render system's back end, the layer right on top of the video driver
-#ifdef OPENGL_45
 #include "rendererBackEnd.h"
+
+#ifdef REV_USE_VULKAN
+
+#endif // REV_USE_VULKAN
+#ifdef OPENGL_45
 
 #include <math/algebra/matrix.h>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/staticRenderMesh.h>
 
 using namespace rev::math;
+#endif // OPENGL_45
 
 namespace rev {
 	namespace video {
+#ifdef REV_USE_VULKAN
+		//------------------------------------------------------------------------------------------------------------------
+		void RendererBackEnd::draw(const DrawBatch& _batch) {
+			// Vertex buffer
+			VkBuffer vertexBuffers[] = { (VkBuffer)_batch.vertexBuffer };
+			VkDeviceSize offsets[] = {0};
+			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
+			// Index buffer
+			vkCmdBindIndexBuffer(mCommandBuffer, (VkBuffer)_batch.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			// Draw
+			for(auto drawCall : _batch.draws) {
+				vkCmdDrawIndexed(mCommandBuffer, drawCall.nIndices, drawCall.nInstances, drawCall.indexOffset, drawCall.vertexOffset, 0);
+			}
+		}
 
+#endif // REV_USE_VULKAN
+#ifdef OPENGL_45
 		//------------------------------------------------------------------------------------------------------------------
 		void RendererBackEnd::draw(const DrawCall& _dc) {
 #ifndef REV_USE_VULKAN
@@ -85,6 +106,6 @@ namespace rev {
 		void RendererBackEnd::flush() {
 			//glBindVertexArray(0);
 		}
+#endif // OPENGL_45
 	}
 }
-#endif // OPENGL_45

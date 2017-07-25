@@ -124,7 +124,7 @@ namespace rev {
 			createDescriptorPool();
 			createDescriptorSet();
 
-			if (vkAllocateCommandBuffers(mDevice, &allocInfo, &mCommandBuffer) != VK_SUCCESS) {
+			if (vkAllocateCommandBuffers(mDevice, &allocInfo, &mBackEnd.mCommandBuffer) != VK_SUCCESS) {
 				return false;
 			}
 
@@ -149,7 +149,7 @@ namespace rev {
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 			beginInfo.pInheritanceInfo = nullptr; // Optional
 
-			vkBeginCommandBuffer(mCommandBuffer, &beginInfo);
+			vkBeginCommandBuffer(mBackEnd.mCommandBuffer, &beginInfo);
 
 			// Begin render pass
 			VkRenderPassBeginInfo renderPassInfo = {};
@@ -164,36 +164,36 @@ namespace rev {
 			renderPassInfo.clearValueCount = 1;
 			renderPassInfo.pClearValues = &clearColor;
 
-			vkCmdBeginRenderPass(mCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			vkCmdBeginRenderPass(mBackEnd.mCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::render(const RenderGeom& _geom) {
 			// Pipeline
-			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+			vkCmdBindPipeline(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+			vkCmdBindDescriptorSets(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSet, 0, nullptr);
 			// Uniforms
 			math::Vec2f offset(0.25f, 0.25f);
 			vk::Device device(mDevice);
 			void* data = device.mapMemory(mUniformBufferMemory, 0, sizeof(offset));
 			memcpy(data, &offset, sizeof(offset));
 			device.unmapMemory(mUniformBufferMemory);
-			// Vertex buffer
-			VkBuffer vertexBuffers[] = { (VkBuffer)_geom.mVertexBuffer };
-			VkDeviceSize offsets[] = {0};
-			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
-			vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSet, 0, nullptr);
-			// Index buffer
-			vkCmdBindIndexBuffer(mCommandBuffer, (VkBuffer)_geom.mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-			// Draw
-			vkCmdDrawIndexed(mCommandBuffer, _geom.nIndices(), 1, 0, 0, 0);
+			RendererBackEnd::DrawCall callInfo = {};
+			callInfo.nInstances = 1;
+			callInfo.nIndices = _geom.nIndices();
+			RendererBackEnd::DrawBatch batch;
+			batch.draws.push_back(callInfo);
+			batch.indexBuffer = _geom.mIndexBuffer;
+			batch.vertexBuffer = _geom.mVertexBuffer;
+			mBackEnd.draw(batch);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::endFrame() {
 			// End render pass
-			vkCmdEndRenderPass(mCommandBuffer);
+			vkCmdEndRenderPass(mBackEnd.mCommandBuffer);
 
-			vkEndCommandBuffer(mCommandBuffer);
+			vkEndCommandBuffer(mBackEnd.mCommandBuffer);
 
 			// ----- Submit command buffer -----
 			VkSubmitInfo submitInfo = {};
@@ -206,7 +206,7 @@ namespace rev {
 			submitInfo.pWaitDstStageMask = waitStages;
 
 			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &mCommandBuffer;
+			submitInfo.pCommandBuffers = &mBackEnd.mCommandBuffer;
 
 			VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
 			submitInfo.signalSemaphoreCount = 1;

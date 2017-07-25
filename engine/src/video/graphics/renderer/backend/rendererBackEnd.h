@@ -43,6 +43,10 @@ namespace rev {
 		public:
 			void draw(const DrawBatch& _batch);
 
+#ifdef REV_USE_VULKAN
+			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
+#endif
+
 #ifdef OPENGL_45
 		public:
 			struct DrawInfo {
