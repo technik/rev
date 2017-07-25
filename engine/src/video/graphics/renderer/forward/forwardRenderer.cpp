@@ -169,24 +169,23 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::render(const RenderGeom& _geom) {
-
+			// Pipeline
 			vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
-
+			// Uniforms
 			math::Vec2f offset(0.25f, 0.25f);
-
 			vk::Device device(mDevice);
 			void* data = device.mapMemory(mUniformBufferMemory, 0, sizeof(offset));
 			memcpy(data, &offset, sizeof(offset));
 			device.unmapMemory(mUniformBufferMemory);
-
+			// Vertex buffer
 			VkBuffer vertexBuffers[] = { (VkBuffer)_geom.mVertexBuffer };
 			VkDeviceSize offsets[] = {0};
 			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
-
 			vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSet, 0, nullptr);
-
+			// Index buffer
+			vkCmdBindIndexBuffer(mCommandBuffer, (VkBuffer)_geom.mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 			// Draw
-			vkCmdDraw(mCommandBuffer, _geom.nVertices(), 1, 0, 0);
+			vkCmdDrawIndexed(mCommandBuffer, _geom.nIndices(), 1, 0, 0, 0);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ namespace rev {
 		public:
 			RenderGeom();
 			uint32_t nVertices() const { return mNVerts; }
+			uint32_t nIndices() const { return 3; }
 
 #ifdef REV_USE_VULKAN
 			vk::Buffer			mVertexBuffer;

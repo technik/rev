@@ -23,14 +23,25 @@ namespace rev {
 		
 		class RendererBackEnd {
 		public:
-			struct DrawInfo {
-				// Per instance uniform data
-				// Textures
-				// Geometry: vertices, indices
+			struct DrawCall {
+				uint32_t indexOffset;
+				uint32_t nIndices;
+				uint32_t vertexOffset;
+				uint32_t nInstances;
+				// perInstanceUniformInfo
+				// - More than one buffer? maybe with different frequencies? think stereo rendering + instancing
+				// batchUniformInfo?
+			};
+			struct DrawBatch {
+				std::vector<DrawCall>	draws;
+#ifdef REV_USE_VULKAN
+				vk::Buffer indexBuffer;
+				vk::Buffer vertexBuffer;
+#endif
 			};
 
-			struct BatchInfo {
-			};
+		public:
+			void draw(const DrawBatch& _batch);
 
 #ifdef OPENGL_45
 		public:
