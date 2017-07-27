@@ -53,7 +53,8 @@ namespace rev {
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
 		mRenderer.beginFrame();
-		mRenderer.render(mTriangle);
+		math::Mat44f worldMtx = math::Mat44f::identity();
+		mRenderer.render(mTriangle, worldMtx);
 		mRenderer.endFrame();
 
 		return true;

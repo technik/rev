@@ -29,7 +29,7 @@ namespace rev {
 				uint32_t vertexOffset;
 				// Uniforms
 				struct UnifromData {
-					void* data = nullptr;
+					const void* data = nullptr;
 					size_t size = 0;
 				} uniformData;
 #ifdef REV_USE_VULKAN

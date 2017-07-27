@@ -32,7 +32,7 @@ namespace rev {
 			bool init(const NativeFrameBuffer&);
 
 			void beginFrame();
-			void render(const RenderGeom&);
+			void render(const RenderGeom&, const math::Mat44f& _wvp);
 			void endFrame();
 
 		private:

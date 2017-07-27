@@ -168,7 +168,7 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::render(const RenderGeom& _geom) {
+		void ForwardRenderer::render(const RenderGeom& _geom, const math::Mat44f& _wvp) {
 			// Pipeline
 			vkCmdBindPipeline(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			mBackEnd.mActivePipelineLayout = mPipelineLayout;
@@ -178,7 +178,7 @@ namespace rev {
 			RendererBackEnd::DrawCall callInfo = {};
 			callInfo.nIndices = _geom.nIndices();
 			callInfo.uniformData.size = sizeof(math::Mat44f);
-			callInfo.uniformData.data = &worldMtx;
+			callInfo.uniformData.data = &_wvp;
 			//callInfo.mDescriptorSet = mDescriptorSet;
 			RendererBackEnd::DrawBatch batch;
 			batch.draws.push_back(callInfo);
