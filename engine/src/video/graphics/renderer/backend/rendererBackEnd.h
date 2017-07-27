@@ -27,7 +27,18 @@ namespace rev {
 				uint32_t indexOffset;
 				uint32_t nIndices;
 				uint32_t vertexOffset;
-				uint32_t nInstances;
+				// Uniforms
+				struct UnifromData {
+					void* data = nullptr;
+					size_t size = 0;
+				} uniformData;
+#ifdef REV_USE_VULKAN
+				// TODO: Use descriptor sets instead of push constants
+				//VkDescriptorSet mDescriptorSet;
+#endif
+				// TODO: Support hardware instancing. Uniforms that must be specified per instance,
+				// must be fed in a vertex buffer with per-instance input rate
+				// uint32_t nInstances;
 				// perInstanceUniformInfo
 				// - More than one buffer? maybe with different frequencies? think stereo rendering + instancing
 				// batchUniformInfo?
@@ -45,6 +56,7 @@ namespace rev {
 
 #ifdef REV_USE_VULKAN
 			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
+			VkPipelineLayout mActivePipelineLayout = VK_NULL_HANDLE;
 #endif
 
 #ifdef OPENGL_45

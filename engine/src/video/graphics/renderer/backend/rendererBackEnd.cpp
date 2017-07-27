@@ -25,13 +25,20 @@ namespace rev {
 		void RendererBackEnd::draw(const DrawBatch& _batch) {
 			// Vertex buffer
 			VkBuffer vertexBuffers[] = { (VkBuffer)_batch.vertexBuffer };
-			VkDeviceSize offsets[] = {0};
+			VkDeviceSize offsets[] = {0}; // No offsets. We use interleaved vertex data, so there's only one buffer to bind
 			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
 			// Index buffer
 			vkCmdBindIndexBuffer(mCommandBuffer, (VkBuffer)_batch.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 			// Draw
 			for(auto drawCall : _batch.draws) {
-				vkCmdDrawIndexed(mCommandBuffer, drawCall.nIndices, drawCall.nInstances, drawCall.indexOffset, drawCall.vertexOffset, 0);
+				// Uniforms
+				if(drawCall.uniformData.size > 0) {
+					assert(drawCall.uniformData.data);
+					vkCmdPushConstants(mCommandBuffer, mActivePipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, drawCall.uniformData.size, drawCall.uniformData.data);
+				}
+				//vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mActivePipelineLayout, 0, 1, &drawCall.mDescriptorSet, 0, nullptr);
+				// Draw indices
+				vkCmdDrawIndexed(mCommandBuffer, drawCall.nIndices, 1, drawCall.indexOffset, drawCall.vertexOffset, 0);
 			}
 		}
 

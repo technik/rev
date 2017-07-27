@@ -171,16 +171,16 @@ namespace rev {
 		void ForwardRenderer::render(const RenderGeom& _geom) {
 			// Pipeline
 			vkCmdBindPipeline(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
-			vkCmdBindDescriptorSets(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSet, 0, nullptr);
-			// Uniforms
+			mBackEnd.mActivePipelineLayout = mPipelineLayout;
+			// Copy uniforms to GPU memory
 			math::Vec2f offset(0.25f, 0.25f);
 			vk::Device device(mDevice);
-			void* data = device.mapMemory(mUniformBufferMemory, 0, sizeof(offset));
-			memcpy(data, &offset, sizeof(offset));
-			device.unmapMemory(mUniformBufferMemory);
+			// Send draw batches to back end
 			RendererBackEnd::DrawCall callInfo = {};
-			callInfo.nInstances = 1;
 			callInfo.nIndices = _geom.nIndices();
+			callInfo.uniformData.size = sizeof(offset);
+			callInfo.uniformData.data = &offset;
+			//callInfo.mDescriptorSet = mDescriptorSet;
 			RendererBackEnd::DrawBatch batch;
 			batch.draws.push_back(callInfo);
 			batch.indexBuffer = _geom.mIndexBuffer;
@@ -398,10 +398,15 @@ namespace rev {
 													// Pipeline layout
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 1; // Optional
-			pipelineLayoutInfo.pSetLayouts = &mDescriptorSetLayout; // Optional
-			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-			pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
+			pipelineLayoutInfo.setLayoutCount = 0;//1; // Optional
+			pipelineLayoutInfo.pSetLayouts = 0;//&mDescriptorSetLayout; // Optional
+			pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+			auto range = VkPushConstantRange{
+				VK_SHADER_STAGE_VERTEX_BIT,
+				0,
+				2*sizeof(float)
+			};
+			pipelineLayoutInfo.pPushConstantRanges = &range;//0; // Optional
 
 			if (vkCreatePipelineLayout(mDevice, &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
 				cout << "failed to create pipeline layout!\n";

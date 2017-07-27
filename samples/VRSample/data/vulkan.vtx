@@ -5,7 +5,7 @@
 layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexClr;
 
-layout(location = 0) uniform UniformBufferObject {
+layout(push_constant) uniform UniformBufferObject {
 	vec2 offset;
 } perInstanceData;
 
