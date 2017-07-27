@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vector>
 #include "../GraphicsDriverBase.h"
+#include <math/algebra/matrix.h>
 
 namespace rev {
 	namespace video {
@@ -23,6 +24,11 @@ namespace rev {
 			VulkanDriver(const Window* _wnd = nullptr);
 #endif
 			~VulkanDriver();
+
+			// API dependent math
+			/// \param _fov horizontal field of view in radians
+			/// \param _aspectRatio horizontal fov / vertical fov
+			static math::Mat44f projectionMtx(float _fov, float _aspectRatio, float _nearClip, float _farClip);
 
 			VkDevice device() const { return mDevice; }
 			VkPhysicalDevice physicalDevice() const { return mPhysicalDevice; }

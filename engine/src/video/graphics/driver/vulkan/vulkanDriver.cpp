@@ -27,6 +27,7 @@
 #endif // ANDROID
 
 using namespace std;
+using namespace rev::math;
 
 namespace // Anonymous namespace for vulkan utilities
 {
@@ -136,6 +137,16 @@ namespace rev {
 			delete[] mExtensions;
 			DestroyDebugReportCallbackEXT(mApiInstance, mDebugCallback, nullptr);
 			vkDestroyInstance(mApiInstance, nullptr);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		Mat44f VulkanDriver::projectionMtx(float _fov, float _aspectRatio, float _nearClip, float _farClip) {
+			Mat44f proj;
+			proj[0] = Vec4f(1.f, 0.f, 0.f, 0.f);
+			proj[1] = Vec4f(0.f, 0.f, 1.f, 0.f);
+			proj[2] = Vec4f(0.f, -1.f, 0.f, 0.f);
+			proj[3] = Vec4f(0.f, 0.f, 0.f, 1.f);
+			return proj;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

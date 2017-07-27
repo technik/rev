@@ -76,17 +76,15 @@ namespace rev {
 		class Matrix4x4
 		{
 		public:
-			Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
-			const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
+			Vector4<Number_>&		operator[]	(unsigned _col)			{ return m[_col]; }
+			const Vector4<Number_>&	operator[]	(unsigned _col) const	{ return m[_col]; }
 
 			// Operators
 			Matrix4x4	operator*	(const Matrix3x4<Number_>& _b) const;
 			Matrix4x4	operator*	(const Matrix4x4<Number_>& _b) const;
-			void		transpose(Matrix4x4& _transpose) const;
+			Matrix4x4	transpose	() const;
 
 			// Useful matrices
-			static Matrix4x4		frustrum(Number_ _fovRad, Number_ _aspectRatio, Number_ _nearClip, Number_ _farClip);
-			static Matrix4x4		ortho(const Vector3<Number_>& _volumeDimensions);
 			static Matrix4x4		identity();
 
 		private:

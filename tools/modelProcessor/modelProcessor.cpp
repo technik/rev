@@ -15,7 +15,6 @@
 #include <string>
 
 using namespace std;
-using namespace rev::core;
 using namespace rev::video;
 using namespace rev::math;
 

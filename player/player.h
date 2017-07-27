@@ -27,6 +27,7 @@ namespace rev {
 		bool frame(float _dt) override;
 
 	private:
+		float t = 0.f;
 		video::RenderGeom	mTriangle;
 
 	};

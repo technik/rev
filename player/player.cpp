@@ -52,9 +52,15 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
+		t += _dt;
 		mRenderer.beginFrame();
 		math::Mat44f worldMtx = math::Mat44f::identity();
-		mRenderer.render(mTriangle, worldMtx);
+		//worldMtx[0][3] = (float)sin(t);
+		worldMtx[3][1] = (float)sin(t);
+		math::Mat44f projMtx = GraphicsDriver::projectionMtx(106.f*3.14f/180.f, 4.f/3.f,0.1f,100.f);
+		//math::Mat44f projMtx = math::Mat44f::frustrum(106.f*3.14f/180.f, 4.f/3.f,0.1f,100.f);
+		math::Mat44f wvp = (projMtx*worldMtx);
+		mRenderer.render(mTriangle, wvp);
 		mRenderer.endFrame();
 
 		return true;

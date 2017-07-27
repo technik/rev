@@ -197,7 +197,7 @@ namespace rev {
 		// Matrix 4x4
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<typename Number_>
+		/*template<typename Number_>
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::frustrum(Number_ _fovRad, Number_ _aspectRatio, Number_ _nearClip, Number_ _farClip)
 		{
 			// Precomputations
@@ -226,25 +226,7 @@ namespace rev {
 			f.m[3][3] = Number_(0.f);
 
 			return f;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<typename Number_>
-		inline Matrix4x4<Number_> Matrix4x4<Number_>::ortho(const Vector3<Number_>& _volumeDimensions)
-		{
-			Matrix4x4 mtx;
-			for (unsigned int row = 0; row < 4; ++row)
-			{
-				for (unsigned int column = 0; column < 4; ++column)
-				{
-					if (column == row)
-						mtx.m[row][column] = row==3 ? Number_(1.f) : 2 * Number_(1.f) / _volumeDimensions[row];
-					else
-						mtx.m[row][column] = Number_(0.f);
-				}
-			}
-			return mtx;
-		}
+		}*/
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename T_>
@@ -289,12 +271,10 @@ namespace rev {
 			Matrix4x4 dst;
 			for (unsigned row = 0; row < 4; ++row)
 			{
+				Vector<Number_,4> rowV(m[0][row], m[1][row], m[2][row], m[3][row]);
 				for (unsigned column = 0; column < 4; ++column)
 				{
-					dst[row][column] = m[row][0] * _b[0][column]
-						+ m[row][1] * _b[1][column]
-						+ m[row][2] * _b[2][column];
-					+m[row][3] * _b[3][column];
+					dst[column][row] = rowV*_b[column];
 				}
 			}
 			return dst;
@@ -302,15 +282,17 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
-		inline void Matrix4x4<Number_>::transpose(Matrix4x4& _transpose) const
+		inline Matrix4x4<Number_> Matrix4x4<Number_>::transpose() const
 		{
+			Matrix4x4 transpose;
 			for (unsigned i = 0; i < 4; ++i)
 			{
 				for (unsigned j = 0; j < 4; ++j)
 				{
-					_transpose.m[i][j] = m[j][i];
+					transpose.m[i][j] = m[j][i];
 				}
 			}
+			return transpose;
 		}
 
 	}	// namespace math

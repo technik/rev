@@ -36,7 +36,7 @@ namespace rev {
 				,mNear(_near)
 				,mFar(_far)
 			{
-				mProjection = Mat44f::frustrum(_fov, _aspectRatio, _near, _far);
+//				mProjection = Mat44f::frustrum(_fov, _aspectRatio, _near, _far);
 
 				float tangent = tan(_fov / 2.f);
 				Vec3f minVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_near;
@@ -71,7 +71,7 @@ namespace rev {
 				mVertices[6] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
 				mVertices[7] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
 
-				mProjection = Mat44f::ortho(size);
+//				mProjection = Mat44f::ortho(size);
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }
