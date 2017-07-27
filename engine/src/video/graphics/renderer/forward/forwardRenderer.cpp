@@ -173,13 +173,12 @@ namespace rev {
 			vkCmdBindPipeline(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			mBackEnd.mActivePipelineLayout = mPipelineLayout;
 			// Copy uniforms to GPU memory
-			math::Vec2f offset(0.25f, 0.25f);
-			vk::Device device(mDevice);
+			math::Mat44f worldMtx = math::Mat44f::identity();
 			// Send draw batches to back end
 			RendererBackEnd::DrawCall callInfo = {};
 			callInfo.nIndices = _geom.nIndices();
-			callInfo.uniformData.size = sizeof(offset);
-			callInfo.uniformData.data = &offset;
+			callInfo.uniformData.size = sizeof(math::Mat44f);
+			callInfo.uniformData.data = &worldMtx;
 			//callInfo.mDescriptorSet = mDescriptorSet;
 			RendererBackEnd::DrawBatch batch;
 			batch.draws.push_back(callInfo);
@@ -404,7 +403,7 @@ namespace rev {
 			auto range = VkPushConstantRange{
 				VK_SHADER_STAGE_VERTEX_BIT,
 				0,
-				2*sizeof(float)
+				4*4*sizeof(float)
 			};
 			pipelineLayoutInfo.pPushConstantRanges = &range;//0; // Optional
 

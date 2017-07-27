@@ -6,7 +6,7 @@ layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexClr;
 
 layout(push_constant) uniform UniformBufferObject {
-	vec2 offset;
+	mat4 worldMtx;
 } perInstanceData;
 
 // Outputs
@@ -17,6 +17,6 @@ out gl_PerVertex {
 layout(location = 0) out vec3 color;
 
 void main() {
-    gl_Position = vec4(vertexPos.xy + perInstanceData.offset, vertexPos.z, 1.0);
+    gl_Position = perInstanceData.worldMtx * vec4(vertexPos, 1.0);
 	color = vertexClr;
 }
