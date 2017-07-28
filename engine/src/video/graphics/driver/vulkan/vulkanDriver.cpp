@@ -142,10 +142,14 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		Mat44f VulkanDriver::projectionMtx(float _fov, float _aspectRatio, float _nearClip, float _farClip) {
 			Mat44f proj;
-			proj[0] = Vec4f(1.f, 0.f, 0.f, 0.f);
-			proj[1] = Vec4f(0.f, 0.f, 1.f, 0.f);
-			proj[2] = Vec4f(0.f, -1.f, 0.f, 0.f);
-			proj[3] = Vec4f(0.f, 0.f, 0.f, 1.f);
+			float invRange = 1.f/(_farClip - _nearClip);
+			float itgX = 1.f/tan(_fov*0.5f);
+			float itgY = itgX/_aspectRatio;
+
+			proj[0] = Vec4f(itgX, 0.f, 0.f, 0.f);
+			proj[1] = Vec4f(0.f, 0.f, -itgY, 0.f);
+			proj[2] = Vec4f(0.f, _farClip*invRange, 0.f, -_farClip*_nearClip*invRange);
+			proj[3] = Vec4f(0.f, 1.f, 0.f, 0.f);
 			return proj;
 		}
 

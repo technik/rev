@@ -76,19 +76,21 @@ namespace rev {
 		class Matrix4x4
 		{
 		public:
-			Vector4<Number_>&		operator[]	(unsigned _col)			{ return m[_col]; }
-			const Vector4<Number_>&	operator[]	(unsigned _col) const	{ return m[_col]; }
+			Vector4<Number_>&		operator[]	(unsigned _row)			{ return rows[_row]; }
+			const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return rows[_row]; }
 
 			// Operators
-			Matrix4x4	operator*	(const Matrix3x4<Number_>& _b) const;
-			Matrix4x4	operator*	(const Matrix4x4<Number_>& _b) const;
-			Matrix4x4	transpose	() const;
+			Number_&		operator()	(size_t _i, size_t _j)					{ return rows[_i][_j]; }
+			const Number_&	operator()	(size_t _i, size_t _j)			const	{ return rows[_i][_j]; }
+			Matrix4x4		operator*	(const Matrix3x4<Number_>& _b)	const;
+			Matrix4x4		operator*	(const Matrix4x4<Number_>& _b)	const;
+			Matrix4x4		transpose	() const;
 
 			// Useful matrices
 			static Matrix4x4		identity();
 
 		private:
-			Vector4<Number_>	m[4];
+			Vector4<Number_>	rows[4];
 		};
 
 		//------------------------------------------------------------------------------------------------------------------

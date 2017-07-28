@@ -238,9 +238,9 @@ namespace rev {
 				for (unsigned int column = 0; column < 4; ++column)
 				{
 					if (column == row)
-						mtx.m[row][column] = T_(1.f);
+						mtx.rows[row][column] = T_(1.f);
 					else
-						mtx.m[row][column] = T_(0.f);
+						mtx.rows[row][column] = T_(0.f);
 				}
 			}
 			return mtx;
@@ -251,7 +251,7 @@ namespace rev {
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::operator* (const Matrix3x4<Number_>& _b) const
 		{
 			Matrix4x4 dst;
-			for (unsigned row = 0; row < 4; ++row)
+			for (int row = 0; row < 4; ++row)
 			{
 				for (unsigned column = 0; column < 4; ++column)
 				{
@@ -269,12 +269,12 @@ namespace rev {
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::operator* (const Matrix4x4<Number_>& _b) const
 		{
 			Matrix4x4 dst;
-			for (unsigned row = 0; row < 4; ++row)
+			for (unsigned column = 0; column < 4; ++column)
 			{
-				Vector<Number_,4> rowV(m[0][row], m[1][row], m[2][row], m[3][row]);
-				for (unsigned column = 0; column < 4; ++column)
+				Vector<Number_,4> colV(_b.rows[0][column], _b.rows[1][column], _b.rows[2][column], _b.rows[3][column]);
+				for (unsigned row = 0; row < 4; ++row)
 				{
-					dst[column][row] = rowV*_b[column];
+					dst(column,row) = rows[row]*colV;
 				}
 			}
 			return dst;
@@ -289,7 +289,7 @@ namespace rev {
 			{
 				for (unsigned j = 0; j < 4; ++j)
 				{
-					transpose.m[i][j] = m[j][i];
+					transpose.rows[i][j] = rows[j][i];
 				}
 			}
 			return transpose;
