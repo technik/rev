@@ -91,9 +91,9 @@ namespace // Anonymous namespace for vulkan utilities
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
-	uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
-		vk::PhysicalDeviceMemoryProperties memProperties;
-		vk::PhysicalDevice(rev::video::VulkanDriver::get().physicalDevice()).getMemoryProperties(&memProperties);
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(rev::video::VulkanDriver::get().physicalDevice(), &memProperties);
 
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 			if ((typeFilter & (1 << i))  && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -155,7 +155,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, vk::Instance(mApiInstance), *this);
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, *this);
 			return mNativeFB;
 		}
 
@@ -177,44 +177,47 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer& _buffer, VkDeviceMemory& _bufferMemory) const 
 		{
-			VkBufferCreateInfo createInfo = VkBufferCreateInfo({}, // No flags
-				_size, // Size in bytes
-				_usage, // Usage
-				vk::SharingMode::eExclusive); // Sharing mode between queue families
+			VkBufferCreateInfo createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+			createInfo.size = _size;
+			createInfo.usage = _usage;
+			createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
 			VkDevice device(mDevice);
-			_buffer = device.createBuffer(createInfo);
+			vkCreateBuffer(mDevice, &createInfo, nullptr, &_buffer);
 
 			VkMemoryRequirements memRequirements;
-			device.getBufferMemoryRequirements(_buffer, &memRequirements);
+			vkGetBufferMemoryRequirements(mDevice, _buffer, &memRequirements);
 
-			VkMemoryAllocateInfo allocInfo = VkMemoryAllocateInfo(memRequirements.size, 
-				findMemoryType(memRequirements.memoryTypeBits, _properties));
+			VkMemoryAllocateInfo allocInfo = {};
+			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+			allocInfo.allocationSize = memRequirements.size;
+			allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, _properties);
 
-			_bufferMemory = device.allocateMemory(allocInfo);
-			device.bindBufferMemory(_buffer, _bufferMemory, 0);
+			vkAllocateMemory(mDevice, &allocInfo, nullptr, &_bufferMemory);
+			vkBindBufferMemory(mDevice, _buffer, _bufferMemory, 0);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(vk::SurfaceKHR surface) const {
+		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR _surface) const {
 			SwapChainSupportDetails details;
 			// Capabilities
-			vk::PhysicalDevice physicalDevice(mPhysicalDevice);
-			physicalDevice.getSurfaceCapabilitiesKHR(surface, &details.capabilities);
+			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, _surface, &details.capabilities);
 			// Formats
 			uint32_t formatCount;
-			physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, nullptr);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, _surface, &formatCount, nullptr);
 
 			if (formatCount > 0) {
 				details.formats.resize(formatCount);
-				physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, details.formats.data());
+				vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, _surface, &formatCount, details.formats.data());
 			}
 			// Present modes
 			uint32_t presentModeCount;
-			physicalDevice.getSurfacePresentModesKHR(surface, &presentModeCount, nullptr);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, _surface, &presentModeCount, nullptr);
 
 			if (presentModeCount > 0) {
 				details.presentModes.resize(presentModeCount);
-				physicalDevice.getSurfacePresentModesKHR(surface, &presentModeCount, details.presentModes.data());
+				vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, _surface, &presentModeCount, details.presentModes.data());
 			}
 
 			return details;
