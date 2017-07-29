@@ -109,8 +109,8 @@ namespace rev {
 			}
 
 			// Allocate uniform buffer
-			VkDeviceSize bufferSize = sizeof(math::Vec2f);
-			GraphicsDriver::get().createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mUniformBuffer, mUniformBufferMemory);
+			//VkDeviceSize bufferSize = sizeof(math::Vec2f);
+			//GraphicsDriver::get().createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mUniformBuffer, mUniformBufferMemory);
 
 			// Allocate command buffer
 			mCommandPool = GraphicsDriver::get().createCommandPool(true); // The command buffers get reset every frame

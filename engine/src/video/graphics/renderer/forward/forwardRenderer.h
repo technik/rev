@@ -64,8 +64,8 @@ namespace rev {
 			VkDescriptorPool mDescriptorPool;
 			VkDescriptorSet mDescriptorSet;
 
-			vk::Buffer mUniformBuffer;
-			vk::DeviceMemory mUniformBufferMemory;
+			VkBuffer mUniformBuffer;
+			//VkDeviceMemory mUniformBufferMemory;
 
 			VkSemaphore imageAvailableSemaphore;
 			VkSemaphore renderFinishedSemaphore;

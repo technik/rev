@@ -46,8 +46,8 @@ namespace rev {
 			struct DrawBatch {
 				std::vector<DrawCall>	draws;
 #ifdef REV_USE_VULKAN
-				vk::Buffer indexBuffer;
-				vk::Buffer vertexBuffer;
+				VkBuffer indexBuffer;
+				VkBuffer vertexBuffer;
 #endif
 			};
 
