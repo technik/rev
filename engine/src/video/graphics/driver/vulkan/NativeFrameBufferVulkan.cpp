@@ -134,7 +134,7 @@ namespace rev { namespace video {
 	//--------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 	bool NativeFrameBufferVulkan::initSurface(const Window& _wnd, const VulkanDriver& _driver) {
-		VkWin32SurfaceCreateInfoKHR createInfo;
+		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.hwnd = _wnd.winapiHandle();
 		createInfo.hinstance = GetModuleHandle(nullptr);

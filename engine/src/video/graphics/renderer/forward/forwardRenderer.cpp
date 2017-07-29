@@ -121,8 +121,8 @@ namespace rev {
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocInfo.commandBufferCount = 1;
 
-			createDescriptorPool();
-			createDescriptorSet();
+			//createDescriptorPool();
+			//createDescriptorSet();
 
 			if (vkAllocateCommandBuffers(mDevice, &allocInfo, &mBackEnd.mCommandBuffer) != VK_SUCCESS) {
 				return false;
