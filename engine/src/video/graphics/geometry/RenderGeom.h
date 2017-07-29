@@ -20,10 +20,10 @@ namespace rev {
 			uint32_t nIndices() const { return 3; }
 
 #ifdef REV_USE_VULKAN
-			vk::Buffer			mVertexBuffer;
-			vk::DeviceMemory	mVertexBufferMemory;
-			vk::Buffer			mIndexBuffer;
-			vk::DeviceMemory	mIndexBufferMemory;
+			VkBuffer		mVertexBuffer;
+			VkDeviceMemory	mVertexBufferMemory;
+			VkBuffer		mIndexBuffer;
+			VkDeviceMemory	mIndexBufferMemory;
 #endif // REV_USE_VULKAN
 
 		private:

@@ -27,14 +27,15 @@ namespace video {
 
 		mNVerts = 3;
 
-		vk::DeviceSize bufferSizeInBytes = rawVertexBuffer.size()*sizeof(Vec3f);
-		GraphicsDriver::get().createBuffer(bufferSizeInBytes, vk::BufferUsageFlagBits::eVertexBuffer, 
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mVertexBuffer, mVertexBufferMemory);
+		VkDeviceSize bufferSizeInBytes = rawVertexBuffer.size()*sizeof(Vec3f);
+		GraphicsDriver::get().createBuffer(bufferSizeInBytes, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mVertexBuffer, mVertexBufferMemory);
 
-		vk::Device device(GraphicsDriver::get().device());
-		void* gpuMem = device.mapMemory(mVertexBufferMemory, 0, bufferSizeInBytes);
+		VkDevice device = GraphicsDriver::get().device();
+		void* gpuMem;
+		vkMapMemory(device, mVertexBufferMemory, 0, bufferSizeInBytes, 0, &gpuMem);
 		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)bufferSizeInBytes);
-		device.unmapMemory(mVertexBufferMemory);
+		vkUnmapMemory(device, mVertexBufferMemory);
 
 		// Index buffer
 		const std::vector<uint16_t> indices = {
@@ -42,11 +43,11 @@ namespace video {
 		};
 
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-		GraphicsDriver::get().createBuffer(bufferSize, vk::BufferUsageFlagBits::eIndexBuffer,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mIndexBuffer, mIndexBufferMemory);
-
-		gpuMem = device.mapMemory(mIndexBufferMemory, 0, bufferSize);
-		memcpy(gpuMem, indices.data(), (size_t) bufferSize);
-		device.unmapMemory(mIndexBufferMemory);
+		GraphicsDriver::get().createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mIndexBuffer, mIndexBufferMemory);
+		
+		vkMapMemory(device, mIndexBufferMemory, 0, bufferSize, 0, &gpuMem);
+		memcpy(gpuMem, indices.data(), (size_t)bufferSize);
+		vkUnmapMemory(device, mIndexBufferMemory);
 	}
 }}
