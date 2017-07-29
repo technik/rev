@@ -31,6 +31,26 @@ namespace rev {
 		mRenderer.init(window().frameBuffer()); // Configure renderer to render into the frame buffer
 
 		VkDevice device = driver3d().device();
+
+		// Static data for a triangle
+		const vector<Vec3f> rawVertexBuffer = {
+			Vec3f(0.0f, 0.0f, 1.f), -Vec3f::yAxis(), // Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
+			Vec3f(1.f, 0.0f, -1.f), -Vec3f::yAxis(),//Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
+			Vec3f(-1.f, 0.0f, -1.f), -Vec3f::yAxis()// Vec3f(255.f/255.0f, 51.0f/255.0f, 153.0f/255.0f)
+		};
+
+		// Index buffer
+		const std::vector<uint16_t> indices = {
+			0, 1, 2
+		};
+
+		VertexFormat mVertexFormat;
+		mVertexFormat.hasPosition = true;
+		mVertexFormat.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
+		mVertexFormat.normalSpace = VertexFormat::NormalSpace::eModel;
+		mVertexFormat.nUVs = 0;
+
+		mTriangle = new RenderGeom(mVertexFormat, 3, rawVertexBuffer.data(), 3, indices.data());
 #endif
 	}
 
@@ -59,7 +79,7 @@ namespace rev {
 		worldMtx[1][3] = 1.f+(float)sin(t);
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f wvp = (projMtx*worldMtx);
-		mRenderer.render(mTriangle, wvp);
+		mRenderer.render(*mTriangle, wvp);
 		mRenderer.endFrame();
 
 		return true;

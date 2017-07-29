@@ -28,7 +28,7 @@ namespace rev {
 
 	private:
 		float t = 0.f;
-		video::RenderGeom	mTriangle;
+		video::RenderGeom*	mTriangle;
 
 	};
 

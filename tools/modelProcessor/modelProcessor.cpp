@@ -31,7 +31,6 @@ struct IntermediateModel {
 	Vec3f* normals = nullptr;
 	Vec2f* uvs = nullptr;
 	uint16_t* indices = nullptr;
-
 	uint32_t nIndices = 0;
 	uint16_t nVertices = 0;
 
@@ -103,6 +102,7 @@ bool loadFBXMesh(const aiMesh* _mesh, IntermediateModel& _dst) {
 		_dst.indices[3 * i + 2] = _mesh->mFaces[i].mIndices[2];
 	}
 	// Format
+	_dst.format.
 	_dst.format.normals = VertexFormat::NormalFormat::normal3;
 	_dst.format.uvChannels = 1;
 	return true;

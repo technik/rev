@@ -40,7 +40,7 @@ namespace rev { namespace video {
 		NormalSpace		normalSpace = NormalSpace::eModel;
 		size_t			nUVs = 0;
 
-		size_t	stride() {
+		size_t	stride() const {
 			size_t stride = 0;
 			if(hasPosition)
 				stride += 3*sizeof(float);

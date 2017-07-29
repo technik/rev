@@ -15,37 +15,34 @@ namespace video {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	// Basic element of geometry that can be used for rendering.
-	RenderGeom::RenderGeom () {
-		// Static data for a triangle
-		const vector<Vec3f> rawVertexBuffer = {
-			Vec3f(0.0f, 0.0f, 1.f), -Vec3f::yAxis(), // Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
-			Vec3f(1.f, 0.0f, -1.f), -Vec3f::yAxis(),//Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
-			Vec3f(-1.f, 0.0f, -1.f), -Vec3f::yAxis()// Vec3f(255.f/255.0f, 51.0f/255.0f, 153.0f/255.0f)
-		};
-
-		mNVerts = 3;
-
-		VkDeviceSize bufferSizeInBytes = rawVertexBuffer.size()*sizeof(Vec3f);
+	RenderGeom::RenderGeom (const VertexFormat& _fmt, uint32_t _nVertices, const void* _vtxData, uint32_t _nIndices, const uint16_t* _indices)
+		: mVtxFormat(_fmt)
+		, mNVertices(_nVertices)
+		, mVertexData(_vtxData)
+		, mNIndices(_nIndices)
+		, mIndices(_indices)
+	{
+#ifdef REV_USE_VULKAN
+		// Send vertex buffer to gpu
+		VkDeviceSize bufferSizeInBytes = _nVertices*_fmt.stride();
 		GraphicsDriver::get().createBuffer(bufferSizeInBytes, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mVertexBuffer, mVertexBufferMemory);
 
 		VkDevice device = GraphicsDriver::get().device();
 		void* gpuMem;
 		vkMapMemory(device, mVertexBufferMemory, 0, bufferSizeInBytes, 0, &gpuMem);
-		memcpy(gpuMem, rawVertexBuffer.data(), (size_t)bufferSizeInBytes);
+		memcpy(gpuMem, mVertexData, (size_t)bufferSizeInBytes);
 		vkUnmapMemory(device, mVertexBufferMemory);
 
-		// Index buffer
-		const std::vector<uint16_t> indices = {
-			0, 1, 2
-		};
-
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+		
+		// Send Index buffer to gpu
+		VkDeviceSize bufferSize = sizeof(mIndices[0]) * mNIndices;
 		GraphicsDriver::get().createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mIndexBuffer, mIndexBufferMemory);
 		
 		vkMapMemory(device, mIndexBufferMemory, 0, bufferSize, 0, &gpuMem);
-		memcpy(gpuMem, indices.data(), (size_t)bufferSize);
+		memcpy(gpuMem, mIndices, (size_t)bufferSize);
 		vkUnmapMemory(device, mIndexBufferMemory);
+#endif
 	}
 }}

@@ -17,11 +17,11 @@ namespace rev {
 		// It is comprised of a set of interleaved buffers of data per vertex, plus a buffer of indices
 		class RenderGeom {
 		public:
-			RenderGeom();
-			uint32_t nVertices() const { return mNVerts; }
-			uint32_t nIndices() const { return 3; }
+			RenderGeom(const VertexFormat&, uint32_t _nVertices, const void* _vtxData, uint32_t _nIndices, const uint16_t* _indices);
+			uint32_t nVertices() const { return mNVertices; }
+			uint32_t nIndices() const { return mNIndices; }
 
-			VertexFormat mVtxFormat;
+			const VertexFormat& vertexFormat() const { return mVtxFormat; }
 
 #ifdef REV_USE_VULKAN
 			VkBuffer		mVertexBuffer;
@@ -31,6 +31,11 @@ namespace rev {
 #endif // REV_USE_VULKAN
 
 		private:
-			uint32_t mNVerts;
+			VertexFormat mVtxFormat;
+
+			uint32_t mNVertices;
+			const void* mVertexData;
+			uint32_t mNIndices;
+			const uint16_t* mIndices;
 		};
 }}
