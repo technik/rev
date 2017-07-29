@@ -2,7 +2,10 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
+#ifdef ANDROID
 #define VK_USE_PLATFORM_ANDROID_KHR 1
+#include <dlfcn.h>
+#endif
 #include "NativeFrameBufferVulkan.h"
 #include <video/window/window.h>
 #include <iostream>
@@ -11,9 +14,6 @@
 #include <vulkan/vk_platform.h>
 #include <core/log.h>
 
-#ifdef ANDROID
-#include <dlfcn.h>
-#endif
 
 using namespace std;
 
@@ -155,7 +155,7 @@ namespace rev { namespace video {
 		}
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(_driver.physicalDevice(), _driver.graphicsFamily(), mSurface, &presentSupport);
+		vkGetPhysicalDeviceSurfaceSupportKHR(GraphicsDriver::get().physicalDevice(), GraphicsDriver::get().graphicsFamily(), mSurface, &presentSupport);
 
 		return presentSupport;
 #endif // _WIN32
