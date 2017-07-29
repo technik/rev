@@ -19,7 +19,6 @@
 
 #ifdef REV_USE_VULKAN
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan.hpp>
 #endif // REV_USE_VULKAN
 
 namespace rev {

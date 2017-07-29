@@ -5,7 +5,7 @@
 #pragma once
 
 #ifdef REV_USE_VULKAN
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 #endif // REV_USE_VULKAN
 
 namespace rev {
