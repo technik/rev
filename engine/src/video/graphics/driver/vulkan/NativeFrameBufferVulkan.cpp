@@ -2,10 +2,13 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
+#define VK_USE_PLATFORM_ANDROID_KHR 1
 #include "NativeFrameBufferVulkan.h"
 #include <video/window/window.h>
 #include <iostream>
 #include <vector>
+
+#include <vulkan/vk_platform.h>
 
 using namespace std;
 
@@ -46,13 +49,13 @@ namespace rev { namespace video {
 	//--------------------------------------------------------------------------------------------------------------
 	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance)
 		: mApiInstance(_apiInstance)
-		, mDevice(_driver.device())
+		, mDevice(GraphicsDriver::get().device())
 	{
 		if(!initSurface(_wnd))
 			return;
 
 		// Swap chain options
-		auto support = _driver.querySwapChainSupport(mSurface);
+		auto support = GraphicsDriver::get().querySwapChainSupport(mSurface);
 		auto surfaceFormat = chooseSwapSurfaceFormat(support.formats);
 		mImageFormat = surfaceFormat.format;
 		auto presentMode = chooseSwapPresentMode(support.presentModes);
@@ -150,15 +153,12 @@ namespace rev { namespace video {
 		return presentSupport;
 #endif // _WIN32
 #ifdef ANDROID
-		VkAndroidSurfaceCreateInfoKHR createInfo {
-			.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
-			.pNext = nullptr,
-			.flags = 0,
-			.window = app->window };
-
 		VkAndroidSurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
 		createInfo.window = _wnd.nativeWindow;
+
+		vkCreateAndroidSurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface);
+		return true;
 #endif // ANDROID
 	}
 	/*

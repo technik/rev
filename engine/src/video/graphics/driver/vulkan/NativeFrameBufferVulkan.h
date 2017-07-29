@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include "vulkanDriver.h"
+#include <vulkan/vulkan.h>
 #include <math/algebra/vector.h>
 
 namespace rev {
@@ -28,11 +28,7 @@ namespace rev {
 			const VkAttachmentDescription&	attachmentDescription() const { return mAttachDesc; }
 
 		private:
-#ifdef ANDROID
-			bool initSurface(VkInstance _apiInstance);
-#else
 			bool initSurface(const Window& _wnd);
-#endif
 			void setupAttachmentDesc();
 
 			VkFormat		mImageFormat;

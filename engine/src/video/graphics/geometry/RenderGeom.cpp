@@ -2,8 +2,6 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
-#pragma once
-
 #include "RenderGeom.h"
 #include <math/algebra/vector.h>
 #include <vector>

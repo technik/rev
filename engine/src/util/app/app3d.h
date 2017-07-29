@@ -31,9 +31,9 @@ namespace rev {
 
 	protected:
 		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
+		rev::video::Window&			window		() const { return *mWindow; }
 #ifndef ANDROID
 		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
-		rev::video::Window&			window		() const { return *mWindow; }
 #endif // !ANDROID
 
 		virtual bool				frame	(float _dt); // Usually override this

@@ -31,20 +31,19 @@ namespace rev {
 		mMinFrameTime = 1.f/120;
 #ifdef ANDROID
 		mWindow = mEngine.createNativeWindow(_info);
-		mDriver = new GraphicsDriver(_info);
 #else
-		// Open config file
-		cjson::Json config;// = loadConfig();
 		mWindow = mEngine.createNativeWindow();
+		mKeyboard = input::KeyboardInput::get();
+#endif // !ANDROID
 	#ifdef REV_USE_VULKAN
 		mDriver = new GraphicsDriver(mWindow);
 	#endif // REV_USE_VULKAN
 	#ifdef OPENGL_45
+		// Open config file
+		cjson::Json config;// = loadConfig();
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
 	#endif // OPENGL_45
 
-		mKeyboard = input::KeyboardInput::get();
-#endif // !ANDROID
 		assert(mDriver);
 	}
 
@@ -80,7 +79,7 @@ namespace rev {
 			return false;
 #ifdef OPENGL_45
 		mDriver->finishFrame();
-#endif OPENGL_45
+#endif // OPENGL_45
 		return true;
 	}
 

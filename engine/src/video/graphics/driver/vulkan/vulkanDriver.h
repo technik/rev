@@ -19,12 +19,7 @@ namespace rev {
 
 		class VulkanDriver : public GraphicsDriverBase<VulkanDriver> {
 		public:
-#ifdef ANDROID
-			VulkanDriver(const core::StartUpInfo& _info);
-#else
-			// If _wnd is not null, the driver will try to create a native frame buffer for that window
 			VulkanDriver(const Window* _wnd = nullptr);
-#endif
 			~VulkanDriver();
 
 			// API dependent math

@@ -202,6 +202,21 @@
     <ClInclude Include="..\src\video\graphics\driver\vulkan\vulkanDriver.h">
       <Filter>src\video\graphics\driver\vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\graphics\geometry\RenderGeom.h">
+      <Filter>src\video\graphics\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\geometry\VertexFormat.h">
+      <Filter>src\video\graphics\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\vulkan\NativeFrameBufferVulkan.h">
+      <Filter>src\video\graphics\driver\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\GraphicsDriverBase.h">
+      <Filter>src\video\graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\graphics\driver\NativeFrameBuffer.h">
+      <Filter>src\video\graphics\driver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="libs">
@@ -333,6 +348,9 @@
     <Filter Include="src\video\graphics\driver\vulkan">
       <UniqueIdentifier>{b610d671-fb86-45eb-8787-193627473e47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video\graphics\geometry">
+      <UniqueIdentifier>{daa18f29-c814-4bef-883d-a12e64b686e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\math\noise.cpp">
@@ -433,6 +451,15 @@
     </ClCompile>
     <ClCompile Include="..\src\video\basicTypes\camera.cpp">
       <Filter>src\video\basicTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\geometry\RenderGeom.cpp">
+      <Filter>src\video\graphics\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\driver\vulkan\NativeFrameBufferVulkan.cpp">
+      <Filter>src\video\graphics\driver\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\graphics\driver\vulkan\vulkanDriver.cpp">
+      <Filter>src\video\graphics\driver\vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

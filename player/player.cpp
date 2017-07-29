@@ -42,7 +42,7 @@ namespace rev {
 	//----------------------------------------------------------------
 	void Player::processArgs(const StartUpInfo& _info) {
 #ifdef ANDROID
-		mSceneName = "vrScene.scn";
+		//mSceneName = "vrScene.scn";
 #else
 		if (_info.argC > 1) {
 //			mSceneName = _info.argV[1];

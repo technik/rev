@@ -109,14 +109,11 @@ namespace rev {
 	namespace video {
 
 		// Static singleton data
+		template<>
 		VulkanDriver* GraphicsDriverBase<VulkanDriver>::sInstance = nullptr;
 
 		//--------------------------------------------------------------------------------------------------------------
-#ifdef ANDROID
-		VulkanDriver::VulkanDriver(const StartUpInfo& _info) {
-#else
 		VulkanDriver::VulkanDriver(const Window* _wnd) {
-#endif
 			createInstance();
 #if _DEBUG
 			setupDebugCallback();
@@ -124,13 +121,10 @@ namespace rev {
 			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
-#ifdef ANDROID
-			createNativeFrameBuffer(_info.window);
-#else
+
 			if(_wnd) {
 				createNativeFrameBuffer(*_wnd);
 			}
-#endif
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -159,7 +153,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, *this);
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance);
 			return mNativeFB;
 		}
 
@@ -187,7 +181,6 @@ namespace rev {
 			createInfo.usage = _usage;
 			createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-			VkDevice device(mDevice);
 			vkCreateBuffer(mDevice, &createInfo, nullptr, &_buffer);
 
 			VkMemoryRequirements memRequirements;
