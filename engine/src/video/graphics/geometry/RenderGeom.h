@@ -8,6 +8,8 @@
 #include <vulkan/vulkan.h>
 #endif // REV_USE_VULKAN
 
+#include "VertexFormat.h"
+
 namespace rev {
 	namespace video {
 
@@ -18,6 +20,8 @@ namespace rev {
 			RenderGeom();
 			uint32_t nVertices() const { return mNVerts; }
 			uint32_t nIndices() const { return 3; }
+
+			VertexFormat mVtxFormat;
 
 #ifdef REV_USE_VULKAN
 			VkBuffer		mVertexBuffer;

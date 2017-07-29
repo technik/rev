@@ -15,6 +15,7 @@
 
 #include <video/graphics/driver/NativeFrameBuffer.h>
 #include <video/graphics/geometry/RenderGeom.h>
+#include <video/graphics/geometry/VertexFormat.h>
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 
 #ifdef REV_USE_VULKAN
@@ -45,6 +46,7 @@ namespace rev {
 		private:
 			bool createRenderPass();
 			bool createDescriptorSetLayout();
+			void setupVertexFormat();
 			bool createPipeline(const VkExtent2D& _viewportSize);
 			bool createFrameBufferViews();
 			bool createDescriptorPool();
@@ -69,6 +71,8 @@ namespace rev {
 
 			VkSemaphore imageAvailableSemaphore;
 			VkSemaphore renderFinishedSemaphore;
+
+			VertexFormat	mVertexFormat;
 
 #endif // REV_USE_VULKAN
 

@@ -6,7 +6,6 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-#include <video/graphics/staticRenderMesh.h>
 #include <math/algebra/vector.h>
 
 #include <cassert>
@@ -14,11 +13,13 @@
 #include <iostream>
 #include <string>
 
+#include <video/graphics/geometry/VertexFormat.h>
+
 using namespace std;
 using namespace rev::video;
 using namespace rev::math;
 
-typedef rev::video::StaticRenderMesh::VertexFormat	VertexFormat;
+typedef rev::video::VertexFormat	VertexFormat;
 
 // --- Global data ---
 // The importer is stored globally, so buffers don't get erased and we can save some memcpy's
@@ -50,7 +51,7 @@ struct IntermediateModel {
 	
 	bool saveToStream(ostream& _out) {
 		auto stride = format.stride();
-		// Allocate space for cache-friendly vertex data
+		// Allocate space for cache-friendly (interleaved) vertex data
 		float* vertexData = reinterpret_cast<float*>(new uint8_t[stride*nVertices]);
 		if(!vertexData) {
 			cout << "Error: Unable to allocate memory\n";

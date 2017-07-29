@@ -23,7 +23,6 @@ using namespace rev::math;
 #include <iostream>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <core/platform/fileSystem/file.h>
-#include <video/graphics/geometry/VertexFormat.h>
 
 using namespace std;
 
@@ -287,6 +286,14 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void ForwardRenderer::setupVertexFormat() {
+			mVertexFormat.hasPosition = true;
+			mVertexFormat.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
+			mVertexFormat.normalSpace = VertexFormat::NormalSpace::eModel;
+			mVertexFormat.nUVs = 0;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::createPipeline(const VkExtent2D& _viewportSize) {
 			// ----- Create a graphics pipeline -----
 			auto vertexShader = core::File("data/vert.spv");
@@ -313,8 +320,9 @@ namespace rev {
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-			auto bindingDescription = VertexFormat::getBindingDescription();
-			auto attributeDescriptions = VertexFormat::getAttributeDescriptions();
+			setupVertexFormat();
+			auto bindingDescription = mVertexFormat.getBindingDescription();
+			auto attributeDescriptions = mVertexFormat.getAttributeDescriptions();
 
 			vertexInputInfo.vertexBindingDescriptionCount = 1;
 			vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

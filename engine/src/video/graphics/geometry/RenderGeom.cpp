@@ -18,9 +18,9 @@ namespace video {
 	RenderGeom::RenderGeom () {
 		// Static data for a triangle
 		const vector<Vec3f> rawVertexBuffer = {
-			Vec3f(0.0f, 0.0f, 1.f), Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
-			Vec3f(1.f, 0.0f, -1.f), Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
-			Vec3f(-1.f, 0.0f, -1.f), Vec3f(255.f/255.0f, 51.0f/255.0f, 153.0f/255.0f)
+			Vec3f(0.0f, 0.0f, 1.f), -Vec3f::yAxis(), // Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
+			Vec3f(1.f, 0.0f, -1.f), -Vec3f::yAxis(),//Vec3f(141.f/255.0f, 252.0f/255.0f, 247.0f/255.0f),
+			Vec3f(-1.f, 0.0f, -1.f), -Vec3f::yAxis()// Vec3f(255.f/255.0f, 51.0f/255.0f, 153.0f/255.0f)
 		};
 
 		mNVerts = 3;

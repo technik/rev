@@ -3,7 +3,7 @@
 
 // Inputs
 layout(location = 0) in vec3 vertexPos;
-layout(location = 1) in vec3 vertexClr;
+layout(location = 1) in vec3 vertexNormal;
 
 layout(push_constant) uniform UniformBufferObject {
 	mat4 worldMtx;
@@ -14,9 +14,6 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-layout(location = 0) out vec3 color;
-
 void main() {
     gl_Position = perInstanceData.worldMtx * vec4(vertexPos, 1.0);
-	color = vertexClr;
 }
