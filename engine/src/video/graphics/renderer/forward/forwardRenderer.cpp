@@ -172,8 +172,6 @@ namespace rev {
 			// Pipeline
 			vkCmdBindPipeline(mBackEnd.mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
 			mBackEnd.mActivePipelineLayout = mPipelineLayout;
-			// Copy uniforms to GPU memory
-			math::Mat44f worldMtx = math::Mat44f::identity();
 			// Send draw batches to back end
 			RendererBackEnd::DrawCall callInfo = {};
 			callInfo.nIndices = _geom.nIndices();
@@ -281,7 +279,7 @@ namespace rev {
 			layoutInfo.pBindings = &uboLayoutBinding;
 
 			if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create descriptor set layout!");
+				cout << "failed to create descriptor set layout!\n";
 				return false;
 			}
 

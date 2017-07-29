@@ -15,11 +15,7 @@ namespace rev {
 
 		class NativeFrameBufferVulkan {
 		public:
-#ifdef ANDROID
-			NativeFrameBufferVulkan();
-#else
-			NativeFrameBufferVulkan(const Window&, VkInstance _apiInstance, const VulkanDriver&);
-#endif
+			NativeFrameBufferVulkan(const Window&, VkInstance _apiInstance);
 			~NativeFrameBufferVulkan();
 
 			const math::Vec2u& size() const { return mSize; }
@@ -35,7 +31,7 @@ namespace rev {
 #ifdef ANDROID
 			bool initSurface(VkInstance _apiInstance);
 #else
-			bool initSurface(const Window& _wnd, const VulkanDriver& _driver);
+			bool initSurface(const Window& _wnd);
 #endif
 			void setupAttachmentDesc();
 

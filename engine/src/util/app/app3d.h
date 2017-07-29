@@ -49,8 +49,8 @@ namespace rev {
 
 #ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;
-		rev::video::Window*			mWindow;
 #endif // !ANDROID
+		rev::video::Window*			mWindow;
 		rev::core::Profiler			mProfiler;
 	};
 

@@ -14,6 +14,7 @@ namespace rev {
 #ifdef ANDROID
 		struct StartUpInfo {
 			ANativeActivity* activity;
+			ANativeWindow*	window;
 		};
 
 #else //!ANDROID

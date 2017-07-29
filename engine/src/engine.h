@@ -31,7 +31,9 @@ namespace rev {
 		bool update();
 
 		video::Window*			nativeWindow		() const { return mNativeWindow; }
-#ifndef ANDROID
+#ifdef ANDROID
+		video::Window*			createNativeWindow(const core::StartUpInfo& _info);
+#else
 		video::Window*			createNativeWindow	();
 #endif
 		net::http::Server*		jsonAPI				() const { return mAPIService; }

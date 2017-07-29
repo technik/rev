@@ -25,6 +25,7 @@
 // Android's OpenGL driver
 //----------------------------------------------------------------------------------------------------------------------
 #ifdef ANDROID
+#ifdef OPENGL_ES3
 
 #include "openGLDriverAndroid.h"
 #include <video/graphics/shader/shader.h>
@@ -113,4 +114,5 @@ namespace rev {
 	}
 }
 
+#endif // OPENGL_ES3
 #endif // ANDROID

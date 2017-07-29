@@ -20,8 +20,8 @@
 #include <input/keyboard/keyboardInput.h>
 #include <video/basicTypes/camera.h>
 #include <video/graphics/renderObj.h>
-#include <video/window/window.h>
 #endif // !ANDROID
+#include <video/window/window.h>
 #include <video/graphics/shader/shader.h>
 #include <network/http/httpServer.h>
 
@@ -66,12 +66,16 @@ namespace rev {
 		return true;
 	}
 
-#ifndef ANDROID
 	//----------------------------------------------------------------------------------------------------------------------
+#ifdef ANDROID
+	video::Window* Engine::createNativeWindow(const core::StartUpInfo& _info) {
+		mNativeWindow = new video::Window(math::Vec2u(0, 0), math::Vec2u(1920, 1080), "Rev window");
+		mNativeWindow->nativeWindow = _info.window;
+#else
 	video::Window* Engine::createNativeWindow() {
 		mNativeWindow = new video::Window(math::Vec2u(100, 100), math::Vec2u(800, 600), "Rev window");
+#endif
 		return mNativeWindow;
 	}
-#endif
 
 }	// namespace rev

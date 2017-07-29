@@ -12,6 +12,8 @@ namespace rev {
 		class WindowAndroid {
 		public:
 			WindowAndroid(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName);
+
+			ANativeWindow* nativeWindow;
 		};
 
 		typedef WindowAndroid	WindowBase;

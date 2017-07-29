@@ -3,6 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 // Textures
+#if defined(OPENGL_45) || defined(OPENGL_ES3)
 
 #include <video/basicTypes/texture.h>
 #include <freeImage/FreeImage.h>
@@ -362,3 +363,5 @@ namespace rev {
 		}
 	}
 }
+
+#endif // OPENGL_45 || OPENGL_ES3

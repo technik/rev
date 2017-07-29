@@ -7,6 +7,9 @@
 #include <vector>
 #include "../GraphicsDriverBase.h"
 #include <math/algebra/matrix.h>
+#ifdef ANDROID
+#include <core/platform/platformInfo.h>
+#endif
 
 namespace rev {
 	namespace video {
@@ -17,7 +20,7 @@ namespace rev {
 		class VulkanDriver : public GraphicsDriverBase<VulkanDriver> {
 		public:
 #ifdef ANDROID
-			VulkanDriver();
+			VulkanDriver(const core::StartUpInfo& _info);
 #else
 			// If _wnd is not null, the driver will try to create a native frame buffer for that window
 			VulkanDriver(const Window* _wnd = nullptr);

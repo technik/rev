@@ -216,6 +216,7 @@ using namespace rev;
 void android_main(struct android_app* state) {
 	rev::core::StartUpInfo info;
 	info.activity = state->activity;
+	info.window = state->window;
 	Player revPlayer(info);
 	//struct engine engine;
 	//

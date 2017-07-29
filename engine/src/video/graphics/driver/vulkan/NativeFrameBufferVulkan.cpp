@@ -44,17 +44,13 @@ namespace rev { namespace video {
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
-	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance, const VulkanDriver& _driver)
+	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance)
 		: mApiInstance(_apiInstance)
 		, mDevice(_driver.device())
 	{
-#ifdef _WIN32
-		if(!initSurface(_wnd, _driver))
+		if(!initSurface(_wnd))
 			return;
-#else
-		if(!initSurface())
-			return;
-#endif
+
 		// Swap chain options
 		auto support = _driver.querySwapChainSupport(mSurface);
 		auto surfaceFormat = chooseSwapSurfaceFormat(support.formats);
@@ -132,8 +128,8 @@ namespace rev { namespace video {
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
+	bool NativeFrameBufferVulkan::initSurface(const Window& _wnd) {
 #ifdef _WIN32
-	bool NativeFrameBufferVulkan::initSurface(const Window& _wnd, const VulkanDriver& _driver) {
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.hwnd = _wnd.winapiHandle();
@@ -152,9 +148,20 @@ namespace rev { namespace video {
 		vkGetPhysicalDeviceSurfaceSupportKHR(_driver.physicalDevice(), _driver.graphicsFamily(), mSurface, &presentSupport);
 
 		return presentSupport;
-	}
 #endif // _WIN32
 #ifdef ANDROID
+		VkAndroidSurfaceCreateInfoKHR createInfo {
+			.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
+			.pNext = nullptr,
+			.flags = 0,
+			.window = app->window };
+
+		VkAndroidSurfaceCreateInfoKHR createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+		createInfo.window = _wnd.nativeWindow;
+#endif // ANDROID
+	}
+	/*
 	bool VulkanDriver::initSurface(VkInstance _apiInstance) {
 		LOGI("Init surface");
 		// Get display information
@@ -169,15 +176,14 @@ namespace rev { namespace video {
 		}
 
 		// Set display mode
-		/*VkDisplayModeKHR
+		VkDisplayModeKHR
 
 		VkDisplaySurfaceCreateInfoKHR	createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-		createInfo.*/
+		createInfo.
 		LOGI("Finish Init surface");
 		return true;
-	}
-#endif // ANDROID
+	}*/
 
 	//--------------------------------------------------------------------------------------------------------------
 	void NativeFrameBufferVulkan::setupAttachmentDesc() {

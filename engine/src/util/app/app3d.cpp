@@ -29,13 +29,12 @@ namespace rev {
 		:mEngine(_info)
 	{
 		mMinFrameTime = 1.f/120;
+#ifdef ANDROID
+		mWindow = mEngine.createNativeWindow(_info);
+		mDriver = new GraphicsDriver(_info);
+#else
 		// Open config file
 		cjson::Json config;// = loadConfig();
-#ifdef ANDROID
-		GraphicsDriver* driver = new GraphicsDriver(config);
-		//driver->setWindow(_info.activity->);
-		mDriver = driver;
-#else
 		mWindow = mEngine.createNativeWindow();
 	#ifdef REV_USE_VULKAN
 		mDriver = new GraphicsDriver(mWindow);

@@ -113,7 +113,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 #ifdef ANDROID
-		VulkanDriver::VulkanDriver() {
+		VulkanDriver::VulkanDriver(const StartUpInfo& _info) {
 #else
 		VulkanDriver::VulkanDriver(const Window* _wnd) {
 #endif
@@ -124,9 +124,13 @@ namespace rev {
 			getPhysicalDevice();
 			findQueueFamilies();
 			createLogicalDevice();
+#ifdef ANDROID
+			createNativeFrameBuffer(_info.window);
+#else
 			if(_wnd) {
 				createNativeFrameBuffer(*_wnd);
 			}
+#endif
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
