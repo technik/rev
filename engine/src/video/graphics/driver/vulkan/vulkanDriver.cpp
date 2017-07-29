@@ -175,19 +175,19 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void VulkanDriver::createBuffer(vk::DeviceSize _size, vk::BufferUsageFlags _usage, vk::MemoryPropertyFlags _properties, vk::Buffer& _buffer, vk::DeviceMemory& _bufferMemory) const 
+		void VulkanDriver::createBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer& _buffer, VkDeviceMemory& _bufferMemory) const 
 		{
-			vk::BufferCreateInfo createInfo = vk::BufferCreateInfo({}, // No flags
+			VkBufferCreateInfo createInfo = VkBufferCreateInfo({}, // No flags
 				_size, // Size in bytes
 				_usage, // Usage
 				vk::SharingMode::eExclusive); // Sharing mode between queue families
-			vk::Device device(mDevice);
+			VkDevice device(mDevice);
 			_buffer = device.createBuffer(createInfo);
 
-			vk::MemoryRequirements memRequirements;
+			VkMemoryRequirements memRequirements;
 			device.getBufferMemoryRequirements(_buffer, &memRequirements);
 
-			vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo(memRequirements.size, 
+			VkMemoryAllocateInfo allocInfo = VkMemoryAllocateInfo(memRequirements.size, 
 				findMemoryType(memRequirements.memoryTypeBits, _properties));
 
 			_bufferMemory = device.allocateMemory(allocInfo);

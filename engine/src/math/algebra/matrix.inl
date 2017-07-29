@@ -255,11 +255,11 @@ namespace rev {
 			{
 				for (unsigned column = 0; column < 4; ++column)
 				{
-					dst[row][column] = m[row][0] * _b[0][column]
-						+ m[row][1] * _b[1][column]
-						+ m[row][2] * _b[2][column];
+					dst[row][column] = rows[row][0] * _b[0][column]
+						+ rows[row][1] * _b[1][column]
+						+ rows[row][2] * _b[2][column];
 				}
-				dst[row][3] += m[row][3];
+				dst[row][3] += rows[row][3];
 			}
 			return dst;
 		}

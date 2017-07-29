@@ -23,18 +23,17 @@
 namespace rev {
 	namespace video
 	{
-#ifdef ANDROID
-		//typedef VulkanDriver GraphicsDriver;
-		typedef OpenGLDriverAndroid	GraphicsDriver;
-#endif // ANDROID
-#ifdef _WIN32
-	#if REV_USE_VULKAN
+#if REV_USE_VULKAN
 		typedef VulkanDriver	GraphicsDriver;
-	#endif // REV_USE_VULKAN
-	#ifdef OPENGL_45
+#endif // REV_USE_VULKAN
+#ifdef OPENGL_45
+	#ifdef ANDROID
+		typedef OpenGLDriverAndroid	GraphicsDriver;
+	#endif // ANDROID
+	#ifdef _WIN32
 		typedef OpenGLDriverWindows GraphicsDriver; 
-	#endif // OPENGL_45
-#endif // _WIN32
+	#endif // _WIN32
+#endif // OPENGL_45
 
 	}	// namespace video
 }	// namespace rev

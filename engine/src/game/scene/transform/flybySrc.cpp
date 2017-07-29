@@ -18,8 +18,8 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		bool FlyBySrc::update(float _dt) {
-			static float mult = 1.f;
 #ifndef ANDROID
+			static float mult = 1.f;
 			KeyboardInput* input = KeyboardInput::get();
 			if (input->pressed(KeyboardInput::eV))
 				mult *= 2.f;

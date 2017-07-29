@@ -4,7 +4,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan.hpp>
 #include <vector>
 #include "../GraphicsDriverBase.h"
 #include <math/algebra/matrix.h>
@@ -40,16 +39,16 @@ namespace rev {
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
 			VkCommandPool createCommandPool(bool _resetOften) const;
-			void createBuffer(vk::DeviceSize _size, vk::BufferUsageFlags _usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& bufferMemory) const;
+			void createBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 
 			// Driver capabilities
 			struct SwapChainSupportDetails {
-				vk::SurfaceCapabilitiesKHR capabilities;
-				std::vector<vk::SurfaceFormatKHR> formats;
-				std::vector<vk::PresentModeKHR> presentModes;
+				VkSurfaceCapabilitiesKHR capabilities;
+				std::vector<VkSurfaceFormatKHR> formats;
+				std::vector<VkPresentModeKHR> presentModes;
 			};
 
-			SwapChainSupportDetails querySwapChainSupport(vk::SurfaceKHR surface) const;
+			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
 
 		private:
 			// Vulkan initialization
