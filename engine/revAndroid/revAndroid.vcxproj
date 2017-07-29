@@ -202,6 +202,7 @@
     <ClInclude Include="..\src\core\components\sceneNode.h" />
     <ClInclude Include="..\src\core\components\transformSrc.h" />
     <ClInclude Include="..\src\core\event.h" />
+    <ClInclude Include="..\src\core\log.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
     <ClInclude Include="..\src\core\platform\fileSystem\fileSystem.h" />
     <ClInclude Include="..\src\core\platform\osHandler.h" />

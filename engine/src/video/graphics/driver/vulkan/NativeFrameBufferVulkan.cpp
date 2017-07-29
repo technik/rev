@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
-// Created by Carmelo J. Fdez-Ag�era Tortosa (a.k.a. Technik)
+// Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 #define VK_USE_PLATFORM_ANDROID_KHR 1
 #include "NativeFrameBufferVulkan.h"
@@ -9,6 +9,11 @@
 #include <vector>
 
 #include <vulkan/vk_platform.h>
+#include <core/log.h>
+
+#ifdef ANDROID
+#include <dlfcn.h>
+#endif
 
 using namespace std;
 
@@ -51,6 +56,7 @@ namespace rev { namespace video {
 		: mApiInstance(_apiInstance)
 		, mDevice(GraphicsDriver::get().device())
 	{
+		core::Log::debug(" ----- NativeFrameBufferVulkan::NativeFrameBufferVulkan -----");
 		if(!initSurface(_wnd))
 			return;
 
@@ -81,7 +87,7 @@ namespace rev { namespace video {
 
 		// Create the swap chain
 		if(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
-			cout << "failed to create swap chain!";
+			core::Log::error("failed to create swap chain!");
 			return;
 		}
 
@@ -111,7 +117,7 @@ namespace rev { namespace video {
 
 			VkImageView view;
 			if(vkCreateImageView(mDevice, &createInfo, nullptr, &view) != VK_SUCCESS) {
-				cout << "failed to create image views within the native frame buffer\n";
+				core::Log::error("failed to create image views within the native frame buffer\n");
 			}
 			mSwapChainImageViews.push_back(view);
 		}
@@ -120,6 +126,7 @@ namespace rev { namespace video {
 
 		// Set up attachment desc so this FB can be used in a render pass
 		setupAttachmentDesc(); // Depends on FB configuration being ready
+		core::Log::debug(" ----- /NativeFrameBufferVulkan::NativeFrameBufferVulkan -----");
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -153,11 +160,38 @@ namespace rev { namespace video {
 		return presentSupport;
 #endif // _WIN32
 #ifdef ANDROID
+		core::Log::debug(" ----- VulkanDriver::initSurface -----");
 		VkAndroidSurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
 		createInfo.window = _wnd.nativeWindow;
 
-		vkCreateAndroidSurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface);
+		void* vulkan_so = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+			if (!vulkan_so) {
+				core::Log::error("Vulkan lib not found");
+				return false;
+			}
+
+		PFN_vkGetInstanceProcAddr getInstanceProcAddr =
+			reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+				dlsym(vulkan_so, "vkGetInstanceProcAddr"));
+
+		if(!getInstanceProcAddr) {
+			core::Log::error("Unable to get vkGetInstanceProcAddr");
+			return false;
+		}
+
+		PFN_vkCreateAndroidSurfaceKHR CreateAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR) vkGetInstanceProcAddr(mApiInstance, "vkCreateAndroidSurfaceKHR");
+		if(!CreateAndroidSurfaceKHR) {
+			core::Log::error("Unable to get function pointer to vkCreateAndroidSurfaceKHR");
+			return false;
+		}
+
+		if(VK_SUCCESS != CreateAndroidSurfaceKHR(mApiInstance, &createInfo, nullptr, &mSurface))
+		{
+			core::Log::error("Unable to create android surface");
+			return false;
+		}
+		core::Log::debug(" ----- /VulkanDriver::initSurface -----");
 		return true;
 #endif // ANDROID
 	}

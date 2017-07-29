@@ -15,25 +15,25 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <core/log.h>
 
 #ifdef ANDROID
 #include <android/native_window.h>
-#include <android/log.h>
-
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rev.AndroidPlayer", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "rev.AndroidPlayer", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "rev.AndroidPlayer", __VA_ARGS__))
 
 #endif // ANDROID
 
 using namespace std;
+using namespace rev::core;
 using namespace rev::math;
 
 namespace // Anonymous namespace for vulkan utilities
 {
 	//----------------------------------------------------------------------------------------------------------
 	const std::vector<const char*> validationLayers = {
+#ifdef ANDROID
+#else
 		"VK_LAYER_LUNARG_standard_validation"
+#endif
 	};
 
 	const std::vector<const char*> deviceExtensions = {
@@ -114,6 +114,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::VulkanDriver(const Window* _wnd) {
+			core::Log::debug(" ----- VulkanDriver::VulkanDriver -----");
 			createInstance();
 #if _DEBUG
 			setupDebugCallback();
@@ -125,6 +126,7 @@ namespace rev {
 			if(_wnd) {
 				createNativeFrameBuffer(*_wnd);
 			}
+			core::Log::debug(" ----- /VulkanDriver::VulkanDriver -----");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -159,6 +161,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		VkCommandPool VulkanDriver::createCommandPool(bool _resetOften) const {
+			core::Log::debug(" ----- /VulkanDriver::createCommandPool -----");
 			VkCommandPoolCreateInfo poolInfo = {};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			poolInfo.queueFamilyIndex = mQueueFamilyIndex;
@@ -166,15 +169,17 @@ namespace rev {
 
 			VkCommandPool commandPool;
 			if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-				cout <<"failed to create command pool!\n";
+				Log::error("failed to create command pool!\n");
 			}
 
+			core::Log::debug(" ----- /VulkanDriver::createCommandPool -----");
 			return commandPool;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags _properties, VkBuffer& _buffer, VkDeviceMemory& _bufferMemory) const 
 		{
+			core::Log::debug(" ----- VulkanDriver::createBuffer -----");
 			VkBufferCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			createInfo.size = _size;
@@ -193,10 +198,12 @@ namespace rev {
 
 			vkAllocateMemory(mDevice, &allocInfo, nullptr, &_bufferMemory);
 			vkBindBufferMemory(mDevice, _buffer, _bufferMemory, 0);
+			core::Log::debug(" ----- /VulkanDriver::createBuffer -----");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		VulkanDriver::SwapChainSupportDetails VulkanDriver::querySwapChainSupport(VkSurfaceKHR _surface) const {
+			core::Log::debug(" ----- VulkanDriver::querySwapChainSupport -----");
 			SwapChainSupportDetails details;
 			// Capabilities
 			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, _surface, &details.capabilities);
@@ -217,13 +224,17 @@ namespace rev {
 				vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, _surface, &presentModeCount, details.presentModes.data());
 			}
 
+			core::Log::debug(" ----- /VulkanDriver::querySwapChainSupport -----");
 			return details;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createInstance() {
+			core::Log::debug(" ----- VulkanDriver::createInstance -----");
+#ifndef ANDROID
 			if(!checkValidationLayerSupport())
 				return;
+#endif
 
 			// Basic application info
 			VkApplicationInfo appInfo = {};
@@ -251,9 +262,9 @@ namespace rev {
 			VkResult res = vkCreateInstance(&createInfo, nullptr, &mApiInstance);
 			if (res != VK_SUCCESS)
 			{
-				cout << "Error: Unable to create vulkan instance.\n";
-				//LOGE("Error: Unable to create vulkan instance.\n");
+				core::Log::debug("Error: Unable to create vulkan instance.\n");
 			}
+			core::Log::debug(" ----- /VulkanDriver::createInstance -----");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -302,9 +313,10 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::queryExtensions(VkInstanceCreateInfo& _ci) {
+			core::Log::debug(" ----- VulkanDriver::queryExtensions -----");
 			// Query available extensions count
 			vkEnumerateInstanceExtensionProperties(nullptr, &_ci.enabledExtensionCount, nullptr);
-			//LOGI("Found %d vulkan extensions:\n" , _ci.enabledExtensionCount);
+			Log::info("Found %d vulkan extensions: %d\n" , _ci.enabledExtensionCount);
 
 			// Allocate space for extension names
 			mExtensions = new VkExtensionProperties[_ci.enabledExtensionCount];
@@ -315,11 +327,9 @@ namespace rev {
 			// Copy extension names into createInfo
 			for (size_t i = 0; i < _ci.enabledExtensionCount; ++i) {
 				extensionNames[i] = mExtensions[i].extensionName;
-#if _DEBUG
-				cout << "- " << mExtensions[i].extensionName << "\n";
-#endif
-				//LOGI((std::string("- ") + mExtensions[i].extensionName).c_str());
+				Log::info((std::string("- ") + mExtensions[i].extensionName).c_str());
 			}
+			core::Log::debug(" ----- /VulkanDriver::queryExtensions -----");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -339,13 +349,13 @@ namespace rev {
 
 			// Get device properties
 			vkGetPhysicalDeviceProperties(mPhysicalDevice, &mDeviceProps);
-			cout << "Vulkan device name: " << mDeviceProps.deviceName << "\n";
-			//LOGI("Vulkan device name: %s", mDeviceProps.deviceName);
+			Log::info("Vulkan device name: %s", mDeviceProps.deviceName);
 			vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mDeviceFeatures);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::findQueueFamilies() {
+			core::Log::debug(" ----- VulkanDriver::findQueueFamilies -----");
 			uint32_t familyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &familyCount, nullptr);
 
@@ -361,10 +371,12 @@ namespace rev {
 			}
 			
 			assert(mQueueFamilyIndex >= 0);
+			core::Log::debug(" ----- /VulkanDriver::findQueueFamilies -----");
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createLogicalDevice() {
+			core::Log::debug(" ----- VulkanDriver::createLogicalDevice -----");
 			VkDeviceQueueCreateInfo queueCreateInfo = {};
 			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueCreateInfo.queueFamilyIndex = mQueueFamilyIndex;
@@ -388,10 +400,11 @@ namespace rev {
 #endif
 
 			if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
-				 //LOGE("failed to create logical device!");
+				Log::error("failed to create logical device!");
 			}
 
 			vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
+			core::Log::debug(" ----- /VulkanDriver::createLogicalDevice -----");
 		}
 	}
 }

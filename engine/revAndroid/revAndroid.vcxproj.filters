@@ -217,6 +217,9 @@
     <ClInclude Include="..\src\video\graphics\driver\NativeFrameBuffer.h">
       <Filter>src\video\graphics\driver</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\log.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="libs">

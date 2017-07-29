@@ -32,7 +32,7 @@ namespace rev {
 
 		video::Window*			nativeWindow		() const { return mNativeWindow; }
 #ifdef ANDROID
-		video::Window*			createNativeWindow(const core::StartUpInfo& _info);
+		video::Window*			createNativeWindow	(const core::StartUpInfo& _info);
 #else
 		video::Window*			createNativeWindow	();
 #endif
