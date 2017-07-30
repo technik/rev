@@ -6,6 +6,7 @@
 #include <math/algebra/vector.h>
 #include <vector>
 #include <video/graphics/driver/graphicsDriver.h>
+#include <fstream>
 
 using namespace rev::math;
 using namespace std;
@@ -22,6 +23,29 @@ namespace video {
 		, mNIndices(_nIndices)
 		, mIndices(_indices)
 	{}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	RenderGeom* RenderGeom::loadFromFile(const std::string& _fileName) {
+		std::ifstream file(_fileName, std::ifstream::binary);
+		if(!file.is_open())
+			return nullptr;
+		// Read header
+		VertexFormat format;
+		format.deserialize(file);
+		uint16_t nVertices;
+		uint32_t nIndices;
+		file.read((char*)&nVertices, sizeof(nVertices));
+		file.read((char*)&nIndices, sizeof(nIndices));
+		// Read vertex data
+		size_t vtxDataSize = format.stride()*nVertices;
+		char* vertexData = new char[vtxDataSize];
+		file.read(vertexData, vtxDataSize);
+		// Read index data
+		size_t idxDataSize = nIndices * sizeof(uint16_t);
+		uint16_t* indices = new uint16_t[nIndices];
+		file.read((char*)indices, idxDataSize);
+		return new RenderGeom(format, nVertices, vertexData, nIndices, indices);
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	#ifdef REV_USE_VULKAN

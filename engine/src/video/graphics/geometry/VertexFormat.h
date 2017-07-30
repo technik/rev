@@ -113,14 +113,6 @@ namespace rev { namespace video {
 				return 2;
 			}
 		}
-		enum class UnitVecFormat : uint8_t {
-			eNone = 0,
-			e3Vec3f = 1,
-			// Compressed formats
-			ePyramid2f = 2, // Hemioctahedron compression
-			eOcta2f = 3, // Octahedron compression
-			eXZ2f = 4 // Store X and Z components, Y must be reconstructed
-		};
 	};
 
 }}

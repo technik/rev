@@ -23,6 +23,8 @@ namespace rev {
 
 			const VertexFormat& vertexFormat() const { return mVtxFormat; }
 
+			static RenderGeom* loadFromFile(const std::string& _fileName);
+
 #ifdef REV_USE_VULKAN
 			void sendBuffersToGPU();
 			VkBuffer		mVertexBuffer;

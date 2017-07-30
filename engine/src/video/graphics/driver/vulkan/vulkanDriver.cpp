@@ -144,7 +144,7 @@ namespace rev {
 			Mat44f proj;
 			float invRange = 1.f/(_farClip - _nearClip);
 			float itgX = 1.f/tan(_fov*0.5f);
-			float itgY = itgX/_aspectRatio;
+			float itgY = itgX*_aspectRatio;
 
 			proj[0] = Vec4f(itgX, 0.f, 0.f, 0.f);
 			proj[1] = Vec4f(0.f, 0.f, -itgY, 0.f);
