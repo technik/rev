@@ -33,16 +33,22 @@ struct IntermediateModel {
 	uint16_t nVertices = 0;
 
 	void collapseVertexData(void* _dst, size_t stride) {
-		size_t nOffset = sizeof(Vec3f);
-		size_t uvOffset = nOffset + sizeof(Vec3f);
+		size_t nOffset = format.normalOffset();
+		size_t uvOffset = format.uvOffset();
 		for (size_t i = 0; i < nVertices; ++i) {
 			auto dataRow = &((uint8_t*)_dst)[stride*i];
-			auto v0 = (Vec3f*)dataRow;
-			auto n0 = (Vec3f*)(&dataRow[nOffset]);
-			auto uv0 = (Vec2f*)(&dataRow[uvOffset]);
-			*v0 = vertices[i];
-			*n0 = normals[i];
-			*uv0 = uvs[i];
+			if(format.hasPosition) {
+				auto v0 = (Vec3f*)dataRow;
+				*v0 = vertices[i];
+			}
+			if(format.normalFmt != VertexFormat::UnitVecFormat::eNone) {
+				auto n0 = (Vec3f*)(&dataRow[nOffset]);
+				*n0 = normals[i];
+			}
+			if(format.nUVs > 0) {
+				auto uv0 = (Vec2f*)(&dataRow[uvOffset]);
+				*uv0 = uvs[i];
+			}
 		}
 	}
 	
@@ -129,6 +135,7 @@ VertexFormat defaultVtxFmt() {
 	fmt.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
 	fmt.normalSpace = VertexFormat::NormalSpace::eModel;
 	fmt.nUVs = 1;
+	return fmt;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -173,7 +180,7 @@ int main(int _argc, const char** _argv) {
 		cout << "Missing arguments\n";
 		return -1;
 	}
-	for(size_t i = 1; i < _argc; ++i) {
+	for(int i = 1; i < _argc; ++i) {
 		string arg(_argv[i]);
 		if(arg.substr(0, 5) == "-nouv")
 			targetFmt.nUVs = 0;
