@@ -182,21 +182,23 @@ int main(int _argc, const char** _argv) {
 	string src = modelName + ".fbx";
 	string dst = modelName + ".rmd";
 	cout << src << " >> " << dst << "\n";
-
+	// Load
 	IntermediateModel uncompressedModel;
-	IntermediateModel targetModel;
-	if(!convertModel(uncompressedModel, targetModel, targetFmt)) {
-		cout << "Error: Unable to convert model to target format\n";
-		return -1;
-	}
 	if (!loadFBX(src, uncompressedModel))
 	{
 		cout << "Error loading model: " << src << "\n";
 		return -1;
 	}
+	// Convert
+	IntermediateModel targetModel;
+	if(!convertModel(uncompressedModel, targetModel, targetFmt)) {
+		cout << "Error: Unable to convert model to target format\n";
+		return -1;
+	}
+	// Save
 	ofstream outFile(dst, std::ofstream::binary);
 	if (outFile.is_open()) {
-		uncompressedModel.saveToStream(outFile);
+		targetModel.saveToStream(outFile);
 		outFile.close();
 	}
 	else {

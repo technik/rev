@@ -40,13 +40,15 @@ namespace rev { namespace video {
 		NormalSpace		normalSpace = NormalSpace::eModel;
 		size_t			nUVs = 0;
 
+		size_t			positionOffset	() const { return 0; }
+		size_t			positionSize	() const { return hasPosition?3*sizeof(float):0; }
+		size_t			normalOffset	() const { return positionOffset() + positionSize(); }
+		size_t			normalSize		() const { return (size_t)normalFmt * (size_t)normalStorage; }
+		size_t			uvOffset		() const { return normalOffset() + normalSize(); }
+		size_t			uvSize			() const { return 2*sizeof(float)*nUVs; }
+
 		size_t	stride() const {
-			size_t stride = 0;
-			if(hasPosition)
-				stride += 3*sizeof(float);
-			stride += (size_t)normalFmt * (size_t)normalStorage;
-			stride += 2*sizeof(float)*nUVs;
-			return stride;
+			return positionSize() + normalSize() + uvSize();
 		}
 
 #ifdef REV_USE_VULKAN
