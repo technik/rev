@@ -9,30 +9,52 @@
 #include <vulkan/vulkan.h>
 #endif // REV_USE_VULKAN
 
+#include <iostream>
 #include <math/algebra/vector.h>
 
 namespace rev { namespace video {
 
 	struct VertexFormat {
 
-		enum class UnitVecFormat : size_t {
+		enum class UnitVecFormat : uint8_t {
 			eNone = 0,
-			e3Vec3f = 3,
+			e3Vec3f = 1,
 			// Compressed formats
 			ePyramid2f = 2, // Hemioctahedron compression
-			eOcta2f = 2, // Octahedron compression
-			eXZ2f = 2 // Store X and Z components, Y must be reconstructed
+			eOcta2f = 3, // Octahedron compression
+			eXZ2f = 4 // Store X and Z components, Y must be reconstructed
 		};
 
-		enum class FloatStorage : size_t {
+		enum class FloatStorage : uint8_t {
 			eFloat32 = 4,
 			eFloat16 = 2,
 		};
 
-		enum class NormalSpace {
-			eModel,
-			eTangent
+		enum class NormalSpace : uint8_t {
+			eModel = 1,
+			eTangent = 2
 		};
+
+		void serialize(std::ostream& _dst) {
+			char formatData[] = {
+				hasPosition?1:0,
+				(uint8_t)normalFmt,
+				(uint8_t)normalStorage,
+				(uint8_t)normalSpace,
+				(uint8_t)nUVs,
+			};
+			_dst.write(formatData, sizeof(formatData));
+		}
+
+		void deserialize(std::istream& _src) {
+			char formatData[5];
+			_src.read(formatData, 5);
+			hasPosition = formatData[0] > 0;
+			normalFmt = UnitVecFormat(formatData[1]);
+			normalStorage = FloatStorage(formatData[2]);
+			normalSpace = NormalSpace(formatData[3]);
+			nUVs = (size_t)formatData[4];
+		}
 
 		bool			hasPosition = false;
 		UnitVecFormat	normalFmt = UnitVecFormat::eNone;
@@ -43,7 +65,7 @@ namespace rev { namespace video {
 		size_t			positionOffset	() const { return 0; }
 		size_t			positionSize	() const { return hasPosition?3*sizeof(float):0; }
 		size_t			normalOffset	() const { return positionOffset() + positionSize(); }
-		size_t			normalSize		() const { return (size_t)normalFmt * (size_t)normalStorage; }
+		size_t			normalSize		() const { return nComponents(normalFmt) * (size_t)normalStorage; }
 		size_t			uvOffset		() const { return normalOffset() + normalSize(); }
 		size_t			uvSize			() const { return 2*sizeof(float)*nUVs; }
 
@@ -78,6 +100,27 @@ namespace rev { namespace video {
 			return attributeDescriptions;
 		}
 #endif // REV_USE_VULKAN
+
+	private:
+		size_t nComponents(UnitVecFormat _fmt) const {
+			switch (_fmt)
+			{
+			case UnitVecFormat::eNone:
+				return 0;
+			case UnitVecFormat::e3Vec3f:
+				return 3;
+			default:
+				return 2;
+			}
+		}
+		enum class UnitVecFormat : uint8_t {
+			eNone = 0,
+			e3Vec3f = 1,
+			// Compressed formats
+			ePyramid2f = 2, // Hemioctahedron compression
+			eOcta2f = 3, // Octahedron compression
+			eXZ2f = 4 // Store X and Z components, Y must be reconstructed
+		};
 	};
 
 }}
