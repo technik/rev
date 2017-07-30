@@ -21,10 +21,13 @@ namespace video {
 		, mVertexData(_vtxData)
 		, mNIndices(_nIndices)
 		, mIndices(_indices)
-	{
-#ifdef REV_USE_VULKAN
+	{}
+
+	//----------------------------------------------------------------------------------------------------------------------
+	#ifdef REV_USE_VULKAN
+	void RenderGeom::sendBuffersToGPU() {
 		// Send vertex buffer to gpu
-		VkDeviceSize bufferSizeInBytes = _nVertices*_fmt.stride();
+		VkDeviceSize bufferSizeInBytes = mNVertices*mVtxFormat.stride();
 		GraphicsDriver::get().createBuffer(bufferSizeInBytes, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mVertexBuffer, mVertexBufferMemory);
 
@@ -43,6 +46,7 @@ namespace video {
 		vkMapMemory(device, mIndexBufferMemory, 0, bufferSize, 0, &gpuMem);
 		memcpy(gpuMem, mIndices, (size_t)bufferSize);
 		vkUnmapMemory(device, mIndexBufferMemory);
-#endif
 	}
+	#endif
 }}
+

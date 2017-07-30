@@ -19,8 +19,6 @@ using namespace std;
 using namespace rev::video;
 using namespace rev::math;
 
-typedef rev::video::VertexFormat	VertexFormat;
-
 // --- Global data ---
 // The importer is stored globally, so buffers don't get erased and we can save some memcpy's
 Assimp::Importer fbxLoader;
@@ -74,24 +72,29 @@ struct IntermediateModel {
 
 //----------------------------------------------------------------------------------------------------------------------
 bool loadFBXMesh(const aiMesh* _mesh, IntermediateModel& _dst) {
-	// Vertex data
+	// Vertex positions
+	_dst.format.hasPosition = true;
 	_dst.nVertices = _mesh->mNumVertices;
-	bool hasNormals = _mesh->HasNormals();
-	bool hasUVs = _mesh->GetNumUVChannels() > 0;
-	if (!hasNormals || !hasUVs) {
-		cout << "Error: Mesh must have normals and uvs\n";
-		return false;
-	}
-	if (_mesh->GetNumUVChannels() > 1) {
-		cout << "Error: Too many uv channels. Only 1 is supported\n";
-		return false;
-	}
 	_dst.vertices = reinterpret_cast<Vec3f*>(_mesh->mVertices);
-	_dst.normals = reinterpret_cast<Vec3f*>(_mesh->mNormals);
-	_dst.uvs = new Vec2f[_dst.nVertices];
-	auto uv0 = _mesh->mTextureCoords[0];
-	for(auto i = 0; i < _dst.nVertices; ++i) {
-		_dst.uvs[i] = Vec2f(uv0[i].x, uv0[i].y);
+	// Normals
+	if(_mesh->HasNormals()) {
+		_dst.format.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
+		_dst.format.normalSpace = VertexFormat::NormalSpace::eModel;
+		_dst.normals = reinterpret_cast<Vec3f*>(_mesh->mNormals);
+	}
+	// UVs
+	size_t nUVs = _mesh->GetNumUVChannels();
+	if(nUVs) {
+		if (nUVs > 1) {
+			cout << "Error: Too many uv channels. Only 1 is supported\n";
+			return false;
+		}
+		_dst.format.nUVs = 1;
+		_dst.uvs = new Vec2f[_dst.nVertices];
+		auto uv0 = _mesh->mTextureCoords[0];
+		for(auto i = 0; i < _dst.nVertices; ++i) {
+			_dst.uvs[i] = Vec2f(uv0[i].x, uv0[i].y);
+		}
 	}
 	// Index data
 	_dst.nIndices = _mesh->mNumFaces * 3;
@@ -102,9 +105,6 @@ bool loadFBXMesh(const aiMesh* _mesh, IntermediateModel& _dst) {
 		_dst.indices[3 * i + 2] = _mesh->mFaces[i].mIndices[2];
 	}
 	// Format
-	_dst.format.
-	_dst.format.normals = VertexFormat::NormalFormat::normal3;
-	_dst.format.uvChannels = 1;
 	return true;
 }
 

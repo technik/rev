@@ -24,6 +24,7 @@ namespace rev {
 			const VertexFormat& vertexFormat() const { return mVtxFormat; }
 
 #ifdef REV_USE_VULKAN
+			void sendBuffersToGPU();
 			VkBuffer		mVertexBuffer;
 			VkDeviceMemory	mVertexBufferMemory;
 			VkBuffer		mIndexBuffer;

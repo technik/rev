@@ -51,6 +51,7 @@ namespace rev {
 		mVertexFormat.nUVs = 0;
 
 		mTriangle = new RenderGeom(mVertexFormat, 3, rawVertexBuffer.data(), 3, indices.data());
+		mTriangle->sendBuffersToGPU();
 #endif
 	}
 
