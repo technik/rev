@@ -62,6 +62,7 @@ struct IntermediateModel {
 		}
 		collapseVertexData(vertexData, stride);
 		// Save header
+		format.serialize(_out);
 		_out.write((char*)&nVertices, sizeof(nVertices));
 		_out.write((char*)&nIndices, sizeof(nIndices));
 		// Save vertex data
