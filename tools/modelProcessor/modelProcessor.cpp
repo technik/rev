@@ -123,12 +123,60 @@ bool loadFBX(const string& _src, IntermediateModel& _dst) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+VertexFormat defaultVtxFmt() {
+	VertexFormat fmt;
+	fmt.hasPosition = true;
+	fmt.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
+	fmt.normalSpace = VertexFormat::NormalSpace::eModel;
+	fmt.nUVs = 1;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool convertModel(const IntermediateModel& _src, IntermediateModel& _dst, const VertexFormat& _targetFmt) {
+	_dst.format = _targetFmt;
+	// Copy position
+	if(_targetFmt.hasPosition) {
+		if(!_src.format.hasPosition)
+			return false;
+		_dst.nVertices = _src.nVertices;
+		_dst.vertices = _src.vertices;
+	}
+	// Copy normals
+	if(_targetFmt.normalFmt != VertexFormat::UnitVecFormat::eNone) {
+		if(_targetFmt.normalFmt == _src.format.normalFmt
+			&& _targetFmt.normalSpace == _src.format.normalSpace
+			&& _targetFmt.normalStorage == _src.format.normalStorage)
+		{
+			_dst.normals = _src.normals;
+		}
+		else
+			return false;
+	}
+	// Copy UVs
+	if(_targetFmt.nUVs > 0) {
+		if(_src.format.nUVs < _targetFmt.nUVs)
+			return false;
+		_dst.uvs = _src.uvs;
+	}
+	// Indices
+	_dst.nIndices = _src.nIndices;
+	_dst.indices = _src.indices;
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	assert(_argc > 1);
+	VertexFormat targetFmt = defaultVtxFmt();
 	if (_argc <= 1)
 	{
 		cout << "Missing arguments\n";
 		return -1;
+	}
+	for(size_t i = 1; i < _argc; ++i) {
+		string arg(_argv[i]);
+		if(arg.substr(0, 5) == "-nouv")
+			targetFmt.nUVs = 0;
 	}
 	string modelName = _argv[1];
 	string src = modelName + ".fbx";
@@ -136,6 +184,11 @@ int main(int _argc, const char** _argv) {
 	cout << src << " >> " << dst << "\n";
 
 	IntermediateModel uncompressedModel;
+	IntermediateModel targetModel;
+	if(!convertModel(uncompressedModel, targetModel, targetFmt)) {
+		cout << "Error: Unable to convert model to target format\n";
+		return -1;
+	}
 	if (!loadFBX(src, uncompressedModel))
 	{
 		cout << "Error loading model: " << src << "\n";
