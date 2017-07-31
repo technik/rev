@@ -7,6 +7,7 @@
 #include <vector>
 #include "../GraphicsDriverBase.h"
 #include <math/algebra/matrix.h>
+#include <video/graphics/geometry/VertexFormat.h>
 #ifdef ANDROID
 #include <core/platform/platformInfo.h>
 #endif
@@ -36,6 +37,7 @@ namespace rev {
 			// Vulkan driver supports window-less contexts, so a nativeFrameBuffer may not exist
 			NativeFrameBufferVulkan* nativeFrameBuffer() const { return mNativeFB; }
 
+			VkPipeline createPipeline(const VkExtent2D& _viewportSize, VkRenderPass, const VertexFormat& _vtxFmt, VkPipelineLayout _pipelineLayout);
 			VkCommandPool createCommandPool(bool _resetOften) const;
 			void createBuffer(VkDeviceSize _size, VkBufferUsageFlags _usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 
