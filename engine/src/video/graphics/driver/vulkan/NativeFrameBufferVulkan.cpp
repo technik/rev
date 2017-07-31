@@ -134,17 +134,42 @@ namespace rev { namespace video {
 
 	//--------------------------------------------------------------------------------------------------------------
 	NativeFrameBufferVulkan::~NativeFrameBufferVulkan() {
+		// Destroy frame buffers
+		for (size_t i = 0; i < mSwapChainBuffers.size(); i++) {
+			vkDestroyFramebuffer(mDevice, mSwapChainBuffers[i], nullptr);
+		}
+		// Destroy image views
 		for(auto view : mSwapChainImageViews)
 			vkDestroyImageView(mDevice, view, nullptr);
+
 		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
 		vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
-
 		vkDestroySemaphore(mDevice, mImageAvailableSemaphore, nullptr);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	void NativeFrameBufferVulkan::begin() {
 		vkAcquireNextImageKHR(mDevice, mSwapChain, std::numeric_limits<uint64_t>::max(), mImageAvailableSemaphore, VK_NULL_HANDLE, &mCurFBImageIndex);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	void NativeFrameBufferVulkan::end(VkSemaphore _renderSemaphore) {
+		VkSemaphore renderSemaphores[] = { _renderSemaphore };
+
+		// Present
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = renderSemaphores;
+
+		VkSwapchainKHR swapChains[] = { mSwapChain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &mCurFBImageIndex;
+
+		presentInfo.pResults = nullptr; // Optional
+		vkQueuePresentKHR(GraphicsDriver::get().graphicsQueue(), &presentInfo);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

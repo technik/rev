@@ -23,7 +23,7 @@ namespace rev {
 
 
 			void begin();
-			void end() {}
+			void end(VkSemaphore _renderSemaphore);
 
 
 			//const auto& imageViews() const { return mSwapChainImageViews; }

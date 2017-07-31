@@ -5,6 +5,7 @@
 #include "RenderPass.h"
 #include <vulkan/vulkan.h>
 #include <video/graphics/driver/graphicsDriver.h>
+#include <core/log.h>
 
 namespace rev { namespace video {
 
@@ -67,6 +68,27 @@ namespace rev { namespace video {
 		, mCommandPool(_commandPool)
 		, mCommandBuffer(_commandBuffer)
 	{
+		// Set pipeline layout
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = 0; // Optional
+		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+		pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+		VkPushConstantRange range = {};
+		range.size = 16*sizeof(float);
+		range.offset = 0;
+		pipelineLayoutInfo.pPushConstantRanges = &range; // Optional
+
+		if (vkCreatePipelineLayout(GraphicsDriver::get().device(), &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
+			core::Log::error("failed to create pipeline layout!");
+		}
+
+		// Create pipeline
+		setupVertexFormat();
+		mPipeline = GraphicsDriver::get().createPipeline(
+		{mRenderTarget.size().x, mRenderTarget.size().y}, mVkPass, mVertexFormat, mPipelineLayout);
+
+		// Create synch semaphores
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 		vkCreateSemaphore(GraphicsDriver::get().device(), &semaphoreInfo, nullptr, &mFinishedRenderingSemaphore);
@@ -74,10 +96,17 @@ namespace rev { namespace video {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	RenderPass::~RenderPass() {
-		if(mCommandPool)
-			vkDestroyCommandPool(GraphicsDriver::get().device(), mCommandPool, nullptr);
+		VkDevice device = GraphicsDriver::get().device();
+		if(mPipeline) {
+			vkDestroyPipeline(device, mPipeline, nullptr);
+			vkDestroyPipelineLayout(device, mPipelineLayout, nullptr);
+		}
 
-		vkDestroyRenderPass(GraphicsDriver::get().device(), mVkPass, nullptr);
+		if(mCommandPool)
+			vkDestroyCommandPool(device, mCommandPool, nullptr);
+
+		vkDestroySemaphore(device, mFinishedRenderingSemaphore, nullptr);
+		vkDestroyRenderPass(device, mVkPass, nullptr);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -111,6 +140,10 @@ namespace rev { namespace video {
 		renderPassInfo.pClearValues = &clearColor;
 
 		vkCmdBeginRenderPass(mCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		// Bind Pipeline
+		vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,mPipeline);
+		_backEnd.mActivePipelineLayout = mPipelineLayout;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -137,7 +170,90 @@ namespace rev { namespace video {
 
 		vkQueueSubmit(GraphicsDriver::get().graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 
-		mRenderTarget.end();
+		mRenderTarget.end(mFinishedRenderingSemaphore);
 	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	void RenderPass::setupVertexFormat() {
+		mVertexFormat.hasPosition = true;
+		mVertexFormat.normalFmt = VertexFormat::UnitVecFormat::e3Vec3f;
+		mVertexFormat.normalSpace = VertexFormat::NormalSpace::eModel;
+		mVertexFormat.nUVs = 0;
+	}
+	
+	/*
+	//--------------------------------------------------------------------------------------------------------------
+	bool ForwardRenderer::createDescriptorSetLayout() {
+		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout) != VK_SUCCESS) {
+			cout << "failed to create descriptor set layout!\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	bool ForwardRenderer::createDescriptorPool() {
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = 1;
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &poolSize;
+
+		poolInfo.maxSets = 1;
+
+		if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
+			return false;
+		}
+
+		return true;
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	bool ForwardRenderer::createDescriptorSet() {
+		VkDescriptorSetLayout layouts[] = {mDescriptorSetLayout};
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = mDescriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = layouts;
+
+		if (vkAllocateDescriptorSets(mDevice, &allocInfo, &mDescriptorSet) != VK_SUCCESS) {
+			return false;
+		}
+
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = (VkBuffer)mUniformBuffer;
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(math::Vec2f);
+
+		VkWriteDescriptorSet descriptorWrite = {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = mDescriptorSet;
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		vkUpdateDescriptorSets(mDevice, 1, &descriptorWrite, 0, nullptr);
+
+		return true;
+	}*/
 
 }}

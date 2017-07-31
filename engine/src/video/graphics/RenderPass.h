@@ -14,7 +14,7 @@ namespace rev { namespace video {
 	class RenderPass {
 	public:
 		static RenderPass* create(NativeFrameBuffer& _renderTarget);
-		~RenderPass();
+		~RenderPass	();
 		void begin	(RendererBackEnd& _backEnd);
 		void end	();
 
@@ -26,10 +26,16 @@ namespace rev { namespace video {
 		NativeFrameBuffer& mRenderTarget;
 #ifdef REV_USE_VULKAN
 		RenderPass(VkRenderPass _pass, NativeFrameBuffer& _renderTarget, VkCommandPool _commandPool, VkCommandBuffer _commandBuffer);
+		void setupVertexFormat();
 
-		VkRenderPass	mVkPass = VK_NULL_HANDLE;
-		VkCommandPool	mCommandPool = VK_NULL_HANDLE;
-		VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
+		VertexFormat		mVertexFormat;
+
+		VkPipeline			mPipeline = VK_NULL_HANDLE;
+		VkPipelineLayout	mPipelineLayout = VK_NULL_HANDLE;
+
+		VkRenderPass		mVkPass = VK_NULL_HANDLE;
+		VkCommandPool		mCommandPool = VK_NULL_HANDLE;
+		VkCommandBuffer		mCommandBuffer = VK_NULL_HANDLE;
 
 		// Synchronization
 		VkSemaphore mFinishedRenderingSemaphore;

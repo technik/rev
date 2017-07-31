@@ -49,6 +49,7 @@ namespace rev {
 			};
 
 			SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
+			void synch();
 
 		private:
 			// Vulkan initialization

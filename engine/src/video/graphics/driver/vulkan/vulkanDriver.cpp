@@ -408,6 +408,11 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::synch() {
+			vkQueueWaitIdle(mGraphicsQueue);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void VulkanDriver::createInstance() {
 			core::Log::debug(" ----- VulkanDriver::createInstance -----");
 #ifndef ANDROID

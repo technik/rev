@@ -18,7 +18,6 @@
 
 namespace rev {
 	namespace video {
-
 		
 		class RendererBackEnd {
 		public:
@@ -53,15 +52,12 @@ namespace rev {
 			};
 
 		public:
-			void beginFrame();
-			void endFrame();
+			RendererBackEnd();
+			~RendererBackEnd();
 
 #ifdef REV_USE_VULKAN
 			void setTargetCommandBuffer(VkCommandBuffer _target) { mTargetCmdBuffer = _target; }
 #endif
-
-			void beginRenderPass();
-			void endRenderPass();
 			void draw(const DrawBatch& _batch);
 
 #ifdef REV_USE_VULKAN
@@ -69,21 +65,13 @@ namespace rev {
 			VkPipelineLayout mActivePipelineLayout = VK_NULL_HANDLE;
 
 			VkDevice		mDevice = VK_NULL_HANDLE;
-			VkPipeline		mPipeline = VK_NULL_HANDLE;
 			VkDescriptorSetLayout mDescriptorSetLayout;
-			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
 			VkDescriptorPool mDescriptorPool;
 			VkDescriptorSet mDescriptorSet;
 
 			VkBuffer mUniformBuffer;
 			//VkDeviceMemory mUniformBufferMemory;
 #endif
-		private:
-			bool createRenderPass();
-			bool createDescriptorSetLayout();
-			bool createFrameBufferViews();
-			bool createDescriptorPool();
-			bool createDescriptorSet();
 		};
 	}
 }

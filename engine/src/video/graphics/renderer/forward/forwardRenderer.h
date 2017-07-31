@@ -31,18 +31,18 @@ namespace rev {
 		public:
 			~ForwardRenderer();
 			// Set up the renderer to render into the given frame buffer
-			bool init(const NativeFrameBuffer&);
+			bool init(NativeFrameBuffer&);
 
 			void beginFrame();
 			void render(const RenderGeom&, const math::Mat44f& _wvp);
 			void endFrame();
 
 		private:
-			RendererBackEnd	mBackEnd;
-			RenderPass*		mRenderPass;
+			bool createRenderPass();
 
-			void setupVertexFormat();
-			VertexFormat	mVertexFormat;
+			NativeFrameBuffer*	mFrameBuffer;
+			RendererBackEnd		mBackEnd;
+			RenderPass*			mRenderPass;
 		};
 	}
 }
