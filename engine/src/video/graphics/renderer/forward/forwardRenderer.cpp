@@ -19,14 +19,11 @@ using namespace rev::math;
 
 #endif // OPENGL_45
 
-#ifdef REV_USE_VULKAN
 #include <iostream>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/RenderPass.h>
 
 using namespace std;
-
-#endif // REV_USE_VULKAN
 
 namespace rev {
 	namespace video {

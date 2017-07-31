@@ -68,6 +68,9 @@ namespace rev { namespace video {
 		, mCommandPool(_commandPool)
 		, mCommandBuffer(_commandBuffer)
 	{
+		// Config render target to use this pass
+		_renderTarget.setRenderPass(mVkPass);
+
 		// Set pipeline layout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -77,6 +80,7 @@ namespace rev { namespace video {
 		VkPushConstantRange range = {};
 		range.size = 16*sizeof(float);
 		range.offset = 0;
+		range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		pipelineLayoutInfo.pPushConstantRanges = &range; // Optional
 
 		if (vkCreatePipelineLayout(GraphicsDriver::get().device(), &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
