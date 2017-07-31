@@ -9,7 +9,6 @@
 
 #include <cstdint>
 
-
 #include <game/geometry/procedural/basic.h>
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
@@ -45,6 +44,8 @@ namespace rev {
 			};
 			struct DrawBatch {
 				std::vector<DrawCall>	draws;
+				VertexFormat			fmt;
+				// Effect
 #ifdef REV_USE_VULKAN
 				VkBuffer indexBuffer;
 				VkBuffer vertexBuffer;
@@ -52,45 +53,37 @@ namespace rev {
 			};
 
 		public:
+			void beginFrame();
+			void endFrame();
+
+#ifdef REV_USE_VULKAN
+			void setTargetCommandBuffer(VkCommandBuffer _target) { mTargetCmdBuffer = _target; }
+#endif
+
+			void beginRenderPass();
+			void endRenderPass();
 			void draw(const DrawBatch& _batch);
 
 #ifdef REV_USE_VULKAN
-			VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;
+			VkCommandBuffer mTargetCmdBuffer;
 			VkPipelineLayout mActivePipelineLayout = VK_NULL_HANDLE;
+
+			VkDevice		mDevice = VK_NULL_HANDLE;
+			VkPipeline		mPipeline = VK_NULL_HANDLE;
+			VkDescriptorSetLayout mDescriptorSetLayout;
+			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
+			VkDescriptorPool mDescriptorPool;
+			VkDescriptorSet mDescriptorSet;
+
+			VkBuffer mUniformBuffer;
+			//VkDeviceMemory mUniformBufferMemory;
 #endif
-
-#ifdef OPENGL_45
-		public:
-			struct DrawInfo {
-				Shader::Ptr		program;
-				math::Vec3f		lightDir;
-				math::Vec3f		lightClr;
-				math::Vec3f		viewPos;
-				math::Mat44f	wvp; // Model view projection
-
-				template<typename Type_>
-				using Uniform = std::pair<std::string, Type_>;
-
-				std::vector<Uniform<math::Vec3f>>	vec3Uniforms;
-				std::vector<Uniform<Texture*>>		texUniforms;
-				std::vector<Uniform<float>>			floatUniforms;
-			};
-
-			struct DrawCall {
-				/// Things line uniforms, and render config
-				DrawInfo			renderStateInfo;
-				StaticRenderMesh*	mesh;
-			};
-
-			RendererBackEnd(GraphicsDriver* _driver) : mDriver(_driver) {}
-			void draw(const DrawCall&);
-			void drawSkybox(const DrawInfo&);
-			void flush();
-
 		private:
-			StaticRenderMesh* mSkyBox = nullptr;
-			GraphicsDriver* mDriver = nullptr;
-#endif // OPENGL_45
+			bool createRenderPass();
+			bool createDescriptorSetLayout();
+			bool createFrameBufferViews();
+			bool createDescriptorPool();
+			bool createDescriptorSet();
 		};
 	}
 }

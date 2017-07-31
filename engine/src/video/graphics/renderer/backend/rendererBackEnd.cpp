@@ -26,19 +26,19 @@ namespace rev {
 			// Vertex buffer
 			VkBuffer vertexBuffers[] = { (VkBuffer)_batch.vertexBuffer };
 			VkDeviceSize offsets[] = {0}; // No offsets. We use interleaved vertex data, so there's only one buffer to bind
-			vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, vertexBuffers, offsets);
+			vkCmdBindVertexBuffers(mTargetCmdBuffer, 0, 1, vertexBuffers, offsets);
 			// Index buffer
-			vkCmdBindIndexBuffer(mCommandBuffer, (VkBuffer)_batch.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(mTargetCmdBuffer, (VkBuffer)_batch.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 			// Draw
 			for(auto drawCall : _batch.draws) {
 				// Uniforms
 				if(drawCall.uniformData.size > 0) {
 					assert(drawCall.uniformData.data);
-					vkCmdPushConstants(mCommandBuffer, mActivePipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, drawCall.uniformData.size, drawCall.uniformData.data);
+					vkCmdPushConstants(mTargetCmdBuffer, mActivePipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, drawCall.uniformData.size, drawCall.uniformData.data);
 				}
 				//vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mActivePipelineLayout, 0, 1, &drawCall.mDescriptorSet, 0, nullptr);
 				// Draw indices
-				vkCmdDrawIndexed(mCommandBuffer, drawCall.nIndices, 1, drawCall.indexOffset, drawCall.vertexOffset, 0);
+				vkCmdDrawIndexed(mTargetCmdBuffer, drawCall.nIndices, 1, drawCall.indexOffset, drawCall.vertexOffset, 0);
 			}
 		}
 

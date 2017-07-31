@@ -36,14 +36,14 @@ namespace rev { namespace video {
 		};
 
 		void serialize(std::ostream& _dst) {
-			char formatData[] = {
-				hasPosition?1:0,
+			uint8_t formatData[] = {
+				uint8_t(hasPosition?1:0),
 				(uint8_t)normalFmt,
 				(uint8_t)normalStorage,
 				(uint8_t)normalSpace,
 				(uint8_t)nUVs,
 			};
-			_dst.write(formatData, sizeof(formatData));
+			_dst.write((char*)formatData, sizeof(formatData));
 		}
 
 		void deserialize(std::istream& _src) {
@@ -74,7 +74,7 @@ namespace rev { namespace video {
 		}
 
 #ifdef REV_USE_VULKAN
-		VkVertexInputBindingDescription getBindingDescription() {
+		VkVertexInputBindingDescription getBindingDescription() const {
 			VkVertexInputBindingDescription bindingDescription = {};
 
 			bindingDescription.binding = 0;
@@ -84,7 +84,7 @@ namespace rev { namespace video {
 			return bindingDescription;
 		}
 
-		std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() const {
 			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
 
 			attributeDescriptions[0].binding = 0;

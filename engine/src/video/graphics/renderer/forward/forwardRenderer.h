@@ -25,6 +25,8 @@
 namespace rev {
 	namespace video {
 
+		class RenderPass;
+
 		class ForwardRenderer {
 		public:
 			~ForwardRenderer();
@@ -37,61 +39,10 @@ namespace rev {
 
 		private:
 			RendererBackEnd	mBackEnd;
+			RenderPass*		mRenderPass;
 
-#ifdef REV_USE_VULKAN
-		public:
-			VkPipeline	pipeline() const { return mPipeline; }
-			VkRenderPass renderPass() const { return mRenderPass; }
-
-		private:
-			bool createRenderPass();
-			bool createDescriptorSetLayout();
 			void setupVertexFormat();
-			bool createPipeline(const VkExtent2D& _viewportSize);
-			bool createFrameBufferViews();
-			bool createDescriptorPool();
-			bool createDescriptorSet();
-
-		private:
-			const NativeFrameBuffer* mFrameBuffer;
-			uint32_t mCurFBImageIndex;
-
-			VkDevice		mDevice = VK_NULL_HANDLE;
-			VkRenderPass	mRenderPass = VK_NULL_HANDLE;
-			VkPipeline		mPipeline = VK_NULL_HANDLE;
-			VkDescriptorSetLayout mDescriptorSetLayout;
-			VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
-			VkCommandPool	mCommandPool = VK_NULL_HANDLE;
-			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
-			VkDescriptorPool mDescriptorPool;
-			VkDescriptorSet mDescriptorSet;
-
-			VkBuffer mUniformBuffer;
-			//VkDeviceMemory mUniformBufferMemory;
-
-			VkSemaphore imageAvailableSemaphore;
-			VkSemaphore renderFinishedSemaphore;
-
 			VertexFormat	mVertexFormat;
-
-#endif // REV_USE_VULKAN
-
-#ifdef OPENGL_45
-			void init(GraphicsDriver* _driver);
-			// TODO: Instead of a camera, this should receive a "render info" struct with
-			// information like: use shadows? LOD bias? cam, etc
-			// nullptr render target means: use framebuffer
-			void render(const std::vector<RenderObj*>& _scene, const Camera& _cam) const;
-
-		private:
-			void drawSkyboxCubemap(const Camera& _cam) const;
-
-			Texture*			mSkybox;
-			Shader::Ptr			mSkyboxShader;
-
-			GraphicsDriver*		mDriver = nullptr;
-			Shader::Ptr			mProgram = nullptr;
-#endif // OPENGL_45
 		};
 	}
 }

@@ -88,7 +88,7 @@ namespace rev { namespace video {
 		// Create the swap chain
 		if(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
 			core::Log::error("failed to create swap chain!");
-			return;
+			return; 
 		}
 
 		// Retrieve buffer image handles
@@ -122,11 +122,14 @@ namespace rev { namespace video {
 			mSwapChainImageViews.push_back(view);
 		}
 
-		
-
 		// Set up attachment desc so this FB can be used in a render pass
 		setupAttachmentDesc(); // Depends on FB configuration being ready
 		core::Log::debug(" ----- /NativeFrameBufferVulkan::NativeFrameBufferVulkan -----");
+
+		// Semaphore for synchronization
+		VkSemaphoreCreateInfo semaphoreInfo = {};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &mImageAvailableSemaphore);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -135,6 +138,13 @@ namespace rev { namespace video {
 			vkDestroyImageView(mDevice, view, nullptr);
 		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
 		vkDestroySurfaceKHR(mApiInstance, mSurface, nullptr);
+
+		vkDestroySemaphore(mDevice, mImageAvailableSemaphore, nullptr);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	void NativeFrameBufferVulkan::begin() {
+		vkAcquireNextImageKHR(mDevice, mSwapChain, std::numeric_limits<uint64_t>::max(), mImageAvailableSemaphore, VK_NULL_HANDLE, &mCurFBImageIndex);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
