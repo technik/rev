@@ -194,31 +194,6 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		bool ForwardRenderer::createFrameBufferViews() {
-			// Create frame buffers to store the views 
-			const auto& imageViews = mFrameBuffer->imageViews();
-			mSwapChainFramebuffers.resize(imageViews.size());
-			for (size_t i = 0; i < imageViews.size(); i++) {
-				VkImageView attachments[] = {
-					(VkImageView)imageViews[i]
-				};
-
-				VkFramebufferCreateInfo framebufferInfo = {};
-				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-				framebufferInfo.renderPass = mRenderPass;
-				framebufferInfo.attachmentCount = 1;
-				framebufferInfo.pAttachments = attachments;
-				framebufferInfo.width = mFrameBuffer->size().x;
-				framebufferInfo.height = mFrameBuffer->size().y;
-				framebufferInfo.layers = 1;
-
-				if(VK_SUCCESS != vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainFramebuffers[i]))
-					return false;
-			}
-			return true;
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
 		bool ForwardRenderer::createDescriptorPool() {
 			VkDescriptorPoolSize poolSize = {};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

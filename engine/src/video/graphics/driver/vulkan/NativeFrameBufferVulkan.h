@@ -18,12 +18,12 @@ namespace rev {
 			NativeFrameBufferVulkan(const Window&, VkInstance _apiInstance);
 			~NativeFrameBufferVulkan();
 
-			const math::Vec2u& size() const { return mSize; }
-			bool sRGBColorSpace() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
+			const math::Vec2u&	size			() const { return mSize; }
+			bool				sRGBColorSpace	() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 
 
 			void begin();
-			void end();
+			void end() {}
 
 
 			//const auto& imageViews() const { return mSwapChainImageViews; }
@@ -33,12 +33,14 @@ namespace rev {
 
 			// Vulkan specific code
 			const VkAttachmentDescription&	attachmentDescription	() const { return mAttachDesc; }
-			VkFramebuffer					activeFrameBuffer		() const { return mSwapChainFramebuffers[mCurFBImageIndex]; }
+			VkFramebuffer					activeBuffer			() const { return mSwapChainBuffers[mCurFBImageIndex]; }
 			VkSemaphore						imageAvailable			() const { return mImageAvailableSemaphore; }
+			void							setRenderPass			(VkRenderPass _pass) { createFrameBuffers(_pass); }
 
 		private:
 			bool initSurface(const Window& _wnd);
 			void setupAttachmentDesc();
+			bool createFrameBuffers(VkRenderPass _pass);
 
 			VkFormat		mImageFormat;
 			VkInstance		mApiInstance;
@@ -58,7 +60,7 @@ namespace rev {
 
 			std::vector<VkImage>		mSwapChainImages;
 			std::vector<VkImageView>	mSwapChainImageViews;
-			std::vector<VkFramebuffer>	mSwapChainFramebuffers;
+			std::vector<VkFramebuffer>	mSwapChainBuffers;
 
 			VkSemaphore mImageAvailableSemaphore;
 		};

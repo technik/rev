@@ -7,12 +7,13 @@
 #include <vulkan/vulkan.h>
 #include <video/graphics/driver/NativeFrameBuffer.h>
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
+#include <vector>
 
 namespace rev { namespace video {
 
 	class RenderPass {
 	public:
-		static RenderPass* create(const NativeFrameBuffer& _renderTarget);
+		static RenderPass* create(NativeFrameBuffer& _renderTarget);
 		~RenderPass();
 		void begin	(RendererBackEnd& _backEnd);
 		void end	();
@@ -20,12 +21,12 @@ namespace rev { namespace video {
 #ifdef REV_USE_VULKAN
 		VkSemaphore	finishedRendering() const { return mFinishedRenderingSemaphore; }
 #endif
-		
 
 	private:
-		const NativeFrameBuffer& mRenderTarget;
+		NativeFrameBuffer& mRenderTarget;
 #ifdef REV_USE_VULKAN
-		RenderPass(VkRenderPass _pass, const NativeFrameBuffer& _renderTarget, VkCommandPool _commandPool, VkCommandBuffer _commandBuffer);
+		RenderPass(VkRenderPass _pass, NativeFrameBuffer& _renderTarget, VkCommandPool _commandPool, VkCommandBuffer _commandBuffer);
+
 		VkRenderPass	mVkPass = VK_NULL_HANDLE;
 		VkCommandPool	mCommandPool = VK_NULL_HANDLE;
 		VkCommandBuffer	mCommandBuffer = VK_NULL_HANDLE;

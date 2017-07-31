@@ -9,7 +9,7 @@
 namespace rev { namespace video {
 
 	//----------------------------------------------------------------------------------------------------------------------
-	RenderPass* RenderPass::create(const NativeFrameBuffer& _renderTarget) {
+	RenderPass* RenderPass::create(NativeFrameBuffer& _renderTarget) {
 		// Subpasses
 		VkAttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment = 0;
@@ -61,7 +61,7 @@ namespace rev { namespace video {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
-	RenderPass::RenderPass(VkRenderPass _pass, const NativeFrameBuffer& _renderTarget, VkCommandPool _commandPool, VkCommandBuffer _commandBuffer)
+	RenderPass::RenderPass(VkRenderPass _pass, NativeFrameBuffer& _renderTarget, VkCommandPool _commandPool, VkCommandBuffer _commandBuffer)
 		: mVkPass(_pass)
 		, mRenderTarget(_renderTarget)
 		, mCommandPool(_commandPool)
@@ -82,6 +82,9 @@ namespace rev { namespace video {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	void RenderPass::begin(RendererBackEnd& _backEnd) {
+		// We must call RenderTarget::begin before we query it for the current image. Otherwise, it may return old frame buffers
+		mRenderTarget.begin();
+
 		// ----- Record command buffer -----
 		// Begin command buffer
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -98,7 +101,7 @@ namespace rev { namespace video {
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = mVkPass;
-		renderPassInfo.framebuffer = mRenderTarget.activeFrameBuffer();
+		renderPassInfo.framebuffer = mRenderTarget.activeBuffer();
 
 		renderPassInfo.renderArea.offset = {0, 0};
 		renderPassInfo.renderArea.extent = { mRenderTarget.size().x, mRenderTarget.size().y};
@@ -133,6 +136,8 @@ namespace rev { namespace video {
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		vkQueueSubmit(GraphicsDriver::get().graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+		mRenderTarget.end();
 	}
 
 }}

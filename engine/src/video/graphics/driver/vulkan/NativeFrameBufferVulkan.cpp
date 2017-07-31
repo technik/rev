@@ -205,29 +205,6 @@ namespace rev { namespace video {
 		return true;
 #endif // ANDROID
 	}
-	/*
-	bool VulkanDriver::initSurface(VkInstance _apiInstance) {
-		LOGI("Init surface");
-		// Get display information
-		//uint32_t displayPropCount = 0;
-		//vkGetPhysicalDeviceDisplayPropertiesKHR(mPhysicalDevice, &displayPropCount, nullptr);
-
-		// Get extension
-		auto fpCreateAndroidSurfaceKHR = (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(_apiInstance, "vkCreateAndroidSurfaceKHR");
-		if (fpCreateAndroidSurfaceKHR == nullptr) {
-			//LOGE("Unable to get create surface extension");
-			return false;
-		}
-
-		// Set display mode
-		VkDisplayModeKHR
-
-		VkDisplaySurfaceCreateInfoKHR	createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-		createInfo.
-		LOGI("Finish Init surface");
-		return true;
-	}*/
 
 	//--------------------------------------------------------------------------------------------------------------
 	void NativeFrameBufferVulkan::setupAttachmentDesc() {
@@ -240,5 +217,29 @@ namespace rev { namespace video {
 		mAttachDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		mAttachDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		mAttachDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	bool NativeFrameBufferVulkan::createFrameBuffers(VkRenderPass _pass) {
+		// Create frame buffers to store the views
+		mSwapChainBuffers.resize(mSwapChainImageViews.size());
+		for (size_t i = 0; i < mSwapChainImageViews.size(); i++) {
+			VkImageView attachments[] = {
+				(VkImageView)mSwapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo = {};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = _pass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = size().x;
+			framebufferInfo.height = size().y;
+			framebufferInfo.layers = 1;
+
+			if(VK_SUCCESS != vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainBuffers[i]))
+				return false;
+		}
+		return true;
 	}
 }}
