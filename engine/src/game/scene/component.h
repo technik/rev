@@ -19,16 +19,16 @@ namespace rev {
 			// Gets called when all components of an object have been created.
 			// Does not guarantee that other components's are initialized (their onCreate methods may not be called)
 			// Also guarantees the component is already a child of its owner
+			// Only gets called when the component gets added to a node before the node is initialized
 			virtual void onCreate() {}
 			// Gets called when all components of an object have been created.
 			// Guarantees that other components's onCreate methods have been called, but not necessarily their start methods.
 			virtual void init	() {}
-			// Called just before removal from the owner
-			virtual void end	() {}
 			// Called on every update of the owner node
 			virtual void update	() = 0;
+			// void onAttach() when the owner gets moved in the hierarchy
 
-		public:
+			// Access owner node
 			SceneNode& node() const { return mNode; }
 
 		protected:
