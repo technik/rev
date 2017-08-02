@@ -21,15 +21,8 @@ namespace rev {
 			const math::Vec2u&	size			() const { return mSize; }
 			bool				sRGBColorSpace	() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 
-
 			void begin();
 			void end(VkSemaphore _renderSemaphore);
-
-
-			//const auto& imageViews() const { return mSwapChainImageViews; }
-			//VkSwapchainKHR swapChain() const { return mSwapChain; }
-			//VkFormat imageFormat() const { return mImageFormat; }
-			// Returns a description to use this framebuffer as an attachment inside a render pass
 
 			// Vulkan specific code
 			const VkAttachmentDescription&	attachmentDescription	() const { return mAttachDesc; }

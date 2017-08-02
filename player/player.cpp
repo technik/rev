@@ -55,11 +55,10 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
-		t += _dt;
+		//t += _dt;
 		mRenderer.beginFrame();
 		math::Mat44f worldMtx = math::Mat44f::identity();
-		//worldMtx[0][3] = (float)sin(t);
-		worldMtx[1][3] = 1.f+(float)sin(t);
+		worldMtx[1][3] = 1.f;//+(float)sin(t);
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f wvp = (projMtx*worldMtx);
 		mRenderer.render(*mBall, wvp);
