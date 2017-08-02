@@ -8,8 +8,6 @@
 #define _REV_VIDEO_BASICTYPES_CAMERA_H_
 
 #include <math/algebra/matrix.h>
-#include <core/components/component.h>
-#include <core/components/sceneNode.h>
 #include <math/geometry/types.h>
 
 namespace rev {
@@ -17,7 +15,7 @@ namespace rev {
 
 		class RenderTarget;
 
-		class Camera : public core::Component
+		class Camera
 		{
 		public:
 			/// Create a camera that renders into dst target (either a viewport or a render texture)
