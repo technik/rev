@@ -5,6 +5,7 @@
 // Keyboard controlled fly-by transform source
 
 #include "flybySrc.h"
+#include <core/time/time.h>
 
 #ifndef ANDROID
 #include <input/keyboard/keyboardInput.h>
@@ -17,8 +18,9 @@ namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		bool FlyBySrc::update(float _dt) {
+		void FlyBySrc::update() {
 #ifndef ANDROID
+			float _dt = core::Time::get()->frameTime();
 			static float mult = 1.f;
 			KeyboardInput* input = KeyboardInput::get();
 			if (input->pressed(KeyboardInput::eV))
@@ -48,7 +50,6 @@ namespace rev {
 
 			transform->rotate(Quatf(Vec3f::zAxis(), angSpd * _dt));
 #endif // ANDROID
-			return true;
 		}
 
 	}	// namespace game

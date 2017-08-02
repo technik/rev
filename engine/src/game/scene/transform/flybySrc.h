@@ -7,23 +7,22 @@
 #ifndef _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 #define _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 
-#include <game/logicComponent.h>
-#include <core/components/sceneNode.h>
+#include <game/scene/sceneNode.h>
 #include <core/components/affineTransform.h>
 
 namespace rev {
 	namespace game {
 
-		class FlyBySrc : public LogicComponent
+		class FlyBySrc : public Component
 		{
 		public:
 			FlyBySrc(float _spd) : mSpeed(_spd) {}
 
 			void init() override {
-				transform = node()->component<core::AffineTransform>();
+				transform = node().getComponent<core::AffineTransform>();
 			}
 
-			bool update(float _dt) override;
+			void update() override;
 			void setSpeed(float _speed) { mSpeed = _speed; }
 
 		private:
