@@ -14,17 +14,12 @@ namespace rev {
 
 		class RenderObj {
 		public:
-			RenderObj(RenderGeom* _mesh, const game::ObjTransform* _transform) : mMesh(_mesh), mTransform(_transform) {
+			RenderObj(RenderGeom* _mesh, const game::ObjTransform& _transform) : mMesh(_mesh), mTransform(_transform) {
 			}
 
 			RenderGeom*	mesh() const { return mMesh; }
-
-			void attachTo(const game::ObjTransform* _t) {
-				mTransform = _t;
-			}
 			
-			math::Mat34f	transform() const { 
-				return node()?node()->component<game::ObjTransform>()->worldMatrix(); }
+			math::Mat34f	transform() const { return mTransform.worldMatrix(); }
 
 			//Material* material = nullptr;
 
@@ -41,7 +36,7 @@ namespace rev {
 		private:
 
 			RenderGeom* mMesh;
-			const game::ObjTransform* mTransform = nullptr;
+			const game::ObjTransform& mTransform;
 		};
 	}	// namespace video
 }	// namespace rev
