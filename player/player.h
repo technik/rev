@@ -7,7 +7,7 @@
 #include <core/platform/platformInfo.h>
 #include <util/app/app3d.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
-#include <video/graphics/geometry/RenderGeom.h>
+#include <video/graphics/renderObj.h>
 
 #include <vulkan/vulkan.h>
 
@@ -28,7 +28,8 @@ namespace rev {
 
 	private:
 		float t = 0.f;
-		video::RenderGeom*	mBall;
+		game::SceneNode*	mBallObj;
+		video::RenderObj*	mBallGeom;
 
 	};
 

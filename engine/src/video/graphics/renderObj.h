@@ -23,9 +23,9 @@ namespace rev {
 
 			//Material* material = nullptr;
 
-			static RenderObj* construct(const cjson::Json& _data) {
+			static RenderObj* construct(const cjson::Json& _data, game::SceneNode& _owner) {
 				std::string fileName = _data["file"];
-				RenderObj* obj = new RenderObj(RenderGeom::loadFromFile(fileName), nullptr);
+				RenderObj* obj = new RenderObj(RenderGeom::loadFromFile(fileName), _owner);
 				/*if (_data.contains("material"))
 				{
 					std::string materialName = _data["material"];

@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "player.h"
 #include <core/platform/platformInfo.h>
+#include <game/scene/sceneNode.h>
 #include <video/window/window.h>
 
 using namespace cjson;
@@ -12,6 +13,7 @@ using namespace rev::core;
 #ifndef ANDROID
 using namespace rev::input;
 #endif
+using namespace rev::game;
 using namespace rev::math;
 using namespace rev::net;
 using namespace rev::video;
@@ -30,10 +32,14 @@ namespace rev {
 #ifdef REV_USE_VULKAN
 		mRenderer.init(window().frameBuffer()); // Configure renderer to render into the frame buffer
 
-		VkDevice device = driver3d().device();
-
-		mBall = RenderGeom::loadFromFile("data/unitSphere.rmd");
-		mBall->sendBuffersToGPU();
+		mBallObj = new SceneNode(1);
+		ObjTransform *t = new game::ObjTransform(*mBallObj);
+		t->setPosition({0.f, 2.f, 0.f});
+		mBallObj->addComponent(t);
+		mBallObj->init();
+		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/unitSphere.rmd");
+		mBallGeom = new RenderObj(ballMesh, *t);
+		mBallGeom->mesh()->sendBuffersToGPU(); // So vulkan can render it
 #endif
 	}
 
@@ -57,11 +63,10 @@ namespace rev {
 	bool Player::frame(float _dt) {
 		//t += _dt;
 		mRenderer.beginFrame();
-		math::Mat44f worldMtx = math::Mat44f::identity();
-		worldMtx[1][3] = 1.f;//+(float)sin(t);
+		math::Mat34f worldMtx = mBallGeom->transform();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f wvp = (projMtx*worldMtx);
-		mRenderer.render(*mBall, wvp);
+		mRenderer.render(*mBallGeom->mesh(), wvp);
 		mRenderer.endFrame();
 
 		return true;

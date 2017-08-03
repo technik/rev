@@ -8,7 +8,7 @@
 #define _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 
 #include <game/scene/sceneNode.h>
-#include <core/components/affineTransform.h>
+#include <game/scene/transform/objTransform.h>
 
 namespace rev {
 	namespace game {
@@ -16,10 +16,10 @@ namespace rev {
 		class FlyBySrc : public Component
 		{
 		public:
-			FlyBySrc(float _spd) : mSpeed(_spd) {}
+			FlyBySrc(float _spd, SceneNode& _owner) : mSpeed(_spd) {}
 
-			void init() override {
-				transform = node().getComponent<core::AffineTransform>();
+			void onCreate() override {
+				transform = node().getComponent<ObjTransform>();
 			}
 
 			void update() override;
@@ -27,7 +27,7 @@ namespace rev {
 
 		private:
 			float mSpeed;
-			core::AffineTransform*	transform = nullptr;
+			ObjTransform*	transform = nullptr;
 		};
 
 	}	// namespace game

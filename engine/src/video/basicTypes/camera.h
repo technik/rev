@@ -9,6 +9,7 @@
 
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
+#include <cjson/json.h>
 
 namespace rev {
 	namespace video {
