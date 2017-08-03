@@ -5,7 +5,6 @@
 #pragma once
 
 #include <cjson/json.h>
-#include <core/world/worldLayer.h>
 #include <vector>
 
 namespace rev {
