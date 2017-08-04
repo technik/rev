@@ -53,11 +53,13 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::render(const RenderGeom& _geom, const math::Mat44f& _wvp) {
+			// Uniform data
+			math::Mat44f wvp = _wvp.transpose(); // Transpose for vulkan
 			// Send draw batches to back end
 			RendererBackEnd::DrawCall callInfo = {};
 			callInfo.nIndices = _geom.nIndices();
 			callInfo.uniformData.size = sizeof(math::Mat44f);
-			callInfo.uniformData.data = &_wvp;
+			callInfo.uniformData.data = &wvp;
 			//callInfo.mDescriptorSet = mDescriptorSet;
 			RendererBackEnd::DrawBatch batch;
 			batch.draws.push_back(callInfo);

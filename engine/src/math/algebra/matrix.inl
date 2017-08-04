@@ -251,15 +251,15 @@ namespace rev {
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::operator* (const Matrix3x4<Number_>& _b) const
 		{
 			Matrix4x4 dst;
-			for (int row = 0; row < 4; ++row)
+			for (unsigned col = 0; col < 4; ++col)
 			{
-				for (unsigned column = 0; column < 4; ++column)
-				{
-					dst[row][column] = rows[row][0] * _b[0][column]
-						+ rows[row][1] * _b[1][column]
-						+ rows[row][2] * _b[2][column];
-				}
-				dst[row][3] += rows[row][3];
+				Vector4<Number_> colV(
+					_b[0][col],
+					_b[1][col],
+					_b[2][col],
+					Number_((col+1)/4));
+				for (int row = 0; row < 4; ++row)
+					dst(row,col) = rows[row] * colV;
 			}
 			return dst;
 		}
@@ -269,13 +269,15 @@ namespace rev {
 		inline Matrix4x4<Number_> Matrix4x4<Number_>::operator* (const Matrix4x4<Number_>& _b) const
 		{
 			Matrix4x4 dst;
-			for (unsigned column = 0; column < 4; ++column)
+			for (unsigned col = 0; col < 4; ++col)
 			{
-				Vector<Number_,4> colV(_b.rows[0][column], _b.rows[1][column], _b.rows[2][column], _b.rows[3][column]);
+				Vector4<Number_> colV(
+					_b[0][col],
+					_b[1][col],
+					_b[2][col],
+					_b[3][col]);
 				for (unsigned row = 0; row < 4; ++row)
-				{
-					dst(column,row) = rows[row]*colV;
-				}
+					dst(row,col) = rows[row]*colV;
 			}
 			return dst;
 		}

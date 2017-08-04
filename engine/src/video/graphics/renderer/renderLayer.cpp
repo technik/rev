@@ -11,7 +11,7 @@ using namespace cjson;
 
 namespace rev {
 	namespace video {
-
+		/*
 		//--------------------------------------------------------------------------------------------------------------
 		bool RenderLayer::update(float _dt) {
 #ifdef OPENGL_45
@@ -40,6 +40,6 @@ namespace rev {
 			if (cam)
 				mCameras.push_back(cam);
 			return cam;
-		}
+		}*/
 
 } }	// namespace rev::video

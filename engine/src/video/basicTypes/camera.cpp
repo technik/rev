@@ -4,7 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "camera.h"
 #include <video/graphics/renderer/types/renderTarget.h>
-#include <core/components/affineTransform.h>
+#include <game/scene/transform/objTransform.h>
 
 namespace rev {
 	namespace video {

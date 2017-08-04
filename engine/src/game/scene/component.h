@@ -13,7 +13,7 @@ namespace rev {
 		class Component {
 		public:
 			// -- Constructor & destructor --
-			virtual	~Component();
+			virtual	~Component() {}
 
 			// --- Logic update
 			// Gets called when all components of an object have been created.

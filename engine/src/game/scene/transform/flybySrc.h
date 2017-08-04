@@ -16,7 +16,7 @@ namespace rev {
 		class FlyBySrc : public Component
 		{
 		public:
-			FlyBySrc(float _spd, SceneNode& _owner) : mSpeed(_spd) {}
+			FlyBySrc(float _spd, SceneNode& _owner) : Component(_owner), mSpeed(_spd) {}
 
 			void onCreate() override {
 				transform = node().getComponent<ObjTransform>();

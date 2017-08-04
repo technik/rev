@@ -14,7 +14,7 @@ namespace rev {
 		class ForwardRenderer;
 		class RenderObj;
 
-		class RenderLayer : public core::WorldLayer {
+		/*class RenderLayer : public core::WorldLayer {
 		public:
 			RenderLayer(ForwardRenderer& _r) : mRenderer (_r) {}
 			bool update(float _dt) override;
@@ -28,6 +28,6 @@ namespace rev {
 			std::vector<Camera*>	mCameras;
 			std::vector<RenderObj*>	mObjects;
 			ForwardRenderer&		mRenderer;
-		};
+		};*/
 
 } }	// namespace rev::video

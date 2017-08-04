@@ -53,9 +53,9 @@ namespace rev {
 				ObjTransform* parentTransform = nullptr;
 				if(node().parent())
 					parentTransform = node().parent()->getComponent<ObjTransform>();
+				mWorldMtx = mMatrix;
 				if(parentTransform)
 					mWorldMtx = parentTransform->worldMatrix() * mMatrix;
-					
 			}
 
 			math::Mat34f mMatrix = math::Mat34f::identity();

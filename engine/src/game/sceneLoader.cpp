@@ -6,22 +6,20 @@
 #include <cjson/json.h>
 #include <fstream>
 #include <vector>
-#include <core/world/world.h>
 
 using namespace cjson;
-using namespace rev::core;
 using namespace std;
 
 namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		void SceneLoader::registerFactory(const std::string& _type, ComponentFactory _f) {
+		/*void SceneLoader::registerFactory(const std::string& _type, ComponentFactory _f) {
 			mFactories.insert(std::make_pair(_type,_f));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void SceneLoader::loadScene(const std::string& _fileName, core::World& _w) {
+		void SceneLoader::loadScene(const std::string& _fileName) {
 			Json sceneData;
 			ifstream fileStream(_fileName);
 			sceneData.parse(fileStream);
@@ -40,5 +38,5 @@ namespace rev {
 						obj->addComponent(iter->second(c));
 					}
 			}
-		}
+		}*/
 } }

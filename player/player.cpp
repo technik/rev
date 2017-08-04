@@ -34,7 +34,7 @@ namespace rev {
 
 		mBallObj = new SceneNode(1);
 		ObjTransform *t = new game::ObjTransform(*mBallObj);
-		t->setPosition({0.f, 2.f, 0.f});
+		t->setPosition({0.f, 1.f, 0.f});
 		mBallObj->addComponent(t);
 		mBallObj->init();
 		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/unitSphere.rmd");
@@ -63,9 +63,10 @@ namespace rev {
 	bool Player::frame(float _dt) {
 		//t += _dt;
 		mRenderer.beginFrame();
+		mBallObj->update();
 		math::Mat34f worldMtx = mBallGeom->transform();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
-		math::Mat44f wvp = (projMtx*worldMtx);
+		math::Mat44f wvp = projMtx*worldMtx;
 		mRenderer.render(*mBallGeom->mesh(), wvp);
 		mRenderer.endFrame();
 
