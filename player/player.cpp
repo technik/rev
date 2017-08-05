@@ -33,12 +33,12 @@ namespace rev {
 		mRenderer.init(window().frameBuffer()); // Configure renderer to render into the frame buffer
 
 		mBallObj = new SceneNode(1);
-		ObjTransform *t = new game::ObjTransform(*mBallObj);
-		t->setPosition({0.f, 1.f, 0.f});
-		mBallObj->addComponent(t);
+		ObjTransform *tr = new game::ObjTransform(*mBallObj);
+		tr->setPosition({0.f, 1.f, 0.f});
+		mBallObj->addComponent(tr);
 		mBallObj->init();
-		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/unitSphere.rmd");
-		mBallGeom = new RenderObj(ballMesh, *t);
+		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
+		mBallGeom = new RenderObj(ballMesh, *tr);
 		mBallGeom->mesh()->sendBuffersToGPU(); // So vulkan can render it
 #endif
 	}
@@ -61,8 +61,9 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
-		//t += _dt;
+		t += _dt;
 		mRenderer.beginFrame();
+		mBallObj->getComponent<ObjTransform>()->setRotation(Quatf(Vec3f::zAxis()*t));
 		mBallObj->update();
 		math::Mat34f worldMtx = mBallGeom->transform();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);

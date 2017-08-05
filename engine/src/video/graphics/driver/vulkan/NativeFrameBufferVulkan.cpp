@@ -21,6 +21,7 @@ namespace rev { namespace video {
 
 	namespace {	// anonymous namespace for vulkan utilities
 
+		//--------------------------------------------------------------------------------------------------------------
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 			assert(!availableFormats.empty());
 			// When format is undefined, it means we get to choose whatever format we want
@@ -46,13 +47,14 @@ namespace rev { namespace video {
 			return availableFormats[0];
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes) {
 			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
-	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance)
+	NativeFrameBufferVulkan::NativeFrameBufferVulkan(const Window& _wnd, VkInstance _apiInstance, ZBufferFormat _zFormat)
 		: mApiInstance(_apiInstance)
 		, mDevice(GraphicsDriver::get().device())
 	{
@@ -100,26 +102,85 @@ namespace rev { namespace video {
 		// Create image views for the images
 		mSwapChainImageViews.reserve(imageCount);
 		for(auto image : mSwapChainImages) {
-			VkImageViewCreateInfo createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = image;
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = mImageFormat;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			VkImageView view;
-			if(vkCreateImageView(mDevice, &createInfo, nullptr, &view) != VK_SUCCESS) {
+			VkImageView view = GraphicsDriver::get().createImageView(image, mImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			if(view == VK_NULL_HANDLE) {
 				core::Log::error("failed to create image views within the native frame buffer\n");
 			}
 			mSwapChainImageViews.push_back(view);
+		}
+
+		// Init ZBuffer if needed
+		if(_zFormat != ZBufferFormat::eNone) {
+			GraphicsDriver::get().createImage(mSize, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mDepthImage, mDepthImageMemory);
+			mDepthImageView = GraphicsDriver::get().createImageView(mDepthImage, VK_FORMAT_D32_SFLOAT, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+			VkCommandPool cmdPool = GraphicsDriver::get().createCommandPool(true);
+			// Create command buffer
+			VkCommandBufferAllocateInfo allocInfo = {};
+			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			allocInfo.commandPool = cmdPool;
+			allocInfo.commandBufferCount = 1;
+
+			VkCommandBuffer commandBuffer;
+			vkAllocateCommandBuffers(mDevice, &allocInfo, &commandBuffer);
+
+			// Record cmd buffer
+			VkCommandBufferBeginInfo beginInfo = {};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+			vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+			VkImageMemoryBarrier barrier = {};
+			VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			VkImageLayout newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			barrier.oldLayout = oldLayout;
+			barrier.newLayout = newLayout;
+			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			barrier.image = mDepthImage;
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			barrier.subresourceRange.baseMipLevel = 0;
+			barrier.subresourceRange.levelCount = 1;
+			barrier.subresourceRange.baseArrayLayer = 0;
+			barrier.subresourceRange.layerCount = 1;
+			if (oldLayout == VK_IMAGE_LAYOUT_PREINITIALIZED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+				barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+				barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			} else if (oldLayout == VK_IMAGE_LAYOUT_PREINITIALIZED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+				barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+				barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+				barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+				barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			} else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+				barrier.srcAccessMask = 0;
+				barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			}
+
+			vkCmdPipelineBarrier(
+				commandBuffer,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &barrier
+			);
+
+			vkEndCommandBuffer(commandBuffer);
+
+			// Submit command buffer
+			VkSubmitInfo submitInfo = {};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &commandBuffer;
+
+			vkQueueSubmit(GraphicsDriver::get().graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+			vkQueueWaitIdle(GraphicsDriver::get().graphicsQueue());
+			// Destroy command pool
+			vkDestroyCommandPool(mDevice, cmdPool, nullptr);
 		}
 
 		// Set up attachment desc so this FB can be used in a render pass
@@ -233,7 +294,7 @@ namespace rev { namespace video {
 
 	//--------------------------------------------------------------------------------------------------------------
 	void NativeFrameBufferVulkan::setupAttachmentDesc() {
-		mAttachDesc = {};
+		// Color attachment
 		mAttachDesc.format = mImageFormat;
 		mAttachDesc.samples = VK_SAMPLE_COUNT_1_BIT;
 		mAttachDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -242,6 +303,15 @@ namespace rev { namespace video {
 		mAttachDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		mAttachDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		mAttachDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		// Depth attachment
+		mDepthAttachDesc.format = VK_FORMAT_D32_SFLOAT;
+		mDepthAttachDesc.samples = VK_SAMPLE_COUNT_1_BIT;
+		mDepthAttachDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		mDepthAttachDesc.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		mDepthAttachDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		mDepthAttachDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		mDepthAttachDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		mDepthAttachDesc.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -250,13 +320,14 @@ namespace rev { namespace video {
 		mSwapChainBuffers.resize(mSwapChainImageViews.size());
 		for (size_t i = 0; i < mSwapChainImageViews.size(); i++) {
 			VkImageView attachments[] = {
-				(VkImageView)mSwapChainImageViews[i]
+				(VkImageView)mSwapChainImageViews[i],
+				mDepthImageView
 			};
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = _pass;
-			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.attachmentCount = 2;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = size().x;
 			framebufferInfo.height = size().y;

@@ -126,6 +126,65 @@ namespace // Anonymous namespace for vulkan utilities
 
 		return uint32_t(-1);
 	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	void createImage(VkDevice _device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
+		VkImageCreateInfo imageInfo = {};
+		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+		imageInfo.format = format;
+		imageInfo.tiling = tiling;
+		imageInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+		imageInfo.usage = usage;
+		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		if (vkCreateImage(_device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create image!");
+		}
+
+		VkMemoryRequirements memRequirements;
+		vkGetImageMemoryRequirements(_device, image, &memRequirements);
+
+		VkMemoryAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+		if (vkAllocateMemory(_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate image memory!");
+		}
+
+		vkBindImageMemory(_device, image, imageMemory, 0);
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	VkImageView createImageView(VkDevice _device, VkImage _image, VkFormat _format, VkImageAspectFlags _aspectFlags) {
+		VkImageViewCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = _image;
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = _format;
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask = _aspectFlags;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		VkImageView view = VK_NULL_HANDLE;
+		vkCreateImageView(_device, &createInfo, nullptr, &view);
+
+		return view;
+	}
 }
 
 namespace rev {
@@ -147,7 +206,7 @@ namespace rev {
 			createLogicalDevice();
 
 			if(_wnd) {
-				createNativeFrameBuffer(*_wnd);
+				createNativeFrameBuffer(*_wnd, NativeFrameBufferVulkan::ZBufferFormat::eF32);
 			}
 			core::Log::debug(" ----- /VulkanDriver::VulkanDriver -----");
 		}
@@ -177,8 +236,8 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd) {
-			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance);
+		NativeFrameBufferVulkan* VulkanDriver::createNativeFrameBuffer(const Window& _wnd, NativeFrameBufferVulkan::ZBufferFormat _zFormat) {
+			mNativeFB = new NativeFrameBufferVulkan(_wnd, mApiInstance, _zFormat);
 			return mNativeFB;
 		}
 
@@ -244,6 +303,15 @@ namespace rev {
 			viewportState.scissorCount = 1;
 			viewportState.pScissors = &scissor;
 
+			// Depth test
+			VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+			depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+			depthStencil.depthTestEnable = VK_TRUE;
+			depthStencil.depthWriteEnable = VK_TRUE;
+			depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+			depthStencil.depthBoundsTestEnable = VK_FALSE;
+			depthStencil.stencilTestEnable = VK_FALSE;
+
 			// Rasterizer
 			VkPipelineRasterizationStateCreateInfo rasterizer = {};
 			rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -252,7 +320,7 @@ namespace rev {
 			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 			rasterizer.lineWidth = 1.0f;
 			rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-			rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+			rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 			rasterizer.depthBiasEnable = VK_FALSE;
 			rasterizer.depthBiasConstantFactor = 0.0f; // Optional
 			rasterizer.depthBiasClamp = 0.0f; // Optional
@@ -317,7 +385,7 @@ namespace rev {
 			pipelineInfo.pViewportState = &viewportState;
 			pipelineInfo.pRasterizationState = &rasterizer;
 			pipelineInfo.pMultisampleState = &multisampling;
-			pipelineInfo.pDepthStencilState = nullptr; // Optional
+			pipelineInfo.pDepthStencilState = &depthStencil; // Optional
 			pipelineInfo.pColorBlendState = &colorBlending;
 			pipelineInfo.pDynamicState = nullptr; // Optional
 
@@ -378,6 +446,16 @@ namespace rev {
 			vkAllocateMemory(mDevice, &allocInfo, nullptr, &_bufferMemory);
 			vkBindBufferMemory(mDevice, _buffer, _bufferMemory, 0);
 			core::Log::debug(" ----- /VulkanDriver::createBuffer -----");
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		void VulkanDriver::createImage(const math::Vec2u& _size, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage, VkMemoryPropertyFlags _properties, VkImage& _image, VkDeviceMemory& _imageMemory) const {
+			::createImage(mDevice, _size.x, _size.y, _format, _tiling, _usage, _properties, _image, _imageMemory);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		VkImageView VulkanDriver::createImageView(VkImage _image, VkFormat _format, VkImageAspectFlags _aspectFlags) const {
+			return ::createImageView(mDevice, _image, _format, _aspectFlags);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
