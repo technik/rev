@@ -4,8 +4,7 @@
 // 2014/April/03
 //----------------------------------------------------------------------------------------------------------------------
 // Generic mathematical vector
-#ifndef _REV_MATH_ALGEBRA_VECTOR_H_
-#define _REV_MATH_ALGEBRA_VECTOR_H_
+#pragma once
 
 #include <cassert>
 
@@ -209,5 +208,3 @@ namespace rev {
 }	// namespace rev
 
 #include "vector.inl"
-
-#endif // _REV_MATH_ALGEBRA_VECTOR_H_

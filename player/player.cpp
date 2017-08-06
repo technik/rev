@@ -90,9 +90,6 @@ namespace rev {
 		mRenderer.beginFrame();
 		for(auto obj : mRootGameObjects)
 			obj->update();
-		//mBallObj->getComponent<ObjTransform>()->setRotation(Quatf(Vec3f::zAxis()*t));
-		//mBallObj->update();
-		//math::Mat34f worldMtx = mBallGeom->transform();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f viewProj = projMtx;
 		mRenderer.render(mRenderScene, viewProj);
