@@ -5,6 +5,8 @@
 #include "player.h"
 #include <core/platform/platformInfo.h>
 #include <game/scene/sceneNode.h>
+#include <game/scene/transform/objTransform.h>
+#include <video/graphics/renderObj.h>
 #include <video/window/window.h>
 
 using namespace cjson;
@@ -32,14 +34,7 @@ namespace rev {
 #ifdef REV_USE_VULKAN
 		mRenderer.init(window().frameBuffer()); // Configure renderer to render into the frame buffer
 
-		mBallObj = new SceneNode(1);
-		ObjTransform *tr = new game::ObjTransform(*mBallObj);
-		tr->setPosition({0.f, 1.f, 0.f});
-		mBallObj->addComponent(tr);
-		mBallObj->init();
-		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
-		mBallGeom = new RenderObj(ballMesh, *tr);
-		mBallGeom->mesh()->sendBuffersToGPU(); // So vulkan can render it
+		initGameScene();
 #endif
 	}
 
@@ -60,15 +55,47 @@ namespace rev {
 	}
 
 	//----------------------------------------------------------------
+	void Player::initGameScene() {
+		size_t rows = 3;
+		size_t cols = 3;
+		size_t nObjs = rows*cols;
+		mRootGameObjects.reserve(nObjs);
+		mRenderScene.objects.reserve(nObjs);
+
+		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
+		ballMesh->sendBuffersToGPU(); // So vulkan can render it
+		float h = 2.f;
+		float w = 2.f;
+		float x0 = -w*0.5f;
+		float z0 = -h*0.5f;
+		for(size_t r = 0; r < rows; ++r) {
+			float z = z0 + r*h/(rows-1);
+			for(size_t c = 0; c < cols; ++c) {
+				float x = x0 + c*w/(cols-1);
+				SceneNode* obj = new SceneNode(1); // Reserve space for 1 component, the transform
+				mRootGameObjects.push_back(obj);
+				ObjTransform *tr = new game::ObjTransform(*obj);
+				tr->setPosition({x, 2.f, z});
+				obj->addComponent(tr);
+				obj->init();
+				mRenderScene.objects.push_back(new RenderObj(ballMesh, *tr));
+			}
+		}
+
+	}
+
+	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
 		t += _dt;
 		mRenderer.beginFrame();
-		mBallObj->getComponent<ObjTransform>()->setRotation(Quatf(Vec3f::zAxis()*t));
-		mBallObj->update();
-		math::Mat34f worldMtx = mBallGeom->transform();
+		for(auto obj : mRootGameObjects)
+			obj->update();
+		//mBallObj->getComponent<ObjTransform>()->setRotation(Quatf(Vec3f::zAxis()*t));
+		//mBallObj->update();
+		//math::Mat34f worldMtx = mBallGeom->transform();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
-		math::Mat44f wvp = projMtx*worldMtx;
-		mRenderer.render(*mBallGeom->mesh(), wvp);
+		math::Mat44f viewProj = projMtx;
+		mRenderer.render(mRenderScene, viewProj);
 		mRenderer.endFrame();
 
 		return true;

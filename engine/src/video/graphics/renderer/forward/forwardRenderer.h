@@ -14,7 +14,7 @@
 #endif
 
 #include <video/graphics/driver/NativeFrameBuffer.h>
-#include <video/graphics/geometry/RenderGeom.h>
+#include <video/graphics/renderScene.h>
 #include <video/graphics/geometry/VertexFormat.h>
 #include <video/graphics/renderer/backend/rendererBackEnd.h>
 
@@ -34,7 +34,7 @@ namespace rev {
 			bool init(NativeFrameBuffer&);
 
 			void beginFrame();
-			void render(const RenderGeom&, const math::Mat44f& _wvp);
+			void render(const RenderScene&, const math::Mat44f& _vp);
 			void endFrame();
 
 		private:

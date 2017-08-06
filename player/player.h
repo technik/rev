@@ -5,9 +5,10 @@
 #pragma once
 
 #include <core/platform/platformInfo.h>
+#include <game/scene/sceneNode.h>
 #include <util/app/app3d.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
-#include <video/graphics/renderObj.h>
+#include <video/graphics/renderScene.h>
 
 #include <vulkan/vulkan.h>
 
@@ -26,11 +27,12 @@ namespace rev {
 		void processArgs(const core::StartUpInfo& _info);
 		bool frame(float _dt) override;
 
+		void initGameScene();
+
 	private:
 		float t = 0.f;
-		game::SceneNode*	mBallObj;
-		video::RenderObj*	mBallGeom;
-
+		std::vector<game::SceneNode*>	mRootGameObjects;
+		video::RenderScene				mRenderScene;
 	};
 
 }	// namespace rev

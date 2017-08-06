@@ -22,6 +22,7 @@ using namespace rev::math;
 #include <iostream>
 #include <video/graphics/driver/graphicsDriver.h>
 #include <video/graphics/RenderPass.h>
+#include <video/graphics/renderObj.h>
 
 using namespace std;
 
@@ -52,20 +53,23 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		void ForwardRenderer::render(const RenderGeom& _geom, const math::Mat44f& _wvp) {
+		void ForwardRenderer::render(const RenderScene& _scene, const math::Mat44f& _vp) {
 			// Uniform data
-			math::Mat44f wvp = _wvp.transpose(); // Transpose for vulkan
-			// Send draw batches to back end
-			RendererBackEnd::DrawCall callInfo = {};
-			callInfo.nIndices = _geom.nIndices();
-			callInfo.uniformData.size = sizeof(math::Mat44f);
-			callInfo.uniformData.data = &wvp;
-			//callInfo.mDescriptorSet = mDescriptorSet;
-			RendererBackEnd::DrawBatch batch;
-			batch.draws.push_back(callInfo);
-			batch.indexBuffer = _geom.mIndexBuffer;
-			batch.vertexBuffer = _geom.mVertexBuffer;
-			mBackEnd.draw(batch);
+			for(auto obj : _scene.objects) 
+			{
+				math::Mat44f wvp = (_vp*obj->transform()).transpose(); // Transpose for vulkan
+				// Send draw batches to back end
+				RendererBackEnd::DrawCall callInfo = {};
+				callInfo.nIndices = obj->mesh()->nIndices();
+				callInfo.uniformData.size = sizeof(math::Mat44f);
+				callInfo.uniformData.data = &wvp;
+				//callInfo.mDescriptorSet = mDescriptorSet;
+				RendererBackEnd::DrawBatch batch;
+				batch.draws.push_back(callInfo);
+				batch.indexBuffer = obj->mesh()->mIndexBuffer;
+				batch.vertexBuffer = obj->mesh()->mVertexBuffer;
+				mBackEnd.draw(batch);
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
