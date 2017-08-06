@@ -8,6 +8,7 @@
 #include <game/scene/transform/objTransform.h>
 #include <video/graphics/renderObj.h>
 #include <video/window/window.h>
+#include <game/scene/transform/spinner.h>
 
 using namespace cjson;
 
@@ -72,8 +73,11 @@ namespace rev {
 			float z = z0 + r*h/(rows-1);
 			for(size_t c = 0; c < cols; ++c) {
 				float x = x0 + c*w/(cols-1);
-				SceneNode* obj = new SceneNode(1); // Reserve space for 1 component, the transform
+				SceneNode* obj = new SceneNode(2); // Reserve space for 2 components
 				mRootGameObjects.push_back(obj);
+				auto spinner = new Spinner(*obj);
+				spinner->setSpin(Vec3f::zAxis());
+				obj->addComponent(spinner);
 				ObjTransform *tr = new game::ObjTransform(*obj);
 				tr->setPosition({x, 2.f, z});
 				obj->addComponent(tr);
@@ -90,7 +94,7 @@ namespace rev {
 		mRenderer.beginFrame();
 		for(auto obj : mRootGameObjects)
 			obj->update();
-		math::Mat44f projMtx = GraphicsDriver::projectionMtx(90.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
+		math::Mat44f projMtx = GraphicsDriver::projectionMtx(60.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f viewProj = projMtx;
 		mRenderer.render(mRenderScene, viewProj);
 		mRenderer.endFrame();

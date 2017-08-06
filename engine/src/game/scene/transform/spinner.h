@@ -15,7 +15,11 @@ namespace rev { namespace game {
 
 	class Spinner : public Component {
 	public:
-		void setSpin(const math::Vec3f& rotationVector); // This rotation will be applied per second
+		Spinner(SceneNode& owner) : Component(owner) {}
+
+		void setSpin(const math::Vec3f& rotationVector) { // This rotation will be applied per second
+			mRotation = rotationVector;
+		}
 
 		void onCreate() override {
 			mTarget = node().getComponent<ObjTransform>();
