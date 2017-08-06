@@ -9,7 +9,9 @@ layout(location = 0) out vec3 vNormal;
 
 layout(push_constant) uniform UniformBufferObject {
 	mat4 worldMtx;
-} perInstanceData;
+	vec4 dir;
+	vec4 clr;
+};
 
 // Outputs
 out gl_PerVertex {
@@ -17,6 +19,6 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = perInstanceData.worldMtx * vec4(vertexPos, 1.0);
+    gl_Position = worldMtx * vec4(vertexPos, 1.0);
 	vNormal = vertexNormal;
 }

@@ -55,14 +55,23 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void ForwardRenderer::render(const RenderScene& _scene, const math::Mat44f& _vp) {
 			// Uniform data
+			struct InstanceData {
+				math::Mat44f wvp;
+				math::Vec4f lightDir;
+				math::Vec4f lightClr;
+			} instanceData;
+			instanceData.lightClr = _scene.lightClr;
+
 			for(auto obj : _scene.objects) 
 			{
-				math::Mat44f wvp = (_vp*obj->transform()).transpose(); // Transpose for vulkan
+				instanceData.lightDir = obj->transform().inverse().rotate(_scene.lightDir);
+				instanceData.wvp = (_vp*obj->transform()).transpose(); // Transpose for vulkan
 				// Send draw batches to back end
 				RendererBackEnd::DrawCall callInfo = {};
 				callInfo.nIndices = obj->mesh()->nIndices();
-				callInfo.uniformData.size = sizeof(math::Mat44f);
-				callInfo.uniformData.data = &wvp;
+				callInfo.instanceData.size = sizeof(InstanceData);
+				callInfo.instanceData.offset = 0;
+				callInfo.instanceData.data = &instanceData;
 				//callInfo.mDescriptorSet = mDescriptorSet;
 				RendererBackEnd::DrawBatch batch;
 				batch.draws.push_back(callInfo);

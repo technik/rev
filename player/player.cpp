@@ -62,6 +62,8 @@ namespace rev {
 		size_t nObjs = rows*cols;
 		mRootGameObjects.reserve(nObjs);
 		mRenderScene.objects.reserve(nObjs);
+		mRenderScene.lightClr = Vec3f(255.f/255.f, 51.f/255.f, 153.f/255.f);
+		mRenderScene.lightDir = Vec3f(1.f, 0.f, 2.f);
 
 		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
 		ballMesh->sendBuffersToGPU(); // So vulkan can render it
@@ -79,7 +81,7 @@ namespace rev {
 				spinner->setSpin(Vec3f::zAxis());
 				obj->addComponent(spinner);
 				ObjTransform *tr = new game::ObjTransform(*obj);
-				tr->setPosition({x, 2.f, z});
+				tr->setPosition({x, 4.f, z});
 				obj->addComponent(tr);
 				obj->init();
 				mRenderScene.objects.push_back(new RenderObj(ballMesh, *tr));
@@ -91,11 +93,11 @@ namespace rev {
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
 		t += _dt;
-		mRenderer.beginFrame();
 		for(auto obj : mRootGameObjects)
 			obj->update();
 		math::Mat44f projMtx = GraphicsDriver::projectionMtx(60.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
 		math::Mat44f viewProj = projMtx;
+		mRenderer.beginFrame();
 		mRenderer.render(mRenderScene, viewProj);
 		mRenderer.endFrame();
 

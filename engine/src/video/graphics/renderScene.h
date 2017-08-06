@@ -7,6 +7,7 @@
 #define _REV_VIDEO_GRAPHICS_RENDERSCENE_H_
 
 #include <vector>
+#include <math/algebra/vector.h>
 
 namespace rev {
 	namespace video {
@@ -15,6 +16,8 @@ namespace rev {
 
 		struct RenderScene {
 			std::vector<RenderObj*>	objects;
+			math::Vec3f lightDir;
+			math::Vec3f lightClr;
 		};
 		
 	}

@@ -29,7 +29,8 @@ namespace rev {
 				struct UnifromData {
 					const void* data = nullptr;
 					size_t size = 0;
-				} uniformData;
+					size_t offset = 0;
+				} instanceData;
 #ifdef REV_USE_VULKAN
 				// TODO: Use descriptor sets instead of push constants
 				//VkDescriptorSet mDescriptorSet;

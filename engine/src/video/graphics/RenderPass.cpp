@@ -82,12 +82,20 @@ namespace rev { namespace video {
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 0; // Optional
 		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-		pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+		/*pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
 		VkPushConstantRange range = {};
 		range.size = 16*sizeof(float);
 		range.offset = 0;
 		range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		pipelineLayoutInfo.pPushConstantRanges = &range; // Optional
+		pipelineLayoutInfo.pPushConstantRanges = &range; */// Optional
+		pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+		VkPushConstantRange ranges[2];
+		// Instance data
+		ranges[0] = {};
+		ranges[0].size = sizeof(math::Mat44f)+8*sizeof(float);
+		ranges[0].offset = 0;
+		ranges[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT + VK_SHADER_STAGE_FRAGMENT_BIT;
+		pipelineLayoutInfo.pPushConstantRanges = ranges; // Optional
 
 		if (vkCreatePipelineLayout(GraphicsDriver::get().device(), &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
 			core::Log::error("failed to create pipeline layout!");
@@ -96,7 +104,8 @@ namespace rev { namespace video {
 		// Create pipeline
 		setupVertexFormat();
 		mPipeline = GraphicsDriver::get().createPipeline(
-		{mRenderTarget.size().x, mRenderTarget.size().y}, mVkPass, mVertexFormat, mPipelineLayout);
+			{mRenderTarget.size().x, mRenderTarget.size().y},
+			mVkPass, mVertexFormat, mPipelineLayout);
 
 		// Create synch semaphores
 		VkSemaphoreCreateInfo semaphoreInfo = {};

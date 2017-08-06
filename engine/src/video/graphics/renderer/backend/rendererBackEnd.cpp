@@ -40,9 +40,11 @@ namespace rev {
 			// Draw
 			for(auto drawCall : _batch.draws) {
 				// Uniforms
-				if(drawCall.uniformData.size > 0) {
-					assert(drawCall.uniformData.data);
-					vkCmdPushConstants(mTargetCmdBuffer, mActivePipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, drawCall.uniformData.size, drawCall.uniformData.data);
+				if(drawCall.instanceData.size > 0) {
+					assert(drawCall.instanceData.data);
+					vkCmdPushConstants(mTargetCmdBuffer, mActivePipelineLayout,
+						VK_SHADER_STAGE_VERTEX_BIT+VK_SHADER_STAGE_FRAGMENT_BIT, 
+						drawCall.instanceData.offset, drawCall.instanceData.size, drawCall.instanceData.data);
 				}
 				//vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mActivePipelineLayout, 0, 1, &drawCall.mDescriptorSet, 0, nullptr);
 				// Draw indices

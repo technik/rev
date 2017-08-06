@@ -334,7 +334,7 @@ namespace rev {
 			multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
 			multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
-													   // Color blending
+			// Color blending
 			VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 			colorBlendAttachment.blendEnable = VK_FALSE;
@@ -355,24 +355,6 @@ namespace rev {
 			colorBlending.blendConstants[1] = 0.0f; // Optional
 			colorBlending.blendConstants[2] = 0.0f; // Optional
 			colorBlending.blendConstants[3] = 0.0f; // Optional
-
-													// Pipeline layout
-			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 0;//1; // Optional
-			pipelineLayoutInfo.pSetLayouts = 0;//&mDescriptorSetLayout; // Optional
-			pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
-			auto range = VkPushConstantRange{
-				VK_SHADER_STAGE_VERTEX_BIT,
-				0,
-				4*4*sizeof(float)
-			};
-			pipelineLayoutInfo.pPushConstantRanges = &range;//0; // Optional
-
-			if (vkCreatePipelineLayout(mDevice, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
-				cout << "failed to create pipeline layout!\n";
-				return false;
-			}
 
 			// Actual pipeline
 			VkGraphicsPipelineCreateInfo pipelineInfo = {};
