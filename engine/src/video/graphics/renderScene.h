@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <math/algebra/vector.h>
+#include <video/basicTypes/camera.h>
 
 namespace rev {
 	namespace video {
@@ -18,6 +19,7 @@ namespace rev {
 			std::vector<RenderObj*>	objects;
 			math::Vec3f lightDir;
 			math::Vec3f lightClr;
+			Camera* camera;
 		};
 		
 	}

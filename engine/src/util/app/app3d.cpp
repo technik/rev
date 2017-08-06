@@ -36,7 +36,7 @@ namespace rev {
 		mKeyboard = input::KeyboardInput::get();
 #endif // !ANDROID
 	#ifdef REV_USE_VULKAN
-		mDriver = new GraphicsDriver(mWindow);
+		new GraphicsDriver(mWindow);
 	#endif // REV_USE_VULKAN
 	#ifdef OPENGL_45
 		// Open config file
@@ -44,13 +44,12 @@ namespace rev {
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
 	#endif // OPENGL_45
 
-		assert(mDriver);
+		assert(&GraphicsDriver::get());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	App3d::~App3d()
 	{
-		delete mDriver;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

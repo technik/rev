@@ -41,7 +41,7 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	Player::~Player() {
-		VkDevice device = driver3d().device();
+		VkDevice device = GraphicsDriver::get().device();
 	}
 
 	//----------------------------------------------------------------
@@ -65,12 +65,21 @@ namespace rev {
 		mRenderScene.lightClr = Vec3f(255.f/255.f, 51.f/255.f, 153.f/255.f);
 		mRenderScene.lightDir = Vec3f(1.f, 0.f, 2.f);
 
+		mRenderScene.camera = new Camera(60.f*3.14f/180.f, 0.1f, 10.f);
+		SceneNode* camObj = new SceneNode(1);
+		mRootGameObjects.push_back(camObj);
+		ObjTransform *tr = new game::ObjTransform(*camObj);
+		mRenderScene.camera->setTransform(tr);
+		tr->setPosition({0.f, 0.f, 1.f});
+		camObj->addComponent(tr);
+		camObj->init();
+
 		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
 		ballMesh->sendBuffersToGPU(); // So vulkan can render it
 		float h = 2.f;
 		float w = 2.f;
 		float x0 = -w*0.5f;
-		float z0 = -h*0.5f;
+		float z0 = 1.f-h*0.5f;
 		for(size_t r = 0; r < rows; ++r) {
 			float z = z0 + r*h/(rows-1);
 			for(size_t c = 0; c < cols; ++c) {
@@ -95,8 +104,8 @@ namespace rev {
 		t += _dt;
 		for(auto obj : mRootGameObjects)
 			obj->update();
-		math::Mat44f projMtx = GraphicsDriver::projectionMtx(60.f*3.14f/180.f, 4.f/3.f,0.1f,10.f);
-		math::Mat44f viewProj = projMtx;
+		math::Mat44f projMtx = mRenderScene.camera->projection();
+		math::Mat44f viewProj = projMtx*mRenderScene.camera->view().inverse();
 		mRenderer.beginFrame();
 		mRenderer.render(mRenderScene, viewProj);
 		mRenderer.endFrame();

@@ -27,6 +27,7 @@ namespace rev {
 			~NativeFrameBufferVulkan();
 
 			const math::Vec2u&	size			() const { return mSize; }
+			float				aspectRatio		() const { return float(mSize.x)/mSize.y; }
 			bool				sRGBColorSpace	() const { return VK_COLOR_SPACE_SRGB_NONLINEAR_KHR == mColorSpace; }
 
 			void begin();

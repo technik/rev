@@ -7,6 +7,7 @@
 #ifndef _REV_VIDEO_BASICTYPES_CAMERA_H_
 #define _REV_VIDEO_BASICTYPES_CAMERA_H_
 
+#include <game/scene/transform/objTransform.h>
 #include <math/algebra/matrix.h>
 #include <math/geometry/types.h>
 #include <cjson/json.h>
@@ -22,9 +23,10 @@ namespace rev {
 			/// Create a camera that renders into dst target (either a viewport or a render texture)
 			/// if dst is nullptr, then the default Viewport will be used as target
 			/// near and far ar clipping plane distances
-			Camera(float _fov, float _near, float _far, bool ortho = false, RenderTarget* dst = nullptr);
+			Camera(float _fov, float _near, float _far, bool ortho = false);
 
 			// Public accessors
+			void setTransform(game::ObjTransform* t) { mTransform = t; }
 			void setRenderTarget(RenderTarget* _rt)		{ mRt = _rt; }
 			void setFov(float _fov)						{ mFov = _fov; }
 			void setClipPlanes(float _near, float _far)	{ mNear = _near; mFar = _far; }
@@ -40,8 +42,7 @@ namespace rev {
 			static Camera* construct(const cjson::Json&);
 
 		private:
-			float aspectRatio() const;
-
+			game::ObjTransform* mTransform = nullptr;
 			RenderTarget*	mRt;
 			float	mFov;
 			float	mNear, mFar;

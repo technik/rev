@@ -30,7 +30,6 @@ namespace rev {
 		bool update();
 
 	protected:
-		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
 		rev::video::Window&			window		() const { return *mWindow; }
 #ifndef ANDROID
 		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
@@ -45,7 +44,6 @@ namespace rev {
 	private:
 		float						mMinFrameTime;
 		Engine						mEngine;
-		rev::video::GraphicsDriver*	mDriver = nullptr;
 
 #ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;
