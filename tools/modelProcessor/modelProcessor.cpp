@@ -121,7 +121,9 @@ bool loadFBX(const string& _src, IntermediateModel& _dst) {
 	if(!fbx)
 		return false;
 	const aiNode* sceneRoot = fbx->mRootNode;
-	if(sceneRoot->mNumMeshes == 0)
+	while(sceneRoot && sceneRoot->mNumMeshes == 0)
+		sceneRoot = sceneRoot->mChildren[0];
+	if(!sceneRoot)
 	{
 		cout << "Warning: node has no meshes. Nothing will be exported\n";
 		return true;

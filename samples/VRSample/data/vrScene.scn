@@ -1,41 +1,48 @@
 {
 	objects : [
 		{
-			name : "ball",
 			components : [
-				{
-					_type : "RenderObj",
-					file : "data/unitSphere.rmd"
-					material : "data/solidWhite.mat"
-				}
 				{
 					_type : "Transform",
 					mat : [ 1, 0, 0, 0,
-							0, 1, 0, -3,
+							0, 1, 0, 3,
 							0, 0, 1, 0.5]
+				},
+				{
+					_type : "RenderObj",
+					file : "data/wheel.rmd"
+					material : "data/solidWhite.mat"
+				},
+				{
+					_type : "Spinner",
+					rotation : [ 0.0, 0.0, 1.0 ]
 				}
 			]
 		},
 		{
-			name : "Camera",
 			components : [
 				{
-					_type : "Camera",
-					fov : 1.5,
-					near : 0.1,
-					far : 1000
+					_type : "Transform",
+					mat : [ 1, 0, 0, 0,
+							0, 1, 0, 1.72,
+							0, 0, 1, 0]
 				},
 				{
-					_type : "Transform",
-					pos : [0, -1, 1],
-					mat : [ -1, 0, 0, 0,
-							0, -1, 0, 8,
-							0, 0, 1, 0]
+					_type : "Camera",
+					fov : 60.0,
+					near : 0.1,
+					far : 100.0
 				},
 				{
 					_type : "Flyby"
 				}
 			]
 		}
-	]
+	],
+	light : {
+		color : [1.0, 0.2, 0.6],
+		direction : [1.0, 0.0, 2.0]
+	},
+	skyBox : {
+	}
 }
