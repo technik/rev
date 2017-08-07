@@ -41,7 +41,7 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		Camera* Camera::construct(const cjson::Json& _data) {
-			float fov = (float)_data["fov"];
+			float fov = (float)_data["fov"] * 3.14159f / 180.f;
 			float nearPlane = (float)_data["near"];
 			float farPlane = (float)_data["far"];
 			return new Camera(fov, nearPlane, farPlane);

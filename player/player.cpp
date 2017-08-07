@@ -76,6 +76,26 @@ namespace rev {
 			mRenderScene.objects.push_back(model);
 			return nullptr;
 		});
+		registerFactory("Spinner", [this](const cjson::Json& _data, SceneNode& _owner){
+			Spinner* spinner = new Spinner(_owner);
+			if(_data.contains("rotation")) {
+				const cjson::Json& spin = _data["rotation"];
+				spinner->setSpin(math::Vec3f(spin(0), spin(1), spin(2)));
+			}
+			return spinner;
+		});
+		registerFactory("Camera", [this](const cjson::Json& _data, SceneNode& _owner){
+			Camera* cam = Camera::construct(_data);
+			cam->setTransform(_owner.getComponent<ObjTransform>());
+			mRenderScene.camera = cam;
+			return nullptr;
+		});
+		registerFactory("FlyBy", [this](const cjson::Json& _data, SceneNode& _owner){
+			float speed = 1.f;
+			if(_data.contains("speed"))
+				speed = _data["speed"];
+			return new FlyBySrc(speed, _owner);
+		});
 		registerFactory("Transform", ObjTransform::construct);
 		//registerFactory")
 	}
@@ -108,58 +128,9 @@ namespace rev {
 
 	//----------------------------------------------------------------
 	void Player::initGameScene() {
-		size_t rows = 3;
-		size_t cols = 3;
-		size_t nObjs = rows*cols;
-		mRootGameObjects.reserve(nObjs);
-		mRenderScene.objects.reserve(nObjs);
 		// Light
 		mRenderScene.lightClr = Vec3f(255.f/255.f, 51.f/255.f, 153.f/255.f);
 		mRenderScene.lightDir = Vec3f(1.f, 0.f, 2.f);
-		// Camera
-		mRenderScene.camera = new Camera(60.f*3.14f/180.f, 0.1f, 100.f);
-		SceneNode* camObj = new SceneNode(2);
-		mRootGameObjects.push_back(camObj);
-		ObjTransform *tr = new game::ObjTransform(*camObj);
-		mRenderScene.camera->setTransform(tr);
-		tr->setPosition({0.f, 0.f, 1.f});
-		camObj->addComponent(tr);
-		camObj->addComponent(new FlyBySrc(1.f, *camObj));
-		camObj->init();
-		// Scene
-		// Castle
-		/*SceneNode* castle = new SceneNode(2); // Reserve space for 2 components
-		mRootGameObjects.push_back(castle);
-		ObjTransform *castleTr = new game::ObjTransform(*castle);
-		castle->addComponent(castleTr);
-		castle->init();
-		RenderGeom* castleMesh = RenderGeom::loadFromFile("data/sponzaLow.rmd");
-		castleMesh->sendBuffersToGPU();
-		mRenderScene.objects.push_back(new RenderObj(castleMesh, *castleTr));
-		// Wheels
-		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
-		ballMesh->sendBuffersToGPU(); // So vulkan can render it
-		float h = 2.f;
-		float w = 2.f;
-		float x0 = -w*0.5f;
-		float z0 = 1.f-h*0.5f;
-		for(size_t r = 0; r < rows; ++r) {
-			float z = z0 + r*h/(rows-1);
-			for(size_t c = 0; c < cols; ++c) {
-				float x = x0 + c*w/(cols-1);
-				SceneNode* obj = new SceneNode(2); // Reserve space for 2 components
-				mRootGameObjects.push_back(obj);
-				auto spinner = new Spinner(*obj);
-				spinner->setSpin(Vec3f::zAxis());
-				obj->addComponent(spinner);
-				ObjTransform *tr = new game::ObjTransform(*obj);
-				tr->setPosition({x, 4.f, z});
-				obj->addComponent(tr);
-				obj->init();
-				mRenderScene.objects.push_back(new RenderObj(ballMesh, *tr));
-			}
-		}*/
-
 	}
 
 	//----------------------------------------------------------------

@@ -23,18 +23,34 @@
 			components : [
 				{
 					_type : "Transform",
-					mat : [ 1, 0, 0, 0,
-							0, 1, 0, 1.72,
+					mat : [ 0, -1, 0, 0,
+							1, 0, 0, 0,
 							0, 0, 1, 0]
 				},
 				{
+					_type : "RenderObj",
+					file : "data/sponzaLow.rmd"
+					material : "data/solidWhite.mat"
+				}
+			]
+		},
+		{
+			components : [
+				{
+					_type : "Transform",
+					mat : [ 1, 0, 0, 0,
+							0, 1, 0, 0,
+							0, 0, 1, 1.72]
+				},
+				{
 					_type : "Camera",
-					fov : 60.0,
+					fov : 90.0,
 					near : 0.1,
 					far : 100.0
 				},
 				{
-					_type : "Flyby"
+					_type : "FlyBy",
+					speed : 1.0
 				}
 			]
 		}

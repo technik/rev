@@ -59,12 +59,14 @@ namespace rev {
 				math::Mat44f wvp;
 				math::Vec4f lightDir;
 				math::Vec4f lightClr;
+				math::Vec4f viewPos;
 			} instanceData;
 			instanceData.lightClr = _scene.lightClr;
 
 			for(auto obj : _scene.objects) 
 			{
 				instanceData.lightDir = obj->transform().inverse().rotate(_scene.lightDir);
+				instanceData.viewPos = obj->transform().inverse() * _scene.camera->view().col(3);
 				instanceData.wvp = (_vp*obj->transform()).transpose(); // Transpose for vulkan
 				// Send draw batches to back end
 				RendererBackEnd::DrawCall callInfo = {};

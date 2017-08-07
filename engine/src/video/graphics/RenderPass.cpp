@@ -92,7 +92,7 @@ namespace rev { namespace video {
 		VkPushConstantRange ranges[2];
 		// Instance data
 		ranges[0] = {};
-		ranges[0].size = sizeof(math::Mat44f)+8*sizeof(float);
+		ranges[0].size = sizeof(math::Mat44f)+12*sizeof(float);
 		ranges[0].offset = 0;
 		ranges[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT + VK_SHADER_STAGE_FRAGMENT_BIT;
 		pipelineLayoutInfo.pPushConstantRanges = ranges; // Optional

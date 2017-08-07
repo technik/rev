@@ -6,11 +6,13 @@ layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexNormal;
 
 layout(location = 0) out vec3 vNormal;
+layout(location = 1) out vec3 vViewDir;
 
 layout(push_constant) uniform UniformBufferObject {
 	mat4 worldMtx;
-	vec4 dir;
-	vec4 clr;
+	vec4 lightDir;
+	vec4 lightClr;
+	vec4 viewPos; // In model space
 };
 
 // Outputs
@@ -21,4 +23,5 @@ out gl_PerVertex {
 void main() {
     gl_Position = worldMtx * vec4(vertexPos, 1.0);
 	vNormal = vertexNormal;
+	vViewDir = viewPos.xyz - vertexPos;
 }
