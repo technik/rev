@@ -9,6 +9,7 @@
 #include <video/graphics/renderObj.h>
 #include <video/window/window.h>
 #include <game/scene/transform/spinner.h>
+#include <game/scene/transform/flybySrc.h>
 
 using namespace cjson;
 
@@ -66,12 +67,13 @@ namespace rev {
 		mRenderScene.lightDir = Vec3f(1.f, 0.f, 2.f);
 
 		mRenderScene.camera = new Camera(60.f*3.14f/180.f, 0.1f, 10.f);
-		SceneNode* camObj = new SceneNode(1);
+		SceneNode* camObj = new SceneNode(2);
 		mRootGameObjects.push_back(camObj);
 		ObjTransform *tr = new game::ObjTransform(*camObj);
 		mRenderScene.camera->setTransform(tr);
 		tr->setPosition({0.f, 0.f, 1.f});
 		camObj->addComponent(tr);
+		camObj->addComponent(new FlyBySrc(1.f, *camObj));
 		camObj->init();
 
 		RenderGeom* ballMesh = RenderGeom::loadFromFile("data/wheel.rmd");
