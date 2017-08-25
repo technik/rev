@@ -32,6 +32,24 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
+		void SceneNode::attachTo(SceneNode* _parent) {
+			// Dettach from old parent
+			if(mParent) {
+				for(auto i = mParent->mChildren.begin(); i != mParent->mChildren.end(); ++i) {
+					if(*i == this) {
+						mParent->mChildren.erase(i);
+						break;
+					}
+				}
+			}
+			// Attach to new parent (if any)
+			if(_parent) {
+				_parent->mChildren.push_back(this);
+			}
+			mParent = _parent;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void SceneNode::addComponent(Component* _c) {
 			if(!_c)
 				return;

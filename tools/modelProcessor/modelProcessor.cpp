@@ -5,17 +5,22 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+#include <experimental/filesystem>
 
 #include <math/algebra/vector.h>
+#include <game/scene/sceneNode.h>
+#include <video/graphics/renderObj.h>
 
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include <video/graphics/geometry/VertexFormat.h>
 
 using namespace std;
+using namespace rev::game;
 using namespace rev::video;
 using namespace rev::math;
 
@@ -23,7 +28,7 @@ using namespace rev::math;
 // The importer is stored globally, so buffers don't get erased and we can save some memcpy's
 Assimp::Importer fbxLoader;
 
-struct IntermediateModel {
+struct IntermediateMesh {
 	VertexFormat format;
 	Vec3f* vertices = nullptr;
 	Vec3f* normals = nullptr;
@@ -31,26 +36,7 @@ struct IntermediateModel {
 	uint16_t* indices = nullptr;
 	uint32_t nIndices = 0;
 	uint16_t nVertices = 0;
-
-	void collapseVertexData(void* _dst, size_t stride) {
-		size_t nOffset = format.normalOffset();
-		size_t uvOffset = format.uvOffset();
-		for (size_t i = 0; i < nVertices; ++i) {
-			auto dataRow = &((uint8_t*)_dst)[stride*i];
-			if(format.hasPosition) {
-				auto v0 = (Vec3f*)dataRow;
-				*v0 = vertices[i];
-			}
-			if(format.normalFmt != VertexFormat::UnitVecFormat::eNone) {
-				auto n0 = (Vec3f*)(&dataRow[nOffset]);
-				*n0 = normals[i];
-			}
-			if(format.nUVs > 0) {
-				auto uv0 = (Vec2f*)(&dataRow[uvOffset]);
-				*uv0 = uvs[i];
-			}
-		}
-	}
+	string name;
 	
 	bool saveToStream(ostream& _out) {
 		auto stride = format.stride();
@@ -75,10 +61,32 @@ struct IntermediateModel {
 			return false;
 		return true;
 	}
+private:
+	void collapseVertexData(void* _dst, size_t stride) {
+		size_t nOffset = format.normalOffset();
+		size_t uvOffset = format.uvOffset();
+		for (size_t i = 0; i < nVertices; ++i) {
+			auto dataRow = &((uint8_t*)_dst)[stride*i];
+			if(format.hasPosition) {
+				auto v0 = (Vec3f*)dataRow;
+				*v0 = vertices[i];
+			}
+			if(format.normalFmt != VertexFormat::UnitVecFormat::eNone) {
+				auto n0 = (Vec3f*)(&dataRow[nOffset]);
+				*n0 = normals[i];
+			}
+			if(format.nUVs > 0) {
+				auto uv0 = (Vec2f*)(&dataRow[uvOffset]);
+				*uv0 = uvs[i];
+			}
+		}
+	}
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-bool loadFBXMesh(const aiMesh* _mesh, IntermediateModel& _dst) {
+bool loadFBXMesh(const aiMesh* _mesh, IntermediateMesh& _dst) {
+	// meta data
+	_dst.name = _mesh->mName.C_Str();
 	// Vertex positions
 	_dst.format.hasPosition = true;
 	_dst.nVertices = _mesh->mNumVertices;
@@ -116,22 +124,6 @@ bool loadFBXMesh(const aiMesh* _mesh, IntermediateModel& _dst) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool loadFBX(const string& _src, IntermediateModel& _dst) {
-	const aiScene* fbx = fbxLoader.ReadFile(_src, aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
-	if(!fbx)
-		return false;
-	const aiNode* sceneRoot = fbx->mRootNode;
-	while(sceneRoot && sceneRoot->mNumMeshes == 0)
-		sceneRoot = sceneRoot->mChildren[0];
-	if(!sceneRoot)
-	{
-		cout << "Warning: node has no meshes. Nothing will be exported\n";
-		return true;
-	}
-	return loadFBXMesh(fbx->mMeshes[sceneRoot->mMeshes[0]], _dst);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 VertexFormat defaultVtxFmt() {
 	VertexFormat fmt;
 	fmt.hasPosition = true;
@@ -142,7 +134,7 @@ VertexFormat defaultVtxFmt() {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool convertModel(const IntermediateModel& _src, IntermediateModel& _dst, const VertexFormat& _targetFmt) {
+bool convertMesh(const IntermediateMesh& _src, IntermediateMesh& _dst, const VertexFormat& _targetFmt) {
 	_dst.format = _targetFmt;
 	// Copy position
 	if(_targetFmt.hasPosition) {
@@ -175,8 +167,174 @@ bool convertModel(const IntermediateModel& _src, IntermediateModel& _dst, const 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+class MeshComponent : public Component {
+public:
+	MeshComponent(SceneNode& _n) : Component(_n) {}
+	void update() override {}
+
+	string meshName;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+void loadFBXMeshes(const aiScene& fbx, vector<IntermediateMesh*>& _dst, const VertexFormat& _tgtFmt) {
+	_dst.reserve(fbx.mNumMeshes);
+	for(size_t i = 0; i < fbx.mNumMeshes; ++i) {
+		// Read mesh
+		IntermediateMesh uncompressed;
+		loadFBXMesh(fbx.mMeshes[i], uncompressed);
+		// Convert format
+		IntermediateMesh* finalMesh = new IntermediateMesh;
+		convertMesh(uncompressed, *finalMesh, _tgtFmt);
+		// Ensure the mesh has a name to reference it
+		if(finalMesh->name.empty()) { // We always need a name
+			stringstream ss;
+			ss << i;
+			finalMesh->name = ss.str();
+		}
+		// Add mesh to the list
+		_dst.push_back(finalMesh);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool loadFBX(const string& _src, SceneNode*& _dst, vector<IntermediateMesh*>& _dstMeshes, const VertexFormat& _tgtFmt) {
+	const aiScene* fbx = fbxLoader.ReadFile(_src, aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
+	if(!fbx)
+		return false;
+	loadFBXMeshes(*fbx, _dstMeshes, _tgtFmt);
+	vector<aiNode*>	fbxNodeStack;
+	vector<pair<SceneNode*,size_t>>	ancestorStack;
+	fbxNodeStack.push_back(fbx->mRootNode);
+	// Traverse fbx tree
+	while(fbxNodeStack.size()) {
+		aiNode* fbxNode = fbxNodeStack.back();
+		fbxNodeStack.pop_back();
+		SceneNode* obj = new SceneNode(2); // Reserve space for transform + mesh
+		// Handle hierarchy
+		if(ancestorStack.empty())
+			_dst = obj;
+		else {
+			obj->attachTo(ancestorStack.back().first);
+			ancestorStack.back().second--;
+			if(!ancestorStack.back().second)
+				ancestorStack.pop_back();
+		}
+		if(fbxNode->mNumChildren > 0) {
+			ancestorStack.push_back(make_pair(obj,fbxNode->mNumChildren));
+		}
+		for(size_t i = 0; i < fbxNode->mNumChildren; ++i) {
+			fbxNodeStack.push_back(fbxNode->mChildren[i]);
+		}
+		// Handle transform
+		ObjTransform* transform = new ObjTransform(*obj);
+		for(size_t i = 0; i < 3; ++i) {
+			for(size_t j = 0; j < 4; ++j) {
+				transform->matrix()[i][j] = fbxNode->mTransformation[i][j];
+			}
+		}
+		obj->addComponent(transform);
+		// Handle mesh references
+		for(size_t i = 0; i < fbxNode->mNumMeshes; ++i) {
+			IntermediateMesh uncompressed;
+			if(!loadFBXMesh(fbx->mMeshes[fbxNode->mMeshes[i]], uncompressed))
+				return false;
+			MeshComponent* meshComp = new MeshComponent(*obj);
+			meshComp->meshName = _dstMeshes[fbxNode->mMeshes[i]]->name;
+			obj->addComponent(meshComp);
+		}
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void serializeTransform(rev::math::Mat34f& _tr, cjson::Json& _dst) {
+	vector<float> numbers(12);
+	memcpy(numbers.data(), &_tr, 12*sizeof(float));
+	_dst["mat"] = numbers;
+	_dst["_type"] = "Transform";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void serializeMeshComponent(const std::string& _meshFolder, MeshComponent* _mesh, cjson::Json& _dst) {
+	_dst["file"] = _meshFolder + _mesh->meshName + ".rmd";
+	_dst["_type"] = "RenderObj";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void serializeNode(const std::string& _meshFolder, SceneNode* _node, cjson::Json& _dst) {
+	_dst["_type"] = "Node";
+	// Serialize components
+	std::vector<cjson::Json>	components;
+	for(auto comp : _node->components()) {
+		if(dynamic_cast<ObjTransform*>(comp)) {
+			cjson::Json tr;
+			serializeTransform(dynamic_cast<ObjTransform*>(comp)->matrix(), tr);
+			components.push_back(tr);
+		} else
+		{
+			cjson::Json tr;
+			serializeMeshComponent(_meshFolder, dynamic_cast<MeshComponent*>(comp), tr);
+			components.push_back(tr);
+		}
+	}
+	if(!components.empty())
+		_dst["components"] = components;
+	// Serialize children nodes
+	std::vector<cjson::Json>	children(_node->children().size());
+	if(!children.empty()) {
+		size_t i = 0;
+		for(auto child : _node->children())
+		{
+			serializeNode(_meshFolder, child, children[i]);
+			++i;
+		}
+		_dst["children"] = children;
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void saveMesh(const std::string& folder, IntermediateMesh& mesh) {
+	string dst = "./" + folder + "/" + mesh.name + ".rmd";
+	ofstream outFile(dst, std::ofstream::binary);
+	if(!outFile.is_open()) {
+		cout << "Error: Unable to open dst file " << dst << "\n";
+		return;
+	}
+	mesh.saveToStream(outFile);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void saveMeshes(const std::string& _folder, const vector<IntermediateMesh*>& fileMeshes) {
+	// Serialize each mesh
+	std::experimental::filesystem::path meshFolderPath = _folder;
+	if(!std::experimental::filesystem::exists(meshFolderPath))
+		std::experimental::filesystem::create_directory(meshFolderPath);
+	for(auto mesh : fileMeshes) {
+		saveMesh(_folder, *mesh);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool saveNodeHierarchy(const std::string& _meshFolder, const std::string& _fileName, SceneNode* _sceneRoot) {
+	ofstream outFile(_fileName, std::ofstream::binary);
+	if (outFile.is_open()) {
+		cjson::Json sceneData;
+		serializeNode(_meshFolder, _sceneRoot, sceneData["objects"](0));
+		sceneData.serialize(outFile);
+		//	targetModel.saveToStream(outFile);
+		outFile.close();
+		return true;
+	}
+	else {
+		cout << "Error: Unable to open output file\n";
+		return false;
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	assert(_argc > 1);
+	// Parse command line
 	VertexFormat targetFmt = defaultVtxFmt();
 	if (_argc <= 1)
 	{
@@ -190,30 +348,20 @@ int main(int _argc, const char** _argv) {
 	}
 	string modelName = _argv[1];
 	string src = modelName + ".fbx";
-	string dst = modelName + ".rmd";
-	cout << src << " >> " << dst << "\n";
-	// Load
-	IntermediateModel uncompressedModel;
-	if (!loadFBX(src, uncompressedModel))
+	string sceneName = modelName + ".scn";
+	cout << src << " >> " << sceneName << "\n";
+	// Load FBX
+	SceneNode* rootObj = nullptr;
+	vector<IntermediateMesh*>	fileMeshes;
+	if (!loadFBX(src, rootObj, fileMeshes, targetFmt))
 	{
 		cout << "Error loading model: " << src << "\n";
 		return -1;
 	}
-	// Convert
-	IntermediateModel targetModel;
-	if(!convertModel(uncompressedModel, targetModel, targetFmt)) {
-		cout << "Error: Unable to convert model to target format\n";
-		return -1;
-	}
-	// Save
-	ofstream outFile(dst, std::ofstream::binary);
-	if (outFile.is_open()) {
-		targetModel.saveToStream(outFile);
-		outFile.close();
-	}
-	else {
-		cout << "Error: Unable to open output file\n";
+	// Save meshes
+	saveMeshes(modelName, fileMeshes);
+	// Save scene hierarchy
+	if(!saveNodeHierarchy(sceneName + "/", sceneName, rootObj))
 		return -2;
-	}
 	return 0;
 }

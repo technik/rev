@@ -1,6 +1,7 @@
 {
 	objects : [
 		{
+			_type : "Node"
 			components : [
 				{
 					_type : "Transform",
@@ -20,6 +21,8 @@
 			]
 		},
 		{
+			_type : "Scene"
+			file : "data/sponza.scn"
 			components : [
 				{
 					_type : "Transform",
@@ -35,6 +38,7 @@
 			]
 		},
 		{
+			_type : "Node"
 			components : [
 				{
 					_type : "Transform",

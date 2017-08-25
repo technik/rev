@@ -38,7 +38,9 @@ namespace rev {
 			void attachTo(SceneNode* parent);
 
 			// Handle components
-			void				addComponent	(Component * _component);
+			void							addComponent	(Component * _component);
+			const std::vector<Component*>	components		() const { return mComponents; }
+			const std::vector<SceneNode*>	children		() const { return mChildren; }
 
 			// Access component structure
 			template<class T_>	

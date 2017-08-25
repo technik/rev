@@ -279,7 +279,15 @@ namespace cjson {
 
 	//------------------------------------------------------------------------------------------------------------------
 	Json& Json::operator()(size_t _n) {
-		assert(mType == DataType::array);
+		assert(mType == DataType::array || mType == DataType::null);
+		mType = DataType::array;
+		if(_n >= mArray.size()) {
+			auto oldSize = mArray.size();
+			auto newSize = _n+1;
+			mArray.resize(newSize);
+			for(size_t i = oldSize; i < newSize; ++i)
+				mArray[i] = new Json;
+		}
 		return *mArray[_n];
 	}
 	
@@ -291,6 +299,7 @@ namespace cjson {
 	
 	//------------------------------------------------------------------------------------------------------------------
 	Json& Json::operator[](const char* _key) {
+		assert(mType == DataType::object || mType == DataType::null);
 		if(mType != DataType::object) {
 			clear();
 			mType = DataType::object;
