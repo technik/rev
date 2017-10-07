@@ -14,6 +14,10 @@
 #include <android/asset_manager.h>
 #endif // ANDROID
 
+#include "file.h"
+#include <experimental/filesystem>
+#include <fstream>
+
 namespace rev {
 	namespace core {
 #ifdef _WIN32
@@ -32,7 +36,41 @@ namespace rev {
 			static FileSystem*	get(); // Must be implemented in derived class' cpp.
 			FileEvent&			onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
 #endif // _WIN32
+
+			// Paths, folders and files
+			File* openFile(const std::string& _filePath) {
+				std::string path = findPath(_filePath);
+				if(!path.empty())
+					return new File(path);
+				return nullptr;
+			}
+
+			std::string findPath(const std::string& _path) {
+				if(std::experimental::filesystem::exists(_path))
+					return _path;
+				else if(!mLocalPathStack.empty())
+				{
+					std::string localFile = mLocalPathStack.back()+_path;
+					if(std::experimental::filesystem::exists(localFile))
+						return localFile;
+				}
+				return "";
+			}
+
+			std::ifstream openStream(const std::string& _filePath) {
+				return std::ifstream(findPath(_filePath));
+			}
+			void pushLocalPath(const std::string& _path) { mLocalPathStack.push_back(_path); }
+			void popLocalPath() { mLocalPathStack.pop_back(); }
+
+			static std::string extractFileFolder(const std::string& _fileName) {
+				auto fullPath = std::experimental::filesystem::path(_fileName);
+				auto folder = fullPath.remove_filename();
+				return folder.string();
+			}
+
 		private:
+			std::vector<std::string> mLocalPathStack;
 			FileSystem() = default;
 			~FileSystem() = default;
 #ifdef _WIN32

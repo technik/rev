@@ -4,6 +4,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "player.h"
 #include <core/platform/platformInfo.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <game/scene/sceneNode.h>
 #include <game/scene/transform/objTransform.h>
 #include <video/graphics/renderObj.h>
@@ -36,11 +37,10 @@ namespace rev {
 #endif
 #ifdef REV_USE_VULKAN
 		mRenderer.init(window().frameBuffer()); // Configure renderer to render into the frame buffer
-		createGlobalObjects();
+#endif
 		prepareFactories();
 		loadSceneFromFile("data/vrScene.scn");
 		initGameScene();
-#endif
 	}
 
 	//----------------------------------------------------------------
@@ -101,29 +101,51 @@ namespace rev {
 	}
 
 	//----------------------------------------------------------------
-	void Player::loadSceneFromFile(const std::string& _fileName) {
+	void Player::loadNode(const cjson::Json& _data, SceneNode* _parent) {
+		SceneNode* obj = new SceneNode;
+		if(_parent)
+			obj->attachTo(_parent);
+		else
+			mRootGameObjects.push_back(obj);
+		// Load components
+		if(_data.contains("components"))
+			for (const auto& c : _data["components"])
+			{
+				const std::string& componentType = c["_type"];
+				auto iter = mFactories.find(componentType);
+				if (iter == mFactories.end())
+				{
+					cout << "Error: Unable to find factory for component of type " << componentType << "\n";
+					continue;
+				}
+				Component* component = iter->second(c, *obj);
+				if(component)
+					obj->addComponent(component);
+			}
+		// Load components
+		if(_data.contains("children"))
+			for (const auto& c : _data["children"])
+			{
+				const std::string& childType = c["_type"];
+				if(childType == "Scene")
+					loadSceneFromFile(string(c["file"]), obj);
+				else if (childType == "Node")
+				{
+					loadNode(c, obj);
+				}
+			}
+	}
+
+	//----------------------------------------------------------------
+	void Player::loadSceneFromFile(const std::string& _fileName, SceneNode* _parent) {
+		FileSystem::get()->pushLocalPath(FileSystem::extractFileFolder(_fileName));
 		Json sceneData;
-		ifstream fileStream(_fileName);
+		ifstream fileStream = FileSystem::get()->openStream(_fileName);
 		sceneData.parse(fileStream);
 		for (const auto& objectData : sceneData["objects"]) {
-			SceneNode* obj = new SceneNode;
-			mRootGameObjects.push_back(obj);
-			if(objectData.contains("components"))
-				for (const auto& c : objectData["components"])
-				{
-					const std::string& componentType = c["_type"];
-					auto iter = mFactories.find(componentType);
-					if (iter == mFactories.end())
-					{
-						cout << "Error: Unable to find factory for component of type " << componentType << "\n";
-						continue;
-					}
-					Component* component = iter->second(c, *obj);
-					if(component)
-						obj->addComponent(component);
-				}
-			obj->init();
+			loadNode(objectData, _parent);
 		}
+		FileSystem::get()->popLocalPath();
 	}
 
 	//----------------------------------------------------------------

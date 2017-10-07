@@ -10,6 +10,7 @@
 #include <util/app/app3d.h>
 #include <video/graphics/renderer/forward/forwardRenderer.h>
 #include <video/graphics/renderScene.h>
+#include <game/scene/sceneNode.h>
 
 #include <functional>
 #include <map>
@@ -35,7 +36,8 @@ namespace rev {
 		void createGlobalObjects();
 		void registerFactory(const std::string& _type, ComponentFactory _f);
 		void prepareFactories();
-		void loadSceneFromFile(const std::string&);
+		void loadNode(const cjson::Json& _data, game::SceneNode* _parent);
+		void loadSceneFromFile(const std::string&, game::SceneNode* parent = nullptr);
 		void initGameScene();
 
 	private:

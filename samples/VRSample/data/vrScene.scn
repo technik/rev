@@ -21,19 +21,19 @@
 			]
 		},
 		{
-			_type : "Scene"
-			file : "data/sponza.scn"
+			_type : "Node"
 			components : [
 				{
 					_type : "Transform",
 					mat : [ 0, -1, 0, 0,
 							1, 0, 0, 0,
 							0, 0, 1, 0]
-				},
+				}
+			],
+			children : [
 				{
-					_type : "RenderObj",
-					file : "data/sponzaLow.rmd"
-					material : "data/solidWhite.mat"
+					_type : "Scene",
+					file : "data/sponza.scn"
 				}
 			]
 		},

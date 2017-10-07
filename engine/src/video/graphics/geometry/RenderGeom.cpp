@@ -3,6 +3,7 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 #include "RenderGeom.h"
+#include <core/platform/fileSystem/fileSystem.h>
 #include <math/algebra/vector.h>
 #include <vector>
 #include <video/graphics/driver/graphicsDriver.h>
@@ -26,7 +27,7 @@ namespace video {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	RenderGeom* RenderGeom::loadFromFile(const std::string& _fileName) {
-		std::ifstream file(_fileName, std::ifstream::binary);
+		std::ifstream file(core::FileSystem::get()->findPath(_fileName), std::ifstream::binary);
 		if(!file.is_open())
 			return nullptr;
 		// Read header
