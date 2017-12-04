@@ -5,42 +5,42 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-namespace rev {
-	namespace video {
 
-		class Window;
+namespace graphics {
 
-		class VulkanDriver {
-		public:
+	class Window;
+
+	class VulkanDriver {
+	public:
 #ifdef ANDROID
-			VulkanDriver();
+		VulkanDriver();
 #else
-			VulkanDriver(Window*);
+		VulkanDriver(Window*);
 #endif
-			~VulkanDriver();
+		~VulkanDriver();
 
-		private:
-			// Vulkan initialization
-			void createInstance();
-			void initSurface();
-			void queryExtensions(VkInstanceCreateInfo&);
-			void getPhysicalDevice();
-			void findQueueFamilies();
-			void createLogicalDevice();
+	private:
+		// Vulkan initialization
+		void createInstance();
+		void initSurface();
+		void queryExtensions(VkInstanceCreateInfo&);
+		void getPhysicalDevice();
+		void findQueueFamilies();
+		void createLogicalDevice();
 
-			// Device
-			VkInstance					mApiInstance;
-			VkPhysicalDevice			mPhysicalDevice = VK_NULL_HANDLE;
-			VkPhysicalDeviceProperties	mDeviceProps;
-			VkPhysicalDeviceFeatures	mDeviceFeatures;
-			VkExtensionProperties*		mExtensions = nullptr;
-			VkDevice					mDevice;
-			VkQueue						mGraphicsQueue;
+		// Device
+		VkInstance					mApiInstance;
+		VkPhysicalDevice			mPhysicalDevice = VK_NULL_HANDLE;
+		VkPhysicalDeviceProperties	mDeviceProps;
+		VkPhysicalDeviceFeatures	mDeviceFeatures;
+		VkExtensionProperties*		mExtensions = nullptr;
+		VkDevice					mDevice;
+		VkQueue						mGraphicsQueue;
 
-			// Main window surface
-			VkSurfaceKHR				mSurface;
+		// Main window surface
+		VkSurfaceKHR				mSurface;
 
-			// Queues
-			int		mQueueFamilyIndex = -1;
-		};
-} }
+		// Queues
+		int		mQueueFamilyIndex = -1;
+	};
+}
