@@ -20,20 +20,11 @@ using namespace std;
 
 namespace rev {
 
-	//----------------------------------------------------------------
-	void Player::processArgs(const PlatformInfo& _info) {
-#ifdef ANDROID
-		mSceneName = "vrScene.scn";
-#else
-		if (_info.argC > 1) {
-			mSceneName = _info.argV[1];
-		}
-#endif
-	}
 
 	//----------------------------------------------------------------
 	bool Player::frame(float _dt) {
-		return mGameWorld.update(_dt);
+		mRenderer.render();
+		return true;
 	}
 
 }	// namespace rev

@@ -20,21 +20,13 @@ namespace rev {
 
 		class ForwardRenderer {
 		public:
-			void init(GraphicsDriver* _driver);
+			void init();
 			// TODO: Instead of a camera, this should receive a "render info" struct with
 			// information like: use shadows? LOD bias? cam, etc
 			// nullptr render target means: use framebuffer
-			void render(const std::vector<RenderObj*>& _scene, const Camera& _cam) const;
+			void render();
 
 		private:
-			void drawSkyboxCubemap(const Camera& _cam) const;
-
-			Texture*			mSkybox;
-			Shader::Ptr			mSkyboxShader;
-
-			GraphicsDriver*		mDriver = nullptr;
-			RendererBackEnd*	mBackEnd = nullptr;
-			Shader::Ptr			mProgram = nullptr;
 		};
 	}
 }
