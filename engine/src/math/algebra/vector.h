@@ -18,11 +18,20 @@ namespace rev {
 			inline T		operator[](unsigned i)			{ return m[i]; }
 			inline const T&	operator[](unsigned i) const	{ return m[i]; }
 
-			Derived& operator+=(const Derived& b);
-			Derived& operator-=(const Derived& b);
+			Derived&	operator+=	(const Derived& b);
+			Derived&	operator-=	(const Derived& b);
+			Vector		operator-	() const;				// Return the oposite of this vector
 
-			Derived& operator*=(const T k);
-			Derived& operator/=(const T k);
+			Derived&	operator*=	(const T k);
+			Derived&	operator/=	(const T k);
+
+			// Vector norm and normalization
+			T			norm		() const;	///< Vector norm
+			T			sqNorm		() const;	///< Vector square norm
+			Derived		normalized	() const;	///< Returns a normalized version of the vector
+			Derived&	normalize	();			///< Normalizes the vector
+
+			static Derived zero();
 		protected:
 			T m[dim];
 		};
@@ -92,6 +101,9 @@ namespace rev {
 			float	y() const	{ return m[1]; }
 			float&	z()			{ return m[2]; }
 			float	z() const	{ return m[2]; }
+
+			Vector3	operator*	(const Vector3&) const;	// Dot product
+			Vector3	operator^	(const Vector3&) const;	// Cross product
 		};
 
 		// Vector 4 specialization
@@ -159,19 +171,6 @@ namespace rev {
 			Vector(const T_& _x, const T_& _y) : x(_x), y(_y) {}
 
 			// Adition and substraction
-			Vector	operator-	() const;				// Return the oposite of this vector
-
-			// Products
-			Vector&	operator*=	(const T_);				// Product by scalar
-			Vector&	operator/=	(const T_);				// Division by scalar
-			T_		operator*	(const Vector&) const;	// Dot product
-			T_		operator^	(const Vector&) const;	// Cross product
-
-			// Vector norm and normalization
-			T_		norm() const;						//< Vector norm
-			T_		sqNorm() const;						///< Vector square norm
-			Vector	normalized() const;					///< Returns a normalized version of the vector
-			Vector&	normalize();						///< Normalizes the vector
 		};
 
 		// 3D vector
@@ -187,27 +186,7 @@ namespace rev {
 			explicit Vector(const T_ _v) :x(_v), y(_v), z(_v) {}
 			Vector(T_ _x, T_ _y, T_ _z) : x(_x), y(_y), z(_z) {}
 
-			// Accessors
-			T_&			operator[] (unsigned _index)		{ return (reinterpret_cast<T_*>(this))[_index]; }
-			const T_&	operator[] (unsigned _index) const	{ return (reinterpret_cast<const T_*>(this))[_index]; }
-
-			// Adition and substraction
-			Vector	operator-	() const;				// Return the oposite of this vector
-
-			// Products
-			Vector&	operator*=	(const T_);				// Product by scalar
-			Vector&	operator/=	(const T_);				// Division by scalar
-			T_		operator*	(const Vector&) const;	// Dot product
-			Vector	operator^	(const Vector&) const;	// Cross product
-
-			// Vector norm and normalization
-			T_		norm() const;						//< Vector norm
-			T_		sqNorm() const;						///< Vector square norm
-			Vector	normalized() const;					///< Returns a normalized version of the vector
-			Vector&	normalize();						///< Normalizes the vector
-
 			// Common vectors
-			static Vector zero() { return Vector(0.f, 0.f, 0.f); }
 			static Vector xAxis() { return Vector(T_(1.f), T_(0.f), T_(0.f)); }
 			static Vector yAxis() { return Vector(T_(0.f), T_(1.f), T_(0.f)); }
 			static Vector zAxis() { return Vector(T_(0.f), T_(0.f), T_(1.f)); }
