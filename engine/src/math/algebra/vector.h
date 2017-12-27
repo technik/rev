@@ -12,14 +12,118 @@
 namespace rev {
 	namespace math {
 
-		template<typename T, unsigned dim>
+		template<typename T, unsigned dim, typename Derived>
 		class VectorBase {
 		public:
 			inline T		operator[](unsigned i)			{ return m[i]; }
 			inline const T&	operator[](unsigned i) const	{ return m[i]; }
-		private:
+
+			Derived& operator+=(const Derived& _b);
+			Derived& operator-=(const Derived& _b);
+		protected:
 			T m[dim];
 		};
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Base vector operations
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim, typename Derived>
+		auto VectorBase<T, dim, Derived>::operator+=(const Derived& b) -> Derived {
+			for(unsigned i = 0; i < dim; ++i) {
+				m[i] += b.m[i];
+			}
+			return *static_cast<Derived*>(this);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim, typename Derived>
+		auto VectorBase<T, dim, Derived>::operator-=(const Derived& b) -> Derived {
+			for(unsigned i = 0; i < dim; ++i) {
+				m[i] -= b.m[i];
+			}
+			return *static_cast<Derived*>(this);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Specializations
+		//--------------------------------------------------------------------------------------------------------------
+		// Generic dimension vector
+		template<typename T, unsigned dim>
+		class Vector : public VectorBase<T,dim,Vector> {};
+
+		// Vector 2 specialization
+		template<typename T>
+		class Vector2 : public VectorBase<T, 2, Vector2> {
+		public:
+			float&	x()			{ return m[0]; }
+			float	x() const	{ return m[0]; }
+			float&	y()			{ return m[1]; }
+			float	y() const	{ return m[1]; }
+		};
+
+		// Vector 3 specialization
+		template<typename T>
+		class Vector3 : public VectorBase<T, 3, Vector3> {
+		public:
+			float&	x()			{ return m[0]; }
+			float	x() const	{ return m[0]; }
+			float&	y()			{ return m[1]; }
+			float	y() const	{ return m[1]; }
+			float&	z()			{ return m[2]; }
+			float	z() const	{ return m[2]; }
+		};
+
+		// Vector 4 specialization
+		template<typename T>
+		class Vector4 : public VectorBase<T, 4, Vector4> {
+		public:
+			float&	x()			{ return m[0]; }
+			float	x() const	{ return m[0]; }
+			float&	y()			{ return m[1]; }
+			float	y() const	{ return m[1]; }
+			float&	z()			{ return m[2]; }
+			float	z() const	{ return m[2]; }
+			float&	w()			{ return m[3]; }
+			float	w() const	{ return m[3]; }
+		};
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Generic vector operations
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim>
+		Vector<T,dim> operator+(const Vector<T, dim>& a, const Vector<T, dim>& b) {
+			Vector<T,dim> result;
+			for(unsigned i = 0; i < dim; ++i)
+				result[i] = a[i]+b[i];
+			return result;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim>
+		Vector<T,dim> operator-(const Vector<T, dim>& a, const Vector<T, dim>& b) {
+			Vector<T,dim> result;
+			for(unsigned i = 0; i < dim; ++i)
+				result[i] = a[i]-b[i];
+			return result;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim>
+		Vector<T,dim> operator*(const Vector<T, dim>& x, T k) {
+			Vector<T,dim> result;
+			for(unsigned i = 0; i < dim; ++i)
+				result[i] = x[i]*k;
+			return result;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim>
+		Vector<T,dim> operator/(const Vector<T, dim>& x, T k) {
+			Vector<T,dim> result;
+			for(unsigned i = 0; i < dim; ++i)
+				result[i] = x[i]/k;
+			return result;
+		}
 
 		// 2D vector
 		template<typename T_>
@@ -33,21 +137,11 @@ namespace rev {
 			Vector(const T_& _r) : x(_r), y(_r) {}
 			Vector(const T_& _x, const T_& _y) : x(_x), y(_y) {}
 
-			// Comparison
-			bool operator==(const Vector&) const;
-			bool operator!=(const Vector&) const;
-
 			// Adition and substraction
-			Vector	operator+	(const Vector&) const;	// Adition
-			Vector&	operator+=	(const Vector&);		// Adition
-			Vector	operator-	(const Vector&) const;	// Substraction
-			Vector&	operator-=	(const Vector&);		// Substraction
 			Vector	operator-	() const;				// Return the oposite of this vector
 
 			// Products
-			Vector	operator*	(const T_) const;		// Product by scalar
 			Vector&	operator*=	(const T_);				// Product by scalar
-			Vector	operator/	(const T_) const;		// Division by scalar
 			Vector&	operator/=	(const T_);				// Division by scalar
 			T_		operator*	(const Vector&) const;	// Dot product
 			T_		operator^	(const Vector&) const;	// Cross product
@@ -76,24 +170,11 @@ namespace rev {
 			T_&			operator[] (unsigned _index)		{ return (reinterpret_cast<T_*>(this))[_index]; }
 			const T_&	operator[] (unsigned _index) const	{ return (reinterpret_cast<const T_*>(this))[_index]; }
 
-			// Assignment
-			Vector& operator=(const Vector&);
-
-			// Comparison
-			bool operator==(const Vector&) const;
-			bool operator!=(const Vector&) const;
-
 			// Adition and substraction
-			Vector	operator+	(const Vector&) const;	// Adition
-			Vector&	operator+=	(const Vector&);		// Adition
-			Vector	operator-	(const Vector&) const;	// Substraction
-			Vector&	operator-=	(const Vector&);		// Substraction
 			Vector	operator-	() const;				// Return the oposite of this vector
 
 			// Products
-			Vector	operator*	(const T_) const;		// Product by scalar
 			Vector&	operator*=	(const T_);				// Product by scalar
-			Vector	operator/	(const T_) const;		// Division by scalar
 			Vector&	operator/=	(const T_);				// Division by scalar
 			T_		operator*	(const Vector&) const;	// Dot product
 			Vector	operator^	(const Vector&) const;	// Cross product
@@ -119,12 +200,6 @@ namespace rev {
 		template<class T_>
 		T_	min(const T_& _a, const T_& _b);
 
-		template<typename T_>
-		using Vector2 = Vector<T_, 2>;
-		template<typename T_>
-		using Vector3 = Vector<T_, 3>;
-		template<typename T_>
-		using Vector4 = Vector<T_, 4>;
 
 		typedef Vector<unsigned, 2> Vec2u;
 		typedef Vector<int, 2>		Vec2i;
@@ -143,7 +218,5 @@ namespace rev {
 		
 	}	// namespace math
 }	// namespace rev
-
-#include "vector.inl"
 
 #endif // _REV_MATH_ALGEBRA_VECTOR_H_

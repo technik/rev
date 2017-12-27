@@ -4,10 +4,13 @@
 #include <cassert>
 #include <math/algebra/vector.h>
 
+using namespace rev::math;
+
 //----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
 void testVec3() {
-
+	Vec3f a = Vec3f(1.f);
+	Vec3f b = Vec3f(2.f);
 }
 
 int main() {
