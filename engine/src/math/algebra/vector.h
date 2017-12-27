@@ -18,8 +18,11 @@ namespace rev {
 			inline T		operator[](unsigned i)			{ return m[i]; }
 			inline const T&	operator[](unsigned i) const	{ return m[i]; }
 
-			Derived& operator+=(const Derived& _b);
-			Derived& operator-=(const Derived& _b);
+			Derived& operator+=(const Derived& b);
+			Derived& operator-=(const Derived& b);
+
+			Derived& operator*=(const T k);
+			Derived& operator/=(const T k);
 		protected:
 			T m[dim];
 		};
@@ -28,7 +31,7 @@ namespace rev {
 		// Base vector operations
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename T, unsigned dim, typename Derived>
-		auto VectorBase<T, dim, Derived>::operator+=(const Derived& b) -> Derived {
+		Derived& VectorBase<T, dim, Derived>::operator+=(const Derived& b) {
 			for(unsigned i = 0; i < dim; ++i) {
 				m[i] += b.m[i];
 			}
@@ -37,9 +40,27 @@ namespace rev {
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename T, unsigned dim, typename Derived>
-		auto VectorBase<T, dim, Derived>::operator-=(const Derived& b) -> Derived {
+		Derived& VectorBase<T, dim, Derived>::operator-=(const Derived& b) {
 			for(unsigned i = 0; i < dim; ++i) {
 				m[i] -= b.m[i];
+			}
+			return *static_cast<Derived*>(this);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim, typename Derived>
+		Derived& VectorBase<T, dim, Derived>::operator*=(const T k) {
+			for(unsigned i = 0; i < dim; ++i) {
+				m[i] *= k;
+			}
+			return *static_cast<Derived*>(this);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		template<typename T, unsigned dim, typename Derived>
+		Derived& VectorBase<T, dim, Derived>::operator/=(const T k) {
+			for(unsigned i = 0; i < dim; ++i) {
+				m[i] /= k;
 			}
 			return *static_cast<Derived*>(this);
 		}
@@ -49,11 +70,11 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		// Generic dimension vector
 		template<typename T, unsigned dim>
-		class Vector : public VectorBase<T,dim,Vector> {};
+		class Vector : public VectorBase<T,dim,Vector<T,dim>> {};
 
 		// Vector 2 specialization
 		template<typename T>
-		class Vector2 : public VectorBase<T, 2, Vector2> {
+		class Vector2 : public VectorBase<T, 2, Vector2<T>> {
 		public:
 			float&	x()			{ return m[0]; }
 			float	x() const	{ return m[0]; }
@@ -63,7 +84,7 @@ namespace rev {
 
 		// Vector 3 specialization
 		template<typename T>
-		class Vector3 : public VectorBase<T, 3, Vector3> {
+		class Vector3 : public VectorBase<T, 3, Vector3<T>> {
 		public:
 			float&	x()			{ return m[0]; }
 			float	x() const	{ return m[0]; }
@@ -75,7 +96,7 @@ namespace rev {
 
 		// Vector 4 specialization
 		template<typename T>
-		class Vector4 : public VectorBase<T, 4, Vector4> {
+		class Vector4 : public VectorBase<T, 4, Vector4<T>> {
 		public:
 			float&	x()			{ return m[0]; }
 			float	x() const	{ return m[0]; }
