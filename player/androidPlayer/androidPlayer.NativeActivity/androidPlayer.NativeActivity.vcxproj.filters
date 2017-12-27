@@ -7,11 +7,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="android_native_app_glue.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="..\..\player.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="android_native_app_glue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

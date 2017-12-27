@@ -32,9 +32,7 @@ namespace rev {
 		// Open config file
 		cjson::Json config;// = loadConfig();
 #ifdef ANDROID
-		GraphicsDriver* driver = new GraphicsDriver(config);
-		//driver->setWindow(_info.activity->);
-		mDriver = driver;
+		mDriver = new GraphicsDriver(_info.window);
 #else
 		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
 

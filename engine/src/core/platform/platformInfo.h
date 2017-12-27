@@ -13,7 +13,7 @@ namespace rev {
 
 #ifdef ANDROID
 		struct PlatformInfo {
-			ANativeActivity* activity;
+			ANativeWindow* window;
 		};
 
 #else //!ANDROID

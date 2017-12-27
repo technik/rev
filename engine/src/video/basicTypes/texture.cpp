@@ -68,18 +68,24 @@ namespace rev {
 				Texture::InternalFormat gpuFormat() const {
 					char* format = (char*)&pixelFormat;
 					if (format[7] == 'a') {// Contains alpha
+#ifdef ANDROID
 						if (format[0] == 32) {
 							return Texture::InternalFormat::rgba32f;
 						}
-						else {
+						else 
+#endif
+						{
 							return Texture::InternalFormat::rgba;
 						}
 					}
 					else { // no alpha
+#ifdef ANDROID
 						if (format[0] == 32) {
 							return Texture::InternalFormat::rgb32f;
 						}
-						else {
+						else 
+#endif
+						{
 							return Texture::InternalFormat::rgb;
 						}
 					}

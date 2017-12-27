@@ -229,7 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\player.cpp" />
-    <ClCompile Include="android_native_app_glue.c" />
+    <ClCompile Include="android_native_app_glue.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
