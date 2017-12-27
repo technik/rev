@@ -12,15 +12,13 @@
 namespace rev {
 	namespace math {
 
-		// A vector of dimension _n
-		template<typename T_, unsigned n_>
-		class Vector {
+		template<typename T, unsigned dim>
+		class VectorBase {
 		public:
-			/// 666 TODO: Implemente generic dimension vector
-			inline T_&			operator[](unsigned _n)			{ return m[_n]; }
-			inline const T_&	operator[](unsigned _n) const	{ return m[_n]; }
+			inline T		operator[](unsigned i)			{ return m[i]; }
+			inline const T&	operator[](unsigned i) const	{ return m[i]; }
 		private:
-			T_ m[n_];
+			T m[dim];
 		};
 
 		// 2D vector

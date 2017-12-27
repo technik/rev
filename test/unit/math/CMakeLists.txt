@@ -1,0 +1,3 @@
+add_executable(algebraTest algebra_test.cpp)
+set_target_properties(algebraTest PROPERTIES FOLDER test)
+add_test(algebra_unit_test algebraTest)

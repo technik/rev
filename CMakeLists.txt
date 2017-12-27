@@ -7,6 +7,7 @@ project(revAll)
 
 # --- Configurable options -----
 option(REV_BUILD_TOOLS "Build the asset processing tools" OFF)
+option(REV_BUILD_TEST "Build engine unit tests" ON)
 option(REV_BUILD_PLAYER "Build rev player. This is rev's default client application" ON)
 option(REV_WITH_OPENGL "Build OpenGL driver and related components. This allows using OpenGL as graphics back end" ON)
 
@@ -16,6 +17,12 @@ if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
 
-if(REV_BUILD_TOOLS)
+if(REV_BUILD_PLAYER)
 	add_subdirectory(player)
 endif() 
+
+if(REV_BUILD_TEST)
+	enable_testing()
+	include_directories(engine/src)
+	add_subdirectory(test/unit/math)
+endif()
