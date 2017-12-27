@@ -18,11 +18,8 @@
 #ifndef ANDROID
 #include <core/platform/osHandler.h>
 #include <input/keyboard/keyboardInput.h>
-#include <video/basicTypes/camera.h>
-#include <video/graphics/renderObj.h>
-#include <video/window/window.h>
+#include <graphics/window/window.h>
 #endif // !ANDROID
-#include <video/graphics/shader/shader.h>
 #include <network/http/httpServer.h>
 
 using namespace rev::math;

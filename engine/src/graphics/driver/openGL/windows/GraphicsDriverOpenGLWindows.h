@@ -6,7 +6,7 @@
 #ifdef _WIN32
 
 #include "../openGL.h"
-#include <video/window/window.h>
+#include <graphics/window/window.h>
 
 namespace rev { namespace video {
 
