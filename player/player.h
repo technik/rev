@@ -3,19 +3,17 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
+#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+
 namespace rev {
 
 	class Player {
 	public:
-		Player()
-		{
-		}
-
-		~Player() {
-		}
+		typedef rev::graphics::GraphicsDriverGL::NativeWindow	Window;
+		bool init(Window) { return true; }
 
 		// Common components
-		void render() {}
+		bool update() { return true; }
 	};
 
 }	// namespace rev

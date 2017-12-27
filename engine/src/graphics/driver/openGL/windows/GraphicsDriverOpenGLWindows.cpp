@@ -8,11 +8,11 @@
 
 using namespace std;
 
-namespace rev {	namespace video {
+namespace rev {	namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	GraphicsDriverGLWindows* GraphicsDriverGLWindows::createDriver(Window* _window) {
-		auto windowHandle = _window->winapiHandle();
+	GraphicsDriverGLWindows* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
+		auto windowHandle = _window;
 		auto deviceContext = GetDC(windowHandle); // Device contex
 												  // Set pixel format
 		PIXELFORMATDESCRIPTOR pfd = {
@@ -88,6 +88,6 @@ namespace rev {	namespace video {
 		SwapBuffers(mDevCtxHandle);
 	}
 
-} }	// namespace rev::video
+} }	// namespace rev::graphics
 
 #endif // _WIN32

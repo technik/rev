@@ -6,14 +6,15 @@
 #ifdef _WIN32
 
 #include "../openGL.h"
-#include <graphics/window/window.h>
 
-namespace rev { namespace video {
+namespace rev { namespace graphics {
 
 	class GraphicsDriverGLWindows
 	{
 	public:
-		static GraphicsDriverGLWindows* createDriver(Window* _nativeWindow);
+		typedef HWND NativeWindow;
+
+		static GraphicsDriverGLWindows* createDriver(NativeWindow _nativeWindow);
 		void swapBuffers();
 
 	private:
@@ -23,6 +24,6 @@ namespace rev { namespace video {
 
 	typedef GraphicsDriverGLWindows GraphicsDriverGL;
 
-}} // namespace rev::video
+}} // namespace rev::graphics
 
 #endif // _WIN32
