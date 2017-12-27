@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{075783db-e06a-430f-9350-8a26d778f222}</ProjectGuid>
+    <ProjectGuid>{d057984a-e188-46c6-a789-e4e8e68b68fa}</ProjectGuid>
     <Keyword>Android</Keyword>
     <RootNamespace>androidPlayer</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
@@ -58,11 +58,13 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -118,14 +120,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <IncludePath>$(ProjectDir)..\..\;$(ProjectDir)..\..\..\engine\src;$(ProjectDir)..\..\..\engine\lib;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <IncludePath>$(ProjectDir)..\..\;$(ProjectDir)..\..\..\engine\src;$(ProjectDir)..\..\..\engine\lib;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\..\engine\revAndroid\ARM\Release</LibraryPath>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
@@ -155,16 +151,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <PreprocessorDefinitions>ANDROID;</PreprocessorDefinitions>
-      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
+      <EnableNeonCodegen>true</EnableNeonCodegen>
     </ClCompile>
     <Link>
-      <LibraryDependencies>revAndroid;%(LibraryDependencies);GLESv3_CM;EGL;m</LibraryDependencies>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\programming\rev\engine\revAndroid\ARM\Debug;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -172,15 +163,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UndefinePreprocessorDefinitions>_WIN32</UndefinePreprocessorDefinitions>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
+      <EnableNeonCodegen>true</EnableNeonCodegen>
     </ClCompile>
     <Link>
-      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;m</LibraryDependencies>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -224,12 +211,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\player.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="android_native_app_glue.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\player.cpp" />
-    <ClCompile Include="android_native_app_glue.cpp" />
+    <ClCompile Include="android_native_app_glue.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -38,7 +38,7 @@
     <RootNamespace>androidPlayer</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
-    <ProjectGuid>{5104e6a6-e19a-41c2-a48b-88d82a43bc00}</ProjectGuid>
+    <ProjectGuid>{a0192142-d4d0-4cb5-822a-3f5b5702378c}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
@@ -126,7 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\androidPlayer.NativeActivity\androidPlayer.NativeActivity.vcxproj">
-      <Project>{075783db-e06a-430f-9350-8a26d778f222}</Project>
+      <Project>{d057984a-e188-46c6-a789-e4e8e68b68fa}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
