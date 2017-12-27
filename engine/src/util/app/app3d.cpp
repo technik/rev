@@ -7,7 +7,7 @@
 #include "app3d.h"
 
 #include <video/basicTypes/color.h>
-#include <video/graphics/driver/graphicsDriver.h>
+#include <video/graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <video/window/window.h>
 #include <core/time/time.h>
 #include <thread>
@@ -29,13 +29,9 @@ namespace rev {
 		:mEngine(_info)
 	{
 		mMinFrameTime = 1.f/120;
-		// Open config file
-		cjson::Json config;// = loadConfig();
-#ifdef ANDROID
-		mDriver = new GraphicsDriver(_info.window);
-#else
-		mDriver = new GraphicsDriver(mEngine.mainWindow(), config);
+		mDriver = GraphicsDriverGL::createDriver(_info.window);
 
+#ifndef ANDROID
 		mKeyboard = input::KeyboardInput::get();
 		mWindow = mEngine.mainWindow();
 #endif // !ANDROID
@@ -65,7 +61,7 @@ namespace rev {
 		if(!frame(dt))
 			return false;
 
-		mDriver->finishFrame();
+		mDriver->swapBuffers();
 		return true;
 	}
 

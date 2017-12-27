@@ -15,8 +15,9 @@ namespace rev {
 		struct PlatformInfo {
 			ANativeWindow* window;
 		};
+#endif // ANDROID
 
-#else //!ANDROID
+#ifdef _WIN32
 		struct PlatformInfo {
 			int argC;
 			const char** argV;

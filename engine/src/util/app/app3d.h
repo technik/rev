@@ -17,8 +17,7 @@
 #include <android/native_activity.h>
 #endif // ANDROID
 
-#include <video/graphics/driver/graphicsDriver.h>
-#include <video/graphics/shader/shader.h>
+#include <video/graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
 namespace rev {
 
@@ -28,28 +27,23 @@ namespace rev {
 		bool update();
 
 	protected:
-		rev::video::GraphicsDriver&	driver3d	() const { return *mDriver; }
+		rev::video::GraphicsDriverGL&	driver3d	() const { return *mDriver; }
 #ifndef ANDROID
 		rev::input::KeyboardInput&	keyboard	() const { return *mKeyboard; }
 		rev::video::Window&			window		() const { return *mWindow; }
 #endif // !ANDROID
 
 		virtual bool				frame	(float _dt); // Usually override this
-		net::http::Server*			jsonAPI	() const { return mEngine.jsonAPI(); }
-
-	private:
-		cjson::Json					loadConfig();
 
 	private:
 		float						mMinFrameTime;
 		Engine						mEngine;
-		rev::video::GraphicsDriver*	mDriver = nullptr;
+		rev::video::GraphicsDriverGL*	mDriver = nullptr;
 
 #ifndef ANDROID
 		rev::input::KeyboardInput*	mKeyboard;
 		rev::video::Window*			mWindow;
 #endif // !ANDROID
-		rev::core::Profiler			mProfiler;
 	};
 
 }	// namespace rev
