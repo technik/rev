@@ -5,13 +5,13 @@
 // Engine's default player's entry point
 #ifndef ANDROID
 #include "player.h"
-#include <core/platform/platformInfo.h>
 
 int main(int _argc, const char** _argv) {
-	rev::core::PlatformInfo pi{ _argc, _argv };
-	rev::Player app(pi);
+	rev::Player app;
 
-	while(app.update());
+	for(;;) {
+		app.render();
+	}
 	return 0;
 }
 
