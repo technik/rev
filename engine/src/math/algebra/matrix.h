@@ -30,9 +30,6 @@ namespace rev {
 			// Operators
 			Matrix operator-() const;
 
-			template<size_t otherCols_>
-			Matrix<T_, rows_, otherCols_> operator*(const Matrix<T_,cols_,otherCols_>& _b) const;
-
 			// Component wise operators
 			Matrix cwiseProduct(const Matrix& _b) const;
 
@@ -161,6 +158,25 @@ namespace rev {
 			for(auto j = 0; j < cols_; ++j) {
 				for(auto i = 0; i < rows_; ++i) {
 					result(i,j) = -(*this)(i,j);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t m_, size_t n_, size_t l_>
+		Matrix<T_,m_,l_> operator*(
+			const Matrix<T_,m_,n_>& _a,
+			const Matrix<T_,n_,l_>& _b
+			)
+		{
+			Matrix<T_,rows_,cols_> result;
+			for(auto i = 0; i < m_; ++i) { // for each row in _a
+				for(auto k = 0; k < l_; ++i) { // for each column in _b
+					result(i,k) = T_(0);
+					for(auto j = 0; j < n_; ++j) { // for each element
+						result(i,j) += _a(i,j) * _b(j,k);
+					}
 				}
 			}
 			return result;

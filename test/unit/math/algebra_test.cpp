@@ -32,6 +32,8 @@ void testMatrix() {
 	assert(two == a);
 	auto four = two.cwiseProduct(two);
 	assert(four == (4.f * ones));
+	a = four * iden;
+	assert(four == a);
 	//a = iden.cwiseMax(-iden);
 	//assert(a == iden);
 
