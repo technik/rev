@@ -40,6 +40,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_>
 		constexpr Matrix<T_, rows_, cols_> Matrix<T_, rows_, cols_>::identity() {
+			static_assert(rows_==cols_, "Matrix must be square. Otherwise identity isn't well defined");
 			Matrix result;
 			for(auto j = 0; j < cols; ++j) {
 				for(auto i = 0; i < rows; ++i) {
