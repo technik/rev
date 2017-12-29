@@ -7,102 +7,167 @@
 #ifndef _REV_MATH_ALGEBRA_MATRIX_H_
 #define _REV_MATH_ALGEBRA_MATRIX_H_
 
-#include "vector.h"
+#include <cstddef>
 
 namespace rev {
 	namespace math {
 
-		template<typename Number_> class Quaternion;
-		template<typename Number_> class Matrix3x4;
+		template<class T_, size_t rows_, size_t cols_>
+		struct Matrix {
+			using Element = T_;
+			static constexpr size_t rows = rows_;
+			static constexpr size_t cols = cols_;
 
-		//------------------------------------------------------------------------------------------------------------------
-		template<class Number_>
-		class Matrix3x3
-		{
-		public:
-			Matrix3x3(){}
-			Matrix3x3(const Quaternion<Number_>& _q);
-			Matrix3x3(const Matrix3x4<Number_>& _x);
+			// Smarter construction
+			static constexpr Matrix identity();
+			static constexpr Matrix zero();
+			static constexpr Matrix ones();
 
-			Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
-			Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
-
-			Vector3<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
-			const Vector3<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
-			Vector3<Number_>		col(unsigned _col) const	{ return Vector3<Number_>(m[0][_col], m[1][_col], m[1][_col]); }
-
-			// Useful matrices
-			static Matrix3x3<Number_>		identity();
-
-		private:
-			Vector3<Number_>	m[3];
-		};
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class Number_>
-		class Matrix3x4
-		{
-		public:
-			Matrix3x4(){}
-			Matrix3x4(const Quaternion<Number_>& _q);
-			Matrix3x4(const Quaternion<Number_>& _q, const Vector3<Number_>& _v);
-			Matrix3x4(const Matrix3x3<Number_>& _x);
-
-			Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
-			const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
-			Vector3<Number_>		col			(unsigned _col) const	{ return Vector3<Number_>(m[0][_col], m[1][_col], m[2][_col]); }
-			void				setCol			(unsigned _n, const Vector3<Number_>& _col) {
-				m[0][_n] = _col.x;
-				m[1][_n] = _col.y;
-				m[2][_n] = _col.z;
-			}
-
-			// Operations
-			Vector3<Number_>	operator*	(const Vector3<Number_>&) const;
-			Matrix3x3<Number_>	operator*	(const Matrix3x3<Number_>&) const;
-			Matrix3x4<Number_>	operator*	(const Matrix3x4&) const;
-			Matrix3x4<Number_>	inverse() const;
-			Vector3<Number_>	rotate(const Vector3<Number_>&) const;
-
-			// Useful matrices
-			static Matrix3x4<Number_>		identity();
-
-		private:
-			Vector4<Number_>	m[3];
-		};
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class Number_>
-		class Matrix4x4
-		{
-		public:
-			Vector4<Number_>&		operator[]	(unsigned _row)			{ return m[_row]; }
-			const Vector4<Number_>&	operator[]	(unsigned _row) const	{ return m[_row]; }
+			// Element access
+			Element&		operator()	(size_t row, size_t col);
+			const Element&	operator()	(size_t row, size_t col) const;
 
 			// Operators
-			Matrix4x4	operator*	(const Matrix3x4<Number_>& _b) const;
-			Matrix4x4	operator*	(const Matrix4x4<Number_>& _b) const;
-			void		transpose(Matrix4x4& _transpose) const;
+			Matrix operator-() const;
 
-			// Useful matrices
-			static Matrix4x4		frustrum(Number_ _fovRad, Number_ _aspectRatio, Number_ _nearClip, Number_ _farClip);
-			static Matrix4x4		ortho(const Vector3<Number_>& _volumeDimensions);
-			static Matrix4x4		identity();
+			template<size_t otherCols_>
+			Matrix<T_, rows_, otherCols_> operator*(const Matrix<T_,cols_,otherCols_>& _b) const;
+
+			// Component wise operators
+			Matrix cwiseProduct(const Matrix& _b) const;
 
 		private:
-			Vector4<Number_>	m[4];
+			T_ m[rows][cols]; ///< Storage, column-major
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
-		// Useful typedefs
-		//------------------------------------------------------------------------------------------------------------------
-		typedef Matrix3x3<float>	Mat33f;
-		typedef Matrix3x4<float>	Mat34f;
-		typedef Matrix4x4<float>	Mat44f;
+		template<class T_, size_t rows_, size_t cols_>
+		constexpr Matrix<T_, rows_, cols_> Matrix<T_, rows_, cols_>::identity() {
+			Matrix result;
+			for(auto j = 0; j < cols; ++j) {
+				for(auto i = 0; i < rows; ++i) {
+					result(i,j) = T_(i==j? 1 : 0);
+				}
+			}
+			return result;
+		}
 
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		constexpr Matrix<T_, rows_, cols_> Matrix<T_, rows_, cols_>::zero() {
+			Matrix result;
+			for(auto j = 0; j < cols; ++j) {
+				for(auto i = 0; i < rows; ++i) {
+					result(i,j) = T_(0);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		constexpr Matrix<T_, rows_, cols_> Matrix<T_, rows_, cols_>::ones() {
+			Matrix result;
+			for(auto j = 0; j < cols; ++j) {
+				for(auto i = 0; i < rows; ++i) {
+					result(i,j) = T_(1);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_, rows_, cols_> operator*(const Matrix<T_, rows_, cols_>& m, T_ k)
+		{
+			Matrix<T_, rows_, cols_> result;
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					result(i,j) = m(i,j) * k;
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_, rows_, cols_> operator*(T_ k, const Matrix<T_, rows_, cols_>& m)
+		{
+			return m*k;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		auto Matrix<T_, rows_, cols_>::cwiseProduct(const Matrix<T_, rows_, cols_>& _b) const -> Matrix{
+			Matrix result;
+			for(auto j = 0; j < cols; ++j) {
+				for(auto i = 0; i < rows; ++i) {
+					result(i,j) = (*this)(i,j) * _b(i,j);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		bool operator==(const Matrix<T_,rows_,cols_>& _a, const Matrix<T_,rows_,cols_>& _b)
+		{
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					if(_a(i,j) != _b(i,j))
+						return false;
+				}
+			}
+			return true;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_,rows_,cols_> operator+(
+			const Matrix<T_,rows_,cols_>& _a,
+			const Matrix<T_,rows_,cols_>& _b
+		)
+		{
+			Matrix<T_,rows_,cols_> result;
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					result(i,j) = _a(i,j) + _b(i,j);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_,rows_,cols_> operator-(
+			const Matrix<T_,rows_,cols_>& _a,
+			const Matrix<T_,rows_,cols_>& _b
+		)
+		{
+			Matrix<T_,rows_,cols_> result;
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					result(i,j) = _a(i,j) - _b(i,j);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		auto Matrix<T_,rows_,cols_>::operator-() const -> Matrix
+		{
+			Matrix result;
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					result(i,j) = -(*this)(i,j);
+				}
+			}
+			return result;
+		}
+
+		using Mat44f = Matrix<float, 4, 4>;
 	}	// namespace math
 }	// namespace rev
-
-#include "matrix.inl"
 
 #endif // _REV_MATH_ALGEBRA_MATRIX_H_
