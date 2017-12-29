@@ -24,8 +24,8 @@ namespace rev {
 			static constexpr Matrix ones();
 
 			// Element access
-			Element&		operator()	(size_t row, size_t col);
-			const Element&	operator()	(size_t row, size_t col) const;
+			Element&		operator()	(size_t row, size_t col)		{ return m[row][col]; }
+			const Element&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
 
 			// Operators
 			Matrix operator-() const;
@@ -170,7 +170,7 @@ namespace rev {
 			const Matrix<T_,n_,l_>& _b
 			)
 		{
-			Matrix<T_,rows_,cols_> result;
+			Matrix<T_,m_,l_> result;
 			for(auto i = 0; i < m_; ++i) { // for each row in _a
 				for(auto k = 0; k < l_; ++i) { // for each column in _b
 					result(i,k) = T_(0);
@@ -182,6 +182,10 @@ namespace rev {
 			return result;
 		}
 
+		//------------------------------------------------------------------------------------------------------------------
+		// Useful aliases
+		using Mat22f = Matrix<float, 2, 2>;
+		using Mat33f = Matrix<float, 3, 3>;
 		using Mat44f = Matrix<float, 4, 4>;
 	}	// namespace math
 }	// namespace rev
