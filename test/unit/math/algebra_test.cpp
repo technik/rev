@@ -8,7 +8,14 @@ using namespace rev::math;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
-void testVec3() {
+void testVector() {
+	auto x = Vec2f(1.f,0.f);
+	assert(x.norm() == x.sqNorm() == 1.f);
+	Vec2f b = { 1.f, 2.f };
+	auto ones = Vec2f::ones();
+
+	auto f = x * b;
+	assert(f == 1.f);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -37,11 +44,18 @@ void testMatrix() {
 	a = iden.cwiseMax(-iden);
 	assert(a == iden);
 
+	Mat22f b = {
+		0.f, 1.f,
+		2.f, 3.f
+	};
+	assert(b(1,0) == 2.f);
+
 	// TODO: Access rows and columns as referencing types
 	// TODO: Test operations with matrices of different base number types
 }
 
 int main() {
 	testMatrix();
+	testVector();
 	return 0;
 }

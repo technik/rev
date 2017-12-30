@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <algorithm>
+#include <initializer_list>
 
 namespace rev {
 	namespace math {
@@ -18,6 +19,16 @@ namespace rev {
 			using Element = T_;
 			static constexpr size_t rows = rows_;
 			static constexpr size_t cols = cols_;
+			using Transpose = Matrix<T_,cols,rows>;
+
+			// Basic construction
+			Matrix() = default;
+			Matrix(const Matrix&) = default;
+			Matrix(std::initializer_list<T_> _l) {
+				for(size_t i = 0; i < rows; ++i)
+					for(size_t j = 0; j < cols; ++j)
+						(*this)(i,j) = _l[i*cols+j];
+			}
 
 			// Smarter construction
 			static constexpr Matrix identity();
@@ -25,8 +36,13 @@ namespace rev {
 			static constexpr Matrix ones();
 
 			// Element access
-			Element&		operator()	(size_t row, size_t col)		{ return m[row][col]; }
-			const Element&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
+			T_&			operator()	(size_t row, size_t col)		{ return m[row][col]; }
+			const T_&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
+
+			// Matrix operations
+			T_			trace		() const;
+			Transpose	transpose	() const;
+			Matrix		inverse		() const;
 
 			// Component wise operations
 			template<typename Operator_>
@@ -103,7 +119,7 @@ namespace rev {
 			const Matrix<T_,rows_,cols_>& _b
 			)
 		{
-			return _a.cwiseOperator(_b, [](T_ a, T_ b) { return a-b; });
+			return _a.cwiseOperator(_b, [](T_ a, T_ b) { return a-	b; });
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

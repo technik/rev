@@ -13,7 +13,20 @@
 namespace rev {
 	namespace math {
 
-		template<typename T, unsigned dim, typename Derived>
+		template<typename T_>
+		struct Vector2 : public Matrix<T_, 2, 1>
+		{
+			T_&	x()			{ return m[0]; }
+			T_	x() const	{ return m[0]; }
+
+			T_&	operator()	(size_t _i)			{ return (*this)(_i,0); }
+			T_	operator()	(size_t _i) const	{ return (*this)(_i,0); }
+
+			T_ norm() const;
+			_T squaredNorm() const;
+		};
+
+		/*template<typename T, unsigned dim, typename Derived>
 		class VectorBase {
 		public:
 			inline T		operator[](unsigned i)			{ return m[i]; }
@@ -215,7 +228,7 @@ namespace rev {
 		typedef Vector4<unsigned>	Vec4u;
 		typedef Vector4<int>		Vec4i;
 		typedef Vector4<float>		Vec4f;
-		typedef Vector4<double>		Vec4d;
+		typedef Vector4<double>		Vec4d;*/
 		
 	}	// namespace math
 }	// namespace rev
