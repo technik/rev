@@ -23,8 +23,16 @@ namespace rev {
 			T_&	operator()	(size_t _i)			{ return (*this)(_i,0); }
 			T_	operator()	(size_t _i) const	{ return (*this)(_i,0); }
 
-			T_ norm() const;
-			T_ squaredNorm() const;
+			T_ norm() const { 
+				return std::sqrt(squaredNorm());
+			}
+
+			T_ squaredNorm() const {
+				T_ r(0);
+				for(size_t i = 0; i < rows; ++i)
+					r += (*this)(i)*(*this)(i);
+				return r;
+			}
 		};
 
 		using Vec2f = Vector<float,2>;
