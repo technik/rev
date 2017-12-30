@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <algorithm>
-#include <functional>
 
 namespace rev {
 	namespace math {
@@ -29,15 +28,18 @@ namespace rev {
 			Element&		operator()	(size_t row, size_t col)		{ return m[row][col]; }
 			const Element&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
 
-			// Math Operators
-			Matrix operator-() const;
-
-			// Component wise operators
+			// Component wise operations
 			template<typename Operator_>
 			Matrix cwiseOperator(const Matrix& _b, const Operator_& _operation) const;
 			Matrix cwiseProduct(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b){ return a*b; }); }
 			Matrix cwiseMax(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b)->T_ { return std::max(a,b);}); }
 			Matrix cwiseMin(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b)->T_ { return std::min(a,b);}); }
+
+			// Visitor operations
+			template<typename Visitor_>
+			Matrix visitorOperator(const Visitor_& _visitor) const;
+			Matrix abs() const { return visitorOperator([](T_ a){ return std::abs(a); }); }
+			Matrix operator-() const { return visitorOperator([](T_ a){ return -a; }); }
 
 		private:
 			T_ m[rows][cols]; ///< Storage, column-major
@@ -77,19 +79,6 @@ namespace rev {
 			for(auto j = 0; j < cols; ++j) {
 				for(auto i = 0; i < rows; ++i) {
 					result(i,j) = T_(1);
-				}
-			}
-			return result;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t rows_, size_t cols_>
-		auto Matrix<T_,rows_,cols_>::operator-() const -> Matrix
-		{
-			Matrix result;
-			for(auto j = 0; j < cols_; ++j) {
-				for(auto i = 0; i < rows_; ++i) {
-					result(i,j) = -(*this)(i,j);
 				}
 			}
 			return result;
@@ -168,6 +157,22 @@ namespace rev {
 			for(auto j = 0; j < cols; ++j) {
 				for(auto i = 0; i < rows; ++i) {
 					result(i,j) = _operation((*this)(i,j), _b(i,j));
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		template<typename Visitor_>
+		auto Matrix<T_, rows_, cols_>::visitorOperator(
+			const Visitor_& _operation
+		) const -> Matrix
+		{
+			Matrix result;
+			for(auto j = 0; j < cols; ++j) {
+				for(auto i = 0; i < rows; ++i) {
+					result(i,j) = _operation((*this)(i,j));
 				}
 			}
 			return result;
