@@ -268,9 +268,19 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Useful aliases
-		using Mat22f = Matrix<float, 2, 2>;
-		using Mat33f = Matrix<float, 3, 3>;
-		using Mat44f = Matrix<float, 4, 4>;
+		template<typename T_>
+		using Matrix22 = Matrix<T_,2,2>;
+		template<typename T_>
+		using Matrix33 = Matrix<T_,3,3>;
+		template<typename T_>
+		using Matrix34 = Matrix<T_,3,4>;
+		template<typename T_>
+		using Matrix44 = Matrix<T_,4,4>;
+
+		using Mat22f = Matrix22<float>;
+		using Mat33f = Matrix33<float>;
+		using Mat34f = Matrix34<float>;
+		using Mat44f = Matrix44<float>;
 	}	// namespace math
 }	// namespace rev
 

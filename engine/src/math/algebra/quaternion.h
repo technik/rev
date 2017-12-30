@@ -27,8 +27,8 @@ namespace rev { namespace math {
 		Quaternion	(Number_ _x, Number_ _y, Number_ _z, Number_ _w): x(_x), y(_y), z(_z), w(_w)	{}
 		Quaternion	(const Vector3<Number_>& _axis, const Number_ _radians);
 		Quaternion	(const Vector3<Number_>& _rotationVector);
-		Quaternion	(const Matrix3x3<Number_>& _matrix);
-		Quaternion	(const Matrix3x4<Number_>& _matrix);
+		Quaternion	(const Matrix33<Number_>& _matrix);
+		Quaternion	(const Matrix34<Number_>& _matrix);
 
 		// Operators
 		Quaternion	operator *	(const Quaternion& _q) const;
@@ -79,7 +79,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix3x3<N_>& _m)
+	inline Quaternion<N_>::Quaternion(const Matrix33<N_>& _m)
 	{
 		N_ tr = _m[0][0] + _m[1][1] + _m[2][2];
 
@@ -130,7 +130,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix3x4<N_>& _matrix)
+	inline Quaternion<N_>::Quaternion(const Matrix34<N_>& _matrix)
 	{	
 		N_ tr = _matrix[0][0] + _matrix[1][1] + _matrix[2][2];
 
