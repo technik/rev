@@ -162,7 +162,7 @@ namespace rev {
 		{
 			Matrix<T_,m_,l_> result;
 			for(auto i = 0; i < m_; ++i) { // for each row in _a
-				for(auto k = 0; k < l_; ++i) { // for each column in _b
+				for(auto k = 0; k < l_; ++k) { // for each column in _b
 					result(i,k) = T_(0);
 					for(auto j = 0; j < n_; ++j) { // for each element
 						result(i,j) += _a(i,j) * _b(j,k);
