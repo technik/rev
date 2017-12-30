@@ -34,14 +34,14 @@ void testMatrix() {
 	assert(four == (4.f * ones));
 	a = four * iden;
 	assert(four == a);
-	//a = iden.cwiseMax(-iden);
-	//assert(a == iden);
+	a = iden.cwiseMax(-iden);
+	assert(a == iden);
 
 	// TODO: Access rows and columns as referencing types
 	// TODO: Test operations with matrices of different base number types
 }
 
 int main() {
-	testVec3();
+	testMatrix();
 	return 0;
 }

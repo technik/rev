@@ -8,6 +8,8 @@
 #define _REV_MATH_ALGEBRA_MATRIX_H_
 
 #include <cstddef>
+#include <algorithm>
+#include <functional>
 
 namespace rev {
 	namespace math {
@@ -27,16 +29,22 @@ namespace rev {
 			Element&		operator()	(size_t row, size_t col)		{ return m[row][col]; }
 			const Element&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
 
-			// Operators
+			// Math Operators
 			Matrix operator-() const;
 
 			// Component wise operators
-			Matrix cwiseProduct(const Matrix& _b) const;
+			template<typename Operator_>
+			Matrix cwiseOperator(const Matrix& _b, const Operator_& _operation) const;
+			Matrix cwiseProduct(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b){ return a*b; }); }
+			Matrix cwiseMax(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b)->T_ { return std::max(a,b);}); }
+			Matrix cwiseMin(const Matrix& _b) const { return cwiseOperator(_b,[](T_ a, T_ b)->T_ { return std::min(a,b);}); }
 
 		private:
 			T_ m[rows][cols]; ///< Storage, column-major
 		};
 
+		//------------------------------------------------------------------------------------------------------------------
+		// Inline implementation
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_>
 		constexpr Matrix<T_, rows_, cols_> Matrix<T_, rows_, cols_>::identity() {
@@ -76,6 +84,60 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_>
+		auto Matrix<T_,rows_,cols_>::operator-() const -> Matrix
+		{
+			Matrix result;
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
+					result(i,j) = -(*this)(i,j);
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		// External operators
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_,rows_,cols_> operator+(
+			const Matrix<T_,rows_,cols_>& _a,
+			const Matrix<T_,rows_,cols_>& _b
+			)
+		{
+			return _a.cwiseOperator(_b, [](T_ a, T_ b) { return a+b; });
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		Matrix<T_,rows_,cols_> operator-(
+			const Matrix<T_,rows_,cols_>& _a,
+			const Matrix<T_,rows_,cols_>& _b
+			)
+		{
+			return _a.cwiseOperator(_b, [](T_ a, T_ b) { return a-b; });
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t m_, size_t n_, size_t l_>
+		Matrix<T_,m_,l_> operator*(
+			const Matrix<T_,m_,n_>& _a,
+			const Matrix<T_,n_,l_>& _b
+			)
+		{
+			Matrix<T_,m_,l_> result;
+			for(auto i = 0; i < m_; ++i) { // for each row in _a
+				for(auto k = 0; k < l_; ++i) { // for each column in _b
+					result(i,k) = T_(0);
+					for(auto j = 0; j < n_; ++j) { // for each element
+						result(i,j) += _a(i,j) * _b(j,k);
+					}
+				}
+			}
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
 		Matrix<T_, rows_, cols_> operator*(const Matrix<T_, rows_, cols_>& m, T_ k)
 		{
 			Matrix<T_, rows_, cols_> result;
@@ -96,11 +158,16 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_>
-		auto Matrix<T_, rows_, cols_>::cwiseProduct(const Matrix<T_, rows_, cols_>& _b) const -> Matrix{
+		template<typename Operator_>
+		auto Matrix<T_, rows_, cols_>::cwiseOperator(
+			const Matrix<T_, rows_, cols_>& _b,
+			const Operator_& _operation
+		) const -> Matrix
+		{
 			Matrix result;
 			for(auto j = 0; j < cols; ++j) {
 				for(auto i = 0; i < rows; ++i) {
-					result(i,j) = (*this)(i,j) * _b(i,j);
+					result(i,j) = _operation((*this)(i,j), _b(i,j));
 				}
 			}
 			return result;
@@ -117,70 +184,6 @@ namespace rev {
 				}
 			}
 			return true;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t rows_, size_t cols_>
-		Matrix<T_,rows_,cols_> operator+(
-			const Matrix<T_,rows_,cols_>& _a,
-			const Matrix<T_,rows_,cols_>& _b
-		)
-		{
-			Matrix<T_,rows_,cols_> result;
-			for(auto j = 0; j < cols_; ++j) {
-				for(auto i = 0; i < rows_; ++i) {
-					result(i,j) = _a(i,j) + _b(i,j);
-				}
-			}
-			return result;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t rows_, size_t cols_>
-		Matrix<T_,rows_,cols_> operator-(
-			const Matrix<T_,rows_,cols_>& _a,
-			const Matrix<T_,rows_,cols_>& _b
-		)
-		{
-			Matrix<T_,rows_,cols_> result;
-			for(auto j = 0; j < cols_; ++j) {
-				for(auto i = 0; i < rows_; ++i) {
-					result(i,j) = _a(i,j) - _b(i,j);
-				}
-			}
-			return result;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t rows_, size_t cols_>
-		auto Matrix<T_,rows_,cols_>::operator-() const -> Matrix
-		{
-			Matrix result;
-			for(auto j = 0; j < cols_; ++j) {
-				for(auto i = 0; i < rows_; ++i) {
-					result(i,j) = -(*this)(i,j);
-				}
-			}
-			return result;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t m_, size_t n_, size_t l_>
-		Matrix<T_,m_,l_> operator*(
-			const Matrix<T_,m_,n_>& _a,
-			const Matrix<T_,n_,l_>& _b
-			)
-		{
-			Matrix<T_,m_,l_> result;
-			for(auto i = 0; i < m_; ++i) { // for each row in _a
-				for(auto k = 0; k < l_; ++i) { // for each column in _b
-					result(i,k) = T_(0);
-					for(auto j = 0; j < n_; ++j) { // for each element
-						result(i,j) += _a(i,j) * _b(j,k);
-					}
-				}
-			}
-			return result;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #define _REV_MATH_ALGEBRA_VECTOR_H_
 
 #include <cassert>
+#include "matrix.h"
 
 namespace rev {
 	namespace math {
