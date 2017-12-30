@@ -25,9 +25,24 @@ namespace rev {
 			Matrix() = default;
 			Matrix(const Matrix&) = default;
 			Matrix(std::initializer_list<T_> _l) {
+				auto iter = _l.begin();
 				for(size_t i = 0; i < rows; ++i)
-					for(size_t j = 0; j < cols; ++j)
-						(*this)(i,j) = _l[i*cols+j];
+					for(size_t j = 0; j < cols; ++j) {
+						(*this)(i,j) = *iter++;
+					}
+			}
+			Matrix(T_ _x, T_ _y)
+				: m{{_x},
+					{_y}}
+			{
+				static_assert(cols==1, "This constructor is for vectors only");
+			}
+			Matrix(T_ _x, T_ _y, T_ _z)
+				: m[0][0](_x)
+				, m[1][0](_y)
+				, m[2][0](_z)
+			{
+				static_assert(cols==1, "This constructor is for vectors only");
 			}
 
 			// Smarter construction
@@ -36,8 +51,24 @@ namespace rev {
 			static constexpr Matrix ones();
 
 			// Element access
+			T_&			operator()	(size_t _i)	{ 
+				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
+				return (*this)(_i,0); 
+			}
+			T_			operator()	(size_t _i) const	{ 
+				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
+				return (*this)(_i,0); 
+			}
 			T_&			operator()	(size_t row, size_t col)		{ return m[row][col]; }
 			const T_&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
+			T_&	x()			{ static_assert(cols>0||rows>0, "Only vectors have named element access"); return (*this)(0); }
+			T_	x()	const	{ static_assert(cols>0||rows>0, "Only vectors have named element access"); return (*this)(0); }
+			T_&	y()			{ static_assert(cols>1||rows>1, "Only vectors have named element access"); return (*this)(1); }
+			T_	y()	const	{ static_assert(cols>1||rows>1, "Only vectors have named element access"); return (*this)(1); }
+			T_&	z()			{ static_assert(cols>2||rows>2, "Only vectors have named element access"); return (*this)(2); }
+			T_	z()	const	{ static_assert(cols>2||rows>2, "Only vectors have named element access"); return (*this)(2); }
+			T_&	w()			{ static_assert(cols>3||rows>3, "Only vectors have named element access"); return (*this)(3); }
+			T_	w()	const	{ static_assert(cols>3||rows>3, "Only vectors have named element access"); return (*this)(3); }
 
 			// Matrix operations
 			T_			trace		() const;
@@ -139,6 +170,17 @@ namespace rev {
 				}
 			}
 			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		// Dot product
+		template<class T_, size_t rows_>
+		T_ operator*(const Matrix<T_, rows_, 1>& _a, const Matrix<T_, rows_, 1>& _b)
+		{
+			T_ res(0);
+			for(auto i = 0; i < rows_; ++i)
+				res += _a(i) * _b(i);
+			return res;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

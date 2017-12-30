@@ -13,18 +13,21 @@
 namespace rev {
 	namespace math {
 
-		template<typename T_>
-		struct Vector2 : public Matrix<T_, 2, 1>
+		template<typename T_, size_t n_>
+		struct Vector : public Matrix<T_, n_, 1>
 		{
-			T_&	x()			{ return m[0]; }
-			T_	x() const	{ return m[0]; }
+			Vector() = default;
+			Vector(const Vector&) = default;
+			Vector(T_ _x, T_ _y) : Matrix(_x,_y) {}
 
 			T_&	operator()	(size_t _i)			{ return (*this)(_i,0); }
 			T_	operator()	(size_t _i) const	{ return (*this)(_i,0); }
 
 			T_ norm() const;
-			_T squaredNorm() const;
+			T_ squaredNorm() const;
 		};
+
+		using Vec2f = Vector<float,2>;
 
 		/*template<typename T, unsigned dim, typename Derived>
 		class VectorBase {

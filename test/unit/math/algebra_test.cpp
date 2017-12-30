@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include <cassert>
 #include <math/algebra/matrix.h>
+#include <math/algebra/vector.h>
 
 using namespace rev::math;
 
@@ -10,7 +11,7 @@ using namespace rev::math;
 // Test operators on Vec3
 void testVector() {
 	auto x = Vec2f(1.f,0.f);
-	assert(x.norm() == x.sqNorm() == 1.f);
+	assert(x.norm() == x.squaredNorm() == 1.f);
 	Vec2f b = { 1.f, 2.f };
 	auto ones = Vec2f::ones();
 
