@@ -51,14 +51,8 @@ namespace rev {
 			static constexpr Matrix ones();
 
 			// Element access
-			T_&			operator()	(size_t _i)	{ 
-				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
-				return (*this)(_i,0); 
-			}
-			const T_&	operator()	(size_t _i) const	{ 
-				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
-				return (*this)(_i,0); 
-			}
+			T_&			operator()	(size_t _i);
+			T_			operator() 	(size_t _i) const;
 			T_&			operator()	(size_t row, size_t col)		{ return m[row][col]; }
 			const T_&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
 			T_&	x()			{ static_assert(cols>0||rows>0, "Only vectors have named element access"); return (*this)(0); }
@@ -133,6 +127,20 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		// External operators
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		T_&	Matrix<T_,rows_,cols_>::operator()	(size_t _i)	{ 
+			static_assert(cols==1||rows==1, "Only vectors have single coefficient element access");
+			return (*this)(0,_i); 
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<class T_, size_t rows_, size_t cols_>
+		T_	Matrix<T_,rows_,cols_>::operator()	(size_t _i)	const { 
+			static_assert(cols==1||rows==1, "Only vectors have single coefficient element access");
+			return (*this)(0,_i); 
+		}
+
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_>
 		Matrix<T_,rows_,cols_> operator+(
