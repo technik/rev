@@ -55,14 +55,14 @@ namespace rev {
 			T_			operator() 	(size_t _i) const;
 			T_&			operator()	(size_t row, size_t col)		{ return m[row][col]; }
 			const T_&	operator()	(size_t row, size_t col) const	{ return m[row][col]; }
-			T_&	x()			{ static_assert(cols>0||rows>0, "Only vectors have named element access"); return (*this)(0); }
-			T_	x()	const	{ static_assert(cols>0||rows>0, "Only vectors have named element access"); return (*this)(0); }
-			T_&	y()			{ static_assert(cols>1||rows>1, "Only vectors have named element access"); return (*this)(1); }
-			T_	y()	const	{ static_assert(cols>1||rows>1, "Only vectors have named element access"); return (*this)(1); }
-			T_&	z()			{ static_assert(cols>2||rows>2, "Only vectors have named element access"); return (*this)(2); }
-			T_	z()	const	{ static_assert(cols>2||rows>2, "Only vectors have named element access"); return (*this)(2); }
-			T_&	w()			{ static_assert(cols>3||rows>3, "Only vectors have named element access"); return (*this)(3); }
-			T_	w()	const	{ static_assert(cols>3||rows>3, "Only vectors have named element access"); return (*this)(3); }
+			T_&	x()			{ return namedElement<0>(); }
+			T_	x()	const	{ return namedElement<0>(); }
+			T_&	y()			{ return namedElement<1>(); }
+			T_	y()	const	{ return namedElement<1>(); }
+			T_&	z()			{ return namedElement<2>(); }
+			T_	z()	const	{ return namedElement<2>(); }
+			T_&	w()			{ return namedElement<3>(); }
+			T_	w()	const	{ return namedElement<3>(); }
 
 			// Matrix operations
 			T_			trace		() const;
@@ -83,6 +83,15 @@ namespace rev {
 			Matrix operator-() const { return visitorOperator([](T_ a){ return -a; }); }
 
 		private:
+			template<size_t n_>
+			T_& namedElement() { 
+				static_assert(cols>n_||rows>n_, "Only vectors have named element access"); return (*this)(n_); 
+			}
+			template<size_t n_>
+			T_  namedElement() const { 
+				static_assert(cols>n_||rows>n_, "Only vectors have named element access"); return (*this)(n_); 
+			}
+
 			T_ m[rows][cols]; ///< Storage, column-major
 		};
 
