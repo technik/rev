@@ -20,9 +20,6 @@ namespace rev {
 			Vector(const Vector&) = default;
 			Vector(T_ _x, T_ _y) : Matrix(_x,_y) {}
 
-			T_&	operator()	(size_t _i)			{ return (*this)(_i,0); }
-			T_	operator()	(size_t _i) const	{ return (*this)(_i,0); }
-
 			T_ norm() const { 
 				return std::sqrt(squaredNorm());
 			}

@@ -55,7 +55,7 @@ namespace rev {
 				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
 				return (*this)(_i,0); 
 			}
-			T_			operator()	(size_t _i) const	{ 
+			const T_&	operator()	(size_t _i) const	{ 
 				static_assert(rows==1||cols==1, "Only vectors have single coefficient element access");
 				return (*this)(_i,0); 
 			}
