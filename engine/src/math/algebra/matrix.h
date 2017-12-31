@@ -167,6 +167,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<size_t rows_, size_t cols_, typename Storage_>
 		void MatrixBase<rows_, cols_, Storage_>::setIdentity() {
+			static_assert(rows_==cols_, "Identity matrix must be square");
 			for(size_t j = 0; j < cols_; ++j)
 				for(size_t i = 0; i < cols_; ++i)
 					(*this)(i,j) = typename Storage_::Element(i==j?1:0);
@@ -208,6 +209,10 @@ namespace rev {
 			Operator_& _operation
 		) -> typename MatrixA_::Derived
 		{
+			static_assert(
+				MatrixA_::cols == MatrixB_::cols &&
+				MatrixA_::rows == MatrixB_::rows,
+				"Matrix sizes must be equal");
 			MatrixA_::Derived result;
 			for(size_t j = 0; j < MatrixA_::rows; ++j)
 				for(size_t i = 0; i < MatrixA_::cols; ++i)
