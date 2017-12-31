@@ -37,6 +37,8 @@ namespace rev { namespace math {
 		Vector3<Number_>	rotate		(const Vector3<Number_>& _v) const;
 		Quaternion	inverse		() const;
 
+		operator Matrix33<Number_>() const;
+
 		// Useful quaternions
 		static Quaternion	identity();
 

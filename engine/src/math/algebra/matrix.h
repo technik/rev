@@ -139,6 +139,16 @@ namespace rev {
 			{}
 
 			// Element access
+			template<size_t h_, size_t w_>
+			const RegionProxy<h_,w_>&
+			block(size_t i0, size_t j0) const
+			{ return getProxy<RegionProxy<h_,w_>(i0,j0); }
+
+			template<size_t h_, size_t w_>
+			RegionProxy<h_,w_>&
+			block(size_t i0, size_t j0)
+			{ return getProxy<RegionProxy<h_,w_>(i0,j0); }
+
 			const ColumnProxy&	col(size_t _i) const	{ return getProxy<ColumnProxy>(0,_i); }
 			ColumnProxy&		col(size_t _i)			{ return getProxy<ColumnProxy>(0,_i); }
 			const RowProxy&		row(size_t _i) const	{ return getProxy<RowProxy>(_i,0); }
@@ -157,6 +167,9 @@ namespace rev {
 			Element			trace		() const;
 			TransposeView&	transpose	() const;
 			MatrixBase		inverse		() const;
+
+			Element	norm() const;
+			Element	squaredNorm() const;
 
 			// Component wise operations
 			template<typename OtherM_>
