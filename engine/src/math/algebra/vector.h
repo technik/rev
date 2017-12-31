@@ -14,23 +14,7 @@ namespace rev {
 	namespace math {
 
 		template<typename T_, size_t n_>
-		struct Vector : public Matrix<T_, n_, 1>
-		{
-			Vector() = default;
-			Vector(const Vector&) = default;
-			Vector(T_ _x, T_ _y) : Matrix(_x,_y) {}
-
-			T_ norm() const { 
-				return std::sqrt(squaredNorm());
-			}
-
-			T_ squaredNorm() const {
-				T_ r(0);
-				for(size_t i = 0; i < rows; ++i)
-					r += (*this)(i)*(*this)(i);
-				return r;
-			}
-		};
+		using Vector = Matrix<T_, n_, 1>;
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;

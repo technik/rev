@@ -34,8 +34,23 @@ namespace rev {
 			using Idx = size_t;
 			using Derived = Derived_;
 
-			T_& operator()(Idx i, Idx j)			{ return m[i*row_stride_+j*col_stride_]; }
-			T_	operator()(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
+			MatrixStorageBase() = default;
+			MatrixStorageBase(const MatrixStorageBase&) = default;
+			MatrixStorageBase(std::initializer_list<T_> _l) {
+				auto iter = _l.begin();
+				for(size_t j = 0; j < cols_; ++j)
+					for(size_t i = 0; i < rows_; ++i)
+						(*this)(i,j) = *iter++;
+			}
+			template<typename Other_>
+			MatrixStorageBase(const Other_& _b) {
+				for(size_t j = 0; j < cols_; ++j)
+					for(size_t i = 0; i < rows_; ++i)
+						(*this)(i,j) = _b(i,j);
+			}
+
+			T_&			operator()(Idx i, Idx j)		{ return m[i*row_stride_+j*col_stride_]; }
+			const T_&	operator()(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
 
 			T_&			operator()	(size_t _i);
 			T_			operator() 	(size_t _i) const;
@@ -112,11 +127,22 @@ namespace rev {
 			using ColumnProxy = RegionProxy<rows_,1>;
 			using RowProxy = RegionProxy<1,cols_>;
 
+			MatrixBase() = default;
+			MatrixBase(const MatrixBase&) = default;
+			MatrixBase(std::initializer_list<Element> _l)
+				: Storage_(_l)
+			{}
+
+			template<typename Other_>
+			MatrixBase(const Other_& _x)
+				: Storage_(_x)
+			{}
+
 			// Element access
-			ColumnProxy&	col(size_t _i) const	{ return getProxy<ColumnProxy>(0,_i); }
-			ColumnProxy&	col(size_t _i)			{ return getProxy<ColumnProxy>(0,_i); }
-			RowProxy&		row(size_t _i) const	{ return getProxy<RowProxy>(_i,0); }
-			RowProxy&		row(size_t _i)			{ return getProxy<RowProxy>(_i,0); }
+			const ColumnProxy&	col(size_t _i) const	{ return getProxy<ColumnProxy>(0,_i); }
+			ColumnProxy&		col(size_t _i)			{ return getProxy<ColumnProxy>(0,_i); }
+			const RowProxy&		row(size_t _i) const	{ return getProxy<RowProxy>(_i,0); }
+			RowProxy&			row(size_t _i)			{ return getProxy<RowProxy>(_i,0); }
 
 			Element&	x()			{ return namedElement<0>(); }
 			Element		x()	const	{ return namedElement<0>(); }
@@ -153,7 +179,20 @@ namespace rev {
 			void setOnes() { setConstant(Element(1)); }
 
 		private:
-			template<typename Proxy> Proxy& getProxy(size_t i, size_t j) { return *reinterpret_cast<Proxy*>(&(*this)(i,j)); }
+			template<typename Proxy> 
+			Proxy& getProxy(size_t i, size_t j)
+			{ 
+				return *reinterpret_cast<Proxy*>(&(*this)(i,j)); 
+			}
+
+			template<typename Proxy> 
+			const Proxy& getProxy(size_t i, size_t j) const
+			{
+				return *reinterpret_cast<const Proxy*>(
+					&operator()(i,j)
+					); 
+			}
+			
 			template<size_t n_>
 			Element& namedElement() { 
 				static_assert(cols>n_||rows>n_, "Only vectors have named element access"); return (*this)(n_); 
@@ -167,7 +206,6 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<size_t rows_, size_t cols_, typename Storage_>
 		void MatrixBase<rows_, cols_, Storage_>::setIdentity() {
-			static_assert(rows_==cols_, "Identity matrix must be square");
 			for(size_t j = 0; j < cols_; ++j)
 				for(size_t i = 0; i < cols_; ++i)
 					(*this)(i,j) = typename Storage_::Element(i==j?1:0);
@@ -303,13 +341,14 @@ namespace rev {
 			// Basic construction
 			Matrix() = default;
 			Matrix(const Matrix&) = default;
-			Matrix(std::initializer_list<T_> _l) {
-				auto iter = _l.begin();
-				for(size_t i = 0; i < rows; ++i)
-					for(size_t j = 0; j < cols; ++j) {
-						(*this)(i,j) = *iter++;
-					}
-			}
+			Matrix(std::initializer_list<T_> _l) 
+				: Base(_l)
+			{}
+			template<typename Other_>
+			Matrix(const Other_& _x)
+				: Base(_x)
+			{}
+
 			Matrix(T_ _x, T_ _y)
 				: Base {_x, _y}
 			{

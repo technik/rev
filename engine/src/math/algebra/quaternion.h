@@ -59,9 +59,9 @@ namespace rev { namespace math {
 	{
 		w = cos(_radians * 0.5f);
 		N_ sinus = (N_)sin(_radians * 0.5f);
-		x = _axis.x * sinus;
-		y = _axis.y * sinus;
-		z = _axis.z * sinus;
+		x = _axis.x() * sinus;
+		y = _axis.y() * sinus;
+		z = _axis.z() * sinus;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -71,59 +71,59 @@ namespace rev { namespace math {
 		N_ halfRadians = _rotationVector.norm() * 0.5f;
 		Vector3<N_> axis  = _rotationVector.normalized();
 		w = cos(halfRadians);
-		N_ sinus = aqrt(NumericTraits<N_>::one() - w*w); // sin(halfRadians);
-		x = axis.x * sinus;
-		y = axis.y * sinus;
-		z = axis.z * sinus;
+		N_ sinus = aqrt(N_(1) - w*w); // sin(halfRadians);
+		x = axis.x() * sinus;
+		y = axis.y() * sinus;
+		z = axis.z() * sinus;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
 	inline Quaternion<N_>::Quaternion(const Matrix33<N_>& _m)
 	{
-		N_ tr = _m[0][0] + _m[1][1] + _m[2][2];
+		N_ tr = _m(0,0) + _m(1,1) + _m(2,2);
 
 		if (tr > 0) {
 			N_ r = sqrt(1 + tr);
 			N_ inv2r = 0.5f / r;
 			w = 0.5f * r;
-			x = (_m[2][1] - _m[1][2]) * inv2r;
-			y = (_m[0][2] - _m[2][0]) * inv2r;
-			z = (_m[1][0] - _m[0][1]) * inv2r;
+			x = (_m(2,1) - _m(1,2)) * inv2r;
+			y = (_m(0,2) - _m(2,0)) * inv2r;
+			z = (_m(1,0) - _m(0,1)) * inv2r;
 			return;
 		}
 		// Find the largest diagonal element of _m
-		if(_m[0][0] > _m[1][1]) {
-			if(_m[0][0] > _m[2][2]) { // _m00 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m[0][0] - _m[1][1] - _m[2][2] );
+		if(_m(0,0) > _m(1,1)) {
+			if(_m(0,0) > _m(2,2)) { // _m00 is the largest diagonal element
+				N_ r = sqrt( NumericTraits<N_>::one() + _m(0,0) - _m(1,1) - _m(2,2) );
 				N_ inv2r = 0.5f / r;
-				w = (_m[2][1] - _m[1][2]) * inv2r;
+				w = (_m(2,1) - _m(1,2)) * inv2r;
 				x = 0.5f * r;
-				y = (_m[0][1] + _m[1][0]) * inv2r;
-				z = (_m[2][0] + _m[0][2]) * inv2r;
+				y = (_m(0,1) + _m(1,0)) * inv2r;
+				z = (_m(2,0) + _m(0,2)) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m[2][2] - _m[0][0] - _m[1][1] );
+				N_ r = sqrt( NumericTraits<N_>::one() + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_m[1][0] - _m[0][1]) * inv2r;
+				w = (_m(1,0) - _m(0,1)) * inv2r;
 				z = 0.5f * r;
-				x = (_m[2][0] + _m[0][2]) * inv2r;
-				y = (_m[1][2] + _m[2][1]) * inv2r;
+				x = (_m(2,0) + _m(0,2)) * inv2r;
+				y = (_m(1,2) + _m(2,1)) * inv2r;
 			}
 		} else {
-			if(_m[1][1] > _m[2][2]) { // _m11 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m[1][1] - _m[2][2] - _m[0][0] );
+			if(_m(1,1) > _m(2,2)) { // _m11 is the largest diagonal element
+				N_ r = sqrt( NumericTraits<N_>::one() + _m(1,1) - _m(2,2) - _m(0,0) );
 				N_ inv2r = 0.5f / r;
-				w = (_m[0][1] - _m[1][0]) * inv2r;
+				w = (_m(0,1) - _m(1,0)) * inv2r;
 				y = 0.5f * r;
-				z = (_m[1][2] + _m[2][1]) * inv2r;
-				x = (_m[0][1] + _m[1][0]) * inv2r;
+				z = (_m(1,2) + _m(2,1)) * inv2r;
+				x = (_m(0,1) + _m(1,0)) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m[2][2] - _m[0][0] - _m[1][1] );
+				N_ r = sqrt( NumericTraits<N_>::one() + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_m[1][0] - _m[0][1]) * inv2r;
+				w = (_m(1,0) - _m(0,1)) * inv2r;
 				z = 0.5f * r;
-				x = (_m[2][0] + _m[0][2]) * inv2r;
-				y = (_m[1][2] + _m[2][1]) * inv2r;
+				x = (_m(2,0) + _m(0,2)) * inv2r;
+				y = (_m(1,2) + _m(2,1)) * inv2r;
 			}
 		}
 	}
@@ -132,50 +132,50 @@ namespace rev { namespace math {
 	template<class N_>
 	inline Quaternion<N_>::Quaternion(const Matrix34<N_>& _matrix)
 	{	
-		N_ tr = _matrix[0][0] + _matrix[1][1] + _matrix[2][2];
+		N_ tr = _matrix(0,0) + _matrix(1,1) + _matrix(2,2);
 
 		if (tr > 0) {
 			N_ r = sqrt(1 + tr);
 			N_ inv2r = 0.5f / r;
 			w = 0.5f * r;
-			x = (_matrix[2][1] - _matrix[1][2]) * inv2r;
-			y = (_matrix[0][2] - _matrix[2][0]) * inv2r;
-			z = (_matrix[1][0] - _matrix[0][1]) * inv2r;
+			x = (_matrix(2,1) - _matrix(1,2)) * inv2r;
+			y = (_matrix(0,2) - _matrix(2,0)) * inv2r;
+			z = (_matrix(1,0) - _matrix(0,1)) * inv2r;
 			return;
 		}
 		// Trace is too small. Choose a diagonal element
 		// Find the largest diagonal element of _m
-		if(_matrix[0][0] > _matrix[1][1]) {
-			if(_matrix[0][0] > _matrix[2][2]) { // _m00 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix[0][0] - _matrix[1][1] - _matrix[2][2] );
+		if(_matrix(0,0) > _matrix(1,1)) {
+			if(_matrix(0,0) > _matrix(2,2)) { // _m00 is the largest diagonal element
+				N_ r = sqrt( 1 + _matrix(0,0) - _matrix(1,1) - _matrix(2,2) );
 				N_ inv2r = 0.5f / r;
-				w = (_matrix[2][1] - _matrix[1][2]) * inv2r;
+				w = (_matrix(2,1) - _matrix(1,2)) * inv2r;
 				x = 0.5f * r;
-				y = (_matrix[0][1] + _matrix[1][0]) * inv2r;
-				z = (_matrix[2][0] + _matrix[0][2]) * inv2r;
+				y = (_matrix(0,1) + _matrix(1,0)) * inv2r;
+				z = (_matrix(2,0) + _matrix(0,2)) * inv2r;
 			} else {// _m22 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix[2][2] - _matrix[0][0] - _matrix[1][1] );
+				N_ r = sqrt( 1 + _matrix(2,2) - _matrix(0,0) - _matrix(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_matrix[1][0] - _matrix[0][1]) * inv2r;
+				w = (_matrix(1,0) - _matrix(0,1)) * inv2r;
 				z = 0.5f * r;
-				x = (_matrix[2][0] + _matrix[0][2]) * inv2r;
-				y = (_matrix[1][2] + _matrix[2][1]) * inv2r;
+				x = (_matrix(2,0) + _matrix(0,2)) * inv2r;
+				y = (_matrix(1,2) + _matrix(2,1)) * inv2r;
 			}
 		} else {
-			if(_matrix[1][1] > _matrix[2][2]) { // _m11 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix[1][1] - _matrix[2][2] - _matrix[0][0] );
+			if(_matrix(1,1) > _matrix(2,2)) { // _m11 is the largest diagonal element
+				N_ r = sqrt( 1 + _matrix(1,1) - _matrix(2,2) - _matrix(0,0) );
 				N_ inv2r = 0.5f / r;
-				w = (_matrix[0][1] - _matrix[1][0]) * inv2r;
+				w = (_matrix(0,1) - _matrix(1,0)) * inv2r;
 				y = 0.5f * r;
-				z = (_matrix[1][2] + _matrix[2][1]) * inv2r;
-				x = (_matrix[0][1] + _matrix[1][0]) * inv2r;
+				z = (_matrix(1,2) + _matrix(2,1)) * inv2r;
+				x = (_matrix(0,1) + _matrix(1,0)) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix[2][2] - _matrix[0][0] - _matrix[1][1] );
+				N_ r = sqrt( 1 + _matrix(2,2) - _matrix(0,0) - _matrix(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_matrix[1][0] - _matrix[0][1]) * inv2r;
+				w = (_matrix(1,0) - _matrix(0,1)) * inv2r;
 				z = 0.5f * r;
-				x = (_matrix[2][0] + _matrix[0][2]) * inv2r;
-				y = (_matrix[1][2] + _matrix[2][1]) * inv2r;
+				x = (_matrix(2,0) + _matrix(0,2)) * inv2r;
+				y = (_matrix(1,2) + _matrix(2,1)) * inv2r;
 			}
 		}
 	}
