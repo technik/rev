@@ -7,13 +7,12 @@
 #include "basic.h"
 
 using namespace rev::math;
-using namespace rev::video;
 
 namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		video::StaticRenderMesh* Procedural::plane(const math::Vec2f& _size) {
+		/*video::StaticRenderMesh* Procedural::plane(const math::Vec2f& _size) {
 			// Fill vertex data
 			Vec2f halfSize = _size * 0.5f;
 			Vec3f * vertices = new Vec3f[4];
@@ -270,6 +269,6 @@ namespace rev {
 			fmt.uvChannels = 0;
 			fmt.normals = StaticRenderMesh::VertexFormat::NormalFormat::none;
 			return new StaticRenderMesh(fmt, nVertices, verts, nIndices, indices);
-		}
+		}*/
 	}
 }

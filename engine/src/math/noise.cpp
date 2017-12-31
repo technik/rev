@@ -96,7 +96,7 @@ namespace rev {
 			else
 			{
 				t0 *= t0;
-				n0 = t0 * t0 * (grad2[gi0] * Vec2f((float)x0, (float)y0));
+				n0 = t0 * t0 * (grad2[gi0].dot(Vec2f((float)x0, (float)y0)));
 			}
 
 			double t1 = 0.5f - x1*x1 - y1*y1;
@@ -104,7 +104,7 @@ namespace rev {
 			else
 			{
 				t1 *= t1;
-				n1 = t1 * t1 * (grad2[gi1] * Vec2f((float)x1, (float)y1));
+				n1 = t1 * t1 * (grad2[gi1].dot(Vec2f((float)x1, (float)y1)));
 			}
 
 			double t2 = 0.5f - x2*x2 - y2*y2;
@@ -112,7 +112,7 @@ namespace rev {
 			else
 			{
 				t2 *= t2;
-				n2 = t2 * t2 * (grad2[gi2] * Vec2f((float)x2, (float)y2));
+				n2 = t2 * t2 * (grad2[gi2].dot(Vec2f((float)x2, (float)y2)));
 			}
 
 			return float(70.f * (n0 + n1 + n2));

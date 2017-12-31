@@ -6,18 +6,13 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-#include <video/graphics/staticRenderMesh.h>
-
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
 
 using namespace std;
-using namespace rev::core;
-using namespace rev::video;
-
-typedef rev::video::StaticRenderMesh::VertexFormat	VertexFormat;
+/*
 
 // --- Global data ---
 // The importer is stored globally, so buffers don't get erased and we can save some memcpy's
@@ -150,3 +145,5 @@ int main(int _argc, const char** _argv) {
 	}
 	return 0;
 }
+
+*/

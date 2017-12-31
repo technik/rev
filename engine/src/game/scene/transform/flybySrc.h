@@ -9,12 +9,11 @@
 
 #include <game/logicComponent.h>
 #include <core/components/sceneNode.h>
-#include <core/components/affineTransform.h>
 
 namespace rev {
 	namespace game {
 
-		class FlyBySrc : public LogicComponent
+		/*class FlyBySrc : public LogicComponent
 		{
 		public:
 			FlyBySrc(float _spd) : mSpeed(_spd) {}
@@ -29,7 +28,7 @@ namespace rev {
 		private:
 			float mSpeed;
 			core::AffineTransform*	transform = nullptr;
-		};
+		};*/
 
 	}	// namespace game
 }	// namespace rev

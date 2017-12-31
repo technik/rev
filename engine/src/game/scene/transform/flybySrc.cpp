@@ -11,13 +11,12 @@
 
 using namespace rev::input;
 #endif // !ANDROID
-using namespace rev::math;
 
 namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		bool FlyBySrc::update(float _dt) {
+		/*bool FlyBySrc::update(float _dt) {
 			static float mult = 1.f;
 #ifndef ANDROID
 			KeyboardInput* input = KeyboardInput::get();
@@ -49,7 +48,7 @@ namespace rev {
 			transform->rotate(Quatf(Vec3f::zAxis(), angSpd * _dt));
 #endif // ANDROID
 			return true;
-		}
+		}*/
 
 	}	// namespace game
 }	// namespace rev

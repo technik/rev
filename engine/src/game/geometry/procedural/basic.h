@@ -10,12 +10,11 @@
 #include <functional>
 
 #include <math/algebra/vector.h>
-#include <video/graphics/staticRenderMesh.h>
 
 namespace rev {
 	namespace game {
 
-		class Procedural {
+		/*class Procedural {
 		public:
 			static video::StaticRenderMesh* plane(const math::Vec2f& _size);
 			static video::StaticRenderMesh* box(const math::Vec3f& _size);
@@ -27,7 +26,7 @@ namespace rev {
 			static video::StaticRenderMesh* heightField(uint16_t _n, uint16_t _m,
 			 	const math::Vec2f& _size, std::function<float(const math::Vec2u& _idx)> _height);
 
-		};
+		};*/
 	}
 }
 
