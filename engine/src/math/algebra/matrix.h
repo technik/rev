@@ -52,10 +52,10 @@ namespace rev {
 			T_&			operator()(Idx i, Idx j)		{ return m[i*row_stride_+j*col_stride_]; }
 			const T_&	operator()(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
 
-			T_&			operator()	(size_t _i);
-			T_			operator() 	(size_t _i) const;
-			T_&			operator[]	(size_t _i);
-			T_			operator[] 	(size_t _i) const;
+			T_&			operator()	(size_t _i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
+			T_			operator() 	(size_t _i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
+			T_&			operator[]	(size_t _i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
+			T_			operator[] 	(size_t _i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
 
 		private:
 			T_ m[rows_*cols_];
