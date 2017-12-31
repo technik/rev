@@ -35,9 +35,9 @@ namespace rev {
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
 		template<typename T_>
-		using Vector3 = Vector<T_,2>;
+		using Vector3 = Vector<T_,3>;
 		template<typename T_>
-		using Vector4 = Vector<T_,2>;
+		using Vector4 = Vector<T_,4>;
 
 		typedef Vector<unsigned, 2> Vec2u;
 		typedef Vector<int, 2>		Vec2i;
