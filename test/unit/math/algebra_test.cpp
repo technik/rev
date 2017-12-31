@@ -15,7 +15,7 @@ void testVector() {
 	Vec2f b = { 1.f, 2.f };
 	auto ones = Vec2f::ones();
 
-	auto f = x * b;
+	auto f = x.dot(b);
 	assert(f == 1.f);
 }
 
