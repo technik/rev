@@ -38,8 +38,8 @@ namespace rev {
 			MatrixStorageBase(const MatrixStorageBase&) = default;
 			MatrixStorageBase(std::initializer_list<T_> _l) {
 				auto iter = _l.begin();
-				for(size_t j = 0; j < cols_; ++j)
-					for(size_t i = 0; i < rows_; ++i)
+				for(size_t i = 0; i < rows_; ++i)
+					for(size_t j = 0; j < cols_; ++j)
 						(*this)(i,j) = *iter++;
 			}
 			template<typename Other_>
@@ -102,8 +102,8 @@ namespace rev {
 			T_,
 			rows_,
 			cols_,
-			col_major_? 0 : cols_,
-			col_major_? rows_ : 0,
+			col_major_? 1 : cols_,
+			col_major_? rows_ : 1,
 			col_major_,
 			Derived_
 		>;
@@ -243,8 +243,8 @@ namespace rev {
 			Operator_& _operation
 		)
 		{
-			for(size_t j = 0; j < Matrix_::rows; ++j)
-				for(size_t i = 0; i < Matrix_::cols; ++i)
+			for(size_t j = 0; j < Matrix_::cols; ++j)
+				for(size_t i = 0; i < Matrix_::rows; ++i)
 					_operation(_m(i,j));
 		}
 
