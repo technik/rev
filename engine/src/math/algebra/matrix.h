@@ -49,13 +49,17 @@ namespace rev {
 						(*this)(i,j) = _b(i,j);
 			}
 
-			T_&			operator()(Idx i, Idx j)		{ return m[i*row_stride_+j*col_stride_]; }
-			const T_&	operator()(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
+			T_&			coefficient(Idx i, Idx j)		{ return m[i*row_stride_+j*col_stride_]; }
+			const T_&	coefficient(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
+			T_&			operator()(Idx i, Idx j)		{ return coefficient(i,j); }
+			const T_&	operator()(Idx i, Idx j) const	{ return coefficient(i,j); }
 
-			T_&			operator()	(size_t _i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
-			T_			operator() 	(size_t _i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
-			T_&			operator[]	(size_t _i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
-			T_			operator[] 	(size_t _i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[_i]; }
+			T_&			coefficient	(size_t i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[i]; }
+			const T_&	coefficient	(size_t i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[i]; }
+			T_&			operator()	(size_t i)			{ return coefficient(i); }
+			const T_&	operator() 	(size_t i) const	{ return coefficient(i); }
+			T_&			operator[]	(size_t i)			{ return coefficient(i); }
+			const T_&	operator[] 	(size_t i) const	{ return coefficient(i); }
 
 		private:
 			T_ m[rows_*cols_];
@@ -109,6 +113,7 @@ namespace rev {
 		struct MatrixBase : public Storage_{
 			static constexpr size_t rows = rows_;
 			static constexpr size_t cols = cols_;
+			static constexpr size_t size = rows*cols;
 			static constexpr bool	is_col_major = Storage_::is_col_major;
 			static constexpr size_t row_stride = Storage_::row_stride;
 			static constexpr size_t col_stride = Storage_::col_stride;
@@ -168,22 +173,27 @@ namespace rev {
 			TransposeView&	transpose	() const;
 			MatrixBase		inverse		() const;
 
-			Element	norm() const;
-			Element	squaredNorm() const;
+			Element	norm() const		{ return sqrt(squaredNorm()); }
+			Element	squaredNorm() const { return dot(*this); }
 
 			// Component wise operations
 			template<typename OtherM_>
-			Derived cwiseProduct(const OtherM_& _b);
+			Derived cwiseProduct(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=a*b;}); }
 			template<typename OtherM_>
-			Derived cwiseMax	(const OtherM_& _b) const;
+			Derived cwiseMax	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::max(a,b);}); }
 			template<typename OtherM_>
-			Derived cwiseMin	(const OtherM_& _b) const;
+			Derived cwiseMin	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::min(a,b);}); }
 
 			template<typename Other_>
-			Element	dot(const Other_& _other) const;
+			Element	dot(const Other_& _other) const { 
+				Element result(0);
+				for(size_t i = 0; i < size; ++i)
+					result += coefficient(i)*_other.coefficient(i);
+				return result;
+			}
 
-			Derived abs			() const;
-			Derived operator-	() const;
+			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = abs(x); }); }
+			Derived operator-	() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = -x; }); }
 
 			// Basic modifiers
 			void setIdentity();
