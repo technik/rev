@@ -147,10 +147,10 @@ namespace rev {
 			Derived operator-	() const;
 
 			// Basic modifiers
-			static void setIdentity();
-			static void setConstant(Element);
-			static void setZero() { setConstant(T_(0)); }
-			static void setOnes() { setConstant(T_(1)); }
+			void setIdentity();
+			void setConstant(Element);
+			void setZero() { setConstant(Element(0)); }
+			void setOnes() { setConstant(Element(1)); }
 
 		private:
 			template<typename Proxy> Proxy& getProxy(size_t i, size_t j) { return *reinterpret_cast<Proxy*>(&(*this)(i,j)); }
@@ -165,7 +165,27 @@ namespace rev {
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
+		template<size_t rows_, size_t cols_, typename Storage_>
+		void MatrixBase<rows_, cols_, Storage_>::setIdentity() {
+			for(size_t j = 0; j < cols_; ++j)
+				for(size_t i = 0; i < cols_; ++i)
+					(*this)(i,j) = typename Storage_::Element(i==j?1:0);
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		// Visitor expressions
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Matrix_, typename Operator_>
+		void cwiseVisitor(
+			Matrix_& _m,
+			Operator_& _operation
+		)
+		{
+			for(size_t j = 0; j < Matrix_::rows; ++j)
+				for(size_t i = 0; i < Matrix_::cols; ++i)
+					_operation(_m(i,j));
+		}
+
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Matrix_, typename Operator_, bool col_major_ = Matrix_::is_col_major>
 		auto cwiseUnaryOperator(
@@ -193,6 +213,12 @@ namespace rev {
 				for(size_t i = 0; i < MatrixA_::cols; ++i)
 					_operation(result(i,j),_a(i,j),_b(i,j));
 			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<size_t rows_, size_t cols_, typename Storage_>
+		void MatrixBase<rows_, cols_, Storage_>::setConstant(typename Storage_::Element _c) {
+			cwiseVisitor(*this,[=](typename Storage_::Element& _a){_a = _c;});
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -294,9 +320,9 @@ namespace rev {
 			}
 
 			// Smarter construction
-			static constexpr Matrix identity();
-			static constexpr Matrix zero();
-			static constexpr Matrix ones();
+			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
+			static Matrix zero()		{ Matrix m; m.setZero(); return m; }
+			static Matrix ones()		{ Matrix m; m.setOnes(); return m; }
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
