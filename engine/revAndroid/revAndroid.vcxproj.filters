@@ -1,10 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="revAndroid.cpp" />
+    <Filter Include="graphics">
+      <UniqueIdentifier>{51017857-5397-473c-9846-b1391da090e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\driver">
+      <UniqueIdentifier>{7062f9c1-5946-4e11-883b-79b05607e5cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\driver\openGL">
+      <UniqueIdentifier>{5923054e-cd04-4ae9-93ff-3058d52ece4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\driver\openGL\android">
+      <UniqueIdentifier>{d229740d-7c7e-47e4-b971-40d6eb43e852}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="revAndroid.h" />
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
+      <Filter>graphics\driver\openGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\openGL\openGL.h">
+      <Filter>graphics\driver\openGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h">
+      <Filter>graphics\driver\openGL\android</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
+      <Filter>graphics\driver\openGL\android</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

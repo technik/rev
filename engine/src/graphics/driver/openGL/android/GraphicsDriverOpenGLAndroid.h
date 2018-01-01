@@ -6,6 +6,7 @@
 #ifdef ANDROID
 
 #include "../openGL.h"
+#include <math/algebra/vector.h>
 
 namespace rev { namespace graphics {
 
@@ -18,7 +19,12 @@ namespace rev { namespace graphics {
 		void swapBuffers();
 
 	private:
-		ANativeWindow*	mWindowHandle;
+		ANativeWindow*	mWindowHandle = nullptr;
+
+		math::Vec2i mSize;
+		EGLSurface surface;
+		EGLContext context;
+		EGLDisplay display;
 	};
 
 	typedef GraphicsDriverGLAndroid GraphicsDriverGL;

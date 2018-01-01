@@ -147,12 +147,12 @@ namespace rev {
 			template<size_t h_, size_t w_>
 			const RegionProxy<h_,w_>&
 			block(size_t i0, size_t j0) const
-			{ return getProxy<RegionProxy<h_,w_>(i0,j0); }
+			{ return getProxy<RegionProxy<h_,w_>>(i0,j0); }
 
 			template<size_t h_, size_t w_>
 			RegionProxy<h_,w_>&
 			block(size_t i0, size_t j0)
-			{ return getProxy<RegionProxy<h_,w_>(i0,j0); }
+			{ return getProxy<RegionProxy<h_,w_>>(i0,j0); }
 
 			const ColumnProxy&	col(size_t _i) const	{ return getProxy<ColumnProxy>(0,_i); }
 			ColumnProxy&		col(size_t _i)			{ return getProxy<ColumnProxy>(0,_i); }
@@ -188,11 +188,11 @@ namespace rev {
 			Element	dot(const Other_& _other) const { 
 				Element result(0);
 				for(size_t i = 0; i < size; ++i)
-					result += coefficient(i)*_other.coefficient(i);
+					result += this->coefficient(i)*_other.coefficient(i);
 				return result;
 			}
 
-			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = abs(x); }); }
+			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = std::abs(x); }); }
 			Derived operator-	() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = -x; }); }
 
 			// Basic modifiers
@@ -212,7 +212,7 @@ namespace rev {
 			const Proxy& getProxy(size_t i, size_t j) const
 			{
 				return *reinterpret_cast<const Proxy*>(
-					&operator()(i,j)
+					&(*this)(i,j)
 					); 
 			}
 			
@@ -255,7 +255,7 @@ namespace rev {
 			Operator_& _operation
 		) -> typename Matrix_::Derived
 		{
-			Matrix_::Derived result;
+			typename Matrix_::Derived result;
 			for(size_t j = 0; j < Matrix_::rows; ++j)
 				for(size_t i = 0; i < Matrix_::cols; ++i)
 					_operation(result(i,j),_m(i,j));
@@ -274,7 +274,7 @@ namespace rev {
 				MatrixA_::cols == MatrixB_::cols &&
 				MatrixA_::rows == MatrixB_::rows,
 				"Matrix sizes must be equal");
-			MatrixA_::Derived result;
+			typename MatrixA_::Derived result;
 			for(size_t j = 0; j < MatrixA_::rows; ++j)
 				for(size_t i = 0; i < MatrixA_::cols; ++i)
 					_operation(result(i,j),_a(i,j),_b(i,j));
@@ -317,7 +317,7 @@ namespace rev {
 			) -> typename S_::Derived
 		{
 			using T = typename S_::Element;
-			return cwiseUnaryOperator(_a, [=](typename T& res, typename T a) { res = a*_k; });
+			return cwiseUnaryOperator(_a, [=](T& res, T a) { res = a*_k; });
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -375,15 +375,15 @@ namespace rev {
 			Matrix(T_ _x, T_ _y)
 				: Base {_x, _y}
 			{
-				static_assert(cols==1||rows==1, "This constructor is for vectors only");
-				static_assert(cols>=2||rows>=2, "Vector is not big enough");
+				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
+				static_assert(cols_>=2||rows_>=2, "Vector is not big enough");
 			}
 
 			Matrix(T_ _x, T_ _y, T_ _z)
 				: Base { _x, _y, _z }
 			{
-				static_assert(cols==1||rows==1, "This constructor is for vectors only");
-				static_assert(cols>=3||rows>=3, "Vector is not big enough");
+				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
+				static_assert(cols_>=3||rows_>=3, "Vector is not big enough");
 			}
 
 			// Smarter construction
@@ -397,7 +397,7 @@ namespace rev {
 		auto operator*(
 			const MatrixBase<m_,n_,S1_>& _a,
 			const MatrixBase<n_,l_,S2_>& _b
-			) -> typename Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>
+			) -> Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>
 		{
 			using Result = Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>;
 			Result result;
