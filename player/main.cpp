@@ -14,6 +14,28 @@ using namespace rev::math;
 //--------------------------------------------------------------------------------------------------------------
 static bool sIsWindowClassRegistered = false;
 
+bool processWindowsMsg(MSG _msg) {
+	/*if (_msg.message == WM_QUIT || _msg.message == WM_CLOSE) { // If exit requested, don't bother processing anything else
+		mMustQuit = true;
+		return true;
+	}
+	if(_msg.message == WM_SIZE)
+	{
+		LPARAM lparam = _msg.lParam;
+		mSize = Vec2u(LOWORD(lparam), HIWORD(lparam));
+		invokeOnResize();
+		return true;
+	}
+	if(_msg.message == WM_SIZING)
+	{
+		RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
+		mSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
+		invokeOnResize();
+		return true;
+	}*/
+	return false;
+}
+
 //--------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
 	MSG msg;
@@ -21,7 +43,24 @@ LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
 	msg.lParam = _lParam;
 	msg.wParam = _wParam;
 	msg.message = _uMsg;
+	if(processWindowsMsg(msg))
+		return 0;
 	return DefWindowProc(_hwnd, _uMsg, _wParam, _lParam);
+}
+
+//--------------------------------------------------------------------------------------------------------------
+bool processSystemMessages() {
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		if (msg.message == WM_QUIT) // If exit requested, don't bother processing anything else
+			return false;
+		else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	return true;
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -75,13 +114,15 @@ int main() {
 	auto applicationWindow = createWindow(
 		{40, 40},
 		{1280, 720},
-		"EEVO Player test"
+		"Rev Player"
 	);
 	rev::Player player;
 	if(!player.init(applicationWindow)) {
 		return -1;
 	}
 	for(;;) {
+		if(!processSystemMessages())
+			return 0;
 		if(!player.update())
 			return 0;
 	}
