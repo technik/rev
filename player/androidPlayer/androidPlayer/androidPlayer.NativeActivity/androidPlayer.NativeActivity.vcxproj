@@ -162,7 +162,7 @@
       <PreprocessorDefinitions>ANDROID</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;revAndroid;</LibraryDependencies>
+      <LibraryDependencies>%(LibraryDependencies);GLESv3;EGL;revAndroid;</LibraryDependencies>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -178,7 +178,7 @@
       <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>%(LibraryDependencies);GLESv1_CM;EGL;revAndroid</LibraryDependencies>
+      <LibraryDependencies>%(LibraryDependencies);GLESv3;EGL;revAndroid;</LibraryDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformName)\$(Configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

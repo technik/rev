@@ -42,11 +42,6 @@ struct engine {
 	ASensorEventQueue* sensorEventQueue;
 
 	int animating;
-	EGLDisplay display;
-	EGLSurface surface;
-	EGLContext context;
-	int32_t width;
-	int32_t height;
 	struct saved_state state;
 };
 
@@ -55,21 +50,10 @@ struct engine {
 */
 static int engine_init_display(struct engine* engine) {
 	// initialize OpenGL ES and EGL
-
+	engine->player = new rev::Player();
+	engine->player->init(engine->app->window);
 	
-
-	engine->display = display;
-	engine->context = context;
-	engine->surface = surface;
-	engine->width = w;
-	engine->height = h;
 	engine->state.angle = 0;
-
-	// Initialize GL state.
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
-	glDisable(GL_DEPTH_TEST);
 
 	return 0;
 }
@@ -78,24 +62,20 @@ static int engine_init_display(struct engine* engine) {
 * Just the current frame in the display.
 */
 static void engine_draw_frame(struct engine* engine) {
-	if (engine->display == NULL) {
+	if (engine->player == nullptr) {
 		// No display.
 		return;
 	}
 
 	// Just fill the screen with a color.
-	glClearColor(((float)engine->state.x) / engine->width, engine->state.angle,
-		((float)engine->state.y) / engine->height, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	eglSwapBuffers(engine->display, engine->surface);
+	engine->player->update();
 }
 
 /**
 * Tear down the EGL context currently associated with the display.
 */
 static void engine_term_display(struct engine* engine) {
-	if (engine->display != EGL_NO_DISPLAY) {
+	/*if (engine->display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(engine->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 		if (engine->context != EGL_NO_CONTEXT) {
 			eglDestroyContext(engine->display, engine->context);
@@ -108,7 +88,7 @@ static void engine_term_display(struct engine* engine) {
 	engine->animating = 0;
 	engine->display = EGL_NO_DISPLAY;
 	engine->context = EGL_NO_CONTEXT;
-	engine->surface = EGL_NO_SURFACE;
+	engine->surface = EGL_NO_SURFACE;*/
 }
 
 /**
