@@ -21,6 +21,8 @@ namespace rev {
 	bool Player::update() {
 		if(!mGfxDriver)
 			return true;
+
+		
 		
 		glClear(GL_COLOR_BUFFER_BIT);
 		mGfxDriver->swapBuffers();
