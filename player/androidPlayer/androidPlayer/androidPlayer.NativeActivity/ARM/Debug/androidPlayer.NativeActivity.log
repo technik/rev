@@ -1,0 +1,10 @@
+﻿  ANDROID_HOME=C:\Program Files (x86)\Android\android-sdk
+  ANT_HOME=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Apps\apache-ant-1.9.3
+  JAVA_HOME=C:\Program Files\Java\jdk1.8.0_152
+  NDK_ROOT=C:\ProgramData\Microsoft\AndroidNDK64\android-ndk-r13b
+  player.cpp
+  android_native_app_glue.cpp
+  main.cpp
+..\..\../player.cpp(13): error : undefined reference to 'rev::graphics::GraphicsDriverGLAndroid::createDriver(ANativeWindow*)'
+..\..\../player.cpp(26): error : undefined reference to 'rev::graphics::GraphicsDriverGLAndroid::swapBuffers()'
+clang.exe : error : linker command failed with exit code 1 (use -v to see invocation)

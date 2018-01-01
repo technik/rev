@@ -7,12 +7,14 @@
 
 #include "../openGL.h"
 
-namespace rev { namespace video {
+namespace rev { namespace graphics {
 
 	class GraphicsDriverGLAndroid
 	{
 	public:
-		static GraphicsDriverGLAndroid* createDriver(ANativeWindow* _nativeWindow);
+		using NativeWindow = ANativeWindow*;
+
+		static GraphicsDriverGLAndroid* createDriver(NativeWindow _nativeWindow);
 		void swapBuffers();
 
 	private:
@@ -21,6 +23,6 @@ namespace rev { namespace video {
 
 	typedef GraphicsDriverGLAndroid GraphicsDriverGL;
 
-}} // namespace rev::video
+}} // namespace rev::graphics
 
 #endif // ANDROID

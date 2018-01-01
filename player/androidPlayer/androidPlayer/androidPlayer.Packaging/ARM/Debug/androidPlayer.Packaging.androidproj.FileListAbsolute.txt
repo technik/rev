@@ -1,0 +1,6 @@
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.apk.recipe
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.apk.recipe.merged
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\AndroidManifest.xml
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\FileStringReplace.incremental
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.apk
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.lastsuccessfuldeploy

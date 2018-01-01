@@ -3,9 +3,20 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="android_native_app_glue.h" />
+    <ClInclude Include="..\..\..\player.h">
+      <Filter>player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="android_native_app_glue.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="android_native_app_glue.cpp" />
+    <ClCompile Include="..\..\..\player.cpp">
+      <Filter>player</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="player">
+      <UniqueIdentifier>{c5cf8ca2-b61e-462d-be09-7178c543e9a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

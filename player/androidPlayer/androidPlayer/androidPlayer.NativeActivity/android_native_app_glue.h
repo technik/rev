@@ -18,6 +18,20 @@
 #ifndef _ANDROID_NATIVE_APP_GLUE_H
 #define _ANDROID_NATIVE_APP_GLUE_H
 
+#include <jni.h>
+#include <errno.h>
+
+#include <string.h>
+#include <unistd.h>
+#include <sys/resource.h>
+
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+
+#include <android/sensor.h>
+
+#include <android/log.h>
+
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
