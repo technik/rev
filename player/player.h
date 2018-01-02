@@ -3,6 +3,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
+#include <memory>
+#include <graphics/driver/shader.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
 namespace rev {
@@ -16,6 +18,7 @@ namespace rev {
 		bool update();
 
 	private:
+		std::unique_ptr<graphics::Shader>	mShader;
 		graphics::GraphicsDriverGL* mGfxDriver = nullptr;
 	};
 
