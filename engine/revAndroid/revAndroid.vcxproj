@@ -35,12 +35,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\core\tools\log.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\openGL.h" />
+    <ClInclude Include="..\src\graphics\driver\shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
+    <ClCompile Include="..\src\graphics\driver\shader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6c64c77c-0e46-4cd3-98d8-7fa73f3fea60}</ProjectGuid>
@@ -88,12 +91,14 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
     <AndroidAPILevel>android-24</AndroidAPILevel>
+    <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
     <AndroidAPILevel>android-24</AndroidAPILevel>
+    <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />

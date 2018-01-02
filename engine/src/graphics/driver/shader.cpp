@@ -56,7 +56,7 @@ namespace rev { namespace graphics {
 		auto shader = std::make_unique<Shader>();
 		shader->mGLProgram = program;
 
-		return std::move(shader);
+		return shader;
 	}
 
 	bool Shader::createSubprogram(const char* _code, GLenum _shaderType, GLuint& _dst) {

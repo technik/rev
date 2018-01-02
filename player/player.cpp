@@ -35,7 +35,7 @@ namespace rev {
 			}
 #endif
 #ifdef PXL_SHADER
-			out vec3 color;
+			out lowp vec3 color;
 			void main (void) {
 				
 				color = vec3(0.0,1.0,0.0);
@@ -43,7 +43,8 @@ namespace rev {
 #endif
 				)"
 			);
-			mShader->bind();
+			if(mShader)
+				mShader->bind();
 
 			// Create geometry
 			glGenVertexArrays(1,&vao);

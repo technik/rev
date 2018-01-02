@@ -13,6 +13,12 @@
     <Filter Include="graphics\driver\openGL\android">
       <UniqueIdentifier>{d229740d-7c7e-47e4-b971-40d6eb43e852}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{5d0ca542-a194-42a6-a52a-743f86137a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\tools">
+      <UniqueIdentifier>{25e17c97-6c90-4592-b827-b48fc290b3ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -24,10 +30,19 @@
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h">
       <Filter>graphics\driver\openGL\android</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\shader.h">
+      <Filter>graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\tools\log.h">
+      <Filter>core\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
       <Filter>graphics\driver\openGL\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\driver\shader.cpp">
+      <Filter>graphics\driver</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
