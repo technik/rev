@@ -81,7 +81,7 @@ namespace rev { namespace graphics {
 			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 }}	// namespace rev::graphics
