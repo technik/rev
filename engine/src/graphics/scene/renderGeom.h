@@ -10,9 +10,12 @@
 namespace rev { namespace graphics {
 
 	class RenderGeom {
+	public:
 		RenderGeom(
 			const std::vector<math::Vec2f>& _vertices,
-			const std::vector<uint16_t>& _indices)
+			const std::vector<uint16_t>& _indices
+		)
+			: mNIndices(_indices.size())
 		{
 			// Create geometry
 			glGenVertexArrays(1,&vao);
@@ -43,11 +46,11 @@ namespace rev { namespace graphics {
 		void render()
 		{
 			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, nIndices, GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLES, mNIndices, GL_UNSIGNED_SHORT, nullptr);
 		}
 
 	private:
-		GLsizei nIndices;
+		GLsizei mNIndices;
 
 		GLuint vao;
 		GLuint vbo[2];

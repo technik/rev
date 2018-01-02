@@ -6,6 +6,7 @@
 #include <memory>
 #include <graphics/driver/shader.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+#include <graphics/scene/renderGeom.h>
 
 namespace rev {
 
@@ -18,7 +19,8 @@ namespace rev {
 		bool update();
 
 	private:
-		std::unique_ptr<graphics::Shader>	mShader;
+		std::unique_ptr<graphics::Shader>		mShader;
+		std::unique_ptr<graphics::RenderGeom>	mTriangle;
 		graphics::GraphicsDriverGL* mGfxDriver = nullptr;
 	};
 

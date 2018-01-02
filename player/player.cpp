@@ -7,14 +7,12 @@
 
 namespace rev {
 
-	const math::Vec2f vertices[] = {
+	const std::vector<math::Vec2f> vertices = {
 		{1.f, 1.f},
 		{-1.f, 1.f},
 		{0.f,-1.f}
 	};
-	const uint16_t indices[] = { 0, 1, 2};
-	GLuint vao;
-	GLuint vbo[2];
+	const std::vector<uint16_t> indices = { 0, 1, 2};
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
@@ -46,22 +44,7 @@ namespace rev {
 			if(mShader)
 				mShader->bind();
 
-			// Create geometry
-			glGenVertexArrays(1,&vao);
-			glGenBuffers(2,vbo);
-			// VAO
-			glBindVertexArray(vao);
-			// VBO for vertex data
-			glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(math::Vec2f)*3, vertices, GL_STATIC_DRAW);
-			// VBO for index
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t)*3, indices, GL_STATIC_DRAW);
-
-			// Attributes
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-			glEnableVertexAttribArray(0); // Vertex pos
-			glBindVertexArray(0);
+			mTriangle = std::make_unique<graphics::RenderGeom>(vertices,indices);
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -73,8 +56,7 @@ namespace rev {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
+		mTriangle->render();
 
 		mGfxDriver->swapBuffers();
 
