@@ -7,10 +7,10 @@
 
 namespace rev {
 
-	const std::vector<math::Vec2f> vertices = {
-		{1.f, 1.f},
-		{-1.f, 1.f},
-		{0.f,-1.f}
+	const std::vector<math::Vec3f> vertices = {
+		{1.f, 1.f, 0.f},
+		{-1.f, 1.f, 0.f},
+		{0.f,-1.f, 0.f}
 	};
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
@@ -25,11 +25,11 @@ namespace rev {
 			mShader = graphics::Shader::createShader(
 				R"(
 #ifdef VTX_SHADER
-			layout(location = 0) in vec2 vertex;
+			layout(location = 0) in vec3 vertex;
 			
 			void main ( void )
 			{
-				gl_Position = vec4(vertex, 0.0, 1.0);
+				gl_Position = vec4(vertex, 1.0);
 			}
 #endif
 #ifdef PXL_SHADER

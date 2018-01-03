@@ -11,8 +11,10 @@ namespace rev { namespace graphics {
 
 	class RenderGeom {
 	public:
+		using Vertex = math::Vec3f;
+
 		RenderGeom(
-			const std::vector<math::Vec2f>& _vertices,
+			const std::vector<Vertex>& _vertices,
 			const std::vector<uint16_t>& _indices
 		)
 			: mNIndices(_indices.size())
@@ -26,7 +28,7 @@ namespace rev { namespace graphics {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 			glBufferData(
 				GL_ARRAY_BUFFER,
-				sizeof(math::Vec2f)*_vertices.size(),
+				sizeof(Vertex)*_vertices.size(),
 				_vertices.data(),
 				GL_STATIC_DRAW);
 			// VBO for index
@@ -38,7 +40,7 @@ namespace rev { namespace graphics {
 				GL_STATIC_DRAW);
 
 			// Attributes
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 			glEnableVertexAttribArray(0); // Vertex pos
 			glBindVertexArray(0);
 		}
