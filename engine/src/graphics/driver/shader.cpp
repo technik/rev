@@ -15,7 +15,7 @@ namespace rev { namespace graphics {
 #ifdef ANDROID
 		const std::string GLSL_VERSION = "#version 300 es";
 #else
-		const std::string GLSL_VERSION = "#version 330";
+		const std::string GLSL_VERSION = "#version 430";
 #endif
 		const std::string COMMON_SHADER_HEADER = 
 			GLSL_VERSION + 

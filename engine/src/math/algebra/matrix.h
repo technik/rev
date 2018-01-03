@@ -61,6 +61,9 @@ namespace rev {
 			T_&			operator[]	(size_t i)			{ return coefficient(i); }
 			const T_&	operator[] 	(size_t i) const	{ return coefficient(i); }
 
+			const T_*	data() const { return m; }
+			T_*			data() { return m; }
+
 		private:
 			T_ m[rows_*cols_];
 		};
