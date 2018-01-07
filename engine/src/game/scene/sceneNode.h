@@ -2,10 +2,9 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include <vector>
+#include "component.h"
 
 namespace rev { namespace game {
-
-	class Component;
 
 	/// Nodes are containers of logically related components
 	/// You can attach components to a node

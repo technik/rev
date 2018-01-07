@@ -37,6 +37,10 @@
   <ItemGroup>
     <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\core\tools\log.h" />
+    <ClInclude Include="..\src\game\scene\component.h" />
+    <ClInclude Include="..\src\game\scene\meshRenderer.h" />
+    <ClInclude Include="..\src\game\scene\sceneNode.h" />
+    <ClInclude Include="..\src\game\scene\transform\transform.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\openGL.h" />
@@ -44,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\core\time\time.cpp" />
+    <ClCompile Include="..\src\game\scene\component.cpp" />
+    <ClCompile Include="..\src\game\scene\meshRenderer.cpp" />
+    <ClCompile Include="..\src\game\scene\sceneNode.cpp" />
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
     <ClCompile Include="..\src\graphics\driver\shader.cpp" />
   </ItemGroup>
@@ -168,6 +175,7 @@
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <PreprocessorDefinitions>ANDROID;</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -177,6 +185,7 @@
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

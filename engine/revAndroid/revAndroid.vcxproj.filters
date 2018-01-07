@@ -22,6 +22,15 @@
     <Filter Include="core\time">
       <UniqueIdentifier>{d1134dab-57e2-4f66-8d41-4291e29170ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{0cb806c1-019f-4f1c-ac46-693d3cc43892}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\scene">
+      <UniqueIdentifier>{712f42cb-acf7-48af-9b27-49304e4a4ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\scene\transform">
+      <UniqueIdentifier>{17f24e5d-53eb-4cd3-a2ea-8b4a1ee03a7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -42,6 +51,18 @@
     <ClInclude Include="..\src\core\time\time.h">
       <Filter>core\time</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\scene\component.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\meshRenderer.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\sceneNode.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\transform\transform.h">
+      <Filter>game\scene\transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -52,6 +73,15 @@
     </ClCompile>
     <ClCompile Include="..\src\core\time\time.cpp">
       <Filter>core\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\component.cpp">
+      <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\meshRenderer.cpp">
+      <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\sceneNode.cpp">
+      <Filter>game\scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

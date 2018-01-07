@@ -162,6 +162,7 @@
       <CppLanguageStandard>gnu++1y</CppLanguageStandard>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <PreprocessorDefinitions>ANDROID</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv3;m;EGL;revAndroid;</LibraryDependencies>
@@ -178,6 +179,7 @@
       <CppLanguageStandard>gnu++1y</CppLanguageStandard>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <PreprocessorDefinitions>ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv3;m;EGL;revAndroid;</LibraryDependencies>

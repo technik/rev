@@ -21,8 +21,8 @@ namespace rev { namespace graphics {
 			, mesh(_mesh)
 		{}
 
-		const RenderGeom* mesh = nullptr;
 		math::AffineTransform	transform;
+		const RenderGeom* mesh = nullptr;
 	};
 
 }}	// namespace rev::graphics
