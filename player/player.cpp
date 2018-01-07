@@ -85,11 +85,18 @@ namespace rev {
 		// For each render obj
 		mTriangle->component<Transform>()->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
 		mTriangle->update(dt);
+
+		for(auto renderable : mGraphicsScene.renderables()) {
+			auto& renderObj = renderable->renderObj();
+			// Get world matrix
+			worldMatrix.block<3,4>(0,0) = renderObj.transform.matrix();
+			// Set up wvp
+			auto wvp = vp*worldMatrix;
+			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
+			// render
+			renderObj.mesh->render();
+		}
 		auto& renderObj = mTriangle->component<MeshRenderer>()->renderObj();
-		worldMatrix.block<3,4>(0,0) = renderObj.transform.matrix();
-		auto wvp = vp*worldMatrix;
-		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-		renderObj.mesh->render();
 
 		mGfxDriver->swapBuffers();
 
