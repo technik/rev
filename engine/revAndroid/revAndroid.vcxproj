@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\core\tools\log.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
@@ -42,6 +43,7 @@
     <ClInclude Include="..\src\graphics\driver\shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
     <ClCompile Include="..\src\graphics\driver\shader.cpp" />
   </ItemGroup>

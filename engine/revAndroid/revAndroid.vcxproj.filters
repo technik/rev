@@ -19,6 +19,9 @@
     <Filter Include="core\tools">
       <UniqueIdentifier>{25e17c97-6c90-4592-b827-b48fc290b3ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\time">
+      <UniqueIdentifier>{d1134dab-57e2-4f66-8d41-4291e29170ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -36,6 +39,9 @@
     <ClInclude Include="..\src\core\tools\log.h">
       <Filter>core\tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\time\time.h">
+      <Filter>core\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -43,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="..\src\graphics\driver\shader.cpp">
       <Filter>graphics\driver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\time\time.cpp">
+      <Filter>core\time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

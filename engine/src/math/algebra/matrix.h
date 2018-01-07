@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <initializer_list>
+#include <cmath>
 
 namespace rev {
 	namespace math {
@@ -453,7 +454,7 @@ namespace rev {
 			Number_ _farClip)
 		{
 			// Precomputations
-			Number_ focalLength = Number_(1.f) / tan(_fovRad / 2.f);
+			Number_ focalLength = Number_(1.f) / std::tan(_fovRad / 2.f);
 			Number_ invDepthRange = Number_(1.f) / (_farClip - _nearClip);
 			return Matrix44<Number_>({
 				focalLength, 0, 0, 0,

@@ -4,6 +4,8 @@ C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debu
 C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.apk
 C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\androidPlayer.lastsuccessfuldeploy
 C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libandroidPlayer.so
-C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libandroid_support.a
-C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libc++_static.a
-C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\libs\armeabi-v7a\libc++abi.a
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\libs\armeabi-v7a\gdbserver
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\res\values\strings.xml
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\AndroidManifest.xml
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\project.properties
+C:\repos\rev\player\androidPlayer\androidPlayer\androidPlayer.Packaging\ARM\Debug\Package\build.xml
