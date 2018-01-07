@@ -5,6 +5,9 @@
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/time/time.h>
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 using namespace rev::math;
 using namespace rev::graphics;
