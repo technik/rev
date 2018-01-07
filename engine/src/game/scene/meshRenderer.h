@@ -12,12 +12,12 @@ namespace rev { namespace game {
 
 	class MeshRenderer : public Component{
 	public:
-		MeshRenderer(graphics::RenderGeom* _mesh);
+		MeshRenderer(const graphics::RenderGeom* _mesh);
 
 		void init		() override;
 		void update		(float _dt) override;
 
-		graphics::RenderObj& renderObj() const { return *mRenderMesh; }
+		const graphics::RenderObj& renderObj() const { return *mRenderMesh; }
 
 	private:
 		std::unique_ptr<graphics::RenderObj>	mRenderMesh;

@@ -10,7 +10,7 @@ using namespace rev::graphics;
 namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
-	MeshRenderer::MeshRenderer(RenderGeom* _mesh) {
+	MeshRenderer::MeshRenderer(const RenderGeom* _mesh) {
 		mRenderMesh = std::make_unique<RenderObj>(_mesh);
 	}
 	//------------------------------------------------------------------------------------------------------------------

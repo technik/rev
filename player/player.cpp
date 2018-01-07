@@ -52,14 +52,18 @@ namespace rev {
 			);
 			if(mShader)
 				mShader->bind();
-
+			// Camera
 			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,0.1f,1000.f);
-			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
+			// -- triangle --
 			mTriangle = new game::SceneNode;
-			mTriangle->addComponent(new MeshRenderer(mTriangleGeom.get()));
+			// Mesh renderer
+			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
+			mTriangle->addComponent(mGraphicsScene.createMeshRenderer(mTriangleGeom.get()));
+			// Transform
 			auto xForm = new Transform();
 			xForm->xForm.position().y() = 10.f;
 			mTriangle->addComponent(xForm);
+			// Init object
 			mTriangle->init();
 		}
 		return mGfxDriver != nullptr;
