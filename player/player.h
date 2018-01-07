@@ -7,6 +7,7 @@
 #include <graphics/driver/shader.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderObj.h>
 
 namespace rev {
 
@@ -20,7 +21,8 @@ namespace rev {
 
 	private:
 		std::unique_ptr<graphics::Shader>		mShader;
-		std::unique_ptr<graphics::RenderGeom>	mTriangle;
+		std::unique_ptr<graphics::RenderGeom>	mTriangleGeom;
+		graphics::RenderObj						mTriangle;
 		graphics::GraphicsDriverGL* mGfxDriver = nullptr;
 	};
 

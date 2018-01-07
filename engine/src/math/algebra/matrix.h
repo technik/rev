@@ -146,6 +146,19 @@ namespace rev {
 				: Storage_(_x)
 			{}
 
+			MatrixBase& operator=(const MatrixBase& _other) = default;
+
+			template<typename Other_>
+			MatrixBase& operator=(const Other_& _x)
+			{
+				for(auto j = 0; j < cols_; ++j) {
+					for(auto i = 0; i < rows_; ++i) {
+						Storage_::coefficient(i,j) = _x(i,j);
+					}
+				}
+				return *this;
+			}
+
 			// Element access
 			template<size_t h_, size_t w_>
 			const RegionProxy<h_,w_>&
@@ -233,7 +246,7 @@ namespace rev {
 		template<size_t rows_, size_t cols_, typename Storage_>
 		void MatrixBase<rows_, cols_, Storage_>::setIdentity() {
 			for(size_t j = 0; j < cols_; ++j)
-				for(size_t i = 0; i < cols_; ++i)
+				for(size_t i = 0; i < rows_; ++i)
 					(*this)(i,j) = typename Storage_::Element(i==j?1:0);
 		}
 
@@ -406,7 +419,7 @@ namespace rev {
 			Result result;
 			for(auto i = 0; i < m_; ++i) { // for each row in _a
 				for(auto k = 0; k < l_; ++k) { // for each column in _b
-					result(i,k) = Result::Element(0);
+					result(i,k) = typename Result::Element(0);
 					for(auto j = 0; j < n_; ++j) { // for each element
 						result(i,j) += _a(i,j) * _b(j,k);
 					}

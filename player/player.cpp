@@ -23,7 +23,7 @@ namespace rev {
 
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
-			glClearColor(0.f,0.5f,1.f,1.f);
+			glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
 			// Create shader
 			mShader = Shader::createShader(
 				R"(
@@ -40,7 +40,7 @@ namespace rev {
 			out lowp vec3 color;
 			void main (void) {
 				
-				color = vec3(0.0,1.0,0.0);
+				color = vec3(255.0/255.0,22.0/255.f,88.0/255.0);
 			}
 #endif
 				)"
@@ -48,7 +48,13 @@ namespace rev {
 			if(mShader)
 				mShader->bind();
 
-			mTriangle = std::make_unique<graphics::RenderGeom>(vertices,indices);
+			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
+			mTriangle.model = mTriangleGeom.get();
+			mTriangle.transform = AffineTransform::identity();
+			mTriangle.transform.matrix()(0,0) = -0.25f;
+			mTriangle.transform.matrix()(0,1) = 0.f;
+			mTriangle.transform.matrix()(1,0) = 0.f;
+			mTriangle.transform.matrix()(1,1) = -0.25f;
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -60,9 +66,13 @@ namespace rev {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		auto mvp = Mat44f::identity();
-		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, mvp.data());
-		mTriangle->render();
+		auto vp = Mat44f::identity();
+		auto worldMatrix = Mat44f::identity();
+
+		// For each render obj
+		worldMatrix.block<3,4>(0,0) = mTriangle.transform.matrix();
+		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, (vp*worldMatrix).data());
+		mTriangle.model->render();
 
 		mGfxDriver->swapBuffers();
 
