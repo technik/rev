@@ -27,8 +27,8 @@ namespace rev { namespace math {
 		Quaternion	(Number_ _x, Number_ _y, Number_ _z, Number_ _w): x(_x), y(_y), z(_z), w(_w)	{}
 		Quaternion	(const Vector3<Number_>& _axis, const Number_ _radians);
 		Quaternion	(const Vector3<Number_>& _rotationVector);
-		Quaternion	(const Matrix33<Number_>& _matrix);
-		Quaternion	(const Matrix34<Number_>& _matrix);
+		template<typename S_>
+		Quaternion	(const MatrixBase<3,3,S_>& _matrix);
 
 		// Operators
 		Quaternion	operator *	(const Quaternion& _q) const;
@@ -37,7 +37,7 @@ namespace rev { namespace math {
 		Vector3<Number_>	rotate		(const Vector3<Number_>& _v) const;
 		Quaternion	inverse		() const;
 
-		operator Matrix33<Number_>() const;
+		Matrix33<Number_> asMatrix() const;
 
 		// Useful quaternions
 		static Quaternion	identity();
@@ -81,8 +81,10 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix33<N_>& _m)
+	template<typename S_>
+	inline Quaternion<N_>::Quaternion(const MatrixBase<3,3,S_> & _m)
 	{
+		//static_assert(typename S_::Element == N_, "Inconsistent number type Quaternion-Matrix");
 		N_ tr = _m(0,0) + _m(1,1) + _m(2,2);
 
 		if (tr > 0) {
@@ -126,58 +128,6 @@ namespace rev { namespace math {
 				z = 0.5f * r;
 				x = (_m(2,0) + _m(0,2)) * inv2r;
 				y = (_m(1,2) + _m(2,1)) * inv2r;
-			}
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Matrix34<N_>& _matrix)
-	{	
-		N_ tr = _matrix(0,0) + _matrix(1,1) + _matrix(2,2);
-
-		if (tr > 0) {
-			N_ r = sqrt(1 + tr);
-			N_ inv2r = 0.5f / r;
-			w = 0.5f * r;
-			x = (_matrix(2,1) - _matrix(1,2)) * inv2r;
-			y = (_matrix(0,2) - _matrix(2,0)) * inv2r;
-			z = (_matrix(1,0) - _matrix(0,1)) * inv2r;
-			return;
-		}
-		// Trace is too small. Choose a diagonal element
-		// Find the largest diagonal element of _m
-		if(_matrix(0,0) > _matrix(1,1)) {
-			if(_matrix(0,0) > _matrix(2,2)) { // _m00 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix(0,0) - _matrix(1,1) - _matrix(2,2) );
-				N_ inv2r = 0.5f / r;
-				w = (_matrix(2,1) - _matrix(1,2)) * inv2r;
-				x = 0.5f * r;
-				y = (_matrix(0,1) + _matrix(1,0)) * inv2r;
-				z = (_matrix(2,0) + _matrix(0,2)) * inv2r;
-			} else {// _m22 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix(2,2) - _matrix(0,0) - _matrix(1,1) );
-				N_ inv2r = 0.5f / r;
-				w = (_matrix(1,0) - _matrix(0,1)) * inv2r;
-				z = 0.5f * r;
-				x = (_matrix(2,0) + _matrix(0,2)) * inv2r;
-				y = (_matrix(1,2) + _matrix(2,1)) * inv2r;
-			}
-		} else {
-			if(_matrix(1,1) > _matrix(2,2)) { // _m11 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix(1,1) - _matrix(2,2) - _matrix(0,0) );
-				N_ inv2r = 0.5f / r;
-				w = (_matrix(0,1) - _matrix(1,0)) * inv2r;
-				y = 0.5f * r;
-				z = (_matrix(1,2) + _matrix(2,1)) * inv2r;
-				x = (_matrix(0,1) + _matrix(1,0)) * inv2r;
-			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( 1 + _matrix(2,2) - _matrix(0,0) - _matrix(1,1) );
-				N_ inv2r = 0.5f / r;
-				w = (_matrix(1,0) - _matrix(0,1)) * inv2r;
-				z = 0.5f * r;
-				x = (_matrix(2,0) + _matrix(0,2)) * inv2r;
-				y = (_matrix(1,2) + _matrix(2,1)) * inv2r;
 			}
 		}
 	}
@@ -231,6 +181,33 @@ namespace rev { namespace math {
 			N_(0.f),
 			N_(0.f),
 			N_(1.f));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class N_>
+	inline Matrix33<N_> Quaternion<N_>::asMatrix() const
+	{
+		N_ a2 = w*w;
+		N_ b2 = x*x;
+		N_ c2 = y*y;
+		N_ d2 = z*z;
+		N_ ab = 2 * w*x;
+		N_ ac = 2 * w*y;
+		N_ ad = 2 * w*z;
+		N_ bc = 2 * x*y;
+		N_ bd = 2 * x*z;
+		N_ cd = 2 * y*z;
+		Matrix33<N_> m;
+		m(0,0) = a2 + b2 - c2 - d2;
+		m(0,1) = bc - ad;
+		m(0,2) = bd + ac;
+		m(1,0) = bc + ad;
+		m(1,1) = a2 - b2 + c2 - d2;
+		m(1,2) = cd - ab;
+		m(2,0) = bd - ac;
+		m(2,1) = cd + ab;
+		m(2,2) = a2 - b2 - c2 + d2;
+		return m;
 	}
 
 }	// namespace math

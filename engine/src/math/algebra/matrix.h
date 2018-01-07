@@ -418,10 +418,10 @@ namespace rev {
 			using Result = Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>;
 			Result result;
 			for(auto i = 0; i < m_; ++i) { // for each row in _a
-				for(auto k = 0; k < l_; ++k) { // for each column in _b
-					result(i,k) = typename Result::Element(0);
-					for(auto j = 0; j < n_; ++j) { // for each element
-						result(i,j) += _a(i,j) * _b(j,k);
+				for(auto j = 0; j < n_; ++j) { // for each element
+					result(i,j) = typename Result::Element(0);
+					for(auto k = 0; k < l_; ++k) { // for each column in _b
+						result(i,j) += _a(i,k) * _b(k,j);
 					}
 				}
 			}

@@ -20,6 +20,7 @@ namespace rev {
 		bool update();
 
 	private:
+		float t = 0.f;
 		std::unique_ptr<graphics::Shader>		mShader;
 		std::unique_ptr<graphics::RenderGeom>	mTriangleGeom;
 		graphics::RenderObj						mTriangle;

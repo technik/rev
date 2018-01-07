@@ -18,11 +18,14 @@ namespace rev { namespace math {
 
 		static AffineTransform identity() { AffineTransform t; t.mMatrix.setIdentity(); return t; }
 
-		auto position	() 			{ return mMatrix.col(3); }
-		auto position	() const	{ return mMatrix.col(3); }
+		auto&		position	() 			{ return mMatrix.col(3); }
+		const auto& position	() const	{ return mMatrix.col(3); }
 
-		auto rotation	()			{ return mMatrix.block<3,3>(0,0); }
-		auto rotation	()	const	{ return mMatrix.block<3,3>(0,0); }
+		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3>(0,0) = _q.asMatrix(); }
+		auto		rotation	()	const	{ return Quatf(mMatrix.block<3,3>(0,0)); }
+
+		auto&		rotationMtx	()			{ return mMatrix.block<3,3>(0,0); }
+		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3>(0,0); }
 
 		void rotate		(const Mat33f& _rot);
 
@@ -35,7 +38,7 @@ namespace rev { namespace math {
 
 	//-------------------------------------------------------------------------------------------
 	inline void AffineTransform::rotate(const Mat33f& _rot) {
-		rotation() = _rot * rotation();
+		rotationMtx() = _rot * rotationMtx();
 	}
 
 } }	// namespace rev::math

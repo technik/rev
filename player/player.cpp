@@ -4,6 +4,7 @@
 #include <cassert>
 #include "player.h"
 #include <math/algebra/vector.h>
+#include <core/time/time.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -19,8 +20,9 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
-		assert(!mGfxDriver);
+		core::Time::init();
 
+		assert(!mGfxDriver);
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
 			glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
@@ -51,16 +53,18 @@ namespace rev {
 			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
 			mTriangle.model = mTriangleGeom.get();
 			mTriangle.transform = AffineTransform::identity();
-			mTriangle.transform.matrix()(0,0) = -0.25f;
-			mTriangle.transform.matrix()(0,1) = 0.f;
-			mTriangle.transform.matrix()(1,0) = 0.f;
-			mTriangle.transform.matrix()(1,1) = -0.25f;
+			mTriangle.transform.matrix()(0,0) = 0.0f;
+			mTriangle.transform.matrix()(0,1) = 1.0f;
+			mTriangle.transform.matrix()(1,0) = -1.0f;
+			mTriangle.transform.matrix()(1,1) = 0.0f;
 		}
 		return mGfxDriver != nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update() {
+		core::Time::get()->update();
+		t += core::Time::get()->frameTime();
 		if(!mGfxDriver)
 			return true;
 
@@ -70,8 +74,10 @@ namespace rev {
 		auto worldMatrix = Mat44f::identity();
 
 		// For each render obj
+		mTriangle.transform.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
 		worldMatrix.block<3,4>(0,0) = mTriangle.transform.matrix();
-		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, (vp*worldMatrix).data());
+		auto wvp = vp*worldMatrix;
+		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 		mTriangle.model->render();
 
 		mGfxDriver->swapBuffers();
