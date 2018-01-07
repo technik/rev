@@ -5,7 +5,13 @@
 #include "sceneNode.h"
 #include "component.h"
 
-namespace rev { namespace game{
+namespace rev { namespace game {
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SceneNode::update(float _dt) {
+		for(auto c : mComponents)
+			c->update(_dt);
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void SceneNode::addComponent(Component* _c) {
