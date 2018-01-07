@@ -7,8 +7,6 @@
 #ifndef _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 #define _REV_GAME_SCENE_TRANSFORM_FLYBYSRC_H_
 
-#include <game/logicComponent.h>
-#include <core/components/sceneNode.h>
 
 namespace rev {
 	namespace game {
