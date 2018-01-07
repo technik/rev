@@ -63,6 +63,9 @@
     <ClInclude Include="..\src\game\scene\transform\transform.h">
       <Filter>game\scene\transform</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\scene\renderScene.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -81,6 +84,9 @@
       <Filter>game\scene</Filter>
     </ClCompile>
     <ClCompile Include="..\src\game\scene\sceneNode.cpp">
+      <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\renderScene.cpp">
       <Filter>game\scene</Filter>
     </ClCompile>
   </ItemGroup>

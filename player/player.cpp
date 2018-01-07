@@ -96,7 +96,6 @@ namespace rev {
 			// render
 			renderObj.mesh->render();
 		}
-		auto& renderObj = mTriangle->component<MeshRenderer>()->renderObj();
 
 		mGfxDriver->swapBuffers();
 
