@@ -5,9 +5,12 @@
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/time/time.h>
+#include <game/scene/meshRenderer.h>
+#include <game/scene/transform/transform.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
+using namespace rev::game;
 
 namespace rev {
 
@@ -52,9 +55,11 @@ namespace rev {
 
 			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,0.1f,1000.f);
 			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
-			mTriangle.model = mTriangleGeom.get();
-			mTriangle.transform = AffineTransform::identity();
-			mTriangle.transform.position().y() = 10.f;
+			mTriangle = new game::SceneNode;
+			mTriangle->addComponent(new MeshRenderer(mTriangleGeom.get()));
+			mTriangle->addComponent(new Transform());
+			mTriangle->init();
+			mTriangle->component<Transform>()->xForm.position().y() = 10.f;
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -62,7 +67,8 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update() {
 		core::Time::get()->update();
-		t += core::Time::get()->frameTime();
+		auto dt = core::Time::get()->frameTime();
+		t += dt;
 		if(!mGfxDriver)
 			return true;
 
@@ -72,11 +78,13 @@ namespace rev {
 		auto worldMatrix = Mat44f::identity();
 
 		// For each render obj
-		mTriangle.transform.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
-		worldMatrix.block<3,4>(0,0) = mTriangle.transform.matrix();
+		mTriangle->component<Transform>()->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
+		mTriangle->update(dt);
+		auto& renderObj = mTriangle->component<MeshRenderer>()->renderObj();
+		worldMatrix.block<3,4>(0,0) = renderObj.transform.matrix();
 		auto wvp = vp*worldMatrix;
 		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-		mTriangle.model->render();
+		renderObj.mesh->render();
 
 		mGfxDriver->swapBuffers();
 

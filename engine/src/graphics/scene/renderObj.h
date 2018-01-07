@@ -11,7 +11,17 @@ namespace rev { namespace graphics {
 	class RenderGeom;
 
 	struct RenderObj {
-		RenderGeom* model = nullptr;
+
+		RenderObj()
+			: transform(math::AffineTransform::identity())
+		{}
+
+		RenderObj(const RenderGeom* _mesh)
+			: transform(math::AffineTransform::identity())
+			, mesh(_mesh)
+		{}
+
+		const RenderGeom* mesh = nullptr;
 		math::AffineTransform	transform;
 	};
 

@@ -45,7 +45,7 @@ namespace rev { namespace graphics {
 			glBindVertexArray(0);
 		}
 
-		void render()
+		void render() const
 		{
 			glBindVertexArray(vao);
 			glDrawElements(GL_TRIANGLES, mNIndices, GL_UNSIGNED_SHORT, nullptr);
