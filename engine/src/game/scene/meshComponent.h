@@ -12,10 +12,12 @@ namespace rev { namespace game {
 
 	class MeshRenderer : public Component{
 	public:
-		void update(float _dt) override;
+		void attachTo	(SceneNode * _node) override;
+		void update		(float _dt) override;
 
 	private:
 		std::unique_ptr<graphics::RenderObj>	mRenderMesh;
+		Transform*	mTransform;
 	};
 
 }}	// namespace rev::game

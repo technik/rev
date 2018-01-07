@@ -13,6 +13,8 @@ namespace rev { namespace game {
 	class SceneNode
 	{
 	public:
+		void update(float _dt);
+
 		// Handle components
 		void				addComponent	(Component * _component);
 		void				removeComponent	(Component * _component);
