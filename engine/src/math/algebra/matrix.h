@@ -443,6 +443,25 @@ namespace rev {
 		using Mat33f = Matrix33<float>;
 		using Mat34f = Matrix34<float>;
 		using Mat44f = Matrix44<float>;
+
+		template<typename Number_>
+		//------------------------------------------------------------------------------------------------------------------
+		inline Matrix44<Number_> frustrumMatrix(
+			Number_ _fovRad,
+			Number_ _aspectRatio,
+			Number_ _nearClip,
+			Number_ _farClip)
+		{
+			// Precomputations
+			Number_ focalLength = Number_(1.f) / tan(_fovRad / 2.f);
+			Number_ invDepthRange = Number_(1.f) / (_farClip - _nearClip);
+			return Matrix44<Number_>({
+				focalLength, 0, 0, 0,
+				0, 0, focalLength *_aspectRatio, 0,
+				0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
+				0, 1, 0, 0
+			});
+		}
 	}	// namespace math
 }	// namespace rev
 

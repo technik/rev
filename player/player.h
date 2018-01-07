@@ -21,10 +21,11 @@ namespace rev {
 
 	private:
 		float t = 0.f;
+		math::Mat44f							mProjectionMtx;
 		std::unique_ptr<graphics::Shader>		mShader;
 		std::unique_ptr<graphics::RenderGeom>	mTriangleGeom;
 		graphics::RenderObj						mTriangle;
-		graphics::GraphicsDriverGL* mGfxDriver = nullptr;
+		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
 	};
 
 }	// namespace rev

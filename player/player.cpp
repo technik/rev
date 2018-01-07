@@ -12,9 +12,9 @@ using namespace rev::graphics;
 namespace rev {
 
 	const std::vector<Vec3f> vertices = {
-		{1.f, 1.f, 0.f},
-		{-1.f, 1.f, 0.f},
-		{0.f,-1.f, 0.f}
+		{1.f, 0.f, 1.f},
+		{-1.f, 0.f, 1.f},
+		{0.f,0.f, -1.f}
 	};
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
@@ -50,13 +50,11 @@ namespace rev {
 			if(mShader)
 				mShader->bind();
 
+			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,0.1f,1000.f);
 			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
 			mTriangle.model = mTriangleGeom.get();
 			mTriangle.transform = AffineTransform::identity();
-			mTriangle.transform.matrix()(0,0) = 0.0f;
-			mTriangle.transform.matrix()(0,1) = 1.0f;
-			mTriangle.transform.matrix()(1,0) = -1.0f;
-			mTriangle.transform.matrix()(1,1) = 0.0f;
+			mTriangle.transform.position().y() = 10.f;
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -70,7 +68,7 @@ namespace rev {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		auto vp = Mat44f::identity();
+		auto vp = mProjectionMtx;
 		auto worldMatrix = Mat44f::identity();
 
 		// For each render obj
