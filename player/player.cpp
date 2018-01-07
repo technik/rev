@@ -57,9 +57,10 @@ namespace rev {
 			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
 			mTriangle = new game::SceneNode;
 			mTriangle->addComponent(new MeshRenderer(mTriangleGeom.get()));
-			mTriangle->addComponent(new Transform());
+			auto xForm = new Transform();
+			xForm->xForm.position().y() = 10.f;
+			mTriangle->addComponent(xForm);
 			mTriangle->init();
-			mTriangle->component<Transform>()->xForm.position().y() = 10.f;
 		}
 		return mGfxDriver != nullptr;
 	}
