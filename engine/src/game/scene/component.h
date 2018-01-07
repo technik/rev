@@ -16,6 +16,7 @@ namespace rev { namespace game {
 		Component() : mNode(nullptr) {}
 		virtual	~Component();
 
+		virtual void init	() {}
 		virtual void update(float _dt) {}
 
 		// -- attach and dettach --

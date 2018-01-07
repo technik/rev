@@ -13,11 +13,13 @@ namespace rev { namespace game {
 	class MeshRenderer : public Component{
 	public:
 		void attachTo	(SceneNode * _node) override;
+
+		void init		() override;
 		void update		(float _dt) override;
 
 	private:
 		std::unique_ptr<graphics::RenderObj>	mRenderMesh;
-		Transform*	mTransform;
+		Transform*	mTransform = nullptr;
 	};
 
 }}	// namespace rev::game

@@ -13,6 +13,7 @@ namespace rev { namespace game {
 	class SceneNode
 	{
 	public:
+		void init();
 		void update(float _dt);
 
 		// Handle components
