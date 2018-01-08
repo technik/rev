@@ -106,8 +106,8 @@ struct Scene {
 	vector<RenderObj>			objects;
 
 	bool saveToStream(ostream& _out) {
-		unsigned nMeshes = meshes.size();
-		unsigned nObjects = meshes.size();
+		uint32_t nMeshes = meshes.size();
+		uint32_t nObjects = meshes.size();
 		// Save header
 		_out.write((char*)&nMeshes, sizeof(nMeshes));
 		_out.write((char*)&nObjects, sizeof(nObjects));

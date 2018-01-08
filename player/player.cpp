@@ -4,6 +4,7 @@
 #include <cassert>
 #include "player.h"
 #include <math/algebra/vector.h>
+#include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
@@ -55,18 +56,56 @@ namespace rev {
 			// Camera
 			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,0.1f,1000.f);
 			// -- triangle --
-			mTriangle = new game::SceneNode;
+			loadScene("data/sponza_crytek.scn");
+			//mTriangle = new game::SceneNode;
 			// Mesh renderer
-			mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
-			mTriangle->addComponent(mGraphicsScene.createMeshRenderer(mTriangleGeom.get()));
+			//mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
+			//mTriangle->addComponent(mGraphicsScene.createMeshRenderer(mTriangleGeom.get()));
 			// Transform
-			auto xForm = new Transform();
-			xForm->xForm.position().y() = 10.f;
-			mTriangle->addComponent(xForm);
+			//auto xForm = new Transform();
+			//xForm->xForm.position().y() = 10.f;
+			//mTriangle->addComponent(xForm);
 			// Init object
-			mTriangle->init();
+			//mTriangle->init();
 		}
 		return mGfxDriver != nullptr;
+	}
+
+	struct MeshHeader
+	{
+		uint16_t nVertices;
+		uint32_t nIndices;
+	};
+
+	struct VertexLine {
+		Vec3f position, normal;
+		Vec2f uv;
+	};
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::loadScene(const char* _assetFileName)
+	{
+		core::File asset(_assetFileName);
+		auto ptr = asset.buffer();
+		auto header = reinterpret_cast<const uint32_t*>(ptr);
+		auto nMeshes = header[0];
+		mMeshes.reserve(nMeshes);
+		auto nObjects = header[1];
+		ptr = &header[2];
+		std::vector<VertexLine>	vertexData;
+		std::vector<uint16_t>	indices;
+		for(int i = 0; i < nMeshes; ++i)
+		{
+			auto meshHeader = (const MeshHeader*)ptr;
+			ptr = &meshHeader[1];
+			vertexData.resize(meshHeader->nVertices);
+			memcpy(vertexData.data(), ptr, vertexData.size());
+			ptr = &vertexData.data()[vertexData.size()];
+			indices.resize(meshHeader->nIndices);
+			memcpy(indices.data(), ptr, indices.size());
+			ptr = &indices.data()[indices.size()];
+		}
+		mNodes.reserve(nObjects);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -83,7 +122,7 @@ namespace rev {
 		auto worldMatrix = Mat44f::identity();
 
 		// For each render obj
-		mTriangle->component<Transform>()->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
+		/*mTriangle->component<Transform>()->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
 		mTriangle->update(dt);
 
 		for(auto renderable : mGraphicsScene.renderables()) {
@@ -95,7 +134,7 @@ namespace rev {
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 			// render
 			renderObj.mesh->render();
-		}
+		}*/
 
 		mGfxDriver->swapBuffers();
 

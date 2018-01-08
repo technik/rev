@@ -16,6 +16,7 @@ namespace rev {
 	public:
 		typedef rev::graphics::GraphicsDriverGL::NativeWindow	Window;
 		bool init(Window);
+		void loadScene(const char* assetFileName);
 
 		// Common components
 		bool update();
@@ -24,8 +25,8 @@ namespace rev {
 		float t = 0.f;
 		math::Mat44f							mProjectionMtx;
 		std::unique_ptr<graphics::Shader>		mShader;
-		std::unique_ptr<graphics::RenderGeom>	mTriangleGeom;
-		game::SceneNode*						mTriangle;
+		std::vector<graphics::RenderGeom>		mMeshes;
+		std::vector<game::SceneNode>			mNodes;
 		game::RenderScene						mGraphicsScene;
 		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
 	};
