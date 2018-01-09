@@ -126,6 +126,8 @@ namespace rev {
 		auto vp = mProjectionMtx * view;
 		auto worldMatrix = Mat44f::identity();
 
+		Vec4f lightDir = { 0.2f, -0.3f, 1.0f , 0.0f };
+
 		for(auto renderable : mGraphicsScene.renderables()) {
 			auto& renderObj = renderable->renderObj();
 			// Get world matrix
@@ -133,6 +135,11 @@ namespace rev {
 			// Set up wvp
 			auto wvp = vp*worldMatrix;
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
+			auto& worldI = worldMatrix.transpose();
+			auto msLightDir = worldI * lightDir;
+			auto msViewDir = worldI.block<3,3>(0,0) * camera.position() + worldI.block<3,4>(0,0).col(3);
+			glUniform3f(1, msLightDir.x(), msLightDir.y(), msLightDir.z());
+			glUniform3f(2, msViewDir.x(), msViewDir.y(), msViewDir.z());
 			// render
 			renderObj.mesh->render();
 		}

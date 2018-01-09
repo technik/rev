@@ -187,7 +187,7 @@ namespace rev {
 
 			// Matrix operations
 			Element			trace		() const;
-			TransposeView&	transpose	() const;
+			const TransposeView&	transpose	() const { return *reinterpret_cast<const TransposeView*>(this); }
 			MatrixBase		inverse		() const;
 
 			Element	norm() const		{ return sqrt(squaredNorm()); }
@@ -419,10 +419,10 @@ namespace rev {
 			using Result = Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>;
 			Result result;
 			for(auto i = 0; i < m_; ++i) { // for each row in _a
-				for(auto j = 0; j < n_; ++j) { // for each element
-					result(i,j) = typename Result::Element(0);
-					for(auto k = 0; k < l_; ++k) { // for each column in _b
-						result(i,j) += _a(i,k) * _b(k,j);
+				for(auto k = 0; k < l_; ++k) { // for each column in _b
+					result(i,k) = typename Result::Element(0);
+					for(auto j = 0; j < n_; ++j) { // for each element in this row/col
+						result(i,k) += _a(i,j) * _b(j,k);
 					}
 				}
 			}
