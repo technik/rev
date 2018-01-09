@@ -1,7 +1,0 @@
-[
-	{
-		shader : "pbr",
-		zwrite : "on",
-		blend : "off"
-	}
-]
