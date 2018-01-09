@@ -126,7 +126,7 @@ namespace rev {
 		auto vp = mProjectionMtx * view;
 		auto worldMatrix = Mat44f::identity();
 
-		Vec4f lightDir = { 0.2f, -0.3f, 1.0f , 0.0f };
+		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
 
 		for(auto renderable : mGraphicsScene.renderables()) {
 			auto& renderObj = renderable->renderObj();
