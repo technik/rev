@@ -77,9 +77,9 @@ namespace rev {
 		uint32_t nIndices;
 	};
 
-	struct VertexLine {
-		Vec3f position, normal;
-		Vec2f uv;
+	struct RenderObjData {
+		int meshIdx = -1;
+		Mat44f transform;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -92,9 +92,10 @@ namespace rev {
 		mMeshes.reserve(nMeshes);
 		auto nObjects = header[1];
 		ptr = &header[2];
+		using VertexLine = RenderGeom::Vertex;
 		std::vector<VertexLine>	vertexData;
 		std::vector<uint16_t>	indices;
-		for(int i = 0; i < nMeshes; ++i)
+		for(size_t i = 0; i < nMeshes; ++i)
 		{
 			auto meshHeader = (const MeshHeader*)ptr;
 			ptr = &meshHeader[1];
@@ -104,8 +105,23 @@ namespace rev {
 			indices.resize(meshHeader->nIndices);
 			memcpy(indices.data(), ptr, indices.size()*sizeof(uint16_t));
 			ptr = &reinterpret_cast<const uint16_t*>(ptr)[indices.size()];
+			mMeshes.emplace_back(vertexData,indices);
 		}
-		mNodes.reserve(nObjects);
+		mNodes.resize(nObjects);
+		auto objDataList = reinterpret_cast<const RenderObjData*>(ptr);
+		for(size_t i = 0; i < nMeshes; ++i)
+		{
+			auto& objSrc = objDataList[i];
+			auto& obj = mNodes[i];
+			// Object transform
+			auto objXForm = new Transform();
+			objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
+			obj.addComponent(objXForm);
+			// Object mesh
+			auto& mesh = mMeshes[objSrc.meshIdx];
+			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
+			obj.addComponent(meshRenderer);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -123,7 +139,7 @@ namespace rev {
 
 		// For each render obj
 		/*mTriangle->component<Transform>()->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t));
-		mTriangle->update(dt);
+		mTriangle->update(dt);*/
 
 		for(auto renderable : mGraphicsScene.renderables()) {
 			auto& renderObj = renderable->renderObj();
@@ -134,7 +150,7 @@ namespace rev {
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 			// render
 			renderObj.mesh->render();
-		}*/
+		}
 
 		mGfxDriver->swapBuffers();
 

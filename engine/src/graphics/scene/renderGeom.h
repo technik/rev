@@ -11,7 +11,10 @@ namespace rev { namespace graphics {
 
 	class RenderGeom {
 	public:
-		using Vertex = math::Vec3f;
+		struct Vertex {
+			math::Vec3f position, normal;
+			math::Vec2f	uv;
+		};
 
 		RenderGeom(
 			const std::vector<Vertex>& _vertices,
