@@ -13,7 +13,10 @@ namespace rev { namespace graphics {
 
 	namespace {	
 #ifdef ANDROID
-		const std::string GLSL_VERSION = "#version 300 es";
+		const std::string GLSL_VERSION = 
+			R"(#version 300 es
+			precision highp float;
+			)";
 #else
 		const std::string GLSL_VERSION = "#version 430";
 #endif
