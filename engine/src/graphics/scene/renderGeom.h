@@ -43,8 +43,14 @@ namespace rev { namespace graphics {
 				GL_STATIC_DRAW);
 
 			// Attributes
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 			glEnableVertexAttribArray(0); // Vertex pos
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(math::Vec3f));
+			glEnableVertexAttribArray(1); // Vertex normal
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2*sizeof(math::Vec3f)));
+			glEnableVertexAttribArray(2); // Vertex uv
+
+			// Unbind VAO
 			glBindVertexArray(0);
 		}
 
