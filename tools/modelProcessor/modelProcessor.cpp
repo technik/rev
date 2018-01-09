@@ -29,7 +29,7 @@ struct IntermediateModel {
 	uint16_t* indices = nullptr;
 
 	uint32_t nIndices = 0;
-	uint16_t nVertices = 0;
+	uint32_t nVertices = 0;
 
 	struct VertexData {
 		Vec3f position, normal;

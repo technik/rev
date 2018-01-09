@@ -73,7 +73,7 @@ namespace rev {
 
 	struct MeshHeader
 	{
-		uint16_t nVertices;
+		uint32_t nVertices;
 		uint32_t nIndices;
 	};
 
@@ -99,11 +99,11 @@ namespace rev {
 			auto meshHeader = (const MeshHeader*)ptr;
 			ptr = &meshHeader[1];
 			vertexData.resize(meshHeader->nVertices);
-			memcpy(vertexData.data(), ptr, vertexData.size());
-			ptr = &vertexData.data()[vertexData.size()];
+			memcpy(vertexData.data(), ptr, vertexData.size()*sizeof(VertexLine));
+			ptr = &reinterpret_cast<const VertexLine*>(ptr)[vertexData.size()];
 			indices.resize(meshHeader->nIndices);
-			memcpy(indices.data(), ptr, indices.size());
-			ptr = &indices.data()[indices.size()];
+			memcpy(indices.data(), ptr, indices.size()*sizeof(uint16_t));
+			ptr = &reinterpret_cast<const uint16_t*>(ptr)[indices.size()];
 		}
 		mNodes.reserve(nObjects);
 	}
