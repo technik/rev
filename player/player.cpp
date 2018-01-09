@@ -35,18 +35,23 @@ namespace rev {
 				R"(
 #ifdef VTX_SHADER
 			layout(location = 0) in vec3 vertex;
+			layout(location = 1) in vec3 normal;
 			layout(location = 0) uniform mat4 uWorldViewProjection;
-			
+
+			layout(location = 0) out vec3 vtxColor;			
+
 			void main ( void )
 			{
+				vtxColor = normal;
 				gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
 			}
 #endif
 #ifdef PXL_SHADER
 			out lowp vec3 color;
+			layout(location = 0) in vec3 vtxColor;			
 			void main (void) {
 				
-				color = vec3(255.0/255.0,22.0/255.f,88.0/255.0);
+				color = vtxColor;//vec3(255.0/255.0,22.0/255.f,88.0/255.0);
 			}
 #endif
 				)"
