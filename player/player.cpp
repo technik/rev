@@ -118,9 +118,9 @@ namespace rev {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		auto camera = AffineTransform::identity();
-		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
-		camera.position().z() = -100.f;
-		camera.position().y() = -100.f;
+		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f+4.f));
+		camera.position().z() = -120.f;
+		camera.position().y() = 100.f;
 		auto view = Mat44f::identity();
 		view.block<3,4>(0,0) = camera.matrix();
 		auto vp = mProjectionMtx * view;
