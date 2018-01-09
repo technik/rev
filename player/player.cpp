@@ -6,6 +6,7 @@
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
+#include <core/tools/log.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
 
@@ -42,7 +43,7 @@ namespace rev {
 			layout(location = 1) in vec3 normal;
 			layout(location = 0) uniform mat4 uWorldViewProjection;
 
-			layout(location = 0) out vec3 vtxColor;			
+			out lowp vec3 vtxColor;			
 
 			void main ( void )
 			{
@@ -52,9 +53,9 @@ namespace rev {
 #endif
 #ifdef PXL_SHADER
 			out lowp vec3 color;
-			layout(location = 0) in vec3 vtxColor;			
+			in lowp vec3 vtxColor;			
 			void main (void) {
-				float light = max(0.0,dot(normalize(vec3(0.2, -0.3, 1.0)),normalize(vtxColor)));
+				lowp float light = max(0.0,dot(normalize(vec3(0.2, -0.3, 1.0)),normalize(vtxColor)));
 				color = light * vec3(255.0/255.0,22.0/255.0,88.0/255.0) + 0.2*vec3(89.0/255.0,235.0/255.0,1.0);
 			}
 #endif
@@ -65,7 +66,7 @@ namespace rev {
 			// Camera
 			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,1.0f,10000.f);
 			// -- triangle --
-			loadScene("data/sponza_crytek.scn");
+			loadScene("sponza_crytek.scn");
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -85,6 +86,11 @@ namespace rev {
 	void Player::loadScene(const char* _assetFileName)
 	{
 		core::File asset(_assetFileName);
+		if(asset.sizeInBytes() == 0)
+		{
+			rev::core::Log::error("Unable to load asset");
+			return;
+		}
 		auto ptr = asset.buffer();
 		auto header = reinterpret_cast<const uint32_t*>(ptr);
 		auto nMeshes = header[0];

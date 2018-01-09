@@ -31,6 +31,12 @@
     <Filter Include="game\scene\transform">
       <UniqueIdentifier>{17f24e5d-53eb-4cd3-a2ea-8b4a1ee03a7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\platform">
+      <UniqueIdentifier>{6d48b92e-be98-47b6-88ac-3aef74a8aaec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\platform\filesystem">
+      <UniqueIdentifier>{7bc6832d-8d59-451b-8fee-2e00df3fce9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -66,6 +72,9 @@
     <ClInclude Include="..\src\game\scene\renderScene.h">
       <Filter>game\scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\core\platform\fileSystem\file.h">
+      <Filter>core\platform\filesystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -88,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\src\game\scene\renderScene.cpp">
       <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\platform\fileSystem\file.cpp">
+      <Filter>core\platform\filesystem</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

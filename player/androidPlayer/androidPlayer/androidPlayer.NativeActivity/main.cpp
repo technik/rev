@@ -17,6 +17,7 @@
 
 #include "android_native_app_glue.h"
 #include "../../../player.h"
+#include <core/platform/fileSystem/file.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
@@ -50,6 +51,7 @@ struct engine {
 */
 static int engine_init_display(struct engine* engine) {
 	// initialize OpenGL ES and EGL
+	rev::core::File::setAssetMgr(engine->app->activity->assetManager);
 	engine->player = new rev::Player();
 	engine->player->init(engine->app->window);
 	

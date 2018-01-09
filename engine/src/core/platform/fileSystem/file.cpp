@@ -10,7 +10,7 @@
 #include <fstream>
 
 #include "file.h"
-
+#include <core/tools/log.h>
 
 using namespace std;
 
@@ -27,6 +27,7 @@ namespace rev { namespace core {
 	//--------------------------------------------------------------------------------------------------------------
 	void File::setAssetMgr(AAssetManager* _mgr) {
 		sAssetMgr = _mgr;
+		Log::info("Registered asset manager");
 	}
 #endif // ANDROID
 
@@ -34,7 +35,10 @@ namespace rev { namespace core {
 	File::File(const string& _path) {
 		//mPath = _path; 
 #ifdef ANDROID
-		assert(sAssetMgr != nullptr);
+		if(!sAssetMgr) {
+			Log::error("No asset manager while trying lo load asset");
+			return;
+		}
 		AAsset* srcAsset = AAssetManager_open(sAssetMgr, _path.c_str(), AASSET_MODE_STREAMING);
 		if(!srcAsset)
 			return;

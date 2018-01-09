@@ -195,6 +195,8 @@ static void process_cmd(struct android_app* app, struct android_poll_source* sou
 static void* android_app_entry(void* param) {
     struct android_app* android_app = (struct android_app*)param;
 
+
+
     android_app->config = AConfiguration_new();
     AConfiguration_fromAssetManager(android_app->config, android_app->activity->assetManager);
 
