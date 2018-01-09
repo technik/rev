@@ -54,8 +54,8 @@ namespace rev {
 			out lowp vec3 color;
 			layout(location = 0) in vec3 vtxColor;			
 			void main (void) {
-				
-				color = vtxColor;//vec3(255.0/255.0,22.0/255.f,88.0/255.0);
+				float light = max(0.0,dot(normalize(vec3(0.2, -0.3, 1.0)),normalize(vtxColor)));
+				color = light * vec3(255.0/255.0,22.0/255.0,88.0/255.0) + 0.2*vec3(89.0/255.0,235.0/255.0,1.0);
 			}
 #endif
 				)"
@@ -137,6 +137,7 @@ namespace rev {
 		auto camera = AffineTransform::identity();
 		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
 		camera.position().z() = -100.f;
+		camera.position().y() = -100.f;
 		auto view = Mat44f::identity();
 		view.block<3,4>(0,0) = camera.matrix();
 		auto vp = mProjectionMtx * view;
