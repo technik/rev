@@ -28,6 +28,10 @@ namespace rev {
 
 		assert(!mGfxDriver);
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
 			// Create shader
@@ -59,19 +63,9 @@ namespace rev {
 			if(mShader)
 				mShader->bind();
 			// Camera
-			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,0.1f,1000.f);
+			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,1.0f,10000.f);
 			// -- triangle --
 			loadScene("data/sponza_crytek.scn");
-			//mTriangle = new game::SceneNode;
-			// Mesh renderer
-			//mTriangleGeom = std::make_unique<graphics::RenderGeom>(vertices,indices);
-			//mTriangle->addComponent(mGraphicsScene.createMeshRenderer(mTriangleGeom.get()));
-			// Transform
-			//auto xForm = new Transform();
-			//xForm->xForm.position().y() = 10.f;
-			//mTriangle->addComponent(xForm);
-			// Init object
-			//mTriangle->init();
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -126,6 +120,7 @@ namespace rev {
 			auto& mesh = mMeshes[objSrc.meshIdx];
 			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
 			obj.addComponent(meshRenderer);
+			obj.init();
 		}
 	}
 
@@ -137,9 +132,14 @@ namespace rev {
 		if(!mGfxDriver)
 			return true;
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		auto vp = mProjectionMtx;
+		auto camera = AffineTransform::identity();
+		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
+		camera.position().z() = -100.f;
+		auto view = Mat44f::identity();
+		view.block<3,4>(0,0) = camera.matrix();
+		auto vp = mProjectionMtx * view;
 		auto worldMatrix = Mat44f::identity();
 
 		// For each render obj
