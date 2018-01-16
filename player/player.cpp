@@ -9,6 +9,7 @@
 #include <core/tools/log.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
+#include <graphics/debug/debugGUI.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -44,6 +45,8 @@ namespace rev {
 			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,1.0f,10000.f);
 			// -- triangle --
 			loadScene("sponza_crytek.scn");
+
+			gui::init({720u,480u});
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -127,6 +130,8 @@ namespace rev {
 		if(!mGfxDriver)
 			return true;
 
+		gui::startFrame();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		auto camera = AffineTransform::identity();
@@ -139,6 +144,7 @@ namespace rev {
 		auto worldMatrix = Mat44f::identity();
 
 		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
+		mShader->bind();
 
 		for(auto renderable : mGraphicsScene.renderables()) {
 			auto& renderObj = renderable->renderObj();
@@ -156,6 +162,7 @@ namespace rev {
 			renderObj.mesh->render();
 		}
 
+		gui::finishFrame(dt);
 		mGfxDriver->swapBuffers();
 
 		return true;
