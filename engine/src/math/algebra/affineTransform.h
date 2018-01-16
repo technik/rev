@@ -17,6 +17,7 @@ namespace rev { namespace math {
 		}
 
 		static AffineTransform identity() { AffineTransform t; t.mMatrix.setIdentity(); return t; }
+		AffineTransform inverse() const;
 
 		auto&		position	() 			{ return mMatrix.col(3); }
 		const auto& position	() const	{ return mMatrix.col(3); }
@@ -39,6 +40,15 @@ namespace rev { namespace math {
 	//-------------------------------------------------------------------------------------------
 	inline void AffineTransform::rotate(const Mat33f& _rot) {
 		rotationMtx() = _rot * rotationMtx();
+	}
+
+	//-------------------------------------------------------------------------------------------
+	inline AffineTransform AffineTransform::inverse() const {
+		AffineTransform inv;
+		auto& transposeRot = mMatrix.block<3,3>(0,0).transpose();
+		inv.mMatrix.block<3,3>(0,0) = transposeRot;
+		inv.position() = -(transposeRot * position());
+		return inv;
 	}
 
 } }	// namespace rev::math
