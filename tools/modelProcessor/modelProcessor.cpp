@@ -63,7 +63,7 @@ struct IntermediateModel {
 		normals = reinterpret_cast<Vec3f*>(_mesh->mNormals);
 		uvs = new Vec2f[nVertices];
 		auto uv0 = _mesh->mTextureCoords[0];
-		for(auto i = 0; i < nVertices; ++i) {
+		for(uint32_t i = 0; i < nVertices; ++i) {
 			uvs[i] = Vec2f(uv0[i].x, uv0[i].y);
 		}
 		// Index data
@@ -103,17 +103,21 @@ struct RenderObj {
 
 struct Scene {
 	vector<IntermediateModel>	meshes;
+	vector<string>				objNames;
 	vector<RenderObj>			objects;
 
 	bool saveToStream(ostream& _out) {
 		uint32_t nMeshes = meshes.size();
-		uint32_t nObjects = meshes.size();
+		uint32_t nObjects = objects.size();
 		// Save header
 		_out.write((char*)&nMeshes, sizeof(nMeshes));
 		_out.write((char*)&nObjects, sizeof(nObjects));
 		// Save meshes
 		for(auto& mesh : meshes)
 			mesh.saveToStream(_out);
+		// Save object names
+		for(auto& name : objNames)
+			_out.write(name.c_str(), name.length()+1);
 		// Save objects
 		_out.write((char*)objects.data(), sizeof(RenderObj)*objects.size());
 
@@ -123,31 +127,34 @@ struct Scene {
 
 //----------------------------------------------------------------------------------------------------------------------
 bool loadFBX(const string& _src, Scene& _dst) {
-	const aiScene* fbx = fbxLoader.ReadFile(_src, aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
+	const aiScene* fbx = fbxLoader.ReadFile(
+		_src,
+		aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices | aiProcess_RemoveRedundantMaterials
+	);
 	if(!fbx)
 		return false;
-	if(fbx->HasMeshes())
+	// Load all meshes
+	_dst.meshes.resize(fbx->mNumMeshes);
+	for(size_t i = 0; i < _dst.meshes.size(); ++i)
 	{
-		// Load all meshes
-		_dst.meshes.resize(fbx->mNumMeshes);
-		for(size_t i = 0; i < _dst.meshes.size(); ++i)
-		{
-			auto& fbxMesh = fbx->mMeshes[i];
-			_dst.meshes[i].loadFBXMesh(fbxMesh);
-		}
-		// Load scene nodes
-		int parent = -1;
-		const aiNode* sceneRoot = fbx->mRootNode;
-		_dst.objects.resize(sceneRoot->mNumChildren);
-		for(size_t i = 0; i < sceneRoot->mNumChildren; ++i)
-		{
-			auto& obj = _dst.objects[i];
-			const auto& srcObj = sceneRoot->mChildren[i];
-			obj.transform.setIdentity();
-			if(srcObj->mNumMeshes > 0)
-				obj.meshIdx = srcObj->mMeshes[0];
-		}
+		auto& fbxMesh = fbx->mMeshes[i];
+		_dst.meshes[i].loadFBXMesh(fbxMesh);
 	}
+	// Load scene nodes
+	int parent = -1;
+	const aiNode* sceneRoot = fbx->mRootNode;
+	_dst.objects.resize(sceneRoot->mNumChildren);
+	_dst.objNames.resize(sceneRoot->mNumChildren);
+	for(size_t i = 0; i < sceneRoot->mNumChildren; ++i)
+	{
+		auto& obj = _dst.objects[i];
+		const auto srcObj = sceneRoot->mChildren[i];
+		obj.transform.setIdentity();
+		_dst.objNames[i] = srcObj->mName.C_Str();
+		if(srcObj->mNumMeshes > 0)
+			obj.meshIdx = srcObj->mMeshes[0];
+	}
+
 	return true;
 }
 

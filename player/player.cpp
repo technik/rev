@@ -89,12 +89,24 @@ namespace rev {
 			ptr = &reinterpret_cast<const uint16_t*>(ptr)[indices.size()];
 			mMeshes.emplace_back(vertexData,indices);
 		}
-		mNodes.resize(nObjects);
+		std::vector<std::string> objNames;
+		auto str = (const char*)ptr;
+		for(size_t i = 0; i < nObjects; ++i)
+		{
+			auto n = strlen(str);
+			objNames.emplace_back(str);
+			str += n+1;
+		}
+		ptr = str;
+		mNodes.reserve(nObjects);
 		auto objDataList = reinterpret_cast<const RenderObjData*>(ptr);
-		for(size_t i = 0; i < nMeshes; ++i)
+		for(size_t i = 0; i < nObjects; ++i)
 		{
 			auto& objSrc = objDataList[i];
-			auto& obj = mNodes[i];
+			if(objSrc.meshIdx < 0)
+				continue;
+			mNodes.emplace_back();
+			auto& obj = mNodes.back();
 			// Object transform
 			auto objXForm = new Transform();
 			objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
@@ -118,11 +130,11 @@ namespace rev {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		auto camera = AffineTransform::identity();
-		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f+4.f));
-		camera.position().z() = -120.f;
-		camera.position().y() = 100.f;
+		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
+		camera.position().z() = 120.f;
+		camera.position().x() = 400.f;
 		auto view = Mat44f::identity();
-		view.block<3,4>(0,0) = camera.matrix();
+		view.block<3,4>(0,0) = camera.inverse().matrix();
 		auto vp = mProjectionMtx * view;
 		auto worldMatrix = Mat44f::identity();
 
