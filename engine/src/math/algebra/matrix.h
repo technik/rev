@@ -269,7 +269,7 @@ namespace rev {
 		template<typename Matrix_, typename Operator_, bool col_major_ = Matrix_::is_col_major>
 		auto cwiseUnaryOperator(
 			Matrix_& _m,
-			Operator_& _operation
+			const Operator_& _operation
 		) -> typename Matrix_::Derived
 		{
 			typename Matrix_::Derived result;
@@ -284,7 +284,7 @@ namespace rev {
 		auto cwiseBinaryOperator(
 			MatrixA_& _a,
 			MatrixB_& _b,
-			Operator_& _operation
+			const Operator_& _operation
 		) -> typename MatrixA_::Derived
 		{
 			static_assert(

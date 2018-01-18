@@ -37,4 +37,29 @@ namespace rev { namespace input {
 	using PointingInput = PointingInputWindows;
 #endif // _WIN32
 
+#ifdef ANDROID
+	class PointingInputAndroid
+	{
+	public:
+		// Cross platform interface
+		static void init();
+
+		static PointingInputAndroid* get() { return sInstance; }
+		math::Vec2i touchPosition() const { return position; }
+		bool		leftDown() const { return mTouch; }
+
+		void touchDown() { mTouch = true;}
+		void touchUp() { mTouch = false;}
+		void move(const math::Vec2i& _pos) { position = _pos; }
+
+	private:
+		math::Vec2i position;
+		bool		mTouch = false;
+
+		static PointingInputAndroid* sInstance;
+	};
+
+	using PointingInput = PointingInputAndroid;
+#endif // ANDROID
+
 }}

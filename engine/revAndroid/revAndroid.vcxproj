@@ -43,10 +43,21 @@
     <ClInclude Include="..\src\game\scene\renderScene.h" />
     <ClInclude Include="..\src\game\scene\sceneNode.h" />
     <ClInclude Include="..\src\game\scene\transform\transform.h" />
+    <ClInclude Include="..\src\graphics\debug\debugGUI.h" />
+    <ClInclude Include="..\src\graphics\debug\imconfig.h" />
+    <ClInclude Include="..\src\graphics\debug\imgui.h" />
+    <ClInclude Include="..\src\graphics\debug\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="..\src\graphics\debug\imgui_internal.h" />
+    <ClInclude Include="..\src\graphics\debug\stb_rect_pack.h" />
+    <ClInclude Include="..\src\graphics\debug\stb_textedit.h" />
+    <ClInclude Include="..\src\graphics\debug\stb_truetype.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\openGL.h" />
     <ClInclude Include="..\src\graphics\driver\shader.h" />
+    <ClInclude Include="..\src\graphics\scene\renderGeom.h" />
+    <ClInclude Include="..\src\graphics\scene\renderObj.h" />
+    <ClInclude Include="..\src\input\pointingInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\core\platform\fileSystem\file.cpp" />
@@ -55,8 +66,13 @@
     <ClCompile Include="..\src\game\scene\meshRenderer.cpp" />
     <ClCompile Include="..\src\game\scene\renderScene.cpp" />
     <ClCompile Include="..\src\game\scene\sceneNode.cpp" />
+    <ClCompile Include="..\src\graphics\debug\debugGUI.cpp" />
+    <ClCompile Include="..\src\graphics\debug\imgui.cpp" />
+    <ClCompile Include="..\src\graphics\debug\imgui_draw.cpp" />
+    <ClCompile Include="..\src\graphics\debug\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
     <ClCompile Include="..\src\graphics\driver\shader.cpp" />
+    <ClCompile Include="..\src\input\pointingInput.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6c64c77c-0e46-4cd3-98d8-7fa73f3fea60}</ProjectGuid>

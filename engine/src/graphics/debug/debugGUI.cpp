@@ -23,7 +23,10 @@ namespace rev { namespace graphics { namespace gui {
 		if(pointingInput)
 		{
 			io.MouseDown[0] = pointingInput->leftDown();
+#ifdef _WIN32
 			io.MouseDown[1] = pointingInput->rightDown();
+			io.MouseDown[2] = pointingInput->middleDown();
+#endif
 			io.MousePos = { 
 				(float)pointingInput->touchPosition().x(),
 				(float)pointingInput->touchPosition().y()

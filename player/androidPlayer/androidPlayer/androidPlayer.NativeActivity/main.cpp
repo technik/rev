@@ -18,6 +18,7 @@
 #include "android_native_app_glue.h"
 #include "../../../player.h"
 #include <core/platform/fileSystem/file.h>
+#include <input/pointingInput.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
@@ -98,11 +99,30 @@ static void engine_term_display(struct engine* engine) {
 */
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
 	struct engine* engine = (struct engine*)app->userData;
-	if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-		engine->state.x = AMotionEvent_getX(event, 0);
-		engine->state.y = AMotionEvent_getY(event, 0);
+	auto input_type = AInputEvent_getType(event);
+	if (input_type == AINPUT_EVENT_TYPE_MOTION) {
+		auto touchInput = rev::input::PointingInput::get();
+
+		auto x = AMotionEvent_getX(event, 0);
+		auto y = AMotionEvent_getY(event, 0);
+		touchInput->move({ int(x), int(y) });
+
+		switch(AInputEvent_getSource(event)){
+			case AINPUT_SOURCE_TOUCHSCREEN:
+				int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
+				switch(action){
+					case AMOTION_EVENT_ACTION_DOWN:
+						touchInput->touchUp();
+						break;
+					case AMOTION_EVENT_ACTION_UP:
+						touchInput->touchDown();
+						break;
+				}
+				break;
+		} // end switch
 		return 1;
 	}
+
 	return 0;
 }
 

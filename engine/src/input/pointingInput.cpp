@@ -2,11 +2,15 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include "pointingInput.h"
+#ifdef ANDROID
+#include <android/input.h>
+#include <android/keycodes.h>
+#endif // ANDROID
 
 namespace rev { namespace input {
 
 #ifdef _WIN32
-	PointingInputWindows* PointingInputWindows::sInstance = 0;
+	PointingInputWindows* PointingInputWindows::sInstance = nullptr;
 
 	//------------------------------------------------------------------------------------------------------------------
 	void PointingInputWindows::init() 
@@ -58,5 +62,16 @@ namespace rev { namespace input {
 		return false; // Nothing processed
 	}
 #endif // _WIN32
+
+#ifdef ANDROID
+	PointingInputAndroid* PointingInputAndroid::sInstance = nullptr;
+
+	//------------------------------------------------------------------------------------------------------------------
+	void PointingInputAndroid::init() 
+	{
+		assert(!sInstance);
+		sInstance = new PointingInputAndroid;
+	}
+#endif // ANDROID
 
 }}

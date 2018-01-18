@@ -37,6 +37,15 @@
     <Filter Include="core\platform\filesystem">
       <UniqueIdentifier>{7bc6832d-8d59-451b-8fee-2e00df3fce9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="graphics\debug">
+      <UniqueIdentifier>{42b5c77e-948a-42b9-9957-cc4c5c37ebee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\scene">
+      <UniqueIdentifier>{bfca5073-4667-4778-958e-2350734a0d68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{a4cee09c-e25d-4a8d-ae9b-2d607c300bf7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -75,6 +84,39 @@
     <ClInclude Include="..\src\core\platform\fileSystem\file.h">
       <Filter>core\platform\filesystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\debugGUI.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\imconfig.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\imgui.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\imgui_impl_glfw_gl3.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\imgui_internal.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\stb_rect_pack.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\stb_textedit.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\debug\stb_truetype.h">
+      <Filter>graphics\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\renderGeom.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\renderObj.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\input\pointingInput.h">
+      <Filter>input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -100,6 +142,21 @@
     </ClCompile>
     <ClCompile Include="..\src\core\platform\fileSystem\file.cpp">
       <Filter>core\platform\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\debug\debugGUI.cpp">
+      <Filter>graphics\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\debug\imgui.cpp">
+      <Filter>graphics\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\debug\imgui_draw.cpp">
+      <Filter>graphics\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\debug\imgui_impl_glfw_gl3.cpp">
+      <Filter>graphics\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\input\pointingInput.cpp">
+      <Filter>input</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
