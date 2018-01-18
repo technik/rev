@@ -27,7 +27,6 @@
 * Our saved state data.
 */
 struct saved_state {
-	float angle;
 	int32_t x;
 	int32_t y;
 };
@@ -54,9 +53,15 @@ static int engine_init_display(struct engine* engine) {
 	// initialize OpenGL ES and EGL
 	rev::core::File::setAssetMgr(engine->app->activity->assetManager);
 	engine->player = new rev::Player();
-	engine->player->init(engine->app->window);
-	
-	engine->state.angle = 0;
+
+	auto screen = new rev::graphics::AndroidScreen;
+	screen->nativeWindow = engine->app->window;
+
+	engine->player->init(screen);
+	LOGI("Native window size %d %d",
+		ANativeWindow_getWidth(engine->app->window),
+		ANativeWindow_getHeight(engine->app->window)
+		);
 
 	return 0;
 }
@@ -242,17 +247,9 @@ void android_main(struct android_app* state) {
 				return;
 			}
 		}
-
-		if (engine.animating) {
-			// Done with events; draw next animation frame.
-			engine.state.angle += .01f;
-			if (engine.state.angle > 1) {
-				engine.state.angle = 0;
-			}
-
-			// Drawing is throttled to the screen update rate, so there
-			// is no need to do timing here.
-			engine_draw_frame(&engine);
-		}
+		
+		// Drawing is throttled to the screen update rate, so there
+		// is no need to do timing here.
+		engine_draw_frame(&engine);
 	}
 }

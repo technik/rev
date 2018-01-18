@@ -10,12 +10,14 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
+#include <graphics/driver/shader.h>
 
 #include <graphics/driver/openGL/openGL.h>
 
 // Data
 static GLuint       g_FontTexture = 0;
-static int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
+std::unique_ptr<rev::graphics::Shader>	g_shader;
+static int          g_VertHandle = 0, g_FragHandle = 0;
 static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
 static int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
 static unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
@@ -72,7 +74,7 @@ void ImGui_ImplGlfwGL3_RenderDrawLists(ImDrawData* draw_data)
         { 0.0f,                  0.0f,                  -1.0f, 0.0f },
         {-1.0f,                  1.0f,                   0.0f, 1.0f },
     };
-    glUseProgram(g_ShaderHandle);
+	g_shader->bind();
     glUniform1i(g_AttribLocationTex, 0);
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
     glBindVertexArray(g_VaoHandle);
@@ -158,12 +160,13 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
-    const GLchar *vertex_shader =
-        "#version 150\n"
-        "uniform mat4 ProjMtx;\n"
-        "in vec2 Position;\n"
-        "in vec2 UV;\n"
-        "in vec4 Color;\n"
+
+    const GLchar *shader_code =
+		"#ifdef VTX_SHADER\n"
+        "layout(location = 0) uniform mat4 ProjMtx;\n"
+        "layout(location = 0) in vec2 Position;\n"
+        "layout(location = 1) in vec2 UV;\n"
+        "layout(location = 2) in vec4 Color;\n"
         "out vec2 Frag_UV;\n"
         "out vec4 Frag_Color;\n"
         "void main()\n"
@@ -171,35 +174,28 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
         "	Frag_UV = UV;\n"
         "	Frag_Color = Color;\n"
         "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
-
-    const GLchar* fragment_shader =
-        "#version 150\n"
-        "uniform sampler2D Texture;\n"
+        "}\n"
+		"#endif // VTX_SHADER\n"
+		"\n"
+		"\n"
+		"#ifdef PXL_SHADER\n"
+        "layout(location = 1) uniform sampler2D Texture;\n"
         "in vec2 Frag_UV;\n"
         "in vec4 Frag_Color;\n"
         "out vec4 Out_Color;\n"
         "void main()\n"
         "{\n"
         "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
-        "}\n";
+        "}\n"
+		"#endif // PXL_SHADER\n"
+		"\n";
+	g_shader = rev::graphics::Shader::createShader(shader_code);
 
-    g_ShaderHandle = glCreateProgram();
-    g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
-    g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(g_VertHandle, 1, &vertex_shader, 0);
-    glShaderSource(g_FragHandle, 1, &fragment_shader, 0);
-    glCompileShader(g_VertHandle);
-    glCompileShader(g_FragHandle);
-    glAttachShader(g_ShaderHandle, g_VertHandle);
-    glAttachShader(g_ShaderHandle, g_FragHandle);
-    glLinkProgram(g_ShaderHandle);
-
-    g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
-    g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
-    g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
-    g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
-    g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
+    g_AttribLocationTex = 1;
+    g_AttribLocationProjMtx = 0;
+    g_AttribLocationPosition = 0;
+    g_AttribLocationUV = 1;
+    g_AttribLocationColor = 2;
 
     glGenBuffers(1, &g_VboHandle);
     glGenBuffers(1, &g_ElementsHandle);
@@ -232,16 +228,20 @@ void    ImGui_ImplGlfwGL3_InvalidateDeviceObjects()
     if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
     g_VaoHandle = g_VboHandle = g_ElementsHandle = 0;
 
-    if (g_ShaderHandle && g_VertHandle) glDetachShader(g_ShaderHandle, g_VertHandle);
-    if (g_VertHandle) glDeleteShader(g_VertHandle);
+    //if (g_ShaderHandle && g_VertHandle)
+	//	glDetachShader(g_ShaderHandle, g_VertHandle);
+    if (g_VertHandle)
+		glDeleteShader(g_VertHandle);
     g_VertHandle = 0;
 
-    if (g_ShaderHandle && g_FragHandle) glDetachShader(g_ShaderHandle, g_FragHandle);
-    if (g_FragHandle) glDeleteShader(g_FragHandle);
+    //if (g_ShaderHandle && g_FragHandle)
+	//	glDetachShader(g_ShaderHandle, g_FragHandle);
+    if (g_FragHandle)
+		glDeleteShader(g_FragHandle);
     g_FragHandle = 0;
 
-    if (g_ShaderHandle) glDeleteProgram(g_ShaderHandle);
-    g_ShaderHandle = 0;
+    //if (g_ShaderHandle)
+	//	glDeleteProgram(g_ShaderHandle);
 
     if (g_FontTexture)
     {

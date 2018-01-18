@@ -10,16 +10,23 @@
 
 namespace rev { namespace graphics {
 
+	class AndroidScreen
+	{
+	public:
+		ANativeWindow* nativeWindow = nullptr;
+		math::Vec2u size;
+	};
+
 	class GraphicsDriverGLAndroid
 	{
 	public:
-		using NativeWindow = ANativeWindow*;
+		using NativeWindow = AndroidScreen*;
 
-		static GraphicsDriverGLAndroid* createDriver(NativeWindow _nativeWindow);
+		static GraphicsDriverGLAndroid* createDriver(AndroidScreen* _screen);
 		void swapBuffers();
 
 	private:
-		ANativeWindow*	mWindowHandle = nullptr;
+		AndroidScreen*	mWindow = nullptr;
 
 		math::Vec2i mSize;
 		EGLSurface surface;

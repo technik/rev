@@ -17,7 +17,7 @@ namespace rev { namespace graphics {
 		LOGI("GL %s = %s", name, s);
 	}
 
-	GraphicsDriverGLAndroid* GraphicsDriverGLAndroid::createDriver(NativeWindow _nativeWindow) {
+	GraphicsDriverGLAndroid* GraphicsDriverGLAndroid::createDriver(AndroidScreen* _screen) {
 		// initialize OpenGL ES and EGL
 		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		EGLint glVersion[2];
@@ -51,10 +51,10 @@ namespace rev { namespace graphics {
 		* ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 		EGLint format, w, h;
 		eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-		ANativeWindow_setBuffersGeometry(_nativeWindow, 0, 0, format);
+		ANativeWindow_setBuffersGeometry(_screen->nativeWindow, 0, 0, format);
 
 		EGLSurface surface;
-		surface = eglCreateWindowSurface(display, config, _nativeWindow, NULL);
+		surface = eglCreateWindowSurface(display, config, _screen->nativeWindow, NULL);
 
 		EGLContext context;
 		const EGLint ctxAttribs[] = {
@@ -77,12 +77,13 @@ namespace rev { namespace graphics {
 			printGLString("Vendor", GL_VENDOR);
 			printGLString("Renderer", GL_RENDERER);
 			printGLString("Extensions", GL_EXTENSIONS);
-			gfxDriver->mWindowHandle = _nativeWindow;
+			gfxDriver->mWindow = _screen;
 			gfxDriver->context = context;
 			gfxDriver->surface = surface;
 			gfxDriver->display = display;
 			gfxDriver->mSize.x() = w;
 			gfxDriver->mSize.y() = h;
+			gfxDriver->mWindow->size = { unsigned(w), unsigned(h) };
 			return gfxDriver;
 		}
 
