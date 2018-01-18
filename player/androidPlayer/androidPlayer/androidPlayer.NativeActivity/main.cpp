@@ -117,11 +117,11 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 				int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
 				switch(action){
 					case AMOTION_EVENT_ACTION_DOWN:
-						LOGI("Touch down");
+						LOGI("Touch down %f %f", x, y);
 						touchInput->touchUp();
 						break;
 					case AMOTION_EVENT_ACTION_UP:
-						LOGI("Touch up");
+						LOGI("Touch up %f %f", x, y);
 						touchInput->touchDown();
 						break;
 				}
