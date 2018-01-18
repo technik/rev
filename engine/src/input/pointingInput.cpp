@@ -20,15 +20,35 @@ namespace rev { namespace input {
 	{
 		if(message.message == WM_LBUTTONDOWN)
 		{
-			clickLeft = true;
+			mLeftDown = true;
 			return true;
 		}
 		if(message.message == WM_LBUTTONUP)
 		{
-			clickLeft = false;
+			mLeftDown = false;
 			return true;
 		}
-		if(message.message == WM_MOUSEMOVE)
+		if(message.message == WM_MBUTTONDOWN)
+		{
+			mRightDown = true;
+			return true;
+		}
+		if(message.message == WM_RBUTTONDOWN)
+		{
+			mRightDown = false;
+			return true;
+		}
+		if(message.message == WM_RBUTTONUP)
+		{
+			mRightDown = true;
+			return true;
+		}
+		if(message.message == WM_RBUTTONUP)
+		{
+			mRightDown = false;
+			return true;
+		}
+		if(message.message == WM_MOUSEMOVE || message.message == WM_MOUSEHOVER)
 		{
 			auto pos = MAKEPOINTS(message.lParam);
 			position.x() = pos.x;

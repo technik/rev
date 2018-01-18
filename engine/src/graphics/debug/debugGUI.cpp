@@ -17,6 +17,20 @@ namespace rev { namespace graphics { namespace gui {
 	}
 
 	void startFrame() {
+		// Setup Mouse input
+		auto& io = ImGui::GetIO();
+		auto pointingInput = input::PointingInput::get();
+		if(pointingInput)
+		{
+			io.MouseDown[0] = pointingInput->leftDown();
+			io.MouseDown[1] = pointingInput->rightDown();
+			io.MousePos = { 
+				(float)pointingInput->touchPosition().x(),
+				(float)pointingInput->touchPosition().y()
+			};
+		}
+
+		// Begin frame
 		ImGui_ImplGlfwGL3_NewFrame();
 	}
 
@@ -24,15 +38,6 @@ namespace rev { namespace graphics { namespace gui {
 		// Setup time step
 		auto& io = ImGui::GetIO();
 		io.DeltaTime = _dt;
-		auto pointingInput = input::PointingInput::get();
-		if(pointingInput)
-		{
-			io.MouseClicked[0] = pointingInput->leftClickDown();
-			io.MouseClickedPos[0] = { 
-				(float)pointingInput->touchPosition().x(),
-				(float)pointingInput->touchPosition().y()
-			};
-		}
 
 		ImGui::Begin("FPS");
 		ImGui::Text("ms: %f2.2 fps: %d", _dt*1000, int(1.f/_dt));

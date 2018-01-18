@@ -46,7 +46,7 @@ namespace rev {
 			// -- triangle --
 			loadScene("sponza_crytek.scn");
 
-			gui::init({720u,480u});
+			gui::init({1280, 720});
 		}
 		return mGfxDriver != nullptr;
 	}

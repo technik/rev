@@ -18,14 +18,18 @@ namespace rev { namespace input {
 
 		static PointingInputWindows* get() { return sInstance; }
 		math::Vec2i touchPosition() const { return position; }
-		bool		leftClickDown() const { return clickLeft; }
+		bool		leftDown() const { return mLeftDown; }
+		bool		middleDown() const { return mMiddleDown; }
+		bool		rightDown() const { return mRightDown; }
 
 		// Windows specific interface
 		bool processMessage(MSG message);
 
 	private:
 		math::Vec2i position;
-		bool		clickLeft = false;
+		bool		mLeftDown = false;
+		bool		mMiddleDown = false;
+		bool		mRightDown = false;
 
 		static PointingInputWindows* sInstance;
 	};
