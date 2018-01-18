@@ -20,8 +20,8 @@
 #include <core/platform/fileSystem/file.h>
 #include <input/pointingInput.h>
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "AndroidProject1.NativeActivity", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "AndroidProject1.NativeActivity", __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rev", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "rev", __VA_ARGS__))
 
 /**
 * Our saved state data.
@@ -112,9 +112,11 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 				int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
 				switch(action){
 					case AMOTION_EVENT_ACTION_DOWN:
+						LOGI("Touch down");
 						touchInput->touchUp();
 						break;
 					case AMOTION_EVENT_ACTION_UP:
+						LOGI("Touch up");
 						touchInput->touchDown();
 						break;
 				}
@@ -202,6 +204,7 @@ void android_main(struct android_app* state) {
 	engine.animating = 1;
 
 	// loop waiting for stuff to do.
+	rev::input::PointingInput::init();
 
 	while (1) {
 		// Read all pending events.
@@ -226,9 +229,9 @@ void android_main(struct android_app* state) {
 					ASensorEvent event;
 					while (ASensorEventQueue_getEvents(engine.sensorEventQueue,
 						&event, 1) > 0) {
-						LOGI("accelerometer: x=%f y=%f z=%f",
+			/*			LOGI("accelerometer: x=%f y=%f z=%f",
 							event.acceleration.x, event.acceleration.y,
-							event.acceleration.z);
+							event.acceleration.z);*/
 					}
 				}
 			}
