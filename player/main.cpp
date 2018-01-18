@@ -8,6 +8,7 @@
 
 #include <Windows.h>
 #include <math/algebra/vector.h>
+#include <input/pointingInput.h>
 
 using namespace rev::math;
 
@@ -15,10 +16,7 @@ using namespace rev::math;
 static bool sIsWindowClassRegistered = false;
 
 bool processWindowsMsg(MSG _msg) {
-	/*if (_msg.message == WM_QUIT || _msg.message == WM_CLOSE) { // If exit requested, don't bother processing anything else
-		mMustQuit = true;
-		return true;
-	}
+	/*
 	if(_msg.message == WM_SIZE)
 	{
 		LPARAM lparam = _msg.lParam;
@@ -33,6 +31,8 @@ bool processWindowsMsg(MSG _msg) {
 		invokeOnResize();
 		return true;
 	}*/
+	if(rev::input::PointingInput::get()->processMessage(_msg))
+		return true;
 	return false;
 }
 
@@ -53,7 +53,8 @@ bool processSystemMessages() {
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
-		if (msg.message == WM_QUIT) // If exit requested, don't bother processing anything else
+		// If exit requested, don't bother processing anything else
+		if (msg.message == WM_QUIT || msg.message == WM_CLOSE)
 			return false;
 		else {
 			TranslateMessage(&msg);
@@ -116,6 +117,7 @@ int main() {
 		{1280, 720},
 		"Rev Player"
 	);
+	rev::input::PointingInput::init();
 	rev::Player player;
 	if(!player.init(applicationWindow)) {
 		return -1;
