@@ -84,7 +84,7 @@ void registerClass() {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-HWND createWindow(const Vec2u& _pos, const Vec2u& _size, const char* _windowName) {
+rev::graphics::WindowWin32 createWindow(const Vec2u& _pos, const Vec2u& _size, const char* _windowName) {
 	if (!sIsWindowClassRegistered)
 		registerClass();
 
@@ -107,19 +107,22 @@ HWND createWindow(const Vec2u& _pos, const Vec2u& _size, const char* _windowName
 	MoveWindow(mWinapiHandle, _pos.x(), _pos.y(), _size.x() + ptDiff.x, _size.y() + ptDiff.y, TRUE);
 	// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
 
-	return mWinapiHandle;
+	rev::graphics::WindowWin32 window;
+	window.nativeWindow = mWinapiHandle;
+	window.size = _size;
+	return window;
 }
 
 //--------------------------------------------------------------------------------------------------------------
 int main() {
-	auto applicationWindow = createWindow(
+	auto nativeWindow = createWindow(
 		{40, 40},
 		{1280, 720},
 		"Rev Player"
 	);
 	rev::input::PointingInput::init();
 	rev::Player player;
-	if(!player.init(applicationWindow)) {
+	if(!player.init(&nativeWindow)) {
 		return -1;
 	}
 	for(;;) {

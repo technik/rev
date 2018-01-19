@@ -13,7 +13,7 @@ namespace rev {	namespace graphics {
 	//------------------------------------------------------------------------------------------------------------------
 	GraphicsDriverGLWindows* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
 		auto windowHandle = _window;
-		auto deviceContext = GetDC(windowHandle); // Device contex
+		auto deviceContext = GetDC(windowHandle->nativeWindow); // Device contex
 												  // Set pixel format
 		PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
@@ -77,7 +77,7 @@ namespace rev {	namespace graphics {
 
 		auto driver = new GraphicsDriverGLWindows();
 		if(driver) {
-			driver->mWindowHandle = windowHandle;
+			driver->mWindowHandle = windowHandle->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;
 		}
 		return driver;
