@@ -10,6 +10,7 @@
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
+#include <graphics/scene/camera.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -35,17 +36,10 @@ namespace rev {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
-			glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-			// Create shader
-			core::File shaderFile("pbr.fx");
-			mShader = Shader::createShader(shaderFile.bufferAsText());
-			if(mShader)
-				mShader->bind();
-			// Camera
-			mProjectionMtx = math::frustrumMatrix(0.8f, 4.f/3.f,1.0f,10000.f);
 			// -- triangle --
 			loadScene("sponza_crytek.scn");
 
+			mRenderer.init();
 			gui::init(_window->size);
 		}
 		return mGfxDriver != nullptr;
@@ -132,35 +126,13 @@ namespace rev {
 
 		gui::startFrame();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
 		auto camera = AffineTransform::identity();
 		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
 		camera.position().z() = 120.f;
 		camera.position().x() = 400.f;
-		auto view = Mat44f::identity();
-		view.block<3,4>(0,0) = camera.inverse().matrix();
-		auto vp = mProjectionMtx * view;
-		auto worldMatrix = Mat44f::identity();
+		mCamera.setWorldTransform(camera);
 
-		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
-		mShader->bind();
-
-		for(auto renderable : mGraphicsScene.renderables()) {
-			auto& renderObj = renderable->renderObj();
-			// Get world matrix
-			worldMatrix.block<3,4>(0,0) = renderObj.transform.matrix();
-			// Set up wvp
-			auto wvp = vp*worldMatrix;
-			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-			auto& worldI = worldMatrix.transpose();
-			auto msLightDir = worldI * lightDir;
-			auto msViewDir = worldI.block<3,3>(0,0) * camera.position() + worldI.block<3,4>(0,0).col(3);
-			glUniform3f(1, msLightDir.x(), msLightDir.y(), msLightDir.z());
-			glUniform3f(2, msViewDir.x(), msViewDir.y(), msViewDir.z());
-			// render
-			renderObj.mesh->render();
-		}
+		mRenderer.render(mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);
 		mGfxDriver->swapBuffers();

@@ -2,15 +2,22 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
+#include <memory>
+#include <graphics/driver/shader.h>
+#include <game/scene/renderScene.h>
 
 namespace rev { namespace graphics {
 
-	class RenderScene;
+	class Camera;
 
 	class ForwardRenderer
 	{
 	public:
-		void render(const RenderScene&);
+		void init	();
+		void render	(const Camera& _pov, const game::RenderScene&);
+
+	private:
+		std::unique_ptr<graphics::Shader>		mShader;
 	};
 
 }}

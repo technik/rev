@@ -3,12 +3,12 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <memory>
-#include <graphics/driver/shader.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/scene/renderGeom.h>
 #include <game/scene/renderScene.h>
 #include <game/scene/sceneNode.h>
+#include <graphics/scene/camera.h>
+#include <graphics/renderer/ForwardRenderer.h>
 
 namespace rev {
 
@@ -23,8 +23,8 @@ namespace rev {
 
 	private:
 		float t = 0.f;
-		math::Mat44f							mProjectionMtx;
-		std::unique_ptr<graphics::Shader>		mShader;
+		graphics::Camera						mCamera;
+		graphics::ForwardRenderer				mRenderer;
 		std::vector<graphics::RenderGeom>		mMeshes;
 		std::vector<game::SceneNode>			mNodes;
 		game::RenderScene						mGraphicsScene;
