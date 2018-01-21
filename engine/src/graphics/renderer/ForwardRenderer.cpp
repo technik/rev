@@ -38,6 +38,8 @@ namespace rev { namespace graphics {
 			auto msViewDir = worldI.block<3,3>(0,0) * eye.position() + worldI.block<3,4>(0,0).col(3);
 			glUniform3f(1, msLightDir.x(), msLightDir.y(), msLightDir.z());
 			glUniform3f(2, msViewDir.x(), msViewDir.y(), msViewDir.z());
+			auto albedo = renderable->material().albedo;
+			glUniform3f(3, albedo.x(), albedo.y(), albedo.z()); // Albedo
 			// render
 			renderObj.mesh->render();
 		}

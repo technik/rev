@@ -22,6 +22,10 @@ namespace rev {
 		bool update();
 
 	private:
+		void showNodeTree();
+
+		int mSelectedNode = -1;
+
 		float t = 0.f;
 		graphics::Camera						mCamera;
 		graphics::ForwardRenderer				mRenderer;

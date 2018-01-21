@@ -120,7 +120,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Content Include="assets\pbr.fx" />
-    <Content Include="assets\pbr.glsl" />
     <Content Include="assets\sponza_crytek.scn" />
     <Content Include="res\values\strings.xml" />
     <AntBuildXml Include="build.xml" />

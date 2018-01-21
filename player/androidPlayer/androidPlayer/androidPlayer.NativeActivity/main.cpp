@@ -99,10 +99,9 @@ static void engine_term_display(struct engine* engine) {
 	engine->surface = EGL_NO_SURFACE;*/
 }
 
-/**
-* Process the next input event.
-*/
+//----------------------------------------------------------------------------------------------------------------------
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
+	// Get source AINPUT_SOURCE_TOUCHSCREEN 
 	struct engine* engine = (struct engine*)app->userData;
 	auto input_type = AInputEvent_getType(event);
 	if (input_type == AINPUT_EVENT_TYPE_MOTION) {
@@ -110,19 +109,24 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 
 		auto x = AMotionEvent_getX(event, 0);
 		auto y = AMotionEvent_getY(event, 0);
-		touchInput->move({ int(x), int(y) });
 
 		switch(AInputEvent_getSource(event)){
 			case AINPUT_SOURCE_TOUCHSCREEN:
 				int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
 				switch(action){
 					case AMOTION_EVENT_ACTION_DOWN:
-						LOGI("Touch down %f %f", x, y);
-						touchInput->touchUp();
+						//LOGI("Touch down %f %f", x, y);
+						touchInput->move({ int(x), int(y) });
+						touchInput->touchDown();
 						break;
 					case AMOTION_EVENT_ACTION_UP:
-						LOGI("Touch up %f %f", x, y);
-						touchInput->touchDown();
+						//LOGI("Touch up %f %f", x, y);
+						touchInput->move({ int(x), int(y) });
+						touchInput->touchUp();
+						break;
+					case AMOTION_EVENT_ACTION_MOVE:
+						//LOGI("Move %f %f", x, y);
+						touchInput->move({int(x),int(y)});
 						break;
 				}
 				break;

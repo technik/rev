@@ -19,13 +19,14 @@ void main ( void )
 #ifdef PXL_SHADER
 out lowp vec3 outColor;
 in vec3 vtxNormal;
-in vec3 vtxViewDir;	
+in vec3 vtxViewDir;
+
+layout(location = 3) uniform vec3 uAlbedo;
 
 layout(location = 1) uniform vec3 uMSLightDir; // Direction toward light
 
 float ev = 8.0;
 vec3 lightColor = 100.0 * vec3(1.0, 1.0, 0.9);
-vec3 albedo = vec3(1.0);
 float roughness = 0.9;
 float metallic = 0.1;
 
@@ -74,6 +75,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 //------------------------------------------------------------------------------	
 void main (void) {
+	vec3 albedo = uAlbedo;
 	// Normalize data from vertex
 	vec3 msNormal = normalize(vtxNormal);
 	vec3 msLightDir = normalize(uMSLightDir);
@@ -109,7 +111,7 @@ void main (void) {
 	outColor = (outColor / ev);
 	outColor = outColor / (vec3(1.0) + outColor);
 	//outColor = pow(outColor, vec3(2.2));
-	outColor = vec3(NdL);
+	outColor = uAlbedo * vec3(NdL);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

@@ -9,6 +9,7 @@
 
 namespace rev { namespace graphics { namespace gui {
 
+	//------------------------------------------------------------------------------------------------------------------
 	void init(const math::Vec2u& _windowSize) {
 		ImGui_ImplGlfwGL3_Init();
 
@@ -17,6 +18,7 @@ namespace rev { namespace graphics { namespace gui {
 		io.DisplaySize.y = float(_windowSize.y());
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
 	void startFrame() {
 		// Setup Mouse input
 		auto& io = ImGui::GetIO();
@@ -38,6 +40,7 @@ namespace rev { namespace graphics { namespace gui {
 		ImGui_ImplGlfwGL3_NewFrame();
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
 	void finishFrame(float _dt) {
 		// Setup time step
 		auto& io = ImGui::GetIO();
@@ -49,6 +52,52 @@ namespace rev { namespace graphics { namespace gui {
 
 		// Render
 		ImGui::Render();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool beginWindow(const char* _name) {
+		return ImGui::Begin(_name, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void endWindow() {
+		ImGui::End();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void showCombo(const char* title, int& selected, std::function<const char*(size_t)> items, size_t nItems)
+	{
+		if(ImGui::BeginCombo(title, nullptr))
+		{
+			for(size_t i = 0; i < nItems; ++i)
+			{
+				if(ImGui::Selectable(items(i)))
+					selected = i;
+				if(i == selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void showList(const char* title, int& selected, std::function<const char*(size_t)> items, size_t nItems)
+	{
+		if(ImGui::TreeNode(title))
+		{
+			for(size_t i = 0; i < nItems; ++i)
+			{
+				if(ImGui::Selectable(items(i)))
+					selected = i;
+			}
+			ImGui::TreePop();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void text(const char* _text)
+	{
+		ImGui::Text(_text);
 	}
 
 }}}

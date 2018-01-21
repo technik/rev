@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include <vector>
 #include "component.h"
+#include <string>
 
 namespace rev { namespace game {
 
@@ -29,6 +30,10 @@ namespace rev { namespace game {
 			}
 			return nullptr;
 		}
+
+		// Debug info
+		std::string name;
+		void showDebugInfo() const;
 
 	private:
 		std::vector<Component*>	mComponents;

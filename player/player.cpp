@@ -104,6 +104,7 @@ namespace rev {
 				continue;
 			mNodes.emplace_back();
 			auto& obj = mNodes.back();
+			obj.name = objNames[i];
 			// Object transform
 			auto objXForm = new Transform();
 			objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
@@ -125,9 +126,10 @@ namespace rev {
 			return true;
 
 		gui::startFrame();
+		showNodeTree();
 
 		auto camera = AffineTransform::identity();
-		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), t*0.2f));
+		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), -1.5f+t*0.2f));
 		camera.position().z() = 120.f;
 		camera.position().x() = 400.f;
 		mCamera.setWorldTransform(camera);
@@ -138,6 +140,21 @@ namespace rev {
 		mGfxDriver->swapBuffers();
 
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::showNodeTree()
+	{
+		if(gui::beginWindow("Nodes")) {
+			gui::showList("Node list", mSelectedNode, [this](size_t i){ return mNodes[i].name.c_str(); }, mNodes.size());
+			gui::endWindow();
+		}
+		if(mSelectedNode >= 0)
+		{
+			gui::beginWindow("Item Inspector");
+			mNodes[mSelectedNode].showDebugInfo();
+			gui::endWindow();
+		}
 	}
 
 }	// namespace rev

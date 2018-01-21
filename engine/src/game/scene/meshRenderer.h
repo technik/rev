@@ -5,6 +5,7 @@
 #include "component.h"
 #include <memory>
 #include <graphics/scene/renderObj.h>
+#include <math/algebra/vector.h>
 
 namespace rev { namespace game {
 
@@ -19,9 +20,19 @@ namespace rev { namespace game {
 
 		const graphics::RenderObj& renderObj() const { return *mRenderMesh; }
 
+		struct Material {
+			math::Vec3f albedo;
+		};
+
+		const Material& material() const { return mMaterial; }
+
+		void showDebugInfo() override;
 	private:
 		std::unique_ptr<graphics::RenderObj>	mRenderMesh;
 		math::AffineTransform*	mTransform = nullptr;
+
+		// Material info
+		Material mMaterial;
 	};
 
 }}	// namespace rev::game

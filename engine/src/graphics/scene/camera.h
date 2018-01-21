@@ -40,7 +40,7 @@ namespace rev { namespace graphics {
 			mView.block<3,4>(0,0) = _x.inverse().matrix();
 		}
 
-		const math::Vec3f& position() const { return mWorld.position(); }
+		math::Vec3f position() const { return mWorld.position(); }
 
 	private:
 		float mFov, mNear, mFar;

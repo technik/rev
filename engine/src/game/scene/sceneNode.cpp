@@ -4,6 +4,9 @@
 #include <cassert>
 #include "sceneNode.h"
 #include "component.h"
+#include <graphics/debug/debugGUI.h>
+
+using namespace rev::graphics;
 
 namespace rev { namespace game {
 
@@ -41,6 +44,14 @@ namespace rev { namespace game {
 				}
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void SceneNode::showDebugInfo() const
+	{
+		gui::text(name.c_str());
+		for(auto c : mComponents)
+			c->showDebugInfo();
 	}
 
 }}	// namespace rev::game

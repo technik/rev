@@ -46,6 +46,9 @@
     <Filter Include="input">
       <UniqueIdentifier>{a4cee09c-e25d-4a8d-ae9b-2d607c300bf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="graphics\renderer">
+      <UniqueIdentifier>{5f47b835-54e8-42a0-8534-42b1b6fb267e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -117,6 +120,12 @@
     <ClInclude Include="..\src\input\pointingInput.h">
       <Filter>input</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\graphics\renderer\ForwardRenderer.h">
+      <Filter>graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\camera.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -157,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="..\src\input\pointingInput.cpp">
       <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\renderer\ForwardRenderer.cpp">
+      <Filter>graphics\renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

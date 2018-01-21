@@ -24,6 +24,9 @@ namespace rev { namespace game {
 		virtual void	dettach();
 
 		SceneNode * node() const { return mNode; }
+
+		// Debug info
+		virtual void showDebugInfo() {}
 	private:
 		SceneNode * mNode;
 	};

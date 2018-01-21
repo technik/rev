@@ -55,6 +55,8 @@
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\openGL.h" />
     <ClInclude Include="..\src\graphics\driver\shader.h" />
+    <ClInclude Include="..\src\graphics\renderer\ForwardRenderer.h" />
+    <ClInclude Include="..\src\graphics\scene\camera.h" />
     <ClInclude Include="..\src\graphics\scene\renderGeom.h" />
     <ClInclude Include="..\src\graphics\scene\renderObj.h" />
     <ClInclude Include="..\src\input\pointingInput.h" />
@@ -72,6 +74,7 @@
     <ClCompile Include="..\src\graphics\debug\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
     <ClCompile Include="..\src\graphics\driver\shader.cpp" />
+    <ClCompile Include="..\src\graphics\renderer\ForwardRenderer.cpp" />
     <ClCompile Include="..\src\input\pointingInput.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
