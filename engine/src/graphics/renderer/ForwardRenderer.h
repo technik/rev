@@ -17,6 +17,7 @@ namespace rev { namespace graphics {
 		void render	(const Camera& _pov, const game::RenderScene&);
 
 	private:
+		float mEV;
 		std::unique_ptr<graphics::Shader>		mShader;
 	};
 

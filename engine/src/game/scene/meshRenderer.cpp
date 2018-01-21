@@ -14,6 +14,8 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	MeshRenderer::MeshRenderer(const RenderGeom* _mesh) {
 		mRenderMesh = std::make_unique<RenderObj>(_mesh);
+		mMaterial.roughness = 0.5f;
+		mMaterial.metallic = 0.1f;
 	}
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::init() {
@@ -29,6 +31,8 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::showDebugInfo() {
 		ImGui::ColorEdit3("Albedo", mMaterial.albedo.data());
+		ImGui::SliderFloat("Roughness", &mMaterial.roughness, 0.f, 1.f);
+		ImGui::SliderFloat("Metallic", &mMaterial.metallic, 0.f, 1.f);
 	}
 
 

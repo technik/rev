@@ -41,6 +41,8 @@ namespace rev {
 
 			mRenderer.init();
 			gui::init(_window->size);
+
+			mCameraPos = { 400.f, 120.f, 0.f };
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -119,21 +121,25 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update() {
-		core::Time::get()->update();
-		auto dt = core::Time::get()->frameTime();
-		t += dt;
 		if(!mGfxDriver)
 			return true;
-
+		core::Time::get()->update();
 		gui::startFrame();
-		showNodeTree();
+
+		auto dt = core::Time::get()->frameTime();
+		gui::beginWindow("Camera");
+		gui::slider("angle", mCamAngle, -3.2f, 3.2f);
+		gui::slider("x", mCameraPos.x(), -400.f, 400.f);
+		gui::slider("y", mCameraPos.y(), -500.f, 500.f);
+		gui::slider("z", mCameraPos.z(), 10.f, 600.f);
+		gui::endWindow();
 
 		auto camera = AffineTransform::identity();
-		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), -1.5f+t*0.2f));
-		camera.position().z() = 120.f;
-		camera.position().x() = 400.f;
+		camera.position() = mCameraPos;
+		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), mCamAngle));
 		mCamera.setWorldTransform(camera);
 
+		showNodeTree();
 		mRenderer.render(mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);

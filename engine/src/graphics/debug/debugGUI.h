@@ -17,5 +17,6 @@ namespace rev { namespace graphics { namespace gui {
 	void showList(const char* title, int& selected, std::function<const char*(size_t)> items, size_t nItems);
 
 	void text(const char*);
+	void slider(const char* name, float&, float min, float max);
 
 }}}

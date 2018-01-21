@@ -26,7 +26,8 @@ namespace rev {
 
 		int mSelectedNode = -1;
 
-		float t = 0.f;
+		float mCamAngle = 0.f;
+		math::Vec3f mCameraPos;
 		graphics::Camera						mCamera;
 		graphics::ForwardRenderer				mRenderer;
 		std::vector<graphics::RenderGeom>		mMeshes;

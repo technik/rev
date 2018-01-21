@@ -100,4 +100,10 @@ namespace rev { namespace graphics { namespace gui {
 		ImGui::Text(_text);
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void slider(const char* _name, float& _val, float _min, float _max)
+	{
+		ImGui::SliderFloat(_name, &_val, _min, _max);
+	}
+
 }}}

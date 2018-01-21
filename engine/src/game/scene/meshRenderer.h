@@ -22,6 +22,8 @@ namespace rev { namespace game {
 
 		struct Material {
 			math::Vec3f albedo;
+			float roughness;
+			float metallic;
 		};
 
 		const Material& material() const { return mMaterial; }

@@ -1,8 +1,9 @@
 #ifdef VTX_SHADER
 layout(location = 0) in vec3 vertex;
 layout(location = 1) in vec3 normal;
+
 layout(location = 0) uniform mat4 uWorldViewProjection;
-layout(location = 2) uniform vec3 uMSViewPos; // Direction toward viewpoint
+layout(location = 1) uniform vec3 uMSViewPos; // Direction toward viewpoint
 
 out vec3 vtxNormal;
 out vec3 vtxViewDir;
@@ -21,14 +22,16 @@ out lowp vec3 outColor;
 in vec3 vtxNormal;
 in vec3 vtxViewDir;
 
-layout(location = 3) uniform vec3 uAlbedo;
+// Global state
+layout(location = 2) uniform vec3 uMSLightDir; // Direction toward light
+layout(location = 3) uniform vec3 lightColor;
+layout(location = 4) uniform float ev;
 
-layout(location = 1) uniform vec3 uMSLightDir; // Direction toward light
+// Material
+layout(location = 5) uniform vec3 uAlbedo;
+layout(location = 6) uniform float roughness;
+layout(location = 7) uniform float metallic;
 
-float ev = 8.0;
-vec3 lightColor = 100.0 * vec3(1.0, 1.0, 0.9);
-float roughness = 0.9;
-float metallic = 0.1;
 
 float PI = 3.14159265359;
 
@@ -104,14 +107,10 @@ void main (void) {
 	  
 	kD *= 1.0 - metallic;
 	
-	vec3 ambient = 10.0 * vec3(0.7,0.8,1.0) * albedo;
-	vec3 direct = (kD * albedo / PI + specular) * lightColor * NdL;
-	outColor = direct + ambient;
+	outColor = (kD * albedo / PI + specular) * lightColor * NdL;
 	// Tone mapping
 	outColor = (outColor / ev);
 	outColor = outColor / (vec3(1.0) + outColor);
-	//outColor = pow(outColor, vec3(2.2));
-	outColor = uAlbedo * vec3(NdL);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)
