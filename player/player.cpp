@@ -145,6 +145,7 @@ namespace rev {
 		mCamera.setWorldTransform(camera);
 
 		showNodeTree();
+		mGraphicsScene.showDebugInfo();
 		mRenderer.render(mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);

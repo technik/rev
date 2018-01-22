@@ -106,4 +106,10 @@ namespace rev { namespace graphics { namespace gui {
 		ImGui::SliderFloat(_name, &_val, _min, _max);
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void colorPicker(const char* name, math::Vec3f& _clr)
+	{
+		ImGui::ColorEdit3(name, _clr.data());
+	}
+
 }}}

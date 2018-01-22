@@ -5,7 +5,6 @@
 #include "sceneNode.h"
 #include "transform/transform.h"
 #include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
 
 using namespace rev::graphics;
 
@@ -30,9 +29,9 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::showDebugInfo() {
-		ImGui::ColorEdit3("Albedo", mMaterial.albedo.data());
-		ImGui::SliderFloat("Roughness", &mMaterial.roughness, 0.f, 1.f);
-		ImGui::SliderFloat("Metallic", &mMaterial.metallic, 0.f, 1.f);
+		gui::colorPicker("Albedo", mMaterial.albedo);
+		gui::slider("Roughness", mMaterial.roughness, 0.f, 1.f);
+		gui::slider("Metallic", mMaterial.metallic, 0.f, 1.f);
 	}
 
 

@@ -46,7 +46,8 @@ namespace rev { namespace graphics {
 			// Setup pixel global uniforms
 			auto msLightDir = worldI * lightDir;
 			glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
-			glUniform3f(3, 1.f, 1.f, 1.f); // Light color
+			auto& lightClr = scene.lightClr();
+			glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
 			glUniform1f(4, ev); // EV
 
 			// Setup material
