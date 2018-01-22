@@ -14,7 +14,7 @@ namespace rev { namespace graphics {
 	{
 		core::File shaderFile("pbr.fx");
 		mShader = Shader::createShader(shaderFile.bufferAsText());
-		mEV = 0.f;
+		mEV = 1.5f;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ namespace rev { namespace graphics {
 		gui::beginWindow("Renderer");
 		gui::slider("EV", mEV, -4.f, 4.f);
 		gui::endWindow();
-		float ev = pow(10.f,mEV);
+		float ev = pow(10.f,-mEV);
 
 		auto worldMatrix = Mat44f::identity();
 		for(auto renderable : scene.renderables()) {

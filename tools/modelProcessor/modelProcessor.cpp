@@ -129,7 +129,7 @@ struct Scene {
 bool loadFBX(const string& _src, Scene& _dst) {
 	const aiScene* fbx = fbxLoader.ReadFile(
 		_src,
-		aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices | aiProcess_RemoveRedundantMaterials
+		aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices
 	);
 	if(!fbx)
 		return false;

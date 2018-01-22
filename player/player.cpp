@@ -37,11 +37,15 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			// -- triangle --
+			core::Log::debug("Load scene");
 			loadScene("sponza_crytek.scn");
 
+			core::Log::debug("Init renderer");
 			mRenderer.init();
+			core::Log::debug("Init gui");
 			gui::init(_window->size);
 
+			core::Log::debug("Init camera");
 			mCameraPos = { 400.f, 120.f, 0.f };
 		}
 		return mGfxDriver != nullptr;
@@ -88,6 +92,7 @@ namespace rev {
 			ptr = &reinterpret_cast<const uint16_t*>(ptr)[indices.size()];
 			mMeshes.emplace_back(vertexData,indices);
 		}
+
 		std::vector<std::string> objNames;
 		auto str = (const char*)ptr;
 		for(size_t i = 0; i < nObjects; ++i)
@@ -108,9 +113,9 @@ namespace rev {
 			auto& obj = mNodes.back();
 			obj.name = objNames[i];
 			// Object transform
-			auto objXForm = new Transform();
-			objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
-			obj.addComponent(objXForm);
+			//auto objXForm = new Transform();
+			//objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
+			//obj.addComponent(objXForm);
 			// Object mesh
 			auto& mesh = mMeshes[objSrc.meshIdx];
 			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
