@@ -46,7 +46,7 @@ namespace rev {
 			gui::init(_window->size);
 
 			core::Log::debug("Init camera");
-			mCameraPos = { 400.f, 120.f, 0.f };
+			mCameraPos = { 400.f, 120.f, 170.f };
 		}
 		return mGfxDriver != nullptr;
 	}

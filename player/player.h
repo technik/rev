@@ -26,7 +26,7 @@ namespace rev {
 
 		int mSelectedNode = -1;
 
-		float mCamAngle = 0.f;
+		float mCamAngle = 1.57f;
 		math::Vec3f mCameraPos;
 		graphics::Camera						mCamera;
 		graphics::ForwardRenderer				mRenderer;

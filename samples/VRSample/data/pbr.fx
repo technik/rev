@@ -110,7 +110,7 @@ void main (void) {
 	outColor = (kD * albedo / PI + specular) * lightColor * NdL;
 	// Tone mapping
 	outColor = (outColor / ev);
-	outColor = outColor / (vec3(1.0) + outColor);
+	outColor = pow(outColor / (vec3(1.0) + outColor), vec3(2.2));
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

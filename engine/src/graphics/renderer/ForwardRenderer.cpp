@@ -32,6 +32,11 @@ namespace rev { namespace graphics {
 		gui::endWindow();
 		float ev = pow(10.f,-mEV);
 
+		// Setup pixel global uniforms
+		auto& lightClr = scene.lightClr();
+		glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
+		glUniform1f(4, ev); // EV
+
 		auto worldMatrix = Mat44f::identity();
 		for(auto renderable : scene.renderables()) {
 			auto& renderObj = renderable->renderObj();
@@ -43,12 +48,10 @@ namespace rev { namespace graphics {
 			auto& worldI = worldMatrix.transpose();
 			auto msViewDir = worldI.block<3,3>(0,0) * eye.position() + worldI.block<3,4>(0,0).col(3);
 			glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
+
 			// Setup pixel global uniforms
 			auto msLightDir = worldI * lightDir;
 			glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
-			auto& lightClr = scene.lightClr();
-			glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
-			glUniform1f(4, ev); // EV
 
 			// Setup material
 			auto& material = renderable->material();
