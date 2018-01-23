@@ -5,6 +5,7 @@
 
 #include "../component.h"
 #include <math/algebra/affineTransform.h>
+#include <graphics/debug/debugGUI.h>
 
 namespace rev { namespace game {
 
@@ -15,6 +16,11 @@ namespace rev { namespace game {
 
 		math::Mat34f&			matrix() { return xForm.matrix(); }
 		const math::Mat34f&		matrix() const { return xForm.matrix(); }
+
+		void showDebugInfo() override {
+			graphics::gui::text("Transform");
+
+		}
 	};
 
 } }	// namespace rev::game

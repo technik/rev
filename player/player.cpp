@@ -113,9 +113,9 @@ namespace rev {
 			auto& obj = mNodes.back();
 			obj.name = objNames[i];
 			// Object transform
-			//auto objXForm = new Transform();
+			auto objXForm = new Transform();
 			//objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
-			//obj.addComponent(objXForm);
+			obj.addComponent(objXForm);
 			// Object mesh
 			auto& mesh = mMeshes[objSrc.meshIdx];
 			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
