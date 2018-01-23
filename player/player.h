@@ -26,13 +26,12 @@ namespace rev {
 		bool update();
 
 	private:
+		void createCamera();
 		void showNodeTree();
 
 		int mSelectedNode = -1;
 
-		float mCamAngle = 1.57f;
-		math::Vec3f mCameraPos;
-		graphics::Camera						mCamera;
+		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;
 		std::vector<graphics::RenderGeom>		mMeshes;
 		std::vector<game::SceneNode>			mNodes;

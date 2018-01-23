@@ -10,7 +10,7 @@
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
-#include <graphics/scene/camera.h>
+#include <game/scene/camera.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -37,19 +37,34 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			// -- triangle --
-			core::Log::debug("Load scene");
 			mGameProject.load("sample.prj");
+			createCamera();
 			loadScene("sponza_crytek.scn");
 
-			core::Log::debug("Init renderer");
 			mRenderer.init();
-			core::Log::debug("Init gui");
-			gui::init(_window->size);
-
-			core::Log::debug("Init camera");
-			mCameraPos = { 400.f, 120.f, 170.f };
+			gui::init(_window->size);			
 		}
 		return mGfxDriver != nullptr;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::createCamera() {
+		// Node
+		mNodes.push_back(SceneNode());
+		auto& cameraNode = mNodes.back();
+		cameraNode.name = "Camera";
+		// Transform
+		auto objXForm = new Transform();
+		objXForm->matrix().setIdentity();
+		objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
+		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
+		cameraNode.addComponent(objXForm);
+		// Actual camera
+		auto camComponent = new game::Camera();
+		mCamera = &camComponent->cam();
+		cameraNode.addComponent(camComponent);
+		// Init camera
+		cameraNode.init();
 	}
 
 	struct MeshHeader
@@ -115,6 +130,7 @@ namespace rev {
 			obj.name = objNames[i];
 			// Object transform
 			auto objXForm = new Transform();
+			objXForm->matrix().setIdentity();
 			//objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
 			obj.addComponent(objXForm);
 			// Object mesh
@@ -134,20 +150,12 @@ namespace rev {
 		mGameEditor.update(mNodes);
 
 		auto dt = core::Time::get()->frameTime();
-		gui::beginWindow("Camera");
-		gui::slider("angle", mCamAngle, -3.2f, 3.2f);
-		gui::slider("x", mCameraPos.x(), -400.f, 400.f);
-		gui::slider("y", mCameraPos.y(), -500.f, 500.f);
-		gui::slider("z", mCameraPos.z(), 10.f, 600.f);
-		gui::endWindow();
 
-		auto camera = AffineTransform::identity();
-		camera.position() = mCameraPos;
-		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), mCamAngle));
-		mCamera.setWorldTransform(camera);
+		for(auto& obj : mNodes)
+			obj.update(dt);
 
 		mGraphicsScene.showDebugInfo();
-		mRenderer.render(mCamera, mGraphicsScene);
+		mRenderer.render(*mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);
 		mGfxDriver->swapBuffers();

@@ -18,65 +18,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <game/scene/sceneNode.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
-#include <vector>
 
-namespace rev { namespace player {
+#include "component.h"
+#include "sceneNode.h"
+#include "transform/transform.h"
+#include <graphics/scene/camera.h>
 
-	using namespace rev::graphics;
+namespace rev { namespace game {
 
-	class Editor {
+	class Camera : public Component
+	{
 	public:
-		void update(const std::vector<game::SceneNode>& _nodes)
-		{
-			// Show menu
-			drawMainMenu();
-			showNodeTree(_nodes);
-			showInspector(_nodes);
+		//------------------------------------------------------------------------------------------
+		void init() override {
+			mTransform = &node()->component<Transform>()->xForm;
 		}
+
+		//------------------------------------------------------------------------------------------
+		void update(float _dt) override {
+			assert(mTransform);
+			mCam.setWorldTransform(*mTransform);
+		}
+
+		const graphics::Camera& cam() const { return mCam; }
 
 	private:
-		void drawMainMenu() {
-			ImGui::BeginMainMenuBar();
-			if(ImGui::BeginMenu("View"))
-			{
-				ImGui::MenuItem("Inspector", "", &mShowInspector);
-				ImGui::MenuItem("Node Tree", "", &mShowNodeTree);
-				ImGui::MenuItem("Render Options", "", &mShowRenderOptions);
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
-		}
-
-		void showNodeTree(const std::vector<game::SceneNode>& _nodes)
-		{
-			if(!mShowNodeTree)
-				return;
-
-			if(ImGui::Begin("Node Tree")) {
-				gui::showList("Node list", mSelectedNodeNdx, [=](size_t i){ return _nodes[i].name.c_str(); }, _nodes.size());
-				ImGui::End();
-			}
-		}
-
-		void showInspector(const std::vector<game::SceneNode>& _nodes) {
-			if(mShowInspector)
-			{
-				if(ImGui::Begin("Item Inspector"))
-				{
-					if((mSelectedNodeNdx >= 0))
-						_nodes[mSelectedNodeNdx].showDebugInfo();
-					ImGui::End();
-				}
-			}
-		}
-
-		bool mShowInspector = false;
-		bool mShowRenderOptions = false;
-		bool mShowNodeTree = false;
-		int mSelectedNodeNdx = -1;
+		math::AffineTransform*	mTransform = nullptr;
+		graphics::Camera		mCam;
 	};
 
 }}

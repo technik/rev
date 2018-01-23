@@ -24,6 +24,7 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::update(float _dt) {
+		assert(mTransform);
 		mRenderMesh->transform = *mTransform;
 	}
 
