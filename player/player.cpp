@@ -38,6 +38,7 @@ namespace rev {
 		if(mGfxDriver) {
 			// -- triangle --
 			core::Log::debug("Load scene");
+			mGameProject.load("sample.prj");
 			loadScene("sponza_crytek.scn");
 
 			core::Log::debug("Init renderer");
@@ -130,6 +131,7 @@ namespace rev {
 			return true;
 		core::Time::get()->update();
 		gui::startFrame();
+		mGameEditor.update(mNodes);
 
 		auto dt = core::Time::get()->frameTime();
 		gui::beginWindow("Camera");
@@ -144,7 +146,6 @@ namespace rev {
 		camera.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), mCamAngle));
 		mCamera.setWorldTransform(camera);
 
-		showNodeTree();
 		mGraphicsScene.showDebugInfo();
 		mRenderer.render(mCamera, mGraphicsScene);
 
@@ -152,21 +153,6 @@ namespace rev {
 		mGfxDriver->swapBuffers();
 
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::showNodeTree()
-	{
-		if(gui::beginWindow("Nodes")) {
-			gui::showList("Node list", mSelectedNode, [this](size_t i){ return mNodes[i].name.c_str(); }, mNodes.size());
-			gui::endWindow();
-		}
-		if(mSelectedNode >= 0)
-		{
-			gui::beginWindow("Item Inspector");
-			mNodes[mSelectedNode].showDebugInfo();
-			gui::endWindow();
-		}
 	}
 
 }	// namespace rev

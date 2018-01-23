@@ -1,3 +1,9 @@
+//--------------------------------------------------------------------------------------------------
+// Revolution Engine
+//--------------------------------------------------------------------------------------------------
+// Copyright 2018 Carmelo J Fdez-Aguera
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
 // including without limitation the rights to use, copy, modify, merge, publish, distribute,
 // sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
@@ -12,41 +18,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <vector>
-#include "component.h"
+
+#include <core/platform/fileSystem/file.h>
+#include <core/types/json.h>
 #include <string>
+#include <vector>
 
-namespace rev { namespace game {
+namespace rev { namespace player {
 
-	/// Nodes are containers of logically related components
-	/// You can attach components to a node
-	/// You can attach a node to another node
-	class SceneNode
-	{
+	class Project {
 	public:
-		void init();
-		void update(float _dt);
-
-		// Handle components
-		void				addComponent	(Component * _component);
-		void				removeComponent	(Component * _component);
-		size_t				nComponents		() const					{ return mComponents.size(); }
-		Component&			component		(size_t _i) const			{ return *mComponents[_i]; }
-
-		template<class T_>	
-		T_*					component		() const {
-			for (Component* c : mComponents) {
-				if(typeid(*c) == typeid(T_))
-					return static_cast<T_*>(c);
-			}
-			return nullptr;
+		void load(const char* _fileName) {
+			// TODO
 		}
 
-		// Debug info
-		std::string name;
-		void showDebugInfo() const;
+		const std::vector<std::string>	textures() const { return mTextures; }
+		const std::vector<std::string>	materials() const { return mMaterials; }
+
+#ifdef _WIN32
+		void save() {}
+#endif // _WIN32
 
 	private:
-		std::vector<Component*>	mComponents;
+		std::vector<std::string> mTextures;
+		std::vector<std::string> mMaterials;
 	};
-}}
+
+}} // namespace rev::player

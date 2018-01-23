@@ -9,6 +9,10 @@
 #include <game/scene/sceneNode.h>
 #include <graphics/scene/camera.h>
 #include <graphics/renderer/ForwardRenderer.h>
+#include "gameProject.h"
+#include "editor.h"
+
+using namespace rev::player;
 
 namespace rev {
 
@@ -34,6 +38,8 @@ namespace rev {
 		std::vector<game::SceneNode>			mNodes;
 		game::RenderScene						mGraphicsScene;
 		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
+		Project									mGameProject;
+		Editor									mGameEditor;
 	};
 
 }	// namespace rev
