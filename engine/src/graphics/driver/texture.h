@@ -19,15 +19,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <math/algebra/vector.h>
+#include <graphics/driver/openGL/openGL.h>
+#include <graphics/Image.h>
 
-namespace rev { namespace graphcis {
-
-	class Image;
+namespace rev { namespace graphics {
 
 	class Texture
 	{
-		Texture(const Image& image);
+		Texture(const ImageRGB8& image)
+		{
+			glGenTextures(1, &mGLName);
+			glBindTexture(GL_TEXTURE_2D, mGLName);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.size().x(), image.size().y(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data().get());
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		~Texture()
+		{
+			glDeleteTextures(1, &mGLName);
+		}
+
+		// Accessors
+		auto glName() const { return mGLName; }
+
+	private:
+		GLuint mGLName = 0;
 	};
 
 }}

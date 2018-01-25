@@ -29,7 +29,7 @@ namespace rev { namespace graphics {
 	{
 		static_assert(nChannels <= 4, "Images with more than 4 channels are not supported");
 
-
+	public:
 		Image(const math::Vec2u& size, std::shared_ptr<T> data)
 			: mSize(size)
 			, mData(data)
@@ -54,5 +54,9 @@ namespace rev { namespace graphics {
 		math::Vec2u			mSize;
 		std::shared_ptr<T>	mData;
 	};
+
+	using ImageRGB8 = Image<uint8_t, 3>;
+	using ImageRGBA8 = Image<uint8_t, 4>;
+	using ImageRGB32F = Image<float, 3>;
 
 }}
