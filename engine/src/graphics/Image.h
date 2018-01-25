@@ -35,18 +35,22 @@ namespace rev { namespace graphics {
 			, mData(data)
 		{}
 
-		static Image xor(unsigned size)
+		static Image proceduralXOR(unsigned size)
 		{
-			auto imgBuffer = std::make_shared<T>(size*size);
+			auto imgBuffer = std::shared_ptr<T>( new T[size*size*depth], []( T *p ){ delete [] p; } );
 			for(unsigned i = 0; i < size; ++i)
 				for(unsigned j = 0; j < size; ++j)
-					for(unsigned k = 0; k < nChannels; ++k)
-						imgBuffer[k+nChannels*(i+j*size)] = T(i^j);
+					for(uint8_t k = 0; k < depth; ++k)
+					{
+						auto pixelNdx = i+j*size;
+						auto dataOffset = k + pixelNdx*depth;
+						imgBuffer.get()[dataOffset] = T(i^j);
+					}
 			return Image({size,size}, imgBuffer);
 		}
 
 		// Accessors
-		using depth = nChannels;
+		static constexpr uint8_t depth = nChannels;
 		const math::Vec2u&	size() const { return mSize; }
 		auto				data() const { return mData; }
 

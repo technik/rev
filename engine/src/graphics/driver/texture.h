@@ -26,6 +26,7 @@ namespace rev { namespace graphics {
 
 	class Texture
 	{
+	public:
 		Texture(const ImageRGB8& image)
 		{
 			glGenTextures(1, &mGLName);

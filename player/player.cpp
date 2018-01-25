@@ -42,7 +42,9 @@ namespace rev {
 			loadScene("sponza_crytek.scn");
 
 			mRenderer.init();
-			gui::init(_window->size);			
+			gui::init(_window->size);
+
+			mXORTexture = new Texture(ImageRGB8::proceduralXOR(512));
 		}
 		return mGfxDriver != nullptr;
 	}

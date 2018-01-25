@@ -9,6 +9,7 @@
 #include <game/scene/sceneNode.h>
 #include <graphics/scene/camera.h>
 #include <graphics/renderer/ForwardRenderer.h>
+#include <graphics/driver/texture.h>
 #include "gameProject.h"
 #include "editor.h"
 
@@ -27,9 +28,8 @@ namespace rev {
 
 	private:
 		void createCamera();
-		void showNodeTree();
 
-		int mSelectedNode = -1;
+		graphics::Texture*						mXORTexture;
 
 		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;
