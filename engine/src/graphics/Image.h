@@ -24,9 +24,12 @@
 
 namespace rev { namespace graphics {
 
-	template<typename T>
+	template<typename T, uint8_t nChannels>
 	class Image
 	{
+		static_assert(nChannels <= 4, "Images with more than 4 channels are not supported");
+
+
 		Image(const math::Vec2u& size, std::shared_ptr<T> data)
 			: mSize(size)
 			, mData(data)
@@ -36,11 +39,14 @@ namespace rev { namespace graphics {
 		{
 			auto imgBuffer = std::make_shared<T>(size*size);
 			for(unsigned i = 0; i < size; ++i)
-				for(unsigned j = 0; j < size; ++i)
-					imgBuffer[i+j*size] = T(i^j);
+				for(unsigned j = 0; j < size; ++j)
+					for(unsigned k = 0; k < nChannels; ++k)
+						imgBuffer[k+nChannels*(i+j*size)] = T(i^j);
 			return Image({size,size}, imgBuffer);
 		}
 
+		// Accessors
+		using depth = nChannels;
 		const math::Vec2u&	size() const { return mSize; }
 		auto				data() const { return mData; }
 
