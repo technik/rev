@@ -18,7 +18,6 @@ namespace rev { namespace game {
 	}
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::init() {
-		mMaterial.albedo = math::Vec3f(1.f,1.f,1.f);
 		mTransform = &node()->component<Transform>()->xForm;
 	}
 
@@ -30,7 +29,6 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::showDebugInfo() {
-		gui::colorPicker("Albedo", mMaterial.albedo);
 		gui::slider("Roughness", mMaterial.roughness, 0.f, 1.f);
 		gui::slider("Metallic", mMaterial.metallic, 0.f, 1.f);
 	}

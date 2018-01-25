@@ -56,7 +56,8 @@ namespace rev { namespace graphics {
 			// Setup material
 			auto& material = renderable->material();
 			auto albedo = material.albedo;
-			glUniform3f(5, albedo.x(), albedo.y(), albedo.z()); // Albedo
+			glBindTexture(GL_TEXTURE_2D, albedo->glName());
+			//glUniform3f(5, albedo.x(), albedo.y(), albedo.z()); // Albedo
 			glUniform1f(6, material.roughness);
 			glUniform1f(7, material.metallic);
 			// render

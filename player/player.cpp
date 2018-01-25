@@ -39,12 +39,12 @@ namespace rev {
 			// -- triangle --
 			mGameProject.load("sample.prj");
 			createCamera();
+			// Create texture first to be able to use it during scene loading
+			mXORTexture = new Texture(ImageRGB8::proceduralXOR(512));
 			loadScene("sponza_crytek.scn");
 
 			mRenderer.init();
 			gui::init(_window->size);
-
-			mXORTexture = new Texture(ImageRGB8::proceduralXOR(512));
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -138,6 +138,7 @@ namespace rev {
 			// Object mesh
 			auto& mesh = mMeshes[objSrc.meshIdx];
 			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
+			meshRenderer->material().albedo = mXORTexture;
 			obj.addComponent(meshRenderer);
 			obj.init();
 		}

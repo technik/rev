@@ -5,6 +5,7 @@
 #include "component.h"
 #include <memory>
 #include <graphics/scene/renderObj.h>
+#include <graphics/driver/texture.h>
 #include <math/algebra/vector.h>
 
 namespace rev { namespace game {
@@ -21,12 +22,13 @@ namespace rev { namespace game {
 		const graphics::RenderObj& renderObj() const { return *mRenderMesh; }
 
 		struct Material {
-			math::Vec3f albedo;
+			graphics::Texture* albedo;
 			float roughness;
 			float metallic;
 		};
 
 		const Material& material() const { return mMaterial; }
+		Material& material() { return mMaterial; }
 
 		void showDebugInfo() override;
 	private:
