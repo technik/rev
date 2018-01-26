@@ -2,6 +2,7 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include <cassert>
+#define STB_IMAGE_IMPLEMENTATION
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
@@ -40,7 +41,8 @@ namespace rev {
 			mGameProject.load("sample.prj");
 			createCamera();
 			// Create texture first to be able to use it during scene loading
-			mXORTexture = new Texture(ImageRGB8::proceduralXOR(512));
+			mXORTexture = std::make_shared<Texture>(ImageRGB8::proceduralXOR(512));
+			mGameEditor.init();
 			loadScene("sponza_crytek.scn");
 
 			mRenderer.init();

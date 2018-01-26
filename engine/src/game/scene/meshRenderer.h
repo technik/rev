@@ -22,7 +22,7 @@ namespace rev { namespace game {
 		const graphics::RenderObj& renderObj() const { return *mRenderMesh; }
 
 		struct Material {
-			graphics::Texture* albedo;
+			std::shared_ptr<graphics::Texture> albedo;
 			float roughness;
 			float metallic;
 		};

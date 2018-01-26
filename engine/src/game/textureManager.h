@@ -38,14 +38,16 @@ namespace rev { namespace game {
 		{
 			std::shared_ptr<graphics::Texture>	result = mErrorTexture; // By default, return error
 			auto it = mLoadedTextures.find(_name);
-			if(it == mLoadedTextures.end())
+			if(it == mLoadedTextures.end() || it->second.expired())
 			{
 				auto newTexture = graphics::Texture::load(_name);
 				mLoadedTextures.insert(std::make_pair(_name, newTexture));
 				return newTexture;
 			} 
 			else
+			{
 				result = it->second.lock();
+			}
 
 			return result;
 		}

@@ -21,6 +21,7 @@
 #include <game/scene/sceneNode.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
+#include <game/textureManager.h>
 #include <string>
 #include <vector>
 
@@ -32,15 +33,39 @@ namespace rev { namespace player {
 	public:
 		void init()
 		{
-			mTextures = { "" };
+			mTextures = {
+				"textures/spnza_bricks_a_ddn.tga",
+				"textures/sponza_curtain_blue_diff.tga",
+				"textures/spnza_bricks_a_diff.tga",
+				"textures/sponza_curtain_diff.tga",
+				"textures/spnza_bricks_a_spec.tga"
+			};
+			mTextureMgr.init();
 		}
 
-		void update(const std::vector<game::SceneNode>& _nodes)
+		void update(std::vector<game::SceneNode>& _nodes)
 		{
 			// Show menu
 			drawMainMenu();
+			showProjectExplorer();
 			showNodeTree(_nodes);
 			showInspector(_nodes);
+			//ImGui::ShowDemoWindow();
+		}
+		
+		void pickTexture(std::shared_ptr<graphics::Texture>& texture)
+		{
+			if (ImGui::Button("Select.."))
+				ImGui::OpenPopup("select texture");
+			ImGui::SameLine();
+			ImGui::TextUnformatted("<None>");
+			if (ImGui::BeginPopup("select texture"))
+			{
+				for (auto& t : mTextures)
+					if (ImGui::Selectable(t.c_str()))
+						texture = mTextureMgr.get(t);
+				ImGui::EndPopup();
+			}
 		}
 
 	private:
@@ -48,8 +73,9 @@ namespace rev { namespace player {
 			ImGui::BeginMainMenuBar();
 			if(ImGui::BeginMenu("View"))
 			{
-				ImGui::MenuItem("Inspector", "", &mShowInspector);
 				ImGui::MenuItem("Node Tree", "", &mShowNodeTree);
+				ImGui::MenuItem("Inspector", "", &mShowInspector);
+				ImGui::MenuItem("Project Explorer", "", &mShowProjectExplorer);
 				ImGui::MenuItem("Render Options", "", &mShowRenderOptions);
 				ImGui::EndMenu();
 			}
@@ -63,30 +89,66 @@ namespace rev { namespace player {
 
 			if(ImGui::Begin("Node Tree")) {
 				gui::showList("Node list", mSelectedNodeNdx, [=](size_t i){ return _nodes[i].name.c_str(); }, _nodes.size());
+				if(mSelectedNodeNdx >= 0)
+					mShowInspector = true;
 				ImGui::End();
 			}
 		}
 
-		void showInspector(const std::vector<game::SceneNode>& _nodes) {
+		class Inspectable {
+		public:
+			Inspectable(game::SceneNode& node)
+				: mNode(node)
+			{
+				mMesh = node.component<game::MeshRenderer>();
+			}
+
+			void showInspectorMenu(Editor& editor)
+			{
+				mNode.showDebugInfo();
+				if(mMesh)
+				{
+					editor.pickTexture(mMesh->material().albedo);
+				}
+			}
+
+			game::SceneNode& mNode;
+			game::MeshRenderer* mMesh = nullptr;
+		};
+
+		void showInspector(std::vector<game::SceneNode>& _nodes) {
 			if(mShowInspector)
 			{
 				if(ImGui::Begin("Item Inspector"))
 				{
 					if((mSelectedNodeNdx >= 0))
-						_nodes[mSelectedNodeNdx].showDebugInfo();
+					{
+						Inspectable element(_nodes[mSelectedNodeNdx]);
+						element.showInspectorMenu(*this);
+					}
 					ImGui::End();
 				}
 			}
 		}
 
-		class Inspectable {
-
-		};
-
 		void showProjectExplorer() {
+			if(mShowProjectExplorer)
+			{
+				if(ImGui::Begin("Project Explorer"))
+				{
+					//ImGui::TreeNode("Textures");
+					for(auto& t: mTextures)
+					{
+						ImGui::Selectable(t.c_str());
+					}
+					//ImGui::TreePop();
+					ImGui::End();
+				}
+			}
 		}
 
 		std::vector<std::string>	mTextures;
+		game::TextureManager mTextureMgr;
 
 		bool mShowInspector = false;
 		bool mShowProjectExplorer = true;

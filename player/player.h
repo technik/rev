@@ -29,7 +29,7 @@ namespace rev {
 	private:
 		void createCamera();
 
-		graphics::Texture*						mXORTexture;
+		std::shared_ptr<graphics::Texture>		mXORTexture;
 
 		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;
