@@ -49,6 +49,11 @@ namespace rev { namespace graphics {
 			glDeleteTextures(1, &mGLName);
 		}
 
+		static std::shared_ptr<Texture> load(const std::string name)
+		{
+			return std::make_shared<Texture>(*ImageRGB8::load(name));
+		}
+
 		// Accessors
 		auto glName() const { return mGLName; }
 

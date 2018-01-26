@@ -19,8 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <core/platform/fileSystem/file.h>
 #include <math/algebra/vector.h>
+#include "stb_image.h"
 #include <memory>
+#include <string>
 
 namespace rev { namespace graphics {
 
@@ -47,6 +50,23 @@ namespace rev { namespace graphics {
 						imgBuffer.get()[dataOffset] = T(i^j);
 					}
 			return Image({size,size}, imgBuffer);
+		}
+
+		static std::shared_ptr<Image> load(const std::string& _name)
+		{
+			auto file = core::File(_name);
+			if(file.sizeInBytes() > 0)
+			{
+				int width, height, bpp;
+				auto imgData = stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &bpp, nChannels);
+				if(imgData)
+				{
+					math::Vec2u size = { unsigned(width), unsigned(height)};
+					return std::make_shared<Image>(size, std::shared_ptr<T>(imgData));
+				}
+			}
+
+			return nullptr;
 		}
 
 		// Accessors

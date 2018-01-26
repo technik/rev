@@ -21,6 +21,7 @@
 #include <game/scene/sceneNode.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
+#include <string>
 #include <vector>
 
 namespace rev { namespace player {
@@ -29,6 +30,11 @@ namespace rev { namespace player {
 
 	class Editor {
 	public:
+		void init()
+		{
+			mTextures = { "" };
+		}
+
 		void update(const std::vector<game::SceneNode>& _nodes)
 		{
 			// Show menu
@@ -73,7 +79,17 @@ namespace rev { namespace player {
 			}
 		}
 
+		class Inspectable {
+
+		};
+
+		void showProjectExplorer() {
+		}
+
+		std::vector<std::string>	mTextures;
+
 		bool mShowInspector = false;
+		bool mShowProjectExplorer = true;
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = false;
 		int mSelectedNodeNdx = -1;
