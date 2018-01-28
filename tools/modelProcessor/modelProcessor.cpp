@@ -109,8 +109,8 @@ struct MeshRendererDesc : public rev::game::Component {
 
 	void serialize(std::ostream& _out) const override {
 		_out << "MeshRenderer";
-		_out.write((const char*)meshIdx, sizeof(meshIdx));
-		_out.write((const char*)materialIdx, sizeof(materialIdx));
+		_out.write((const char*)&meshIdx, sizeof(meshIdx));
+		_out.write((const char*)&materialIdx, sizeof(materialIdx));
 	}
 };
 
@@ -124,7 +124,7 @@ struct SceneDesc
 		// Save header
 		struct header {
 			uint32_t nMeshes, nNodes;
-		} header;
+		} header = { meshes.size(), nodes.size() };
 		out.write((const char*)&header, sizeof(header));
 		// Write meshes
 		for(auto& mesh : meshes)
@@ -173,8 +173,11 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 			dst.addComponent(mesh);
 		}
 		// Add transform
+		auto tPose = node->mTransformation;
+		Mat44f xFormMatrix;
+		memcpy(xFormMatrix.data(), &tPose.Transpose(), 16*sizeof(float));
 		auto xForm = new rev::game::Transform();
-		memcpy(xForm->matrix().data(), &node->mTransformation, 12*sizeof(float));
+		xForm->matrix() = xFormMatrix.block<3,4>(0,0);
 		dst.addComponent(xForm);
 	}
 	return true;

@@ -61,7 +61,7 @@ namespace rev { namespace game {
 		void serialize(std::ostream& _out) const
 		{
 			uint32_t nComponents = mComponents.size();
-			_out.write((const char*)nComponents, sizeof(uint32_t));
+			_out.write((const char*)&nComponents, sizeof(nComponents));
 			for(auto& c : mComponents) {
 				c->serialize(_out);
 			}
@@ -71,7 +71,7 @@ namespace rev { namespace game {
 		{
 			in >> name;
 			uint32_t nComponents;
-			in.read((char*)nComponents, sizeof(uint32_t));
+			in.read((char*)&nComponents, sizeof(nComponents));
 			mComponents.resize(nComponents);
 			for(auto& c : mComponents) {
 				c = loader.loadComponent(in);
