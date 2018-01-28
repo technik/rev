@@ -18,6 +18,12 @@ namespace rev { namespace game {
 		math::Mat34f&			matrix() { return xForm.matrix(); }
 		const math::Mat34f&		matrix() const { return xForm.matrix(); }
 
+		Transform() = default;
+		Transform(std::istream& _in)
+		{
+			_in.read((char*)xForm.matrix().data(), 12*sizeof(float));
+		}
+
 		void showDebugInfo() override {
 			graphics::gui::text("Transform");
 			math::Vec3f pos = xForm.position();
@@ -27,6 +33,12 @@ namespace rev { namespace game {
 			graphics::gui::slider("y", pos.y(), -500.f, 500.f);
 			graphics::gui::slider("z", pos.z(), 0.f, 600.f);
 			xForm.position() = pos;
+		}
+
+		void serialize(std::ostream& _out) const override
+		{
+			_out << "Transform"; // Type, for factories
+			_out.write((const char*)xForm.matrix().data(), 12*sizeof(float));
 		}
 	};
 

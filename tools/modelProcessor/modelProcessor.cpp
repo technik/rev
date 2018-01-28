@@ -7,6 +7,9 @@
 #include <assimp/postprocess.h>     // Post processing flags
 
 #include <math/algebra/vector.h>
+#include <game/scene/component.h>
+#include <game/scene/scene.h>
+#include <game/scene/transform/transform.h>
 
 #include <cassert>
 #include <fstream>
@@ -36,7 +39,9 @@ struct IntermediateModel {
 		Vec2f uv;
 	};
 
-	void collapseVertexData(vector<VertexData>& _dst) {
+	//----------------------------------------------------------------------------------------------------------------------
+	void collapseVertexData(vector<VertexData>& _dst) const 
+	{
 		for (size_t i = 0; i < nVertices; ++i) {
 			auto& dataRow = _dst[i];
 			dataRow.position = vertices[i];
@@ -77,7 +82,9 @@ struct IntermediateModel {
 		return true;
 	}
 	
-	bool saveToStream(ostream& _out) {
+	//----------------------------------------------------------------------------------------------------------------------
+	bool saveToStream(ostream& _out) const
+	{
 		// Allocate space for cache-friendly vertex data
 		vector<VertexData> vertexData(nVertices);
 		collapseVertexData(vertexData);
@@ -96,40 +103,42 @@ struct IntermediateModel {
 	}
 };
 
-struct RenderObj {
-	int meshIdx = -1;
-	Mat44f transform;
+struct MeshRendererDesc : public rev::game::Component {
+	int32_t meshIdx = -1;
+	int32_t materialIdx = -1;
+
+	void serialize(std::ostream& _out) const override {
+		_out.write((const char*)meshIdx, sizeof(meshIdx));
+		_out.write((const char*)materialIdx, sizeof(materialIdx));
+	}
 };
 
-struct Scene {
-	vector<IntermediateModel>	meshes;
-	vector<string>				objNames;
-	vector<RenderObj>			objects;
+struct SceneDesc
+{
+	std::vector<rev::game::SceneNode> nodes;
+	std::vector<IntermediateModel> meshes;
 
-	bool saveToStream(ostream& _out) {
-		uint32_t nMeshes = meshes.size();
-		uint32_t nObjects = objects.size();
+	void saveToStream(std::ostream& out) const
+	{
 		// Save header
-		_out.write((char*)&nMeshes, sizeof(nMeshes));
-		_out.write((char*)&nObjects, sizeof(nObjects));
-		// Save meshes
+		struct header {
+			uint32_t nMeshes, nNodes;
+		} header;
+		out.write((const char*)&header, sizeof(header));
+		// Write meshes
 		for(auto& mesh : meshes)
-			mesh.saveToStream(_out);
-		// Save object names
-		for(auto& name : objNames)
-			_out.write(name.c_str(), name.length()+1);
-		// Save objects
-		_out.write((char*)objects.data(), sizeof(RenderObj)*objects.size());
-
-		return true;
+			mesh.saveToStream(out);
+		// Write nodes
+		for(auto& node : nodes)
+			node.serialize(out);
 	}
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-bool loadFBX(const string& _src, Scene& _dst) {
+bool loadFBX(const string& _src, SceneDesc& _dst) {
 	const aiScene* fbx = fbxLoader.ReadFile(
 		_src,
-		aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices
+		aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace
 	);
 	if(!fbx)
 		return false;
@@ -141,20 +150,32 @@ bool loadFBX(const string& _src, Scene& _dst) {
 		_dst.meshes[i].loadFBXMesh(fbxMesh);
 	}
 	// Load scene nodes
-	int parent = -1;
-	const aiNode* sceneRoot = fbx->mRootNode;
-	_dst.objects.resize(sceneRoot->mNumChildren);
-	_dst.objNames.resize(sceneRoot->mNumChildren);
-	for(size_t i = 0; i < sceneRoot->mNumChildren; ++i)
+	std::vector<std::pair<const aiNode*, int>> stack; // pair<node, parent index>
+	stack.push_back({ fbx->mRootNode, -1 });
+	while(!stack.empty())
 	{
-		auto& obj = _dst.objects[i];
-		const auto srcObj = sceneRoot->mChildren[i];
-		obj.transform.setIdentity();
-		_dst.objNames[i] = srcObj->mName.C_Str();
-		if(srcObj->mNumMeshes > 0)
-			obj.meshIdx = srcObj->mMeshes[0];
+		// Extract node from stack
+		auto node = stack.back().first;
+		auto parentIdx = stack.back().second;
+		stack.pop_back();
+		// Push children for processing
+		for(auto i = 0; i < node->mNumChildren; ++i)
+			stack.push_back({node->mChildren[i], _dst.nodes.size()});
+		// Actually process the node
+		_dst.nodes.push_back(rev::game::SceneNode());
+		auto& dst = _dst.nodes.back();
+		dst.name = node->mName.C_Str();
+		if(node->mNumMeshes > 0)
+		{
+			auto mesh = new MeshRendererDesc;
+			mesh->meshIdx = node->mMeshes[0];
+			dst.addComponent(mesh);
+		}
+		// Add transform
+		auto xForm = new rev::game::Transform();
+		memcpy(xForm->matrix().data(), &node->mTransformation, 12*sizeof(float));
+		dst.addComponent(xForm);
 	}
-
 	return true;
 }
 
@@ -171,7 +192,7 @@ int main(int _argc, const char** _argv) {
 	string dst = modelName + ".scn";
 	cout << src << " >> " << dst << "\n";
 
-	Scene scene;
+	SceneDesc scene;
 	if (!loadFBX(src, scene))
 	{
 		cout << "Error loading model: " << src << "\n";

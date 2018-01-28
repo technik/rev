@@ -18,64 +18,59 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <vector>
-#include "component.h"
+
+#include <game/scene/component.h>
+#include <game/scene/sceneNode.h>
+#include <functional>
 #include <iostream>
 #include <string>
-#include "ComponentLoader.h"
-#include <core/types/json.h>
+#include <vector>
+#include <memory>
 
-namespace rev { namespace game {
+namespace rev {
 
-	/// Nodes are containers of logically related components
-	/// You can attach components to a node
-	/// You can attach a node to another node
-	class SceneNode
+	class ComponentLoader
 	{
 	public:
-		void init();
-		void update(float _dt);
+		ComponentLoader() {
+			registerDefaultFactories();
+		}
 
-		// Handle components
-		void				addComponent	(Component * _component);
-		void				removeComponent	(Component * _component);
-		size_t				nComponents		() const					{ return mComponents.size(); }
-		Component&			component		(size_t _i) const			{ return *mComponents[_i]; }
+		using Component = game::Component;
+		using CompPtr = std::unique_ptr<Component>;
+		using Factory = std::function<CompPtr(const std::string&, std::istream&)>;
 
-		template<class T_>	
-		T_*					component		() const {
-			for (Component* c : mComponents) {
-				if(typeid(*c) == typeid(T_))
-					return static_cast<T_*>(c);
-			}
+		template<class T>
+		void registerFactory(const std::string& key, T& factory, bool checkDuplicated = false)
+		{
+			if(checkDuplicated)
+				for(size_t i = 0; i < keys.size(); ++i)
+					if(keys[i] == key)
+					{
+						factories[i] = factory;
+						return;
+					}
+			// No duplicated key, add factory at the end
+			keys.push_back(key);
+			factories.push_back(factory);
+		}
+
+		CompPtr loadComponent(std::istream& in)
+		{
+			std::string key;
+			in >> key;
+			for(size_t i = 0; i < keys.size(); ++i)
+				if(keys[i] == key)
+					return factories[i](key,in);
 			return nullptr;
 		}
 
-		void serialize(std::ostream& _out) const
-		{
-			uint32_t nComponents = mComponents.size();
-			_out.write((const char*)nComponents, sizeof(uint32_t));
-			for(auto& c : mComponents) {
-				c->serialize(_out);
-			}
-		}
-
-		void deserialize(ComponentLoader& loader, std::istream& in)
-		{
-			in >> name;
-			uint32_t nComponents;
-			in.read((char*)nComponents, sizeof(uint32_t));
-			mComponents.resize(nComponents);
-			for(auto& c : mComponents) {
-				c = loader.loadComponent(in);
-			}
-		}
-
-		// Debug info
-		std::string name;
-		void showDebugInfo() const;
-
 	private:
-		std::vector<std::unique_ptr<Component>>	mComponents;
+		void registerDefaultFactories()
+		{}
+
+		std::vector<std::string>	keys;
+		std::vector<Factory>		factories;
 	};
-}}
+
+}

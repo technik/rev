@@ -11,7 +11,7 @@
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/driver/texture.h>
 #include "gameProject.h"
-#include "editor.h"
+#include "editor/editor.h"
 
 using namespace rev::player;
 

@@ -5,6 +5,8 @@
 // Base component in the component system
 #pragma once
 
+#include <iostream>
+
 namespace rev { namespace game {
 
 	class SceneNode;
@@ -13,7 +15,7 @@ namespace rev { namespace game {
 	{
 	public:
 		// -- Constructor & destructor --
-		Component() : mNode(nullptr) {}
+		Component() = default;
 		virtual	~Component();
 
 		virtual void init	() {}
@@ -25,10 +27,12 @@ namespace rev { namespace game {
 
 		SceneNode * node() const { return mNode; }
 
+		virtual void serialize(std::ostream& _out) const = 0;
+
 		// Debug info
 		virtual void showDebugInfo() {}
 	private:
-		SceneNode * mNode;
+		SceneNode * mNode = nullptr;
 	};
 
 }}	// namespace rev::game

@@ -17157,7 +17157,7 @@ inline nlohmann::json::json_pointer operator "" _json_pointer(const char* s, std
 #undef NLOHMANN_JSON_HAS_HELPER
 
 namespace rev { namespace core {
-	using json = nlohmann::json;
+	using Json = nlohmann::json;
 }}
 
 
