@@ -30,6 +30,7 @@
 #include <memory>
 #include <core/platform/fileSystem/file.h>
 #include <fstream>
+#include <game/scene/renderScene.h>
 
 namespace rev { namespace game {
 
@@ -40,17 +41,17 @@ namespace rev { namespace game {
 		using Node = SceneNode;
 		using Json = core::Json;
 
-		Scene()
+		Scene(const game::RenderScene& _renderScene)
 		{
 			// Register a factory using scene's loaded meshes
 			// TODO: Use scene materials too
-			mLoader.registerFactory("MeshRenderer", [this](const std::string&, std::istream& in)
+			mLoader.registerFactory("MeshRenderer", [&](const std::string&, std::istream& in)
 			{
 				int32_t meshIdx = 0;
 				int32_t materialIdx = 0;
 				in.read((char*)meshIdx, sizeof(meshIdx));
 				in.read((char*)materialIdx, sizeof(materialIdx));
-				return std::make_unique<MeshRenderer>(mMeshes[meshIdx]);
+				return std::make_unique<MeshRenderer>(_renderScene.renderables()[meshIdx]);
 			});
 		}
 		
@@ -97,7 +98,6 @@ namespace rev { namespace game {
 	private:
 		ComponentLoader		mLoader;
 		std::vector<Node>	mNodes;
-		std::vector<Mesh*>	mMeshes;
 	};
 
 }}
