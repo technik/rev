@@ -160,7 +160,7 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 		auto parentIdx = stack.back().second;
 		stack.pop_back();
 		// Push children for processing
-		for(auto i = 0; i < node->mNumChildren; ++i)
+		for(unsigned i = 0; i < node->mNumChildren; ++i)
 			stack.push_back({node->mChildren[i], _dst.nodes.size()});
 		// Actually process the node
 		_dst.nodes.push_back(rev::game::SceneNode());

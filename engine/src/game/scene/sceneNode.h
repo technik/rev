@@ -37,8 +37,15 @@ namespace rev { namespace game {
 		void update(float _dt);
 
 		// Handle components
-		void				addComponent	(Component * _component);
-		void				removeComponent	(Component * _component);
+		void				addComponent	(Component* _c)
+		{
+			if(!_c)
+				return;
+			if(_c->node() != this) {
+				_c->attachTo(this);
+				mComponents.emplace_back(_c);
+			}
+		}
 		size_t				nComponents		() const					{ return mComponents.size(); }
 		Component&			component		(size_t _i) const			{ return *mComponents[_i]; }
 

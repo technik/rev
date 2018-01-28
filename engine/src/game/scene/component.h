@@ -22,8 +22,8 @@ namespace rev { namespace game {
 		virtual void update(float _dt) {}
 
 		// -- attach and dettach --
-		virtual	void	attachTo(SceneNode * _node);
-		virtual void	dettach();
+		void	attachTo(SceneNode * _node);
+		void	dettach();
 
 		SceneNode * node() const { return mNode; }
 

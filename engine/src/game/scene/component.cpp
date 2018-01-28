@@ -15,17 +15,13 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------------------------------
 	void Component::attachTo(SceneNode* _node) {
-		dettach(); // Dettach from previous parent, if any.
 		mNode = _node;
-		_node->addComponent(this);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	void Component::dettach() {
 		if(mNode) {
-			SceneNode* oldNode = mNode;
 			mNode = nullptr;
-			oldNode->removeComponent(this);
 		}
 	}
 
