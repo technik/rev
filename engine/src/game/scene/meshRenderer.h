@@ -31,6 +31,14 @@ namespace rev { namespace game {
 		Material& material() { return mMaterial; }
 
 		void showDebugInfo() override;
+		void serialize(std::ostream& out) const {
+			out << "MeshRenderer";
+			// TODO: Save actual indices
+			int32_t meshIdx = -1;
+			int32_t materialIdx = -1;
+			out.write((const char*)meshIdx, sizeof(meshIdx));
+			out.write((const char*)materialIdx, sizeof(materialIdx));
+		}
 	private:
 		std::unique_ptr<graphics::RenderObj>	mRenderMesh;
 		math::AffineTransform*	mTransform = nullptr;
