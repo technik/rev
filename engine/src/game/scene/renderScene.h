@@ -15,15 +15,16 @@ namespace rev { namespace game {
 	{
 	public:
 		RenderScene() { mLightClr = math::Vec3f::ones(); }
-		std::unique_ptr<MeshRenderer> createMeshRenderer(const graphics::RenderGeom* _geom);
+		std::unique_ptr<MeshRenderer> createMeshRenderer(std::shared_ptr<const graphics::RenderGeom> _geom);
 
-		const std::vector<std::weak_ptr<MeshRenderer>>&	renderables() const { return mMeshes; }
+		const std::vector<MeshRenderer*>&	renderables() const { return mMeshes; }
 		const math::Vec3f& lightClr() const { return mLightClr; }
 
 		void showDebugInfo();
 
 	private:
-		std::vector<std::weak_ptr<MeshRenderer>>	mMeshes;
+		// TODO: Separate mesh renderer from its component, and handle memory with a weak pointer
+		std::vector<MeshRenderer*>	mMeshes;
 		math::Vec3f					mLightClr;
 	};
 

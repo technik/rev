@@ -19,18 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <cassert>
-#include "sceneNode.h"
+#include <core/platform/fileSystem/file.h>
 #include "ComponentLoader.h"
-#include <string>
-#include <vector>
 #include <graphics/scene/renderGeom.h>
 #include <game/scene/meshRenderer.h>
-#include "sceneNode.h"
-#include <memory>
-#include <core/platform/fileSystem/file.h>
-#include <fstream>
 #include <game/scene/renderScene.h>
+#include "sceneNode.h"
+
+#include <cassert>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace rev { namespace game {
 
@@ -41,7 +41,9 @@ namespace rev { namespace game {
 		using Node = SceneNode;
 		using Json = core::Json;
 
-		Scene(const game::RenderScene& _renderScene)
+		std::vector<Node*>& nodes() { return mNodes; }
+
+		Scene(game::RenderScene& _renderScene)
 		{
 			// Register a factory using scene's loaded meshes
 			// TODO: Use scene materials too
@@ -49,38 +51,47 @@ namespace rev { namespace game {
 			{
 				int32_t meshIdx = 0;
 				int32_t materialIdx = 0;
-				in.read((char*)meshIdx, sizeof(meshIdx));
-				in.read((char*)materialIdx, sizeof(materialIdx));
-				return std::make_unique<MeshRenderer>(_renderScene.renderables()[meshIdx]);
+				in.read((char*)&meshIdx, sizeof(meshIdx));
+				in.read((char*)&materialIdx, sizeof(materialIdx));
+				return _renderScene.createMeshRenderer(mMeshCache[meshIdx]);
 			});
 		}
+
+		Scene(const Scene&) = delete;
+		Scene& operator=(const Scene&) = delete;
 		
-		void load(const std::string& _fileName)
+		void load(std::istream& in)
 		{
-			auto file = std::ifstream(_fileName);
 			// Read header
 			struct header {
 				uint32_t nMeshes, nNodes;
 			} header;
-			file.read((char*)&header, sizeof(header));
-			assert(mMeshes.empty()); // Scene reusing not supported
+			in.read((char*)&header, sizeof(header));
 			assert(mNodes.empty());
+			assert(mMeshes.empty());
 			mMeshes.resize(header.nMeshes);
+			mMeshCache.resize(header.nMeshes);
 			mNodes.resize(header.nNodes);
 			// Load meshes
+			size_t i = 0;
 			for(auto& mesh : mMeshes)
 			{
-				mesh = new Mesh();
-				mesh->deserialize(file);
+				mesh.deserialize(in);
+				mMeshCache[i++].reset(&mesh);
 			}
 			// Load nodes
+			// TODO: Reconstruct node hierarchy
 			for(auto& node : mNodes)
-				node.deserialize(mLoader, file);
+			{
+				node = new SceneNode();
+				node->deserialize(mLoader, in);
+				node->init();
+			}
 		}
 
 		void save(const std::string& _fileName)
 		{
-			auto file = std::ofstream(_fileName);
+			/*auto file = std::ofstream(_fileName);
 			// Write scene header
 			Json header = {
 				{ "nMeshes", mMeshes.size() },
@@ -92,12 +103,14 @@ namespace rev { namespace game {
 				mesh->serialize(file);
 			// Serialize nodes
 			for(auto& node : mNodes)
-				node.serialize(file);
+				node.serialize(file);*/
 		}
 
 	private:
-		ComponentLoader		mLoader;
-		std::vector<Node>	mNodes;
+		ComponentLoader						mLoader;
+		std::vector<Node*>					mNodes;
+		std::vector<std::shared_ptr<graphics::RenderGeom>>	mMeshCache;
+		std::vector<graphics::RenderGeom>	mMeshes;
 	};
 
 }}

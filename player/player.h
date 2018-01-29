@@ -12,6 +12,7 @@
 #include <graphics/driver/texture.h>
 #include "gameProject.h"
 #include "editor/editor.h"
+#include <game/scene/scene.h>
 
 using namespace rev::player;
 
@@ -19,6 +20,13 @@ namespace rev {
 
 	class Player {
 	public:
+		Player()
+			: mGameScene(mGraphicsScene)
+		{}
+
+		Player(const Player&) = delete;
+		Player& operator=(const Player&) = delete;
+
 		typedef rev::graphics::GraphicsDriverGL::NativeWindow	Window;
 		bool init(Window);
 		void loadScene(const char* assetFileName);
@@ -31,11 +39,10 @@ namespace rev {
 
 		std::shared_ptr<graphics::Texture>		mXORTexture;
 
+		game::RenderScene						mGraphicsScene;
+		game::Scene								mGameScene;
 		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;
-		std::vector<graphics::RenderGeom>		mMeshes;
-		std::vector<game::SceneNode>			mNodes;
-		game::RenderScene						mGraphicsScene;
 		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
 		Project									mGameProject;
 		Editor									mGameEditor;

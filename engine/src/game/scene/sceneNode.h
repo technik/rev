@@ -36,6 +36,10 @@ namespace rev { namespace game {
 		void init();
 		void update(float _dt);
 
+		SceneNode() = default;
+		SceneNode(const SceneNode&) = delete;
+		SceneNode& operator=(const SceneNode&) = delete;
+
 		// Handle components
 		void				addComponent	(Component* _c)
 		{
@@ -60,6 +64,7 @@ namespace rev { namespace game {
 
 		void serialize(std::ostream& _out) const
 		{
+			_out << name << "\n";
 			uint32_t nComponents = mComponents.size();
 			_out.write((const char*)&nComponents, sizeof(nComponents));
 			for(auto& c : mComponents) {
@@ -70,11 +75,13 @@ namespace rev { namespace game {
 		void deserialize(ComponentLoader& loader, std::istream& in)
 		{
 			in >> name;
+			in.get(); // Skip new line
 			uint32_t nComponents;
 			in.read((char*)&nComponents, sizeof(nComponents));
 			mComponents.resize(nComponents);
 			for(auto& c : mComponents) {
 				c = loader.loadComponent(in);
+				c->attachTo(this);
 			}
 		}
 

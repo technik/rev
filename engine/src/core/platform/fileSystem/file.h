@@ -12,6 +12,9 @@
 #include <android/asset_manager.h>
 #endif // ANDROID
 
+#include <streambuf>
+#include <iostream>
+#include <istream>
 
 namespace rev {
 	namespace core {
@@ -24,7 +27,12 @@ namespace rev {
 
 			const void *	buffer		() const;
 			const char *	bufferAsText() const;
+			char *			bufferAsText();
 			size_t			sizeInBytes	() const;
+
+			std::istream&	asStream() {				
+				return mStream;
+			}
 
 
 #ifdef ANDROID
@@ -34,6 +42,14 @@ namespace rev {
 		private:
 			size_t		mSize = 0;
 			void*		mBuffer = nullptr;
+			
+			struct  filebuf : public std::streambuf
+			{
+				void set(char* begin, char* end) {
+					this->setg(begin, begin, end);
+				}
+			}				mBufferAdapter;
+			std::istream	mStream;
 #if _DEBUG
 			std::string	mPath;
 #endif // _DEBUG
@@ -47,6 +63,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		inline const void * File::buffer		() const { return mBuffer; }
 		inline const char * File::bufferAsText	() const { return reinterpret_cast<const char*>(mBuffer); }
+		inline		 char * File::bufferAsText	()		 { return reinterpret_cast<char*>(mBuffer); }
 		inline size_t		File::sizeInBytes	() const { return mSize; }
 	}
 }

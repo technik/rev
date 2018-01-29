@@ -5,6 +5,7 @@
 #include <memory>
 #include <graphics/driver/shader.h>
 #include <game/scene/renderScene.h>
+#include <graphics/driver/texture.h>
 
 namespace rev { namespace graphics {
 
@@ -18,6 +19,7 @@ namespace rev { namespace graphics {
 
 	private:
 		float mEV;
+		std::unique_ptr<graphics::Texture>		mErrorTexture;
 		std::unique_ptr<graphics::Shader>		mShader;
 	};
 

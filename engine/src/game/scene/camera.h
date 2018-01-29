@@ -40,6 +40,11 @@ namespace rev { namespace game {
 			mCam.setWorldTransform(*mTransform);
 		}
 
+		void serialize(std::ostream& out) const override
+		{
+			out << "Camera\n";
+		}
+
 		const graphics::Camera& cam() const { return mCam; }
 
 	private:

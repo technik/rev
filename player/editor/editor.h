@@ -22,6 +22,7 @@
 #include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
+#include <game/scene/scene.h>
 #include <string>
 #include <vector>
 
@@ -43,13 +44,13 @@ namespace rev { namespace player {
 			mTextureMgr.init();
 		}
 
-		void update(std::vector<game::SceneNode>& _nodes)
+		void update(game::Scene& scene)
 		{
 			// Show menu
 			drawMainMenu();
 			showProjectExplorer();
-			showNodeTree(_nodes);
-			showInspector(_nodes);
+			showNodeTree(scene.nodes());
+			showInspector(scene.nodes());
 			//ImGui::ShowDemoWindow();
 		}
 		
@@ -82,13 +83,14 @@ namespace rev { namespace player {
 			ImGui::EndMainMenuBar();
 		}
 
-		void showNodeTree(const std::vector<game::SceneNode>& _nodes)
+		void showNodeTree(const std::vector<game::SceneNode*>& _nodes)
 		{
 			if(!mShowNodeTree)
 				return;
 
-			if(ImGui::Begin("Node Tree")) {
-				gui::showList("Node list", mSelectedNodeNdx, [=](size_t i){ return _nodes[i].name.c_str(); }, _nodes.size());
+			if(ImGui::Begin("Node Tree"))
+			{
+				gui::showList("Node list", mSelectedNodeNdx, [=](size_t i){ return _nodes[i]->name.c_str(); }, _nodes.size());
 				if(mSelectedNodeNdx >= 0)
 					mShowInspector = true;
 				ImGui::End();
@@ -116,14 +118,14 @@ namespace rev { namespace player {
 			game::MeshRenderer* mMesh = nullptr;
 		};
 
-		void showInspector(std::vector<game::SceneNode>& _nodes) {
+		void showInspector(std::vector<game::SceneNode*>& _nodes) {
 			if(mShowInspector)
 			{
 				if(ImGui::Begin("Item Inspector"))
 				{
 					if((mSelectedNodeNdx >= 0))
 					{
-						Inspectable element(_nodes[mSelectedNodeNdx]);
+						Inspectable element(*_nodes[mSelectedNodeNdx]);
 						element.showInspectorMenu(*this);
 					}
 					ImGui::End();

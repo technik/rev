@@ -9,9 +9,10 @@ using namespace rev::graphics;
 namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
-	MeshRenderer* RenderScene::createMeshRenderer(const RenderGeom* _geom) {
-		mMeshes.emplace_back(new MeshRenderer(_geom));
-		return mMeshes.back();
+	std::unique_ptr<MeshRenderer> RenderScene::createMeshRenderer(std::shared_ptr<const graphics::RenderGeom> _geom) {
+		auto mesh = std::make_unique<MeshRenderer>(_geom);
+		mMeshes.emplace_back(mesh.get());
+		return mesh;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

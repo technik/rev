@@ -3,8 +3,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <math/algebra/vector.h>
 #include <graphics/driver/openGL/openGL.h>
+#include <math/algebra/vector.h>
+#include <iostream>
 #include <vector>
 
 namespace rev { namespace graphics {
@@ -39,9 +40,9 @@ namespace rev { namespace graphics {
 		void deserialize(std::istream& _in)
 		{
 			// Load header
-			uint32_t nVertices, nIndices;
-			_in.read((char*)nVertices, sizeof(nVertices));
-			_in.read((char*)nIndices, sizeof(nIndices));
+			uint32_t nVertices = 0, nIndices = 0;
+			_in.read((char*)&nVertices, sizeof(nVertices));
+			_in.read((char*)&nIndices, sizeof(nIndices));
 			// Load vertex data
 			mVertices.resize(nVertices);
 			_in.read((char*)mVertices.data(), sizeof(Vertex)*nVertices);

@@ -54,7 +54,7 @@ namespace rev { namespace graphics {
 
 		static std::shared_ptr<Image> load(const std::string& _name)
 		{
-			auto file = core::File(_name);
+			core::File file(_name);
 			if(file.sizeInBytes() > 0)
 			{
 				int width, height, bpp;
@@ -72,7 +72,7 @@ namespace rev { namespace graphics {
 		// Accessors
 		static constexpr uint8_t depth = nChannels;
 		const math::Vec2u&	size() const { return mSize; }
-		auto				data() const { return mData; }
+		const T*			data() const { return mData.get(); }
 
 	private:
 		math::Vec2u			mSize;

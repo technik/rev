@@ -108,7 +108,7 @@ struct MeshRendererDesc : public rev::game::Component {
 	int32_t materialIdx = -1;
 
 	void serialize(std::ostream& _out) const override {
-		_out << "MeshRenderer";
+		_out << "MeshRenderer\n";
 		_out.write((const char*)&meshIdx, sizeof(meshIdx));
 		_out.write((const char*)&materialIdx, sizeof(materialIdx));
 	}
@@ -116,7 +116,7 @@ struct MeshRendererDesc : public rev::game::Component {
 
 struct SceneDesc
 {
-	std::vector<rev::game::SceneNode> nodes;
+	std::vector<rev::game::SceneNode*> nodes;
 	std::vector<IntermediateModel> meshes;
 
 	void saveToStream(std::ostream& out) const
@@ -131,7 +131,7 @@ struct SceneDesc
 			mesh.saveToStream(out);
 		// Write nodes
 		for(auto& node : nodes)
-			node.serialize(out);
+			node->serialize(out);
 	}
 };
 
@@ -156,29 +156,29 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 	while(!stack.empty())
 	{
 		// Extract node from stack
-		auto node = stack.back().first;
+		auto fbxNode = stack.back().first;
 		auto parentIdx = stack.back().second;
 		stack.pop_back();
 		// Push children for processing
-		for(unsigned i = 0; i < node->mNumChildren; ++i)
-			stack.push_back({node->mChildren[i], _dst.nodes.size()});
+		for(unsigned i = 0; i < fbxNode->mNumChildren; ++i)
+			stack.push_back({fbxNode->mChildren[i], _dst.nodes.size()});
 		// Actually process the node
-		_dst.nodes.push_back(rev::game::SceneNode());
-		auto& dst = _dst.nodes.back();
-		dst.name = node->mName.C_Str();
-		if(node->mNumMeshes > 0)
+		_dst.nodes.push_back(new rev::game::SceneNode());
+		auto dstNode = _dst.nodes.back();
+		dstNode->name = fbxNode->mName.C_Str();
+		if(fbxNode->mNumMeshes > 0)
 		{
 			auto mesh = new MeshRendererDesc;
-			mesh->meshIdx = node->mMeshes[0];
-			dst.addComponent(mesh);
+			mesh->meshIdx = fbxNode->mMeshes[0];
+			dstNode->addComponent(mesh);
 		}
 		// Add transform
-		auto tPose = node->mTransformation;
+		auto tPose = fbxNode->mTransformation;
 		Mat44f xFormMatrix;
 		memcpy(xFormMatrix.data(), &tPose.Transpose(), 16*sizeof(float));
 		auto xForm = new rev::game::Transform();
 		xForm->matrix() = xFormMatrix.block<3,4>(0,0);
-		dst.addComponent(xForm);
+		dstNode->addComponent(xForm);
 	}
 	return true;
 }

@@ -20,14 +20,14 @@
 #pragma once
 
 #include <game/scene/component.h>
-#include <game/scene/sceneNode.h>
+#include <game/scene/transform/transform.h>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
 
-namespace rev {
+namespace rev { namespace game {
 
 	class ComponentLoader
 	{
@@ -40,8 +40,7 @@ namespace rev {
 		using CompPtr = std::unique_ptr<Component>;
 		using Factory = std::function<CompPtr(const std::string&, std::istream&)>;
 
-		template<class T>
-		void registerFactory(const std::string& key, T& factory, bool checkDuplicated = false)
+		void registerFactory(const std::string& key, const Factory& factory, bool checkDuplicated = false)
 		{
 			if(checkDuplicated)
 				for(size_t i = 0; i < keys.size(); ++i)
@@ -59,6 +58,7 @@ namespace rev {
 		{
 			std::string key;
 			in >> key;
+			in.get(); // Skip new line
 			for(size_t i = 0; i < keys.size(); ++i)
 				if(keys[i] == key)
 					return factories[i](key,in);
@@ -67,10 +67,14 @@ namespace rev {
 
 	private:
 		void registerDefaultFactories()
-		{}
+		{
+			registerFactory("Transform", [](const std::string&, std::istream& in){
+				return std::make_unique<Transform>(in);
+			});
+		}
 
 		std::vector<std::string>	keys;
 		std::vector<Factory>		factories;
 	};
 
-}
+}}

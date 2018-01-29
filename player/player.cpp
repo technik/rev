@@ -39,11 +39,11 @@ namespace rev {
 		if(mGfxDriver) {
 			// -- triangle --
 			mGameProject.load("sample.prj");
-			createCamera();
 			// Create texture first to be able to use it during scene loading
 			mXORTexture = std::make_shared<Texture>(ImageRGB8::proceduralXOR(512));
 			mGameEditor.init();
 			loadScene("sponza_crytek.scn");
+			createCamera();
 
 			mRenderer.init();
 			gui::init(_window->size);
@@ -54,21 +54,21 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Node
-		mNodes.push_back(SceneNode());
-		auto& cameraNode = mNodes.back();
-		cameraNode.name = "Camera";
+		mGameScene.nodes().push_back(new SceneNode());
+		auto& cameraNode = mGameScene.nodes().back();
+		cameraNode->name = "Camera";
 		// Transform
 		auto objXForm = new Transform();
 		objXForm->matrix().setIdentity();
 		objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
 		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
-		cameraNode.addComponent(objXForm);
+		cameraNode->addComponent(objXForm);
 		// Actual camera
 		auto camComponent = new game::Camera();
 		mCamera = &camComponent->cam();
-		cameraNode.addComponent(camComponent);
+		cameraNode->addComponent(camComponent);
 		// Init camera
-		cameraNode.init();
+		cameraNode->init();
 	}
 
 	struct MeshHeader
@@ -91,73 +91,22 @@ namespace rev {
 			rev::core::Log::error("Unable to load asset");
 			return;
 		}
-		auto ptr = asset.buffer();
-		auto header = reinterpret_cast<const uint32_t*>(ptr);
-		auto nMeshes = header[0];
-		mMeshes.reserve(nMeshes);
-		auto nObjects = header[1];
-		ptr = &header[2];
-		using VertexLine = RenderGeom::Vertex;
-		std::vector<VertexLine>	vertexData;
-		std::vector<uint16_t>	indices;
-		for(size_t i = 0; i < nMeshes; ++i)
-		{
-			auto meshHeader = (const MeshHeader*)ptr;
-			ptr = &meshHeader[1];
-			vertexData.resize(meshHeader->nVertices);
-			memcpy(vertexData.data(), ptr, vertexData.size()*sizeof(VertexLine));
-			ptr = &reinterpret_cast<const VertexLine*>(ptr)[vertexData.size()];
-			indices.resize(meshHeader->nIndices);
-			memcpy(indices.data(), ptr, indices.size()*sizeof(uint16_t));
-			ptr = &reinterpret_cast<const uint16_t*>(ptr)[indices.size()];
-			mMeshes.emplace_back(vertexData,indices);
-		}
-
-		std::vector<std::string> objNames;
-		auto str = (const char*)ptr;
-		for(size_t i = 0; i < nObjects; ++i)
-		{
-			auto n = strlen(str);
-			objNames.emplace_back(str);
-			str += n+1;
-		}
-		ptr = str;
-		mNodes.reserve(nObjects);
-		auto objDataList = reinterpret_cast<const RenderObjData*>(ptr);
-		for(size_t i = 0; i < nObjects; ++i)
-		{
-			auto& objSrc = objDataList[i];
-			if(objSrc.meshIdx < 0)
-				continue;
-			mNodes.emplace_back();
-			auto& obj = mNodes.back();
-			obj.name = objNames[i];
-			// Object transform
-			auto objXForm = new Transform();
-			objXForm->matrix().setIdentity();
-			//objXForm->matrix() = objSrc.transform.block<3,4>(0,0);
-			obj.addComponent(objXForm);
-			// Object mesh
-			auto& mesh = mMeshes[objSrc.meshIdx];
-			auto meshRenderer = mGraphicsScene.createMeshRenderer(&mesh);
-			meshRenderer->material().albedo = mXORTexture;
-			obj.addComponent(meshRenderer);
-			obj.init();
-		}
+		mGameScene.load(asset.asStream());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::update() {
+	bool Player::update()
+	{
 		if(!mGfxDriver)
 			return true;
 		core::Time::get()->update();
 		gui::startFrame();
-		mGameEditor.update(mNodes);
+		mGameEditor.update(mGameScene);
 
 		auto dt = core::Time::get()->frameTime();
 
-		for(auto& obj : mNodes)
-			obj.update(dt);
+		for(auto& obj : mGameScene.nodes())
+			obj->update(dt);
 
 		mGraphicsScene.showDebugInfo();
 		mRenderer.render(*mCamera, mGraphicsScene);

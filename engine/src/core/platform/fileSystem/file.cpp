@@ -32,7 +32,9 @@ namespace rev { namespace core {
 #endif // ANDROID
 
 	//--------------------------------------------------------------------------------------------------------------
-	File::File(const string& _path) {
+	File::File(const string& _path) 
+		: mStream(&mBufferAdapter)
+	{
 		//mPath = _path; 
 #ifdef ANDROID
 		if(!sAssetMgr) {
@@ -64,6 +66,8 @@ namespace rev { namespace core {
 			((char*)mBuffer)[mSize] = '\0';
 
 			srcFile.close();
+
+			mBufferAdapter.set(bufferAsText(), &bufferAsText()[mSize]);
 		}
 #endif
 	}

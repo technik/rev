@@ -14,6 +14,7 @@ namespace rev { namespace graphics {
 	{
 		core::File shaderFile("pbr.fx");
 		mShader = Shader::createShader(shaderFile.bufferAsText());
+		mErrorTexture = std::make_unique<Texture>(ImageRGB8::proceduralXOR(256));
 		mEV = 1.5f;
 	}
 
@@ -56,7 +57,10 @@ namespace rev { namespace graphics {
 			// Setup material
 			auto& material = renderable->material();
 			auto albedo = material.albedo;
-			glBindTexture(GL_TEXTURE_2D, albedo->glName());
+			if(albedo)
+				glBindTexture(GL_TEXTURE_2D, albedo->glName());
+			else
+				glBindTexture(GL_TEXTURE_2D, mErrorTexture->glName());
 			//glUniform3f(5, albedo.x(), albedo.y(), albedo.z()); // Albedo
 			glUniform1f(6, material.roughness);
 			glUniform1f(7, material.metallic);

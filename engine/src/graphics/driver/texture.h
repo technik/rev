@@ -32,7 +32,7 @@ namespace rev { namespace graphics {
 			glGenTextures(1, &mGLName);
 			glBindTexture(GL_TEXTURE_2D, mGLName);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.size().x(), image.size().y(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data().get());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.size().x(), image.size().y(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

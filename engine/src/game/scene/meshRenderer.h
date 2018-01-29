@@ -32,7 +32,7 @@ namespace rev { namespace game {
 
 		void showDebugInfo() override;
 		void serialize(std::ostream& out) const {
-			out << "MeshRenderer";
+			out << "MeshRenderer\n";
 			// TODO: Save actual indices
 			int32_t meshIdx = -1;
 			int32_t materialIdx = -1;

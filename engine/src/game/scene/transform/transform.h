@@ -37,7 +37,7 @@ namespace rev { namespace game {
 
 		void serialize(std::ostream& _out) const override
 		{
-			_out << "Transform"; // Type, for factories
+			_out << "Transform\n"; // Type, for factories
 			_out.write((const char*)xForm.matrix().data(), 12*sizeof(float));
 		}
 	};
