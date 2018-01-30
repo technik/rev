@@ -14,38 +14,17 @@ namespace rev { namespace game {
 
 	class MeshRenderer : public Component {
 	public:
-		MeshRenderer(std::shared_ptr<const graphics::RenderGeom> _mesh);
+		MeshRenderer(std::shared_ptr<graphics::RenderObj> mesh);
 
 		void init		() override;
 		void update		(float _dt) override;
 
-		const	graphics::RenderObj& renderObj() const { return *mRenderMesh; }
-				graphics::RenderObj& renderObj() { return *mRenderMesh; }
+		const	graphics::RenderObj& renderObj() const { return *mRenderable; }
+				graphics::RenderObj& renderObj() { return *mRenderable; }
 
-		struct Material {
-			std::shared_ptr<graphics::Texture> albedo;
-			float roughness;
-			float metallic;
-		};
-
-		const Material& material() const { return mMaterial; }
-		Material& material() { return mMaterial; }
-
-		void showDebugInfo() override;
-		void serialize(std::ostream& out) const {
-			out << "MeshRenderer\n";
-			// TODO: Save actual indices
-			int32_t meshIdx = -1;
-			int32_t materialIdx = -1;
-			out.write((const char*)meshIdx, sizeof(meshIdx));
-			out.write((const char*)materialIdx, sizeof(materialIdx));
-		}
 	private:
-		std::unique_ptr<graphics::RenderObj>	mRenderMesh;
-		math::AffineTransform*	mTransform = nullptr;
-
-		// Material info
-		Material mMaterial;
+		std::shared_ptr<graphics::RenderObj>	mRenderable;
+		Transform*								mSrcTransform;
 	};
 
 }}	// namespace rev::game

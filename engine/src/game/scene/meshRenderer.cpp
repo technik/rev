@@ -11,28 +11,19 @@ using namespace rev::graphics;
 namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
-	MeshRenderer::MeshRenderer(std::shared_ptr<const graphics::RenderGeom> _mesh) 
+	MeshRenderer::MeshRenderer(std::shared_ptr<graphics::RenderObj> renderable)
+		: mRenderable(renderable)
 	{
-		mRenderMesh = std::make_unique<RenderObj>(_mesh);
-		mMaterial.roughness = 0.5f;
-		mMaterial.metallic = 0.1f;
 	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::init() {
-		mTransform = &node()->component<Transform>()->xForm;
+		mSrcTransform = &node()->component<Transform>()->xForm;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::update(float _dt) {
-		assert(mTransform);
-		mRenderMesh->transform = *mTransform;
+		mRenderable->transform = *mSrcTransform;
 	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void MeshRenderer::showDebugInfo() {
-		gui::slider("Roughness", mMaterial.roughness, 0.f, 1.f);
-		gui::slider("Metallic", mMaterial.metallic, 0.f, 1.f);
-	}
-
 
 }}	// namespace rev::game
