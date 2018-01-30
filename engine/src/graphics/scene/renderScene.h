@@ -5,28 +5,63 @@
 #include <vector>
 #include <math/algebra/vector.h>
 #include <memory>
-#include "meshRenderer.h"
+#include "renderObj.h"
 
-namespace rev { namespace game {
-
-	class MeshRenderer;
+namespace rev { namespace graphics {
 
 	class RenderScene
 	{
 	public:
-		RenderScene() { mLightClr = math::Vec3f::ones(); }
-		std::unique_ptr<MeshRenderer> createMeshRenderer();
-		std::unique_ptr<MeshRenderer> createMeshRenderer(std::shared_ptr<const graphics::RenderGeom> _geom);
+		RenderScene()
+		{
+			mLightClr = math::Vec3f::ones();
+		}
 
-		const std::vector<MeshRenderer*>&	renderables() const { return mMeshes; }
+		// Content handling
+		size_t registerMaterial(std::shared_ptr<Material> material)
+		{
+			mMaterials.push_back(material);
+			return mMaterials.size() - 1;
+		}
+
+		size_t registerMesh(std::shared_ptr<RenderGeom> mesh)
+		{
+			mMeshes.push_back(mesh);
+			return mMeshes.size() - 1;
+		}
+
+		std::shared_ptr<RenderObj> createRenderObj(size_t meshId, size_t materialId)
+		{
+			auto& mesh = mMeshes[meshId];
+			auto& mat = mMaterials[materialId];
+			auto renderObj = std::make_shared<RenderObj>(mesh, mat);
+			mRenderables.emplace_back(renderObj);
+			return renderObj;
+		}
+
+		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<size_t,size_t>>& meshes)
+		{
+			auto renderObj = std::make_shared<RenderObj>();
+			for(auto& m : meshes)
+			{
+				auto& mesh = mMeshes[m.first];
+				auto& mat = mMaterials[m.second];
+				renderObj->meshes.push_back(mesh);
+				renderObj->materials.push_back(mat);
+			}
+			mRenderables.emplace_back(renderObj);
+			return renderObj;
+		}
+
+		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }
 
-		void showDebugInfo();
-
 	private:
-		// TODO: Separate mesh renderer from its component, and handle memory with a weak pointer
-		std::vector<MeshRenderer*>	mMeshes;
 		math::Vec3f					mLightClr;
+
+		std::vector<std::shared_ptr<RenderGeom>>	mMeshes;
+		std::vector<std::shared_ptr<Material>>		mMaterials;
+		std::vector<std::weak_ptr<RenderObj>>		mRenderables;
 	};
 
-}}	// namespace rev::game
+}}	// namespace rev::graphics
