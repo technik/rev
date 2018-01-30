@@ -10,6 +10,7 @@
 
 namespace rev { namespace graphics {
 
+	class Material;
 	class RenderGeom;
 
 	struct RenderObj
@@ -18,14 +19,17 @@ namespace rev { namespace graphics {
 			: transform(math::AffineTransform::identity())
 		{}
 
-		RenderObj(std::shared_ptr<const RenderGeom> _mesh)
+		// Sugar constructor for single mesh objects
+		RenderObj(std::shared_ptr<const RenderGeom> _mesh, std::shared_ptr<const Material> _material)
 			: RenderObj()
 		{
 			meshes.push_back(_mesh);
+			materials.push_back(_material);
 		}
 
 		math::AffineTransform	transform;
-		std::vector<std::shared_ptr<const RenderGeom>> meshes;
+		std::vector<std::shared_ptr<const RenderGeom>>	meshes;
+		std::vector<std::shared_ptr<const Material>>	materials;
 	};
 
 }}	// namespace rev::graphics
