@@ -16,6 +16,13 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	std::unique_ptr<MeshRenderer> RenderScene::createMeshRenderer() {
+		auto mesh = std::make_unique<MeshRenderer>();
+		mMeshes.emplace_back(mesh.get());
+		return mesh;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void RenderScene::showDebugInfo() {
 		gui::beginWindow("Scene");
 		gui::colorPicker("Light color", mLightClr);

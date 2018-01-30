@@ -6,6 +6,7 @@
 
 #include <math/algebra/affineTransform.h>
 #include <memory>
+#include <vector>
 
 namespace rev { namespace graphics {
 
@@ -18,12 +19,13 @@ namespace rev { namespace graphics {
 		{}
 
 		RenderObj(std::shared_ptr<const RenderGeom> _mesh)
-			: transform(math::AffineTransform::identity())
-			, mesh(_mesh)
-		{}
+			: RenderObj()
+		{
+			meshes.push_back(_mesh);
+		}
 
 		math::AffineTransform	transform;
-		std::shared_ptr<const RenderGeom> mesh;
+		std::vector<std::shared_ptr<const RenderGeom>> meshes;
 	};
 
 }}	// namespace rev::graphics

@@ -15,6 +15,7 @@ namespace rev { namespace game {
 	{
 	public:
 		RenderScene() { mLightClr = math::Vec3f::ones(); }
+		std::unique_ptr<MeshRenderer> createMeshRenderer();
 		std::unique_ptr<MeshRenderer> createMeshRenderer(std::shared_ptr<const graphics::RenderGeom> _geom);
 
 		const std::vector<MeshRenderer*>&	renderables() const { return mMeshes; }

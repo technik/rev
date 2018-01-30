@@ -65,7 +65,8 @@ namespace rev { namespace graphics {
 			glUniform1f(6, material.roughness);
 			glUniform1f(7, material.metallic);
 			// render
-			renderObj.mesh->render();
+			for(auto& mesh : renderObj.meshes)
+				mesh->render();
 		}
 	}
 

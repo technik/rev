@@ -104,13 +104,18 @@ struct IntermediateModel {
 };
 
 struct MeshRendererDesc : public rev::game::Component {
-	int32_t meshIdx = -1;
+	uint32_t nMeshes;
+	std::vector<int32_t> meshIndices;
 	int32_t materialIdx = -1;
 
 	void serialize(std::ostream& _out) const override {
 		_out << "MeshRenderer\n";
-		_out.write((const char*)&meshIdx, sizeof(meshIdx));
-		_out.write((const char*)&materialIdx, sizeof(materialIdx));
+		_out.write((const char*)&nMeshes, sizeof(nMeshes));
+		for(uint32_t i = 0; i < nMeshes; ++i)
+		{
+			_out.write((const char*)&meshIndices[i], sizeof(int32_t));
+			_out.write((const char*)&materialIdx, sizeof(materialIdx));
+		}
 	}
 };
 

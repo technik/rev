@@ -49,11 +49,18 @@ namespace rev { namespace game {
 			// TODO: Use scene materials too
 			mLoader.registerFactory("MeshRenderer", [&](const std::string&, std::istream& in)
 			{
-				int32_t meshIdx = 0;
-				int32_t materialIdx = 0;
-				in.read((char*)&meshIdx, sizeof(meshIdx));
-				in.read((char*)&materialIdx, sizeof(materialIdx));
-				return _renderScene.createMeshRenderer(mMeshCache[meshIdx]);
+				uint32_t nMeshes = 0;
+				in.read((char*)&nMeshes, sizeof(nMeshes));
+				auto meshRenderer = _renderScene.createMeshRenderer();
+				for(uint32_t i = 0; i < nMeshes; ++i)
+				{
+					int32_t meshIdx = 0;
+					int32_t materialIdx = 0;
+					in.read((char*)&meshIdx, sizeof(meshIdx));
+					in.read((char*)&materialIdx, sizeof(materialIdx));
+					meshRenderer->renderObj().meshes.push_back(mMeshCache[meshIdx]);
+				}
+				return std::move(meshRenderer);
 			});
 		}
 

@@ -19,7 +19,8 @@ namespace rev { namespace game {
 		void init		() override;
 		void update		(float _dt) override;
 
-		const graphics::RenderObj& renderObj() const { return *mRenderMesh; }
+		const	graphics::RenderObj& renderObj() const { return *mRenderMesh; }
+				graphics::RenderObj& renderObj() { return *mRenderMesh; }
 
 		struct Material {
 			std::shared_ptr<graphics::Texture> albedo;
