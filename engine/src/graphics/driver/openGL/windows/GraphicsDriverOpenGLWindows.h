@@ -30,7 +30,7 @@ namespace rev { namespace graphics {
 		HDC		mDevCtxHandle;
 	};
 
-	typedef GraphicsDriverGLWindows GraphicsDriverGL;
+	typedef GraphicsDriverGLWindows GraphicsDriverGLBase;
 
 }} // namespace rev::graphics
 

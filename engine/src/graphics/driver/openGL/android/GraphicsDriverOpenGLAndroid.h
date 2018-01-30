@@ -34,7 +34,7 @@ namespace rev { namespace graphics {
 		EGLDisplay display;
 	};
 
-	typedef GraphicsDriverGLAndroid GraphicsDriverGL;
+	typedef GraphicsDriverGLAndroid GraphicsDriverGLBase;
 
 }} // namespace rev::graphics
 
