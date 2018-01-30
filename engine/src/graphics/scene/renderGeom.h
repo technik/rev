@@ -13,7 +13,7 @@ namespace rev { namespace graphics {
 	class RenderGeom {
 	public:
 		struct Vertex {
-			math::Vec3f position, normal;
+			math::Vec3f position, normal, tangent, bitangent;
 			math::Vec2f	uv;
 		};
 
@@ -92,10 +92,14 @@ namespace rev { namespace graphics {
 			glEnableVertexAttribArray(0); // Vertex pos
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(math::Vec3f));
 			glEnableVertexAttribArray(1); // Vertex normal
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2*sizeof(math::Vec3f)));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2*sizeof(math::Vec3f)));
+			glEnableVertexAttribArray(1); // Vertex normal
+			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3*sizeof(math::Vec3f)));
+			glEnableVertexAttribArray(1); // Vertex normal
+			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(4*sizeof(math::Vec3f)));
 			glEnableVertexAttribArray(2); // Vertex uv
 
-										  // Unbind VAO
+			// Unbind VAO
 			glBindVertexArray(0);
 		}
 
