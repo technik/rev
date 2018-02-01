@@ -17,44 +17,41 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-
-#include <graphics/scene/renderScene.h>
-#include "sceneNode.h"
-
-#include <cassert>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
+#include "scene.h"
 
 namespace rev { namespace game {
 
-	class ComponentLoader;
-	class ComponentSerializer;
-
-	class Scene
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::load(std::istream& in, const ComponentLoader& loader)
 	{
-	public:
-		bool load(std::istream& in, const ComponentLoader& loader);
-		bool save(std::ostream& out, const ComponentSerializer& saver) const;
+		mNodeTree = std::make_unique<SceneNode>();
+		return parseNodeSubtree(*mNodeTree, in, loader);
+	}
 
-		// Views
-		const graphics::RenderScene& renderable() const { return mGraphics; }
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::save(std::ostream& out, const ComponentSerializer& saver) const
+	{
+		return serializeNodeSubtree(*mNodeTree, out, saver);
+	}
 
-		// Accessors
-		SceneNode*	root() const { return mNodeTree.get(); }
-		SceneNode*	findNode(const std::string& name) const;
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader)
+	{
+		// Parse root components
+		uint32_t nComponents = 0;
+		read(in,nComponents);
+		// Parse children
 
-	private:
-		bool parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader);
-		bool serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const;
+		return false;
+	}
 
-		template<class T>
-		void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
-
-		graphics::RenderScene		mGraphics;
-		std::unique_ptr<SceneNode>	mNodeTree;
-	};
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const
+	{
+		// Serialize root components
+		// Serialize children
+		//for()
+		return false;
+	}
 
 }}

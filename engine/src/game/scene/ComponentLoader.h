@@ -40,9 +40,9 @@ namespace rev { namespace game {
 		using CompPtr = std::unique_ptr<Component>;
 		using Factory = std::function<CompPtr(const std::string&, std::istream&)>;
 
-		void registerFactory(const std::string& key, const Factory& factory, bool checkDuplicated = false)
+		void registerFactory(const std::string& key, const Factory& factory, bool overrideDuplicated)
 		{
-			if(checkDuplicated)
+			if(!overrideDuplicated)
 				for(size_t i = 0; i < keys.size(); ++i)
 					if(keys[i] == key)
 					{
@@ -70,7 +70,7 @@ namespace rev { namespace game {
 		{
 			registerFactory("Transform", [](const std::string&, std::istream& in){
 				return std::make_unique<Transform>(in);
-			});
+			}, false);
 		}
 
 		std::vector<std::string>	keys;
