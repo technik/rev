@@ -27,10 +27,6 @@ namespace rev { namespace game {
 
 		SceneNode * node() const { return mNode; }
 
-		virtual void serialize(std::ostream& _out) const = 0;
-
-		// Debug info
-		virtual void showDebugInfo() {}
 	private:
 		SceneNode * mNode = nullptr;
 	};
