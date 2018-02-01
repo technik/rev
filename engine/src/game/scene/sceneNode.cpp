@@ -40,14 +40,14 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void SceneNode::addComponent(Component* _c)
+	void SceneNode::addComponent(std::unique_ptr<Component> _c)
 	{
 		if(!_c)
 			return;
-		if(_c->node() != this) {
-			_c->attachTo(this);
-			mComponents.emplace_back(_c);
-		}
+		assert(!_c->node());
+		assert(_c->node() != this);
+		_c->attachTo(this);
+		mComponents.emplace_back(std::move(_c));
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ namespace rev { namespace game {
 		auto	parent			() const { return mParent; }
 		void	addChild		(std::shared_ptr<SceneNode> child);
 		auto&	children		() const { return mChildren; }
-		void	addComponent	(Component* _c);
+		void	addComponent	(std::unique_ptr<Component> _c);
 		auto&	components		() const { return mComponents; }
 
 		template<class T_>	

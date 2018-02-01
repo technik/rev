@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "scene.h"
+#include "ComponentLoader.h"
 
 namespace rev { namespace game {
 
@@ -40,8 +41,9 @@ namespace rev { namespace game {
 		// Parse root components
 		uint32_t nComponents = 0;
 		read(in,nComponents);
+		for(uint32_t i = 0; i < nComponents; ++i)
+			root.addComponent(loader.loadComponent(in));
 		// Parse children
-
 		return false;
 	}
 

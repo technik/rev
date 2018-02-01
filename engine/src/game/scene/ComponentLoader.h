@@ -54,7 +54,7 @@ namespace rev { namespace game {
 			factories.push_back(factory);
 		}
 
-		CompPtr loadComponent(std::istream& in)
+		CompPtr loadComponent(std::istream& in) const
 		{
 			std::string key;
 			in >> key;
