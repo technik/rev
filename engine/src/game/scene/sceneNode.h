@@ -41,17 +41,11 @@ namespace rev { namespace game {
 		SceneNode& operator=(const SceneNode&) = delete;
 
 		// Handle components
-		void				addComponent	(Component* _c)
-		{
-			if(!_c)
-				return;
-			if(_c->node() != this) {
-				_c->attachTo(this);
-				mComponents.emplace_back(_c);
-			}
-		}
-		size_t				nComponents		() const					{ return mComponents.size(); }
-		Component&			component		(size_t _i) const			{ return *mComponents[_i]; }
+		auto	parent			() const { return mParent; }
+		void	addChild		(std::shared_ptr<SceneNode> child);
+		auto&	children		() const { return mChildren; }
+		void	addComponent	(Component* _c);
+		auto&	components		() const { return mComponents; }
 
 		template<class T_>	
 		T_*					component		() const {
@@ -62,34 +56,11 @@ namespace rev { namespace game {
 			return nullptr;
 		}
 
-		void serialize(std::ostream& _out) const
-		{
-			_out << name << "\n";
-			uint32_t nComponents = mComponents.size();
-			_out.write((const char*)&nComponents, sizeof(nComponents));
-			for(auto& c : mComponents) {
-				c->serialize(_out);
-			}
-		}
-
-		void deserialize(ComponentLoader& loader, std::istream& in)
-		{
-			in >> name;
-			in.get(); // Skip new line
-			uint32_t nComponents;
-			in.read((char*)&nComponents, sizeof(nComponents));
-			mComponents.resize(nComponents);
-			for(auto& c : mComponents) {
-				c = loader.loadComponent(in);
-				c->attachTo(this);
-			}
-		}
-
-		// Debug info
 		std::string name;
-		void showDebugInfo() const;
 
 	private:
+		SceneNode* mParent = nullptr;
+		std::vector<std::shared_ptr<SceneNode>> mChildren;
 		std::vector<std::unique_ptr<Component>>	mComponents;
 	};
 }}
