@@ -47,11 +47,14 @@ namespace rev { namespace game {
 		SceneNode*	findNode(const std::string& name) const;
 
 	private:
-		bool parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader);
-		bool serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const;
+		static bool parseNodeSubtree		(SceneNode& root, std::istream& in, const ComponentLoader& loader);
+		static bool serializeNodeSubtree	(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const;
+
+		static bool parseComponents(SceneNode& node, std::istream& in, const ComponentLoader& loader);
+		static bool parseChildren(SceneNode& parent, std::istream& in, const ComponentLoader& loader);
 
 		template<class T>
-		void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
+		static void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
 
 		graphics::RenderScene		mGraphics;
 		std::unique_ptr<SceneNode>	mNodeTree;

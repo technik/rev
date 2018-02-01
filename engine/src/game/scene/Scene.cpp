@@ -38,22 +38,51 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader)
 	{
-		// Parse root components
-		uint32_t nComponents = 0;
-		read(in,nComponents);
-		for(uint32_t i = 0; i < nComponents; ++i)
-			root.addComponent(loader.loadComponent(in));
-		// Parse children
-		return false;
+		if(!parseComponents(root,in,loader))
+			return false;
+		if(!parseChildren(root,in,loader))
+			return false;
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const
+	bool Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver)
 	{
 		// Serialize root components
 		// Serialize children
 		//for()
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::parseComponents(SceneNode& root, std::istream& in, const ComponentLoader& loader)
+	{
+		// Parse root components
+		uint32_t nComponents = 0;
+		read(in,nComponents);
+		for(uint32_t i = 0; i < nComponents; ++i)
+		{
+			auto c = loader.loadComponent(in);
+			if(!c)
+				return false;
+			root.addComponent(c);
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::parseChildren(SceneNode& parent, std::istream& in, const ComponentLoader& loader)
+	{
+		uint32_t nChildren = 0;
+		read(in,nChildren);
+		for(uint32_t i = 0; i < nChildren; ++i)
+		{
+			auto child = std::make_shared<SceneNode>();
+			if(!parseNodeSubtree(*child,in,loader))
+				return false;
+			parent.addChild(child);
+		}
+		return true;
 	}
 
 }}
