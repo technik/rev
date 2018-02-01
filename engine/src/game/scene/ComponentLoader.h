@@ -77,4 +77,11 @@ namespace rev { namespace game {
 		std::vector<Factory>		factories;
 	};
 
+	// TODO:
+	class ComponentSerializer
+	{
+	public:
+		void save(const Component&, std::ostream&) const;
+	};
+
 }}

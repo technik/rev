@@ -48,13 +48,19 @@ namespace rev { namespace game {
 
 	private:
 		static bool parseNodeSubtree		(SceneNode& root, std::istream& in, const ComponentLoader& loader);
-		static bool serializeNodeSubtree	(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver) const;
+		static bool serializeNodeSubtree	(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver);
 
 		static bool parseComponents(SceneNode& node, std::istream& in, const ComponentLoader& loader);
 		static bool parseChildren(SceneNode& parent, std::istream& in, const ComponentLoader& loader);
 
+		static bool saveComponents(const SceneNode& node, std::ostream& out, const ComponentSerializer& loader);
+		static bool saveChildren(const SceneNode& parent, std::ostream& out, const ComponentSerializer& loader);
+
 		template<class T>
 		static void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
+
+		template<class T>
+		static void write(std::ostream& in, const T& dst) { in.write((const char*)&dst, sizeof(T)); }
 
 		graphics::RenderScene		mGraphics;
 		std::unique_ptr<SceneNode>	mNodeTree;

@@ -48,10 +48,11 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver)
 	{
-		// Serialize root components
-		// Serialize children
-		//for()
-		return false;
+		if(!saveComponents(root,out,saver))
+			return false;
+		if(!saveChildren(root,out,saver))
+			return false;
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -82,6 +83,26 @@ namespace rev { namespace game {
 				return false;
 			parent.addChild(child);
 		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::saveComponents(const SceneNode& node, std::ostream& out, const ComponentSerializer& saver)
+	{
+		uint32_t nComponents = node.components().size();
+		write(out,nComponents);
+		for(auto& c : node.components())
+			saver.save(*c,out);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Scene::saveChildren(const SceneNode& node, std::ostream& out, const ComponentSerializer& saver)
+	{
+		uint32_t nChildren = node.children().size();
+		write(out,nChildren);
+		for(auto& c : node.children())
+			serializeNodeSubtree(*c,out,saver);
 		return true;
 	}
 
