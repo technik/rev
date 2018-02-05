@@ -5,6 +5,7 @@
 #include <graphics/scene/material.h>
 #include <math/algebra/affineTransform.h>
 #include <graphics/debug/debugGUI.h>
+#include <graphics/scene/renderObj.h>
 
 using namespace rev::math;
 

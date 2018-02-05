@@ -2,31 +2,33 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include "renderScene.h"
-#include <graphics/debug/debugGUI.h>
+#include "renderObj.h"
 
-using namespace rev::graphics;
-
-namespace rev { namespace game {
+namespace rev { namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	std::unique_ptr<MeshRenderer> RenderScene::createMeshRenderer(std::shared_ptr<const graphics::RenderGeom> _geom) {
-		auto mesh = std::make_unique<MeshRenderer>(_geom);
-		mMeshes.emplace_back(mesh.get());
-		return mesh;
+	std::shared_ptr<RenderObj> RenderScene::createRenderObj(size_t meshId, size_t materialId)
+	{
+		auto& mesh = mMeshes[meshId];
+		auto& mat = mMaterials[materialId];
+		auto renderObj = std::make_shared<RenderObj>(mesh, mat);
+		mRenderables.emplace_back(renderObj);
+		return renderObj;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	std::unique_ptr<MeshRenderer> RenderScene::createMeshRenderer() {
-		auto mesh = std::make_unique<MeshRenderer>();
-		mMeshes.emplace_back(mesh.get());
-		return mesh;
+	std::shared_ptr<RenderObj> RenderScene::createRenderObj(const std::vector<std::pair<size_t,size_t>>& meshes)
+	{
+		auto renderObj = std::make_shared<RenderObj>();
+		for(auto& m : meshes)
+		{
+			auto& mesh = mMeshes[m.first];
+			auto& mat = mMaterials[m.second];
+			renderObj->meshes.push_back(mesh);
+			renderObj->materials.push_back(mat);
+		}
+		mRenderables.emplace_back(renderObj);
+		return renderObj;
 	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void RenderScene::showDebugInfo() {
-		gui::beginWindow("Scene");
-		gui::colorPicker("Light color", mLightClr);
-		gui::endWindow();
-	}
-
-}}	// namespace rev::game
+}}	// namespace rev::graphics

@@ -139,7 +139,7 @@ struct SceneDesc
 		// Build node tree
 		Scene tree;
 		// Skip root node
-		assert(nodes[0]->components().empty());
+		assert(nodes[0]->components().size() == 1);
 		for(size_t i = 1; i < nodes.size(); ++i)
 		{
 			auto parentNdx = parents[i];
@@ -174,15 +174,15 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 	{
 		// Extract node from stack
 		auto fbxNode = stack.back().first;
-		auto parentIdx = _dst.nodes.size();
+		_dst.parents.push_back(stack.back().second);
 		stack.pop_back();
+		auto parentIdx = _dst.nodes.size();
 		// Push children for processing
 		for(unsigned i = 0; i < fbxNode->mNumChildren; ++i)
 			stack.push_back({fbxNode->mChildren[i], parentIdx});
 		// Actually process the node
 		auto dstNode = make_shared<SceneNode>();
 		_dst.nodes.push_back(dstNode);
-		_dst.parents.push_back(stack.back().second);
 		dstNode->name = fbxNode->mName.C_Str();
 		if(fbxNode->mNumMeshes > 0)
 		{
@@ -191,8 +191,8 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 			for(unsigned i = 0; i < fbxNode->mNumMeshes; ++i)
 			{
 				mesh->meshIndices[i] = fbxNode->mMeshes[i];
-				dstNode->addComponent(move(mesh));
 			}
+			dstNode->addComponent(move(mesh));
 		}
 		// Add transform
 		auto tPose = fbxNode->mTransformation;

@@ -5,9 +5,12 @@
 #include <vector>
 #include <math/algebra/vector.h>
 #include <memory>
-#include "renderObj.h"
 
 namespace rev { namespace graphics {
+
+	class Material;
+	class RenderGeom;
+	class RenderObj;
 
 	class RenderScene
 	{
@@ -30,28 +33,8 @@ namespace rev { namespace graphics {
 			return mMeshes.size() - 1;
 		}
 
-		std::shared_ptr<RenderObj> createRenderObj(size_t meshId, size_t materialId)
-		{
-			auto& mesh = mMeshes[meshId];
-			auto& mat = mMaterials[materialId];
-			auto renderObj = std::make_shared<RenderObj>(mesh, mat);
-			mRenderables.emplace_back(renderObj);
-			return renderObj;
-		}
-
-		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<size_t,size_t>>& meshes)
-		{
-			auto renderObj = std::make_shared<RenderObj>();
-			for(auto& m : meshes)
-			{
-				auto& mesh = mMeshes[m.first];
-				auto& mat = mMaterials[m.second];
-				renderObj->meshes.push_back(mesh);
-				renderObj->materials.push_back(mat);
-			}
-			mRenderables.emplace_back(renderObj);
-			return renderObj;
-		}
+		std::shared_ptr<RenderObj> createRenderObj(size_t meshId, size_t materialId);
+		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<size_t,size_t>>& meshes);
 
 		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }
