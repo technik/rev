@@ -24,7 +24,7 @@ namespace rev { namespace game {
 			_in.read((char*)xForm.matrix().data(), 12*sizeof(float));
 		}
 
-		void showDebugInfo() override {
+		/*void showDebugInfo() override {
 			graphics::gui::text("Transform");
 			math::Vec3f pos = xForm.position();
 			ImGui::InputFloat3("pos", pos.data());
@@ -39,7 +39,7 @@ namespace rev { namespace game {
 		{
 			_out << "Transform\n"; // Type, for factories
 			_out.write((const char*)xForm.matrix().data(), 12*sizeof(float));
-		}
+		}*/
 	};
 
 } }	// namespace rev::game

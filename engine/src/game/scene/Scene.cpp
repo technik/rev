@@ -19,13 +19,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "scene.h"
 #include "ComponentLoader.h"
+#include "sceneNode.h"
 
 namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
+	Scene::Scene()
+		: mNodeTree(std::make_unique<SceneNode>())
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::load(std::istream& in, const ComponentLoader& loader)
 	{
-		mNodeTree = std::make_unique<SceneNode>();
 		return parseNodeSubtree(*mNodeTree, in, loader);
 	}
 

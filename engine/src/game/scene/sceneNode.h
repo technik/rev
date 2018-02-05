@@ -22,7 +22,6 @@
 #include "component.h"
 #include <iostream>
 #include <string>
-#include "ComponentLoader.h"
 #include <core/types/json.h>
 
 namespace rev { namespace game {

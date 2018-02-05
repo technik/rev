@@ -19,8 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <game/scene/component.h>
-#include <game/scene/transform/transform.h>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -29,49 +27,23 @@
 
 namespace rev { namespace game {
 
+	class Component;
+
 	class ComponentLoader
 	{
 	public:
-		ComponentLoader() {
-			registerDefaultFactories();
-		}
+		ComponentLoader();
 
 		using Component = game::Component;
 		using CompPtr = std::unique_ptr<Component>;
 		using Factory = std::function<CompPtr(const std::string&, std::istream&)>;
 
-		void registerFactory(const std::string& key, const Factory& factory, bool overrideDuplicated)
-		{
-			if(!overrideDuplicated)
-				for(size_t i = 0; i < keys.size(); ++i)
-					if(keys[i] == key)
-					{
-						factories[i] = factory;
-						return;
-					}
-			// No duplicated key, add factory at the end
-			keys.push_back(key);
-			factories.push_back(factory);
-		}
+		void registerFactory(const std::string& key, const Factory& factory, bool overrideDuplicated);
 
-		CompPtr loadComponent(std::istream& in) const
-		{
-			std::string key;
-			in >> key;
-			in.get(); // Skip new line
-			for(size_t i = 0; i < keys.size(); ++i)
-				if(keys[i] == key)
-					return factories[i](key,in);
-			return nullptr;
-		}
+		CompPtr loadComponent(std::istream& in) const;
 
 	private:
-		void registerDefaultFactories()
-		{
-			registerFactory("Transform", [](const std::string&, std::istream& in){
-				return std::make_unique<Transform>(in);
-			}, false);
-		}
+		void registerDefaultFactories();
 
 		std::vector<std::string>	keys;
 		std::vector<Factory>		factories;

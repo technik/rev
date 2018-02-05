@@ -20,7 +20,6 @@
 #pragma once
 
 #include <graphics/scene/renderScene.h>
-#include "sceneNode.h"
 
 #include <cassert>
 #include <iostream>
@@ -32,10 +31,13 @@ namespace rev { namespace game {
 
 	class ComponentLoader;
 	class ComponentSerializer;
+	class SceneNode;
 
 	class Scene
 	{
 	public:
+		Scene();
+
 		bool load(std::istream& in, const ComponentLoader& loader);
 		void save(std::ostream& out, const ComponentSerializer& saver) const;
 

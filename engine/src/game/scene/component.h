@@ -15,17 +15,20 @@ namespace rev { namespace game {
 	{
 	public:
 		// -- Constructor & destructor --
-		Component() = default;
 		virtual	~Component();
 
 		virtual void init	() {}
 		virtual void update(float _dt) {}
 
 		// -- attach and dettach --
+		// TODO: Is this really necessary?
 		void	attachTo(SceneNode * _node);
 		void	dettach();
 
 		SceneNode * node() const { return mNode; }
+
+	protected:
+		Component() = default;
 
 	private:
 		SceneNode * mNode = nullptr;
