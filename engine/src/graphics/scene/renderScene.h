@@ -55,6 +55,7 @@ namespace rev { namespace graphics {
 
 		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }
+		auto renderables() const { return mRenderables; }
 
 	private:
 		math::Vec3f					mLightClr;

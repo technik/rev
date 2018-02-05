@@ -42,13 +42,15 @@ namespace rev { namespace game {
 		void save(std::ostream& out, const ComponentSerializer& saver) const;
 
 		// Views
-		const graphics::RenderScene& renderable() const { return mGraphics; }
+		const graphics::RenderScene&	renderable() const	{ return mGraphics; }
+		graphics::RenderScene&			renderable()		{ return mGraphics; }
 
 		// Accessors
 		SceneNode*	root() const { return mNodeTree.get(); }
 		SceneNode*	findNode(const std::string& name) const;
 
 	private:
+
 		static bool parseNodeSubtree		(SceneNode& root, std::istream& in, const ComponentLoader& loader);
 		static void serializeNodeSubtree	(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver);
 

@@ -8,7 +8,9 @@
 
 #include <math/algebra/vector.h>
 #include <game/scene/component.h>
+#include <game/scene/ComponentLoader.h>
 #include <game/scene/scene.h>
+#include <game/scene/sceneNode.h>
 #include <game/scene/transform/transform.h>
 
 #include <cassert>
@@ -19,6 +21,7 @@
 
 using namespace std;
 using namespace rev::math;
+using namespace rev::game;
 
 // --- Global data ---
 // The importer is stored globally, so buffers don't get erased and we can save some memcpy's
@@ -103,7 +106,7 @@ struct IntermediateModel {
 	}
 };
 
-struct MeshRendererDesc : public rev::game::Component {
+struct MeshRendererDesc : public Component {
 	uint32_t nMeshes;
 	std::vector<int32_t> meshIndices;
 	int32_t materialIdx = -1;
@@ -121,22 +124,31 @@ struct MeshRendererDesc : public rev::game::Component {
 
 struct SceneDesc
 {
-	std::vector<rev::game::SceneNode*> nodes;
+	std::vector<shared_ptr<SceneNode>> nodes;
+	std::vector<int>				parents;
 	std::vector<IntermediateModel> meshes;
 
-	void saveToStream(std::ostream& out) const
+	void saveToStream(ostream& dst)
 	{
-		// Save header
-		struct header {
-			uint32_t nMeshes, nNodes;
-		} header = { meshes.size(), nodes.size() };
-		out.write((const char*)&header, sizeof(header));
-		// Write meshes
+		// --- Serialize meshes ---
+		uint32_t nMeshes = meshes.size();
+		dst.write((const char*)&nMeshes, sizeof(nMeshes));
 		for(auto& mesh : meshes)
-			mesh.saveToStream(out);
-		// Write nodes
-		for(auto& node : nodes)
-			node->serialize(out);
+			mesh.saveToStream(dst);
+		// --- Serialize node tree ---
+		// Build node tree
+		Scene tree;
+		// Skip root node
+		assert(nodes[0]->components().empty());
+		for(size_t i = 1; i < nodes.size(); ++i)
+		{
+			auto parentNdx = parents[i];
+			if(parentNdx == -1)
+				tree.root()->addChild(nodes[i]);
+			else
+				nodes[parentNdx]->addChild(nodes[i]);
+		}
+		tree.save(dst, ComponentSerializer());
 	}
 };
 
@@ -162,28 +174,33 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 	{
 		// Extract node from stack
 		auto fbxNode = stack.back().first;
-		auto parentIdx = stack.back().second;
+		auto parentIdx = _dst.nodes.size();
 		stack.pop_back();
 		// Push children for processing
 		for(unsigned i = 0; i < fbxNode->mNumChildren; ++i)
-			stack.push_back({fbxNode->mChildren[i], _dst.nodes.size()});
+			stack.push_back({fbxNode->mChildren[i], parentIdx});
 		// Actually process the node
-		_dst.nodes.push_back(new rev::game::SceneNode());
-		auto dstNode = _dst.nodes.back();
+		auto dstNode = make_shared<SceneNode>();
+		_dst.nodes.push_back(dstNode);
+		_dst.parents.push_back(stack.back().second);
 		dstNode->name = fbxNode->mName.C_Str();
 		if(fbxNode->mNumMeshes > 0)
 		{
-			auto mesh = new MeshRendererDesc;
-			mesh->meshIdx = fbxNode->mMeshes[0];
-			dstNode->addComponent(mesh);
+			auto mesh = make_unique<MeshRendererDesc>();
+			mesh->meshIndices.resize(fbxNode->mNumMeshes);
+			for(unsigned i = 0; i < fbxNode->mNumMeshes; ++i)
+			{
+				mesh->meshIndices[i] = fbxNode->mMeshes[i];
+				dstNode->addComponent(move(mesh));
+			}
 		}
 		// Add transform
 		auto tPose = fbxNode->mTransformation;
 		Mat44f xFormMatrix;
 		memcpy(xFormMatrix.data(), &tPose.Transpose(), 16*sizeof(float));
-		auto xForm = new rev::game::Transform();
+		auto xForm = make_unique<rev::game::Transform>();
 		xForm->matrix() = xFormMatrix.block<3,4>(0,0);
-		dstNode->addComponent(xForm);
+		dstNode->addComponent(move(xForm));
 	}
 	return true;
 }

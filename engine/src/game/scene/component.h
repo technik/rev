@@ -27,6 +27,8 @@ namespace rev { namespace game {
 
 		SceneNode * node() const { return mNode; }
 
+		virtual void serialize(std::ostream& out) const = 0;
+
 	protected:
 		Component() = default;
 

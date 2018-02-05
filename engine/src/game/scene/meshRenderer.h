@@ -24,7 +24,7 @@ namespace rev { namespace game {
 
 	private:
 		std::shared_ptr<graphics::RenderObj>	mRenderable;
-		Transform*								mSrcTransform;
+		math::AffineTransform*					mSrcTransform;
 	};
 
 }}	// namespace rev::game

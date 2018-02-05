@@ -38,6 +38,7 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	void Scene::save(std::ostream& out, const ComponentSerializer& saver) const
 	{
+		// Save node tree
 		serializeNodeSubtree(*mNodeTree, out, saver);
 	}
 

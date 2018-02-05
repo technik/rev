@@ -33,13 +33,13 @@ namespace rev { namespace game {
 			graphics::gui::slider("y", pos.y(), -500.f, 500.f);
 			graphics::gui::slider("z", pos.z(), 0.f, 600.f);
 			xForm.position() = pos;
-		}
+		}*/
 
 		void serialize(std::ostream& _out) const override
 		{
 			_out << "Transform\n"; // Type, for factories
 			_out.write((const char*)xForm.matrix().data(), 12*sizeof(float));
-		}*/
+		}
 	};
 
 } }	// namespace rev::game

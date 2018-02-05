@@ -2,6 +2,7 @@
 #include <core/platform/fileSystem/file.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/material.h>
 #include <math/algebra/affineTransform.h>
 #include <graphics/debug/debugGUI.h>
 
@@ -10,8 +11,9 @@ using namespace rev::math;
 namespace rev { namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init()
+	void ForwardRenderer::init(GraphicsDriverGL& driver)
 	{
+		mDriver = &driver;
 		core::File shaderFile("pbr.fx");
 		mShader = Shader::createShader(shaderFile.bufferAsText());
 		mErrorTexture = std::make_unique<Texture>(ImageRGB8::proceduralXOR(256));
@@ -19,7 +21,7 @@ namespace rev { namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::render(const Camera& eye, const game::RenderScene& scene) {
+	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
 		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -40,9 +42,9 @@ namespace rev { namespace graphics {
 
 		auto worldMatrix = Mat44f::identity();
 		for(auto renderable : scene.renderables()) {
-			auto& renderObj = renderable->renderObj();
+			auto renderObj = renderable.lock();
 			// Get world matrix
-			worldMatrix.block<3,4>(0,0) = renderObj.transform.matrix();
+			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms
 			auto wvp = vp*worldMatrix;
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
@@ -55,17 +57,9 @@ namespace rev { namespace graphics {
 			glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
 
 			// Setup material
-			auto& material = renderable->material();
-			auto albedo = material.albedo;
-			if(albedo)
-				glBindTexture(GL_TEXTURE_2D, albedo->glName());
-			else
-				glBindTexture(GL_TEXTURE_2D, mErrorTexture->glName());
-			//glUniform3f(5, albedo.x(), albedo.y(), albedo.z()); // Albedo
-			glUniform1f(6, material.roughness);
-			glUniform1f(7, material.metallic);
+			renderObj->materials[0]->bind(*mDriver);
 			// render
-			for(auto& mesh : renderObj.meshes)
+			for(auto& mesh : renderObj->meshes)
 				mesh->render();
 		}
 	}
