@@ -8,10 +8,11 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
 #include <core/tools/log.h>
+#include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
-#include <game/scene/camera.h>
+#include <graphics/scene/material.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -91,7 +92,21 @@ namespace rev {
 			rev::core::Log::error("Unable to load asset");
 			return;
 		}
-		mGameScene.load(asset.asStream(), mComponentFactory);
+		auto& in = asset.asStream();
+		// Create a temporary material to use with everything
+		auto defaultMaterial = std::make_shared<graphics::Material>();
+		mGraphicsScene.registerMaterial(defaultMaterial);
+		// TODO: Add material parameters
+		// Load meshes
+		uint32_t nMeshes;
+		in.read((char*)&nMeshes, sizeof(nMeshes));
+		for(uint32_t i = 0; i < nMeshes; ++i)
+		{
+			auto geom = std::make_shared<RenderGeom>();
+			geom->deserialize(in);
+			mGraphicsScene.registerMesh(geom);
+		}
+		mGameScene.load(in, mComponentFactory);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

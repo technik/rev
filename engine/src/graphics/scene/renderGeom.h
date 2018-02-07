@@ -13,7 +13,7 @@ namespace rev { namespace graphics {
 	class RenderGeom {
 	public:
 		struct Vertex {
-			math::Vec3f position, normal, tangent, bitangent;
+			math::Vec3f position, tangent, bitangent, normal;
 			math::Vec2f	uv;
 		};
 

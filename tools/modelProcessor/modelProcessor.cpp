@@ -12,6 +12,7 @@
 #include <game/scene/scene.h>
 #include <game/scene/sceneNode.h>
 #include <game/scene/transform/transform.h>
+#include <graphics/scene/renderGeom.h>
 
 #include <cassert>
 #include <fstream>
@@ -30,6 +31,8 @@ Assimp::Importer fbxLoader;
 struct IntermediateModel {
 	//VertexFormat format;
 	Vec3f* vertices = nullptr;
+	Vec3f* tangents = nullptr;
+	Vec3f* bitangents = nullptr;
 	Vec3f* normals = nullptr;
 	Vec2f* uvs = nullptr;
 	uint16_t* indices = nullptr;
@@ -37,10 +40,7 @@ struct IntermediateModel {
 	uint32_t nIndices = 0;
 	uint32_t nVertices = 0;
 
-	struct VertexData {
-		Vec3f position, normal;
-		Vec2f uv;
-	};
+	using VertexData = rev::graphics::RenderGeom::Vertex;
 
 	//----------------------------------------------------------------------------------------------------------------------
 	void collapseVertexData(vector<VertexData>& _dst) const 
@@ -68,6 +68,8 @@ struct IntermediateModel {
 			return false;
 		}
 		vertices = reinterpret_cast<Vec3f*>(_mesh->mVertices);
+		tangents = reinterpret_cast<Vec3f*>(_mesh->mTangents);
+		bitangents = reinterpret_cast<Vec3f*>(_mesh->mBitangents);
 		normals = reinterpret_cast<Vec3f*>(_mesh->mNormals);
 		uvs = new Vec2f[nVertices];
 		auto uv0 = _mesh->mTextureCoords[0];
