@@ -106,7 +106,10 @@ namespace rev {
 			geom->deserialize(in);
 			mGraphicsScene.registerMesh(geom);
 		}
-		mGameScene.load(in, mComponentFactory);
+		if(!mGameScene.load(in, mComponentFactory))
+		{
+			rev::core::Log::error("Error loading scene");
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

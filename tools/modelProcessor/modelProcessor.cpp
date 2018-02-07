@@ -147,7 +147,8 @@ struct SceneDesc
 		for(size_t i = 1; i < nodes.size(); ++i)
 		{
 			auto parentNdx = parents[i];
-			if(parentNdx == -1)
+			assert(parentNdx != -1);
+			if(parentNdx == 0)
 				tree.root()->addChild(nodes[i]);
 			else
 				nodes[parentNdx]->addChild(nodes[i]);
