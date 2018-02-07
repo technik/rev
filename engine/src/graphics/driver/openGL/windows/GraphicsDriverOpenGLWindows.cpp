@@ -4,6 +4,7 @@
 #ifdef _WIN32
 
 #include "GraphicsDriverOpenGLWindows.h"
+#include "../GraphicsDriverOpenGL.h"
 #include <iostream>
 
 using namespace std;
@@ -11,7 +12,7 @@ using namespace std;
 namespace rev {	namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	GraphicsDriverGLWindows* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
+	GraphicsDriverGL* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
 		auto windowHandle = _window;
 		auto deviceContext = GetDC(windowHandle->nativeWindow); // Device contex
 												  // Set pixel format
@@ -75,7 +76,7 @@ namespace rev {	namespace graphics {
 		cout << "OpenGL Version " << (char*)glGetString(GL_VERSION) << "\n";
 		cout << "GLSL Version " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 
-		auto driver = new GraphicsDriverGLWindows();
+		auto driver = new GraphicsDriverGL();
 		if(driver) {
 			driver->mWindowHandle = windowHandle->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;

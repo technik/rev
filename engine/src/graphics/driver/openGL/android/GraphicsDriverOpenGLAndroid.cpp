@@ -5,6 +5,7 @@
 
 #include <android/log.h>
 #include "GraphicsDriverOpenGLAndroid.h"
+#include "../GraphicsDriverOpenGL.h"
 
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "GraphicsDriver", __VA_ARGS__))
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "GraphicsDriver", __VA_ARGS__))
@@ -17,7 +18,7 @@ namespace rev { namespace graphics {
 		LOGI("GL %s = %s", name, s);
 	}
 
-	GraphicsDriverGLAndroid* GraphicsDriverGLAndroid::createDriver(AndroidScreen* _screen) {
+	GraphicsDriverGL* GraphicsDriverGLAndroid::createDriver(AndroidScreen* _screen) {
 		// initialize OpenGL ES and EGL
 		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		EGLint glVersion[2];
@@ -71,7 +72,7 @@ namespace rev { namespace graphics {
 		eglQuerySurface(display, surface, EGL_WIDTH, &w);
 		eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-		auto gfxDriver = new GraphicsDriverGLAndroid();
+		auto gfxDriver = new GraphicsDriverGL();
 		if(gfxDriver) {
 			printGLString("Version", GL_VERSION);
 			printGLString("Vendor", GL_VENDOR);

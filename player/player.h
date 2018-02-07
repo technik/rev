@@ -5,9 +5,11 @@
 
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/scene/renderGeom.h>
-#include <game/scene/renderScene.h>
+#include <game/scene/scene.h>
 #include <game/scene/sceneNode.h>
+#include <game/scene/ComponentLoader.h>
 #include <graphics/scene/camera.h>
+#include <graphics/scene/renderScene.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/driver/texture.h>
 #include "gameProject.h"
@@ -21,7 +23,6 @@ namespace rev {
 	class Player {
 	public:
 		Player()
-			: mGameScene(mGraphicsScene)
 		{}
 
 		Player(const Player&) = delete;
@@ -39,7 +40,8 @@ namespace rev {
 
 		std::shared_ptr<graphics::Texture>		mXORTexture;
 
-		game::RenderScene						mGraphicsScene;
+		game::ComponentLoader					mComponentFactory;
+		graphics::RenderScene					mGraphicsScene;
 		game::Scene								mGameScene;
 		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;

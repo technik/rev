@@ -17,12 +17,14 @@ namespace rev { namespace graphics {
 		math::Vec2u size;
 	};
 
+	class GraphicsDriverGL;
+
 	class GraphicsDriverGLWindows
 	{
 	public:
 		using NativeWindow = WindowWin32*;
 
-		static GraphicsDriverGLWindows* createDriver(NativeWindow _nativeWindow);
+		static GraphicsDriverGL* createDriver(NativeWindow _nativeWindow);
 		void swapBuffers();
 
 	private:

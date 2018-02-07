@@ -13,8 +13,9 @@ namespace rev { namespace graphics {
 	class Material;
 	class RenderGeom;
 
-	struct RenderObj
+	class RenderObj
 	{
+	public:
 		RenderObj()
 			: transform(math::AffineTransform::identity())
 		{}

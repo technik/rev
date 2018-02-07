@@ -17,12 +17,14 @@ namespace rev { namespace graphics {
 		math::Vec2u size;
 	};
 
+	class GraphicsDriverGL;
+
 	class GraphicsDriverGLAndroid
 	{
 	public:
 		using NativeWindow = AndroidScreen*;
 
-		static GraphicsDriverGLAndroid* createDriver(AndroidScreen* _screen);
+		static GraphicsDriverGL* createDriver(AndroidScreen* _screen);
 		void swapBuffers();
 
 	private:

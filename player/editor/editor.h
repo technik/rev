@@ -49,8 +49,8 @@ namespace rev { namespace player {
 			// Show menu
 			drawMainMenu();
 			showProjectExplorer();
-			showNodeTree(scene.nodes());
-			showInspector(scene.nodes());
+			//showNodeTree(scene.nodes());
+			//showInspector(scene.nodes());
 			//ImGui::ShowDemoWindow();
 		}
 		
@@ -83,7 +83,7 @@ namespace rev { namespace player {
 			ImGui::EndMainMenuBar();
 		}
 
-		void showNodeTree(const std::vector<game::SceneNode*>& _nodes)
+		/*void showNodeTree(const std::vector<game::SceneNode*>& _nodes)
 		{
 			if(!mShowNodeTree)
 				return;
@@ -131,7 +131,7 @@ namespace rev { namespace player {
 					ImGui::End();
 				}
 			}
-		}
+		}*/
 
 		void showProjectExplorer() {
 			if(mShowProjectExplorer)

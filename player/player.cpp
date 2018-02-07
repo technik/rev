@@ -45,7 +45,7 @@ namespace rev {
 			loadScene("sponza_crytek.scn");
 			createCamera();
 
-			mRenderer.init();
+			mRenderer.init(*mGfxDriver);
 			gui::init(_window->size);
 		}
 		return mGfxDriver != nullptr;
@@ -54,19 +54,19 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Node
-		mGameScene.nodes().push_back(new SceneNode());
-		auto& cameraNode = mGameScene.nodes().back();
+		auto cameraNode = std::make_shared<SceneNode>();
+		mGameScene.root()->addChild(cameraNode);
 		cameraNode->name = "Camera";
 		// Transform
-		auto objXForm = new Transform();
+		auto objXForm = std::make_unique<Transform>();
 		objXForm->matrix().setIdentity();
 		objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
 		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
-		cameraNode->addComponent(objXForm);
+		cameraNode->addComponent(std::move(objXForm));
 		// Actual camera
-		auto camComponent = new game::Camera();
+		auto camComponent = std::make_unique<game::Camera>();
 		mCamera = &camComponent->cam();
-		cameraNode->addComponent(camComponent);
+		cameraNode->addComponent(std::move(camComponent));
 		// Init camera
 		cameraNode->init();
 	}
@@ -91,7 +91,7 @@ namespace rev {
 			rev::core::Log::error("Unable to load asset");
 			return;
 		}
-		mGameScene.load(asset.asStream());
+		mGameScene.load(asset.asStream(), mComponentFactory);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -105,10 +105,9 @@ namespace rev {
 
 		auto dt = core::Time::get()->frameTime();
 
-		for(auto& obj : mGameScene.nodes())
-			obj->update(dt);
+		mGameScene.root()->update(dt);
 
-		mGraphicsScene.showDebugInfo();
+		//mGraphicsScene.showDebugInfo();
 		mRenderer.render(*mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);
