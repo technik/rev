@@ -111,12 +111,12 @@ struct IntermediateModel {
 };
 
 struct MeshRendererDesc : public Component {
-	uint32_t nMeshes;
 	std::vector<int32_t> meshIndices;
-	int32_t materialIdx = -1;
+	uint32_t materialIdx = 0;
 
 	void serialize(std::ostream& _out) const override {
 		_out << "MeshRenderer\n";
+		uint32_t nMeshes = meshIndices.size();
 		_out.write((const char*)&nMeshes, sizeof(nMeshes));
 		for(uint32_t i = 0; i < nMeshes; ++i)
 		{

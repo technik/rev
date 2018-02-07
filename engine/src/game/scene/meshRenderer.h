@@ -22,6 +22,10 @@ namespace rev { namespace game {
 		const	graphics::RenderObj& renderObj() const { return *mRenderable; }
 				graphics::RenderObj& renderObj() { return *mRenderable; }
 
+				void serialize(std::ostream &) const override {
+					// TODO
+				}
+
 	private:
 		std::shared_ptr<graphics::RenderObj>	mRenderable;
 		math::AffineTransform*					mSrcTransform;

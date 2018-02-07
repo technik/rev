@@ -33,8 +33,8 @@ namespace rev { namespace graphics {
 			return mMeshes.size() - 1;
 		}
 
-		std::shared_ptr<RenderObj> createRenderObj(size_t meshId, size_t materialId);
-		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<size_t,size_t>>& meshes);
+		std::shared_ptr<RenderObj> createRenderObj(uint32_t meshId, uint32_t materialId);
+		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<uint32_t,uint32_t>>& meshes);
 
 		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }

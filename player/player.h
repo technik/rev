@@ -37,6 +37,7 @@ namespace rev {
 
 	private:
 		void createCamera();
+		void registerFactories();
 
 		std::shared_ptr<graphics::Texture>		mXORTexture;
 

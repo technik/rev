@@ -42,6 +42,7 @@ namespace rev {
 			mGameProject.load("sample.prj");
 			// Create texture first to be able to use it during scene loading
 			mXORTexture = std::make_shared<Texture>(ImageRGB8::proceduralXOR(512));
+			registerFactories();
 			mGameEditor.init();
 			loadScene("sponza_crytek.scn");
 			createCamera();
@@ -50,6 +51,23 @@ namespace rev {
 			gui::init(_window->size);
 		}
 		return mGfxDriver != nullptr;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::registerFactories() {
+		// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
+		mComponentFactory.registerFactory("MeshRenderer", [this](const std::string&, std::istream& in)
+		{
+			uint32_t nMeshes;
+			in.read((char*)&nMeshes, sizeof(nMeshes));
+			// TODO: size_t is platform dependent, use uint32_t instead
+			std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
+			for(auto& mesh : meshList)
+			{
+				in.read((char*)&mesh, 2*sizeof(size_t));
+			}
+			return std::make_unique<MeshRenderer>( mGraphicsScene.createRenderObj(meshList) );
+		}, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
