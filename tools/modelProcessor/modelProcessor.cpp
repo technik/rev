@@ -48,6 +48,8 @@ struct IntermediateModel {
 		for (size_t i = 0; i < nVertices; ++i) {
 			auto& dataRow = _dst[i];
 			dataRow.position = vertices[i];
+			dataRow.tangent = tangents[i];
+			dataRow.bitangent = bitangents[i];
 			dataRow.normal = normals[i];
 			dataRow.uv = uvs[i];
 		}
