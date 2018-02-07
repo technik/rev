@@ -91,13 +91,13 @@ namespace rev { namespace graphics {
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 			glEnableVertexAttribArray(0); // Vertex pos
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(math::Vec3f));
-			glEnableVertexAttribArray(1); // Vertex normal
+			glEnableVertexAttribArray(1); // Vertex tangent
 			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(1); // Vertex normal
+			glEnableVertexAttribArray(2); // Vertex bitangent
 			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(1); // Vertex normal
+			glEnableVertexAttribArray(3); // Vertex normal
 			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(4*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(2); // Vertex uv
+			glEnableVertexAttribArray(4); // Vertex uv
 
 			// Unbind VAO
 			glBindVertexArray(0);

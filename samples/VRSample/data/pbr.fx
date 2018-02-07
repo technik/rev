@@ -1,7 +1,9 @@
 #ifdef VTX_SHADER
 layout(location = 0) in vec3 vertex;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 texCoord;
+layout(location = 1) in vec3 tangent;
+layout(location = 2) in vec3 bitangent;
+layout(location = 3) in vec3 normal;
+layout(location = 4) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform vec3 uMSViewPos; // Direction toward viewpoint

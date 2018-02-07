@@ -60,7 +60,6 @@ namespace rev {
 		{
 			uint32_t nMeshes;
 			in.read((char*)&nMeshes, sizeof(nMeshes));
-			// TODO: size_t is platform dependent, use uint32_t instead
 			std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
 			for(auto& mesh : meshList)
 			{
@@ -143,7 +142,6 @@ namespace rev {
 
 		mGameScene.root()->update(dt);
 
-		//mGraphicsScene.showDebugInfo();
 		mRenderer.render(*mCamera, mGraphicsScene);
 
 		gui::finishFrame(dt);
