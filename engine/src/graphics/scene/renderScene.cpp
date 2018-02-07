@@ -23,9 +23,14 @@ namespace rev { namespace graphics {
 		for(auto& m : meshes)
 		{
 			auto& mesh = mMeshes[m.first];
-			auto& mat = mMaterials[m.second];
 			renderObj->meshes.push_back(mesh);
-			renderObj->materials.push_back(mat);
+			if(m.second < mMaterials.size())
+			{
+				auto& mat = mMaterials[m.second];
+				renderObj->materials.push_back(mat);
+			}
+			else
+				renderObj->materials.push_back(mMaterials[0]); // TODO: Add an error or default material
 		}
 		mRenderables.emplace_back(renderObj);
 		return renderObj;
