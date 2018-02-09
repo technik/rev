@@ -32,7 +32,10 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::load(std::istream& in, const ComponentLoader& loader)
 	{
-		return parseNodeSubtree(*mNodeTree, in, loader);
+		if(!parseNodeSubtree(*mNodeTree, in, loader))
+			return false;
+		mNodeTree->init();
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

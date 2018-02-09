@@ -112,7 +112,7 @@ namespace rev {
 		auto& in = asset.asStream();
 		// Create a temporary material to use with everything
 		auto defaultMaterial = std::make_shared<graphics::Material>();
-		defaultMaterial->addTexture(0, mXORTexture->glName()); // Albedo texture
+		defaultMaterial->addTexture(5, mXORTexture->glName()); // Albedo texture
 		defaultMaterial->addParam(6, 0.5f); // Roughness
 		defaultMaterial->addParam(7, 0.05f); // Metallic
 		mGraphicsScene.registerMaterial(defaultMaterial);

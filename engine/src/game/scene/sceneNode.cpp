@@ -31,11 +31,15 @@ namespace rev { namespace game {
 	void SceneNode::init() {
 		for(auto& c : mComponents)
 			c->init();
+		for(auto& c : mChildren)
+			c->init();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void SceneNode::update(float _dt) {
 		for(auto& c : mComponents)
+			c->update(_dt);
+		for(auto c : mChildren)
 			c->update(_dt);
 	}
 
