@@ -23,6 +23,7 @@
 #include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
+#include <game/scene/ComponentLoader.h>
 #include <string>
 #include <vector>
 
@@ -49,10 +50,12 @@ namespace rev { namespace player {
 			// Show menu
 			drawMainMenu();
 			showProjectExplorer();
-			//showNodeTree(scene.nodes());
-			//showInspector(scene.nodes());
+			showNodeTree(scene.root());
+			showInspector();
 			//ImGui::ShowDemoWindow();
 		}
+
+		void registerCustomFactories(game::ComponentLoader& loader);
 		
 		void pickTexture(std::shared_ptr<graphics::Texture>& texture)
 		{
@@ -83,55 +86,50 @@ namespace rev { namespace player {
 			ImGui::EndMainMenuBar();
 		}
 
-		/*void showNodeTree(const std::vector<game::SceneNode*>& _nodes)
+		void showNodeTree(const game::SceneNode* root)
 		{
 			if(!mShowNodeTree)
 				return;
 
 			if(ImGui::Begin("Node Tree"))
 			{
-				gui::showList("Node list", mSelectedNodeNdx, [=](size_t i){ return _nodes[i]->name.c_str(); }, _nodes.size());
-				if(mSelectedNodeNdx >= 0)
-					mShowInspector = true;
+				// TODO: Make this a real tree
+				for(auto c : root->children())
+				{
+					if(ImGui::Selectable(c->name.c_str()))
+					{
+						mSelectedNode = c;
+					}
+				}
 				ImGui::End();
 			}
 		}
 
-		class Inspectable {
-		public:
-			Inspectable(game::SceneNode& node)
-				: mNode(node)
-			{
-				mMesh = node.component<game::MeshRenderer>();
-			}
-
-			void showInspectorMenu(Editor& editor)
-			{
-				mNode.showDebugInfo();
-				if(mMesh)
-				{
-					editor.pickTexture(mMesh->material().albedo);
-				}
-			}
-
-			game::SceneNode& mNode;
-			game::MeshRenderer* mMesh = nullptr;
+		struct ComponentInspector {
+			virtual void showInspectionPanel() const = 0;
 		};
 
-		void showInspector(std::vector<game::SceneNode*>& _nodes) {
+		struct RendererInspector : ComponentInspector
+		{
+			void showInspectionPanel() const override {
+				ImGui::Text("I'm a renderable");
+			}
+		};
+
+		void showInspector() {
 			if(mShowInspector)
 			{
 				if(ImGui::Begin("Item Inspector"))
 				{
-					if((mSelectedNodeNdx >= 0))
+					/*if((mSelectedNodeNdx >= 0))
 					{
 						Inspectable element(*_nodes[mSelectedNodeNdx]);
 						element.showInspectorMenu(*this);
-					}
+					}*/
 					ImGui::End();
 				}
 			}
-		}*/
+		}
 
 		void showProjectExplorer() {
 			if(mShowProjectExplorer)
@@ -152,11 +150,17 @@ namespace rev { namespace player {
 		std::vector<std::string>	mTextures;
 		game::TextureManager mTextureMgr;
 
-		bool mShowInspector = false;
-		bool mShowProjectExplorer = true;
+		bool mShowInspector = true;
+		bool mShowProjectExplorer = false;
 		bool mShowRenderOptions = false;
-		bool mShowNodeTree = false;
-		int mSelectedNodeNdx = -1;
+		bool mShowNodeTree = true;
+		std::weak_ptr<game::SceneNode>	mSelectedNode;
 	};
+
+	// Inline implementation
+	inline void Editor::registerCustomFactories(game::ComponentLoader& loader)
+	{
+		//
+	}
 
 }}
