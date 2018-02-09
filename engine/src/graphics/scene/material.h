@@ -60,13 +60,11 @@ namespace rev { namespace graphics {
 				driver.bindUniform(v.first, v.second);
 			for(GLenum t = 0; t < mTextureParams.size(); ++t)
 			{
-				glActiveTexture(GL_TEXTURE0+t);
 				auto& textureParam = mTextureParams[t];
-				glBindTexture(GL_TEXTURE_2D, textureParam.second);
 				glUniform1i(textureParam.first, t);
+				glActiveTexture(GL_TEXTURE0+t);
+				glBindTexture(GL_TEXTURE_2D, textureParam.second);
 			}
-			for(const auto& t : mTextureParams)
-				driver.bindUniformTexture(t.first, t.second);
 		}
 
 	private:
