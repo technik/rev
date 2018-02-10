@@ -23,8 +23,10 @@
 #include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
+#include <game/scene/meshRenderer.h>
 #include <game/scene/ComponentLoader.h>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 namespace rev { namespace player {
@@ -43,6 +45,7 @@ namespace rev { namespace player {
 				"textures/spnza_bricks_a_spec.tga"
 			};
 			mTextureMgr.init();
+			createInspectors();
 		}
 
 		void update(game::Scene& scene)
@@ -113,13 +116,18 @@ namespace rev { namespace player {
 		}
 
 		struct ComponentInspector {
-			virtual void showInspectionPanel() const = 0;
+			virtual void showInspectionPanel(game::Component*) const = 0;
 		};
 
 		struct RendererInspector : ComponentInspector
 		{
-			void showInspectionPanel() const override {
+			void showInspectionPanel(game::Component*c) const override {
+				auto meshRenderer = static_cast<game::MeshRenderer*>(c);
 				ImGui::Text("I'm a renderable");
+				for(auto m : meshRenderer->renderObj().meshes)
+				{
+					ImGui::Text("mesh");
+				}
 			}
 		};
 
@@ -128,11 +136,22 @@ namespace rev { namespace player {
 			{
 				if(ImGui::Begin("Item Inspector"))
 				{
-					/*if((mSelectedNodeNdx >= 0))
+					if(!mSelectedNode.expired())
 					{
-						Inspectable element(*_nodes[mSelectedNodeNdx]);
-						element.showInspectorMenu(*this);
-					}*/
+						auto inspectedNode = mSelectedNode.lock();
+						ImGui::Text(inspectedNode->name.c_str());
+						ImGui::Separator();
+						for(auto& c : inspectedNode->components())
+						{
+							auto typeName = std::string(typeid(*c).name());
+							auto i = mInspectors.find(typeName);
+							if(i != mInspectors.end())
+							{
+								i->second->showInspectionPanel(c.get());
+								ImGui::Separator();
+							}
+						}
+					}
 					ImGui::End();
 				}
 			}
@@ -154,6 +173,19 @@ namespace rev { namespace player {
 			}
 		}
 
+		template<class Inspected, class Inspector>
+		void registerInspector()
+		{
+			mInspectors.insert(std::make_pair(
+				std::string(typeid(Inspected).name()),
+				std::make_unique<Inspector>())
+			);
+		}
+
+		void createInspectors () {
+			registerInspector<game::MeshRenderer,RendererInspector>();
+		}
+
 		std::vector<std::string>	mTextures;
 		game::TextureManager mTextureMgr;
 
@@ -162,12 +194,8 @@ namespace rev { namespace player {
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = true;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;
+		// TODO: This design can be improved
+		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
 	};
-
-	// Inline implementation
-	inline void Editor::registerCustomFactories(game::ComponentLoader& loader)
-	{
-		//
-	}
 
 }}
