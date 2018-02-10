@@ -29,6 +29,13 @@ namespace rev { namespace graphics {
 	class Material
 	{
 	public:
+		float* floatParam(GLint i)
+		{
+			for(auto& p : mFloatParams)
+				if(p.first == i)
+					return &p.second;
+			return nullptr;
+		}
 
 		void addParam(GLint pos,float f)
 		{

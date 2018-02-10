@@ -7,6 +7,7 @@
 #include <graphics/driver/shader.h>
 #include <graphics/driver/texture.h>
 #include <graphics/scene/renderScene.h>
+#include <graphics/scene/material.h>
 
 namespace rev { namespace graphics {
 
@@ -21,8 +22,9 @@ namespace rev { namespace graphics {
 	private:
 		GraphicsDriverGL*	mDriver = nullptr;
 		float mEV;
-		std::unique_ptr<graphics::Texture>		mErrorTexture;
-		std::unique_ptr<graphics::Shader>		mShader;
+		std::unique_ptr<Material>		mErrorMaterial;
+		std::unique_ptr<Texture>		mErrorTexture;
+		std::unique_ptr<Shader>			mShader;
 	};
 
 }}

@@ -124,10 +124,20 @@ namespace rev { namespace player {
 		{
 			void showInspectionPanel(game::Component*c) const override {
 				auto meshRenderer = static_cast<game::MeshRenderer*>(c);
-				ImGui::Text("I'm a renderable");
-				for(auto m : meshRenderer->renderObj().meshes)
+				ImGui::Text("Materials:");
+				auto& renderObj = meshRenderer->renderObj();
+				ImGuiID i = 0;
+				for(auto mat : renderObj.materials)
 				{
-					ImGui::Text("mesh");
+					ImGui::BeginChild(i);
+					auto roughness = mat->floatParam(6);
+					if(roughness)
+						ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
+					auto metallic = mat->floatParam(7);
+					if(metallic)
+						ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
+					i++;
+					ImGui::EndChild();
 				}
 			}
 		};

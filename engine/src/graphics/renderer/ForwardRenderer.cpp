@@ -18,6 +18,10 @@ namespace rev { namespace graphics {
 		core::File shaderFile("pbr.fx");
 		mShader = Shader::createShader(shaderFile.bufferAsText());
 		mErrorTexture = std::make_unique<Texture>(ImageRGB8::proceduralXOR(256));
+		mErrorMaterial = std::make_unique<Material>();
+		mErrorMaterial->addTexture(5, mErrorTexture->glName()); // Albedo texture
+		mErrorMaterial->addParam(6, 0.5f); // Roughness
+		mErrorMaterial->addParam(7, 0.05f); // Metallic
 		mEV = 1.5f;
 	}
 
@@ -42,7 +46,9 @@ namespace rev { namespace graphics {
 		glUniform1f(4, ev); // EV
 
 		auto worldMatrix = Mat44f::identity();
-		for(auto renderable : scene.renderables()) {
+		auto& driver = *mDriver;
+		for(auto renderable : scene.renderables())
+		{
 			auto renderObj = renderable.lock();
 			// Get world matrix
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
@@ -57,11 +63,18 @@ namespace rev { namespace graphics {
 			auto msLightDir = worldI * lightDir;
 			glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
 
-			// Setup material
-			renderObj->materials[0]->bind(*mDriver);
 			// render
-			for(auto& mesh : renderObj->meshes)
-				mesh->render();
+			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
+			{
+				// Setup material
+				auto& material = renderObj->materials[i];
+				if(material)
+					material->bind(driver);
+				else
+					mErrorMaterial->bind(driver);
+				// Render mesh
+				renderObj->meshes[i]->render();
+			}
 		}
 	}
 
