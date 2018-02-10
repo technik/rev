@@ -24,6 +24,7 @@
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
 #include <game/scene/meshRenderer.h>
+#include <game/scene/transform/transform.h>
 #include <game/scene/ComponentLoader.h>
 #include <string>
 #include <typeinfo>
@@ -131,6 +132,23 @@ namespace rev { namespace player {
 			}
 		};
 
+		struct TransformInspector : ComponentInspector
+		{
+			void showInspectionPanel(game::Component*c) const override
+			{
+				auto tranformComp = static_cast<game::Transform*>(c);
+				auto& xForm = tranformComp->xForm;
+				graphics::gui::text("Transform");
+				math::Vec3f pos = xForm.position();
+				ImGui::InputFloat3("pos", pos.data());
+				//gui::slider("angle", mCamAngle, -3.2f, 3.2f);
+				graphics::gui::slider("x", pos.x(), -500.f, 500.f);
+				graphics::gui::slider("y", pos.y(), -500.f, 500.f);
+				graphics::gui::slider("z", pos.z(), 0.f, 600.f);
+				xForm.position() = pos;
+			}
+		};
+
 		void showInspector() {
 			if(mShowInspector)
 			{
@@ -162,12 +180,10 @@ namespace rev { namespace player {
 			{
 				if(ImGui::Begin("Project Explorer"))
 				{
-					//ImGui::TreeNode("Textures");
 					for(auto& t: mTextures)
 					{
 						ImGui::Selectable(t.c_str());
 					}
-					//ImGui::TreePop();
 					ImGui::End();
 				}
 			}
@@ -184,6 +200,7 @@ namespace rev { namespace player {
 
 		void createInspectors () {
 			registerInspector<game::MeshRenderer,RendererInspector>();
+			registerInspector<game::Transform,TransformInspector>();
 		}
 
 		std::vector<std::string>	mTextures;
