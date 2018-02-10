@@ -143,6 +143,7 @@ struct SceneDesc
 		// Build node tree
 		Scene tree;
 		// Skip root node
+		tree.root()->name = nodes[0]->name;
 		assert(nodes[0]->components().size() == 1);
 		for(size_t i = 1; i < nodes.size(); ++i)
 		{

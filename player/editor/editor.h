@@ -94,11 +94,18 @@ namespace rev { namespace player {
 			if(ImGui::Begin("Node Tree"))
 			{
 				// TODO: Make this a real tree
-				for(auto c : root->children())
+				for(auto& c : root->children())
 				{
-					if(ImGui::Selectable(c->name.c_str()))
-					{
+					ImGuiTreeNodeFlags node_flags = 
+						ImGuiTreeNodeFlags_OpenOnArrow | 
+						ImGuiTreeNodeFlags_OpenOnDoubleClick | 
+						((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
+					bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, c->name.c_str());
+					if(ImGui::IsItemClicked())
 						mSelectedNode = c;
+					if(node_open)
+					{
+						ImGui::TreePop();
 					}
 				}
 				ImGui::End();

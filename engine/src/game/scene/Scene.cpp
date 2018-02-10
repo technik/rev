@@ -48,6 +48,9 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader)
 	{
+		// TODO: Load name
+		in >> root.name;
+		in.get(); // Skip \n
 		if(!parseComponents(root,in,loader))
 			return false;
 		if(!parseChildren(root,in,loader))
@@ -58,6 +61,7 @@ namespace rev { namespace game {
 	//------------------------------------------------------------------------------------------------------------------
 	void Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver)
 	{
+		out << (root.name + "\n");
 		saveComponents(root,out,saver);
 		saveChildren(root,out,saver);
 	}
