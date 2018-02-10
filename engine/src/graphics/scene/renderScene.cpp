@@ -30,7 +30,7 @@ namespace rev { namespace graphics {
 				renderObj->materials.push_back(mat);
 			}
 			else
-				renderObj->materials.push_back(mMaterials[0]); // TODO: Add an error or default material
+				renderObj->materials.push_back(nullptr);
 		}
 		mRenderables.emplace_back(renderObj);
 		return renderObj;

@@ -58,8 +58,6 @@ namespace rev { namespace player {
 			showInspector();
 			//ImGui::ShowDemoWindow();
 		}
-
-		void registerCustomFactories(game::ComponentLoader& loader);
 		
 		void pickTexture(std::shared_ptr<graphics::Texture>& texture)
 		{
@@ -132,7 +130,8 @@ namespace rev { namespace player {
 				auto& renderObj = meshRenderer->renderObj();
 				for(auto& mat : renderObj.materials)
 				{
-					if(ImGui::BeginCombo("Material: ", mat->name.c_str()))
+					std::string matName = mat?mat->name : std::string("---");
+					if(ImGui::BeginCombo("Material: ", matName.c_str()))
 					{
 						for(auto& m : scene.materials())
 						{
@@ -141,12 +140,15 @@ namespace rev { namespace player {
 						}
 						ImGui::EndCombo();
 					}
-					auto roughness = mat->floatParam(6);
-					if(roughness)
-						ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
-					auto metallic = mat->floatParam(7);
-					if(metallic)
-						ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
+					if(mat)
+					{
+						auto roughness = mat->floatParam(6);
+						if(roughness)
+							ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
+						auto metallic = mat->floatParam(7);
+						if(metallic)
+							ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
+					}
 				}
 			}
 

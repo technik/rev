@@ -27,6 +27,8 @@ namespace rev {
 	};
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
+	std::shared_ptr<Texture> redCurtainAlbedo;
+
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
 		core::Time::init();
@@ -41,10 +43,18 @@ namespace rev {
 			// -- triangle --
 			mGameProject.load("sample.prj");
 			// Create texture first to be able to use it during scene loading
-			mXORTexture = std::make_shared<Texture>(ImageRGB8::proceduralXOR(512));
 			registerFactories();
 			loadScene("sponza_crytek.scn");
 			createCamera();
+
+			// Register phony materials
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Red curtain";
+			redCurtainAlbedo = Texture::load("textures/sponza_curtain_diff.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
 
 			mGameEditor.init(mGraphicsScene);
 			mRenderer.init(*mGfxDriver);
@@ -110,12 +120,6 @@ namespace rev {
 			return;
 		}
 		auto& in = asset.asStream();
-		// Create a temporary material to use with everything
-		auto defaultMaterial = std::make_shared<graphics::Material>();
-		defaultMaterial->addTexture(5, mXORTexture->glName()); // Albedo texture
-		defaultMaterial->addParam(6, 0.5f); // Roughness
-		defaultMaterial->addParam(7, 0.05f); // Metallic
-		mGraphicsScene.registerMaterial(defaultMaterial);
 		// Load meshes
 		uint32_t nMeshes;
 		in.read((char*)&nMeshes, sizeof(nMeshes));

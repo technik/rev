@@ -39,8 +39,6 @@ namespace rev {
 		void createCamera();
 		void registerFactories();
 
-		std::shared_ptr<graphics::Texture>		mXORTexture;
-
 		game::ComponentLoader					mComponentFactory;
 		graphics::RenderScene					mGraphicsScene;
 		game::Scene								mGameScene;
