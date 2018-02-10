@@ -128,10 +128,13 @@ namespace rev { namespace player {
 				auto meshRenderer = static_cast<game::MeshRenderer*>(c);
 				ImGui::Text("Materials:");
 				auto& renderObj = meshRenderer->renderObj();
+				int i = 0;
 				for(auto& mat : renderObj.materials)
 				{
+					auto tag = std::to_string(i++);
 					std::string matName = mat?mat->name : std::string("---");
-					if(ImGui::BeginCombo("Material: ", matName.c_str()))
+
+					if(ImGui::BeginCombo(tag.c_str(), matName.c_str()))
 					{
 						for(auto& m : scene.materials())
 						{

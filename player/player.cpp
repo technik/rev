@@ -28,6 +28,11 @@ namespace rev {
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
 	std::shared_ptr<Texture> redCurtainAlbedo;
+	std::shared_ptr<Texture> greenCurtainAlbedo;
+	std::shared_ptr<Texture> blueCurtainAlbedo;
+	std::shared_ptr<Texture> bricksAlbedo;
+	std::shared_ptr<Texture> lionAlbedo;
+	std::shared_ptr<Texture> plantAlbedo;
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
@@ -51,6 +56,46 @@ namespace rev {
 			auto redCurtain = std::make_shared<Material>();
 			redCurtain->name = "Red curtain";
 			redCurtainAlbedo = Texture::load("textures/sponza_curtain_diff.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
+
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Green curtain";
+			greenCurtainAlbedo = Texture::load("textures/sponza_curtain_green_diff.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
+
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Blue curtain";
+			blueCurtainAlbedo = Texture::load("textures/sponza_curtain_blue_diff.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
+
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Bricks";
+			bricksAlbedo = Texture::load("textures/spnza_bricks_a_diff.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
+
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Lion";
+			lionAlbedo = Texture::load("textures/lion.tga");
+			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
+			redCurtain->addParam(6, 0.8f); // Roughness
+			redCurtain->addParam(7, 0.05f); // Metallic
+			mGraphicsScene.registerMaterial(redCurtain);
+
+			auto redCurtain = std::make_shared<Material>();
+			redCurtain->name = "Plant";
+			plantAlbedo = Texture::load("textures/vase_plant.tga");
 			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
 			redCurtain->addParam(6, 0.8f); // Roughness
 			redCurtain->addParam(7, 0.05f); // Metallic
