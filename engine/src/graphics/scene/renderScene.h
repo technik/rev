@@ -36,6 +36,8 @@ namespace rev { namespace graphics {
 		std::shared_ptr<RenderObj> createRenderObj(uint32_t meshId, uint32_t materialId);
 		std::shared_ptr<RenderObj> createRenderObj(const std::vector<std::pair<uint32_t,uint32_t>>& meshes);
 
+		const std::vector<std::shared_ptr<Material>>	materials() const { return mMaterials; }
+
 		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }
 		auto renderables() const { return mRenderables; }

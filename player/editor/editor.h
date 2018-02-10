@@ -36,7 +36,7 @@ namespace rev { namespace player {
 
 	class Editor {
 	public:
-		void init()
+		void init(graphics::RenderScene& scene)
 		{
 			mTextures = {
 				"textures/spnza_bricks_a_ddn.tga",
@@ -46,7 +46,7 @@ namespace rev { namespace player {
 				"textures/spnza_bricks_a_spec.tga"
 			};
 			mTextureMgr.init();
-			createInspectors();
+			createInspectors(scene);
 		}
 
 		void update(game::Scene& scene)
@@ -122,24 +122,35 @@ namespace rev { namespace player {
 
 		struct RendererInspector : ComponentInspector
 		{
+			RendererInspector(graphics::RenderScene& s)
+				: scene(s)
+			{}
+
 			void showInspectionPanel(game::Component*c) const override {
 				auto meshRenderer = static_cast<game::MeshRenderer*>(c);
 				ImGui::Text("Materials:");
 				auto& renderObj = meshRenderer->renderObj();
-				ImGuiID i = 0;
-				for(auto mat : renderObj.materials)
+				for(auto& mat : renderObj.materials)
 				{
-					ImGui::BeginChild(i);
+					if(ImGui::BeginCombo("Material: ", mat->name.c_str()))
+					{
+						for(auto& m : scene.materials())
+						{
+							if(ImGui::Selectable(m->name.c_str(), mat==m))
+								mat = m;
+						}
+						ImGui::EndCombo();
+					}
 					auto roughness = mat->floatParam(6);
 					if(roughness)
 						ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
 					auto metallic = mat->floatParam(7);
 					if(metallic)
 						ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
-					i++;
-					ImGui::EndChild();
 				}
 			}
+
+			graphics::RenderScene& scene;
 		};
 
 		struct TransformInspector : ComponentInspector
@@ -208,8 +219,11 @@ namespace rev { namespace player {
 			);
 		}
 
-		void createInspectors () {
-			registerInspector<game::MeshRenderer,RendererInspector>();
+		void createInspectors (graphics::RenderScene& scene) {
+			mInspectors.insert(std::make_pair(
+				std::string(typeid(game::MeshRenderer).name()),
+				std::make_unique<RendererInspector>(scene))
+			);
 			registerInspector<game::Transform,TransformInspector>();
 		}
 

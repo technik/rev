@@ -21,6 +21,7 @@
 #include <graphics/driver/openGL/openGL.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <math/algebra/vector.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -29,6 +30,8 @@ namespace rev { namespace graphics {
 	class Material
 	{
 	public:
+		std::string name;
+
 		float* floatParam(GLint i)
 		{
 			for(auto& p : mFloatParams)

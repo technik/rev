@@ -19,6 +19,7 @@ namespace rev { namespace graphics {
 		mShader = Shader::createShader(shaderFile.bufferAsText());
 		mErrorTexture = std::make_unique<Texture>(ImageRGB8::proceduralXOR(256));
 		mErrorMaterial = std::make_unique<Material>();
+		mErrorMaterial->name = "XOR-ErrorMaterial";
 		mErrorMaterial->addTexture(5, mErrorTexture->glName()); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic

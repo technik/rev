@@ -43,10 +43,10 @@ namespace rev {
 			// Create texture first to be able to use it during scene loading
 			mXORTexture = std::make_shared<Texture>(ImageRGB8::proceduralXOR(512));
 			registerFactories();
-			mGameEditor.init();
 			loadScene("sponza_crytek.scn");
 			createCamera();
 
+			mGameEditor.init(mGraphicsScene);
 			mRenderer.init(*mGfxDriver);
 			gui::init(_window->size);
 		}
