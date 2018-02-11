@@ -150,6 +150,53 @@ namespace rev { namespace player {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void Editor::registerMaterials()
+	{
+		// Register phony materials
+		auto material = std::make_shared<Material>();
+		material->name = "Red curtain";
+		material->addTexture(5, Texture::load("textures/sponza_curtain_diff.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+
+		material = std::make_shared<Material>();
+		material->name = "Green curtain";
+		material->addTexture(5, Texture::load("textures/sponza_curtain_green_diff.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+
+		material = std::make_shared<Material>();
+		material->name = "Blue curtain";
+		material->addTexture(5, Texture::load("textures/sponza_curtain_blue_diff.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+
+		material = std::make_shared<Material>();
+		material->name = "Bricks";
+		material->addTexture(5, Texture::load("textures/spnza_bricks_a_diff.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+
+		material = std::make_shared<Material>();
+		material->name = "Lion";
+		material->addTexture(5, Texture::load("textures/lion.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+
+		material = std::make_shared<Material>();
+		material->name = "Plant";
+		material->addTexture(5, Texture::load("textures/vase_plant.tga")); // Albedo texture
+		material->addParam(6, 0.8f); // Roughness
+		material->addParam(7, 0.05f); // Metallic
+		mMaterials.push_back(material);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void Editor::createInspectors(graphics::RenderScene& scene) {
 		mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),

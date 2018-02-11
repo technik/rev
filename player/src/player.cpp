@@ -30,13 +30,6 @@ namespace rev {
 	};
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
-	std::shared_ptr<Texture> redCurtainAlbedo;
-	std::shared_ptr<Texture> greenCurtainAlbedo;
-	std::shared_ptr<Texture> blueCurtainAlbedo;
-	std::shared_ptr<Texture> bricksAlbedo;
-	std::shared_ptr<Texture> lionAlbedo;
-	std::shared_ptr<Texture> plantAlbedo;
-
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
 		core::Time::init();
@@ -53,55 +46,6 @@ namespace rev {
 			registerFactories();
 			loadScene("sponza_crytek.scn");
 			createCamera();
-
-			// Register phony materials
-			auto redCurtain = std::make_shared<Material>();
-			redCurtain->name = "Red curtain";
-			redCurtainAlbedo = Texture::load("textures/sponza_curtain_diff.tga");
-			redCurtain->addTexture(5, redCurtainAlbedo->glName()); // Albedo texture
-			redCurtain->addParam(6, 0.8f); // Roughness
-			redCurtain->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(redCurtain);
-
-			auto greenCurtain = std::make_shared<Material>();
-			greenCurtain->name = "Green curtain";
-			greenCurtainAlbedo = Texture::load("textures/sponza_curtain_green_diff.tga");
-			greenCurtain->addTexture(5, greenCurtainAlbedo->glName()); // Albedo texture
-			greenCurtain->addParam(6, 0.8f); // Roughness
-			greenCurtain->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(greenCurtain);
-
-			auto blueCurtain = std::make_shared<Material>();
-			blueCurtain->name = "Blue curtain";
-			blueCurtainAlbedo = Texture::load("textures/sponza_curtain_blue_diff.tga");
-			blueCurtain->addTexture(5, blueCurtainAlbedo->glName()); // Albedo texture
-			blueCurtain->addParam(6, 0.8f); // Roughness
-			blueCurtain->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(blueCurtain);
-
-			auto bricks = std::make_shared<Material>();
-			bricks->name = "Bricks";
-			bricksAlbedo = Texture::load("textures/spnza_bricks_a_diff.tga");
-			bricks->addTexture(5, bricksAlbedo->glName()); // Albedo texture
-			bricks->addParam(6, 0.8f); // Roughness
-			bricks->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(bricks);
-
-			auto lion = std::make_shared<Material>();
-			lion->name = "Lion";
-			lionAlbedo = Texture::load("textures/lion.tga");
-			lion->addTexture(5, lionAlbedo->glName()); // Albedo texture
-			lion->addParam(6, 0.8f); // Roughness
-			lion->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(lion);
-
-			auto plant = std::make_shared<Material>();
-			plant->name = "Plant";
-			plantAlbedo = Texture::load("textures/vase_plant.tga");
-			plant->addTexture(5, plantAlbedo->glName()); // Albedo texture
-			plant->addParam(6, 0.8f); // Roughness
-			plant->addParam(7, 0.05f); // Metallic
-			mGraphicsScene.registerMaterial(plant);
 
 			mGameEditor.init(mGraphicsScene);
 			mRenderer.init(*mGfxDriver);

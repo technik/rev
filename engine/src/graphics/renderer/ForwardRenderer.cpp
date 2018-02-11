@@ -17,10 +17,9 @@ namespace rev { namespace graphics {
 		mDriver = &driver;
 		core::File shaderFile("pbr.fx");
 		mShader = Shader::createShader(shaderFile.bufferAsText());
-		mErrorTexture = std::make_unique<Texture>(ImageRGB8::proceduralXOR(256));
 		mErrorMaterial = std::make_unique<Material>();
 		mErrorMaterial->name = "XOR-ErrorMaterial";
-		mErrorMaterial->addTexture(5, mErrorTexture->glName()); // Albedo texture
+		mErrorMaterial->addTexture(5, std::make_shared<Texture>(ImageRGB8::proceduralXOR(256))); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
 		mEV = 1.5f;

@@ -9,7 +9,7 @@
 #ifndef ANDROID
 //#include <input/keyboard/keyboardInput.h>
 
-using namespace rev::input;
+//using namespace rev::input;
 #endif // !ANDROID
 
 namespace rev {

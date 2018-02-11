@@ -23,7 +23,6 @@ namespace rev { namespace graphics {
 		GraphicsDriverGL*	mDriver = nullptr;
 		float mEV;
 		std::unique_ptr<Material>		mErrorMaterial;
-		std::unique_ptr<Texture>		mErrorTexture;
 		std::unique_ptr<Shader>			mShader;
 	};
 

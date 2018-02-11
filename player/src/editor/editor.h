@@ -47,6 +47,7 @@ namespace rev { namespace player {
 		void showNodeTree(const game::SceneNode* root);
 		void showInspector();
 		void showProjectExplorer();
+		void registerMaterials();
 
 		template<class Inspected, class Inspector>
 		void registerInspector()

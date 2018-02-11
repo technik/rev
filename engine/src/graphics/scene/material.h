@@ -20,7 +20,9 @@
 #pragma once
 #include <graphics/driver/openGL/openGL.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+#include <graphics/driver/texture.h>
 #include <math/algebra/vector.h>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -55,7 +57,7 @@ namespace rev { namespace graphics {
 			mVec4fParams.push_back(std::make_pair(pos,v));
 		}
 
-		void addTexture(GLint pos, GLuint t)
+		void addTexture(GLint pos, std::shared_ptr<const Texture> t)
 		{
 			mTextureParams.push_back(std::make_pair(pos,t));
 		}
@@ -73,15 +75,17 @@ namespace rev { namespace graphics {
 				auto& textureParam = mTextureParams[t];
 				glUniform1i(textureParam.first, t);
 				glActiveTexture(GL_TEXTURE0+t);
-				glBindTexture(GL_TEXTURE_2D, textureParam.second);
+				glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
 			}
 		}
 
 	private:
+		using TexturePtr = std::shared_ptr<const Texture>;
+
 		std::vector<std::pair<GLint,float>>			mFloatParams;
 		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
 		std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
-		std::vector<std::pair<GLint,GLuint>>		mTextureParams;
+		std::vector<std::pair<GLint,TexturePtr>>	mTextureParams;
 	};
 
 }}
