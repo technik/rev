@@ -40,6 +40,10 @@ namespace rev { namespace player {
 
 		void update(game::Scene& scene);
 
+		struct ComponentInspector {
+			virtual void showInspectionPanel(game::Component*) const = 0;
+		};
+
 	private:
 		void pickTexture(std::shared_ptr<graphics::Texture>& texture);
 		void drawMainMenu();
@@ -47,49 +51,7 @@ namespace rev { namespace player {
 		void showInspector();
 		void showProjectExplorer();
 
-		struct ComponentInspector {
-			virtual void showInspectionPanel(game::Component*) const = 0;
-		};
-
-		struct RendererInspector : ComponentInspector
-		{
-			RendererInspector(graphics::RenderScene& s)
-				: scene(s)
-			{}
-
-			void showInspectionPanel(game::Component*c) const override {
-				auto meshRenderer = static_cast<game::MeshRenderer*>(c);
-				ImGui::Text("Materials:");
-				auto& renderObj = meshRenderer->renderObj();
-				int i = 0;
-				for(auto& mat : renderObj.materials)
-				{
-					auto tag = std::to_string(i++);
-					std::string matName = mat?mat->name : std::string("---");
-
-					if(ImGui::BeginCombo(tag.c_str(), matName.c_str()))
-					{
-						for(auto& m : scene.materials())
-						{
-							if(ImGui::Selectable(m->name.c_str(), mat==m))
-								mat = m;
-						}
-						ImGui::EndCombo();
-					}
-					if(mat)
-					{
-						auto roughness = mat->floatParam(6);
-						if(roughness)
-							ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
-						auto metallic = mat->floatParam(7);
-						if(metallic)
-							ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
-					}
-				}
-			}
-
-			graphics::RenderScene& scene;
-		};
+		
 
 		struct TransformInspector : ComponentInspector
 		{

@@ -12,7 +12,6 @@
 #include <graphics/scene/renderScene.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/driver/texture.h>
-#include "gameProject.h"
 #include "editor/editor.h"
 #include <game/scene/scene.h>
 
