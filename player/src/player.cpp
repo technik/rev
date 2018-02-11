@@ -11,6 +11,9 @@
 #include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
+#ifdef _WIN32
+#include <game/scene/transform/flybySrc.h>
+#endif
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
 
@@ -135,6 +138,8 @@ namespace rev {
 		objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
 		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
 		cameraNode->addComponent(std::move(objXForm));
+#ifdef _WIN32
+#endif
 		// Actual camera
 		auto camComponent = std::make_unique<game::Camera>();
 		mCamera = &camComponent->cam();
