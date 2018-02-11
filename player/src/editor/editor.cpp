@@ -153,7 +153,7 @@ namespace rev { namespace player {
 	void Editor::createInspectors(graphics::RenderScene& scene) {
 		mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),
-			std::make_unique<RendererInspector>(scene))
+			std::make_unique<RendererInspector>(mMaterials))
 		);
 		registerInspector<game::Transform,TransformInspector>();
 	}

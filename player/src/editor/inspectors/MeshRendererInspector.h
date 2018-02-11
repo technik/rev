@@ -28,8 +28,8 @@ namespace rev { namespace player {
 
 	struct RendererInspector : Editor::ComponentInspector
 	{
-		RendererInspector(graphics::RenderScene& s)
-			: scene(s)
+		RendererInspector(std::vector<std::shared_ptr<graphics::Material>>& materials)
+			: mMaterials(materials)
 		{}
 
 		void showInspectionPanel(game::Component*c) const override {
@@ -44,7 +44,7 @@ namespace rev { namespace player {
 
 				if(ImGui::BeginCombo(tag.c_str(), matName.c_str()))
 				{
-					for(auto& m : scene.materials())
+					for(auto& m : mMaterials)
 					{
 						if(ImGui::Selectable(m->name.c_str(), mat==m))
 							mat = m;
@@ -63,7 +63,7 @@ namespace rev { namespace player {
 			}
 		}
 
-		graphics::RenderScene& scene;
+		std::vector<std::shared_ptr<graphics::Material>>& mMaterials;
 	};
 
 }}	// namespace rev::player

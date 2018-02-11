@@ -21,7 +21,7 @@
 #include <game/scene/sceneNode.h>
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
-#include <game/scene/ComponentLoader.h>
+#include <graphics/scene/material.h>
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -61,6 +61,7 @@ namespace rev { namespace player {
 
 		std::vector<std::string>	mTextures;
 		game::TextureManager		mTextureMgr;
+		std::vector<std::shared_ptr<Material>>	mMaterials;
 
 		bool mShowInspector = true;
 		bool mShowProjectExplorer = false;
