@@ -3,17 +3,13 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
-#include <graphics/scene/renderGeom.h>
-#include <game/scene/scene.h>
-#include <game/scene/sceneNode.h>
-#include <game/scene/ComponentLoader.h>
-#include <graphics/scene/camera.h>
-#include <graphics/scene/renderScene.h>
-#include <graphics/renderer/ForwardRenderer.h>
-#include <graphics/driver/texture.h>
 #include "editor/editor.h"
 #include <game/scene/scene.h>
+#include <game/scene/ComponentLoader.h>
+#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+#include <graphics/renderer/ForwardRenderer.h>
+#include <graphics/scene/camera.h>
+#include <graphics/scene/renderScene.h>
 
 using namespace rev::player;
 
