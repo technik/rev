@@ -18,6 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "editor.h"
+#include "inspectors/MeshRendererInspector.h"
+#include "inspectors/TransportInspector.h"
+
+#include <graphics/debug/imgui.h>
 
 namespace rev { namespace player {
 
@@ -143,6 +147,15 @@ namespace rev { namespace player {
 				ImGui::End();
 			}
 		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Editor::createInspectors(graphics::RenderScene& scene) {
+		mInspectors.insert(std::make_pair(
+			std::string(typeid(game::MeshRenderer).name()),
+			std::make_unique<RendererInspector>(scene))
+		);
+		registerInspector<game::Transform,TransformInspector>();
 	}
 
 }}	// namespace rev::player

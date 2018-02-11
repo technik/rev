@@ -19,13 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <game/scene/sceneNode.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
-#include <game/scene/meshRenderer.h>
-#include <game/scene/transform/transform.h>
 #include <game/scene/ComponentLoader.h>
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -51,25 +48,6 @@ namespace rev { namespace player {
 		void showInspector();
 		void showProjectExplorer();
 
-		
-
-		struct TransformInspector : ComponentInspector
-		{
-			void showInspectionPanel(game::Component*c) const override
-			{
-				auto tranformComp = static_cast<game::Transform*>(c);
-				auto& xForm = tranformComp->xForm;
-				graphics::gui::text("Transform");
-				math::Vec3f pos = xForm.position();
-				ImGui::InputFloat3("pos", pos.data());
-				//gui::slider("angle", mCamAngle, -3.2f, 3.2f);
-				graphics::gui::slider("x", pos.x(), -500.f, 500.f);
-				graphics::gui::slider("y", pos.y(), -500.f, 500.f);
-				graphics::gui::slider("z", pos.z(), 0.f, 600.f);
-				xForm.position() = pos;
-			}
-		};
-
 		template<class Inspected, class Inspector>
 		void registerInspector()
 		{
@@ -79,16 +57,10 @@ namespace rev { namespace player {
 			);
 		}
 
-		void createInspectors (graphics::RenderScene& scene) {
-			mInspectors.insert(std::make_pair(
-				std::string(typeid(game::MeshRenderer).name()),
-				std::make_unique<RendererInspector>(scene))
-			);
-			registerInspector<game::Transform,TransformInspector>();
-		}
+		void createInspectors (graphics::RenderScene& scene);
 
 		std::vector<std::string>	mTextures;
-		game::TextureManager mTextureMgr;
+		game::TextureManager		mTextureMgr;
 
 		bool mShowInspector = true;
 		bool mShowProjectExplorer = false;

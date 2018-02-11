@@ -19,51 +19,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "../editor.h"
-#include <game/scene/meshRenderer.h>
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/material.h>
+#include <game/scene/transform/transform.h>
+#include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
 
 namespace rev { namespace player {
 
-	struct RendererInspector : Editor::ComponentInspector
+	struct TransformInspector : Editor::ComponentInspector
 	{
-		RendererInspector(graphics::RenderScene& s)
-			: scene(s)
-		{}
-
-		void showInspectionPanel(game::Component*c) const override {
-			auto meshRenderer = static_cast<game::MeshRenderer*>(c);
-			ImGui::Text("Materials:");
-			auto& renderObj = meshRenderer->renderObj();
-			int i = 0;
-			for(auto& mat : renderObj.materials)
-			{
-				auto tag = std::to_string(i++);
-				std::string matName = mat?mat->name : std::string("---");
-
-				if(ImGui::BeginCombo(tag.c_str(), matName.c_str()))
-				{
-					for(auto& m : scene.materials())
-					{
-						if(ImGui::Selectable(m->name.c_str(), mat==m))
-							mat = m;
-					}
-					ImGui::EndCombo();
-				}
-				if(mat)
-				{
-					auto roughness = mat->floatParam(6);
-					if(roughness)
-						ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
-					auto metallic = mat->floatParam(7);
-					if(metallic)
-						ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
-				}
-			}
+		void showInspectionPanel(game::Component*c) const override
+		{
+			auto tranformComp = static_cast<game::Transform*>(c);
+			auto& xForm = tranformComp->xForm;
+			graphics::gui::text("Transform");
+			math::Vec3f pos = xForm.position();
+			ImGui::InputFloat3("pos", pos.data());
+			//gui::slider("angle", mCamAngle, -3.2f, 3.2f);
+			graphics::gui::slider("x", pos.x(), -500.f, 500.f);
+			graphics::gui::slider("y", pos.y(), -500.f, 500.f);
+			graphics::gui::slider("z", pos.z(), 0.f, 600.f);
+			xForm.position() = pos;
 		}
-
-		graphics::RenderScene& scene;
 	};
 
 }}	// namespace rev::player

@@ -46,7 +46,6 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			// -- triangle --
-			mGameProject.load("sample.prj");
 			// Create texture first to be able to use it during scene loading
 			registerFactories();
 			loadScene("sponza_crytek.scn");

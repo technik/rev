@@ -44,7 +44,6 @@ namespace rev {
 		const graphics::Camera*					mCamera;
 		graphics::ForwardRenderer				mRenderer;
 		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
-		Project									mGameProject;
 		Editor									mGameEditor;
 	};
 
