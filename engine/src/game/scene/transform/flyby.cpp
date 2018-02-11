@@ -4,10 +4,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Keyboard controlled fly-by transform source
 
-#include "flybySrc.h"
+#include "flyby.h"
 
 #ifndef ANDROID
-#include <input/keyboard/keyboardInput.h>
+//#include <input/keyboard/keyboardInput.h>
 
 using namespace rev::input;
 #endif // !ANDROID
@@ -16,7 +16,7 @@ namespace rev {
 	namespace game {
 
 		//--------------------------------------------------------------------------------------------------------------
-		/*bool FlyBySrc::update(float _dt) {
+		/*void FlyBySrc::update(float _dt) {
 			static float mult = 1.f;
 #ifndef ANDROID
 			KeyboardInput* input = KeyboardInput::get();
