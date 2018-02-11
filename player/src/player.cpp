@@ -11,9 +11,6 @@
 #include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
-#ifdef _WIN32
-#include <game/scene/transform/flybySrc.h>
-#endif
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
 
@@ -52,22 +49,6 @@ namespace rev {
 			gui::init(_window->size);
 		}
 		return mGfxDriver != nullptr;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::registerFactories() {
-		// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
-		mComponentFactory.registerFactory("MeshRenderer", [this](const std::string&, std::istream& in)
-		{
-			uint32_t nMeshes;
-			in.read((char*)&nMeshes, sizeof(nMeshes));
-			std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
-			for(auto& mesh : meshList)
-			{
-				in.read((char*)&mesh, 2*sizeof(size_t));
-			}
-			return std::make_unique<MeshRenderer>( mGraphicsScene.createRenderObj(meshList) );
-		}, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -122,6 +103,21 @@ namespace rev {
 			geom->deserialize(in);
 			mGraphicsScene.registerMesh(geom);
 		}
+		// Register a MeshRenderer factory using the loaded meshes.
+		// TODO: Also use materials from the material manager, or some alternative way of loading materials
+		// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
+		mComponentFactory.registerFactory("MeshRenderer", [this](const std::string&, std::istream& in)
+		{
+			uint32_t nMeshes;
+			in.read((char*)&nMeshes, sizeof(nMeshes));
+			std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
+			for(auto& mesh : meshList)
+			{
+				in.read((char*)&mesh, 2*sizeof(size_t));
+			}
+			return std::make_unique<MeshRenderer>( mGraphicsScene.createRenderObj(meshList) );
+		}, true);
+		// Load scene nodes
 		if(!mGameScene.load(in, mComponentFactory))
 		{
 			rev::core::Log::error("Error loading scene");
