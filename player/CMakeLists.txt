@@ -5,7 +5,11 @@
 cmake_minimum_required (VERSION 2.6)
 project(revPlayer)
 
-add_executable(revPlayer main.cpp player.cpp player.h)
+include(../cmake/common.cmake)
+
+file(GLOB_RECURSE PLAYER_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
+GroupSources(src player)
+add_executable(revPlayer ${PLAYER_SOURCE_FILES})
 # Visual studio specifics
 if(MSVC)
 	add_definitions(-DNOMINMAX)
