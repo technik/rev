@@ -98,7 +98,10 @@ namespace rev { namespace player {
 					((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
 				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, c->name.c_str());
 				if(ImGui::IsItemClicked())
+				{
 					mSelectedNode = c;
+					mSelectedMaterial.reset();
+				}
 				if(node_open)
 				{
 					ImGui::TreePop();
@@ -131,6 +134,9 @@ namespace rev { namespace player {
 					}
 				}
 				ImGui::End();
+			}
+			if(!mSelectedMaterial.expired())
+			{
 			}
 		}
 	}

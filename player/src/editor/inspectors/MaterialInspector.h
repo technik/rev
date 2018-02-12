@@ -18,60 +18,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <game/scene/sceneNode.h>
-#include <game/textureManager.h>
-#include <game/scene/scene.h>
+#include "../editor.h"
 #include <graphics/scene/material.h>
-#include <memory>
-#include <string>
-#include <typeinfo>
-#include <vector>
+#include <graphics/debug/imgui.h>
 
 namespace rev { namespace player {
 
-	using namespace rev::graphics;
-
-	class Editor {
-	public:
-		void init(graphics::RenderScene& scene);
-
-		void update(game::Scene& scene);
-
-		struct ComponentInspector {
-			virtual void showInspectionPanel(game::Component*) const = 0;
-		};
-
-	private:
-		void pickTexture(std::shared_ptr<graphics::Texture>& texture);
-		void drawMainMenu();
-		void showNodeTree(const game::SceneNode* root);
-		void showInspector();
-		void showProjectExplorer();
-		void registerMaterials();
-
-		template<class Inspected, class Inspector>
-		void registerInspector()
+	struct MaterialInspector : Editor::ComponentInspector
+	{
+		void showInspectionPanel(graphics::Material& mat) const
 		{
-			mInspectors.insert(std::make_pair(
-				std::string(typeid(Inspected).name()),
-				std::make_unique<Inspector>())
-			);
+			auto roughness = mat.floatParam(6);
+			if(roughness)
+			ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
+			auto metallic = mat.floatParam(7);
+			if(metallic)
+			ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
 		}
-
-		void createInspectors (graphics::RenderScene& scene);
-
-		std::vector<std::string>	mTextures;
-		game::TextureManager		mTextureMgr;
-		std::vector<std::shared_ptr<Material>>	mMaterials;
-
-		bool mShowInspector = true;
-		bool mShowProjectExplorer = false;
-		bool mShowRenderOptions = false;
-		bool mShowNodeTree = true;
-		std::weak_ptr<game::SceneNode>	mSelectedNode;
-		std::weak_ptr<Material>			mSelectedMaterial;
-		// TODO: This design can be improved
-		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
 	};
 
-}}
+}}	// namespace rev::player
