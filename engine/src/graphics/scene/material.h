@@ -18,6 +18,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <core/types/json.h>
+#include <core/platform/fileSystem/file.h>
 #include <graphics/driver/openGL/openGL.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/texture.h>
@@ -33,6 +35,35 @@ namespace rev { namespace graphics {
 	{
 	public:
 		std::string name;
+
+		void load(const std::string& fileName)
+		{
+			name = fileName;
+			core::File inFile(fileName);
+			if(inFile.buffer())
+			{
+				auto& in = inFile.asStream();
+				clear();
+				core::Json materialData;
+				in >> materialData;
+				for(auto& f : materialData["float"])
+					addParam(f[0].get<GLint>(), f[1].get<float>());
+				for(auto& f : materialData["tex"])
+				{
+					auto textureName = f[1].get<std::string>();
+					auto texture = Texture::load(textureName);
+					addTexture(f[0].get<GLint>(), texture);
+				}
+			}
+		}
+
+		void clear()
+		{
+			mFloatParams.clear();
+			mVec3fParams.clear();
+			mVec4fParams.clear();
+			mTextureParams.clear();
+		}
 
 		float* floatParam(GLint i)
 		{
