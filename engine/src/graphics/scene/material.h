@@ -58,16 +58,21 @@ namespace rev { namespace graphics {
 			}
 		}
 
-		void save(const std::string& fileName)
+		void save()
 		{
-			std::ofstream out(fileName);
-			core::Json data;
-			auto& floatParams = data["float"];
-			for(auto& f : mFloatParams)
-				floatParams[0] = { f.first, f.second };
-			auto& texParams = data["tex"];
-			for(auto& f : mTextureParams)
-				floatParams[0] = { f.first, f.second->name };
+			if(name.empty())
+				return;
+			std::ofstream out(name);
+			if(out.is_open())
+			{
+				core::Json data;
+				auto& floatParams = data["float"];
+				for(auto& f : mFloatParams)
+					floatParams[0] = { f.first, f.second };
+				auto& texParams = data["tex"];
+				for(auto& f : mTextureParams)
+					floatParams[0] = { f.first, f.second->name };
+			}
 		}
 
 		void clear()

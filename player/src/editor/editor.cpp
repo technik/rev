@@ -173,6 +173,8 @@ namespace rev { namespace player {
 			material->load(file);
 			mMaterials.push_back(material);
 		}
+		mMaterials[0]->name = "materials/saved.mat";
+		mMaterials[0]->save();
 	}
 
 	//----------------------------------------------------------------------------------------------
