@@ -36,6 +36,7 @@ namespace rev { namespace player {
 			"textures/spnza_bricks_a_spec.tga"
 		};
 		mTextureMgr.init();
+		registerMaterials();
 		createInspectors(scene);
 	}
 
