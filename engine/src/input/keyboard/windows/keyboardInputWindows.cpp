@@ -8,7 +8,6 @@
 #ifdef _WIN32
 
 #include "keyboardInputWindows.h"
-#include <core/platform/osHandler.h>
 
 using namespace rev::core;
 
@@ -22,11 +21,6 @@ namespace rev { namespace input
 			keyState[key] = 0;
 			oldKeyState[key] = 0;
 		}
-		// Register for system messages
-		// Register in osHandler for message processing
-		(*core::OSHandler::get()) += [this](MSG _msg) {
-			return processWin32Message(_msg);
-		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -37,7 +31,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	bool KeyboardInputWindows::pressed(Key _key) const
 	{
-		return keyState[_key] == 1 && oldKeyState[(unsigned)_key] == 0;
+		return keyState[(unsigned)_key] == 1 && oldKeyState[(unsigned)_key] == 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
