@@ -39,9 +39,6 @@ namespace rev {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
-			// -- triangle --
-			// Create texture first to be able to use it during scene loading
-			registerFactories();
 			loadScene("sponza_crytek.scn");
 			createCamera();
 
@@ -85,6 +82,39 @@ namespace rev {
 		Mat44f transform;
 	};
 
+	namespace {
+		struct MeshFactory
+		{
+			MeshFactory(const std::vector<std::shared_ptr<RenderGeom>>& meshPool, graphics::RenderScene& scene)
+				: mMeshPool(meshPool)
+				, mScene(scene)
+			{}
+
+			// TODO: Also use materials from the material manager, or some alternative way of loading materials
+			// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
+			std::unique_ptr<game::Component> operator()(const std::string&, std::istream& in) const
+			{
+				uint32_t nMeshes;
+				in.read((char*)&nMeshes, sizeof(nMeshes));
+				std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
+				auto renderObj = std::make_shared<RenderObj>();
+				for(auto& mesh : meshList)
+				{
+					std::pair<uint32_t,uint32_t> indices;
+					in.read((char*)&indices, 2*sizeof(size_t));
+					renderObj->materials.push_back(nullptr); // TODO: Actually load materials?
+					renderObj->meshes.push_back(mMeshPool[indices.first]);
+				}
+				mScene.renderables().push_back(renderObj);
+				return std::make_unique<MeshRenderer>(renderObj);
+			}
+
+		private:
+			const std::vector<std::shared_ptr<RenderGeom>>& mMeshPool;
+			graphics::RenderScene& mScene;
+		};
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const char* _assetFileName)
 	{
@@ -103,23 +133,13 @@ namespace rev {
 		geometryPool.reserve(nMeshes);
 		for(uint32_t i = 0; i < nMeshes; ++i)
 		{
-			geometryPool.emplace_back();
+			geometryPool.push_back(std::make_shared<RenderGeom>());
 			geometryPool.back()->deserialize(in);
 		}
-		// Register a MeshRenderer factory using the loaded meshes.
-		// TODO: Also use materials from the material manager, or some alternative way of loading materials
-		// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
-		mComponentFactory.registerFactory("MeshRenderer", [this](const std::string&, std::istream& in)
-		{
-			uint32_t nMeshes;
-			in.read((char*)&nMeshes, sizeof(nMeshes));
-			std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
-			for(auto& mesh : meshList)
-			{
-				in.read((char*)&mesh, 2*sizeof(size_t));
-			}
-			return std::make_unique<MeshRenderer>( mGraphicsScene.createRenderObj(meshList) );
-		}, true);
+		mComponentFactory.registerFactory(
+			"MeshRenderer",
+			MeshFactory(geometryPool, mGraphicsScene),
+			true);
 		// Load scene nodes
 		if(!mGameScene.load(in, mComponentFactory))
 		{

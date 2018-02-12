@@ -32,7 +32,6 @@ namespace rev {
 
 	private:
 		void createCamera();
-		void registerFactories();
 
 		game::ComponentLoader					mComponentFactory;
 		graphics::RenderScene					mGraphicsScene;
