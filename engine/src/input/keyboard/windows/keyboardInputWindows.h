@@ -16,45 +16,47 @@ namespace rev { namespace input
 	class KeyboardInputWindows
 	{
 	public:
-		enum EKeyCode
+		enum class Key : uint32_t
 		{
-			eBackSpace = VK_BACK,
-			eTab,
-			eEnter = VK_RETURN,
-			eShift = VK_SHIFT,
-			eControl,
-			eAlt,
-			ePause,
-			eCapsLock,
-			eEscape = VK_ESCAPE,
-			eSpace = VK_SPACE,
-			ePageUp,
-			ePageDown,
-			eEnd,
-			eHome,
-			eKeyLeft,
-			eKeyUp,
-			eKeyRight,
-			eKeyDown,
-			eA = 'A',
-			eB, eC, eD, eE, eF, eG, eH, eI, eJ, eK, eL, eM, eN, eO, eP, eQ, eR, eS, eT, eU, eV, eW, eX, eY, eZ,
-
-			eMaxKeyCode
+			BackSpace = VK_BACK,
+			Tab,
+			Enter = VK_RETURN,
+			Shift = VK_SHIFT,
+			Control,
+			Alt,
+			Pause,
+			CapsLock,
+			Escape = VK_ESCAPE,
+			Space = VK_SPACE,
+			PageUp,
+			PageDown,
+			End,
+			Home,
+			KeyLeft,
+			KeyUp,
+			KeyRight,
+			KeyDown,
+			A = 'A',
+			B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+			Key0 = VK_NUMPAD0,
+			Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key,
+			MaxKeyCode
 		};
 	public:
 		KeyboardInputWindows();
 		~KeyboardInputWindows();
 
-		bool pressed	(EKeyCode _key) const;
-		bool held		(EKeyCode _key) const;
-		bool released	(EKeyCode _key) const;
+		bool pressed	(Key _key) const;
+		bool held		(Key _key) const;
+		bool released	(Key _key) const;
 
 		void refresh	();
+		bool processWin32Message(MSG);
 
 	private:
-		int keyState[eMaxKeyCode];
-		int oldKeyState[eMaxKeyCode];
-		bool processWin32Message(MSG);
+		static constexpr uint32_t MaxKeys = (uint32_t)Key::MaxKeyCode;
+		int keyState[MaxKeys];
+		int oldKeyState[MaxKeys];
 	};
 
 	typedef KeyboardInputWindows	KeyboardInputBase;

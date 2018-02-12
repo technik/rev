@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <math/algebra/vector.h>
 #include <input/pointingInput.h>
+#include <input/keyboard/keyboardInput.h>
 
 using namespace rev::math;
 
@@ -31,7 +32,10 @@ bool processWindowsMsg(MSG _msg) {
 		invokeOnResize();
 		return true;
 	}*/
+
 	if(rev::input::PointingInput::get()->processMessage(_msg))
+		return true;
+	if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
 		return true;
 	return false;
 }
@@ -121,11 +125,13 @@ int main() {
 		"Rev Player"
 	);
 	rev::input::PointingInput::init();
+	rev::input::KeyboardInput::init();
 	rev::Player player;
 	if(!player.init(&nativeWindow)) {
 		return -1;
 	}
 	for(;;) {
+		rev::input::KeyboardInput::get()->refresh();
 		if(!processSystemMessages())
 			return 0;
 		if(!player.update())
