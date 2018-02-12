@@ -68,10 +68,11 @@ namespace rev { namespace graphics {
 				core::Json data;
 				auto& floatParams = data["float"];
 				for(auto& f : mFloatParams)
-					floatParams[0] = { f.first, f.second };
+					floatParams.push_back({ f.first, f.second });
 				auto& texParams = data["tex"];
-				for(auto& f : mTextureParams)
-					floatParams[0] = { f.first, f.second->name };
+				for(auto& t : mTextureParams)
+					texParams.push_back({ t.first, t.second->name });
+				out << data;
 			}
 		}
 

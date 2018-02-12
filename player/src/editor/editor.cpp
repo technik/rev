@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "editor.h"
+#include "inspectors/MaterialInspector.h"
 #include "inspectors/MeshRendererInspector.h"
 #include "inspectors/TransportInspector.h"
 
@@ -133,10 +134,12 @@ namespace rev { namespace player {
 						}
 					}
 				}
+				if(!mSelectedMaterial.expired())
+				{
+					MaterialInspector mat;
+					mat.showInspectionPanel(*mSelectedMaterial.lock());
+				}
 				ImGui::End();
-			}
-			if(!mSelectedMaterial.expired())
-			{
 			}
 		}
 	}
@@ -173,8 +176,7 @@ namespace rev { namespace player {
 			material->load(file);
 			mMaterials.push_back(material);
 		}
-		mMaterials[0]->name = "materials/saved.mat";
-		mMaterials[0]->save();
+		mSelectedMaterial = mMaterials[0];
 	}
 
 	//----------------------------------------------------------------------------------------------

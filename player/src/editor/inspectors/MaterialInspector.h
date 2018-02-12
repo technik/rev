@@ -24,10 +24,15 @@
 
 namespace rev { namespace player {
 
-	struct MaterialInspector : Editor::ComponentInspector
+	struct MaterialInspector
 	{
 		void showInspectionPanel(graphics::Material& mat) const
 		{
+			std::vector<char>	nameBuffer;
+			nameBuffer.resize(512);
+			memcpy(nameBuffer.data(), mat.name.c_str(), mat.name.size()+1);
+			if(ImGui::InputText("Name", nameBuffer.data(), nameBuffer.size()))
+				mat.name = nameBuffer.data();
 			auto roughness = mat.floatParam(6);
 			if(roughness)
 			ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
