@@ -28,17 +28,18 @@ namespace rev { namespace graphics { namespace gui {
 			io.KeyMap[ImGuiKey_DownArrow] = (int)input::KeyboardInput::Key::KeyDown;
 			io.KeyMap[ImGuiKey_Delete] = (int)input::KeyboardInput::Key::Delete;
 			io.KeyMap[ImGuiKey_Backspace] = (int)input::KeyboardInput::Key::BackSpace;
-			//io.KeyMap[ImGuiKey_Space] = (int)input::KeyboardInput::Key::Space;
 			io.KeyMap[ImGuiKey_Enter] = (int)input::KeyboardInput::Key::Enter;
 			io.KeyMap[ImGuiKey_Escape] = (int)input::KeyboardInput::Key::Escape;
-			io.KeyMap[ImGuiKey_A] = (int)input::KeyboardInput::Key::A;
-			io.KeyMap[ImGuiKey_C] = (int)input::KeyboardInput::Key::C;
-			io.KeyMap[ImGuiKey_V] = (int)input::KeyboardInput::Key::V;
-			io.KeyMap[ImGuiKey_X] = (int)input::KeyboardInput::Key::X;
-			keyboard->onPress([&](input::KeyboardInput::Key key) {
-				io.KeysDown[(int)key] = true;
+			io.KeyMap[ImGuiKey_A] = 'A';
+			io.KeyMap[ImGuiKey_C] = 'C';
+			io.KeyMap[ImGuiKey_V] = 'V';
+			io.KeyMap[ImGuiKey_X] = 'X';
+			keyboard->onPress([&](int key) {
+				io.KeysDown[key] = true;
+				if(key >= ' ' && key <= '~')
+					io.AddInputCharacter(key);
 			});
-			keyboard->onRelease([&](input::KeyboardInput::Key key) {
+			keyboard->onRelease([&](int key) {
 				io.KeysDown[(int)key] = false;
 			});
 		}

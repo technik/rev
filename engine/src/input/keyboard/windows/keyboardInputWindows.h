@@ -18,19 +18,18 @@ namespace rev { namespace input
 	class KeyboardInputWindows
 	{
 	public:
-		enum class Key : uint32_t
+		enum class Key : uint8_t
 		{
 			BackSpace = VK_BACK,
-			Tab,
+			Tab = VK_TAB,
+			Escape = VK_ESCAPE,
 			Enter = VK_RETURN,
 			Shift = VK_SHIFT,
 			Control,
 			Alt,
 			Pause,
 			CapsLock,
-			Escape = VK_ESCAPE,
-			Space = VK_SPACE,
-			PageUp,
+			PageUp = VK_PRIOR,
 			PageDown,
 			End,
 			Home,
@@ -39,11 +38,8 @@ namespace rev { namespace input
 			KeyRight,
 			KeyDown,
 			Delete = VK_DELETE,
-			A = 'A',
-			B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 			Key0 = VK_NUMPAD0,
 			Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key,
-			MaxKeyCode
 		};
 
 	public:
@@ -55,7 +51,7 @@ namespace rev { namespace input
 		bool held		(Key _key) const;
 		bool released	(Key _key) const;
 
-		using Callback = std::function<void(Key)>;
+		using Callback = std::function<void(int)>;
 
 		void onPress(Callback cb) { mOnPressEvents.push_back(cb); }
 		void onRelease(Callback cb) { mOnReleaseEvents.push_back(cb); }
@@ -64,7 +60,7 @@ namespace rev { namespace input
 		bool processWin32Message(MSG);
 
 	private:
-		static constexpr uint32_t MaxKeys = (uint32_t)Key::MaxKeyCode;
+		static constexpr uint32_t MaxKeys = 512;
 		int keyState[MaxKeys];
 		int oldKeyState[MaxKeys];
 		std::vector<Callback>	mOnPressEvents;

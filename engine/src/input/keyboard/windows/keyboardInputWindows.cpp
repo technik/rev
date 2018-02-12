@@ -9,8 +9,6 @@
 
 #include "keyboardInputWindows.h"
 
-using namespace rev::core;
-
 namespace rev { namespace input
 {
 	//------------------------------------------------------------------------------------------------------------------
@@ -64,7 +62,7 @@ namespace rev { namespace input
 			{
 				keyState[msg.wParam] = 1;
 				for(auto& cb : mOnPressEvents)
-					cb(Key(msg.wParam));
+					cb(msg.wParam);
 				return true;
 			}
 		}
@@ -74,7 +72,7 @@ namespace rev { namespace input
 			{
 				keyState[msg.wParam] = 0;
 				for(auto& cb : mOnReleaseEvents)
-					cb(Key(msg.wParam));
+					cb(msg.wParam);
 				return true;
 			}
 		}
