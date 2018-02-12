@@ -25,6 +25,7 @@
 #include <graphics/driver/texture.h>
 #include <math/algebra/vector.h>
 #include <memory>
+#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -55,6 +56,18 @@ namespace rev { namespace graphics {
 					addTexture(f[0].get<GLint>(), texture);
 				}
 			}
+		}
+
+		void save(const std::string& fileName)
+		{
+			std::ofstream out(fileName);
+			core::Json data;
+			auto& floatParams = data["float"];
+			for(auto& f : mFloatParams)
+				floatParams[0] = { f.first, f.second };
+			auto& texParams = data["tex"];
+			for(auto& f : mTextureParams)
+				floatParams[0] = { f.first, f.second->name };
 		}
 
 		void clear()

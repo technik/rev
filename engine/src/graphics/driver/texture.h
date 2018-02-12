@@ -21,12 +21,15 @@
 
 #include <graphics/driver/openGL/openGL.h>
 #include <graphics/Image.h>
+#include <string>
 
 namespace rev { namespace graphics {
 
 	class Texture
 	{
 	public:
+		std::string name;
+
 		Texture(const ImageRGB8& image)
 		{
 			glGenTextures(1, &mGLName);
@@ -49,9 +52,14 @@ namespace rev { namespace graphics {
 			glDeleteTextures(1, &mGLName);
 		}
 
-		static std::shared_ptr<Texture> load(const std::string name)
+		static std::shared_ptr<Texture> load(const std::string _name)
 		{
-			return std::make_shared<Texture>(*ImageRGB8::load(name));
+			auto img = ImageRGB8::load(_name);
+			if(!img)
+				return nullptr;
+			auto tex = std::make_shared<Texture>(*img);
+			tex->name = _name;
+			return tex;
 		}
 
 		// Accessors
