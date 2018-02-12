@@ -17,7 +17,7 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	KeyboardInputWindows::KeyboardInputWindows()
 	{
-		for (int key = 0; key < eMaxKeyCode; ++key)
+		for (int key = 0; key < MaxKeys; ++key)
 		{
 			keyState[key] = 0;
 			oldKeyState[key] = 0;
@@ -35,28 +35,28 @@ namespace rev { namespace input
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool KeyboardInputWindows::pressed(EKeyCode _key) const
+	bool KeyboardInputWindows::pressed(Key _key) const
 	{
-		return keyState[_key] == 1 && oldKeyState[_key] == 0;
+		return keyState[_key] == 1 && oldKeyState[(unsigned)_key] == 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool KeyboardInputWindows::held(EKeyCode _key) const
+	bool KeyboardInputWindows::held(Key _key) const
 	{
-		return keyState[_key] == 1;
+		return keyState[(unsigned)_key] == 1;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool KeyboardInputWindows::released(EKeyCode _key) const
+	bool KeyboardInputWindows::released(Key _key) const
 	{
-		return keyState[_key] == 0;
+		return keyState[(unsigned)_key] == 0;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void KeyboardInputWindows::refresh()
 	{
 		// Save old state
-		for (int key = 0; key < eMaxKeyCode; ++key)
+		for (int key = 0; key < MaxKeys; ++key)
 		{
 			oldKeyState[key] = keyState[key];
 		}
@@ -66,17 +66,21 @@ namespace rev { namespace input
 	bool KeyboardInputWindows::processWin32Message(MSG msg) {
 		if (msg.message == WM_KEYDOWN)
 		{
-			if (msg.wParam < eMaxKeyCode)
+			if (msg.wParam < MaxKeys)
 			{
 				keyState[msg.wParam] = 1;
+				for(auto& cb : mOnPressEvents)
+					cb(Key(msg.wParam));
 				return true;
 			}
 		}
 		else if (msg.message == WM_KEYUP)
 		{
-			if (msg.wParam < eMaxKeyCode)
+			if (msg.wParam < MaxKeys)
 			{
 				keyState[msg.wParam] = 0;
+				for(auto& cb : mOnReleaseEvents)
+					cb(Key(msg.wParam));
 				return true;
 			}
 		}

@@ -10,6 +10,8 @@
 #define _REV_INPUT_KEYBOARD_WINDOWS_KEYBOARDINPUTWINDOWS_H_
 
 #include <Windows.h>
+#include <functional>
+#include <vector>
 
 namespace rev { namespace input
 {
@@ -43,13 +45,20 @@ namespace rev { namespace input
 			Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key,
 			MaxKeyCode
 		};
+
 	public:
+
 		KeyboardInputWindows();
 		~KeyboardInputWindows();
 
 		bool pressed	(Key _key) const;
 		bool held		(Key _key) const;
 		bool released	(Key _key) const;
+
+		using Callback = std::function<void(Key)>;
+
+		void onPress(Callback cb) { mOnPressEvents.push_back(cb); }
+		void onRelease(Callback cb) { mOnReleaseEvents.push_back(cb); }
 
 		void refresh	();
 		bool processWin32Message(MSG);
@@ -58,6 +67,8 @@ namespace rev { namespace input
 		static constexpr uint32_t MaxKeys = (uint32_t)Key::MaxKeyCode;
 		int keyState[MaxKeys];
 		int oldKeyState[MaxKeys];
+		std::vector<Callback>	mOnPressEvents;
+		std::vector<Callback>	mOnReleaseEvents;
 	};
 
 	typedef KeyboardInputWindows	KeyboardInputBase;

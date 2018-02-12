@@ -35,6 +35,12 @@ namespace rev { namespace graphics { namespace gui {
 			io.KeyMap[ImGuiKey_C] = (int)input::KeyboardInput::Key::C;
 			io.KeyMap[ImGuiKey_V] = (int)input::KeyboardInput::Key::V;
 			io.KeyMap[ImGuiKey_X] = (int)input::KeyboardInput::Key::X;
+			keyboard->onPress([&](input::KeyboardInput::Key key) {
+				io.KeysDown[(int)key] = true;
+			});
+			keyboard->onRelease([&](input::KeyboardInput::Key key) {
+				io.KeysDown[(int)key] = false;
+			});
 		}
 #endif // _WIN32
 
