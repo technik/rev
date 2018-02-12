@@ -13,6 +13,7 @@
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
+#include <graphics/scene/renderGeom.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -97,11 +98,13 @@ namespace rev {
 		// Load meshes
 		uint32_t nMeshes;
 		in.read((char*)&nMeshes, sizeof(nMeshes));
+		// TODO: Use a real geometry pool
+		std::vector<std::shared_ptr<RenderGeom>> geometryPool;
+		geometryPool.reserve(nMeshes);
 		for(uint32_t i = 0; i < nMeshes; ++i)
 		{
-			auto geom = std::make_shared<RenderGeom>();
-			geom->deserialize(in);
-			mGraphicsScene.registerMesh(geom);
+			geometryPool.emplace_back();
+			geometryPool.back()->deserialize(in);
 		}
 		// Register a MeshRenderer factory using the loaded meshes.
 		// TODO: Also use materials from the material manager, or some alternative way of loading materials
