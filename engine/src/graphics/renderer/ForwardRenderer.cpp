@@ -5,6 +5,7 @@
 #include <graphics/scene/material.h>
 #include <math/algebra/affineTransform.h>
 #include <graphics/debug/debugGUI.h>
+#include <graphics/debug/imgui.h>
 #include <graphics/scene/renderObj.h>
 
 using namespace rev::math;
@@ -47,8 +48,12 @@ namespace rev { namespace graphics {
 
 		auto worldMatrix = Mat44f::identity();
 		auto& driver = *mDriver;
+		// Performance counters
+		size_t nRenderObjs = 0;
+		size_t nDrawCalls = 0;
 		for(auto renderable : scene.renderables())
 		{
+			nRenderObjs++;
 			auto renderObj = renderable.lock();
 			// Get world matrix
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
@@ -66,6 +71,7 @@ namespace rev { namespace graphics {
 			// render
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
+				nDrawCalls++;
 				// Setup material
 				auto& material = renderObj->materials[i];
 				if(material)
@@ -75,6 +81,12 @@ namespace rev { namespace graphics {
 				// Render mesh
 				renderObj->meshes[i]->render();
 			}
+		}
+
+		if(ImGui::Begin("Render metrics"))
+		{
+			ImGui::Text("Objects: %d, Draws: %d", nRenderObjs, nDrawCalls);
+			ImGui::End();
 		}
 	}
 
