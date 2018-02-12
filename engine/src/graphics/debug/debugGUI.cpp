@@ -17,11 +17,27 @@ namespace rev { namespace graphics { namespace gui {
 		auto& io = ImGui::GetIO();
 		io.DisplaySize.x = float(_windowSize.x());
 		io.DisplaySize.y = float(_windowSize.y());
+#ifdef _WIN32
 		auto keyboard = input::KeyboardInput::get();
 		if(keyboard)
 		{
-			io.KeyMap[ImGuiKey_Tab] = input::KeyboardInput::KeyCode::;
+			io.KeyMap[ImGuiKey_Tab] = (int)input::KeyboardInput::Key::Tab;
+			io.KeyMap[ImGuiKey_LeftArrow] = (int)input::KeyboardInput::Key::KeyLeft;
+			io.KeyMap[ImGuiKey_RightArrow] = (int)input::KeyboardInput::Key::KeyRight;
+			io.KeyMap[ImGuiKey_UpArrow] = (int)input::KeyboardInput::Key::KeyUp;
+			io.KeyMap[ImGuiKey_DownArrow] = (int)input::KeyboardInput::Key::KeyDown;
+			io.KeyMap[ImGuiKey_Delete] = (int)input::KeyboardInput::Key::Delete;
+			io.KeyMap[ImGuiKey_Backspace] = (int)input::KeyboardInput::Key::BackSpace;
+			//io.KeyMap[ImGuiKey_Space] = (int)input::KeyboardInput::Key::Space;
+			io.KeyMap[ImGuiKey_Enter] = (int)input::KeyboardInput::Key::Enter;
+			io.KeyMap[ImGuiKey_Escape] = (int)input::KeyboardInput::Key::Escape;
+			io.KeyMap[ImGuiKey_A] = (int)input::KeyboardInput::Key::A;
+			io.KeyMap[ImGuiKey_C] = (int)input::KeyboardInput::Key::C;
+			io.KeyMap[ImGuiKey_V] = (int)input::KeyboardInput::Key::V;
+			io.KeyMap[ImGuiKey_X] = (int)input::KeyboardInput::Key::X;
 		}
+#endif // _WIN32
+
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -40,10 +56,6 @@ namespace rev { namespace graphics { namespace gui {
 				(float)pointingInput->touchPosition().x(),
 				(float)pointingInput->touchPosition().y()
 			};
-		}
-		auto keyboard = input::KeyboardInput::get();
-		if(keyboard)
-		{
 		}
 
 		// Begin frame

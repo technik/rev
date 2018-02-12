@@ -36,6 +36,7 @@ namespace rev { namespace input
 			KeyUp,
 			KeyRight,
 			KeyDown,
+			Delete = VK_DELETE,
 			A = 'A',
 			B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 			Key0 = VK_NUMPAD0,
