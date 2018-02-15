@@ -20,22 +20,27 @@
 #pragma once
 #include <memory>
 
-namespace rev { namespace graphics {
+namespace rev{ namespace graphics {
 
 	class Camera;
-	class ForwardPass;
 	class GraphicsDriverGL;
+	class Material;
 	class RenderScene;
 	class RenderTarget;
+	class Shader;
 
-	class ForwardRenderer
+	class ForwardPass
 	{
 	public:
-		void init	(GraphicsDriverGL& driver);
-		void render	(const Camera& _pov, const RenderScene&);
+		ForwardPass(GraphicsDriverGL&);
+
+		void render(const Camera&, const RenderScene&, const RenderTarget& _dst);
 
 	private:
-		std::unique_ptr<ForwardPass>	mForwardPass;
+		GraphicsDriverGL&	mDriver;
+		float mEV;
+		std::unique_ptr<Material>	mErrorMaterial;
+		std::unique_ptr<Shader>		mForwardPipeline;
 	};
 
 }}
