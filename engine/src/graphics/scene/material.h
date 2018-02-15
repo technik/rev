@@ -72,7 +72,7 @@ namespace rev { namespace graphics {
 				auto& texParams = data["tex"];
 				for(auto& t : mTextureParams)
 					texParams.push_back({ t.first, t.second->name });
-				out << data;
+				out << std::setw(4) << data;
 			}
 		}
 

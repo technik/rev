@@ -39,6 +39,9 @@ namespace rev { namespace player {
 			auto metallic = mat.floatParam(7);
 			if(metallic)
 			ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
+
+			if(ImGui::Button("Save"))
+				mat.save();
 		}
 	};
 
