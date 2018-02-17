@@ -25,7 +25,7 @@ namespace rev {
 
 		typedef rev::graphics::GraphicsDriverGL::NativeWindow	Window;
 		bool init(Window);
-		void loadScene(const char* assetFileName);
+		void loadScene(const std::string& _assetFileName);
 
 		// Common components
 		bool update();

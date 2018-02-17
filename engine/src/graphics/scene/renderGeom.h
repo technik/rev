@@ -39,6 +39,7 @@ namespace rev { namespace graphics {
 
 		void deserialize(std::istream& _in)
 		{
+			assert(!_in.eof() && !_in.bad());
 			// Load header
 			uint32_t nVertices = 0, nIndices = 0;
 			_in.read((char*)&nVertices, sizeof(nVertices));
@@ -49,6 +50,18 @@ namespace rev { namespace graphics {
 			// Load indices
 			mIndices.resize(nIndices);
 			_in.read((char*)mIndices.data(), sizeof(uint16_t)*nIndices);
+			if(!_in)
+			{
+				if(_in.badbit & _in.rdstate())
+					return;
+				if(_in.eofbit & _in.rdstate())
+					return;
+				if(_in.failbit & _in.rdstate())
+					return;
+				return;
+			}
+			if(_in.eof())
+				return;
 			initOpenGL();
 		}
 

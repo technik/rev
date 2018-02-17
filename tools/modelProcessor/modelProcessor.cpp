@@ -111,17 +111,18 @@ struct IntermediateModel {
 };
 
 struct MeshRendererDesc : public Component {
-	std::vector<int32_t> meshIndices;
-	uint32_t materialIdx = uint32_t(-1);
+	vector<uint32_t> meshIndices;
+	string modelScene;
 
 	void serialize(std::ostream& _out) const override {
 		_out << "MeshRenderer\n";
+		_out << modelScene << "\n";
 		uint32_t nMeshes = meshIndices.size();
 		_out.write((const char*)&nMeshes, sizeof(nMeshes));
 		for(uint32_t i = 0; i < nMeshes; ++i)
 		{
-			_out.write((const char*)&meshIndices[i], sizeof(int32_t));
-			_out.write((const char*)&materialIdx, sizeof(materialIdx));
+			_out.write((const char*)&meshIndices[i], sizeof(uint32_t));
+			_out << "-\n";
 		}
 	}
 };
@@ -132,13 +133,17 @@ struct SceneDesc
 	std::vector<int>				parents;
 	std::vector<IntermediateModel> meshes;
 
-	void saveToStream(ostream& dst)
+	void saveMeshes(ostream& dst)
 	{
 		// --- Serialize meshes ---
 		uint32_t nMeshes = meshes.size();
 		dst.write((const char*)&nMeshes, sizeof(nMeshes));
 		for(auto& mesh : meshes)
 			mesh.saveToStream(dst);
+	}
+
+	void saveSceneLayout(ostream& dst)
+	{
 		// --- Serialize node tree ---
 		// Build node tree
 		Scene tree;
@@ -159,7 +164,31 @@ struct SceneDesc
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-bool loadFBX(const string& _src, SceneDesc& _dst) {
+void processFBXNode(SceneNode& dstNode, const aiNode& fbxNode, const std::string& modelsFile)
+{
+	dstNode.name = fbxNode.mName.C_Str();
+	if(fbxNode.mNumMeshes > 0)
+	{
+		auto mesh = make_unique<MeshRendererDesc>();
+		mesh->modelScene = modelsFile;
+		mesh->meshIndices.resize(fbxNode.mNumMeshes);
+		for(unsigned i = 0; i < fbxNode.mNumMeshes; ++i)
+		{
+			mesh->meshIndices[i] = fbxNode.mMeshes[i];
+		}
+		dstNode.addComponent(move(mesh));
+	}
+	// Add transform
+	auto tPose = fbxNode.mTransformation;
+	Mat44f xFormMatrix;
+	memcpy(xFormMatrix.data(), &tPose.Transpose(), 16*sizeof(float));
+	auto xForm = make_unique<rev::game::Transform>();
+	xForm->matrix() = xFormMatrix.block<3,4>(0,0);
+	dstNode.addComponent(move(xForm));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool loadFBX(const string& _src, const string& modelsFile, SceneDesc& _dst) {
 	const aiScene* fbx = fbxLoader.ReadFile(
 		_src,
 		aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace
@@ -189,24 +218,7 @@ bool loadFBX(const string& _src, SceneDesc& _dst) {
 		// Actually process the node
 		auto dstNode = make_shared<SceneNode>();
 		_dst.nodes.push_back(dstNode);
-		dstNode->name = fbxNode->mName.C_Str();
-		if(fbxNode->mNumMeshes > 0)
-		{
-			auto mesh = make_unique<MeshRendererDesc>();
-			mesh->meshIndices.resize(fbxNode->mNumMeshes);
-			for(unsigned i = 0; i < fbxNode->mNumMeshes; ++i)
-			{
-				mesh->meshIndices[i] = fbxNode->mMeshes[i];
-			}
-			dstNode->addComponent(move(mesh));
-		}
-		// Add transform
-		auto tPose = fbxNode->mTransformation;
-		Mat44f xFormMatrix;
-		memcpy(xFormMatrix.data(), &tPose.Transpose(), 16*sizeof(float));
-		auto xForm = make_unique<rev::game::Transform>();
-		xForm->matrix() = xFormMatrix.block<3,4>(0,0);
-		dstNode->addComponent(move(xForm));
+		processFBXNode(*dstNode, *fbxNode, modelsFile);
 	}
 	return true;
 }
@@ -221,23 +233,33 @@ int main(int _argc, const char** _argv) {
 	}
 	string modelName = _argv[1];
 	string src = modelName + ".fbx";
-	string dst = modelName + ".scn";
-	cout << src << " >> " << dst << "\n";
+	string dstModels = modelName + ".mdl";
+	string dstScene = modelName + ".scn";
+	cout << src << " >> " << dstModels << " + " << dstScene << "\n";
 
 	SceneDesc scene;
-	if (!loadFBX(src, scene))
+	if (!loadFBX(src, dstModels, scene))
 	{
 		cout << "Error loading model: " << src << "\n";
 		return -1;
 	}
-	ofstream outFile(dst, std::ofstream::binary);
-	if (outFile.is_open()) {
-		scene.saveToStream(outFile);
-		outFile.close();
+	ofstream outModelFile(dstModels, std::ofstream::binary);
+	if (outModelFile.is_open()) {
+		scene.saveMeshes(outModelFile);
+		outModelFile.close();
 	}
 	else {
-		cout << "Error: Unable to open output file\n";
+		cout << "Error: Unable to write to output file" << dstModels << "\n";
 		return -2;
+	}
+	ofstream outSceneFile(dstScene, std::ofstream::binary);
+	if (outSceneFile.is_open()) {
+		scene.saveSceneLayout(outSceneFile);
+		outSceneFile.close();
+	}
+	else {
+		cout << "Error: Unable to write to output file" << dstScene << "\n";
+		return -3;
 	}
 	return 0;
 }

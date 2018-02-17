@@ -8,6 +8,7 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
 #include <core/tools/log.h>
+#include <game/geometry/modelAsset.h>
 #include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
@@ -39,7 +40,7 @@ namespace rev {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
-			loadScene("sponza_crytek.scn");
+			loadScene("sponza_crytek");
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);
@@ -85,7 +86,10 @@ namespace rev {
 	namespace {
 		struct MeshFactory
 		{
-			MeshFactory(const std::vector<std::shared_ptr<RenderGeom>>& meshPool, graphics::RenderScene& scene)
+			MeshFactory(
+				const game::ModelAsset& meshPool,
+				graphics::RenderScene& scene
+			)
 				: mMeshPool(meshPool)
 				, mScene(scene)
 			{}
@@ -94,48 +98,49 @@ namespace rev {
 			// Factory signature: std::unique_ptr<Component>(const std::string&, std::istream&)
 			std::unique_ptr<game::Component> operator()(const std::string&, std::istream& in) const
 			{
+				std::string sceneName, materialName;
+				in >> sceneName;
+				in.get();
 				uint32_t nMeshes;
 				in.read((char*)&nMeshes, sizeof(nMeshes));
-				std::vector<std::pair<uint32_t,uint32_t>>  meshList(nMeshes);
+				std::vector<uint32_t>  meshList(nMeshes);
 				auto renderObj = std::make_shared<RenderObj>();
-				for(auto& mesh : meshList)
+				for(auto& meshIdx : meshList)
 				{
-					std::pair<uint32_t,uint32_t> indices;
-					in.read((char*)&indices, 2*sizeof(size_t));
-					renderObj->materials.push_back(nullptr); // TODO: Actually load materials?
-					renderObj->meshes.push_back(mMeshPool[indices.first]);
+					in.read((char*)&meshIdx, sizeof(uint32_t));
+					renderObj->meshes.push_back(mMeshPool.mesh(meshIdx));
+					// TODO: Actually load materials
+					in >> materialName;
+					in.get();
+					renderObj->materials.push_back(nullptr);
 				}
 				mScene.renderables().push_back(renderObj);
-				return std::make_unique<MeshRenderer>(renderObj);
+				return std::make_unique<MeshRenderer>(
+					renderObj,
+					meshList,
+					sceneName);
 			}
 
 		private:
-			const std::vector<std::shared_ptr<RenderGeom>>& mMeshPool;
+			const game::ModelAsset& mMeshPool;
 			graphics::RenderScene& mScene;
 		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::loadScene(const char* _assetFileName)
+	void Player::loadScene(const std::string& _assetFileName)
 	{
-		core::File asset(_assetFileName);
+		// TODO: Use a real geometry pool. Even better. Use a geometry pool and a model mananger to load geometry.
+		// Even better: Do that in a background thread while other components are loaded
+		game::ModelAsset geometryPool(_assetFileName + ".mdl");
+		// Load the scene components
+		core::File asset(_assetFileName + ".scn");
 		if(asset.sizeInBytes() == 0)
 		{
 			rev::core::Log::error("Unable to load asset");
 			return;
 		}
 		auto& in = asset.asStream();
-		// Load meshes
-		uint32_t nMeshes;
-		in.read((char*)&nMeshes, sizeof(nMeshes));
-		// TODO: Use a real geometry pool
-		std::vector<std::shared_ptr<RenderGeom>> geometryPool;
-		geometryPool.reserve(nMeshes);
-		for(uint32_t i = 0; i < nMeshes; ++i)
-		{
-			geometryPool.push_back(std::make_shared<RenderGeom>());
-			geometryPool.back()->deserialize(in);
-		}
 		mComponentFactory.registerFactory(
 			"MeshRenderer",
 			MeshFactory(geometryPool, mGraphicsScene),
