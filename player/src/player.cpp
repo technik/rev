@@ -43,7 +43,7 @@ namespace rev {
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);
-			mRenderer.init(*mGfxDriver);
+			mRenderer.init(*mGfxDriver, *mGfxDriver->frameBuffer());
 			gui::init(_window->size);
 		}
 		return mGfxDriver != nullptr;

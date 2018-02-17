@@ -19,11 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
+#include "ForwardPass.h"
 
 namespace rev { namespace graphics {
 
 	class Camera;
-	class ForwardPass;
 	class GraphicsDriverGL;
 	class RenderScene;
 	class RenderTarget;
@@ -31,11 +31,12 @@ namespace rev { namespace graphics {
 	class ForwardRenderer
 	{
 	public:
-		void init	(GraphicsDriverGL& driver);
+		void init	(GraphicsDriverGL& driver, RenderTarget& _renderTarget);
 		void render	(const Camera& _pov, const RenderScene&);
 
 	private:
 		std::unique_ptr<ForwardPass>	mForwardPass;
+		RenderTarget*					mRenderTarget = nullptr;
 	};
 
 }}

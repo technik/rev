@@ -19,15 +19,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
+#include <graphics/driver/shader.h>
+#include <graphics/scene/material.h>
 
 namespace rev{ namespace graphics {
 
 	class Camera;
 	class GraphicsDriverGL;
-	class Material;
 	class RenderScene;
 	class RenderTarget;
-	class Shader;
 
 	class ForwardPass
 	{

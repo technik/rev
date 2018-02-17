@@ -19,20 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ForwardRenderer.h"
 #include "ForwardPass.h"
-
-using namespace rev::math;
+#include "graphics/driver/renderTarget.h"
 
 namespace rev { namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init(GraphicsDriverGL& driver)
+	void ForwardRenderer::init(GraphicsDriverGL& driver, RenderTarget& _renderTarget)
 	{
+		mRenderTarget = &_renderTarget;
 		mForwardPass = std::make_unique<ForwardPass>(driver);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
-		mForwardPass->render(eye,scene,mFinalFrameBuffer);
+		if(!mRenderTarget)
+			return;
+		mForwardPass->render(eye,scene,*mRenderTarget);
 	}
 
 }}

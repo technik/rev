@@ -109,6 +109,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	  
 	kD *= 1.0 - metallic;
 	
+	//return (kD * inputs.albedo / PI + specular) * inputs.ndl;
 	return (kD * inputs.albedo / PI + specular) * lightColor * inputs.ndl;
 }
 
@@ -132,8 +133,9 @@ void main (void) {
 	
 	outColor = shadeSurface(shadingInputs);
 	// Tone mapping
-	outColor = (outColor / ev);
-	outColor = pow(outColor / (vec3(1.0) + outColor), vec3(2.2));
+	outColor = (outColor * ev);
+	//outColor = pow(outColor / (vec3(1.0) + outColor), vec3(2.2));
+	outColor = outColor / (vec3(1.0) + outColor);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

@@ -12,6 +12,7 @@ namespace rev { namespace game {
 struct MockComponent : Component
 {
 	char a;
+	void serialize(std::ostream& out) const override {}
 };
 
 // Loader Mock

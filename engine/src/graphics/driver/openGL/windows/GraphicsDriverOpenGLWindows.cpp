@@ -76,7 +76,7 @@ namespace rev {	namespace graphics {
 		cout << "OpenGL Version " << (char*)glGetString(GL_VERSION) << "\n";
 		cout << "GLSL Version " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 
-		auto driver = new GraphicsDriverGL();
+		auto driver = new GraphicsDriverGL(std::make_unique<DefaultFrameBuffer>(_window->size));
 		if(driver) {
 			driver->mWindowHandle = windowHandle->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;

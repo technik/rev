@@ -15,6 +15,8 @@ namespace rev { namespace graphics {
 	public:
 		HWND nativeWindow;
 		math::Vec2u size;
+
+		//
 	};
 
 	class GraphicsDriverGL;

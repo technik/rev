@@ -7,12 +7,21 @@
 #include "android/GraphicsDriverOpenGLAndroid.h"
 
 #include <math/algebra/vector.h>
+#include <graphics/driver/DefaultFrameBuffer.h>
+#include <memory>
 
 namespace rev { namespace graphics {
 
 	class GraphicsDriverGL : public GraphicsDriverGLBase
 	{
 	public:
+		GraphicsDriverGL(std::unique_ptr<DefaultFrameBuffer> _defaultFrameBuffer)
+			: mFrameBuffer(std::move(_defaultFrameBuffer))
+		{}
+
+		DefaultFrameBuffer* frameBuffer() const { return mFrameBuffer.get(); }
+
+		// Bind uniforms
 		void bindUniform(GLint pos, float f)
 		{
 			glUniform1f(pos, f);
@@ -34,6 +43,9 @@ namespace rev { namespace graphics {
 		{
 			glBindTexture(pos, tex);
 		}
+
+	private:
+		std::unique_ptr<DefaultFrameBuffer> mFrameBuffer;
 	};
 
 }}
