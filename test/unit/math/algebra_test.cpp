@@ -51,6 +51,20 @@ void testMatrix() {
 	};
 	assert(b(1,0) == 2.f);
 
+	{
+		Vec3f t;
+		t(0,0) = 0.f;
+		t(1,0) = 1.f;
+		t(2,0) = 2.f;
+		assert(t.x() == 0.f);
+		assert(t.y() == 1.f);
+		assert(t.z() == 2.f);
+	}
+	auto ten = 10.f * Vec3f::ones();
+	assert(ten.x() == 10.f);
+	assert(ten.y() == 10.f);
+	assert(ten.z() == 10.f);
+
 	// TODO: Access rows and columns as referencing types
 	// TODO: Test operations with matrices of different base number types
 }

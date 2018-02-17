@@ -17,7 +17,7 @@ namespace rev { namespace graphics {
 	public:
 		RenderScene()
 		{
-			mLightClr = math::Vec3f::ones();
+			mLightClr = 10.f*math::Vec3f::ones();
 		}
 
 		// Accessors

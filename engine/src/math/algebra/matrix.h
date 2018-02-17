@@ -50,7 +50,12 @@ namespace rev {
 						(*this)(i,j) = _b(i,j);
 			}
 
-			T_&			coefficient(Idx i, Idx j)		{ return m[i*row_stride_+j*col_stride_]; }
+			T_&			coefficient(Idx i, Idx j)		{ 
+				auto i_rs = i*row_stride_;
+				auto j_cs = j*col_stride_;
+				return m[i_rs+j_cs]; 
+				//return m[i*row_stride_+j*col_stride_]; 
+			}
 			const T_&	coefficient(Idx i, Idx j) const	{ return m[i*row_stride_+j*col_stride_]; }
 			T_&			operator()(Idx i, Idx j)		{ return coefficient(i,j); }
 			const T_&	operator()(Idx i, Idx j) const	{ return coefficient(i,j); }
@@ -273,8 +278,8 @@ namespace rev {
 		) -> typename Matrix_::Derived
 		{
 			typename Matrix_::Derived result;
-			for(size_t j = 0; j < Matrix_::rows; ++j)
-				for(size_t i = 0; i < Matrix_::cols; ++i)
+			for(size_t j = 0; j < Matrix_::cols; ++j)
+				for(size_t i = 0; i < Matrix_::rows; ++i)
 					_operation(result(i,j),_m(i,j));
 			return result;
 		}
@@ -292,8 +297,8 @@ namespace rev {
 				MatrixA_::rows == MatrixB_::rows,
 				"Matrix sizes must be equal");
 			typename MatrixA_::Derived result;
-			for(size_t j = 0; j < MatrixA_::rows; ++j)
-				for(size_t i = 0; i < MatrixA_::cols; ++i)
+			for(size_t j = 0; j < MatrixA_::cols; ++j)
+				for(size_t i = 0; i < MatrixA_::rows; ++i)
 					_operation(result(i,j),_a(i,j),_b(i,j));
 			return result;
 		}
