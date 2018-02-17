@@ -42,11 +42,9 @@ namespace rev { namespace player {
 		};
 
 	private:
-		void pickTexture(std::shared_ptr<graphics::Texture>& texture);
 		void drawMainMenu();
 		void showNodeTree(const game::SceneNode* root);
 		void showInspector();
-		void showProjectExplorer();
 		void showMaterialExplorer();
 		void registerMaterials();
 
@@ -61,8 +59,7 @@ namespace rev { namespace player {
 
 		void createInspectors (graphics::RenderScene& scene);
 
-		std::vector<std::string>	mTextures;
-		game::TextureManager		mTextureMgr;
+		game::TextureManager					mTextureMgr;
 		std::vector<std::shared_ptr<Material>>	mMaterials;
 
 		bool mShowInspector = true;

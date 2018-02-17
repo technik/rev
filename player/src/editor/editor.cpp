@@ -29,13 +29,6 @@ namespace rev { namespace player {
 	//----------------------------------------------------------------------------------------------
 	void Editor::init(graphics::RenderScene& scene)
 	{
-		mTextures = {
-			"textures/spnza_bricks_a_ddn.tga",
-			"textures/sponza_curtain_blue_diff.tga",
-			"textures/spnza_bricks_a_diff.tga",
-			"textures/sponza_curtain_diff.tga",
-			"textures/spnza_bricks_a_spec.tga"
-		};
 		mTextureMgr.init();
 		registerMaterials();
 		createInspectors(scene);
@@ -46,27 +39,10 @@ namespace rev { namespace player {
 	{
 		// Show menu
 		drawMainMenu();
-		showProjectExplorer();
 		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
 		//ImGui::ShowDemoWindow();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Editor::pickTexture(std::shared_ptr<graphics::Texture>& texture)
-	{
-		if (ImGui::Button("Select.."))
-			ImGui::OpenPopup("select texture");
-		ImGui::SameLine();
-		ImGui::TextUnformatted("<None>");
-		if (ImGui::BeginPopup("select texture"))
-		{
-			for (auto& t : mTextures)
-				if (ImGui::Selectable(t.c_str()))
-					texture = mTextureMgr.get(t);
-			ImGui::EndPopup();
-		}
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -147,21 +123,6 @@ namespace rev { namespace player {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Editor::showProjectExplorer() {
-		if(mShowProjectExplorer)
-		{
-			if(ImGui::Begin("Project Explorer"))
-			{
-				for(auto& t: mTextures)
-				{
-					ImGui::Selectable(t.c_str());
-				}
-				ImGui::End();
-			}
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
 	void Editor::showMaterialExplorer() {
 		if(mShowMaterialExplorer)
 		{
@@ -174,6 +135,15 @@ namespace rev { namespace player {
 						mSelectedMaterial = m;
 						mSelectedNode.reset();
 					}
+				}
+				ImGui::Separator();
+				if(ImGui::Button("+"))
+				{
+					auto newMaterial = std::make_shared<Material>();
+					mMaterials.push_back(newMaterial);
+					newMaterial->name = "materials/new.mat";
+					newMaterial->addParam(6, 0.5f); // Rougness
+					newMaterial->addParam(7, 0.5f); // Metallic
 				}
 				ImGui::End();
 			}
