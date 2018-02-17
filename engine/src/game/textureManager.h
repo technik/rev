@@ -41,8 +41,11 @@ namespace rev { namespace game {
 			if(it == mLoadedTextures.end() || it->second.expired())
 			{
 				auto newTexture = graphics::Texture::load(_name);
-				mLoadedTextures.insert(std::make_pair(_name, newTexture));
-				return newTexture;
+				if(newTexture)
+				{
+					mLoadedTextures.insert(std::make_pair(_name, newTexture));
+					return newTexture;
+				}
 			} 
 			else
 			{

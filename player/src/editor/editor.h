@@ -59,7 +59,8 @@ namespace rev { namespace player {
 
 		void createInspectors (graphics::RenderScene& scene);
 
-		game::TextureManager					mTextureMgr;
+		std::vector<std::string>	mTextures;
+		game::TextureManager		mTextureMgr;
 		std::vector<std::shared_ptr<Material>>	mMaterials;
 
 		bool mShowInspector = true;

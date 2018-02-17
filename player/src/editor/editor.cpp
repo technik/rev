@@ -144,6 +144,7 @@ namespace rev { namespace player {
 					newMaterial->name = "materials/new.mat";
 					newMaterial->addParam(6, 0.5f); // Rougness
 					newMaterial->addParam(7, 0.5f); // Metallic
+					newMaterial->addTexture(5, mTextureMgr.get("errorTexture"));
 				}
 				ImGui::End();
 			}
@@ -154,6 +155,13 @@ namespace rev { namespace player {
 	void Editor::registerMaterials()
 	{
 		// Register phony materials
+		mTextures = {
+			"textures/spnza_bricks_a_ddn.tga",
+			"textures/sponza_curtain_blue_diff.tga",
+			"textures/spnza_bricks_a_diff.tga",
+			"textures/sponza_curtain_diff.tga",
+			"textures/spnza_bricks_a_spec.tga"
+		};
 		const std::string materialList[] = 
 		{
 			"materials/red_curtain.mat",
