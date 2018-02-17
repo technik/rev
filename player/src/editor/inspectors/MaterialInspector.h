@@ -21,11 +21,17 @@
 #include "../editor.h"
 #include <graphics/scene/material.h>
 #include <graphics/debug/imgui.h>
+#include <game/textureManager.h>
 
 namespace rev { namespace player {
 
 	struct MaterialInspector
 	{
+		MaterialInspector(const std::vector<std::string>& _textures, game::TextureManager& _mgr)
+			: mTextures(_textures)
+			, mTextureMgr(_mgr)
+		{}
+
 		void showInspectionPanel(graphics::Material& mat) const
 		{
 			std::vector<char>	nameBuffer;
@@ -33,6 +39,21 @@ namespace rev { namespace player {
 			memcpy(nameBuffer.data(), mat.name.c_str(), mat.name.size()+1);
 			if(ImGui::InputText("Name", nameBuffer.data(), nameBuffer.size()))
 				mat.name = nameBuffer.data();
+			// Textures
+			auto albedo = mat.texture(5);
+			if(albedo)
+			{
+				if(ImGui::BeginCombo("Albedo", albedo->name.c_str()))
+				{
+					for(auto& texture : mTextures)
+					{
+						if(ImGui::Selectable(texture.c_str(), albedo->name==texture))
+							mat.setTexture(5, mTextureMgr.get(texture));
+					}
+					ImGui::EndCombo();
+				}
+			}
+			// Float params
 			auto roughness = mat.floatParam(6);
 			if(roughness)
 				ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
@@ -43,6 +64,10 @@ namespace rev { namespace player {
 			if(ImGui::Button("Save"))
 				mat.save();
 		}
+
+	private:
+		const std::vector<std::string>& mTextures;
+		game::TextureManager&			mTextureMgr;
 	};
 
 }}	// namespace rev::player

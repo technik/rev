@@ -92,6 +92,14 @@ namespace rev { namespace graphics {
 			return nullptr;
 		}
 
+		std::shared_ptr<const Texture> texture(GLint i)
+		{
+			for(auto& p : mTextureParams)
+				if(p.first == i)
+					return p.second;
+			return nullptr;
+		}
+
 		void setTexture(GLint pos, std::shared_ptr<const Texture> t)
 		{
 			for(auto& p : mTextureParams)

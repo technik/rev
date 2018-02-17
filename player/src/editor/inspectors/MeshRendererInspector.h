@@ -51,15 +51,6 @@ namespace rev { namespace player {
 					}
 					ImGui::EndCombo();
 				}
-				/*if(mat)
-				{
-					auto roughness = mat->floatParam(6);
-					if(roughness)
-						ImGui::SliderFloat("Roughness", roughness, 0.f, 1.f, "%.2f");
-					auto metallic = mat->floatParam(7);
-					if(metallic)
-						ImGui::SliderFloat("Metallic", metallic, 0.f, 1.f, "%.2f");
-				}*/
 			}
 		}
 

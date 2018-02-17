@@ -65,7 +65,7 @@ namespace rev { namespace player {
 
 		bool mShowInspector = true;
 		bool mShowProjectExplorer = false;
-		bool mShowMaterialExplorer = false;
+		bool mShowMaterialExplorer = true;
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = true;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;

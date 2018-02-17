@@ -1,9 +1,18 @@
 {
-	"float" : [ 
-		[6, 0.8 ],
-		[7, 0.05]
-		],
-	"tex" : [
-		[5, "textures/spnza_bricks_a_diff.tga"]
-	]
+    "float": [
+        [
+            6,
+            0.800000011920929
+        ],
+        [
+            7,
+            0.05000000074505806
+        ]
+    ],
+    "tex": [
+        [
+            5,
+            "textures/spnza_bricks_a_diff.tga"
+        ]
+    ]
 }

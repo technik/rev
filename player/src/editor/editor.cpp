@@ -114,7 +114,7 @@ namespace rev { namespace player {
 				}
 				if(!mSelectedMaterial.expired())
 				{
-					MaterialInspector mat;
+					MaterialInspector mat(mTextures, mTextureMgr);
 					mat.showInspectionPanel(*mSelectedMaterial.lock());
 				}
 				ImGui::End();
