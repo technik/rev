@@ -18,24 +18,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <math/algebra/vector.h>
+#include "renderTarget.h"
+
+#include "openGL/openGL.h"
 
 namespace rev { namespace graphics {
 
-	class RenderTarget
+	class DefaultFrameBuffer : public RenderTarget
 	{
 	public:
-		const math::Vec2u& size() const { return mSize; }
-		float aspectRatio() const { return float(mSize.x())/(float)mSize.y(); }
+		DefaultFrameBuffer(const math::Vec2u& _size)
+			: RenderTarget(_size)
+		{
+		}
 
-		virtual void bind() const = 0;
-
-	protected:
-		RenderTarget(const math::Vec2u& _size)
-			: mSize(_size)
-		{}
-
-		math::Vec2u mSize;
+		void bind() const override
+		{
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		}
 	};
 
 }}
