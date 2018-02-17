@@ -47,6 +47,7 @@ namespace rev { namespace player {
 		void showNodeTree(const game::SceneNode* root);
 		void showInspector();
 		void showProjectExplorer();
+		void showMaterialExplorer();
 		void registerMaterials();
 
 		template<class Inspected, class Inspector>
@@ -66,6 +67,7 @@ namespace rev { namespace player {
 
 		bool mShowInspector = true;
 		bool mShowProjectExplorer = false;
+		bool mShowMaterialExplorer = false;
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = true;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;

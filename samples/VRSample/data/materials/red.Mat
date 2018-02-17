@@ -1,1 +1,18 @@
-{"float":[[6,0.800000011920929],[7,0.05000000074505806]],"tex":[[5,"textures/sponza_curtain_diff.tga"]]}
+{
+    "float": [
+        [
+            6,
+            0.800000011920929
+        ],
+        [
+            7,
+            0.550000011920929
+        ]
+    ],
+    "tex": [
+        [
+            5,
+            "textures/sponza_curtain_diff.tga"
+        ]
+    ]
+}

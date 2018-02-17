@@ -47,6 +47,7 @@ namespace rev { namespace player {
 		// Show menu
 		drawMainMenu();
 		showProjectExplorer();
+		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
 		//ImGui::ShowDemoWindow();
@@ -76,6 +77,7 @@ namespace rev { namespace player {
 			ImGui::MenuItem("Node Tree", "", &mShowNodeTree);
 			ImGui::MenuItem("Inspector", "", &mShowInspector);
 			ImGui::MenuItem("Project Explorer", "", &mShowProjectExplorer);
+			ImGui::MenuItem("Material Explorer", "", &mShowMaterialExplorer);
 			ImGui::MenuItem("Render Options", "", &mShowRenderOptions);
 			ImGui::EndMenu();
 		}
@@ -153,6 +155,25 @@ namespace rev { namespace player {
 				for(auto& t: mTextures)
 				{
 					ImGui::Selectable(t.c_str());
+				}
+				ImGui::End();
+			}
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Editor::showMaterialExplorer() {
+		if(mShowMaterialExplorer)
+		{
+			if(ImGui::Begin("Material Explorer"))
+			{
+				for(auto& m: mMaterials)
+				{
+					if(ImGui::Selectable(m->name.c_str()))
+					{
+						mSelectedMaterial = m;
+						mSelectedNode.reset();
+					}
 				}
 				ImGui::End();
 			}
