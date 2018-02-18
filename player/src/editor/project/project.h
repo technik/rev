@@ -18,43 +18,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "../editor.h"
-#include <game/scene/meshRenderer.h>
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/material.h>
-#include <graphics/debug/imgui.h>
 
 namespace rev { namespace editor {
 
-	struct RendererInspector : Editor::ComponentInspector
-	{
-		RendererInspector(std::vector<std::shared_ptr<graphics::Material>>& materials)
-			: mMaterials(materials)
-		{}
+	class Project
 
-		void showInspectionPanel(game::Component*c) const override {
-			auto meshRenderer = static_cast<game::MeshRenderer*>(c);
-			ImGui::Text("Materials:");
-			auto& renderObj = meshRenderer->renderObj();
-			int i = 0;
-			for(auto& mat : renderObj.materials)
-			{
-				auto tag = std::to_string(i++);
-				std::string matName = mat?mat->name : std::string("---");
-
-				if(ImGui::BeginCombo(tag.c_str(), matName.c_str()))
-				{
-					for(auto& m : mMaterials)
-					{
-						if(ImGui::Selectable(m->name.c_str(), mat==m))
-							mat = m;
-					}
-					ImGui::EndCombo();
-				}
-			}
-		}
-
-		std::vector<std::shared_ptr<graphics::Material>>& mMaterials;
-	};
-
-}}	// namespace rev::editor
+}}	// rev::editor

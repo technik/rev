@@ -27,7 +27,7 @@
 #include <typeinfo>
 #include <vector>
 
-namespace rev { namespace player {
+namespace rev { namespace editor {
 
 	using namespace rev::graphics;
 
@@ -74,4 +74,4 @@ namespace rev { namespace player {
 		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
 	};
 
-}}
+}}	// rev::editor

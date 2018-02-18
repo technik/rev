@@ -23,7 +23,7 @@
 #include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
 
-namespace rev { namespace player {
+namespace rev { namespace editor {
 
 	struct MaterialInspector
 	{
@@ -70,4 +70,4 @@ namespace rev { namespace player {
 		game::TextureManager&			mTextureMgr;
 	};
 
-}}	// namespace rev::player
+}}	// namespace rev::editor

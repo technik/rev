@@ -24,7 +24,7 @@
 
 #include <graphics/debug/imgui.h>
 
-namespace rev { namespace player {
+namespace rev { namespace editor {
 
 	//----------------------------------------------------------------------------------------------
 	void Editor::init(graphics::RenderScene& scene)
@@ -198,4 +198,4 @@ namespace rev { namespace player {
 		registerInspector<game::Transform,TransformInspector>();
 	}
 
-}}	// namespace rev::player
+}}	// namespace rev::editor

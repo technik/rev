@@ -23,7 +23,7 @@
 #include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
 
-namespace rev { namespace player {
+namespace rev { namespace editor {
 
 	struct TransformInspector : Editor::ComponentInspector
 	{
@@ -42,4 +42,4 @@ namespace rev { namespace player {
 		}
 	};
 
-}}	// namespace rev::player
+}}	// namespace rev::editor
