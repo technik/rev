@@ -48,6 +48,17 @@ namespace rev { namespace player {
 	//----------------------------------------------------------------------------------------------
 	void Editor::drawMainMenu() {
 		ImGui::BeginMainMenuBar();
+		if(ImGui::BeginMenu("File"))
+		{
+			ImGui::MenuItem("Open Project");
+			ImGui::MenuItem("Save Project");
+			ImGui::Separator();
+			ImGui::MenuItem("Open Scene");
+			ImGui::MenuItem("Save Scene");
+			ImGui::Separator();
+			ImGui::MenuItem("Import Asset");
+			ImGui::EndMenu();
+		}
 		if(ImGui::BeginMenu("View"))
 		{
 			ImGui::MenuItem("Node Tree", "", &mShowNodeTree);
