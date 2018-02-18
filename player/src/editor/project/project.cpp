@@ -139,7 +139,7 @@ namespace rev { namespace editor {
 			{
 				string assetName = assetData["name"];
 				string assetType = assetData["type"];
-				mAssets.push_back({assetType, assetName, path + assetName});
+				mAssets.push_back({assetType, assetName, path});
 			}
 		}
 	}
