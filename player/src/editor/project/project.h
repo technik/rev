@@ -18,37 +18,35 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <core/types/json.h>
+#include <functional>
+#include <unordered_map>
 #include <string>
+#include <core/types/json.h>
+#include "asset.h"
 
 namespace rev { namespace editor {
 
-	class AssetInspector
-	{
-	public:
-		virtual void inspect(const std::string& path) = 0;
-	};
+	class AssetInspector;
 
 	class Project
 	{
 	public:
+		Project();
+
 		bool load(const std::string& _fileName);
 		bool save() const;
 		bool saveAs(const std::string& _fileName);
 
 		void showExplorer();
 
+		const std::vector<std::string> materials() const { return mMaterialList; }
+
 	private:
-		struct Asset
-		{
-			std::string type;
-			std::string name;
-			std::string path;
-		};
+		void registerInspectorFactories();
 
 		struct Folder
 		{
-			void load(const core::Json&);
+			void load(const core::Json&, std::vector<std::string>&	materialList);
 			bool save(core::Json&) const;
 
 			const std::string name;
@@ -58,9 +56,24 @@ namespace rev { namespace editor {
 			std::vector<Asset>	mAssets;
 		};
 
+		template<class T>
+		void registerFactory(const std::string& _assetType)
+		{
+			mInspectorFactories.insert(make_pair(
+				_assetType, [](Asset& asset) {
+				return std::make_shared<T>(asset);
+			}));
+		}
+
+		using InspectorFactory = std::function<std::shared_ptr<AssetInspector>(Asset&)>;
+
 		std::string mFileName;
 		Folder mRootFolder;
 		Folder* mSelectedFolder = nullptr;
+		std::shared_ptr<AssetInspector>						mSelectedInspector;
+		std::unordered_map<std::string,InspectorFactory>	mInspectorFactories;
+
+		std::vector<std::string>	mMaterialList;
 	};
 
 }}	// rev::editor

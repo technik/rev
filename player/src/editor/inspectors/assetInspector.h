@@ -26,6 +26,8 @@ namespace rev { namespace editor {
 	class AssetInspector
 	{
 	public:
+		virtual ~AssetInspector() {}
+
 		void showInspectionPanel() const
 		{
 			ImGui::Text(mAsset.name.c_str());

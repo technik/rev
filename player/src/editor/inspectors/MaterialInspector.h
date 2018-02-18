@@ -22,17 +22,27 @@
 #include <graphics/scene/material.h>
 #include <graphics/debug/imgui.h>
 #include <game/textureManager.h>
+#include "../project/asset.h"
+#include "assetInspector.h"
 
 namespace rev { namespace editor {
 
-	struct MaterialInspector
+	struct MaterialInspector : public AssetInspector
 	{
-		MaterialInspector(const std::vector<std::string>& _textures, game::TextureManager& _mgr)
-			: mTextures(_textures)
-			, mTextureMgr(_mgr)
+		MaterialInspector(Asset& asset)
+			: AssetInspector(asset)
 		{}
 
-		void showInspectionPanel(graphics::Material& mat) const
+		void customInspectionPanel() const override
+		{
+			ImGui::Text("Material inspector");
+		}
+		/*MaterialInspector(const std::vector<std::string>& _textures, game::TextureManager& _mgr)
+			: mTextures(_textures)
+			, mTextureMgr(_mgr)
+		{}*/
+
+		/*void customIns(graphics::Material& mat) const
 		{
 			std::vector<char>	nameBuffer;
 			nameBuffer.resize(512);
@@ -63,11 +73,11 @@ namespace rev { namespace editor {
 
 			if(ImGui::Button("Save"))
 				mat.save();
-		}
+		}*/
 
 	private:
-		const std::vector<std::string>& mTextures;
-		game::TextureManager&			mTextureMgr;
+		//const std::vector<std::string>& mTextures;
+		//game::TextureManager&			mTextureMgr;
 	};
 
 }}	// namespace rev::editor

@@ -63,7 +63,6 @@ namespace rev { namespace editor {
 
 		std::vector<std::string>	mTextures;
 		game::TextureManager		mTextureMgr;
-		std::vector<std::shared_ptr<Material>>	mMaterials;
 
 		bool mShowInspector = false;
 		bool mShowProjectExplorer = true;
@@ -71,7 +70,6 @@ namespace rev { namespace editor {
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = false;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;
-		std::weak_ptr<Material>			mSelectedMaterial;
 		// TODO: This design can be improved
 		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
 

@@ -31,10 +31,11 @@ namespace rev { namespace editor {
 	{
 		mTextureMgr.init();
 		registerMaterials();
-		createInspectors(scene);
 		// Create project
 		mOpenProject = std::make_unique<Project>();
 		mOpenProject->load("sponza.json");
+		// Project must be created before inspectors, since they use the project's information
+		createInspectors(scene);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -104,7 +105,6 @@ namespace rev { namespace editor {
 				if(ImGui::IsItemClicked())
 				{
 					mSelectedNode = c;
-					mSelectedMaterial.reset();
 				}
 				if(node_open)
 				{
@@ -137,11 +137,6 @@ namespace rev { namespace editor {
 						}
 					}
 				}
-				if(!mSelectedMaterial.expired())
-				{
-					MaterialInspector mat(mTextures, mTextureMgr);
-					mat.showInspectionPanel(*mSelectedMaterial.lock());
-				}
 				ImGui::End();
 			}
 		}
@@ -153,19 +148,10 @@ namespace rev { namespace editor {
 		{
 			if(ImGui::Begin("Material Explorer"))
 			{
-				for(auto& m: mMaterials)
-				{
-					if(ImGui::Selectable(m->name.c_str()))
-					{
-						mSelectedMaterial = m;
-						mSelectedNode.reset();
-					}
-				}
-				ImGui::Separator();
 				if(ImGui::Button("+"))
 				{
 					auto newMaterial = std::make_shared<Material>();
-					mMaterials.push_back(newMaterial);
+					//mMaterials.push_back(newMaterial);
 					newMaterial->name = "materials/new.mat";
 					newMaterial->addParam(6, 0.5f); // Rougness
 					newMaterial->addParam(7, 0.5f); // Metallic
@@ -187,27 +173,13 @@ namespace rev { namespace editor {
 			"textures/sponza_curtain_diff.tga",
 			"textures/spnza_bricks_a_spec.tga"
 		};
-		const std::string materialList[] = 
-		{
-			"materials/red_curtain.mat",
-			"materials/blue_curtain.mat",
-			"materials/green_curtain.mat",
-			"materials/bricks.mat"
-		};
-		for(auto& file : materialList)
-		{
-			auto material = std::make_shared<Material>();
-			material->load(file);
-			mMaterials.push_back(material);
-		}
-		mSelectedMaterial = mMaterials[0];
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void Editor::createInspectors(graphics::RenderScene& scene) {
 		mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),
-			std::make_unique<RendererInspector>(mMaterials))
+			std::make_unique<RendererInspector>(mOpenProject->materials()))
 		);
 		registerInspector<game::Transform,TransformInspector>();
 	}

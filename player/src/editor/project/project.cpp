@@ -20,11 +20,24 @@
 #include "project.h"
 #include <fstream>
 #include <graphics/debug/imgui.h>
+#include "../inspectors/MaterialInspector.h"
 
 using rev::core::Json;
 using namespace std;
 
 namespace rev { namespace editor {
+
+	//----------------------------------------------------------------------------------------------
+	Project::Project()
+	{
+		registerInspectorFactories();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Project::registerInspectorFactories()
+	{
+		registerFactory<MaterialInspector>(string("material"));
+	}
 
 	//----------------------------------------------------------------------------------------------
 	bool Project::load(const string& _fileName)
@@ -34,7 +47,7 @@ namespace rev { namespace editor {
 			return false;
 		Json projectData;
 		in >> projectData;
-		mRootFolder.load(projectData["rootFolder"]);
+		mRootFolder.load(projectData["rootFolder"], mMaterialList);
 		mFileName = _fileName;
 		return true;
 	}
@@ -111,7 +124,9 @@ namespace rev { namespace editor {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Project::Folder::load(const Json& data)
+	void Project::Folder::load(
+		const Json& data,
+		vector<string>&	materialList)
 	{
 		// Load nested folders
 		auto nestedFolders = data.find("folders");
@@ -125,7 +140,7 @@ namespace rev { namespace editor {
 				auto& folderName = i.key();
 				auto folderPath = path + folderName + "/";
 				mChildren.push_back({ folderName, folderPath });
-				mChildren.back().load(i.value());
+				mChildren.back().load(i.value(), materialList);
 			}
 		}
 		// Load assets
@@ -139,6 +154,10 @@ namespace rev { namespace editor {
 			{
 				string assetName = assetData["name"];
 				string assetType = assetData["type"];
+				if(assetType == "material")
+				{
+					materialList.push_back(path+assetName);
+				}
 				mAssets.push_back({assetType, assetName, path});
 			}
 		}

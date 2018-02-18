@@ -28,7 +28,7 @@ namespace rev { namespace editor {
 
 	struct RendererInspector : Editor::ComponentInspector
 	{
-		RendererInspector(std::vector<std::shared_ptr<graphics::Material>>& materials)
+		RendererInspector(const std::vector<std::string>& materials)
 			: mMaterials(materials)
 		{}
 
@@ -46,15 +46,18 @@ namespace rev { namespace editor {
 				{
 					for(auto& m : mMaterials)
 					{
-						if(ImGui::Selectable(m->name.c_str(), mat==m))
-							mat = m;
+						if(ImGui::Selectable(m.c_str(), mat->name==m))
+						{
+							// TODO: Request material using material manager
+							//	mat = m;
+						}
 					}
 					ImGui::EndCombo();
 				}
 			}
 		}
 
-		std::vector<std::shared_ptr<graphics::Material>>& mMaterials;
+		const std::vector<std::string>& mMaterials;
 	};
 
 }}	// namespace rev::editor
