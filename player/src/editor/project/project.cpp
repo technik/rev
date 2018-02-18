@@ -84,7 +84,7 @@ namespace rev { namespace editor {
 		//	ImGui::BeginChild("folder_tree");
 				for(auto& f : mRootFolder.mChildren)
 				{
-					if(ImGui::Selectable(f.name.c_str()))
+					if(ImGui::Selectable(f.name.c_str(), mSelectedFolder == &f))
 						mSelectedFolder = &f;
 				}
 		//	ImGui::EndChild();
