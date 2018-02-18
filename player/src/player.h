@@ -11,7 +11,7 @@
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderScene.h>
 
-using namespace rev::player;
+using namespace rev::editor;
 
 namespace rev {
 

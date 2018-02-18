@@ -26,6 +26,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include "project/project.h"
 
 namespace rev { namespace editor {
 
@@ -43,6 +44,7 @@ namespace rev { namespace editor {
 
 	private:
 		void drawMainMenu();
+		void fileMenu();
 		void showNodeTree(const game::SceneNode* root);
 		void showInspector();
 		void showMaterialExplorer();
@@ -63,15 +65,17 @@ namespace rev { namespace editor {
 		game::TextureManager		mTextureMgr;
 		std::vector<std::shared_ptr<Material>>	mMaterials;
 
-		bool mShowInspector = true;
-		bool mShowProjectExplorer = false;
-		bool mShowMaterialExplorer = true;
+		bool mShowInspector = false;
+		bool mShowProjectExplorer = true;
+		bool mShowMaterialExplorer = false;
 		bool mShowRenderOptions = false;
-		bool mShowNodeTree = true;
+		bool mShowNodeTree = false;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;
 		std::weak_ptr<Material>			mSelectedMaterial;
 		// TODO: This design can be improved
 		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
+
+		std::unique_ptr<Project>	mOpenProject;
 	};
 
 }}	// rev::editor

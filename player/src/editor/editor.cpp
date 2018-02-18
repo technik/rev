@@ -32,6 +32,9 @@ namespace rev { namespace editor {
 		mTextureMgr.init();
 		registerMaterials();
 		createInspectors(scene);
+		// Create project
+		mOpenProject = std::make_unique<Project>();
+		mOpenProject->load("sponza.json");
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -39,26 +42,18 @@ namespace rev { namespace editor {
 	{
 		// Show menu
 		drawMainMenu();
+		if(mShowProjectExplorer)
+			mOpenProject->showExplorer();
 		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void Editor::drawMainMenu() {
 		ImGui::BeginMainMenuBar();
-		if(ImGui::BeginMenu("File"))
-		{
-			ImGui::MenuItem("Open Project");
-			ImGui::MenuItem("Save Project");
-			ImGui::Separator();
-			ImGui::MenuItem("Open Scene");
-			ImGui::MenuItem("Save Scene");
-			ImGui::Separator();
-			ImGui::MenuItem("Import Asset");
-			ImGui::EndMenu();
-		}
+		fileMenu();
 		if(ImGui::BeginMenu("View"))
 		{
 			ImGui::MenuItem("Node Tree", "", &mShowNodeTree);
@@ -69,6 +64,25 @@ namespace rev { namespace editor {
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Editor::fileMenu()
+	{
+		if(ImGui::BeginMenu("File"))
+		{
+			ImGui::MenuItem("Open Project");
+			if(mOpenProject)
+			{
+				ImGui::MenuItem("Save Project");
+				ImGui::Separator();
+				ImGui::MenuItem("Open Scene");
+				ImGui::MenuItem("Save Scene");
+				ImGui::Separator();
+				ImGui::MenuItem("Import Asset");
+			}
+			ImGui::EndMenu();
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------

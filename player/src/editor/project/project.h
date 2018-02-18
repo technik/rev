@@ -23,15 +23,44 @@
 
 namespace rev { namespace editor {
 
+	class AssetInspector
+	{
+	public:
+		virtual void inspect(const std::string& path) = 0;
+	};
+
 	class Project
 	{
 	public:
-		void load(const std::string& _fileName);
-		void save();
-		void saveAs(const std::string& _fileName);
+		bool load(const std::string& _fileName);
+		bool save() const;
+		bool saveAs(const std::string& _fileName);
+
+		void showExplorer();
 
 	private:
+		struct Asset
+		{
+			std::string type;
+			std::string name;
+			std::string path;
+		};
+
+		struct Folder
+		{
+			void load(const core::Json&);
+			bool save(core::Json&) const;
+
+			const std::string name;
+			const std::string path;
+
+			std::vector<Folder>	mChildren;
+			std::vector<Asset>	mAssets;
+		};
+
 		std::string mFileName;
+		Folder mRootFolder;
+		Folder* mSelectedFolder = nullptr;
 	};
 
 }}	// rev::editor
