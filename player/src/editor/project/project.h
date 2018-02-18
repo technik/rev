@@ -18,9 +18,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <core/types/json.h>
+#include <string>
 
 namespace rev { namespace editor {
 
 	class Project
+	{
+	public:
+		void load(const std::string& _fileName);
+		void save();
+		void saveAs(const std::string& _fileName);
+
+	private:
+		std::string mFileName;
+	};
 
 }}	// rev::editor
