@@ -264,10 +264,22 @@ namespace rev {
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
 			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
+			
 			if(gltfScene)
 			{
 				mGameScene.root()->addChild(gltfScene);
 				mGameScene.root()->init();
+				auto xForm = gltfScene->component<game::Transform>();
+				auto rotation = math::Mat33f({
+					-1.f, 0.f, 0.f,
+					0.f, 0.f, 1.f,
+					0.f, 1.f, 0.f
+					});
+				if(!xForm)
+				{
+					xForm = gltfScene->addComponent<game::Transform>();
+				}
+				xForm->xForm.rotate(rotation);
 			}
 			createCamera();
 
@@ -287,7 +299,8 @@ namespace rev {
 		// Transform
 		auto objXForm = std::make_unique<Transform>();
 		objXForm->matrix().setIdentity();
-		objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
+		//objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
+		objXForm->xForm.position() = math::Vec3f { 5.f, 0.f, 0.f };
 		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
 		cameraNode->addComponent(std::move(objXForm));
 #ifdef _WIN32

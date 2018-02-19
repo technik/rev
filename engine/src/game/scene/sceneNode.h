@@ -55,6 +55,13 @@ namespace rev { namespace game {
 			return nullptr;
 		}
 
+		template<class T, class ... Args>
+		T* addComponent(Args ... args)
+		{
+			mComponents.emplace_back(std::make_unique<T>(args...));
+			return static_cast<T*>(mComponents.back().get());
+		}
+
 		std::string name;
 
 	private:
