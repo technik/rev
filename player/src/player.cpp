@@ -32,7 +32,24 @@ namespace rev {
 	const std::vector<uint16_t> indices = { 0, 1, 2};
 
 	namespace { // Anonymous namespace for temporary implementation of gltf loader
-		std::shared_ptr<SceneNode> loadGLTFScene()
+
+		namespace gltf {
+			struct Buffer
+			{
+				Buffer(const std::string& assetsFolder, const Json& desc)
+				{
+					size_t length = desc["byteLength"];
+					raw.resize(length);
+					core::File bufferFile(assetsFolder + desc["uri"].get<std::string>());
+					// TODO: Error checking with buffer size
+					memcpy(raw.data(), bufferFile.buffer(), length);
+				}
+
+				std::vector<uint8_t> raw;
+			};
+		}
+
+		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder)
 		{
 			Json sceneDesc;
 			std::ifstream("helmet/damagedHelmet.gltf") >> sceneDesc;
@@ -45,6 +62,13 @@ namespace rev {
 			auto scenesDict = sceneDesc.find("scenes");
 			if(scenesDict == sceneDesc.end() || scene == sceneDesc.end() || scenesDict.value().size() == 0)
 				return nullptr;
+			// Load buffers
+			std::vector<gltf::Buffer> buffers;
+			for(auto buffDesc : sceneDesc["buffers"])
+				buffers.emplace_back(assetsFolder, buffDesc);
+
+			// Return the right scene
+			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
 			return nullptr;
 		}
 	}
@@ -61,7 +85,7 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
-			loadGLTFScene();
+			loadGLTFScene("helmet/");
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);
