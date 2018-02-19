@@ -75,8 +75,8 @@ namespace rev {
 			T_&			operator()(Idx i, Idx j)		{ return coefficient(i,j); }
 			const T_&	operator()(Idx i, Idx j) const	{ return coefficient(i,j); }
 
-			T_&			coefficient	(size_t i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[i]; }
-			const T_&	coefficient	(size_t i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[i]; }
+			T_&			coefficient	(size_t i)			{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[cols==1?i*row_stride:i*col_stride]; }
+			const T_&	coefficient	(size_t i) const	{ static_assert(cols==1||rows==1,"This accessor is only for vectors"); return m[cols==1?i*row_stride:i*col_stride]; }
 			T_&			operator()	(size_t i)			{ return coefficient(i); }
 			const T_&	operator() 	(size_t i) const	{ return coefficient(i); }
 			T_&			operator[]	(size_t i)			{ return coefficient(i); }
