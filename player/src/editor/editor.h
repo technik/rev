@@ -65,7 +65,7 @@ namespace rev { namespace editor {
 		game::TextureManager		mTextureMgr;
 
 		bool mShowInspector = false;
-		bool mShowProjectExplorer = true;
+		bool mShowProjectExplorer = false;
 		bool mShowMaterialExplorer = false;
 		bool mShowRenderOptions = false;
 		bool mShowNodeTree = false;
