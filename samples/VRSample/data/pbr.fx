@@ -33,13 +33,14 @@ layout(location = 2) uniform vec3 uMSLightDir; // Direction toward light
 layout(location = 3) uniform vec3 lightColor;
 layout(location = 4) uniform float ev;
 
-// Material
-layout(location = 5) uniform sampler2D uAlbedo;
-layout(location = 6) uniform float roughness;
-layout(location = 7) uniform float metallic;
-
-
 float PI = 3.14159265359;
+
+struct ShadeInput
+{
+	float ndl; // Normal dot light
+	float ndv; // Normal dot view
+	float ndh; // Normal dot half-vector
+};
 
 //------------------------------------------------------------------------------
 float GGX(float NdH, float a)
@@ -54,6 +55,7 @@ float GGX(float NdH, float a)
     return nom / denom;
 }
 
+//------------------------------------------------------------------------------
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
@@ -65,6 +67,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
     return nom / denom;
 }
 
+//------------------------------------------------------------------------------
 float GeometrySmith(float NdV, float NdL, float roughness)
 {
     float ggx2  = GeometrySchlickGGX(NdV, roughness);
@@ -82,19 +85,16 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow5;
 }
 
-struct ShadeInput
-{
-	float ndl; // Normal dot light
-	float ndv; // Normal dot view
-	float ndh; // Normal dot half-vector
-	// Physics map
-	vec3 albedo;
-};
+// Material
+layout(location = 5) uniform sampler2D uAlbedo;
+layout(location = 6) uniform float roughness;
+layout(location = 7) uniform float metallic;
 
 vec3 shadeSurface(ShadeInput inputs)
 {
-	vec3 F0 = vec3(0.04); 
-	F0      = mix(F0, inputs.albedo, metallic);
+	vec3 F0 = vec3(0.04);
+	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
+	F0      = mix(F0, albedo, metallic);
 	vec3 F  = fresnelSchlick(inputs.ndv, F0);
 	
 	float NDF = GGX(inputs.ndh, roughness);
@@ -109,8 +109,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	  
 	kD *= 1.0 - metallic;
 	
-	//return (kD * inputs.albedo / PI + specular) * inputs.ndl;
-	return (kD * inputs.albedo / PI + specular) * lightColor * inputs.ndl;
+	return (kD * albedo / PI + specular) * lightColor * inputs.ndl;
 }
 
 //------------------------------------------------------------------------------	
@@ -124,7 +123,6 @@ void main (void) {
 	vec3 msHalfV = normalize(msViewDir+msLightDir);
 	
 	ShadeInput shadingInputs;
-	shadingInputs.albedo = texture(uAlbedo, vTexCoord).xyz;
 	shadingInputs.ndl = max(0.0,dot(msLightDir,msNormal));
 	shadingInputs.ndv = max(0.0,dot(msViewDir,msNormal));
 	shadingInputs.ndh = max(0.0,dot(msHalfV,msNormal));
