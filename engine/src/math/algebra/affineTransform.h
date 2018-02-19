@@ -35,6 +35,8 @@ namespace rev { namespace math {
 			return axb;
 		}
 
+		Vec3f operator*(const Vec3f& v) const { return mMatrix.block<3,3>(0,0) * v; }
+
 		auto&		position	() 			{ return mMatrix.col(3); }
 		const auto& position	() const	{ return mMatrix.col(3); }
 
@@ -45,6 +47,7 @@ namespace rev { namespace math {
 		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3>(0,0); }
 
 		void rotate		(const Mat33f& _rot);
+		void rotate		(const Quatf& _q) { rotate(_q.asMatrix()); }
 
 		const	Mat34f& matrix() const	{ return mMatrix; }
 				Mat34f& matrix()		{ return mMatrix; }

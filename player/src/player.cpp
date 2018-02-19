@@ -11,6 +11,7 @@
 #include <game/geometry/modelAsset.h>
 #include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
+#include <game/scene/transform/flyby.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
@@ -309,6 +310,8 @@ namespace rev {
 		auto camComponent = std::make_unique<game::Camera>();
 		mCamera = &camComponent->cam();
 		cameraNode->addComponent(std::move(camComponent));
+		// Flyby
+		cameraNode->addComponent<FlyBy>(1.f);
 		// Init camera
 		cameraNode->init();
 	}

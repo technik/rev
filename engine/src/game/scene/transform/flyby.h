@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "../component.h"
-#include <math/algebra/affineTransform.h>
+#include "transform.h"
 
 namespace rev { namespace game {
 
@@ -37,7 +37,7 @@ namespace rev { namespace game {
 
 	private:
 		float mSpeed;
-		math::AffineTransform*					mSrcTransform;
+		Transform*	mSrcTransform;
 	};
 
 }}	// namespace rev::game

@@ -51,6 +51,10 @@ namespace rev { namespace input
 		bool held		(Key _key) const;
 		bool released	(Key _key) const;
 
+		bool pressed	(uint8_t _key) const { return pressed((Key)_key); }
+		bool held		(uint8_t _key) const { return held((Key)_key); }
+		bool released	(uint8_t _key) const { return released((Key)_key); }
+
 		using Callback = std::function<void(int)>;
 
 		void onPress(Callback cb) { mOnPressEvents.push_back(cb); }

@@ -7,48 +7,55 @@
 #include "flyby.h"
 
 #ifndef ANDROID
-//#include <input/keyboard/keyboardInput.h>
-
-//using namespace rev::input;
+#include <input/keyboard/keyboardInput.h>
+using namespace rev::input;
 #endif // !ANDROID
+
+#include "../sceneNode.h"
+#include <math/algebra/vector.h>
+
+using namespace rev::math;
 
 namespace rev {
 	namespace game {
 
+		//------------------------------------------------------------------------------------------------------------------
+		void FlyBy::init() {
+			mSrcTransform = node()->component<Transform>();
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
-		/*void FlyBySrc::update(float _dt) {
+		void FlyBy::update(float _dt) {
 			static float mult = 1.f;
 #ifndef ANDROID
 			KeyboardInput* input = KeyboardInput::get();
-			if (input->pressed(KeyboardInput::eV))
+			if (input->pressed('V'))
 				mult *= 2.f;
-			if (input->pressed(KeyboardInput::eB))
+			if (input->pressed('B'))
 				mult *= 0.5f;
 			// Translation
 			const float deltaV = 1.f * mult;
-			Vec3f velocity = Vec3f::zero();
-			if (input->held(KeyboardInput::eD))			velocity.x += deltaV;
-			if (input->held(KeyboardInput::eA))			velocity.x -= deltaV;
-			if (input->held(KeyboardInput::eW))			
-				velocity.y += deltaV;
-			if (input->held(KeyboardInput::eS))			velocity.y -= deltaV;
-			if (input->held(KeyboardInput::eKeyUp))
-				velocity.z += deltaV;
-			if (input->held(KeyboardInput::eKeyDown))
-				velocity.z -= deltaV;
-			Vec3f newPos = transform->position() + transform->matrix().rotate(velocity) * (_dt * mSpeed);
-			transform->setPosition(newPos);
+			auto velocity = Vec3f::zero();
+			if (input->held('D'))			velocity.x() += deltaV;
+			if (input->held('A'))			velocity.x() -= deltaV;
+			if (input->held('W'))			velocity.y() += deltaV;
+			if (input->held('S'))			velocity.y() -= deltaV;
+			if (input->held(KeyboardInput::Key::KeyUp))
+				velocity.z() += deltaV;
+			if (input->held(KeyboardInput::Key::KeyDown))
+				velocity.z() -= deltaV;
+			auto& transform = mSrcTransform->xForm;
+			transform.position() = transform.position() + transform * velocity * (_dt * mSpeed);
 
 			// Rotation
 			float angSpd = 0.f;
 			float deltaG = 0.8f;
-			if (input->held(KeyboardInput::eKeyRight))	angSpd -= deltaG;
-			if (input->held(KeyboardInput::eKeyLeft))	angSpd += deltaG;
+			if (input->held(KeyboardInput::Key::KeyRight))	angSpd -= deltaG;
+			if (input->held(KeyboardInput::Key::KeyLeft))	angSpd += deltaG;
 
-			transform->rotate(Quatf(Vec3f::zAxis(), angSpd * _dt));
+			transform.rotate(Quatf({0,0,1}, angSpd * _dt));
 #endif // ANDROID
-			return true;
-		}*/
+		}
 
 	}	// namespace game
 }	// namespace rev
