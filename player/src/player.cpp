@@ -20,6 +20,8 @@ using namespace rev::math;
 using namespace rev::graphics;
 using namespace rev::game;
 
+using Json = rev::core::Json;
+
 namespace rev {
 
 	const std::vector<Vec3f> vertices = {
@@ -28,6 +30,24 @@ namespace rev {
 		{0.f,0.f, -1.f}
 	};
 	const std::vector<uint16_t> indices = { 0, 1, 2};
+
+	namespace { // Anonymous namespace for temporary implementation of gltf loader
+		std::shared_ptr<SceneNode> loadGLTFScene()
+		{
+			Json sceneDesc;
+			std::ifstream("helmet/damagedHelmet.gltf") >> sceneDesc;
+			auto asset = sceneDesc.find("asset");
+			if(asset == sceneDesc.end())
+				return nullptr;
+			if(asset.value()["version"] != "2.0")
+				return nullptr;
+			auto scene = sceneDesc.find("scene");
+			auto scenesDict = sceneDesc.find("scenes");
+			if(scenesDict == sceneDesc.end() || scene == sceneDesc.end() || scenesDict.value().size() == 0)
+				return nullptr;
+			return nullptr;
+		}
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(Window _window) {
@@ -41,6 +61,7 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
+			loadGLTFScene();
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);
