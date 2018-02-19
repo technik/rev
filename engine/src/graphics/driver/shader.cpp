@@ -75,13 +75,13 @@ namespace rev { namespace graphics {
 	{
 		std::vector<const char*> code;
 		code.push_back(COMMON_SHADER_HEADER.data());
-		for(auto c : _code)
-			code.push_back(c);
 		//const char* code[3] = { COMMON_SHADER_HEADER.data(), nullptr, _code };
 		if(_shaderType == GL_VERTEX_SHADER)
-			code[1] = VTX_SHADER_HEADER.data();
+			code.push_back(VTX_SHADER_HEADER.data());
 		else
-			code[1] = PXL_SHADER_HEADER.data();
+			code.push_back(PXL_SHADER_HEADER.data());
+		for(auto c : _code)
+			code.push_back(c);
 		_dst = glCreateShader(_shaderType);
 		glShaderSource(_dst, code.size(), code.data(), nullptr);
 		glCompileShader(_dst);
@@ -93,7 +93,8 @@ namespace rev { namespace graphics {
 		if ( InfoLogLength > 0 ){
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-			Log::error((COMMON_SHADER_HEADER+code[1]+code[2]).c_str());
+			for(auto& c : code)
+				Log::error(c);
 			Log::error(ShaderErrorMessage.data());
 			return false;
 		}

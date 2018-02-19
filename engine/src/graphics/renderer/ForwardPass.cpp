@@ -87,6 +87,7 @@ namespace rev { namespace graphics {
 				shaderIter->second->bind();
 
 			mat->bind(mDriver);
+			return;
 		}
 		// Bind error material
 		bindMaterial(mErrorMaterial.get());

@@ -1,3 +1,5 @@
+#ifdef PXL_SHADER
+
 //------------------------------------------------------------------------------
 float GGX(float NdH, float a)
 {
@@ -67,3 +69,5 @@ vec3 shadeSurface(ShadeInput inputs)
 	
 	return (kD * albedo / PI + specular) * lightColor * inputs.ndl;
 }
+
+#endif // PXL_SHADER
