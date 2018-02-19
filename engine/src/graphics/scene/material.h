@@ -36,6 +36,7 @@ namespace rev { namespace graphics {
 	{
 	public:
 		std::string name;
+		std::string shader;
 
 		void load(const std::string& fileName)
 		{
@@ -55,6 +56,7 @@ namespace rev { namespace graphics {
 					auto texture = Texture::load(textureName);
 					addTexture(f[0].get<GLint>(), texture);
 				}
+				shader = materialData["shader"].get<std::string>();
 			}
 		}
 
