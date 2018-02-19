@@ -18,11 +18,16 @@ namespace rev { namespace game {
 		math::Mat34f&			matrix() { return xForm.matrix(); }
 		const math::Mat34f&		matrix() const { return xForm.matrix(); }
 
-		Transform() = default;
+		Transform()// = default;
+		{
+			xForm.matrix().setIdentity();
+		}
 		Transform(std::istream& _in)
 		{
 			_in.read((char*)xForm.matrix().data(), 12*sizeof(float));
 		}
+
+		void update(float _dt) override;
 
 		/*void showDebugInfo() override {
 			graphics::gui::text("Transform");
@@ -40,6 +45,9 @@ namespace rev { namespace game {
 			_out << "Transform\n"; // Type, for factories
 			_out.write((const char*)xForm.matrix().data(), 12*sizeof(float));
 		}
+
+	private:
+		math::Mat34f mAbsoluteMatrix;
 	};
 
 } }	// namespace rev::game

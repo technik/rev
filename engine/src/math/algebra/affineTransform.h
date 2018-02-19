@@ -19,6 +19,22 @@ namespace rev { namespace math {
 		static AffineTransform identity() { AffineTransform t; t.mMatrix.setIdentity(); return t; }
 		AffineTransform inverse() const;
 
+		AffineTransform operator*(const AffineTransform& b) const
+		{
+			AffineTransform axb;
+			for(int i = 0; i < 3; ++i)
+			{
+				auto& aRow = mMatrix.block<1,3>(i,0);
+				for(size_t j = 0; j < 4; ++j)
+				{
+					auto& bCol = b.mMatrix.block<3,1>(0,j);
+					axb.mMatrix(i,j) = aRow.dot(bCol);
+				}
+				axb.mMatrix(i,3) += mMatrix(i,3);
+			}
+			return axb;
+		}
+
 		auto&		position	() 			{ return mMatrix.col(3); }
 		const auto& position	() const	{ return mMatrix.col(3); }
 

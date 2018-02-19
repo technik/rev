@@ -17,56 +17,28 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-#include <vector>
-#include "component.h"
-#include <iostream>
-#include <string>
-#include <core/types/json.h>
+#include "transform.h"
+#include "../sceneNode.h"
 
 namespace rev { namespace game {
 
-	/// Nodes are containers of logically related components
-	/// You can attach components to a node
-	/// You can attach a node to another node
-	class SceneNode
+	void Transform::update(float _dt)
 	{
-	public:
-		void init();
-		void update(float _dt);
-
-		SceneNode() = default;
-		SceneNode(const SceneNode&) = delete;
-		SceneNode& operator=(const SceneNode&) = delete;
-
-		// Handle components
-		auto	parent			() const { return mParent; }
-		void	addChild		(std::shared_ptr<SceneNode> child);
-		auto&	children		() const { return mChildren; }
-		void	addComponent	(std::unique_ptr<Component> _c);
-		auto&	components		() const { return mComponents; }
-
-		template<class T_>	
-		T_*					component		() const {
-			for (auto& c : mComponents) {
-				if(typeid(*c) == typeid(T_))
-					return static_cast<T_*>(c.get());
-			}
-			return nullptr;
-		}
-
-		template<class T, class ... Args>
-		T* addComponent(Args ... args)
+		if(node())
 		{
-			addComponent(std::make_unique<T>(args...));
-			return static_cast<T*>(mComponents.back().get());
+			auto parent = node()->parent();
+			while(parent)
+			{
+				auto pXForm = parent->component<Transform>();
+				if(pXForm)
+				{
+					mAbsoluteMatrix = (pXForm->xForm * xForm).matrix();
+					return;
+				} else
+					parent = parent->parent();
+			}
 		}
+		mAbsoluteMatrix = matrix();
+	}
 
-		std::string name;
-
-	private:
-		SceneNode* mParent = nullptr;
-		std::vector<std::shared_ptr<SceneNode>> mChildren;
-		std::vector<std::unique_ptr<Component>>	mComponents;
-	};
 }}
