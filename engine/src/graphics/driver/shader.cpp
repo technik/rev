@@ -29,7 +29,15 @@ namespace rev { namespace graphics {
 		const std::string PXL_SHADER_HEADER = "#define PXL_SHADER\n";
 	}
 
-	std::unique_ptr<Shader>	Shader::createShader(const char* code) {
+	std::unique_ptr<Shader>	Shader::createShader(const char* code)
+	{
+		std::vector<const char*> c;
+		c.push_back(code);
+		return createShader(c);
+	}
+
+	std::unique_ptr<Shader>	Shader::createShader(const std::vector<const char*>& code)
+	{
 		GLuint vertexShader = 0, fragmentShader = 0;
 		if(!createSubprogram(code, GL_VERTEX_SHADER, vertexShader) ||
 			!createSubprogram(code, GL_FRAGMENT_SHADER, fragmentShader))
@@ -62,14 +70,19 @@ namespace rev { namespace graphics {
 		return shader;
 	}
 
-	bool Shader::createSubprogram(const char* _code, GLenum _shaderType, GLuint& _dst) {
-		const char* code[3] = { COMMON_SHADER_HEADER.data(), nullptr, _code };
+	bool Shader::createSubprogram(const std::vector<const char*> _code, GLenum _shaderType, GLuint& _dst)
+	{
+		std::vector<const char*> code;
+		code.push_back(COMMON_SHADER_HEADER.data());
+		for(auto c : _code)
+			code.push_back(c);
+		//const char* code[3] = { COMMON_SHADER_HEADER.data(), nullptr, _code };
 		if(_shaderType == GL_VERTEX_SHADER)
 			code[1] = VTX_SHADER_HEADER.data();
 		else
 			code[1] = PXL_SHADER_HEADER.data();
 		_dst = glCreateShader(_shaderType);
-		glShaderSource(_dst, 3, code, nullptr);
+		glShaderSource(_dst, code.size(), code.data(), nullptr);
 		glCompileShader(_dst);
 
 		GLint result = GL_FALSE;
