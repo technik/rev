@@ -90,11 +90,24 @@ namespace rev {
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<typename M1_, typename M2_>
-		bool operator==(const M1_& _a, const M2_& _b)
+		template<
+			class T_,
+			size_t rows_,
+			size_t cols_,
+			size_t row_stride_A,
+			size_t col_stride_A,
+			bool col_major_A,
+			typename Derived_A,
+			size_t row_stride_B,
+			size_t col_stride_B,
+			bool col_major_B,
+			typename Derived_B>
+		bool operator==(
+			const MatrixStorageBase<T_,rows_,cols_,row_stride_A,col_stride_A,col_major_A,Derived_A>& _a,
+			const MatrixStorageBase<T_,rows_,cols_,row_stride_B,col_stride_B,col_major_B,Derived_B>& _b)
 		{
-			for(auto j = 0; j < M1_::cols; ++j) {
-				for(auto i = 0; i < M1_::rows; ++i) {
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
 					if(_a(i,j) != _b(i,j))
 						return false;
 				}
@@ -103,11 +116,24 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<typename M1_, typename M2_>
-		bool operator!=(const M1_& _a, const M2_& _b)
+		template<
+			class T_,
+			size_t rows_,
+			size_t cols_,
+			size_t row_stride_A,
+			size_t col_stride_A,
+			bool col_major_A,
+			typename Derived_A,
+			size_t row_stride_B,
+			size_t col_stride_B,
+			bool col_major_B,
+			typename Derived_B>
+		bool operator!=(
+			const MatrixStorageBase<T_,rows_,cols_,row_stride_A,col_stride_A,col_major_A,Derived_A>& _a,
+			const MatrixStorageBase<T_,rows_,cols_,row_stride_B,col_stride_B,col_major_B,Derived_B>& _b)
 		{
-			for(auto j = 0; j < M1_::cols_; ++j) {
-				for(auto i = 0; i < M1_::rows_; ++i) {
+			for(auto j = 0; j < cols_; ++j) {
+				for(auto i = 0; i < rows_; ++i) {
 					if(_a(i,j) != _b(i,j))
 						return true;
 				}

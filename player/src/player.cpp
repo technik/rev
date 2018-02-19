@@ -176,6 +176,7 @@ namespace rev {
 				size_t albedoNdx = matDesc["pbrMetallicRoughness"]["baseColorTexture"]["index"];
 				auto mat = std::make_shared<Material>();
 				mat->name = matDesc["name"].get<std::string>();
+				mat->shader = "simplePBR.fx";
 				mat->addTexture(5, textures[albedoNdx]);
 				mat->addParam(6, 0.5f); // Roughness
 				mat->addParam(7, 0.05f); // Metallic

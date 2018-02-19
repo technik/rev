@@ -59,7 +59,8 @@ namespace rev { namespace graphics {
 		if ( InfoLogLength > 0 ){
 			std::vector<char> ProgramErrorMessage(InfoLogLength+1);
 			glGetProgramInfoLog(program, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-			Log::error(code);
+			for(auto& c : code)
+				Log::error(c);
 			Log::error(ProgramErrorMessage.data());
 			return nullptr;
 		}

@@ -21,6 +21,7 @@
 #include <memory>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/material.h>
+#include <unordered_map>
 
 namespace rev{ namespace graphics {
 
@@ -37,10 +38,17 @@ namespace rev{ namespace graphics {
 		void render(const Camera&, const RenderScene&, const RenderTarget& _dst);
 
 	private:
+		void loadCommonShaderCode();
+		Shader* loadShader(const std::string& fileName);
+		void bindMaterial(const Material*);
+
 		GraphicsDriverGL&	mDriver;
 		float mEV;
 		std::unique_ptr<Material>	mErrorMaterial;
-		std::unique_ptr<Shader>		mForwardPipeline;
+		using ShaderPtr = std::unique_ptr<Shader>;
+
+		std::string mForwardShaderCommonCode;
+		std::unordered_map<std::string, ShaderPtr>	mPipelines;
 	};
 
 }}

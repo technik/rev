@@ -37,14 +37,59 @@ namespace rev { namespace graphics {
 	ForwardPass::ForwardPass(GraphicsDriverGL& _gfxDriver)
 		: mDriver(_gfxDriver)
 	{
-		core::File shaderFile("pbr.fx");
-		mForwardPipeline = Shader::createShader(shaderFile.bufferAsText());
+		loadCommonShaderCode();
 		mErrorMaterial = std::make_unique<Material>();
 		mErrorMaterial->name = "XOR-ErrorMaterial";
+		mErrorMaterial->shader = "simplePBR.fx";
 		mErrorMaterial->addTexture(5, std::make_shared<Texture>(ImageRGB8::proceduralXOR(256))); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
 		mEV = 1.5f;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::loadCommonShaderCode()
+	{
+		core::File code("forward.fx");
+		mForwardShaderCommonCode = code.bufferAsText();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Shader* ForwardPass::loadShader(const std::string& fileName)
+	{
+		core::File code(fileName);
+		auto shader = Shader::createShader({mForwardShaderCommonCode.c_str(), code.bufferAsText()});
+		auto shaderP = shader.get();
+		mPipelines.insert(std::make_pair(fileName, std::move(shader)));
+		return shaderP;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::bindMaterial(const Material* mat)
+	{
+		if(mat && !mat->shader.empty()) // Bind proper material
+		{
+			// Find shader
+			auto shaderIter = mPipelines.find(mat->shader);
+			if(shaderIter == mPipelines.end())
+			{
+				// Try to load shader
+				auto shader = loadShader(mat->shader);
+				if(shader)
+					shader->bind();
+				else
+				{
+					bindMaterial(mErrorMaterial.get());
+					return;
+				}
+			}
+			else
+				shaderIter->second->bind();
+
+			mat->bind(mDriver);
+		}
+		// Bind error material
+		bindMaterial(mErrorMaterial.get());
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -57,7 +102,6 @@ namespace rev { namespace graphics {
 		auto vp = _eye.viewProj(4.f/3.f);
 
 		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
-		mForwardPipeline->bind();
 
 		// Setup pixel global uniforms
 		auto& lightClr = _scene.lightClr();
@@ -86,11 +130,7 @@ namespace rev { namespace graphics {
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
-				auto& material = renderObj->materials[i];
-				if(material)
-					material->bind(mDriver);
-				else
-					mErrorMaterial->bind(mDriver);
+				bindMaterial(renderObj->materials[i].get());
 				// Render mesh
 				renderObj->meshes[i]->render();
 			}
