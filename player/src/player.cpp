@@ -74,6 +74,42 @@ namespace rev {
 				size_t count = 0;
 			};
 
+			struct Primitive
+			{
+			public:
+				Primitive(const std::vector<Accessor>& accessors, const Json& desc)
+				{
+					auto& attributes = desc["attributes"];
+					position = &accessors[attributes["POSITION"]];
+					normal = &accessors[attributes["NORMAL"]];
+					tangent = &accessors[attributes["TANGENT"]];
+					texCoord = &accessors[attributes["TEXCOORD_0"]];
+
+					indices = &accessors[desc["indices"]];
+					material = desc["material"];
+				}
+
+				const Accessor* position = nullptr;
+				const Accessor* normal = nullptr;
+				const Accessor* tangent = nullptr;
+				const Accessor* texCoord = nullptr;
+
+				const Accessor* indices = nullptr;
+
+				size_t material;
+			};
+
+			struct Mesh
+			{
+				Mesh(const std::vector<Accessor>& accessors, const Json& desc)
+				{
+					for(auto& p : desc["primitives"])
+						primitives.emplace_back(accessors, p);
+				}
+
+				std::vector<Primitive> primitives;
+			};
+
 		}
 
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder)
@@ -123,6 +159,13 @@ namespace rev {
 				accessors.push_back(accessor);
 			}
 
+			// Load meshes
+			std::vector<gltf::Mesh>	meshes;
+			for(auto& meshDesc : sceneDesc["meshes"])
+			{
+				meshes.emplace_back(accessors, meshDesc);
+			}
+
 			// Load nodes
 			std::vector<std::shared_ptr<SceneNode>> nodes;
 			for(auto& nodeDesc : sceneDesc["nodes"])
@@ -144,6 +187,49 @@ namespace rev {
 					node->addComponent(std::move(nodeTransform));
 				}
 				// Optional node mesh
+				auto meshIter = nodeDesc.find("mesh");
+				if(meshIter != nodeDesc.end())
+				{
+					auto renderObj = std::make_shared<graphics::RenderObj>();
+
+					size_t meshNdx = meshIter.value();
+					auto& gltfMesh = meshes[meshNdx];
+					for(auto& primitive : gltfMesh.primitives)
+					{
+						// Copy index data
+						std::vector<uint16_t> indices(primitive.indices->count);
+						if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
+						{
+							memcpy(indices.data(), primitive.indices->data, sizeof(uint16_t)*indices.size());
+						}
+						else
+							return nullptr;
+
+						// Copy vertex data
+						std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
+						auto srcPosition = reinterpret_cast<math::Vec3f*>(primitive.position->data);
+						auto srcNormal = reinterpret_cast<math::Vec3f*>(primitive.normal->data);
+						auto srcTexCoord = reinterpret_cast<math::Vec2f*>(primitive.texCoord->data);
+						auto srcTangent = reinterpret_cast<math::Vec4f*>(primitive.tangent->data);
+						for(size_t i = 0; i < vertices.size(); ++i)
+						{
+							auto& v = vertices[i];
+							v.position = srcPosition[i];
+							v.normal = srcNormal[i];
+							v.tangent = srcTangent[i].block<3,1>(0,0);
+							v.bitangent = math::Vec3f::zero(); // TODO
+							v.uv = srcTexCoord[i];
+						}
+						
+						// TODO: Share meshes
+						renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
+						renderObj->materials.push_back(nullptr); // TODO
+					}
+
+					auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
+
+					node->addComponent(std::move(nodeMesh));
+				}
 			}
 			// Rebuild hierarchy
 			size_t i = 0;
@@ -252,9 +338,7 @@ namespace rev {
 				}
 				mScene.renderables().push_back(renderObj);
 				return std::make_unique<MeshRenderer>(
-					renderObj,
-					meshList,
-					sceneName);
+					renderObj);
 			}
 
 		private:

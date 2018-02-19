@@ -31,9 +31,7 @@ namespace rev { namespace game {
 	class MeshRenderer : public Component {
 	public:
 		MeshRenderer( // TODO: Move serialization out of the game component
-			std::shared_ptr<graphics::RenderObj> mesh,
-			const std::vector<uint32_t> meshIndices, // For serialization purposes
-			const std::string& _modelScene // For serialization purposes.
+			std::shared_ptr<graphics::RenderObj> mesh
 		);
 
 		void init		() override;
@@ -45,10 +43,8 @@ namespace rev { namespace game {
 		void serialize(std::ostream &) const override;
 
 	private:
-		std::vector<uint32_t>					mMeshIndices;
 		std::shared_ptr<graphics::RenderObj>	mRenderable;
 		math::AffineTransform*					mSrcTransform;
-		std::string								mModelScene;
 	};
 
 }}	// namespace rev::game
