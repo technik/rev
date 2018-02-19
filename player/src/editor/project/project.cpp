@@ -81,13 +81,11 @@ namespace rev { namespace editor {
 		ImGui::BeginChild("Folder tree", ImVec2(200,0), true);
 			ImGui::Text("Folder Tree");
 			ImGui::Separator();
-		//	ImGui::BeginChild("folder_tree");
-				for(auto& f : mRootFolder.mChildren)
-				{
-					if(ImGui::Selectable(f.name.c_str(), mSelectedFolder == &f))
-						mSelectedFolder = &f;
-				}
-		//	ImGui::EndChild();
+			for(auto& f : mRootFolder.mChildren)
+			{
+				if(ImGui::Selectable(f.name.c_str(), mSelectedFolder == &f))
+					mSelectedFolder = &f;
+			}
 		ImGui::EndChild();
 		ImGui::EndGroup();
 
@@ -99,10 +97,26 @@ namespace rev { namespace editor {
 			ImGui::Separator();
 			if(mSelectedFolder)
 			{
-				ImGui::Text(mSelectedFolder->name.c_str());
+				auto oldAsset = mSelectedAsset;
 				for(auto& asset : mSelectedFolder->mAssets)
 				{
-					ImGui::Selectable(asset.name.c_str());
+					if(ImGui::Selectable(asset.name.c_str(), mSelectedAsset == &asset))
+					{
+						if(mSelectedAsset != &asset)
+						{
+							mSelectedAsset = &asset;
+							auto factoryIterator = mInspectorFactories.find(asset.type);
+							if(factoryIterator == mInspectorFactories.end())
+							{
+								mSelectedAsset = nullptr;
+								mSelectedInspector = nullptr;
+							}
+							else {
+								mSelectedInspector = factoryIterator->second(asset);
+								mSelectedAsset = &asset;
+							}
+						}
+					}
 				}
 			}
 		ImGui::EndChild();
@@ -114,9 +128,8 @@ namespace rev { namespace editor {
 		ImGui::BeginChild("Asset Inspector", ImVec2(200,0), true);
 			ImGui::Text("Asset Inspector");
 			ImGui::Separator();
-			ImGui::Selectable("Prop 1");
-			ImGui::Selectable("Prop 2");
-			ImGui::Selectable("Prop 3");
+			if(mSelectedInspector)
+				mSelectedInspector->showInspectionPanel();
 		ImGui::EndChild();
 		ImGui::EndGroup();
 

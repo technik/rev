@@ -70,6 +70,7 @@ namespace rev { namespace editor {
 		std::string mFileName;
 		Folder mRootFolder;
 		Folder* mSelectedFolder = nullptr;
+		Asset* mSelectedAsset = nullptr;
 		std::shared_ptr<AssetInspector>						mSelectedInspector;
 		std::unordered_map<std::string,InspectorFactory>	mInspectorFactories;
 

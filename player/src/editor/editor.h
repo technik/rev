@@ -73,7 +73,7 @@ namespace rev { namespace editor {
 		// TODO: This design can be improved
 		std::map<std::string,std::unique_ptr<ComponentInspector>> mInspectors;
 
-		std::unique_ptr<Project>	mOpenProject;
+		Project	mOpenProject;
 	};
 
 }}	// rev::editor

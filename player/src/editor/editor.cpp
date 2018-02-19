@@ -32,8 +32,7 @@ namespace rev { namespace editor {
 		mTextureMgr.init();
 		registerMaterials();
 		// Create project
-		mOpenProject = std::make_unique<Project>();
-		mOpenProject->load("sponza.json");
+		mOpenProject.load("sponza.json");
 		// Project must be created before inspectors, since they use the project's information
 		createInspectors(scene);
 	}
@@ -43,12 +42,11 @@ namespace rev { namespace editor {
 	{
 		// Show menu
 		drawMainMenu();
-		if(mShowProjectExplorer)
-			mOpenProject->showExplorer();
+		mOpenProject.showExplorer();
 		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -73,15 +71,14 @@ namespace rev { namespace editor {
 		if(ImGui::BeginMenu("File"))
 		{
 			ImGui::MenuItem("Open Project");
-			if(mOpenProject)
-			{
-				ImGui::MenuItem("Save Project");
-				ImGui::Separator();
-				ImGui::MenuItem("Open Scene");
-				ImGui::MenuItem("Save Scene");
-				ImGui::Separator();
-				ImGui::MenuItem("Import Asset");
-			}
+
+			ImGui::MenuItem("Save Project");
+			ImGui::Separator();
+			ImGui::MenuItem("Open Scene");
+			ImGui::MenuItem("Save Scene");
+			ImGui::Separator();
+			ImGui::MenuItem("Import Asset");
+
 			ImGui::EndMenu();
 		}
 	}
@@ -179,7 +176,7 @@ namespace rev { namespace editor {
 	void Editor::createInspectors(graphics::RenderScene& scene) {
 		mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),
-			std::make_unique<RendererInspector>(mOpenProject->materials()))
+			std::make_unique<RendererInspector>(mOpenProject.materials()))
 		);
 		registerInspector<game::Transform,TransformInspector>();
 	}

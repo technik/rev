@@ -46,7 +46,7 @@ namespace rev { namespace editor {
 				{
 					for(auto& m : mMaterials)
 					{
-						if(ImGui::Selectable(m.c_str(), mat->name==m))
+						if(ImGui::Selectable(m.c_str(), matName==m))
 						{
 							// TODO: Request material using material manager
 							//	mat = m;
