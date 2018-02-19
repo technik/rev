@@ -123,6 +123,41 @@ namespace rev {
 				accessors.push_back(accessor);
 			}
 
+			// Load nodes
+			std::vector<std::shared_ptr<SceneNode>> nodes;
+			for(auto& nodeDesc : sceneDesc["nodes"])
+			{
+				auto node = std::make_shared<SceneNode>();
+				nodes.push_back(node);
+				// Node name
+				auto nameIter = nodeDesc.find("name");
+				if(nameIter != nodeDesc.end())
+					node->name = nameIter.value().get<std::string>();
+				// Node transform
+				if(nodeDesc.find("matrix") != nodeDesc.end())
+				{
+					auto& matrixDesc = nodeDesc["matrix"];
+					auto nodeTransform = std::make_unique<game::Transform>();
+					for(size_t i = 0; i < 3; ++i)
+						for(size_t j = 0; j < 4; ++j)
+							nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
+					node->addComponent(std::move(nodeTransform));
+				}
+				// Optional node mesh
+			}
+			// Rebuild hierarchy
+			size_t i = 0;
+			for(auto& nodeDesc : sceneDesc["nodes"])
+			{
+				auto& node = nodes[i++];
+				auto childIter = nodeDesc.find("children");
+				if(childIter != nodeDesc.end())
+				{
+					for(auto& child : childIter.value())
+						node->addChild(nodes[child.get<size_t>()]);
+				}
+			}
+
 			// Return the right scene
 			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
 			return nullptr;
