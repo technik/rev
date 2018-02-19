@@ -160,6 +160,28 @@ namespace rev {
 				accessors.push_back(accessor);
 			}
 
+			// Load textures
+			std::vector<std::shared_ptr<graphics::Texture>>	textures;
+			for(auto& texDesc : sceneDesc["textures"])
+			{
+				size_t ndx = texDesc["source"];
+				auto texName = assetsFolder + sceneDesc["images"][ndx]["uri"].get<std::string>();
+				textures.push_back(graphics::Texture::load(texName));
+			}
+
+			// Load materials
+			std::vector<std::shared_ptr<graphics::Material>> materials;
+			for(auto& matDesc : sceneDesc["materials"])
+			{
+				size_t albedoNdx = matDesc["pbrMetallicRoughness"]["baseColorTexture"]["index"];
+				auto mat = std::make_shared<Material>();
+				mat->name = matDesc["name"].get<std::string>();
+				mat->addTexture(5, textures[albedoNdx]);
+				mat->addParam(6, 0.5f); // Roughness
+				mat->addParam(7, 0.05f); // Metallic
+				materials.push_back(mat);
+			}
+
 			// Load meshes
 			std::vector<gltf::Mesh>	meshes;
 			for(auto& meshDesc : sceneDesc["meshes"])
@@ -224,7 +246,7 @@ namespace rev {
 						
 						// TODO: Share meshes
 						renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
-						renderObj->materials.push_back(nullptr); // TODO
+						renderObj->materials.push_back(materials[0]); // TODO
 					}
 
 					auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
