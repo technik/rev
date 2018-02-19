@@ -112,7 +112,7 @@ namespace rev {
 
 		}
 
-		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder)
+		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder, graphics::RenderScene& _renderable)
 		{
 			Json sceneDesc;
 			std::ifstream("helmet/damagedHelmet.gltf") >> sceneDesc;
@@ -227,6 +227,7 @@ namespace rev {
 					}
 
 					auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
+					_renderable.renderables().push_back(renderObj);
 
 					node->addComponent(std::move(nodeMesh));
 				}
@@ -246,7 +247,7 @@ namespace rev {
 
 			// Return the right scene
 			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
-			return nullptr;
+			return nodes[displayScene["nodes"][0]];
 		}
 	}
 
@@ -262,7 +263,12 @@ namespace rev {
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
-			loadGLTFScene("helmet/");
+			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
+			if(gltfScene)
+			{
+				mGameScene.root()->addChild(gltfScene);
+				mGameScene.root()->init();
+			}
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);
