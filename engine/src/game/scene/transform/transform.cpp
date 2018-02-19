@@ -32,13 +32,13 @@ namespace rev { namespace game {
 				auto pXForm = parent->component<Transform>();
 				if(pXForm)
 				{
-					mAbsoluteMatrix = (pXForm->xForm * xForm).matrix();
+					mAbsoluteXForm = pXForm->xForm * xForm;
 					return;
 				} else
 					parent = parent->parent();
 			}
 		}
-		mAbsoluteMatrix = matrix();
+		mAbsoluteXForm = xForm;
 	}
 
 }}

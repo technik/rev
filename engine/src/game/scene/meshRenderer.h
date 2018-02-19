@@ -22,7 +22,6 @@
 #include <memory>
 #include <graphics/scene/renderObj.h>
 #include <graphics/driver/texture.h>
-#include <math/algebra/vector.h>
 
 namespace rev { namespace game {
 
@@ -44,7 +43,7 @@ namespace rev { namespace game {
 
 	private:
 		std::shared_ptr<graphics::RenderObj>	mRenderable;
-		math::AffineTransform*					mSrcTransform;
+		Transform*								mSrcTransform;
 	};
 
 }}	// namespace rev::game

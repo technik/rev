@@ -23,12 +23,12 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::init() {
-		mSrcTransform = &node()->component<Transform>()->xForm;
+		mSrcTransform = node()->component<Transform>();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::update(float _dt) {
-		mRenderable->transform = *mSrcTransform;
+		mRenderable->transform = mSrcTransform->absoluteXForm();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

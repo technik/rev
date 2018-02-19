@@ -21,6 +21,7 @@ namespace rev { namespace game {
 		Transform()// = default;
 		{
 			xForm.matrix().setIdentity();
+			mAbsoluteXForm.matrix().setIdentity();
 		}
 		Transform(std::istream& _in)
 		{
@@ -28,6 +29,7 @@ namespace rev { namespace game {
 		}
 
 		void update(float _dt) override;
+		const math::AffineTransform& absoluteXForm() const { return mAbsoluteXForm; }
 
 		/*void showDebugInfo() override {
 			graphics::gui::text("Transform");
@@ -47,7 +49,7 @@ namespace rev { namespace game {
 		}
 
 	private:
-		math::Mat34f mAbsoluteMatrix;
+		math::AffineTransform mAbsoluteXForm;
 	};
 
 } }	// namespace rev::game
