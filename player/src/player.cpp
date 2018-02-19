@@ -40,7 +40,7 @@ namespace rev {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		if(mGfxDriver) {
-			loadScene("sponza_crytek");
+			//loadScene("sponza_crytek");
 			createCamera();
 
 			mGameEditor.init(mGraphicsScene);

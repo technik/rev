@@ -42,7 +42,8 @@ namespace rev { namespace editor {
 	{
 		// Show menu
 		drawMainMenu();
-		mOpenProject.showExplorer();
+		if(mShowProjectExplorer)
+			mOpenProject.showExplorer();
 		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
