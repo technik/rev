@@ -58,16 +58,7 @@ namespace rev {
 
 			struct Accessor
 			{
-				enum class Type
-				{
-					Scalar,
-					Vec2,
-					Vec3,
-					Vec4,
-					Mat2,
-					Mat3,
-					Mat4
-				} type;
+				std::string type;
 
 				enum class ComponentType : uint32_t
 				{
@@ -80,6 +71,7 @@ namespace rev {
 				} componentType;
 
 				uint8_t* data = nullptr;
+				size_t count = 0;
 			};
 
 		}
@@ -99,12 +91,12 @@ namespace rev {
 				return nullptr;
 			// Load buffers
 			std::vector<gltf::Buffer> buffers;
-			for(auto buffDesc : sceneDesc["buffers"])
+			for(auto& buffDesc : sceneDesc["buffers"])
 				buffers.emplace_back(assetsFolder, buffDesc);
 
 			// Load buffer views
 			std::vector<gltf::BufferView> bufferViews;
-			for(auto viewDesc : sceneDesc["bufferViews"])
+			for(auto& viewDesc : sceneDesc["bufferViews"])
 			{
 				gltf::BufferView view;
 				size_t offset = viewDesc["byteOffset"];
@@ -113,7 +105,23 @@ namespace rev {
 				bufferViews.push_back(view);
 			}
 
-			// 
+			// Load accessors
+			std::vector<gltf::Accessor> accessors;
+			for(auto& accessorDesc : sceneDesc["accessors"])
+			{
+				gltf::Accessor accessor;
+				accessor.type = accessorDesc["type"].get<std::string>();
+				unsigned cTypeDesc = accessorDesc["componentType"];
+				accessor.componentType = gltf::Accessor::ComponentType(cTypeDesc);
+				unsigned bufferViewNdx = accessorDesc["bufferView"];
+				unsigned byteOffset = 0;
+				auto offsetIter = accessorDesc.find("byteOffset");
+				if(offsetIter != accessorDesc.end())
+					byteOffset = offsetIter.value().get<unsigned>();
+				accessor.count = accessorDesc["count"];
+				accessor.data = &bufferViews[bufferViewNdx].data[byteOffset];
+				accessors.push_back(accessor);
+			}
 
 			// Return the right scene
 			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
