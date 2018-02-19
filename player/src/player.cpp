@@ -47,6 +47,41 @@ namespace rev {
 
 				std::vector<uint8_t> raw;
 			};
+
+			struct BufferView
+			{
+				uint8_t* data = nullptr;
+				GLenum target = 0;
+				size_t size = 0;
+				size_t stride = 0;
+			};
+
+			struct Accessor
+			{
+				enum class Type
+				{
+					Scalar,
+					Vec2,
+					Vec3,
+					Vec4,
+					Mat2,
+					Mat3,
+					Mat4
+				} type;
+
+				enum class ComponentType : uint32_t
+				{
+					BYTE = 5120,
+					UNSIGNED_BYTE = 5121,
+					SHORT = 5122,
+					UNSIGNED_SHORT = 5123,
+					UNSIGNED_INT = 5125,
+					FLOAT = 5126
+				} componentType;
+
+				uint8_t* data = nullptr;
+			};
+
 		}
 
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder)
@@ -66,6 +101,19 @@ namespace rev {
 			std::vector<gltf::Buffer> buffers;
 			for(auto buffDesc : sceneDesc["buffers"])
 				buffers.emplace_back(assetsFolder, buffDesc);
+
+			// Load buffer views
+			std::vector<gltf::BufferView> bufferViews;
+			for(auto viewDesc : sceneDesc["bufferViews"])
+			{
+				gltf::BufferView view;
+				size_t offset = viewDesc["byteOffset"];
+				size_t bufferNdx = viewDesc["buffer"];
+				view.data = &buffers[bufferNdx].raw[offset];
+				bufferViews.push_back(view);
+			}
+
+			// 
 
 			// Return the right scene
 			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
