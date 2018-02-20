@@ -25,11 +25,39 @@ namespace rev { namespace math {
 		// Constructors
 		Quaternion	()	{}
 		Quaternion	(Number_ _x, Number_ _y, Number_ _z, Number_ _w): x(_x), y(_y), z(_z), w(_w)	{}
+		// Axis is assumed normalized
 		Quaternion	(const Vector3<Number_>& _axis, const Number_ _radians);
+
 		Quaternion	(const Vector3<Number_>& _rotationVector);
 		template<typename S_>
 		Quaternion	(const MatrixBase<3,3,S_>& _matrix);
 
+		Quaternion fromUnitVectors(const Vector3<Number_>& u, const Vector3<Number_>& v)
+		{
+			// TODO: This can be made faster by precomputing sqrt(2)
+			auto m = sqrt(2 + 2 * u.dot(v));
+			Vector3<Number_> w = (1 / m) * u.cross(v);
+			return Quaternion(w.x(), w.y(), w.z(), m*0.5f);
+		}
+
+		Quaternion from2Vectors(const Vector3<Number_>& u, const Vector3<Number_>& v)
+		{
+			Vector3<Number_> w = u.cross(v);
+			Quaternion q = quat(dot(u, v), w.x, w.y, w.z);
+			q.w += length(q);
+			return q.normalized();
+		}
+
+		Number_ dot(const Quaternion& q) const {
+			return w*q.w - x*q.x - y*q.y - z*q.z;
+		}
+
+		Quaternion normalized() const {
+			auto n = 1.f/norm();
+			return Quaternion(x*n,y*n,z*n,w*n);
+		}
+
+		Number_ norm() const { return sqrt(dot(*this)); }
 		// Operators
 		Quaternion	operator *	(const Quaternion& _q) const;
 
@@ -41,6 +69,7 @@ namespace rev { namespace math {
 
 		// Useful quaternions
 		static Quaternion	identity();
+
 
 		Number_ x;
 		Number_ y;
