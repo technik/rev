@@ -22,6 +22,7 @@
 #include "../sceneNode.h"
 #include <math/algebra/vector.h>
 #include "transform.h"
+#include <input/pointingInput.h>
 
 namespace rev { namespace game {
 
@@ -34,13 +35,38 @@ namespace rev { namespace game {
 		{
 			mSrcTransform = node()->component<Transform>();
 		}
-		void update		(float _dt) override;
+
+		void update		(float _dt) override
+		{
+			auto pointingInput = input::PointingInput::get();
+			if(pointingInput)
+			{
+				if(pointingInput->leftDown())
+				{
+					if(wasDown)
+					{
+						auto displacement = pointingInput->touchPosition() - mClickStartPos;
+						angles.x() += displacement.x()*mSpeed.x();
+					}
+					else
+						mClickStartPos = pointingInput->touchPosition();
+					wasDown = true;
+
+					// Recompute transform
+					mSrcTransform->xForm.setRotation(math::Quatf({0.f,0.f,1.f}, angles.x()));
+				}
+			}
+			wasDown = false;
+		}
 
 		void serialize(std::ostream &) const override {
 			// TODO
 		}
 
 	private:
+		math::Vec2f angles = math::Vec2f::zero();
+		bool wasDown = false;
+		math::Vec2i mClickStartPos;
 		math::Vec2f mSpeed;
 		Transform*	mSrcTransform;
 	};
