@@ -441,7 +441,7 @@ namespace rev {
 		if(!mGfxDriver)
 			return true;
 		core::Time::get()->update();
-		gui::startFrame();
+		gui::startFrame(mGfxDriver->frameBuffer()->size());
 		mGameEditor.update(mGameScene);
 
 		auto dt = core::Time::get()->frameTime();

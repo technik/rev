@@ -61,8 +61,8 @@ namespace rev { namespace game {
 					auto tilt = math::Quatf({1.f,0.f,0.f}, angles.y());
 					mSrcTransform->xForm.setRotation(pan * tilt);
 				}
+				else wasDown = false;
 			}
-			else wasDown = false;
 		}
 
 		void serialize(std::ostream &) const override {

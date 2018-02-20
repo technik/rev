@@ -48,9 +48,11 @@ namespace rev { namespace graphics { namespace gui {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void startFrame() {
+	void startFrame(const math::Vec2u& _windowSize) {
 		// Setup Mouse input
 		auto& io = ImGui::GetIO();
+		io.DisplaySize.x = float(_windowSize.x());
+		io.DisplaySize.y = float(_windowSize.y());
 		auto pointingInput = input::PointingInput::get();
 		if(pointingInput)
 		{

@@ -7,7 +7,7 @@
 namespace rev { namespace graphics { namespace gui {
 
 	void init(const math::Vec2u& _windowSize);
-	void startFrame();
+	void startFrame(const math::Vec2u& _windowSize);
 	void finishFrame(float dt);
 
 	bool beginWindow(const char* _name);
