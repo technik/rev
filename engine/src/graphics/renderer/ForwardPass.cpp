@@ -75,7 +75,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::bindMaterial(const Material* mat)
+	bool ForwardPass::bindMaterial(const Material* mat)
 	{
 		if(mat && !mat->shader.empty()) // Bind proper material
 		{
@@ -89,18 +89,19 @@ namespace rev { namespace graphics {
 					shader->bind();
 				else
 				{
-					bindMaterial(mErrorMaterial.get());
-					return;
+					if(mat != mErrorMaterial.get())
+						return bindMaterial(mErrorMaterial.get());
+					return false;
 				}
 			}
 			else
 				shaderIter->second->bind();
 
 			mat->bind(mDriver);
-			return;
+			return true;
 		}
 		// Bind error material
-		bindMaterial(mErrorMaterial.get());
+		return bindMaterial(mErrorMaterial.get());
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -155,9 +156,11 @@ namespace rev { namespace graphics {
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
-				bindMaterial(renderObj->materials[i].get());
-				// Render mesh
-				renderObj->meshes[i]->render();
+				if(bindMaterial(renderObj->materials[i].get()))
+				{
+					// Render mesh
+					renderObj->meshes[i]->render();
+				}
 			}
 		}
 	}

@@ -53,7 +53,6 @@ layout(location = 5) uniform sampler2D uAlbedo;
 layout(location = 6) uniform sampler2D uPhysics;
 layout(location = 7) uniform sampler2D uEmissive;
 layout(location = 8) uniform sampler2D uAO;
-layout(location = 9) uniform sampler2D uNormalMap;
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -129,9 +128,9 @@ vec3 shadeSurface(ShadeInput inputs)
 		metallic);
 	vec3 indirectLight = indirectLightPBR(albedo, oclussion);
 	
-	return directLight;
-		//+ indirectLight
-		//+ emissive;
+	return directLight
+		+ indirectLight
+		+ emissive;
 }
 
 #endif // PXL_SHADER

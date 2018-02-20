@@ -248,7 +248,7 @@ namespace rev {
 							v.position = srcPosition[i];
 							v.normal = srcNormal[i];
 							v.tangent = srcTangent[i].block<3,1>(0,0);
-							v.bitangent = math::Vec3f::zero(); // TODO
+							v.bitangent = v.normal.cross(v.tangent)*srcTangent[i].w();
 							v.uv = srcTexCoord[i];
 						}
 						

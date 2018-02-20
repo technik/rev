@@ -40,7 +40,7 @@ namespace rev{ namespace graphics {
 	private:
 		void loadCommonShaderCode();
 		Shader* loadShader(const std::string& fileName);
-		void bindMaterial(const Material*);
+		bool bindMaterial(const Material*);
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;
