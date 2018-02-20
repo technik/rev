@@ -15,23 +15,26 @@ using namespace rev::math;
 
 //--------------------------------------------------------------------------------------------------------------
 static bool sIsWindowClassRegistered = false;
+rev::Player* g_player = nullptr;
 
 bool processWindowsMsg(MSG _msg) {
-	/*
-	if(_msg.message == WM_SIZE)
+
+	if(g_player)
 	{
-		LPARAM lparam = _msg.lParam;
-		mSize = Vec2u(LOWORD(lparam), HIWORD(lparam));
-		invokeOnResize();
-		return true;
+		if(_msg.message == WM_SIZE)
+		{
+			LPARAM lparam = _msg.lParam;
+				g_player->onWindowResize(Vec2u(LOWORD(lparam), HIWORD(lparam)));
+			return true;
+		}
+		if(_msg.message == WM_SIZING)
+		{
+			RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
+			auto newSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
+			g_player->onWindowResize(newSize);
+			return true;
+		}
 	}
-	if(_msg.message == WM_SIZING)
-	{
-		RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
-		mSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
-		invokeOnResize();
-		return true;
-	}*/
 
 	if(rev::input::PointingInput::get()->processMessage(_msg))
 		return true;
@@ -127,6 +130,7 @@ int main() {
 	rev::input::PointingInput::init();
 	rev::input::KeyboardInput::init();
 	rev::Player player;
+	g_player = &player;
 	if(!player.init(&nativeWindow)) {
 		return -1;
 	}

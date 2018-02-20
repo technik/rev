@@ -27,9 +27,11 @@ namespace rev { namespace graphics {
 		using NativeWindow = WindowWin32*;
 
 		static GraphicsDriverGL* createDriver(NativeWindow _nativeWindow);
+		NativeWindow nativeWindow() const { return window; }
 		void swapBuffers();
 
 	private:
+		NativeWindow	window;
 		HWND	mWindowHandle;
 		HDC		mDevCtxHandle;
 	};

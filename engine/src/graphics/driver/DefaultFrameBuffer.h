@@ -32,6 +32,11 @@ namespace rev { namespace graphics {
 		{
 		}
 
+		void resize(const math::Vec2u& _size)
+		{
+			mSize = _size;
+		}
+
 		void bind() const override
 		{
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

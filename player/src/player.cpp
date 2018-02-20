@@ -326,6 +326,13 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void Player::onWindowResize(const math::Vec2u& _newSize)
+	{
+		if(mGfxDriver)
+			mGfxDriver->onWindowResize(_newSize);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Node
 		auto cameraNode = std::make_shared<SceneNode>();
