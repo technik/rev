@@ -63,7 +63,7 @@ namespace rev { namespace graphics {
 			for(auto& c : code)
 				Log::error(c);
 			Log::error(ProgramErrorMessage.data());
-			return nullptr;
+ 			return nullptr;
 		}
 
 		auto shader = std::make_unique<Shader>();
@@ -82,7 +82,16 @@ namespace rev { namespace graphics {
 		else
 			code.push_back(PXL_SHADER_HEADER.data());
 		for(auto c : _code)
+		{
+			if(!c)
+			{
+				/*ImGui::Begin("Shader Error");
+				ImGui::Text("Error building shader: One of the code fragments is null");
+				ImGui::End();*/
+				return false;
+			}
 			code.push_back(c);
+		}
 		_dst = glCreateShader(_shaderType);
 		glShaderSource(_dst, code.size(), code.data(), nullptr);
 		glCompileShader(_dst);

@@ -103,7 +103,7 @@ vec3 indirectLightPBR(
 	float oclussion
 	)
 {
-	return 0.1 * albedo * oclussion;
+	return 0.3 * albedo * oclussion;
 }
 
 //---------------------------------------------------------------------------------------
@@ -111,13 +111,12 @@ vec3 shadeSurface(ShadeInput inputs)
 {
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
 	albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
-	vec2 physics = texture(uPhysics, vTexCoord).xy;
-	//physics = pow(physics, 1.0/vec2(2.2,2.2));
-	float roughness = physics.r;
-	float metallic = physics.g;
-	float oclussion = texture(uAO, vTexCoord).x;
-	
-	
+	vec3 physics = texture(uPhysics, vTexCoord).xyz;
+	physics = pow(physics, 1.0/vec3(2.2,2.2,2.2));
+	float roughness = min(0.01,physics.g);
+	float metallic = physics.b;
+	float oclussion = physics.r;
+	//float oclussion = pow(texture(uAO, vTexCoord).x, 1.0/2.2);
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
@@ -128,6 +127,8 @@ vec3 shadeSurface(ShadeInput inputs)
 		metallic);
 	vec3 indirectLight = indirectLightPBR(albedo, oclussion);
 	
+	//return vec3(oclussion);
+	//retrun albedo;
 	return directLight
 		+ indirectLight
 		+ emissive;

@@ -51,6 +51,9 @@ namespace rev { namespace graphics {
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
 		mEV = 1.5f;
+
+		// Init sky resources
+		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -110,18 +113,20 @@ namespace rev { namespace graphics {
 #ifdef _WIN32
 		// Shader reload
 		KeyboardInput* input = KeyboardInput::get();
-#ifdef _DEBUG
-		//mClearTimer += core::Time::get()->frameTime();
-#endif // _DEBUG
-		if (input->pressed('R') || mClearTimer > 1.0f)
+		if (input->pressed('R'))
 		{
-			mClearTimer = 0.f;
 			mPipelines.clear();
 			loadCommonShaderCode();
 		}
 #endif
 		_dst.bind();
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
+		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		auto vp = _eye.viewProj(_dst.aspectRatio());
@@ -135,7 +140,8 @@ namespace rev { namespace graphics {
 		glUniform1f(4, std::pow(2.f,mEV)); // EV
 
 		auto worldMatrix = Mat44f::identity();
-		// Performance counters
+
+		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
 			auto renderObj = renderable.lock();
@@ -143,14 +149,11 @@ namespace rev { namespace graphics {
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms
 			auto wvp = vp*worldMatrix;
-			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 			auto& worldI = worldMatrix.transpose();
 			auto msViewDir = worldI.block<3,3>(0,0) * _eye.position() + worldI.block<3,4>(0,0).col(3);
-			glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
 
 			// Setup pixel global uniforms
 			auto msLightDir = worldI * lightDir;
-			glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
 
 			// render
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
@@ -158,10 +161,35 @@ namespace rev { namespace graphics {
 				// Setup material
 				if(bindMaterial(renderObj->materials[i].get()))
 				{
+					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
+					glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
+					glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
 					// Render mesh
 					renderObj->meshes[i]->render();
 				}
 			}
+		}
+
+		// Render skybox
+		auto skyShaderIter = mPipelines.find("sky.fx");
+		Shader* skyShader = nullptr;
+		if(skyShaderIter == mPipelines.end())
+		{
+			// Try to load shader
+			core::File code("sky.fx");
+			auto skyShaderPtr = Shader::createShader( code.bufferAsText() );
+			if(skyShaderPtr)
+			{
+				skyShader = skyShaderPtr.get();
+				mPipelines.insert(std::make_pair("sky.fx", std::move(skyShaderPtr)));
+			}
+		} else
+			skyShader = skyShaderIter->second.get();
+		if(skyShader)
+		{
+			skyShader->bind();
+			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, vp.data());
+			mSkyPlane->render();
 		}
 	}
 

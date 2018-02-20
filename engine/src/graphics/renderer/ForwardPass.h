@@ -21,6 +21,7 @@
 #include <memory>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/material.h>
+#include <graphics/scene/renderGeom.h>
 #include <unordered_map>
 
 namespace rev{ namespace graphics {
@@ -49,8 +50,9 @@ namespace rev{ namespace graphics {
 
 		std::string mForwardShaderCommonCode;
 		std::unordered_map<std::string, ShaderPtr>	mPipelines;
-
-		float mClearTimer = 0.f;
+		
+		// Sky
+		std::unique_ptr<RenderGeom> mSkyPlane;
 	};
 
 }}

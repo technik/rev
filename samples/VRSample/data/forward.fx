@@ -92,8 +92,10 @@ void main (void) {
 	
 	vec3 pbrColor = shadeSurface(shadingInputs);
 	// Tone mapping
-	pbrColor *= ev;
+	//pbrColor *= ev;
+	//pbrColor = pbrColor / (1.0 + pbrColor);
 	
+	//outColor = pbrColor;
 	outColor = pow(pbrColor, vec3(2.2));
 	//outColor = 0.5+0.5*msNormal;//pow(pbrColor, vec3(2.2));
 }
