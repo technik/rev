@@ -115,6 +115,7 @@ namespace rev { namespace graphics {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		auto vp = _eye.viewProj(_dst.aspectRatio());
+		glViewport(0, 0, _dst.size().x(), _dst.size().y());
 
 		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
 

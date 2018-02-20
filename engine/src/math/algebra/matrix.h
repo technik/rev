@@ -509,12 +509,17 @@ namespace rev {
 			Number_ _farClip)
 		{
 			// Precomputations
-			Number_ focalLength = Number_(1.f) / std::tan(_fovRad / 2.f);
-			Number_ invDepthRange = Number_(1.f) / (_farClip - _nearClip);
+			auto hFov = _fovRad;
+			auto vFovRad = _fovRad / _aspectRatio;
+			auto hFocalLength = 1 / std::tan(hFov / 2);
+			auto vFocalLength = 1 / std::tan(vFovRad / 2);
+			auto A = 2 / (_farClip-_nearClip);
+			auto B = (_farClip + _nearClip) / (_nearClip - _farClip);
 			return Matrix44<Number_>({
-				focalLength, 0, 0, 0,
-				0, 0, focalLength *_aspectRatio, 0,
-				0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
+				hFocalLength, 0, 0, 0,
+				0, 0, vFocalLength, 0,
+				0, A, 0, B,
+				//0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
 				0, 1, 0, 0
 			});
 		}
