@@ -49,6 +49,8 @@ namespace rev{ namespace graphics {
 
 		std::string mForwardShaderCommonCode;
 		std::unordered_map<std::string, ShaderPtr>	mPipelines;
+
+		float mClearTimer = 0.f;
 	};
 
 }}

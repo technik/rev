@@ -20,6 +20,7 @@
 #include "ForwardPass.h"
 
 #include <core/platform/fileSystem/file.h>
+#include <core/time/time.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/camera.h>
@@ -108,8 +109,12 @@ namespace rev { namespace graphics {
 #ifdef _WIN32
 		// Shader reload
 		KeyboardInput* input = KeyboardInput::get();
-		if (input->pressed('R'))
+#ifdef _DEBUG
+		//mClearTimer += core::Time::get()->frameTime();
+#endif // _DEBUG
+		if (input->pressed('R') || mClearTimer > 1.0f)
 		{
+			mClearTimer = 0.f;
 			mPipelines.clear();
 			loadCommonShaderCode();
 		}

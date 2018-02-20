@@ -1,46 +1,51 @@
 #ifdef PXL_SHADER
 
 //------------------------------------------------------------------------------
-float GGX(float NdH, float a)
+float GGX_NDF(float ndh, float a)
 {
     float a2     = a*a;
-    float NdH2 = NdH*NdH;
+    float ndh2 = ndh*ndh;
 	
-    float nom    = a2;
-    float denom  = (NdH2 * (a2 - 1.0) + 1.0);
+    float denom  = ndh2 * (a2 - 1.0) + 1.0;
     denom        = PI * denom * denom;
 	
-    return nom / denom;
+    return a2 / denom;
 }
 
 //------------------------------------------------------------------------------
-float GeometrySchlickGGX(float NdotV, float roughness)
+// Actually: GGX divided by ndv
+// SIMD optimized version
+vec2 GeometrySchlickGGX(vec2 ndv_ndl, float roughness)
 {
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
+	float k = roughness/2.0;
+    vec2 denom = ndv_ndl*(1.0-k) + k;
 	
-    return nom / denom;
+    return 1.0 / denom;
 }
 
 //------------------------------------------------------------------------------
-float GeometrySmith(float NdV, float NdL, float roughness)
+// Actually: Smith GGX divided by (ndv * ndl)
+// SIMD optimized version
+float GeometrySmithGGX(vec2 ndv_ndl, float roughness)
 {
-    float ggx2  = GeometrySchlickGGX(NdV, roughness);
-    float ggx1  = GeometrySchlickGGX(NdL, roughness);
-	
-    return ggx1 * ggx2;
+    vec2 ggx  = GeometrySchlickGGX(ndv_ndl, roughness);
+    return ggx.x * ggx.y;
 }
 
+#define SPHERICAL_GAUSIAN_SCHLICK
 //------------------------------------------------------------------------------
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+float fresnelSchlick(float ndv)
 {
-	float negCos = 1.0 - cosTheta;
-	float pow5 = negCos * negCos;
-	pow5 = pow5 * pow5 * negCos;
-    return F0 + (1.0 - F0) * pow5;
+#ifdef SPHERICAL_GAUSIAN_SCHLICK
+	// Schlick with Spherical Gaussian approximation
+	// http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+	return pow(2.0, (-5.55473*ndv - 6.98316) * ndv);
+#else // !SPHERICAL_GAUSIAN_SCHLICK
+	//return pow(ndl, 5.0);
+	float n = 1.0-ndv;
+	float n2 = n*n;
+	return n2*n2*n;
+#endif // !SPHERICAL_GAUSIAN_SCHLICK
 }
 
 // Material
@@ -51,6 +56,32 @@ layout(location = 8) uniform sampler2D uAO;
 layout(location = 9) uniform sampler2D uNormalMap;
 
 //---------------------------------------------------------------------------------------
+vec3 diffusePBR(
+	ShadeInput inputs,
+	vec3 diffColor,
+	float metallic
+	)
+{
+	return diffColor * ((1.0-metallic) / PI);
+}
+
+//---------------------------------------------------------------------------------------
+vec3 specularPBR(
+	ShadeInput inputs,
+	vec3 specColor,
+	float roughness,
+	float metallic
+	)
+{
+	float F = fresnelSchlick(inputs.ndv);
+	float NDF = GGX_NDF(inputs.ndh, roughness);
+	float G   = GeometrySmithGGX(vec2(inputs.ndv, inputs.ndl), roughness);
+	float specBRDF = F*G*NDF / 4;
+	
+	return mix(specColor, vec3(1.0), specBRDF);
+}
+
+//---------------------------------------------------------------------------------------
 vec3 directLightPBR(
 	ShadeInput inputs,
 	vec3 albedo,
@@ -58,22 +89,13 @@ vec3 directLightPBR(
 	float metallic
 	)
 {
-	vec3 F0 = mix(vec3(0.04), albedo, metallic);
-	vec3 F  = fresnelSchlick(inputs.ndv, F0);
+	vec3 specColor = mix(vec3(0.04), albedo, metallic);
+	vec3 diffColor = vec3(1.0)-specColor;
 	
-	float NDF = GGX(inputs.ndh, roughness);
-	float G   = GeometrySmith(inputs.ndv, inputs.ndl, roughness);
+	vec3 diffuse = diffusePBR(inputs, diffColor, metallic);
+	vec3 specular = specularPBR(inputs, specColor, roughness, metallic);
 	
-	vec3 nominator    = NDF * G * F;
-	float denominator = 4.0 * inputs.ndv * inputs.ndl;
-	vec3 specular     = nominator / max(denominator, 0.001);
-	
-	vec3 kS = F;
-	vec3 kD = vec3(1.0) - kS;
-	  
-	kD *= 1.0 - metallic;
-	
-	return (kD * albedo / PI + specular) * lightColor * inputs.ndl;
+	return (diffuse + specular) * inputs.ndl * lightColor;
 }
 
 //---------------------------------------------------------------------------------------
@@ -91,7 +113,8 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
 	albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
 	vec2 physics = texture(uPhysics, vTexCoord).xy;
-	float roughness = physics.r*physics.r;
+	//physics = pow(physics, 1.0/vec2(2.2,2.2));
+	float roughness = physics.r;
 	float metallic = physics.g;
 	float oclussion = texture(uAO, vTexCoord).x;
 	
@@ -106,9 +129,9 @@ vec3 shadeSurface(ShadeInput inputs)
 		metallic);
 	vec3 indirectLight = indirectLightPBR(albedo, oclussion);
 	
-	return directLight
-		+ indirectLight
-		+ emissive;
+	return directLight;
+		//+ indirectLight
+		//+ emissive;
 }
 
 #endif // PXL_SHADER

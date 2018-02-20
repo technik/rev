@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "openGL/openGL.h"
 #include <core/tools/log.h>
+#include <graphics/debug/imgui.h>
 
 #include <vector>
 
@@ -93,9 +94,9 @@ namespace rev { namespace graphics {
 		if ( InfoLogLength > 0 ){
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-			for(auto& c : code)
-				Log::error(c);
-			Log::error(ShaderErrorMessage.data());
+			ImGui::Begin("Shader Error");
+			ImGui::Text(ShaderErrorMessage.data());
+			ImGui::End();
 			return false;
 		}
 
