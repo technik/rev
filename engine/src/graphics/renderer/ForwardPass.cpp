@@ -64,9 +64,13 @@ namespace rev { namespace graphics {
 	{
 		core::File code(fileName);
 		auto shader = Shader::createShader({mForwardShaderCommonCode.c_str(), code.bufferAsText()});
-		auto shaderP = shader.get();
-		mPipelines.insert(std::make_pair(fileName, std::move(shader)));
-		return shaderP;
+		if(shader)
+		{
+			auto shaderP = shader.get();
+			mPipelines.insert(std::make_pair(fileName, std::move(shader)));
+			return shaderP;
+		} else
+			return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -51,13 +51,16 @@ void main (void) {
 	vec3 msLightDir = normalize(uMSLightDir);
 	vec3 msViewDir = normalize(vtxViewDir);
 	
-	// Compute illumination intermediate variables
-	vec3 msHalfV = normalize(msViewDir+msLightDir);
-	
 	ShadeInput shadingInputs;
 	shadingInputs.ndl = max(0.0,dot(msLightDir,msNormal));
-	shadingInputs.ndv = max(0.0,dot(msViewDir,msNormal));
-	shadingInputs.ndh = max(0.0,dot(msHalfV,msNormal));
+	float ndv = dot(msViewDir,msNormal);
+	if(ndv < 0.0)
+		msViewDir = reflect(msViewDir, msNormal);
+	shadingInputs.ndv = dot(msViewDir,msNormal);
+	
+	// Compute illumination intermediate variables
+	vec3 msHalfV = normalize(msViewDir+msLightDir);
+	shadingInputs.ndh = dot(msHalfV,msNormal);
 	
 	// Compute actual lighting
 	

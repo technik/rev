@@ -50,17 +50,15 @@ layout(location = 7) uniform sampler2D uEmissive;
 layout(location = 8) uniform sampler2D uAO;
 layout(location = 9) uniform sampler2D uNormalMap;
 
-vec3 shadeSurface(ShadeInput inputs)
+//---------------------------------------------------------------------------------------
+vec3 directLightPBR(
+	ShadeInput inputs,
+	vec3 albedo,
+	float roughness,
+	float metallic
+	)
 {
-	vec3 F0 = vec3(0.04);
-	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
-	vec2 physics = texture(uPhysics, vTexCoord).xy;
-	float roughness = physics.r*physics.r;
-	float metallic = physics.g;
-	vec3 oclussion = texture(uAO, vTexCoord).xyz;
-	
-	F0      = mix(F0, albedo, metallic);
+	vec3 F0 = mix(vec3(0.04), albedo, metallic);
 	vec3 F  = fresnelSchlick(inputs.ndv, F0);
 	
 	float NDF = GGX(inputs.ndh, roughness);
@@ -75,10 +73,41 @@ vec3 shadeSurface(ShadeInput inputs)
 	  
 	kD *= 1.0 - metallic;
 	
+	return (kD * albedo / PI + specular) * lightColor * inputs.ndl;
+}
+
+//---------------------------------------------------------------------------------------
+vec3 indirectLightPBR(
+	vec3 albedo,
+	float oclussion
+	)
+{
+	return 0.1 * albedo * oclussion;
+}
+
+//---------------------------------------------------------------------------------------
+vec3 shadeSurface(ShadeInput inputs)
+{
+	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
+	albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
+	vec2 physics = texture(uPhysics, vTexCoord).xy;
+	float roughness = physics.r*physics.r;
+	float metallic = physics.g;
+	float oclussion = texture(uAO, vTexCoord).x;
+	
+	
+	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
-	return (kD * albedo / PI + specular) * lightColor * inputs.ndl
-		+ 0.1 * albedo * oclussion // Indirect
+	vec3 directLight = directLightPBR(
+		inputs,
+		albedo,
+		roughness,
+		metallic);
+	vec3 indirectLight = indirectLightPBR(albedo, oclussion);
+	
+	return directLight
+		+ indirectLight
 		+ emissive;
 }
 
