@@ -174,12 +174,18 @@ namespace rev {
 			for(auto& matDesc : sceneDesc["materials"])
 			{
 				size_t albedoNdx = matDesc["pbrMetallicRoughness"]["baseColorTexture"]["index"];
+				size_t physicsNdx = matDesc["pbrMetallicRoughness"]["metallicRoughnessTexture"]["index"];
+				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
+				size_t aoNdx = matDesc["occlusionTexture"]["index"];
+				size_t normalNdx = matDesc["normalTexture"]["index"];
 				auto mat = std::make_shared<Material>();
 				mat->name = matDesc["name"].get<std::string>();
-				mat->shader = "simplePBR.fx";
+				mat->shader = "metal-rough.fx";
 				mat->addTexture(5, textures[albedoNdx]);
-				mat->addParam(6, 0.5f); // Roughness
-				mat->addParam(7, 0.05f); // Metallic
+				mat->addTexture(6, textures[physicsNdx]);
+				mat->addTexture(7, textures[emissiveNdx]);
+				mat->addTexture(8, textures[aoNdx]);
+				mat->addTexture(9, textures[normalNdx]);
 				materials.push_back(mat);
 			}
 

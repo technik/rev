@@ -18,32 +18,31 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <vector>
+#include "../component.h"
+#include "../sceneNode.h"
 #include <math/algebra/vector.h>
-#include <memory>
+#include "transform.h"
 
-namespace rev { namespace graphics {
+namespace rev { namespace game {
 
-	class Material;
-	class RenderGeom;
-	class RenderObj;
-
-	class RenderScene
+	class Orbit : public Component
 	{
 	public:
-		RenderScene()
+		Orbit(const math::Vec2f& speeds) : mSpeed(speeds) {}
+
+		void init		() override
 		{
-			mLightClr = math::Vec3f::ones();
+			mSrcTransform = node()->component<Transform>();
+		}
+		void update		(float _dt) override;
+
+		void serialize(std::ostream &) const override {
+			// TODO
 		}
 
-		// Accessors
-		const math::Vec3f& lightClr() const { return mLightClr; }
-		std::vector<std::weak_ptr<RenderObj>>& renderables()				{ return mRenderables; }
-		const std::vector<std::weak_ptr<RenderObj>>& renderables() const	{ return mRenderables; }
-
 	private:
-		math::Vec3f									mLightClr;
-		std::vector<std::weak_ptr<RenderObj>>		mRenderables;
+		math::Vec2f mSpeed;
+		Transform*	mSrcTransform;
 	};
 
-}}	// namespace rev::graphics
+}}	// namespace rev::game

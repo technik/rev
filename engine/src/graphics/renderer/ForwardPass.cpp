@@ -29,6 +29,11 @@
 #include <graphics/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
 
+#ifdef _WIN32
+#include <input/keyboard/keyboardInput.h>
+using namespace rev::input;
+#endif // _WIN32
+
 using namespace rev::math;
 
 namespace rev { namespace graphics {
@@ -96,18 +101,27 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst)
 	{
+#ifdef _WIN32
+		// Shader reload
+		KeyboardInput* input = KeyboardInput::get();
+		if (input->pressed('R'))
+		{
+			mPipelines.clear();
+			loadCommonShaderCode();
+		}
+#endif
 		_dst.bind();
 		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		auto vp = _eye.viewProj(4.f/3.f);
+		auto vp = _eye.viewProj(16.f/9.f);
 
 		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
 
 		// Setup pixel global uniforms
 		auto& lightClr = _scene.lightClr();
 		glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
-		glUniform1f(4, mEV); // EV
+		glUniform1f(4, std::pow(2.f,mEV)); // EV
 
 		auto worldMatrix = Mat44f::identity();
 		// Performance counters
