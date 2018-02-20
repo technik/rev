@@ -31,6 +31,22 @@ namespace rev { namespace graphics {
 				initOpenGL();
 		}
 
+		static RenderGeom quad(const math::Vec2f& size)
+		{
+			auto half_x = 0.5f*size.x();
+			auto half_y = 0.5f*size.y();
+			std::vector<Vertex> vertexData(4);
+			std::vector<uint16_t> indices = { 0, 1, 2, 2, 1, 3};
+			vertexData[0] = {
+				{-half_x, -half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 0.f, 0.f },
+				{ half_x, -half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 1.f, 0.f },
+				{-half_x,  half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 0.f, 1.f },
+				{ half_x,  half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 1.f, 1.f }
+			};
+
+			return RenderGeom(vertexData, indices);
+		}
+
 		void render() const
 		{
 			glBindVertexArray(vao);
