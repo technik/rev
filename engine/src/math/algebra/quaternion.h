@@ -88,8 +88,9 @@ namespace rev { namespace math {
 	template<class N_>
 	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _axis, const N_ _radians)
 	{
-		w = cos(_radians * 0.5f);
-		N_ sinus = (N_)sin(_radians * 0.5f);
+		auto half_angle = 0.5f*_radians;
+		w = cos(half_angle);
+		N_ sinus = sin(half_angle);
 		x = _axis.x() * sinus;
 		y = _axis.y() * sinus;
 		z = _axis.z() * sinus;

@@ -32,7 +32,7 @@ namespace rev { namespace game {
 				auto pXForm = parent->component<Transform>();
 				if(pXForm)
 				{
-					mAbsoluteXForm = pXForm->xForm * xForm;
+					mAbsoluteXForm = pXForm->absoluteXForm() * xForm;
 					return;
 				} else
 					parent = parent->parent();

@@ -36,6 +36,9 @@ namespace rev { namespace game {
 		void update(float _dt);
 
 		SceneNode() = default;
+		SceneNode(const std::string& _name)
+			: name(_name)
+		{}
 		SceneNode(const SceneNode&) = delete;
 		SceneNode& operator=(const SceneNode&) = delete;
 

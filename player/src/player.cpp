@@ -12,6 +12,7 @@
 #include <game/scene/camera.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/flyby.h>
+#include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
@@ -297,9 +298,12 @@ namespace rev {
 			
 			if(gltfScene)
 			{
-				mGameScene.root()->addChild(gltfScene);
-				mGameScene.root()->init();
-				auto xForm = gltfScene->component<game::Transform>();
+				auto orbitNode = std::make_shared<SceneNode>("orbit");
+				orbitNode->addComponent<Transform>();
+				orbitNode->addComponent<Orbit>(Vec2f{1e-2f,1e-2f});
+				orbitNode->addChild(gltfScene);
+				mGameScene.root()->addChild(orbitNode);
+				auto xForm = gltfScene->component<Transform>();
 				auto rotation = math::Mat33f({
 					-1.f, 0.f, 0.f,
 					0.f, 0.f, 1.f,
@@ -307,11 +311,12 @@ namespace rev {
 					});
 				if(!xForm)
 				{
-					xForm = gltfScene->addComponent<game::Transform>();
+					xForm = gltfScene->addComponent<Transform>();
 				}
 				xForm->xForm.rotate(rotation);
 			}
 			createCamera();
+			mGameScene.root()->init();
 
 			mGameEditor.init(mGraphicsScene);
 			mRenderer.init(*mGfxDriver, *mGfxDriver->frameBuffer());

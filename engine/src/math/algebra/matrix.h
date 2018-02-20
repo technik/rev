@@ -256,8 +256,8 @@ namespace rev {
 			}
 			
 			template<typename Other_>
-			Derived_ cross(const Other_& v) const { 
-				Derived_ result;
+			Derived cross(const Other_& v) const { 
+				Derived result;
 				result.x() = y()*v.z() - z()*v.y();
 				result.y() = z()*v.x() - x()*v.z();
 				result.z() = x()*v.y() - y()*v.x();

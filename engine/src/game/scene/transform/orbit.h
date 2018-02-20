@@ -46,17 +46,23 @@ namespace rev { namespace game {
 					if(wasDown)
 					{
 						auto displacement = pointingInput->touchPosition() - mClickStartPos;
-						angles.x() += displacement.x()*mSpeed.x();
+						angles.x() = ang0.x() + displacement.x()*mSpeed.x();
+						angles.y() = ang0.y() + displacement.y()*mSpeed.y();
 					}
 					else
+					{
 						mClickStartPos = pointingInput->touchPosition();
+						ang0 = angles;
+					}
 					wasDown = true;
 
 					// Recompute transform
-					mSrcTransform->xForm.setRotation(math::Quatf({0.f,0.f,1.f}, angles.x()));
+					auto pan = math::Quatf({0.f,0.f,1.f}, angles.x());
+					auto tilt = math::Quatf({1.f,0.f,0.f}, angles.y());
+					mSrcTransform->xForm.setRotation(pan * tilt);
 				}
 			}
-			wasDown = false;
+			else wasDown = false;
 		}
 
 		void serialize(std::ostream &) const override {
@@ -64,6 +70,7 @@ namespace rev { namespace game {
 		}
 
 	private:
+		math::Vec2f ang0 = math::Vec2f::zero();
 		math::Vec2f angles = math::Vec2f::zero();
 		bool wasDown = false;
 		math::Vec2i mClickStartPos;
