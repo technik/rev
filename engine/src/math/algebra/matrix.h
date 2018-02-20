@@ -254,6 +254,15 @@ namespace rev {
 					result += this->coefficient(i)*_other.coefficient(i);
 				return result;
 			}
+			
+			template<typename Other_>
+			Derived_ cross(const Other_& v) const { 
+				Derived_ result;
+				result.x() = y()*v.z() - z()*v.y();
+				result.y() = z()*v.x() - x()*v.z();
+				result.z() = x()*v.y() - y()*v.x();
+				return result;
+			}
 
 			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = std::abs(x); }); }
 			Derived operator-	() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = -x; }); }
