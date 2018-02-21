@@ -30,12 +30,13 @@ namespace rev { namespace graphics {
 	public:
 		std::string name;
 
-		Texture(const ImageRGB8& image)
+		Texture(const Image& image)
 		{
 			glGenTextures(1, &mGLName);
 			glBindTexture(GL_TEXTURE_2D, mGLName);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.size().x(), image.size().y(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.data());
+			auto format = texFormat(image);
+			glTexImage2D(GL_TEXTURE_2D, 0, format, image.size().x(), image.size().y(), 0, format, GL_UNSIGNED_BYTE, image.data());
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -52,9 +53,9 @@ namespace rev { namespace graphics {
 			glDeleteTextures(1, &mGLName);
 		}
 
-		static std::shared_ptr<Texture> load(const std::string _name)
+		static std::shared_ptr<Texture> load(const std::string _name, unsigned nChannels)
 		{
-			auto img = ImageRGB8::load(_name);
+			auto img = Image::load(_name, nChannels);
 			if(!img)
 				return nullptr;
 			auto tex = std::make_shared<Texture>(*img);
@@ -66,6 +67,21 @@ namespace rev { namespace graphics {
 		auto glName() const { return mGLName; }
 
 	private:
+		static GLenum texFormat(const Image& image)
+		{
+			switch(image.nChannels())
+			{
+				case 1:
+					return GL_R;
+				case 2:
+					return GL_RG;
+				case 3:
+					return GL_RGB;
+				case 4:
+					return GL_RGBA;
+			}
+		}
+
 		GLuint mGLName = 0;
 	};
 
