@@ -30,10 +30,17 @@ namespace rev { namespace graphics {
 	class Image
 	{
 	public:
-		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels)
+		enum class ChannelFormat
+		{
+			Byte,
+			Float32
+		};
+
+		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels, ChannelFormat format)
 			: mNumChannels(nChannels)
 			, mSize(size)
 			, mData(data)
+			, mDataFormat(format)
 		{}
 
 		// XOR textures are always 8-bits per channel
@@ -48,7 +55,7 @@ namespace rev { namespace graphics {
 						auto dataOffset = k + pixelNdx*nChannels;
 						imgBuffer.get()[dataOffset] = uint8_t(i^j);
 					}
-			return Image({size,size}, imgBuffer, nChannels);
+			return Image({size,size}, imgBuffer, nChannels, ChannelFormat::Byte);
 		}
 
 		// Note: nChannels = 0 sets automatic number of channels
@@ -57,8 +64,13 @@ namespace rev { namespace graphics {
 			core::File file(_name);
 			if(file.sizeInBytes() > 0)
 			{
+				bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
 				int width, height, realNumChannels;
-				auto imgData = stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				uint8_t* imgData;
+				if(isHDR)
+					imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				else
+					imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
 				if(imgData)
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
@@ -80,6 +92,7 @@ namespace rev { namespace graphics {
 		unsigned					mNumChannels;
 		math::Vec2u					mSize;
 		std::shared_ptr<uint8_t>	mData;
+		ChannelFormat				mDataFormat;
 	};
 
 }}
