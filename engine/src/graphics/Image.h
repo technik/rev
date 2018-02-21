@@ -36,11 +36,11 @@ namespace rev { namespace graphics {
 			Float32
 		};
 
-		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels, ChannelFormat format)
+		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels, ChannelFormat _format)
 			: mNumChannels(nChannels)
 			, mSize(size)
 			, mData(data)
-			, mDataFormat(format)
+			, mDataFormat(_format)
 		{}
 
 		// XOR textures are always 8-bits per channel
@@ -65,6 +65,7 @@ namespace rev { namespace graphics {
 			if(file.sizeInBytes() > 0)
 			{
 				bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
+				auto imgFormat = isHDR?ChannelFormat::Float32:ChannelFormat::Byte;
 				int width, height, realNumChannels;
 				uint8_t* imgData;
 				if(isHDR)
@@ -74,7 +75,7 @@ namespace rev { namespace graphics {
 				if(imgData)
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
-					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:realNumChannels);
+					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:(unsigned)realNumChannels, imgFormat);
 				}
 			}
 
@@ -83,6 +84,7 @@ namespace rev { namespace graphics {
 
 		// Accessors
 		unsigned				nChannels() const { return mNumChannels; };
+		ChannelFormat			format() const { return mDataFormat; }
 		const math::Vec2u&		size() const { return mSize; }
 		template<typename T>
 		const T*				data() const { return reinterpret_cast<T*>(mData.get()); }

@@ -36,7 +36,9 @@ namespace rev { namespace graphics {
 			glBindTexture(GL_TEXTURE_2D, mGLName);
 
 			auto format = texFormat(image);
-			glTexImage2D(GL_TEXTURE_2D, 0, format, image.size().x(), image.size().y(), 0, format, GL_UNSIGNED_BYTE, image.data());
+			auto internalFormat = internalTexFormat(image);
+			auto dataType = (image.format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size().x(), image.size().y(), 0, format, dataType, image.data());
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -67,8 +69,26 @@ namespace rev { namespace graphics {
 		auto glName() const { return mGLName; }
 
 	private:
+		static GLenum internalTexFormat(const Image& image)
+		{
+			bool hdr = image.format() == Image::ChannelFormat::Float32;
+			switch(image.nChannels())
+			{
+				case 1:
+					return hdr?GL_R32F:GL_R;
+				case 2:
+					return hdr?GL_RG32F:GL_RG;
+				case 3:
+					return hdr?GL_RGB32F:GL_RGB;
+				case 4:
+					return hdr?GL_RGBA32F:GL_RGBA;
+			}
+			return hdr?GL_R32F:GL_R;
+		}
+
 		static GLenum texFormat(const Image& image)
 		{
+			bool hdr = image.format() == Image::ChannelFormat::Float32;
 			switch(image.nChannels())
 			{
 				case 1:
