@@ -31,7 +31,7 @@ namespace rev { namespace game {
 	public:
 		void init()
 		{
-			mErrorTexture = std::make_shared<graphics::Texture>(graphics::ImageRGB8::proceduralXOR(512));
+			mErrorTexture = std::make_shared<graphics::Texture>(graphics::Image::proceduralXOR(512,4));
 		}
 
 		std::shared_ptr<graphics::Texture>	get(const std::string& _name)

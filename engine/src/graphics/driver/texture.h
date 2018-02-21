@@ -53,7 +53,7 @@ namespace rev { namespace graphics {
 			glDeleteTextures(1, &mGLName);
 		}
 
-		static std::shared_ptr<Texture> load(const std::string _name, unsigned nChannels)
+		static std::shared_ptr<Texture> load(const std::string _name, unsigned nChannels = 0)
 		{
 			auto img = Image::load(_name, nChannels);
 			if(!img)
@@ -80,6 +80,7 @@ namespace rev { namespace graphics {
 				case 4:
 					return GL_RGBA;
 			}
+			return GL_R;
 		}
 
 		GLuint mGLName = 0;

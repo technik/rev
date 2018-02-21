@@ -62,7 +62,7 @@ namespace rev { namespace graphics {
 				if(imgData)
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
-					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels);
+					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:realNumChannels);
 				}
 			}
 
