@@ -27,42 +27,42 @@
 
 namespace rev { namespace graphics {
 
-	template<typename T, uint8_t nChannels>
 	class Image
 	{
-		static_assert(nChannels <= 4, "Images with more than 4 channels are not supported");
-
 	public:
-		Image(const math::Vec2u& size, std::shared_ptr<T> data)
-			: mSize(size)
+		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels)
+			: mNumChannels(nChannels)
+			, mSize(size)
 			, mData(data)
 		{}
 
-		static Image proceduralXOR(unsigned size)
+		// XOR textures are always 8-bits per channel
+		static Image proceduralXOR(unsigned size, unsigned nChannels)
 		{
-			auto imgBuffer = std::shared_ptr<T>( new T[size*size*depth], []( T *p ){ delete [] p; } );
+			auto imgBuffer = std::shared_ptr<uint8_t>( new uint8_t[size*size*nChannels], []( uint8_t *p ){ delete [] p; } );
 			for(unsigned i = 0; i < size; ++i)
 				for(unsigned j = 0; j < size; ++j)
-					for(uint8_t k = 0; k < depth; ++k)
+					for(uint8_t k = 0; k < nChannels; ++k)
 					{
 						auto pixelNdx = i+j*size;
-						auto dataOffset = k + pixelNdx*depth;
-						imgBuffer.get()[dataOffset] = T(i^j);
+						auto dataOffset = k + pixelNdx*nChannels;
+						imgBuffer.get()[dataOffset] = uint8_t(i^j);
 					}
-			return Image({size,size}, imgBuffer);
+			return Image({size,size}, imgBuffer, nChannels);
 		}
 
-		static std::shared_ptr<Image> load(const std::string& _name)
+		// Note: nChannels = 0 sets automatic number of channels
+		static std::shared_ptr<Image> load(const std::string& _name, unsigned nChannels)
 		{
 			core::File file(_name);
 			if(file.sizeInBytes() > 0)
 			{
-				int width, height, bpp;
-				auto imgData = stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &bpp, nChannels);
+				int width, height, realNumChannels;
+				auto imgData = stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
 				if(imgData)
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
-					return std::make_shared<Image>(size, std::shared_ptr<T>(imgData));
+					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels);
 				}
 			}
 
@@ -70,17 +70,16 @@ namespace rev { namespace graphics {
 		}
 
 		// Accessors
-		static constexpr uint8_t depth = nChannels;
-		const math::Vec2u&	size() const { return mSize; }
-		const T*			data() const { return mData.get(); }
+		unsigned				nChannels() const { return mNumChannels; };
+		const math::Vec2u&		size() const { return mSize; }
+		template<typename T>
+		const T*				data() const { return reinterpret_cast<T*>(mData.get()); }
+		const uint8_t*			data() const { return mData.get(); }
 
 	private:
-		math::Vec2u			mSize;
-		std::shared_ptr<T>	mData;
+		unsigned					mNumChannels;
+		math::Vec2u					mSize;
+		std::shared_ptr<uint8_t>	mData;
 	};
-
-	using ImageRGB8 = Image<uint8_t, 3>;
-	using ImageRGBA8 = Image<uint8_t, 4>;
-	using ImageRGB32F = Image<float, 3>;
 
 }}
