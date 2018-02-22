@@ -52,7 +52,7 @@ namespace rev { namespace graphics {
 		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4), false)); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
-		mEV = 1.5f;
+		mEV = 1.0f;
 
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
@@ -144,7 +144,7 @@ namespace rev { namespace graphics {
 		auto wsEye = _eye.position();
 		float exposure = std::pow(2.f,mEV);
 		auto& lightClr = _scene.lightClr();
-		Vec3f lightDir = { 0.f, 0.f, 1.0f };
+		Vec3f lightDir = -_scene.mLightDir;
 
 		if(_scene.sky)
 		{
@@ -183,7 +183,7 @@ namespace rev { namespace graphics {
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
 					if(_shadows) // TODO: This should be world 2 shadow matrix
-						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, worldMatrix.data());
+						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, _shadows->shadowProj().data());
 					// Lighting
 					glUniform1f(3, exposure); // EV
 					glUniform3f(4, wsEye.x(), wsEye.y(), wsEye.z());

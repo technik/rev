@@ -44,6 +44,7 @@ in vec2 vTexCoord;
 in vec3 vtxWsPos;
 
 // Global state
+layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 3) uniform float uEV;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
@@ -112,8 +113,9 @@ void main (void) {
 	// Tone mapping
 	//pbrColor = pbrColor / (1.0 + pbrColor);
 	
-	//outColor = pbrColor;
-	outColor = pow(pbrColor*uEV, vec3(2.2));
+	outColor = pbrColor;
+	//outColor = pow(pbrColor, vec3(2.2));
+	//outColor = pow(pbrColor*uEV, vec3(2.2));
 	//outColor = 0.5+0.5*msNormal;//pow(pbrColor, vec3(2.2));
 }
 

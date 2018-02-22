@@ -20,6 +20,7 @@
 #include "ForwardRenderer.h"
 #include "ForwardPass.h"
 #include "graphics/driver/renderTarget.h"
+#include "graphics/scene/renderScene.h"
 
 namespace rev { namespace graphics {
 
@@ -35,7 +36,7 @@ namespace rev { namespace graphics {
 	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
 		if(!mRenderTarget)
 			return;
-		mShadowPass->render(scene, math::Vec3f(1.f,0.f,0.f));
+		mShadowPass->render(scene, scene.mLightDir);
 		mForwardPass->render(eye,scene,*mRenderTarget,mShadowPass.get());
 	}
 

@@ -272,9 +272,14 @@ vec3 indirectLightPBR(
 	vec3 diffColor,
 	vec3 specColor,
 	float roughness,
-	float occlusion
+	float occlusion,
+	float shadow
 	)
 {
+	float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
+	shadowImportance = sqrt(shadowImportance);
+	//shadowImportance = shadowImportance*shadowImportance;
+	float shadowMask = mix(1.0, shadow, shadowImportance);
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
 	vectors.normal = inputs.normal;
@@ -283,9 +288,12 @@ vec3 indirectLightPBR(
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
-	return specular +  diffuse;
+	return shadowMask* (specular +  diffuse);
 	//return diffuse;
 	//return specular;
+	//return shadowMask * diffuse;
+	//return vec3(shadow);
+	//return vec3(shadowMask);
 }
 
 //---------------------------------------------------------------------------------------
@@ -296,6 +304,18 @@ vec3 shadeSurface(ShadeInput inputs)
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
 	float occlusion = physics.r;
+
+	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
+	vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
+	//vec4 shadowSpacePos = vec4(vtxWsPos, 1.0);
+	float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
+	float curDepth = shadowSpacePos.z;
+	float shadow = 1.0;
+	if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
+	 shadowSpacePos.y >= 0.0 && shadowSpacePos.y <= 1.0 &&
+	 shadowSpacePos.z >= 0.0 && shadowSpacePos.z <= 1.0 &&
+	 shadowSpacePos.z > sampledDepth)
+		shadow = 0.0;
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
@@ -313,11 +333,13 @@ vec3 shadeSurface(ShadeInput inputs)
 		diffColor,
 		specColor,
 		roughness,
-		occlusion);
-
-	//float shadow = texture(uShadowMap, vtxWsPos.xz).x;
-	//return vec3(shadow);
+		occlusion,
+		shadow);
 	//return directLight + emissive;
+	//return shadowSpacePos.xyz;
+	//return vec3(shadowSpacePos.xy, sampledDepth);
+	//return indirectLight;
+	//return vec3(shadow);//indirectLight;
 	return indirectLight + emissive;
 	//return directLight + indirectLight + emissive;
 }

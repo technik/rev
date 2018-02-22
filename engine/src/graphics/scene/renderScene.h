@@ -45,6 +45,7 @@ namespace rev { namespace graphics {
 		std::shared_ptr<Texture>	sky;
 		std::shared_ptr<Texture>	irradiance;
 
+		math::Vec3f									mLightDir;
 	private:
 		math::Vec3f									mLightClr;
 		std::vector<std::weak_ptr<RenderObj>>		mRenderables;

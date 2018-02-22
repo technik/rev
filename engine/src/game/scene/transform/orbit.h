@@ -41,7 +41,10 @@ namespace rev { namespace game {
 			auto pointingInput = input::PointingInput::get();
 			if(pointingInput)
 			{
-				bool down = mTouchNdx?pointingInput->middleDown():pointingInput->leftDown();
+				bool down = false;
+				down = mTouchNdx?pointingInput->middleDown():pointingInput->leftDown();
+				if(ImGui::GetIO().WantCaptureMouse)
+					down = false;
 				if(down)
 				{
 					if(wasDown)

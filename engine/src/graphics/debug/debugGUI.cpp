@@ -71,15 +71,38 @@ namespace rev { namespace graphics { namespace gui {
 		ImGui_ImplGlfwGL3_NewFrame();
 	}
 
+	void drawFPS(float _dt)
+	{
+		static float average[10] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+		static int ndx = 0;
+		average[ndx++] = _dt;
+		ndx %= 10;
+		float dt = 0;
+		for(int i = 0; i < 10; ++i)
+			dt += average[i]*0.1f;
+		const float DISTANCE = 10.f;
+		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE);
+		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Transparent background
+		bool isOpen = true;
+		if (ImGui::Begin("FPS Counter", &isOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
+		{
+			ImGui::Text("Performance");
+			ImGui::Separator();
+			ImGui::Text("ms: %f2.2 fps: %d", dt*1000, int(1.f/dt));
+			ImGui::End();
+		}
+		ImGui::PopStyleColor();
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void finishFrame(float _dt) {
 		// Setup time step
 		auto& io = ImGui::GetIO();
 		io.DeltaTime = _dt;
 
-		ImGui::Begin("FPS");
-		ImGui::Text("ms: %f2.2 fps: %d", _dt*1000, int(1.f/_dt));
-		ImGui::End();
+		drawFPS(_dt);
 
 		// Render
 		ImGui::Render();

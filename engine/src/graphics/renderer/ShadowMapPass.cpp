@@ -20,6 +20,7 @@
 #include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
+#include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/camera.h>
@@ -37,6 +38,8 @@ namespace rev { namespace graphics {
 		: mDriver(_gfxDriver)
 	{
 		mDepthBuffer = std::make_unique<FrameBuffer>(_size);
+		core::File shaderCode("shadowMap.fx");
+		mShader = Shader::createShader(shaderCode.bufferAsText());
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -44,13 +47,36 @@ namespace rev { namespace graphics {
 	{
 		mDepthBuffer->bind();
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 		glClearDepth(1.0);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		auto vp = math::orthographicMatrix(math::Vec2f(2.f,2.f), 0.f, 4.f);
+		if(!mShader)
+			return;
+		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+
+		Mat44f shadowViewMtx = Mat44f::identity();
+		shadowViewMtx.block<3,1>(0,1) = lightDir;
+		Vec3f upAxis = Vec3f {0.f, 0.f, 1.f};
+		if(std::abs(upAxis.dot(lightDir)) > 0.71f)
+			upAxis = Vec3f {0.f, 1.f, 0.f};
+		shadowViewMtx.block<3,1>(0,2) = upAxis;
+		shadowViewMtx.block<3,1>(0,0) = lightDir.cross(upAxis).normalized();
+
+		if(ImGui::Begin("ShadowMap"))
+		{
+			ImGui::SliderFloat("Shadow bias", &mBias, -1.f, 1.f);
+			ImGui::End();
+		}
+
+		//mShadowProj = Mat44f::identity();
+		Mat44f biasMatrix = Mat44f::identity();
+		biasMatrix(1,3) = -mBias;
+		auto proj = math::orthographicMatrix(math::Vec2f(2.f,2.f), -2.0f, 2.0f);
+		mShadowProj = proj * biasMatrix * shadowViewMtx.transpose();
+		//mShadowProj = shadowViewMtx;
+		mShader->bind();
 
 		auto worldMatrix = Mat44f::identity();
 		// TODO: Performance counters
@@ -60,7 +86,7 @@ namespace rev { namespace graphics {
 			// Get world matrix
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms
-			auto wvp = vp*worldMatrix;
+			auto wvp = mShadowProj*worldMatrix;
 
 			// render
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
@@ -70,6 +96,9 @@ namespace rev { namespace graphics {
 				renderObj->meshes[i]->render();
 			}
 		}
+
+		// Remove bias for later use
+		mShadowProj = proj * shadowViewMtx.transpose();
 	}
 
 }}

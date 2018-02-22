@@ -38,11 +38,13 @@ namespace rev{ namespace graphics {
 		void render(const RenderScene& _scene, const math::Vec3f& lightDir);
 
 		GLuint texName() const { return mDepthBuffer->textureGLName(); }
-
+		const math::Mat44f& shadowProj() const { return mShadowProj; }
 	private:
 		GraphicsDriverGL&	mDriver;
 		std::unique_ptr<FrameBuffer>	mDepthBuffer;
 		std::unique_ptr<Shader>			mShader;
+		math::Mat44f					mShadowProj;
+		float mBias = 0.02f;
 	};
 
 }}
