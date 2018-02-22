@@ -31,13 +31,13 @@ namespace rev { namespace game {
 	public:
 		//------------------------------------------------------------------------------------------
 		void init() override {
-			mTransform = &node()->component<Transform>()->xForm;
+			mTransform = node()->component<Transform>();
 		}
 
 		//------------------------------------------------------------------------------------------
 		void update(float _dt) override {
 			assert(mTransform);
-			mCam.setWorldTransform(*mTransform);
+			mCam.setWorldTransform(mTransform->absoluteXForm());
 		}
 
 		void serialize(std::ostream& out) const override
@@ -48,7 +48,7 @@ namespace rev { namespace game {
 		const graphics::Camera& cam() const { return mCam; }
 
 	private:
-		math::AffineTransform*	mTransform = nullptr;
+		Transform*	mTransform = nullptr;
 		graphics::Camera		mCam;
 	};
 

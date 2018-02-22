@@ -62,4 +62,12 @@ namespace rev { namespace game {
 		mChildren.push_back(child);
 	}
 
+	//--------------------------------------------------------------------------------------------------------------
+	std::shared_ptr<SceneNode> SceneNode::createChild(const std::string& name)
+	{
+		auto newChild = std::make_shared<SceneNode>(name);
+		addChild(newChild);
+		return newChild;
+	}
+
 }}	// namespace rev::game

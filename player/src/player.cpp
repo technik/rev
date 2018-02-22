@@ -339,27 +339,15 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Orbit
-		auto orbitNode = std::make_shared<SceneNode>();
+		auto orbitNode = mGameScene.root()->createChild("camOrbit");
 		orbitNode->addComponent<Orbit>(Vec2f{-1e-2f,-1e-2f}, 1);
 		orbitNode->addComponent<Transform>();
-		mGameScene.root()->addChild(orbitNode);
+
 		// Cam node
-		auto cameraNode = std::make_shared<SceneNode>();
-		orbitNode->addChild(cameraNode);
-		cameraNode->name = "Camera";
-		// Flyby
+		auto cameraNode = orbitNode->createChild("Camera");
 		cameraNode->addComponent<FlyBy>(1.f);
-		// Transform
-		auto objXForm = cameraNode->addComponent<Transform>();
-		objXForm->xForm.position() = math::Vec3f { 5.f, 0.f, 0.f };
-		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
-#ifdef _WIN32
-#endif
-		// Actual camera
-		auto camComponent = cameraNode->addComponent<game::Camera>();
-		mCamera = &camComponent->cam();
-		// Init camera
-		orbitNode->init();
+		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
+		mCamera = &cameraNode->addComponent<game::Camera>()->cam();
 	}
 
 	struct MeshHeader

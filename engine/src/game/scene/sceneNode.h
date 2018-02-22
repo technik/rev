@@ -45,6 +45,7 @@ namespace rev { namespace game {
 		// Handle components
 		auto	parent			() const { return mParent; }
 		void	addChild		(std::shared_ptr<SceneNode> child);
+		std::shared_ptr<SceneNode>	createChild(const std::string& name);
 		auto&	children		() const { return mChildren; }
 		void	addComponent	(std::unique_ptr<Component> _c);
 		auto&	components		() const { return mComponents; }
