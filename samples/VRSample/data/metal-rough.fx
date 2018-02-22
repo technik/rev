@@ -49,12 +49,12 @@ float fresnelSchlick(float ndv)
 }
 
 // Material
-layout(location = 5) uniform sampler2D uAlbedo;
-layout(location = 6) uniform sampler2D uPhysics;
-layout(location = 7) uniform sampler2D uEmissive;
-layout(location = 8) uniform sampler2D uAO;
-layout(location = 10) uniform sampler2D uEnvironment;
-layout(location = 11) uniform sampler2D uIrradiance;
+layout(location = 7) uniform sampler2D uEnvironment;
+layout(location = 8) uniform sampler2D uIrradiance;
+layout(location = 11) uniform sampler2D uAlbedo;
+layout(location = 12) uniform sampler2D uPhysics;
+layout(location = 13) uniform sampler2D uEmissive;
+//layout(location = 14) uniform sampler2D uAO;
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -71,12 +71,16 @@ vec3 specularPBR(
 	ShadeInput inputs,
 	vec3 specColor,
 	float roughness,
-	float metallic
+	float metallic,
+	float ndl
 	)
 {
+	vec3 halfV = normalize(inputs.eye + uLightDir);
+	float ndh = max(1e-8,dot(inputs.normal, halfV));
+
 	float F = fresnelSchlick(inputs.ndv);
-	float NDF = GGX_NDF(inputs.ndh, roughness);
-	float G   = GeometrySmithGGX(vec2(inputs.ndv, inputs.ndl), roughness);
+	float NDF = GGX_NDF(ndh, roughness);
+	float G   = GeometrySmithGGX(vec2(inputs.ndv, ndl), roughness);
 	float specBRDF = F*G*NDF / 4;
 	
 	return mix(specColor, vec3(1.0), specBRDF);
@@ -90,12 +94,13 @@ vec3 directLightPBR(
 	float roughness,
 	float metallic
 	)
-{	
+{
+	float ndl = max(0.0,dot(inputs.normal,uLightDir));
 	vec3 diffuse = diffusePBR(inputs, diffColor, metallic);
-	vec3 specular = specularPBR(inputs, specColor, roughness, metallic);
+	vec3 specular = specularPBR(inputs, specColor, roughness, metallic, ndl);
 	
-	//return (diffuse + specular) * inputs.ndl * lightColor;
-	return (diffuse + specular) * inputs.ndl;
+	//return (specular) * ndl * uLightColor;
+	return (diffuse + specular) * ndl * uLightColor;
 }
 
 //---------------------------------------------------------------------------------------
@@ -224,11 +229,11 @@ vec3 specularIBL(
 	LocalVectors vectors,
 	vec3 specColor,
 	float roughness,
-	float occlusion)
+	float occlusion,
+	float ndv)
 {
 	vec3 radiance = vec3(0.0);
 	float glossiness = 1.0 - roughness;
-	float ndv = dot(vectors.eye, vectors.normal);
 
 	for(int i=0; i<nbSamples; ++i)
 	{
@@ -257,8 +262,8 @@ vec3 specularIBL(
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
-	//return texture(uEnvironment, sampleSpherical(inputs.worldNormal)).xyz;
-	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.worldNormal), 0).xyz * occlusion;
+	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
+	//return textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
 }
 
 //---------------------------------------------------------------------------------------
@@ -271,26 +276,23 @@ vec3 indirectLightPBR(
 	)
 {
 	LocalVectors vectors;
-	vectors.eye = inputs.wsEye;
-	vectors.normal = inputs.worldNormal;
-	vectors.tangent = normalize(uWorldRot * vtxTangent);
-	vectors.bitangent = normalize(uWorldRot * vtxBitangent);
-	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion);
+	vectors.eye = inputs.eye;
+	vectors.normal = inputs.normal;
+	vectors.tangent = inputs.tangent;
+	vectors.bitangent = inputs.bitangent;
+	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
+	
 	return specular +  diffuse;
 	//return diffuse;
-
-	//int maxLod = textureQueryLevels(uEnvironment);
-	//return textureLod(uEnvironment, sampleSpherical(inputs.worldNormal), maxLod*roughness ).xyz;
+	//return specular;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 shadeSurface(ShadeInput inputs)
 {
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	//albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
-	//physics = pow(physics, 1.0/vec3(2.2,2.2,2.2));
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
 	float occlusion = physics.r;
@@ -312,11 +314,10 @@ vec3 shadeSurface(ShadeInput inputs)
 		specColor,
 		roughness,
 		occlusion);
-	
-	//return vec3(occlusion);
-	//indirectLight.r = 1.0;
-	//retrun albedo;
-	//return vec3(roughness);
+
+	//float shadow = texture(uShadowMap, vtxWsPos.xz).x;
+	//return vec3(shadow);
+	//return directLight + emissive;
 	return indirectLight + emissive;
 	//return directLight + indirectLight + emissive;
 }

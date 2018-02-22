@@ -6,7 +6,6 @@ layout(location = 3) in vec3 msNormal;
 layout(location = 4) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 invViewProj;
-layout(location = 1) uniform vec3 uMSViewPos; // Direction toward viewpoint
 
 out vec3 vtxViewDir;
 
@@ -23,11 +22,11 @@ out lowp vec3 outColor;
 in vec3 vtxViewDir;
 
 // Global state
-layout(location = 4) uniform float ev;
+layout(location = 3) uniform float ev;
+layout(location = 7) uniform sampler2D hdrSkyTexture;
 
 float PI = 3.14159265359;
 
-layout(location = 2) uniform sampler2D hdrSkyTexture;
 
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
@@ -41,8 +40,8 @@ vec2 sampleSpherical(vec3 v)
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	vec3 color = texture(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir))).xyz;
-	outColor = pow(color, vec3(2.2));
+	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0).xyz;
+	outColor = pow(ev*color, vec3(2.2));
 }
 
 #endif

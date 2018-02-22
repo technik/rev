@@ -18,9 +18,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ForwardPass.h"
+#include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
+#include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/camera.h>
@@ -108,7 +110,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst)
+	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -129,16 +131,39 @@ namespace rev { namespace graphics {
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		auto vp = _eye.viewProj(_dst.aspectRatio());
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
 
-		Vec3f lightDir = { 0.2f, -0.3f, 2.0f };
+		if(ImGui::Begin("Forward pass"))
+		{
+			ImGui::SliderFloat("EV", &mEV, -2.f, 3.f);
+			ImGui::End();
+		}
 
-		// Setup pixel global uniforms
+		// Compute global variables
+		auto vp = _eye.viewProj(_dst.aspectRatio());
+		auto wsEye = _eye.position();
+		float exposure = std::pow(2.f,mEV);
 		auto& lightClr = _scene.lightClr();
+		Vec3f lightDir = { 0.f, 0.f, 1.0f };
+
+		if(_scene.sky)
+		{
+			glActiveTexture(GL_TEXTURE0+7);
+			glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
+		}
+		if(_scene.irradiance)
+		{
+			glActiveTexture(GL_TEXTURE0+8);
+			glBindTexture(GL_TEXTURE_2D, _scene.irradiance->glName());
+		}
+		// Bind shadows
+		if(_shadows)
+		{
+			glActiveTexture(GL_TEXTURE0+9);
+			glBindTexture(GL_TEXTURE_2D, _shadows->texName());
+		}
 
 		auto worldMatrix = Mat44f::identity();
-
 		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
@@ -154,28 +179,23 @@ namespace rev { namespace graphics {
 				// Setup material
 				if(bindMaterial(renderObj->materials[i].get()))
 				{
-					Mat33f worldRot = worldMatrix.block<3,3>(0,0);
-					glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
-					glUniform1f(4, std::pow(2.f,mEV)); // EV
+					// Matrices
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-					auto& worltRotI = worldRot.transpose();
-					auto msViewDir = worltRotI * _eye.position();
-					glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
-					auto msLightDir = worltRotI * lightDir;
-					glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
-					glUniformMatrix3fv(12, 1, !Mat44f::is_col_major, worldRot.data());
+					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
+					if(_shadows) // TODO: This should be world 2 shadow matrix
+						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, worldMatrix.data());
+					// Lighting
+					glUniform1f(3, exposure); // EV
+					glUniform3f(4, wsEye.x(), wsEye.y(), wsEye.z());
+					glUniform3f(5, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
+					glUniform3f(6, lightDir.x(), lightDir.y(), lightDir.z());
 					if(_scene.sky)
-					{
-						glUniform1i(10, 10);
-						glActiveTexture(GL_TEXTURE0+10);
-						glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
-					}
+						glUniform1i(7, 7);
 					if(_scene.irradiance)
-					{
-						glUniform1i(11, 11);
-						glActiveTexture(GL_TEXTURE0+11);
-						glBindTexture(GL_TEXTURE_2D, _scene.irradiance->glName());
-					}
+						glUniform1i(8, 8);
+					// Bind shadows
+					if(_shadows)
+						glUniform1i(9, 9);
 					// Render mesh
 					renderObj->meshes[i]->render();
 				}
@@ -204,10 +224,10 @@ namespace rev { namespace graphics {
 			skyShader->bind();
 			// View projection matrix
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, vp.data());
+			// Lighting
+			glUniform1f(3, exposure); // EV
 			// Sky texture
-			glUniform1i(2, 0);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
+			glUniform1i(7, 7);
 			mSkyPlane->render();
 		}
 	}

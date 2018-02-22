@@ -182,11 +182,11 @@ namespace rev {
 				auto mat = std::make_shared<Material>();
 				mat->name = matDesc["name"].get<std::string>();
 				mat->shader = "metal-rough.fx";
-				mat->addTexture(5, Texture::load(textureNames[albedoNdx]));
-				mat->addTexture(6, Texture::load(textureNames[physicsNdx]));
-				mat->addTexture(7, Texture::load(textureNames[emissiveNdx]));
-				mat->addTexture(8, Texture::load(textureNames[aoNdx]));
-				mat->addTexture(9, Texture::load(textureNames[normalNdx], false));
+				mat->addTexture(10, Texture::load(textureNames[normalNdx], false));
+				mat->addTexture(11, Texture::load(textureNames[albedoNdx]));
+				mat->addTexture(12, Texture::load(textureNames[physicsNdx]));
+				mat->addTexture(13, Texture::load(textureNames[emissiveNdx]));
+				//mat->addTexture(14, Texture::load(textureNames[aoNdx]));
 				materials.push_back(mat);
 			}
 
@@ -247,7 +247,7 @@ namespace rev {
 							auto& v = vertices[i];
 							v.position = srcPosition[i];
 							v.normal = srcNormal[i];
-							v.tangent = srcTangent[i].block<3,1>(0,0);
+							v.tangent = -Vec3f(srcTangent[i].block<3,1>(0,0));
 							v.bitangent = v.normal.cross(v.tangent)*srcTangent[i].w();
 							v.uv = srcTexCoord[i];
 						}

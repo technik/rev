@@ -35,7 +35,8 @@ namespace rev { namespace graphics {
 	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
 		if(!mRenderTarget)
 			return;
-		mForwardPass->render(eye,scene,*mRenderTarget);
+		mShadowPass->render(scene, math::Vec3f(1.f,0.f,0.f));
+		mForwardPass->render(eye,scene,*mRenderTarget,mShadowPass.get());
 	}
 
 }}
