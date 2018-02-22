@@ -40,7 +40,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::render(const math::Vec3f& lightDir)
+	void ShadowMapPass::render(const RenderScene& _scene, const math::Vec3f& lightDir)
 	{
 		mDepthBuffer->bind();
 		glEnable(GL_DEPTH_TEST);
@@ -48,20 +48,11 @@ namespace rev { namespace graphics {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 		glClearDepth(1.0);
-
-		
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		auto vp = _eye.viewProj(_dst.aspectRatio());
-		glViewport(0, 0, _dst.size().x(), _dst.size().y());
-
-		Vec3f lightDir = { 0.2f, -0.3f, 2.0f };
-
-		// Setup pixel global uniforms
-		auto& lightClr = _scene.lightClr();
+		auto vp = math::orthographicMatrix(math::Vec2f(2.f,2.f), 0.f, 4.f);
 
 		auto worldMatrix = Mat44f::identity();
-
 		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{

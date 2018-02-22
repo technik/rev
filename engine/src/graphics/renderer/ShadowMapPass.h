@@ -35,7 +35,7 @@ namespace rev{ namespace graphics {
 	public:
 		ShadowMapPass(GraphicsDriverGL&, const math::Vec2u& _size);
 
-		void render(const math::Vec3f& lightDir);
+		void render(const RenderScene& _scene, const math::Vec3f& lightDir);
 
 		GLuint texName() const { return mDepthBuffer->textureGLName(); }
 

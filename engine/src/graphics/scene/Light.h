@@ -17,25 +17,9 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "ForwardRenderer.h"
-#include "ForwardPass.h"
-#include "graphics/driver/renderTarget.h"
+#pragma once
 
 namespace rev { namespace graphics {
 
-	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init(GraphicsDriverGL& driver, RenderTarget& _renderTarget)
-	{
-		mRenderTarget = &_renderTarget;
-		mForwardPass = std::make_unique<ForwardPass>(driver);
-		mShadowPass = std::make_unique<ShadowMapPass>(driver, math::Vec2u(1024, 1024));
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
-		if(!mRenderTarget)
-			return;
-		mForwardPass->render(eye,scene,*mRenderTarget);
-	}
-
+	//
 }}

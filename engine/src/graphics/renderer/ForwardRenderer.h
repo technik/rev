@@ -20,6 +20,7 @@
 #pragma once
 #include <memory>
 #include "ForwardPass.h"
+#include "ShadowMapPass.h"
 
 namespace rev { namespace graphics {
 
@@ -36,6 +37,7 @@ namespace rev { namespace graphics {
 
 	private:
 		std::unique_ptr<ForwardPass>	mForwardPass;
+		std::unique_ptr<ShadowMapPass>	mShadowPass;
 		RenderTarget*					mRenderTarget = nullptr;
 	};
 

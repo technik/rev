@@ -527,7 +527,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> orthographicMatrix(
-			const Vector2<Number_>& _size,
+			const Matrix<Number_,2,1>& _size,
 			Number_ _near, Number_ _far)
 		{
 			return Matrix44<Number_>({
@@ -537,6 +537,7 @@ namespace rev {
 				0, 0, 0, 1
 				});
 		}
+
 	}	// namespace math
 }	// namespace rev
 

@@ -51,8 +51,8 @@ namespace rev { namespace graphics {
 
 		void bind() const override
 		{
-			glViewport(0, 0, mSize.x(), mSize.y());
 			glBindFramebuffer(GL_FRAMEBUFFER, mFbName);
+			glViewport(0, 0, mSize.x(), mSize.y());
 		}
 
 		GLuint textureGLName() const { return mDepthMapName; }
