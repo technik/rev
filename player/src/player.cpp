@@ -338,27 +338,28 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
-		// Node
+		// Orbit
+		auto orbitNode = std::make_shared<SceneNode>();
+		orbitNode->addComponent<Orbit>(Vec2f{-1e-2f,-1e-2f}, 1);
+		orbitNode->addComponent<Transform>();
+		mGameScene.root()->addChild(orbitNode);
+		// Cam node
 		auto cameraNode = std::make_shared<SceneNode>();
-		mGameScene.root()->addChild(cameraNode);
+		orbitNode->addChild(cameraNode);
 		cameraNode->name = "Camera";
+		// Flyby
+		cameraNode->addComponent<FlyBy>(1.f);
 		// Transform
-		auto objXForm = std::make_unique<Transform>();
-		objXForm->matrix().setIdentity();
-		//objXForm->xForm.position() = math::Vec3f { 400.f, 120.f, 170.f };
+		auto objXForm = cameraNode->addComponent<Transform>();
 		objXForm->xForm.position() = math::Vec3f { 5.f, 0.f, 0.f };
 		objXForm->xForm.setRotation(math::Quatf(Vec3f(0.f,0.f,1.f), 1.57f));
-		cameraNode->addComponent(std::move(objXForm));
 #ifdef _WIN32
 #endif
 		// Actual camera
-		auto camComponent = std::make_unique<game::Camera>();
+		auto camComponent = cameraNode->addComponent<game::Camera>();
 		mCamera = &camComponent->cam();
-		cameraNode->addComponent(std::move(camComponent));
-		// Flyby
-		cameraNode->addComponent<FlyBy>(1.f);
 		// Init camera
-		cameraNode->init();
+		orbitNode->init();
 	}
 
 	struct MeshHeader

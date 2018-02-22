@@ -32,24 +32,24 @@ namespace rev { namespace input {
 			mLeftDown = false;
 			return true;
 		}
-		if(message.message == WM_MBUTTONDOWN)
-		{
-			mRightDown = true;
-			return true;
-		}
 		if(message.message == WM_RBUTTONDOWN)
 		{
-			mRightDown = false;
-			return true;
-		}
-		if(message.message == WM_RBUTTONUP)
-		{
 			mRightDown = true;
 			return true;
 		}
 		if(message.message == WM_RBUTTONUP)
 		{
 			mRightDown = false;
+			return true;
+		}
+		if(message.message == WM_MBUTTONDOWN)
+		{
+			mMiddleDown = true;
+			return true;
+		}
+		if(message.message == WM_MBUTTONUP)
+		{
+			mMiddleDown = false;
 			return true;
 		}
 		if(message.message == WM_MOUSEMOVE || message.message == WM_MOUSEHOVER)

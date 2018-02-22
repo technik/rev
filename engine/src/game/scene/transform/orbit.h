@@ -29,7 +29,7 @@ namespace rev { namespace game {
 	class Orbit : public Component
 	{
 	public:
-		Orbit(const math::Vec2f& speeds) : mSpeed(speeds) {}
+		Orbit(const math::Vec2f& speeds, int buttonId = 0) : mTouchNdx(buttonId), mSpeed(speeds) {}
 
 		void init		() override
 		{
@@ -41,7 +41,8 @@ namespace rev { namespace game {
 			auto pointingInput = input::PointingInput::get();
 			if(pointingInput)
 			{
-				if(pointingInput->leftDown())
+				bool down = mTouchNdx?pointingInput->middleDown():pointingInput->leftDown();
+				if(down)
 				{
 					if(wasDown)
 					{
@@ -70,6 +71,7 @@ namespace rev { namespace game {
 		}
 
 	private:
+		int mTouchNdx = 0;
 		math::Vec2f ang0 = math::Vec2f::zero();
 		math::Vec2f angles = math::Vec2f::zero();
 		bool wasDown = false;

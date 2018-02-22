@@ -1,9 +1,0 @@
-{
-	"float" : [ 
-		[6, 0.8 ],
-		[7, 0.05]
-		],
-	"tex" : [
-		[5, "textures/sponza_curtain_blue_diff.tga"]
-	]
-}
