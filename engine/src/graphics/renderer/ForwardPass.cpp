@@ -161,9 +161,23 @@ namespace rev { namespace graphics {
 				// Setup material
 				if(bindMaterial(renderObj->materials[i].get()))
 				{
+					Mat33f worldRot = worldMatrix.block<3,3>(0,0);
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 					glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
 					glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
+					glUniformMatrix3fv(12, 1, !Mat44f::is_col_major, worldRot.data());
+					if(_scene.sky)
+					{
+						glUniform1i(10, 10);
+						glActiveTexture(GL_TEXTURE0+10);
+						glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
+					}
+					if(_scene.irradiance)
+					{
+						glUniform1i(11, 11);
+						glActiveTexture(GL_TEXTURE0+11);
+						glBindTexture(GL_TEXTURE_2D, _scene.irradiance->glName());
+					}
 					// Render mesh
 					renderObj->meshes[i]->render();
 				}
@@ -171,6 +185,8 @@ namespace rev { namespace graphics {
 		}
 
 		// Render skybox
+		if(!_scene.sky)
+			return;
 		auto skyShaderIter = mPipelines.find("sky.fx");
 		Shader* skyShader = nullptr;
 		if(skyShaderIter == mPipelines.end())
@@ -188,7 +204,12 @@ namespace rev { namespace graphics {
 		if(skyShader)
 		{
 			skyShader->bind();
+			// View projection matrix
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, vp.data());
+			// Sky texture
+			glUniform1i(2, 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
 			mSkyPlane->render();
 		}
 	}

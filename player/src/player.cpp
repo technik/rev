@@ -291,6 +291,10 @@ namespace rev {
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
 			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
+			//std::string skyName = "milkyway";
+			std::string skyName = "Shiodome";
+			mGraphicsScene.sky = Texture::load(skyName+".hdr");
+			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr");
 			
 			if(gltfScene)
 			{

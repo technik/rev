@@ -53,6 +53,8 @@ layout(location = 5) uniform sampler2D uAlbedo;
 layout(location = 6) uniform sampler2D uPhysics;
 layout(location = 7) uniform sampler2D uEmissive;
 layout(location = 8) uniform sampler2D uAO;
+layout(location = 10) uniform sampler2D uEnvironment;
+layout(location = 11) uniform sampler2D uIrradiance;
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -83,27 +85,41 @@ vec3 specularPBR(
 //---------------------------------------------------------------------------------------
 vec3 directLightPBR(
 	ShadeInput inputs,
-	vec3 albedo,
+	vec3 diffColor,
+	vec3 specColor,
 	float roughness,
 	float metallic
 	)
-{
-	vec3 specColor = mix(vec3(0.04), albedo, metallic);
-	vec3 diffColor = vec3(1.0)-specColor;
-	
+{	
 	vec3 diffuse = diffusePBR(inputs, diffColor, metallic);
 	vec3 specular = specularPBR(inputs, specColor, roughness, metallic);
 	
-	return (diffuse + specular) * inputs.ndl * lightColor;
+	//return (diffuse + specular) * inputs.ndl * lightColor;
+	return (diffuse + specular) * inputs.ndl;
+}
+
+//---------------------------------------------------------------------------------------
+const vec2 invAtan = vec2(0.1591, 0.3183);
+vec2 sampleSpherical(vec3 v)
+{
+	vec2 uv = vec2(atan(v.y, -v.x), asin(-v.z));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 indirectLightPBR(
-	vec3 albedo,
+	ShadeInput inputs,
+	vec3 diffColor,
+	vec3 specColor,
 	float oclussion
 	)
 {
-	return 0.3 * albedo * oclussion;
+	vec3 worldRefl = inputs.worldReflectDir;
+	vec3 env = texture(uEnvironment, sampleSpherical(-worldRefl)).xyz;
+	vec3 irradiance = texture(uIrradiance, sampleSpherical(inputs.worldNormal)).xyz;
+	return (env * specColor + diffColor * irradiance) * oclussion;
 }
 
 //---------------------------------------------------------------------------------------
@@ -120,12 +136,16 @@ vec3 shadeSurface(ShadeInput inputs)
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
+	vec3 specColor = mix(vec3(0.04), albedo, metallic);
+	vec3 diffColor = vec3(1.0)-specColor;
+
 	vec3 directLight = directLightPBR(
 		inputs,
-		albedo,
+		diffColor,
+		specColor,
 		roughness,
 		metallic);
-	vec3 indirectLight = indirectLightPBR(albedo, oclussion);
+	vec3 indirectLight = indirectLightPBR(inputs, diffColor, specColor, oclussion);
 	
 	//return vec3(oclussion);
 	//retrun albedo;

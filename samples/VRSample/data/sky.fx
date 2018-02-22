@@ -29,9 +29,20 @@ float PI = 3.14159265359;
 
 layout(location = 2) uniform sampler2D hdrSkyTexture;
 
+
+const vec2 invAtan = vec2(0.1591, 0.3183);
+vec2 sampleSpherical(vec3 v)
+{
+	vec2 uv = vec2(atan(v.y, -v.x), asin(-v.z));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
+}
+
 //------------------------------------------------------------------------------	
 void main (void) {
-	outColor = pow(normalize(vtxViewDir), vec3(2.2));
+	vec3 color = texture(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir))).xyz;
+	outColor = pow(color, vec3(2.2));
 }
 
 #endif

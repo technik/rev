@@ -21,6 +21,7 @@
 #include <vector>
 #include <math/algebra/vector.h>
 #include <memory>
+#include <graphics/driver/texture.h>
 
 namespace rev { namespace graphics {
 
@@ -40,6 +41,9 @@ namespace rev { namespace graphics {
 		const math::Vec3f& lightClr() const { return mLightClr; }
 		std::vector<std::weak_ptr<RenderObj>>& renderables()				{ return mRenderables; }
 		const std::vector<std::weak_ptr<RenderObj>>& renderables() const	{ return mRenderables; }
+
+		std::shared_ptr<Texture>	sky;
+		std::shared_ptr<Texture>	irradiance;
 
 	private:
 		math::Vec3f									mLightClr;

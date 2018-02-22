@@ -36,6 +36,7 @@ in vec2 vTexCoord;
 
 // Global state
 layout(location = 2) uniform vec3 uMSLightDir; // Direction toward light
+layout(location = 12) uniform mat3 uWorldRot;
 layout(location = 3) uniform vec3 lightColor;
 layout(location = 4) uniform float ev;
 
@@ -46,6 +47,8 @@ struct ShadeInput
 	float ndl; // Normal dot light
 	float ndv; // Normal dot view
 	float ndh; // Normal dot half-vector
+	vec3 worldNormal;
+	vec3 worldReflectDir;
 };
 
 vec3 shadeSurface(ShadeInput inputs);
@@ -77,12 +80,15 @@ void main (void) {
 	vec3 msViewDir = normalize(vtxViewDir);
 	
 	ShadeInput shadingInputs;
+	shadingInputs.worldNormal = uWorldRot * msNormal;
 	//shadingInputs.ndl = dot(msLightDir,msNormal);
 	shadingInputs.ndl = max(1e-8,dot(msLightDir,msNormal));
 	float ndv = dot(msViewDir,msNormal);
 	if(ndv < 0.0)
 		msViewDir = reflect(msViewDir, msNormal);
 	shadingInputs.ndv = max(1e-8,dot(msViewDir,msNormal));
+
+	shadingInputs.worldReflectDir = uWorldRot * reflect(msViewDir, msNormal);
 	
 	// Compute illumination intermediate variables
 	vec3 msHalfV = normalize(msViewDir+msLightDir);
