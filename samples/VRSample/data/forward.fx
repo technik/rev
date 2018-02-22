@@ -9,9 +9,9 @@ layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform vec3 uMSViewPos; // Direction toward viewpoint
 
 out vec3 vtxTangent;
-out vec3 vtxBiangent;
+out vec3 vtxBitangent;
 out vec3 vtxNormal;
-out vec3 vtxViewDir;
+out vec3 vtxMsEyeDir;
 out vec2 vTexCoord;
 
 //------------------------------------------------------------------------------
@@ -19,9 +19,9 @@ void main ( void )
 {
 	vTexCoord = texCoord;
 	vtxTangent = msTangent;
-	vtxBiangent = msBitangent;
+	vtxBitangent = msBitangent;
 	vtxNormal = msNormal;
-	vtxViewDir = uMSViewPos - vertex;
+	vtxMsEyeDir = uMSViewPos - vertex;
 	gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
 }
 #endif
@@ -29,9 +29,9 @@ void main ( void )
 #ifdef PXL_SHADER
 out lowp vec3 outColor;
 in vec3 vtxTangent;
-in vec3 vtxBiangent;
+in vec3 vtxBitangent;
 in vec3 vtxNormal;
-in vec3 vtxViewDir;
+in vec3 vtxMsEyeDir;
 in vec2 vTexCoord;
 
 // Global state
@@ -49,6 +49,7 @@ struct ShadeInput
 	float ndh; // Normal dot half-vector
 	vec3 worldNormal;
 	vec3 worldReflectDir;
+	vec3 wsEye;
 };
 
 vec3 shadeSurface(ShadeInput inputs);
@@ -59,7 +60,7 @@ vec3 getModelSpaceNormal()
 {
 	// Tangent basis in model space
 	vec3 tangent = normalize(vtxTangent);
-	vec3 bitangent = normalize(vtxBiangent);
+	vec3 bitangent = normalize(vtxBitangent);
 	vec3 normal = normalize(vtxNormal);
 	
 	vec3 texNormal = (255.f/128.f)*texture(uNormalMap, vTexCoord).xyz - 1.0;
@@ -77,10 +78,11 @@ void main (void) {
 	// Normalize data from vertex
 	vec3 msNormal = getModelSpaceNormal();
 	vec3 msLightDir = normalize(uMSLightDir);
-	vec3 msViewDir = normalize(vtxViewDir);
+	vec3 msViewDir = normalize(vtxMsEyeDir);
 	
 	ShadeInput shadingInputs;
 	shadingInputs.worldNormal = uWorldRot * msNormal;
+	shadingInputs.wsEye = uWorldRot * normalize(vtxMsEyeDir);
 	//shadingInputs.ndl = dot(msLightDir,msNormal);
 	shadingInputs.ndl = max(1e-8,dot(msLightDir,msNormal));
 	float ndv = dot(msViewDir,msNormal);
@@ -88,7 +90,7 @@ void main (void) {
 		msViewDir = reflect(msViewDir, msNormal);
 	shadingInputs.ndv = max(1e-8,dot(msViewDir,msNormal));
 
-	shadingInputs.worldReflectDir = uWorldRot * reflect(msViewDir, msNormal);
+	shadingInputs.worldReflectDir = uWorldRot * reflect(-msViewDir, msNormal);
 	
 	// Compute illumination intermediate variables
 	vec3 msHalfV = normalize(msViewDir+msLightDir);

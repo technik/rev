@@ -47,7 +47,7 @@ namespace rev { namespace graphics {
 		mErrorMaterial = std::make_unique<Material>();
 		mErrorMaterial->name = "XOR-ErrorMaterial";
 		mErrorMaterial->shader = "simplePBR.fx";
-		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4))); // Albedo texture
+		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4), false)); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
 		mEV = 1.5f;
@@ -132,12 +132,10 @@ namespace rev { namespace graphics {
 		auto vp = _eye.viewProj(_dst.aspectRatio());
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
 
-		Vec4f lightDir = { 0.2f, -0.3f, 2.0f , 0.0f };
+		Vec3f lightDir = { 0.2f, -0.3f, 2.0f };
 
 		// Setup pixel global uniforms
 		auto& lightClr = _scene.lightClr();
-		glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
-		glUniform1f(4, std::pow(2.f,mEV)); // EV
 
 		auto worldMatrix = Mat44f::identity();
 
@@ -149,11 +147,6 @@ namespace rev { namespace graphics {
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms
 			auto wvp = vp*worldMatrix;
-			auto& worldI = worldMatrix.transpose();
-			auto msViewDir = worldI.block<3,3>(0,0) * _eye.position() + worldI.block<3,4>(0,0).col(3);
-
-			// Setup pixel global uniforms
-			auto msLightDir = worldI * lightDir;
 
 			// render
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
@@ -162,8 +155,13 @@ namespace rev { namespace graphics {
 				if(bindMaterial(renderObj->materials[i].get()))
 				{
 					Mat33f worldRot = worldMatrix.block<3,3>(0,0);
+					glUniform3f(3, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
+					glUniform1f(4, std::pow(2.f,mEV)); // EV
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
+					auto& worltRotI = worldRot.transpose();
+					auto msViewDir = worltRotI * _eye.position();
 					glUniform3f(1, msViewDir.x(), msViewDir.y(), msViewDir.z());
+					auto msLightDir = worltRotI * lightDir;
 					glUniform3f(2, msLightDir.x(), msLightDir.y(), msLightDir.z());
 					glUniformMatrix3fv(12, 1, !Mat44f::is_col_major, worldRot.data());
 					if(_scene.sky)

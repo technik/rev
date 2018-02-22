@@ -53,7 +53,7 @@ namespace rev { namespace graphics {
 				for(auto& f : materialData["tex"])
 				{
 					auto textureName = f[1].get<std::string>();
-					auto texture = Texture::load(textureName, 4);
+					auto texture = Texture::load(textureName);
 					addTexture(f[0].get<GLint>(), texture);
 				}
 				shader = materialData["shader"].get<std::string>();

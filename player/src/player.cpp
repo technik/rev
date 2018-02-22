@@ -162,12 +162,12 @@ namespace rev {
 			}
 
 			// Load textures
-			std::vector<std::shared_ptr<graphics::Texture>>	textures;
+			std::vector<std::string>	textureNames;
 			for(auto& texDesc : sceneDesc["textures"])
 			{
 				size_t ndx = texDesc["source"];
 				auto texName = assetsFolder + sceneDesc["images"][ndx]["uri"].get<std::string>();
-				textures.push_back(graphics::Texture::load(texName));
+				textureNames.push_back(texName);
 			}
 
 			// Load materials
@@ -182,11 +182,11 @@ namespace rev {
 				auto mat = std::make_shared<Material>();
 				mat->name = matDesc["name"].get<std::string>();
 				mat->shader = "metal-rough.fx";
-				mat->addTexture(5, textures[albedoNdx]);
-				mat->addTexture(6, textures[physicsNdx]);
-				mat->addTexture(7, textures[emissiveNdx]);
-				mat->addTexture(8, textures[aoNdx]);
-				mat->addTexture(9, textures[normalNdx]);
+				mat->addTexture(5, Texture::load(textureNames[albedoNdx]));
+				mat->addTexture(6, Texture::load(textureNames[physicsNdx]));
+				mat->addTexture(7, Texture::load(textureNames[emissiveNdx]));
+				mat->addTexture(8, Texture::load(textureNames[aoNdx]));
+				mat->addTexture(9, Texture::load(textureNames[normalNdx], false));
 				materials.push_back(mat);
 			}
 
@@ -292,7 +292,11 @@ namespace rev {
 			//loadScene("sponza_crytek");
 			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
 			//std::string skyName = "milkyway";
-			std::string skyName = "Shiodome";
+			//std::string skyName = "Shiodome";
+			std::string skyName = "monument";
+			//std::string skyName = "Ice";
+			//std::string skyName = "Winter";
+			//std::string skyName = "Factory";
 			mGraphicsScene.sky = Texture::load(skyName+".hdr");
 			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr");
 			

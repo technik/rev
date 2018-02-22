@@ -108,31 +108,192 @@ vec2 sampleSpherical(vec3 v)
     return uv;
 }
 
+float normal_distrib(
+  float ndh,
+  float Roughness)
+{
+  // use GGX / Trowbridge-Reitz, same as Disney and Unreal 4
+  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
+  float alpha = Roughness * Roughness;
+  float tmp = alpha / max(1e-8,(ndh*ndh*(alpha*alpha-1.0)+1.0));
+  return tmp * tmp / PI;
+}
+
+vec3 fresnel(
+  float vdh,
+  vec3 F0)
+{
+  // Schlick with Spherical Gaussian approximation
+  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
+  float sphg = pow(2.0, (-5.55473*vdh - 6.98316) * vdh);
+  return F0 + (vec3(1.0, 1.0, 1.0) - F0) * sphg;
+}
+
+float G1(
+  float ndw, // w is either Ln or Vn
+  float k)
+{
+  // One generic factor of the geometry function divided by ndw
+  // NB : We should have k > 0
+  return 1.0 / ( ndw*(1.0-k) +  k );
+}
+
+float visibility(
+  float ndl,
+  float ndv,
+  float Roughness)
+{
+  // Schlick with Smith-like choice of k
+  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
+  // visibility is a Cook-Torrance geometry function divided by (n.l)*(n.v)
+  float k = max(Roughness * Roughness * 0.5, 1e-5);
+  return G1(ndl,k)*G1(ndv,k);
+}
+
+vec3 cook_torrance_contrib(
+  float vdh,
+  float ndh,
+  float ndl,
+  float ndv,
+  vec3 Ks,
+  float Roughness)
+{
+  // This is the contribution when using importance sampling with the GGX based
+  // sample distribution. This means ct_contrib = ct_brdf / ggx_probability
+  return fresnel(vdh,Ks) * (visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
+}
+
+vec3 importanceSampleGGX(vec2 Xi, vec3 T, vec3 B, vec3 N, float roughness)
+{
+  float a = roughness*roughness;
+  float cosT = sqrt((1.0-Xi.y)/(1.0+(a*a-1.0)*Xi.y));
+  float sinT = sqrt(1.0-cosT*cosT);
+  float phi = 2.0*PI*Xi.x;
+  return
+    T * (sinT*cos(phi)) +
+    B * (sinT*sin(phi)) +
+    N *  cosT;
+}
+
+float probabilityGGX(float ndh, float vdh, float Roughness)
+{
+  return normal_distrib(ndh, Roughness) * ndh / (4.0*vdh);
+}
+
+float distortion(vec3 Wn)
+{
+  // Computes the inverse of the solid angle of the (differential) pixel in
+  // the cube map pointed at by Wn
+  float sinT = sqrt(1.0-Wn.y*Wn.y);
+  return sinT;
+}
+
+int nbSamples = 32;
+float computeLOD(vec3 Ln, float p)
+{
+	int maxLod = textureQueryLevels(uEnvironment);
+	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
+}
+
+const float M_GOLDEN_RATIO = 1.618034;
+float fibonacci1D(int i)
+{
+  return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
+}
+
+//---------------------------------------------------------------------------------------
+vec2 fibonacci2D(int i, int nSamples)
+{
+  return vec2(
+    (float(i)+0.5) / float(nSamples),
+    fibonacci1D(i)
+  );
+}
+
+//---------------------------------------------------------------------------------------
+struct LocalVectors
+{
+	vec3 eye;
+	vec3 tangent;
+	vec3 bitangent;
+	vec3 normal;
+};
+
+//---------------------------------------------------------------------------------------
+vec3 specularIBL(
+	LocalVectors vectors,
+	vec3 specColor,
+	float roughness,
+	float occlusion)
+{
+	vec3 radiance = vec3(0.0);
+	float glossiness = 1.0 - roughness;
+	float ndv = dot(vectors.eye, vectors.normal);
+
+	for(int i=0; i<nbSamples; ++i)
+	{
+		vec2 Xi = fibonacci2D(i, nbSamples);
+		vec3 Hn = importanceSampleGGX(
+			Xi, vectors.tangent, vectors.bitangent, vectors.normal, roughness);
+		vec3 Ln = -reflect(vectors.eye,Hn);
+
+		float fade = 1.0;//horizonFading(dot(vectors.vertexNormal, Ln), horizonFade);
+
+		float ndl = dot(vectors.normal, Ln);
+		ndl = max( 1e-8, ndl );
+		float vdh = max(1e-8, dot(vectors.eye, Hn));
+		float ndh = max(1e-8, dot(vectors.normal, Hn));
+		float lodS = roughness < 0.01 ? 0.0 : computeLOD(Ln, probabilityGGX(ndh, vdh, roughness));
+		vec3 env = textureLod(uEnvironment, sampleSpherical(Ln), lodS ).xyz;
+		radiance += fade * env *
+			cook_torrance_contrib(vdh, ndh, ndl, ndv, specColor, roughness);
+	}
+	// Remove occlusions on shiny reflections
+	radiance *= mix(occlusion, 1.0, glossiness * glossiness) / float(nbSamples);
+
+	return radiance;
+}
+
+//---------------------------------------------------------------------------------------
+vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
+{
+	//return texture(uEnvironment, sampleSpherical(inputs.worldNormal)).xyz;
+	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.worldNormal), 0).xyz * occlusion;
+}
+
 //---------------------------------------------------------------------------------------
 vec3 indirectLightPBR(
 	ShadeInput inputs,
 	vec3 diffColor,
 	vec3 specColor,
-	float oclussion
+	float roughness,
+	float occlusion
 	)
 {
-	vec3 worldRefl = inputs.worldReflectDir;
-	vec3 env = texture(uEnvironment, sampleSpherical(-worldRefl)).xyz;
-	vec3 irradiance = texture(uIrradiance, sampleSpherical(inputs.worldNormal)).xyz;
-	return (env * specColor + diffColor * irradiance) * oclussion;
+	LocalVectors vectors;
+	vectors.eye = inputs.wsEye;
+	vectors.normal = inputs.worldNormal;
+	vectors.tangent = normalize(uWorldRot * vtxTangent);
+	vectors.bitangent = normalize(uWorldRot * vtxBitangent);
+	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion);
+	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
+	return specular +  diffuse;
+	//return diffuse;
+
+	//int maxLod = textureQueryLevels(uEnvironment);
+	//return textureLod(uEnvironment, sampleSpherical(inputs.worldNormal), maxLod*roughness ).xyz;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 shadeSurface(ShadeInput inputs)
 {
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
+	//albedo = pow(albedo, 1.0/vec3(2.2,2.2,2.2));
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
-	physics = pow(physics, 1.0/vec3(2.2,2.2,2.2));
-	float roughness = min(0.01,physics.g);
+	//physics = pow(physics, 1.0/vec3(2.2,2.2,2.2));
+	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
-	float oclussion = physics.r;
-	//float oclussion = pow(texture(uAO, vTexCoord).x, 1.0/2.2);
+	float occlusion = physics.r;
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
@@ -145,13 +306,19 @@ vec3 shadeSurface(ShadeInput inputs)
 		specColor,
 		roughness,
 		metallic);
-	vec3 indirectLight = indirectLightPBR(inputs, diffColor, specColor, oclussion);
+	vec3 indirectLight = indirectLightPBR(
+		inputs,
+		diffColor,
+		specColor,
+		roughness,
+		occlusion);
 	
-	//return vec3(oclussion);
+	//return vec3(occlusion);
+	//indirectLight.r = 1.0;
 	//retrun albedo;
-	return directLight
-		+ indirectLight
-		+ emissive;
+	//return vec3(roughness);
+	return indirectLight + emissive;
+	//return directLight + indirectLight + emissive;
 }
 
 #endif // PXL_SHADER

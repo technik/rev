@@ -31,16 +31,16 @@ namespace rev { namespace game {
 	public:
 		void init()
 		{
-			mErrorTexture = std::make_shared<graphics::Texture>(graphics::Image::proceduralXOR(512,4));
+			mErrorTexture = std::make_shared<graphics::Texture>(graphics::Image::proceduralXOR(256,4), false);
 		}
 
-		std::shared_ptr<graphics::Texture>	get(const std::string& _name)
+		std::shared_ptr<graphics::Texture>	get(const std::string& _name, bool sRGB = true)
 		{
 			std::shared_ptr<graphics::Texture>	result = mErrorTexture; // By default, return error
 			auto it = mLoadedTextures.find(_name);
 			if(it == mLoadedTextures.end() || it->second.expired())
 			{
-				auto newTexture = graphics::Texture::load(_name);
+				auto newTexture = graphics::Texture::load(_name, sRGB);
 				if(newTexture)
 				{
 					mLoadedTextures.insert(std::make_pair(_name, newTexture));

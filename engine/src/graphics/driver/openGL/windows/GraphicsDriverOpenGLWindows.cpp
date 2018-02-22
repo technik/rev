@@ -11,6 +11,17 @@ using namespace std;
 
 namespace rev {	namespace graphics {
 
+	void APIENTRY gfxDebugCallback(GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar *message,
+		const void *userParam)
+	{
+		cout << message << "\n";
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	GraphicsDriverGL* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
 		auto deviceContext = GetDC(_window->nativeWindow); // Device contex
@@ -80,6 +91,7 @@ namespace rev {	namespace graphics {
 			driver->window = _window;
 			driver->mWindowHandle = _window->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;
+			glDebugMessageCallback(gfxDebugCallback, nullptr);
 		}
 		return driver;
 	}
