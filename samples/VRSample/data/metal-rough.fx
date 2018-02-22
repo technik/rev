@@ -298,7 +298,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	
 	vec3 specColor = mix(vec3(0.04), albedo, metallic);
-	vec3 diffColor = vec3(1.0)-specColor;
+	vec3 diffColor = albedo*(1.0-metallic);
 
 	vec3 directLight = directLightPBR(
 		inputs,

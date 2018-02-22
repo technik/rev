@@ -500,8 +500,8 @@ namespace rev {
 		using Mat34f = Matrix34<float>;
 		using Mat44f = Matrix44<float>;
 
-		template<typename Number_>
 		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
 		inline Matrix44<Number_> frustrumMatrix(
 			Number_ _fovRad,
 			Number_ _aspectRatio,
@@ -522,6 +522,20 @@ namespace rev {
 				//0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
 				0, 1, 0, 0
 			});
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename Number_>
+		inline Matrix44<Number_> orthographicMatrix(
+			const Vector2<Number_>& _size,
+			Number_ _near, Number_ _far)
+		{
+			return Matrix44<Number_>({
+				1 / _size.x(), 0, 0, 0,
+				0, 0, 1 / _size.y(), 0,
+				0, -2 / (_far-_near), 0, (_near+_far)/(_far-_near),
+				0, 0, 0, 1
+				});
 		}
 	}	// namespace math
 }	// namespace rev
