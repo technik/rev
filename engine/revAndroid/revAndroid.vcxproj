@@ -55,11 +55,17 @@
     <ClInclude Include="..\src\graphics\debug\stb_rect_pack.h" />
     <ClInclude Include="..\src\graphics\debug\stb_textedit.h" />
     <ClInclude Include="..\src\graphics\debug\stb_truetype.h" />
+    <ClInclude Include="..\src\graphics\driver\DefaultFrameBuffer.h" />
+    <ClInclude Include="..\src\graphics\driver\frameBuffer.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h" />
     <ClInclude Include="..\src\graphics\driver\openGL\openGL.h" />
+    <ClInclude Include="..\src\graphics\driver\renderTarget.h" />
     <ClInclude Include="..\src\graphics\driver\shader.h" />
+    <ClInclude Include="..\src\graphics\driver\texture.h" />
+    <ClInclude Include="..\src\graphics\renderer\ForwardPass.h" />
     <ClInclude Include="..\src\graphics\renderer\ForwardRenderer.h" />
+    <ClInclude Include="..\src\graphics\renderer\ShadowMapPass.h" />
     <ClInclude Include="..\src\graphics\scene\camera.h" />
     <ClInclude Include="..\src\graphics\scene\Light.h" />
     <ClInclude Include="..\src\graphics\scene\material.h" />
@@ -84,7 +90,9 @@
     <ClCompile Include="..\src\graphics\debug\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp" />
     <ClCompile Include="..\src\graphics\driver\shader.cpp" />
+    <ClCompile Include="..\src\graphics\renderer\ForwardPass.cpp" />
     <ClCompile Include="..\src\graphics\renderer\ForwardRenderer.cpp" />
+    <ClCompile Include="..\src\graphics\renderer\ShadowMapPass.cpp" />
     <ClCompile Include="..\src\graphics\scene\renderScene.cpp" />
     <ClCompile Include="..\src\input\pointingInput.cpp" />
   </ItemGroup>

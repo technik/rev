@@ -147,6 +147,24 @@
     <ClInclude Include="..\src\graphics\scene\renderScene.h">
       <Filter>graphics\scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\DefaultFrameBuffer.h">
+      <Filter>graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\frameBuffer.h">
+      <Filter>graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\renderTarget.h">
+      <Filter>graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\driver\texture.h">
+      <Filter>graphics\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\renderer\ForwardPass.h">
+      <Filter>graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\renderer\ShadowMapPass.h">
+      <Filter>graphics\renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -202,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="..\src\graphics\scene\renderScene.cpp">
       <Filter>graphics\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\renderer\ForwardPass.cpp">
+      <Filter>graphics\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\renderer\ShadowMapPass.cpp">
+      <Filter>graphics\renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
