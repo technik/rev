@@ -19,12 +19,6 @@ namespace rev { namespace graphics {
 			: mFrameBuffer(std::move(_defaultFrameBuffer))
 		{}
 
-		void onWindowResize(const math::Vec2u& _size)
-		{
-			nativeWindow()->size = _size;
-			mFrameBuffer->resize(_size);
-		}
-
 		DefaultFrameBuffer* frameBuffer() const { return mFrameBuffer.get(); }
 
 		// Bind uniforms

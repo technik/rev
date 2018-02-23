@@ -26,6 +26,12 @@ namespace rev { namespace graphics {
 	public:
 		using NativeWindow = WindowWin32*;
 
+		void onWindowResize(const math::Vec2u& _size)
+		{
+			nativeWindow()->size = _size;
+			mFrameBuffer->resize(_size);
+		}
+
 		static GraphicsDriverGL* createDriver(NativeWindow _nativeWindow);
 		NativeWindow nativeWindow() const { return window; }
 		void swapBuffers();

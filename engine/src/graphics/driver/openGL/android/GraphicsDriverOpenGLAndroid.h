@@ -25,6 +25,7 @@ namespace rev { namespace graphics {
 		using NativeWindow = AndroidScreen*;
 
 		static GraphicsDriverGL* createDriver(AndroidScreen* _screen);
+		math::Vec2i windowSize() const { return mSize; }
 		void swapBuffers();
 
 	private:
