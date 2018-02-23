@@ -16,7 +16,7 @@
 */
 
 #include "android_native_app_glue.h"
-#include "../../../player.h"
+#include "../../../src/player.h"
 #include <core/platform/fileSystem/file.h>
 #include <input/pointingInput.h>
 
@@ -102,7 +102,6 @@ static void engine_term_display(struct engine* engine) {
 //----------------------------------------------------------------------------------------------------------------------
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
 	// Get source AINPUT_SOURCE_TOUCHSCREEN 
-	struct engine* engine = (struct engine*)app->userData;
 	auto input_type = AInputEvent_getType(event);
 	if (input_type == AINPUT_EVENT_TYPE_MOTION) {
 		auto touchInput = rev::input::PointingInput::get();

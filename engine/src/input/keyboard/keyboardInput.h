@@ -25,7 +25,11 @@ namespace rev { namespace input
 		static void				init();
 		static void				end();
 		static KeyboardInput *	get() {
+#ifdef ANDROID
+			return nullptr;
+#else
 			return sInstance;
+#endif
 		}
 
 	private:

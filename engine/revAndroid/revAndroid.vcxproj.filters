@@ -49,6 +49,9 @@
     <Filter Include="graphics\renderer">
       <UniqueIdentifier>{5f47b835-54e8-42a0-8534-42b1b6fb267e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="input\keyboard">
+      <UniqueIdentifier>{64562b88-d930-46e7-898e-082262c781b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\graphics\driver\openGL\GraphicsDriverOpenGL.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="..\src\graphics\renderer\ShadowMapPass.h">
       <Filter>graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\input\keyboard\keyboardInput.h">
+      <Filter>input\keyboard</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

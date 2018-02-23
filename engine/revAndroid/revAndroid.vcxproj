@@ -72,6 +72,7 @@
     <ClInclude Include="..\src\graphics\scene\renderGeom.h" />
     <ClInclude Include="..\src\graphics\scene\renderObj.h" />
     <ClInclude Include="..\src\graphics\scene\renderScene.h" />
+    <ClInclude Include="..\src\input\keyboard\keyboardInput.h" />
     <ClInclude Include="..\src\input\pointingInput.h" />
   </ItemGroup>
   <ItemGroup>
