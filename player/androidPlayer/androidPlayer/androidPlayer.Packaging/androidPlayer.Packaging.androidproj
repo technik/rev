@@ -124,6 +124,8 @@
     <Content Include="assets\Factory.hdr" />
     <Content Include="assets\Factory_irradiance.hdr" />
     <Content Include="assets\forward.fx" />
+    <Content Include="assets\helmet\damagedHelmet.bin" />
+    <Content Include="assets\helmet\damagedHelmet.gltf" />
     <Content Include="assets\Ice.hdr" />
     <Content Include="assets\Ice_irradiance.hdr" />
     <Content Include="assets\metal-rough.fx" />

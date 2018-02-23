@@ -116,8 +116,21 @@ namespace rev {
 
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder, graphics::RenderScene& _renderable)
 		{
+			core::File sceneFile("helmet/damagedHelmet.gltf");
+			if(!sceneFile.sizeInBytes())
+			{
+				core::Log::error("Unable to find scene asset");
+				return nullptr;
+			}
 			Json sceneDesc;
-			std::ifstream("helmet/damagedHelmet.gltf") >> sceneDesc;
+			core::Log::error("Scene file open");
+			std::stringstream ss;
+			ss << "File size is " << sceneFile.sizeInBytes() << "\n"
+				<< "File contents are \n" << sceneFile.bufferAsText() << "\n";
+			core::Log::error(ss.str().c_str());
+			sceneDesc.parse(sceneFile.bufferAsText());
+			//sceneFile.asStream() >> sceneDesc;
+			core::Log::verbose("---------Scene asset properly parsed");
 			auto asset = sceneDesc.find("asset");
 			if(asset == sceneDesc.end())
 				return nullptr;
@@ -160,6 +173,8 @@ namespace rev {
 				accessor.data = &bufferViews[bufferViewNdx].data[byteOffset];
 				accessors.push_back(accessor);
 			}
+
+			core::Log::verbose("---------Loaded basic content descriptors. Start with textures");
 
 			// Load textures
 			std::vector<std::string>	textureNames;
@@ -290,7 +305,9 @@ namespace rev {
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
+			core::Log::debug("Load the helmet scene");
 			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
+			core::Log::debug("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
 			std::string skyName = "monument";
