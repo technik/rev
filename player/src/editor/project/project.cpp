@@ -150,7 +150,7 @@ namespace rev { namespace editor {
 			mChildren.reserve(n);
 			for(auto i = children.begin(); i != children.end(); ++i)
 			{
-				auto& folderName = i.key();
+				const auto& folderName = i.key();
 				auto folderPath = path + folderName + "/";
 				mChildren.push_back({ folderName, folderPath });
 				mChildren.back().load(i.value(), materialList);

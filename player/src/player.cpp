@@ -330,12 +330,14 @@ namespace rev {
 		return mGfxDriver != nullptr;
 	}
 
+#ifdef _WIN32
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onWindowResize(const math::Vec2u& _newSize)
 	{
 		if(mGfxDriver)
 			mGfxDriver->onWindowResize(_newSize);
 	}
+#endif // _WIN32
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {

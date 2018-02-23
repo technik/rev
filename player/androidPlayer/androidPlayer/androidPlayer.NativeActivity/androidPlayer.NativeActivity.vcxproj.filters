@@ -31,9 +31,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="android_native_app_glue.cpp" />
-    <ClCompile Include="..\..\..\src\main.cpp">
-      <Filter>player</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\player.cpp">
       <Filter>player</Filter>
     </ClCompile>

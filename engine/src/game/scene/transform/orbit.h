@@ -42,7 +42,11 @@ namespace rev { namespace game {
 			if(pointingInput)
 			{
 				bool down = false;
+#ifdef ANDROID
+				// TODO: Support 1/2 fingers
+#else
 				down = mTouchNdx?pointingInput->middleDown():pointingInput->leftDown();
+#endif
 				if(ImGui::GetIO().WantCaptureMouse)
 					down = false;
 				if(down)

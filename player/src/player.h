@@ -27,7 +27,9 @@ namespace rev {
 		bool init(Window);
 		void loadScene(const std::string& _assetFileName);
 
+#ifdef _WIN32
 		void onWindowResize(const math::Vec2u& _newSize);
+#endif // _WIN32
 
 		// Common components
 		bool update();

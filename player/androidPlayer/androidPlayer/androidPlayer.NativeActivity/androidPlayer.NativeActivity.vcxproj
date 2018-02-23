@@ -241,7 +241,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\editor\editor.cpp" />
     <ClCompile Include="..\..\..\src\editor\project\project.cpp" />
-    <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\player.cpp" />
     <ClCompile Include="android_native_app_glue.cpp" />
     <ClCompile Include="main.cpp" />
