@@ -312,7 +312,7 @@ namespace rev {
 		template<typename Matrix_, typename Operator_>
 		void cwiseVisitor(
 			Matrix_& _m,
-			Operator_& _operation
+			const Operator_& _operation
 		)
 		{
 			for(size_t j = 0; j < Matrix_::cols; ++j)
