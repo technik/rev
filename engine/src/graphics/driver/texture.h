@@ -88,7 +88,6 @@ namespace rev { namespace graphics {
 
 		static GLenum texFormat(const Image& image)
 		{
-			bool hdr = image.format() == Image::ChannelFormat::Float32;
 			switch(image.nChannels())
 			{
 				case 1:
