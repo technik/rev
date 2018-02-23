@@ -227,12 +227,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\player.h" />
+    <ClInclude Include="..\..\..\src\editor\editor.h" />
+    <ClInclude Include="..\..\..\src\editor\inspectors\assetInspector.h" />
+    <ClInclude Include="..\..\..\src\editor\inspectors\MaterialInspector.h" />
+    <ClInclude Include="..\..\..\src\editor\inspectors\MeshRendererInspector.h" />
+    <ClInclude Include="..\..\..\src\editor\inspectors\TransportInspector.h" />
+    <ClInclude Include="..\..\..\src\editor\project\asset.h" />
+    <ClInclude Include="..\..\..\src\editor\project\project.h" />
+    <ClInclude Include="..\..\..\src\player.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="android_native_app_glue.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\player.cpp" />
+    <ClCompile Include="..\..\..\src\editor\editor.cpp" />
+    <ClCompile Include="..\..\..\src\editor\project\project.cpp" />
+    <ClCompile Include="..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\src\player.cpp" />
     <ClCompile Include="android_native_app_glue.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

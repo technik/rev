@@ -3,20 +3,59 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="android_native_app_glue.h" />
-    <ClInclude Include="..\..\..\player.h">
+    <ClInclude Include="..\..\..\src\player.h">
       <Filter>player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\editor.h">
+      <Filter>player\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\inspectors\assetInspector.h">
+      <Filter>player\editor\inspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\inspectors\MaterialInspector.h">
+      <Filter>player\editor\inspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\inspectors\MeshRendererInspector.h">
+      <Filter>player\editor\inspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\inspectors\TransportInspector.h">
+      <Filter>player\editor\inspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\project\asset.h">
+      <Filter>player\editor\project</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\editor\project\project.h">
+      <Filter>player\editor\project</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="android_native_app_glue.cpp" />
-    <ClCompile Include="..\..\..\player.cpp">
+    <ClCompile Include="..\..\..\src\main.cpp">
       <Filter>player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\player.cpp">
+      <Filter>player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\editor\editor.cpp">
+      <Filter>player\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\editor\project\project.cpp">
+      <Filter>player\editor\project</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="player">
       <UniqueIdentifier>{c5cf8ca2-b61e-462d-be09-7178c543e9a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="player\editor">
+      <UniqueIdentifier>{a5e49bd5-3d13-4e54-8411-20d212a730d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="player\editor\inspectors">
+      <UniqueIdentifier>{502ec58d-afa5-4832-9eb5-b7433618329c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="player\editor\project">
+      <UniqueIdentifier>{df29394d-e68f-4618-a254-6df36492d15e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

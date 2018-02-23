@@ -119,8 +119,25 @@
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Content Include="assets\pbr.fx" />
-    <Content Include="assets\sponza_crytek.scn" />
+    <Content Include="assets\dome.hdr" />
+    <Content Include="assets\dome_irradiance.hdr" />
+    <Content Include="assets\Factory.hdr" />
+    <Content Include="assets\Factory_irradiance.hdr" />
+    <Content Include="assets\forward.fx" />
+    <Content Include="assets\Ice.hdr" />
+    <Content Include="assets\Ice_irradiance.hdr" />
+    <Content Include="assets\metal-rough.fx" />
+    <Content Include="assets\milkyway.hdr" />
+    <Content Include="assets\milkyway_irradiance.hdr" />
+    <Content Include="assets\monument.hdr" />
+    <Content Include="assets\monument_irradiance.hdr" />
+    <Content Include="assets\shadowMap.fx" />
+    <Content Include="assets\Shiodome.hdr" />
+    <Content Include="assets\Shiodome_irradiance.hdr" />
+    <Content Include="assets\simplePBR.fx" />
+    <Content Include="assets\sky.fx" />
+    <Content Include="assets\Winter.hdr" />
+    <Content Include="assets\Winter_irradiance.hdr" />
     <Content Include="res\values\strings.xml" />
     <AntBuildXml Include="build.xml" />
     <AndroidManifest Include="AndroidManifest.xml" />
