@@ -47,7 +47,7 @@ namespace rev { namespace graphics {
 	{
 		mDepthBuffer->bind();
 		glEnable(GL_DEPTH_TEST);
-		glClearDepth(1.0);
+		glClearDepthf(1.0);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		if(!mShader)
