@@ -138,6 +138,15 @@
     <ClInclude Include="..\src\game\scene\scene.h">
       <Filter>game\scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\Light.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\material.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\scene\renderScene.h">
+      <Filter>graphics\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -190,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="..\src\game\scene\Scene.cpp">
       <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\scene\renderScene.cpp">
+      <Filter>graphics\scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
