@@ -81,9 +81,6 @@
     <ClInclude Include="..\src\game\scene\transform\transform.h">
       <Filter>game\scene\transform</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\game\scene\renderScene.h">
-      <Filter>game\scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\core\platform\fileSystem\file.h">
       <Filter>core\platform\filesystem</Filter>
     </ClInclude>
@@ -126,6 +123,12 @@
     <ClInclude Include="..\src\graphics\scene\camera.h">
       <Filter>graphics\scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\scene\transform\flyby.h">
+      <Filter>game\scene\transform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\transform\orbit.h">
+      <Filter>game\scene\transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -144,9 +147,6 @@
       <Filter>game\scene</Filter>
     </ClCompile>
     <ClCompile Include="..\src\game\scene\sceneNode.cpp">
-      <Filter>game\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\game\scene\renderScene.cpp">
       <Filter>game\scene</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\platform\fileSystem\file.cpp">
@@ -169,6 +169,12 @@
     </ClCompile>
     <ClCompile Include="..\src\graphics\renderer\ForwardRenderer.cpp">
       <Filter>graphics\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\transform\flyby.cpp">
+      <Filter>game\scene\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\transform\transform.cpp">
+      <Filter>game\scene\transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

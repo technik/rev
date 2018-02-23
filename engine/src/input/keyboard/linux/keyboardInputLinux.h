@@ -14,43 +14,46 @@ namespace rev { namespace input
 	class KeyboardInputLinux
 	{
 	public:
-		enum EKeyCode
+		enum class Key : uint8_t
 		{
-			eBackSpace,
-			eTab,
-			eEnter,
-			eShift,
-			eControl,
-			eAlt,
-			ePause,
-			eCapsLock,
-			eEscape,
-			eSpace,
-			ePageUp,
-			ePageDown,
-			eEnd,
-			eHome,
-			eKeyLeft,
-			eKeyUp,
-			eKeyRight,
-			eKeyDown,
-			eA,
-			eB, eC, eD, eE, eF, eG, eH, eI, eJ, eK, eL, eM, eN, eO, eP, eQ, eR, eS, eT, eU, eV, eW, eX, eY, eZ,
-
-			eMaxKeyCode
+			BackSpace,
+			Tab,
+			Enter,
+			Shift,
+			Control,
+			Alt,
+			Pause,
+			CapsLock,
+			Escape,
+			Space,
+			PageUp,
+			PageDown,
+			End,
+			Home,
+			KeyLeft,
+			KeyUp,
+			KeyRight,
+			KeyDown
 		};
 	public:
 		KeyboardInputLinux() {}
 		~KeyboardInputLinux() {}
 
-		bool pressed	(EKeyCode _key) const { return false; }
-		bool held		(EKeyCode _key) const { return false; }
-		bool released	(EKeyCode _key) const { return false; } 
+		bool pressed	(Key _key) const { return false; }
+		bool held		(Key _key) const { return false; }
+		bool released	(Key _key) const { return false; } 
+
+		bool pressed	(uint8_t _key) const { return pressed((Key)_key); }
+		bool held		(uint8_t _key) const { return held((Key)_key); }
+		bool released	(uint8_t _key) const { return released((Key)_key); }
+
 		void refresh	() {}
+		using Callback = std::function<void(int)>;
+
+		void onPress(Callback cb) { }
+		void onRelease(Callback cb) { }
 
 	private:
-		// int keyState[eMaxKeyCode];
-		// int oldKeyState[eMaxKeyCode];
 	};
 
 	typedef KeyboardInputLinux	KeyboardInputBase;

@@ -40,8 +40,9 @@
     <ClInclude Include="..\src\core\tools\log.h" />
     <ClInclude Include="..\src\game\scene\component.h" />
     <ClInclude Include="..\src\game\scene\meshRenderer.h" />
-    <ClInclude Include="..\src\game\scene\renderScene.h" />
     <ClInclude Include="..\src\game\scene\sceneNode.h" />
+    <ClInclude Include="..\src\game\scene\transform\flyby.h" />
+    <ClInclude Include="..\src\game\scene\transform\orbit.h" />
     <ClInclude Include="..\src\game\scene\transform\transform.h" />
     <ClInclude Include="..\src\graphics\debug\debugGUI.h" />
     <ClInclude Include="..\src\graphics\debug\imconfig.h" />
@@ -66,8 +67,9 @@
     <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\game\scene\component.cpp" />
     <ClCompile Include="..\src\game\scene\meshRenderer.cpp" />
-    <ClCompile Include="..\src\game\scene\renderScene.cpp" />
     <ClCompile Include="..\src\game\scene\sceneNode.cpp" />
+    <ClCompile Include="..\src\game\scene\transform\flyby.cpp" />
+    <ClCompile Include="..\src\game\scene\transform\transform.cpp" />
     <ClCompile Include="..\src\graphics\debug\debugGUI.cpp" />
     <ClCompile Include="..\src\graphics\debug\imgui.cpp" />
     <ClCompile Include="..\src\graphics\debug\imgui_draw.cpp" />

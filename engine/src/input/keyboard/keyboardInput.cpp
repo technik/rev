@@ -20,18 +20,24 @@ namespace rev { namespace input
 	//------------------------------------------------------------------------------------------------------------------
 	void KeyboardInput::init()
 	{
+#ifdef ANDROID
+#else
 		assert(0 == sInstance);
 		sInstance = new KeyboardInput();
 		assert(0 != sInstance);
+#endif
 	}
 
 
 	//------------------------------------------------------------------------------------------------------------------
 	void KeyboardInput::end()
 	{
+#ifdef ANDROID
+#else
 		assert(0 != sInstance);
 		delete sInstance;
 		sInstance = 0;
+#endif
 	}
 }	// namespace input
 }	// namespace rev

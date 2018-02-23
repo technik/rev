@@ -6,10 +6,8 @@
 
 #include "flyby.h"
 
-#ifndef ANDROID
 #include <input/keyboard/keyboardInput.h>
 using namespace rev::input;
-#endif // !ANDROID
 
 #include "../sceneNode.h"
 #include <math/algebra/vector.h>
@@ -27,7 +25,7 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		void FlyBy::update(float _dt) {
 			static float mult = 1.f;
-#ifndef ANDROID
+
 			KeyboardInput* input = KeyboardInput::get();
 			if (input->pressed('V'))
 				mult *= 2.f;
@@ -54,7 +52,6 @@ namespace rev {
 			if (input->held(KeyboardInput::Key::KeyLeft))	angSpd += deltaG;
 
 			transform.rotate(Quatf({0,0,1}, angSpd * _dt));
-#endif // ANDROID
 		}
 
 	}	// namespace game
