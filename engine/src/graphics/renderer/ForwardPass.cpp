@@ -128,7 +128,7 @@ namespace rev { namespace graphics {
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-		glClearDepth(1.0);
+		glClearDepthf(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());

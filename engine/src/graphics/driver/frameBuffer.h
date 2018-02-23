@@ -44,7 +44,7 @@ namespace rev { namespace graphics {
 			glGenFramebuffers(1, &mFbName);
 			glBindFramebuffer(GL_FRAMEBUFFER, mFbName);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthMapName, 0);
-			glDrawBuffer(GL_NONE);
+			glDrawBuffers(0, nullptr);
 			glReadBuffer(GL_NONE);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
