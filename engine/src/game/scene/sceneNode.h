@@ -53,8 +53,9 @@ namespace rev { namespace game {
 		template<class T_>	
 		T_*					component		() const {
 			for (auto& c : mComponents) {
-				if(typeid(*c) == typeid(T_))
-					return static_cast<T_*>(c.get());
+				auto rawPtr = c.get();
+				if(typeid(*rawPtr) == typeid(T_))
+					return static_cast<T_*>(rawPtr);
 			}
 			return nullptr;
 		}
