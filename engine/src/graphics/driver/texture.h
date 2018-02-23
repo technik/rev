@@ -75,15 +75,15 @@ namespace rev { namespace graphics {
 			switch(image.nChannels())
 			{
 				case 1:
-					return hdr?GL_R32F:GL_R;
+					return hdr?GL_R32F:GL_R8;
 				case 2:
-					return hdr?GL_RG32F:GL_RG;
+					return hdr?GL_RG32F:GL_RG8;
 				case 3:
-					return hdr?GL_RGB32F:(sRGB?GL_SRGB8:GL_RGB);
+					return hdr?GL_RGB32F:(sRGB?GL_SRGB8:GL_RGB8);
 				case 4:
-					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA);
+					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
 			}
-			return hdr?GL_R32F:GL_R;
+			return hdr?GL_R32F:GL_R8;
 		}
 
 		static GLenum texFormat(const Image& image)
@@ -92,7 +92,7 @@ namespace rev { namespace graphics {
 			switch(image.nChannels())
 			{
 				case 1:
-					return GL_R;
+					return GL_RED;
 				case 2:
 					return GL_RG;
 				case 3:
@@ -100,7 +100,7 @@ namespace rev { namespace graphics {
 				case 4:
 					return GL_RGBA;
 			}
-			return GL_R;
+			return GL_RED;
 		}
 
 		GLuint mGLName = 0;
