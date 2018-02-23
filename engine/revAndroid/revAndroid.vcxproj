@@ -38,8 +38,11 @@
     <ClInclude Include="..\src\core\platform\fileSystem\file.h" />
     <ClInclude Include="..\src\core\time\time.h" />
     <ClInclude Include="..\src\core\tools\log.h" />
+    <ClInclude Include="..\src\game\scene\camera.h" />
     <ClInclude Include="..\src\game\scene\component.h" />
+    <ClInclude Include="..\src\game\scene\ComponentLoader.h" />
     <ClInclude Include="..\src\game\scene\meshRenderer.h" />
+    <ClInclude Include="..\src\game\scene\scene.h" />
     <ClInclude Include="..\src\game\scene\sceneNode.h" />
     <ClInclude Include="..\src\game\scene\transform\flyby.h" />
     <ClInclude Include="..\src\game\scene\transform\orbit.h" />
@@ -66,7 +69,9 @@
     <ClCompile Include="..\src\core\platform\fileSystem\file.cpp" />
     <ClCompile Include="..\src\core\time\time.cpp" />
     <ClCompile Include="..\src\game\scene\component.cpp" />
+    <ClCompile Include="..\src\game\scene\ComponentLoader.cpp" />
     <ClCompile Include="..\src\game\scene\meshRenderer.cpp" />
+    <ClCompile Include="..\src\game\scene\Scene.cpp" />
     <ClCompile Include="..\src\game\scene\sceneNode.cpp" />
     <ClCompile Include="..\src\game\scene\transform\flyby.cpp" />
     <ClCompile Include="..\src\game\scene\transform\transform.cpp" />

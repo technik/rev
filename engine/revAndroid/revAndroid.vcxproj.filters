@@ -129,6 +129,15 @@
     <ClInclude Include="..\src\game\scene\transform\orbit.h">
       <Filter>game\scene\transform</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\scene\camera.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\ComponentLoader.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\scene\scene.h">
+      <Filter>game\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\graphics\driver\openGL\android\GraphicsDriverOpenGLAndroid.cpp">
@@ -175,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="..\src\game\scene\transform\transform.cpp">
       <Filter>game\scene\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\ComponentLoader.cpp">
+      <Filter>game\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\scene\Scene.cpp">
+      <Filter>game\scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
