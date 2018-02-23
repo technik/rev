@@ -356,7 +356,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<size_t rows_, size_t cols_, typename Storage_>
 		void MatrixBase<rows_, cols_, Storage_>::setConstant(typename Storage_::Element _c) {
-			this->cwiseVisitor(*this,[=](typename Storage_::Element& _a){_a = _c;});
+			cwiseVisitor(*this,[=](typename Storage_::Element& _a){_a = _c;});
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ namespace rev {
 			) -> typename MatA_::Derived
 		{
 			using T = typename MatA_::Element;
-			return this->cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = a+b; });
+			return cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = a+b; });
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ namespace rev {
 			) -> typename MatA_::Derived
 		{
 			using T = typename MatA_::Element;
-			return this->cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = a-b; });
+			return cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = a-b; });
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ namespace rev {
 			) -> typename S_::Derived
 		{
 			using T = typename S_::Element;
-			return this->cwiseUnaryOperator(_a, [=](T& res, T a) { res = a*_k; });
+			return cwiseUnaryOperator(_a, [=](T& res, T a) { res = a*_k; });
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
