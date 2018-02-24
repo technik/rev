@@ -40,7 +40,7 @@ vec2 sampleSpherical(vec3 v)
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0).xyz;
+	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
 	outColor = pow(ev*color, vec3(2.2));
 }
 

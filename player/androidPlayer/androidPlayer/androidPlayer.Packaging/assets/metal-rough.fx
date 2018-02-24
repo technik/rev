@@ -262,7 +262,7 @@ vec3 specularIBL(
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
-	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
+	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0.0).xyz * occlusion;
 	//return textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
 }
 
