@@ -7,6 +7,7 @@
 
 #include "../openGL.h"
 #include <math/algebra/vector.h>
+#include <graphics/driver/DefaultFrameBuffer.h>
 
 namespace rev { namespace graphics {
 
@@ -29,8 +30,10 @@ namespace rev { namespace graphics {
 		void onWindowResize(const math::Vec2u& _size)
 		{
 			nativeWindow()->size = _size;
-			mFrameBuffer->resize(_size);
+			frameBuffer()->resize(_size);
 		}
+
+		virtual DefaultFrameBuffer* frameBuffer() const = 0;
 
 		static GraphicsDriverGL* createDriver(NativeWindow _nativeWindow);
 		NativeWindow nativeWindow() const { return window; }
