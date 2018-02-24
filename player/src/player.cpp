@@ -125,21 +125,30 @@ namespace rev {
 			Json sceneDesc;
 			core::Log::error("Scene file open");
 			std::stringstream ss;
-			ss << "File size is " << sceneFile.sizeInBytes() << "\n"
-				<< "File contents are \n" << sceneFile.bufferAsText() << "\n";
-			core::Log::error(ss.str().c_str());
+			ss << "File size is " << sceneFile.sizeInBytes() << "\n";
+			core::Log::debug(ss.str().c_str());
+			ss.clear();
 			sceneDesc.parse(sceneFile.bufferAsText());
 			//sceneFile.asStream() >> sceneDesc;
 			core::Log::verbose("---------Scene asset properly parsed");
 			auto asset = sceneDesc.find("asset");
 			if(asset == sceneDesc.end())
+			{
+				core::Log::error("Can't find asset descriptor");
 				return nullptr;
+			}
 			if(asset.value()["version"] != "2.0")
+			{
+				core::Log::error("Wrong format version. GLTF assets must be 2.0");
 				return nullptr;
+			}
 			auto scene = sceneDesc.find("scene");
 			auto scenesDict = sceneDesc.find("scenes");
 			if(scenesDict == sceneDesc.end() || scene == sceneDesc.end() || scenesDict.value().size() == 0)
+			{
+				core::Log::error("Can't find proper scene descriptor in asset's scenes");
 				return nullptr;
+			}
 			// Load buffers
 			std::vector<gltf::Buffer> buffers;
 			for(auto& buffDesc : sceneDesc["buffers"])
@@ -305,19 +314,23 @@ namespace rev {
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
-			core::Log::debug("Load the helmet scene");
+			core::Log::verbose("Load the helmet scene");
 			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
-			core::Log::debug("Load skybox");
+			core::Log::verbose("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
 			std::string skyName = "monument";
 			//std::string skyName = "Ice";
 			//std::string skyName = "Winter";
 			//std::string skyName = "Factory";
+			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr");
 			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr");
 			mGraphicsScene.mLightDir = math::Vec3f(0.f,-1.f,-1.f).normalized();
-			
+
+			mGfxDriver->checkGLErrors();
+			core::Log::debug("Sky loaded");
+
 			if(gltfScene)
 			{
 				auto orbitNode = std::make_shared<SceneNode>("orbit");
@@ -428,6 +441,8 @@ namespace rev {
 	{
 		// TODO: Use a real geometry pool. Even better. Use a geometry pool and a model mananger to load geometry.
 		// Even better: Do that in a background thread while other components are loaded
+		core::Log::debug("Check before loading scene");
+		mGfxDriver->checkGLErrors();
 		game::ModelAsset geometryPool(_assetFileName + ".mdl");
 		// Load the scene components
 		core::File asset(_assetFileName + ".scn");
@@ -448,6 +463,8 @@ namespace rev {
 		}
 	}
 
+	std::string lastGLError;
+
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update()
 	{
@@ -455,6 +472,9 @@ namespace rev {
 			return true;
 		core::Time::get()->update();
 		gui::startFrame(mGfxDriver->frameBuffer()->size());
+
+		mGfxDriver->checkGLErrors();
+
 		mGameEditor.update(mGameScene);
 
 		auto dt = core::Time::get()->frameTime();

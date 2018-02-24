@@ -6,6 +6,7 @@
 #include "windows/GraphicsDriverOpenGLWindows.h"
 #include "android/GraphicsDriverOpenGLAndroid.h"
 
+#include <core/tools/log.h>
 #include <math/algebra/vector.h>
 #include <graphics/driver/DefaultFrameBuffer.h>
 #include <memory>
@@ -35,6 +36,36 @@ namespace rev { namespace graphics {
 		void bindUniform(GLint pos, const math::Vec4f& f)
 		{
 			glUniform4f(pos, f.x(), f.y(), f.z(), f.w());
+		}
+
+		// True when errors are found
+		static bool checkGLErrors()
+		{
+			auto error = glGetError();
+			if(error != GL_NO_ERROR)
+			{
+				switch(error) {
+					case GL_INVALID_ENUM:
+						core::Log::debug("GL error: ", "GL_INVALID_ENUM");
+						return true;
+					case GL_INVALID_INDEX:
+						core::Log::debug("GL error: ", "GL_INVALID_INDEX");
+						return true;
+					case GL_INVALID_OPERATION:
+						core::Log::debug("GL error: ", "GL_INVALID_OPERATION");
+						return true;
+					case GL_INVALID_VALUE:
+						core::Log::debug("GL error: ", "GL_INVALID_VALUE");
+						return true;
+					case GL_INVALID_FRAMEBUFFER_OPERATION:
+						core::Log::debug("GL error: ", "GL_INVALID_FRAMEBUFFER_OPERATION");
+						return true;
+					default:
+						core::Log::debug("GL error: ", "Unknown enum ", error);
+						return true;
+				}
+			}
+			return false;
 		}
 
 		// TODO: Unify interface for texture binding with the other uniforms.

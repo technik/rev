@@ -43,7 +43,11 @@ namespace rev { namespace core {
 		}
 		AAsset* srcAsset = AAssetManager_open(sAssetMgr, _path.c_str(), AASSET_MODE_STREAMING);
 		if(!srcAsset)
+		{
+			core::Log::error("Unable to open asset file");
+			core::Log::error(_path);
 			return;
+		}
 		mSize = (size_t)AAsset_getLength(srcAsset);
 		mBuffer = new char[mSize+1];
 		memcpy(mBuffer, AAsset_getBuffer(srcAsset), mSize);

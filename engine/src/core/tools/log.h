@@ -7,51 +7,92 @@
 #include <iostream>
 #ifdef ANDROID
 #include <android/log.h>
+#include <sstream>
 #endif
 
 namespace rev { namespace core {
 
 	class Log {
 	public:
-		static void verbose(const std::string& _s)
+		template<class ... Args_>
+		static void verbose(Args_ ... _args)
 		{
 #ifdef _WIN32
-			std::cout << "V: " << _s << "\n";
+			writeToLog("Verbose", _args ...);
 #elif defined(ANDROID)
-			__android_log_print(ANDROID_LOG_VERBOSE, "rev", "%s", _s.c_str());
+			writeToLog(ANDROID_LOG_VERBOSE, _args ...);
 #endif
 		}
-		static void debug(const std::string& _s)
+
+		template<class ... Args_>
+		static void debug(Args_ ... _args)
 		{
 #ifdef _WIN32
-			std::cout << "D: " << _s << "\n";
+			writeToLog("Debug", _args ...);
 #elif defined(ANDROID)
-			__android_log_print(ANDROID_LOG_DEBUG, "rev", "%s", _s.c_str());
+			writeToLog(ANDROID_LOG_DEBUG, _args ...);
 #endif
 		}
-		static void warning(const std::string& _s)
+
+		template<class ... Args_>
+		static void warning(Args_ ... _args)
 		{
 #ifdef _WIN32
-			std::cout << "W: " << _s << "\n";
+			writeToLog("Info", _args ...);
 #elif defined(ANDROID)
-			__android_log_print(ANDROID_LOG_WARN, "rev", "%s", _s.c_str());
+			writeToLog(ANDROID_LOG_WARN, _args ...);
 #endif
 		}
-		static void info(const std::string& _s)
+
+		template<class ... Args_>
+		static void info(Args_ ... _args)
 		{
 #ifdef _WIN32
-			std::cout << "I: " << _s << "\n";
+			writeToLog("Info", _args ...);
 #elif defined(ANDROID)
-			__android_log_print(ANDROID_LOG_INFO, "rev", "%s", _s.c_str());
+			writeToLog(ANDROID_LOG_INFO, _args ...);
 #endif
 		}
-		static void error(const std::string& _s)
+
+		template<class ... Args_>
+		static void error(Args_ ... _args)
 		{
 #ifdef _WIN32
-			std::cout << "E: " << _s << "\n";
+			writeToLog("Info", _args ...);
 #elif defined(ANDROID)
-			__android_log_print(ANDROID_LOG_ERROR, "rev", "%s", _s.c_str());
+			writeToLog(ANDROID_LOG_ERROR, _args ...);
 #endif
+		}
+
+	private:
+#ifdef ANDROID
+		template<typename ... Args_>
+		static void writeToLog(android_LogPriority priority, Args_ ... _args)
+		{
+			std::stringstream ss;
+			writeToSS(ss, _args...);
+			__android_log_print(priority, "rev", "%s", ss.str().c_str());
+		}
+#else
+		template<typename ... Args_>
+		static void writeToLog(const char* _tag, Args_ ... _args)
+		{
+			std::cout << _tag << ": ";
+			writeToSS(std::cout, _args...);
+		}
+#endif
+
+		template<class T, typename ... Args_>
+		static void writeToSS(std::ostream& ss, T x, Args_ ... _args)
+		{
+			ss << x;
+			writeToSS(ss, _args...);
+		}
+
+		template<typename T>
+		static void writeToSS(std::ostream& ss, T x)
+		{
+			ss << x;
 		}
 	};
 

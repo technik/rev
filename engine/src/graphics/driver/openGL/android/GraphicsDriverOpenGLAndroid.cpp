@@ -3,19 +3,26 @@
 //----------------------------------------------------------------------------------------------------------------------
 #ifdef ANDROID
 
-#include <android/log.h>
 #include "GraphicsDriverOpenGLAndroid.h"
 #include "../GraphicsDriverOpenGL.h"
+#include <core/tools/log.h>
 
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "GraphicsDriver", __VA_ARGS__))
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "GraphicsDriver", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "GraphicsDriver", __VA_ARGS__))
+void gfxDebugCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar *_message,
+	const void *userParam)
+{
+	rev::core::Log::error("OpenGL error");
+	rev::core::Log::error(_message);
+}
 
 namespace rev { namespace graphics {
 
 	void printGLString(const char* name, GLenum e) {
-		const GLubyte* s = glGetString(e);
-		LOGI("GL %s = %s", name, s);
+		core::Log::info("GL ", name, " = ", glGetString(e));
 	}
 
 	GraphicsDriverGL* GraphicsDriverGLAndroid::createDriver(AndroidScreen* _screen) {
@@ -65,7 +72,7 @@ namespace rev { namespace graphics {
 		context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxAttribs);
 
 		if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-			LOGW("Unable to eglMakeCurrent");
+			core::Log::warning("Unable to eglMakeCurrent");
 			return nullptr;
 		}
 
@@ -79,6 +86,7 @@ namespace rev { namespace graphics {
 			printGLString("Vendor", GL_VENDOR);
 			printGLString("Renderer", GL_RENDERER);
 			printGLString("Extensions", GL_EXTENSIONS);
+			//glDebugMessageCallback(gfxDebugCallback, nullptr);
 			gfxDriver->mWindow = _screen;
 			gfxDriver->context = context;
 			gfxDriver->surface = surface;

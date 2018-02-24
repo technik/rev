@@ -20,6 +20,7 @@
 #pragma once
 
 #include <core/platform/fileSystem/file.h>
+#include <core/tools/log.h>
 #include <math/algebra/vector.h>
 #include "stb_image.h"
 #include <memory>
@@ -75,8 +76,14 @@ namespace rev { namespace graphics {
 				if(imgData)
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
+
+					core::Log::verbose("Created image ", _name, " with size {", width, ", ", height, "} and ", realNumChannels, " channels");
 					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:(unsigned)realNumChannels, imgFormat);
 				}
+			}
+			else
+			{
+				core::Log::error("Unable to open image file");
 			}
 
 			return nullptr;
