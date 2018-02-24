@@ -19,7 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <core/tools/log.h>
 #include <graphics/driver/openGL/openGL.h>
+#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/Image.h>
 #include <string>
 
@@ -32,22 +34,36 @@ namespace rev { namespace graphics {
 
 		Texture(const Image& image, bool sRGB)
 		{
+			GraphicsDriverGL::checkGLErrors();
+			core::Log::verbose("Texture::Texture()");
 			glGenTextures(1, &mGLName);
 			glBindTexture(GL_TEXTURE_2D, mGLName);
+			GraphicsDriverGL::checkGLErrors();
+			core::Log::verbose("Texture::Texture() texture ", mGLName, " is bound");
 
 			auto format = texFormat(image);
 			auto internalFormat = internalTexFormat(image, sRGB);
 			auto dataType = (image.format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size().x(), image.size().y(), 0, format, dataType, image.data());
+			GraphicsDriverGL::checkGLErrors();
+			core::Log::verbose("Texture::Texture() glTexImage2D data sent");
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+			GraphicsDriverGL::checkGLErrors();
+			core::Log::verbose("Texture::Texture() filtering parameters set");
+
 			glGenerateMipmap(GL_TEXTURE_2D);
 
+			GraphicsDriverGL::checkGLErrors();
+			core::Log::verbose("Texture::Texture() Mipmaps generated");
 			glBindTexture(GL_TEXTURE_2D, 0);
+			GraphicsDriverGL::checkGLErrors();
+
+			core::Log::verbose("end Texture::Texture()");
 		}
 
 		~Texture()
@@ -59,7 +75,11 @@ namespace rev { namespace graphics {
 		{
 			auto img = Image::load(_name, nChannels);
 			if(!img)
+			{
+				core::Log::error("Unable to load texture:\n");
+				core::Log::error(_name);
 				return nullptr;
+			}
 			auto tex = std::make_shared<Texture>(*img, sRGB);
 			tex->name = _name;
 			return tex;
@@ -71,17 +91,21 @@ namespace rev { namespace graphics {
 	private:
 		static GLenum internalTexFormat(const Image& image, bool sRGB)
 		{
+			// TODO: Accordint to
+			// https://www.khronos.org/registry/OpenGL-Refpages/es3/html/glTexImage2D.xhtml
+			// Only certain internal formats support mipmap generation.
+			// Maybe we could choose better internal formats for cases where mipmaps are not needed.
 			bool hdr = image.format() == Image::ChannelFormat::Float32;
 			switch(image.nChannels())
 			{
 				case 1:
-					return hdr?GL_R32F:GL_R8;
+					return hdr?GL_R16F:GL_R8;
 				case 2:
-					return hdr?GL_RG32F:GL_RG8;
+					return hdr?GL_RG16F:GL_RG8;
 				case 3:
-					return hdr?GL_RGB32F:(sRGB?GL_SRGB8:GL_RGB8);
+					return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
 				case 4:
-					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
+					return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
 			}
 			return hdr?GL_R32F:GL_R8;
 		}
