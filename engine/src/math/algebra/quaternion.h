@@ -68,7 +68,7 @@ namespace rev { namespace math {
 		}
 
 		// Other operations
-		operator Mat33f<T>			() const; // Rotation matrix
+		operator Matrix33<T>			() const; // Rotation matrix
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
 		T				norm		() const { return m.norm(); }
