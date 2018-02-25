@@ -13,7 +13,7 @@
 	#include <GLES2/gl2ext.h>
 	#include <GLES3/gl3platform.h>
 #else // !ANDROID
-	#define GLEW_STATIC 
+	#define GLEW_STATIC
 	#include <GL/glew.h>
 	#ifdef _WIN32
 		#include <GL/wglew.h>

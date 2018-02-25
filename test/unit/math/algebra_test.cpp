@@ -71,6 +71,7 @@ void testMatrix() {
 		m.col(0).z() = 5.f;
 		assert(m.row(2).x() == 5.f);
 	}
+
 	// TODO: Test operations with matrices of different base number types
 }
 

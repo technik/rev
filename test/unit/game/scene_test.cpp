@@ -38,7 +38,7 @@ using namespace rev::game
 ;
 //----------------------------------------------------------------------------------------------------------------------
 int main() {
-	ComponentLoader		loader;
+	/*ComponentLoader		loader;
 	ComponentSerializer saver;
 	{
 		std::stringstream  stream;
@@ -76,6 +76,6 @@ int main() {
 		assert(s2.root()->children().size() == 1);
 		assert(s2.root()->children()[0]->components().size() == 1);
 		assert(s2.root()->children()[0]->component<MockComponent>()->a == 'A');
-	}
+	}*/
 	return 0;
 }
