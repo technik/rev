@@ -44,6 +44,8 @@ namespace rev { namespace game {
 				bool down = false;
 #ifdef ANDROID
 				// TODO: Support 1/2 fingers
+				down = pointingInput->leftDown() &&
+					(pointingInput->nTouches() == (mTouchNdx+1));
 #else
 				down = mTouchNdx?pointingInput->middleDown():pointingInput->leftDown();
 #endif

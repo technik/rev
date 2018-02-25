@@ -47,13 +47,16 @@ namespace rev { namespace input {
 		static PointingInputAndroid* get() { return sInstance; }
 		math::Vec2i touchPosition() const { return position; }
 		bool		leftDown() const { return mTouch; }
+		unsigned	nTouches() const { return mNTouches; }
 
 		void touchDown() { mTouch = true;}
 		void touchUp() { mTouch = false;}
+		void setNTouchs(unsigned _n) { mNTouches = _n;}
 		void move(const math::Vec2i& _pos) { position = _pos; }
 
 	private:
 		math::Vec2i position;
+		unsigned	mNTouches = 0;
 		bool		mTouch = false;
 
 		static PointingInputAndroid* sInstance;

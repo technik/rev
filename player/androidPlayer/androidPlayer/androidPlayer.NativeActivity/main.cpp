@@ -112,6 +112,8 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 		switch(AInputEvent_getSource(event)){
 			case AINPUT_SOURCE_TOUCHSCREEN:
 				int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
+				auto nTouchs = AMotionEvent_getPointerCount(event);
+				touchInput->setNTouchs(nTouchs);
 				switch(action){
 					case AMOTION_EVENT_ACTION_DOWN:
 						//LOGI("Touch down %f %f", x, y);
