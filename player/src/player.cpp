@@ -317,7 +317,7 @@ namespace rev {
 			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
 			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr", false);
-			mGraphicsScene.mLightDir = math::Vec3f(0.f,-1.f,-1.f).normalized();
+			mGraphicsScene.mLightDir = math::Vec3f(0.f,0.f,-1.f).normalized();
 
 			core::Log::debug("Sky loaded");
 
@@ -325,7 +325,7 @@ namespace rev {
 			{
 				auto orbitNode = std::make_shared<SceneNode>("orbit");
 				orbitNode->addComponent<Transform>();
-				orbitNode->addComponent<Orbit>(Vec2f{1e-2f,1e-2f});
+				orbitNode->addComponent<Orbit>(Vec2f{1e-3f,1e-3f});
 				orbitNode->addChild(gltfScene);
 				mGameScene.root()->addChild(orbitNode);
 				auto xForm = gltfScene->component<Transform>();

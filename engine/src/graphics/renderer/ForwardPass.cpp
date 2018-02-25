@@ -172,6 +172,9 @@ namespace rev { namespace graphics {
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms
 			auto wvp = vp*worldMatrix;
+			Mat44f model2Shadow;
+			if(_shadows) // TODO: This should be world 2 shadow matrix
+				model2Shadow = _shadows->shadowProj() * worldMatrix;
 
 			// render
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
@@ -183,7 +186,7 @@ namespace rev { namespace graphics {
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
 					if(_shadows) // TODO: This should be world 2 shadow matrix
-						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, _shadows->shadowProj().data());
+						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, model2Shadow.data());
 					// Lighting
 					glUniform1f(3, exposure); // EV
 					glUniform3f(4, wsEye.x(), wsEye.y(), wsEye.z());
