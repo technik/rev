@@ -66,7 +66,7 @@ namespace rev { namespace math {
 
 		UnitQuaternion conjugate() const
 		{
-			return Quaternion(-x(), -y(), -z(), w());
+			return UnitQuaternion(-x(), -y(), -z(), w());
 		}
 
 		// Other operations
