@@ -81,7 +81,7 @@ vec3 specularPBR(
 	float F = fresnelSchlick(inputs.ndv);
 	float NDF = GGX_NDF(ndh, roughness);
 	float G   = GeometrySmithGGX(vec2(inputs.ndv, ndl), roughness);
-	float specBRDF = F*G*NDF / 4;
+	float specBRDF = F*G*NDF / 4.0;
 	
 	return mix(specColor, vec3(1.0), specBRDF);
 }
@@ -131,7 +131,7 @@ vec3 fresnel(
   // Schlick with Spherical Gaussian approximation
   // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
   float sphg = pow(2.0, (-5.55473*vdh - 6.98316) * vdh);
-  return F0 + (vec3(1.0, 1.0, 1.0) - F0) * sphg;
+  return F0 + (vec3(1.0) - F0) * sphg;
 }
 
 float G1(
@@ -166,6 +166,7 @@ vec3 cook_torrance_contrib(
   // This is the contribution when using importance sampling with the GGX based
   // sample distribution. This means ct_contrib = ct_brdf / ggx_probability
   return fresnel(vdh,Ks) * (visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
+  //return vec3(visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
 }
 
 vec3 importanceSampleGGX(vec2 Xi, vec3 T, vec3 B, vec3 N, float roughness)
@@ -196,7 +197,7 @@ float distortion(vec3 Wn)
 int nbSamples = 32;
 float computeLOD(vec3 Ln, float p)
 {
-	int maxLod = textureQueryLevels(uEnvironment);
+	float maxLod = 8.0;//textureQueryLevels(uEnvironment);
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 
@@ -288,7 +289,8 @@ vec3 indirectLightPBR(
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
-	return shadowMask* (specular +  diffuse);
+	return shadowMask * (specular +  diffuse);
+	//return (1.0-0.00001*shadowMask)* ( diffuse);
 	//return diffuse;
 	//return specular;
 	//return shadowMask * diffuse;
@@ -300,7 +302,9 @@ vec3 indirectLightPBR(
 vec3 shadeSurface(ShadeInput inputs)
 {
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
+	albedo = pow(albedo, vec3(1.0/2.2));
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
+	//physics = pow(physics, vec3(1.0/2.2));
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
 	float occlusion = physics.r;
@@ -318,6 +322,7 @@ vec3 shadeSurface(ShadeInput inputs)
 		shadow = 0.0;
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
+	//emissive = pow(emissive, vec3(1.0/2.2));
 	
 	vec3 specColor = mix(vec3(0.04), albedo, metallic);
 	vec3 diffColor = albedo*(1.0-metallic);
@@ -335,12 +340,17 @@ vec3 shadeSurface(ShadeInput inputs)
 		roughness,
 		occlusion,
 		shadow);
+
+	//return 0.5+0.5*inputs.normal;
 	//return directLight + emissive;
 	//return shadowSpacePos.xyz;
 	//return vec3(shadowSpacePos.xy, sampledDepth);
 	//return indirectLight;
 	//return vec3(shadow);//indirectLight;
 	return indirectLight + emissive;
+	//return emissive;
+	//return physics;
+	//return albedo;
 	//return directLight + indirectLight + emissive;
 }
 

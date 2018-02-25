@@ -81,7 +81,7 @@ vec3 specularPBR(
 	float F = fresnelSchlick(inputs.ndv);
 	float NDF = GGX_NDF(ndh, roughness);
 	float G   = GeometrySmithGGX(vec2(inputs.ndv, ndl), roughness);
-	float specBRDF = F*G*NDF / 4;
+	float specBRDF = F*G*NDF / 4.0;
 	
 	return mix(specColor, vec3(1.0), specBRDF);
 }
@@ -131,7 +131,7 @@ vec3 fresnel(
   // Schlick with Spherical Gaussian approximation
   // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
   float sphg = pow(2.0, (-5.55473*vdh - 6.98316) * vdh);
-  return F0 + (vec3(1.0, 1.0, 1.0) - F0) * sphg;
+  return F0 + (vec3(1.0) - F0) * sphg;
 }
 
 float G1(
@@ -197,7 +197,7 @@ float distortion(vec3 Wn)
 int nbSamples = 32;
 float computeLOD(vec3 Ln, float p)
 {
-	int maxLod = textureQueryLevels(uEnvironment);
+	float maxLod = 8.0;//textureQueryLevels(uEnvironment);
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 
