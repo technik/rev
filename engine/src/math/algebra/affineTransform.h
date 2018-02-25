@@ -40,14 +40,14 @@ namespace rev { namespace math {
 		auto&		position	() 			{ return mMatrix.col(3); }
 		const auto& position	() const	{ return mMatrix.col(3); }
 
-		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3>(0,0) = _q.asMatrix(); }
+		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3>(0,0) = Mat33f(_q); }
 		auto		rotation	()	const	{ return Quatf(mMatrix.block<3,3>(0,0)); }
 
 		auto&		rotationMtx	()			{ return mMatrix.block<3,3>(0,0); }
 		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3>(0,0); }
 
 		void rotate		(const Mat33f& _rot);
-		void rotate		(const Quatf& _q) { rotate(_q.asMatrix()); }
+		void rotate		(const Quatf& _q) { rotate(Mat33f(_q)); }
 
 		const	Mat34f& matrix() const	{ return mMatrix; }
 				Mat34f& matrix()		{ return mMatrix; }

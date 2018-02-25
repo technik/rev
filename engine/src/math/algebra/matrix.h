@@ -58,8 +58,16 @@ namespace rev {
 					for(size_t j = 0; j < cols_; ++j)
 						(*this)(i,j) = *iter++;
 			}
-			template<typename Other_>
-			MatrixStorageBase(const Other_& _b) {
+
+			template<
+				size_t rowsB_,
+				size_t colsB_,
+				size_t row_strideB_,
+				size_t col_strideB_,
+				bool col_majorB_,
+				typename DerivedB_>
+			MatrixStorageBase(
+				const MatrixStorageBase<T_,rowsB_,colsB_,row_strideB_,col_strideB_,col_majorB_,DerivedB_>& _b) {
 				for(size_t j = 0; j < cols_; ++j)
 					for(size_t i = 0; i < rows_; ++i)
 						(*this)(i,j) = _b(i,j);
