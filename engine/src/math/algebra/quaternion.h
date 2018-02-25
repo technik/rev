@@ -70,7 +70,7 @@ namespace rev { namespace math {
 		}
 
 		// Other operations
-		operator Matrix33<T>			() const; // Rotation matrix
+		operator Matrix33<T>		() const; // Rotation matrix
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
 		T				norm		() const { return m.norm(); }
@@ -151,7 +151,7 @@ namespace rev { namespace math {
 	template<class N_>
 	inline UnitQuaternion<N_> UnitQuaternion<N_>::operator*(const UnitQuaternion<N_>& _q) const
 	{
-		return Quaternion<N_>(
+		return UnitQuaternion<N_>(
 			w()*_q.x() + x()*_q.w() + y()*_q.z() - z()*_q.y(),	// x
 			w()*_q.y() - x()*_q.z() + y()*_q.w() + z()*_q.x(),	// y
 			w()*_q.z() + x()*_q.y() - y()*_q.x() + z()*_q.w(),	// z
@@ -184,7 +184,7 @@ namespace rev { namespace math {
 	template<class N_>
 	inline UnitQuaternion<N_> UnitQuaternion<N_>::identity()
 	{
-		return Quaternion<N_>(0,0,0,1);
+		return UnitQuaternion<N_>(0,0,0,1);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -67,8 +67,8 @@ namespace rev { namespace game {
 					wasDown = true;
 
 					// Recompute transform
-					auto pan = math::Quatf({0.f,0.f,1.f}, angles.x());
-					auto tilt = math::Quatf({1.f,0.f,0.f}, angles.y());
+					auto pan = math::Quatf::fromAxisAngle({0.f,0.f,1.f}, angles.x());
+					auto tilt = math::Quatf::fromAxisAngle({1.f,0.f,0.f}, angles.y());
 					mSrcTransform->xForm.setRotation(pan * tilt);
 				}
 				else wasDown = false;
