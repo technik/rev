@@ -18,101 +18,83 @@
 
 namespace rev { namespace math {
 
-	template<typename Number_>
-	class Quaternion
+	template<typename T>
+	class UnitQuaternion
 	{
 	public:
 		// Constructors
-		Quaternion	()	{}
-		Quaternion	(Number_ _x, Number_ _y, Number_ _z, Number_ _w): x(_x), y(_y), z(_z), w(_w)	{}
-		// Axis is assumed normalized
-		Quaternion	(const Vector3<Number_>& _axis, const Number_ _radians);
-
-		Quaternion	(const Vector3<Number_>& _rotationVector);
+		UnitQuaternion	()	{}
+		UnitQuaternion	(T _x, T _y, T _z, T _w):
+			m({_x, _y, _z, _w})
+		{}
 		template<typename S_>
-		Quaternion	(const MatrixBase<3,3,S_>& _matrix);
+		UnitQuaternion	(const MatrixBase<3,3,S_>& _matrix);
+		static UnitQuaternion	identity();
 
-		Quaternion fromUnitVectors(const Vector3<Number_>& u, const Vector3<Number_>& v)
+		// Accessors
+		const T_& x() const { return m[0]; }
+		const T_& y() const { return m[1]; }
+		const T_& z() const { return m[2]; }
+		const T_& w() const { return m[3]; }
+
+		// Useful constructors
+		/// \param axis is assumed to be normalized
+		UnitQuaternion fromAxisAngle(const Vector3<T>& axis, T _radians)
+		{
+			auto half_sin = sin(_radians); // Using sine(theta/2) instead of cosine preserves the sign.
+			m.block<3,1>(0,0) = axis*half_sin;
+			w() = std::sqrt(1-half_sin*half_sin);
+		}
+
+		UnitQuaternion fromUnitVectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
 			// TODO: This can be made faster by precomputing sqrt(2)
 			auto m = sqrt(2 + 2 * u.dot(v));
-			Vector3<Number_> w = (1 / m) * u.cross(v);
-			return Quaternion(w.x(), w.y(), w.z(), m*0.5f);
+			Vector3<T> w = (1 / m) * u.cross(v);
+			return UnitQuaternion(w.x(), w.y(), w.z(), m*0.5f);
 		}
 
-		Quaternion from2Vectors(const Vector3<Number_>& u, const Vector3<Number_>& v)
+		UnitQuaternion from2Vectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
-			Vector3<Number_> w = u.cross(v);
+			Vector3<T> w = u.cross(v);
 			Quaternion q = quat(dot(u, v), w.x, w.y, w.z);
 			q.w += length(q);
 			return q.normalized();
 		}
 
-		Number_ dot(const Quaternion& q) const {
-			return w*q.w - x*q.x - y*q.y - z*q.z;
+		UnitQuaternion conjugate() const
+		{
+			return Quaternion(-x(), -y(), -z(), w());
 		}
 
-		Quaternion normalized() const {
-			auto n = 1.f/norm();
-			return Quaternion(x*n,y*n,z*n,w*n);
-		}
-
-		Number_ norm() const { return sqrt(dot(*this)); }
 		// Operators
-		Quaternion	operator *	(const Quaternion& _q) const;
+		UnitQuaternion	operator *	(const Quaternion& _q) const;
 
 		// Other operations
-		Vector3<Number_>	rotate		(const Vector3<Number_>& _v) const;
-		Quaternion	inverse		() const;
-
-		Matrix33<Number_> asMatrix() const;
+		Vector3<T>	rotate		(const Vector3<T>& _v) const;
 
 		// Useful quaternions
-		static Quaternion	identity();
 
+	private:
+		T_& x() { return m[0]; }
+		T_& y() { return m[1]; }
+		T_& z() { return m[2]; }
+		T_& w() { return m[3]; }
 
-		Number_ x;
-		Number_ y;
-		Number_ z;
-		Number_ w;
+		Vector4<T> m;
 	};
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Useful typedefs
-	typedef Quaternion<float>	Quatf;
-	typedef Quaternion<double>	Quatd;
+	typedef UnitQuaternion<float>	Quatf;
+	typedef UnitQuaternion<double>	Quatd;
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _axis, const N_ _radians)
-	{
-		auto half_angle = 0.5f*_radians;
-		w = cos(half_angle);
-		N_ sinus = sin(half_angle);
-		x = _axis.x() * sinus;
-		y = _axis.y() * sinus;
-		z = _axis.z() * sinus;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
-	inline Quaternion<N_>::Quaternion(const Vector3<N_>& _rotationVector)
-	{
-		N_ halfRadians = _rotationVector.norm() * 0.5f;
-		Vector3<N_> axis  = _rotationVector.normalized();
-		w = cos(halfRadians);
-		N_ sinus = aqrt(N_(1) - w*w); // sin(halfRadians);
-		x = axis.x() * sinus;
-		y = axis.y() * sinus;
-		z = axis.z() * sinus;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
 	template<typename S_>
-	inline Quaternion<N_>::Quaternion(const MatrixBase<3,3,S_> & _m)
+	inline UnitQuaternion<N_>::UnitQuaternion(const MatrixBase<3,3,S_> & _m)
 	{
 		//static_assert(typename S_::Element == N_, "Inconsistent number type Quaternion-Matrix");
 		N_ tr = _m(0,0) + _m(1,1) + _m(2,2);
@@ -129,14 +111,14 @@ namespace rev { namespace math {
 		// Find the largest diagonal element of _m
 		if(_m(0,0) > _m(1,1)) {
 			if(_m(0,0) > _m(2,2)) { // _m00 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m(0,0) - _m(1,1) - _m(2,2) );
+				N_ r = sqrt( 1 + _m(0,0) - _m(1,1) - _m(2,2) );
 				N_ inv2r = 0.5f / r;
 				w = (_m(2,1) - _m(1,2)) * inv2r;
 				x = 0.5f * r;
 				y = (_m(0,1) + _m(1,0)) * inv2r;
 				z = (_m(2,0) + _m(0,2)) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m(2,2) - _m(0,0) - _m(1,1) );
+				N_ r = sqrt( 1 + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
 				w = (_m(1,0) - _m(0,1)) * inv2r;
 				z = 0.5f * r;
@@ -145,14 +127,14 @@ namespace rev { namespace math {
 			}
 		} else {
 			if(_m(1,1) > _m(2,2)) { // _m11 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m(1,1) - _m(2,2) - _m(0,0) );
+				N_ r = sqrt( 1 + _m(1,1) - _m(2,2) - _m(0,0) );
 				N_ inv2r = 0.5f / r;
 				w = (_m(0,1) - _m(1,0)) * inv2r;
 				y = 0.5f * r;
 				z = (_m(1,2) + _m(2,1)) * inv2r;
 				x = (_m(0,1) + _m(1,0)) * inv2r;
 			} else { // _m22 is the largest diagonal element
-				N_ r = sqrt( NumericTraits<N_>::one() + _m(2,2) - _m(0,0) - _m(1,1) );
+				N_ r = sqrt( 1 + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
 				w = (_m(1,0) - _m(0,1)) * inv2r;
 				z = 0.5f * r;
@@ -164,7 +146,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_> Quaternion<N_>::operator*(const Quaternion<N_>& _q) const
+	inline UnitQuaternion<N_> UnitQuaternion<N_>::operator*(const Quaternion<N_>& _q) const
 	{
 		return Quaternion<N_>(
 			w*_q.x + x*_q.w + y*_q.z - z*_q.y,	// x
@@ -176,7 +158,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Vector3<N_> Quaternion<N_>::rotate(const Vector3<N_>& _v) const
+	inline Vector3<N_> UnitQuaternion<N_>::rotate(const Vector3<N_>& _v) const
 	{
 		N_ a2 = w*w;
 		N_ b2 = x*x;
@@ -189,28 +171,17 @@ namespace rev { namespace math {
 		N_ bd = x*z;
 		N_ cd = y*z;
 		return Vector3<N_>(
-			(a2+b2-c2-d2)*_v.x+2.0f*((bc-ad)*_v.y+(bd+ac)*_v.z),	// x
-			(a2-b2+c2-d2)*_v.y+2.0f*((cd-ab)*_v.z+(bc+ad)*_v.x),	// y
-			(a2-b2-c2+d2)*_v.z+2.0f*((bd-ac)*_v.x+(cd+ab)*_v.y)		// z
+			(a2+b2-c2-d2)*_v.x+2*((bc-ad)*_v.y+(bd+ac)*_v.z),	// x
+			(a2-b2+c2-d2)*_v.y+2*((cd-ab)*_v.z+(bc+ad)*_v.x),	// y
+			(a2-b2-c2+d2)*_v.z+2*((bd-ac)*_v.x+(cd+ab)*_v.y)	// z
 			);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Quaternion<N_> Quaternion<N_>::inverse() const
+	inline UnitQuaternion<N_> UnitQuaternion<N_>::identity()
 	{
-		return Quaternion<N_>(-x, -y, -z, w);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	template<class N_>
-	inline Quaternion<N_> Quaternion<N_>::identity()
-	{
-		return Quaternion<N_>(
-			N_(0.f),
-			N_(0.f),
-			N_(0.f),
-			N_(1.f));
+		return Quaternion<N_>(0,0,0,1);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

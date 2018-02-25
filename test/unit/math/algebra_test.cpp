@@ -75,6 +75,11 @@ void testMatrix() {
 	// TODO: Test operations with matrices of different base number types
 }
 
+void testQuaternions()
+{
+	// TODO: Test axis angle for angles in the 4 basic quadrants
+}
+
 int main() {
 	testMatrix();
 	testVector();
