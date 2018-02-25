@@ -32,10 +32,10 @@ namespace rev { namespace math {
 		static UnitQuaternion	identity();
 
 		// Accessors
-		const T_& x() const { return m[0]; }
-		const T_& y() const { return m[1]; }
-		const T_& z() const { return m[2]; }
-		const T_& w() const { return m[3]; }
+		const T& x() const { return m[0]; }
+		const T& y() const { return m[1]; }
+		const T& z() const { return m[2]; }
+		const T& w() const { return m[3]; }
 
 		// Useful constructors
 		/// \param axis is assumed to be normalized
@@ -68,15 +68,15 @@ namespace rev { namespace math {
 		}
 
 		// Other operations
-		UnitQuaternion	operator *	(const Quaternion& _q) const;
+		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
 		T				norm		() const { return m.norm(); }
 
 	private:
-		T_& x() { return m[0]; }
-		T_& y() { return m[1]; }
-		T_& z() { return m[2]; }
-		T_& w() { return m[3]; }
+		T& x() { return m[0]; }
+		T& y() { return m[1]; }
+		T& z() { return m[2]; }
+		T& w() { return m[3]; }
 
 		UnitQuaternion(const Vector4<T> raw) : m(raw) {}
 		UnitQuaternion normalized() const { return UnitQuaternion(m.normalized()); }
@@ -146,7 +146,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline UnitQuaternion<N_> UnitQuaternion<N_>::operator*(const Quaternion<N_>& _q) const
+	inline UnitQuaternion<N_> UnitQuaternion<N_>::operator*(const UnitQuaternion<N_>& _q) const
 	{
 		return Quaternion<N_>(
 			w()*_q.x() + x()*_q.w() + y()*_q.z() - z()*_q.y(),	// x
@@ -186,7 +186,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Matrix33<N_> Quaternion<N_>::asMatrix() const
+	inline Matrix33<N_> UnitQuaternion<N_>::asMatrix() const
 	{
 		N_ a2 = w()*w();
 		N_ b2 = x()*x();
