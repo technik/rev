@@ -64,6 +64,7 @@ namespace rev { namespace graphics {
 						core::Log::debug("GL error: ", "Unknown enum ", error);
 						return true;
 				}
+				// glGetDebugMessageLog
 			}
 			return false;
 		}

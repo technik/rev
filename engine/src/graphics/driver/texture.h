@@ -103,9 +103,10 @@ namespace rev { namespace graphics {
 				case 2:
 					return hdr?GL_RG16F:GL_RG8;
 				case 3:
-					return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
+					//return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
+					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8:GL_RGB8);
 				case 4:
-					return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
+					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
 			}
 			return hdr?GL_R32F:GL_R8;
 		}
