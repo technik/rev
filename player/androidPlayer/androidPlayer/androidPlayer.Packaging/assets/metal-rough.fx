@@ -285,10 +285,14 @@ vec3 indirectLightPBR(
 	float shadow
 	)
 {
-	float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
-	shadowImportance = sqrt(shadowImportance);
+	//float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
+	//shadowImportance = sqrt(shadowImportance);
 	//shadowImportance = shadowImportance*shadowImportance;
-	float shadowMask = mix(1.0, shadow, shadowImportance);
+#ifdef ANDROID
+	//float shadowMask = 1.0;
+#else
+	//float shadowMask = mix(1.0, shadow, shadowImportance);
+#endif
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
 	vectors.normal = inputs.normal;
@@ -297,7 +301,7 @@ vec3 indirectLightPBR(
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
-	return shadowMask * (specular +  diffuse);
+	return specular +  diffuse;
 	//return (1.0-0.00001*shadowMask)* ( diffuse);
 	//return diffuse;
 	//return specular;
