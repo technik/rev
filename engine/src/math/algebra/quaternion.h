@@ -102,10 +102,10 @@ namespace rev { namespace math {
 		if (tr > 0) {
 			N_ r = sqrt(1 + tr);
 			N_ inv2r = 0.5f / r;
-			w = 0.5f * r;
-			x = (_m(2,1) - _m(1,2)) * inv2r;
-			y = (_m(0,2) - _m(2,0)) * inv2r;
-			z = (_m(1,0) - _m(0,1)) * inv2r;
+			w() = 0.5f * r;
+			x() = (_m(2,1) - _m(1,2)) * inv2r;
+			y() = (_m(0,2) - _m(2,0)) * inv2r;
+			z() = (_m(1,0) - _m(0,1)) * inv2r;
 			return;
 		}
 		// Find the largest diagonal element of _m
@@ -113,33 +113,33 @@ namespace rev { namespace math {
 			if(_m(0,0) > _m(2,2)) { // _m00 is the largest diagonal element
 				N_ r = sqrt( 1 + _m(0,0) - _m(1,1) - _m(2,2) );
 				N_ inv2r = 0.5f / r;
-				w = (_m(2,1) - _m(1,2)) * inv2r;
-				x = 0.5f * r;
-				y = (_m(0,1) + _m(1,0)) * inv2r;
-				z = (_m(2,0) + _m(0,2)) * inv2r;
+				w() = (_m(2,1) - _m(1,2)) * inv2r;
+				x() = 0.5f * r;
+				y() = (_m(0,1) + _m(1,0)) * inv2r;
+				z() = (_m(2,0) + _m(0,2)) * inv2r;
 			} else { // _m22 is the largest diagonal element
 				N_ r = sqrt( 1 + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_m(1,0) - _m(0,1)) * inv2r;
-				z = 0.5f * r;
-				x = (_m(2,0) + _m(0,2)) * inv2r;
-				y = (_m(1,2) + _m(2,1)) * inv2r;
+				w() = (_m(1,0) - _m(0,1)) * inv2r;
+				z() = 0.5f * r;
+				x() = (_m(2,0) + _m(0,2)) * inv2r;
+				y() = (_m(1,2) + _m(2,1)) * inv2r;
 			}
 		} else {
 			if(_m(1,1) > _m(2,2)) { // _m11 is the largest diagonal element
 				N_ r = sqrt( 1 + _m(1,1) - _m(2,2) - _m(0,0) );
 				N_ inv2r = 0.5f / r;
-				w = (_m(0,1) - _m(1,0)) * inv2r;
-				y = 0.5f * r;
-				z = (_m(1,2) + _m(2,1)) * inv2r;
-				x = (_m(0,1) + _m(1,0)) * inv2r;
+				w() = (_m(0,1) - _m(1,0)) * inv2r;
+				y() = 0.5f * r;
+				z() = (_m(1,2) + _m(2,1)) * inv2r;
+				x() = (_m(0,1) + _m(1,0)) * inv2r;
 			} else { // _m22 is the largest diagonal element
 				N_ r = sqrt( 1 + _m(2,2) - _m(0,0) - _m(1,1) );
 				N_ inv2r = 0.5f / r;
-				w = (_m(1,0) - _m(0,1)) * inv2r;
-				z = 0.5f * r;
-				x = (_m(2,0) + _m(0,2)) * inv2r;
-				y = (_m(1,2) + _m(2,1)) * inv2r;
+				w() = (_m(1,0) - _m(0,1)) * inv2r;
+				z() = 0.5f * r;
+				x() = (_m(2,0) + _m(0,2)) * inv2r;
+				y() = (_m(1,2) + _m(2,1)) * inv2r;
 			}
 		}
 	}
@@ -149,10 +149,10 @@ namespace rev { namespace math {
 	inline UnitQuaternion<N_> UnitQuaternion<N_>::operator*(const Quaternion<N_>& _q) const
 	{
 		return Quaternion<N_>(
-			w*_q.x + x*_q.w + y*_q.z - z*_q.y,	// x
-			w*_q.y - x*_q.z + y*_q.w + z*_q.x,	// y
-			w*_q.z + x*_q.y - y*_q.x + z*_q.w,	// z
-			w*_q.w - x*_q.x - y*_q.y - z*_q.z	// w
+			w()*_q.x() + x()*_q.w() + y()*_q.z() - z()*_q.y(),	// x
+			w()*_q.y() - x()*_q.z() + y()*_q.w() + z()*_q.x(),	// y
+			w()*_q.z() + x()*_q.y() - y()*_q.x() + z()*_q.w(),	// z
+			w()*_q.w() - x()*_q.x() - y()*_q.y() - z()*_q.z()	// w
 			);
 	}
 
@@ -160,20 +160,20 @@ namespace rev { namespace math {
 	template<class N_>
 	inline Vector3<N_> UnitQuaternion<N_>::rotate(const Vector3<N_>& _v) const
 	{
-		N_ a2 = w*w;
-		N_ b2 = x*x;
-		N_ c2 = y*y;
-		N_ d2 = z*z;
-		N_ ab = w*x;
-		N_ ac = w*y;
-		N_ ad = w*z;
-		N_ bc = x*y;
-		N_ bd = x*z;
-		N_ cd = y*z;
+		auto a2 = w()*w();
+		auto b2 = x()*x();
+		auto c2 = y()*y();
+		auto d2 = z()*z();
+		auto ab = w()*x();
+		auto ac = w()*y();
+		auto ad = w()*z();
+		auto bc = x()*y();
+		auto bd = x()*z();
+		auto cd = y()*z();
 		return Vector3<N_>(
-			(a2+b2-c2-d2)*_v.x+2*((bc-ad)*_v.y+(bd+ac)*_v.z),	// x
-			(a2-b2+c2-d2)*_v.y+2*((cd-ab)*_v.z+(bc+ad)*_v.x),	// y
-			(a2-b2-c2+d2)*_v.z+2*((bd-ac)*_v.x+(cd+ab)*_v.y)	// z
+			(a2+b2-c2-d2)*_v.x()+2*((bc-ad)*_v.y()+(bd+ac)*_v.z()),	// x
+			(a2-b2+c2-d2)*_v.y()+2*((cd-ab)*_v.z()+(bc+ad)*_v.x()),	// y
+			(a2-b2-c2+d2)*_v.z()+2*((bd-ac)*_v.x()+(cd+ab)*_v.y())	// z
 			);
 	}
 
@@ -188,27 +188,27 @@ namespace rev { namespace math {
 	template<class N_>
 	inline Matrix33<N_> Quaternion<N_>::asMatrix() const
 	{
-		N_ a2 = w*w;
-		N_ b2 = x*x;
-		N_ c2 = y*y;
-		N_ d2 = z*z;
-		N_ ab = 2 * w*x;
-		N_ ac = 2 * w*y;
-		N_ ad = 2 * w*z;
-		N_ bc = 2 * x*y;
-		N_ bd = 2 * x*z;
-		N_ cd = 2 * y*z;
-		Matrix33<N_> m;
-		m(0,0) = a2 + b2 - c2 - d2;
-		m(0,1) = bc - ad;
-		m(0,2) = bd + ac;
-		m(1,0) = bc + ad;
-		m(1,1) = a2 - b2 + c2 - d2;
-		m(1,2) = cd - ab;
-		m(2,0) = bd - ac;
-		m(2,1) = cd + ab;
-		m(2,2) = a2 - b2 - c2 + d2;
-		return m;
+		N_ a2 = w()*w();
+		N_ b2 = x()*x();
+		N_ c2 = y()*y();
+		N_ d2 = z()*z();
+		N_ ab = 2 * w()*x();
+		N_ ac = 2 * w()*y();
+		N_ ad = 2 * w()*z();
+		N_ bc = 2 * x()*y();
+		N_ bd = 2 * x()*z();
+		N_ cd = 2 * y()*z();
+		Matrix33<N_> mat;
+		mat(0,0) = a2 + b2 - c2 - d2;
+		mat(0,1) = bc - ad;
+		mat(0,2) = bd + ac;
+		mat(1,0) = bc + ad;
+		mat(1,1) = a2 - b2 + c2 - d2;
+		mat(1,2) = cd - ab;
+		mat(2,0) = bd - ac;
+		mat(2,1) = cd + ab;
+		mat(2,2) = a2 - b2 - c2 + d2;
+		return mat;
 	}
 
 }	// namespace math
