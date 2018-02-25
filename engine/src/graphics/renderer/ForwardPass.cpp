@@ -110,6 +110,35 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure)
+	{
+		auto skyShaderIter = mPipelines.find("sky.fx");
+		Shader* skyShader = nullptr;
+		if(skyShaderIter == mPipelines.end())
+		{
+			// Try to load shader
+			core::File code("sky.fx");
+			auto skyShaderPtr = Shader::createShader( code.bufferAsText() );
+			if(skyShaderPtr)
+			{
+				skyShader = skyShaderPtr.get();
+				mPipelines.insert(std::make_pair("sky.fx", std::move(skyShaderPtr)));
+			}
+		} else
+			skyShader = skyShaderIter->second.get();
+		if(skyShader)
+		{
+			skyShader->bind();
+			// View projection matrix
+			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, viewProj.data());
+			// Lighting
+			glUniform1f(3, exposure); // EV
+			glUniform1i(7, 7); // Sky texture. Assumes sky texture in texture stage 7.
+			mSkyPlane->render();
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
 	{
 #ifdef _WIN32
@@ -206,33 +235,8 @@ namespace rev { namespace graphics {
 		}
 
 		// Render skybox
-		if(!_scene.sky)
-			return;
-		auto skyShaderIter = mPipelines.find("sky.fx");
-		Shader* skyShader = nullptr;
-		if(skyShaderIter == mPipelines.end())
-		{
-			// Try to load shader
-			core::File code("sky.fx");
-			auto skyShaderPtr = Shader::createShader( code.bufferAsText() );
-			if(skyShaderPtr)
-			{
-				skyShader = skyShaderPtr.get();
-				mPipelines.insert(std::make_pair("sky.fx", std::move(skyShaderPtr)));
-			}
-		} else
-			skyShader = skyShaderIter->second.get();
-		if(skyShader)
-		{
-			skyShader->bind();
-			// View projection matrix
-			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, vp.data());
-			// Lighting
-			glUniform1f(3, exposure); // EV
-			// Sky texture
-			glUniform1i(7, 7);
-			mSkyPlane->render();
-		}
+		if(_scene.sky)
+			renderBackground(vp, exposure);
 	}
 
 }}
