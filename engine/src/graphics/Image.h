@@ -66,6 +66,10 @@ namespace rev { namespace graphics {
 			if(file.sizeInBytes() > 0)
 			{
 				bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
+#ifdef ANDROID
+				if(isHDR)
+					nChannels = 4;
+#endif
 				auto imgFormat = isHDR?ChannelFormat::Float32:ChannelFormat::Byte;
 				int width, height, realNumChannels;
 				uint8_t* imgData;

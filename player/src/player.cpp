@@ -363,7 +363,11 @@ namespace rev {
 	void Player::createCamera() {
 		// Orbit
 		auto orbitNode = mGameScene.root()->createChild("camOrbit");
+#ifdef ANDROID
+		orbitNode->addComponent<Orbit>(Vec2f{-1e-3f,-1e-3f}, 1);
+#else
 		orbitNode->addComponent<Orbit>(Vec2f{-1e-2f,-1e-2f}, 1);
+#endif
 		orbitNode->addComponent<Transform>();
 
 		// Cam node
