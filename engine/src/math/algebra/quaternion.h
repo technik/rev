@@ -67,19 +67,19 @@ namespace rev { namespace math {
 			return Quaternion(-x(), -y(), -z(), w());
 		}
 
-		// Operators
-		UnitQuaternion	operator *	(const Quaternion& _q) const;
-
 		// Other operations
-		Vector3<T>	rotate		(const Vector3<T>& _v) const;
-
-		// Useful quaternions
+		UnitQuaternion	operator *	(const Quaternion& _q) const;
+		Vector3<T>		rotate		(const Vector3<T>& _v) const;
+		T				norm		() const { return m.norm(); }
 
 	private:
 		T_& x() { return m[0]; }
 		T_& y() { return m[1]; }
 		T_& z() { return m[2]; }
 		T_& w() { return m[3]; }
+
+		UnitQuaternion(const Vector4<T> raw) : m(raw) {}
+		UnitQuaternion normalized() const { return UnitQuaternion(m.normalized()); }
 
 		Vector4<T> m;
 	};
