@@ -52,7 +52,7 @@ namespace rev { namespace graphics {
 		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4), false)); // Albedo texture
 		mErrorMaterial->addParam(6, 0.5f); // Roughness
 		mErrorMaterial->addParam(7, 0.05f); // Metallic
-		mEV = 1.0f;
+		mEV = 0.0f;
 
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));

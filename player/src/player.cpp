@@ -206,8 +206,9 @@ namespace rev {
 				mat->shader = "metal-rough.fx";
 				mat->addTexture(10, Texture::load(textureNames[normalNdx], false));
 				mat->addTexture(11, Texture::load(textureNames[albedoNdx]));
+				//mat->addTexture(12, Texture::load(textureNames[albedoNdx], false));
 				mat->addTexture(12, Texture::load(textureNames[physicsNdx]));
-				mat->addTexture(13, Texture::load(textureNames[emissiveNdx]));
+				mat->addTexture(13, Texture::load(textureNames[emissiveNdx], false));
 				//mat->addTexture(14, Texture::load(textureNames[aoNdx]));
 				materials.push_back(mat);
 			}
