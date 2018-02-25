@@ -122,13 +122,7 @@ namespace rev {
 				core::Log::error("Unable to find scene asset");
 				return nullptr;
 			}
-			Json sceneDesc;
-			core::Log::error("Scene file open");
-			std::stringstream ss;
-			ss << "File size is " << sceneFile.sizeInBytes() << "\n";
-			core::Log::debug(ss.str().c_str());
-			ss.clear();
-			sceneFile.asStream() >> sceneDesc;
+			Json sceneDesc = Json::parse(sceneFile.bufferAsText());
 			auto asset = sceneDesc.find("asset");
 			if(asset == sceneDesc.end())
 			{
@@ -180,8 +174,6 @@ namespace rev {
 				accessor.data = &bufferViews[bufferViewNdx].data[byteOffset];
 				accessors.push_back(accessor);
 			}
-
-			core::Log::verbose("---------Loaded basic content descriptors. Start with textures");
 
 			// Load textures
 			std::vector<std::string>	textureNames;
