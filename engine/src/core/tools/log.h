@@ -79,6 +79,7 @@ namespace rev { namespace core {
 		{
 			std::cout << _tag << ": ";
 			writeToSS(std::cout, _args...);
+			std::cout << "\n";
 		}
 #endif
 

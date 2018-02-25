@@ -128,9 +128,7 @@ namespace rev {
 			ss << "File size is " << sceneFile.sizeInBytes() << "\n";
 			core::Log::debug(ss.str().c_str());
 			ss.clear();
-			sceneDesc.parse(sceneFile.bufferAsText());
-			//sceneFile.asStream() >> sceneDesc;
-			core::Log::verbose("---------Scene asset properly parsed");
+			sceneFile.asStream() >> sceneDesc;
 			auto asset = sceneDesc.find("asset");
 			if(asset == sceneDesc.end())
 			{
@@ -324,11 +322,13 @@ namespace rev {
 			//std::string skyName = "Winter";
 			//std::string skyName = "Factory";
 			core::Log::debug("Load sky");
-			mGraphicsScene.sky = Texture::load(skyName+".hdr");
-			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr");
+			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
+			GraphicsDriverGL::checkGLErrors();
+			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr", false);
+			GraphicsDriverGL::checkGLErrors();
 			mGraphicsScene.mLightDir = math::Vec3f(0.f,-1.f,-1.f).normalized();
 
-			mGfxDriver->checkGLErrors();
+			GraphicsDriverGL::checkGLErrors();
 			core::Log::debug("Sky loaded");
 
 			if(gltfScene)
@@ -349,13 +349,19 @@ namespace rev {
 					xForm = gltfScene->addComponent<Transform>();
 				}
 				xForm->xForm.rotate(rotation);
+				GraphicsDriverGL::checkGLErrors();
 			}
 			createCamera();
+			GraphicsDriverGL::checkGLErrors();
 			mGameScene.root()->init();
+			GraphicsDriverGL::checkGLErrors();
 
 			mGameEditor.init(mGraphicsScene);
+			GraphicsDriverGL::checkGLErrors();
 			mRenderer.init(*mGfxDriver, *mGfxDriver->frameBuffer());
+			GraphicsDriverGL::checkGLErrors();
 			gui::init(_window->size);
+			GraphicsDriverGL::checkGLErrors();
 		}
 		return mGfxDriver != nullptr;
 	}
@@ -442,7 +448,7 @@ namespace rev {
 		// TODO: Use a real geometry pool. Even better. Use a geometry pool and a model mananger to load geometry.
 		// Even better: Do that in a background thread while other components are loaded
 		core::Log::debug("Check before loading scene");
-		mGfxDriver->checkGLErrors();
+		GraphicsDriverGL::checkGLErrors();
 		game::ModelAsset geometryPool(_assetFileName + ".mdl");
 		// Load the scene components
 		core::File asset(_assetFileName + ".scn");
@@ -471,19 +477,24 @@ namespace rev {
 		if(!mGfxDriver)
 			return true;
 		core::Time::get()->update();
+		GraphicsDriverGL::checkGLErrors();
 		gui::startFrame(mGfxDriver->frameBuffer()->size());
 
-		mGfxDriver->checkGLErrors();
+		GraphicsDriverGL::checkGLErrors();
 
 		mGameEditor.update(mGameScene);
+		GraphicsDriverGL::checkGLErrors();
 
 		auto dt = core::Time::get()->frameTime();
 
 		mGameScene.root()->update(dt);
+		GraphicsDriverGL::checkGLErrors();
 
 		mRenderer.render(*mCamera, mGraphicsScene);
+		GraphicsDriverGL::checkGLErrors();
 
 		gui::finishFrame(dt);
+		GraphicsDriverGL::checkGLErrors();
 		mGfxDriver->swapBuffers();
 
 		return true;
