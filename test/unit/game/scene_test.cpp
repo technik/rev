@@ -12,7 +12,6 @@ namespace rev { namespace game {
 struct MockComponent : Component
 {
 	char a;
-	void serialize(std::ostream& out) const override {}
 };
 
 // Loader Mock
@@ -24,12 +23,6 @@ std::unique_ptr<Component> ComponentLoader::loadComponent(std::istream& in) cons
 	auto c = std::make_unique<MockComponent>();
 	in >> c->a;
 	return std::move(c);
-}
-
-// Saver mock
-void ComponentSerializer::save(const Component& c, std::ostream& out) const
-{
-	out << reinterpret_cast<const MockComponent*>(&c)->a;
 }
 
 }} // namespace rev::game

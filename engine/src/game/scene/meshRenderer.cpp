@@ -31,20 +31,4 @@ namespace rev { namespace game {
 		mRenderable->transform = mSrcTransform->absoluteXForm();
 	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void MeshRenderer::serialize(std::ostream & _out) const {
-		assert(false); // Unimplemented
-		/*_out << "MeshRenderer\n";
-		_out << mModelScene << "\n";
-		uint32_t nMeshes = mRenderable->meshes.size();
-		_out.write((const char*)&nMeshes, sizeof(nMeshes));
-
-		for(uint32_t i = 0; i < nMeshes; ++i)
-		{
-			//_out.write((const char*)&mMeshIndices[i], sizeof(uint32_t));
-			auto& name =  mRenderable->materials[i]->name;
-			_out << (name.empty()? "-" : name) << "\n";
-		}*/
-	}
-
 }}	// namespace rev::game

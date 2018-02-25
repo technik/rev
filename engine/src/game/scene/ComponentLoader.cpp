@@ -64,10 +64,4 @@ namespace rev { namespace game {
 		}, false);
 	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void ComponentSerializer::save(const Component& c, std::ostream& out) const
-	{
-		c.serialize(out);
-	}
-
 }} // namespace rev::game

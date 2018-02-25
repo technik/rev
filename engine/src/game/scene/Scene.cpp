@@ -39,13 +39,6 @@ namespace rev { namespace game {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Scene::save(std::ostream& out, const ComponentSerializer& saver) const
-	{
-		// Save node tree
-		serializeNodeSubtree(*mNodeTree, out, saver);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	bool Scene::parseNodeSubtree(SceneNode& root, std::istream& in, const ComponentLoader& loader)
 	{
 		// TODO: Load name
@@ -56,14 +49,6 @@ namespace rev { namespace game {
 		if(!parseChildren(root,in,loader))
 			return false;
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Scene::serializeNodeSubtree(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver)
-	{
-		out << (root.name + "\n");
-		saveComponents(root,out,saver);
-		saveChildren(root,out,saver);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -95,24 +80,6 @@ namespace rev { namespace game {
 			parent.addChild(child);
 		}
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Scene::saveComponents(const SceneNode& node, std::ostream& out, const ComponentSerializer& saver)
-	{
-		uint32_t nComponents = node.components().size();
-		write(out,nComponents);
-		for(auto& c : node.components())
-			saver.save(*c,out);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Scene::saveChildren(const SceneNode& node, std::ostream& out, const ComponentSerializer& saver)
-	{
-		uint32_t nChildren = node.children().size();
-		write(out,nChildren);
-		for(auto& c : node.children())
-			serializeNodeSubtree(*c,out,saver);
 	}
 
 }}

@@ -113,18 +113,6 @@ struct IntermediateModel {
 struct MeshRendererDesc : public Component {
 	vector<uint32_t> meshIndices;
 	string modelScene;
-
-	void serialize(std::ostream& _out) const override {
-		_out << "MeshRenderer\n";
-		_out << modelScene << "\n";
-		uint32_t nMeshes = meshIndices.size();
-		_out.write((const char*)&nMeshes, sizeof(nMeshes));
-		for(uint32_t i = 0; i < nMeshes; ++i)
-		{
-			_out.write((const char*)&meshIndices[i], sizeof(uint32_t));
-			_out << "-\n";
-		}
-	}
 };
 
 struct SceneDesc
@@ -159,7 +147,6 @@ struct SceneDesc
 			else
 				nodes[parentNdx]->addChild(nodes[i]);
 		}
-		tree.save(dst, ComponentSerializer());
 	}
 };
 

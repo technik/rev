@@ -75,10 +75,6 @@ namespace rev { namespace game {
 			}
 		}
 
-		void serialize(std::ostream &) const override {
-			// TODO
-		}
-
 	private:
 		int mTouchNdx = 0;
 		math::Vec2f ang0 = math::Vec2f::zero();

@@ -31,10 +31,6 @@ namespace rev { namespace game {
 		void init		() override;
 		void update		(float _dt) override;
 
-		void serialize(std::ostream &) const override {
-			// TODO
-		}
-
 	private:
 		float mSpeed;
 		Transform*	mSrcTransform;

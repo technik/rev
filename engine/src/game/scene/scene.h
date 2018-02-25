@@ -30,7 +30,6 @@
 namespace rev { namespace game {
 
 	class ComponentLoader;
-	class ComponentSerializer;
 	class SceneNode;
 
 	class Scene
@@ -39,7 +38,6 @@ namespace rev { namespace game {
 		Scene();
 
 		bool load(std::istream& in, const ComponentLoader& loader);
-		void save(std::ostream& out, const ComponentSerializer& saver) const;
 
 		// Views
 		const graphics::RenderScene&	renderable() const	{ return mGraphics; }
@@ -52,13 +50,9 @@ namespace rev { namespace game {
 	private:
 
 		static bool parseNodeSubtree		(SceneNode& root, std::istream& in, const ComponentLoader& loader);
-		static void serializeNodeSubtree	(const SceneNode& root, std::ostream& out, const ComponentSerializer& saver);
 
 		static bool parseComponents(SceneNode& node, std::istream& in, const ComponentLoader& loader);
 		static bool parseChildren(SceneNode& parent, std::istream& in, const ComponentLoader& loader);
-
-		static void saveComponents(const SceneNode& node, std::ostream& out, const ComponentSerializer& loader);
-		static void saveChildren(const SceneNode& parent, std::ostream& out, const ComponentSerializer& loader);
 
 		template<class T>
 		static void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
