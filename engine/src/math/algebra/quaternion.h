@@ -68,6 +68,7 @@ namespace rev { namespace math {
 		}
 
 		// Other operations
+		operator Mat33f<T>			() const; // Rotation matrix
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
 		T				norm		() const { return m.norm(); }
@@ -186,7 +187,7 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
-	inline Matrix33<N_> UnitQuaternion<N_>::asMatrix() const
+	inline UnitQuaternion<N_>::operator Matrix33<N_>() const
 	{
 		N_ a2 = w()*w();
 		N_ b2 = x()*x();
