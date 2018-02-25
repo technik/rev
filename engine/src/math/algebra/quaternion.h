@@ -39,14 +39,16 @@ namespace rev { namespace math {
 
 		// Useful constructors
 		/// \param axis is assumed to be normalized
-		UnitQuaternion fromAxisAngle(const Vector3<T>& axis, T _radians)
+		static UnitQuaternion fromAxisAngle(const Vector3<T>& axis, T _radians)
 		{
 			auto half_sin = sin(_radians); // Using sine(theta/2) instead of cosine preserves the sign.
-			m.block<3,1>(0,0) = axis*half_sin;
-			w() = std::sqrt(1-half_sin*half_sin);
+			UnitQuaternion q;
+			q.m.block<3,1>(0,0) = axis*half_sin;
+			q.w() = std::sqrt(1-half_sin*half_sin);
+			return q;
 		}
 
-		UnitQuaternion fromUnitVectors(const Vector3<T>& u, const Vector3<T>& v)
+		static UnitQuaternion fromUnitVectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
 			// TODO: This can be made faster by precomputing sqrt(2)
 			auto m = sqrt(2 + 2 * u.dot(v));
@@ -54,11 +56,11 @@ namespace rev { namespace math {
 			return UnitQuaternion(w.x(), w.y(), w.z(), m*0.5f);
 		}
 
-		UnitQuaternion from2Vectors(const Vector3<T>& u, const Vector3<T>& v)
+		static UnitQuaternion from2Vectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
 			Vector3<T> w = u.cross(v);
-			Quaternion q = quat(dot(u, v), w.x, w.y, w.z);
-			q.w += length(q);
+			UnitQuaternion q = UnitQuaternion(w.x(), w.y(), w.z(), u.dot(v));
+			q.w() += q.norm();
 			return q.normalized();
 		}
 

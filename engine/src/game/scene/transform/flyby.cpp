@@ -51,7 +51,7 @@ namespace rev {
 			if (input->held(KeyboardInput::Key::KeyRight))	angSpd -= deltaG;
 			if (input->held(KeyboardInput::Key::KeyLeft))	angSpd += deltaG;
 
-			transform.rotate(Quatf({0,0,1}, angSpd * _dt));
+			transform.rotate(Quatf::fromAxisAngle({0,0,1}, angSpd * _dt));
 		}
 
 	}	// namespace game
