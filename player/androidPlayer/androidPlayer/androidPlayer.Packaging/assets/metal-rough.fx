@@ -194,11 +194,18 @@ float distortion(vec3 Wn)
   return sinT;
 }
 
-int nbSamples = 8;
-//int nbSamples = 32;
+#ifdef ANDROID
+int nbSamples = 4;
+#else
+int nbSamples = 32;
+#endif
 float computeLOD(vec3 Ln, float p)
 {
-	float maxLod = 8.0;//textureQueryLevels(uEnvironment);
+	#ifdef ANDROID
+	float maxLod = 8.0;
+	#else
+	float maxLod = textureQueryLevels(uEnvironment);
+	#endif
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 

@@ -194,10 +194,18 @@ float distortion(vec3 Wn)
   return sinT;
 }
 
+#ifdef ANDROID
+int nbSamples = 4;
+#else
 int nbSamples = 32;
+#endif
 float computeLOD(vec3 Ln, float p)
 {
-	float maxLod = 8.0;//textureQueryLevels(uEnvironment);
+	#ifdef ANDROID
+	float maxLod = 8.0;
+	#else
+	float maxLod = textureQueryLevels(uEnvironment);
+	#endif
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 
@@ -327,12 +335,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 specColor = mix(vec3(0.04), albedo, metallic);
 	vec3 diffColor = albedo*(1.0-metallic);
 
-	vec3 directLight = directLightPBR(
+	/*vec3 directLight = directLightPBR(
 		inputs,
 		diffColor,
 		specColor,
 		roughness,
-		metallic);
+		metallic);*/
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,

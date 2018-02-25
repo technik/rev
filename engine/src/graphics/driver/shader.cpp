@@ -17,9 +17,13 @@ namespace rev { namespace graphics {
 		const std::string GLSL_VERSION = 
 			R"(#version 300 es
 			precision highp float;
+			#define ANDROID
 			)";
 #else
-		const std::string GLSL_VERSION = "#version 430";
+		const std::string GLSL_VERSION = 
+			R"(#version 430
+			#define _WIN32
+			)";
 #endif
 		const std::string COMMON_SHADER_HEADER = 
 			GLSL_VERSION + 

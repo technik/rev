@@ -27,8 +27,6 @@ layout(location = 7) uniform sampler2D hdrSkyTexture;
 
 float PI = 3.14159265359;
 
-
-
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 sampleSpherical(vec3 v)
 {
@@ -41,7 +39,11 @@ vec2 sampleSpherical(vec3 v)
 //------------------------------------------------------------------------------	
 void main (void) {
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
+	#ifdef ANDROID
 	outColor = uEV*color;
+	#else
+	outColor = pow(uEV*color, vec3(2.2));
+	#endif
 }
 
 #endif
