@@ -22,7 +22,7 @@ out lowp vec3 outColor;
 in vec3 vtxViewDir;
 
 // Global state
-layout(location = 3) uniform float ev;
+layout(location = 3) uniform float uEV;
 layout(location = 7) uniform sampler2D hdrSkyTexture;
 
 float PI = 3.14159265359;
@@ -41,7 +41,7 @@ vec2 sampleSpherical(vec3 v)
 //------------------------------------------------------------------------------	
 void main (void) {
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
-	outColor = pow(ev*color, vec3(2.2));
+	outColor = uEV*color;
 }
 
 #endif

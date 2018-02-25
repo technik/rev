@@ -114,7 +114,9 @@ void main (void) {
 	//pbrColor = pbrColor / (1.0 + pbrColor);
 	
 	//outColor = pbrColor;
+	//outColor = pow(pbrColor*uEV, vec3(4.4));
 	outColor = pow(pbrColor*uEV, vec3(2.2));
+	//outColor = pbrColor*uEV;
 	//outColor = 0.5+0.5*msNormal;//pow(pbrColor, vec3(2.2));
 }
 

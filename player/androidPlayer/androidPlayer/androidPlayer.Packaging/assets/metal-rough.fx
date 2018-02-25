@@ -194,7 +194,8 @@ float distortion(vec3 Wn)
   return sinT;
 }
 
-int nbSamples = 32;
+int nbSamples = 8;
+//int nbSamples = 32;
 float computeLOD(vec3 Ln, float p)
 {
 	float maxLod = 8.0;//textureQueryLevels(uEnvironment);
@@ -327,12 +328,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 specColor = mix(vec3(0.04), albedo, metallic);
 	vec3 diffColor = albedo*(1.0-metallic);
 
-	vec3 directLight = directLightPBR(
+	/*vec3 directLight = directLightPBR(
 		inputs,
 		diffColor,
 		specColor,
 		roughness,
-		metallic);
+		metallic);*/
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,
