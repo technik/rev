@@ -4,8 +4,10 @@
 #include <cassert>
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
+#include <math/numericTraits.h>
 
 using namespace rev::math;
+constexpr Pi = rev::math::NumericTraits<float>::pi();
 
 //----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
