@@ -39,13 +39,12 @@ namespace rev { namespace math {
 
 		// Useful constructors
 		/// \param axis is assumed to be normalized
-		static UnitQuaternion fromAxisAngle(const Vector3<T>& axis, T _radians)
+		UnitQuaternion(const Vector3<T>& axis, T _radians)
 		{
 			auto half_sin = sin(_radians); // Using sine(theta/2) instead of cosine preserves the sign.
 			UnitQuaternion q;
-			q.m.block<3,1>(0,0) = axis*half_sin;
-			q.w() = std::sqrt(1-half_sin*half_sin);
-			return q;
+			m.block<3,1>(0,0) = axis*half_sin;
+			w() = std::sqrt(1-half_sin*half_sin);
 		}
 
 		static UnitQuaternion fromUnitVectors(const Vector3<T>& u, const Vector3<T>& v)
@@ -73,7 +72,6 @@ namespace rev { namespace math {
 		operator Matrix33<T>		() const; // Rotation matrix
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
-		T				norm		() const { return m.norm(); }
 
 	private:
 		T& x() { return m[0]; }
@@ -82,7 +80,8 @@ namespace rev { namespace math {
 		T& w() { return m[3]; }
 
 		UnitQuaternion(const Vector4<T> raw) : m(raw) {}
-		UnitQuaternion normalized() const { return UnitQuaternion(m.normalized()); }
+		T				norm		() const { return m.norm(); }
+		UnitQuaternion	normalized() const { return UnitQuaternion(m.normalized()); }
 
 		Vector4<T> m;
 	};

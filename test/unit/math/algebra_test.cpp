@@ -78,6 +78,9 @@ void testMatrix() {
 void testQuaternions()
 {
 	// TODO: Test axis angle for angles in the 4 basic quadrants
+	// Test other constructors
+	// Test compositions
+	// Test vector rotations
 }
 
 int main() {
