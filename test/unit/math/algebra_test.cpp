@@ -77,8 +77,13 @@ void testMatrix() {
 
 void testQuaternions()
 {
-	// TODO: Test axis angle for angles in the 4 basic quadrants
+	// Test axis angle for angles in the 4 basic quadrants
+	{
+		Quaternion q({0,0,1}, )
+	}
+
 	// Test other constructors
+	// Test casting to Matrix
 	// Test compositions
 	// Test vector rotations
 }
