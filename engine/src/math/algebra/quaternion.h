@@ -68,6 +68,8 @@ namespace rev { namespace math {
 			return UnitQuaternion(-x(), -y(), -z(), w());
 		}
 
+		bool operator==(const UnitQuaternion& b) const { return m==b.m; }
+
 		// Other operations
 		operator Matrix33<T>		() const; // Rotation matrix
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
@@ -88,8 +90,8 @@ namespace rev { namespace math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Useful typedefs
-	typedef UnitQuaternion<float>	Quatf;
-	typedef UnitQuaternion<double>	Quatd;
+	using Quatf = UnitQuaternion<float>;
+	using Quatd = UnitQuaternion<double>;
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Inline implementation

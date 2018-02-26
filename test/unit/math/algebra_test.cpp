@@ -4,10 +4,13 @@
 #include <cassert>
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
+#include <math/algebra/quaternion.h>
 #include <math/numericTraits.h>
 
 using namespace rev::math;
-constexpr Pi = rev::math::NumericTraits<float>::pi();
+constexpr float Pi = rev::math::Constants<float>::pi;
+constexpr float TwoPi = rev::math::Constants<float>::twoPi;
+constexpr float HalfPi = rev::math::Constants<float>::halfPi;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
@@ -79,9 +82,11 @@ void testMatrix() {
 
 void testQuaternions()
 {
+	auto identity = Quatf::identity();
 	// Test axis angle for angles in the 4 basic quadrants
 	{
-		Quaternion q({0,0,1}, )
+		Quatf q({0,0,1}, 0.f);
+		assert(q == identity);
 	}
 
 	// Test other constructors
