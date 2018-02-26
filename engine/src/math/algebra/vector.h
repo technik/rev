@@ -14,7 +14,38 @@ namespace rev {
 	namespace math {
 
 		template<typename T_, size_t n_>
-		using Vector = Matrix<T_, n_, 1>;
+		struct Vector : public MatrixBase<
+			n_,
+			1,
+			MatrixDenseStorage<
+				T_,
+				n_,
+				1,
+				col_major_,
+			Vector<T_, n_>
+			>>
+		{
+
+			template<typename Other_>
+			Element	dot(const Other_& _other) const { 
+				Element result(0);
+				for(size_t i = 0; i < size; ++i)
+					result += this->coefficient(i)*_other.coefficient(i);
+				return result;
+			}
+
+			template<typename Other_>
+			Derived cross(const Other_& v) const { 
+				Derived result;
+				result.x() = y()*v.z() - z()*v.y();
+				result.y() = z()*v.x() - x()*v.z();
+				result.z() = x()*v.y() - y()*v.x();
+				return result;
+			}
+
+			Element	norm() const		{ return sqrt(squaredNorm()); }
+			Element	squaredNorm() const { return dot(*this); }
+		};
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
