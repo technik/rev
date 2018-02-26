@@ -80,23 +80,59 @@ void testMatrix() {
 	// TODO: Test operations with matrices of different base number types
 }
 
+void assertSimilar(const Vec3f& a, const Vec3f& b)
+{
+	static constexpr float epsilon = 1e-5f;
+	auto distance = (a-b).norm();
+	if(distance <= epsilon)
+		return;
+	auto relative_error = distance / (a.norm()+b.norm());
+	assert(relative_error <= 1e-5);
+}
+
 void testQuaternions()
 {
 	auto identity = Quatf::identity();
+	// Basic constructors
+	{
+		assert(Quatf({0,0,1}, 0.f) == identity);
+		assert(Quatf({0,1,0}, 0.f) == identity);
+		assert(Quatf({1,0,0}, 0.f) == identity);
+		assert(Quatf({0,0,-1}, 0.f) == identity);
+		assert(Quatf({0,-1,0}, 0.f) == identity);
+		assert(Quatf({-1,0,0}, 0.f) == identity);
+	}
 	// Test axis angle for angles in the 4 basic quadrants
 	{
-		Quatf q({0,0,1}, 0.f);
-		assert(q == identity);
+		auto q = Quatf({0, 0, 1}, HalfPi);
+	}{
+		auto q = Quatf({0, 0, 1}, Pi);
+	}{
+		auto q = Quatf({0, 0, 1}, TwoPi);
+	}{
+		auto q = Quatf({0, 0, 1}, 3*HalfPi);
+	}
+	// Test axis angle in all main directions
+	{
+		assert(Quatf({1, 0, 0}, Pi) = Quatf(1,0,0,0));
+		assert(Quatf({0, 1, 0}, Pi) = Quatf(0,1,0,0));
+		assert(Quatf({0, 0, 1}, Pi) = Quatf(0,0,1,0));
+		assert(Quatf({-1, 0, 0}, Pi) = Quatf(-1,0,0,0));
+		assert(Quatf({0, -1, 0}, Pi) = Quatf(0,-1,0,0));
+		assert(Quatf({0, 0, -1}, Pi) = Quatf(0,0,-1,0));
+		assert(Quatf({1, 0, 0}, -Pi) = Quatf(-1,0,0,0));
+		assert(Quatf({0, 1, 0}, -Pi) = Quatf(0,-1,0,0));
+		assert(Quatf({0, 0, 1}, -Pi) = Quatf(0,0,-1,0));
 	}
 
 	// Test other constructors
 	// Test casting to Matrix
 	// Test compositions
-	// Test vector rotations
 }
 
 int main() {
 	testMatrix();
 	testVector();
+	testQuaternions();
 	return 0;
 }
