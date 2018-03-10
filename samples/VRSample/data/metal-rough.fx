@@ -201,11 +201,11 @@ int nbSamples = 32;
 #endif
 float computeLOD(vec3 Ln, float p)
 {
-	#ifdef ANDROID
+//#if __VERSION__ >= 430
+//	float maxLod = textureQueryLevels(uEnvironment);
+//#else
 	float maxLod = 8.0;
-	#else
-	float maxLod = textureQueryLevels(uEnvironment);
-	#endif
+//#endif
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 

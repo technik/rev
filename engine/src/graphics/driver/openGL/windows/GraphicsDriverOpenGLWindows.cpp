@@ -71,7 +71,7 @@ namespace rev {	namespace graphics {
 										  // ... and create a new one
 			int contextAttribs[] = {
 				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-				WGL_CONTEXT_MINOR_VERSION_ARB, 5,
+				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
 				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 				WGL_CONTEXT_FLAGS_ARB, 0
 #ifdef _DEBUG
