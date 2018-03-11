@@ -106,7 +106,7 @@ namespace rev { namespace graphics {
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
 			ImGui::Begin("Shader Error");
-			ImGui::Text(ShaderErrorMessage.data());
+			ImGui::Text("%s", ShaderErrorMessage.data());
 			ImGui::End();
 			return false;
 		}

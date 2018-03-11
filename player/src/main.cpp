@@ -124,7 +124,7 @@ rev::graphics::WindowWin32 createWindow(const Vec2u& _pos, const Vec2u& _size, c
 int main() {
 	auto nativeWindow = createWindow(
 		{40, 40},
-		{1280, 720},
+		{1024, 640},
 		"Rev Player"
 	);
 	rev::input::PointingInput::init();

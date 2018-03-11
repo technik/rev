@@ -99,7 +99,7 @@ namespace rev { namespace editor {
 					ImGuiTreeNodeFlags_OpenOnArrow | 
 					ImGuiTreeNodeFlags_OpenOnDoubleClick | 
 					((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
-				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, c->name.c_str());
+				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, "%s", c->name.c_str());
 				if(ImGui::IsItemClicked())
 				{
 					mSelectedNode = c;
@@ -122,7 +122,7 @@ namespace rev { namespace editor {
 				if(!mSelectedNode.expired())
 				{
 					auto inspectedNode = mSelectedNode.lock();
-					ImGui::Text(inspectedNode->name.c_str());
+					ImGui::Text("%s", inspectedNode->name.c_str());
 					ImGui::Separator();
 					for(auto& c : inspectedNode->components())
 					{

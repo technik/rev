@@ -30,7 +30,7 @@ namespace rev { namespace editor {
 
 		void showInspectionPanel() const
 		{
-			ImGui::Text(mAsset.name.c_str());
+			ImGui::Text("%s", mAsset.name.c_str());
 			ImGui::Separator();
 			customInspectionPanel();
 		}
