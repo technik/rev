@@ -65,6 +65,8 @@ namespace rev {	namespace graphics {
 			cout << "Error: " << glewGetErrorString(res) << "\n";
 			return nullptr;
 		}
+		bool sRGBFrameBuffer = false, sRGBTextures = false;
+		checkExtensions(sRGBTextures, sRGBFrameBuffer);
 		// Try to create context with attributes
 		if (wglCreateContextAttribsARB) { // Advanced context creation is available
 										  // Destroy dummy context ...
@@ -92,8 +94,9 @@ namespace rev {	namespace graphics {
 
 		auto driver = new GraphicsDriverGL(std::make_unique<DefaultFrameBuffer>(_window->size));
 		if(driver) {
-			printSupportedGLExtensions();
 			driver->window = _window;
+			driver->mSupportSRGBTextures = sRGBTextures;
+			driver->mSupportSRGBFrameBuffer = sRGBFrameBuffer;
 			driver->mWindowHandle = _window->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;
 			glDebugMessageCallback(gfxDebugCallback, nullptr);
@@ -102,18 +105,26 @@ namespace rev {	namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void GraphicsDriverGLWindows::printSupportedGLExtensions()
+	void GraphicsDriverGLWindows::swapBuffers() {
+		SwapBuffers(mDevCtxHandle);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void GraphicsDriverGLWindows::checkExtensions(bool& sRGBTextures, bool& sRGBFrameBuffer) 
 	{
 		GLint nExtensions;
 		glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
 		cout << "OpenGL extensions supported: (" << nExtensions << ")\n";
 		for(GLint i = 0; i < nExtensions; ++i)
-			core::Log::verbose(glGetStringi(GL_EXTENSIONS, i));
-	}
+		{
+			auto extensionName = glGetStringi(GL_EXTENSIONS, i);
+			if(string("GL_EXT_texture_sRGB") == (char*)extensionName)
+				sRGBTextures = true;
+			if(string("GL_ARB_framebuffer_sRGB") == (char*)extensionName)
+				sRGBFrameBuffer = true;
 
-	//------------------------------------------------------------------------------------------------------------------
-	void GraphicsDriverGLWindows::swapBuffers() {
-		SwapBuffers(mDevCtxHandle);
+			core::Log::verbose(extensionName);
+		}
 	}
 
 } }	// namespace rev::graphics

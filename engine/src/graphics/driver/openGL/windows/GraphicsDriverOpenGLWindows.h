@@ -39,8 +39,12 @@ namespace rev { namespace graphics {
 		NativeWindow nativeWindow() const { return window; }
 		void swapBuffers();
 
+	protected:
+		bool mSupportSRGBFrameBuffer = false;
+		bool mSupportSRGBTextures = false;
+
 	private:
-		static void printSupportedGLExtensions();
+		static void checkExtensions(bool& sRGBTextures, bool& sRGBFrameBuffer);
 
 		NativeWindow	window;
 		HWND	mWindowHandle;
