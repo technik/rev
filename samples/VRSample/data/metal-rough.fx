@@ -197,7 +197,7 @@ float distortion(vec3 Wn)
 #ifdef ANDROID
 int nbSamples = 4;
 #else
-int nbSamples = 32;
+int nbSamples = 8;
 #endif
 float computeLOD(vec3 Ln, float p)
 {
@@ -360,6 +360,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return physics;
 	//return albedo;
 	return directLight + indirectLight + emissive;
+	//return directLight + emissive;
 }
 
 #endif // PXL_SHADER
