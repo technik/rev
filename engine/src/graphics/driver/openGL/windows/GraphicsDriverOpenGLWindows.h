@@ -40,6 +40,8 @@ namespace rev { namespace graphics {
 		void swapBuffers();
 
 	private:
+		static void printSupportedGLExtensions();
+
 		NativeWindow	window;
 		HWND	mWindowHandle;
 		HDC		mDevCtxHandle;

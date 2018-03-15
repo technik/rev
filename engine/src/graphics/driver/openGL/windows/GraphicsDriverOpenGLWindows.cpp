@@ -92,12 +92,23 @@ namespace rev {	namespace graphics {
 
 		auto driver = new GraphicsDriverGL(std::make_unique<DefaultFrameBuffer>(_window->size));
 		if(driver) {
+			printSupportedGLExtensions();
 			driver->window = _window;
 			driver->mWindowHandle = _window->nativeWindow;
 			driver->mDevCtxHandle = deviceContext;
 			glDebugMessageCallback(gfxDebugCallback, nullptr);
 		}
 		return driver;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void GraphicsDriverGLWindows::printSupportedGLExtensions()
+	{
+		GLint nExtensions;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
+		cout << "OpenGL extensions supported: (" << nExtensions << ")\n";
+		for(GLint i = 0; i < nExtensions; ++i)
+			core::Log::verbose(glGetStringi(GL_EXTENSIONS, i));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
