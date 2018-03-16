@@ -6,6 +6,7 @@
 #include "GraphicsDriverOpenGLWindows.h"
 #include "../GraphicsDriverOpenGL.h"
 #include <iostream>
+#include <core/platform/osHandler.h>
 
 using namespace std;
 
@@ -26,6 +27,20 @@ namespace rev {	namespace graphics {
 		static bool sIsWindowClassRegistered = false;
 
 		//--------------------------------------------------------------------------------------------------------------
+		LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
+			MSG msg;
+			msg.hwnd = _hwnd;
+			msg.lParam = _lParam;
+			msg.wParam = _wParam;
+			msg.message = _uMsg;
+			auto osMessageProcessor = core::OSHandler::get();
+			if(osMessageProcessor)
+				if(osMessageProcessor->processMessage(msg))
+					return 0;
+			return DefWindowProc(_hwnd, _uMsg, _wParam, _lParam);
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
 		void registerClass() {
 			HINSTANCE moduleHandle = GetModuleHandle(NULL);
 			// -- Register a new window class --
@@ -43,17 +58,39 @@ namespace rev {	namespace graphics {
 
 			RegisterClass(&winClass);
 		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		WindowWin32 createDummyWindow()
+		{
+			if (!sIsWindowClassRegistered)
+				registerClass();
+
+			// Create a windown through the windows API
+			HWND mWinapiHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
+				"",
+				WS_DISABLED, // Prevent user interaction
+				0,						// X Position
+				0,						// Y Position
+				0,				// Width
+				0,				// Height
+				0, 0, 0, 0);				// Windows specific parameters that we don't need
+
+			rev::graphics::WindowWin32 window;
+			window.nativeWindow = mWinapiHandle;
+			return window;
+		}
+
 	}	// anonymous namespace
 
 	//--------------------------------------------------------------------------------------------------------------
-	WindowWin32 WindowWin32::createWindow(const Vec2u& _pos, const Vec2u& _size, const char* _windowName) {
+	WindowWin32 WindowWin32::createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible) {
 		if (!sIsWindowClassRegistered)
 			registerClass();
 
 		// Create a windown through the windows API
 		HWND mWinapiHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
-			_windowName,								// Window name (currently unsupported
-			WS_SIZEBOX | WS_CAPTION | WS_POPUP | WS_VISIBLE,	// Creation options
+			_windowName,
+			WS_SIZEBOX | WS_CAPTION | WS_POPUP | (_visible? WS_VISIBLE : WS_DISABLED),	// Creation options
 			_pos.x(),						// X Position
 			_pos.y(),						// Y Position
 			int(_size.x()),				// Width
@@ -78,15 +115,53 @@ namespace rev {	namespace graphics {
 	//------------------------------------------------------------------------------------------------------------------
 	void setDummyPixelFormat(HDC deviceContext)
 	{
+		PIXELFORMATDESCRIPTOR pfd = {
+			sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
+			1,											// Version Number
+			PFD_DRAW_TO_WINDOW |						// Format Must Support Window
+			PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
+			PFD_SWAP_EXCHANGE |							// Prefer framebuffer swap
+			PFD_DOUBLEBUFFER,							// Must Support Double Buffering
+			PFD_TYPE_RGBA,								// Request An RGBA Format
+			32,											// Color Depth
+			0, 0, 0, 0, 0, 0,							// Color Bits Ignored
+			0,											// No Alpha Buffer
+			0,											// Shift Bit Ignored
+			0,											// No Accumulation Buffer
+			0, 0, 0, 0,									// Accumulation Bits Ignored
+			24,											// 24 Bit Z-Buffer (Depth Buffer)  
+			8,											// Stencil Buffer
+			0,											// No Auxiliary Buffer
+			PFD_MAIN_PLANE,								// Main Drawing Layer
+			0,											// Reserved
+			0, 0, 0										// Layer Masks Ignored
+		};
 
+		GLuint pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
+		DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+		SetPixelFormat(deviceContext, pixelFormat, &pfd);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	HGLRC createDummyDeviceContext()
+	bool loadOpenGLExtensions()
 	{
 		// Create a dummy window
+		auto dummyWindow = createDummyWindow();
 		// Set dummy pixel format
+		auto deviceContext = GetDC(dummyWindow.nativeWindow);
+		setDummyPixelFormat(deviceContext);
 		// Create dummy context
+		auto dummyGLContext = wglCreateContext(deviceContext);
+		wglMakeCurrent(deviceContext, dummyGLContext);
+		
+		// Load extensions
+		GLenum res = glewInit();
+		if (res != GLEW_OK) {
+			cout << "Error: " << glewGetErrorString(res) << "\n";
+			return false;
+		}
+
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -131,12 +206,8 @@ namespace rev {	namespace graphics {
 		// Create a dummy context to retrieve glew extensions, so we can then create a proper context
 		HGLRC dummyCtxHandle = wglCreateContext(deviceContext);
 		wglMakeCurrent(deviceContext, dummyCtxHandle);
-		// Load extensions
-		GLenum res = glewInit();
-		if (res != GLEW_OK) {
-			cout << "Error: " << glewGetErrorString(res) << "\n";
+		if(!loadOpenGLExtensions())
 			return nullptr;
-		}
 		bool sRGBFrameBuffer = false, sRGBTextures = false;
 		checkExtensions(sRGBTextures, sRGBFrameBuffer);
 		// Try to create context with attributes

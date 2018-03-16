@@ -10,12 +10,14 @@
 #include <math/algebra/vector.h>
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
+#include <core/platform/osHandler.h>
 
 using namespace rev::math;
 
 //--------------------------------------------------------------------------------------------------------------
 rev::Player* g_player = nullptr;
 
+//--------------------------------------------------------------------------------------------------------------
 bool processWindowsMsg(MSG _msg) {
 
 	if(g_player)
@@ -23,7 +25,7 @@ bool processWindowsMsg(MSG _msg) {
 		if(_msg.message == WM_SIZE)
 		{
 			LPARAM lparam = _msg.lParam;
-				g_player->onWindowResize(Vec2u(LOWORD(lparam), HIWORD(lparam)));
+			g_player->onWindowResize(Vec2u(LOWORD(lparam), HIWORD(lparam)));
 			return true;
 		}
 		if(_msg.message == WM_SIZING)
@@ -43,40 +45,17 @@ bool processWindowsMsg(MSG _msg) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
-	MSG msg;
-	msg.hwnd = _hwnd;
-	msg.lParam = _lParam;
-	msg.wParam = _wParam;
-	msg.message = _uMsg;
-	if(processWindowsMsg(msg))
-		return 0;
-	return DefWindowProc(_hwnd, _uMsg, _wParam, _lParam);
-}
-
-//--------------------------------------------------------------------------------------------------------------
-bool processSystemMessages() {
-	MSG msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		// If exit requested, don't bother processing anything else
-		if (msg.message == WM_QUIT || msg.message == WM_CLOSE)
-			return false;
-		else {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------------------------
 int main() {
+	rev::core::OSHandler::startUp();
+
 	auto nativeWindow = rev::graphics::WindowWin32::createWindow(
 		{40, 40},
 		{1024, 640},
 		"Rev Player"
 	);
+
+	*rev::core::OSHandler::get() += processWindowsMsg;
+	
 	rev::input::PointingInput::init();
 	rev::input::KeyboardInput::init();
 	rev::Player player;
@@ -86,7 +65,7 @@ int main() {
 	}
 	for(;;) {
 		rev::input::KeyboardInput::get()->refresh();
-		if(!processSystemMessages())
+		if(!rev::core::OSHandler::get()->update())
 			return 0;
 		if(!player.update())
 			return 0;
