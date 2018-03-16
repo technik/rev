@@ -11,6 +11,7 @@
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
 #include <core/platform/osHandler.h>
+#include <core/platform/fileSystem/fileSystem.h>
 
 using namespace rev::math;
 
@@ -47,6 +48,7 @@ bool processWindowsMsg(MSG _msg) {
 //--------------------------------------------------------------------------------------------------------------
 int main() {
 	rev::core::OSHandler::startUp();
+	rev::core::FileSystem::init();
 
 	auto nativeWindow = rev::graphics::WindowWin32::createWindow(
 		{40, 40},

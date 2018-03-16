@@ -143,16 +143,17 @@ namespace rev {	namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool loadOpenGLExtensions()
+	bool loadOpenGLExtensions(HWND& dummyWindowHandle, HGLRC& dummyRenderContext)
 	{
 		// Create a dummy window
 		auto dummyWindow = createDummyWindow();
+		dummyWindowHandle = dummyWindow.nativeWindow;
 		// Set dummy pixel format
-		auto deviceContext = GetDC(dummyWindow.nativeWindow);
+		auto deviceContext = GetDC(dummyWindowHandle);
 		setDummyPixelFormat(deviceContext);
 		// Create dummy context
-		auto dummyGLContext = wglCreateContext(deviceContext);
-		wglMakeCurrent(deviceContext, dummyGLContext);
+		dummyRenderContext = wglCreateContext(deviceContext);
+		wglMakeCurrent(deviceContext, dummyRenderContext);
 		
 		// Load extensions
 		GLenum res = glewInit();
@@ -165,86 +166,113 @@ namespace rev {	namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	// Create dummy context
-	// Load extensions
-	// Select proper pixel format
-	// Set window pixel format to window
-	// Create final context
-	GraphicsDriverGL* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
-		auto deviceContext = GetDC(_window->nativeWindow); // Device contex
-												  // Set pixel format
-		PIXELFORMATDESCRIPTOR pfd = {
-			sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
-			1,											// Version Number
-			PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-			PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-			PFD_SWAP_EXCHANGE |							// Prefer framebuffer swap
-			PFD_DOUBLEBUFFER,							// Must Support Double Buffering
-			PFD_TYPE_RGBA,								// Request An RGBA Format
-			32,											// Color Depth
-			0, 0, 0, 0, 0, 0,							// Color Bits Ignored
-			0,											// No Alpha Buffer
-			0,											// Shift Bit Ignored
-			0,											// No Accumulation Buffer
-			0, 0, 0, 0,									// Accumulation Bits Ignored
-			24,											// 24 Bit Z-Buffer (Depth Buffer)  
-			8,											// No Stencil Buffer
-			0,											// No Auxiliary Buffer
-			PFD_MAIN_PLANE,								// Main Drawing Layer
-			0,											// Reserved
-			0, 0, 0										// Layer Masks Ignored
+	bool setFinalPixelFormat(HDC deviceContext, bool sRGBFrameBuffer)
+	{
+		std::vector<int> intPFAttributes = {
+			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+			WGL_COLOR_BITS_ARB, 32,
+			WGL_DEPTH_BITS_ARB, 24,
 		};
+		if(sRGBFrameBuffer)
+		{
+			intPFAttributes.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
+			intPFAttributes.push_back(GL_TRUE);
+		};
+		intPFAttributes.push_back(0);
 
-		GLuint pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
-		DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
-		std::cout << "Retrieved pixel format:\n"
-			<< "Color depth: " << (size_t)pfd.cColorBits << "\n"
-			<< "Z-Buffer depth: " << (size_t)pfd.cDepthBits << "\n"
-			<< "Stencil depth: " << (size_t)pfd.cStencilBits << "\n";
-		SetPixelFormat(deviceContext, pixelFormat, &pfd);
+		int pixelFormat;
+		UINT numFormats;
 
-		// Create a dummy context to retrieve glew extensions, so we can then create a proper context
-		HGLRC dummyCtxHandle = wglCreateContext(deviceContext);
-		wglMakeCurrent(deviceContext, dummyCtxHandle);
-		if(!loadOpenGLExtensions())
+		if(wglChoosePixelFormatARB(
+			deviceContext,
+			intPFAttributes.data(),
+			nullptr, 
+			1,
+			&pixelFormat,
+			&numFormats))
+		{
+			PIXELFORMATDESCRIPTOR pfd;
+			DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+			SetPixelFormat(deviceContext, pixelFormat, &pfd);
+			return true;
+		}
+
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool createFinalOpenGLContext(HDC deviceContext, bool sRGBFrameBuffer)
+	{
+		if (!wglCreateContextAttribsARB) 
+			return false;
+
+		// Set proper pixel format
+		if(!setFinalPixelFormat(deviceContext, sRGBFrameBuffer))
+			return false;
+
+		// Set context attributes
+		int contextAttribs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			WGL_CONTEXT_FLAGS_ARB, 0
+#ifdef _DEBUG
+			| WGL_CONTEXT_DEBUG_BIT_ARB
+#endif
+			,NULL
+		};
+		// Create context
+		HGLRC renderContext = wglCreateContextAttribsARB(deviceContext, NULL, contextAttribs);
+		if (renderContext) {
+			wglMakeCurrent(deviceContext, renderContext);
+			return true;
+		}
+		
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	GraphicsDriverGL* GraphicsDriverGLWindows::createDriver(NativeWindow _window) {
+		HGLRC dummyRenderContext;
+		HWND dummyWindow;
+		if(!loadOpenGLExtensions(dummyWindow, dummyRenderContext))
 			return nullptr;
+
 		bool sRGBFrameBuffer = false, sRGBTextures = false;
 		checkExtensions(sRGBTextures, sRGBFrameBuffer);
-		// Try to create context with attributes
-		if (wglCreateContextAttribsARB) { // Advanced context creation is available
-										  // Destroy dummy context ...
-										  // ... and create a new one
-			int contextAttribs[] = {
-				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-				WGL_CONTEXT_FLAGS_ARB, 0
-#ifdef _DEBUG
-				| WGL_CONTEXT_DEBUG_BIT_ARB
-#endif
-				,NULL
-			};
-			HGLRC renderContext = wglCreateContextAttribsARB(deviceContext, NULL, contextAttribs);
-			if (renderContext) {
-				wglMakeCurrent(deviceContext, renderContext);
-				wglDeleteContext(dummyCtxHandle);
-			}
-			else
-				cout << "Unable to create render context with attributes. Using default context\n";
-		}
-		cout << "OpenGL Version " << (char*)glGetString(GL_VERSION) << "\n";
-		cout << "GLSL Version " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 
-		auto driver = new GraphicsDriverGL(std::make_unique<DefaultFrameBuffer>(_window->size));
-		if(driver) {
-			driver->window = _window;
-			driver->mSupportSRGBTextures = sRGBTextures;
-			driver->mSupportSRGBFrameBuffer = sRGBFrameBuffer;
-			driver->mWindowHandle = _window->nativeWindow;
-			driver->mDevCtxHandle = deviceContext;
-			glDebugMessageCallback(gfxDebugCallback, nullptr);
+		// Try to create context with attributes
+		auto deviceContext = GetDC(_window->nativeWindow); // Device contex
+		auto contexCreatedOk = createFinalOpenGLContext(deviceContext, sRGBFrameBuffer);
+
+		// Destroy temporary context and window
+		wglDeleteContext(dummyRenderContext);
+		DestroyWindow(dummyWindow);
+
+		if(contexCreatedOk)
+		{
+			// Proper driver initialization
+			cout << "OpenGL Version " << (char*)glGetString(GL_VERSION) << "\n";
+			cout << "GLSL Version " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+			auto driver = new GraphicsDriverGL(std::make_unique<DefaultFrameBuffer>(_window->size));
+			if(driver) {
+				driver->window = _window;
+				driver->mSupportSRGBTextures = sRGBTextures;
+				driver->mSupportSRGBFrameBuffer = sRGBFrameBuffer;
+				driver->mWindowHandle = _window->nativeWindow;
+				driver->mDevCtxHandle = deviceContext;
+				glDebugMessageCallback(gfxDebugCallback, nullptr);
+			}
+			return driver;
 		}
-		return driver;
+		else
+		{
+			core::Log::error("failed OpenGL context creation with attributes");
+			return nullptr;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
