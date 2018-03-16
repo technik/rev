@@ -17,7 +17,7 @@ namespace rev { namespace graphics {
 		HWND nativeWindow;
 		math::Vec2u size;
 
-		//
+		static WindowWin32 createWindow(const Vec2u& _pos, const Vec2u& _size, const char* _windowName);
 	};
 
 	class GraphicsDriverGL;
