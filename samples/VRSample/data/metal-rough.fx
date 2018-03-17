@@ -310,7 +310,7 @@ vec3 indirectLightPBR(
 vec3 shadeSurface(ShadeInput inputs)
 {
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	albedo = pow(albedo, vec3(1.0/2.2));
+	//albedo = pow(albedo, vec3(1.0/2.2));
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
 	//physics = pow(physics, vec3(1.0/2.2));
 	float roughness = max(0.01, physics.g);
@@ -354,7 +354,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return shadowSpacePos.xyz;
 	//return vec3(shadowSpacePos.xy, sampledDepth);
 	//return indirectLight;
-	//return vec3(shadow);//indirectLight;
+	//return vec3(metallic);//indirectLight;
 	//return indirectLight + emissive;
 	//return emissive;
 	//return physics;
