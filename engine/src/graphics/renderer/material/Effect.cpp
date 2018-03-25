@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "Effect.h"
 #include <sstream>
+#include <core/platform/fileSystem/file.h>
 
 using namespace std;
 
@@ -53,4 +54,11 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	shared_ptr<Effect> Effect::loadFromFile(const std::string& fileName)
+	{
+		core::File codeFile(fileName);
+		if(codeFile.sizeInBytes() > 0)
+			return make_shared<Effect>(codeFile.bufferAsText());
+		return nullptr;
+	}
 }}
