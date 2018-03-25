@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/texture.h>
 #include <math/algebra/vector.h>
 #include <memory>
@@ -32,22 +33,19 @@ namespace rev { namespace graphics {
 	public:
 		using TexturePtr = std::shared_ptr<const Texture>;
 
-		Material(std::shared_ptr<Effect> effect);
+		Material(const std::shared_ptr<Effect> effect);
 
 		// New params can only be added to the material before calling init
 		void addParam(const std::string& name,float f);
 		void addParam(const std::string& name, const math::Vec3f& v);
 		void addParam(const std::string& name, const math::Vec4f& v);
-		void addTexture(const std::string& name, TexturePtr t);
+		void addParam(const std::string& name, TexturePtr t);
 
-		// Init must be called after all params have been added, and before
-		// binding the material for use.
-		std::string init();
-
+		const std::string& bakedOptions() const { return mShaderOptionsCode; }
 		void bindParams(GraphicsDriverGL& driver) const;
 
 	private:
-		std::shared_ptr<Effect> mEffect;
+		const std::shared_ptr<Effect> mEffect;
 		std::string mShaderOptionsCode;
 
 		std::vector<std::pair<GLint,float>>			mFloatParams;

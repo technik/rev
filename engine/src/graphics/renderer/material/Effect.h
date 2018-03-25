@@ -53,7 +53,7 @@ namespace rev { namespace graphics {
 			std::string preprocessorDirective() const;
 		};
 
-		int propertyLocation(const std::string& name) const;
+		const Property* property(const std::string& name) const;
 		const std::vector<Property>& properties() const { return m_properties; }
 		const std::string& code() const { return m_code; }
 

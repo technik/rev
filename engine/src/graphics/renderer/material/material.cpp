@@ -17,73 +17,80 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "Effect.h"
-#include <sstream>
-#include <core/platform/fileSystem/file.h>
+#include "Material.h"
+#include <graphics/driver/openGL/openGL.h>
 
 using namespace std;
+using namespace rev::math;
 
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	Effect::Effect(const string& _code)
-		: m_code(_code)
+	Material::Material(const shared_ptr<Effect> _effect)
+		: mEffect(_effect)
 	{
-		istringstream codeStream(_code);
-		for(string line; getline(codeStream, line); )
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Material::addParam(const string& name, float f)
+	{
+		auto prop = mEffect->property(name);
+		if(prop)
 		{
-			// Line contains an uniform?
-			if(line.compare(0, 6, "layout") == 0)
-			{
-				Property prop;
-				// Parse uniform location, and store it in the property
-				auto loc_pos = line.find_first_not_of(" \t", line.find('=')+1);
-				prop.location = stoi(line.substr(loc_pos));
-				auto arg_pos = line.find("sampler2D", loc_pos);
-				if(arg_pos != string::npos)
-					prop.type = Property::Texture2D;
-				else {
-					arg_pos = line.find("vec3", loc_pos);
-					if(arg_pos != string::npos)
-						prop.type = Property::Vec3;
-				}
-				arg_pos = line.find_first_of(" \t", arg_pos);
-				auto name_pos = line.find_first_not_of(" \t", arg_pos);
-				auto name_end = line.find_first_of(" \t;", name_pos);
-				prop.name = line.substr(name_pos, name_end-name_pos);
-				m_properties.push_back(prop);
-			}
+			mShaderOptionsCode += prop->preprocessorDirective();
+			mFloatParams.emplace_back(prop->location, f);
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	shared_ptr<Effect> Effect::loadFromFile(const std::string& fileName)
+	void Material::addParam(const string& name, const Vec3f& v)
 	{
-		core::File codeFile(fileName);
-		if(codeFile.sizeInBytes() > 0)
-			return make_shared<Effect>(codeFile.bufferAsText());
-		return nullptr;
+		auto prop = mEffect->property(name);
+		if(prop)
+		{
+			mShaderOptionsCode += prop->preprocessorDirective();
+			mVec3fParams.emplace_back(prop->location, v);
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	string Effect::Property::preprocessorDirective() const
+	void Material::addParam(const string& name, const Vec4f& v)
 	{
-		string typePrefix;
-		if(type == Vec3)
-			typePrefix = "vec3";
-		else
-			typePrefix = "sampler2D";
-
-		return "#define " + typePrefix + '_' + name;
+		auto prop = mEffect->property(name);
+		if(prop)
+		{
+			mShaderOptionsCode += prop->preprocessorDirective();
+			mVec4fParams.emplace_back(prop->location, v);
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	const Effect::Property* Effect::property(const string& name) const
+	void Material::addParam(const string& name, TexturePtr t)
 	{
-		for(auto p : m_properties)
-			if(p.name == name)
-				return &p;
-
-		return nullptr;
+		auto prop = mEffect->property(name);
+		if(prop)
+		{
+			mShaderOptionsCode += prop->preprocessorDirective();
+			mTextureParams.emplace_back(prop->location, t);
+		}
 	}
+
+	//----------------------------------------------------------------------------------------------
+	void Material::bindParams(GraphicsDriverGL& driver) const
+	{
+		for(const auto& f : mFloatParams)
+			driver.bindUniform(f.first, f.second);
+		for(const auto& v : mVec3fParams)
+			driver.bindUniform(v.first, v.second);
+		for(const auto& v : mVec4fParams)
+			driver.bindUniform(v.first, v.second);
+		for(GLenum t = 0; t < mTextureParams.size(); ++t)
+		{
+			auto& textureParam = mTextureParams[t];
+			glUniform1i(textureParam.first, t);
+			glActiveTexture(GL_TEXTURE0+t);
+			glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
+		}
+	}
+
 }}
