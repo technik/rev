@@ -54,6 +54,7 @@ namespace rev{ namespace graphics {
 		std::unordered_map<const Material*, ShaderPtr>	mPipelines;
 		
 		// Sky
+		ShaderPtr mBackgroundShader;
 		std::unique_ptr<RenderGeom> mSkyPlane;
 	};
 

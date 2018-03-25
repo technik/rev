@@ -107,23 +107,15 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure)
 	{
-		auto skyShaderIter = mPipelines.find("sky.fx");
-		Shader* skyShader = nullptr;
-		if(skyShaderIter == mPipelines.end())
+		if(!mBackgroundShader)
 		{
 			// Try to load shader
 			core::File code("sky.fx");
-			auto skyShaderPtr = Shader::createShader( code.bufferAsText() );
-			if(skyShaderPtr)
-			{
-				skyShader = skyShaderPtr.get();
-				mPipelines.insert(std::make_pair("sky.fx", std::move(skyShaderPtr)));
-			}
-		} else
-			skyShader = skyShaderIter->second.get();
-		if(skyShader)
+			mBackgroundShader = Shader::createShader( code.bufferAsText() );
+		}
+		if(mBackgroundShader)
 		{
-			skyShader->bind();
+			mBackgroundShader->bind();
 			// View projection matrix
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, viewProj.data());
 			// Lighting
