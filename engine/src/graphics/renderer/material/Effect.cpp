@@ -61,4 +61,16 @@ namespace rev { namespace graphics {
 			return make_shared<Effect>(codeFile.bufferAsText());
 		return nullptr;
 	}
+
+	//----------------------------------------------------------------------------------------------
+	string Effect::Property::preprocessorDirective() const
+	{
+		string typePrefix;
+		if(type == Vec3)
+			typePrefix = "vec3";
+		else
+			typePrefix = "sampler2D";
+
+		return typePrefix + '_' + name;
+	}
 }}
