@@ -30,15 +30,25 @@ namespace rev { namespace graphics {
 	class Material
 	{
 	public:
-		std::string shader;
+		using TexturePtr = std::shared_ptr<const Texture>;
 
-		void addParam(GLint pos,float f);
-		void addParam(GLint pos, const math::Vec3f& v);
-		void addParam(GLint pos, const math::Vec4f& v);
-		void addTexture(GLint pos, std::shared_ptr<const Texture> t);
+		Material(std::shared_ptr<Effect> effect);
+
+		// New params can only be added to the material before calling init
+		void addParam(const std::string& name,float f);
+		void addParam(const std::string& name, const math::Vec3f& v);
+		void addParam(const std::string& name, const math::Vec4f& v);
+		void addTexture(const std::string& name, TexturePtr t);
+
+		// Init must be called after all params have been added, and before
+		// binding the material for use.
+		std::string init();
+
+		void bindParams(GraphicsDriverGL& driver) const;
 
 	private:
-		using TexturePtr = std::shared_ptr<const Texture>;
+		std::shared_ptr<Effect> mEffect;
+		std::string mShaderOptionsCode;
 
 		std::vector<std::pair<GLint,float>>			mFloatParams;
 		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;

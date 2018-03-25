@@ -76,4 +76,14 @@ namespace rev { namespace graphics {
 
 		return "#define " + typePrefix + '_' + name;
 	}
+
+	//----------------------------------------------------------------------------------------------
+	int Effect::propertyLocation(const string& name) const
+	{
+		for(auto p : m_properties)
+			if(p.name == name)
+				return p.location;
+
+		return -1;
+	}
 }}
