@@ -17,52 +17,40 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "Effect.h"
+#include <sstream>
+
+using namespace std;
 
 namespace rev { namespace graphics {
 
-	class Effect
+	//----------------------------------------------------------------------------------------------
+	Effect::Effect(const string& _code)
+		: m_code(_code)
 	{
-	public:
-		// Effect creation
-		Effect(const std::string& _code);
-		static std::shared_ptr<Effect>	loadFromFile(const std::string& _fileName);
-
-		struct Property
+		istringstream codeStream(_code);
+		for(string line; getline(codeStream, line); )
 		{
-			enum Type
+			// Line contains an uniform?
+			if(line.compare(0, 6, "layout") == 0)
 			{
-				//Integer,
-				//Scalar,
-				//Vec2,
-				Vec3,
-				//Vec4,
-				Texture2D
-				//Texture3D
-			};
+				Property prop;
+				auto arg_pos = line.find("sampler2D");
+				if(arg_pos != string::npos)
+					prop.type = Property::Texture2D;
+				else {
+					arg_pos = line.find("vec3");
+				}
+				if(arg_pos != string::npos)
+					prop.type = Property::Vec3;
+				arg_pos = line.find_first_of(" \t", arg_pos);
+				auto name_pos = line.find_first_not_of(" \t", arg_pos);
+				auto name_end = line.find_first_of(" \t;", name_pos);
+				prop.name = line.substr(name_pos, name_end-name_pos);
+				m_properties.push_back(prop);
+			}
+		}
+	}
 
-			std::string name;
-			Type type;
-			// Returns the serialized version of the attribute as defined in shader code
-			// when the attribute is present for a given material.
-			std::string preprocessorDirective() const;
-		};
-
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
-
-	private:
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
-	};
-
+	//----------------------------------------------------------------------------------------------
 }}
