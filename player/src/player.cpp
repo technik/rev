@@ -72,7 +72,12 @@ namespace rev {
 					FLOAT = 5126
 				} componentType;
 
-				uint8_t* data = nullptr;
+				uint8_t* element(size_t i) const {
+					return &view->data[view->stride*i + offset];
+				}
+
+				BufferView* view = nullptr;
+				size_t offset = 0;
 				size_t count = 0;
 			};
 
@@ -88,7 +93,9 @@ namespace rev {
 					texCoord = &accessors[attributes["TEXCOORD_0"]];
 
 					indices = &accessors[desc["indices"]];
-					material = desc["material"];
+
+					if(desc.find("material") != desc.end())
+						material = desc["material"];
 				}
 
 				const Accessor* position = nullptr;
@@ -98,7 +105,7 @@ namespace rev {
 
 				const Accessor* indices = nullptr;
 
-				size_t material;
+				int material = -1;
 			};
 
 			struct Mesh
@@ -116,7 +123,8 @@ namespace rev {
 
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder, graphics::RenderScene& _renderable)
 		{
-			core::File sceneFile("helmet/damagedHelmet.gltf");
+			//core::File sceneFile("helmet/damagedHelmet.gltf");
+			core::File sceneFile("cube/scene.gltf");
 			if(!sceneFile.sizeInBytes())
 			{
 				core::Log::error("Unable to find scene asset");
@@ -153,6 +161,10 @@ namespace rev {
 				gltf::BufferView view;
 				size_t offset = viewDesc["byteOffset"];
 				size_t bufferNdx = viewDesc["buffer"];
+				if(viewDesc.find("byteStride") != viewDesc.end())
+				{
+					view.stride = viewDesc["byteStride"];
+				}
 				view.data = &buffers[bufferNdx].raw[offset];
 				bufferViews.push_back(view);
 			}
@@ -166,12 +178,11 @@ namespace rev {
 				unsigned cTypeDesc = accessorDesc["componentType"];
 				accessor.componentType = gltf::Accessor::ComponentType(cTypeDesc);
 				unsigned bufferViewNdx = accessorDesc["bufferView"];
-				unsigned byteOffset = 0;
 				auto offsetIter = accessorDesc.find("byteOffset");
 				if(offsetIter != accessorDesc.end())
-					byteOffset = offsetIter.value().get<unsigned>();
+					accessor.offset = offsetIter.value().get<unsigned>();
 				accessor.count = accessorDesc["count"];
-				accessor.data = &bufferViews[bufferViewNdx].data[byteOffset];
+				accessor.view = &bufferViews[bufferViewNdx];
 				accessors.push_back(accessor);
 			}
 
@@ -184,6 +195,10 @@ namespace rev {
 				textureNames.push_back(texName);
 			}
 
+			// Default material
+			auto defaultMaterial = std::make_shared<Material>();
+			defaultMaterial->name = "defaultMaterial";
+			defaultMaterial->shader = "metal-rough.fx";
 			// Load materials
 			std::vector<std::shared_ptr<graphics::Material>> materials;
 			for(auto& matDesc : sceneDesc["materials"])
@@ -244,30 +259,31 @@ namespace rev {
 						std::vector<uint16_t> indices(primitive.indices->count);
 						if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
 						{
-							memcpy(indices.data(), primitive.indices->data, sizeof(uint16_t)*indices.size());
+							memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
 						}
 						else
 							return nullptr;
 
-						// Copy vertex data
 						std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
-						auto srcPosition = reinterpret_cast<math::Vec3f*>(primitive.position->data);
-						auto srcNormal = reinterpret_cast<math::Vec3f*>(primitive.normal->data);
-						auto srcTexCoord = reinterpret_cast<math::Vec2f*>(primitive.texCoord->data);
-						auto srcTangent = reinterpret_cast<math::Vec4f*>(primitive.tangent->data);
 						for(size_t i = 0; i < vertices.size(); ++i)
 						{
 							auto& v = vertices[i];
-							v.position = srcPosition[i];
-							v.normal = srcNormal[i];
-							v.tangent = -Vec3f(srcTangent[i].block<3,1>(0,0));
-							v.bitangent = v.normal.cross(v.tangent)*srcTangent[i].w();
-							v.uv = srcTexCoord[i];
+							v.position = *(math::Vec3f*)(primitive.position->element(i));
+							v.normal = *(math::Vec3f*)(primitive.normal->element(i));
+							auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
+							v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+							v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+							v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
 						}
 						
 						// TODO: Share meshes
 						renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
-						renderObj->materials.push_back(materials[0]); // TODO
+						if(materials.empty())
+						{
+							renderObj->materials.push_back(defaultMaterial);
+						}
+						else
+							renderObj->materials.push_back(materials[0]); // TODO
 					}
 
 					auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
@@ -304,7 +320,8 @@ namespace rev {
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
 			core::Log::verbose("Load the helmet scene");
-			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
+			auto gltfScene = loadGLTFScene("cube/", mGraphicsScene);
+			//auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
 			core::Log::verbose("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";

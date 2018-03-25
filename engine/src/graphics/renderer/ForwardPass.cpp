@@ -206,6 +206,8 @@ namespace rev { namespace graphics {
 				model2Shadow = _shadows->shadowProj() * worldMatrix;
 
 			// render
+			if(renderObj->materials.size() < renderObj->meshes.size())
+				continue;
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
