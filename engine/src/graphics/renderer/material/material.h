@@ -32,6 +32,7 @@ namespace rev { namespace graphics {
 	{
 	public:
 		using TexturePtr = std::shared_ptr<const Texture>;
+		const Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect> effect);
 
