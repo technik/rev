@@ -17,6 +17,7 @@
 #include <graphics/debug/debugGUI.h>
 #include <graphics/scene/material.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/renderer/material/Effect.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -199,6 +200,8 @@ namespace rev {
 			auto defaultMaterial = std::make_shared<Material>();
 			defaultMaterial->name = "defaultMaterial";
 			defaultMaterial->shader = "metal-rough.fx";
+			Effect::loadFromFile("metal-rough.fx");
+			
 			// Load materials
 			std::vector<std::shared_ptr<graphics::Material>> materials;
 			for(auto& matDesc : sceneDesc["materials"])
