@@ -40,7 +40,7 @@ namespace rev { namespace graphics {
 		void addParam(const std::string& name,float f);
 		void addParam(const std::string& name, const math::Vec3f& v);
 		void addParam(const std::string& name, const math::Vec4f& v);
-		void addParam(const std::string& name, TexturePtr t);
+		void addTexture(const std::string& name, TexturePtr t);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
 		void bindParams(GraphicsDriverGL& driver) const;

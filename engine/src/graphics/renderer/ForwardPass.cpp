@@ -25,8 +25,8 @@
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/shader.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
-#include <graphics/scene/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
@@ -37,6 +37,7 @@
 using namespace rev::input;
 #endif // _WIN32
 
+using namespace std;
 using namespace rev::math;
 
 namespace rev { namespace graphics {
@@ -46,14 +47,10 @@ namespace rev { namespace graphics {
 		: mDriver(_gfxDriver)
 	{
 		loadCommonShaderCode();
-		mErrorMaterial = std::make_unique<Material>();
-		mErrorMaterial->name = "XOR-ErrorMaterial";
-		mErrorMaterial->shader = "simplePBR.fx";
-		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4), false)); // Albedo texture
-		mErrorMaterial->addParam(6, 0.5f); // Roughness
-		mErrorMaterial->addParam(7, 0.05f); // Metallic
-		mEV = 0.0f;
+		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
+		mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
+		mEV = 0.0f;
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
@@ -66,47 +63,45 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::loadShader(const std::string& fileName)
+	Shader* ForwardPass::loadShader(const Material& material)
 	{
-		core::File code(fileName);
-		auto shader = Shader::createShader({mForwardShaderCommonCode.c_str(), code.bufferAsText()});
+		auto shader = Shader::createShader({
+			mForwardShaderCommonCode.c_str(),
+			material.bakedOptions().c_str(),
+			material.effect().code().c_str()
+		});
 		if(shader)
 		{
 			auto shaderP = shader.get();
-			mPipelines.insert(std::make_pair(fileName, std::move(shader)));
+			mPipelines.insert(std::make_pair(&material, std::move(shader)));
 			return shaderP;
 		} else
 			return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	bool ForwardPass::bindMaterial(const Material* mat)
+	bool ForwardPass::bindMaterial(const Material& mat)
 	{
-		if(mat && !mat->shader.empty()) // Bind proper material
+		// Find shader
+		auto shaderIter = mPipelines.find(&mat);
+		if(shaderIter == mPipelines.end())
 		{
-			// Find shader
-			auto shaderIter = mPipelines.find(mat->shader);
-			if(shaderIter == mPipelines.end())
-			{
-				// Try to load shader
-				auto shader = loadShader(mat->shader);
-				if(shader)
-					shader->bind();
-				else
-				{
-					if(mat != mErrorMaterial.get())
-						return bindMaterial(mErrorMaterial.get());
-					return false;
-				}
-			}
+			// Try to load shader
+			auto shader = loadShader(mat);
+			if(shader)
+				shader->bind();
 			else
-				shaderIter->second->bind();
-
-			mat->bind(mDriver);
-			return true;
+			{
+				if(&mat != mErrorMaterial.get())
+					return bindMaterial(*mErrorMaterial);
+				return false;
+			}
 		}
-		// Bind error material
-		return bindMaterial(mErrorMaterial.get());
+		else
+			shaderIter->second->bind();
+
+		mat.bindParams(mDriver);
+		return true;
 	}
 
 	//----------------------------------------------------------------------------------------------
