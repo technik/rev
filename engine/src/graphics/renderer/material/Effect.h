@@ -46,6 +46,7 @@ namespace rev { namespace graphics {
 			};
 
 			std::string name;
+			int location;
 			Type type;
 			// Returns the serialized version of the attribute as defined in shader code
 			// when the attribute is present for a given material.

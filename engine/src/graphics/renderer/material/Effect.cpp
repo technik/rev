@@ -35,13 +35,15 @@ namespace rev { namespace graphics {
 			// Line contains an uniform?
 			if(line.compare(0, 6, "layout") == 0)
 			{
-				// TODO: Parse uniform location, and store it in the property
 				Property prop;
-				auto arg_pos = line.find("sampler2D");
+				// Parse uniform location, and store it in the property
+				auto loc_pos = line.find_first_not_of(" \t", line.find('=')+1);
+				prop.location = stoi(line.substr(loc_pos));
+				auto arg_pos = line.find("sampler2D", loc_pos);
 				if(arg_pos != string::npos)
 					prop.type = Property::Texture2D;
 				else {
-					arg_pos = line.find("vec3");
+					arg_pos = line.find("vec3", loc_pos);
 					if(arg_pos != string::npos)
 						prop.type = Property::Vec3;
 				}
