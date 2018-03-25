@@ -198,7 +198,7 @@ namespace rev { namespace graphics {
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
-				if(bindMaterial(renderObj->materials[i].get()))
+				if(bindMaterial(*renderObj->materials[i]))
 				{
 					// Matrices
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
