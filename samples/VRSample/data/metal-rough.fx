@@ -309,6 +309,7 @@ vec3 indirectLightPBR(
 //---------------------------------------------------------------------------------------
 vec3 shadeSurface(ShadeInput inputs)
 {
+#ifdef sampler2D_uAlbedo
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
 	//albedo = pow(albedo, vec3(1.0/2.2));
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
@@ -318,16 +319,16 @@ vec3 shadeSurface(ShadeInput inputs)
 	float occlusion = physics.r;
 
 	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
-	vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
+	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
 	//vec4 shadowSpacePos = vec4(vtxWsPos, 1.0);
-	float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
-	float curDepth = shadowSpacePos.z;
+	//float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
+	//float curDepth = shadowSpacePos.z;
 	float shadow = 1.0;
-	if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
+	/*if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
 	 shadowSpacePos.y >= 0.0 && shadowSpacePos.y <= 1.0 &&
 	 shadowSpacePos.z >= 0.0 && shadowSpacePos.z <= 1.0 &&
 	 shadowSpacePos.z > sampledDepth)
-		shadow = 0.0;
+		shadow = 0.0;*/
 	
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	//emissive = pow(emissive, vec3(1.0/2.2));
@@ -348,7 +349,6 @@ vec3 shadeSurface(ShadeInput inputs)
 		roughness,
 		occlusion,
 		shadow);
-
 	//return 0.5+0.5*inputs.normal;
 	//return directLight + emissive;
 	//return shadowSpacePos.xyz;
@@ -360,6 +360,9 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return physics;
 	//return albedo;
 	return directLight + indirectLight + emissive;
+#else
+	return vec3(1.0);
+#endif
 	//return directLight + emissive;
 }
 

@@ -7,7 +7,7 @@ layout(location = 4) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform mat4 uWorld;
-layout(location = 2) uniform mat4 uMs2Shadow;
+//layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 4) uniform vec3 uWsViewPos; // Direction toward viewpoint
 
 out vec3 vtxTangent;
