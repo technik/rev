@@ -235,15 +235,25 @@ namespace rev {
 				if(nameIter != nodeDesc.end())
 					node->name = nameIter.value().get<std::string>();
 				// Node transform
+				auto nodeTransform = std::make_unique<game::Transform>();
+				bool useTransform = false;
 				if(nodeDesc.find("matrix") != nodeDesc.end())
 				{
+					useTransform = true;
 					auto& matrixDesc = nodeDesc["matrix"];
-					auto nodeTransform = std::make_unique<game::Transform>();
 					for(size_t i = 0; i < 3; ++i)
 						for(size_t j = 0; j < 4; ++j)
 							nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
-					node->addComponent(std::move(nodeTransform));
 				}
+				if(nodeDesc.find("translation") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& posDesc = nodeDesc["translation"];
+					for(size_t i = 0; i < 3; ++i)
+						nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
+				}
+				if(useTransform)
+					node->addComponent(std::move(nodeTransform));
 				// Optional node mesh
 				auto meshIter = nodeDesc.find("mesh");
 				if(meshIter != nodeDesc.end())

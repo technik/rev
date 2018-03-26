@@ -12,6 +12,31 @@
 	],
 	"nodes": [
 		{
+			"name": "root",
+			"translation": [
+				0,
+				1,
+				-10
+			],
+			"children": [ 1, 2, 3, 4, 5]
+		},
+		{
+			"name": "Main Camera",
+			"translation": [
+				0,
+				0,
+				0
+			]
+		},
+		{
+			"name": "Directional Light",
+			"translation": [
+				0,
+				2,
+				10
+			]
+		},
+		{
 			"name": "Cube",
 			"translation": [
 				0,
@@ -19,6 +44,24 @@
 				0
 			],
 			"mesh": 0
+		},
+		{
+			"name": "Cube (1)",
+			"translation": [
+				0,
+				-1.01,
+				0.92
+			],
+			"mesh": 1
+		},
+		{
+			"name": "Cube (2)",
+			"translation": [
+				0.99,
+				0.01,
+				0.93
+			],
+			"mesh": 2
 		}
 	],
 	"meshes": [
@@ -34,9 +77,109 @@
 					"indices" : 4
 				}
 			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 5,
+						"NORMAL": 6,
+						"TANGENT": 7,
+						"TEXCOORD_0": 8
+					},
+					"indices" : 9
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 10,
+						"NORMAL": 11,
+						"TANGENT": 12,
+						"TEXCOORD_0": 13
+					},
+					"indices" : 14
+				}
+			]
 		}
 	],
 	"accessors": [
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC3",
+			"min": [-0.5, -0.5, -0.5],
+			"max": [0.5, 0.5, 0.5]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 36,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC3",
+			"min": [-0.5, -0.5, -0.5],
+			"max": [0.5, 0.5, 0.5]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 24,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 36,
+			"type": "SCALAR"
+		},
 		{
 			"bufferView" : 0,
 			"byteOffset": 0,
@@ -88,11 +231,37 @@
 				"byteLength": 72,
 				"byteOffset": 1152,
 				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 1152,
+				"byteOffset": 1224,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 72,
+				"byteOffset": 2376,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 1152,
+				"byteOffset": 2448,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 72,
+				"byteOffset": 3600,
+				"target": 34963
 			}
 	],
 	"buffers": [
 		{
-			"byteLength": 1224,
+			"byteLength": 3672,
 			"uri": "scene.bin"
 		}
 	]
