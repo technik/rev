@@ -51,6 +51,7 @@ float fresnelSchlick(float ndv)
 // Material
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uIrradiance;
+layout(location = 10) uniform sampler2D uNormalMap;
 layout(location = 11) uniform sampler2D uAlbedo;
 layout(location = 12) uniform sampler2D uPhysics;
 layout(location = 13) uniform sampler2D uEmissive;
@@ -291,9 +292,11 @@ vec3 indirectLightPBR(
 	float shadowMask = mix(1.0, shadow, shadowImportance);
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
-	vectors.normal = inputs.normal;
+#ifdef sampler2D_uNormalMap
 	vectors.tangent = inputs.tangent;
 	vectors.bitangent = inputs.bitangent;
+#endif
+	vectors.normal = inputs.normal;
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
@@ -311,12 +314,19 @@ vec3 shadeSurface(ShadeInput inputs)
 {
 #ifdef sampler2D_uAlbedo
 	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	//albedo = pow(albedo, vec3(1.0/2.2));
+#else
+	vec3 albedo = vec3(1.0);
+#endif
+#ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
-	//physics = pow(physics, vec3(1.0/2.2));
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
 	float occlusion = physics.r;
+#else
+	float roughness = 0.8;
+	float metallic = 0.1;
+	float occlusion = 1.0;
+#endif
 
 	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
 	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
@@ -330,8 +340,11 @@ vec3 shadeSurface(ShadeInput inputs)
 	 shadowSpacePos.z > sampledDepth)
 		shadow = 0.0;*/
 	
+#ifdef sampler2D_uEmissive
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	//emissive = pow(emissive, vec3(1.0/2.2));
+#else
+	vec3 emissive = vec3(0.0);
+#endif
 	
 	vec3 specColor = mix(vec3(0.04), albedo, metallic);
 	vec3 diffColor = albedo*(1.0-metallic);
@@ -360,9 +373,6 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return physics;
 	//return albedo;
 	return directLight + indirectLight + emissive;
-#else
-	return vec3(1.0);
-#endif
 	//return directLight + emissive;
 }
 
