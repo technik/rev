@@ -20,7 +20,6 @@
 #include "project.h"
 #include <fstream>
 #include <graphics/debug/imgui.h>
-#include "../inspectors/MaterialInspector.h"
 
 using rev::core::Json;
 using namespace std;
@@ -36,7 +35,7 @@ namespace rev { namespace editor {
 	//----------------------------------------------------------------------------------------------
 	void Project::registerInspectorFactories()
 	{
-		registerFactory<MaterialInspector>(string("material"));
+		//registerFactory<MaterialInspector>(string("material"));
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -128,8 +127,8 @@ namespace rev { namespace editor {
 		ImGui::BeginChild("Asset Inspector", ImVec2(200,0), true);
 			ImGui::Text("Asset Inspector");
 			ImGui::Separator();
-			if(mSelectedInspector)
-				mSelectedInspector->showInspectionPanel();
+			//if(mSelectedInspector)
+			//	mSelectedInspector->showInspectionPanel();
 		ImGui::EndChild();
 		ImGui::EndGroup();
 

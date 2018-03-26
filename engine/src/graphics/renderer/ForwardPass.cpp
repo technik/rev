@@ -66,8 +66,8 @@ namespace rev { namespace graphics {
 	Shader* ForwardPass::loadShader(const Material& material)
 	{
 		auto shader = Shader::createShader({
-			mForwardShaderCommonCode.c_str(),
 			material.bakedOptions().c_str(),
+			mForwardShaderCommonCode.c_str(),
 			material.effect().code().c_str()
 		});
 		if(shader)

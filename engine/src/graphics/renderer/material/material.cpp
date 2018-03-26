@@ -65,7 +65,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, TexturePtr t)
+	void Material::addTexture(const string& name, TexturePtr t)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)

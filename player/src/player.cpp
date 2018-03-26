@@ -15,7 +15,7 @@
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
-#include <graphics/scene/material.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/renderer/material/Effect.h>
 
@@ -197,10 +197,8 @@ namespace rev {
 			}
 
 			// Default material
-			auto defaultMaterial = std::make_shared<Material>();
-			defaultMaterial->name = "defaultMaterial";
-			defaultMaterial->shader = "metal-rough.fx";
-			Effect::loadFromFile("metal-rough.fx");
+			auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
+			auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 			
 			// Load materials
 			std::vector<std::shared_ptr<graphics::Material>> materials;
@@ -211,13 +209,11 @@ namespace rev {
 				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
 				size_t aoNdx = matDesc["occlusionTexture"]["index"];
 				size_t normalNdx = matDesc["normalTexture"]["index"];
-				auto mat = std::make_shared<Material>();
-				mat->name = matDesc["name"].get<std::string>();
-				mat->shader = "metal-rough.fx";
-				mat->addTexture(10, Texture::load(textureNames[normalNdx], false));
-				mat->addTexture(11, Texture::load(textureNames[albedoNdx], false));
-				mat->addTexture(12, Texture::load(textureNames[physicsNdx], false));
-				mat->addTexture(13, Texture::load(textureNames[emissiveNdx], false));
+				auto mat = std::make_shared<Material>(pbrEffect);
+				mat->addTexture("uNormalMap", Texture::load(textureNames[normalNdx], false));
+				mat->addTexture("uAlbedo", Texture::load(textureNames[albedoNdx], false));
+				mat->addTexture("uPhysics", Texture::load(textureNames[physicsNdx], false));
+				mat->addTexture("uEmissive", Texture::load(textureNames[emissiveNdx], false));
 				materials.push_back(mat);
 			}
 

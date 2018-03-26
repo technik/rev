@@ -18,8 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "editor.h"
-#include "inspectors/MaterialInspector.h"
-#include "inspectors/MeshRendererInspector.h"
 #include "inspectors/TransportInspector.h"
 
 #include <graphics/debug/imgui.h>
@@ -30,7 +28,6 @@ namespace rev { namespace editor {
 	void Editor::init(graphics::RenderScene& scene)
 	{
 		mTextureMgr.init();
-		registerMaterials();
 		// Create project
 		mOpenProject.load("sponza.json");
 		// Project must be created before inspectors, since they use the project's information
@@ -44,7 +41,6 @@ namespace rev { namespace editor {
 		drawMainMenu();
 		if(mShowProjectExplorer)
 			mOpenProject.showExplorer();
-		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
 		//ImGui::ShowDemoWindow();
@@ -141,44 +137,11 @@ namespace rev { namespace editor {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Editor::showMaterialExplorer() {
-		if(mShowMaterialExplorer)
-		{
-			if(ImGui::Begin("Material Explorer"))
-			{
-				if(ImGui::Button("+"))
-				{
-					auto newMaterial = std::make_shared<Material>();
-					//mMaterials.push_back(newMaterial);
-					newMaterial->name = "materials/new.mat";
-					newMaterial->addParam(6, 0.5f); // Rougness
-					newMaterial->addParam(7, 0.5f); // Metallic
-					newMaterial->addTexture(5, mTextureMgr.get("errorTexture"));
-				}
-				ImGui::End();
-			}
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Editor::registerMaterials()
-	{
-		// Register phony materials
-		mTextures = {
-			"textures/spnza_bricks_a_ddn.tga",
-			"textures/sponza_curtain_blue_diff.tga",
-			"textures/spnza_bricks_a_diff.tga",
-			"textures/sponza_curtain_diff.tga",
-			"textures/spnza_bricks_a_spec.tga"
-		};
-	}
-
-	//----------------------------------------------------------------------------------------------
 	void Editor::createInspectors(graphics::RenderScene& scene) {
-		mInspectors.insert(std::make_pair(
+		/*mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),
 			std::make_unique<RendererInspector>(mOpenProject.materials()))
-		);
+		);*/
 		registerInspector<game::Transform,TransformInspector>();
 	}
 

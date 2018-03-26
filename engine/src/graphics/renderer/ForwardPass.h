@@ -20,6 +20,7 @@
 #pragma once
 #include <memory>
 #include <graphics/driver/shader.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <unordered_map>
 
@@ -30,7 +31,6 @@ namespace rev{ namespace graphics {
 	class RenderScene;
 	class RenderTarget;
 	class ShadowMapPass;
-	class Material;
 
 	class ForwardPass
 	{

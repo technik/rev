@@ -80,7 +80,7 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	const Effect::Property* Effect::property(const string& name) const
 	{
-		for(auto p : m_properties)
+		for(const auto& p : m_properties)
 			if(p.name == name)
 				return &p;
 

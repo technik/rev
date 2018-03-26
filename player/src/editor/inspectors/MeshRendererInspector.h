@@ -21,7 +21,6 @@
 #include "../editor.h"
 #include <game/scene/meshRenderer.h>
 #include <graphics/scene/renderObj.h>
-#include <graphics/scene/material.h>
 #include <graphics/debug/imgui.h>
 
 namespace rev { namespace editor {
