@@ -27,13 +27,6 @@ using Json = rev::core::Json;
 
 namespace rev {
 
-	const std::vector<Vec3f> vertices = {
-		{1.f, 0.f, 1.f},
-		{-1.f, 0.f, 1.f},
-		{0.f,0.f, -1.f}
-	};
-	const std::vector<uint16_t> indices = { 0, 1, 2};
-
 	namespace { // Anonymous namespace for temporary implementation of gltf loader
 
 		namespace gltf {
