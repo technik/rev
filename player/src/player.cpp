@@ -118,7 +118,7 @@ namespace rev {
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder, graphics::RenderScene& _renderable)
 		{
 			//core::File sceneFile("helmet/damagedHelmet.gltf");
-			core::File sceneFile("cube/scene.gltf");
+			core::File sceneFile("courtyard/court.gltf");
 			if(!sceneFile.sizeInBytes())
 			{
 				core::Log::error("Unable to find scene asset");
@@ -238,12 +238,33 @@ namespace rev {
 						for(size_t j = 0; j < 4; ++j)
 							nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
 				}
+				if(nodeDesc.find("rotation") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& rotDesc = nodeDesc["rotation"];
+					Quatf rot {
+						rotDesc[0].get<float>(),
+						rotDesc[1].get<float>(),
+						rotDesc[2].get<float>(),
+						rotDesc[3].get<float>()
+					};
+					nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
+				}
 				if(nodeDesc.find("translation") != nodeDesc.end())
 				{
 					useTransform = true;
 					auto& posDesc = nodeDesc["translation"];
 					for(size_t i = 0; i < 3; ++i)
 						nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
+				}
+				if(nodeDesc.find("scale") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& scaleDesc = nodeDesc["scale"];
+					Mat33f scale = Mat33f::identity();
+					for(size_t i = 0; i < 3; ++i)
+						scale(i,i) = scaleDesc[i].get<float>();
+					nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
 				}
 				if(useTransform)
 					node->addComponent(std::move(nodeTransform));
@@ -322,14 +343,14 @@ namespace rev {
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
 			core::Log::verbose("Load the helmet scene");
-			auto gltfScene = loadGLTFScene("cube/", mGraphicsScene);
+			auto gltfScene = loadGLTFScene("courtyard/", mGraphicsScene);
 			//auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
 			core::Log::verbose("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
-			//std::string skyName = "monument";
+			std::string skyName = "monument";
 			//std::string skyName = "Ice";
-			std::string skyName = "Winter";
+			//std::string skyName = "Winter";
 			//std::string skyName = "Factory";
 			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
@@ -379,6 +400,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Orbit
+		/*
 		auto orbitNode = mGameScene.root()->createChild("camOrbit");
 #ifdef ANDROID
 		orbitNode->addComponent<Orbit>(Vec2f{-1e-3f,-1e-3f}, 1);
@@ -389,7 +411,9 @@ namespace rev {
 
 		// Cam node
 		auto cameraNode = orbitNode->createChild("Camera");
-		cameraNode->addComponent<FlyBy>(1.f);
+		*/
+		auto cameraNode = mGameScene.root()->createChild("Camera");
+		cameraNode->addComponent<FlyBy>(10.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
 		mCamera = &cameraNode->addComponent<game::Camera>()->cam();
 	}

@@ -33,6 +33,11 @@ namespace rev { namespace game {
 			std::shared_ptr<graphics::RenderObj> mesh
 		);
 
+		~MeshRenderer()
+		{
+			
+		}
+
 		void init		() override;
 		void update		(float _dt) override;
 
