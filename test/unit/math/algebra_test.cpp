@@ -5,6 +5,7 @@
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/quaternion.h>
+#include <math/algebra/affineTransform.h>
 
 using namespace rev::math;
 
@@ -172,10 +173,26 @@ void testComposedTransforms()
 	assert(approx(mB*z2, Vec3f(1.f,-2.f,0.f)));
 }
 
+void testAffineTransform()
+{
+	Vec3f pos0 = Vec3f(1.f,2.f,3.f);
+	AffineTransform x = AffineTransform::identity();
+	auto rotation = Mat33f({
+		-1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f,
+		0.f, 1.f, 0.f
+		});
+	x.position() = Vec3f(0.f,0.f,10.f);
+	assert(x.transformPosition(pos0) == Vec3f(1.f,2.f,13.f));
+	x.rotate(rotation);
+	assert(x.transformPosition(pos0) == Vec3f(-1.f,3.f,12.f));
+}
+
 int main() {
 	testMatrix();
 	testVector();
 	testQuaternions();
 	testComposedTransforms();
+	testAffineTransform();
 	return 0;
 }

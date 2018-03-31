@@ -37,7 +37,7 @@ namespace rev { namespace graphics {
 		void setWorldTransform(const math::AffineTransform& _x)
 		{
 			mWorld = _x;
-			mView.block<3,4>(0,0) = _x.inverse().matrix();
+			mView = _x.orthoNormalInverse().matrix();
 		}
 
 		math::Vec3f position() const { return mWorld.position(); }

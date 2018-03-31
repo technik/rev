@@ -185,7 +185,7 @@ namespace rev { namespace graphics {
 		{
 			auto renderObj = renderable.lock();
 			// Get world matrix
-			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
+			worldMatrix = renderObj->transform.matrix();
 			// Set up vertex uniforms
 			auto wvp = vp*worldMatrix;
 			Mat44f model2Shadow;
