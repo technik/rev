@@ -1,0 +1,576 @@
+{
+	"asset": {
+		"version" : "2.0",
+		"generator": "technik's gltf 2.0 exporter"
+	},
+	"scene" : 0,
+	"scenes": [
+		{
+			"name": "unityScene",
+			"nodes": [ 0 ]
+		}
+	],
+	"nodes": [
+		{
+			"name": "Cloner_CourtyardOuterLedge",
+			"translation": [
+				0,
+				2.437638,
+				-1.009742E-30
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 1, 2, 3]
+		},
+		{
+			"name": "Holder_OuterLedge_0",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				-7.148654E-32,
+				0.3420202,
+				5.225298E-32,
+				0.9396926
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 4]
+		},
+		{
+			"name": "OuterLedge_2",
+			"translation": [
+				1.694066E-23,
+				2.842171E-16,
+				-2.019484E-30
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.832769E-16,
+				1.249001E-15
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 5]
+		},
+		{
+			"name": "Scaledown_3",
+			"translation": [
+				-1.089709E-07,
+				-2.437638,
+				-1.60748E-15
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.83277E-16,
+				-1.165734E-15
+			],
+			"scale": [
+				1,
+				1,
+				0.2222222
+			],
+			"children": [ 6]
+		},
+		{
+			"name": "OuterLedge_3",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				2.185569E-08,
+				-1.005344E-32,
+				-4.599919E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 7]
+		},
+		{
+			"name": "OuterLedge_3_2-puv",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				1.654361E-24,
+				0,
+				-4.135903E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 0
+		},
+		{
+			"name": "Holder_OuterLedge_1->CourtyardSteps/Cloner_CourtyardOuterLedge/Holder_OuterLedge_0< (1)",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				5.707476E-09,
+				0.7660444,
+				4.789141E-09,
+				0.6427876
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 8]
+		},
+		{
+			"name": "Holder_OuterLedge_0-Instance",
+			"translation": [
+				-9.944017E-31,
+				1.481774E-38,
+				-1.753398E-31
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 9]
+		},
+		{
+			"name": "OuterLedge_2",
+			"translation": [
+				1.694066E-23,
+				2.842171E-16,
+				-2.019484E-30
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.832769E-16,
+				1.249001E-15
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 10]
+		},
+		{
+			"name": "Scaledown_3",
+			"translation": [
+				-1.089709E-07,
+				-2.437638,
+				-1.60748E-15
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.83277E-16,
+				-1.165734E-15
+			],
+			"scale": [
+				1,
+				1,
+				0.2222222
+			],
+			"children": [ 11]
+		},
+		{
+			"name": "OuterLedge_3",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				2.185569E-08,
+				-1.005344E-32,
+				-4.599919E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 12]
+		},
+		{
+			"name": "OuterLedge_3_2-puv",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				1.654361E-24,
+				0,
+				-4.135903E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 1
+		},
+		{
+			"name": "Holder_OuterLedge_3->CourtyardSteps/Cloner_CourtyardOuterLedge/Holder_OuterLedge_0< (1)",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				-7.848227E-17,
+				0.9396926,
+				-7.848227E-17,
+				-0.3420202
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 13]
+		},
+		{
+			"name": "Holder_OuterLedge_0-Instance",
+			"translation": [
+				6.490496E-31,
+				0,
+				-7.735071E-31
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 14]
+		},
+		{
+			"name": "OuterLedge_2",
+			"translation": [
+				1.694066E-23,
+				2.842171E-16,
+				-2.019484E-30
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.832769E-16,
+				1.249001E-15
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 15]
+		},
+		{
+			"name": "Scaledown_3",
+			"translation": [
+				-1.089709E-07,
+				-2.437638,
+				-1.60748E-15
+			],
+			"rotation": [
+				2.235174E-08,
+				1,
+				2.83277E-16,
+				-1.165734E-15
+			],
+			"scale": [
+				1,
+				1,
+				0.2222222
+			],
+			"children": [ 16]
+		},
+		{
+			"name": "OuterLedge_3",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				2.185569E-08,
+				-1.005344E-32,
+				-4.599919E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 17]
+		},
+		{
+			"name": "OuterLedge_3_2-puv",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				1.654361E-24,
+				0,
+				-4.135903E-25,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 2
+		}
+	],
+	"meshes": [
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 5,
+						"NORMAL": 6,
+						"TANGENT": 7,
+						"TEXCOORD_0": 8
+					},
+					"indices" : 9
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 10,
+						"NORMAL": 11,
+						"TANGENT": 12,
+						"TEXCOORD_0": 13
+					},
+					"indices" : 14
+				}
+			]
+		}
+	],
+	"accessors": [
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3",
+			"min": [-25.92353, 0.1378347, 0],
+			"max": [-16.93734, 0.8684288, 74.9522]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 4842,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3",
+			"min": [-25.92353, 0.1378347, 0],
+			"max": [-16.93734, 0.8684288, 74.9522]
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 3,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 4842,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 4,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3",
+			"min": [-25.92353, 0.1378347, 0],
+			"max": [-16.93734, 0.8684288, 74.9522]
+		},
+		{
+			"bufferView" : 4,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 4,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 4,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 1076,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 5,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 4842,
+			"type": "SCALAR"
+		}
+	],
+	"bufferViews": [
+			{
+				"buffer": 0,
+				"byteLength": 51648,
+				"byteOffset": 0,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 9684,
+				"byteOffset": 51648,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 51648,
+				"byteOffset": 61332,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 9684,
+				"byteOffset": 112980,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 51648,
+				"byteOffset": 122664,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 9684,
+				"byteOffset": 174312,
+				"target": 34963
+			}
+	],
+	"buffers": [
+		{
+			"byteLength": 183996,
+			"uri": "court.bin"
+		}
+	]
+}

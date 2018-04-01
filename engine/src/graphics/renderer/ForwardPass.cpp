@@ -179,7 +179,7 @@ namespace rev { namespace graphics {
 			glBindTexture(GL_TEXTURE_2D, _shadows->texName());
 		}
 
-		auto worldMatrix = Mat44f::identity();
+		Mat44f worldMatrix = Mat44f::identity();
 		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
@@ -187,7 +187,7 @@ namespace rev { namespace graphics {
 			// Get world matrix
 			worldMatrix = renderObj->transform.matrix();
 			// Set up vertex uniforms
-			auto wvp = vp*worldMatrix;
+			Mat44f wvp = vp*worldMatrix;
 			Mat44f model2Shadow;
 			if(_shadows) // TODO: This should be world 2 shadow matrix
 				model2Shadow = _shadows->shadowProj() * worldMatrix;
