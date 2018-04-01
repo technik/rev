@@ -80,6 +80,20 @@ namespace rev { namespace editor {
 		}
 	}
 
+	void displayTreeNode(const game::SceneNode& node)
+	{
+		ImGuiTreeNodeFlags node_flags = 
+			ImGuiTreeNodeFlags_OpenOnArrow | 
+			ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags, "%s", node.name.c_str());
+		for(auto& c : node.children())
+			displayTreeNode(*c);
+		if(node_open)
+		{
+			ImGui::TreePop();
+		}
+	}
+
 	//----------------------------------------------------------------------------------------------
 	void Editor::showNodeTree(const game::SceneNode* root)
 	{
@@ -91,19 +105,12 @@ namespace rev { namespace editor {
 			// TODO: Make this a real tree
 			for(auto& c : root->children())
 			{
-				ImGuiTreeNodeFlags node_flags = 
+				displayTreeNode(*c);
+				/*ImGuiTreeNodeFlags node_flags = 
 					ImGuiTreeNodeFlags_OpenOnArrow | 
 					ImGuiTreeNodeFlags_OpenOnDoubleClick | 
 					((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
-				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, "%s", c->name.c_str());
-				if(ImGui::IsItemClicked())
-				{
-					mSelectedNode = c;
-				}
-				if(node_open)
-				{
-					ImGui::TreePop();
-				}
+				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, "%s", c->name.c_str());*/
 			}
 			ImGui::End();
 		}

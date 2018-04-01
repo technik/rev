@@ -348,9 +348,9 @@ namespace rev {
 			core::Log::verbose("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
-			std::string skyName = "monument";
+			//std::string skyName = "monument";
 			//std::string skyName = "Ice";
-			//std::string skyName = "Winter";
+			std::string skyName = "Winter";
 			//std::string skyName = "Factory";
 			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
