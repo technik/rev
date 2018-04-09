@@ -87,9 +87,9 @@ namespace rev { namespace editor {
 			ImGuiTreeNodeFlags_OpenOnDoubleClick;
 		bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags, "%s", node.name.c_str());
 		for(auto& c : node.children())
-			displayTreeNode(*c);
 		if(node_open)
 		{
+			displayTreeNode(*c);
 			ImGui::TreePop();
 		}
 	}

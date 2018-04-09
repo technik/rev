@@ -195,11 +195,13 @@ namespace rev { namespace graphics {
 			// render
 			if(renderObj->materials.size() < renderObj->meshes.size())
 				continue;
+			++m_numRenderables;
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
 				if(bindMaterial(*renderObj->materials[i]))
 				{
+					++m_numMeshes;
 					// Matrices
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
@@ -218,14 +220,43 @@ namespace rev { namespace graphics {
 					if(_shadows)
 						glUniform1i(9, 9);
 					// Render mesh
+					++m_numDrawCalls;
 					renderObj->meshes[i]->render();
 				}
 			}
 		}
 
 		// Render skybox
-		if(_scene.sky)
+		if(_scene.sky) {
+			++m_numDrawCalls;
 			renderBackground(vp, exposure);
+		}
+
+		drawStats();
+	}
+
+	void ForwardPass::resetStats(){
+		m_numDrawCalls = 0;
+		m_numMeshes = 0;
+		m_numRenderables = 0;
+	}
+
+	void ForwardPass::drawStats(){
+		const float DISTANCE = 10.f;
+		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE - 40);
+		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Transparent background
+		bool isOpen = true;
+		if (ImGui::Begin("Render Counters", &isOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
+		{
+			ImGui::Text("Renderables: %d", m_numRenderables);
+			ImGui::Text("Meshes: %d", m_numMeshes);
+			ImGui::Text("Draw Calls: %d", m_numDrawCalls);
+			ImGui::End();
+		}
+		ImGui::PopStyleColor();
+		resetStats();
 	}
 
 }}

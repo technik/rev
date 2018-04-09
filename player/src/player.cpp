@@ -48,7 +48,7 @@ namespace rev {
 			{
 				uint8_t* data = nullptr;
 				GLenum target = 0;
-				size_t size = 0;
+				//size_t size = 0;
 				size_t stride = 0;
 			};
 

@@ -56,6 +56,12 @@ namespace rev{ namespace graphics {
 		// Sky
 		ShaderPtr mBackgroundShader;
 		std::unique_ptr<RenderGeom> mSkyPlane;
+
+		void drawStats();
+		void resetStats();
+		unsigned m_numDrawCalls;
+		unsigned m_numRenderables;
+		unsigned m_numMeshes;
 	};
 
 }}
