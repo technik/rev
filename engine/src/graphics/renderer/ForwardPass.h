@@ -57,6 +57,9 @@ namespace rev{ namespace graphics {
 		ShaderPtr mBackgroundShader;
 		std::unique_ptr<RenderGeom> mSkyPlane;
 
+		// Internal rendering structures
+		// TODO
+
 		void drawStats();
 		void resetStats();
 		unsigned m_numDrawCalls;

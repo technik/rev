@@ -37,10 +37,10 @@ namespace rev { namespace graphics {
 			enum Type
 			{
 				//Integer,
-				//Scalar,
+				Scalar,
 				//Vec2,
 				Vec3,
-				//Vec4,
+				Vec4,
 				Texture2D
 				//Texture3D
 			};

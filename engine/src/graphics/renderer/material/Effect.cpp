@@ -46,6 +46,16 @@ namespace rev { namespace graphics {
 					arg_pos = line.find("vec3", loc_pos);
 					if(arg_pos != string::npos)
 						prop.type = Property::Vec3;
+					else {
+						arg_pos = line.find("vec4", loc_pos);
+						if(arg_pos != string::npos)
+							prop.type = Property::Vec4;
+						else {
+							arg_pos = line.find("float", loc_pos);
+							if(arg_pos != string::npos)
+								prop.type = Property::Scalar;
+						}
+					}
 				}
 				arg_pos = line.find_first_of(" \t", arg_pos);
 				auto name_pos = line.find_first_not_of(" \t", arg_pos);
@@ -69,9 +79,13 @@ namespace rev { namespace graphics {
 	string Effect::Property::preprocessorDirective() const
 	{
 		string typePrefix;
-		if(type == Vec3)
+		if(type == Scalar)
+			typePrefix = "float";
+		else if(type == Vec3)
 			typePrefix = "vec3";
-		else
+		else if(type == Vec4)
+			typePrefix = "vec4";
+		else if(type == Texture2D)
 			typePrefix = "sampler2D";
 
 		return "#define " + typePrefix + '_' + name;
