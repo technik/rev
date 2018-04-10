@@ -197,16 +197,42 @@ namespace rev {
 			std::vector<std::shared_ptr<graphics::Material>> materials;
 			for(auto& matDesc : sceneDesc["materials"])
 			{
-				size_t albedoNdx = matDesc["pbrMetallicRoughness"]["baseColorTexture"]["index"];
-				size_t physicsNdx = matDesc["pbrMetallicRoughness"]["metallicRoughnessTexture"]["index"];
-				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
-				size_t aoNdx = matDesc["occlusionTexture"]["index"];
-				size_t normalNdx = matDesc["normalTexture"]["index"];
 				auto mat = std::make_shared<Material>(pbrEffect);
-				mat->addTexture("uNormalMap", Texture::load(textureNames[normalNdx], false));
-				mat->addTexture("uAlbedo", Texture::load(textureNames[albedoNdx], false));
-				mat->addTexture("uPhysics", Texture::load(textureNames[physicsNdx], false));
-				mat->addTexture("uEmissive", Texture::load(textureNames[emissiveNdx], false));
+				if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
+				{
+					auto pbrDesc = matDesc["pbrMetallicRoughness"];
+					if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
+					{
+						size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
+						mat->addTexture("uAlbedo", Texture::load(textureNames[albedoNdx], false));
+					}
+					if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
+					{
+						size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
+						mat->addTexture("uPhysics", Texture::load(textureNames[physicsNdx], false));
+					}
+					if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
+					{
+						auto& baseColorDesc = pbrDesc["baseColorFactor"];
+						Vec4f color {
+							baseColorDesc[0].get<float>(),
+							baseColorDesc[1].get<float>(),
+							baseColorDesc[2].get<float>(),
+							baseColorDesc[3].get<float>()
+						};
+						mat->addParam("albedo", color);
+					}
+				}
+				if(matDesc.find("emissiveTexture") != matDesc.end())
+				{
+					size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
+					mat->addTexture("uEmissive", Texture::load(textureNames[emissiveNdx], false));
+				}
+				if(matDesc.find("normalTexture") != matDesc.end())
+				{
+					size_t normalNdx = matDesc["normalTexture"]["index"];
+					mat->addTexture("uNormalMap", Texture::load(textureNames[normalNdx], false));
+				}
 				materials.push_back(mat);
 			}
 
