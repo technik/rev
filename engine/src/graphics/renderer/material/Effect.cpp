@@ -54,6 +54,8 @@ namespace rev { namespace graphics {
 							arg_pos = line.find("float", loc_pos);
 							if(arg_pos != string::npos)
 								prop.type = Property::Scalar;
+							else
+								continue;
 						}
 					}
 				}
@@ -88,7 +90,7 @@ namespace rev { namespace graphics {
 		else if(type == Texture2D)
 			typePrefix = "sampler2D";
 
-		return "#define " + typePrefix + '_' + name;
+		return "#define " + typePrefix + '_' + name + "\n";
 	}
 
 	//----------------------------------------------------------------------------------------------

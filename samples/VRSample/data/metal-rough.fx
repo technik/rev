@@ -52,10 +52,10 @@ float fresnelSchlick(float ndv)
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uIrradiance;
 layout(location = 10) uniform sampler2D uNormalMap;
-layout(location = 11) uniform sampler2D uAlbedo;
+layout(location = 14) uniform vec4 uBaseColor;
+layout(location = 11) uniform sampler2D uBaseColorMap;
 layout(location = 12) uniform sampler2D uPhysics;
 layout(location = 13) uniform sampler2D uEmissive;
-//layout(location = 14) uniform sampler2D uAO;
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -312,11 +312,21 @@ vec3 indirectLightPBR(
 //---------------------------------------------------------------------------------------
 vec3 shadeSurface(ShadeInput inputs)
 {
-#ifdef sampler2D_uAlbedo
-	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
+#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
+	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
+	vec3 baseColor = (baseColorTex*uBaseColor).xyz;
 #else
-	vec3 albedo = vec3(1.0);
+	#if defined(sampler2D_uBaseColorMap)
+		vec3 baseColor = texture(uBaseColorMap, vTexCoord).xyz;
+	#else
+		#if defined(vec4_uBaseColor)
+			vec3 baseColor = uBaseColor.xyz;
+		#else
+			vec3 baseColor = vec3(1.0);
+		#endif
+	#endif
 #endif
+
 #ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
 	float roughness = max(0.01, physics.g);
@@ -346,8 +356,8 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 emissive = vec3(0.0);
 #endif
 	
-	vec3 specColor = mix(vec3(0.04), albedo, metallic);
-	vec3 diffColor = albedo*(1.0-metallic);
+	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
+	vec3 diffColor = baseColor*(1.0-metallic);
 
 	vec3 directLight = directLightPBR(
 		inputs,

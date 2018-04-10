@@ -204,7 +204,7 @@ namespace rev {
 					if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
 					{
 						size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
-						mat->addTexture("uAlbedo", Texture::load(textureNames[albedoNdx], false));
+						mat->addTexture("uBaseColorMap", Texture::load(textureNames[albedoNdx], false));
 					}
 					if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
 					{
@@ -220,7 +220,7 @@ namespace rev {
 							baseColorDesc[2].get<float>(),
 							baseColorDesc[3].get<float>()
 						};
-						mat->addParam("albedo", color);
+						mat->addParam("uBaseColor", color);
 					}
 				}
 				if(matDesc.find("emissiveTexture") != matDesc.end())

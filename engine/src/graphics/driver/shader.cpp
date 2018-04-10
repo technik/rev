@@ -107,6 +107,10 @@ namespace rev { namespace graphics {
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
 			ImGui::Begin("Shader Error");
 			ImGui::Text("%s", ShaderErrorMessage.data());
+			glGetShaderiv(_dst, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
+			ShaderErrorMessage.resize(InfoLogLength+1);
+			glGetShaderSource(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			ImGui::Text("%s", ShaderErrorMessage.data());
 			ImGui::End();
 			return false;
 		}
