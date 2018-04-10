@@ -30,7 +30,7 @@ void main ( void )
 	vtxTangent = worldRot * msTangent;
 	vtxBitangent = worldRot * msBitangent;
 #endif
-	vtxNormal = worldRot * msNormal;
+	vtxNormal = inverse(transpose(worldRot)) * msNormal;
 	// Lighting vectors
 	vtxWsPos = (uWorld * vec4(vertex,1.0)).xyz;
 	vtxWsEyeDir = uWsViewPos - vtxWsPos;

@@ -317,6 +317,10 @@ namespace rev {
 						for(size_t i = 0; i < vertices.size(); ++i)
 						{
 							auto& v = vertices[i];
+							assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
 							v.position = *(math::Vec3f*)(primitive.position->element(i));
 							v.normal = *(math::Vec3f*)(primitive.normal->element(i));
 							auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
@@ -368,22 +372,17 @@ namespace rev {
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
-			core::Log::verbose("Load the helmet scene");
 			auto gltfScene = loadGLTFScene("courtyard/", mGraphicsScene);
 			//auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
-			core::Log::verbose("Load skybox");
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
-			//std::string skyName = "monument";
+			std::string skyName = "monument";
 			//std::string skyName = "Ice";
-			std::string skyName = "Winter";
+			//std::string skyName = "Winter";
 			//std::string skyName = "Factory";
-			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
 			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr", false);
 			mGraphicsScene.mLightDir = math::Vec3f(0.f,0.f,-1.f).normalized();
-
-			core::Log::debug("Sky loaded");
 
 			if(gltfScene)
 			{

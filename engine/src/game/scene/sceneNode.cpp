@@ -30,7 +30,6 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void SceneNode::init() {
-		core::Log::verbose("Init node: ", name);
 		for(auto& c : mComponents)
 			c->init();
 		for(auto& c : mChildren)
