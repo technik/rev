@@ -18,6 +18,7 @@
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/renderer/material/Effect.h>
+#include <graphics/scene/Light.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -111,6 +112,46 @@ namespace rev {
 				}
 
 				std::vector<Primitive> primitives;
+			};
+
+			struct Light
+			{
+				Light(const Json& desc)
+				{
+					std::string type = desc["type"];
+					if(type == "Directional")
+						mType = Dir;
+					if(type == "Spot")
+						mType = Spot;
+					if(type == "Point")
+						mType = Point;
+					if(type == "Area")
+						mType = Area;
+					if(mType == Point || mType == Spot)
+						mRange = desc["range"];
+
+					auto& baseColorDesc = desc["color"];
+					mColor = {
+						baseColorDesc[0].get<float>(),
+						baseColorDesc[1].get<float>(),
+						baseColorDesc[2].get<float>(),
+						baseColorDesc[3].get<float>()
+					};
+				}
+
+				Vec4f mColor;
+				Vec3f mDirection;
+				float mAngle;
+				float mRange;
+
+				enum Type {
+					Dir,
+					Spot,
+					Point,
+					Area
+				};
+
+				Type mType;
 			};
 
 		}
@@ -243,6 +284,13 @@ namespace rev {
 				meshes.emplace_back(accessors, meshDesc);
 			}
 
+			// Load lights
+			std::vector<gltf::Light> lights;
+			for(auto& lightDesc : sceneDesc["lights"])
+			{
+				lights.emplace_back(lightDesc);
+			}
+
 			// Load nodes
 			std::vector<std::shared_ptr<SceneNode>> nodes;
 			for(auto& nodeDesc : sceneDesc["nodes"])
@@ -294,6 +342,17 @@ namespace rev {
 				}
 				if(useTransform)
 					node->addComponent(std::move(nodeTransform));
+				// Optional light
+				if(nodeDesc.find("light"))
+				{
+					int ndx = nodeDesc["light"].get<int>();
+					auto& l = lights[ndx];
+					if(l.mType == gltf::Light::Spot)
+					{
+						auto light = new SpotLight;
+						
+					}
+				}
 				// Optional node mesh
 				auto meshIter = nodeDesc.find("mesh");
 				if(meshIter != nodeDesc.end())

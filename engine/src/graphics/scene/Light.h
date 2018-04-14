@@ -19,7 +19,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <math/algebra/vector.h>
+
 namespace rev { namespace graphics {
 
-	//
+	struct Light
+	{
+		math::Vec4f color;
+	};
+
+	struct PointLight : Light
+	{
+		float range;
+		math::Vec3f position;
+	};
+
+	struct SpotLight : Light
+	{
+		float range;
+		float maxCosine;
+		math::Vec3f position;
+		math::Vec3f direction;
+	};
+
+	struct DirectionalLight
+	{
+		math::Vec3f direction;
+	};
 }}

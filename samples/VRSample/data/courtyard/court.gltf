@@ -34577,7 +34577,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -34974,7 +34975,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -35371,7 +35373,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -35747,7 +35750,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -35845,7 +35849,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -35864,7 +35869,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -35883,7 +35889,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -35902,7 +35909,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -35921,7 +35929,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -35940,7 +35949,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -36177,7 +36187,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -36275,7 +36286,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -36294,7 +36306,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -36313,7 +36326,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -36332,7 +36346,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -36351,7 +36366,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -36370,7 +36386,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -36628,7 +36645,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -37025,7 +37043,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -37422,7 +37441,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -37819,7 +37839,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -38216,7 +38237,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -38613,7 +38635,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -39029,7 +39052,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -39127,7 +39151,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -39146,7 +39171,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -39165,7 +39191,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -39184,7 +39211,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -39203,7 +39231,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -39222,7 +39251,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -39500,7 +39530,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 5
 		},
 		{
 			"name": "BottomLegs",
@@ -39917,7 +39948,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -40313,7 +40345,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -40411,7 +40444,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -40430,7 +40464,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40449,7 +40484,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40468,7 +40504,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40487,7 +40524,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40506,7 +40544,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -40743,7 +40782,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -40841,7 +40881,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -40860,7 +40901,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40879,7 +40921,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40898,7 +40941,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40917,7 +40961,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -40936,7 +40981,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -41194,7 +41240,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -41591,7 +41638,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -41967,7 +42015,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -42065,7 +42114,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -42084,7 +42134,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42103,7 +42154,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42122,7 +42174,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42141,7 +42194,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42160,7 +42214,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -42417,7 +42472,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -42515,7 +42571,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -42534,7 +42591,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42553,7 +42611,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42572,7 +42631,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42591,7 +42651,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -42610,7 +42671,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -42867,7 +42929,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 6
 		},
 		{
 			"name": "Glass_Front",
@@ -42965,7 +43028,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -42984,7 +43048,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -43003,7 +43068,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -43022,7 +43088,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -43041,7 +43108,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -43060,7 +43128,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -43377,7 +43446,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -43774,7 +43844,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -44171,7 +44242,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -44628,7 +44700,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -45004,7 +45077,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -45102,7 +45176,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -45121,7 +45196,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -45140,7 +45216,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -45159,7 +45236,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -45178,7 +45256,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -45197,7 +45276,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -45455,7 +45535,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -45852,7 +45933,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -46269,7 +46351,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -46645,7 +46728,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -46743,7 +46827,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -46762,7 +46847,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -46781,7 +46867,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -46800,7 +46887,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -46819,7 +46907,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -46838,7 +46927,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -47075,7 +47165,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -47173,7 +47264,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -47192,7 +47284,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -47211,7 +47304,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -47230,7 +47324,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -47249,7 +47344,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -47268,7 +47364,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -47526,7 +47623,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -47923,7 +48021,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -48320,7 +48419,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -48696,7 +48796,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -48794,7 +48895,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -48813,7 +48915,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -48832,7 +48935,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -48851,7 +48955,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -48870,7 +48975,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -48889,7 +48995,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -49126,7 +49233,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -49224,7 +49332,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -49243,7 +49352,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -49262,7 +49372,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -49281,7 +49392,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -49300,7 +49412,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -49319,7 +49432,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -49617,7 +49731,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -50014,7 +50129,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -50411,7 +50527,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -50808,7 +50925,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -51225,7 +51343,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -51622,7 +51741,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -52019,7 +52139,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -52395,7 +52516,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -52493,7 +52615,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -52512,7 +52635,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -52531,7 +52655,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -52550,7 +52675,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -52569,7 +52695,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -52588,7 +52715,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -52886,7 +53014,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -53283,7 +53412,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -53680,7 +53810,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -54077,7 +54208,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -54494,7 +54626,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -54890,7 +55023,8 @@
 				100,
 				100,
 				100
-			]
+			],
+			"light": 1
 		},
 		{
 			"name": "Glass_Front",
@@ -54988,7 +55122,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 2
 		},
 		{
 			"name": "PointLight",
@@ -55007,7 +55142,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -55026,7 +55162,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -55045,7 +55182,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -55064,7 +55202,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 3
 		},
 		{
 			"name": "PointLight",
@@ -55083,7 +55222,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 4
 		},
 		{
 			"name": "ShadowBlob",
@@ -55341,7 +55481,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -55738,7 +55879,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 0
 		},
 		{
 			"name": "BottomLegs",
@@ -68403,7 +68545,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 7
 		},
 		{
 			"name": "Spotlight (1)",
@@ -68422,7 +68565,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 8
 		},
 		{
 			"name": "PortableHeater_Final",
@@ -68781,7 +68925,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 7
 		},
 		{
 			"name": "Spotlight (1)",
@@ -68800,7 +68945,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 8
 		},
 		{
 			"name": "Battery_Final",
@@ -73059,7 +73205,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 7
 		},
 		{
 			"name": "Spotlight (1)",
@@ -73078,7 +73225,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 8
 		},
 		{
 			"name": "Battery_Final (6)",
@@ -76437,7 +76585,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 7
 		},
 		{
 			"name": "Spotlight (1)",
@@ -76456,7 +76605,8 @@
 				1,
 				1,
 				1
-			]
+			],
+			"light": 8
 		},
 		{
 			"name": "Battery_Final (7)",
@@ -78570,7 +78720,7 @@
 						"TEXCOORD_0": 3
 					},
 					"indices" : 4,
-					"material": 0, 
+					"material": 3, 
 					"mode": 4
 				}
 			]
@@ -78585,7 +78735,7 @@
 						"TEXCOORD_0": 8
 					},
 					"indices" : 9,
-					"material": 1, 
+					"material": 4, 
 					"mode": 4
 				}
 			]
@@ -78600,7 +78750,7 @@
 						"TEXCOORD_0": 13
 					},
 					"indices" : 14,
-					"material": 2, 
+					"material": 5, 
 					"mode": 4
 				}
 			]
@@ -78615,7 +78765,7 @@
 						"TEXCOORD_0": 18
 					},
 					"indices" : 19,
-					"material": 3, 
+					"material": 6, 
 					"mode": 4
 				}
 			]
@@ -78630,7 +78780,7 @@
 						"TEXCOORD_0": 23
 					},
 					"indices" : 24,
-					"material": 4, 
+					"material": 7, 
 					"mode": 4
 				}
 			]
@@ -78645,7 +78795,7 @@
 						"TEXCOORD_0": 28
 					},
 					"indices" : 29,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78660,7 +78810,7 @@
 						"TEXCOORD_0": 33
 					},
 					"indices" : 34,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78675,7 +78825,7 @@
 						"TEXCOORD_0": 38
 					},
 					"indices" : 39,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78690,7 +78840,7 @@
 						"TEXCOORD_0": 43
 					},
 					"indices" : 44,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78705,7 +78855,7 @@
 						"TEXCOORD_0": 48
 					},
 					"indices" : 49,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78720,7 +78870,7 @@
 						"TEXCOORD_0": 53
 					},
 					"indices" : 54,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78735,7 +78885,7 @@
 						"TEXCOORD_0": 58
 					},
 					"indices" : 59,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78750,7 +78900,7 @@
 						"TEXCOORD_0": 63
 					},
 					"indices" : 64,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78765,7 +78915,7 @@
 						"TEXCOORD_0": 68
 					},
 					"indices" : 69,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78780,7 +78930,7 @@
 						"TEXCOORD_0": 73
 					},
 					"indices" : 74,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78795,7 +78945,7 @@
 						"TEXCOORD_0": 78
 					},
 					"indices" : 79,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78810,7 +78960,7 @@
 						"TEXCOORD_0": 83
 					},
 					"indices" : 84,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78825,7 +78975,7 @@
 						"TEXCOORD_0": 88
 					},
 					"indices" : 89,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78840,7 +78990,7 @@
 						"TEXCOORD_0": 93
 					},
 					"indices" : 94,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78855,7 +79005,7 @@
 						"TEXCOORD_0": 98
 					},
 					"indices" : 99,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78870,7 +79020,7 @@
 						"TEXCOORD_0": 103
 					},
 					"indices" : 104,
-					"material": 5, 
+					"material": 8, 
 					"mode": 4
 				}
 			]
@@ -78885,7 +79035,7 @@
 						"TEXCOORD_0": 108
 					},
 					"indices" : 109,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78900,7 +79050,7 @@
 						"TEXCOORD_0": 113
 					},
 					"indices" : 114,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78915,7 +79065,7 @@
 						"TEXCOORD_0": 118
 					},
 					"indices" : 119,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78930,7 +79080,7 @@
 						"TEXCOORD_0": 123
 					},
 					"indices" : 124,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78945,7 +79095,7 @@
 						"TEXCOORD_0": 128
 					},
 					"indices" : 129,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78960,7 +79110,7 @@
 						"TEXCOORD_0": 133
 					},
 					"indices" : 134,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78975,7 +79125,7 @@
 						"TEXCOORD_0": 138
 					},
 					"indices" : 139,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -78990,7 +79140,7 @@
 						"TEXCOORD_0": 143
 					},
 					"indices" : 144,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -79005,7 +79155,7 @@
 						"TEXCOORD_0": 148
 					},
 					"indices" : 149,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -79020,7 +79170,7 @@
 						"TEXCOORD_0": 153
 					},
 					"indices" : 154,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -79035,7 +79185,7 @@
 						"TEXCOORD_0": 158
 					},
 					"indices" : 159,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -79050,7 +79200,7 @@
 						"TEXCOORD_0": 163
 					},
 					"indices" : 164,
-					"material": 7, 
+					"material": 10, 
 					"mode": 4
 				}
 			]
@@ -79065,7 +79215,7 @@
 						"TEXCOORD_0": 168
 					},
 					"indices" : 169,
-					"material": 6, 
+					"material": 9, 
 					"mode": 4
 				}
 			]
@@ -79080,7 +79230,7 @@
 						"TEXCOORD_0": 173
 					},
 					"indices" : 174,
-					"material": 8, 
+					"material": 11, 
 					"mode": 4
 				}
 			]
@@ -79095,7 +79245,7 @@
 						"TEXCOORD_0": 178
 					},
 					"indices" : 179,
-					"material": 9, 
+					"material": 12, 
 					"mode": 4
 				}
 			]
@@ -79110,7 +79260,7 @@
 						"TEXCOORD_0": 183
 					},
 					"indices" : 184,
-					"material": 10, 
+					"material": 13, 
 					"mode": 4
 				}
 			]
@@ -79125,7 +79275,7 @@
 						"TEXCOORD_0": 188
 					},
 					"indices" : 189,
-					"material": 11, 
+					"material": 14, 
 					"mode": 4
 				}
 			]
@@ -79140,7 +79290,7 @@
 						"TEXCOORD_0": 193
 					},
 					"indices" : 194,
-					"material": 11, 
+					"material": 14, 
 					"mode": 4
 				}
 			]
@@ -79155,7 +79305,7 @@
 						"TEXCOORD_0": 198
 					},
 					"indices" : 199,
-					"material": 12, 
+					"material": 15, 
 					"mode": 4
 				}
 			]
@@ -79170,7 +79320,7 @@
 						"TEXCOORD_0": 203
 					},
 					"indices" : 204,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79185,7 +79335,7 @@
 						"TEXCOORD_0": 208
 					},
 					"indices" : 209,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79200,7 +79350,7 @@
 						"TEXCOORD_0": 213
 					},
 					"indices" : 214,
-					"material": 12, 
+					"material": 15, 
 					"mode": 4
 				}
 			]
@@ -79215,7 +79365,7 @@
 						"TEXCOORD_0": 218
 					},
 					"indices" : 219,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79230,7 +79380,7 @@
 						"TEXCOORD_0": 223
 					},
 					"indices" : 224,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79245,7 +79395,7 @@
 						"TEXCOORD_0": 228
 					},
 					"indices" : 229,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79260,7 +79410,7 @@
 						"TEXCOORD_0": 233
 					},
 					"indices" : 234,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79275,7 +79425,7 @@
 						"TEXCOORD_0": 238
 					},
 					"indices" : 239,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79290,7 +79440,7 @@
 						"TEXCOORD_0": 243
 					},
 					"indices" : 244,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79305,7 +79455,7 @@
 						"TEXCOORD_0": 248
 					},
 					"indices" : 249,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79320,7 +79470,7 @@
 						"TEXCOORD_0": 253
 					},
 					"indices" : 254,
-					"material": 12, 
+					"material": 15, 
 					"mode": 4
 				}
 			]
@@ -79335,7 +79485,7 @@
 						"TEXCOORD_0": 258
 					},
 					"indices" : 259,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79350,7 +79500,7 @@
 						"TEXCOORD_0": 263
 					},
 					"indices" : 264,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79365,7 +79515,7 @@
 						"TEXCOORD_0": 268
 					},
 					"indices" : 269,
-					"material": 12, 
+					"material": 15, 
 					"mode": 4
 				}
 			]
@@ -79380,7 +79530,7 @@
 						"TEXCOORD_0": 273
 					},
 					"indices" : 274,
-					"material": 13, 
+					"material": 16, 
 					"mode": 4
 				}
 			]
@@ -79395,7 +79545,7 @@
 						"TEXCOORD_0": 278
 					},
 					"indices" : 279,
-					"material": 14, 
+					"material": 17, 
 					"mode": 4
 				}
 			]
@@ -79410,7 +79560,7 @@
 						"TEXCOORD_0": 283
 					},
 					"indices" : 284,
-					"material": 15, 
+					"material": 18, 
 					"mode": 4
 				}
 			]
@@ -79425,7 +79575,7 @@
 						"TEXCOORD_0": 288
 					},
 					"indices" : 289,
-					"material": 16, 
+					"material": 19, 
 					"mode": 4
 				}
 			]
@@ -79440,7 +79590,7 @@
 						"TEXCOORD_0": 293
 					},
 					"indices" : 294,
-					"material": 15, 
+					"material": 18, 
 					"mode": 4
 				}
 			]
@@ -79455,7 +79605,7 @@
 						"TEXCOORD_0": 298
 					},
 					"indices" : 299,
-					"material": 17, 
+					"material": 20, 
 					"mode": 4
 				}
 			]
@@ -79470,7 +79620,7 @@
 						"TEXCOORD_0": 303
 					},
 					"indices" : 304,
-					"material": 18, 
+					"material": 21, 
 					"mode": 4
 				}
 			]
@@ -79485,7 +79635,7 @@
 						"TEXCOORD_0": 308
 					},
 					"indices" : 309,
-					"material": 19, 
+					"material": 22, 
 					"mode": 4
 				}
 			]
@@ -79500,7 +79650,7 @@
 						"TEXCOORD_0": 313
 					},
 					"indices" : 314,
-					"material": 18, 
+					"material": 21, 
 					"mode": 4
 				}
 			]
@@ -79515,7 +79665,7 @@
 						"TEXCOORD_0": 318
 					},
 					"indices" : 319,
-					"material": 20, 
+					"material": 23, 
 					"mode": 4
 				}
 			]
@@ -79530,7 +79680,7 @@
 						"TEXCOORD_0": 323
 					},
 					"indices" : 324,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79545,7 +79695,7 @@
 						"TEXCOORD_0": 328
 					},
 					"indices" : 329,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79560,7 +79710,7 @@
 						"TEXCOORD_0": 333
 					},
 					"indices" : 334,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79575,7 +79725,7 @@
 						"TEXCOORD_0": 338
 					},
 					"indices" : 339,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79590,7 +79740,7 @@
 						"TEXCOORD_0": 343
 					},
 					"indices" : 344,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79605,7 +79755,7 @@
 						"TEXCOORD_0": 348
 					},
 					"indices" : 349,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79620,7 +79770,7 @@
 						"TEXCOORD_0": 353
 					},
 					"indices" : 354,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79635,7 +79785,7 @@
 						"TEXCOORD_0": 358
 					},
 					"indices" : 359,
-					"material": 21, 
+					"material": 24, 
 					"mode": 4
 				}
 			]
@@ -79650,7 +79800,7 @@
 						"TEXCOORD_0": 363
 					},
 					"indices" : 364,
-					"material": 22, 
+					"material": 25, 
 					"mode": 4
 				}
 			]
@@ -79665,7 +79815,7 @@
 						"TEXCOORD_0": 368
 					},
 					"indices" : 369,
-					"material": 23, 
+					"material": 26, 
 					"mode": 4
 				}
 			]
@@ -79680,7 +79830,7 @@
 						"TEXCOORD_0": 373
 					},
 					"indices" : 374,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79695,7 +79845,7 @@
 						"TEXCOORD_0": 378
 					},
 					"indices" : 379,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79710,7 +79860,7 @@
 						"TEXCOORD_0": 383
 					},
 					"indices" : 384,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79725,7 +79875,7 @@
 						"TEXCOORD_0": 388
 					},
 					"indices" : 389,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79740,7 +79890,7 @@
 						"TEXCOORD_0": 393
 					},
 					"indices" : 394,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79755,7 +79905,7 @@
 						"TEXCOORD_0": 398
 					},
 					"indices" : 399,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79770,7 +79920,7 @@
 						"TEXCOORD_0": 403
 					},
 					"indices" : 404,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79785,7 +79935,7 @@
 						"TEXCOORD_0": 408
 					},
 					"indices" : 409,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79800,7 +79950,7 @@
 						"TEXCOORD_0": 413
 					},
 					"indices" : 414,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79815,7 +79965,7 @@
 						"TEXCOORD_0": 418
 					},
 					"indices" : 419,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79830,7 +79980,7 @@
 						"TEXCOORD_0": 423
 					},
 					"indices" : 424,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79845,7 +79995,7 @@
 						"TEXCOORD_0": 428
 					},
 					"indices" : 429,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79860,7 +80010,7 @@
 						"TEXCOORD_0": 433
 					},
 					"indices" : 434,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79875,7 +80025,7 @@
 						"TEXCOORD_0": 438
 					},
 					"indices" : 439,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79890,7 +80040,7 @@
 						"TEXCOORD_0": 443
 					},
 					"indices" : 444,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79905,7 +80055,7 @@
 						"TEXCOORD_0": 448
 					},
 					"indices" : 449,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79920,7 +80070,7 @@
 						"TEXCOORD_0": 453
 					},
 					"indices" : 454,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79935,7 +80085,7 @@
 						"TEXCOORD_0": 458
 					},
 					"indices" : 459,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79950,7 +80100,7 @@
 						"TEXCOORD_0": 463
 					},
 					"indices" : 464,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79965,7 +80115,7 @@
 						"TEXCOORD_0": 468
 					},
 					"indices" : 469,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79980,7 +80130,7 @@
 						"TEXCOORD_0": 473
 					},
 					"indices" : 474,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -79995,7 +80145,7 @@
 						"TEXCOORD_0": 478
 					},
 					"indices" : 479,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80010,7 +80160,7 @@
 						"TEXCOORD_0": 483
 					},
 					"indices" : 484,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80025,7 +80175,7 @@
 						"TEXCOORD_0": 488
 					},
 					"indices" : 489,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80040,7 +80190,7 @@
 						"TEXCOORD_0": 493
 					},
 					"indices" : 494,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80055,7 +80205,7 @@
 						"TEXCOORD_0": 498
 					},
 					"indices" : 499,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80070,7 +80220,7 @@
 						"TEXCOORD_0": 503
 					},
 					"indices" : 504,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80085,7 +80235,7 @@
 						"TEXCOORD_0": 508
 					},
 					"indices" : 509,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80100,7 +80250,7 @@
 						"TEXCOORD_0": 513
 					},
 					"indices" : 514,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80115,7 +80265,7 @@
 						"TEXCOORD_0": 518
 					},
 					"indices" : 519,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80130,7 +80280,7 @@
 						"TEXCOORD_0": 523
 					},
 					"indices" : 524,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80145,7 +80295,7 @@
 						"TEXCOORD_0": 528
 					},
 					"indices" : 529,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80160,7 +80310,7 @@
 						"TEXCOORD_0": 533
 					},
 					"indices" : 534,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80175,7 +80325,7 @@
 						"TEXCOORD_0": 538
 					},
 					"indices" : 539,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80190,7 +80340,7 @@
 						"TEXCOORD_0": 543
 					},
 					"indices" : 544,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80205,7 +80355,7 @@
 						"TEXCOORD_0": 548
 					},
 					"indices" : 549,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80220,7 +80370,7 @@
 						"TEXCOORD_0": 553
 					},
 					"indices" : 554,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80235,7 +80385,7 @@
 						"TEXCOORD_0": 558
 					},
 					"indices" : 559,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80250,7 +80400,7 @@
 						"TEXCOORD_0": 563
 					},
 					"indices" : 564,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80265,7 +80415,7 @@
 						"TEXCOORD_0": 568
 					},
 					"indices" : 569,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80280,7 +80430,7 @@
 						"TEXCOORD_0": 573
 					},
 					"indices" : 574,
-					"material": 24, 
+					"material": 27, 
 					"mode": 4
 				}
 			]
@@ -80295,7 +80445,7 @@
 						"TEXCOORD_0": 578
 					},
 					"indices" : 579,
-					"material": 25, 
+					"material": 28, 
 					"mode": 4
 				}
 			]
@@ -80310,7 +80460,7 @@
 						"TEXCOORD_0": 583
 					},
 					"indices" : 584,
-					"material": 26, 
+					"material": 29, 
 					"mode": 4
 				}
 			]
@@ -80325,7 +80475,7 @@
 						"TEXCOORD_0": 588
 					},
 					"indices" : 589,
-					"material": 27, 
+					"material": 30, 
 					"mode": 4
 				}
 			]
@@ -80340,7 +80490,7 @@
 						"TEXCOORD_0": 593
 					},
 					"indices" : 594,
-					"material": 28, 
+					"material": 31, 
 					"mode": 4
 				}
 			]
@@ -80355,7 +80505,7 @@
 						"TEXCOORD_0": 598
 					},
 					"indices" : 599,
-					"material": 29, 
+					"material": 32, 
 					"mode": 4
 				}
 			]
@@ -80370,7 +80520,7 @@
 						"TEXCOORD_0": 603
 					},
 					"indices" : 604,
-					"material": 29, 
+					"material": 32, 
 					"mode": 4
 				}
 			]
@@ -80385,7 +80535,7 @@
 						"TEXCOORD_0": 608
 					},
 					"indices" : 609,
-					"material": 30, 
+					"material": 33, 
 					"mode": 4
 				}
 			]
@@ -80400,7 +80550,7 @@
 						"TEXCOORD_0": 613
 					},
 					"indices" : 614,
-					"material": 30, 
+					"material": 33, 
 					"mode": 4
 				}
 			]
@@ -80415,7 +80565,7 @@
 						"TEXCOORD_0": 618
 					},
 					"indices" : 619,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80430,7 +80580,7 @@
 						"TEXCOORD_0": 623
 					},
 					"indices" : 624,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80445,7 +80595,7 @@
 						"TEXCOORD_0": 628
 					},
 					"indices" : 629,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80460,7 +80610,7 @@
 						"TEXCOORD_0": 633
 					},
 					"indices" : 634,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80475,7 +80625,7 @@
 						"TEXCOORD_0": 638
 					},
 					"indices" : 639,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80490,7 +80640,7 @@
 						"TEXCOORD_0": 643
 					},
 					"indices" : 644,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80505,7 +80655,7 @@
 						"TEXCOORD_0": 648
 					},
 					"indices" : 649,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80520,7 +80670,7 @@
 						"TEXCOORD_0": 653
 					},
 					"indices" : 654,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80535,7 +80685,7 @@
 						"TEXCOORD_0": 658
 					},
 					"indices" : 659,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80550,7 +80700,7 @@
 						"TEXCOORD_0": 663
 					},
 					"indices" : 664,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80565,7 +80715,7 @@
 						"TEXCOORD_0": 668
 					},
 					"indices" : 669,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80580,7 +80730,7 @@
 						"TEXCOORD_0": 673
 					},
 					"indices" : 674,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80595,7 +80745,7 @@
 						"TEXCOORD_0": 678
 					},
 					"indices" : 679,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80610,7 +80760,7 @@
 						"TEXCOORD_0": 683
 					},
 					"indices" : 684,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80625,7 +80775,7 @@
 						"TEXCOORD_0": 688
 					},
 					"indices" : 689,
-					"material": 31, 
+					"material": 34, 
 					"mode": 4
 				}
 			]
@@ -80640,7 +80790,7 @@
 						"TEXCOORD_0": 693
 					},
 					"indices" : 694,
-					"material": 32, 
+					"material": 35, 
 					"mode": 4
 				}
 			]
@@ -80655,7 +80805,7 @@
 						"TEXCOORD_0": 698
 					},
 					"indices" : 699,
-					"material": 33, 
+					"material": 0, 
 					"mode": 4
 				}
 			]
@@ -80670,7 +80820,7 @@
 						"TEXCOORD_0": 703
 					},
 					"indices" : 704,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80685,7 +80835,7 @@
 						"TEXCOORD_0": 708
 					},
 					"indices" : 709,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80700,7 +80850,7 @@
 						"TEXCOORD_0": 713
 					},
 					"indices" : 714,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80715,7 +80865,7 @@
 						"TEXCOORD_0": 718
 					},
 					"indices" : 719,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80730,7 +80880,7 @@
 						"TEXCOORD_0": 723
 					},
 					"indices" : 724,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80745,7 +80895,7 @@
 						"TEXCOORD_0": 728
 					},
 					"indices" : 729,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80760,7 +80910,7 @@
 						"TEXCOORD_0": 733
 					},
 					"indices" : 734,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80775,7 +80925,7 @@
 						"TEXCOORD_0": 738
 					},
 					"indices" : 739,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80790,7 +80940,7 @@
 						"TEXCOORD_0": 743
 					},
 					"indices" : 744,
-					"material": 34, 
+					"material": 1, 
 					"mode": 4
 				}
 			]
@@ -80805,7 +80955,7 @@
 						"TEXCOORD_0": 748
 					},
 					"indices" : 749,
-					"material": 35, 
+					"material": 36, 
 					"mode": 4
 				}
 			]
@@ -80820,7 +80970,7 @@
 						"TEXCOORD_0": 753
 					},
 					"indices" : 754,
-					"material": 36, 
+					"material": 37, 
 					"mode": 4
 				}
 			]
@@ -80835,7 +80985,7 @@
 						"TEXCOORD_0": 758
 					},
 					"indices" : 759,
-					"material": 37, 
+					"material": 38, 
 					"mode": 4
 				}
 			]
@@ -80850,7 +81000,7 @@
 						"TEXCOORD_0": 763
 					},
 					"indices" : 764,
-					"material": 38, 
+					"material": 39, 
 					"mode": 4
 				}
 			]
@@ -80865,7 +81015,7 @@
 						"TEXCOORD_0": 768
 					},
 					"indices" : 769,
-					"material": 35, 
+					"material": 36, 
 					"mode": 4
 				}
 			]
@@ -80880,7 +81030,7 @@
 						"TEXCOORD_0": 773
 					},
 					"indices" : 774,
-					"material": 36, 
+					"material": 37, 
 					"mode": 4
 				}
 			]
@@ -80895,7 +81045,7 @@
 						"TEXCOORD_0": 778
 					},
 					"indices" : 779,
-					"material": 39, 
+					"material": 40, 
 					"mode": 4
 				},
 				{
@@ -80906,7 +81056,7 @@
 						"TEXCOORD_0": 778
 					},
 					"indices" : 780,
-					"material": 40, 
+					"material": 41, 
 					"mode": 4
 				}
 			]
@@ -80921,7 +81071,7 @@
 						"TEXCOORD_0": 784
 					},
 					"indices" : 785,
-					"material": 41, 
+					"material": 42, 
 					"mode": 4
 				}
 			]
@@ -80936,7 +81086,7 @@
 						"TEXCOORD_0": 789
 					},
 					"indices" : 790,
-					"material": 42, 
+					"material": 43, 
 					"mode": 4
 				}
 			]
@@ -80951,7 +81101,7 @@
 						"TEXCOORD_0": 794
 					},
 					"indices" : 795,
-					"material": 41, 
+					"material": 42, 
 					"mode": 4
 				}
 			]
@@ -80966,7 +81116,7 @@
 						"TEXCOORD_0": 799
 					},
 					"indices" : 800,
-					"material": 43, 
+					"material": 44, 
 					"mode": 4
 				}
 			]
@@ -80981,7 +81131,7 @@
 						"TEXCOORD_0": 804
 					},
 					"indices" : 805,
-					"material": 43, 
+					"material": 44, 
 					"mode": 4
 				}
 			]
@@ -80996,7 +81146,7 @@
 						"TEXCOORD_0": 809
 					},
 					"indices" : 810,
-					"material": 44, 
+					"material": 45, 
 					"mode": 4
 				}
 			]
@@ -81011,7 +81161,7 @@
 						"TEXCOORD_0": 814
 					},
 					"indices" : 815,
-					"material": 44, 
+					"material": 45, 
 					"mode": 4
 				}
 			]
@@ -81026,7 +81176,7 @@
 						"TEXCOORD_0": 819
 					},
 					"indices" : 820,
-					"material": 45, 
+					"material": 46, 
 					"mode": 4
 				},
 				{
@@ -81037,7 +81187,7 @@
 						"TEXCOORD_0": 819
 					},
 					"indices" : 821,
-					"material": 46, 
+					"material": 47, 
 					"mode": 4
 				}
 			]
@@ -81052,7 +81202,7 @@
 						"TEXCOORD_0": 825
 					},
 					"indices" : 826,
-					"material": 47, 
+					"material": 48, 
 					"mode": 4
 				},
 				{
@@ -81063,7 +81213,7 @@
 						"TEXCOORD_0": 825
 					},
 					"indices" : 827,
-					"material": 48, 
+					"material": 49, 
 					"mode": 4
 				},
 				{
@@ -81074,7 +81224,7 @@
 						"TEXCOORD_0": 825
 					},
 					"indices" : 828,
-					"material": 48, 
+					"material": 49, 
 					"mode": 4
 				},
 				{
@@ -81085,7 +81235,7 @@
 						"TEXCOORD_0": 825
 					},
 					"indices" : 829,
-					"material": 48, 
+					"material": 49, 
 					"mode": 4
 				}
 			]
@@ -81100,7 +81250,7 @@
 						"TEXCOORD_0": 833
 					},
 					"indices" : 834,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81115,7 +81265,7 @@
 						"TEXCOORD_0": 838
 					},
 					"indices" : 839,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81130,7 +81280,7 @@
 						"TEXCOORD_0": 843
 					},
 					"indices" : 844,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81145,7 +81295,7 @@
 						"TEXCOORD_0": 848
 					},
 					"indices" : 849,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81160,7 +81310,7 @@
 						"TEXCOORD_0": 853
 					},
 					"indices" : 854,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81175,7 +81325,7 @@
 						"TEXCOORD_0": 858
 					},
 					"indices" : 859,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81190,7 +81340,7 @@
 						"TEXCOORD_0": 863
 					},
 					"indices" : 864,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81205,7 +81355,7 @@
 						"TEXCOORD_0": 868
 					},
 					"indices" : 869,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81220,7 +81370,7 @@
 						"TEXCOORD_0": 873
 					},
 					"indices" : 874,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81235,7 +81385,7 @@
 						"TEXCOORD_0": 878
 					},
 					"indices" : 879,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81250,7 +81400,7 @@
 						"TEXCOORD_0": 883
 					},
 					"indices" : 884,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81265,7 +81415,7 @@
 						"TEXCOORD_0": 888
 					},
 					"indices" : 889,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81280,7 +81430,7 @@
 						"TEXCOORD_0": 893
 					},
 					"indices" : 894,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81295,7 +81445,7 @@
 						"TEXCOORD_0": 898
 					},
 					"indices" : 899,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81310,7 +81460,7 @@
 						"TEXCOORD_0": 903
 					},
 					"indices" : 904,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81325,7 +81475,7 @@
 						"TEXCOORD_0": 908
 					},
 					"indices" : 909,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81340,7 +81490,7 @@
 						"TEXCOORD_0": 913
 					},
 					"indices" : 914,
-					"material": 49, 
+					"material": 50, 
 					"mode": 4
 				}
 			]
@@ -81355,7 +81505,7 @@
 						"TEXCOORD_0": 918
 					},
 					"indices" : 919,
-					"material": 50, 
+					"material": 51, 
 					"mode": 4
 				}
 			]
@@ -81370,7 +81520,7 @@
 						"TEXCOORD_0": 923
 					},
 					"indices" : 924,
-					"material": 51, 
+					"material": 52, 
 					"mode": 4
 				}
 			]
@@ -81385,7 +81535,7 @@
 						"TEXCOORD_0": 928
 					},
 					"indices" : 929,
-					"material": 51, 
+					"material": 52, 
 					"mode": 4
 				}
 			]
@@ -81400,7 +81550,7 @@
 						"TEXCOORD_0": 933
 					},
 					"indices" : 934,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81415,7 +81565,7 @@
 						"TEXCOORD_0": 938
 					},
 					"indices" : 939,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81430,7 +81580,7 @@
 						"TEXCOORD_0": 943
 					},
 					"indices" : 944,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81445,7 +81595,7 @@
 						"TEXCOORD_0": 948
 					},
 					"indices" : 949,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81460,7 +81610,7 @@
 						"TEXCOORD_0": 953
 					},
 					"indices" : 954,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81475,7 +81625,7 @@
 						"TEXCOORD_0": 958
 					},
 					"indices" : 959,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81490,7 +81640,7 @@
 						"TEXCOORD_0": 963
 					},
 					"indices" : 964,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81505,7 +81655,7 @@
 						"TEXCOORD_0": 968
 					},
 					"indices" : 969,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81520,7 +81670,7 @@
 						"TEXCOORD_0": 973
 					},
 					"indices" : 974,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81535,7 +81685,7 @@
 						"TEXCOORD_0": 978
 					},
 					"indices" : 979,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81550,7 +81700,7 @@
 						"TEXCOORD_0": 983
 					},
 					"indices" : 984,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81565,7 +81715,7 @@
 						"TEXCOORD_0": 988
 					},
 					"indices" : 989,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81580,7 +81730,7 @@
 						"TEXCOORD_0": 993
 					},
 					"indices" : 994,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81595,7 +81745,7 @@
 						"TEXCOORD_0": 998
 					},
 					"indices" : 999,
-					"material": 52, 
+					"material": 53, 
 					"mode": 4
 				}
 			]
@@ -81610,7 +81760,7 @@
 						"TEXCOORD_0": 1003
 					},
 					"indices" : 1004,
-					"material": 53, 
+					"material": 54, 
 					"mode": 4
 				}
 			]
@@ -81625,7 +81775,7 @@
 						"TEXCOORD_0": 1008
 					},
 					"indices" : 1009,
-					"material": 54, 
+					"material": 55, 
 					"mode": 4
 				}
 			]
@@ -81640,7 +81790,7 @@
 						"TEXCOORD_0": 1013
 					},
 					"indices" : 1014,
-					"material": 53, 
+					"material": 54, 
 					"mode": 4
 				}
 			]
@@ -81655,7 +81805,7 @@
 						"TEXCOORD_0": 1018
 					},
 					"indices" : 1019,
-					"material": 54, 
+					"material": 55, 
 					"mode": 4
 				}
 			]
@@ -81670,7 +81820,7 @@
 						"TEXCOORD_0": 1023
 					},
 					"indices" : 1024,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81685,7 +81835,7 @@
 						"TEXCOORD_0": 1028
 					},
 					"indices" : 1029,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81700,7 +81850,7 @@
 						"TEXCOORD_0": 1033
 					},
 					"indices" : 1034,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81715,7 +81865,7 @@
 						"TEXCOORD_0": 1038
 					},
 					"indices" : 1039,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81730,7 +81880,7 @@
 						"TEXCOORD_0": 1043
 					},
 					"indices" : 1044,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81745,7 +81895,7 @@
 						"TEXCOORD_0": 1048
 					},
 					"indices" : 1049,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81760,7 +81910,7 @@
 						"TEXCOORD_0": 1053
 					},
 					"indices" : 1054,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81775,7 +81925,7 @@
 						"TEXCOORD_0": 1058
 					},
 					"indices" : 1059,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81790,7 +81940,7 @@
 						"TEXCOORD_0": 1063
 					},
 					"indices" : 1064,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81805,7 +81955,7 @@
 						"TEXCOORD_0": 1068
 					},
 					"indices" : 1069,
-					"material": 56, 
+					"material": 57, 
 					"mode": 4
 				}
 			]
@@ -81820,7 +81970,7 @@
 						"TEXCOORD_0": 1073
 					},
 					"indices" : 1074,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81835,7 +81985,7 @@
 						"TEXCOORD_0": 1078
 					},
 					"indices" : 1079,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81850,7 +82000,7 @@
 						"TEXCOORD_0": 1083
 					},
 					"indices" : 1084,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81865,7 +82015,7 @@
 						"TEXCOORD_0": 1088
 					},
 					"indices" : 1089,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81880,7 +82030,7 @@
 						"TEXCOORD_0": 1093
 					},
 					"indices" : 1094,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
@@ -81895,13 +82045,37 @@
 						"TEXCOORD_0": 1098
 					},
 					"indices" : 1099,
-					"material": 55, 
+					"material": 56, 
 					"mode": 4
 				}
 			]
 		}
 	],
 	"materials": [
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [1, 1, 1, 1],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			},
+			"name": "EmissiveLightStandingBulb"
+		},
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [1, 1, 1, 1],
+				"metallicFactor":0.213,
+				"roughnessFactor":0.619
+			},
+			"name": "StandingLight"
+		},
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [0, 0, 0, 0.509],
+				"metallicFactor":1,
+				"roughnessFactor":1
+			},
+			"name": "StandingLight_Base_BlobAmbient_Occlusion 1"
+		},
 		{
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [1, 0.8588235, 0.7176471, 1],
@@ -82168,22 +82342,6 @@
 		},
 		{
 			"pbrMetallicRoughness": {
-				"baseColorFactor": [1, 1, 1, 1],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			},
-			"name": "EmissiveLightStandingBulb"
-		},
-		{
-			"pbrMetallicRoughness": {
-				"baseColorFactor": [1, 1, 1, 1],
-				"metallicFactor":0.213,
-				"roughnessFactor":0.619
-			},
-			"name": "StandingLight"
-		},
-		{
-			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.143923, 0.1543819, 0.1617647, 0.203],
 				"metallicFactor":0,
 				"roughnessFactor":0.02100003
@@ -82357,14 +82515,6 @@
 				"roughnessFactor":0.5
 			},
 			"name": "Coil"
-		},
-		{
-			"pbrMetallicRoughness": {
-				"baseColorFactor": [0, 0, 0, 0.509],
-				"metallicFactor":1,
-				"roughnessFactor":1
-			},
-			"name": "StandingLight_Base_BlobAmbient_Occlusion 1"
 		}
 	],
 	"accessors": [
@@ -90505,6 +90655,53 @@
 			"componentType": 5123,
 			"count": 324,
 			"type": "SCALAR"
+		}
+	],
+	"lights": [
+		{
+			"type": "Spot",
+			"color": [0.7803922, 0.8901961, 1, 0],
+			"range": 11
+		},
+		{
+			"type": "Spot",
+			"color": [0.9176471, 0.9294118, 1, 1],
+			"range": 11
+		},
+		{
+			"type": "Point",
+			"color": [0.9176471, 0.9294118, 1, 1],
+			"range": 2.6
+		},
+		{
+			"type": "Point",
+			"color": [0.9176471, 0.9294118, 1, 1],
+			"range": 0.68
+		},
+		{
+			"type": "Point",
+			"color": [0.9176471, 0.9294118, 1, 1],
+			"range": 0.69
+		},
+		{
+			"type": "Spot",
+			"color": [0.7803922, 0.8901961, 1, 0],
+			"range": 8.59
+		},
+		{
+			"type": "Spot",
+			"color": [0.9176471, 0.9294118, 1, 1],
+			"range": 8
+		},
+		{
+			"type": "Spot",
+			"color": [1, 0.510852, 0.3308824, 1],
+			"range": 2
+		},
+		{
+			"type": "Point",
+			"color": [1, 0.510852, 0.3308824, 1],
+			"range": 1.18
 		}
 	],
 	"bufferViews": [
