@@ -15,8 +15,8 @@ namespace rev { namespace game {
 	public:
 		math::AffineTransform xForm;
 
-		math::Mat34f&			matrix() { return xForm.matrix(); }
-		const math::Mat34f&		matrix() const { return xForm.matrix(); }
+		math::Mat44f&			matrix() { return xForm.matrix(); }
+		const math::Mat44f&		matrix() const { return xForm.matrix(); }
 
 		Transform()// = default;
 		{

@@ -37,6 +37,32 @@ namespace rev {
 			static constexpr double twoPi	= 6.283185307179586676085136787150986492633819580078125;
 			static constexpr double halfPi	= 1.5707963267948965579989817342720925807952880859375;
 		};
+
+		//----------------------------------------------
+		template<typename T_>
+		struct NumericTraits {
+			static T_ one	() 	{ return 1;}
+			static T_ zero	()	{ return 0;}
+		};
+
+		//----------------------------------------------
+		template<>
+		struct NumericTraits<float> {
+			static float one	() 	{ return 1.f;}
+			static float zero	()	{ return 0.f;}	
+		};
+
+		//----------------------------------------------
+		template<>
+		struct NumericTraits<double> {
+			static double one	() 	{ return 1.0;}
+			static double zero	()	{ return 0.0;}	
+		};
+
+		// Commonly used constants
+		static constexpr float HalfPi = Constants<float>::halfPi;
+		static constexpr float Pi = Constants<float>::pi;
+		static constexpr float TwoPi = Constants<float>::twoPi;
 	}
 }
 

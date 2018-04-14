@@ -41,7 +41,7 @@ namespace rev { namespace math {
 		/// \param axis is assumed to be normalized
 		UnitQuaternion(const Vector3<T>& axis, T _radians)
 		{
-			auto half_sin = sin(_radians); // Using sine(theta/2) instead of cosine preserves the sign.
+			auto half_sin = sin(_radians/2); // Using sine(theta/2) instead of cosine preserves the sign.
 			UnitQuaternion q;
 			m.block<3,1>(0,0) = axis*half_sin;
 			w() = std::sqrt(1-half_sin*half_sin);
@@ -72,6 +72,25 @@ namespace rev { namespace math {
 
 		// Other operations
 		operator Matrix33<T>		() const; // Rotation matrix
+											  /*
+		{
+			auto a2 = w()*w();
+			auto b2 = x()*x();
+			auto c2 = y()*y();
+			auto d2 = z()*z();
+			auto ab = w()*x();
+			auto ac = w()*y();
+			auto ad = w()*z();
+			auto bc = x()*y();
+			auto bd = x()*z();
+			auto cd = y()*z();
+			return Mat33f({
+				a2+b2-c2-d2,2*(bc-ad), bd+ac,
+				a2-b2+c2-d2,2*(cd-ab), bc+ad,
+				a2-b2-c2+d2,2*(bd-ac), cd+ab
+				});
+		}*/
+
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;
 

@@ -5,12 +5,9 @@
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/quaternion.h>
-#include <math/numericTraits.h>
+#include <math/algebra/affineTransform.h>
 
 using namespace rev::math;
-constexpr float Pi = rev::math::Constants<float>::pi;
-constexpr float TwoPi = rev::math::Constants<float>::twoPi;
-constexpr float HalfPi = rev::math::Constants<float>::halfPi;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
@@ -80,59 +77,122 @@ void testMatrix() {
 	// TODO: Test operations with matrices of different base number types
 }
 
-void assertSimilar(const Vec3f& a, const Vec3f& b)
+bool approx(const Vec3f& a, const Vec3f& b)
 {
-	static constexpr float epsilon = 1e-5f;
-	auto distance = (a-b).norm();
-	if(distance <= epsilon)
-		return;
-	auto relative_error = distance / (a.norm()+b.norm());
-	assert(relative_error <= 1e-5);
+	return (1-a.dot(b)) < 1e-5f;
 }
 
 void testQuaternions()
 {
-	auto identity = Quatf::identity();
-	// Basic constructors
+	// TODO: Test axis angle for angles in the 4 basic quadrants
 	{
-		assert(Quatf({0,0,1}, 0.f) == identity);
-		assert(Quatf({0,1,0}, 0.f) == identity);
-		assert(Quatf({1,0,0}, 0.f) == identity);
-		assert(Quatf({0,0,-1}, 0.f) == identity);
-		assert(Quatf({0,-1,0}, 0.f) == identity);
-		assert(Quatf({-1,0,0}, 0.f) == identity);
+		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, 0.f);
+		assert(id.x() == 0.f);
+		assert(id.y() == 0.f);
+		assert(id.z() == 0.f);
+		assert(id.w() == 1.f);
 	}
-	// Test axis angle for angles in the 4 basic quadrants
 	{
-		auto q = Quatf({0, 0, 1}, HalfPi);
-	}{
-		auto q = Quatf({0, 0, 1}, Pi);
-	}{
-		auto q = Quatf({0, 0, 1}, TwoPi);
-	}{
-		auto q = Quatf({0, 0, 1}, 3*HalfPi);
+		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, HalfPi);
+		assert(id.x() == 0.f);
+		assert(id.y() == 0.f);
+		assert(id.z() == sqrt(2.f)*0.5f);
+		assert(id.w() == sqrt(2.f)*0.5f);
 	}
-	// Test axis angle in all main directions
 	{
-		assert(Quatf({1, 0, 0}, Pi) = Quatf(1,0,0,0));
-		assert(Quatf({0, 1, 0}, Pi) = Quatf(0,1,0,0));
-		assert(Quatf({0, 0, 1}, Pi) = Quatf(0,0,1,0));
-		assert(Quatf({-1, 0, 0}, Pi) = Quatf(-1,0,0,0));
-		assert(Quatf({0, -1, 0}, Pi) = Quatf(0,-1,0,0));
-		assert(Quatf({0, 0, -1}, Pi) = Quatf(0,0,-1,0));
-		assert(Quatf({1, 0, 0}, -Pi) = Quatf(-1,0,0,0));
-		assert(Quatf({0, 1, 0}, -Pi) = Quatf(0,-1,0,0));
-		assert(Quatf({0, 0, 1}, -Pi) = Quatf(0,0,-1,0));
+		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, Pi);
+		assert(id.x() == 0.f);
+		assert(id.y() == 0.f);
+		assert(id.z() == 1.0f);
+		assert(id.w() == 0.f);
 	}
+	// Test basic rotations
+	Vec3f i = { 1.f, 0.f, 0.f};
+	Vec3f j = { 0.f, 1.f, 0.f};
+	Vec3f k = { 0.f, 0.f, 1.f};
+	{
+		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, 0.f);
+		assert(i == q.rotate(i));
+		assert(j == q.rotate(j));
+		assert(k == q.rotate(k));
+		assert(i == (Mat33f)q * i);
+		assert(j == (Mat33f)q * j);
+		assert(k == (Mat33f)q * k);
+	}
+	{
+		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, HalfPi);
+		assert(approx(q.rotate(i), j));
+		assert(approx(q.rotate(j), -i));
+		assert(approx(q.rotate(-i), -j));
+		assert(approx(q.rotate(-j), i));
+		assert(approx(q.rotate(k), k));
+		assert(approx((Mat33f)q * i, j));
+		assert(approx((Mat33f)q * j, -i));
+		assert(approx((Mat33f)q * k , k));
+	}
+	{
+		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, Pi);
+		assert(approx(q.rotate(i), -i));
+		assert(approx(q.rotate(j), -j));
+		assert(approx(q.rotate(-j), j));
+		assert(approx(q.rotate(-i), i));
+		assert(approx(q.rotate(k), k));
+		assert(approx((Mat33f)q * j, -j));
+		assert(approx((Mat33f)q * -i, i));
+		assert(approx((Mat33f)q * k , k));
+	}
+}
 
-	// Test other constructors
-	// Test casting to Matrix
-	// Test compositions
+void testComposedTransforms()
+{
+	Vec4f i = { 1.f, 0.f, 0.f, 0.f};
+	Vec4f j = { 0.f, 1.f, 0.f, 0.f};
+	Vec4f k = { 0.f, 0.f, 1.f, 0.f};
+	Vec4f x2 = { 2.f, 0.f, 0.f, 1.f};
+	Vec4f y2 = { 0.f, 2.f, 0.f, 1.f};
+	Vec4f z2 = { 0.f, 0.f, 2.f, 1.f};
+	Mat34f mA = Mat34f::identity();
+	mA.block<3,3>(0,0) = (Mat33f)Quatf::fromAxisAngle({0.f,0.f,1.f},HalfPi);
+	mA.col(3) = {1.f,0.f,0.f};
+	Mat34f mB = Mat34f::identity();
+	mB.block<3,3>(0,0) = (Mat33f)Quatf::fromAxisAngle({1.f,0.f,0.f},HalfPi);
+	mB.col(3) = {1.f,0.f,0.f};
+	// A transform
+	assert(approx(mA*i, Vec3f(0.f,1.f,0.f)));
+	assert(approx(mA*j, Vec3f(-1.f,0.f,0.f)));
+	assert(approx(mA*k, Vec3f(0.f,0.f,1.f)));
+	assert(approx(mA*x2, Vec3f(1.f,2.f,0.f)));
+	assert(approx(mA*y2, Vec3f(-1.f,0.f,0.f)));
+	assert(approx(mA*z2, Vec3f(1.f,0.f,2.f)));
+	// B transform
+	assert(approx(mB*i, Vec3f(1.f,0.f,0.f)));
+	assert(approx(mB*j, Vec3f(0.f,0.f,1.f)));
+	assert(approx(mB*k, Vec3f(0.f,-1.f,0.f)));
+	assert(approx(mB*x2, Vec3f(3.f,0.f,0.f)));
+	assert(approx(mB*y2, Vec3f(1.f,0.f,2.f)));
+	assert(approx(mB*z2, Vec3f(1.f,-2.f,0.f)));
+}
+
+void testAffineTransform()
+{
+	Vec3f pos0 = Vec3f(1.f,2.f,3.f);
+	AffineTransform x = AffineTransform::identity();
+	auto rotation = Mat33f({
+		-1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f,
+		0.f, 1.f, 0.f
+		});
+	x.position() = Vec3f(0.f,0.f,10.f);
+	assert(x.transformPosition(pos0) == Vec3f(1.f,2.f,13.f));
+	x.rotate(rotation);
+	//assert(x.transformPosition(pos0) == Vec3f(-1.f,3.f,12.f));
 }
 
 int main() {
 	testMatrix();
 	testVector();
 	testQuaternions();
+	testComposedTransforms();
+	testAffineTransform();
 	return 0;
 }

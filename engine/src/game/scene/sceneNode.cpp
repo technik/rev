@@ -22,6 +22,7 @@
 #include "component.h"
 #include <graphics/debug/debugGUI.h>
 #include <graphics/debug/imgui.h>
+#include <core/tools/log.h>
 
 using namespace rev::graphics;
 
@@ -57,6 +58,12 @@ namespace rev { namespace game {
 	//--------------------------------------------------------------------------------------------------------------
 	void SceneNode::addChild(std::shared_ptr<SceneNode> child)
 	{
+		if(child->parent()) {
+			auto oldParent = child->parent();
+			auto i = std::find(oldParent->mChildren.begin(), oldParent->mChildren.end(), child);
+			std::swap(*i,oldParent->mChildren.back());
+			oldParent->mChildren.pop_back();
+		}
 		child->mParent = this;
 		assert(std::find(mChildren.begin(), mChildren.end(), child) == mChildren.end());
 		mChildren.push_back(child);

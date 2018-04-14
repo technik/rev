@@ -76,6 +76,8 @@ namespace rev { namespace graphics {
 			glBindTexture(pos, tex);
 		}
 
+		bool sRGBFrameBuffer() const { return mSupportSRGBFrameBuffer; }
+
 	private:
 		std::unique_ptr<DefaultFrameBuffer> mFrameBuffer;
 	};

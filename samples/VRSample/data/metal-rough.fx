@@ -51,10 +51,11 @@ float fresnelSchlick(float ndv)
 // Material
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uIrradiance;
-layout(location = 11) uniform sampler2D uAlbedo;
+layout(location = 10) uniform sampler2D uNormalMap;
+layout(location = 14) uniform vec4 uBaseColor;
+layout(location = 11) uniform sampler2D uBaseColorMap;
 layout(location = 12) uniform sampler2D uPhysics;
 layout(location = 13) uniform sampler2D uEmissive;
-//layout(location = 14) uniform sampler2D uAO;
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -197,15 +198,15 @@ float distortion(vec3 Wn)
 #ifdef ANDROID
 int nbSamples = 4;
 #else
-int nbSamples = 32;
+int nbSamples = 8;
 #endif
 float computeLOD(vec3 Ln, float p)
 {
-	#ifdef ANDROID
+//#if __VERSION__ >= 430
+//	float maxLod = textureQueryLevels(uEnvironment);
+//#else
 	float maxLod = 8.0;
-	#else
-	float maxLod = textureQueryLevels(uEnvironment);
-	#endif
+//#endif
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
 }
 
@@ -291,9 +292,11 @@ vec3 indirectLightPBR(
 	float shadowMask = mix(1.0, shadow, shadowImportance);
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
-	vectors.normal = inputs.normal;
+#ifdef sampler2D_uNormalMap
 	vectors.tangent = inputs.tangent;
 	vectors.bitangent = inputs.bitangent;
+#endif
+	vectors.normal = inputs.normal;
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
@@ -309,31 +312,52 @@ vec3 indirectLightPBR(
 //---------------------------------------------------------------------------------------
 vec3 shadeSurface(ShadeInput inputs)
 {
-	vec3 albedo = texture(uAlbedo, vTexCoord).xyz;
-	albedo = pow(albedo, vec3(1.0/2.2));
+#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
+	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
+	vec3 baseColor = (baseColorTex*uBaseColor).xyz;
+#else
+	#if defined(sampler2D_uBaseColorMap)
+		vec3 baseColor = texture(uBaseColorMap, vTexCoord).xyz;
+	#else
+		#if defined(vec4_uBaseColor)
+			vec3 baseColor = uBaseColor.xyz;
+		#else
+			vec3 baseColor = vec3(1.0);
+		#endif
+	#endif
+#endif
+
+#ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
-	//physics = pow(physics, vec3(1.0/2.2));
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
 	float occlusion = physics.r;
+#else
+	float roughness = 0.8;
+	float metallic = 0.1;
+	float occlusion = 1.0;
+#endif
 
 	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
-	vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
+	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
 	//vec4 shadowSpacePos = vec4(vtxWsPos, 1.0);
-	float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
-	float curDepth = shadowSpacePos.z;
+	//float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
+	//float curDepth = shadowSpacePos.z;
 	float shadow = 1.0;
-	if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
+	/*if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
 	 shadowSpacePos.y >= 0.0 && shadowSpacePos.y <= 1.0 &&
 	 shadowSpacePos.z >= 0.0 && shadowSpacePos.z <= 1.0 &&
 	 shadowSpacePos.z > sampledDepth)
-		shadow = 0.0;
+		shadow = 0.0;*/
 	
+#ifdef sampler2D_uEmissive
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	//emissive = pow(emissive, vec3(1.0/2.2));
+#else
+	vec3 emissive = vec3(0.0);
+#endif
 	
-	vec3 specColor = mix(vec3(0.04), albedo, metallic);
-	vec3 diffColor = albedo*(1.0-metallic);
+	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
+	vec3 diffColor = baseColor*(1.0-metallic);
 
 	vec3 directLight = directLightPBR(
 		inputs,
@@ -348,18 +372,18 @@ vec3 shadeSurface(ShadeInput inputs)
 		roughness,
 		occlusion,
 		shadow);
-
 	//return 0.5+0.5*inputs.normal;
 	//return directLight + emissive;
 	//return shadowSpacePos.xyz;
 	//return vec3(shadowSpacePos.xy, sampledDepth);
 	//return indirectLight;
-	//return vec3(shadow);//indirectLight;
+	//return vec3(metallic);//indirectLight;
 	//return indirectLight + emissive;
 	//return emissive;
 	//return physics;
 	//return albedo;
 	return directLight + indirectLight + emissive;
+	//return directLight + emissive;
 }
 
 #endif // PXL_SHADER

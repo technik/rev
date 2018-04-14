@@ -61,11 +61,9 @@ namespace rev { namespace graphics {
 		int InfoLogLength = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, &result);
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &InfoLogLength);
-		if ( InfoLogLength > 0 ){
+		if (GL_FALSE == result){
 			std::vector<char> ProgramErrorMessage(InfoLogLength+1);
 			glGetProgramInfoLog(program, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-			for(auto& c : code)
-				Log::error(c);
 			Log::error(ProgramErrorMessage.data());
  			return nullptr;
 		}
@@ -104,11 +102,15 @@ namespace rev { namespace graphics {
 		int InfoLogLength = 0;
 		glGetShaderiv(_dst, GL_COMPILE_STATUS, &result);
 		glGetShaderiv(_dst, GL_INFO_LOG_LENGTH, &InfoLogLength);
-		if ( InfoLogLength > 0 ){
+		if ( GL_FALSE == result ){
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
 			ImGui::Begin("Shader Error");
-			ImGui::Text(ShaderErrorMessage.data());
+			ImGui::Text("%s", ShaderErrorMessage.data());
+			glGetShaderiv(_dst, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
+			ShaderErrorMessage.resize(InfoLogLength+1);
+			glGetShaderSource(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			ImGui::Text("%s", ShaderErrorMessage.data());
 			ImGui::End();
 			return false;
 		}

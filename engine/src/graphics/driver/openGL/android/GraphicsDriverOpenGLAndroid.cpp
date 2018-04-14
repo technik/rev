@@ -79,7 +79,7 @@ namespace rev { namespace graphics {
 		eglQuerySurface(display, surface, EGL_WIDTH, &w);
 		eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-		auto defaultFrameBuffer = std::make_unique<DefaultFrameBuffer>(math::Vec2i(w,h));
+		auto defaultFrameBuffer = std::make_unique<DefaultFrameBuffer>(math::Vec2u(w,h));
 		auto gfxDriver = new GraphicsDriverGL(std::move(defaultFrameBuffer));
 		if(gfxDriver) {
 			printGLString("Version", GL_VERSION);

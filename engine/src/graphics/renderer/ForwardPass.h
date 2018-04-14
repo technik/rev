@@ -20,7 +20,7 @@
 #pragma once
 #include <memory>
 #include <graphics/driver/shader.h>
-#include <graphics/scene/material.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <unordered_map>
 
@@ -41,8 +41,8 @@ namespace rev{ namespace graphics {
 
 	private:
 		void loadCommonShaderCode();
-		Shader* loadShader(const std::string& fileName);
-		bool bindMaterial(const Material*);
+		Shader* loadShader(const Material& fileName);
+		bool bindMaterial(const Material&);
 		void renderBackground(const math::Mat44f& viewProj, float exposure);
 
 		GraphicsDriverGL&	mDriver;
@@ -51,10 +51,20 @@ namespace rev{ namespace graphics {
 		using ShaderPtr = std::unique_ptr<Shader>;
 
 		std::string mForwardShaderCommonCode;
-		std::unordered_map<std::string, ShaderPtr>	mPipelines;
+		std::unordered_map<const Material*, ShaderPtr>	mPipelines;
 		
 		// Sky
+		ShaderPtr mBackgroundShader;
 		std::unique_ptr<RenderGeom> mSkyPlane;
+
+		// Internal rendering structures
+		// TODO
+
+		void drawStats();
+		void resetStats();
+		unsigned m_numDrawCalls;
+		unsigned m_numRenderables;
+		unsigned m_numMeshes;
 	};
 
 }}

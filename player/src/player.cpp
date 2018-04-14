@@ -15,8 +15,10 @@
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
-#include <graphics/scene/material.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/renderer/material/Effect.h>
+#include <graphics/scene/Light.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -25,13 +27,6 @@ using namespace rev::game;
 using Json = rev::core::Json;
 
 namespace rev {
-
-	const std::vector<Vec3f> vertices = {
-		{1.f, 0.f, 1.f},
-		{-1.f, 0.f, 1.f},
-		{0.f,0.f, -1.f}
-	};
-	const std::vector<uint16_t> indices = { 0, 1, 2};
 
 	namespace { // Anonymous namespace for temporary implementation of gltf loader
 
@@ -54,7 +49,7 @@ namespace rev {
 			{
 				uint8_t* data = nullptr;
 				GLenum target = 0;
-				size_t size = 0;
+				//size_t size = 0;
 				size_t stride = 0;
 			};
 
@@ -72,7 +67,12 @@ namespace rev {
 					FLOAT = 5126
 				} componentType;
 
-				uint8_t* data = nullptr;
+				uint8_t* element(size_t i) const {
+					return &view->data[view->stride*i + offset];
+				}
+
+				BufferView* view = nullptr;
+				size_t offset = 0;
 				size_t count = 0;
 			};
 
@@ -88,7 +88,9 @@ namespace rev {
 					texCoord = &accessors[attributes["TEXCOORD_0"]];
 
 					indices = &accessors[desc["indices"]];
-					material = desc["material"];
+
+					if(desc.find("material") != desc.end())
+						material = desc["material"];
 				}
 
 				const Accessor* position = nullptr;
@@ -98,7 +100,7 @@ namespace rev {
 
 				const Accessor* indices = nullptr;
 
-				size_t material;
+				int material = -1;
 			};
 
 			struct Mesh
@@ -112,11 +114,52 @@ namespace rev {
 				std::vector<Primitive> primitives;
 			};
 
+			struct Light
+			{
+				Light(const Json& desc)
+				{
+					std::string type = desc["type"];
+					if(type == "Directional")
+						mType = Dir;
+					if(type == "Spot")
+						mType = Spot;
+					if(type == "Point")
+						mType = Point;
+					if(type == "Area")
+						mType = Area;
+					if(mType == Point || mType == Spot)
+						mRange = desc["range"];
+
+					auto& baseColorDesc = desc["color"];
+					mColor = {
+						baseColorDesc[0].get<float>(),
+						baseColorDesc[1].get<float>(),
+						baseColorDesc[2].get<float>(),
+						baseColorDesc[3].get<float>()
+					};
+				}
+
+				Vec4f mColor;
+				Vec3f mDirection;
+				float mAngle;
+				float mRange;
+
+				enum Type {
+					Dir,
+					Spot,
+					Point,
+					Area
+				};
+
+				Type mType;
+			};
+
 		}
 
 		std::shared_ptr<SceneNode> loadGLTFScene(const std::string& assetsFolder, graphics::RenderScene& _renderable)
 		{
-			core::File sceneFile("helmet/damagedHelmet.gltf");
+			//core::File sceneFile("helmet/damagedHelmet.gltf");
+			core::File sceneFile("courtyard/court.gltf");
 			if(!sceneFile.sizeInBytes())
 			{
 				core::Log::error("Unable to find scene asset");
@@ -153,6 +196,10 @@ namespace rev {
 				gltf::BufferView view;
 				size_t offset = viewDesc["byteOffset"];
 				size_t bufferNdx = viewDesc["buffer"];
+				if(viewDesc.find("byteStride") != viewDesc.end())
+				{
+					view.stride = viewDesc["byteStride"];
+				}
 				view.data = &buffers[bufferNdx].raw[offset];
 				bufferViews.push_back(view);
 			}
@@ -166,12 +213,11 @@ namespace rev {
 				unsigned cTypeDesc = accessorDesc["componentType"];
 				accessor.componentType = gltf::Accessor::ComponentType(cTypeDesc);
 				unsigned bufferViewNdx = accessorDesc["bufferView"];
-				unsigned byteOffset = 0;
 				auto offsetIter = accessorDesc.find("byteOffset");
 				if(offsetIter != accessorDesc.end())
-					byteOffset = offsetIter.value().get<unsigned>();
+					accessor.offset = offsetIter.value().get<unsigned>();
 				accessor.count = accessorDesc["count"];
-				accessor.data = &bufferViews[bufferViewNdx].data[byteOffset];
+				accessor.view = &bufferViews[bufferViewNdx];
 				accessors.push_back(accessor);
 			}
 
@@ -184,24 +230,50 @@ namespace rev {
 				textureNames.push_back(texName);
 			}
 
+			// Default material
+			auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
+			auto defaultMaterial = std::make_shared<Material>(pbrEffect);
+			
 			// Load materials
 			std::vector<std::shared_ptr<graphics::Material>> materials;
 			for(auto& matDesc : sceneDesc["materials"])
 			{
-				size_t albedoNdx = matDesc["pbrMetallicRoughness"]["baseColorTexture"]["index"];
-				size_t physicsNdx = matDesc["pbrMetallicRoughness"]["metallicRoughnessTexture"]["index"];
-				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
-				size_t aoNdx = matDesc["occlusionTexture"]["index"];
-				size_t normalNdx = matDesc["normalTexture"]["index"];
-				auto mat = std::make_shared<Material>();
-				mat->name = matDesc["name"].get<std::string>();
-				mat->shader = "metal-rough.fx";
-				mat->addTexture(10, Texture::load(textureNames[normalNdx], false));
-				mat->addTexture(11, Texture::load(textureNames[albedoNdx]));
-				//mat->addTexture(12, Texture::load(textureNames[albedoNdx], false));
-				mat->addTexture(12, Texture::load(textureNames[physicsNdx]));
-				mat->addTexture(13, Texture::load(textureNames[emissiveNdx], false));
-				//mat->addTexture(14, Texture::load(textureNames[aoNdx]));
+				auto mat = std::make_shared<Material>(pbrEffect);
+				if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
+				{
+					auto pbrDesc = matDesc["pbrMetallicRoughness"];
+					if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
+					{
+						size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
+						mat->addTexture("uBaseColorMap", Texture::load(textureNames[albedoNdx], false));
+					}
+					if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
+					{
+						size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
+						mat->addTexture("uPhysics", Texture::load(textureNames[physicsNdx], false));
+					}
+					if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
+					{
+						auto& baseColorDesc = pbrDesc["baseColorFactor"];
+						Vec4f color {
+							baseColorDesc[0].get<float>(),
+							baseColorDesc[1].get<float>(),
+							baseColorDesc[2].get<float>(),
+							baseColorDesc[3].get<float>()
+						};
+						mat->addParam("uBaseColor", color);
+					}
+				}
+				if(matDesc.find("emissiveTexture") != matDesc.end())
+				{
+					size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
+					mat->addTexture("uEmissive", Texture::load(textureNames[emissiveNdx], false));
+				}
+				if(matDesc.find("normalTexture") != matDesc.end())
+				{
+					size_t normalNdx = matDesc["normalTexture"]["index"];
+					mat->addTexture("uNormalMap", Texture::load(textureNames[normalNdx], false));
+				}
 				materials.push_back(mat);
 			}
 
@@ -210,6 +282,13 @@ namespace rev {
 			for(auto& meshDesc : sceneDesc["meshes"])
 			{
 				meshes.emplace_back(accessors, meshDesc);
+			}
+
+			// Load lights
+			std::vector<gltf::Light> lights;
+			for(auto& lightDesc : sceneDesc["lights"])
+			{
+				lights.emplace_back(lightDesc);
 			}
 
 			// Load nodes
@@ -223,14 +302,56 @@ namespace rev {
 				if(nameIter != nodeDesc.end())
 					node->name = nameIter.value().get<std::string>();
 				// Node transform
+				auto nodeTransform = std::make_unique<game::Transform>();
+				bool useTransform = false;
 				if(nodeDesc.find("matrix") != nodeDesc.end())
 				{
+					useTransform = true;
 					auto& matrixDesc = nodeDesc["matrix"];
-					auto nodeTransform = std::make_unique<game::Transform>();
 					for(size_t i = 0; i < 3; ++i)
 						for(size_t j = 0; j < 4; ++j)
 							nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
+				}
+				if(nodeDesc.find("rotation") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& rotDesc = nodeDesc["rotation"];
+					Quatf rot {
+						rotDesc[0].get<float>(),
+						rotDesc[1].get<float>(),
+						rotDesc[2].get<float>(),
+						rotDesc[3].get<float>()
+					};
+					nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
+				}
+				if(nodeDesc.find("translation") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& posDesc = nodeDesc["translation"];
+					for(size_t i = 0; i < 3; ++i)
+						nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
+				}
+				if(nodeDesc.find("scale") != nodeDesc.end())
+				{
+					useTransform = true;
+					auto& scaleDesc = nodeDesc["scale"];
+					Mat33f scale = Mat33f::identity();
+					for(size_t i = 0; i < 3; ++i)
+						scale(i,i) = scaleDesc[i].get<float>();
+					nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
+				}
+				if(useTransform)
 					node->addComponent(std::move(nodeTransform));
+				// Optional light
+				if(nodeDesc.find("light"))
+				{
+					int ndx = nodeDesc["light"].get<int>();
+					auto& l = lights[ndx];
+					if(l.mType == gltf::Light::Spot)
+					{
+						auto light = new SpotLight;
+						
+					}
 				}
 				// Optional node mesh
 				auto meshIter = nodeDesc.find("mesh");
@@ -246,30 +367,35 @@ namespace rev {
 						std::vector<uint16_t> indices(primitive.indices->count);
 						if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
 						{
-							memcpy(indices.data(), primitive.indices->data, sizeof(uint16_t)*indices.size());
+							memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
 						}
 						else
 							return nullptr;
 
-						// Copy vertex data
 						std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
-						auto srcPosition = reinterpret_cast<math::Vec3f*>(primitive.position->data);
-						auto srcNormal = reinterpret_cast<math::Vec3f*>(primitive.normal->data);
-						auto srcTexCoord = reinterpret_cast<math::Vec2f*>(primitive.texCoord->data);
-						auto srcTangent = reinterpret_cast<math::Vec4f*>(primitive.tangent->data);
 						for(size_t i = 0; i < vertices.size(); ++i)
 						{
 							auto& v = vertices[i];
-							v.position = srcPosition[i];
-							v.normal = srcNormal[i];
-							v.tangent = -Vec3f(srcTangent[i].block<3,1>(0,0));
-							v.bitangent = v.normal.cross(v.tangent)*srcTangent[i].w();
-							v.uv = srcTexCoord[i];
+							assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
+							assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
+							v.position = *(math::Vec3f*)(primitive.position->element(i));
+							v.normal = *(math::Vec3f*)(primitive.normal->element(i));
+							auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
+							v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+							v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+							v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
 						}
 						
 						// TODO: Share meshes
 						renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
-						renderObj->materials.push_back(materials[0]); // TODO
+						if(materials.empty())
+						{
+							renderObj->materials.push_back(defaultMaterial);
+						}
+						else
+							renderObj->materials.push_back(materials[0]); // TODO
 					}
 
 					auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
@@ -305,21 +431,17 @@ namespace rev {
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
 			//loadScene("sponza_crytek");
-			core::Log::verbose("Load the helmet scene");
-			auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
-			core::Log::verbose("Load skybox");
+			auto gltfScene = loadGLTFScene("courtyard/", mGraphicsScene);
+			//auto gltfScene = loadGLTFScene("helmet/", mGraphicsScene);
 			//std::string skyName = "milkyway";
 			//std::string skyName = "Shiodome";
-			//std::string skyName = "monument";
+			std::string skyName = "monument";
 			//std::string skyName = "Ice";
-			std::string skyName = "Winter";
+			//std::string skyName = "Winter";
 			//std::string skyName = "Factory";
-			core::Log::debug("Load sky");
 			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
 			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr", false);
 			mGraphicsScene.mLightDir = math::Vec3f(0.f,0.f,-1.f).normalized();
-
-			core::Log::debug("Sky loaded");
 
 			if(gltfScene)
 			{
@@ -362,6 +484,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
 		// Orbit
+		/*
 		auto orbitNode = mGameScene.root()->createChild("camOrbit");
 #ifdef ANDROID
 		orbitNode->addComponent<Orbit>(Vec2f{-1e-3f,-1e-3f}, 1);
@@ -372,7 +495,9 @@ namespace rev {
 
 		// Cam node
 		auto cameraNode = orbitNode->createChild("Camera");
-		cameraNode->addComponent<FlyBy>(1.f);
+		*/
+		auto cameraNode = mGameScene.root()->createChild("Camera");
+		cameraNode->addComponent<FlyBy>(10.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
 		mCamera = &cameraNode->addComponent<game::Camera>()->cam();
 	}

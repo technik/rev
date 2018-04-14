@@ -17,7 +17,7 @@ namespace rev { namespace graphics {
 		HWND nativeWindow;
 		math::Vec2u size;
 
-		//
+		static WindowWin32 createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool visible = true);
 	};
 
 	class GraphicsDriverGL;
@@ -39,7 +39,13 @@ namespace rev { namespace graphics {
 		NativeWindow nativeWindow() const { return window; }
 		void swapBuffers();
 
+	protected:
+		bool mSupportSRGBFrameBuffer = false;
+		bool mSupportSRGBTextures = false;
+
 	private:
+		static void checkExtensions(bool& sRGBTextures, bool& sRGBFrameBuffer);
+
 		NativeWindow	window;
 		HWND	mWindowHandle;
 		HDC		mDevCtxHandle;

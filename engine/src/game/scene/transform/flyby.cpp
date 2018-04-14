@@ -43,7 +43,7 @@ namespace rev {
 			if (input->held(KeyboardInput::Key::KeyDown))
 				velocity.z() -= deltaV;
 			auto& transform = mSrcTransform->xForm;
-			transform.position() = transform.position() + transform * velocity * (_dt * mSpeed);
+			transform.position() = transform.position() + transform.rotateDirection(velocity) * (_dt * mSpeed);
 
 			// Rotation
 			float angSpd = 0.f;

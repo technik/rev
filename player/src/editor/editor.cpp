@@ -18,8 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "editor.h"
-#include "inspectors/MaterialInspector.h"
-#include "inspectors/MeshRendererInspector.h"
 #include "inspectors/TransportInspector.h"
 
 #include <graphics/debug/imgui.h>
@@ -30,7 +28,6 @@ namespace rev { namespace editor {
 	void Editor::init(graphics::RenderScene& scene)
 	{
 		mTextureMgr.init();
-		registerMaterials();
 		// Create project
 		mOpenProject.load("sponza.json");
 		// Project must be created before inspectors, since they use the project's information
@@ -44,7 +41,6 @@ namespace rev { namespace editor {
 		drawMainMenu();
 		if(mShowProjectExplorer)
 			mOpenProject.showExplorer();
-		showMaterialExplorer();
 		showNodeTree(scene.root());
 		showInspector();
 		//ImGui::ShowDemoWindow();
@@ -84,6 +80,20 @@ namespace rev { namespace editor {
 		}
 	}
 
+	void displayTreeNode(const game::SceneNode& node)
+	{
+		ImGuiTreeNodeFlags node_flags = 
+			ImGuiTreeNodeFlags_OpenOnArrow | 
+			ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags, "%s", node.name.c_str());
+		for(auto& c : node.children())
+		if(node_open)
+		{
+			displayTreeNode(*c);
+			ImGui::TreePop();
+		}
+	}
+
 	//----------------------------------------------------------------------------------------------
 	void Editor::showNodeTree(const game::SceneNode* root)
 	{
@@ -95,19 +105,12 @@ namespace rev { namespace editor {
 			// TODO: Make this a real tree
 			for(auto& c : root->children())
 			{
-				ImGuiTreeNodeFlags node_flags = 
+				displayTreeNode(*c);
+				/*ImGuiTreeNodeFlags node_flags = 
 					ImGuiTreeNodeFlags_OpenOnArrow | 
 					ImGuiTreeNodeFlags_OpenOnDoubleClick | 
 					((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
-				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, c->name.c_str());
-				if(ImGui::IsItemClicked())
-				{
-					mSelectedNode = c;
-				}
-				if(node_open)
-				{
-					ImGui::TreePop();
-				}
+				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, "%s", c->name.c_str());*/
 			}
 			ImGui::End();
 		}
@@ -122,7 +125,7 @@ namespace rev { namespace editor {
 				if(!mSelectedNode.expired())
 				{
 					auto inspectedNode = mSelectedNode.lock();
-					ImGui::Text(inspectedNode->name.c_str());
+					ImGui::Text("%s", inspectedNode->name.c_str());
 					ImGui::Separator();
 					for(auto& c : inspectedNode->components())
 					{
@@ -141,44 +144,11 @@ namespace rev { namespace editor {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Editor::showMaterialExplorer() {
-		if(mShowMaterialExplorer)
-		{
-			if(ImGui::Begin("Material Explorer"))
-			{
-				if(ImGui::Button("+"))
-				{
-					auto newMaterial = std::make_shared<Material>();
-					//mMaterials.push_back(newMaterial);
-					newMaterial->name = "materials/new.mat";
-					newMaterial->addParam(6, 0.5f); // Rougness
-					newMaterial->addParam(7, 0.5f); // Metallic
-					newMaterial->addTexture(5, mTextureMgr.get("errorTexture"));
-				}
-				ImGui::End();
-			}
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Editor::registerMaterials()
-	{
-		// Register phony materials
-		mTextures = {
-			"textures/spnza_bricks_a_ddn.tga",
-			"textures/sponza_curtain_blue_diff.tga",
-			"textures/spnza_bricks_a_diff.tga",
-			"textures/sponza_curtain_diff.tga",
-			"textures/spnza_bricks_a_spec.tga"
-		};
-	}
-
-	//----------------------------------------------------------------------------------------------
 	void Editor::createInspectors(graphics::RenderScene& scene) {
-		mInspectors.insert(std::make_pair(
+		/*mInspectors.insert(std::make_pair(
 			std::string(typeid(game::MeshRenderer).name()),
 			std::make_unique<RendererInspector>(mOpenProject.materials()))
-		);
+		);*/
 		registerInspector<game::Transform,TransformInspector>();
 	}
 

@@ -7,11 +7,13 @@ layout(location = 4) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform mat4 uWorld;
-layout(location = 2) uniform mat4 uMs2Shadow;
+//layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 4) uniform vec3 uWsViewPos; // Direction toward viewpoint
 
+#ifdef sampler2D_uNormalMap
 out vec3 vtxTangent;
 out vec3 vtxBitangent;
+#endif
 out vec3 vtxNormal;
 out vec3 vtxWsEyeDir;
 out vec2 vTexCoord;
@@ -24,9 +26,11 @@ void main ( void )
 	vTexCoord = texCoord;
 	// Tangent space
 	mat3 worldRot = mat3(uWorld);
+#ifdef sampler2D_uNormalMap
 	vtxTangent = worldRot * msTangent;
 	vtxBitangent = worldRot * msBitangent;
-	vtxNormal = worldRot * msNormal;
+#endif
+	vtxNormal = inverse(transpose(worldRot)) * msNormal;
 	// Lighting vectors
 	vtxWsPos = (uWorld * vec4(vertex,1.0)).xyz;
 	vtxWsEyeDir = uWsViewPos - vtxWsPos;
@@ -36,20 +40,21 @@ void main ( void )
 
 #ifdef PXL_SHADER
 out lowp vec3 outColor;
+#ifdef sampler2D_uNormalMap
 in vec3 vtxTangent;
 in vec3 vtxBitangent;
+#endif
 in vec3 vtxNormal;
 in vec3 vtxWsEyeDir;
 in vec2 vTexCoord;
 in vec3 vtxWsPos;
 
 // Global state
-layout(location = 2) uniform mat4 uMs2Shadow;
+//layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 3) uniform float uEV;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 layout(location = 9) uniform sampler2D uShadowMap;
-layout(location = 10) uniform sampler2D uNormalMap;
 
 float PI = 3.14159265359;
 
@@ -57,14 +62,17 @@ struct ShadeInput
 {
 	float ndv; // Normal dot view
 	// World space vectors
+#ifdef sampler2D_uNormalMap
 	vec3 tangent;
 	vec3 bitangent;
+#endif
 	vec3 normal;
 	vec3 eye;
 };
 
 vec3 shadeSurface(ShadeInput inputs);
 
+#ifdef sampler2D_uNormalMap
 //------------------------------------------------------------------------------
 vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 {
@@ -77,15 +85,21 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 		normal*max(texNormal.z, 1e-8)
 	);
 }
+#endif
 
 //------------------------------------------------------------------------------	
 void main (void) {
 	// Build shader inputs
 	ShadeInput shadingInputs;
 	// Tangent space
+#ifdef sampler2D_uNormalMap
 	vec3 tangent = normalize(vtxTangent);
 	vec3 bitangent = normalize(vtxBitangent);
 	vec3 normal = getSampledNormal(tangent, bitangent, normalize(vtxNormal));
+#else
+	vec3 normal = normalize(vtxNormal);
+#endif
+#ifdef sampler2D_uNormalMap
 	// Recompute tangent space around sampled normal
 	tangent = normalize(
 		tangent
@@ -97,9 +111,10 @@ void main (void) {
 		-dot(tangent,bitangent)*tangent
 		);
 
-	shadingInputs.normal = normal;
 	shadingInputs.tangent = tangent;
 	shadingInputs.bitangent = bitangent;
+#endif
+	shadingInputs.normal = normal;
 
 	shadingInputs.eye = normalize(vtxWsEyeDir);
 	float ndv = dot(shadingInputs.eye,shadingInputs.normal);

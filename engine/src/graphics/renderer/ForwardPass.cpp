@@ -25,8 +25,8 @@
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/driver/shader.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
-#include <graphics/scene/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
@@ -37,6 +37,7 @@
 using namespace rev::input;
 #endif // _WIN32
 
+using namespace std;
 using namespace rev::math;
 
 namespace rev { namespace graphics {
@@ -46,14 +47,10 @@ namespace rev { namespace graphics {
 		: mDriver(_gfxDriver)
 	{
 		loadCommonShaderCode();
-		mErrorMaterial = std::make_unique<Material>();
-		mErrorMaterial->name = "XOR-ErrorMaterial";
-		mErrorMaterial->shader = "simplePBR.fx";
-		mErrorMaterial->addTexture(5, std::make_shared<Texture>(Image::proceduralXOR(256, 4), false)); // Albedo texture
-		mErrorMaterial->addParam(6, 0.5f); // Roughness
-		mErrorMaterial->addParam(7, 0.05f); // Metallic
-		mEV = 0.0f;
+		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
+		mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
+		mEV = 0.0f;
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
@@ -66,69 +63,59 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::loadShader(const std::string& fileName)
+	Shader* ForwardPass::loadShader(const Material& material)
 	{
-		core::File code(fileName);
-		auto shader = Shader::createShader({mForwardShaderCommonCode.c_str(), code.bufferAsText()});
+		auto shader = Shader::createShader({
+			material.bakedOptions().c_str(),
+			mForwardShaderCommonCode.c_str(),
+			material.effect().code().c_str()
+		});
 		if(shader)
 		{
 			auto shaderP = shader.get();
-			mPipelines.insert(std::make_pair(fileName, std::move(shader)));
+			mPipelines.insert(std::make_pair(&material, std::move(shader)));
 			return shaderP;
 		} else
 			return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	bool ForwardPass::bindMaterial(const Material* mat)
+	bool ForwardPass::bindMaterial(const Material& mat)
 	{
-		if(mat && !mat->shader.empty()) // Bind proper material
+		// Find shader
+		auto shaderIter = mPipelines.find(&mat);
+		if(shaderIter == mPipelines.end())
 		{
-			// Find shader
-			auto shaderIter = mPipelines.find(mat->shader);
-			if(shaderIter == mPipelines.end())
-			{
-				// Try to load shader
-				auto shader = loadShader(mat->shader);
-				if(shader)
-					shader->bind();
-				else
-				{
-					if(mat != mErrorMaterial.get())
-						return bindMaterial(mErrorMaterial.get());
-					return false;
-				}
-			}
+			// Try to load shader
+			auto shader = loadShader(mat);
+			if(shader)
+				shader->bind();
 			else
-				shaderIter->second->bind();
-
-			mat->bind(mDriver);
-			return true;
+			{
+				if(&mat != mErrorMaterial.get())
+					return bindMaterial(*mErrorMaterial);
+				return false;
+			}
 		}
-		// Bind error material
-		return bindMaterial(mErrorMaterial.get());
+		else
+			shaderIter->second->bind();
+
+		mat.bindParams(mDriver);
+		return true;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure)
 	{
-		auto skyShaderIter = mPipelines.find("sky.fx");
-		Shader* skyShader = nullptr;
-		if(skyShaderIter == mPipelines.end())
+		if(!mBackgroundShader)
 		{
 			// Try to load shader
 			core::File code("sky.fx");
-			auto skyShaderPtr = Shader::createShader( code.bufferAsText() );
-			if(skyShaderPtr)
-			{
-				skyShader = skyShaderPtr.get();
-				mPipelines.insert(std::make_pair("sky.fx", std::move(skyShaderPtr)));
-			}
-		} else
-			skyShader = skyShaderIter->second.get();
-		if(skyShader)
+			mBackgroundShader = Shader::createShader( code.bufferAsText() );
+		}
+		if(mBackgroundShader)
 		{
-			skyShader->bind();
+			mBackgroundShader->bind();
 			// View projection matrix
 			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, viewProj.data());
 			// Lighting
@@ -192,25 +179,29 @@ namespace rev { namespace graphics {
 			glBindTexture(GL_TEXTURE_2D, _shadows->texName());
 		}
 
-		auto worldMatrix = Mat44f::identity();
+		Mat44f worldMatrix = Mat44f::identity();
 		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
 			auto renderObj = renderable.lock();
 			// Get world matrix
-			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
+			worldMatrix = renderObj->transform.matrix();
 			// Set up vertex uniforms
-			auto wvp = vp*worldMatrix;
+			Mat44f wvp = vp*worldMatrix;
 			Mat44f model2Shadow;
 			if(_shadows) // TODO: This should be world 2 shadow matrix
 				model2Shadow = _shadows->shadowProj() * worldMatrix;
 
 			// render
+			if(renderObj->materials.size() < renderObj->meshes.size())
+				continue;
+			++m_numRenderables;
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
-				if(bindMaterial(renderObj->materials[i].get()))
+				if(bindMaterial(*renderObj->materials[i]))
 				{
+					++m_numMeshes;
 					// Matrices
 					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
@@ -229,14 +220,43 @@ namespace rev { namespace graphics {
 					if(_shadows)
 						glUniform1i(9, 9);
 					// Render mesh
+					++m_numDrawCalls;
 					renderObj->meshes[i]->render();
 				}
 			}
 		}
 
 		// Render skybox
-		if(_scene.sky)
+		if(_scene.sky) {
+			++m_numDrawCalls;
 			renderBackground(vp, exposure);
+		}
+
+		drawStats();
+	}
+
+	void ForwardPass::resetStats(){
+		m_numDrawCalls = 0;
+		m_numMeshes = 0;
+		m_numRenderables = 0;
+	}
+
+	void ForwardPass::drawStats(){
+		const float DISTANCE = 10.f;
+		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE - 40);
+		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Transparent background
+		bool isOpen = true;
+		if (ImGui::Begin("Render Counters", &isOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
+		{
+			ImGui::Text("Renderables: %d", m_numRenderables);
+			ImGui::Text("Meshes: %d", m_numMeshes);
+			ImGui::Text("Draw Calls: %d", m_numDrawCalls);
+			ImGui::End();
+		}
+		ImGui::PopStyleColor();
+		resetStats();
 	}
 
 }}

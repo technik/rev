@@ -21,7 +21,6 @@
 #include <game/scene/sceneNode.h>
 #include <game/textureManager.h>
 #include <game/scene/scene.h>
-#include <graphics/scene/material.h>
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -47,8 +46,6 @@ namespace rev { namespace editor {
 		void fileMenu();
 		void showNodeTree(const game::SceneNode* root);
 		void showInspector();
-		void showMaterialExplorer();
-		void registerMaterials();
 
 		template<class Inspected, class Inspector>
 		void registerInspector()

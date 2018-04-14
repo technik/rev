@@ -4,9 +4,6 @@
 #include "meshRenderer.h"
 #include "sceneNode.h"
 #include "transform/transform.h"
-#include <graphics/debug/debugGUI.h>
-#include <graphics/scene/material.h>
-#include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 
 using namespace rev::graphics;
