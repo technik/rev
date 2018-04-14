@@ -10,6 +10,7 @@
 #include <core/tools/log.h>
 #include <game/geometry/modelAsset.h>
 #include <game/scene/camera.h>
+#include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
@@ -348,8 +349,7 @@ namespace rev {
 					auto& l = lights[ndx];
 					if(l.mType == gltf::Light::Spot)
 					{
-						auto light = new SpotLight;
-						
+						node->addComponent<game::SpotLight>(l.mAngle, l.mRange, l.mColor);
 					}
 				}
 				// Optional node mesh
