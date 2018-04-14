@@ -349,7 +349,7 @@ namespace rev {
 					auto& l = lights[ndx];
 					if(l.mType == gltf::Light::Spot)
 					{
-						node->addComponent<game::SpotLight>(l.mAngle, l.mRange, l.mColor);
+						node->addComponent<game::SpotLight>(_renderable, l.mAngle, l.mRange, l.mColor);
 					}
 				}
 				// Optional node mesh

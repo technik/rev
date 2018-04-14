@@ -22,6 +22,7 @@
 #include "transform/transform.h"
 #include "sceneNode.h"
 #include <graphics/scene/Light.h>
+#include <graphics/scene/renderScene.h>
 #include <memory>
 #include <cmath>
 
@@ -30,9 +31,10 @@ namespace rev { namespace game {
 	class SpotLight : public Component
 	{
 	public:
-		SpotLight(float apertureRadians, float range, const math::Vec3f& color)
+		SpotLight(graphics::RenderScene& _scene, float apertureRadians, float range, const math::Vec3f& color)
 		{
-			mLight = std::make_unique<graphics::SpotLight>();
+			mLight = std::make_shared<graphics::SpotLight>();
+			_scene.spotLights().push_back(mLight);
 			mLight->range = range;
 			mLight->color = color;
 			mLight->maxCosine = cos(apertureRadians/2);
@@ -50,7 +52,7 @@ namespace rev { namespace game {
 
 	private:
 		Transform* mTransform = nullptr;
-		std::unique_ptr<graphics::SpotLight>	mLight;
+		std::shared_ptr<graphics::SpotLight>	mLight;
 	};
 
 }}	// namespace rev::game
