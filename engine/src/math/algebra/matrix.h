@@ -239,6 +239,14 @@ namespace rev {
 			Element&	w()			{ return namedElement<3>(); }
 			Element		w()	const	{ return namedElement<3>(); }
 
+			// Matrix operations
+			Element			trace		() const;
+			const TransposeView&	transpose	() const { return *reinterpret_cast<const TransposeView*>(this); }
+			MatrixBase		inverse		() const;
+
+			Element	norm() const		{ return sqrt(squaredNorm()); }
+			Element	squaredNorm() const { return dot(*this); }
+
 			// Component wise operations
 			template<typename OtherM_>
 			Derived cwiseProduct(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=a*b;}); }
@@ -246,6 +254,23 @@ namespace rev {
 			Derived cwiseMax	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::max(a,b);}); }
 			template<typename OtherM_>
 			Derived cwiseMin	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::min(a,b);}); }
+
+			template<typename Other_>
+			Element	dot(const Other_& _other) const { 
+				Element result(0);
+				for(size_t i = 0; i < size; ++i)
+					result += this->coefficient(i)*_other.coefficient(i);
+				return result;
+			}
+			
+			template<typename Other_>
+			Derived cross(const Other_& v) const { 
+				Derived result;
+				result.x() = y()*v.z() - z()*v.y();
+				result.y() = z()*v.x() - x()*v.z();
+				result.z() = x()*v.y() - y()*v.x();
+				return result;
+			}
 
 			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = std::abs(x); }); }
 			Derived operator-	() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = -x; }); }
@@ -441,10 +466,7 @@ namespace rev {
 				static_assert(cols_>=3||rows_>=3, "Vector is not big enough");
 			}
 
-			// Matrix operations
-			Element			trace		() const;
-			const TransposeView&	transpose	() const { return *reinterpret_cast<const TransposeView*>(this); }
-			MatrixBase		inverse		() const;
+			Matrix normalized() const { return (*this) * (1/this->norm()); }
 
 			// Smarter construction
 			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
