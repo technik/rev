@@ -134,12 +134,11 @@ namespace rev {
 					mColor = {
 						baseColorDesc[0].get<float>(),
 						baseColorDesc[1].get<float>(),
-						baseColorDesc[2].get<float>(),
-						baseColorDesc[3].get<float>()
+						baseColorDesc[2].get<float>()
 					};
 				}
 
-				Vec4f mColor;
+				Vec3f mColor;
 				Vec3f mDirection;
 				float mAngle;
 				float mRange;
@@ -343,7 +342,7 @@ namespace rev {
 				if(useTransform)
 					node->addComponent(std::move(nodeTransform));
 				// Optional light
-				if(nodeDesc.find("light"))
+				if(nodeDesc.find("light") != nodeDesc.end())
 				{
 					int ndx = nodeDesc["light"].get<int>();
 					auto& l = lights[ndx];

@@ -86,21 +86,21 @@ void testQuaternions()
 {
 	// TODO: Test axis angle for angles in the 4 basic quadrants
 	{
-		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, 0.f);
+		const Quatf id = Quatf({0.f,0.f,1.f}, 0.f);
 		assert(id.x() == 0.f);
 		assert(id.y() == 0.f);
 		assert(id.z() == 0.f);
 		assert(id.w() == 1.f);
 	}
 	{
-		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, HalfPi);
+		const Quatf id = Quatf({0.f,0.f,1.f}, HalfPi);
 		assert(id.x() == 0.f);
 		assert(id.y() == 0.f);
 		assert(id.z() == sqrt(2.f)*0.5f);
 		assert(id.w() == sqrt(2.f)*0.5f);
 	}
 	{
-		const Quatf id = Quatf::fromAxisAngle({0.f,0.f,1.f}, Pi);
+		const Quatf id = Quatf({0.f,0.f,1.f}, Pi);
 		assert(id.x() == 0.f);
 		assert(id.y() == 0.f);
 		assert(id.z() == 1.0f);
@@ -111,7 +111,7 @@ void testQuaternions()
 	Vec3f j = { 0.f, 1.f, 0.f};
 	Vec3f k = { 0.f, 0.f, 1.f};
 	{
-		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, 0.f);
+		const Quatf q = Quatf({0.f,0.f,1.f}, 0.f);
 		assert(i == q.rotate(i));
 		assert(j == q.rotate(j));
 		assert(k == q.rotate(k));
@@ -120,7 +120,7 @@ void testQuaternions()
 		assert(k == (Mat33f)q * k);
 	}
 	{
-		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, HalfPi);
+		const Quatf q = Quatf({0.f,0.f,1.f}, HalfPi);
 		assert(approx(q.rotate(i), j));
 		assert(approx(q.rotate(j), -i));
 		assert(approx(q.rotate(-i), -j));
@@ -131,7 +131,7 @@ void testQuaternions()
 		assert(approx((Mat33f)q * k , k));
 	}
 	{
-		const Quatf q = Quatf::fromAxisAngle({0.f,0.f,1.f}, Pi);
+		const Quatf q = Quatf({0.f,0.f,1.f}, Pi);
 		assert(approx(q.rotate(i), -i));
 		assert(approx(q.rotate(j), -j));
 		assert(approx(q.rotate(-j), j));
@@ -152,10 +152,10 @@ void testComposedTransforms()
 	Vec4f y2 = { 0.f, 2.f, 0.f, 1.f};
 	Vec4f z2 = { 0.f, 0.f, 2.f, 1.f};
 	Mat34f mA = Mat34f::identity();
-	mA.block<3,3>(0,0) = (Mat33f)Quatf::fromAxisAngle({0.f,0.f,1.f},HalfPi);
+	mA.block<3,3>(0,0) = (Mat33f)Quatf({0.f,0.f,1.f},HalfPi);
 	mA.col(3) = {1.f,0.f,0.f};
 	Mat34f mB = Mat34f::identity();
-	mB.block<3,3>(0,0) = (Mat33f)Quatf::fromAxisAngle({1.f,0.f,0.f},HalfPi);
+	mB.block<3,3>(0,0) = (Mat33f)Quatf({1.f,0.f,0.f},HalfPi);
 	mB.col(3) = {1.f,0.f,0.f};
 	// A transform
 	assert(approx(mA*i, Vec3f(0.f,1.f,0.f)));

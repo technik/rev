@@ -18,32 +18,39 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include "component.h"
+#include "transform/transform.h"
+#include "sceneNode.h"
+#include <graphics/scene/Light.h>
+#include <memory>
+#include <cmath>
 
-#include <math/algebra/vector.h>
+namespace rev { namespace game {
 
-namespace rev { namespace graphics {
-
-	struct Light
+	class SpotLight : public Component
 	{
-		math::Vec3f color;
+	public:
+		SpotLight(float apertureRadians, float range, const math::Vec3f& color)
+		{
+			mLight = std::make_unique<graphics::SpotLight>();
+			mLight->range = range;
+			mLight->color = color;
+			mLight->maxCosine = cos(apertureRadians/2);
+		}
+
+		void init() override
+		{
+			mTransform = node()->component<Transform>();
+		}
+
+		void update(float) override
+		{
+			mLight->position = mTransform->absoluteXForm().position();
+		}
+
+	private:
+		Transform* mTransform = nullptr;
+		std::unique_ptr<graphics::SpotLight>	mLight;
 	};
 
-	struct PointLight : Light
-	{
-		float range;
-		math::Vec3f position;
-	};
-
-	struct SpotLight : Light
-	{
-		float range;
-		float maxCosine;
-		math::Vec3f position;
-		math::Vec3f direction;
-	};
-
-	struct DirectionalLight
-	{
-		math::Vec3f direction;
-	};
-}}
+}}	// namespace rev::game
