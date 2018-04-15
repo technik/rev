@@ -43,7 +43,7 @@ namespace rev { namespace graphics {
 		void addTexture(const std::string& name, TexturePtr t);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(BackEndRenderer::Command& command) const;
+		void bindParams(BackEndRenderer::Command& command, BackEndRenderer& renderer) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;

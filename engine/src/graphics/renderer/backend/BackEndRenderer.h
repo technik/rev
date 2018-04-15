@@ -37,17 +37,15 @@ namespace rev{ namespace graphics {
 			GLuint vao;
 			unsigned nIndices;
 			Shader*	shader;
-			std::vector<std::pair<GLint,float>>			mFloatParams;
-			std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
-			std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
+
+			std::pair<int,int>	mFloatParams;
+			std::pair<int,int>	mVec3fParams;
+			std::pair<int,int>	mVec4fParams;
 			std::vector<std::pair<GLint,math::Mat44f>>	mMat44fParams;
 			std::vector<std::pair<GLint,const Texture*>>	mTextureParams;
 
 			void reset()
 			{
-				mFloatParams.clear();
-				mVec3fParams.clear();
-				mVec4fParams.clear();
 				mMat44fParams.clear();
 				mTextureParams.clear();
 			}
@@ -63,6 +61,24 @@ namespace rev{ namespace graphics {
 			mNumCommands = 0;
 			for(auto& c : mCommandList)
 				c.reset();
+			mFloatIndices.clear();
+			mFloatParams.clear();
+			mVec3fIndices.clear();
+			mVec3fParams.clear();
+			mVec4fIndices.clear();
+			mVec4fParams.clear();
+		}
+
+		void endCommand()
+		{
+			auto& cmd = mCommandList[mNumCommands++];
+			cmd.mFloatParams.second = mFloatParams.size();
+			cmd.mVec3fParams.second = mVec3fParams.size();
+			cmd.mVec4fParams.second = mVec4fParams.size();
+		}
+
+		void endPass()
+		{
 		}
 
 		void reserve(size_t minSize)
@@ -70,18 +86,41 @@ namespace rev{ namespace graphics {
 			mCommandList.resize(std::max(mCommandList.size(), minSize));
 		}
 
-		Command& nextCommand()
+		Command& beginCommand()
 		{
+			// Finish previous command
+			Command* cmd;
 			if(mNumCommands < mCommandList.size()) // Reuse allocations
 			{
-				return mCommandList[mNumCommands++];
+				cmd = &mCommandList[mNumCommands];
 			}
 			else
 			{
-				mNumCommands++;
 				mCommandList.emplace_back(Command());
-				return mCommandList.back();
+				cmd = &mCommandList.back();
 			}
+			cmd->mFloatParams.first = mFloatParams.size();
+			cmd->mVec3fParams.first = mVec3fParams.size();
+			cmd->mVec4fParams.first = mVec4fParams.size();
+			return *cmd;
+		}
+
+		void addParam(GLint index, float f)
+		{
+			mFloatIndices.push_back(index);
+			mFloatParams.push_back(f);
+		}
+
+		void addParam(GLint index, const math::Vec3f& v)
+		{
+			mVec3fIndices.push_back(index);
+			mVec3fParams.push_back(v);
+		}
+
+		void addParam(GLint index, const math::Vec4f& v)
+		{
+			mVec4fIndices.push_back(index);
+			mVec4fParams.push_back(v);
 		}
 
 		void submitDraws()
@@ -97,12 +136,18 @@ namespace rev{ namespace graphics {
 					shader->bind();
 				}
 				// Bind params
-				for(const auto& f : command.mFloatParams)
-					mDriver.bindUniform(f.first, f.second);
-				for(const auto& v : command.mVec3fParams)
-					mDriver.bindUniform(v.first, v.second);
-				for(const auto& v : command.mVec4fParams)
-					mDriver.bindUniform(v.first, v.second);
+				for(int i = command.mFloatParams.first; i < command.mFloatParams.second; ++i)
+				{
+					mDriver.bindUniform(mFloatIndices[i], mFloatParams[i]);
+				}
+				for(int i = command.mVec3fParams.first; i < command.mVec3fParams.second; ++i)
+				{
+					mDriver.bindUniform(mVec3fIndices[i], mVec3fParams[i]);
+				}
+				for(int i = command.mVec4fParams.first; i < command.mVec4fParams.second; ++i)
+				{
+					mDriver.bindUniform(mVec4fIndices[i], mVec4fParams[i]);
+				}
 				for(const auto& m : command.mMat44fParams)
 					mDriver.bindUniform(m.first, m.second);
 				for(GLenum t = 0; t < command.mTextureParams.size(); ++t)
@@ -119,6 +164,7 @@ namespace rev{ namespace graphics {
 					glBindVertexArray(vao);
 					++usedVaos;
 				}
+				// Draw
 				glDrawElements(GL_TRIANGLES, command.nIndices, GL_UNSIGNED_SHORT, nullptr);
 			}
 		}
@@ -145,6 +191,13 @@ namespace rev{ namespace graphics {
 		// Command lists
 		std::vector<Command>	mCommandList;
 		unsigned				mNumCommands;
+
+		std::vector<float> mFloatParams;
+		std::vector<GLint> mFloatIndices;
+		std::vector<math::Vec3f> mVec3fParams;
+		std::vector<GLint> mVec3fIndices;
+		std::vector<math::Vec4f> mVec4fParams;
+		std::vector<GLint> mVec4fIndices;
 
 		GraphicsDriverGL&	mDriver;
 	};

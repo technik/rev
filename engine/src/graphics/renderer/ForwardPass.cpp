@@ -169,7 +169,7 @@ namespace rev { namespace graphics {
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Reuse commands from previous frames
-				auto& command = mBackEnd.nextCommand();
+				auto& command = mBackEnd.beginCommand();
 				command.reset();
 				// Optional sky
 				if(_scene.sky)
@@ -198,24 +198,26 @@ namespace rev { namespace graphics {
 				if(!shader)
 					continue;
 				command.shader = shader;
-				material.bindParams(command);
+				material.bindParams(command, mBackEnd);
 				// Matrices
 				command.mMat44fParams.emplace_back(0, wvp);
 				command.mMat44fParams.emplace_back(1, worldMatrix);
 				if(_shadows) // TODO: This should be world 2 shadow matrix
 					command.mMat44fParams.emplace_back(2, model2Shadow);
 				// Lighting
-				command.mFloatParams.emplace_back(3, exposure); // EV
-				command.mVec3fParams.emplace_back(4, wsEye);
-				command.mVec3fParams.emplace_back(5, lightClr);
-				command.mVec3fParams.emplace_back(6, lightDir);
+				mBackEnd.addParam(3, exposure); // EV
+				mBackEnd.addParam(4, wsEye);
+				mBackEnd.addParam(5, lightClr);
+				mBackEnd.addParam(6, lightDir);
 				// Render mesh
 				command.vao = renderObj->meshes[i]->getVao();
 				command.nIndices = renderObj->meshes[i]->nIndices();
 				++m_numMeshes;
+				mBackEnd.endCommand();
 			}
 		}
 
+		mBackEnd.endPass();
 		mBackEnd.submitDraws();
 
 		// Render skybox

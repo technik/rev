@@ -76,11 +76,14 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::bindParams(BackEndRenderer::Command& cmd) const
+	void Material::bindParams(BackEndRenderer::Command& cmd, BackEndRenderer& renderer) const
 	{
-		cmd.mFloatParams.insert(cmd.mFloatParams.end(), mFloatParams.begin(), mFloatParams.end());
-		cmd.mVec3fParams.insert(cmd.mVec3fParams.end(), mVec3fParams.begin(), mVec3fParams.end());
-		cmd.mVec4fParams.insert(cmd.mVec4fParams.end(), mVec4fParams.begin(), mVec4fParams.end());
+		for(const auto& v : mFloatParams)
+			renderer.addParam(v.first, v.second);
+		for(const auto& v : mVec3fParams)
+			renderer.addParam(v.first, v.second);
+		for(const auto& v : mVec4fParams)
+			renderer.addParam(v.first, v.second);
 		for(const auto& t : mTextureParams)
 		{
 			cmd.mTextureParams.emplace_back(t.first, t.second.get());
