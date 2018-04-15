@@ -51,7 +51,7 @@ namespace rev{ namespace graphics {
 		std::unique_ptr<Material>	mErrorMaterial;
 		using ShaderPtr = std::unique_ptr<Shader>;
 
-		using PipelineSet = std::unordered_map<const std::string, ShaderPtr>;
+		using PipelineSet = std::unordered_map<std::string, ShaderPtr>;
 		std::unordered_map<const Effect*, PipelineSet>	mPipelines;
 
 		Shader* getShader(const Material&);

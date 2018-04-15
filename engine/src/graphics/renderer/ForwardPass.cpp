@@ -83,7 +83,11 @@ namespace rev { namespace graphics {
 		{
 			iter = pipelineSet.emplace(
 				descriptor,
-				loadShader(mat)
+				Shader::createShader({
+					mat.bakedOptions().c_str(),
+					mForwardShaderCommonCode.c_str(),
+					mat.effect().code().c_str()
+					})
 			).first;
 		}
 		return iter->second.get();
@@ -122,6 +126,7 @@ namespace rev { namespace graphics {
 			loadCommonShaderCode();
 		}
 #endif
+		resetStats();
 		mBackEnd.beginFrame();
 		mBackEnd.beginPass();
 
@@ -151,57 +156,62 @@ namespace rev { namespace graphics {
 		Vec3f lightDir = -_scene.mLightDir;
 
 		// Iterate over renderables
-		BackEndRenderer::Command drawCall;
 		Mat44f worldMatrix = Mat44f::identity();
+		mBackEnd.reserve(_scene.renderables().size());
 		for(auto& renderable : _scene.renderables())
 		{
-			drawCall.reset();
-			// Optional sky
-			if(_scene.sky)
-				drawCall.mTextureParams.push_back(make_pair(7,_scene.sky.get()));
-			if(_scene.irradiance)
-				drawCall.mTextureParams.push_back(make_pair(8,_scene.irradiance.get()));
-			// Bind shadows
-			if(_shadows)
-			{
-				// TODO: Bind shadows to renderer
-				//glActiveTexture(GL_TEXTURE0+9);
-				//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
-			}
+			// Skip invalid objects
 			auto renderObj = renderable.lock();
-			// Get world matrix
-			worldMatrix = renderObj->transform.matrix();
-			// Set up vertex uniforms
-			Mat44f wvp = vp*worldMatrix;
-			Mat44f model2Shadow;
-			if(_shadows) // TODO: This should be world 2 shadow matrix
-				model2Shadow = _shadows->shadowProj() * worldMatrix;
-
-			// render
 			if(renderObj->materials.size() < renderObj->meshes.size())
 				continue;
+
 			++m_numRenderables;
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
+				// Reuse commands from previous frames
+				auto& command = mBackEnd.nextCommand();
+				command.reset();
+				// Optional sky
+				if(_scene.sky)
+					command.mTextureParams.push_back(make_pair(7,_scene.sky.get()));
+				if(_scene.irradiance)
+					command.mTextureParams.push_back(make_pair(8,_scene.irradiance.get()));
+				// Bind shadows
+				if(_shadows)
+				{
+					// TODO: Bind shadows to renderer
+					//glActiveTexture(GL_TEXTURE0+9);
+					//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
+				}
+				// Get world matrix
+				worldMatrix = renderObj->transform.matrix();
+				// Set up vertex uniforms
+				Mat44f wvp = vp*worldMatrix;
+				Mat44f model2Shadow;
+				if(_shadows) // TODO: This should be world 2 shadow matrix
+					model2Shadow = _shadows->shadowProj() * worldMatrix;
+
+				// render
+				const auto& material = *renderObj->materials[i];
 				// Setup material
-				auto shader = getShader(*renderObj->materials[i]);
+				auto shader = getShader(material);
 				if(!shader)
 					continue;
-				drawCall.shader = shader;
+				command.shader = shader;
+				material.bindParams(command);
 				// Matrices
-				drawCall.mMat44fParams.emplace_back(0, wvp);
-				drawCall.mMat44fParams.emplace_back(1, worldMatrix);
+				command.mMat44fParams.emplace_back(0, wvp);
+				command.mMat44fParams.emplace_back(1, worldMatrix);
 				if(_shadows) // TODO: This should be world 2 shadow matrix
-					drawCall.mMat44fParams.emplace_back(2, model2Shadow);
+					command.mMat44fParams.emplace_back(2, model2Shadow);
 				// Lighting
-				drawCall.mFloatParams.emplace_back(3, exposure); // EV
-				drawCall.mVec3fParams.emplace_back(4, wsEye);
-				drawCall.mVec3fParams.emplace_back(5, lightClr);
-				drawCall.mVec3fParams.emplace_back(6, lightDir);
+				command.mFloatParams.emplace_back(3, exposure); // EV
+				command.mVec3fParams.emplace_back(4, wsEye);
+				command.mVec3fParams.emplace_back(5, lightClr);
+				command.mVec3fParams.emplace_back(6, lightDir);
 				// Render mesh
-				drawCall.vao = renderObj->meshes[i]->getVao();
-				drawCall.nIndices = renderObj->meshes[i]->nIndices();
-				mBackEnd.batchCommand(drawCall);
+				command.vao = renderObj->meshes[i]->getVao();
+				command.nIndices = renderObj->meshes[i]->nIndices();
 				++m_numMeshes;
 			}
 		}

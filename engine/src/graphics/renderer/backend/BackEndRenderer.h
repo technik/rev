@@ -41,7 +41,7 @@ namespace rev{ namespace graphics {
 			std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
 			std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
 			std::vector<std::pair<GLint,math::Mat44f>>	mMat44fParams;
-			std::vector<std::pair<GLint,Texture*>>		mTextureParams;
+			std::vector<std::pair<GLint,const Texture*>>	mTextureParams;
 
 			void reset()
 			{
@@ -61,19 +61,27 @@ namespace rev{ namespace graphics {
 		{
 			// Don't clear command list to prevent realocating resources inside each command
 			mNumCommands = 0;
+			for(auto& c : mCommandList)
+				c.reset();
 		}
 
-		void batchCommand(const Command& _drawCall)
+		void reserve(size_t minSize)
+		{
+			mCommandList.resize(std::max(mCommandList.size(), minSize));
+		}
+
+		Command& nextCommand()
 		{
 			if(mNumCommands < mCommandList.size()) // Reuse allocations
 			{
-				mCommandList[mNumCommands] = _drawCall;
+				return mCommandList[mNumCommands++];
 			}
 			else
 			{
-				mCommandList.push_back(_drawCall);
+				mNumCommands++;
+				mCommandList.emplace_back(Command());
+				return mCommandList.back();
 			}
-			mNumCommands++;
 		}
 
 		void submitDraws()
@@ -82,12 +90,6 @@ namespace rev{ namespace graphics {
 			Shader*	shader = nullptr;
 			for(const auto& command : mCommandList)
 			{
-				if(vao != command.vao)
-				{
-					glBindVertexArray(vao);
-					vao = command.vao;
-					++usedVaos;
-				}
 				if(shader != command.shader)
 				{
 					shader = command.shader;
@@ -110,6 +112,13 @@ namespace rev{ namespace graphics {
 					glActiveTexture(GL_TEXTURE0+t);
 					glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
 				}
+				// Bind geometry
+				if(vao != command.vao)
+				{
+					vao = command.vao;
+					glBindVertexArray(vao);
+					++usedVaos;
+				}
 				glDrawElements(GL_TRIANGLES, command.nIndices, GL_UNSIGNED_SHORT, nullptr);
 			}
 		}
@@ -123,7 +132,8 @@ namespace rev{ namespace graphics {
 		void drawStats()
 		{
 			ImGui::Text("Vaos: %d", usedVaos);
-			ImGui::Text("Draw Calls: %d", usedShaders);
+			ImGui::Text("Shaders: %d", usedShaders);
+			ImGui::Text("CommandList size: %d", mCommandList.size());
 		}
 
 	private:

@@ -76,20 +76,14 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::bindParams(GraphicsDriverGL& driver) const
+	void Material::bindParams(BackEndRenderer::Command& cmd) const
 	{
-		for(const auto& f : mFloatParams)
-			driver.bindUniform(f.first, f.second);
-		for(const auto& v : mVec3fParams)
-			driver.bindUniform(v.first, v.second);
-		for(const auto& v : mVec4fParams)
-			driver.bindUniform(v.first, v.second);
-		for(GLenum t = 0; t < mTextureParams.size(); ++t)
+		cmd.mFloatParams.insert(cmd.mFloatParams.end(), mFloatParams.begin(), mFloatParams.end());
+		cmd.mVec3fParams.insert(cmd.mVec3fParams.end(), mVec3fParams.begin(), mVec3fParams.end());
+		cmd.mVec4fParams.insert(cmd.mVec4fParams.end(), mVec4fParams.begin(), mVec4fParams.end());
+		for(const auto& t : mTextureParams)
 		{
-			auto& textureParam = mTextureParams[t];
-			glUniform1i(textureParam.first, t);
-			glActiveTexture(GL_TEXTURE0+t);
-			glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
+			cmd.mTextureParams.emplace_back(t.first, t.second.get());
 		}
 	}
 

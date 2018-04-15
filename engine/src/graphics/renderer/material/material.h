@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+#include <graphics/renderer/backend/BackEndRenderer.h>
 #include <graphics/driver/texture.h>
 #include <math/algebra/vector.h>
 #include <memory>
@@ -43,7 +43,7 @@ namespace rev { namespace graphics {
 		void addTexture(const std::string& name, TexturePtr t);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(GraphicsDriverGL& driver) const;
+		void bindParams(BackEndRenderer::Command& command) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;
