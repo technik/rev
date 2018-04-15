@@ -28,13 +28,148 @@
 #include <graphics/scene/renderObj.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
+#include <memory>
+#include <vector>
 
 using Json = rev::core::Json;
 
 using namespace rev::graphics;
 using namespace rev::math;
+using namespace std;
 
 namespace rev { namespace game {
+
+	std::unique_ptr<Transform> loadNodeTransform(const Json& _nodeDesc)
+	{
+		auto nodeTransform = std::make_unique<game::Transform>();
+		bool useTransform = false;
+		if(_nodeDesc.find("matrix") != _nodeDesc.end())
+		{
+			useTransform = true;
+			auto& matrixDesc = _nodeDesc["matrix"];
+			for(size_t i = 0; i < 3; ++i)
+				for(size_t j = 0; j < 4; ++j)
+					nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
+		}
+		if(_nodeDesc.find("rotation") != _nodeDesc.end())
+		{
+			useTransform = true;
+			auto& rotDesc = _nodeDesc["rotation"];
+			Quatf rot {
+				rotDesc[0].get<float>(),
+				rotDesc[1].get<float>(),
+				rotDesc[2].get<float>(),
+				rotDesc[3].get<float>()
+			};
+			nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
+		}
+		if(_nodeDesc.find("translation") != _nodeDesc.end())
+		{
+			useTransform = true;
+			auto& posDesc = _nodeDesc["translation"];
+			for(size_t i = 0; i < 3; ++i)
+				nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
+		}
+		if(_nodeDesc.find("scale") != _nodeDesc.end())
+		{
+			useTransform = true;
+			auto& scaleDesc = _nodeDesc["scale"];
+			Mat33f scale = Mat33f::identity();
+			for(size_t i = 0; i < 3; ++i)
+				scale(i,i) = scaleDesc[i].get<float>();
+			nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
+		}
+		if(useTransform)
+			return std::move(nodeTransform);
+		else
+			return nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void loadNodes(
+		const Json& _nodeArrayDesc,
+		vector<shared_ptr<SceneNode>>& _sceneNodes,
+		std::vector<gltf::Mesh>	_meshes,
+		std::vector<std::shared_ptr<graphics::Material>> _materials,
+		std::shared_ptr<Material> _defaultMaterial,
+		std::vector<gltf::Light> _lights,
+		graphics::RenderScene& _gfxWorld)
+	{
+		for(auto& nodeDesc : _nodeArrayDesc)
+		{
+			auto node = std::make_shared<SceneNode>();
+			_sceneNodes.push_back(node);
+			// Node name
+			auto nameIter = nodeDesc.find("name");
+			if(nameIter != nodeDesc.end())
+				node->name = nameIter.value().get<std::string>();
+			// Node transform
+			auto nodeTransform = loadNodeTransform(nodeDesc);
+			if(nodeTransform)
+				node->addComponent(std::move(nodeTransform));
+			
+			// Optional light
+			if(nodeDesc.find("light") != nodeDesc.end())
+			{
+				int ndx = nodeDesc["light"].get<int>();
+				auto& l = _lights[ndx];
+				if(l.mType == gltf::Light::Spot)
+				{
+					node->addComponent<game::SpotLight>(_gfxWorld, l.mAngle, l.mRange, l.mColor);
+				}
+			}
+			// Optional node mesh
+			auto meshIter = nodeDesc.find("mesh");
+			if(meshIter != nodeDesc.end())
+			{
+				auto renderObj = std::make_shared<graphics::RenderObj>();
+
+				size_t meshNdx = meshIter.value();
+				auto& gltfMesh = _meshes[meshNdx];
+				for(auto& primitive : gltfMesh.primitives)
+				{
+					// Copy index data
+					std::vector<uint16_t> indices(primitive.indices->count);
+					if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
+					{
+						memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
+					}
+					else
+						return;
+
+					std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
+					for(size_t i = 0; i < vertices.size(); ++i)
+					{
+						auto& v = vertices[i];
+						assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
+						assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
+						assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
+						assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
+						v.position = *(math::Vec3f*)(primitive.position->element(i));
+						v.normal = *(math::Vec3f*)(primitive.normal->element(i));
+						auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
+						v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+						v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+						v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
+					}
+
+					// TODO: Share meshes
+					renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
+					if(_materials.empty())
+					{
+						renderObj->materials.push_back(_defaultMaterial);
+					}
+					else
+						renderObj->materials.push_back(_materials[0]); // TODO
+				}
+
+				auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
+				_gfxWorld.renderables().push_back(renderObj);
+
+				node->addComponent(std::move(nodeMesh));
+			}
+		}
+	}
 
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(SceneNode* _parentNode, const std::string& assetsFolder, const std::string& fileName, graphics::RenderScene& _gfxWorld)
@@ -173,116 +308,8 @@ namespace rev { namespace game {
 
 		// Load nodes
 		std::vector<std::shared_ptr<SceneNode>> nodes;
-		for(auto& nodeDesc : sceneDesc["nodes"])
-		{
-			auto node = std::make_shared<SceneNode>();
-			nodes.push_back(node);
-			// Node name
-			auto nameIter = nodeDesc.find("name");
-			if(nameIter != nodeDesc.end())
-				node->name = nameIter.value().get<std::string>();
-			// Node transform
-			auto nodeTransform = std::make_unique<game::Transform>();
-			bool useTransform = false;
-			if(nodeDesc.find("matrix") != nodeDesc.end())
-			{
-				useTransform = true;
-				auto& matrixDesc = nodeDesc["matrix"];
-				for(size_t i = 0; i < 3; ++i)
-					for(size_t j = 0; j < 4; ++j)
-						nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
-			}
-			if(nodeDesc.find("rotation") != nodeDesc.end())
-			{
-				useTransform = true;
-				auto& rotDesc = nodeDesc["rotation"];
-				Quatf rot {
-					rotDesc[0].get<float>(),
-					rotDesc[1].get<float>(),
-					rotDesc[2].get<float>(),
-					rotDesc[3].get<float>()
-				};
-				nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
-			}
-			if(nodeDesc.find("translation") != nodeDesc.end())
-			{
-				useTransform = true;
-				auto& posDesc = nodeDesc["translation"];
-				for(size_t i = 0; i < 3; ++i)
-					nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
-			}
-			if(nodeDesc.find("scale") != nodeDesc.end())
-			{
-				useTransform = true;
-				auto& scaleDesc = nodeDesc["scale"];
-				Mat33f scale = Mat33f::identity();
-				for(size_t i = 0; i < 3; ++i)
-					scale(i,i) = scaleDesc[i].get<float>();
-				nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
-			}
-			if(useTransform)
-				node->addComponent(std::move(nodeTransform));
-			// Optional light
-			if(nodeDesc.find("light") != nodeDesc.end())
-			{
-				int ndx = nodeDesc["light"].get<int>();
-				auto& l = lights[ndx];
-				if(l.mType == gltf::Light::Spot)
-				{
-					node->addComponent<game::SpotLight>(_gfxWorld, l.mAngle, l.mRange, l.mColor);
-				}
-			}
-			// Optional node mesh
-			auto meshIter = nodeDesc.find("mesh");
-			if(meshIter != nodeDesc.end())
-			{
-				auto renderObj = std::make_shared<graphics::RenderObj>();
-
-				size_t meshNdx = meshIter.value();
-				auto& gltfMesh = meshes[meshNdx];
-				for(auto& primitive : gltfMesh.primitives)
-				{
-					// Copy index data
-					std::vector<uint16_t> indices(primitive.indices->count);
-					if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
-					{
-						memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
-					}
-					else
-						return;
-
-					std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
-					for(size_t i = 0; i < vertices.size(); ++i)
-					{
-						auto& v = vertices[i];
-						assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
-						v.position = *(math::Vec3f*)(primitive.position->element(i));
-						v.normal = *(math::Vec3f*)(primitive.normal->element(i));
-						auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
-						v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
-						v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
-						v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
-					}
-
-					// TODO: Share meshes
-					renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
-					if(materials.empty())
-					{
-						renderObj->materials.push_back(defaultMaterial);
-					}
-					else
-						renderObj->materials.push_back(materials[0]); // TODO
-				}
-
-				auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
-				_gfxWorld.renderables().push_back(renderObj);
-
-				node->addComponent(std::move(nodeMesh));
-			}
-		}
+		loadNodes(sceneDesc["nodes"], nodes, meshes, materials, defaultMaterial, lights, _gfxWorld);
+		
 		// Rebuild hierarchy
 		size_t i = 0;
 		for(auto& nodeDesc : sceneDesc["nodes"])

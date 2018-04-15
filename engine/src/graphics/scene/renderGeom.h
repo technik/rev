@@ -55,47 +55,6 @@ namespace rev { namespace graphics {
 			glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT, nullptr);
 		}
 
-		void deserialize(std::istream& _in)
-		{
-			assert(!_in.eof() && !_in.bad());
-			// Load header
-			uint32_t nVertices = 0, nIndices = 0;
-			_in.read((char*)&nVertices, sizeof(nVertices));
-			_in.read((char*)&nIndices, sizeof(nIndices));
-			// Load vertex data
-			mVertices.resize(nVertices);
-			_in.read((char*)mVertices.data(), sizeof(Vertex)*nVertices);
-			// Load indices
-			mIndices.resize(nIndices);
-			_in.read((char*)mIndices.data(), sizeof(uint16_t)*nIndices);
-			if(!_in)
-			{
-				if(_in.badbit & _in.rdstate())
-					return;
-				if(_in.eofbit & _in.rdstate())
-					return;
-				if(_in.failbit & _in.rdstate())
-					return;
-				return;
-			}
-			if(_in.eof())
-				return;
-			initOpenGL();
-		}
-
-		void serialize(std::ostream& _out) const
-		{
-			// Save header
-			uint32_t nVertices = mVertices.size();
-			_out.write((char*)&nVertices, sizeof(nVertices));
-			uint32_t nIndices = mIndices.size();
-			_out.write((char*)&nIndices, sizeof(nIndices));
-			// Save vertex data
-			_out.write((const char*)mVertices.data(), sizeof(Vertex)*(size_t)nVertices);
-			// Save index data
-			_out.write((const char*)mIndices.data(), sizeof(uint16_t)*(size_t)nIndices);
-		}
-
 	private:
 		void initOpenGL() {
 			// Create geometry
