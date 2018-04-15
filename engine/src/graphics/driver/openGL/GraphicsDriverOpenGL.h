@@ -38,6 +38,11 @@ namespace rev { namespace graphics {
 			glUniform4f(pos, f.x(), f.y(), f.z(), f.w());
 		}
 
+		void bindUniform(GLint pos, const math::Mat44f& m)
+		{
+			glUniformMatrix4fv(pos, 1, !Mat44f::is_col_major, m.data());
+		}
+
 		// True when errors are found
 		static bool checkGLErrors()
 		{

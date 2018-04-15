@@ -45,6 +45,7 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	ForwardPass::ForwardPass(GraphicsDriverGL& _gfxDriver)
 		: mDriver(_gfxDriver)
+		, mBackEnd(_gfxDriver)
 	{
 		loadCommonShaderCode();
 		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
@@ -137,6 +138,8 @@ namespace rev { namespace graphics {
 			loadCommonShaderCode();
 		}
 #endif
+		mBackEnd.beginPass();
+
 		_dst.bind();
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
@@ -162,27 +165,24 @@ namespace rev { namespace graphics {
 		auto& lightClr = _scene.lightClr();
 		Vec3f lightDir = -_scene.mLightDir;
 
-		if(_scene.sky)
-		{
-			glActiveTexture(GL_TEXTURE0+7);
-			glBindTexture(GL_TEXTURE_2D, _scene.sky->glName());
-		}
-		if(_scene.irradiance)
-		{
-			glActiveTexture(GL_TEXTURE0+8);
-			glBindTexture(GL_TEXTURE_2D, _scene.irradiance->glName());
-		}
-		// Bind shadows
-		if(_shadows)
-		{
-			glActiveTexture(GL_TEXTURE0+9);
-			glBindTexture(GL_TEXTURE_2D, _shadows->texName());
-		}
-
+		// Iterate over renderables
+		BackEndRenderer::Command drawCall;
 		Mat44f worldMatrix = Mat44f::identity();
-		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
+			drawCall.reset();
+			// Optional sky
+			if(_scene.sky)
+				drawCall.mTextureParams.push_back(make_pair(7,&*_scene.sky));
+			if(_scene.irradiance)
+				drawCall.mTextureParams.push_back(make_pair(8,&*_scene.irradiance));
+			// Bind shadows
+			if(_shadows)
+			{
+				// TODO: Bind shadows to renderer
+				//glActiveTexture(GL_TEXTURE0+9);
+				//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
+			}
 			auto renderObj = renderable.lock();
 			// Get world matrix
 			worldMatrix = renderObj->transform.matrix();
@@ -208,19 +208,12 @@ namespace rev { namespace graphics {
 					if(_shadows) // TODO: This should be world 2 shadow matrix
 						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, model2Shadow.data());
 					// Lighting
-					glUniform1f(3, exposure); // EV
-					glUniform3f(4, wsEye.x(), wsEye.y(), wsEye.z());
-					glUniform3f(5, lightClr.x(), lightClr.y(), lightClr.z()); // Light color
-					glUniform3f(6, lightDir.x(), lightDir.y(), lightDir.z());
-					if(_scene.sky)
-						glUniform1i(7, 7);
-					if(_scene.irradiance)
-						glUniform1i(8, 8);
-					// Bind shadows
-					if(_shadows)
-						glUniform1i(9, 9);
+					drawCall.mFloatParams.emplace_back(3, exposure); // EV
+					drawCall.mVec3fParams.emplace_back(4, wsEye);
+					drawCall.mVec3fParams.emplace_back(5, lightClr);
+					drawCall.mVec3fParams.emplace_back(6, lightDir);
 					// Render mesh
-					renderObj->meshes[i]->render();
+					mBackEnd.batchCommand(drawCall);
 				}
 			}
 		}

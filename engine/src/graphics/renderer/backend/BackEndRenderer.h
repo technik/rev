@@ -42,6 +42,7 @@ namespace rev{ namespace graphics {
 			std::vector<std::pair<GLint,float>>			mFloatParams;
 			std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
 			std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
+			std::vector<std::pair<GLint,math::Mat44f>>	mMat44fParams;
 			std::vector<std::pair<GLint,Texture*>>		mTextureParams;
 
 			void reset()
@@ -49,9 +50,14 @@ namespace rev{ namespace graphics {
 				mFloatParams.clear();
 				mVec3fParams.clear();
 				mVec4fParams.clear();
+				mMat44fParams.clear();
 				mTextureParams.clear();
 			}
 		};
+
+		BackEndRenderer(GraphicsDriverGL& driver)
+			: mDriver(driver)
+		{}
 
 		void beginPass()
 		{
@@ -90,6 +96,22 @@ namespace rev{ namespace graphics {
 					++usedShaders;
 					shader->bind();
 				}
+				// Bind params
+				for(const auto& f : command.mFloatParams)
+					mDriver.bindUniform(f.first, f.second);
+				for(const auto& v : command.mVec3fParams)
+					mDriver.bindUniform(v.first, v.second);
+				for(const auto& v : command.mVec4fParams)
+					mDriver.bindUniform(v.first, v.second);
+				for(const auto& m : command.mMat44fParams)
+					mDriver.bindUniform(m.first, m.second);
+				for(GLenum t = 0; t < command.mTextureParams.size(); ++t)
+				{
+					auto& textureParam = command.mTextureParams[t];
+					glUniform1i(textureParam.first, t);
+					glActiveTexture(GL_TEXTURE0+t);
+					glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
+				}
 				glDrawElements(GL_TRIANGLES, command.nIndices, GL_UNSIGNED_SHORT, nullptr);
 			}
 		}
@@ -114,6 +136,8 @@ namespace rev{ namespace graphics {
 		// Command lists
 		std::vector<Command>	mCommandList;
 		unsigned				mNumCommands;
+
+		GraphicsDriverGL&	mDriver;
 	};
 
 }}
