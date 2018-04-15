@@ -170,12 +170,11 @@ namespace rev { namespace graphics {
 			{
 				// Reuse commands from previous frames
 				auto& command = mBackEnd.beginCommand();
-				command.reset();
 				// Optional sky
 				if(_scene.sky)
-					command.mTextureParams.push_back(make_pair(7,_scene.sky.get()));
+					mBackEnd.addParam(7, _scene.sky.get());
 				if(_scene.irradiance)
-					command.mTextureParams.push_back(make_pair(8,_scene.irradiance.get()));
+					mBackEnd.addParam(8,_scene.irradiance.get());
 				// Bind shadows
 				if(_shadows)
 				{
@@ -198,12 +197,12 @@ namespace rev { namespace graphics {
 				if(!shader)
 					continue;
 				command.shader = shader;
-				material.bindParams(command, mBackEnd);
+				material.bindParams(mBackEnd);
 				// Matrices
-				command.mMat44fParams.emplace_back(0, wvp);
-				command.mMat44fParams.emplace_back(1, worldMatrix);
+				mBackEnd.addParam(0, wvp);
+				mBackEnd.addParam(1, worldMatrix);
 				if(_shadows) // TODO: This should be world 2 shadow matrix
-					command.mMat44fParams.emplace_back(2, model2Shadow);
+					mBackEnd.addParam(2, model2Shadow);
 				// Lighting
 				mBackEnd.addParam(3, exposure); // EV
 				mBackEnd.addParam(4, wsEye);

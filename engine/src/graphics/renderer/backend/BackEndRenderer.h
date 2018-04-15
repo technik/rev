@@ -41,14 +41,8 @@ namespace rev{ namespace graphics {
 			std::pair<int,int>	mFloatParams;
 			std::pair<int,int>	mVec3fParams;
 			std::pair<int,int>	mVec4fParams;
-			std::vector<std::pair<GLint,math::Mat44f>>	mMat44fParams;
-			std::vector<std::pair<GLint,const Texture*>>	mTextureParams;
-
-			void reset()
-			{
-				mMat44fParams.clear();
-				mTextureParams.clear();
-			}
+			std::pair<int,int>	mMat44fParams;
+			std::pair<int,int>	mTextureParams;
 		};
 
 		BackEndRenderer(GraphicsDriverGL& driver)
@@ -59,14 +53,18 @@ namespace rev{ namespace graphics {
 		{
 			// Don't clear command list to prevent realocating resources inside each command
 			mNumCommands = 0;
-			for(auto& c : mCommandList)
-				c.reset();
+			// Clear uniform indices
 			mFloatIndices.clear();
-			mFloatParams.clear();
 			mVec3fIndices.clear();
-			mVec3fParams.clear();
 			mVec4fIndices.clear();
+			mMat44fIndices.clear();
+			mTextureIndices.clear();
+			// Clear uniform params
+			mFloatParams.clear();
+			mVec3fParams.clear();
 			mVec4fParams.clear();
+			mMat44fParams.clear();
+			mTextureParams.clear();
 		}
 
 		void endCommand()
@@ -75,6 +73,8 @@ namespace rev{ namespace graphics {
 			cmd.mFloatParams.second = mFloatParams.size();
 			cmd.mVec3fParams.second = mVec3fParams.size();
 			cmd.mVec4fParams.second = mVec4fParams.size();
+			cmd.mMat44fParams.second = mMat44fParams.size();
+			cmd.mTextureParams.second = mTextureParams.size();
 		}
 
 		void endPass()
@@ -102,6 +102,8 @@ namespace rev{ namespace graphics {
 			cmd->mFloatParams.first = mFloatParams.size();
 			cmd->mVec3fParams.first = mVec3fParams.size();
 			cmd->mVec4fParams.first = mVec4fParams.size();
+			cmd->mMat44fParams.first = mMat44fParams.size();
+			cmd->mTextureParams.first = mTextureParams.size();
 			return *cmd;
 		}
 
@@ -121,6 +123,18 @@ namespace rev{ namespace graphics {
 		{
 			mVec4fIndices.push_back(index);
 			mVec4fParams.push_back(v);
+		}
+
+		void addParam(GLint index, const math::Mat44f& v)
+		{
+			mMat44fIndices.push_back(index);
+			mMat44fParams.push_back(v);
+		}
+
+		void addParam(GLint index, const Texture* v)
+		{
+			mTextureIndices.push_back(index);
+			mTextureParams.push_back(v);
 		}
 
 		void submitDraws()
@@ -148,14 +162,17 @@ namespace rev{ namespace graphics {
 				{
 					mDriver.bindUniform(mVec4fIndices[i], mVec4fParams[i]);
 				}
-				for(const auto& m : command.mMat44fParams)
-					mDriver.bindUniform(m.first, m.second);
-				for(GLenum t = 0; t < command.mTextureParams.size(); ++t)
+				for(int i = command.mMat44fParams.first; i < command.mMat44fParams.second; ++i)
 				{
-					auto& textureParam = command.mTextureParams[t];
-					glUniform1i(textureParam.first, t);
-					glActiveTexture(GL_TEXTURE0+t);
-					glBindTexture(GL_TEXTURE_2D, textureParam.second->glName());
+					mDriver.bindUniform(mMat44fIndices[i], mMat44fParams[i]);
+				}
+				int textureStage = 0;
+				for(int i = command.mTextureParams.first; i < command.mTextureParams.second; ++i)
+				{
+					glUniform1i(mTextureIndices[i], textureStage);
+					glActiveTexture(GL_TEXTURE0+textureStage);
+					++textureStage;
+					glBindTexture(GL_TEXTURE_2D, mTextureParams[i]->glName());
 				}
 				// Bind geometry
 				if(vao != command.vao)
@@ -198,6 +215,10 @@ namespace rev{ namespace graphics {
 		std::vector<GLint> mVec3fIndices;
 		std::vector<math::Vec4f> mVec4fParams;
 		std::vector<GLint> mVec4fIndices;
+		std::vector<math::Mat44f>	mMat44fParams;
+		std::vector<GLint> mMat44fIndices;
+		std::vector<const Texture*>	mTextureParams;
+		std::vector<GLint> mTextureIndices;
 
 		GraphicsDriverGL&	mDriver;
 	};
