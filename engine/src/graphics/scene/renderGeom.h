@@ -12,6 +12,92 @@ namespace rev { namespace graphics {
 
 	class RenderGeom {
 	public:
+
+		struct Pool
+		{
+			struct DataLocator
+			{
+				GLuint vbo;
+				GLvoid* byteOffset;
+			};
+
+			Pool()
+			{
+				glGenBuffers(1,&mVtxData.vbo);
+				glGenBuffers(1,&mNdxData.vbo);
+			}
+
+			~Pool()
+			{
+				glDeleteBuffers(1,&mVtxData.vbo);
+				glDeleteBuffers(1,&mNdxData.vbo);
+			}
+
+			DataLocator addVertexBufferData(GLvoid* data, GLuint size)
+			{
+				return addBufferData(data, size, mVtxData);
+			}
+
+			DataLocator addIndexBufferData(GLvoid* data, GLuint size)
+			{
+				return addBufferData(data, size, mNdxData);
+			}
+
+			void submit()
+			{
+				// Submit vertex data
+				glBindBuffer(GL_ARRAY_BUFFER, mVtxData.vbo);
+				glBufferData(
+					GL_ARRAY_BUFFER,
+					mVtxData.data.size(),
+					mVtxData.data.data(),
+					GL_STATIC_DRAW);
+				// Submit index data
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mVtxData.vbo);
+				glBufferData(
+					GL_ARRAY_BUFFER,
+					mVtxData.data.size(),
+					mVtxData.data.data(),
+					GL_STATIC_DRAW);
+			}
+
+		private:
+
+			struct Buffer {
+				std::vector<uint8_t>	data;
+				GLuint vbo;
+			};
+
+			DataLocator addBufferData(GLvoid* _data, GLuint _size, Buffer& _targetBuffer)
+			{
+				const GLuint maxPrevDataSize = GLuint(uint16_t(-1)) - _size;
+				DataLocator loc;
+				if(_targetBuffer.data.size() < maxPrevDataSize) // Data fits in the buffer
+				{
+					auto offset = _targetBuffer.data.size();
+					loc.byteOffset = (GLvoid*)offset;
+					loc.vbo = _targetBuffer.vbo;
+					_targetBuffer.data.resize(offset+_size);
+					memcpy(&_targetBuffer.data[offset], _data, _size);
+				}
+				else
+				{
+					loc.vbo = 0;
+				}
+				loc.vbo = _targetBuffer.vbo;
+				return loc;
+			}
+			Buffer mVtxData;
+			Buffer mNdxData;
+		};
+
+		struct Attribute
+		{
+			GLvoid* byteOffset;
+			GLuint nElements;
+			GLuint stride;
+		};
+		
 		struct Vertex {
 			math::Vec3f position, tangent, bitangent, normal;
 			math::Vec2f	uv;
