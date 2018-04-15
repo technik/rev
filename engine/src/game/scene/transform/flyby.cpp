@@ -47,7 +47,7 @@ namespace rev {
 
 			// Rotation
 			float angSpd = 0.f;
-			float deltaG = 0.8f;
+			float deltaG = mAngSpd;
 			if (input->held(KeyboardInput::Key::KeyRight))	angSpd -= deltaG;
 			if (input->held(KeyboardInput::Key::KeyLeft))	angSpd += deltaG;
 

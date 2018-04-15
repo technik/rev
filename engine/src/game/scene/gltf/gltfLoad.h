@@ -18,26 +18,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "../component.h"
-#include "transform.h"
+
+#include <string>
+#include "../sceneNode.h"
+#include <graphics/scene/renderScene.h>
 
 namespace rev { namespace game {
 
-	class FlyBy : public Component
-	{
-	public:
-		FlyBy(float _spd, float _angSpd)
-			: mSpeed(_spd)
-			, mAngSpd(_angSpd)
-		{}
-
-		void init		() override;
-		void update		(float _dt) override;
-
-	private:
-		float mSpeed;
-		float mAngSpd;
-		Transform*	mSrcTransform;
-	};
-
-}}	// namespace rev::game
+	/// Load a gltf scene
+	/// Add renderable content to _gfxWorld
+	/// Use assetFolder to locate resources referenced from inside the scene
+	/// Filename must not contain the extension
+	/// If parentNode is not nullptr, all the scene nodes will be added as children to it
+	void loadGLTFScene(
+		SceneNode* parentNode,
+		const std::string& assetsFolder,
+		const std::string& fileName,
+		graphics::RenderScene& _gfxWorld);
+}}
