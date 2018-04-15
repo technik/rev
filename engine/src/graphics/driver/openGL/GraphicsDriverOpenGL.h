@@ -8,6 +8,7 @@
 
 #include <core/tools/log.h>
 #include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 #include <graphics/driver/DefaultFrameBuffer.h>
 #include <memory>
 
@@ -40,7 +41,7 @@ namespace rev { namespace graphics {
 
 		void bindUniform(GLint pos, const math::Mat44f& m)
 		{
-			glUniformMatrix4fv(pos, 1, !Mat44f::is_col_major, m.data());
+			glUniformMatrix4fv(pos, 1, !math::Mat44f::is_col_major, m.data());
 		}
 
 		// True when errors are found

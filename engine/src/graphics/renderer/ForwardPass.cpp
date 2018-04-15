@@ -64,45 +64,29 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::loadShader(const Material& material)
+	Shader* ForwardPass::getShader(const Material& mat)
 	{
-		auto shader = Shader::createShader({
-			material.bakedOptions().c_str(),
-			mForwardShaderCommonCode.c_str(),
-			material.effect().code().c_str()
-		});
-		if(shader)
+		// Locate the proper pipeline set
+		auto setIter = mPipelines.find(&mat.effect());
+		if(setIter == mPipelines.end())
 		{
-			auto shaderP = shader.get();
-			mPipelines.insert(std::make_pair(&material, std::move(shader)));
-			return shaderP;
-		} else
-			return nullptr;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	bool ForwardPass::bindMaterial(const Material& mat)
-	{
-		// Find shader
-		auto shaderIter = mPipelines.find(&mat);
-		if(shaderIter == mPipelines.end())
-		{
-			// Try to load shader
-			auto shader = loadShader(mat);
-			if(shader)
-				shader->bind();
-			else
-			{
-				if(&mat != mErrorMaterial.get())
-					return bindMaterial(*mErrorMaterial);
-				return false;
-			}
+			setIter = mPipelines.emplace(
+				&mat.effect(),
+				PipelineSet()
+			).first;
 		}
-		else
-			shaderIter->second->bind();
-
-		mat.bindParams(mDriver);
-		return true;
+		auto& pipelineSet = setIter->second;
+		// Locate the proper shader in the set
+		const auto& descriptor = mat.bakedOptions(); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
+		auto iter = pipelineSet.find(descriptor);
+		if(iter == pipelineSet.end())
+		{
+			iter = pipelineSet.emplace(
+				descriptor,
+				loadShader(mat)
+			).first;
+		}
+		return iter->second.get();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -138,6 +122,7 @@ namespace rev { namespace graphics {
 			loadCommonShaderCode();
 		}
 #endif
+		mBackEnd.beginFrame();
 		mBackEnd.beginPass();
 
 		_dst.bind();
@@ -173,9 +158,9 @@ namespace rev { namespace graphics {
 			drawCall.reset();
 			// Optional sky
 			if(_scene.sky)
-				drawCall.mTextureParams.push_back(make_pair(7,&*_scene.sky));
+				drawCall.mTextureParams.push_back(make_pair(7,_scene.sky.get()));
 			if(_scene.irradiance)
-				drawCall.mTextureParams.push_back(make_pair(8,&*_scene.irradiance));
+				drawCall.mTextureParams.push_back(make_pair(8,_scene.irradiance.get()));
 			// Bind shadows
 			if(_shadows)
 			{
@@ -199,24 +184,29 @@ namespace rev { namespace graphics {
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				// Setup material
-				if(bindMaterial(*renderObj->materials[i]))
-				{
-					++m_numMeshes;
-					// Matrices
-					glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-					glUniformMatrix4fv(1, 1, !Mat44f::is_col_major, worldMatrix.data());
-					if(_shadows) // TODO: This should be world 2 shadow matrix
-						glUniformMatrix4fv(2, 1, !Mat44f::is_col_major, model2Shadow.data());
-					// Lighting
-					drawCall.mFloatParams.emplace_back(3, exposure); // EV
-					drawCall.mVec3fParams.emplace_back(4, wsEye);
-					drawCall.mVec3fParams.emplace_back(5, lightClr);
-					drawCall.mVec3fParams.emplace_back(6, lightDir);
-					// Render mesh
-					mBackEnd.batchCommand(drawCall);
-				}
+				auto shader = getShader(*renderObj->materials[i]);
+				if(!shader)
+					continue;
+				drawCall.shader = shader;
+				// Matrices
+				drawCall.mMat44fParams.emplace_back(0, wvp);
+				drawCall.mMat44fParams.emplace_back(1, worldMatrix);
+				if(_shadows) // TODO: This should be world 2 shadow matrix
+					drawCall.mMat44fParams.emplace_back(2, model2Shadow);
+				// Lighting
+				drawCall.mFloatParams.emplace_back(3, exposure); // EV
+				drawCall.mVec3fParams.emplace_back(4, wsEye);
+				drawCall.mVec3fParams.emplace_back(5, lightClr);
+				drawCall.mVec3fParams.emplace_back(6, lightDir);
+				// Render mesh
+				drawCall.vao = renderObj->meshes[i]->getVao();
+				drawCall.nIndices = renderObj->meshes[i]->nIndices();
+				mBackEnd.batchCommand(drawCall);
+				++m_numMeshes;
 			}
 		}
+
+		mBackEnd.submitDraws();
 
 		// Render skybox
 		if(_scene.sky) {
@@ -242,6 +232,7 @@ namespace rev { namespace graphics {
 		{
 			ImGui::Text("Renderables: %d", m_numRenderables);
 			ImGui::Text("Meshes: %d", m_numMeshes);
+			mBackEnd.drawStats();
 			ImGui::End();
 		}
 		ImGui::PopStyleColor();

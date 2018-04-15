@@ -35,8 +35,6 @@ namespace rev{ namespace graphics {
 		struct Command
 		{
 			GLuint vao;
-			GLuint vtxVbo;
-			GLuint ndxVbo;
 			unsigned nIndices;
 			Shader*	shader;
 			std::vector<std::pair<GLint,float>>			mFloatParams;
@@ -116,13 +114,13 @@ namespace rev{ namespace graphics {
 			}
 		}
 
-		static void beginFrame()
+		void beginFrame()
 		{
 			usedVaos = 0;
 			usedShaders = 0;
 		}
 
-		static void drawStats()
+		void drawStats()
 		{
 			ImGui::Text("Vaos: %d", usedVaos);
 			ImGui::Text("Draw Calls: %d", usedShaders);
@@ -130,8 +128,9 @@ namespace rev{ namespace graphics {
 
 	private:
 		// Stat counters
-		static unsigned usedVaos;
-		static unsigned usedShaders;
+		// TODO: Share this between backends, or share the backend itself (worse for time coherency?)
+		unsigned usedVaos;
+		unsigned usedShaders;
 
 		// Command lists
 		std::vector<Command>	mCommandList;

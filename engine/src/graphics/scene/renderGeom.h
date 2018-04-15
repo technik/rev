@@ -46,6 +46,9 @@ namespace rev { namespace graphics {
 			return RenderGeom(vertexData, indices);
 		}
 
+		GLuint getVao() const { return vao; }
+		unsigned nIndices() const { return mIndices.size(); }
+
 		void render() const
 		{
 			glBindVertexArray(vao);
