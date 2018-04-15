@@ -212,8 +212,6 @@ namespace rev { namespace graphics {
 				// Lighting
 				mBackEnd.addParam(3, exposure); // EV
 				mBackEnd.addParam(4, wsEye);
-				mBackEnd.addParam(5, lightClr);
-				mBackEnd.addParam(6, lightDir);
 				// Render mesh
 				command.vao = renderObj->meshes[i]->getVao();
 				command.nIndices = renderObj->meshes[i]->nIndices();

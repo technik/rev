@@ -359,12 +359,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
 	vec3 diffColor = baseColor*(1.0-metallic);
 
-	vec3 directLight = directLightPBR(
+	/*vec3 directLight = directLightPBR(
 		inputs,
 		diffColor,
 		specColor,
 		roughness,
-		metallic);
+		metallic);*/
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,
@@ -382,7 +382,8 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return emissive;
 	//return physics;
 	//return albedo;
-	return directLight + indirectLight + emissive;
+	//return directLight + indirectLight + emissive;
+	return indirectLight + emissive;
 	//return directLight + emissive;
 }
 
