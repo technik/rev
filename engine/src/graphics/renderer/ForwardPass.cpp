@@ -94,7 +94,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure)
+	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture)
 	{
 		if(!mBackgroundShader)
 		{
@@ -104,13 +104,19 @@ namespace rev { namespace graphics {
 		}
 		if(mBackgroundShader)
 		{
+			auto& cmd = mBackEnd.beginCommand();
 			mBackgroundShader->bind();
+			
 			// View projection matrix
-			glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, viewProj.data());
+			mBackEnd.addParam(0, viewProj);
 			// Lighting
-			glUniform1f(3, exposure); // EV
-			glUniform1i(7, 7); // Sky texture. Assumes sky texture in texture stage 7.
-			mSkyPlane->render();
+			mBackEnd.addParam(3, exposure);
+			mBackEnd.addParam(7, bgTexture);
+			cmd.shader = mBackgroundShader.get();
+			cmd.vao = mSkyPlane->getVao();
+			cmd.nIndices = mSkyPlane->nIndices();
+
+			mBackEnd.endCommand();
 		}
 	}
 
@@ -216,13 +222,12 @@ namespace rev { namespace graphics {
 			}
 		}
 
+		// Render skybox
+		if(_scene.sky)
+			renderBackground(vp, exposure, _scene.sky.get());
+
 		mBackEnd.endPass();
 		mBackEnd.submitDraws();
-
-		// Render skybox
-		if(_scene.sky) {
-			renderBackground(vp, exposure);
-		}
 
 		drawStats();
 	}

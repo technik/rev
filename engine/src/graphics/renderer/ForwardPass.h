@@ -42,9 +42,7 @@ namespace rev{ namespace graphics {
 
 	private:
 		void loadCommonShaderCode();
-		Shader* loadShader(const Material& fileName);
-		bool bindMaterial(const Material&);
-		void renderBackground(const math::Mat44f& viewProj, float exposure);
+		void renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture);
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;
