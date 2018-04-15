@@ -20,6 +20,7 @@
 #pragma once
 #include <memory>
 #include <graphics/driver/shader.h>
+#include <graphics/renderer/backend/BackEndRenderer.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <unordered_map>
@@ -58,11 +59,10 @@ namespace rev{ namespace graphics {
 		std::unique_ptr<RenderGeom> mSkyPlane;
 
 		// Internal rendering structures
-		// TODO
+		BackEndRenderer	mBackEnd;
 
 		void drawStats();
 		void resetStats();
-		unsigned m_numDrawCalls;
 		unsigned m_numRenderables;
 		unsigned m_numMeshes;
 	};

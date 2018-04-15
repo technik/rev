@@ -220,7 +220,6 @@ namespace rev { namespace graphics {
 					if(_shadows)
 						glUniform1i(9, 9);
 					// Render mesh
-					++m_numDrawCalls;
 					renderObj->meshes[i]->render();
 				}
 			}
@@ -228,7 +227,6 @@ namespace rev { namespace graphics {
 
 		// Render skybox
 		if(_scene.sky) {
-			++m_numDrawCalls;
 			renderBackground(vp, exposure);
 		}
 
@@ -236,7 +234,6 @@ namespace rev { namespace graphics {
 	}
 
 	void ForwardPass::resetStats(){
-		m_numDrawCalls = 0;
 		m_numMeshes = 0;
 		m_numRenderables = 0;
 	}
@@ -252,7 +249,6 @@ namespace rev { namespace graphics {
 		{
 			ImGui::Text("Renderables: %d", m_numRenderables);
 			ImGui::Text("Meshes: %d", m_numMeshes);
-			ImGui::Text("Draw Calls: %d", m_numDrawCalls);
 			ImGui::End();
 		}
 		ImGui::PopStyleColor();
