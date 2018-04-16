@@ -29,13 +29,11 @@ namespace rev { namespace graphics {
 
 		RenderGeom(
 			const std::vector<Vertex>& _vertices,
-			const std::vector<uint16_t>& _indices//,
-			//bool _initGL = true
+			const std::vector<uint16_t>& _indices
 		)
 			: mVertices(_vertices)
 			, mIndices(_indices)
 		{
-			//if(_initGL)
 				initOpenGL();
 		}
 
