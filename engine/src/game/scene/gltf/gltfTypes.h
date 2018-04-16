@@ -23,6 +23,7 @@
 #include "../scene.h"
 #include <core/types/json.h>
 #include <math/algebra/vector.h>
+#include <graphics/scene/renderGeom.h>
 
 namespace rev { namespace game {
 	namespace gltf {
@@ -43,9 +44,30 @@ namespace rev { namespace game {
 
 		struct BufferView
 		{
+			enum Target
+			{
+				ARRAY_BUFFER = 34962,
+				ELEMENT_ARRAY_BUFFER = 34963
+			};
+
+			BufferView(
+				std::vector<gltf::Buffer>& buffers,
+				const core::Json& desc)
+			{
+				// Parse descriptor
+				size_t bufferNdx = desc["buffer"];
+				size_t offset = 0;
+				if(desc.find("byteOffset") != desc.end())
+					offset = desc["byteOffset"];
+				byteLength = desc["byteLength"];
+				if(desc.find("byteStride") != desc.end())
+					stride = desc["byteStride"];
+				// locate data
+				data = &buffers[bufferNdx].raw[offset];
+			}
+
 			uint8_t* data = nullptr;
-			GLenum target = 0;
-			//size_t size = 0;
+			size_t byteLength = 0;
 			size_t stride = 0;
 		};
 

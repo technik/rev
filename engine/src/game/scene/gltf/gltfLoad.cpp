@@ -90,11 +90,12 @@ namespace rev { namespace game {
 		const Json& _nodeArrayDesc,
 		vector<shared_ptr<SceneNode>>& _sceneNodes,
 		std::vector<gltf::Mesh>	_meshes,
-		std::vector<std::shared_ptr<graphics::Material>> _materials,
+		std::vector<std::shared_ptr<Material>> _materials,
 		std::shared_ptr<Material> _defaultMaterial,
 		std::vector<gltf::Light> _lights,
 		graphics::RenderScene& _gfxWorld)
 	{
+		std::map<gltf::Primitive, std::shared_ptr<RenderObj>> renderObjCache;
 		for(auto& nodeDesc : _nodeArrayDesc)
 		{
 			auto node = std::make_shared<SceneNode>();
@@ -122,7 +123,9 @@ namespace rev { namespace game {
 			auto meshIter = nodeDesc.find("mesh");
 			if(meshIter != nodeDesc.end())
 			{
-				auto renderObj = std::make_shared<graphics::RenderObj>();
+				std::shared_ptr<RenderObj>	renderObj;
+				// TODO: Try to reuse renderObj, use first primitive as key to index the cache
+				renderObj = std::make_shared<RenderObj>();
 
 				size_t meshNdx = meshIter.value();
 				auto& gltfMesh = _meshes[meshNdx];
@@ -172,7 +175,12 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadGLTFScene(SceneNode* _parentNode, const std::string& assetsFolder, const std::string& fileName, graphics::RenderScene& _gfxWorld)
+	void loadGLTFScene(
+		SceneNode* _parentNode,
+		const std::string& assetsFolder,
+		const std::string& fileName,
+		graphics::RenderScene& _gfxWorld,
+		graphics::GeometryPool& _geomPool)
 	{
 		core::File sceneFile(assetsFolder + fileName + ".gltf");
 		if(!sceneFile.sizeInBytes())
@@ -208,15 +216,7 @@ namespace rev { namespace game {
 		std::vector<gltf::BufferView> bufferViews;
 		for(auto& viewDesc : sceneDesc["bufferViews"])
 		{
-			gltf::BufferView view;
-			size_t offset = viewDesc["byteOffset"];
-			size_t bufferNdx = viewDesc["buffer"];
-			if(viewDesc.find("byteStride") != viewDesc.end())
-			{
-				view.stride = viewDesc["byteStride"];
-			}
-			view.data = &buffers[bufferNdx].raw[offset];
-			bufferViews.push_back(view);
+			bufferViews.emplace_back(buffers, viewDesc);
 		}
 
 		// Load accessors

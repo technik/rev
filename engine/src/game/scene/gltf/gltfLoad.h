@@ -21,6 +21,7 @@
 
 #include <string>
 #include "../sceneNode.h"
+#include <graphics/driver/geometryPool.h>
 #include <graphics/scene/renderScene.h>
 
 namespace rev { namespace game {
@@ -34,5 +35,6 @@ namespace rev { namespace game {
 		SceneNode* parentNode,
 		const std::string& assetsFolder,
 		const std::string& fileName,
-		graphics::RenderScene& _gfxWorld);
+		graphics::RenderScene& _gfxWorld,
+		graphics::GeometryPool& _pool);
 }}

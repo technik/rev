@@ -10,6 +10,7 @@
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderScene.h>
+#include <graphics/driver/geometryPool.h>
 
 using namespace rev::editor;
 
@@ -44,6 +45,7 @@ namespace rev {
 		graphics::ForwardRenderer				mRenderer;
 		graphics::GraphicsDriverGL*				mGfxDriver = nullptr;
 		Editor									mGameEditor;
+		std::unique_ptr<graphics::GeometryPool>	mGeometryPool;
 	};
 
 }	// namespace rev

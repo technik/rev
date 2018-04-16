@@ -16,6 +16,7 @@
 #include <graphics/debug/debugGUI.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/renderer/material/Effect.h>
+#include <graphics/scene/renderGeom.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -30,6 +31,8 @@ namespace rev {
 		assert(!mGfxDriver);
 		mGfxDriver = GraphicsDriverGL::createDriver(_window);
 		if(mGfxDriver) {
+			// Create geometry pool
+			mGeometryPool = std::make_unique<GeometryPool>();
 			// Load scene
 			auto gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
 			mGameScene.root()->addChild(gltfRoot);
@@ -40,7 +43,7 @@ namespace rev {
 				});
 			auto xForm = gltfRoot->addComponent<Transform>();
 			xForm->xForm.rotate(rotation);
-			loadGLTFScene(gltfRoot.get(), "courtyard/", "court", mGraphicsScene);
+			loadGLTFScene(gltfRoot.get(), "courtyard/", "court", mGraphicsScene, *mGeometryPool);
 
 			// Load sky
 			//std::string skyName = "milkyway";
