@@ -51,7 +51,7 @@ namespace rev { namespace graphics {
 		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
 		mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
-		mEV = 0.0f;
+		mEV = 1.0f;
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
@@ -121,6 +121,19 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void setupOpenGLState()
+	{
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
+		glClearDepthf(1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
 	{
 #ifdef _WIN32
@@ -136,34 +149,33 @@ namespace rev { namespace graphics {
 		mBackEnd.beginFrame();
 		mBackEnd.beginPass();
 
+		// Prepare graphics device's global state
 		_dst.bind();
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
-		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-		glClearDepthf(1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		setupOpenGLState();
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
-
-		if(ImGui::Begin("Forward pass"))
-		{
-			ImGui::SliderFloat("EV", &mEV, -2.f, 3.f);
-			ImGui::End();
-		}
 
 		// Compute global variables
 		auto vp = _eye.viewProj(_dst.aspectRatio());
 		auto wsEye = _eye.position();
-		float exposure = std::pow(2.f,mEV);
 		auto& lightClr = _scene.lightClr();
 		Vec3f lightDir = -_scene.mLightDir;
 
 		// Iterate over renderables
 		Mat44f worldMatrix = Mat44f::identity();
+		Mat44f model2Shadow;
+		Mat44f wvp;
 		mBackEnd.reserve(_scene.renderables().size());
+		// Prepare skybox environment probe
+		EnvironmentProbe environmentProbe;
+		EnvironmentProbe* environmentPtr = nullptr;
+		if(_scene.sky && _scene.irradiance)
+		{
+			environmentProbe.environment = _scene.sky;
+			environmentProbe.irradiance = _scene.irradiance;
+			environmentPtr = &environmentProbe;
+		}
+
+		// Render objects
 		for(auto& renderable : _scene.renderables())
 		{
 			// Skip invalid objects
@@ -171,58 +183,29 @@ namespace rev { namespace graphics {
 			if(renderObj->materials.size() < renderObj->meshes.size())
 				continue;
 
+			// Get world matrix
+			worldMatrix = renderObj->transform.matrix();
+			// Set up vertex uniforms
+			wvp = vp*worldMatrix;
+			if(_shadows) // TODO: This should be world 2 shadow matrix
+				model2Shadow = _shadows->shadowProj() * worldMatrix;
+
 			++m_numRenderables;
 			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
-				// Reuse commands from previous frames
-				auto& command = mBackEnd.beginCommand();
-				// Optional sky
-				if(_scene.sky)
-					mBackEnd.addParam(7, _scene.sky.get());
-				if(_scene.irradiance)
-					mBackEnd.addParam(8,_scene.irradiance.get());
-				// Bind shadows
-				if(_shadows)
-				{
-					// TODO: Bind shadows to renderer
-					//glActiveTexture(GL_TEXTURE0+9);
-					//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
-				}
-				// Get world matrix
-				worldMatrix = renderObj->transform.matrix();
-				// Set up vertex uniforms
-				Mat44f wvp = vp*worldMatrix;
-				Mat44f model2Shadow;
-				if(_shadows) // TODO: This should be world 2 shadow matrix
-					model2Shadow = _shadows->shadowProj() * worldMatrix;
-
-				// render
-				const auto& material = *renderObj->materials[i];
-				// Setup material
-				auto shader = getShader(material);
-				if(!shader)
-					continue;
-				command.shader = shader;
-				material.bindParams(mBackEnd);
-				// Matrices
-				mBackEnd.addParam(0, wvp);
-				mBackEnd.addParam(1, worldMatrix);
-				if(_shadows) // TODO: This should be world 2 shadow matrix
-					mBackEnd.addParam(2, model2Shadow);
-				// Lighting
-				mBackEnd.addParam(3, exposure); // EV
-				mBackEnd.addParam(4, wsEye);
-				// Render mesh
-				command.vao = renderObj->meshes[i]->getVao();
-				command.nIndices = renderObj->meshes[i]->nIndices();
-				++m_numMeshes;
-				mBackEnd.endCommand();
+				renderMesh(
+					renderObj->meshes[i].get(),
+					wvp,
+					worldMatrix,
+					wsEye,
+					renderObj->materials[i].get(),
+					environmentPtr);
 			}
 		}
 
 		// Render skybox
 		if(_scene.sky)
-			renderBackground(vp, exposure, _scene.sky.get());
+			renderBackground(vp, mEV, _scene.sky.get());
 
 		mBackEnd.endPass();
 		mBackEnd.submitDraws();
@@ -230,12 +213,69 @@ namespace rev { namespace graphics {
 		drawStats();
 	}
 
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::renderMesh(
+		const RenderGeom* _mesh,
+		const Mat44f& _wvp,
+		const Mat44f _worldMatrix,
+		const Vec3f _wsEye,
+		const Material* _material,
+		const EnvironmentProbe* env)
+	{
+		// Reuse commands from previous frames
+		auto& command = mBackEnd.beginCommand();
+		// Optional sky
+		if(env)
+		{
+			mBackEnd.addParam(7, env->environment.get());
+			mBackEnd.addParam(8, env->irradiance.get());
+		}
+		// Bind shadows
+		/*if(_shadows)
+		{
+			// TODO: Bind shadows to renderer
+			//glActiveTexture(GL_TEXTURE0+9);
+			//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
+		}*/
+
+		// Setup material
+		auto shader = getShader(*_material);
+		if(!shader)
+			return;
+		command.shader = shader;
+		_material->bindParams(mBackEnd);
+		// Matrices
+		mBackEnd.addParam(0, _wvp);
+		mBackEnd.addParam(1, _worldMatrix);
+		//if(_shadows) // TODO: This should be world 2 shadow matrix
+		//	mBackEnd.addParam(2, model2Shadow);
+		// Lighting
+		mBackEnd.addParam(3, mEV); // Exposure value
+		mBackEnd.addParam(4, _wsEye);
+		// Render mesh
+		command.vao = _mesh->getVao();
+		command.nIndices = _mesh->nIndices();
+		++m_numMeshes;
+		mBackEnd.endCommand();
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ForwardPass::resetStats(){
 		m_numMeshes = 0;
 		m_numRenderables = 0;
 	}
 
+	//----------------------------------------------------------------------------------------------
 	void ForwardPass::drawStats(){
+		// Debug interface
+		if(ImGui::Begin("Forward pass"))
+		{
+			float exposure = std::log2(mEV);
+			ImGui::SliderFloat("EV", &exposure, -2.f, 3.f);
+			mEV = std::pow(2.f,exposure);
+			ImGui::End();
+		}
+
 		const float DISTANCE = 10.f;
 		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE - 40);
 		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);

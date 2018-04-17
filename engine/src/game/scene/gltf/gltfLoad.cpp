@@ -85,17 +85,91 @@ namespace rev { namespace game {
 			return nullptr;
 	}
 
+	//-----------------------------------------------------------------------------------------------
+	shared_ptr<RenderGeom> loadMesh(const gltf::Primitive& primitive)
+	{
+		std::vector<uint16_t> indices(primitive.indices->count);
+		if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
+		{
+			memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
+		}
+		else
+			return nullptr;
+
+		std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
+		for(size_t i = 0; i < vertices.size(); ++i)
+		{
+			auto& v = vertices[i];
+			assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
+			assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
+			assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
+			assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
+			v.position = *(math::Vec3f*)(primitive.position->element(i));
+			v.normal = *(math::Vec3f*)(primitive.normal->element(i));
+			auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
+			v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+			v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+			v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
+		}
+
+		// TODO: Share meshes
+		return std::make_shared<RenderGeom>(vertices,indices);
+	}
+
+	using GeometryCache = std::unordered_map<const gltf::Accessor*, shared_ptr<RenderGeom>>;
+
+	//-----------------------------------------------------------------------------------------------
+	std::shared_ptr<RenderObj> loadRenderObj(
+		size_t meshNdx,
+		GeometryCache& cache,
+		const std::vector<gltf::Mesh>&	_meshes,
+		const std::vector<std::shared_ptr<Material>>& _materials,
+		const std::shared_ptr<Material> _defaultMaterial)
+	{
+		auto renderObj = std::make_shared<RenderObj>();
+
+		auto& gltfMesh = _meshes[meshNdx];
+		for(auto& primitive : gltfMesh.primitives)
+		{
+			// Cache mesh creation
+			shared_ptr<RenderGeom> mesh;
+			auto iter = cache.find(primitive.indices);
+			if(iter == cache.end())
+			{
+				mesh = loadMesh(primitive);
+				cache.emplace(primitive.indices, mesh);
+			}
+			else
+				mesh = iter->second;
+
+			if(!mesh)
+				return nullptr;
+
+			// Add mesh
+			renderObj->meshes.push_back(mesh);
+			if(_materials.empty() || primitive.material == -1)
+			{
+				renderObj->materials.push_back(_defaultMaterial);
+			}
+			else
+				renderObj->materials.push_back(_materials[ primitive.material]); // TODO: Find proper material
+		}
+
+		return renderObj;
+	}
+
 	//----------------------------------------------------------------------------------------------
 	void loadNodes(
 		const Json& _nodeArrayDesc,
 		vector<shared_ptr<SceneNode>>& _sceneNodes,
-		std::vector<gltf::Mesh>	_meshes,
-		std::vector<std::shared_ptr<Material>> _materials,
+		const std::vector<gltf::Mesh>&	_meshes,
+		const std::vector<std::shared_ptr<Material>>& _materials,
 		std::shared_ptr<Material> _defaultMaterial,
-		std::vector<gltf::Light> _lights,
+		const std::vector<gltf::Light>& _lights,
 		graphics::RenderScene& _gfxWorld)
 	{
-		std::map<gltf::Primitive, std::shared_ptr<RenderObj>> renderObjCache;
+		// Map first accessor's id, to a generated render object
+		GeometryCache renderObjCache;
 		for(auto& nodeDesc : _nodeArrayDesc)
 		{
 			auto node = std::make_shared<SceneNode>();
@@ -123,54 +197,74 @@ namespace rev { namespace game {
 			auto meshIter = nodeDesc.find("mesh");
 			if(meshIter != nodeDesc.end())
 			{
-				std::shared_ptr<RenderObj>	renderObj;
 				// TODO: Try to reuse renderObj, use first primitive as key to index the cache
-				renderObj = std::make_shared<RenderObj>();
-
 				size_t meshNdx = meshIter.value();
-				auto& gltfMesh = _meshes[meshNdx];
-				for(auto& primitive : gltfMesh.primitives)
-				{
-					// Copy index data
-					std::vector<uint16_t> indices(primitive.indices->count);
-					if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
-					{
-						memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
-					}
-					else
-						return;
-
-					std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
-					for(size_t i = 0; i < vertices.size(); ++i)
-					{
-						auto& v = vertices[i];
-						assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
-						assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
-						v.position = *(math::Vec3f*)(primitive.position->element(i));
-						v.normal = *(math::Vec3f*)(primitive.normal->element(i));
-						auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
-						v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
-						v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
-						v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
-					}
-
-					// TODO: Share meshes
-					renderObj->meshes.push_back(std::make_shared<RenderGeom>(vertices,indices));
-					if(_materials.empty())
-					{
-						renderObj->materials.push_back(_defaultMaterial);
-					}
-					else
-						renderObj->materials.push_back(_materials[0]); // TODO
-				}
+				std::shared_ptr<RenderObj>	renderObj = loadRenderObj(
+					meshNdx, renderObjCache,
+					_meshes, _materials, _defaultMaterial);
 
 				auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
 				_gfxWorld.renderables().push_back(renderObj);
 
 				node->addComponent(std::move(nodeMesh));
 			}
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void loadMaterials(
+		const Json& matArray,
+		shared_ptr<Effect> _pbrEffect,
+		std::vector<std::shared_ptr<Material>>& _materials,
+		const std::vector<std::string>&	_textureNames
+		)
+	{
+		// Load materials
+		for(auto& matDesc : matArray)
+		{
+			auto mat = std::make_shared<Material>(_pbrEffect);
+			if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
+			{
+				auto pbrDesc = matDesc["pbrMetallicRoughness"];
+				// Base color
+				if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
+				{
+					size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
+					mat->addTexture("uBaseColorMap", Texture::load(_textureNames[albedoNdx], false));
+				}
+				if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
+				{
+					auto& baseColorDesc = pbrDesc["baseColorFactor"];
+					Vec4f color {
+						baseColorDesc[0].get<float>(),
+						baseColorDesc[1].get<float>(),
+						baseColorDesc[2].get<float>(),
+						baseColorDesc[3].get<float>()
+					};
+					mat->addParam("uBaseColor", color);
+				}
+				// Metallic-roughness
+				if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
+				{
+					size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
+					mat->addTexture("uPhysics", Texture::load(_textureNames[physicsNdx], false));
+				}
+				if(pbrDesc.find("roughnessFactor") != pbrDesc.end())
+					mat->addParam("uRoughness", pbrDesc["roughnessFactor"].get<float>());
+				if(pbrDesc.find("metallicFactor") != pbrDesc.end())
+					mat->addParam("uMetallic", pbrDesc["metallicFactor"].get<float>());
+			}
+			if(matDesc.find("emissiveTexture") != matDesc.end())
+			{
+				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
+				mat->addTexture("uEmissive", Texture::load(_textureNames[emissiveNdx], false));
+			}
+			if(matDesc.find("normalTexture") != matDesc.end())
+			{
+				size_t normalNdx = matDesc["normalTexture"]["index"];
+				mat->addTexture("uNormalMap", Texture::load(_textureNames[normalNdx], false));
+			}
+			_materials.push_back(mat);
 		}
 	}
 
@@ -251,46 +345,7 @@ namespace rev { namespace game {
 
 		// Load materials
 		std::vector<std::shared_ptr<graphics::Material>> materials;
-		for(auto& matDesc : sceneDesc["materials"])
-		{
-			auto mat = std::make_shared<Material>(pbrEffect);
-			if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
-			{
-				auto pbrDesc = matDesc["pbrMetallicRoughness"];
-				if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
-				{
-					size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
-					mat->addTexture("uBaseColorMap", Texture::load(textureNames[albedoNdx], false));
-				}
-				if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
-				{
-					size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
-					mat->addTexture("uPhysics", Texture::load(textureNames[physicsNdx], false));
-				}
-				if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
-				{
-					auto& baseColorDesc = pbrDesc["baseColorFactor"];
-					Vec4f color {
-						baseColorDesc[0].get<float>(),
-						baseColorDesc[1].get<float>(),
-						baseColorDesc[2].get<float>(),
-						baseColorDesc[3].get<float>()
-					};
-					mat->addParam("uBaseColor", color);
-				}
-			}
-			if(matDesc.find("emissiveTexture") != matDesc.end())
-			{
-				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
-				mat->addTexture("uEmissive", Texture::load(textureNames[emissiveNdx], false));
-			}
-			if(matDesc.find("normalTexture") != matDesc.end())
-			{
-				size_t normalNdx = matDesc["normalTexture"]["index"];
-				mat->addTexture("uNormalMap", Texture::load(textureNames[normalNdx], false));
-			}
-			materials.push_back(mat);
-		}
+		loadMaterials(sceneDesc["materials"], pbrEffect, materials, textureNames);
 
 		// Load meshes
 		std::vector<gltf::Mesh>	meshes;

@@ -52,10 +52,20 @@ float fresnelSchlick(float ndv)
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uIrradiance;
 layout(location = 10) uniform sampler2D uNormalMap;
+#ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
+#endif
+#ifdef sampler2D_uBaseColorMap
 layout(location = 11) uniform sampler2D uBaseColorMap;
+#endif
 layout(location = 12) uniform sampler2D uPhysics;
 layout(location = 13) uniform sampler2D uEmissive;
+#ifdef float_uRoughness
+layout(location = 15) uniform float uRoughness;
+#endif
+#ifdef float_uMetallic
+layout(location = 16) uniform float uMetallic;
+#endif
 
 //---------------------------------------------------------------------------------------
 vec3 diffusePBR(
@@ -333,8 +343,16 @@ vec3 shadeSurface(ShadeInput inputs)
 	float metallic = physics.b;
 	float occlusion = physics.r;
 #else
+	#if defined(float_uRoughness)
+	float roughness = uRoughness;
+	#else
 	float roughness = 0.8;
+	#endif
+	#if defined(float_uMetallic)
+	float metallic = uMetallic;
+	#else
 	float metallic = 0.1;
+	#endif
 	float occlusion = 1.0;
 #endif
 
@@ -377,11 +395,11 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return shadowSpacePos.xyz;
 	//return vec3(shadowSpacePos.xy, sampledDepth);
 	//return indirectLight;
-	//return vec3(metallic);//indirectLight;
+	//return vec3(roughness);//indirectLight;
 	//return indirectLight + emissive;
 	//return emissive;
 	//return physics;
-	//return albedo;
+	//return baseColor;
 	//return directLight + indirectLight + emissive;
 	return indirectLight + emissive;
 	//return directLight + emissive;

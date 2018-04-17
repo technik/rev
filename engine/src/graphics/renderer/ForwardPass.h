@@ -63,6 +63,19 @@ namespace rev{ namespace graphics {
 		// Internal rendering structures
 		BackEndRenderer	mBackEnd;
 
+		struct EnvironmentProbe
+		{
+			std::shared_ptr<Texture>	environment;
+			std::shared_ptr<Texture>	irradiance;
+		};
+		void renderMesh(
+			const RenderGeom* _mesh,
+			const math::Mat44f& _wvp,
+			const math::Mat44f _worldMatrix,
+			const math::Vec3f _wsEye,
+			const Material* _material,
+			const EnvironmentProbe* env);
+
 		void drawStats();
 		void resetStats();
 		unsigned m_numRenderables;
