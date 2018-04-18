@@ -82,7 +82,7 @@ namespace rev { namespace graphics {
 		// TODO: Performance counters
 		for(auto& renderable : _scene.renderables())
 		{
-			auto renderObj = renderable.lock();
+			auto renderObj = renderable;
 			// Get world matrix
 			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
 			// Set up vertex uniforms

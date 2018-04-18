@@ -23,6 +23,8 @@
 #include <graphics/renderer/backend/BackEndRenderer.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderObj.h>
+#include <map>
 #include <unordered_map>
 
 namespace rev{ namespace graphics {
@@ -43,6 +45,10 @@ namespace rev{ namespace graphics {
 	private:
 		void loadCommonShaderCode();
 		void renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture);
+		void depthSort(
+			const math::Vec3f& camPos,
+			const math::Vec3f& viewDir,
+			const std::vector<std::shared_ptr<RenderObj>>& renderables);
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;
@@ -62,6 +68,7 @@ namespace rev{ namespace graphics {
 
 		// Internal rendering structures
 		BackEndRenderer	mBackEnd;
+		std::multimap<float,RenderObj*>	mZSortedQueue;
 
 		struct EnvironmentProbe
 		{

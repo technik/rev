@@ -41,6 +41,7 @@ namespace rev { namespace graphics {
 		}
 
 		math::Vec3f position() const { return mWorld.position(); }
+		math::Vec3f viewDir() const { return mWorld.rotateDirection(math::Vec3f(0.f,1.f,0.f)); }
 
 	private:
 		float mFov, mNear, mFar;

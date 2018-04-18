@@ -40,8 +40,8 @@ namespace rev { namespace graphics {
 
 		// Accessors
 		const math::Vec3f& lightClr() const { return mLightClr; }
-		std::vector<std::weak_ptr<RenderObj>>& renderables()				{ return mRenderables; }
-		const std::vector<std::weak_ptr<RenderObj>>& renderables() const	{ return mRenderables; }
+		std::vector<std::shared_ptr<RenderObj>>& renderables()				{ return mRenderables; }
+		const std::vector<std::shared_ptr<RenderObj>>& renderables() const	{ return mRenderables; }
 		const auto& spotLights() const { return mSpotLights; }
 		auto& spotLights() { return mSpotLights; }
 
@@ -51,7 +51,7 @@ namespace rev { namespace graphics {
 		math::Vec3f									mLightDir;
 	private:
 		math::Vec3f									mLightClr;
-		std::vector<std::weak_ptr<RenderObj>>		mRenderables;
+		std::vector<std::shared_ptr<RenderObj>>		mRenderables;
 		std::vector<std::weak_ptr<SpotLight>>		mSpotLights;
 	};
 

@@ -141,8 +141,9 @@ namespace rev{ namespace graphics {
 		{
 			GLuint vao = 0;
 			Shader*	shader = nullptr;
-			for(const auto& command : mCommandList)
+			for(size_t i = 0; i < mNumCommands; ++i)
 			{
+				const auto& command = mCommandList[i];
 				if(shader != command.shader)
 				{
 					shader = command.shader;
@@ -151,21 +152,13 @@ namespace rev{ namespace graphics {
 				}
 				// Bind params
 				for(int i = command.mFloatParams.first; i < command.mFloatParams.second; ++i)
-				{
 					mDriver.bindUniform(mFloatIndices[i], mFloatParams[i]);
-				}
 				for(int i = command.mVec3fParams.first; i < command.mVec3fParams.second; ++i)
-				{
 					mDriver.bindUniform(mVec3fIndices[i], mVec3fParams[i]);
-				}
 				for(int i = command.mVec4fParams.first; i < command.mVec4fParams.second; ++i)
-				{
 					mDriver.bindUniform(mVec4fIndices[i], mVec4fParams[i]);
-				}
 				for(int i = command.mMat44fParams.first; i < command.mMat44fParams.second; ++i)
-				{
 					mDriver.bindUniform(mMat44fIndices[i], mMat44fParams[i]);
-				}
 				int textureStage = 0;
 				for(int i = command.mTextureParams.first; i < command.mTextureParams.second; ++i)
 				{
@@ -183,19 +176,23 @@ namespace rev{ namespace graphics {
 				}
 				// Draw
 				glDrawElements(GL_TRIANGLES, command.nIndices, GL_UNSIGNED_SHORT, nullptr);
+				triangles += command.nIndices/3;
 			}
+			mNumCommands = 0; // Reset command list
 		}
 
 		void beginFrame()
 		{
 			usedVaos = 0;
 			usedShaders = 0;
+			triangles = 0;
 		}
 
 		void drawStats()
 		{
 			ImGui::Text("Vaos: %d", usedVaos);
 			ImGui::Text("Shaders: %d", usedShaders);
+			ImGui::Text("Triangles: %d", triangles);
 			ImGui::Text("CommandList size: %d", mCommandList.size());
 		}
 
@@ -204,6 +201,7 @@ namespace rev{ namespace graphics {
 		// TODO: Share this between backends, or share the backend itself (worse for time coherency?)
 		unsigned usedVaos;
 		unsigned usedShaders;
+		unsigned triangles;
 
 		// Command lists
 		std::vector<Command>	mCommandList;

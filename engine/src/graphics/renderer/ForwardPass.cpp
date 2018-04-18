@@ -175,11 +175,17 @@ namespace rev { namespace graphics {
 			environmentPtr = &environmentProbe;
 		}
 
+		depthSort(wsEye, _eye.viewDir(), _scene.renderables());
+
 		// Render objects
-		for(auto& renderable : _scene.renderables())
+		/*for(auto& renderable : _scene.renderables())
 		{
 			// Skip invalid objects
-			auto renderObj = renderable.lock();
+			auto renderObj = renderable;*/
+		for(const auto& renderPair : mZSortedQueue)
+		{
+			auto renderObj = renderPair.second;
+			// Skip invalid objects
 			if(renderObj->materials.size() < renderObj->meshes.size())
 				continue;
 
@@ -211,6 +217,21 @@ namespace rev { namespace graphics {
 		mBackEnd.submitDraws();
 
 		drawStats();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::depthSort(
+		const math::Vec3f& camPos,
+		const math::Vec3f& viewDir,
+		const std::vector<std::shared_ptr<RenderObj>>& renderables)
+	{
+		mZSortedQueue.clear();
+		for(auto obj : renderables)
+		{
+			auto objPos = obj->transform.position();
+			float depth = (objPos - camPos).dot(viewDir);
+			mZSortedQueue.emplace(depth, obj.get());
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
