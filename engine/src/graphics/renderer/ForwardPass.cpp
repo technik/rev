@@ -227,8 +227,12 @@ namespace rev { namespace graphics {
 			int matNdx = 0;
 			for(auto mesh : obj->meshes)
 			{
-				auto center = obj->transform.transformPosition(mesh->bbox.center());
-				float radius = mesh->bbox.radius();
+				// Scale affects bbox's center
+				BBox worldBBox (
+					obj->transform.transformPosition(mesh->bbox.min),
+					obj->transform.transformPosition(mesh->bbox.max));
+				auto center = worldBBox.center();
+				float radius = worldBBox.radius();
 				float medDepth = (center - camPos).dot(viewDir);
 				if(medDepth > -radius)
 				{
