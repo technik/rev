@@ -67,8 +67,15 @@ namespace rev{ namespace graphics {
 		std::unique_ptr<RenderGeom> mSkyPlane;
 
 		// Internal rendering structures
+		struct MeshInfo
+		{
+			const RenderGeom* geom;
+			const Material* material;
+			math::Mat44f world;
+		};
+
 		BackEndRenderer	mBackEnd;
-		std::multimap<float,RenderObj*>	mZSortedQueue;
+		std::multimap<float,MeshInfo>	mZSortedQueue;
 
 		struct EnvironmentProbe
 		{

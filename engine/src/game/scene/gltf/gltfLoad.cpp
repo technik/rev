@@ -338,7 +338,6 @@ namespace rev { namespace game {
 				accessor.offset = offsetIter.value().get<unsigned>();
 			accessor.count = accessorDesc["count"];
 			accessor.view = &bufferViews[bufferViewNdx];
-			accessors.push_back(accessor);
 			auto minIter = accessorDesc.find("min");
 			auto maxIter = accessorDesc.find("max");
 			if(minIter != accessorDesc.end() && maxIter != accessorDesc.end())
@@ -347,6 +346,7 @@ namespace rev { namespace game {
 				accessor.max = loadVec3f(accessorDesc["max"]);
 				accessor.hasBounds = true;
 			}
+			accessors.push_back(accessor);
 		}
 
 		// Load textures

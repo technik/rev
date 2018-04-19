@@ -178,32 +178,22 @@ namespace rev { namespace graphics {
 
 		depthSort(wsEye, _eye.viewDir(), _scene.renderables());
 
-		for(const auto& renderPair : mZSortedQueue)
+		for(const auto& mesh : mZSortedQueue)
 		{
-			auto renderObj = renderPair.second;
-			// Skip invalid objects
-			if(renderObj->materials.size() < renderObj->meshes.size())
-				continue;
-
 			if(m_drawLimit >= 0 && m_numRenderables >= m_drawLimit)
 				break;
 
-			// Get world matrix
-			worldMatrix = renderObj->transform.matrix();
 			// Set up vertex uniforms
-			wvp = vp*worldMatrix;
-			if(_shadows) // TODO: This should be world 2 shadow matrix
-				model2Shadow = _shadows->shadowProj() * worldMatrix;
+			wvp = vp* mesh.second.world;
 
 			++m_numRenderables;
-			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
 			{
 				renderMesh(
-					renderObj->meshes[i].get(),
+					mesh.second.geom,
 					wvp,
-					worldMatrix,
+					mesh.second.world,
 					wsEye,
-					renderObj->materials[i].get(),
+					mesh.second.material,
 					environmentPtr);
 			}
 		}
@@ -225,12 +215,31 @@ namespace rev { namespace graphics {
 		const std::vector<std::shared_ptr<RenderObj>>& renderables)
 	{
 		mZSortedQueue.clear();
+		MeshInfo meshDrawInfo;
 		for(auto obj : renderables)
 		{
+			// Skip invalid objects
+			if(obj->materials.size() < obj->meshes.size())
+				continue;
+
 			// TODO: Transform bounding box to world
+			meshDrawInfo.world = obj->transform.matrix();
+			int matNdx = 0;
+			for(auto mesh : obj->meshes)
+			{
+				auto center = obj->transform.transformPosition(mesh->bbox.center());
+				float radius = mesh->bbox.radius();
+				float medDepth = (center - camPos).dot(viewDir);
+				if(medDepth > -radius)
+				{
+					meshDrawInfo.geom = mesh.get();
+					meshDrawInfo.material = obj->materials[matNdx].get();
+					mZSortedQueue.emplace(medDepth-radius, meshDrawInfo);
+				}
+				matNdx++;
+			}
 			auto objPos = obj->transform.position();
 			float depth = (objPos - camPos).dot(viewDir);
-			mZSortedQueue.emplace(depth, obj.get());
 		}
 	}
 
@@ -251,13 +260,6 @@ namespace rev { namespace graphics {
 			mBackEnd.addParam(7, env->environment.get());
 			mBackEnd.addParam(8, env->irradiance.get());
 		}
-		// Bind shadows
-		/*if(_shadows)
-		{
-			// TODO: Bind shadows to renderer
-			//glActiveTexture(GL_TEXTURE0+9);
-			//glBindTexture(GL_TEXTURE_2D, _shadows->texName());
-		}*/
 
 		// Setup material
 		auto shader = getShader(*_material);
