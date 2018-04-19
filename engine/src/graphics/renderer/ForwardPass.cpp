@@ -54,6 +54,7 @@ namespace rev { namespace graphics {
 		mEV = 1.0f;
 		// Init sky resources
 		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
+		m_drawLimit = -1;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -177,17 +178,15 @@ namespace rev { namespace graphics {
 
 		depthSort(wsEye, _eye.viewDir(), _scene.renderables());
 
-		// Render objects
-		/*for(auto& renderable : _scene.renderables())
-		{
-			// Skip invalid objects
-			auto renderObj = renderable;*/
 		for(const auto& renderPair : mZSortedQueue)
 		{
 			auto renderObj = renderPair.second;
 			// Skip invalid objects
 			if(renderObj->materials.size() < renderObj->meshes.size())
 				continue;
+
+			if(m_drawLimit >= 0 && m_numRenderables >= m_drawLimit)
+				break;
 
 			// Get world matrix
 			worldMatrix = renderObj->transform.matrix();
@@ -294,6 +293,9 @@ namespace rev { namespace graphics {
 			float exposure = std::log2(mEV);
 			ImGui::SliderFloat("EV", &exposure, -2.f, 3.f);
 			mEV = std::pow(2.f,exposure);
+			int maxDraws = m_drawLimit >= 0 ? m_drawLimit : mZSortedQueue.size();
+			ImGui::SliderInt("Max Draws", &maxDraws, 0, mZSortedQueue.size());
+			m_drawLimit = maxDraws < mZSortedQueue.size() ? maxDraws : -1;
 			ImGui::End();
 		}
 

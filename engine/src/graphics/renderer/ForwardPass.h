@@ -87,6 +87,7 @@ namespace rev{ namespace graphics {
 		void resetStats();
 		unsigned m_numRenderables;
 		unsigned m_numMeshes;
+		int m_drawLimit;
 	};
 
 }}
