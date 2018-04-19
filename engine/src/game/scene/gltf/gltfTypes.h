@@ -92,6 +92,9 @@ namespace rev { namespace game {
 			BufferView* view = nullptr;
 			size_t offset = 0;
 			size_t count = 0;
+
+			bool hasBounds = false;
+			math::Vec3f max, min;
 		};
 
 		struct Primitive

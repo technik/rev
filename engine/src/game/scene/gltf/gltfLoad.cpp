@@ -39,6 +39,15 @@ using namespace std;
 
 namespace rev { namespace game {
 
+	math::Vec3f loadVec3f(const Json& v)
+	{
+		return Vec3f {
+			v[0].get<float>(),
+			v[1].get<float>(),
+			v[2].get<float>()
+		};
+	}
+
 	std::unique_ptr<Transform> loadNodeTransform(const Json& _nodeDesc)
 	{
 		auto nodeTransform = std::make_unique<game::Transform>();
@@ -112,8 +121,10 @@ namespace rev { namespace game {
 			v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
 		}
 
-		// TODO: Share meshes
-		return std::make_shared<RenderGeom>(vertices,indices);
+		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
+		if(primitive.position->hasBounds)
+			mesh->bbox = BBox(primitive.position->min, primitive.position->max);
+		return mesh;
 	}
 
 	using GeometryCache = std::unordered_map<const gltf::Accessor*, shared_ptr<RenderGeom>>;
@@ -328,6 +339,14 @@ namespace rev { namespace game {
 			accessor.count = accessorDesc["count"];
 			accessor.view = &bufferViews[bufferViewNdx];
 			accessors.push_back(accessor);
+			auto minIter = accessorDesc.find("min");
+			auto maxIter = accessorDesc.find("max");
+			if(minIter != accessorDesc.end() && maxIter != accessorDesc.end())
+			{
+				accessor.min = loadVec3f(accessorDesc["min"]);
+				accessor.max = loadVec3f(accessorDesc["max"]);
+				accessor.hasBounds = true;
+			}
 		}
 
 		// Load textures

@@ -14,13 +14,13 @@ namespace rev {
 		struct BBox {
 			Vec3f min, max;
 
-			BBox() : min(0.f), max(0.f) {}
+			BBox() : min(Vec3f::zero()), max(Vec3f::zero()) {}
 			BBox(const Vec3f& _size) : min(_size*-0.5f), max(_size*0.5f) {}
 			BBox(const Vec3f& _min, const Vec3f& _max) : min(_min), max(_max) {}
 
 			void merge(const Vec3f& _point) {
-				max = math::max(this->max, _point);
-				min = math::min(this->min, _point);
+				max = this->max.cwiseMax(_point);
+				min = this->min.cwiseMin(_point);
 			}
 
 			Vec3f size() const { return max - min; }
@@ -36,42 +36,42 @@ namespace rev {
 				,mNear(_near)
 				,mFar(_far)
 			{
-				mProjection = Mat44f::frustrum(_fov, _aspectRatio, _near, _far);
+				mProjection = frustrumMatrix(_fov, _aspectRatio, _near, _far);
 
 				float tangent = tan(_fov / 2.f);
 				Vec3f minVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_near;
 				Vec3f maxVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_far;
 
 				mVertices[0] = minVert;
-				mVertices[1] = Vec3f(-minVert.x, minVert.y, minVert.z);
-				mVertices[2] = Vec3f(-minVert.x, minVert.y, -minVert.z);
-				mVertices[3] = Vec3f(minVert.x, minVert.y, -minVert.z);
+				mVertices[1] = Vec3f(-minVert.x(), minVert.y(), minVert.z());
+				mVertices[2] = Vec3f(-minVert.x(), minVert.y(), -minVert.z());
+				mVertices[3] = Vec3f(minVert.x(), minVert.y(), -minVert.z());
 				mVertices[4] = maxVert;
-				mVertices[5] = Vec3f(-maxVert.x, maxVert.y, maxVert.z);
-				mVertices[6] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
-				mVertices[7] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
+				mVertices[5] = Vec3f(-maxVert.x(), maxVert.y(), maxVert.z());
+				mVertices[6] = Vec3f(-maxVert.x(), maxVert.y(), -maxVert.z());
+				mVertices[7] = Vec3f(maxVert.x(), maxVert.y(), -maxVert.z());
 			}
 
-			Frustum(Vec3f size) // Rectangular
-				: mAspectRatio(size.x/size.y)
+			Frustum(const Vec3f& size) // Rectangular
+				: mAspectRatio(size.x()/size.y())
 				, mFov(0.f)
-				, mNear(-0.5f*size.y)
-				, mFar(-0.5f*size.y)
+				, mNear(-0.5f*size.y())
+				, mFar(-0.5f*size.y())
 			{
 				math::Vec3f hSize = size*0.5f;
-				math::Vec3f minVert = math::Vec3f(hSize.x, -hSize.y, hSize.z);
-				math::Vec3f maxVert = math::Vec3f(hSize.x, hSize.y, hSize.z);
+				math::Vec3f minVert = math::Vec3f(hSize.x(), -hSize.y(), hSize.z());
+				math::Vec3f maxVert = math::Vec3f(hSize.x(), hSize.y(), hSize.z());
 
 				mVertices[0] = minVert;
-				mVertices[1] = Vec3f(-minVert.x, minVert.y, minVert.z);
-				mVertices[2] = Vec3f(-minVert.x, minVert.y, -minVert.z);
-				mVertices[3] = Vec3f(minVert.x, minVert.y, -minVert.z);
+				mVertices[1] = Vec3f(-minVert.x(), minVert.y(), minVert.z());
+				mVertices[2] = Vec3f(-minVert.x(), minVert.y(), -minVert.z());
+				mVertices[3] = Vec3f(minVert.x(), minVert.y(), -minVert.z());
 				mVertices[4] = maxVert;
-				mVertices[5] = Vec3f(-maxVert.x, maxVert.y, maxVert.z);
-				mVertices[6] = Vec3f(-maxVert.x, maxVert.y, -maxVert.z);
-				mVertices[7] = Vec3f(maxVert.x, maxVert.y, -maxVert.z);
+				mVertices[5] = Vec3f(-maxVert.x(), maxVert.y(), maxVert.z());
+				mVertices[6] = Vec3f(-maxVert.x(), maxVert.y(), -maxVert.z());
+				mVertices[7] = Vec3f(maxVert.x(), maxVert.y(), -maxVert.z());
 
-				mProjection = Mat44f::ortho(size);
+				mProjection = orthographicMatrix({size.x(), size.y()}, mNear, mFar);
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }

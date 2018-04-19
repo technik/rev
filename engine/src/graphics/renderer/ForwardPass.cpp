@@ -227,6 +227,7 @@ namespace rev { namespace graphics {
 		mZSortedQueue.clear();
 		for(auto obj : renderables)
 		{
+			// TODO: Transform bounding box to world
 			auto objPos = obj->transform.position();
 			float depth = (objPos - camPos).dot(viewDir);
 			mZSortedQueue.emplace(depth, obj.get());

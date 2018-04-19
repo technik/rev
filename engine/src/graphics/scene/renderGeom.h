@@ -5,6 +5,7 @@
 
 #include <graphics/driver/openGL/openGL.h>
 #include <math/algebra/vector.h>
+#include <math/geometry/types.h>
 #include <iostream>
 #include <vector>
 
@@ -52,6 +53,7 @@ namespace rev { namespace graphics {
 			return RenderGeom(vertexData, indices);
 		}
 
+		math::BBox bbox;
 		GLuint getVao() const { return vao; }
 		unsigned nIndices() const { return mIndices.size(); }
 
