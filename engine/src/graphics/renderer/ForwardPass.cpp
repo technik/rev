@@ -176,7 +176,8 @@ namespace rev { namespace graphics {
 			environmentPtr = &environmentProbe;
 		}
 
-		depthSort(wsEye, _eye.viewDir(), _scene.renderables());
+		cull(wsEye, _eye.viewDir(), _scene.renderables());
+		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
 
 		for(const auto& mesh : mZSortedQueue)
 		{
@@ -184,16 +185,16 @@ namespace rev { namespace graphics {
 				break;
 
 			// Set up vertex uniforms
-			wvp = vp* mesh.second.world;
+			wvp = vp* mesh.world;
 
 			++m_numRenderables;
 			{
 				renderMesh(
-					mesh.second.geom,
+					mesh.geom,
 					wvp,
-					mesh.second.world,
+					mesh.world,
 					wsEye,
-					mesh.second.material,
+					mesh.material,
 					environmentPtr);
 			}
 		}
@@ -209,7 +210,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::depthSort(
+	void ForwardPass::cull(
 		const math::Vec3f& camPos,
 		const math::Vec3f& viewDir,
 		const std::vector<std::shared_ptr<RenderObj>>& renderables)
@@ -234,11 +235,12 @@ namespace rev { namespace graphics {
 				auto center = worldBBox.center();
 				float radius = worldBBox.radius();
 				float medDepth = (center - camPos).dot(viewDir);
-				if(medDepth > -radius)
+				meshDrawInfo.depth = {medDepth-radius, medDepth+radius};
+				if(meshDrawInfo.depth.y() > 0) // Object may be visible
 				{
 					meshDrawInfo.geom = mesh.get();
 					meshDrawInfo.material = obj->materials[matNdx].get();
-					mZSortedQueue.emplace(medDepth-radius, meshDrawInfo);
+					mZSortedQueue.push_back(meshDrawInfo);
 				}
 				matNdx++;
 			}

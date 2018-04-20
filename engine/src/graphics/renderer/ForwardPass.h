@@ -45,7 +45,7 @@ namespace rev{ namespace graphics {
 	private:
 		void loadCommonShaderCode();
 		void renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture);
-		void depthSort(
+		void cull(
 			const math::Vec3f& camPos,
 			const math::Vec3f& viewDir,
 			const std::vector<std::shared_ptr<RenderObj>>& renderables);
@@ -72,10 +72,11 @@ namespace rev{ namespace graphics {
 			const RenderGeom* geom;
 			const Material* material;
 			math::Mat44f world;
+			math::Vec2f depth; // min, max
 		};
 
 		BackEndRenderer	mBackEnd;
-		std::multimap<float,MeshInfo>	mZSortedQueue;
+		std::vector<MeshInfo>	mZSortedQueue;
 
 		struct EnvironmentProbe
 		{
