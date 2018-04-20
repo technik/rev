@@ -193,7 +193,6 @@ namespace rev{ namespace graphics {
 			ImGui::Text("Vaos: %d", usedVaos);
 			ImGui::Text("Shaders: %d", usedShaders);
 			ImGui::Text("Triangles: %d", triangles);
-			ImGui::Text("CommandList size: %d", mCommandList.size());
 			ImGui::Text("float params: %d", mFloatParams.size());
 			ImGui::Text("Vec3f params: %d", mVec3fParams.size());
 			ImGui::Text("Texture params: %d", mTextureParams.size());

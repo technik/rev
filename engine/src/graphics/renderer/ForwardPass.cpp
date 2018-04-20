@@ -260,14 +260,14 @@ namespace rev { namespace graphics {
 		const EnvironmentProbe* env)
 	{
 		// Select material
-		//if(_material != mBoundMaterial)
+		if(_material != mBoundMaterial)
 		{
 			auto shader = getShader(*_material);
 			if(!shader)
 				return;
-			//if(shader != mBoundShader)
+			if(shader != mBoundShader)
 			{
-			//	resetRenderCache();
+				resetRenderCache();
 				mBoundShader = shader;
 			}
 			mBoundMaterial = _material;
@@ -277,12 +277,12 @@ namespace rev { namespace graphics {
 		command.shader = mBoundShader;
 		mBoundMaterial->bindParams(mBackEnd);
 		// Optional sky
-		//if(env != mBoundProbe)
-		//{
+		if(env != mBoundProbe)
+		{
 			mBoundProbe = env;
 			mBackEnd.addParam(7, env->environment.get());
 			mBackEnd.addParam(8, env->irradiance.get());
-		//}
+		}
 		// Matrices
 		mBackEnd.addParam(0, _wvp);
 		mBackEnd.addParam(1, _worldMatrix);
