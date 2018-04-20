@@ -83,6 +83,13 @@ namespace rev{ namespace graphics {
 			std::shared_ptr<Texture>	environment;
 			std::shared_ptr<Texture>	irradiance;
 		};
+
+		// Render cache
+		void resetRenderCache();
+		const EnvironmentProbe* mBoundProbe = nullptr;
+		const Material* mBoundMaterial = nullptr;
+		const Shader* mBoundShader = nullptr;
+
 		void renderMesh(
 			const RenderGeom* _mesh,
 			const math::Mat44f& _wvp,

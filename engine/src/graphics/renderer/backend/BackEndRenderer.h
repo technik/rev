@@ -36,7 +36,7 @@ namespace rev{ namespace graphics {
 		{
 			GLuint vao;
 			unsigned nIndices;
-			Shader*	shader;
+			const Shader*	shader;
 
 			std::pair<int,int>	mFloatParams;
 			std::pair<int,int>	mVec3fParams;
@@ -140,7 +140,7 @@ namespace rev{ namespace graphics {
 		void submitDraws()
 		{
 			GLuint vao = 0;
-			Shader*	shader = nullptr;
+			const Shader*	shader = nullptr;
 			for(size_t i = 0; i < mNumCommands; ++i)
 			{
 				const auto& command = mCommandList[i];
@@ -194,6 +194,9 @@ namespace rev{ namespace graphics {
 			ImGui::Text("Shaders: %d", usedShaders);
 			ImGui::Text("Triangles: %d", triangles);
 			ImGui::Text("CommandList size: %d", mCommandList.size());
+			ImGui::Text("float params: %d", mFloatParams.size());
+			ImGui::Text("Vec3f params: %d", mVec3fParams.size());
+			ImGui::Text("Texture params: %d", mTextureParams.size());
 		}
 
 	private:

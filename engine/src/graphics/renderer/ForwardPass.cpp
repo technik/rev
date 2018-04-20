@@ -162,9 +162,6 @@ namespace rev { namespace graphics {
 		Vec3f lightDir = -_scene.mLightDir;
 
 		// Iterate over renderables
-		Mat44f worldMatrix = Mat44f::identity();
-		Mat44f model2Shadow;
-		Mat44f wvp;
 		mBackEnd.reserve(_scene.renderables().size());
 		// Prepare skybox environment probe
 		EnvironmentProbe environmentProbe;
@@ -179,24 +176,20 @@ namespace rev { namespace graphics {
 		cull(wsEye, _eye.viewDir(), _scene.renderables());
 		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
 
+		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
 		{
 			if(m_drawLimit >= 0 && m_numRenderables >= m_drawLimit)
 				break;
-
 			// Set up vertex uniforms
-			wvp = vp* mesh.world;
-
+			renderMesh(
+				mesh.geom,
+				vp* mesh.world, // World-View-Projection
+				mesh.world,
+				wsEye,
+				mesh.material,
+				environmentPtr);
 			++m_numRenderables;
-			{
-				renderMesh(
-					mesh.geom,
-					wvp,
-					mesh.world,
-					wsEye,
-					mesh.material,
-					environmentPtr);
-			}
 		}
 
 		// Render skybox
@@ -250,6 +243,14 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void ForwardPass::resetRenderCache()
+	{
+		mBoundShader = nullptr;
+		mBoundMaterial = nullptr;
+		mBoundProbe = nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ForwardPass::renderMesh(
 		const RenderGeom* _mesh,
 		const Mat44f& _wvp,
@@ -258,26 +259,33 @@ namespace rev { namespace graphics {
 		const Material* _material,
 		const EnvironmentProbe* env)
 	{
-		// Reuse commands from previous frames
-		auto& command = mBackEnd.beginCommand();
-		// Optional sky
-		if(env)
+		// Select material
+		//if(_material != mBoundMaterial)
 		{
+			auto shader = getShader(*_material);
+			if(!shader)
+				return;
+			//if(shader != mBoundShader)
+			{
+			//	resetRenderCache();
+				mBoundShader = shader;
+			}
+			mBoundMaterial = _material;
+		}
+		// Begin recording command
+		auto& command = mBackEnd.beginCommand();
+		command.shader = mBoundShader;
+		mBoundMaterial->bindParams(mBackEnd);
+		// Optional sky
+		//if(env != mBoundProbe)
+		//{
+			mBoundProbe = env;
 			mBackEnd.addParam(7, env->environment.get());
 			mBackEnd.addParam(8, env->irradiance.get());
-		}
-
-		// Setup material
-		auto shader = getShader(*_material);
-		if(!shader)
-			return;
-		command.shader = shader;
-		_material->bindParams(mBackEnd);
+		//}
 		// Matrices
 		mBackEnd.addParam(0, _wvp);
 		mBackEnd.addParam(1, _worldMatrix);
-		//if(_shadows) // TODO: This should be world 2 shadow matrix
-		//	mBackEnd.addParam(2, model2Shadow);
 		// Lighting
 		mBackEnd.addParam(3, mEV); // Exposure value
 		mBackEnd.addParam(4, _wsEye);
