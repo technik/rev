@@ -1,0 +1,219 @@
+{
+	"asset": {
+		"version" : "2.0",
+		"generator": "technik's gltf 2.0 exporter"
+	},
+	"scene" : 0,
+	"scenes": [
+		{
+			"name": "unityScene",
+			"nodes": [ 0 ]
+		}
+	],
+	"nodes": [
+		{
+			"name": "HouseBig02",
+			"translation": [
+				25.31,
+				1.93,
+				54.47
+			],
+			"rotation": [
+				0,
+				0.1286345,
+				0,
+				0.9916921
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 0
+		}
+	],
+	"meshes": [
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 4,
+					"material": 0, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 5,
+					"material": 1, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 6,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		}
+	],
+	"materials": [
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [0.8640788, 0.9386172, 0.9632353, 1],
+				"metallicFactor":0,
+				"roughnessFactor":0.5,
+				"baseColorTexture": {
+					"index":0
+				}
+			},
+			"name": "Building02"
+		},
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [0.7794118, 0.9269778, 1, 1],
+				"metallicFactor":0,
+				"roughnessFactor":0.5,
+				"baseColorTexture": {
+					"index":1
+				}
+			},
+			"name": "Building01"
+		},
+		{
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [0.6539837, 0.6693755, 0.7058862, 1],
+				"metallicFactor":0,
+				"roughnessFactor":0.946,
+				"baseColorTexture": {
+					"index":2
+				}
+			},
+			"name": "Plank"
+		}
+	],
+	"textures": [
+		{
+			"source":0
+		},
+		{
+			"source":1
+		},
+		{
+			"source":2
+		}
+	],
+	"images": [
+		{
+			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/Building02Albedo.png"
+		},
+		{
+			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/Building01Albedo.png"
+		},
+		{
+			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/WoodTiled02Albedo.png"
+		}
+	],
+	"accessors": [
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 36111,
+			"type": "VEC3",
+			"min": [-5.807644, -0.6574659, -4.514022],
+			"max": [4.762794, 8.808147, 4.339719]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 36111,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 36111,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 36111,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 47118,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 111078,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 3,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 3564,
+			"type": "SCALAR"
+		}
+	],
+	"lights": [
+	],
+	"bufferViews": [
+			{
+				"buffer": 0,
+				"byteLength": 1733328,
+				"byteOffset": 0,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 94236,
+				"byteOffset": 1733328,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 222156,
+				"byteOffset": 1827564,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 7128,
+				"byteOffset": 2049720,
+				"target": 34963
+			}
+	],
+	"buffers": [
+		{
+			"byteLength": 2056848,
+			"uri": "cabain.bin"
+		}
+	]
+}

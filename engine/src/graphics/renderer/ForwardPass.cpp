@@ -173,9 +173,12 @@ namespace rev { namespace graphics {
 			environmentPtr = &environmentProbe;
 		}
 
+		// Cull and sort
 		cull(wsEye, _eye.viewDir(), _scene.renderables());
 		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
+		sortByRenderInfo();
 
+		// Recor render commands
 		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
 		{
@@ -196,6 +199,7 @@ namespace rev { namespace graphics {
 		if(_scene.sky)
 			renderBackground(vp, mEV, _scene.sky.get());
 
+		// Finish pass
 		mBackEnd.endPass();
 		mBackEnd.submitDraws();
 
@@ -294,6 +298,19 @@ namespace rev { namespace graphics {
 		command.nIndices = _mesh->nIndices();
 		++m_numMeshes;
 		mBackEnd.endCommand();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::sortByRenderInfo()
+	{
+		std::sort(
+			mZSortedQueue.begin(),
+			mZSortedQueue.end(),
+			[](const MeshInfo& a, const MeshInfo& b) {
+				return a.material == b.material ?
+					a.geom < b.geom :
+					a.material < b.material;
+				});
 	}
 
 	//----------------------------------------------------------------------------------------------

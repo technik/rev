@@ -49,6 +49,7 @@ namespace rev{ namespace graphics {
 			const math::Vec3f& camPos,
 			const math::Vec3f& viewDir,
 			const std::vector<std::shared_ptr<RenderObj>>& renderables);
+		void sortByRenderInfo();
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;

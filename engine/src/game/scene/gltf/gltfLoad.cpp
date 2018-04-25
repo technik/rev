@@ -354,7 +354,7 @@ namespace rev { namespace game {
 		for(auto& texDesc : sceneDesc["textures"])
 		{
 			size_t ndx = texDesc["source"];
-			auto texName = assetsFolder + sceneDesc["images"][ndx]["uri"].get<std::string>();
+			auto texName = sceneDesc["images"][ndx]["uri"].get<std::string>();
 			textureNames.push_back(texName);
 		}
 

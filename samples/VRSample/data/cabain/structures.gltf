@@ -1,0 +1,2032 @@
+{
+	"asset": {
+		"version" : "2.0",
+		"generator": "technik's gltf 2.0 exporter"
+	},
+	"scene" : 0,
+	"scenes": [
+		{
+			"name": "unityScene",
+			"nodes": [ 0 ]
+		}
+	],
+	"nodes": [
+		{
+			"name": "Structures",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 1, 13, 37, 45, 67, 74]
+		},
+		{
+			"name": "Steps",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+		},
+		{
+			"name": "Steps01",
+			"translation": [
+				50.4,
+				-0.73,
+				54.52
+			],
+			"rotation": [
+				-0.6837677,
+				0.1801713,
+				0.1801713,
+				0.6837677
+			],
+			"scale": [
+				1.35603,
+				1.35603,
+				1.35603
+			],
+			"mesh": 0
+		},
+		{
+			"name": "Steps01",
+			"translation": [
+				56.59,
+				1.17,
+				57.86
+			],
+			"rotation": [
+				-0.6414179,
+				0.2976292,
+				0.2976291,
+				0.6414179
+			],
+			"scale": [
+				1.35603,
+				1.35603,
+				1.35603
+			],
+			"mesh": 0
+		},
+		{
+			"name": "Steps02",
+			"translation": [
+				50.56,
+				0.48,
+				58.73
+			],
+			"rotation": [
+				-0.7071068,
+				0,
+				0,
+				0.7071068
+			],
+			"scale": [
+				1.453573,
+				1.453573,
+				1.453573
+			],
+			"mesh": 1
+		},
+		{
+			"name": "Steps02",
+			"translation": [
+				54.27,
+				0.51,
+				57.06
+			],
+			"rotation": [
+				-0.6823695,
+				0.1853966,
+				0.1853966,
+				0.6823695
+			],
+			"scale": [
+				1.453573,
+				1.453574,
+				1.453574
+			],
+			"mesh": 1
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				48.931,
+				-1.18,
+				51.737
+			],
+			"rotation": [
+				-0.7071068,
+				0,
+				0,
+				0.7071068
+			],
+			"scale": [
+				1,
+				1,
+				1.234874
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				58.66,
+				5.76,
+				70.86
+			],
+			"rotation": [
+				-0.6906701,
+				-0.2375914,
+				-0.2095639,
+				0.6500832
+			],
+			"scale": [
+				-1,
+				1.000001,
+				1.234875
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				60.06,
+				4.67,
+				68.69
+			],
+			"rotation": [
+				-0.6806387,
+				-0.2083681,
+				-0.2401522,
+				0.6600308
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.234876
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				62.28,
+				3.81,
+				65.71
+			],
+			"rotation": [
+				-0.658686,
+				-0.2161116,
+				-0.2332083,
+				0.6819402
+			],
+			"scale": [
+				-1,
+				1.000001,
+				1.234876
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				48.84,
+				1.551,
+				61.15
+			],
+			"rotation": [
+				-0.7365623,
+				-0.2004801,
+				-0.1507653,
+				0.6281349
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.234874
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				59.66,
+				2.58,
+				59.04
+			],
+			"rotation": [
+				-0.678583,
+				0.1988096,
+				0.1988095,
+				0.6785829
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.234874
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Steps03",
+			"translation": [
+				58.22,
+				1.94,
+				58.6
+			],
+			"rotation": [
+				-0.6785721,
+				0.2717395,
+				0.261534,
+				0.6303155
+			],
+			"scale": [
+				-1,
+				1.000001,
+				1.234875
+			],
+			"mesh": 2
+		},
+		{
+			"name": "Planks",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+		},
+		{
+			"name": "Plank01",
+			"translation": [
+				60.092,
+				-1.983,
+				37.831
+			],
+			"rotation": [
+				-0.9758745,
+				0.006730096,
+				-0.2177626,
+				0.01425164
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 3
+		},
+		{
+			"name": "Plank01",
+			"translation": [
+				61.52,
+				-1.73,
+				38.77
+			],
+			"rotation": [
+				-0.1367621,
+				-0.01475688,
+				0.9904786,
+				0.00553514
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.000001
+			],
+			"mesh": 3
+		},
+		{
+			"name": "Plank01",
+			"translation": [
+				62.894,
+				-0.99,
+				47.469
+			],
+			"rotation": [
+				-0.8011516,
+				0.01197555,
+				-0.598254,
+				0.01024644
+			],
+			"scale": [
+				1,
+				1.21626,
+				1.000001
+			],
+			"mesh": 3
+		},
+		{
+			"name": "Plank01",
+			"translation": [
+				48.98,
+				-2.47,
+				27.43
+			],
+			"rotation": [
+				-0.59497,
+				-0.01029538,
+				0.8035934,
+				0.01193351
+			],
+			"scale": [
+				1.000001,
+				1.000002,
+				1.000001
+			],
+			"mesh": 3
+		},
+		{
+			"name": "Plank01",
+			"translation": [
+				45.979,
+				-2.466,
+				25.162
+			],
+			"rotation": [
+				-0.5394639,
+				0.02107808,
+				-0.841733,
+				0.004459822
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.000001
+			],
+			"mesh": 3
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				52.416,
+				-1.989,
+				44.822
+			],
+			"rotation": [
+				0.9993259,
+				-0.009203134,
+				0.0316747,
+				0.01611891
+			],
+			"scale": [
+				1,
+				1.000007,
+				1.000005
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				60.263,
+				-1.735,
+				38.699
+			],
+			"rotation": [
+				0.9794757,
+				-0.03985112,
+				0.1972364,
+				-0.01170702
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.000001
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				62.81,
+				-1.65,
+				38.77
+			],
+			"rotation": [
+				0.9598124,
+				0.03402169,
+				0.277375,
+				-0.02580458
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.000001
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				49.272,
+				-2.349,
+				41.775
+			],
+			"rotation": [
+				0.512507,
+				0.0004895385,
+				0.8573952,
+				-0.0470087
+			],
+			"scale": [
+				0.9999998,
+				1.000002,
+				1.000001
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				69.613,
+				-0.669,
+				43.714
+			],
+			"rotation": [
+				0.9990004,
+				0.04004797,
+				-0.01322617,
+				-0.01481592
+			],
+			"scale": [
+				1,
+				1.000003,
+				1.000002
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				68.248,
+				-0.744,
+				45.219
+			],
+			"rotation": [
+				0.9900793,
+				-0.0005868275,
+				-0.1397659,
+				-0.01443012
+			],
+			"scale": [
+				1,
+				1.000003,
+				1.000002
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				66.012,
+				-0.74,
+				45.471
+			],
+			"rotation": [
+				0.9930864,
+				-0.007809783,
+				0.1159094,
+				0.01683817
+			],
+			"scale": [
+				1,
+				1.000004,
+				1.000003
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				52.777,
+				-1.892,
+				42.334
+			],
+			"rotation": [
+				0.9930864,
+				-0.007809783,
+				0.1159094,
+				0.01683817
+			],
+			"scale": [
+				1,
+				1.000005,
+				1.000004
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				47.72,
+				-2.47,
+				27.36
+			],
+			"rotation": [
+				0.764939,
+				-0.0405843,
+				0.6427622,
+				0.008836286
+			],
+			"scale": [
+				1,
+				1.000001,
+				1.000001
+			],
+			"mesh": 4
+		},
+		{
+			"name": "Plank03",
+			"translation": [
+				50.259,
+				-1.505,
+				34.921
+			],
+			"rotation": [
+				0.9039683,
+				-0.05339018,
+				0.1031769,
+				0.411516
+			],
+			"scale": [
+				1,
+				1.000007,
+				1.000005
+			],
+			"mesh": 4
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				45.771,
+				2.232,
+				64.038
+			],
+			"rotation": [
+				-0.01752136,
+				0.53934,
+				-0.02733645,
+				0.8414619
+			],
+			"scale": [
+				1,
+				1,
+				1.204568
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				66.427,
+				-0.673,
+				48.764
+			],
+			"rotation": [
+				-0.02013354,
+				0.7390358,
+				-0.004502425,
+				0.6733502
+			],
+			"scale": [
+				1,
+				1,
+				1.055758
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				33.179,
+				-0.23,
+				35.321
+			],
+			"rotation": [
+				0.02074906,
+				-0.2656372,
+				-0.02960429,
+				0.9633951
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				48.13,
+				-2.647,
+				23.41
+			],
+			"rotation": [
+				-0.009423929,
+				0.551869,
+				-0.02501734,
+				0.8335022
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				48.43,
+				-2.19,
+				46.37
+			],
+			"rotation": [
+				-0.05254491,
+				-0.01956599,
+				-0.05552175,
+				0.996882
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				51.42,
+				-2.48,
+				40.18
+			],
+			"rotation": [
+				0.01823077,
+				-0.2757688,
+				-0.002144884,
+				0.9610487
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor02",
+			"translation": [
+				40.08,
+				2.29,
+				66.28
+			],
+			"rotation": [
+				-0.02992461,
+				0.9640221,
+				-0.01260146,
+				0.2638319
+			],
+			"scale": [
+				1,
+				1,
+				1.20457
+			],
+			"mesh": 5
+		},
+		{
+			"name": "WoodFloor01",
+			"translation": [
+				72.53,
+				-0.62,
+				47.07
+			],
+			"rotation": [
+				2.185569E-08,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 6
+		},
+		{
+			"name": "Fences",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 38, 39, 40, 41, 42, 43, 44]
+		},
+		{
+			"name": "FenceSingle",
+			"translation": [
+				70.391,
+				-0.681,
+				33.671
+			],
+			"rotation": [
+				0,
+				-0.4504519,
+				0,
+				0.8928007
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 7
+		},
+		{
+			"name": "FenceSingle",
+			"translation": [
+				72.729,
+				-0.681,
+				31.812
+			],
+			"rotation": [
+				0,
+				-0.7220945,
+				0,
+				0.6917944
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 7
+		},
+		{
+			"name": "FenceSingle",
+			"translation": [
+				75.8,
+				-0.681,
+				32.097
+			],
+			"rotation": [
+				0,
+				-0.9202203,
+				0,
+				0.3914008
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 7
+		},
+		{
+			"name": "FenceSingle",
+			"translation": [
+				69.707,
+				-0.681,
+				36.667
+			],
+			"rotation": [
+				0,
+				-0.08260553,
+				0,
+				0.9965823
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 7
+		},
+		{
+			"name": "FenceDouble",
+			"translation": [
+				69.68,
+				-0.69,
+				42.88
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 8
+		},
+		{
+			"name": "FenceDouble",
+			"translation": [
+				69.68,
+				-0.667,
+				50.77
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 8
+		},
+		{
+			"name": "FenceDouble",
+			"translation": [
+				78.61,
+				-0.67,
+				42.86
+			],
+			"rotation": [
+				0,
+				0.04996933,
+				0,
+				0.9987507
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 9
+		},
+		{
+			"name": "Houses",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 59, 60, 61, 62, 63, 64, 65, 66]
+		},
+		{
+			"name": "HouseBig01",
+			"translation": [
+				56.67,
+				6.47,
+				80.54
+			],
+			"rotation": [
+				0,
+				-0.5545397,
+				0,
+				-0.8321573
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 10,
+			"children": [ 47]
+		},
+		{
+			"name": "DragonHead",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 11
+		},
+		{
+			"name": "HouseBig02",
+			"translation": [
+				25.31,
+				1.93,
+				54.47
+			],
+			"rotation": [
+				0,
+				0.1286345,
+				0,
+				0.9916921
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 12
+		},
+		{
+			"name": "HouseBig02",
+			"translation": [
+				24.51,
+				1.42,
+				43.19
+			],
+			"rotation": [
+				0,
+				-0.05855954,
+				0,
+				0.998284
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 12
+		},
+		{
+			"name": "HouseSmall",
+			"translation": [
+				30.85,
+				0.04,
+				32.12
+			],
+			"rotation": [
+				0,
+				-0.8758517,
+				0,
+				0.4825804
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 13
+		},
+		{
+			"name": "HouseSmall",
+			"translation": [
+				33.32,
+				2.6,
+				62.9
+			],
+			"rotation": [
+				0,
+				-0.1822129,
+				0,
+				0.9832591
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 13
+		},
+		{
+			"name": "HouseSmall",
+			"translation": [
+				91.89,
+				9.1,
+				67.23
+			],
+			"rotation": [
+				0,
+				-0.9941955,
+				0,
+				0.1075884
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 13
+		},
+		{
+			"name": "Storage",
+			"translation": [
+				76.26,
+				-0.6900001,
+				46.75
+			],
+			"rotation": [
+				0,
+				-0.02457628,
+				0,
+				-0.999698
+			],
+			"scale": [
+				0.5,
+				0.5,
+				0.5
+			],
+			"mesh": 14
+		},
+		{
+			"name": "Tower",
+			"translation": [
+				38.45,
+				-0.3099999,
+				26.14
+			],
+			"rotation": [
+				0,
+				0.7864008,
+				0,
+				0.6177166
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 15
+		},
+		{
+			"name": "HouseFoundation",
+			"translation": [
+				43.79,
+				1.32,
+				68.18
+			],
+			"rotation": [
+				1.080334E-07,
+				0.5208936,
+				-1.862645E-08,
+				0.8536216
+			],
+			"scale": [
+				0.8522446,
+				1.148687,
+				1.29346
+			],
+			"mesh": 16
+		},
+		{
+			"name": "HouseFoundation",
+			"translation": [
+				34.23,
+				1.0439,
+				63.66
+			],
+			"rotation": [
+				1.788139E-07,
+				0.981328,
+				-4.097819E-07,
+				0.192342
+			],
+			"scale": [
+				1.214933,
+				1.214933,
+				1.214933
+			],
+			"mesh": 16
+		},
+		{
+			"name": "BarracksDouble",
+			"translation": [
+				70.09054,
+				3.87,
+				62.14415
+			],
+			"rotation": [
+				0,
+				0.9928932,
+				0,
+				0.1190092
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 17,
+			"children": [ 58]
+		},
+		{
+			"name": "Pillars",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 18
+		},
+		{
+			"name": "BarracksSingle",
+			"translation": [
+				44.1,
+				2.57,
+				66.68
+			],
+			"rotation": [
+				0,
+				0.499451,
+				0,
+				0.8663421
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 19
+		},
+		{
+			"name": "BarracksSingle",
+			"translation": [
+				38.69,
+				13.75,
+				94.49
+			],
+			"rotation": [
+				0,
+				0.8984548,
+				0,
+				0.439066
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 19
+		},
+		{
+			"name": "Shed01",
+			"translation": [
+				29.91001,
+				2.27,
+				60.45
+			],
+			"rotation": [
+				0,
+				-0.8373603,
+				0,
+				0.5466514
+			],
+			"scale": [
+				1.308232,
+				1.308227,
+				1.308232
+			],
+			"mesh": 20
+		},
+		{
+			"name": "Shed01",
+			"translation": [
+				62.07,
+				-0.6920004,
+				48.92
+			],
+			"rotation": [
+				0,
+				-0.9735391,
+				0,
+				0.2285207
+			],
+			"scale": [
+				1.308229,
+				1.308227,
+				1.308229
+			],
+			"mesh": 20
+		},
+		{
+			"name": "Shed02",
+			"translation": [
+				66.415,
+				-0.486,
+				49.063
+			],
+			"rotation": [
+				0,
+				-0.9998975,
+				0,
+				-0.01431819
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 21
+		},
+		{
+			"name": "Shed02",
+			"translation": [
+				40.107,
+				2.385,
+				66.23
+			],
+			"rotation": [
+				0,
+				-0.8727245,
+				0,
+				0.4882131
+			],
+			"scale": [
+				1,
+				1.251006,
+				1.225769
+			],
+			"mesh": 21
+		},
+		{
+			"name": "HouseFoundation",
+			"translation": [
+				72.45,
+				2.56,
+				59.86
+			],
+			"rotation": [
+				-1.639127E-07,
+				-0.1032583,
+				7.91624E-08,
+				0.9946546
+			],
+			"scale": [
+				1.293459,
+				1.293459,
+				1.293459
+			],
+			"mesh": 16
+		},
+		{
+			"name": "HouseFoundation",
+			"translation": [
+				68.56,
+				2.56,
+				67.26
+			],
+			"rotation": [
+				-3.166496E-07,
+				0.5991767,
+				2.793967E-07,
+				0.8006168
+			],
+			"scale": [
+				1.29346,
+				1.29346,
+				1.29346
+			],
+			"mesh": 16
+		},
+		{
+			"name": "Logs",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 68, 69, 70, 71, 72, 73]
+		},
+		{
+			"name": "LogWallLow",
+			"translation": [
+				44.64,
+				-1.95,
+				23.62
+			],
+			"rotation": [
+				5.982436E-10,
+				-0.7075714,
+				8.571701E-10,
+				0.7066419
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 22
+		},
+		{
+			"name": "LogWallLow",
+			"translation": [
+				42.75,
+				-1.95,
+				27.56
+			],
+			"rotation": [
+				1.973649E-10,
+				-0.9339951,
+				1.026491E-09,
+				0.3572857
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 22
+		},
+		{
+			"name": "LogWallLow",
+			"translation": [
+				43.46,
+				-1.95,
+				19.2
+			],
+			"rotation": [
+				3.566297E-10,
+				-0.5011176,
+				9.825738E-10,
+				0.8653792
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 22
+		},
+		{
+			"name": "LogWallLow",
+			"translation": [
+				56.5,
+				-2.626,
+				38.92
+			],
+			"rotation": [
+				-1.01448E-10,
+				-0.07943182,
+				1.040358E-09,
+				0.9968404
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 22
+		},
+		{
+			"name": "LogWallLow",
+			"translation": [
+				60.9,
+				-2.4,
+				40.64
+			],
+			"rotation": [
+				-0.01425984,
+				-0.2124527,
+				0.06543359,
+				0.9748738
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 22
+		},
+		{
+			"name": "Pillar",
+			"translation": [
+				46.98,
+				0.1730001,
+				59.59
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 23
+		},
+		{
+			"name": "Walls",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"children": [ 75, 76, 77, 78, 79, 80, 81, 82, 83]
+		},
+		{
+			"name": "Gate",
+			"translation": [
+				48.36,
+				1.51,
+				23.54
+			],
+			"rotation": [
+				-0.003647071,
+				0.6995054,
+				0.004682483,
+				0.7146028
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 24
+		},
+		{
+			"name": "WallCorner",
+			"translation": [
+				54.55,
+				-1.48,
+				20.55
+			],
+			"rotation": [
+				0,
+				0.6430439,
+				0,
+				0.7658293
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 25
+		},
+		{
+			"name": "WallCorner",
+			"translation": [
+				41.8,
+				-1.22,
+				21.5
+			],
+			"rotation": [
+				0,
+				0.8149807,
+				0,
+				0.5794882
+			],
+			"scale": [
+				1,
+				1,
+				-1
+			],
+			"mesh": 25
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				36.11,
+				-0.8,
+				23.14
+			],
+			"rotation": [
+				0,
+				0.8002381,
+				0,
+				0.5996825
+			],
+			"scale": [
+				0.7500007,
+				0.75,
+				0.7500007
+			],
+			"mesh": 26
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				60.4,
+				-0.76,
+				21.25
+			],
+			"rotation": [
+				-0.02396441,
+				0.6691197,
+				0.02159738,
+				0.7424542
+			],
+			"scale": [
+				0.7500011,
+				0.7500004,
+				0.7500007
+			],
+			"mesh": 26
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				64.63,
+				-0.42,
+				22.16
+			],
+			"rotation": [
+				0,
+				0.6010892,
+				0,
+				0.7991819
+			],
+			"scale": [
+				0.7500004,
+				0.75,
+				0.7500004
+			],
+			"mesh": 26
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				31.77,
+				-0.8,
+				24.82
+			],
+			"rotation": [
+				0,
+				0.8429876,
+				0,
+				0.537933
+			],
+			"scale": [
+				0.7499996,
+				0.75,
+				0.7499996
+			],
+			"mesh": 26
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				27.89,
+				-0.8,
+				27.05
+			],
+			"rotation": [
+				0,
+				0.8981128,
+				0,
+				0.4397652
+			],
+			"scale": [
+				0.75,
+				0.75,
+				0.75
+			],
+			"mesh": 26
+		},
+		{
+			"name": "WallPanel",
+			"translation": [
+				69.49,
+				-0.4200001,
+				23.44
+			],
+			"rotation": [
+				0,
+				0.6630087,
+				0,
+				0.7486117
+			],
+			"scale": [
+				0.7500007,
+				0.75,
+				0.7500007
+			],
+			"mesh": 26
+		}
+	],
+	"meshes": [
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 4,
+					"material": 3, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 5,
+						"NORMAL": 6,
+						"TANGENT": 7,
+						"TEXCOORD_0": 8
+					},
+					"indices" : 9,
+					"material": 3, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 10,
+						"NORMAL": 11,
+						"TANGENT": 12,
+						"TEXCOORD_0": 13
+					},
+					"indices" : 14,
+					"material": 3, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 15,
+						"NORMAL": 16,
+						"TANGENT": 17,
+						"TEXCOORD_0": 18
+					},
+					"indices" : 19,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 20,
+						"NORMAL": 21,
+						"TANGENT": 22,
+						"TEXCOORD_0": 23
+					},
+					"indices" : 24,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 25,
+						"NORMAL": 26,
+						"TANGENT": 27,
+						"TEXCOORD_0": 28
+					},
+					"indices" : 29,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 30,
+						"NORMAL": 31,
+						"TANGENT": 32,
+						"TEXCOORD_0": 33
+					},
+					"indices" : 34,
+					"material": 0, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 35,
+						"NORMAL": 36,
+						"TANGENT": 37,
+						"TEXCOORD_0": 38
+					},
+					"indices" : 39,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 40,
+						"NORMAL": 41,
+						"TANGENT": 42,
+						"TEXCOORD_0": 43
+					},
+					"indices" : 44,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 45,
+						"NORMAL": 46,
+						"TANGENT": 47,
+						"TEXCOORD_0": 48
+					},
+					"indices" : 49,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 50,
+						"NORMAL": 51,
+						"TANGENT": 52,
+						"TEXCOORD_0": 53
+					},
+					"indices" : 54,
+					"material": 1, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 50,
+						"NORMAL": 51,
+						"TANGENT": 52,
+						"TEXCOORD_0": 53
+					},
+					"indices" : 55,
+					"material": 0, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 50,
+						"NORMAL": 51,
+						"TANGENT": 52,
+						"TEXCOORD_0": 53
+					},
+					"indices" : 56,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 57,
+						"NORMAL": 58,
+						"TANGENT": 59,
+						"TEXCOORD_0": 60
+					},
+					"indices" : 61,
+					"material": 4, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 62,
+						"NORMAL": 63,
+						"TANGENT": 64,
+						"TEXCOORD_0": 65
+					},
+					"indices" : 66,
+					"material": 0, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 62,
+						"NORMAL": 63,
+						"TANGENT": 64,
+						"TEXCOORD_0": 65
+					},
+					"indices" : 67,
+					"material": 1, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 62,
+						"NORMAL": 63,
+						"TANGENT": 64,
+						"TEXCOORD_0": 65
+					},
+					"indices" : 68,
+					"material": 2, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 69,
+						"NORMAL": 70,
+						"TANGENT": 71,
+						"TEXCOORD_0": 72
+					},
+					"indices" : 73,
+					"material": 1, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 69,
+						"NORMAL": 70,
+						"TANGENT": 71,
+						"TEXCOORD_0": 72
+					},
+					"indices" : 74,
+					"material": 0, 
+					"mode": 4
+				}
+			]
+		},
+		{
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 79,
+					"material": 0, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 80,
+					"material": 2, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 81,
+					"material": 5, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 82,
+					"material": 6, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 83,
+					"material": 7, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 75,
+						"NORMAL": 76,
+						"TANGENT": 77,
+						"TEXCOORD_0": 78
+					},
+					"indices" : 84,
+					"material": 1, 
+					"mode": 4
+				}
+			]
+		},
