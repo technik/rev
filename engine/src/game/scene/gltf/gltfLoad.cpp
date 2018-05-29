@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "gltfLoad.h"
-#include "gltfTypes.h"
+#include "gltf.h"
 #include <core/tools/log.h>
 #include <core/types/json.h>
 #include <game/scene/transform/transform.h>
@@ -32,6 +32,7 @@
 #include <vector>
 
 using Json = rev::core::Json;
+using namespace fx;
 
 using namespace rev::graphics;
 using namespace rev::math;
@@ -287,76 +288,33 @@ namespace rev { namespace game {
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _geomPool)
 	{
-		core::File sceneFile(assetsFolder + fileName + ".gltf");
+		auto fileName = assetsFolder + fileName + ".gltf";
+		core::File sceneFile(fileName);
 		if(!sceneFile.sizeInBytes())
 		{
 			core::Log::error("Unable to find scene asset");
 			return;
 		}
-		Json sceneDesc = Json::parse(sceneFile.bufferAsText());
-		auto asset = sceneDesc.find("asset");
-		if(asset == sceneDesc.end())
+		// Load gltf document
+		gltf::Document document = gltf::detail::Create(
+			Json::parse(sceneFile.bufferAsText()),
+			{ assetsFolder, {}});
+
+		// Verify document is supported
+		auto asset = document.asset;
+		if(asset.empty())
 		{
 			core::Log::error("Can't find asset descriptor");
 			return;
 		}
-		if(asset.value()["version"] != "2.0")
+		if(asset.version != "2.0")
 		{
 			core::Log::error("Wrong format version. GLTF assets must be 2.0");
 			return;
 		}
-		auto scene = sceneDesc.find("scene");
-		auto scenesDict = sceneDesc.find("scenes");
-		if(scenesDict == sceneDesc.end() || scene == sceneDesc.end() || scenesDict.value().size() == 0)
-		{
-			core::Log::error("Can't find proper scene descriptor in asset's scenes");
-			return;
-		}
-		// Load buffers
-		std::vector<gltf::Buffer> buffers;
-		for(auto& buffDesc : sceneDesc["buffers"])
-			buffers.emplace_back(assetsFolder, buffDesc);
 
-		// Load buffer views
-		std::vector<gltf::BufferView> bufferViews;
-		for(auto& viewDesc : sceneDesc["bufferViews"])
-		{
-			bufferViews.emplace_back(buffers, viewDesc);
-		}
-
-		// Load accessors
-		std::vector<gltf::Accessor> accessors;
-		for(auto& accessorDesc : sceneDesc["accessors"])
-		{
-			gltf::Accessor accessor;
-			accessor.type = accessorDesc["type"].get<std::string>();
-			unsigned cTypeDesc = accessorDesc["componentType"];
-			accessor.componentType = gltf::Accessor::ComponentType(cTypeDesc);
-			unsigned bufferViewNdx = accessorDesc["bufferView"];
-			auto offsetIter = accessorDesc.find("byteOffset");
-			if(offsetIter != accessorDesc.end())
-				accessor.offset = offsetIter.value().get<unsigned>();
-			accessor.count = accessorDesc["count"];
-			accessor.view = &bufferViews[bufferViewNdx];
-			auto minIter = accessorDesc.find("min");
-			auto maxIter = accessorDesc.find("max");
-			if(minIter != accessorDesc.end() && maxIter != accessorDesc.end())
-			{
-				accessor.min = loadVec3f(accessorDesc["min"]);
-				accessor.max = loadVec3f(accessorDesc["max"]);
-				accessor.hasBounds = true;
-			}
-			accessors.push_back(accessor);
-		}
-
-		// Load textures
-		std::vector<std::string>	textureNames;
-		for(auto& texDesc : sceneDesc["textures"])
-		{
-			size_t ndx = texDesc["source"];
-			auto texName = sceneDesc["images"][ndx]["uri"].get<std::string>();
-			textureNames.push_back(texName);
-		}
+		auto scene = document.scene;
+		auto& scenesDict = document.scenes;
 
 		// Default material
 		auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
@@ -364,25 +322,11 @@ namespace rev { namespace game {
 
 		// Load materials
 		std::vector<std::shared_ptr<graphics::Material>> materials;
-		loadMaterials(sceneDesc["materials"], pbrEffect, materials, textureNames);
-
-		// Load meshes
-		std::vector<gltf::Mesh>	meshes;
-		for(auto& meshDesc : sceneDesc["meshes"])
-		{
-			meshes.emplace_back(accessors, meshDesc);
-		}
-
-		// Load lights
-		std::vector<gltf::Light> lights;
-		for(auto& lightDesc : sceneDesc["lights"])
-		{
-			lights.emplace_back(lightDesc);
-		}
+		loadMaterials(document, pbrEffect, materials);
 
 		// Load nodes
 		std::vector<std::shared_ptr<SceneNode>> nodes;
-		loadNodes(sceneDesc["nodes"], nodes, meshes, materials, defaultMaterial, lights, _gfxWorld);
+		loadNodes(document.nodes, nodes, meshes, materials, defaultMaterial, lights, _gfxWorld);
 		
 		// Rebuild hierarchy
 		size_t i = 0;
