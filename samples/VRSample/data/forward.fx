@@ -56,7 +56,10 @@ layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 layout(location = 9) uniform sampler2D uShadowMap;
 
-float PI = 3.14159265359;
+const float PI = 3.14159265359;
+const float TWO_PI = 6.283185307179586;
+const float HALF_PI = 1.5707963267948966;
+const float INV_PI = 0.3183098861837907;
 
 struct ShadeInput
 {

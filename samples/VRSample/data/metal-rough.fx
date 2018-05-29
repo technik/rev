@@ -68,16 +68,6 @@ layout(location = 16) uniform float uMetallic;
 #endif
 
 //---------------------------------------------------------------------------------------
-vec3 diffusePBR(
-	ShadeInput inputs,
-	vec3 diffColor,
-	float metallic
-	)
-{
-	return diffColor * ((1.0-metallic) / PI);
-}
-
-//---------------------------------------------------------------------------------------
 vec3 specularPBR(
 	ShadeInput inputs,
 	vec3 specColor,
@@ -107,7 +97,7 @@ vec3 directLightPBR(
 	)
 {
 	float ndl = max(0.0,dot(inputs.normal,uLightDir));
-	vec3 diffuse = diffusePBR(inputs, diffColor, metallic);
+	vec3 diffuse = diffColor * ((1.0-metallic) * INV_PI);
 	vec3 specular = specularPBR(inputs, specColor, roughness, metallic, ndl);
 	
 	//return (specular) * ndl * uLightColor;
@@ -132,7 +122,7 @@ float normal_distrib(
   // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
   float alpha = Roughness * Roughness;
   float tmp = alpha / max(1e-8,(ndh*ndh*(alpha*alpha-1.0)+1.0));
-  return tmp * tmp / PI;
+  return tmp * tmp * INV_PI;
 }
 
 vec3 fresnel(
@@ -185,7 +175,7 @@ vec3 importanceSampleGGX(vec2 Xi, vec3 T, vec3 B, vec3 N, float roughness)
   float a = roughness*roughness;
   float cosT = sqrt((1.0-Xi.y)/(1.0+(a*a-1.0)*Xi.y));
   float sinT = sqrt(1.0-cosT*cosT);
-  float phi = 2.0*PI*Xi.x;
+  float phi = Xi.x; // premultiplied by 2*pi
   return
     T * (sinT*cos(phi)) +
     B * (sinT*sin(phi)) +
@@ -207,8 +197,25 @@ float distortion(vec3 Wn)
 
 #ifdef ANDROID
 int nbSamples = 4;
+vec2 fibonacci2D[nbSamples] = {
+	vec2(0.7853981633974483, 0.6180300000000001),
+	vec2(2.356194490192345, 0.23606000000000016),
+	vec2(3.9269908169872414, 0.8540900000000002),
+	vec2(5.497787143782138, 0.4721200000000003)
+}
 #else
-int nbSamples = 8;
+const int nbSamples = 8;
+// x component premultiplied by 2*pi
+const vec2 fibonacci2D[nbSamples] = vec2[](
+	vec2(0.39269908169872414, 0.6180300000000001),
+	vec2(1.1780972450961724, 0.23606000000000016),
+	vec2(1.9634954084936207, 0.8540900000000002),
+	vec2(2.748893571891069, 0.4721200000000003),
+	vec2(3.5342917352885173, 0.09015000000000128),
+	vec2(4.319689898685965, 0.7081800000000005),
+	vec2(5.105088062083414, 0.32620999999999967),
+	vec2(5.890486225480862, 0.9442400000000006)
+);
 #endif
 float computeLOD(vec3 Ln, float p)
 {
@@ -218,21 +225,6 @@ float computeLOD(vec3 Ln, float p)
 	float maxLod = 8.0;
 //#endif
 	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
-}
-
-const float M_GOLDEN_RATIO = 1.618034;
-float fibonacci1D(int i)
-{
-  return fract((float(i) + 1.0) * M_GOLDEN_RATIO);
-}
-
-//---------------------------------------------------------------------------------------
-vec2 fibonacci2D(int i, int nSamples)
-{
-  return vec2(
-    (float(i)+0.5) / float(nSamples),
-    fibonacci1D(i)
-  );
 }
 
 //---------------------------------------------------------------------------------------
@@ -257,12 +249,9 @@ vec3 specularIBL(
 
 	for(int i=0; i<nbSamples; ++i)
 	{
-		vec2 Xi = fibonacci2D(i, nbSamples);
 		vec3 Hn = importanceSampleGGX(
-			Xi, vectors.tangent, vectors.bitangent, vectors.normal, roughness);
+			fibonacci2D[i], vectors.tangent, vectors.bitangent, vectors.normal, roughness);
 		vec3 Ln = -reflect(vectors.eye,Hn);
-
-		float fade = 1.0;//horizonFading(dot(vectors.vertexNormal, Ln), horizonFade);
 
 		float ndl = dot(vectors.normal, Ln);
 		ndl = max( 1e-8, ndl );
@@ -270,8 +259,7 @@ vec3 specularIBL(
 		float ndh = max(1e-8, dot(vectors.normal, Hn));
 		float lodS = roughness < 0.01 ? 0.0 : computeLOD(Ln, probabilityGGX(ndh, vdh, roughness));
 		vec3 env = textureLod(uEnvironment, sampleSpherical(Ln), lodS ).xyz;
-		radiance += fade * env *
-			cook_torrance_contrib(vdh, ndh, ndl, ndv, specColor, roughness);
+		radiance += env * cook_torrance_contrib(vdh, ndh, ndl, ndv, specColor, roughness);
 	}
 	// Remove occlusions on shiny reflections
 	radiance *= mix(occlusion, 1.0, glossiness * glossiness) / float(nbSamples);
@@ -292,14 +280,14 @@ vec3 indirectLightPBR(
 	vec3 diffColor,
 	vec3 specColor,
 	float roughness,
-	float occlusion,
-	float shadow
+	float occlusion
+	//float shadow
 	)
 {
-	float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
+	/*float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
 	shadowImportance = sqrt(shadowImportance);
 	//shadowImportance = shadowImportance*shadowImportance;
-	float shadowMask = mix(1.0, shadow, shadowImportance);
+	float shadowMask = mix(1.0, shadow, shadowImportance);*/
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
 #ifdef sampler2D_uNormalMap
@@ -310,7 +298,7 @@ vec3 indirectLightPBR(
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
-	return shadowMask * (specular +  diffuse);
+	return specular +  diffuse;
 	//return (1.0-0.00001*shadowMask)* ( diffuse);
 	//return diffuse;
 	//return specular;
@@ -361,18 +349,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	//vec4 shadowSpacePos = vec4(vtxWsPos, 1.0);
 	//float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
 	//float curDepth = shadowSpacePos.z;
-	float shadow = 1.0;
+	//float shadow = 1.0;
 	/*if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
 	 shadowSpacePos.y >= 0.0 && shadowSpacePos.y <= 1.0 &&
 	 shadowSpacePos.z >= 0.0 && shadowSpacePos.z <= 1.0 &&
 	 shadowSpacePos.z > sampledDepth)
 		shadow = 0.0;*/
-	
-#ifdef sampler2D_uEmissive
-	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-#else
-	vec3 emissive = vec3(0.0);
-#endif
 	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
 	vec3 diffColor = baseColor*(1.0-metallic);
@@ -388,8 +370,7 @@ vec3 shadeSurface(ShadeInput inputs)
 		diffColor,
 		specColor,
 		roughness,
-		occlusion,
-		shadow);
+		occlusion);
 	//return 0.5+0.5*inputs.normal;
 	//return directLight + emissive;
 	//return shadowSpacePos.xyz;
@@ -401,7 +382,13 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return physics;
 	//return baseColor;
 	//return directLight + indirectLight + emissive;
+	
+#ifdef sampler2D_uEmissive
+	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	return indirectLight + emissive;
+#else
+	return indirectLight;
+#endif
 	//return directLight + emissive;
 }
 

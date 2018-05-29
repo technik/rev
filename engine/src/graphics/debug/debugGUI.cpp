@@ -73,13 +73,15 @@ namespace rev { namespace graphics { namespace gui {
 
 	void drawFPS(float _dt)
 	{
-		static float average[10] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+		constexpr size_t nSamples = 50;
+		static float average[nSamples] = {};
 		static int ndx = 0;
 		average[ndx++] = _dt;
-		ndx %= 10;
+		ndx %= nSamples;
 		float dt = 0;
-		for(int i = 0; i < 10; ++i)
-			dt += average[i]*0.1f;
+		for(int i = 0; i < nSamples; ++i)
+			dt += average[i];
+		dt /= nSamples;
 		const float DISTANCE = 10.f;
 		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE);
 		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);
