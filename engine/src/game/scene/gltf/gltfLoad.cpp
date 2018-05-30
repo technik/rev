@@ -25,6 +25,7 @@
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
@@ -221,6 +222,101 @@ namespace rev { namespace game {
 				node->addComponent(std::move(nodeMesh));
 			}
 		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	template<class Attr>
+	vector<Attr> readAttribute(
+		const gltf::Document& _document,
+		const vector<core::File*> _buffers,
+		uint32_t accessorNdx)
+	{
+		auto& accessor = _document.accessors[accessorNdx];
+		auto& bufferView = _document.bufferViews[accessor.bufferView];
+		auto data = _buffers[bufferView.buffer]->buffer();
+
+		vector<Attr> attribute;
+		if(data && indexBv.byteLength >= indexAcs.count * sizeof(Attr))
+		{
+			attribute.resize(accessor.count);
+			memcpy(attribute.data(), data, sizeof(Attr)*attribute.size());
+		}
+		return attribute;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	shared_ptr<RenderGeom> loadPrimitive(
+		const gltf::Document& _document,
+		const vector<core::File*> _buffers,
+		const gltf::Primitive& _primitive)
+	{
+		// Read indices
+		auto& indexAcs = _document.accessors[_primitive.indices];
+		auto& indexBv = _document.bufferViews[indexAcs.bufferView];
+		auto indxData = _buffers[indexBv.buffer]->buffer();
+
+		std::vector<uint16_t> indices(indexAcs.count);
+		if(indxData && indexBv.byteLength >= indexAcs.count * sizeof(uint16_t))
+			memcpy(indices.data(), indxData, sizeof(uint16_t)*indices.size());
+		else return nullptr;
+
+		// Read vertex data
+		// TODO: Efficient read of both interleaved and separated vertex data
+		// Also: use a single vertex buffer when possible
+		auto posAcsNdx = _primitive.attributes.at("POSITION");
+		auto position = readAttribute<Vec3f>(_document, _buffers, posAcsNdx);
+		auto normal = readAttribute<Vec3f>(_document, _buffers, _primitive.attributes.at("NORMAL"));
+		auto tangent = readAttribute<Vec4f>(_document, _buffers, _primitive.attributes.at("TANGENT"));
+		auto uv = readAttribute<Vec2f>(_document, _buffers, _primitive.attributes.at("TEXCOORD_0"));
+
+		// Copy vertex data into the right format
+		std::vector<RenderGeom::Vertex> vertices(position.size());
+		for(size_t i = 0; i < vertices.size(); ++i)
+		{
+			auto& v = vertices[i];
+			v.position = position[i];
+			v.normal = normal[i];
+			auto srcTangent = tangent[i];
+			v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+			v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+			v.uv = uv[i];
+		}
+
+		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
+			mesh->bbox = BBox(
+				_document.accessors[posAcsNdx].min,
+				_document.accessors[posAcsNdx].max);
+		return mesh;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void loadMeshes(
+		const gltf::Document& _document,
+		const vector<shared_ptr<Material>>& _materials,
+		vector<shared_ptr<RenderMesh>>& meshes)
+	{
+		// Load buffers
+		vector<core::File*> buffers;
+		for(auto b : _document.buffers)
+			buffers.push_back(new core::File(b.uri));
+
+		// Load the meshes
+		meshes.reserve(_document.meshes.size());
+		for(auto& meshDesc : _document.meshes)
+		{
+			meshes.emplace_back();
+			auto mesh = meshes.back();
+			for(auto& primitive : meshDesc.primitives)
+			{
+				shared_ptr<Material> material = _materials[primitive.material];
+				shared_ptr<RenderGeom> geometry = loadPrimitive(_document, buffers, primitive);
+				mesh->mPrimitives.emplace_back(geometry, material);
+			}
+		}
+
+		// Clear buffers
+		for(auto buffer : buffers)
+			delete buffer;
 	}
 
 	//----------------------------------------------------------------------------------------------
