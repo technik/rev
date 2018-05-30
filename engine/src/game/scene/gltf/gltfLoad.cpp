@@ -32,8 +32,8 @@
 #include <vector>
 
 using Json = rev::core::Json;
-using namespace fx;
 
+using namespace fx;
 using namespace rev::graphics;
 using namespace rev::math;
 using namespace std;
@@ -225,58 +225,68 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	void loadMaterials(
-		const Json& matArray,
+		const gltf::Document& _document,
 		shared_ptr<Effect> _pbrEffect,
-		std::vector<std::shared_ptr<Material>>& _materials,
-		const std::vector<std::string>&	_textureNames
+		const std::vector<std::shared_ptr<Texture>>& _textures,
+		std::vector<std::shared_ptr<Material>>& _materials
 		)
 	{
 		// Load materials
-		for(auto& matDesc : matArray)
+		for(auto& matDesc : _document.materials)
 		{
 			auto mat = std::make_shared<Material>(_pbrEffect);
-			if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
+			auto& pbrDesc = matDesc.pbrMetallicRoughness;
+			if(!pbrDesc.empty())
 			{
-				auto pbrDesc = matDesc["pbrMetallicRoughness"];
 				// Base color
-				if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
+				if(!pbrDesc.baseColorTexture.empty())
 				{
-					size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
-					mat->addTexture("uBaseColorMap", Texture::load(_textureNames[albedoNdx], false));
+					auto albedoNdx = pbrDesc.baseColorTexture.index;
+					mat->addTexture("uBaseColorMap", _textures[albedoNdx]);
 				}
-				if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
+				// Base color factor
 				{
-					auto& baseColorDesc = pbrDesc["baseColorFactor"];
-					Vec4f color {
-						baseColorDesc[0].get<float>(),
-						baseColorDesc[1].get<float>(),
-						baseColorDesc[2].get<float>(),
-						baseColorDesc[3].get<float>()
-					};
-					mat->addParam("uBaseColor", color);
+					auto& colorDesc = pbrDesc.baseColorFactor;
+					auto& color = reinterpret_cast<const math::Vec4f&>(colorDesc);
+					if(color != Vec4f::ones())
+						mat->addParam("uBaseColor", color);
 				}
 				// Metallic-roughness
-				if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
+				if(!pbrDesc.metallicRoughnessTexture.empty())
 				{
-					size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
-					mat->addTexture("uPhysics", Texture::load(_textureNames[physicsNdx], false));
+					// Load map in linear space!!
+					auto ndx = pbrDesc.metallicRoughnessTexture.index;
+					mat->addTexture("uPhysics", _textures[ndx]);
 				}
-				if(pbrDesc.find("roughnessFactor") != pbrDesc.end())
-					mat->addParam("uRoughness", pbrDesc["roughnessFactor"].get<float>());
-				if(pbrDesc.find("metallicFactor") != pbrDesc.end())
-					mat->addParam("uMetallic", pbrDesc["metallicFactor"].get<float>());
+				if(pbrDesc.roughnessFactor != 1.f)
+					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
+				if(pbrDesc.metallicFactor != 1.f)
+					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
-			if(matDesc.find("emissiveTexture") != matDesc.end())
+			if(!matDesc.emissiveTexture.empty())
+				mat->addTexture("uEmissive", _textures[matDesc.emissiveTexture.index]);
+			if(!matDesc.normalTexture.empty())
 			{
-				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
-				mat->addTexture("uEmissive", Texture::load(_textureNames[emissiveNdx], false));
-			}
-			if(matDesc.find("normalTexture") != matDesc.end())
-			{
-				size_t normalNdx = matDesc["normalTexture"]["index"];
-				mat->addTexture("uNormalMap", Texture::load(_textureNames[normalNdx], false));
+				// TODO: Load normal map in linear space!!
+				mat->addTexture("uNormalMap", _textures[matDesc.normalTexture.index]);
 			}
 			_materials.push_back(mat);
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	// TODO: This method assumes the texture is sRGB.
+	// Instead, textures should be loaded on demand, when real color space info is available, or a first pass
+	// should be performed on materials, marking textures with their corresponding color spaces
+	void loadTextures(const gltf::Document& _document, std::vector<std::shared_ptr<Texture>>& textures)
+	{
+		textures.reserve(_document.textures.size());
+		for(auto& textDesc : _document.textures)
+		{
+			// TODO: Use texture sampler information
+			//auto& sampler = _document.samplers[textDesc.sampler];
+			auto& image = _document.images[textDesc.source];
+			textures.push_back(Texture::load(image.uri));
 		}
 	}
 
@@ -313,16 +323,17 @@ namespace rev { namespace game {
 			return;
 		}
 
-		auto scene = document.scene;
-		auto& scenesDict = document.scenes;
+		// Preload all textures in the document.
+		std::vector<std::shared_ptr<Texture>> textures;
+		loadTextures(document, textures);
 
-		// Default material
+		// Create default material
 		auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		// Load materials
 		std::vector<std::shared_ptr<graphics::Material>> materials;
-		loadMaterials(document, pbrEffect, materials);
+		loadMaterials(document, pbrEffect, textures, materials);
 
 		// Load nodes
 		std::vector<std::shared_ptr<SceneNode>> nodes;
