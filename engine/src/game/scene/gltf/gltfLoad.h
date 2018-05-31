@@ -32,7 +32,7 @@ namespace rev { namespace game {
 	/// Filename must not contain the extension
 	/// If parentNode is not nullptr, all the scene nodes will be added as children to it
 	void loadGLTFScene(
-		SceneNode* parentNode,
+		SceneNode& parentNode,
 		const std::string& assetsFolder,
 		const std::string& fileName,
 		graphics::RenderScene& _gfxWorld,

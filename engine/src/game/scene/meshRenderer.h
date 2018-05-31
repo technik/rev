@@ -30,7 +30,7 @@ namespace rev { namespace game {
 	class MeshRenderer : public Component {
 	public:
 		MeshRenderer( // TODO: Move serialization out of the game component
-			std::shared_ptr<graphics::RenderObj> mesh
+			const std::shared_ptr<graphics::RenderObj>& renderObj
 		);
 
 		~MeshRenderer()
@@ -45,8 +45,8 @@ namespace rev { namespace game {
 				graphics::RenderObj& renderObj() { return *mRenderable; }
 
 	private:
-		std::shared_ptr<graphics::RenderObj>	mRenderable;
-		Transform*								mSrcTransform;
+		const std::shared_ptr<graphics::RenderObj>	mRenderable;
+		Transform*									mSrcTransform = nullptr;
 	};
 
 }}	// namespace rev::game

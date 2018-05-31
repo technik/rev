@@ -97,56 +97,47 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadNodes(
-		const Json& _nodeArrayDesc,
-		vector<shared_ptr<SceneNode>>& _sceneNodes,
-		const std::vector<gltf::Mesh>&	_meshes,
-		const std::vector<std::shared_ptr<Material>>& _materials,
-		std::shared_ptr<Material> _defaultMaterial,
-		const std::vector<gltf::Light>& _lights,
+	auto loadNodes(
+		const gltf::Document& _document,
+		const vector<shared_ptr<RenderMesh>>& _meshes,
+		const vector<shared_ptr<Material>>& _materials,
+		shared_ptr<Material> _defaultMaterial,
 		graphics::RenderScene& _gfxWorld)
 	{
-		// Map first accessor's id, to a generated render object
-		GeometryCache renderObjCache;
-		for(auto& nodeDesc : _nodeArrayDesc)
+		vector<shared_ptr<SceneNode>> nodes;
+
+		// Create node and add basic components
+		for(auto& nodeDesc : _document.nodes)
 		{
 			auto node = std::make_shared<SceneNode>();
-			_sceneNodes.push_back(node);
-			// Node name
-			auto nameIter = nodeDesc.find("name");
-			if(nameIter != nodeDesc.end())
-				node->name = nameIter.value().get<std::string>();
-			// Node transform
+			node->name = nodeDesc.name; // Node name
+
+			// Optional node transform
 			auto nodeTransform = loadNodeTransform(nodeDesc);
 			if(nodeTransform)
 				node->addComponent(std::move(nodeTransform));
 			
-			// Optional light
-			if(nodeDesc.find("light") != nodeDesc.end())
-			{
-				int ndx = nodeDesc["light"].get<int>();
-				auto& l = _lights[ndx];
-				if(l.mType == gltf::Light::Spot)
-				{
-					node->addComponent<game::SpotLight>(_gfxWorld, l.mAngle, l.mRange, l.mColor);
-				}
-			}
 			// Optional node mesh
-			auto meshIter = nodeDesc.find("mesh");
-			if(meshIter != nodeDesc.end())
+			if(nodeDesc.mesh >= 0)
 			{
-				// TODO: Try to reuse renderObj, use first primitive as key to index the cache
-				size_t meshNdx = meshIter.value();
-				std::shared_ptr<RenderObj>	renderObj = loadRenderObj(
-					meshNdx, renderObjCache,
-					_meshes, _materials, _defaultMaterial);
-
-				auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
+				auto renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
+				node->addComponent<MeshRenderer>(renderObj);
 				_gfxWorld.renderables().push_back(renderObj);
-
-				node->addComponent(std::move(nodeMesh));
 			}
+
+			nodes.push_back(node);
 		}
+
+		// Rebuild hierarchy
+		size_t i = 0;
+		for(auto& nodeDesc : _document.nodes)
+		{
+			auto& node = nodes[i++];
+			for(auto& child : nodeDesc.children)
+				node->addChild(nodes[child]);
+		}
+
+		return nodes;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -161,7 +152,7 @@ namespace rev { namespace game {
 		auto data = _buffers[bufferView.buffer]->buffer();
 
 		vector<Attr> attribute;
-		if(data && indexBv.byteLength >= indexAcs.count * sizeof(Attr))
+		if(data && bufferView.byteLength >= accessor.count * sizeof(Attr))
 		{
 			attribute.resize(accessor.count);
 			memcpy(attribute.data(), data, sizeof(Attr)*attribute.size());
@@ -209,16 +200,15 @@ namespace rev { namespace game {
 
 		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
 			mesh->bbox = BBox(
-				_document.accessors[posAcsNdx].min,
-				_document.accessors[posAcsNdx].max);
+				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].min.data()),
+				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].max.data()));
 		return mesh;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadMeshes(
+	auto loadMeshes(
 		const gltf::Document& _document,
-		const vector<shared_ptr<Material>>& _materials,
-		vector<shared_ptr<RenderMesh>>& meshes)
+		const vector<shared_ptr<Material>>& _materials)
 	{
 		// Load buffers
 		vector<core::File*> buffers;
@@ -226,6 +216,7 @@ namespace rev { namespace game {
 			buffers.push_back(new core::File(b.uri));
 
 		// Load the meshes
+		vector<shared_ptr<RenderMesh>> meshes;
 		meshes.reserve(_document.meshes.size());
 		for(auto& meshDesc : _document.meshes)
 		{
@@ -242,16 +233,19 @@ namespace rev { namespace game {
 		// Clear buffers
 		for(auto buffer : buffers)
 			delete buffer;
+
+		return meshes;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadMaterials(
+	auto loadMaterials(
 		const gltf::Document& _document,
 		shared_ptr<Effect> _pbrEffect,
-		const std::vector<std::shared_ptr<Texture>>& _textures,
-		std::vector<std::shared_ptr<Material>>& _materials
+		const std::vector<std::shared_ptr<Texture>>& _textures
 		)
 	{
+		std::vector<std::shared_ptr<Material>> materials;
+		
 		// Load materials
 		for(auto& matDesc : _document.materials)
 		{
@@ -291,16 +285,19 @@ namespace rev { namespace game {
 				// TODO: Load normal map in linear space!!
 				mat->addTexture("uNormalMap", _textures[matDesc.normalTexture.index]);
 			}
-			_materials.push_back(mat);
+			materials.push_back(mat);
 		}
+
+		return materials;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	// TODO: This method assumes the texture is sRGB.
 	// Instead, textures should be loaded on demand, when real color space info is available, or a first pass
 	// should be performed on materials, marking textures with their corresponding color spaces
-	void loadTextures(const gltf::Document& _document, std::vector<std::shared_ptr<Texture>>& textures)
+	auto loadTextures(const gltf::Document& _document)
 	{
+		vector<shared_ptr<Texture>> textures;
 		textures.reserve(_document.textures.size());
 		for(auto& textDesc : _document.textures)
 		{
@@ -309,78 +306,56 @@ namespace rev { namespace game {
 			auto& image = _document.images[textDesc.source];
 			textures.push_back(Texture::load(image.uri));
 		}
+
+		return textures;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
-		SceneNode* _parentNode,
-		const std::string& assetsFolder,
-		const std::string& fileName,
+		SceneNode& _parentNode,
+		const std::string& _assetsFolder,
+		const std::string& _fileName,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _geomPool)
 	{
-		auto fileName = assetsFolder + fileName + ".gltf";
+		// Open file
+		auto fileName = _assetsFolder + _fileName + ".gltf";
 		core::File sceneFile(fileName);
-		if(!sceneFile.sizeInBytes())
-		{
+		if(!sceneFile.sizeInBytes()) {
 			core::Log::error("Unable to find scene asset");
 			return;
 		}
 		// Load gltf document
 		gltf::Document document = gltf::detail::Create(
 			Json::parse(sceneFile.bufferAsText()),
-			{ assetsFolder, {}});
+			{ _assetsFolder, {}});
 
 		// Verify document is supported
 		auto asset = document.asset;
-		if(asset.empty())
-		{
+		if(asset.empty()) {
 			core::Log::error("Can't find asset descriptor");
 			return;
 		}
-		if(asset.version != "2.0")
-		{
+		if(asset.version != "2.0") {
 			core::Log::error("Wrong format version. GLTF assets must be 2.0");
 			return;
 		}
-
-		// Preload all textures in the document.
-		std::vector<std::shared_ptr<Texture>> textures;
-		loadTextures(document, textures);
 
 		// Create default material
 		auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
-		// Load materials
-		std::vector<std::shared_ptr<graphics::Material>> materials;
-		loadMaterials(document, pbrEffect, textures, materials);
+		// Load resources
+		auto textures = loadTextures(document);
+		auto materials = loadMaterials(document, pbrEffect, textures);
+		auto meshes = loadMeshes(document, materials);
 
 		// Load nodes
-		std::vector<std::shared_ptr<SceneNode>> nodes;
-		loadNodes(document.nodes, nodes, meshes, materials, defaultMaterial, lights, _gfxWorld);
-		
-		// Rebuild hierarchy
-		size_t i = 0;
-		for(auto& nodeDesc : sceneDesc["nodes"])
-		{
-			auto& node = nodes[i++];
-			auto childIter = nodeDesc.find("children");
-			if(childIter != nodeDesc.end())
-			{
-				for(auto& child : childIter.value())
-					node->addChild(nodes[child.get<size_t>()]);
-			}
-		}
+		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
 
 		// Return the right scene
-		if(_parentNode)
-		{
-			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
-			auto& sceneNodes = displayScene["nodes"];
-			auto nChildren = sceneNodes.size();
-			for(size_t i = 0; i < nChildren; ++i)
-				_parentNode->addChild(nodes[sceneNodes[i]]);
-		}
+		auto& displayScene = document.scenes[document.scene];
+		for(auto nodeNdx : displayScene.nodes)
+			_parentNode.addChild(nodes[nodeNdx]);
 	}
 }}
