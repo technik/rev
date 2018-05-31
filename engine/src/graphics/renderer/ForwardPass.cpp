@@ -179,7 +179,7 @@ namespace rev { namespace graphics {
 		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
 		sortByRenderInfo();
 
-		// Recor render commands
+		// Record render commands
 		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
 		{
@@ -265,6 +265,8 @@ namespace rev { namespace graphics {
 		const EnvironmentProbe* env)
 	{
 		// Select material
+		bool changedShader = false;
+		bool changedMaterial = false;
 		if(_material != mBoundMaterial)
 		{
 			auto shader = getShader(*_material);
@@ -274,13 +276,14 @@ namespace rev { namespace graphics {
 			{
 				resetRenderCache();
 				mBoundShader = shader;
+				changedShader = true;
 			}
 			mBoundMaterial = _material;
+			changedMaterial = true;
 		}
 		// Begin recording command
 		auto& command = mBackEnd.beginCommand();
 		command.shader = mBoundShader;
-		mBoundMaterial->bindParams(mBackEnd);
 		// Optional sky
 		if(env != mBoundProbe)
 		{
@@ -291,9 +294,17 @@ namespace rev { namespace graphics {
 		// Matrices
 		mBackEnd.addParam(0, _wvp);
 		mBackEnd.addParam(1, _worldMatrix);
+		// Material
+		if(changedMaterial)
+		{
+			mBoundMaterial->bindParams(mBackEnd);
+		}
 		// Lighting
-		mBackEnd.addParam(3, mEV); // Exposure value
-		mBackEnd.addParam(4, _wsEye);
+		if(changedShader)
+		{
+			mBackEnd.addParam(3, mEV); // Exposure value
+			mBackEnd.addParam(4, _wsEye);
+		}
 		// Render mesh
 		command.vao = _mesh->getVao();
 		command.nIndices = _mesh->nIndices();
