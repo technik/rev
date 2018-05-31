@@ -50,44 +50,36 @@ namespace rev { namespace game {
 		};
 	}
 
-	std::unique_ptr<Transform> loadNodeTransform(const Json& _nodeDesc)
+	std::unique_ptr<Transform> loadNodeTransform(const gltf::Node& _nodeDesc)
 	{
 		auto nodeTransform = std::make_unique<game::Transform>();
 		bool useTransform = false;
-		if(_nodeDesc.find("matrix") != _nodeDesc.end())
+		if(!_nodeDesc.matrix.empty())
 		{
 			useTransform = true;
-			auto& matrixDesc = _nodeDesc["matrix"];
+			auto& matrixDesc = _nodeDesc.matrix;
 			for(size_t i = 0; i < 3; ++i)
 				for(size_t j = 0; j < 4; ++j)
-					nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j].get<float>();
+					nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j];
 		}
-		if(_nodeDesc.find("rotation") != _nodeDesc.end())
+		if(!_nodeDesc.rotation.empty())
 		{
 			useTransform = true;
-			auto& rotDesc = _nodeDesc["rotation"];
-			Quatf rot {
-				rotDesc[0].get<float>(),
-				rotDesc[1].get<float>(),
-				rotDesc[2].get<float>(),
-				rotDesc[3].get<float>()
-			};
+			Quatf rot = *reinterpret_cast<const Quatf*>(_nodeDesc.rotation.data());
 			nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
 		}
-		if(_nodeDesc.find("translation") != _nodeDesc.end())
+		if(!_nodeDesc.translation.empty())
 		{
 			useTransform = true;
-			auto& posDesc = _nodeDesc["translation"];
 			for(size_t i = 0; i < 3; ++i)
-				nodeTransform->xForm.matrix()(i,3) = posDesc[i].get<float>();
+				nodeTransform->xForm.matrix()(i,3) = _nodeDesc.translation[i];
 		}
-		if(_nodeDesc.find("scale") != _nodeDesc.end())
+		if(!_nodeDesc.scale.empty())
 		{
 			useTransform = true;
-			auto& scaleDesc = _nodeDesc["scale"];
 			Mat33f scale = Mat33f::identity();
 			for(size_t i = 0; i < 3; ++i)
-				scale(i,i) = scaleDesc[i].get<float>();
+				scale(i,i) = _nodeDesc.scale[i];
 			nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
 		}
 		if(useTransform)
