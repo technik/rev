@@ -149,13 +149,17 @@ namespace rev { namespace game {
 	{
 		auto& accessor = _document.accessors[accessorNdx];
 		auto& bufferView = _document.bufferViews[accessor.bufferView];
-		auto data = _buffers[bufferView.buffer]->buffer();
+		auto offset = bufferView.byteOffset + accessor.byteOffset;
+		auto bufferData = _buffers[bufferView.buffer]->buffer();
+		auto data = reinterpret_cast<const uint8_t*>(bufferData) + offset;
+		auto stride = std::max(sizeof(Attr), bufferView.byteStride);
 
 		vector<Attr> attribute;
-		if(data && bufferView.byteLength >= accessor.count * sizeof(Attr))
+		if(data && bufferView.byteLength >= accessor.count * stride)
 		{
 			attribute.resize(accessor.count);
-			memcpy(attribute.data(), data, sizeof(Attr)*attribute.size());
+			for(size_t i = 0; i < accessor.count; ++i)
+				attribute[i] = reinterpret_cast<const Attr&>(data[stride*i]);
 		}
 		return attribute;
 	}
@@ -167,14 +171,8 @@ namespace rev { namespace game {
 		const gltf::Primitive& _primitive)
 	{
 		// Read indices
-		auto& indexAcs = _document.accessors[_primitive.indices];
-		auto& indexBv = _document.bufferViews[indexAcs.bufferView];
-		auto indxData = _buffers[indexBv.buffer]->buffer();
-
-		std::vector<uint16_t> indices(indexAcs.count);
-		if(indxData && indexBv.byteLength >= indexAcs.count * sizeof(uint16_t))
-			memcpy(indices.data(), indxData, sizeof(uint16_t)*indices.size());
-		else return nullptr;
+		auto indices = readAttribute<uint16_t>(_document, _buffers, _primitive.indices);
+		if(indices.empty()) return nullptr;
 
 		// Read vertex data
 		// TODO: Efficient read of both interleaved and separated vertex data
