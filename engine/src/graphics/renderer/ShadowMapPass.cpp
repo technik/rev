@@ -25,6 +25,7 @@
 #include <graphics/driver/shader.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
@@ -89,11 +90,11 @@ namespace rev { namespace graphics {
 			auto wvp = mShadowProj*worldMatrix;
 
 			// render
-			for(size_t i = 0; i < renderObj->meshes.size(); ++i)
+			for(size_t i = 0; i < renderObj->mesh->mPrimitives.size(); ++i)
 			{
 				glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 				// Render mesh
-				renderObj->meshes[i]->render();
+				renderObj->mesh->mPrimitives[i].first->render();
 			}
 		}
 

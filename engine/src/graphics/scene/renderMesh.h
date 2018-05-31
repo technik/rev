@@ -18,41 +18,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <graphics/renderer/backend/BackEndRenderer.h>
-#include <graphics/driver/texture.h>
-#include <math/algebra/vector.h>
+
 #include <memory>
-#include <string>
 #include <vector>
-#include "Effect.h"
+#include "renderGeom.h"
+#include "../renderer/material/material.h"
 
 namespace rev { namespace graphics {
 
-	class Material
-	{
+	class RenderMesh {
 	public:
-		using TexturePtr = std::shared_ptr<const Texture>;
-		const Effect& effect() const { return *mEffect;}
-
-		Material(const std::shared_ptr<const Effect>& effect);
-
-		// New params can only be added to the material before calling init
-		void addParam(const std::string& name,float f);
-		void addParam(const std::string& name, const math::Vec3f& v);
-		void addParam(const std::string& name, const math::Vec4f& v);
-		void addTexture(const std::string& name, TexturePtr t);
-
-		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(BackEndRenderer& renderer) const;
-
-	private:
-		const std::shared_ptr<const Effect> mEffect;
-		std::string mShaderOptionsCode;
-
-		std::vector<std::pair<GLint,float>>			mFloatParams;
-		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
-		std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
-		std::vector<std::pair<GLint,TexturePtr>>	mTextureParams;
+		using Primitive = std::pair<
+			std::shared_ptr<RenderGeom>,
+			std::shared_ptr<Material>
+		>;
+		
+		std::vector<Primitive> mPrimitives;
 	};
 
-}}
+}} // namespace rev::graphics

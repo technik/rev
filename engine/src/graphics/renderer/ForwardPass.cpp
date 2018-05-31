@@ -28,6 +28,7 @@
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
@@ -182,11 +183,11 @@ namespace rev { namespace graphics {
 		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
 		{
-			if(m_drawLimit >= 0 && m_numRenderables >= m_drawLimit)
+			if(m_drawLimit >= 0 && m_numRenderables >= unsigned(m_drawLimit))
 				break;
 			// Set up vertex uniforms
 			renderMesh(
-				mesh.geom,
+				mesh.geom.get(),
 				vp* mesh.world, // World-View-Projection
 				mesh.world,
 				wsEye,
@@ -216,30 +217,30 @@ namespace rev { namespace graphics {
 		MeshInfo meshDrawInfo;
 		for(auto obj : renderables)
 		{
-			// Skip invalid objects
-			if(obj->materials.size() < obj->meshes.size())
-				continue;
-
-			// TODO: Transform bounding box to world
+			auto mesh = obj->mesh;
+			// Set world matrix
 			meshDrawInfo.world = obj->transform.matrix();
-			int matNdx = 0;
-			for(auto mesh : obj->meshes)
+
+			for(size_t i = 0; i < mesh->mPrimitives.size(); ++i)
 			{
-				// Scale affects bbox's center
+				auto& primitive = mesh->mPrimitives[i];
+				auto& geom = primitive.first;
+				// Note that scale affects bbox's center when the bbox isn't symmetric
+				// So we have to transform first, and get the center and radius later
 				BBox worldBBox (
-					obj->transform.transformPosition(mesh->bbox.min),
-					obj->transform.transformPosition(mesh->bbox.max));
+					obj->transform.transformPosition(geom->bbox.min),
+					obj->transform.transformPosition(geom->bbox.max));
 				auto center = worldBBox.center();
 				float radius = worldBBox.radius();
 				float medDepth = (center - camPos).dot(viewDir);
 				meshDrawInfo.depth = {medDepth-radius, medDepth+radius};
+
 				if(meshDrawInfo.depth.y() > 0) // Object may be visible
 				{
-					meshDrawInfo.geom = mesh.get();
-					meshDrawInfo.material = obj->materials[matNdx].get();
+					meshDrawInfo.geom = geom;
+					meshDrawInfo.material = primitive.second;
 					mZSortedQueue.push_back(meshDrawInfo);
 				}
-				matNdx++;
 			}
 			auto objPos = obj->transform.position();
 			float depth = (objPos - camPos).dot(viewDir);
@@ -260,7 +261,7 @@ namespace rev { namespace graphics {
 		const Mat44f& _wvp,
 		const Mat44f _worldMatrix,
 		const Vec3f _wsEye,
-		const Material* _material,
+		const shared_ptr<const Material>& _material,
 		const EnvironmentProbe* env)
 	{
 		// Select material

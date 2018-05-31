@@ -12,9 +12,9 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	MeshRenderer::MeshRenderer(
-		std::shared_ptr<graphics::RenderObj> renderable
+		const std::shared_ptr<graphics::RenderObj>& renderObj
 	)
-		: mRenderable(renderable)
+		: mRenderable(renderObj)
 	{
 	}
 

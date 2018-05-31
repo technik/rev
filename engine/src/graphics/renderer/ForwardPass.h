@@ -70,8 +70,8 @@ namespace rev{ namespace graphics {
 		// Internal rendering structures
 		struct MeshInfo
 		{
-			const RenderGeom* geom;
-			const Material* material;
+			std::shared_ptr<const RenderGeom> geom;
+			std::shared_ptr<const Material> material;
 			math::Mat44f world;
 			math::Vec2f depth; // min, max
 		};
@@ -88,7 +88,7 @@ namespace rev{ namespace graphics {
 		// Render cache
 		void resetRenderCache();
 		const EnvironmentProbe* mBoundProbe = nullptr;
-		const Material* mBoundMaterial = nullptr;
+		std::shared_ptr<const Material> mBoundMaterial = nullptr;
 		const Shader* mBoundShader = nullptr;
 
 		void renderMesh(
@@ -96,7 +96,7 @@ namespace rev{ namespace graphics {
 			const math::Mat44f& _wvp,
 			const math::Mat44f _worldMatrix,
 			const math::Vec3f _wsEye,
-			const Material* _material,
+			const std::shared_ptr<const Material>& _material,
 			const EnvironmentProbe* env);
 
 		void drawStats();

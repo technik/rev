@@ -18,13 +18,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "gltfLoad.h"
-#include "gltfTypes.h"
+#include "gltf.h"
 #include <core/tools/log.h>
 #include <core/types/json.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
@@ -33,6 +34,7 @@
 
 using Json = rev::core::Json;
 
+using namespace fx;
 using namespace rev::graphics;
 using namespace rev::math;
 using namespace std;
@@ -94,317 +96,265 @@ namespace rev { namespace game {
 			return nullptr;
 	}
 
-	//-----------------------------------------------------------------------------------------------
-	shared_ptr<RenderGeom> loadMesh(const gltf::Primitive& primitive)
-	{
-		std::vector<uint16_t> indices(primitive.indices->count);
-		if(primitive.indices->componentType == gltf::Accessor::ComponentType::UNSIGNED_SHORT)
-		{
-			memcpy(indices.data(), primitive.indices->view->data, sizeof(uint16_t)*indices.size());
-		}
-		else
-			return nullptr;
-
-		std::vector<RenderGeom::Vertex> vertices(primitive.position->count);
-		for(size_t i = 0; i < vertices.size(); ++i)
-		{
-			auto& v = vertices[i];
-			assert(primitive.position->componentType == gltf::Accessor::ComponentType::FLOAT);
-			assert(primitive.normal->componentType == gltf::Accessor::ComponentType::FLOAT);
-			assert(primitive.tangent->componentType == gltf::Accessor::ComponentType::FLOAT);
-			assert(primitive.texCoord->componentType == gltf::Accessor::ComponentType::FLOAT);
-			v.position = *(math::Vec3f*)(primitive.position->element(i));
-			v.normal = *(math::Vec3f*)(primitive.normal->element(i));
-			auto srcTangent = *(math::Vec4f*)(primitive.tangent->element(i));
-			v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
-			v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
-			v.uv = *(math::Vec2f*)(primitive.texCoord->element(i));
-		}
-
-		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
-		if(primitive.position->hasBounds)
-			mesh->bbox = BBox(primitive.position->min, primitive.position->max);
-		return mesh;
-	}
-
-	using GeometryCache = std::unordered_map<const gltf::Accessor*, shared_ptr<RenderGeom>>;
-
-	//-----------------------------------------------------------------------------------------------
-	std::shared_ptr<RenderObj> loadRenderObj(
-		size_t meshNdx,
-		GeometryCache& cache,
-		const std::vector<gltf::Mesh>&	_meshes,
-		const std::vector<std::shared_ptr<Material>>& _materials,
-		const std::shared_ptr<Material> _defaultMaterial)
-	{
-		auto renderObj = std::make_shared<RenderObj>();
-
-		auto& gltfMesh = _meshes[meshNdx];
-		for(auto& primitive : gltfMesh.primitives)
-		{
-			// Cache mesh creation
-			shared_ptr<RenderGeom> mesh;
-			auto iter = cache.find(primitive.indices);
-			if(iter == cache.end())
-			{
-				mesh = loadMesh(primitive);
-				cache.emplace(primitive.indices, mesh);
-			}
-			else
-				mesh = iter->second;
-
-			if(!mesh)
-				return nullptr;
-
-			// Add mesh
-			renderObj->meshes.push_back(mesh);
-			if(_materials.empty() || primitive.material == -1)
-			{
-				renderObj->materials.push_back(_defaultMaterial);
-			}
-			else
-				renderObj->materials.push_back(_materials[ primitive.material]); // TODO: Find proper material
-		}
-
-		return renderObj;
-	}
-
 	//----------------------------------------------------------------------------------------------
-	void loadNodes(
-		const Json& _nodeArrayDesc,
-		vector<shared_ptr<SceneNode>>& _sceneNodes,
-		const std::vector<gltf::Mesh>&	_meshes,
-		const std::vector<std::shared_ptr<Material>>& _materials,
-		std::shared_ptr<Material> _defaultMaterial,
-		const std::vector<gltf::Light>& _lights,
+	auto loadNodes(
+		const gltf::Document& _document,
+		const vector<shared_ptr<RenderMesh>>& _meshes,
+		const vector<shared_ptr<Material>>& _materials,
+		shared_ptr<Material> _defaultMaterial,
 		graphics::RenderScene& _gfxWorld)
 	{
-		// Map first accessor's id, to a generated render object
-		GeometryCache renderObjCache;
-		for(auto& nodeDesc : _nodeArrayDesc)
+		vector<shared_ptr<SceneNode>> nodes;
+
+		// Create node and add basic components
+		for(auto& nodeDesc : _document.nodes)
 		{
 			auto node = std::make_shared<SceneNode>();
-			_sceneNodes.push_back(node);
-			// Node name
-			auto nameIter = nodeDesc.find("name");
-			if(nameIter != nodeDesc.end())
-				node->name = nameIter.value().get<std::string>();
-			// Node transform
+			node->name = nodeDesc.name; // Node name
+
+			// Optional node transform
 			auto nodeTransform = loadNodeTransform(nodeDesc);
 			if(nodeTransform)
 				node->addComponent(std::move(nodeTransform));
 			
-			// Optional light
-			if(nodeDesc.find("light") != nodeDesc.end())
-			{
-				int ndx = nodeDesc["light"].get<int>();
-				auto& l = _lights[ndx];
-				if(l.mType == gltf::Light::Spot)
-				{
-					node->addComponent<game::SpotLight>(_gfxWorld, l.mAngle, l.mRange, l.mColor);
-				}
-			}
 			// Optional node mesh
-			auto meshIter = nodeDesc.find("mesh");
-			if(meshIter != nodeDesc.end())
+			if(nodeDesc.mesh >= 0)
 			{
-				// TODO: Try to reuse renderObj, use first primitive as key to index the cache
-				size_t meshNdx = meshIter.value();
-				std::shared_ptr<RenderObj>	renderObj = loadRenderObj(
-					meshNdx, renderObjCache,
-					_meshes, _materials, _defaultMaterial);
-
-				auto nodeMesh = std::make_unique<game::MeshRenderer>(renderObj);
+				auto renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
+				node->addComponent<MeshRenderer>(renderObj);
 				_gfxWorld.renderables().push_back(renderObj);
-
-				node->addComponent(std::move(nodeMesh));
 			}
+
+			nodes.push_back(node);
 		}
+
+		// Rebuild hierarchy
+		size_t i = 0;
+		for(auto& nodeDesc : _document.nodes)
+		{
+			auto& node = nodes[i++];
+			for(auto& child : nodeDesc.children)
+				node->addChild(nodes[child]);
+		}
+
+		return nodes;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadMaterials(
-		const Json& matArray,
-		shared_ptr<Effect> _pbrEffect,
-		std::vector<std::shared_ptr<Material>>& _materials,
-		const std::vector<std::string>&	_textureNames
+	template<class Attr>
+	vector<Attr> readAttribute(
+		const gltf::Document& _document,
+		const vector<core::File*> _buffers,
+		uint32_t accessorNdx)
+	{
+		auto& accessor = _document.accessors[accessorNdx];
+		auto& bufferView = _document.bufferViews[accessor.bufferView];
+		auto offset = bufferView.byteOffset + accessor.byteOffset;
+		auto bufferData = _buffers[bufferView.buffer]->buffer();
+		auto data = reinterpret_cast<const uint8_t*>(bufferData) + offset;
+		auto stride = std::max(sizeof(Attr), bufferView.byteStride);
+
+		vector<Attr> attribute;
+		if(data && bufferView.byteLength >= accessor.count * stride)
+		{
+			attribute.resize(accessor.count);
+			for(size_t i = 0; i < accessor.count; ++i)
+				attribute[i] = reinterpret_cast<const Attr&>(data[stride*i]);
+		}
+		return attribute;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	shared_ptr<RenderGeom> loadPrimitive(
+		const gltf::Document& _document,
+		const vector<core::File*> _buffers,
+		const gltf::Primitive& _primitive)
+	{
+		// Read indices
+		auto indices = readAttribute<uint16_t>(_document, _buffers, _primitive.indices);
+		if(indices.empty()) return nullptr;
+
+		// Read vertex data
+		// TODO: Efficient read of both interleaved and separated vertex data
+		// Also: use a single vertex buffer when possible
+		auto posAcsNdx = _primitive.attributes.at("POSITION");
+		auto position = readAttribute<Vec3f>(_document, _buffers, posAcsNdx);
+		auto normal = readAttribute<Vec3f>(_document, _buffers, _primitive.attributes.at("NORMAL"));
+		auto tangent = readAttribute<Vec4f>(_document, _buffers, _primitive.attributes.at("TANGENT"));
+		auto uv = readAttribute<Vec2f>(_document, _buffers, _primitive.attributes.at("TEXCOORD_0"));
+
+		// Copy vertex data into the right format
+		std::vector<RenderGeom::Vertex> vertices(position.size());
+		for(size_t i = 0; i < vertices.size(); ++i)
+		{
+			auto& v = vertices[i];
+			v.position = position[i];
+			v.normal = normal[i];
+			auto srcTangent = tangent[i];
+			v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
+			v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
+			v.uv = uv[i];
+		}
+
+		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
+			mesh->bbox = BBox(
+				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].min.data()),
+				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].max.data()));
+		return mesh;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	auto loadMeshes(
+		const std::string& _assetsFolder,
+		const gltf::Document& _document,
+		const vector<shared_ptr<Material>>& _materials)
+	{
+		// Load buffers
+		vector<core::File*> buffers;
+		for(auto b : _document.buffers)
+			buffers.push_back(new core::File(_assetsFolder+b.uri));
+
+		// Load the meshes
+		vector<shared_ptr<RenderMesh>> meshes;
+		meshes.reserve(_document.meshes.size());
+		for(auto& meshDesc : _document.meshes)
+		{
+			meshes.push_back(make_shared<RenderMesh>());
+			auto mesh = meshes.back();
+			for(auto& primitive : meshDesc.primitives)
+			{
+				shared_ptr<Material> material = _materials[primitive.material];
+				shared_ptr<RenderGeom> geometry = loadPrimitive(_document, buffers, primitive);
+				mesh->mPrimitives.emplace_back(geometry, material);
+			}
+		}
+
+		// Clear buffers
+		for(auto buffer : buffers)
+			delete buffer;
+
+		return meshes;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	auto loadMaterials(
+		const gltf::Document& _document,
+		const shared_ptr<const Effect>& _pbrEffect,
+		const std::vector<std::shared_ptr<Texture>>& _textures
 		)
 	{
+		std::vector<std::shared_ptr<Material>> materials;
+		
 		// Load materials
-		for(auto& matDesc : matArray)
+		for(auto& matDesc : _document.materials)
 		{
 			auto mat = std::make_shared<Material>(_pbrEffect);
-			if(matDesc.find("pbrMetallicRoughness") != matDesc.end())
+			auto& pbrDesc = matDesc.pbrMetallicRoughness;
+			if(!pbrDesc.empty())
 			{
-				auto pbrDesc = matDesc["pbrMetallicRoughness"];
 				// Base color
-				if(pbrDesc.find("baseColorTexture") != pbrDesc.end())
+				if(!pbrDesc.baseColorTexture.empty())
 				{
-					size_t albedoNdx = pbrDesc["baseColorTexture"]["index"];
-					mat->addTexture("uBaseColorMap", Texture::load(_textureNames[albedoNdx], false));
+					auto albedoNdx = pbrDesc.baseColorTexture.index;
+					mat->addTexture("uBaseColorMap", _textures[albedoNdx]);
 				}
-				if(pbrDesc.find("baseColorFactor") != pbrDesc.end())
+				// Base color factor
 				{
-					auto& baseColorDesc = pbrDesc["baseColorFactor"];
-					Vec4f color {
-						baseColorDesc[0].get<float>(),
-						baseColorDesc[1].get<float>(),
-						baseColorDesc[2].get<float>(),
-						baseColorDesc[3].get<float>()
-					};
-					mat->addParam("uBaseColor", color);
+					auto& colorDesc = pbrDesc.baseColorFactor;
+					auto& color = reinterpret_cast<const math::Vec4f&>(colorDesc);
+					if(color != Vec4f::ones())
+						mat->addParam("uBaseColor", color);
 				}
 				// Metallic-roughness
-				if(pbrDesc.find("metallicRoughnessTexture") != pbrDesc.end())
+				if(!pbrDesc.metallicRoughnessTexture.empty())
 				{
-					size_t physicsNdx = pbrDesc["metallicRoughnessTexture"]["index"];
-					mat->addTexture("uPhysics", Texture::load(_textureNames[physicsNdx], false));
+					// Load map in linear space!!
+					auto ndx = pbrDesc.metallicRoughnessTexture.index;
+					mat->addTexture("uPhysics", _textures[ndx]);
 				}
-				if(pbrDesc.find("roughnessFactor") != pbrDesc.end())
-					mat->addParam("uRoughness", pbrDesc["roughnessFactor"].get<float>());
-				if(pbrDesc.find("metallicFactor") != pbrDesc.end())
-					mat->addParam("uMetallic", pbrDesc["metallicFactor"].get<float>());
+				if(pbrDesc.roughnessFactor != 1.f)
+					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
+				if(pbrDesc.metallicFactor != 1.f)
+					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
-			if(matDesc.find("emissiveTexture") != matDesc.end())
+			if(!matDesc.emissiveTexture.empty())
+				mat->addTexture("uEmissive", _textures[matDesc.emissiveTexture.index]);
+			if(!matDesc.normalTexture.empty())
 			{
-				size_t emissiveNdx = matDesc["emissiveTexture"]["index"];
-				mat->addTexture("uEmissive", Texture::load(_textureNames[emissiveNdx], false));
+				// TODO: Load normal map in linear space!!
+				mat->addTexture("uNormalMap", _textures[matDesc.normalTexture.index]);
 			}
-			if(matDesc.find("normalTexture") != matDesc.end())
-			{
-				size_t normalNdx = matDesc["normalTexture"]["index"];
-				mat->addTexture("uNormalMap", Texture::load(_textureNames[normalNdx], false));
-			}
-			_materials.push_back(mat);
+			materials.push_back(mat);
 		}
+
+		return materials;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	// TODO: This method assumes the texture is sRGB.
+	// Instead, textures should be loaded on demand, when real color space info is available, or a first pass
+	// should be performed on materials, marking textures with their corresponding color spaces
+	auto loadTextures(const gltf::Document& _document)
+	{
+		vector<shared_ptr<Texture>> textures;
+		textures.reserve(_document.textures.size());
+		for(auto& textDesc : _document.textures)
+		{
+			// TODO: Use texture sampler information
+			//auto& sampler = _document.samplers[textDesc.sampler];
+			auto& image = _document.images[textDesc.source];
+			textures.push_back(Texture::load(image.uri));
+		}
+
+		return textures;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
-		SceneNode* _parentNode,
-		const std::string& assetsFolder,
-		const std::string& fileName,
+		SceneNode& _parentNode,
+		const std::string& _assetsFolder,
+		const std::string& _fileName,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _geomPool)
 	{
-		core::File sceneFile(assetsFolder + fileName + ".gltf");
-		if(!sceneFile.sizeInBytes())
-		{
+		// Open file
+		auto fileName = _assetsFolder + _fileName + ".gltf";
+		core::File sceneFile(fileName);
+		if(!sceneFile.sizeInBytes()) {
 			core::Log::error("Unable to find scene asset");
 			return;
 		}
-		Json sceneDesc = Json::parse(sceneFile.bufferAsText());
-		auto asset = sceneDesc.find("asset");
-		if(asset == sceneDesc.end())
-		{
+		// Load gltf document
+		gltf::Document document = gltf::detail::Create(
+			Json::parse(sceneFile.bufferAsText()),
+			{ _assetsFolder, {}});
+
+		// Verify document is supported
+		auto asset = document.asset;
+		if(asset.empty()) {
 			core::Log::error("Can't find asset descriptor");
 			return;
 		}
-		if(asset.value()["version"] != "2.0")
-		{
+		if(asset.version != "2.0") {
 			core::Log::error("Wrong format version. GLTF assets must be 2.0");
 			return;
 		}
-		auto scene = sceneDesc.find("scene");
-		auto scenesDict = sceneDesc.find("scenes");
-		if(scenesDict == sceneDesc.end() || scene == sceneDesc.end() || scenesDict.value().size() == 0)
-		{
-			core::Log::error("Can't find proper scene descriptor in asset's scenes");
-			return;
-		}
-		// Load buffers
-		std::vector<gltf::Buffer> buffers;
-		for(auto& buffDesc : sceneDesc["buffers"])
-			buffers.emplace_back(assetsFolder, buffDesc);
 
-		// Load buffer views
-		std::vector<gltf::BufferView> bufferViews;
-		for(auto& viewDesc : sceneDesc["bufferViews"])
-		{
-			bufferViews.emplace_back(buffers, viewDesc);
-		}
-
-		// Load accessors
-		std::vector<gltf::Accessor> accessors;
-		for(auto& accessorDesc : sceneDesc["accessors"])
-		{
-			gltf::Accessor accessor;
-			accessor.type = accessorDesc["type"].get<std::string>();
-			unsigned cTypeDesc = accessorDesc["componentType"];
-			accessor.componentType = gltf::Accessor::ComponentType(cTypeDesc);
-			unsigned bufferViewNdx = accessorDesc["bufferView"];
-			auto offsetIter = accessorDesc.find("byteOffset");
-			if(offsetIter != accessorDesc.end())
-				accessor.offset = offsetIter.value().get<unsigned>();
-			accessor.count = accessorDesc["count"];
-			accessor.view = &bufferViews[bufferViewNdx];
-			auto minIter = accessorDesc.find("min");
-			auto maxIter = accessorDesc.find("max");
-			if(minIter != accessorDesc.end() && maxIter != accessorDesc.end())
-			{
-				accessor.min = loadVec3f(accessorDesc["min"]);
-				accessor.max = loadVec3f(accessorDesc["max"]);
-				accessor.hasBounds = true;
-			}
-			accessors.push_back(accessor);
-		}
-
-		// Load textures
-		std::vector<std::string>	textureNames;
-		for(auto& texDesc : sceneDesc["textures"])
-		{
-			size_t ndx = texDesc["source"];
-			auto texName = sceneDesc["images"][ndx]["uri"].get<std::string>();
-			textureNames.push_back(texName);
-		}
-
-		// Default material
+		// Create default material
 		auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
-		// Load materials
-		std::vector<std::shared_ptr<graphics::Material>> materials;
-		loadMaterials(sceneDesc["materials"], pbrEffect, materials, textureNames);
-
-		// Load meshes
-		std::vector<gltf::Mesh>	meshes;
-		for(auto& meshDesc : sceneDesc["meshes"])
-		{
-			meshes.emplace_back(accessors, meshDesc);
-		}
-
-		// Load lights
-		std::vector<gltf::Light> lights;
-		for(auto& lightDesc : sceneDesc["lights"])
-		{
-			lights.emplace_back(lightDesc);
-		}
+		// Load resources
+		auto textures = loadTextures(document);
+		auto materials = loadMaterials(document, pbrEffect, textures);
+		auto meshes = loadMeshes(_assetsFolder, document, materials);
 
 		// Load nodes
-		std::vector<std::shared_ptr<SceneNode>> nodes;
-		loadNodes(sceneDesc["nodes"], nodes, meshes, materials, defaultMaterial, lights, _gfxWorld);
-		
-		// Rebuild hierarchy
-		size_t i = 0;
-		for(auto& nodeDesc : sceneDesc["nodes"])
-		{
-			auto& node = nodes[i++];
-			auto childIter = nodeDesc.find("children");
-			if(childIter != nodeDesc.end())
-			{
-				for(auto& child : childIter.value())
-					node->addChild(nodes[child.get<size_t>()]);
-			}
-		}
+		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
 
 		// Return the right scene
-		if(_parentNode)
-		{
-			auto& displayScene = scenesDict.value()[(unsigned)scene.value()];
-			auto& sceneNodes = displayScene["nodes"];
-			auto nChildren = sceneNodes.size();
-			for(size_t i = 0; i < nChildren; ++i)
-				_parentNode->addChild(nodes[sceneNodes[i]]);
-		}
+		auto& displayScene = document.scenes[document.scene];
+		for(auto nodeNdx : displayScene.nodes)
+			_parentNode.addChild(nodes[nodeNdx]);
 	}
 }}
