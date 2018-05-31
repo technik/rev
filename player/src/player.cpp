@@ -44,7 +44,7 @@ namespace rev {
 			auto xForm = gltfRoot->addComponent<Transform>();
 			xForm->xForm.rotate(rotation);
 			//loadGLTFScene(gltfRoot.get(), "courtyard/", "court", mGraphicsScene, *mGeometryPool);
-			loadGLTFScene(gltfRoot.get(), "cabain/", "cabain", mGraphicsScene, *mGeometryPool);
+			loadGLTFScene(*gltfRoot, "cabain/", "cabain", mGraphicsScene, *mGeometryPool);
 
 			// Load sky
 			//std::string skyName = "milkyway";
