@@ -207,20 +207,21 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	auto loadMeshes(
+		const std::string& _assetsFolder,
 		const gltf::Document& _document,
 		const vector<shared_ptr<Material>>& _materials)
 	{
 		// Load buffers
 		vector<core::File*> buffers;
 		for(auto b : _document.buffers)
-			buffers.push_back(new core::File(b.uri));
+			buffers.push_back(new core::File(_assetsFolder+b.uri));
 
 		// Load the meshes
 		vector<shared_ptr<RenderMesh>> meshes;
 		meshes.reserve(_document.meshes.size());
 		for(auto& meshDesc : _document.meshes)
 		{
-			meshes.emplace_back();
+			meshes.push_back(make_shared<RenderMesh>());
 			auto mesh = meshes.back();
 			for(auto& primitive : meshDesc.primitives)
 			{
@@ -240,7 +241,7 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	auto loadMaterials(
 		const gltf::Document& _document,
-		shared_ptr<Effect> _pbrEffect,
+		const shared_ptr<const Effect>& _pbrEffect,
 		const std::vector<std::shared_ptr<Texture>>& _textures
 		)
 	{
@@ -348,7 +349,7 @@ namespace rev { namespace game {
 		// Load resources
 		auto textures = loadTextures(document);
 		auto materials = loadMaterials(document, pbrEffect, textures);
-		auto meshes = loadMeshes(document, materials);
+		auto meshes = loadMeshes(_assetsFolder, document, materials);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
