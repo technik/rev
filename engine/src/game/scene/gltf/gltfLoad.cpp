@@ -286,7 +286,7 @@ namespace rev { namespace game {
 	// TODO: This method assumes the texture is sRGB.
 	// Instead, textures should be loaded on demand, when real color space info is available, or a first pass
 	// should be performed on materials, marking textures with their corresponding color spaces
-	auto loadTextures(const gltf::Document& _document)
+	auto loadTextures(const std::string& _assetsFolder, const gltf::Document& _document)
 	{
 		vector<shared_ptr<Texture>> textures;
 		textures.reserve(_document.textures.size());
@@ -295,7 +295,7 @@ namespace rev { namespace game {
 			// TODO: Use texture sampler information
 			//auto& sampler = _document.samplers[textDesc.sampler];
 			auto& image = _document.images[textDesc.source];
-			textures.push_back(Texture::load(image.uri));
+			textures.push_back(Texture::load(_assetsFolder + image.uri));
 		}
 
 		return textures;
@@ -337,7 +337,7 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		// Load resources
-		auto textures = loadTextures(document);
+		auto textures = loadTextures(_assetsFolder, document);
 		auto materials = loadMaterials(document, pbrEffect, textures);
 		auto meshes = loadMeshes(_assetsFolder, document, materials);
 
