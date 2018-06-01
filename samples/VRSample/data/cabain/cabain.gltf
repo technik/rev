@@ -1,219 +1,366 @@
 {
 	"asset": {
-		"version" : "2.0",
-		"generator": "technik's gltf 2.0 exporter"
+		"generator": "Unity 2017.4.1f1",
+		"extras": {
+			"exporterVersion" : "2.2.1"
+		},
+		"version": "2.0"
 	},
-	"scene" : 0,
-	"scenes": [
+	"accessors": [
 		{
-			"name": "unityScene",
-			"nodes": [ 0 ]
+			"bufferView": 2,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 4.762794, 8.808147, 4.514022 ],
+			"min": [ -5.807644, -0.6574663, -4.339719 ],
+			"type": "VEC3"
+		},
+		{
+			"bufferView": 2,
+			"byteOffset": 433332,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 1, 1, 1 ],
+			"min": [ -1, -1, -1 ],
+			"type": "VEC3"
+		},
+		{
+			"bufferView": 3,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 1, 1, 1, 1 ],
+			"min": [ 1, 1, 1, 1 ],
+			"type": "VEC4"
+		},
+		{
+			"bufferView": 1,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 0.9983158, 0.999 ],
+			"min": [ 0.0002911687, 0.0005277991 ],
+			"type": "VEC2"
+		},
+		{
+			"bufferView": 1,
+			"byteOffset": 288888,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 0.9695634, 0.9992012 ],
+			"min": [ 0.0007750392, 0.0007987618 ],
+			"type": "VEC2"
+		},
+		{
+			"bufferView": 3,
+			"byteOffset": 577776,
+			"componentType": 5126,
+			"count": 36111,
+			"max": [ 1, 1, 1, 1 ],
+			"min": [ -1, -1, -1, -1 ],
+			"type": "VEC4"
+		},
+		{
+			"bufferView": 0,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 47118,
+			"max": [ 36110 ],
+			"min": [ 0 ],
+			"type": "SCALAR"
+		},
+		{
+			"bufferView": 0,
+			"byteOffset": 94236,
+			"componentType": 5123,
+			"count": 111078,
+			"max": [ 35501 ],
+			"min": [ 3520 ],
+			"type": "SCALAR"
+		},
+		{
+			"bufferView": 0,
+			"byteOffset": 316392,
+			"componentType": 5123,
+			"count": 3564,
+			"max": [ 33549 ],
+			"min": [ 25807 ],
+			"type": "SCALAR"
 		}
 	],
-	"nodes": [
+	"buffers": [
 		{
-			"name": "HouseBig02",
-			"translation": [
-				25.31,
-				1.93,
-				54.47
-			],
-			"rotation": [
-				0,
-				0.1286345,
-				0,
-				0.9916921
-			],
-			"scale": [
-				1,
-				1,
-				1
-			],
-			"mesh": 0
+			"byteLength": 2923512,
+			"uri": "cabain.bin"
 		}
 	],
-	"meshes": [
+	"bufferViews": [
 		{
-			"primitives": [
-				{
-					"attributes": {
-						"POSITION": 0,
-						"NORMAL": 1,
-						"TANGENT": 2,
-						"TEXCOORD_0": 3
-					},
-					"indices" : 4,
-					"material": 0, 
-					"mode": 4
-				},
-				{
-					"attributes": {
-						"POSITION": 0,
-						"NORMAL": 1,
-						"TANGENT": 2,
-						"TEXCOORD_0": 3
-					},
-					"indices" : 5,
-					"material": 1, 
-					"mode": 4
-				},
-				{
-					"attributes": {
-						"POSITION": 0,
-						"NORMAL": 1,
-						"TANGENT": 2,
-						"TEXCOORD_0": 3
-					},
-					"indices" : 6,
-					"material": 2, 
-					"mode": 4
-				}
-			]
+			"buffer": 0,
+			"byteLength": 323520,
+			"target": 34963,
+			"byteOffset": 2599992
+		},
+		{
+			"buffer": 0,
+			"byteLength": 577776,
+			"target": 34962,
+			"byteStride": 8,
+			"byteOffset": 0
+		},
+		{
+			"buffer": 0,
+			"byteLength": 866664,
+			"target": 34962,
+			"byteStride": 12,
+			"byteOffset": 577776
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1155552,
+			"target": 34962,
+			"byteStride": 16,
+			"byteOffset": 1444440
+		}
+	],
+	"images": [
+		{
+			"uri": "Assets/Textures/Environment/Building02Albedo.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building02SpecularSmooth_converted_metalRoughness.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building02Normals.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building02Occlusion.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building01Albedo.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building01SpecularSmooth_converted_metalRoughness.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building01Normals.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/Building01Occlusion.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/WoodTiled02Albedo.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/WoodTiled02Normals.jpg"
+		},
+		{
+			"uri": "Assets/Textures/Environment/WoodTiled02Occlusion.jpg"
 		}
 	],
 	"materials": [
 		{
 			"pbrMetallicRoughness": {
+				"baseColorTexture" : {
+					"index" : 0,
+					"texCoord" : 0
+				},
 				"baseColorFactor": [0.8640788, 0.9386172, 0.9632353, 1],
-				"metallicFactor":0,
-				"roughnessFactor":0.5,
-				"baseColorTexture": {
-					"index":0
-				}
+				"metallicRoughnessTexture" : {
+					"index" : 1,
+					"texCoord" : 0
+				},
+				"metallicFactor": 1,
+				"roughnessFactor": 1
 			},
+			"normalTexture" : {
+				"index" : 2,
+				"texCoord" : 0,
+				"scale" : 1
+			},
+			"emissiveFactor": [0, 0, 0],
+			"occlusionTexture" : {
+				"index" : 3,
+				"texCoord" : 0,
+				"strength" : 0.535
+			},
+			"doubleSided": false,
 			"name": "Building02"
 		},
 		{
 			"pbrMetallicRoughness": {
+				"baseColorTexture" : {
+					"index" : 4,
+					"texCoord" : 0
+				},
 				"baseColorFactor": [0.7794118, 0.9269778, 1, 1],
-				"metallicFactor":0,
-				"roughnessFactor":0.5,
-				"baseColorTexture": {
-					"index":1
-				}
+				"metallicRoughnessTexture" : {
+					"index" : 5,
+					"texCoord" : 0
+				},
+				"metallicFactor": 1,
+				"roughnessFactor": 1
 			},
+			"normalTexture" : {
+				"index" : 6,
+				"texCoord" : 0,
+				"scale" : 1
+			},
+			"emissiveFactor": [0, 0, 0],
+			"occlusionTexture" : {
+				"index" : 7,
+				"texCoord" : 0,
+				"strength" : 0.726
+			},
+			"doubleSided": false,
 			"name": "Building01"
 		},
 		{
 			"pbrMetallicRoughness": {
+				"baseColorTexture" : {
+					"index" : 8,
+					"texCoord" : 0
+				},
 				"baseColorFactor": [0.6539837, 0.6693755, 0.7058862, 1],
-				"metallicFactor":0,
-				"roughnessFactor":0.946,
-				"baseColorTexture": {
-					"index":2
-				}
+				"metallicFactor": 0.2,
+				"roughnessFactor": 0.946
 			},
+			"normalTexture" : {
+				"index" : 9,
+				"texCoord" : 0,
+				"scale" : 0.93
+			},
+			"emissiveFactor": [0, 0, 0],
+			"occlusionTexture" : {
+				"index" : 10,
+				"texCoord" : 0,
+				"strength" : 1
+			},
+			"doubleSided": false,
 			"name": "Plank"
 		}
 	],
+	"meshes": [
+		{
+			"name": "mesh_HouseBig02_13714HouseBig02",
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"COLOR_0": 2,
+						"TEXCOORD_0": 3,
+						"TEXCOORD_1": 4,
+						"TANGENT": 5
+					},
+					"indices": 6,
+					"material": 0,
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"COLOR_0": 2,
+						"TEXCOORD_0": 3,
+						"TEXCOORD_1": 4,
+						"TANGENT": 5
+					},
+					"indices": 7,
+					"material": 1,
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"COLOR_0": 2,
+						"TEXCOORD_0": 3,
+						"TEXCOORD_1": 4,
+						"TANGENT": 5
+					},
+					"indices": 8,
+					"material": 2,
+					"mode": 4
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"name": "UnityGlTF_root",
+			"children": [
+				1
+			]
+		},
+		{
+			"name": "node_HouseBig02_18336",
+			"mesh": 0,
+			"matrix": [0.9669063, 0, 0.2551317, 0, 0, 1, 0, 0, -0.2551317, 0, 0.9669063, 0, 25.31, 1.93, -54.47, 1]
+		}
+	],
+	"samplers": [
+		{
+			"magFilter": 9729,
+			"minFilter": 9729,
+			"wrapS": 10497,
+			"wrapT": 10497
+		}
+	],
+	"scenes": [
+		{
+			"name":"defaultScene",
+			"nodes": [
+				0
+			]
+		}
+	],
+	"scene": 0,
 	"textures": [
 		{
-			"source":0
+			"sampler": 0,
+			"source": 0
 		},
 		{
-			"source":1
+			"sampler": 0,
+			"source": 1
 		},
 		{
-			"source":2
-		}
-	],
-	"images": [
-		{
-			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/Building02Albedo.png"
+			"sampler": 0,
+			"source": 2
 		},
 		{
-			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/Building01Albedo.png"
+			"sampler": 0,
+			"source": 3
 		},
 		{
-			"uri" : "C:/repos/rev/samples/VRSample/data/cabain/textures/WoodTiled02Albedo.png"
-		}
-	],
-	"accessors": [
-		{
-			"bufferView" : 0,
-			"byteOffset": 0,
-			"componentType": 5126,
-			"count": 36111,
-			"type": "VEC3",
-			"min": [-5.807644, -0.6574659, -4.514022],
-			"max": [4.762794, 8.808147, 4.339719]
+			"sampler": 0,
+			"source": 4
 		},
 		{
-			"bufferView" : 0,
-			"byteOffset": 12,
-			"componentType": 5126,
-			"count": 36111,
-			"type": "VEC3"
+			"sampler": 0,
+			"source": 5
 		},
 		{
-			"bufferView" : 0,
-			"byteOffset": 24,
-			"componentType": 5126,
-			"count": 36111,
-			"type": "VEC4"
+			"sampler": 0,
+			"source": 6
 		},
 		{
-			"bufferView" : 0,
-			"byteOffset": 40,
-			"componentType": 5126,
-			"count": 36111,
-			"type": "VEC2"
+			"sampler": 0,
+			"source": 7
 		},
 		{
-			"bufferView" : 1,
-			"byteOffset": 0,
-			"componentType": 5123,
-			"count": 47118,
-			"type": "SCALAR"
+			"sampler": 0,
+			"source": 8
 		},
 		{
-			"bufferView" : 2,
-			"byteOffset": 0,
-			"componentType": 5123,
-			"count": 111078,
-			"type": "SCALAR"
+			"sampler": 0,
+			"source": 9
 		},
 		{
-			"bufferView" : 3,
-			"byteOffset": 0,
-			"componentType": 5123,
-			"count": 3564,
-			"type": "SCALAR"
-		}
-	],
-	"lights": [
-	],
-	"bufferViews": [
-			{
-				"buffer": 0,
-				"byteLength": 1733328,
-				"byteOffset": 0,
-				"byteStride": 48,
-				"target": 34962
-			},
-			{
-				"buffer": 0,
-				"byteLength": 94236,
-				"byteOffset": 1733328,
-				"target": 34963
-			},
-			{
-				"buffer": 0,
-				"byteLength": 222156,
-				"byteOffset": 1827564,
-				"target": 34963
-			},
-			{
-				"buffer": 0,
-				"byteLength": 7128,
-				"byteOffset": 2049720,
-				"target": 34963
-			}
-	],
-	"buffers": [
-		{
-			"byteLength": 2056848,
-			"uri": "cabain.bin"
+			"sampler": 0,
+			"source": 10
 		}
 	]
 }

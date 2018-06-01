@@ -55,6 +55,9 @@ layout(location = 3) uniform float uEV;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 layout(location = 9) uniform sampler2D uShadowMap;
+#ifdef sampler2D_uNormalMap
+layout(location = 10) uniform sampler2D uNormalMap;
+#endif
 
 const float PI = 3.14159265359;
 const float TWO_PI = 6.283185307179586;

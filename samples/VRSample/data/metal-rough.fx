@@ -51,7 +51,6 @@ float fresnelSchlick(float ndv)
 // Material
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uIrradiance;
-layout(location = 10) uniform sampler2D uNormalMap;
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
 #endif
