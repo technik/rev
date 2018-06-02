@@ -45,9 +45,8 @@ namespace rev { namespace math {
 		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3>(0,0); }
 
 		void rotate		(const Quatf& _q) { 
-			Mat44f rot = Mat44f::identity();
-			rot.block<3,3>(0,0) = (Mat33f)_q;
-			mMatrix = rot * mMatrix;
+			Mat33f rot = (Mat33f)_q;
+			mMatrix.block<3,3>(0,0) = rot * mMatrix.block<3,3>(0,0);
 		}
 
 		const	Mat44f& matrix() const	{ return mMatrix; }
