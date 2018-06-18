@@ -63,7 +63,7 @@ namespace rev { namespace graphics {
 	{
 		core::File code("forward.fx");
 		mForwardShaderCommonCode = code.bufferAsText();
-	}
+	}	
 
 	//----------------------------------------------------------------------------------------------
 	Shader* ForwardPass::getShader(const Material& mat)

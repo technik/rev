@@ -297,7 +297,7 @@ vec3 indirectLightPBR(
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
-	return specular +  diffuse;
+	return specular + diffuse;
 	//return (1.0-0.00001*shadowMask)* ( diffuse);
 	//return diffuse;
 	//return specular;

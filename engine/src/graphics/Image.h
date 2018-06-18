@@ -81,7 +81,7 @@ namespace rev { namespace graphics {
 				{
 					math::Vec2u size = { unsigned(width), unsigned(height)};
 
-					core::Log::verbose("Created image ", _name, " with size {", width, ", ", height, "} and ", realNumChannels, " channels");
+					//core::Log::verbose("Created image ", _name, " with size {", width, ", ", height, "} and ", realNumChannels, " channels");
 					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:(unsigned)realNumChannels, imgFormat);
 				}
 			}

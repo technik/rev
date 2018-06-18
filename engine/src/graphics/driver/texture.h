@@ -35,18 +35,15 @@ namespace rev { namespace graphics {
 		Texture(const Image& image, bool sRGB)
 		{
 			GraphicsDriverGL::checkGLErrors();
-			core::Log::verbose("Texture::Texture()");
 			glGenTextures(1, &mGLName);
 			glBindTexture(GL_TEXTURE_2D, mGLName);
 			GraphicsDriverGL::checkGLErrors();
-			core::Log::verbose("Texture::Texture() texture ", mGLName, " is bound");
 
 			auto format = texFormat(image);
 			auto internalFormat = internalTexFormat(image, sRGB);
 			auto dataType = (image.format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size().x(), image.size().y(), 0, format, dataType, image.data());
 			GraphicsDriverGL::checkGLErrors();
-			core::Log::verbose("Texture::Texture() glTexImage2D data sent");
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -54,16 +51,12 @@ namespace rev { namespace graphics {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 			GraphicsDriverGL::checkGLErrors();
-			core::Log::verbose("Texture::Texture() filtering parameters set");
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			GraphicsDriverGL::checkGLErrors();
-			core::Log::verbose("Texture::Texture() Mipmaps generated");
 			glBindTexture(GL_TEXTURE_2D, 0);
 			GraphicsDriverGL::checkGLErrors();
-
-			core::Log::verbose("end Texture::Texture()");
 		}
 
 		~Texture()
