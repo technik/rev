@@ -28,13 +28,11 @@ namespace rev { namespace game {
 
 	/// Load a gltf scene
 	/// Add renderable content to _gfxWorld
-	/// Use assetFolder to locate resources referenced from inside the scene
-	/// Filename must not contain the extension
+	/// filePath must not contain folder, file name and extension
 	/// If parentNode is not nullptr, all the scene nodes will be added as children to it
 	void loadGLTFScene(
 		SceneNode& parentNode,
-		const std::string& assetsFolder,
-		const std::string& fileName,
+		const std::string& filePath,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _pool);
 }}

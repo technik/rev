@@ -45,15 +45,77 @@ bool processWindowsMsg(MSG _msg) {
 	return false;
 }
 
+
+
+struct CmdLineParams
+{
+	std::string scene;
+	std::string background;
+	unsigned sx = 640;
+	unsigned sy = 480;
+	float fov = 45.f;
+
+	int process(const std::vector<std::string>& args, int i)
+	{
+		auto& arg = args[i];
+		if(arg == "-bg") {
+			background = args[i+1];
+			return 2;
+		}
+		if(arg == "-scene")
+		{
+			scene = args[i+1];
+			return 2;
+		}
+		if(arg == "-w")
+		{
+			sx = atoi(args[i+1].c_str());
+			return 2;
+		}
+		if(arg == "-h")
+		{
+			sy = atoi(args[i+1].c_str());
+			return 2;
+		}
+		if(arg == "-fov")
+		{
+			fov = (float)atof(args[i+1].c_str());
+			return 2;
+		}
+		if(arg == "-fullHD")
+		{
+			sx = 1920;
+			sy = 1080;
+			return 1;
+		}
+		return 1;
+	}
+
+	CmdLineParams(int _argc, const char** _argv)
+	{
+		std::vector<std::string> args(_argc);
+		// Read all params
+		int i = 0;
+		for(auto& s : args)
+			s = _argv[i++];
+		i = 0;
+		while(i < _argc)
+			i += process(args, i);
+	}
+};
+
 //--------------------------------------------------------------------------------------------------------------
-int main() {
+int main(int _argc, const char** _argv) {
+
+	CmdLineParams params(_argc,_argv);
+
 	rev::core::OSHandler::startUp();
 	rev::core::FileSystem::init();
 
 	auto nativeWindow = rev::graphics::WindowWin32::createWindow(
 		{40, 40},
-		{1024, 640},
-		"Rev Player"
+		{params.sx, params.sy},
+		params.scene.empty()?"Rev Player":params.scene.c_str()
 	);
 
 	*rev::core::OSHandler::get() += processWindowsMsg;
@@ -62,7 +124,7 @@ int main() {
 	rev::input::KeyboardInput::init();
 	rev::Player player;
 	g_player = &player;
-	if(!player.init(&nativeWindow)) {
+	if(!player.init(&nativeWindow, params.scene, params.background)) {
 		return -1;
 	}
 	for(;;) {

@@ -301,17 +301,26 @@ namespace rev { namespace game {
 		return textures;
 	}
 
+	//--------------------------------------------------------------------------------------------------
+	inline string getFolder(const string& path)
+	{
+		auto pos = path.find_last_of("\\/");
+		if (pos != string::npos)
+			return path.substr(0, pos+1);
+
+		return "";
+	}
+
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
 		SceneNode& _parentNode,
-		const std::string& _assetsFolder,
-		const std::string& _fileName,
+		const std::string& _filePath,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _geomPool)
 	{
 		// Open file
-		auto fileName = _assetsFolder + _fileName + ".gltf";
-		core::File sceneFile(fileName);
+		auto folder = getFolder(_filePath);
+		core::File sceneFile(_filePath);
 		if(!sceneFile.sizeInBytes()) {
 			core::Log::error("Unable to find scene asset");
 			return;
@@ -319,7 +328,7 @@ namespace rev { namespace game {
 		// Load gltf document
 		gltf::Document document = gltf::detail::Create(
 			Json::parse(sceneFile.bufferAsText()),
-			{ _assetsFolder, {}});
+			{ folder, {}});
 
 		// Verify document is supported
 		auto asset = document.asset;
@@ -337,9 +346,9 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		// Load resources
-		auto textures = loadTextures(_assetsFolder, document);
+		auto textures = loadTextures(folder, document);
 		auto materials = loadMaterials(document, pbrEffect, textures);
-		auto meshes = loadMeshes(_assetsFolder, document, materials);
+		auto meshes = loadMeshes(folder, document, materials);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);

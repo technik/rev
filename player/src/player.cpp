@@ -25,7 +25,7 @@ using namespace rev::game;
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init(Window _window) {
+	bool Player::init(Window _window, const std::string& scene, const std::string& bg) {
 		core::Time::init();
 
 		assert(!mGfxDriver);
@@ -43,18 +43,14 @@ namespace rev {
 				});
 			auto xForm = gltfRoot->addComponent<Transform>();
 			xForm->xForm.rotate(rotation);
-			loadGLTFScene(*gltfRoot, "courtyard/", "court", mGraphicsScene, *mGeometryPool);
-			//loadGLTFScene(*gltfRoot, "cabain/", "cabain", mGraphicsScene, *mGeometryPool);
+			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool);
 
 			// Load sky
-			//std::string skyName = "milkyway";
-			//std::string skyName = "Shiodome";
-			std::string skyName = "monument";
-			//std::string skyName = "Ice";
-			//std::string skyName = "Winter";
-			//std::string skyName = "Factory";
-			mGraphicsScene.sky = Texture::load(skyName+".hdr", false);
-			mGraphicsScene.irradiance = Texture::load(skyName+"_irradiance.hdr", false);
+			if(!bg.empty())
+			{
+				mGraphicsScene.sky = Texture::load(bg+".hdr", false);
+				mGraphicsScene.irradiance = Texture::load(bg+"_irradiance.hdr", false);
+			}
 
 			// Create camera
 			createCamera();

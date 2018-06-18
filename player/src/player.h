@@ -25,7 +25,7 @@ namespace rev {
 		Player& operator=(const Player&) = delete;
 
 		typedef rev::graphics::GraphicsDriverGL::NativeWindow	Window;
-		bool init(Window);
+		bool init(Window, const std::string& scene, const std::string& bg);
 		void loadScene(const std::string& _assetFileName);
 
 #ifdef _WIN32
