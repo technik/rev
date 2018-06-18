@@ -37,6 +37,7 @@ namespace rev{ namespace graphics {
 			GLuint vao;
 			unsigned nIndices;
 			const Shader*	shader;
+			GLenum cullMode;
 
 			std::pair<int,int>	mFloatParams;
 			std::pair<int,int>	mVec3fParams;
@@ -150,6 +151,7 @@ namespace rev{ namespace graphics {
 					++usedShaders;
 					shader->bind();
 				}
+				glCullFace(command.cullMode);
 				// Bind params
 				for(int i = command.mFloatParams.first; i < command.mFloatParams.second; ++i)
 					mDriver.bindUniform(mFloatIndices[i], mFloatParams[i]);

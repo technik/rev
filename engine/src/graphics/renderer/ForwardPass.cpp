@@ -107,6 +107,7 @@ namespace rev { namespace graphics {
 		if(mBackgroundShader)
 		{
 			auto& cmd = mBackEnd.beginCommand();
+			cmd.cullMode = GL_BACK;
 			mBackgroundShader->bind();
 			
 			// View projection matrix
@@ -128,7 +129,6 @@ namespace rev { namespace graphics {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 		glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
 		glClearDepthf(1.0);
@@ -283,6 +283,7 @@ namespace rev { namespace graphics {
 		}
 		// Begin recording command
 		auto& command = mBackEnd.beginCommand();
+		command.cullMode = affineTransformDeterminant(_worldMatrix) > 0.f ? GL_BACK : GL_FRONT;
 		command.shader = mBoundShader;
 		// Optional sky
 		if(env != mBoundProbe)
