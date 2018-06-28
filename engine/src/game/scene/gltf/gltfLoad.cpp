@@ -223,7 +223,7 @@ namespace rev { namespace game {
 			buffers.push_back(new core::File(_assetsFolder+b.uri));
 
 		// Load buffer views
-		auto bufferViews = loadBufferViews(_document);
+		auto bufferViews = loadBufferViews(_document, buffers);
 
 		// Load the meshes
 		vector<shared_ptr<RenderMesh>> meshes;
