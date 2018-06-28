@@ -12,6 +12,8 @@ using namespace std;
 
 namespace rev {	namespace graphics {
 
+	GraphicsDriverGL* GraphicsDriverGL::s_instance = nullptr;
+
 	void APIENTRY gfxDebugCallback(GLenum source,
 		GLenum type,
 		GLuint id,

@@ -16,7 +16,12 @@ namespace rev { namespace graphics {
 
 	class GraphicsDriverGL : public GraphicsDriverGLBase
 	{
+		static GraphicsDriverGL* s_instance;
 	public:
+
+		static void initSingleton(GraphicsDriverGL* driver) { s_instance = driver; }
+		static GraphicsDriverGL* get() { return s_instance; }
+
 		GraphicsDriverGL(std::unique_ptr<DefaultFrameBuffer> _defaultFrameBuffer)
 			: mFrameBuffer(std::move(_defaultFrameBuffer))
 		{}
@@ -83,6 +88,21 @@ namespace rev { namespace graphics {
 		}
 
 		bool sRGBFrameBuffer() const { return mSupportSRGBFrameBuffer; }
+
+		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, void* data)
+		{
+			GLuint vbo;
+			glGenBuffers(1,&vbo);
+			glBindBuffer(target, vbo);
+			glBufferData(target, byteSize, data, GL_STATIC_DRAW);
+			glBindBuffer(target, 0);
+			return vbo;
+		}
+
+		GLuint deallocateBuffer(GLuint vbo)
+		{
+			glDeleteBuffers(1, &vbo);
+		}
 
 	private:
 		std::unique_ptr<DefaultFrameBuffer> mFrameBuffer;

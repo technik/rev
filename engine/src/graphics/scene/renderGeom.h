@@ -8,6 +8,7 @@
 #include <math/geometry/types.h>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 namespace rev { namespace graphics {
 
@@ -21,23 +22,44 @@ namespace rev { namespace graphics {
 
 		struct BufferView
 		{
-			GLint byteOffset;
+			GLuint vbo;
 			GLint byteStride;
-			GLint nElements;
+		};
+
+		struct Attribute
+		{
+			std::shared_ptr<BufferView> bufferView;
+			GLvoid* offset;
+			GLenum componentType;
+			GLint nComponents;
+			GLsizei stride;
+			bool normalized;
 		};
 
 		RenderGeom() = default;
 
 		RenderGeom(
-			const std::vector<Vertex>& _vertices,
-			const std::vector<uint16_t>& _indices
-		)
-			: mVertices(_vertices)
-			, mIndices(_indices)
+			const Attribute* indices,
+			const Attribute* position,
+			const Attribute* normal,
+			const Attribute* tangent,
+			const Attribute* uv0)
 		{
-				initOpenGL();
+			assert(indices);
+			assert(indices->componentType == GL_UNSIGNED_SHORT);
+			m_indices = *indices;
+			assert(position);
+			m_vtxAttributes.emplace_back(0, *position);
+			if(normal)
+				m_vtxAttributes.emplace_back(1, *normal);
+			if(tangent)
+				m_vtxAttributes.emplace_back(2, *tangent);
+			if(uv0)
+				m_vtxAttributes.emplace_back(3, *uv0);
+			
+			initOpenGL();
 		}
-
+		/*
 		static RenderGeom quad(const math::Vec2f& size)
 		{
 			auto half_x = 0.5f*size.x();
@@ -51,34 +73,44 @@ namespace rev { namespace graphics {
 			};
 
 			return RenderGeom(vertexData, indices);
-		}
+		}*/
 
 		math::BBox bbox;
-		GLuint getVao() const { return vao; }
-		unsigned nIndices() const { return mIndices.size(); }
+		GLuint getVao() const { return m_vao; }
+		unsigned nIndices() const { return m_numIndices; }
 
 		void render() const
 		{
-			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT, nullptr);
+			assert(m_indices.componentType == GL_UNSIGNED_SHORT);
+			glBindVertexArray(m_vao);
+			glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_SHORT, nullptr);
 		}
 
 	private:
 		void initOpenGL() {
 			// Create geometry
-			glGenVertexArrays(1,&vao);
-			glGenBuffers(2,vbo);
+			glGenVertexArrays(1,&m_vao);
+			//glGenBuffers(2,vbo);
 			// VAO
-			glBindVertexArray(vao);
+			glBindVertexArray(m_vao);
 			// VBO for vertex data
-			glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-			glBufferData(
+			//glBindBuffer(GL_ARRAY_BUFFER, vbo[0]); // Bind vertex data
+			/*glBufferData(
 				GL_ARRAY_BUFFER,
 				sizeof(Vertex)*mVertices.size(),
 				mVertices.data(),
-				GL_STATIC_DRAW);
+				GL_STATIC_DRAW);*/
 			// VBO for index
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo);
+			
+			for(auto& [ndx, attribute] : m_vtxAttributes)
+			{
+				glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo);
+				glVertexAttribPointer(ndx, attribute.nComponents, attribute.componentType, attribute.normalized, attribute.stride, attribute.offset);
+				glEnableVertexAttribArray(ndx); // Vertex pos
+			}
+
+			/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
 			glBufferData(
 				GL_ELEMENT_ARRAY_BUFFER,
 				sizeof(uint16_t)*mIndices.size(),
@@ -95,17 +127,16 @@ namespace rev { namespace graphics {
 			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3*sizeof(math::Vec3f)));
 			glEnableVertexAttribArray(3); // Vertex normal
 			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(4*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(4); // Vertex uv
+			glEnableVertexAttribArray(4); // Vertex uv*/
 
 			// Unbind VAO
 			glBindVertexArray(0);
 		}
 
-		GLuint vao = 0;
-		GLuint vbo[2] = {0,0};
-
-		std::vector<Vertex> mVertices;
-		std::vector<uint16_t> mIndices;
+		GLuint m_vao = 0;
+		std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
+		Attribute m_indices;
+		GLsizei m_numIndices;
 	};
 
 }}

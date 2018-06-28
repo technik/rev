@@ -196,6 +196,22 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	auto loadBufferViews(const gltf::Document& _document, const vector<core::File*>& buffers)
+	{
+		vector<std::shared_ptr<RenderGeom::BufferView>> bvs;
+
+		for(auto& bv : _document.bufferViews)
+		{
+			auto bufferData = &buffers[bv.buffer]->buffer[bv.byteOffset];
+			auto vbo = GraphicsDriverGL::get()->allocateStaticBuffer((GLenum)bv.target, bv.byteLength, bufferData);
+
+			bvs.emplace_back( vbo, bv.byteStride );
+		}
+
+		return bvs;
+	}
+
+	//----------------------------------------------------------------------------------------------
 	auto loadMeshes(
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
@@ -205,6 +221,9 @@ namespace rev { namespace game {
 		vector<core::File*> buffers;
 		for(auto b : _document.buffers)
 			buffers.push_back(new core::File(_assetsFolder+b.uri));
+
+		// Load buffer views
+		auto bufferViews = loadBufferViews(_document);
 
 		// Load the meshes
 		vector<shared_ptr<RenderMesh>> meshes;
