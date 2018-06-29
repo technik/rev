@@ -33,7 +33,7 @@ namespace rev { namespace graphics {
 	{
 	public:
 		void init	(GraphicsDriverGL& driver, RenderTarget& _renderTarget);
-		void render	(const Camera& _pov, const RenderScene&);
+		void render	(const RenderScene&);
 
 	private:
 		std::unique_ptr<ForwardPass>	mForwardPass;

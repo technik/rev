@@ -33,12 +33,12 @@ namespace rev { namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::render(const Camera& eye, const RenderScene& scene) {
+	void ForwardRenderer::render(const RenderScene& scene) {
 		if(!mRenderTarget)
 			return;
 		//mShadowPass->render(scene, scene.mLightDir);
 		//mForwardPass->render(eye,scene,*mRenderTarget,mShadowPass.get());
-		mForwardPass->render(eye,scene,*mRenderTarget,nullptr);
+		mForwardPass->render(scene,*mRenderTarget,nullptr);
 	}
 
 }}

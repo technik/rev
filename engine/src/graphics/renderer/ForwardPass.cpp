@@ -137,7 +137,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const Camera& _eye, const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
+	void ForwardPass::render(const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -148,6 +148,11 @@ namespace rev { namespace graphics {
 			loadCommonShaderCode();
 		}
 #endif
+		// Get active camera
+		assert(_scene.cameras().size() <= 1); // Only one camera per scene currently supported
+		auto eye = _scene.cameras()[0].lock(); // TODO: Check for deleted cameras
+		assert(eye);
+
 		resetStats();
 		mBackEnd.beginFrame();
 		mBackEnd.beginPass();
@@ -158,8 +163,8 @@ namespace rev { namespace graphics {
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
 
 		// Compute global variables
-		auto vp = _eye.viewProj(_dst.aspectRatio());
-		auto wsEye = _eye.position();
+		auto vp = eye->viewProj(_dst.aspectRatio());
+		auto wsEye = eye->position();
 		auto& lightClr = _scene.lightClr();
 		Vec3f lightDir = -_scene.mLightDir;
 
@@ -176,7 +181,7 @@ namespace rev { namespace graphics {
 		}
 
 		// Cull and sort
-		cull(wsEye, _eye.viewDir(), _scene.renderables());
+		cull(wsEye, eye->viewDir(), _scene.renderables());
 		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
 		sortByRenderInfo();
 

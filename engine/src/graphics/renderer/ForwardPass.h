@@ -40,7 +40,7 @@ namespace rev{ namespace graphics {
 	public:
 		ForwardPass(GraphicsDriverGL&);
 
-		void render(const Camera&, const RenderScene&, const RenderTarget& _dst, ShadowMapPass* _shadows);
+		void render(const RenderScene&, const RenderTarget& _dst, ShadowMapPass* _shadows);
 
 	private:
 		void loadCommonShaderCode();

@@ -37,30 +37,10 @@ namespace rev { namespace game {
 	public:
 		Scene();
 
-		bool load(std::istream& in, const ComponentLoader& loader);
-
-		// Views
-		const graphics::RenderScene&	renderable() const	{ return mGraphics; }
-		graphics::RenderScene&			renderable()		{ return mGraphics; }
-
 		// Accessors
 		SceneNode*	root() const { return mNodeTree.get(); }
-		SceneNode*	findNode(const std::string& name) const;
 
 	private:
-
-		static bool parseNodeSubtree		(SceneNode& root, std::istream& in, const ComponentLoader& loader);
-
-		static bool parseComponents(SceneNode& node, std::istream& in, const ComponentLoader& loader);
-		static bool parseChildren(SceneNode& parent, std::istream& in, const ComponentLoader& loader);
-
-		template<class T>
-		static void read(std::istream& in, T& dst) { in.read((char*)&dst, sizeof(T)); }
-
-		template<class T>
-		static void write(std::ostream& in, const T& dst) { in.write((const char*)&dst, sizeof(T)); }
-
-		graphics::RenderScene		mGraphics;
 		std::unique_ptr<SceneNode>	mNodeTree;
 	};
 

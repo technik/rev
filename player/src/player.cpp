@@ -74,23 +74,14 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
-		// Orbit
-		/*
-		auto orbitNode = mGameScene.root()->createChild("camOrbit");
-#ifdef ANDROID
-		orbitNode->addComponent<Orbit>(Vec2f{-1e-3f,-1e-3f}, 1);
-#else
-		orbitNode->addComponent<Orbit>(Vec2f{-1e-2f,-1e-2f}, 1);
-#endif
-		orbitNode->addComponent<Transform>();
-
-		// Cam node
-		auto cameraNode = orbitNode->createChild("Camera");
-		*/
-		auto cameraNode = mGameScene.root()->createChild("Camera");
-		cameraNode->addComponent<FlyBy>(10.f, 1.f);
-		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
-		mCamera = &cameraNode->addComponent<game::Camera>()->cam();
+		if(mGraphicsScene.cameras().empty())
+		{
+			// Create default camera
+			auto cameraNode = mGameScene.root()->createChild("Camera");
+			cameraNode->addComponent<FlyBy>(10.f, 1.f);
+			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
+			cameraNode->addComponent<game::Camera>(&mGraphicsScene);
+		}
 	}
 
 	struct MeshHeader
@@ -118,7 +109,7 @@ namespace rev {
 
 		mGameScene.root()->update(dt);
 
-		mRenderer.render(*mCamera, mGraphicsScene);
+		mRenderer.render(mGraphicsScene);
 
 		gui::finishFrame(dt);
 		mGfxDriver->swapBuffers();

@@ -23,12 +23,21 @@
 #include "sceneNode.h"
 #include "transform/transform.h"
 #include <graphics/scene/camera.h>
+#include <graphics/scene/renderScene.h>
 
 namespace rev { namespace game {
 
 	class Camera : public Component
 	{
 	public:
+
+		//------------------------------------------------------------------------------------------
+		Camera(graphics::RenderScene* scene)
+		{
+			mCam = std::make_shared<graphics::Camera>();
+			scene->addCamera(mCam);
+		}
+
 		//------------------------------------------------------------------------------------------
 		void init() override {
 			mTransform = node()->component<Transform>();
@@ -37,14 +46,14 @@ namespace rev { namespace game {
 		//------------------------------------------------------------------------------------------
 		void update(float _dt) override {
 			assert(mTransform);
-			mCam.setWorldTransform(mTransform->absoluteXForm());
+			mCam->setWorldTransform(mTransform->absoluteXForm());
 		}
 
-		const graphics::Camera& cam() const { return mCam; }
+		const auto& cam() const { return mCam; }
 
 	private:
 		Transform*	mTransform = nullptr;
-		graphics::Camera		mCam;
+		std::shared_ptr<graphics::Camera> mCam;
 	};
 
 }}
