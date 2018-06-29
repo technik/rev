@@ -84,17 +84,6 @@ namespace rev {
 		}
 	}
 
-	struct MeshHeader
-	{
-		uint32_t nVertices;
-		uint32_t nIndices;
-	};
-
-	struct RenderObjData {
-		int meshIdx = -1;
-		Mat44f transform;
-	};
-
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update()
 	{
