@@ -149,8 +149,8 @@ namespace rev { namespace graphics {
 		}
 #endif
 		// Get active camera
-		assert(_scene.cameras().size() <= 1); // Only one camera per scene currently supported
-		auto eye = _scene.cameras()[0].lock(); // TODO: Check for deleted cameras
+		//assert(_scene.cameras().size() <= 1); // Only one camera per scene currently supported
+		auto eye = _scene.cameras().back().lock(); // TODO: Check for deleted cameras
 		assert(eye);
 
 		resetStats();

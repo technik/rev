@@ -39,6 +39,13 @@ namespace rev { namespace game {
 		}
 
 		//------------------------------------------------------------------------------------------
+		Camera(graphics::RenderScene* scene, float fov, float near, float far)
+		{
+			mCam = std::make_shared<graphics::Camera>(fov, near, far);
+			scene->addCamera(mCam);
+		}
+
+		//------------------------------------------------------------------------------------------
 		void init() override {
 			mTransform = node()->component<Transform>();
 		}

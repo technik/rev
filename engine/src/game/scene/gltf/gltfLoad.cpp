@@ -24,6 +24,7 @@
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
+#include <game/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
@@ -115,6 +116,13 @@ namespace rev { namespace game {
 				auto renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
 				node->addComponent<MeshRenderer>(renderObj);
 				_gfxWorld.renderables().push_back(renderObj);
+			}
+
+			// Optional camera
+			if(nodeDesc.camera >= 0)
+			{
+				auto& cam = _document.cameras[nodeDesc.camera];
+				node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
 			}
 
 			nodes.push_back(node);
