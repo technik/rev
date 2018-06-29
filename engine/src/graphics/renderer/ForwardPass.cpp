@@ -228,11 +228,11 @@ namespace rev { namespace graphics {
 				auto& geom = primitive.first;
 				// Note that scale affects bbox's center when the bbox isn't symmetric
 				// So we have to transform first, and get the center and radius later
-				BBox worldBBox (
-					obj->transform.transformPosition(geom->bbox.min),
-					obj->transform.transformPosition(geom->bbox.max));
-				auto center = worldBBox.center();
-				float radius = worldBBox.radius();
+				AABB worldBBox (
+					obj->transform.transformPosition(geom->bbox.min()),
+					obj->transform.transformPosition(geom->bbox.max()));
+				auto center = worldBBox.origin();
+				float radius = worldBBox.size().norm();
 				float medDepth = (center - camPos).dot(viewDir);
 				meshDrawInfo.depth = {medDepth-radius, medDepth+radius};
 

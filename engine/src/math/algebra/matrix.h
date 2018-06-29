@@ -411,6 +411,28 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
+		template<typename MatA_, typename MatB_>
+		auto min(
+			const MatA_& _a,
+			const MatB_& _b
+			) -> typename MatA_::Derived
+		{
+			using T = typename MatA_::Element;
+			return cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = math::min(a,b); });
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		template<typename MatA_, typename MatB_>
+		auto max(
+			const MatA_& _a,
+			const MatB_& _b
+		) -> typename MatA_::Derived
+		{
+			using T = typename MatA_::Element;
+			return cwiseBinaryOperator(_a, _b, [](T& res, T a, T b) { res = math::max(a,b); });
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		template<class T_, size_t rows_, size_t cols_, bool col_major_ = true>
 		struct Matrix
 			: public MatrixBase

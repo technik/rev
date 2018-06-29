@@ -11,23 +11,6 @@
 namespace rev {
 	namespace math {
 
-		struct BBox {
-			Vec3f min, max;
-
-			BBox() : min(Vec3f::zero()), max(Vec3f::zero()) {}
-			BBox(const Vec3f& _size) : min(_size*-0.5f), max(_size*0.5f) {}
-			BBox(const Vec3f& _min, const Vec3f& _max) : min(_min), max(_max) {}
-
-			void merge(const Vec3f& _point) {
-				max = this->max.cwiseMax(_point);
-				min = this->min.cwiseMin(_point);
-			}
-
-			Vec3f size() const { return max - min; }
-			float radius() const { return size().norm(); }
-			Vec3f center() const { return (max+min)*0.5f; }
-		};
-
 		struct Frustum {
 			Frustum() = default; // Allow empty construction
 			Frustum(float _aspectRatio, float _fov, float _near, float _far) 

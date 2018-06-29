@@ -5,6 +5,7 @@
 
 #include <graphics/driver/openGL/openGL.h>
 #include <math/algebra/vector.h>
+#include <math/geometry/aabb.h>
 #include <math/geometry/types.h>
 #include <iostream>
 #include <vector>
@@ -37,6 +38,7 @@ namespace rev { namespace graphics {
 			GLsizei stride;
 			GLsizei count;
 			bool normalized;
+			math::AABB bounds;
 		};
 
 		RenderGeom() = default;
@@ -59,6 +61,8 @@ namespace rev { namespace graphics {
 				m_vtxAttributes.emplace_back(2, *tangent);
 			if(uv0)
 				m_vtxAttributes.emplace_back(3, *uv0);
+
+			bbox = position->bounds;
 			
 			initOpenGL();
 		}
@@ -78,7 +82,7 @@ namespace rev { namespace graphics {
 			return RenderGeom(vertexData, indices);
 		}*/
 
-		math::BBox bbox;
+		math::AABB bbox;
 		GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
 
