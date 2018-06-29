@@ -24,6 +24,8 @@ namespace rev { namespace graphics {
 		{
 			GLuint vbo;
 			GLint byteStride;
+			size_t byteLength;
+			const void* data;
 		};
 
 		struct Attribute
@@ -33,6 +35,7 @@ namespace rev { namespace graphics {
 			GLenum componentType;
 			GLint nComponents;
 			GLsizei stride;
+			GLsizei count;
 			bool normalized;
 		};
 
@@ -46,7 +49,7 @@ namespace rev { namespace graphics {
 			const Attribute* uv0)
 		{
 			assert(indices);
-			assert(indices->componentType == GL_UNSIGNED_SHORT);
+			assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
 			m_indices = *indices;
 			assert(position);
 			m_vtxAttributes.emplace_back(0, *position);
@@ -77,14 +80,7 @@ namespace rev { namespace graphics {
 
 		math::BBox bbox;
 		GLuint getVao() const { return m_vao; }
-		unsigned nIndices() const { return m_numIndices; }
-
-		void render() const
-		{
-			assert(m_indices.componentType == GL_UNSIGNED_SHORT);
-			glBindVertexArray(m_vao);
-			glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_SHORT, nullptr);
-		}
+		auto& indices() const { return m_indices; }
 
 	private:
 		void initOpenGL() {
@@ -136,7 +132,6 @@ namespace rev { namespace graphics {
 		GLuint m_vao = 0;
 		std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
 		Attribute m_indices;
-		GLsizei m_numIndices;
 	};
 
 }}

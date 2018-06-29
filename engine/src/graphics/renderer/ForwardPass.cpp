@@ -54,7 +54,7 @@ namespace rev { namespace graphics {
 
 		mEV = 1.0f;
 		// Init sky resources
-		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
+		//mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 		m_drawLimit = -1;
 	}
 
@@ -117,7 +117,8 @@ namespace rev { namespace graphics {
 			mBackEnd.addParam(7, bgTexture);
 			cmd.shader = mBackgroundShader.get();
 			cmd.vao = mSkyPlane->getVao();
-			cmd.nIndices = mSkyPlane->nIndices();
+			cmd.nIndices = mSkyPlane->indices().count;
+			cmd.indexType= mSkyPlane->indices().componentType;
 
 			mBackEnd.endCommand();
 		}
@@ -308,7 +309,8 @@ namespace rev { namespace graphics {
 		}
 		// Render mesh
 		command.vao = _mesh->getVao();
-		command.nIndices = _mesh->nIndices();
+		command.nIndices = _mesh->indices().count;
+		command.indexType = _mesh->indices().componentType;
 		++m_numMeshes;
 		mBackEnd.endCommand();
 	}

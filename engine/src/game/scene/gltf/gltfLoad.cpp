@@ -133,66 +133,87 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	template<class Attr>
-	vector<Attr> readAttribute(
+	auto readAttributes(
 		const gltf::Document& _document,
-		const vector<core::File*> _buffers,
-		uint32_t accessorNdx)
+		const vector<shared_ptr<RenderGeom::BufferView>>& _bufferViews)
 	{
-		auto& accessor = _document.accessors[accessorNdx];
-		auto& bufferView = _document.bufferViews[accessor.bufferView];
-		auto offset = bufferView.byteOffset + accessor.byteOffset;
-		auto bufferData = _buffers[bufferView.buffer]->buffer();
-		auto data = reinterpret_cast<const uint8_t*>(bufferData) + offset;
-		auto stride = std::max(sizeof(Attr), bufferView.byteStride);
+		vector<RenderGeom::Attribute> attributes(_document.accessors.size());
 
-		vector<Attr> attribute;
-		if(data && bufferView.byteLength >= accessor.count * stride)
+		for(size_t i = 0; i < attributes.size(); ++i)
 		{
-			attribute.resize(accessor.count);
-			for(size_t i = 0; i < accessor.count; ++i)
-				attribute[i] = reinterpret_cast<const Attr&>(data[stride*i]);
+			auto& attr = attributes[i];
+			auto& accessor = _document.accessors[i];
+			auto& bufferView = _bufferViews[accessor.bufferView];
+			attr.bufferView = bufferView;
+			attr.stride = bufferView->byteStride;
+			attr.offset = (GLvoid*)accessor.byteOffset;
+			attr.componentType = (GLenum)accessor.componentType;
+			attr.normalized = accessor.normalized;
+			attr.count = accessor.count;
+			if(accessor.type == gltf::Accessor::Type::Scalar)
+				attr.nComponents = 1;
+			else if(accessor.type == gltf::Accessor::Type::Vec2)
+				attr.nComponents = 2;
+			else if(accessor.type == gltf::Accessor::Type::Vec3)
+				attr.nComponents = 3;
+			else if(accessor.type == gltf::Accessor::Type::Vec4)
+				attr.nComponents = 4;
+			else if(accessor.type == gltf::Accessor::Type::Mat2)
+				attr.nComponents = 4;
+			else if(accessor.type == gltf::Accessor::Type::Mat3)
+				attr.nComponents = 9;
+			else if(accessor.type == gltf::Accessor::Type::Mat4)
+				attr.nComponents = 16;
+			else attr.nComponents = 0;
 		}
-		return attribute;
+
+		return attributes;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	const RenderGeom::Attribute* registerAttribute(
+		const gltf::Primitive& _primitive,
+		const char* tag,
+		const vector<RenderGeom::Attribute>& _attributes)
+	{
+		if(auto posIt = _primitive.attributes.find(tag); posIt != _primitive.attributes.end())
+		{
+			auto& attribute = _attributes[posIt->second];
+			auto& bv = *attribute.bufferView;
+		
+			if(!bv.vbo)
+				bv.vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, bv.byteLength, bv.data);
+
+			return &attribute;
+		}
+
+		return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	shared_ptr<RenderGeom> loadPrimitive(
 		const gltf::Document& _document,
-		const vector<core::File*> _buffers,
+		const vector<RenderGeom::Attribute>& _attributes,
 		const gltf::Primitive& _primitive)
 	{
-		// Read indices
-		auto indices = readAttribute<uint16_t>(_document, _buffers, _primitive.indices);
-		if(indices.empty()) return nullptr;
+		// Early out for invalid data
+		if(_primitive.indices < 0)
+			return nullptr;
 
-		// Read vertex data
-		// TODO: Efficient read of both interleaved and separated vertex data
-		// Also: use a single vertex buffer when possible
-		auto posAcsNdx = _primitive.attributes.at("POSITION");
-		auto position = readAttribute<Vec3f>(_document, _buffers, posAcsNdx);
-		auto normal = readAttribute<Vec3f>(_document, _buffers, _primitive.attributes.at("NORMAL"));
-		auto tangent = readAttribute<Vec4f>(_document, _buffers, _primitive.attributes.at("TANGENT"));
-		auto uv = readAttribute<Vec2f>(_document, _buffers, _primitive.attributes.at("TEXCOORD_0"));
-
-		// Copy vertex data into the right format
-		std::vector<RenderGeom::Vertex> vertices(position.size());
-		for(size_t i = 0; i < vertices.size(); ++i)
+		const RenderGeom::Attribute* indices = &_attributes[_primitive.indices];
+		if(!indices->bufferView->vbo)
 		{
-			auto& v = vertices[i];
-			v.position = position[i];
-			v.normal = normal[i];
-			auto srcTangent = tangent[i];
-			v.tangent = -Vec3f(srcTangent.block<3,1>(0,0));
-			v.bitangent = v.normal.cross(v.tangent)*srcTangent.w();
-			v.uv = uv[i];
+			auto& bv = *indices->bufferView;
+			indices->bufferView->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, bv.byteLength, bv.data);
 		}
 
-		auto mesh = std::make_shared<RenderGeom>(vertices,indices);
-			mesh->bbox = BBox(
-				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].min.data()),
-				reinterpret_cast<const Vec4f&>(*_document.accessors[posAcsNdx].max.data()));
-		return mesh;
+		// Read primitive attributes
+		const RenderGeom::Attribute* position = registerAttribute(_primitive, "POSITION", _attributes);
+		const RenderGeom::Attribute* normals = registerAttribute(_primitive, "NORMAL", _attributes);
+		const RenderGeom::Attribute* tangents = registerAttribute(_primitive, "TANGENT", _attributes);
+		const RenderGeom::Attribute* uv0 = registerAttribute(_primitive, "TEXCOORD_0", _attributes);
+
+		return std::make_shared<RenderGeom>(indices, position, normals, tangents, uv0);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -202,10 +223,15 @@ namespace rev { namespace game {
 
 		for(auto& bv : _document.bufferViews)
 		{
-			auto bufferData = &buffers[bv.buffer]->buffer[bv.byteOffset];
-			auto vbo = GraphicsDriverGL::get()->allocateStaticBuffer((GLenum)bv.target, bv.byteLength, bufferData);
+			auto bufferData = reinterpret_cast<const uint8_t*>(buffers[bv.buffer]->buffer());
 
-			bvs.emplace_back( vbo, bv.byteStride );
+			RenderGeom::BufferView bufferView;
+			bufferView.vbo = 0;
+			bufferView.byteStride = (GLint)bv.byteStride;
+			bufferView.data = &bufferData[bv.byteOffset];
+			bufferView.byteLength = bv.byteLength;
+
+			bvs.push_back( make_shared<RenderGeom::BufferView>(bufferView) );
 		}
 
 		return bvs;
@@ -221,9 +247,8 @@ namespace rev { namespace game {
 		vector<core::File*> buffers;
 		for(auto b : _document.buffers)
 			buffers.push_back(new core::File(_assetsFolder+b.uri));
-
-		// Load buffer views
-		auto bufferViews = loadBufferViews(_document, buffers);
+		auto bufferViews = loadBufferViews(_document, buffers); // // Load buffer views
+		auto attributes = readAttributes(_document, bufferViews); // Load accessors
 
 		// Load the meshes
 		vector<shared_ptr<RenderMesh>> meshes;
@@ -234,8 +259,8 @@ namespace rev { namespace game {
 			auto mesh = meshes.back();
 			for(auto& primitive : meshDesc.primitives)
 			{
-				shared_ptr<Material> material = _materials[primitive.material];
-				shared_ptr<RenderGeom> geometry = loadPrimitive(_document, buffers, primitive);
+				auto material = _materials[primitive.material];
+				auto geometry = loadPrimitive(_document, attributes, primitive);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
 		}

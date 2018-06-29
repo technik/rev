@@ -38,6 +38,7 @@ namespace rev{ namespace graphics {
 			unsigned nIndices;
 			const Shader*	shader;
 			GLenum cullMode;
+			GLenum indexType;
 
 			std::pair<int,int>	mFloatParams;
 			std::pair<int,int>	mVec3fParams;
@@ -177,7 +178,7 @@ namespace rev{ namespace graphics {
 					++usedVaos;
 				}
 				// Draw
-				glDrawElements(GL_TRIANGLES, command.nIndices, GL_UNSIGNED_SHORT, nullptr);
+				glDrawElements(GL_TRIANGLES, command.nIndices, command.indexType, nullptr);
 				triangles += command.nIndices/3;
 			}
 			mNumCommands = 0; // Reset command list

@@ -268,7 +268,7 @@ namespace rev {	namespace graphics {
 				driver->mSupportSRGBFrameBuffer = sRGBFrameBuffer;
 				driver->mWindowHandle = _window->nativeWindow;
 				driver->mDevCtxHandle = deviceContext;
-#ifdef DEBUG
+#ifndef NDEBUG
                 glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, false);
 				glDebugMessageCallback(gfxDebugCallback, nullptr);
 #endif

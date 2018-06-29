@@ -12,6 +12,8 @@ option(REV_BUILD_PLAYER "Build rev player. This is rev's default client applicat
 option(REV_WITH_OPENGL "Build OpenGL driver and related components. This allows using OpenGL as graphics back end" ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_CXX_STANDARD 17)
+
 add_subdirectory(engine)
 if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)

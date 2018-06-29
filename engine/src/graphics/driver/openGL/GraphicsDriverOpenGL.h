@@ -89,7 +89,7 @@ namespace rev { namespace graphics {
 
 		bool sRGBFrameBuffer() const { return mSupportSRGBFrameBuffer; }
 
-		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, void* data)
+		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, const void* data)
 		{
 			GLuint vbo;
 			glGenBuffers(1,&vbo);

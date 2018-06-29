@@ -94,7 +94,8 @@ namespace rev { namespace graphics {
 			{
 				glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
 				// Render mesh
-				renderObj->mesh->mPrimitives[i].first->render();
+				// TODO: Use render back end
+				//renderObj->mesh->mPrimitives[i].first->render();
 			}
 		}
 
