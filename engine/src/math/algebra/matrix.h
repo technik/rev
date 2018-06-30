@@ -535,21 +535,19 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> frustrumMatrix(
-			Number_ _fovRad,
+			Number_ _yFovRad,
 			Number_ _aspectRatio,
 			Number_ _nearClip,
 			Number_ _farClip)
 		{
 			// Precomputations
-			auto hFov = _fovRad;
-			auto vFovRad = _fovRad / _aspectRatio;
-			auto hFocalLength = 1 / std::tan(hFov / 2);
-			auto vFocalLength = 1 / std::tan(vFovRad / 2);
+			auto yFocalLength = 1 / std::tan(_yFovRad / 2);
+			auto xFocalLength = yFocalLength / _aspectRatio;
 			auto A = 2 / (_farClip-_nearClip);
 			auto B = (_farClip + _nearClip) / (_nearClip - _farClip);
 			return Matrix44<Number_>({
-				hFocalLength, 0, 0, 0,
-				0, 0, vFocalLength, 0,
+				xFocalLength, 0, 0, 0,
+				0, 0, yFocalLength, 0,
 				0, A, 0, B,
 				//0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
 				0, 1, 0, 0
