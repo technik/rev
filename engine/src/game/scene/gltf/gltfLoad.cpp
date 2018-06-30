@@ -121,8 +121,17 @@ namespace rev { namespace game {
 			// Optional camera
 			if(nodeDesc.camera >= 0)
 			{
+				if(nodeDesc.mesh >= 0 || nodeDesc.children.size() > 0)
+				{
+					cout << "Error: Cameras are only supported in separate nodes with no children\n";
+				}
 				auto& cam = _document.cameras[nodeDesc.camera];
 				node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				// Camera correction matrix
+				auto correction = Mat44f::identity();
+				correction.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);
+				correction.block<3,1>(0,2) = Vec3f(0.f,-1.f,0.f);
+				node->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -Constants<float>::halfPi));
 			}
 
 			nodes.push_back(node);
