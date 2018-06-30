@@ -182,7 +182,7 @@ namespace rev { namespace graphics {
 
 		// Cull and sort
 		cull(wsEye, eye->viewDir(), _scene.renderables());
-		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.x() < b.depth.x(); });
+		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.y() < b.depth.y(); });
 		sortByRenderInfo();
 
 		// Record render commands
@@ -231,15 +231,17 @@ namespace rev { namespace graphics {
 			{
 				auto& primitive = mesh->mPrimitives[i];
 				auto& geom = primitive.first;
-				// Note that scale affects bbox's center when the bbox isn't symmetric
-				// So we have to transform first, and get the center and radius later
-				AABB worldBBox (
-					obj->transform.transformPosition(geom->bbox.min()),
-					obj->transform.transformPosition(geom->bbox.max()));
-				auto center = worldBBox.origin();
-				float radius = worldBBox.size().norm();
+				// Transform BBox to world space
+				auto worldAABB = geom->bbox().transform(obj->transform);
+				// Get min and max depths along view direction
+				auto aDepth = viewDir.dot(worldAABB.min());
+				auto bDepth = viewDir.dot(worldAABB.max());
+				auto minDepth = math::min(aDepth, bDepth);
+				auto maxDepth = math::max(aDepth, bDepth);
+				// Transform depths relative to the camera
+				auto center = obj->transform.position();
 				float medDepth = (center - camPos).dot(viewDir);
-				meshDrawInfo.depth = {medDepth-radius, medDepth+radius};
+				meshDrawInfo.depth = {medDepth-minDepth, medDepth+maxDepth};
 
 				if(meshDrawInfo.depth.y() > 0) // Object may be visible
 				{

@@ -62,7 +62,7 @@ namespace rev { namespace graphics {
 			if(uv0)
 				m_vtxAttributes.emplace_back(3, *uv0);
 
-			bbox = position->bounds;
+			m_bbox = position->bounds;
 			
 			initOpenGL();
 		}
@@ -82,27 +82,25 @@ namespace rev { namespace graphics {
 			return RenderGeom(vertexData, indices);
 		}*/
 
-		math::AABB bbox;
 		GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
+		const math::AABB& bbox() const { return m_bbox; }
+
+	private:
+		math::AABB m_bbox;
+		GLuint m_vao = 0;
+		std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
+		Attribute m_indices;
 
 	private:
 		void initOpenGL() {
-			// Create geometry
-			glGenVertexArrays(1,&m_vao);
-			//glGenBuffers(2,vbo);
+
 			// VAO
+			glGenVertexArrays(1,&m_vao);
 			glBindVertexArray(m_vao);
-			// VBO for vertex data
-			//glBindBuffer(GL_ARRAY_BUFFER, vbo[0]); // Bind vertex data
-			/*glBufferData(
-				GL_ARRAY_BUFFER,
-				sizeof(Vertex)*mVertices.size(),
-				mVertices.data(),
-				GL_STATIC_DRAW);*/
-			// VBO for index
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo);
 			
+			// Attributes
 			for(auto& [ndx, attribute] : m_vtxAttributes)
 			{
 				glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo);
@@ -110,32 +108,10 @@ namespace rev { namespace graphics {
 				glEnableVertexAttribArray(ndx); // Vertex pos
 			}
 
-			/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-			glBufferData(
-				GL_ELEMENT_ARRAY_BUFFER,
-				sizeof(uint16_t)*mIndices.size(),
-				mIndices.data(),
-				GL_STATIC_DRAW);
-
-			// Attributes
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-			glEnableVertexAttribArray(0); // Vertex pos
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(math::Vec3f));
-			glEnableVertexAttribArray(1); // Vertex tangent
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(2); // Vertex bitangent
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(3); // Vertex normal
-			glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(4*sizeof(math::Vec3f)));
-			glEnableVertexAttribArray(4); // Vertex uv*/
-
 			// Unbind VAO
 			glBindVertexArray(0);
 		}
 
-		GLuint m_vao = 0;
-		std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
-		Attribute m_indices;
 	};
 
 }}

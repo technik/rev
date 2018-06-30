@@ -167,6 +167,9 @@ namespace rev { namespace game {
 			attr.componentType = (GLenum)accessor.componentType;
 			attr.normalized = accessor.normalized;
 			attr.count = accessor.count;
+			attr.bounds.clear();
+
+			// Detect number of components
 			if(accessor.type == gltf::Accessor::Type::Scalar)
 				attr.nComponents = 1;
 			else if(accessor.type == gltf::Accessor::Type::Vec2)
@@ -182,6 +185,12 @@ namespace rev { namespace game {
 			else if(accessor.type == gltf::Accessor::Type::Mat4)
 				attr.nComponents = 16;
 			else attr.nComponents = 0;
+
+			// Get bbox when available
+			if(accessor.min.size() == 3 && accessor.max.size() == 3)
+				attr.bounds = AABB(
+					(Vec3f&)(*accessor.min.data()),
+					(Vec3f&)(*accessor.max.data()));
 		}
 
 		return attributes;

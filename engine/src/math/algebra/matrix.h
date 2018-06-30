@@ -549,7 +549,6 @@ namespace rev {
 				xFocalLength, 0, 0, 0,
 				0, 0, yFocalLength, 0,
 				0, A, 0, B,
-				//0, (_nearClip + _farClip) * invDepthRange, 0, -2.f * _farClip * _nearClip * invDepthRange,
 				0, 1, 0, 0
 			});
 		}

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
+#include <math/algebra/affineTransform.h>
 #include <math/linear.h>
 #include "ray.h"
 
@@ -49,6 +50,20 @@ namespace rev::math
 		float area() const {
 			auto h = mMax-mMin;
 			return 2.f*(h.x()*h.y()+h.x()*h.z()+h.y()*h.z());
+		}
+
+		AABB transform(const AffineTransform& transform) const
+		{
+			AABB res;
+			res.clear();
+			for(int i = 0; i < 8; i++)
+			{
+				auto x = (i&1) ? mMin.x() : mMax.x();
+				auto y = (i&2) ? mMin.y() : mMax.y();
+				auto z = (i&4) ? mMin.z() : mMax.z();
+				res.add(transform.transformPosition({x,y,z}));
+			}
+			return res;
 		}
 
 		// Size, position and volume
