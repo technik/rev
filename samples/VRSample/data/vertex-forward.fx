@@ -18,6 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#if defined(sampler2D_uNormalMap) && defined(VTX_UV_FLOAT) && defined(VTX_TANGENT_FLOAT)
+#define VTX_TANGENT_SPACE
+#endif
+
 #ifdef VTX_SHADER
 
 //------------------------------------------------------------------------------
@@ -41,8 +45,7 @@ layout(location = 1) uniform mat4 uWorld;
 //layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 4) uniform vec3 uWsViewPos; // Direction toward viewpoint
 
-#if defined(sampler2D_uNormalMap) && defined VTX_UV_FLOAT && defined(VTX_TANGENT_FLOAT)
-#define VTX_TANGENT_SPACE
+#ifdef VTX_TANGENT_SPACE
 out vec4 vtxTangent;
 #endif
 
@@ -51,9 +54,6 @@ out vec4 vtxTangent;
 //------------------------------------------------------------------------------
 #ifdef VTX_NORMAL_FLOAT
 out vec3 vtxNormal;
-#endif
-#ifdef VTX_TANGENT_FLOAT
-out vec3 vtxTangent;
 #endif
 out vec3 vtxWsEyeDir;
 #ifdef VTX_UV_FLOAT

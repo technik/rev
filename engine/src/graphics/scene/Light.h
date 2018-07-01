@@ -26,6 +26,7 @@ namespace rev { namespace graphics {
 	struct Light
 	{
 		math::Vec3f color;
+		bool castShadows;
 	};
 
 	struct PointLight : Light

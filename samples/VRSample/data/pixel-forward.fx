@@ -20,9 +20,8 @@
 #ifdef PXL_SHADER
 
 out lowp vec3 outColor;
-#ifdef sampler2D_uNormalMap
-in vec3 vtxTangent;
-in vec3 vtxBitangent;
+#ifdef VTX_TANGENT_SPACE
+in vec4 vtxTangent;
 #endif
 in vec3 vtxNormal;
 in vec3 vtxWsEyeDir;
@@ -35,9 +34,6 @@ layout(location = 3) uniform float uEV;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 layout(location = 9) uniform sampler2D uShadowMap;
-#ifdef sampler2D_uNormalMap
-layout(location = 10) uniform sampler2D uNormalMap;
-#endif
 
 const float PI = 3.14159265359;
 const float TWO_PI = 6.283185307179586;
@@ -48,26 +44,14 @@ struct ShadeInput
 {
 	float ndv; // Normal dot view
 	// World space vectors
+	vec3 tangent;
+	vec3 bitangent;
 	vec3 normal;
 	vec3 eye;
 };
 
 vec3 shadeSurface(ShadeInput inputs);
-
-#ifdef VTX_TANGENT_SPACE
-//------------------------------------------------------------------------------
-vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
-{
-	vec3 texNormal = (255.f/128.f)*texture(uNormalMap, vTexCoord).xyz - 1.0;
-	
-	//return normal;
-	return normalize(
-		tangent*texNormal.x +
-		bitangent*texNormal.y +
-		normal*max(texNormal.z, 1e-8)
-	);
-}
-#endif
+vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal);
 
 //------------------------------------------------------------------------------
 void computeTangentSpace(inout ShadeInput shadeInput)

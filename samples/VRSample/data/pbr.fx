@@ -21,6 +21,22 @@
 #define PBR_FX
 // Common pbr code
 
+
+#ifdef VTX_TANGENT_SPACE
+//------------------------------------------------------------------------------
+vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
+{
+  vec3 texNormal = (255.f/128.f)*texture(uNormalMap, vTexCoord).xyz - 1.0;
+  
+  //return normal;
+  return normalize(
+    tangent*texNormal.x +
+    bitangent*texNormal.y +
+    normal*max(texNormal.z, 1e-8)
+  );
+}
+#endif
+
 //------------------------------------------------------------------------------
 float GGX_NDF(float ndh, float a)
 {

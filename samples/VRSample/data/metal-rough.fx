@@ -22,6 +22,10 @@
 
 #ifdef PXL_SHADER
 
+#ifdef VTX_TANGENT_SPACE
+//layout(location = 10) uniform sampler2D uNormalMap;
+#endif
+
 #include "pbr.fx"
 
 // Material
@@ -34,6 +38,7 @@ layout(location = 8) uniform sampler2D uIrradiance;
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
 #endif
+
 #ifdef sampler2D_uBaseColorMap
 layout(location = 11) uniform sampler2D uBaseColorMap;
 #endif
@@ -282,7 +287,7 @@ vec3 shadeSurface(ShadeInput inputs)
 //#else
 	return indirectLight;
 //#endif
-	//return inputs.normal;
+	//return 0.5*inputs.normal+0.5;
 }
 
 #endif // PXL_SHADER
