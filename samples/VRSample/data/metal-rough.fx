@@ -25,8 +25,12 @@
 #include "pbr.fx"
 
 // Material
+#ifdef sampler2D_uEnvironment
 layout(location = 7) uniform sampler2D uEnvironment;
+#endif
+#ifdef sampler2D_uIrradiance
 layout(location = 8) uniform sampler2D uIrradiance;
+#endif
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
 #endif
@@ -138,6 +142,12 @@ struct LocalVectors
 	vec3 normal;
 };
 
+vec3 gradient3d(vec3 dir)
+{
+	float f = 0.5f + 0.5f * dir.y;
+	return vec3(0.5f, 0.7f, 1.f)*f + (1-f);
+}
+
 //---------------------------------------------------------------------------------------
 vec3 specularIBL(
 	LocalVectors vectors,
@@ -160,7 +170,11 @@ vec3 specularIBL(
 		float vdh = max(1e-8, dot(vectors.eye, Hn));
 		float ndh = max(1e-8, dot(vectors.normal, Hn));
 		float lodS = roughness < 0.01 ? 0.0 : computeLOD(Ln, probabilityGGX(ndh, vdh, roughness));
+#ifdef sampler2D_uEnvironment
 		vec3 env = textureLod(uEnvironment, sampleSpherical(Ln), lodS ).xyz;
+#else
+		vec3 env = gradient3d(Ln);
+#endif
 		radiance += env * cook_torrance_contrib(vdh, ndh, ndl, ndv, specColor, roughness);
 	}
 	// Remove occlusions on shiny reflections
@@ -172,7 +186,12 @@ vec3 specularIBL(
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
+#ifdef sampler2D_uIrradiance
 	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0.0).xyz * occlusion;
+#else
+	return diffColor * gradient3d(inputs.normal);
+	//return inputs.normal;
+#endif
 	//return textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
 }
 
@@ -204,10 +223,9 @@ vec3 indirectLightPBR(
 	return specular + diffuse;
 }
 
-//---------------------------------------------------------------------------------------
-vec3 shadeSurface(ShadeInput inputs)
+vec3 getBaseColor()
 {
-#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
+	#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
 	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
 	vec3 baseColor = (baseColorTex*uBaseColor).xyz;
 #else
@@ -221,6 +239,13 @@ vec3 shadeSurface(ShadeInput inputs)
 		#endif
 	#endif
 #endif
+	return baseColor;
+}
+
+//---------------------------------------------------------------------------------------
+vec3 shadeSurface(ShadeInput inputs)
+{
+	vec3 baseColor = getBaseColor();
 
 #ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
@@ -242,7 +267,7 @@ vec3 shadeSurface(ShadeInput inputs)
 #endif
 	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
-	vec3 diffColor = baseColor*(1.0-metallic);
+	vec3 diffColor = baseColor;// + (1.0-metallic);
 
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
@@ -251,13 +276,13 @@ vec3 shadeSurface(ShadeInput inputs)
 		roughness,
 		occlusion);
 	
-#ifdef sampler2D_uEmissive
-	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	return indirectLight + emissive;
-#else
+//#ifdef sampler2D_uEmissive
+//	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
+//	return indirectLight + emissive;
+//#else
 	return indirectLight;
-#endif
-	//return directLight + emissive;
+//#endif
+	//return inputs.normal;
 }
 
 #endif // PXL_SHADER

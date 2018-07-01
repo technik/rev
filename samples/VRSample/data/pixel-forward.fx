@@ -70,7 +70,7 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 #endif
 
 //------------------------------------------------------------------------------
-void computeTangentSpace(ShadeInput shadeInput)
+void computeTangentSpace(inout ShadeInput shadeInput)
 {
 	// Tangent space
 #ifdef VTX_TANGENT_SPACE
@@ -115,7 +115,7 @@ void main (void) {
 	// Compute actual lighting
 	vec3 pbrColor = shadeSurface(shadingInputs);
 	
-	outColor = pbrColor*uEV;
+	outColor = pbrColor * uEV;
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

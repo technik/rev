@@ -81,7 +81,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat)
+	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env)
 	{
 		// Locate the proper pipeline set
 		auto setIter = mPipelines.find(&mat.effect());
@@ -93,6 +93,9 @@ namespace rev { namespace graphics {
 			).first;
 		}
 		auto& pipelineSet = setIter->second;
+
+		std::string environmentDefines = env ? "" : 
+			"#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n";
 
 		// Locate the proper shader in the set
 		const auto& descriptor = std::pair(vtxFormat.code(),  mat.bakedOptions()); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
@@ -288,7 +291,7 @@ namespace rev { namespace graphics {
 		bool changedMaterial = false;
 		if(_material != mBoundMaterial || mLastVtxFormatCode != _mesh->vertexFormat().code())
 		{
-			auto shader = getShader(*_material, _mesh->vertexFormat());
+			auto shader = getShader(*_material, _mesh->vertexFormat(), env);
 			if(!shader)
 				return;
 			if(shader != mBoundShader)

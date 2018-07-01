@@ -62,7 +62,14 @@ namespace rev{ namespace graphics {
 		std::unordered_map<const Effect*, PipelineSet>	mPipelines;
 
 		std::string vertexFormatDefines(RenderGeom::VtxFormat);
-		Shader* getShader(const Material&, RenderGeom::VtxFormat);
+
+		struct EnvironmentProbe
+		{
+			std::shared_ptr<Texture>	environment;
+			std::shared_ptr<Texture>	irradiance;
+		};
+
+		Shader* getShader(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env);
 
 		std::string mForwardShaderCommonCode;
 		
@@ -81,12 +88,6 @@ namespace rev{ namespace graphics {
 
 		BackEndRenderer	mBackEnd;
 		std::vector<MeshInfo>	mZSortedQueue;
-
-		struct EnvironmentProbe
-		{
-			std::shared_ptr<Texture>	environment;
-			std::shared_ptr<Texture>	irradiance;
-		};
 
 		// Render cache
 		void resetRenderCache();
