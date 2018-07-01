@@ -157,7 +157,14 @@ namespace rev { namespace graphics {
 		cullAndSortScene(*eye, _scene);
 
 		// Prepare skybox environment probe
-		setupEnvironmentProbe(_scene);
+		EnvironmentProbe environmentProbe;
+		EnvironmentProbe* environmentPtr = nullptr;
+		if(_scene.sky && _scene.irradiance)
+		{
+			environmentProbe.environment = _scene.sky;
+			environmentProbe.irradiance = _scene.irradiance;
+			environmentPtr = &environmentProbe;
+		}
 
 		// Compute global variables
 		auto vp = eye->viewProj(_dst.aspectRatio());
@@ -364,19 +371,5 @@ namespace rev { namespace graphics {
 		cull(eye.position(), eye.viewDir(), scene.renderables());
 		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.y() < b.depth.y(); });
 		sortByRenderInfo();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::setupEnvironmentProbe(const RenderScene& scene)
-	{
-		// Prepare skybox environment probe
-		EnvironmentProbe environmentProbe;
-		EnvironmentProbe* environmentPtr = nullptr;
-		if(scene.sky && scene.irradiance)
-		{
-			environmentProbe.environment = scene.sky;
-			environmentProbe.irradiance = scene.irradiance;
-			environmentPtr = &environmentProbe;
-		}
 	}
 }}

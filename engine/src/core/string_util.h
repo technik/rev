@@ -7,7 +7,7 @@
 #include <string>
 
 namespace rev {
-	namespace util {
+	namespace core {
 
 		//--------------------------------------------------------------------------------------------------
 		inline std::string getFileExtension(const std::string& _s) {

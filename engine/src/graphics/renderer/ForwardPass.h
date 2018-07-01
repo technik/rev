@@ -51,7 +51,6 @@ namespace rev{ namespace graphics {
 			const std::vector<std::shared_ptr<RenderObj>>& renderables);
 		void sortByRenderInfo();
 		void cullAndSortScene(const Camera& cam, const RenderScene& scene);
-		void setupEnvironmentProbe(const RenderScene& scene);
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;

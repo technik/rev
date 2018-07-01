@@ -21,6 +21,7 @@
 #include "gltf.h"
 #include <core/tools/log.h>
 #include <core/types/json.h>
+#include <core/string_util.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
@@ -371,16 +372,6 @@ namespace rev { namespace game {
 		return textures;
 	}
 
-	//--------------------------------------------------------------------------------------------------
-	inline string getFolder(const string& path)
-	{
-		auto pos = path.find_last_of("\\/");
-		if (pos != string::npos)
-			return path.substr(0, pos+1);
-
-		return "";
-	}
-
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
 		SceneNode& _parentNode,
@@ -389,7 +380,7 @@ namespace rev { namespace game {
 		graphics::GeometryPool& _geomPool)
 	{
 		// Open file
-		auto folder = getFolder(_filePath);
+		auto folder = core::getPathFolder(_filePath);
 		core::File sceneFile(_filePath);
 		if(!sceneFile.sizeInBytes()) {
 			core::Log::error("Unable to find scene asset");
