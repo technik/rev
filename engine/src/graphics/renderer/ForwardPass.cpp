@@ -153,38 +153,24 @@ namespace rev { namespace graphics {
 		auto eye = _scene.cameras()[0].lock(); // TODO: Check for deleted cameras
 		assert(eye);
 
-		resetStats();
-		mBackEnd.beginFrame();
-		mBackEnd.beginPass();
+		// Cull and sort
+		cullAndSortScene(*eye, _scene);
 
+		// Prepare skybox environment probe
+		setupEnvironmentProbe(_scene);
+
+		// Compute global variables
+		auto vp = eye->viewProj(_dst.aspectRatio());
 		// Prepare graphics device's global state
 		_dst.bind();
 		setupOpenGLState();
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
-
-		// Compute global variables
-		auto vp = eye->viewProj(_dst.aspectRatio());
-		auto wsEye = eye->position();
-		auto& lightClr = _scene.lightClr();
-		Vec3f lightDir = -_scene.mLightDir;
-
+		// Render
+		resetStats();
+		mBackEnd.beginFrame();
+		mBackEnd.beginPass();
 		// Iterate over renderables
 		mBackEnd.reserve(_scene.renderables().size());
-		// Prepare skybox environment probe
-		EnvironmentProbe environmentProbe;
-		EnvironmentProbe* environmentPtr = nullptr;
-		if(_scene.sky && _scene.irradiance)
-		{
-			environmentProbe.environment = _scene.sky;
-			environmentProbe.irradiance = _scene.irradiance;
-			environmentPtr = &environmentProbe;
-		}
-
-		// Cull and sort
-		cull(wsEye, eye->viewDir(), _scene.renderables());
-		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.y() < b.depth.y(); });
-		sortByRenderInfo();
-
 		// Record render commands
 		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
@@ -196,7 +182,7 @@ namespace rev { namespace graphics {
 				mesh.geom.get(),
 				vp* mesh.world, // World-View-Projection
 				mesh.world,
-				wsEye,
+				eye->position(),
 				mesh.material,
 				environmentPtr);
 			++m_numRenderables;
@@ -372,4 +358,25 @@ namespace rev { namespace graphics {
 		resetStats();
 	}
 
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::cullAndSortScene(const Camera& eye, const RenderScene& scene)
+	{
+		cull(eye.position(), eye.viewDir(), scene.renderables());
+		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.y() < b.depth.y(); });
+		sortByRenderInfo();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ForwardPass::setupEnvironmentProbe(const RenderScene& scene)
+	{
+		// Prepare skybox environment probe
+		EnvironmentProbe environmentProbe;
+		EnvironmentProbe* environmentPtr = nullptr;
+		if(scene.sky && scene.irradiance)
+		{
+			environmentProbe.environment = scene.sky;
+			environmentProbe.irradiance = scene.irradiance;
+			environmentPtr = &environmentProbe;
+		}
+	}
 }}
