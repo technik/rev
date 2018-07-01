@@ -61,12 +61,27 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::loadCommonShaderCode()
 	{
-		core::File code("forward.fx");
-		mForwardShaderCommonCode = code.bufferAsText();
+		mForwardShaderCommonCode = Shader::loadCodeFromFile("forward.fx");
 	}	
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::getShader(const Material& mat)
+	std::string ForwardPass::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
+	{
+		// TODO: Create this defines procedurally with more information from the actual rendergeom
+		string defines;
+		if(vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_POSITION_FLOAT 0\n";
+		if(vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_NORMAL_FLOAT 1\n";
+		if(vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_TANGENT_FLOAT 2\n";
+		if(vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_UV_FLOAT 3\n";
+		return defines;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat)
 	{
 		// Locate the proper pipeline set
 		auto setIter = mPipelines.find(&mat.effect());
@@ -78,14 +93,16 @@ namespace rev { namespace graphics {
 			).first;
 		}
 		auto& pipelineSet = setIter->second;
+
 		// Locate the proper shader in the set
-		const auto& descriptor = mat.bakedOptions(); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
+		const auto& descriptor = std::pair(vtxFormat.code(),  mat.bakedOptions()); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
 		auto iter = pipelineSet.find(descriptor);
 		if(iter == pipelineSet.end())
 		{
 			iter = pipelineSet.emplace(
 				descriptor,
 				Shader::createShader({
+					vertexFormatDefines(vtxFormat).c_str(),
 					mat.bakedOptions().c_str(),
 					mForwardShaderCommonCode.c_str(),
 					mat.effect().code().c_str()
@@ -254,6 +271,7 @@ namespace rev { namespace graphics {
 		mBoundShader = nullptr;
 		mBoundMaterial = nullptr;
 		mBoundProbe = nullptr;
+		mLastVtxFormatCode = RenderGeom::VtxFormat::invalid();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -268,9 +286,9 @@ namespace rev { namespace graphics {
 		// Select material
 		bool changedShader = false;
 		bool changedMaterial = false;
-		if(_material != mBoundMaterial)
+		if(_material != mBoundMaterial || mLastVtxFormatCode != _mesh->vertexFormat().code())
 		{
-			auto shader = getShader(*_material);
+			auto shader = getShader(*_material, _mesh->vertexFormat());
 			if(!shader)
 				return;
 			if(shader != mBoundShader)

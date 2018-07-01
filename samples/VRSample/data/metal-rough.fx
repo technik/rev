@@ -1,3 +1,25 @@
+//--------------------------------------------------------------------------------------------------
+// Revolution Engine
+//--------------------------------------------------------------------------------------------------
+// Copyright 2018 Carmelo J Fdez-Aguera
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+// NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// Metallic-rough pbr shader
+
 #ifdef PXL_SHADER
 
 #include "pbr.fx"
@@ -161,30 +183,25 @@ vec3 indirectLightPBR(
 	vec3 specColor,
 	float roughness,
 	float occlusion
-	//float shadow
 	)
 {
-	/*float shadowImportance = max(0.0,dot(inputs.normal, uLightDir));
-	shadowImportance = sqrt(shadowImportance);
-	//shadowImportance = shadowImportance*shadowImportance;
-	float shadowMask = mix(1.0, shadow, shadowImportance);*/
 	LocalVectors vectors;
 	vectors.eye = inputs.eye;
-#ifdef sampler2D_uNormalMap
+#ifdef VTX_TANGENT_SPACE
 	vectors.tangent = inputs.tangent;
 	vectors.bitangent = inputs.bitangent;
+#else
+	// Construct a local orthonormal base
+	vec3 tangent = inputs.normal.zxy;
+	tangent = tangent - dot(tangent, inputs.normal) * inputs.normal;
+	vectors.tangent = normalize(tangent);
+	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	
 	return specular + diffuse;
-	//return (1.0-0.00001*shadowMask)* ( diffuse);
-	//return diffuse;
-	//return specular;
-	//return shadowMask * diffuse;
-	//return vec3(shadow);
-	//return vec3(shadowMask);
 }
 
 //---------------------------------------------------------------------------------------
@@ -223,45 +240,16 @@ vec3 shadeSurface(ShadeInput inputs)
 	#endif
 	float occlusion = 1.0;
 #endif
-
-	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
-	//vec4 shadowSpacePos = 0.5 + 0.5*(uMs2Shadow * vec4(vtxWsPos, 1.0));
-	//vec4 shadowSpacePos = vec4(vtxWsPos, 1.0);
-	//float sampledDepth = texture(uShadowMap, shadowSpacePos.xy).x;
-	//float curDepth = shadowSpacePos.z;
-	//float shadow = 1.0;
-	/*if(shadowSpacePos.x >= 0.0 && shadowSpacePos.x <= 1.0 &&
-	 shadowSpacePos.y >= 0.0 && shadowSpacePos.y <= 1.0 &&
-	 shadowSpacePos.z >= 0.0 && shadowSpacePos.z <= 1.0 &&
-	 shadowSpacePos.z > sampledDepth)
-		shadow = 0.0;*/
 	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
 	vec3 diffColor = baseColor*(1.0-metallic);
 
-	/*vec3 directLight = directLightPBR(
-		inputs,
-		diffColor,
-		specColor,
-		roughness,
-		metallic);*/
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,
 		specColor,
 		roughness,
 		occlusion);
-	//return 0.5+0.5*inputs.normal;
-	//return directLight + emissive;
-	//return shadowSpacePos.xyz;
-	//return vec3(shadowSpacePos.xy, sampledDepth);
-	//return indirectLight;
-	//return vec3(roughness);//indirectLight;
-	//return indirectLight + emissive;
-	//return emissive;
-	//return physics;
-	//return baseColor;
-	//return directLight + indirectLight + emissive;
 	
 #ifdef sampler2D_uEmissive
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;

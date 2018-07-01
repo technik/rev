@@ -57,10 +57,12 @@ namespace rev{ namespace graphics {
 		std::unique_ptr<Material>	mErrorMaterial;
 		using ShaderPtr = std::unique_ptr<Shader>;
 
-		using PipelineSet = std::unordered_map<std::string, ShaderPtr>;
+		using ShaderOptions = std::pair<uint32_t,std::string>;
+		using PipelineSet = std::map<ShaderOptions, ShaderPtr>;
 		std::unordered_map<const Effect*, PipelineSet>	mPipelines;
 
-		Shader* getShader(const Material&);
+		std::string vertexFormatDefines(RenderGeom::VtxFormat);
+		Shader* getShader(const Material&, RenderGeom::VtxFormat);
 
 		std::string mForwardShaderCommonCode;
 		
@@ -91,6 +93,7 @@ namespace rev{ namespace graphics {
 		const EnvironmentProbe* mBoundProbe = nullptr;
 		std::shared_ptr<const Material> mBoundMaterial = nullptr;
 		const Shader* mBoundShader = nullptr;
+		uint32_t mLastVtxFormatCode = 0;
 
 		void renderMesh(
 			const RenderGeom* _mesh,

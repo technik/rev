@@ -19,8 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "Effect.h"
 #include <sstream>
-#include <core/platform/fileSystem/file.h>
-#include <core/string_util.h>
+#include <graphics/driver/shader.h>
 
 using namespace std;
 
@@ -72,68 +71,7 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	shared_ptr<Effect> Effect::loadFromFile(const std::string& fileName)
 	{
-		string fullCode;
-		vector<pair<size_t,string>> pendingCode; // read position, code
-		vector<string> includePaths;
-
-		// load code from the entry file
-		core::File baseFile(fileName);
-		pendingCode.emplace_back(0,baseFile.bufferAsText());
-		includePaths.push_back(core::getPathFolder(fileName));
-
-		const string includeLabel = "#include";
-
-		// TODO: Parsing code files line by line may be more robust (e.g. do not detect includes inside comments)
-		// Parse code
-		while(!pendingCode.empty())
-		{
-			auto& [lineStart, code] = pendingCode.back();
-			// Extract line
-			auto lineEnd = code.find('\n', lineStart);
-			bool isLastLine = (lineEnd == std::string::npos);
-			if(isLastLine) // Last line
-			{
-				lineEnd = code.length();
-			}
-			// Process line
-			if(code.substr(lineStart, includeLabel.length()) == includeLabel) // Include line
-			{
-				// Find the include path
-				auto startPos = code.find('"', lineStart+includeLabel.length()) + 1;
-				auto endPos = code.find('"', startPos);
-
-				auto pathAppend = code.substr(startPos, endPos-startPos);
-				if(pathAppend.empty())
-				{
-					cout << "Error parsing shader include. Empty include processing " << fileName << "\n";
-					return nullptr;
-				}
-
-				auto fullPath = includePaths.back() + pathAppend;
-				core::File includedFile(fullPath);
-				if(includedFile.sizeInBytes() == 0)
-				{
-					cout << "Error: unable to find include file " << fullPath << " while parsing shader file " << fileName << "\n";
-					return nullptr;
-				}
-				lineStart = lineEnd+1; // Prepare to keep reading after end of file
-				includePaths.push_back(core::getPathFolder(fullPath));
-				pendingCode.emplace_back(0, includedFile.bufferAsText());
-			}
-			else // Regular line
-			{
-				fullCode.append(code.substr(lineStart, lineEnd-lineStart+1));
-			}
-			// Prepare next iteration
-			lineStart = lineEnd+1;
-			if(isLastLine)
-			{
-				fullCode.append("\n");
-				pendingCode.pop_back();
-				includePaths.pop_back();
-			}
-		}
-
+		auto fullCode = Shader::loadCodeFromFile(fileName);
 		return make_shared<Effect>(fullCode.c_str());
 	}
 

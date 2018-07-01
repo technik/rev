@@ -3,12 +3,15 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "shader.h"
 #include "openGL/openGL.h"
+#include <core/platform/fileSystem/file.h>
+#include <core/string_util.h>
 #include <core/tools/log.h>
 #include <graphics/debug/imgui.h>
 
 #include <vector>
 
 using namespace rev::core;
+using namespace std;
 
 namespace rev { namespace graphics {
 
@@ -34,6 +37,7 @@ namespace rev { namespace graphics {
 		const std::string PXL_SHADER_HEADER = "#define PXL_SHADER\n";
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------
 	std::unique_ptr<Shader>	Shader::createShader(const char* code)
 	{
 		std::vector<const char*> c;
@@ -41,6 +45,7 @@ namespace rev { namespace graphics {
 		return createShader(c);
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------
 	std::unique_ptr<Shader>	Shader::createShader(const std::vector<const char*>& code)
 	{
 		GLuint vertexShader = 0, fragmentShader = 0;
@@ -74,6 +79,78 @@ namespace rev { namespace graphics {
 		return shader;
 	}
 
+	//---------------------------------------------------------------------------------------------------------------------
+	std::string Shader::loadCodeFromFile(const std::string& fileName)
+	{
+		string fullCode;
+		vector<pair<size_t,string>> pendingCode; // read position, code
+		vector<string> includePaths;
+
+		// load code from the entry file
+		core::File baseFile(fileName);
+		pendingCode.emplace_back(0,baseFile.bufferAsText());
+		includePaths.push_back(core::getPathFolder(fileName));
+
+		const string includeLabel = "#include";
+
+		// TODO: Parsing code files line by line may be more robust (e.g. do not detect includes inside comments)
+		// Parse code
+		while(!pendingCode.empty())
+		{
+			auto& [lineStart, code] = pendingCode.back();
+			// Extract line
+			auto lineEnd = code.find('\n', lineStart);
+			bool isLastLine = (lineEnd == std::string::npos);
+			if(isLastLine) // Last line
+			{
+				lineEnd = code.length();
+			}
+			// Process line
+			if(lineStart < code.length())
+			{
+				if((lineStart+includeLabel.length()<code.length()) && code.substr(lineStart, includeLabel.length()) == includeLabel) // Include line
+				{
+					// Find the include path
+					auto startPos = code.find('"', lineStart+includeLabel.length()) + 1;
+					auto endPos = code.find('"', startPos);
+
+					auto pathAppend = code.substr(startPos, endPos-startPos);
+					if(pathAppend.empty())
+					{
+						cout << "Error parsing shader include. Empty include processing " << fileName << "\n";
+						return nullptr;
+					}
+
+					auto fullPath = includePaths.back() + pathAppend;
+					core::File includedFile(fullPath);
+					if(includedFile.sizeInBytes() == 0)
+					{
+						cout << "Error: unable to find include file " << fullPath << " while parsing shader file " << fileName << "\n";
+						return nullptr;
+					}
+					lineStart = lineEnd+1; // Prepare to keep reading after end of file
+					includePaths.push_back(core::getPathFolder(fullPath));
+					pendingCode.emplace_back(0, includedFile.bufferAsText());
+				}
+				else // Regular line
+				{
+					fullCode.append(code.substr(lineStart, lineEnd-lineStart+1));
+				}
+			}
+			// Prepare next iteration
+			lineStart = lineEnd+1;
+			if(isLastLine)
+			{
+				fullCode.append("\n");
+				pendingCode.pop_back();
+				includePaths.pop_back();
+			}
+		}
+
+		return fullCode;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
 	bool Shader::createSubprogram(const std::vector<const char*> _code, GLenum _shaderType, GLuint& _dst)
 	{
 		std::vector<const char*> code;
@@ -106,11 +183,13 @@ namespace rev { namespace graphics {
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
 			ImGui::Begin("Shader Error");
-			ImGui::Text("%s", ShaderErrorMessage.data());
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+			ImGui::Text("%s", textMessage.c_str());
 			glGetShaderiv(_dst, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
 			ShaderErrorMessage.resize(InfoLogLength+1);
 			glGetShaderSource(_dst, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-			ImGui::Text("%s", ShaderErrorMessage.data());
+			std::string completeSource = (char*)ShaderErrorMessage.data();
+			ImGui::Text("%s", completeSource.c_str());
 			ImGui::End();
 			return false;
 		}
