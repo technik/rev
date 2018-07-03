@@ -23,7 +23,7 @@
 #ifdef PXL_SHADER
 
 #ifdef VTX_TANGENT_SPACE
-//layout(location = 10) uniform sampler2D uNormalMap;
+layout(location = 10) uniform sampler2D uNormalMap;
 #endif
 
 #include "pbr.fx"

@@ -62,6 +62,11 @@ namespace rev { namespace graphics {
 
 		struct Attribute
 		{
+			template<class T> auto& get(size_t i) const {
+				auto rawData = (void*)((int)bufferView->data + (int)offset);
+				auto formattedData = reinterpret_cast<const T*>(rawData);
+				return formattedData[i];
+			}
 			std::shared_ptr<BufferView> bufferView;
 			GLvoid* offset;
 			GLenum componentType;

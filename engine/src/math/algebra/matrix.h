@@ -488,6 +488,13 @@ namespace rev {
 				static_assert(cols_>=3||rows_>=3, "Vector is not big enough");
 			}
 
+			Matrix(T_ _x, T_ _y, T_ _z, T_ _w)
+				: Base { _x, _y, _z, _w }
+			{
+				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
+				static_assert(cols_>=4||rows_>=3, "Vector is not big enough");
+			}
+
 			Matrix normalized() const { return (*this) * (1/this->norm()); }
 
 			// Smarter construction
