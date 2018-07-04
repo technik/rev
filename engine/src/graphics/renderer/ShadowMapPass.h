@@ -22,6 +22,7 @@
 #include <graphics/driver/frameBuffer.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/renderGeom.h>
+#include <map>
 
 namespace rev{ namespace graphics {
 
@@ -47,13 +48,22 @@ namespace rev{ namespace graphics {
 		void adjustViewMatrix(const math::Vec3f& lightDir);
 		void renderMeshes(const RenderScene& _scene);
 
+		void loadCommonShaderCode();
+		Shader* getShader(RenderGeom::VtxFormat);
+		// Used to combine different vertex formats as long as they share the data needed to render shadows.
+		// This saves a lot on shader permutations.
+		uint32_t mVtxFormatMask;
+
 	private:
+		using ShaderPtr = std::unique_ptr<Shader>;
+		using PipelineSet = std::map<uint32_t, ShaderPtr>;
 
 		GraphicsDriverGL&	mDriver;
 		std::unique_ptr<FrameBuffer>	mDepthBuffer;
-		std::unique_ptr<Shader>			mShader;
 		math::Mat44f					mShadowProj;
 		BackEndRenderer&				mBackEnd;
+		PipelineSet						mPipelines;
+		std::string						mCommonShaderCode;
 		float mBias = 0.02f;
 	};
 

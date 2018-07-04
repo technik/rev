@@ -41,8 +41,14 @@ namespace rev { namespace graphics {
 		, mBackEnd(_backEnd)
 	{
 		mDepthBuffer = std::make_unique<FrameBuffer>(_size);
-		core::File shaderCode("shadowMap.fx");
-		mShader = Shader::createShader(shaderCode.bufferAsText());
+		mVtxFormatMask = RenderGeom::VtxFormat(
+			RenderGeom::VtxFormat::Storage::Float32,
+			RenderGeom::VtxFormat::Storage::None,
+			RenderGeom::VtxFormat::Storage::None,
+			RenderGeom::VtxFormat::Storage::None
+		).code(); // We only care about the format of vertex positions
+
+		loadCommonShaderCode();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -58,9 +64,6 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::setUpGlobalState()
 	{
-		if(!mShader)
-			return;
-
 		mDepthBuffer->bind();
 		glEnable(GL_DEPTH_TEST);
 		glClearDepthf(1.0);
@@ -69,8 +72,6 @@ namespace rev { namespace graphics {
 		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-
-		mShader->bind();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -114,15 +115,40 @@ namespace rev { namespace graphics {
 			// render
 			for(size_t i = 0; i < renderObj->mesh->mPrimitives.size(); ++i)
 			{
-				glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, wvp.data());
-				// Render mesh
-				// TODO: Use render back end
-				//renderObj->mesh->mPrimitives[i].first->render();
+				//
 			}
 		}
 
 		mBackEnd.endPass();
 		mBackEnd.submitDraws();
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ShadowMapPass::loadCommonShaderCode()
+	{
+		mCommonShaderCode = Shader::loadCodeFromFile("shadowMap.fx");
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Shader* ShadowMapPass::getShader(RenderGeom::VtxFormat vtxFormat)
+	{
+		auto pipelineCode = vtxFormat.code() & mVtxFormatMask; // Combine shader variations
+
+		// Locate the proper shader in the set
+		auto iter = mPipelines.find(pipelineCode);
+		if(iter == mPipelines.end())
+		{
+			iter = mPipelines.emplace(
+				pipelineCode,
+				Shader::createShader({
+					mCommonShaderCode.c_str()
+					})
+			).first;
+		}
+		return iter->second.get();
+
+
+		return nullptr;
 	}
 
 }}
