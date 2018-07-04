@@ -194,7 +194,7 @@ vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 #ifdef sampler2D_uIrradiance
 	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0.0).xyz * occlusion;
 #else
-	return diffColor * gradient3d(inputs.normal);
+	return diffColor * gradient3d(inputs.normal) * occlusion;
 	//return inputs.normal;
 #endif
 	//return textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
@@ -281,12 +281,13 @@ vec3 shadeSurface(ShadeInput inputs)
 		roughness,
 		occlusion);
 	
-//#ifdef sampler2D_uEmissive
-//	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-//	return indirectLight + emissive;
-//#else
+#ifdef sampler2D_uEmissive
+	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
+	return indirectLight + emissive;
+#else
 	return indirectLight;
-//#endif
+#endif
+	//return vec3(occlusion);
 	//return 0.5*inputs.normal+0.5;
 }
 

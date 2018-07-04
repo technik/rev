@@ -162,12 +162,13 @@ namespace rev{ namespace graphics {
 					mDriver.bindUniform(mVec4fIndices[i], mVec4fParams[i]);
 				for(int i = command.mMat44fParams.first; i < command.mMat44fParams.second; ++i)
 					mDriver.bindUniform(mMat44fIndices[i], mMat44fParams[i]);
-				int textureStage = 0;
+				//int textureStage = 0;
 				for(int i = command.mTextureParams.first; i < command.mTextureParams.second; ++i)
 				{
-					glUniform1i(mTextureIndices[i], textureStage);
-					glActiveTexture(GL_TEXTURE0+textureStage);
-					++textureStage;
+					auto index = mTextureIndices[i];
+					glUniform1i(mTextureIndices[i], index);
+					glActiveTexture(GL_TEXTURE0+index);
+					++index;
 					glBindTexture(GL_TEXTURE_2D, mTextureParams[i]->glName());
 				}
 				// Bind geometry

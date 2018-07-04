@@ -94,8 +94,7 @@ namespace rev { namespace graphics {
 		}
 		auto& pipelineSet = setIter->second;
 
-		std::string environmentDefines = env ? "" : 
-			"#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n";
+		std::string environmentDefines = env ? "#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n" : "";
 
 		// Locate the proper shader in the set
 		const auto& descriptor = std::pair(vtxFormat.code(),  mat.bakedOptions()); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
@@ -106,6 +105,7 @@ namespace rev { namespace graphics {
 				descriptor,
 				Shader::createShader({
 					vertexFormatDefines(vtxFormat).c_str(),
+					environmentDefines.c_str(),
 					mat.bakedOptions().c_str(),
 					mForwardShaderCommonCode.c_str(),
 					mat.effect().code().c_str()
@@ -216,8 +216,8 @@ namespace rev { namespace graphics {
 		}
 
 		// Render skybox
-		if(_scene.sky)
-			renderBackground(vp, mEV, _scene.sky.get());
+		//if(_scene.sky)
+		//	renderBackground(vp, mEV, _scene.sky.get());
 
 		// Finish pass
 		mBackEnd.endPass();
@@ -299,6 +299,7 @@ namespace rev { namespace graphics {
 				resetRenderCache();
 				mBoundShader = shader;
 				changedShader = true;
+				mBoundProbe = nullptr;
 			}
 			mBoundMaterial = _material;
 			changedMaterial = true;
