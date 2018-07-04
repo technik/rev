@@ -299,7 +299,7 @@ namespace rev { namespace game {
 			
 			tangent3 = tangent3 - (tangent3.dot(normal) * normal); // Orthogonal tangent
 			tangent3 = tangent3.normalized(); // Orthonormal tangent
-			tangent = { tangent3.x(), tangent3.y(), tangent3.z(), signbit(tangent.w()) ? -1.f : 1.f };
+			tangent = { tangent3.x(), tangent3.y(), tangent3.z(), signbit(-tangent.w()) ? -1.f : 1.f };
 		}
 
 		// TODO: Allocate buffer in graphics driver
@@ -405,10 +405,31 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Texture> getTexture(
+		const std::string& assetsFolder,
+		const gltf::Document& document,
+		std::vector<std::shared_ptr<Texture>>& textures,
+		int32_t index,
+		bool sRGB)
+	{
+		auto& texture = textures[index];
+		if(texture) // Already allocated, reuse
+			return texture;
+
+		// Not previously allocated, do it now
+		auto textDesc = document.textures[index];
+		auto& image = document.images[textDesc.source];
+		texture = Texture::load(assetsFolder + image.uri, sRGB);
+
+		return texture;
+	}
+
+	//----------------------------------------------------------------------------------------------
 	auto loadMaterials(
+		const std::string& _assetsFolder,
 		const gltf::Document& _document,
 		const shared_ptr<const Effect>& _pbrEffect,
-		const std::vector<std::shared_ptr<Texture>>& _textures
+		std::vector<std::shared_ptr<Texture>>& _textures
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
@@ -424,7 +445,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", _textures[albedoNdx]);
+					mat->addTexture("uBaseColorMap", getTexture(_assetsFolder, _document, _textures, albedoNdx, false));
 				}
 				// Base color factor
 				{
@@ -438,7 +459,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", _textures[ndx]);
+					mat->addTexture("uPhysics", getTexture(_assetsFolder, _document, _textures, ndx, false));
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
 					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
@@ -446,35 +467,16 @@ namespace rev { namespace game {
 					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", _textures[matDesc.emissiveTexture.index]);
+				mat->addTexture("uEmissive", getTexture(_assetsFolder, _document, _textures, matDesc.emissiveTexture.index, false));
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", _textures[matDesc.normalTexture.index]);
+				mat->addTexture("uNormalMap", getTexture(_assetsFolder, _document, _textures, matDesc.normalTexture.index, false));
 			}
 			materials.push_back(mat);
 		}
 
 		return materials;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	// TODO: This method assumes the texture is sRGB.
-	// Instead, textures should be loaded on demand, when real color space info is available, or a first pass
-	// should be performed on materials, marking textures with their corresponding color spaces
-	auto loadTextures(const std::string& _assetsFolder, const gltf::Document& _document)
-	{
-		vector<shared_ptr<Texture>> textures;
-		textures.reserve(_document.textures.size());
-		for(auto& textDesc : _document.textures)
-		{
-			// TODO: Use texture sampler information
-			//auto& sampler = _document.samplers[textDesc.sampler];
-			auto& image = _document.images[textDesc.source];
-			textures.push_back(Texture::load(_assetsFolder + image.uri));
-		}
-
-		return textures;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -523,8 +525,8 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		// Load resources
-		auto textures = loadTextures(folder, document);
-		auto materials = loadMaterials(document, pbrEffect, textures);
+		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
+		auto materials = loadMaterials(folder, document, pbrEffect, textures);
 		auto meshes = loadMeshes(folder, document, materials);
 
 		// Load nodes
