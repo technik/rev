@@ -28,15 +28,19 @@ namespace rev { namespace graphics {
 	void ForwardRenderer::init(GraphicsDriverGL& driver, RenderTarget& _renderTarget)
 	{
 		mRenderTarget = &_renderTarget;
-		mForwardPass = std::make_unique<ForwardPass>(driver);
-		mShadowPass = std::make_unique<ShadowMapPass>(driver, math::Vec2u(1024, 1024));
+		mBackEnd = std::make_unique<BackEndRenderer>(driver);
+		mForwardPass = std::make_unique<ForwardPass>(*mBackEnd, driver);
+		mShadowPass = std::make_unique<ShadowMapPass>(*mBackEnd, driver, math::Vec2u(1024, 1024));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const RenderScene& scene) {
+		mBackEnd->beginFrame();
+
 		if(!mRenderTarget)
 			return;
-		//mShadowPass->render(scene, scene.mLightDir);
+
+		mShadowPass->render(scene);
 		//mForwardPass->render(eye,scene,*mRenderTarget,mShadowPass.get());
 		mForwardPass->render(scene,*mRenderTarget,nullptr);
 	}

@@ -21,6 +21,7 @@
 #include <memory>
 #include "ForwardPass.h"
 #include "ShadowMapPass.h"
+#include <graphics/renderer/backend/BackEndRenderer.h>
 
 namespace rev { namespace graphics {
 
@@ -36,9 +37,10 @@ namespace rev { namespace graphics {
 		void render	(const RenderScene&);
 
 	private:
-		std::unique_ptr<ForwardPass>	mForwardPass;
-		std::unique_ptr<ShadowMapPass>	mShadowPass;
-		RenderTarget*					mRenderTarget = nullptr;
+		std::unique_ptr<ForwardPass>		mForwardPass;
+		std::unique_ptr<ShadowMapPass>		mShadowPass;
+		RenderTarget*						mRenderTarget = nullptr;
+		std::unique_ptr<BackEndRenderer>	mBackEnd;
 	};
 
 }}

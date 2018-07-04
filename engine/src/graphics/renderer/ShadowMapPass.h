@@ -25,6 +25,7 @@
 
 namespace rev{ namespace graphics {
 
+	class BackEndRenderer;
 	class Camera;
 	class GraphicsDriverGL;
 	class RenderScene;
@@ -33,17 +34,26 @@ namespace rev{ namespace graphics {
 	class ShadowMapPass
 	{
 	public:
-		ShadowMapPass(GraphicsDriverGL&, const math::Vec2u& _size);
+		ShadowMapPass(BackEndRenderer&, GraphicsDriverGL&, const math::Vec2u& _size);
 
-		void render(const RenderScene& _scene, const math::Vec3f& lightDir);
+		void render(const RenderScene& _scene);
 
 		GLuint texName() const { return mDepthBuffer->textureGLName(); }
 		const math::Mat44f& shadowProj() const { return mShadowProj; }
+
 	private:
+
+		void setUpGlobalState();
+		void adjustViewMatrix(const math::Vec3f& lightDir);
+		void renderMeshes(const RenderScene& _scene);
+
+	private:
+
 		GraphicsDriverGL&	mDriver;
 		std::unique_ptr<FrameBuffer>	mDepthBuffer;
 		std::unique_ptr<Shader>			mShader;
 		math::Mat44f					mShadowProj;
+		BackEndRenderer&				mBackEnd;
 		float mBias = 0.02f;
 	};
 

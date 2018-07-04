@@ -44,9 +44,9 @@ using namespace rev::math;
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	ForwardPass::ForwardPass(GraphicsDriverGL& _gfxDriver)
+	ForwardPass::ForwardPass(BackEndRenderer& _backEnd, GraphicsDriverGL& _gfxDriver)
 		: mDriver(_gfxDriver)
-		, mBackEnd(_gfxDriver)
+		, mBackEnd(_backEnd)
 	{
 		loadCommonShaderCode();
 		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
@@ -194,7 +194,6 @@ namespace rev { namespace graphics {
 		glViewport(0, 0, _dst.size().x(), _dst.size().y());
 		// Render
 		resetStats();
-		mBackEnd.beginFrame();
 		mBackEnd.beginPass();
 		// Iterate over renderables
 		mBackEnd.reserve(_scene.renderables().size());

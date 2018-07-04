@@ -20,7 +20,6 @@
 #pragma once
 #include <memory>
 #include <graphics/driver/shader.h>
-#include <graphics/renderer/backend/BackEndRenderer.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
@@ -29,6 +28,7 @@
 
 namespace rev{ namespace graphics {
 
+	class BackEndRenderer;
 	class Camera;
 	class GraphicsDriverGL;
 	class RenderScene;
@@ -38,7 +38,7 @@ namespace rev{ namespace graphics {
 	class ForwardPass
 	{
 	public:
-		ForwardPass(GraphicsDriverGL&);
+		ForwardPass(BackEndRenderer&, GraphicsDriverGL&);
 
 		void render(const RenderScene&, const RenderTarget& _dst, ShadowMapPass* _shadows);
 
@@ -86,7 +86,7 @@ namespace rev{ namespace graphics {
 			math::Vec2f depth; // min, max
 		};
 
-		BackEndRenderer	mBackEnd;
+		BackEndRenderer&	mBackEnd;
 		std::vector<MeshInfo>	mZSortedQueue;
 
 		// Render cache
