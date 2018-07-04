@@ -71,14 +71,13 @@ namespace rev { namespace graphics {
 
 		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::adjustViewMatrix(const math::Vec3f& lightDir)
 	{
 		Mat44f shadowViewMtx = Mat44f::identity();
-		shadowViewMtx.block<3,1>(0,1) = lightDir;
+		shadowViewMtx.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);//lightDir;
 		Vec3f upAxis = Vec3f {0.f, 0.f, 1.f};
 		if(std::abs(upAxis.dot(lightDir)) > 0.71f)
 			upAxis = Vec3f {0.f, 1.f, 0.f};
@@ -113,9 +112,20 @@ namespace rev { namespace graphics {
 			auto wvp = mShadowProj*worldMatrix;
 
 			// render
-			for(size_t i = 0; i < renderObj->mesh->mPrimitives.size(); ++i)
+			for(auto& primitive : renderObj->mesh->mPrimitives)
 			{
-				//
+				auto& command = mBackEnd.beginCommand();
+				command.cullMode = affineTransformDeterminant(worldMatrix) < 0.f ? GL_BACK : GL_FRONT;
+				mBackEnd.addParam(0, wvp);
+
+				auto& mesh = *primitive.first;
+				command.shader = getShader(mesh.vertexFormat());
+
+				command.vao = mesh.getVao();
+				command.nIndices = mesh.indices().count;
+				command.indexType = mesh.indices().componentType;
+
+				mBackEnd.endCommand();
 			}
 		}
 
