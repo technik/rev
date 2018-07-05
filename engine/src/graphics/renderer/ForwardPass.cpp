@@ -81,20 +81,22 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env)
+	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows)
 	{
 		// Locate the proper pipeline set
-		auto setIter = mPipelines.find(&mat.effect());
+		auto code = effectCode(env, shadows);
+		auto setIter = mPipelines.find({code, &mat.effect()});
 		if(setIter == mPipelines.end())
 		{
 			setIter = mPipelines.emplace(
-				&mat.effect(),
+				std::pair(code, &mat.effect()),
 				PipelineSet()
 			).first;
 		}
 		auto& pipelineSet = setIter->second;
 
 		std::string environmentDefines = env ? "#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n" : "";
+		std::string shadowDefines = shadows ? "#define sampler2D_uShadowMap\n#define mat4_uMs2Shadow\n" : "";
 
 		// Locate the proper shader in the set
 		const auto& descriptor = std::pair(vtxFormat.code(),  mat.bakedOptions()); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
@@ -106,6 +108,7 @@ namespace rev { namespace graphics {
 				Shader::createShader({
 					vertexFormatDefines(vtxFormat).c_str(),
 					environmentDefines.c_str(),
+					shadowDefines.c_str(),
 					mat.bakedOptions().c_str(),
 					mForwardShaderCommonCode.c_str(),
 					mat.effect().code().c_str()
@@ -210,7 +213,8 @@ namespace rev { namespace graphics {
 				mesh.world,
 				eye->position(),
 				mesh.material,
-				environmentPtr);
+				environmentPtr,
+				_shadows);
 			++m_numRenderables;
 		}
 
@@ -283,14 +287,16 @@ namespace rev { namespace graphics {
 		const Mat44f _worldMatrix,
 		const Vec3f _wsEye,
 		const shared_ptr<const Material>& _material,
-		const EnvironmentProbe* env)
+		const EnvironmentProbe* env,
+		ShadowMapPass* shadows
+	)
 	{
 		// Select material
 		bool changedShader = false;
 		bool changedMaterial = false;
 		if(_material != mBoundMaterial || mLastVtxFormatCode != _mesh->vertexFormat().code())
 		{
-			auto shader = getShader(*_material, _mesh->vertexFormat(), env);
+			auto shader = getShader(*_material, _mesh->vertexFormat(), env, shadows);
 			if(!shader)
 				return;
 			if(shader != mBoundShader)
@@ -327,6 +333,12 @@ namespace rev { namespace graphics {
 		{
 			mBackEnd.addParam(3, mEV); // Exposure value
 			mBackEnd.addParam(4, _wsEye);
+		}
+		if(shadows)
+		{
+			Mat44f shadowProj = shadows->shadowProj() * _worldMatrix;
+			mBackEnd.addParam(2, shadowProj);
+			mBackEnd.addParam(9, shadows->texture().get());
 		}
 		// Render mesh
 		command.vao = _mesh->getVao();

@@ -59,7 +59,8 @@ namespace rev{ namespace graphics {
 
 		using ShaderOptions = std::pair<uint32_t,std::string>;
 		using PipelineSet = std::map<ShaderOptions, ShaderPtr>;
-		std::unordered_map<const Effect*, PipelineSet>	mPipelines;
+		using EffectSelector = std::pair<uint32_t, const Effect*>;
+		std::map<EffectSelector, PipelineSet>	mPipelines;
 
 		std::string vertexFormatDefines(RenderGeom::VtxFormat);
 
@@ -69,7 +70,9 @@ namespace rev{ namespace graphics {
 			std::shared_ptr<Texture>	irradiance;
 		};
 
-		Shader* getShader(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env);
+		uint32_t effectCode(bool environment, bool shadows) { return ((environment?1:0)<<1) | (shadows?1:0); }
+
+		Shader* getShader(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows);
 
 		std::string mForwardShaderCommonCode;
 		
@@ -102,7 +105,8 @@ namespace rev{ namespace graphics {
 			const math::Mat44f _worldMatrix,
 			const math::Vec3f _wsEye,
 			const std::shared_ptr<const Material>& _material,
-			const EnvironmentProbe* env);
+			const EnvironmentProbe* env,
+			ShadowMapPass* _shadows);
 
 		void drawStats();
 		void resetStats();

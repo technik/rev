@@ -27,12 +27,15 @@ namespace rev { namespace graphics {
 	{
 		math::Vec3f color;
 		bool castShadows;
+
+		virtual math::Vec3f viewDirection() const = 0;
 	};
 
 	struct PointLight : Light
 	{
 		float range;
 		math::Vec3f position;
+		math::Vec3f viewDirection() const override { return position; } // Wrong interface, need to do something
 	};
 
 	struct SpotLight : Light
@@ -41,10 +44,12 @@ namespace rev { namespace graphics {
 		float maxCosine;
 		math::Vec3f position;
 		math::Vec3f direction;
+		math::Vec3f viewDirection() const override { return direction; }
 	};
 
-	struct DirectionalLight
+	struct DirectionalLight : Light
 	{
 		math::Vec3f direction;
+		math::Vec3f viewDirection() const override { return direction; }
 	};
 }}

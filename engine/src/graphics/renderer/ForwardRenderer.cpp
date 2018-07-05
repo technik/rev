@@ -40,9 +40,13 @@ namespace rev { namespace graphics {
 		if(!mRenderTarget)
 			return;
 
-		mShadowPass->render(scene);
-		//mForwardPass->render(eye,scene,*mRenderTarget,mShadowPass.get());
-		mForwardPass->render(scene,*mRenderTarget,nullptr);
+		ShadowMapPass* shadowPass = nullptr;
+		if(!scene.lights().empty() && scene.lights()[0]->castShadows)
+		{
+			mShadowPass->render(scene);
+			shadowPass = mShadowPass.get();
+		}
+		mForwardPass->render(scene,*mRenderTarget,shadowPass);
 	}
 
 }}

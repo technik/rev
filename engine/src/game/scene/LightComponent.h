@@ -34,7 +34,7 @@ namespace rev { namespace game {
 		SpotLight(graphics::RenderScene& _scene, float apertureRadians, float range, const math::Vec3f& color)
 		{
 			mLight = std::make_shared<graphics::SpotLight>();
-			_scene.spotLights().push_back(mLight);
+			_scene.addLight(mLight);
 			mLight->range = range;
 			mLight->color = color;
 			mLight->maxCosine = cos(apertureRadians/2);

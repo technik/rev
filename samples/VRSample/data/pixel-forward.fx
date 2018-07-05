@@ -26,14 +26,14 @@ in vec4 vtxTangent;
 in vec3 vtxNormal;
 in vec3 vtxWsEyeDir;
 in vec2 vTexCoord;
-in vec3 vtxWsPos;
+#ifdef sampler2D_uShadowMap
+in vec3 vtxShadowPos;
+#endif
 
 // Global state
-//layout(location = 2) uniform mat4 uMs2Shadow;
 layout(location = 3) uniform float uEV;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
-layout(location = 9) uniform sampler2D uShadowMap;
 
 const float PI = 3.14159265359;
 const float TWO_PI = 6.283185307179586;
@@ -47,6 +47,7 @@ struct ShadeInput
 	vec3 tangent;
 	vec3 bitangent;
 	vec3 normal;
+	vec3 shadowPos;
 	vec3 eye;
 };
 
@@ -89,6 +90,9 @@ void main (void) {
 
 	computeTangentSpace(shadingInputs);
 
+#ifdef sampler2D_uShadowMap
+	shadingInputs.shadowPos = vtxShadowPos.xyz;
+#endif
 	shadingInputs.eye = normalize(vtxWsEyeDir);
 	float ndv = dot(shadingInputs.eye,shadingInputs.normal);
 	if(ndv < 0.0)

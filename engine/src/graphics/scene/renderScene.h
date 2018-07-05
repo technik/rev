@@ -36,27 +36,26 @@ namespace rev { namespace graphics {
 	public:
 		RenderScene()
 		{
-			mLightClr = math::Vec3f::ones();
 		}
 
-		// Accessors
-		const math::Vec3f& lightClr() const { return mLightClr; }
-		std::vector<std::shared_ptr<RenderObj>>& renderables()				{ return mRenderables; }
-		const std::vector<std::shared_ptr<RenderObj>>& renderables() const	{ return mRenderables; }
-		const auto& spotLights() const { return mSpotLights; }
-		auto& spotLights() { return mSpotLights; }
+		// Renderables
+		std::vector<std::shared_ptr<RenderObj>>& renderables()				{ return m_renderables; }
+		const std::vector<std::shared_ptr<RenderObj>>& renderables() const	{ return m_renderables; }
 
+		// Cameras
 		void addCamera(const std::weak_ptr<Camera>& cam) { m_cameras.push_back(cam); }
 		const auto& cameras() const { return m_cameras; }
+
+		// Lights
+		void addLight(const std::shared_ptr<Light>& light) { m_lights.push_back(light); }
+		const auto& lights() const { return m_lights;}
 
 		std::shared_ptr<Texture>	sky;
 		std::shared_ptr<Texture>	irradiance;
 
-		math::Vec3f									mLightDir;
 	private:
-		math::Vec3f									mLightClr;
-		std::vector<std::shared_ptr<RenderObj>>		mRenderables;
-		std::vector<std::weak_ptr<SpotLight>>		mSpotLights;
+		std::vector<std::shared_ptr<RenderObj>>		m_renderables;
+		std::vector<std::shared_ptr<Light>>			m_lights;
 		std::vector<std::weak_ptr<Camera>>			m_cameras;
 	};
 

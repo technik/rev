@@ -32,6 +32,7 @@ namespace rev { namespace graphics {
 	public:
 		std::string name;
 
+		Texture() = default;
 		Texture(const Image& image, bool sRGB)
 		{
 			GraphicsDriverGL::checkGLErrors();
@@ -59,9 +60,26 @@ namespace rev { namespace graphics {
 			GraphicsDriverGL::checkGLErrors();
 		}
 
+		static std::shared_ptr<Texture> depthTexture(const math::Vec2u& size)
+		{
+			auto texture = std::make_shared<Texture>();
+
+			glGenTextures(1, &texture->mGLName);
+			glBindTexture(GL_TEXTURE_2D, texture->mGLName);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+				size.x(), size.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
+
+			return texture;
+		}
+
 		~Texture()
 		{
-			glDeleteTextures(1, &mGLName);
+			if(mGLName)
+				glDeleteTextures(1, &mGLName);
 		}
 
 		static std::shared_ptr<Texture> load(const std::string _name, bool sRGB = true, unsigned nChannels = 0)
@@ -82,6 +100,7 @@ namespace rev { namespace graphics {
 		auto glName() const { return mGLName; }
 
 	private:
+
 		static GLenum internalTexFormat(const Image& image, bool sRGB)
 		{
 			// TODO: Accordint to

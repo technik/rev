@@ -39,8 +39,8 @@ namespace rev{ namespace graphics {
 
 		void render(const RenderScene& _scene);
 
-		GLuint texName() const { return mDepthBuffer->textureGLName(); }
-		const math::Mat44f& shadowProj() const { return mShadowProj; }
+		auto texture() const { return mDepthBuffer->texture(); }
+		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
 
 	private:
 
@@ -61,6 +61,7 @@ namespace rev{ namespace graphics {
 		GraphicsDriverGL&	mDriver;
 		std::unique_ptr<FrameBuffer>	mDepthBuffer;
 		math::Mat44f					mShadowProj;
+		math::Mat44f					mUnbiasedShadowProj;
 		BackEndRenderer&				mBackEnd;
 		PipelineSet						mPipelines;
 		std::string						mCommonShaderCode;

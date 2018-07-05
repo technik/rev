@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "texture.h"
 #include "renderTarget.h"
 #include "openGL/openGL.h"
 
@@ -31,19 +32,12 @@ namespace rev { namespace graphics {
 			: RenderTarget(_size)
 		{
 			// Create depth map
-			glGenTextures(1, &mDepthMapName);
-			glBindTexture(GL_TEXTURE_2D, mDepthMapName);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-				_size.x(), _size.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
+			m_texture = Texture::depthTexture(_size);
 
 			// Create framebuffer
 			glGenFramebuffers(1, &mFbName);
 			glBindFramebuffer(GL_FRAMEBUFFER, mFbName);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthMapName, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_texture->glName(), 0);
 			glDrawBuffers(0, nullptr);
 			glReadBuffer(GL_NONE);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -55,11 +49,11 @@ namespace rev { namespace graphics {
 			glViewport(0, 0, mSize.x(), mSize.y());
 		}
 
-		GLuint textureGLName() const { return mDepthMapName; }
+		auto texture() const { return m_texture; }
 
 	private:
 		GLuint mFbName;
-		GLuint mDepthMapName;
+		std::shared_ptr<Texture> m_texture;
 	};
 
 }}

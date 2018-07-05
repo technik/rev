@@ -42,7 +42,9 @@ layout(location = VTX_UV_FLOAT) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform mat4 uWorld;
-//layout(location = 2) uniform mat4 uMs2Shadow;
+#ifdef sampler2D_uShadowMap
+layout(location = 2) uniform mat4 uMs2Shadow;
+#endif
 layout(location = 4) uniform vec3 uWsViewPos; // Direction toward viewpoint
 
 #ifdef VTX_TANGENT_SPACE
@@ -59,7 +61,9 @@ out vec3 vtxWsEyeDir;
 #ifdef VTX_UV_FLOAT
 out vec2 vTexCoord;
 #endif
-out vec3 vtxWsPos;
+#ifdef sampler2D_uShadowMap
+out vec3 vtxShadowPos;
+#endif
 
 //------------------------------------------------------------------------------
 void main ( void )
@@ -76,8 +80,11 @@ void main ( void )
 	vtxTangent = vec4(invTransWorldRot * msTangent.xyz, msTangent.w);
 #endif
 	// Lighting vectors
-	vtxWsPos = (uWorld * vec4(vertex,1.0)).xyz;
-	vtxWsEyeDir = uWsViewPos - vtxWsPos;
+	vec3 wsPos = (uWorld * vec4(vertex,1.0)).xyz;
+#ifdef sampler2D_uShadowMap
+	vtxShadowPos = (uMs2Shadow * vec4(vertex, 1.0)).xyz;
+#endif
+	vtxWsEyeDir = uWsViewPos - wsPos;
 	gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
 }
 #endif // VTX_SHADER

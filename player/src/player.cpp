@@ -44,6 +44,13 @@ namespace rev {
 			auto xForm = gltfRoot->addComponent<Transform>();
 			xForm->xForm.rotate(rotation);
 			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool);
+			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
+
+			// Default scene light
+			sceneLight->direction = Vec3f(0.f, 0.f, -1.f);
+			sceneLight->color = Vec3f::ones();
+			sceneLight->castShadows = true;
+			mGraphicsScene.addLight(sceneLight);
 
 			// Load sky
 			if(!bg.empty())

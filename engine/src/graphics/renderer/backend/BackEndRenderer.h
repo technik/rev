@@ -143,9 +143,9 @@ namespace rev{ namespace graphics {
 		{
 			GLuint vao = 0;
 			const Shader*	shader = nullptr;
-			for(size_t i = 0; i < mNumCommands; ++i)
+			for(size_t k = 0; k < mNumCommands; ++k)
 			{
-				const auto& command = mCommandList[i];
+				const auto& command = mCommandList[k];
 				if(shader != command.shader)
 				{
 					shader = command.shader;
@@ -166,10 +166,9 @@ namespace rev{ namespace graphics {
 				for(int i = command.mTextureParams.first; i < command.mTextureParams.second; ++i)
 				{
 					auto index = mTextureIndices[i];
-					glUniform1i(mTextureIndices[i], index);
 					glActiveTexture(GL_TEXTURE0+index);
-					++index;
 					glBindTexture(GL_TEXTURE_2D, mTextureParams[i]->glName());
+					glUniform1i(index, index);
 				}
 				// Bind geometry
 				if(vao != command.vao)

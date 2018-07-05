@@ -25,6 +25,9 @@
 #ifdef VTX_TANGENT_SPACE
 layout(location = 10) uniform sampler2D uNormalMap;
 #endif
+#ifdef sampler2D_uShadowMap
+layout(location = 9) uniform sampler2D uShadowMap;
+#endif
 
 #include "pbr.fx"
 
@@ -206,7 +209,8 @@ vec3 indirectLightPBR(
 	vec3 diffColor,
 	vec3 specColor,
 	float roughness,
-	float occlusion
+	float occlusion,
+	float shadow
 	)
 {
 	LocalVectors vectors;
@@ -222,8 +226,8 @@ vec3 indirectLightPBR(
 	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
-	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);
-	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
+	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv) * shadow;
+	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion * shadow);
 	
 	return specular + diffuse;
 }
@@ -272,23 +276,31 @@ vec3 shadeSurface(ShadeInput inputs)
 #endif
 	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
-	vec3 diffColor = baseColor;// + (1.0-metallic);
+	vec3 diffColor = baseColor * (1.0-metallic);
+
+#ifdef sampler2D_uShadowMap
+	float shadowDepth = texture(uShadowMap, inputs.shadowPos.xy*0.5+0.5).x;
+	float surfaceDepth = 0.5 + 0.5 * inputs.shadowPos.z;
+	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? 0.2 : 1.0;
+	//return vec3(shadowMask);
+#else
+	float shadowMask = 1.0;
+#endif
 
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,
 		specColor,
 		roughness,
-		occlusion);
-	
+		occlusion,
+		shadowMask);
+
 #ifdef sampler2D_uEmissive
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	return indirectLight + emissive;
 #else
 	return indirectLight;
 #endif
-	//return vec3(occlusion);
-	//return 0.5*inputs.normal+0.5;
 }
 
 #endif // PXL_SHADER

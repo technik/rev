@@ -56,9 +56,11 @@ namespace rev { namespace graphics {
 	{
 		setUpGlobalState(); // Set gl global state
 		// TODO: Cull shadow casters
-		adjustViewMatrix(_scene.mLightDir);// Adjust view matrix
+		adjustViewMatrix(_scene.lights()[0]->viewDirection());// Adjust view matrix
 		// Iterate over renderables
 		renderMeshes(_scene);
+
+		
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -93,7 +95,10 @@ namespace rev { namespace graphics {
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(1,3) = -mBias;
 		auto proj = math::orthographicMatrix(math::Vec2f(2.f,2.f), -2.0f, 2.0f);
+		//mShadowProj = proj * shadowViewMtx.transpose();
 		mShadowProj = proj * biasMatrix * shadowViewMtx.transpose();
+		mUnbiasedShadowProj = proj * shadowViewMtx.transpose();
+		//mUnbiasedShadowProj = mShadowProj;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -156,9 +161,6 @@ namespace rev { namespace graphics {
 			).first;
 		}
 		return iter->second.get();
-
-
-		return nullptr;
 	}
 
 }}
