@@ -93,7 +93,6 @@ namespace rev { namespace graphics {
 
 		const string includeLabel = "#include";
 
-		// TODO: Parsing code files line by line may be more robust (e.g. do not detect includes inside comments)
 		// Parse code
 		while(!pendingCode.empty())
 		{

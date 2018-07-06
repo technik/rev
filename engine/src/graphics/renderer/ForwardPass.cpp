@@ -186,6 +186,7 @@ namespace rev { namespace graphics {
 		{
 			environmentProbe.environment = _scene.sky;
 			environmentProbe.irradiance = _scene.irradiance;
+			environmentProbe.lightDir = _scene.lights()[0]->viewDirection();
 			environmentPtr = &environmentProbe;
 		}
 
@@ -319,6 +320,7 @@ namespace rev { namespace graphics {
 			mBoundProbe = env;
 			mBackEnd.addParam(7, env->environment.get());
 			mBackEnd.addParam(8, env->irradiance.get());
+			mBackEnd.addParam(6, env->lightDir);
 		}
 		// Matrices
 		mBackEnd.addParam(0, _wvp);

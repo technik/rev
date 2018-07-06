@@ -88,7 +88,7 @@ namespace rev { namespace graphics {
 
 		if(ImGui::Begin("ShadowMap"))
 		{
-			ImGui::SliderFloat("Shadow bias", &mBias, -1.f, 1.f);
+			ImGui::SliderFloat("Shadow bias", &mBias, -0.01f, 0.01f);
 			ImGui::End();
 		}
 

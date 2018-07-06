@@ -65,7 +65,7 @@ namespace rev{ namespace graphics {
 		BackEndRenderer&				mBackEnd;
 		PipelineSet						mPipelines;
 		std::string						mCommonShaderCode;
-		float mBias = 0.02f;
+		float mBias = 0.001f;
 	};
 
 }}

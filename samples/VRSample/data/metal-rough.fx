@@ -281,8 +281,9 @@ vec3 shadeSurface(ShadeInput inputs)
 #ifdef sampler2D_uShadowMap
 	float shadowDepth = texture(uShadowMap, inputs.shadowPos.xy*0.5+0.5).x;
 	float surfaceDepth = 0.5 + 0.5 * inputs.shadowPos.z;
-	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? 0.2 : 1.0;
-	//return vec3(shadowMask);
+	float shadowHardness = 0.7;
+	float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
+	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? shadowEffect : 1.0;
 #else
 	float shadowMask = 1.0;
 #endif
@@ -301,6 +302,7 @@ vec3 shadeSurface(ShadeInput inputs)
 #else
 	return indirectLight;
 #endif
+	//return vec3(shadowMask);
 }
 
 #endif // PXL_SHADER

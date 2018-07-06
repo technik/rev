@@ -68,6 +68,7 @@ namespace rev{ namespace graphics {
 		{
 			std::shared_ptr<Texture>	environment;
 			std::shared_ptr<Texture>	irradiance;
+			math::Vec3f lightDir;
 		};
 
 		uint32_t effectCode(bool environment, bool shadows) { return ((environment?1:0)<<1) | (shadows?1:0); }
