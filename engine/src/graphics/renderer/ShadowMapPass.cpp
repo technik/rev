@@ -89,8 +89,8 @@ namespace rev { namespace graphics {
 		if(ImGui::Begin("ShadowMap"))
 		{
 			ImGui::SliderFloat("Shadow bias", &mBias, -0.01f, 0.01f);
-			ImGui::End();
 		}
+		ImGui::End();
 
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(1,3) = -mBias;

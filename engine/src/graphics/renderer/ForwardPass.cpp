@@ -380,8 +380,8 @@ namespace rev { namespace graphics {
 			int maxDraws = m_drawLimit >= 0 ? m_drawLimit : mZSortedQueue.size();
 			ImGui::SliderInt("Max Draws", &maxDraws, 0, mZSortedQueue.size());
 			m_drawLimit = maxDraws < mZSortedQueue.size() ? maxDraws : -1;
-			ImGui::End();
 		}
+		ImGui::End();
 
 		const float DISTANCE = 10.f;
 		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE - 40);
@@ -394,8 +394,8 @@ namespace rev { namespace graphics {
 			ImGui::Text("Renderables: %d", m_numRenderables);
 			ImGui::Text("Meshes: %d", m_numMeshes);
 			mBackEnd.drawStats();
-			ImGui::End();
 		}
+		ImGui::End();
 		ImGui::PopStyleColor();
 		resetStats();
 	}

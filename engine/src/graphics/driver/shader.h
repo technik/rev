@@ -16,8 +16,6 @@ namespace rev { namespace graphics {
 
 		void bind() const { glUseProgram(mGLProgram); }
 
-		static std::string loadCodeFromFile(const std::string& fileName);
-
 	private:
 		static bool createSubprogram(const std::vector<const char*> _code, GLenum _shaderType, GLuint& _dst);
 

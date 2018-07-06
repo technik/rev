@@ -18,22 +18,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <memory>
+
 #include <string>
-#include <unordered_map>
 #include <vector>
-#include <functional>
 
-namespace rev { namespace graphics {
-
-	class Effect
+namespace rev::graphics
+{
+	class ShaderProcessor
 	{
 	public:
-		// Effect creation
-		Effect(const std::string& _code);
-		static std::shared_ptr<Effect>	loadFromFile(const std::string& _fileName);
-
-		struct Property
+		struct Uniform
 		{
 			enum Type
 			{
@@ -46,34 +40,34 @@ namespace rev { namespace graphics {
 				//Texture3D
 			};
 
-			std::string name;
-			int location;
 			Type type;
-			// Returns the serialized version of the attribute as defined in shader code
-			// when the attribute is present for a given material.
-			std::string preprocessorDirective() const;
+			std::string name;
+			int location = -1;
 		};
 
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
+		struct MetaData
+		{
+			std::vector<std::string>	pragmas;
+			std::vector<Uniform>		uniforms;
+			std::vector<std::string>	dependencies;
+		};
 
-		using ReloadCb = std::function<void(void)>;
-		void onReload(ReloadCb cb) {
-			m_code.clear();
-			m_properties.clear();
-			m_reloadCbs.push_back(cb);
-		}
+		struct Context
+		{
+			std::vector<std::string> m_includePathStack;
+			std::vector<std::string> m_fileStack;
+			std::vector<std::pair<size_t,std::string>> m_pendingCode; // read position, code
+		};
+
+		bool loadCodeFromFile(const std::string& fileName, std::string& out, MetaData& meta);
+		
+		bool processCode(Context& context, bool followIncludes, std::string& out, MetaData& meta);
 
 	private:
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
+
+		bool processLine(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
+		bool processInclude(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
+		bool processUniform(const std::string& line, MetaData& metadata);
 	};
 
-}}
+} // namespace rev::graphics

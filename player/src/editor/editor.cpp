@@ -112,8 +112,8 @@ namespace rev { namespace editor {
 					((mSelectedNode.lock() == c) ? ImGuiTreeNodeFlags_Selected : 0);
 				bool node_open = ImGui::TreeNodeEx(c->name.c_str(), node_flags, "%s", c->name.c_str());*/
 			}
-			ImGui::End();
 		}
+		ImGui::End();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -138,8 +138,8 @@ namespace rev { namespace editor {
 						}
 					}
 				}
-				ImGui::End();
 			}
+			ImGui::End();
 		}
 	}
 
