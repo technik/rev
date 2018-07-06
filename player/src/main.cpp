@@ -31,8 +31,10 @@ bool processWindowsMsg(MSG _msg) {
 		}
 		if(_msg.message == WM_SIZING)
 		{
-			RECT* rect = reinterpret_cast<RECT*>(_msg.lParam);
-			auto newSize = Vec2u(rect->right-rect->left, rect->bottom-rect->top);
+			// Get new rectangle size without borders
+			RECT clientSurface;
+			GetClientRect(_msg.hwnd, &clientSurface);
+			auto newSize = Vec2u(clientSurface.right, clientSurface.bottom);
 			g_player->onWindowResize(newSize);
 			return true;
 		}
