@@ -23,13 +23,7 @@ bool processWindowsMsg(MSG _msg) {
 
 	if(g_player)
 	{
-		if(_msg.message == WM_SIZE)
-		{
-			LPARAM lparam = _msg.lParam;
-			g_player->onWindowResize(Vec2u(LOWORD(lparam), HIWORD(lparam)));
-			return true;
-		}
-		if(_msg.message == WM_SIZING)
+		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
 		{
 			// Get new rectangle size without borders
 			RECT clientSurface;
