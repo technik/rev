@@ -88,7 +88,8 @@ namespace rev::graphics
 	bool ShaderProcessor::processLine(const std::string& line, Context& context, bool followIncludes, MetaData& metadata, std::string& outCode)
 	{
 		const string includeLabel = "#include";
-		const string pragmaLabel = "#pragma";
+		const string pragmaLabelA = "#pragma ";
+		const string pragmaLabelB = "#pragma	";
 		const string uniformLabel = "uniform";
 
 		bool success = true;
@@ -97,9 +98,10 @@ namespace rev::graphics
 		{
 			success = processInclude(line, context, followIncludes, metadata, outCode);
 		}
-		else if(line.substr(0, pragmaLabel.length()) == pragmaLabel)
+		else if(line.substr(0, pragmaLabelA.length()) == pragmaLabelA || line.substr(0, pragmaLabelB.length()) == pragmaLabelB)
 		{
-			string payload = line.substr(pragmaLabel.length()+1);
+			auto payloadStart = line.find_first_not_of(" \t", pragmaLabelA.length());
+			string payload = line.substr(payloadStart);
 			metadata.pragmas.push_back(payload);
 		}
 		/* TODDO: Free location uniforms
