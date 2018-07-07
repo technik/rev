@@ -20,75 +20,19 @@
 #include "Effect.h"
 #include <sstream>
 #include <graphics/driver/shader.h>
+#include <graphics/driver/shaderProcessor.h>
 
 using namespace std;
 
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	Effect::Effect(const string& _code)
-		: m_code(_code)
+	Effect::Effect(const string& _fileName)
 	{
-		istringstream codeStream(_code);
-		for(string line; getline(codeStream, line); )
-		{
-			// Line contains an uniform?
-			if(line.compare(0, 6, "layout") == 0)
-			{
-				Property prop;
-				// Parse uniform location, and store it in the property
-				auto loc_pos = line.find_first_not_of(" \t", line.find('=')+1);
-				prop.location = stoi(line.substr(loc_pos));
-				auto arg_pos = line.find("sampler2D", loc_pos);
-				if(arg_pos != string::npos)
-					prop.type = Property::Texture2D;
-				else {
-					arg_pos = line.find("vec3", loc_pos);
-					if(arg_pos != string::npos)
-						prop.type = Property::Vec3;
-					else {
-						arg_pos = line.find("vec4", loc_pos);
-						if(arg_pos != string::npos)
-							prop.type = Property::Vec4;
-						else {
-							arg_pos = line.find("float", loc_pos);
-							if(arg_pos != string::npos)
-								prop.type = Property::Scalar;
-							else
-								continue;
-						}
-					}
-				}
-				arg_pos = line.find_first_of(" \t", arg_pos);
-				auto name_pos = line.find_first_not_of(" \t", arg_pos);
-				auto name_end = line.find_first_of(" \t;", name_pos);
-				prop.name = line.substr(name_pos, name_end-name_pos);
-				m_properties.push_back(prop);
-			}
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	shared_ptr<Effect> Effect::loadFromFile(const std::string& fileName)
-	{
-		auto fullCode = Shader::loadCodeFromFile(fileName);
-		return make_shared<Effect>(fullCode.c_str());
-	}
-
-	//----------------------------------------------------------------------------------------------
-	string Effect::Property::preprocessorDirective() const
-	{
-		string typePrefix;
-		if(type == Scalar)
-			typePrefix = "float";
-		else if(type == Vec3)
-			typePrefix = "vec3";
-		else if(type == Vec4)
-			typePrefix = "vec4";
-		else if(type == Texture2D)
-			typePrefix = "sampler2D";
-
-		return "#define " + typePrefix + '_' + name + "\n";
+		ShaderProcessor::MetaData metadata;
+		ShaderProcessor::loadCodeFromFile("forward.fx", m_code, metadata);
+		m_properties = metadata.uniforms;
+		// TODO: Use pragmas and dependencies
 	}
 
 	//----------------------------------------------------------------------------------------------

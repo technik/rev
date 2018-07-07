@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <graphics/driver/shaderProcessor.h>
 
 namespace rev { namespace graphics {
 
@@ -30,35 +31,16 @@ namespace rev { namespace graphics {
 	{
 	public:
 		// Effect creation
-		Effect(const std::string& _code);
-		static std::shared_ptr<Effect>	loadFromFile(const std::string& _fileName);
+		Effect(const std::string& _fileName);
 
-		struct Property
-		{
-			enum Type
-			{
-				//Integer,
-				Scalar,
-				//Vec2,
-				Vec3,
-				Vec4,
-				Texture2D
-				//Texture3D
-			};
-
-			std::string name;
-			int location;
-			Type type;
-			// Returns the serialized version of the attribute as defined in shader code
-			// when the attribute is present for a given material.
-			std::string preprocessorDirective() const;
-		};
+		using Property = ShaderProcessor::Uniform;
 
 		const Property* property(const std::string& name) const;
 		const std::vector<Property>& properties() const { return m_properties; }
 		const std::string& code() const { return m_code; }
 
 		using ReloadCb = std::function<void(void)>;
+
 		void onReload(ReloadCb cb) {
 			m_code.clear();
 			m_properties.clear();

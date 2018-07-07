@@ -43,6 +43,8 @@ namespace rev::graphics
 			Type type;
 			std::string name;
 			int location = -1;
+
+			std::string preprocessorDirective() const;
 		};
 
 		struct MetaData
@@ -59,15 +61,15 @@ namespace rev::graphics
 			std::vector<std::pair<size_t,std::string>> m_pendingCode; // read position, code
 		};
 
-		bool loadCodeFromFile(const std::string& fileName, std::string& out, MetaData& meta);
+		static bool loadCodeFromFile(const std::string& fileName, std::string& out, MetaData& meta);
 		
-		bool processCode(Context& context, bool followIncludes, std::string& out, MetaData& meta);
+		static bool processCode(Context& context, bool followIncludes, std::string& out, MetaData& meta);
 
 	private:
 
-		bool processLine(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
-		bool processInclude(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
-		bool processUniform(const std::string& line, MetaData& metadata);
+		static bool processLine(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
+		static bool processInclude(const std::string& line, Context& context, bool followIncludes, MetaData&, std::string& outCode);
+		static bool processUniform(const std::string& line, MetaData& metadata);
 	};
 
 } // namespace rev::graphics

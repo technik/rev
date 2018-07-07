@@ -27,6 +27,23 @@ using namespace std;
 
 namespace rev::graphics
 {
+
+	//----------------------------------------------------------------------------------------------
+	string ShaderProcessor::Uniform::preprocessorDirective() const
+	{
+		string typePrefix;
+		if(type == Scalar)
+			typePrefix = "float";
+		else if(type == Vec3)
+			typePrefix = "vec3";
+		else if(type == Vec4)
+			typePrefix = "vec4";
+		else if(type == Texture2D)
+			typePrefix = "sampler2D";
+
+		return "#define " + typePrefix + '_' + name + "\n";
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	bool ShaderProcessor::loadCodeFromFile(const std::string& fileName, std::string& outCode, MetaData& metadata)
 	{
@@ -51,6 +68,8 @@ namespace rev::graphics
 	//------------------------------------------------------------------------------------------------------------------
 	bool ShaderProcessor::processCode(Context& context, bool followIncludes, std::string& outCode, MetaData& metadata)
 	{
+		if(context.m_includePathStack.empty())
+			context.m_includePathStack.emplace_back("");
 		// Parse code
 		while(!context.m_pendingCode.empty())
 		{
@@ -101,7 +120,7 @@ namespace rev::graphics
 		else if(line.substr(0, pragmaLabelA.length()) == pragmaLabelA || line.substr(0, pragmaLabelB.length()) == pragmaLabelB)
 		{
 			auto payloadStart = line.find_first_not_of(" \t", pragmaLabelA.length());
-			string payload = line.substr(payloadStart);
+			string payload = line.substr(payloadStart, line.length()-payloadStart-1);
 			metadata.pragmas.push_back(payload);
 		}
 		/* TODDO: Free location uniforms

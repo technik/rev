@@ -521,7 +521,7 @@ namespace rev { namespace game {
 			return;
 
 		// Create default material
-		auto pbrEffect = Effect::loadFromFile("metal-rough.fx");
+		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		// Load resources

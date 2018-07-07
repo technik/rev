@@ -23,7 +23,7 @@
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/renderer/backend/BackEndRenderer.h>
-#include <graphics/driver/shader.h>
+#include <graphics/driver/shaderProcessor.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
@@ -141,7 +141,9 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::loadCommonShaderCode()
 	{
-		mCommonShaderCode = Shader::loadCodeFromFile("shadowMap.fx");
+		ShaderProcessor::MetaData metadata;
+		ShaderProcessor::loadCodeFromFile("shadowMap.fx", mCommonShaderCode, metadata);
+		// TODO: Actualle use the metadata (unifrom layouts)
 	}
 
 	//----------------------------------------------------------------------------------------------

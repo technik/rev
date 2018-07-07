@@ -24,7 +24,7 @@
 #include <core/time/time.h>
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
-#include <graphics/driver/shader.h>
+#include <graphics/driver/shaderProcessor.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
@@ -49,7 +49,7 @@ namespace rev { namespace graphics {
 		, mBackEnd(_backEnd)
 	{
 		loadCommonShaderCode();
-		mErrorMaterial = std::make_unique<Material>(Effect::loadFromFile("plainColor.fx"));
+		mErrorMaterial = std::make_unique<Material>(make_shared<Effect>("plainColor.fx"));
 		mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
 		mEV = 1.0f;
@@ -61,7 +61,9 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::loadCommonShaderCode()
 	{
-		mForwardShaderCommonCode = Shader::loadCodeFromFile("forward.fx");
+		ShaderProcessor::MetaData metadata;
+		ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+		// TODO: Actualle use the metadata (unifrom layouts)
 	}	
 
 	//----------------------------------------------------------------------------------------------

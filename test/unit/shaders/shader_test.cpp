@@ -10,7 +10,6 @@ using MetaData = ShaderProcessor::MetaData;
 
 //----------------------------------------------------------------------------------------------------------------------
 int main() {
-	ShaderProcessor parser;
 	Context context;
 	context.m_pendingCode.emplace_back(0, R"(
 #include "header.fx"
@@ -32,7 +31,7 @@ void foo()
 )");
 	MetaData data;
 	std::string code;
-	parser.processCode(context, false, code, data);
+	ShaderProcessor::processCode(context, false, code, data);
 
 	// Examine resulting code
 	assert(code.find("location") == std::string::npos);
@@ -49,7 +48,9 @@ void foo()
 	assert(data.pragmas[0] == "options");
 	assert(data.pragmas[1] == "debug_variants a b");
 
-	assert(data.dependencies.empty());
+	assert(data.dependencies.size() == 2);
+	assert(data.dependencies[0] == "header.fx");
+	assert(data.dependencies[1] == "pbr.fx");
 	assert(data.uniforms.size() == 1);
 	auto& uniform = data.uniforms[0];
 	assert(uniform.location == 3);
