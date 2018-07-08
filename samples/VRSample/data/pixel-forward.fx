@@ -32,8 +32,6 @@ in vec3 vtxShadowPos;
 
 // Global state
 layout(location = 3) uniform float uEV;
-layout(location = 5) uniform vec3 uLightColor;
-layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
 const float PI = 3.14159265359;
 const float TWO_PI = 6.283185307179586;

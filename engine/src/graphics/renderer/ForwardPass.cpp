@@ -189,7 +189,6 @@ namespace rev { namespace graphics {
 		{
 			environmentProbe.environment = _scene.sky;
 			environmentProbe.irradiance = _scene.irradiance;
-			environmentProbe.lightDir = _scene.lights()[0]->viewDirection();
 			environmentPtr = &environmentProbe;
 		}
 
@@ -218,6 +217,7 @@ namespace rev { namespace graphics {
 				eye->position(),
 				mesh.material,
 				environmentPtr,
+				_scene.lights(),
 				_shadows);
 			++m_numRenderables;
 		}
@@ -292,6 +292,7 @@ namespace rev { namespace graphics {
 		const Vec3f _wsEye,
 		const shared_ptr<const Material>& _material,
 		const EnvironmentProbe* env,
+		const std::vector<std::shared_ptr<Light>>& lights,
 		ShadowMapPass* shadows
 	)
 	{
@@ -323,7 +324,12 @@ namespace rev { namespace graphics {
 			mBoundProbe = env;
 			mBackEnd.addParam(7, env->environment.get());
 			mBackEnd.addParam(8, env->irradiance.get());
-			mBackEnd.addParam(6, env->lightDir);
+		}
+		if(!lights.empty())
+		{
+			auto& light = lights[0];
+			mBackEnd.addParam(6, light->viewDirection());
+			mBackEnd.addParam(5, light->color);
 		}
 		// Matrices
 		mBackEnd.addParam(0, _wvp);

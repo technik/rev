@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // Metallic-rough pbr shader
-#define Furnace
+//#define Furnace
 
 #ifdef PXL_SHADER
 
@@ -31,6 +31,10 @@ layout(location = 9) uniform sampler2D uShadowMap;
 #endif
 
 #include "pbr.fx"
+
+// Lighting
+layout(location = 5) uniform vec3 uLightColor;
+layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
 // Material
 #ifdef sampler2D_uEnvironment
@@ -285,6 +289,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	float surfaceDepth = 0.5 + 0.5 * inputs.shadowPos.z;
 	float shadowHardness = 0.7;
 	float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
+	//float shadowEffect = 0.0;//-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
 	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? shadowEffect : 1.0;
 #else
 	float shadowMask = 1.0;
@@ -307,13 +312,19 @@ vec3 shadeSurface(ShadeInput inputs)
 		occlusion,
 		shadowMask);
 
+	return baseColor;
+	//return vec3(roughness);
+	//return vec3(shadowMask*shadowMask);
+	//return vec3(metallic);
+	//return inputs.normal;
+/*
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	return indirectLight + emissive;
 #else
 	return indirectLight;
 #endif
-	//return vec3(shadowMask);
+*/
 }
 
 #endif // PXL_SHADER

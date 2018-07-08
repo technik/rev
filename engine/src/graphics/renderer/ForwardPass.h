@@ -21,6 +21,7 @@
 #include <memory>
 #include <graphics/driver/shader.h>
 #include <graphics/renderer/material/material.h>
+#include <graphics/scene/Light.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <map>
@@ -107,6 +108,7 @@ namespace rev{ namespace graphics {
 			const math::Vec3f _wsEye,
 			const std::shared_ptr<const Material>& _material,
 			const EnvironmentProbe* env,
+			const std::vector<std::shared_ptr<Light>>& lights,
 			ShadowMapPass* _shadows);
 
 		void drawStats();
