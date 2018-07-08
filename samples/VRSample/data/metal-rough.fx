@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // Metallic-rough pbr shader
+#define Furnace
 
 #ifdef PXL_SHADER
 
@@ -152,8 +153,12 @@ struct LocalVectors
 
 vec3 gradient3d(vec3 dir)
 {
+#ifdef Furnace
+	return vec3(1.0);
+#else
 	float f = 0.5f + 0.5f * dir.y;
 	return vec3(0.5f, 0.7f, 1.f)*f + (1-f);
+#endif
 }
 
 //---------------------------------------------------------------------------------------
@@ -274,9 +279,6 @@ vec3 shadeSurface(ShadeInput inputs)
 	#endif
 	float occlusion = 1.0;
 #endif
-	
-	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
-	vec3 diffColor = baseColor * (1.0-metallic);
 
 #ifdef sampler2D_uShadowMap
 	float shadowDepth = texture(uShadowMap, inputs.shadowPos.xy*0.5+0.5).x;
@@ -288,6 +290,15 @@ vec3 shadeSurface(ShadeInput inputs)
 	float shadowMask = 1.0;
 #endif
 
+#ifdef Furnace
+	occlusion = 1.0;
+	baseColor = vec3(1.0);
+	shadowMask = 1.0;
+#endif
+	
+	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
+	vec3 diffColor = baseColor * (1.0-metallic);
+
 	vec3 indirectLight = indirectLightPBR(
 		inputs,
 		diffColor,
@@ -296,7 +307,7 @@ vec3 shadeSurface(ShadeInput inputs)
 		occlusion,
 		shadowMask);
 
-#ifdef sampler2D_uEmissive
+#if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
 	return indirectLight + emissive;
 #else
