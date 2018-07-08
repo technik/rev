@@ -84,14 +84,14 @@ namespace rev::graphics
 			// Process line
 			if(lineStart < code.length())
 			{
-				auto success = processLine(code.substr(lineStart, lineEnd-lineStart+1), context, followIncludes, metadata, outCode);
+				auto line = code.substr(lineStart, lineEnd-lineStart+1);
+				lineStart = lineEnd+1; // Prepare next line before context stacks get resized and invalidate references
+				auto success = processLine(line, context, followIncludes, metadata, outCode);
 
-				lineStart = lineEnd+1; // Prepare next line
 				if(!success)
 					return false;
 			}
 			// Prepare next iteration
-			lineStart = lineEnd+1;
 			if(isLastLine)
 			{
 				outCode.append("\n");
@@ -123,15 +123,12 @@ namespace rev::graphics
 			string payload = line.substr(payloadStart, line.length()-payloadStart-1);
 			metadata.pragmas.push_back(payload);
 		}
-		/* TODDO: Free location uniforms
-		else if(line.substr(0, uniformLabel.length()) == uniformLabel) // uniforms
+		else if(line.find("uniform") != std::string::npos)
 		{
-			string payload = line.substr(uniformLabel.length()+1);
-			metadata.uniforms.push_back(payload);
-		}*/
-		else if(line.compare(0, 6, "layout") == 0)
-		{
-			success = processUniform(line, metadata);
+			if(line.compare(0, 6, "layout") == 0)
+				success = processUniform(line, metadata);
+			//else
+				outCode.append(line);
 		}
 		else // Regular line
 		{
@@ -169,6 +166,7 @@ namespace rev::graphics
 				return false;
 			}
 			context.m_includePathStack.push_back(core::getPathFolder(fullPath));
+			context.m_fileStack.emplace_back(fullPath);
 			context.m_pendingCode.emplace_back(0, includedFile.bufferAsText());
 		}
 
@@ -178,34 +176,59 @@ namespace rev::graphics
 	//---------------------------------------------------------------------------------------------------------------------
 	bool ShaderProcessor::processUniform(const std::string& line, MetaData& metadata)
 	{
+		const string uniformToken = "uniform";
+		const string samplerTag = "sampler";
+		const string vectorTag = "vec";
+		const string matrixTag = "mat";
 		Uniform prop;
 		// Parse uniform location, and store it in the property
+
+		// Read location
 		auto loc_pos = line.find_first_not_of(" \t", line.find('=')+1);
 		prop.location = stoi(line.substr(loc_pos));
-		auto arg_pos = line.find("sampler2D", loc_pos);
-		if(arg_pos != string::npos)
-			prop.type = Uniform::Texture2D;
-		else {
-			arg_pos = line.find("vec3", loc_pos);
-			if(arg_pos != string::npos)
+
+		// Read type
+		auto typeStart = line.find_first_not_of(" \t", line.find(uniformToken)+uniformToken.length());
+		auto typeSubstr = line.substr(typeStart);
+		// Vectors
+		if(typeSubstr.substr(0, vectorTag.length()) == vectorTag)
+		{
+			if(typeSubstr[3] == '2')
+			{
+				prop.type = Uniform::Vec2;
+			} else if(typeSubstr[3] == '3')
+			{
 				prop.type = Uniform::Vec3;
-			else {
-				arg_pos = line.find("vec4", loc_pos);
-				if(arg_pos != string::npos)
-					prop.type = Uniform::Vec4;
-				else {
-					arg_pos = line.find("float", loc_pos);
-					if(arg_pos != string::npos)
-						prop.type = Uniform::Scalar;
-					else
-						return false;
-				}
+			} else
+			{
+				prop.type = Uniform::Vec4;
 			}
+		} // Matrices
+		else if(typeSubstr.substr(0, matrixTag.length()) == matrixTag)
+		{
+			if(typeSubstr[3] == '2')
+			{
+				prop.type = Uniform::Mat2;
+			} else if(typeSubstr[3] == '3')
+			{
+				prop.type = Uniform::Mat3;
+			} else
+			{
+				prop.type = Uniform::Mat4;
+			}
+		} // Textures
+		else if(typeSubstr.substr(0, samplerTag.length()) == samplerTag)
+		{
+			prop.type = Uniform::Texture2D;
 		}
-		arg_pos = line.find_first_of(" \t", arg_pos);
-		auto name_pos = line.find_first_not_of(" \t", arg_pos);
-		auto name_end = line.find_first_of(" \t;", name_pos);
-		prop.name = line.substr(name_pos, name_end-name_pos);
+		else // float
+		{
+			prop.type = Uniform::Scalar;
+		}
+		auto arg_pos = typeSubstr.find_first_of(" \t");
+		auto name_pos = typeSubstr.find_first_not_of(" \t", arg_pos);
+		auto name_end = typeSubstr.find_first_of(" \t;", name_pos);
+		prop.name = typeSubstr.substr(name_pos, name_end-name_pos);
 		metadata.uniforms.push_back(prop);
 
 		return true;

@@ -30,7 +30,7 @@ namespace rev { namespace graphics {
 	Effect::Effect(const string& _fileName)
 	{
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("forward.fx", m_code, metadata);
+		ShaderProcessor::loadCodeFromFile(_fileName, m_code, metadata);
 		m_properties = metadata.uniforms;
 		// TODO: Use pragmas and dependencies
 	}

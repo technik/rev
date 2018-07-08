@@ -28,16 +28,16 @@
 // Vertex attributes
 //------------------------------------------------------------------------------
 #ifdef VTX_POSITION_FLOAT
-layout(location = VTX_POSITION_FLOAT) in vec3 vertex;
+layout(location = 0) in vec3 vertex;
 #endif
 #ifdef VTX_NORMAL_FLOAT
-layout(location = VTX_NORMAL_FLOAT) in vec3 msNormal;
+layout(location = 1) in vec3 msNormal;
 #endif
 #ifdef VTX_TANGENT_FLOAT
-layout(location = VTX_TANGENT_FLOAT) in vec4 msTangent;
+layout(location = 2) in vec4 msTangent;
 #endif
 #ifdef VTX_UV_FLOAT
-layout(location = VTX_UV_FLOAT) in vec2 texCoord;
+layout(location = 3) in vec2 texCoord;
 #endif
 
 layout(location = 0) uniform mat4 uWorldViewProjection;
