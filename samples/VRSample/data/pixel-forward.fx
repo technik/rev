@@ -101,7 +101,7 @@ void main (void) {
 	// Compute actual lighting
 	vec3 pbrColor = shadeSurface(shadingInputs);
 	
-	outColor = pbrColor;// * uEV;
+	outColor = pbrColor * uEV;
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

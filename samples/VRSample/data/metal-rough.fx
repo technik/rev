@@ -325,7 +325,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	
 	float g2 = ig1l * ig1v;
 	
-	float sbrdf = ggx * ndl / g2;
+	float sbrdf = ggx / g2;
+
+	vec3 specular = Fs * sbrdf;
+
+	// Single bounce diffuse
+	vec3 direct = (specular + baseColor * INV_PI) * ndl;
 
 /*	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
@@ -339,8 +344,8 @@ vec3 shadeSurface(ShadeInput inputs)
 		occlusion,
 		shadowMask);*/
 
+	return direct;
 	//return Fs;
-	return vec3(sbrdf);
 	//return inputs.eye;
 	//return baseColor;
 	//return vec3(roughness);
