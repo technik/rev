@@ -182,8 +182,8 @@ namespace rev {	namespace graphics {
 		{
 			intPFAttributes.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
 			intPFAttributes.push_back(GL_TRUE);
-//			intPFAttributes.push_back(WGL_COLORSPACE_EXT);
-//			intPFAttributes.push_back(WGL_COLORSPACE_SRGB_EXT);
+			intPFAttributes.push_back(WGL_COLORSPACE_EXT);
+			intPFAttributes.push_back(WGL_COLORSPACE_SRGB_EXT);
 		};
 		intPFAttributes.push_back(0);
 

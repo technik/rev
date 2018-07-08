@@ -287,10 +287,10 @@ vec3 shadeSurface(ShadeInput inputs)
 #ifdef sampler2D_uShadowMap
 	float shadowDepth = texture(uShadowMap, inputs.shadowPos.xy*0.5+0.5).x;
 	float surfaceDepth = 0.5 + 0.5 * inputs.shadowPos.z;
-	float shadowHardness = 0.7;
-	float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
+	//float shadowHardness = 0.7;
+	//float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
 	//float shadowEffect = 0.0;//-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
-	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? shadowEffect : 1.0;
+	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? 0.0 : 1.0;
 #else
 	float shadowMask = 1.0;
 #endif
@@ -300,7 +300,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	baseColor = vec3(1.0);
 	shadowMask = 1.0;
 #endif
-	
+
+	const float dielectricF0 = 0.04;
+	vec3 F0 = mix(vec3(dielectricF0), baseColor, metallic);
+
+
+/*	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
 	vec3 diffColor = baseColor * (1.0-metallic);
 
@@ -310,11 +315,12 @@ vec3 shadeSurface(ShadeInput inputs)
 		specColor,
 		roughness,
 		occlusion,
-		shadowMask);
+		shadowMask);*/
 
-	return baseColor;
+	return F0;
+	//return baseColor;
 	//return vec3(roughness);
-	//return vec3(shadowMask*shadowMask);
+	//return vec3(shadowMask);
 	//return vec3(metallic);
 	//return inputs.normal;
 /*
