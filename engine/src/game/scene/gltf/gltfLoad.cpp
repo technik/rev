@@ -26,6 +26,7 @@
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/camera.h>
+#include <game/scene/transform/flyby.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
@@ -127,12 +128,15 @@ namespace rev { namespace game {
 					cout << "Error: Cameras are only supported in separate nodes with no children\n";
 				}
 				auto& cam = _document.cameras[nodeDesc.camera];
-				node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				//node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, 0.001f, cam.perspective.zfar);
 				// Camera correction matrix
 				auto correction = Mat44f::identity();
 				correction.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);
 				correction.block<3,1>(0,2) = Vec3f(0.f,-1.f,0.f);
+				node->addComponent<FlyBy>(1.f, -0.4f);
 				node->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -Constants<float>::halfPi));
+
 			}
 
 			nodes.push_back(node);
