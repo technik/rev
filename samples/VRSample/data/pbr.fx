@@ -116,6 +116,15 @@ float invG1(
   return ndw*(1.0-k) +  k;
 }
 
+float G1_GGX(float ndv, float alpha)
+{
+  float ndv2 = ndv*ndv;
+  float alpha2 = alpha*alpha;
+  float sqLerp = ndv2*(1-alpha2)+alpha2;
+  float den = 1.0 + sqrt(sqLerp) / ndv;
+  return 1 / (0.5 * den);
+}
+
 float visibility(
   float ndl,
   float ndv,
@@ -126,6 +135,19 @@ float visibility(
   // visibility is a Cook-Torrance geometry function divided by (n.l)*(n.v)
   float k = alpha * 0.5;
   return 1 / (invG1(ndl,k)*invG1(ndv,k));
+}
+
+// Uncorrelated inverse schlick-smith visibility term (approximated)
+float invVisibility(
+    float ndl,
+    float ndv,
+    float alpha)
+{
+  float ck = 2-alpha;
+  float ig1l = ndl*ck + alpha;
+  float ig1v = ndv*ck + alpha;
+  
+  return ig1l * ig1v;
 }
 
 vec3 cook_torrance_contrib(

@@ -311,7 +311,12 @@ vec3 shadeSurface(ShadeInput inputs)
 	// Analytical directional light
 	vec3 h = normalize(inputs.eye - uLightDir);
 	float hdv = max(0.0, dot(h, inputs.eye));
-	vec3 Fs = fresnel(hdv, F0);
+	// Spherical gaussian approx of fresnel schlick
+	float sphg = exp2((-5.55473*hdv - 6.98316) * hdv);
+	//float oneMinusSphg = 1-sphg;
+	vec3 Fs =  F0 * (1.0 - sphg) + sphg; // Same lerp, change one vector op by one scalar op
+
+	// GGX NDF
 	float ndh = max(1e-8, dot(inputs.normal, h));
 	float ndh2 = ndh*ndh;
 	float ggxDen = (ndh2 * (a2-1) + 1);
@@ -319,50 +324,37 @@ vec3 shadeSurface(ShadeInput inputs)
 
 	float ndl = max(0.0, -dot(uLightDir, inputs.normal));
 
-	// Geometry schlick
-	float ck = 2-alpha;
-	float ig1l = ndl*ck + alpha;
-	float ig1v = inputs.ndv*ck + alpha;
-	
-	float g2 = ig1l * ig1v;
-	
-	float sbrdf = ggx / g2;
+	// GGX Geometry schlick
+	float g2denA = 2*ndl*inputs.ndv;
+	float g2denB = ndl+inputs.ndv;
+	float g2 = max(0.01, 2*mix(g2denA, g2denB, alpha));
 
-	vec3 specular = Fs * sbrdf;
+	float sbrdf = ggx / g2; // Pure mirror brdf
+	vec3 specular = Fs * sbrdf; // complete specular brdf
 
 	// Single bounce diffuse
-	vec3 Kd = vec3(1.0) - fresnel(ndl, F0); // Approximate fresnel with reflectance of perfectly smooth surface
-	vec3 direct = (specular + baseColor * Kd * INV_PI) * ndl;
+	vec3 albedo = baseColor * (1-metallic);
+	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
+	// Single bounce diffuse with analytical solution
+	vec3 Kd = (1-Fs)*1.05*(1-sphg) * INV_PI;
+	vec3 diffuse = Kd * albedo;
+	// Multiple bounce diffuse (WIP)
+	// float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
+	// float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
+	// float smoothTerm = 1.05*(1-pow(1-ndl, 5))*(1-pow(1-inputs.ndv,5));
+	// float single = INV_PI * mix(smoothTerm, roughTerm, alpha);
+	// float multi = 0.1159*alpha;
+	// vec3 diffuse = albedo * (single + albedo * multi);
 
-/*	
-	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
-	vec3 diffColor = baseColor * (1.0-metallic);
+	// Complete brdf
+	vec3 direct = uLightColor * (specular + diffuse) * ndl;
 
-	vec3 indirectLight = indirectLightPBR(
-		inputs,
-		diffColor,
-		specColor,
-		roughness,
-		occlusion,
-		shadowMask);*/
-
-	return direct;
-	//return Fs;
-	//return inputs.eye;
-	//return baseColor;
-	//return vec3(ggx);
-	//return vec3(roughness);
-	//return vec3(shadowMask);
-	//return vec3(metallic);
-	//return inputs.normal;
-/*
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	return indirectLight + emissive;
+	return direct + emissive;
 #else
-	return indirectLight;
+	return direct;
 #endif
-*/
 }
 
 #endif // PXL_SHADER
