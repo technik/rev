@@ -48,7 +48,7 @@ namespace rev {
 
 			// Default scene light
 			sceneLight->direction = Vec3f(0.f, 0.f, -1.f).normalized();
-			sceneLight->color = 10*Vec3f::ones();
+			sceneLight->color = 4*Vec3f::ones();
 			sceneLight->castShadows = true;
 			mGraphicsScene.addLight(sceneLight);
 

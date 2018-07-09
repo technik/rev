@@ -218,8 +218,8 @@ vec3 indirectLightPBR(
 	vec3 diffColor,
 	vec3 specColor,
 	float roughness,
-	float occlusion,
-	float shadow
+	float occlusion
+	//float shadow
 	)
 {
 	LocalVectors vectors;
@@ -235,8 +235,8 @@ vec3 indirectLightPBR(
 	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
-	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv) * shadow;
-	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion * shadow);
+	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);// * shadow;
+	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);// * shadow);
 	
 	return specular + diffuse;
 }
@@ -346,14 +346,22 @@ vec3 shadeSurface(ShadeInput inputs)
 	// float multi = 0.1159*alpha;
 	// vec3 diffuse = albedo * (single + albedo * multi);
 
+	vec3 indirect = indirectLightPBR(
+		inputs,
+		albedo,
+		F0,
+		roughness,
+		occlusion
+		);
+
 	// Complete brdf
 	vec3 direct = uLightColor * (specular + diffuse) * ndl;
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	return direct + emissive;
+	return indirect + shadowMask * direct + emissive;
 #else
-	return direct;
+	return indirect + shadowMask * direct;
 #endif
 }
 
