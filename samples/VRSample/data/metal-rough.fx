@@ -303,7 +303,7 @@ vec3 shadeSurface(ShadeInput inputs)
 
 	const float dielectricF0 = 0.04;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor, metallic);
-	vec3 Fs = fresnel(inputs.ndv, vec3(0.0));
+	vec3 Fs = fresnel(inputs.ndv, F0);
 
 	// specular brdf (geometric terms)
 	float alpha = roughness * roughness;
@@ -330,7 +330,8 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 specular = Fs * sbrdf;
 
 	// Single bounce diffuse
-	vec3 direct = (specular + baseColor * INV_PI) * ndl;
+	vec3 Kd = vec3(1.0) - fresnel(ndl, F0); // Approximate fresnel with reflectance of perfectly smooth surface
+	vec3 direct = (specular + baseColor * Kd * INV_PI) * ndl;
 
 /*	
 	vec3 specColor = mix(vec3(0.04), baseColor, metallic);
