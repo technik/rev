@@ -47,7 +47,7 @@ namespace rev {
 			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
 
 			// Default scene light
-			sceneLight->direction = Vec3f(1.f, -1.f, -1.f).normalized();
+			sceneLight->direction = Vec3f(0.f, 0.f, -1.f).normalized();
 			sceneLight->color = Vec3f::ones();
 			sceneLight->castShadows = true;
 			mGraphicsScene.addLight(sceneLight);

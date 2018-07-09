@@ -303,7 +303,6 @@ vec3 shadeSurface(ShadeInput inputs)
 
 	const float dielectricF0 = 0.04;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor, metallic);
-	vec3 Fs = fresnel(inputs.ndv, F0);
 
 	// specular brdf (geometric terms)
 	float alpha = roughness * roughness;
@@ -311,6 +310,8 @@ vec3 shadeSurface(ShadeInput inputs)
 
 	// Analytical directional light
 	vec3 h = normalize(inputs.eye - uLightDir);
+	float hdv = max(0.0, dot(h, inputs.eye));
+	vec3 Fs = fresnel(hdv, F0);
 	float ndh = max(1e-8, dot(inputs.normal, h));
 	float ndh2 = ndh*ndh;
 	float ggxDen = (ndh2 * (a2-1) + 1);
@@ -349,6 +350,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	//return Fs;
 	//return inputs.eye;
 	//return baseColor;
+	//return vec3(ggx);
 	//return vec3(roughness);
 	//return vec3(shadowMask);
 	//return vec3(metallic);

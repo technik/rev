@@ -97,13 +97,14 @@ float normal_distrib(
 }
 
 vec3 fresnel(
-  float vdh,
+  float cosTheta,
   vec3 F0)
 {
   // Schlick with Spherical Gaussian approximation
   // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
-  float sphg = exp2((-5.55473*vdh - 6.98316) * vdh);
-  return F0 + (vec3(1.0) - F0) * sphg;
+  float sphg = exp2((-5.55473*cosTheta - 6.98316) * cosTheta);
+  //return F0 + (vec3(1.0) - F0) * sphg;
+  return F0 * (1.0 - sphg) + sphg; // Same lerp, change one vector op by one scalar op
 }
 
 float invG1(
