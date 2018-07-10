@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <math/algebra/affineTransform.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 
@@ -29,8 +30,6 @@ namespace rev { namespace graphics {
 		math::Vec3f color;
 		bool castShadows;
 		math::AffineTransform worldMatrix;
-
-		virtual math::Vec3f viewDirection() const = 0;
 	};
 
 	struct PointLight : Light

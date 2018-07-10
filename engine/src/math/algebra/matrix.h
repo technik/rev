@@ -569,7 +569,7 @@ namespace rev {
 			return Matrix44<Number_>({
 				1 / _size.x(), 0, 0, 0,
 				0, 0, 1 / _size.y(), 0,
-				0, -2 / (_far-_near), 0, (_near+_far)/(_far-_near),
+				0, 2 / (_far-_near), 0, -(_near+_far)/(_far-_near),
 				0, 0, 0, 1
 				});
 		}

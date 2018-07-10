@@ -78,7 +78,7 @@ namespace rev { namespace graphics {
 	};
 
 	// Inline implementation
-	math::AABB Camera::aabb(float _near, float _far, float _aspectRatio) const {
+	inline math::AABB Camera::aabb(float _near, float _far, float _aspectRatio) const {
 		auto zMax = _far * std::tan(mFov/2);
 		auto xMax = _aspectRatio * zMax;
 		auto minP = math::Vec3f(-xMax, _near, -zMax);

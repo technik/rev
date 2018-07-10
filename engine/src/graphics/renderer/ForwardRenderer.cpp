@@ -43,7 +43,7 @@ namespace rev { namespace graphics {
 		ShadowMapPass* shadowPass = nullptr;
 		if(!scene.lights().empty() && scene.lights()[0]->castShadows)
 		{
-			mShadowPass->render(scene);
+			mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
 			shadowPass = mShadowPass.get();
 		}
 		mForwardPass->render(scene,*mRenderTarget,shadowPass);

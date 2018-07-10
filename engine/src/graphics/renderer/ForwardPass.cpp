@@ -328,7 +328,8 @@ namespace rev { namespace graphics {
 		if(!lights.empty())
 		{
 			auto& light = lights[0];
-			mBackEnd.addParam(6, light->viewDirection());
+			Vec3f lightDir = light->worldMatrix.rotateDirection({0.f, 1.f, 0.f});
+			mBackEnd.addParam(6, lightDir);
 			mBackEnd.addParam(5, light->color);
 		}
 		// Matrices

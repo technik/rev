@@ -47,10 +47,14 @@ namespace rev {
 			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
 
 			// Default scene light
-			sceneLight->direction = Vec3f(0.f, 0.f, -1.f).normalized();
-			sceneLight->color = 4*Vec3f::ones();
-			sceneLight->castShadows = true;
-			mGraphicsScene.addLight(sceneLight);
+			{
+				AffineTransform lightXform = AffineTransform::identity();
+				lightXform.setRotation(Quatf(Vec3f{1.f, 0.f, 0.f}, Constants<float>::halfPi));
+				sceneLight->worldMatrix = lightXform;
+				sceneLight->color = 4*Vec3f::ones();
+				sceneLight->castShadows = true;
+				mGraphicsScene.addLight(sceneLight);
+			}
 
 			// Load sky
 			if(!bg.empty())
