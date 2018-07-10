@@ -46,6 +46,7 @@ namespace rev { namespace graphics {
 		void bind() const override
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, mFbName);
+            glDisable(GL_FRAMEBUFFER_SRGB);
 			glViewport(0, 0, mSize.x(), mSize.y());
 		}
 

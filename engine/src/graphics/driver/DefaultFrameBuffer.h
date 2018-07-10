@@ -40,7 +40,7 @@ namespace rev { namespace graphics {
 		void bind() const override
 		{
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			//glEnable(GL_FRAMEBUFFER_SRGB);
+			glEnable(GL_FRAMEBUFFER_SRGB);
 		}
 	};
 
