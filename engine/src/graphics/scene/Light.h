@@ -20,6 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 
 namespace rev { namespace graphics {
 
@@ -27,6 +28,7 @@ namespace rev { namespace graphics {
 	{
 		math::Vec3f color;
 		bool castShadows;
+		math::AffineTransform worldMatrix;
 
 		virtual math::Vec3f viewDirection() const = 0;
 	};
@@ -35,7 +37,6 @@ namespace rev { namespace graphics {
 	{
 		float range;
 		math::Vec3f position;
-		math::Vec3f viewDirection() const override { return position; } // Wrong interface, need to do something
 	};
 
 	struct SpotLight : Light
@@ -43,13 +44,9 @@ namespace rev { namespace graphics {
 		float range;
 		float maxCosine;
 		math::Vec3f position;
-		math::Vec3f direction;
-		math::Vec3f viewDirection() const override { return direction; }
 	};
 
 	struct DirectionalLight : Light
 	{
-		math::Vec3f direction;
-		math::Vec3f viewDirection() const override { return direction; }
 	};
 }}

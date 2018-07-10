@@ -52,23 +52,35 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::render(const RenderScene& _scene)
+	void ShadowMapPass::render(const std::vector<std::shared_ptr<RenderObj>>& renderables, const Camera& viewCam, const Light& light)
 	{
-		setUpGlobalState(); // Set gl global state
-		// TODO: Cull shadow casters
-		adjustViewMatrix(_scene.lights()[0]->viewDirection());// Adjust view matrix
-		// Iterate over renderables
-		renderMeshes(_scene);
+		// Accumulate all casters into a single shadow space bounding box
+		AABB castersBBox; castersBBox.clear();
+		auto view = light.worldMatrix.orthoNormalInverse();
+		for(auto& obj : renderables)
+		{
+			auto modelToShadow = view * obj->transform;
+			for(auto& primitive : obj->mesh->mPrimitives)
+			{
+				// Object's bounding box in shadow space
+				auto bbox = primitive.first->bbox().transform(modelToShadow);
+				castersBBox = math::AABB(castersBBox, bbox);
+			}
+		}
 
-		
+		adjustViewMatrix(view,castersBBox);// Adjust view matrix
+
+		// Render
+		setUpGlobalState(); // Set gl global state
+		renderMeshes(renderables); // Iterate over renderables
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::setUpGlobalState()
 	{
 		mDepthBuffer->bind();
-		glEnable(GL_DEPTH_TEST);
-		glClearDepthf(1.0);
+		glDisable(GL_DEPTH_TEST);
+		glClearDepthf(0.0);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		glDepthFunc(GL_LEQUAL);
@@ -76,15 +88,9 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::adjustViewMatrix(const math::Vec3f& lightDir)
+	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox)
 	{
-		Mat44f shadowViewMtx = Mat44f::identity();
-		shadowViewMtx.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);//lightDir;
-		Vec3f upAxis = Vec3f {0.f, 0.f, 1.f};
-		if(std::abs(upAxis.dot(lightDir)) > 0.71f)
-			upAxis = Vec3f {0.f, 1.f, 0.f};
-		shadowViewMtx.block<3,1>(0,2) = upAxis;
-		shadowViewMtx.block<3,1>(0,0) = lightDir.cross(upAxis).normalized();
+		Mat44f shadowViewMtx = shadowView.matrix();
 
 		if(ImGui::Begin("ShadowMap"))
 		{
@@ -94,21 +100,24 @@ namespace rev { namespace graphics {
 
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(1,3) = -mBias;
-		auto proj = math::orthographicMatrix(math::Vec2f(2.f,2.f), -2.0f, 2.0f);
-		//mShadowProj = proj * shadowViewMtx.transpose();
+
+		auto orthoSize = castersBBox.size();
+		auto castersMin = castersBBox.min().y();
+		auto castersMax = castersBBox.max().y();
+		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.z()), castersMin, castersMax);
+
 		mShadowProj = proj * biasMatrix * shadowViewMtx.transpose();
 		mUnbiasedShadowProj = proj * shadowViewMtx.transpose();
-		//mUnbiasedShadowProj = mShadowProj;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::renderMeshes(const RenderScene& _scene)
+	void ShadowMapPass::renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables)
 	{
 		auto worldMatrix = Mat44f::identity();
 		// TODO: Performance counters
 		mBackEnd.beginPass();
 
-		for(auto& renderable : _scene.renderables())
+		for(auto& renderable : renderables)
 		{
 			auto renderObj = renderable;
 			// Get world matrix

@@ -19,8 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "math/algebra/matrix.h"
-#include "math/algebra/affineTransform.h"
+#include <math/algebra/matrix.h>
+#include <math/algebra/affineTransform.h>
+#include <math/geometry/aabb.h>
 #include <cassert>
 
 #ifdef _WIN32
@@ -56,8 +57,18 @@ namespace rev { namespace graphics {
 			mView = _x.orthoNormalInverse().matrix();
 		}
 
+		// aabb in the local frame of the camera
+		math::AABB aabb(float near, float far, float aspectRatio) const;
+
+		// World space accessors
 		math::Vec3f position() const { return mWorld.position(); }
 		math::Vec3f viewDir() const { return mWorld.rotateDirection(math::Vec3f(0.f,1.f,0.f)); }
+		const math::AffineTransform& world() const { return mWorld; }
+
+		// Camera parameters
+		auto near() const { return mNear; }
+		auto far() const { return mFar; }
+		auto fov() const { return mFov; }
 
 	private:
 		float mFov, mNear, mFar;
@@ -65,5 +76,14 @@ namespace rev { namespace graphics {
 		math::AffineTransform mWorld;
 		math::Mat44f mView;
 	};
+
+	// Inline implementation
+	math::AABB Camera::aabb(float _near, float _far, float _aspectRatio) const {
+		auto zMax = _far * std::tan(mFov/2);
+		auto xMax = _aspectRatio * zMax;
+		auto minP = math::Vec3f(-xMax, _near, -zMax);
+		auto maxP = math::Vec3f(xMax, _far, zMax);
+		return math::AABB(minP, maxP);
+	}
 
 }}

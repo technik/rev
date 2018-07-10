@@ -19,17 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
+#include <math/algebra/affineTransform.h>
+#include <math/geometry/aabb.h>
 #include <graphics/driver/frameBuffer.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderObj.h>
+#include <graphics/scene/Light.h>
 #include <map>
+#include <vector>
 
 namespace rev{ namespace graphics {
 
 	class BackEndRenderer;
 	class Camera;
 	class GraphicsDriverGL;
-	class RenderScene;
 	class RenderTarget;
 
 	class ShadowMapPass
@@ -37,7 +41,9 @@ namespace rev{ namespace graphics {
 	public:
 		ShadowMapPass(BackEndRenderer&, GraphicsDriverGL&, const math::Vec2u& _size);
 
-		void render(const RenderScene& _scene);
+		// view camera is used to cull visible objects.
+		// Culling BBox is extended towards the camera before culling actually happens
+		void render(const std::vector<std::shared_ptr<RenderObj>>& renderables, const Camera& view, const Light& light);
 
 		auto texture() const { return mDepthBuffer->texture(); }
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
@@ -45,8 +51,8 @@ namespace rev{ namespace graphics {
 	private:
 
 		void setUpGlobalState();
-		void adjustViewMatrix(const math::Vec3f& lightDir);
-		void renderMeshes(const RenderScene& _scene);
+		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
+		void renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables);
 
 		void loadCommonShaderCode();
 		Shader* getShader(RenderGeom::VtxFormat);
