@@ -153,12 +153,12 @@ namespace rev { namespace graphics {
 	void setupOpenGLState()
 	{
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+		glDepthFunc(GL_GEQUAL);// GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);
 		glClearColor(1,1,1.f,1.f);
 		//glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-		glClearDepthf(1.0);
+		glClearDepthf(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

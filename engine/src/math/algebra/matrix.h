@@ -550,8 +550,8 @@ namespace rev {
 			// Precomputations
 			auto yFocalLength = 1 / std::tan(_yFovRad / 2);
 			auto xFocalLength = yFocalLength / _aspectRatio;
-			auto A = 2 / (_farClip-_nearClip);
-			auto B = (_farClip + _nearClip) / (_nearClip - _farClip);
+			auto A = (_farClip+_nearClip)/(_nearClip-_farClip); //2 / (_farClip-_nearClip);
+			auto B = 2*_farClip*_nearClip/(_farClip-_nearClip); //(_farClip + _nearClip) / (_nearClip - _farClip);
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
 				0, 0, yFocalLength, 0,
