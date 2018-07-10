@@ -68,7 +68,7 @@ namespace rev { namespace graphics {
 			}
 		}
 
-		adjustViewMatrix(view,castersBBox);// Adjust view matrix
+		adjustViewMatrix(light.worldMatrix,castersBBox);// Adjust view matrix
 
 		// Render
 		setUpGlobalState(); // Set gl global state
@@ -79,18 +79,23 @@ namespace rev { namespace graphics {
 	void ShadowMapPass::setUpGlobalState()
 	{
 		mDepthBuffer->bind();
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_GEQUAL); // Keeping the closest back face reduces precision problems
+
 		glClearDepthf(0.0);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox)
+	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& shadowWorld, const math::AABB& castersBBox)
 	{
-		Mat44f shadowViewMtx = shadowView.matrix();
+		auto shadowWorldXForm = shadowWorld;
+		auto shadowCenter = shadowWorld.transformPosition(castersBBox.origin());
+		shadowWorldXForm.position() = shadowCenter;
+		auto shadowView = shadowWorldXForm.orthoNormalInverse();
 
 		if(ImGui::Begin("ShadowMap"))
 		{
@@ -102,12 +107,12 @@ namespace rev { namespace graphics {
 		biasMatrix(1,3) = -mBias;
 
 		auto orthoSize = castersBBox.size();
-		auto castersMin = castersBBox.min().y();
-		auto castersMax = castersBBox.max().y();
+		auto castersMin = -orthoSize.y()/2;
+		auto castersMax = orthoSize.y()/2;
 		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.z()), castersMin, castersMax);
 
-		mShadowProj = proj * biasMatrix * shadowViewMtx.transpose();
-		mUnbiasedShadowProj = proj * shadowViewMtx.transpose();
+		mShadowProj = proj * biasMatrix * shadowView.matrix();
+		mUnbiasedShadowProj = proj * shadowView.matrix();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -129,7 +134,8 @@ namespace rev { namespace graphics {
 			for(auto& primitive : renderObj->mesh->mPrimitives)
 			{
 				auto& command = mBackEnd.beginCommand();
-				command.cullMode = affineTransformDeterminant(worldMatrix) < 0.f ? GL_BACK : GL_FRONT;
+				command.cullMode = affineTransformDeterminant(worldMatrix) > 0.f ? GL_FRONT : GL_BACK;
+				//command.cullMode = GL_FRONT;
 				mBackEnd.addParam(0, wvp);
 
 				auto& mesh = *primitive.first;

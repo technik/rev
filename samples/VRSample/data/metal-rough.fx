@@ -290,7 +290,8 @@ vec3 shadeSurface(ShadeInput inputs)
 	//float shadowHardness = 0.7;
 	//float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
 	//float shadowEffect = 0.0;//-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
-	float shadowMask = ((shadowDepth - surfaceDepth) < 0.0) ? 0.0 : 1.0;
+	//float shadowMask = shadowDepth;// > surfaceDepth) ? 0.0 : 1.0;
+	float shadowMask = (shadowDepth > surfaceDepth) ? 0.0 : 1.0;
 #else
 	float shadowMask = 1.0;
 #endif

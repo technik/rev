@@ -30,7 +30,8 @@ namespace rev { namespace graphics {
 		mRenderTarget = &_renderTarget;
 		mBackEnd = std::make_unique<BackEndRenderer>(driver);
 		mForwardPass = std::make_unique<ForwardPass>(*mBackEnd, driver);
-		mShadowPass = std::make_unique<ShadowMapPass>(*mBackEnd, driver, math::Vec2u(1024, 1024));
+		size_t shadowSize = 4*1024;
+		mShadowPass = std::make_unique<ShadowMapPass>(*mBackEnd, driver, math::Vec2u(shadowSize, shadowSize));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
