@@ -236,24 +236,26 @@ vec3 indirectLightPBR(
 #endif
 	vectors.normal = inputs.normal;
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);// * shadow;
-	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);// * shadow);
+	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
+	//vec3 diffuse = diffuseIBL(inputs, vec3(1.0), occlusion);
 	
 	return specular + diffuse;
+	//return diffuse;
 }
 
-vec3 getBaseColor()
+vec4 getBaseColor()
 {
-	#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
+#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
 	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
-	vec3 baseColor = (baseColorTex*uBaseColor).xyz;
+	vec4 baseColor = baseColorTex*uBaseColor;
 #else
 	#if defined(sampler2D_uBaseColorMap)
-		vec3 baseColor = texture(uBaseColorMap, vTexCoord).xyz;
+		vec4 baseColor = texture(uBaseColorMap, vTexCoord);
 	#else
 		#if defined(vec4_uBaseColor)
-			vec3 baseColor = uBaseColor.xyz;
+			vec4 baseColor = uBaseColor;
 		#else
-			vec3 baseColor = vec3(1.0);
+			vec4 baseColor = vec4(1.0);
 		#endif
 	#endif
 #endif
@@ -261,9 +263,9 @@ vec3 getBaseColor()
 }
 
 //---------------------------------------------------------------------------------------
-vec3 shadeSurface(ShadeInput inputs)
+vec4 shadeSurface(ShadeInput inputs)
 {
-	vec3 baseColor = getBaseColor();
+	vec4 baseColor = getBaseColor();
 
 #ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
@@ -298,12 +300,14 @@ vec3 shadeSurface(ShadeInput inputs)
 
 #ifdef Furnace
 	occlusion = 1.0;
-	baseColor = vec3(1.0);
+	baseColor = vec4(1.0);
 	shadowMask = 1.0;
 #endif
+	if(baseColor.a < 0.5)
+		discard;
 
 	const float dielectricF0 = 0.04;
-	vec3 F0 = mix(vec3(dielectricF0), baseColor, metallic);
+	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
 
 	// specular brdf (geometric terms)
 	float alpha = roughness * roughness;
@@ -334,7 +338,7 @@ vec3 shadeSurface(ShadeInput inputs)
 	vec3 specular = Fs * sbrdf; // complete specular brdf
 
 	// Single bounce diffuse
-	vec3 albedo = baseColor * (1-metallic);
+	vec3 albedo = baseColor.xyz * (1-metallic);
 	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
 	// Single bounce diffuse with analytical solution
 	vec3 Kd = (1-Fs)*1.05*(1-sphg) * INV_PI;
@@ -356,14 +360,16 @@ vec3 shadeSurface(ShadeInput inputs)
 		);
 
 	// Complete brdf
-	vec3 direct = uLightColor * (specular + diffuse) * ndl;
+	vec3 direct = 4*uLightColor * (specular + diffuse) * ndl;
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	return indirect + shadowMask * direct + emissive;
+	vec3 color = indirect + shadowMask * direct + emissive;
 #else
-	return indirect + shadowMask * direct;
+	vec3 color = indirect + shadowMask * direct;
 #endif
+	//color = indirect;
+	return vec4(color, baseColor.a);
 }
 
 #endif // PXL_SHADER

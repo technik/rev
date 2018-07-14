@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifdef PXL_SHADER
 
-out lowp vec3 outColor;
+out lowp vec4 outColor;
 #ifdef VTX_TANGENT_SPACE
 in vec4 vtxTangent;
 #endif
@@ -49,7 +49,7 @@ struct ShadeInput
 	vec3 eye;
 };
 
-vec3 shadeSurface(ShadeInput inputs);
+vec4 shadeSurface(ShadeInput inputs);
 vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal);
 
 //------------------------------------------------------------------------------
@@ -99,9 +99,9 @@ void main (void) {
 
 	// ---- Shading ----
 	// Compute actual lighting
-	vec3 pbrColor = shadeSurface(shadingInputs);
+	vec4 pbrColor = shadeSurface(shadingInputs);
 	
-	outColor = pbrColor * uEV;
+	outColor = vec4(pbrColor.xyz * uEV, pbrColor.a);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)
