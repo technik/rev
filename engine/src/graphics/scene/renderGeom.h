@@ -87,6 +87,8 @@ namespace rev { namespace graphics {
 			const Attribute* tangent,
 			const Attribute* uv0);
 
+		static RenderGeom quad(const math::Vec2f& size);
+
 		GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
 		const math::AABB& bbox() const { return m_bbox; }

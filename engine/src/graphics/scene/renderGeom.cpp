@@ -20,10 +20,10 @@
 #pragma once
 
 #include "renderGeom.h"
+#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
 namespace rev::graphics
 {
-
 	//----------------------------------------------------------------------------------------------
 	RenderGeom::VtxFormat::VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv)
 	{
@@ -91,6 +91,58 @@ namespace rev::graphics
 
 		// Unbind VAO
 		glBindVertexArray(0);
+	}
+	
+	//----------------------------------------------------------------------------------------------
+	RenderGeom RenderGeom::quad(const math::Vec2f& size)
+	{
+		// Raw data
+		auto half_x = 0.5f*size.x();
+		auto half_y = 0.5f*size.y();
+		std::vector<uint16_t> indices = { 0, 1, 2, 2, 1, 3};
+		std::vector<math::Vec3f> vertices = {
+			{-half_x, -half_y, 0.f },
+		{ half_x, -half_y, 0.f },
+		{-half_x,  half_y, 0.f },
+		{ half_x,  half_y, 0.f }
+		};
+
+		// Buffer views
+		auto idxBv = std::make_shared<BufferView>();
+		idxBv->byteLength = 2*indices.size();
+		idxBv->data = indices.data();
+		idxBv->byteStride = 0;
+		idxBv->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data);
+
+		auto vtxBv = std::make_shared<BufferView>();
+		vtxBv->byteLength = sizeof(math::Vec3f)*vertices.size();
+		vtxBv->data = vertices.data();
+		vtxBv->byteStride = 0;
+		vtxBv->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data);
+
+		Attribute idxAttr {
+			idxBv,
+			nullptr,
+			GL_UNSIGNED_SHORT,
+			1,
+			0,
+			indices.size(),
+			false,
+			math::AABB()
+		};
+
+		Attribute vtxAttr {
+			vtxBv,
+			nullptr,
+			GL_FLOAT,
+			3,
+			0,
+			vertices.size(),
+			false,
+			math::AABB()
+		};
+
+		return RenderGeom(&idxAttr, &vtxAttr, nullptr, nullptr, nullptr);
 	}
 
 	//----------------------------------------------------------------------------------------------

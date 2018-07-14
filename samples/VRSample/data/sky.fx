@@ -1,9 +1,5 @@
 #ifdef VTX_SHADER
 layout(location = 0) in vec3 vertex;
-layout(location = 1) in vec3 msTangent;
-layout(location = 2) in vec3 msBitangent;
-layout(location = 3) in vec3 msNormal;
-layout(location = 4) in vec2 texCoord;
 
 layout(location = 0) uniform mat4 invViewProj;
 
@@ -12,8 +8,8 @@ out vec3 vtxViewDir;
 //------------------------------------------------------------------------------
 void main ( void )
 {
-	vtxViewDir = (inverse(invViewProj) * vec4(vertex.xy, 0.0, 1.0)).xyz; // Direction from the view point
-	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+	vtxViewDir = (inverse(invViewProj) * vec4(vertex.xy, -1.0, 1.0)).xyz; // Direction from the view point
+	gl_Position = vec4(vertex.xy, -1.0, 1.0);
 }
 #endif
 
@@ -39,11 +35,12 @@ vec2 sampleSpherical(vec3 v)
 //------------------------------------------------------------------------------	
 void main (void) {
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
-	#ifdef ANDROID
+	
 	outColor = uEV*color;
-	#else
-	outColor = pow(uEV*color, vec3(2.2));
-	#endif
+	/*if(vtxViewDir.z < 0.0)
+		outColor = vec3(0.4);
+	if(vtxViewDir.x*vtxViewDir.x+vtxViewDir.z*vtxViewDir.z < 0.008)
+		outColor = vec3(1.0);*/
 }
 
 #endif

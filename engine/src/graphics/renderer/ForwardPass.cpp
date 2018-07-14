@@ -21,6 +21,7 @@
 #include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
@@ -54,7 +55,7 @@ namespace rev { namespace graphics {
 
 		mEV = 1.0f;
 		// Init sky resources
-		//mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
+		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 		m_drawLimit = -1;
 	}
 
@@ -135,6 +136,9 @@ namespace rev { namespace graphics {
 			// Try to load shader
 			core::File code("sky.fx");
 			mBackgroundShader = Shader::createShader( code.bufferAsText() );
+			core::FileSystem::get()->onFileChanged("sky.fx") += [this](const char*) {
+				mBackgroundShader = nullptr;
+			};
 		}
 		if(mBackgroundShader)
 		{
@@ -230,8 +234,8 @@ namespace rev { namespace graphics {
 		}
 
 		// Render skybox
-		//if(_scene.sky)
-		//	renderBackground(vp, mEV, _scene.sky.get());
+		if(_scene.sky)
+			renderBackground(vp, mEV, _scene.sky.get());
 
 		// Finish pass
 		mBackEnd.endPass();

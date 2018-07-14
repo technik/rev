@@ -239,8 +239,8 @@ vec3 indirectLightPBR(
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
 	//vec3 diffuse = diffuseIBL(inputs, vec3(1.0), occlusion);
 	
-	return specular + diffuse;
-	//return diffuse;
+	//return specular + diffuse;
+	return diffuse;
 }
 
 vec4 getBaseColor()
@@ -368,7 +368,7 @@ vec4 shadeSurface(ShadeInput inputs)
 #else
 	vec3 color = indirect + shadowMask * direct;
 #endif
-	//color = indirect;
+	//color = 0.5+0.5*inputs.normal;
 	return vec4(color, baseColor.a);
 }
 
