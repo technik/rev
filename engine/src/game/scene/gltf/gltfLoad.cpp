@@ -127,6 +127,12 @@ namespace rev { namespace game {
 		auto IBMs = attributes[skinDesc.inverseBindMatrices];
 		for(auto i = 0; i < numJoints; ++i)
 			skin->inverseBinding[i] = IBMs.get<math::Mat44f>(i);
+
+		// Load skin instance
+		auto skinInstance = std::shared_ptr<SkinInstance>();
+		skinInstance->skeleton = skeleton;
+		skinInstance->skin = skin;
+		skinInstance->appliedPose.resize(numJoints, Mat44f::identity());
 	}
 
 	//----------------------------------------------------------------------------------------------

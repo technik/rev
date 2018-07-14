@@ -53,6 +53,7 @@ namespace rev::graphics {
 
 	class SkinInstance
 	{
+	public:
 		void apply(const Pose& pose);
 
 		std::shared_ptr<Skinning> skin;
