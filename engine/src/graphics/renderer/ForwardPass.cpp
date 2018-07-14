@@ -257,6 +257,7 @@ namespace rev { namespace graphics {
 			auto mesh = obj->mesh;
 			// Set world matrix
 			meshDrawInfo.world = obj->transform.matrix();
+			meshDrawInfo.skin = obj->skin;
 
 			for(size_t i = 0; i < mesh->mPrimitives.size(); ++i)
 			{

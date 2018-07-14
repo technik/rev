@@ -86,6 +86,7 @@ namespace rev{ namespace graphics {
 		struct MeshInfo
 		{
 			std::shared_ptr<const RenderGeom> geom;
+			std::shared_ptr<const SkinInstance> skin;
 			std::shared_ptr<Material> material;
 			math::Mat44f world;
 			math::Vec2f depth; // min, max

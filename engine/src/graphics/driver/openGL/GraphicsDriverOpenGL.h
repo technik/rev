@@ -49,6 +49,11 @@ namespace rev { namespace graphics {
 			glUniformMatrix4fv(pos, 1, !math::Mat44f::is_col_major, m.data());
 		}
 
+		void bindUniform(GLint pos, const std::vector<math::Mat44f>& matArray)
+		{
+			glUniformMatrix4fv(pos, matArray.size(), !math::Mat44f::is_col_major, matArray[0].data());
+		}
+
 		// True when errors are found
 		static bool checkGLErrors()
 		{

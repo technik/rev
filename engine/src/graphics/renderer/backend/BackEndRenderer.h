@@ -219,6 +219,8 @@ namespace rev{ namespace graphics {
 		std::vector<math::Vec4f> mVec4fParams;
 		std::vector<GLint> mVec4fIndices;
 		std::vector<math::Mat44f>	mMat44fParams;
+		std::vector<GLint> m_mat44fArrayIndices;
+		std::vector<std::vector<math::Mat44f>> m_mat44fArrayParams;
 		std::vector<GLint> mMat44fIndices;
 		std::vector<const Texture*>	mTextureParams;
 		std::vector<GLint> mTextureIndices;
