@@ -93,7 +93,7 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadSkin(
+	auto loadSkin(
 		const gltf::Document& document,
 		const gltf::Skin& skinDesc,
 		const vector<RenderGeom::Attribute>& attributes)
@@ -133,21 +133,27 @@ namespace rev { namespace game {
 		skinInstance->skeleton = skeleton;
 		skinInstance->skin = skin;
 		skinInstance->appliedPose.resize(numJoints, Mat44f::identity());
+
+		return skinInstance;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadSkins(const vector<RenderGeom::Attribute>& attributes, const gltf::Document& document)
+	auto loadSkins(const vector<RenderGeom::Attribute>& attributes, const gltf::Document& document)
 	{
+		std::vector<std::shared_ptr<SkinInstance>> skins;
 		for(auto& skin : document.skins)
 		{
-			loadSkin(document, skin, attributes);
+			skins.push_back(loadSkin(document, skin, attributes));
 		}
+
+		return skins;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	auto loadNodes(
 		const gltf::Document& _document,
 		const vector<shared_ptr<RenderMesh>>& _meshes,
+		const vector<shared_ptr<SkinInstance>>& _skins,
 		const vector<shared_ptr<Material>>& _materials,
 		shared_ptr<Material> _defaultMaterial,
 		graphics::RenderScene& _gfxWorld)
@@ -166,9 +172,10 @@ namespace rev { namespace game {
 				node->addComponent(std::move(nodeTransform));
 			
 			// Optional node mesh
+			std::shared_ptr<RenderObj> renderObj;
 			if(nodeDesc.mesh >= 0)
 			{
-				auto renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
+				renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
 				node->addComponent<MeshRenderer>(renderObj);
 				_gfxWorld.renderables().push_back(renderObj);
 			}
@@ -176,7 +183,7 @@ namespace rev { namespace game {
 			// Optional skinning
 			if(nodeDesc.skin >= 0)
 			{
-				//
+				renderObj->skin = _skins[nodeDesc.skin];
 			}
 
 			// Optional camera
@@ -587,13 +594,13 @@ namespace rev { namespace game {
 		auto attributes = readAttributes(document, bufferViews); // Load accessors
 
 		// Load resources
-		loadSkins(attributes, document);
+		auto skins = loadSkins(attributes, document);
 		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
 		auto materials = loadMaterials(folder, document, pbrEffect, textures);
 		auto meshes = loadMeshes(attributes, document, materials);
 
 		// Load nodes
-		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
+		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);
 
 		// Return the right scene
 		auto& displayScene = document.scenes[document.scene];
