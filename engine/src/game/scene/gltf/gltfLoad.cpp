@@ -95,7 +95,8 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	void loadSkin(
 		const gltf::Document& document,
-		const gltf::Skin& skinDesc)
+		const gltf::Skin& skinDesc,
+		const vector<RenderGeom::Attribute>& attributes)
 	{
 		// Load skeleton
 		auto& nodes = document.nodes;
@@ -123,14 +124,17 @@ namespace rev { namespace game {
 		// Load skin's inverse binding matrices
 		auto skin = make_shared<Skinning>();
 		skin->inverseBinding.resize(numJoints);
+		auto IBMs = attributes[skinDesc.inverseBindMatrices];
+		for(auto i = 0; i < numJoints; ++i)
+			skin->inverseBinding[i] = IBMs.get<math::Mat44f>(i);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadSkins(const gltf::Document& document)
+	void loadSkins(const vector<RenderGeom::Attribute>& attributes, const gltf::Document& document)
 	{
 		for(auto& skin : document.skins)
 		{
-			loadSkin(document, skin);
+			loadSkin(document, skin, attributes);
 		}
 	}
 
@@ -577,10 +581,10 @@ namespace rev { namespace game {
 		auto attributes = readAttributes(document, bufferViews); // Load accessors
 
 		// Load resources
+		loadSkins(attributes, document);
 		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
 		auto materials = loadMaterials(folder, document, pbrEffect, textures);
 		auto meshes = loadMeshes(attributes, document, materials);
-		loadSkins(document);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
