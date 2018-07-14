@@ -21,6 +21,7 @@
 #include <sstream>
 #include <graphics/driver/shader.h>
 #include <graphics/driver/shaderProcessor.h>
+#include <core/platform/fileSystem/fileSystem.h>
 
 using namespace std;
 
@@ -30,9 +31,11 @@ namespace rev { namespace graphics {
 	Effect::Effect(const string& _fileName)
 	{
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile(_fileName, m_code, metadata);
-		m_properties = metadata.uniforms;
-		// TODO: Use pragmas and dependencies
+		loadFromFile(_fileName.c_str(), metadata);
+#ifdef _WIN32
+		for(auto& dep : metadata.dependencies)
+			core::FileSystem::get()->onFileChanged(dep) += [this](const char* fileName){ this->reload(fileName); };
+#endif
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -43,5 +46,30 @@ namespace rev { namespace graphics {
 				return &p;
 
 		return nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Effect::invokeCallbacks()
+	{
+		for(auto& cb : m_reloadCbs)
+			cb(*this);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Effect::loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata)
+	{
+		ShaderProcessor::loadCodeFromFile(_fileName, m_code, metadata);
+		m_properties = metadata.uniforms;
+		// TODO: Use pragmas and dependencies
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Effect::reload(const char* fileName)
+	{
+		m_properties.clear();
+		m_code.clear();
+		ShaderProcessor::MetaData metadata;
+		loadFromFile(fileName, metadata);
+		invokeCallbacks();
 	}
 }}

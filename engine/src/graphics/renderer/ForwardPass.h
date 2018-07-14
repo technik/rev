@@ -74,7 +74,7 @@ namespace rev{ namespace graphics {
 
 		uint32_t effectCode(bool environment, bool shadows) { return ((environment?1:0)<<1) | (shadows?1:0); }
 
-		Shader* getShader(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows);
+		Shader* getShader(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows);
 
 		std::string mForwardShaderCommonCode;
 		
@@ -86,7 +86,7 @@ namespace rev{ namespace graphics {
 		struct MeshInfo
 		{
 			std::shared_ptr<const RenderGeom> geom;
-			std::shared_ptr<const Material> material;
+			std::shared_ptr<Material> material;
 			math::Mat44f world;
 			math::Vec2f depth; // min, max
 		};
@@ -97,7 +97,7 @@ namespace rev{ namespace graphics {
 		// Render cache
 		void resetRenderCache();
 		const EnvironmentProbe* mBoundProbe = nullptr;
-		std::shared_ptr<const Material> mBoundMaterial = nullptr;
+		std::shared_ptr<Material> mBoundMaterial = nullptr;
 		const Shader* mBoundShader = nullptr;
 		uint32_t mLastVtxFormatCode = 0;
 
@@ -106,7 +106,7 @@ namespace rev{ namespace graphics {
 			const math::Mat44f& _wvp,
 			const math::Mat44f _worldMatrix,
 			const math::Vec3f _wsEye,
-			const std::shared_ptr<const Material>& _material,
+			const std::shared_ptr<Material>& _material,
 			const EnvironmentProbe* env,
 			const std::vector<std::shared_ptr<Light>>& lights,
 			ShadowMapPass* _shadows);

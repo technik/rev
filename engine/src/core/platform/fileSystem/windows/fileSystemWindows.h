@@ -20,6 +20,7 @@ namespace rev {
 			typedef Event<const char*> FileEvent;
 
 			void		update();
+			FileEvent&			onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
 
 		protected:
 			std::map<const std::string, FileEvent>	mFileChangedEvents;

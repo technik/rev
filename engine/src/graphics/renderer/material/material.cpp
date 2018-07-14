@@ -26,7 +26,7 @@ using namespace rev::math;
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	Material::Material(const shared_ptr<const Effect>& _effect)
+	Material::Material(const shared_ptr<Effect>& _effect)
 		: mEffect(_effect)
 	{
 	}

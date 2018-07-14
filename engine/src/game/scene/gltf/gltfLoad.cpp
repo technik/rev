@@ -431,7 +431,7 @@ namespace rev { namespace game {
 	auto loadMaterials(
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
-		const shared_ptr<const Effect>& _pbrEffect,
+		const shared_ptr<Effect>& _pbrEffect,
 		std::vector<std::shared_ptr<Texture>>& _textures
 		)
 	{

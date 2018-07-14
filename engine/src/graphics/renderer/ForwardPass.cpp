@@ -83,7 +83,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::getShader(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows)
+	Shader* ForwardPass::getShader(Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows)
 	{
 		// Locate the proper pipeline set
 		auto code = effectCode(env, shadows);
@@ -94,6 +94,13 @@ namespace rev { namespace graphics {
 				std::pair(code, &mat.effect()),
 				PipelineSet()
 			).first;
+			auto& effect = mat.effect();
+			// Listen to effect reload
+			mat.effect().onReload([this, code](Effect& effect){
+				auto setIter = mPipelines.find({code, &effect});
+				if(setIter != mPipelines.end())
+					setIter->second.clear();
+			});
 		}
 		auto& pipelineSet = setIter->second;
 
@@ -290,7 +297,7 @@ namespace rev { namespace graphics {
 		const Mat44f& _wvp,
 		const Mat44f _worldMatrix,
 		const Vec3f _wsEye,
-		const shared_ptr<const Material>& _material,
+		const shared_ptr<Material>& _material,
 		const EnvironmentProbe* env,
 		const std::vector<std::shared_ptr<Light>>& lights,
 		ShadowMapPass* shadows

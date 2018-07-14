@@ -29,8 +29,7 @@ namespace rev {
 #ifdef _WIN32
 			static void init();
 			static void end();
-			static FileSystem*	get(); // Must be implemented in derived class' cpp.
-			FileEvent&			onFileChanged(const std::string& _fileName) { return mFileChangedEvents[_fileName]; }
+			static FileSystem*	get();
 #endif // _WIN32
 		private:
 			FileSystem() = default;

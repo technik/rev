@@ -32,9 +32,9 @@ namespace rev { namespace graphics {
 	{
 	public:
 		using TexturePtr = std::shared_ptr<const Texture>;
-		const Effect& effect() const { return *mEffect;}
+		Effect& effect() { return *mEffect;}
 
-		Material(const std::shared_ptr<const Effect>& effect);
+		Material(const std::shared_ptr<Effect>& effect);
 
 		// New params can only be added to the material before calling init
 		void addParam(const std::string& name,float f);
@@ -46,7 +46,7 @@ namespace rev { namespace graphics {
 		void bindParams(BackEndRenderer& renderer) const;
 
 	private:
-		const std::shared_ptr<const Effect> mEffect;
+		const std::shared_ptr<Effect> mEffect;
 		std::string mShaderOptionsCode;
 
 		std::vector<std::pair<GLint,float>>			mFloatParams;

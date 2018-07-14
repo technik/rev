@@ -39,15 +39,18 @@ namespace rev { namespace graphics {
 		const std::vector<Property>& properties() const { return m_properties; }
 		const std::string& code() const { return m_code; }
 
-		using ReloadCb = std::function<void(void)>;
+		using ReloadCb = std::function<void(Effect&)>;
 
 		void onReload(ReloadCb cb) {
-			m_code.clear();
-			m_properties.clear();
 			m_reloadCbs.push_back(cb);
 		}
 
 	private:
+		void invokeCallbacks();
+		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
+
+		void reload(const char* _filename);
+
 		std::vector<ReloadCb>	m_reloadCbs;
 		std::vector<Property>	m_properties;
 		std::string				m_code;
