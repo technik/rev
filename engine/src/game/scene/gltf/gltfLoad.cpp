@@ -30,6 +30,7 @@
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
+#include <graphics/scene/animation/skinning.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
 #include <memory>
@@ -92,6 +93,44 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void loadSkin(
+		const gltf::Document& document,
+		const gltf::Skin& skin)
+	{
+		// Load skeleton
+		auto& nodes = document.nodes;
+		auto skeleton = std::make_shared<graphics::Skeleton>();
+		auto numJoints = skin.joints.size();
+		// Initialize parent indices to -1
+		skeleton->parentIndices.resize(numJoints, -1);
+		// Traverse nodes to mark child nodes
+		for(auto& joint : skin.joints)
+		{
+			auto& jointNode = document.nodes[joint];
+			for(int i = 0; i < numJoints; ++i)
+			{
+				for(auto& child : jointNode.children)
+				{
+					if(child == i)
+					{
+						skeleton->parentIndices[i] = joint;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void loadSkins(const gltf::Document& document)
+	{
+		for(auto& skin : document.skins)
+		{
+			loadSkin(document, skin);
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
 	auto loadNodes(
 		const gltf::Document& _document,
 		const vector<shared_ptr<RenderMesh>>& _meshes,
@@ -121,6 +160,10 @@ namespace rev { namespace game {
 			}
 
 			// Optional skinning
+			if(nodeDesc.skin >= 0)
+			{
+				//
+			}
 
 			// Optional camera
 			if(nodeDesc.camera >= 0)
@@ -341,6 +384,7 @@ namespace rev { namespace game {
 		const RenderGeom::Attribute* uv0 = registerAttribute(_primitive, "TEXCOORD_0", _attributes);
 		const RenderGeom::Attribute* weights = registerAttribute(_primitive, "WEIGHTS_0", _attributes);
 		const RenderGeom::Attribute* joints = registerAttribute(_primitive, "JOINTS_0", _attributes);
+
 		if(_needsTangentSpace && !tangents)
 		{
 			if(!normals || !uv0)
@@ -535,6 +579,7 @@ namespace rev { namespace game {
 		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
 		auto materials = loadMaterials(folder, document, pbrEffect, textures);
 		auto meshes = loadMeshes(folder, document, materials);
+		loadSkins(document);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, materials, defaultMaterial, _gfxWorld);
