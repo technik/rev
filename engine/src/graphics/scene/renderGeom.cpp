@@ -48,7 +48,9 @@ namespace rev::graphics
 		const Attribute* position,
 		const Attribute* normal,
 		const Attribute* tangent,
-		const Attribute* uv0)
+		const Attribute* uv0,
+		const Attribute* weights,
+		const Attribute* joints)
 	{
 		assert(indices);
 		assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
@@ -67,6 +69,10 @@ namespace rev::graphics
 			m_vtxAttributes.emplace_back(2, *tangent);
 		if(uv0)
 			m_vtxAttributes.emplace_back(3, *uv0);
+		if(weights)
+			m_vtxAttributes.emplace_back(4, *weights);
+		if(joints)
+			m_vtxAttributes.emplace_back(5, *joints);
 
 		m_bbox = position->bounds;
 
@@ -144,21 +150,4 @@ namespace rev::graphics
 
 		return RenderGeom(&idxAttr, &vtxAttr, nullptr, nullptr, nullptr);
 	}
-
-	//----------------------------------------------------------------------------------------------
-	/*
-	static RenderGeom quad(const math::Vec2f& size)
-	{
-	auto half_x = 0.5f*size.x();
-	auto half_y = 0.5f*size.y();
-	std::vector<uint16_t> indices = { 0, 1, 2, 2, 1, 3};
-	std::vector<Vertex> vertexData = {
-	{{-half_x, -half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 0.f, 0.f }},
-	{{ half_x, -half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 1.f, 0.f }},
-	{{-half_x,  half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 0.f, 1.f }},
-	{{ half_x,  half_y, 0.f }, { 1.f, 0.f, 0.f }, {0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f }, { 1.f, 1.f }}
-	};
-
-	return RenderGeom(vertexData, indices);
-	}*/
 }

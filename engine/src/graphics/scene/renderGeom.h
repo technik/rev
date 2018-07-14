@@ -85,7 +85,9 @@ namespace rev { namespace graphics {
 			const Attribute* position,
 			const Attribute* normal,
 			const Attribute* tangent,
-			const Attribute* uv0);
+			const Attribute* uv0,
+			const Attribute* weights,
+			const Attribute* joints);
 
 		static RenderGeom quad(const math::Vec2f& size);
 
