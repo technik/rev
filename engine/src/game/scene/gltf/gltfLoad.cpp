@@ -120,6 +120,8 @@ namespace rev { namespace game {
 				_gfxWorld.renderables().push_back(renderObj);
 			}
 
+			// Optional skinning
+
 			// Optional camera
 			if(nodeDesc.camera >= 0)
 			{
