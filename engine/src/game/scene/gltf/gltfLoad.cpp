@@ -337,6 +337,8 @@ namespace rev { namespace game {
 		const RenderGeom::Attribute* normals = registerAttribute(_primitive, "NORMAL", _attributes);
 		const RenderGeom::Attribute* tangents = registerAttribute(_primitive, "TANGENT", _attributes);
 		const RenderGeom::Attribute* uv0 = registerAttribute(_primitive, "TEXCOORD_0", _attributes);
+		const RenderGeom::Attribute* weights = registerAttribute(_primitive, "WEIGHTS_0", _attributes);
+		const RenderGeom::Attribute* joints = registerAttribute(_primitive, "JOINTS_0", _attributes);
 		if(_needsTangentSpace && !tangents)
 		{
 			if(!normals || !uv0)
