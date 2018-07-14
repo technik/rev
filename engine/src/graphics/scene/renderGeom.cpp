@@ -25,12 +25,13 @@
 namespace rev::graphics
 {
 	//----------------------------------------------------------------------------------------------
-	RenderGeom::VtxFormat::VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv)
+	RenderGeom::VtxFormat::VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights)
 	{
 		m_pos = pos;
 		m_normal = nrm;
 		m_tangent = tan;
 		m_uv = uv;
+		m_weights = weights;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -39,7 +40,8 @@ namespace rev::graphics
 		return uint32_t(m_pos) << 24
 			|| uint32_t(m_normal) << 16
 			|| uint32_t(m_tangent) << 8
-			|| uint32_t(m_uv);
+			|| uint32_t(m_uv)<<4
+			|| uint32_t(m_weights);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -61,7 +63,8 @@ namespace rev::graphics
 			VtxFormat::Storage::Float32,
 			normal?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
 			tangent?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			uv0?VtxFormat::Storage::Float32 : VtxFormat::Storage::None
+			uv0?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
+			(weights&&joints)?VtxFormat::Storage::Float32 : VtxFormat::Storage::None
 		);
 		if(normal)
 			m_vtxAttributes.emplace_back(1, *normal);
@@ -148,6 +151,6 @@ namespace rev::graphics
 			math::AABB()
 		};
 
-		return RenderGeom(&idxAttr, &vtxAttr, nullptr, nullptr, nullptr);
+		return RenderGeom(&idxAttr, &vtxAttr, nullptr, nullptr, nullptr, nullptr, nullptr);
 	}
 }

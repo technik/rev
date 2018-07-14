@@ -38,18 +38,19 @@ namespace rev { namespace graphics {
 			};
 
 			VtxFormat() = default;
-			VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv);
+			VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights);
 
 			Storage position() const	{ return m_pos; }
 			Storage normal() const		{ return m_normal; }
 			Storage tangent() const		{ return m_tangent; }
 			Storage uv() const			{ return m_uv; }
+			Storage weights() const		{ return m_weights; }
 
 			uint32_t code() const;
 			static uint32_t invalid() { return 0; }
 
 		private:
-			Storage m_pos, m_normal, m_tangent, m_uv;
+			Storage m_pos, m_normal, m_tangent, m_uv, m_weights;
 		};
 
 		struct BufferView

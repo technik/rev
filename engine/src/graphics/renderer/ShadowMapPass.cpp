@@ -45,6 +45,7 @@ namespace rev { namespace graphics {
 			RenderGeom::VtxFormat::Storage::Float32,
 			RenderGeom::VtxFormat::Storage::None,
 			RenderGeom::VtxFormat::Storage::None,
+			RenderGeom::VtxFormat::Storage::None,
 			RenderGeom::VtxFormat::Storage::None
 		).code(); // We only care about the format of vertex positions
 

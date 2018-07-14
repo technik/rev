@@ -349,7 +349,7 @@ namespace rev { namespace game {
 			tangents = generateTangentSpace(position, uv0, normals, indices);
 		}
 
-		return std::make_shared<RenderGeom>(indices, position, normals, tangents, uv0);
+		return std::make_shared<RenderGeom>(indices, position, normals, tangents, uv0, weights, joints);
 	}
 
 	//----------------------------------------------------------------------------------------------
