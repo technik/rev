@@ -95,16 +95,16 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	void loadSkin(
 		const gltf::Document& document,
-		const gltf::Skin& skin)
+		const gltf::Skin& skinDesc)
 	{
 		// Load skeleton
 		auto& nodes = document.nodes;
 		auto skeleton = std::make_shared<graphics::Skeleton>();
-		auto numJoints = skin.joints.size();
+		auto numJoints = skinDesc.joints.size();
 		// Initialize parent indices to -1
 		skeleton->parentIndices.resize(numJoints, -1);
 		// Traverse nodes to mark child nodes
-		for(auto& joint : skin.joints)
+		for(auto& joint : skinDesc.joints)
 		{
 			auto& jointNode = document.nodes[joint];
 			for(int i = 0; i < numJoints; ++i)
@@ -119,6 +119,10 @@ namespace rev { namespace game {
 				}
 			}
 		}
+
+		// Load skin's inverse binding matrices
+		auto skin = make_shared<Skinning>();
+		skin->inverseBinding.resize(numJoints);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -421,16 +425,10 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	auto loadMeshes(
-		const std::string& _assetsFolder,
+		const vector<RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
 		const vector<shared_ptr<Material>>& _materials)
 	{
-		// Load buffers
-		vector<core::File*> buffers;
-		for(auto b : _document.buffers)
-			buffers.push_back(new core::File(_assetsFolder+b.uri));
-		auto bufferViews = loadBufferViews(_document, buffers); // // Load buffer views
-		auto attributes = readAttributes(_document, bufferViews); // Load accessors
 
 		// Load the meshes
 		vector<shared_ptr<RenderMesh>> meshes;
@@ -447,10 +445,6 @@ namespace rev { namespace game {
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
 		}
-
-		// Clear buffers
-		for(auto buffer : buffers)
-			delete buffer;
 
 		return meshes;
 	}
@@ -575,10 +569,17 @@ namespace rev { namespace game {
 		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
+		// Load buffers
+		vector<core::File*> buffers;
+		for(auto b : document.buffers)
+			buffers.push_back(new core::File(folder+b.uri));
+		auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
+		auto attributes = readAttributes(document, bufferViews); // Load accessors
+
 		// Load resources
 		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
 		auto materials = loadMaterials(folder, document, pbrEffect, textures);
-		auto meshes = loadMeshes(folder, document, materials);
+		auto meshes = loadMeshes(attributes, document, materials);
 		loadSkins(document);
 
 		// Load nodes
