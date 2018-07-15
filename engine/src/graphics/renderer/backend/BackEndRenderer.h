@@ -44,6 +44,7 @@ namespace rev{ namespace graphics {
 			std::pair<int,int>	mVec3fParams;
 			std::pair<int,int>	mVec4fParams;
 			std::pair<int,int>	mMat44fParams;
+			std::pair<int,int>	mMat44fArrayParams;
 			std::pair<int,int>	mTextureParams;
 		};
 
@@ -51,64 +52,21 @@ namespace rev{ namespace graphics {
 			: mDriver(driver)
 		{}
 
-		void beginPass()
-		{
-			// Don't clear command list to prevent realocating resources inside each command
-			mNumCommands = 0;
-			// Clear uniform indices
-			mFloatIndices.clear();
-			mVec3fIndices.clear();
-			mVec4fIndices.clear();
-			mMat44fIndices.clear();
-			mTextureIndices.clear();
-			// Clear uniform params
-			mFloatParams.clear();
-			mVec3fParams.clear();
-			mVec4fParams.clear();
-			mMat44fParams.clear();
-			mTextureParams.clear();
-		}
+		// Frame
+		void beginFrame();
+		void drawStats();
 
-		void endCommand()
-		{
-			auto& cmd = mCommandList[mNumCommands++];
-			cmd.mFloatParams.second = mFloatParams.size();
-			cmd.mVec3fParams.second = mVec3fParams.size();
-			cmd.mVec4fParams.second = mVec4fParams.size();
-			cmd.mMat44fParams.second = mMat44fParams.size();
-			cmd.mTextureParams.second = mTextureParams.size();
-		}
+		// Pass
+		void beginPass();
+		void endPass();
+		void submitDraws();
 
-		void endPass()
-		{
-		}
+		// Command
+		void reserve(size_t minSize);
+		Command& beginCommand();
+		void endCommand();
 
-		void reserve(size_t minSize)
-		{
-			mCommandList.resize(std::max(mCommandList.size(), minSize));
-		}
-
-		Command& beginCommand()
-		{
-			// Finish previous command
-			Command* cmd;
-			if(mNumCommands < mCommandList.size()) // Reuse allocations
-			{
-				cmd = &mCommandList[mNumCommands];
-			}
-			else
-			{
-				mCommandList.emplace_back(Command());
-				cmd = &mCommandList.back();
-			}
-			cmd->mFloatParams.first = mFloatParams.size();
-			cmd->mVec3fParams.first = mVec3fParams.size();
-			cmd->mVec4fParams.first = mVec4fParams.size();
-			cmd->mMat44fParams.first = mMat44fParams.size();
-			cmd->mTextureParams.first = mTextureParams.size();
-			return *cmd;
-		}
-
+		// Params
 		void addParam(GLint index, float f)
 		{
 			mFloatIndices.push_back(index);
@@ -133,72 +91,16 @@ namespace rev{ namespace graphics {
 			mMat44fParams.push_back(v);
 		}
 
+		void addParam(GLint index, const std::vector<math::Mat44f>& v)
+		{
+			mMat44fArrayIndices.push_back(index);
+			mMat44fArrayParams.push_back(v);
+		}
+
 		void addParam(GLint index, const Texture* v)
 		{
 			mTextureIndices.push_back(index);
 			mTextureParams.push_back(v);
-		}
-
-		void submitDraws()
-		{
-			GLuint vao = 0;
-			const Shader*	shader = nullptr;
-			for(size_t k = 0; k < mNumCommands; ++k)
-			{
-				const auto& command = mCommandList[k];
-				if(shader != command.shader)
-				{
-					shader = command.shader;
-					++usedShaders;
-					shader->bind();
-				}
-				glCullFace(command.cullMode);
-				// Bind params
-				for(int i = command.mFloatParams.first; i < command.mFloatParams.second; ++i)
-					mDriver.bindUniform(mFloatIndices[i], mFloatParams[i]);
-				for(int i = command.mVec3fParams.first; i < command.mVec3fParams.second; ++i)
-					mDriver.bindUniform(mVec3fIndices[i], mVec3fParams[i]);
-				for(int i = command.mVec4fParams.first; i < command.mVec4fParams.second; ++i)
-					mDriver.bindUniform(mVec4fIndices[i], mVec4fParams[i]);
-				for(int i = command.mMat44fParams.first; i < command.mMat44fParams.second; ++i)
-					mDriver.bindUniform(mMat44fIndices[i], mMat44fParams[i]);
-				//int textureStage = 0;
-				for(int i = command.mTextureParams.first; i < command.mTextureParams.second; ++i)
-				{
-					auto index = mTextureIndices[i];
-					glActiveTexture(GL_TEXTURE0+index);
-					glBindTexture(GL_TEXTURE_2D, mTextureParams[i]->glName());
-					glUniform1i(index, index);
-				}
-				// Bind geometry
-				if(vao != command.vao)
-				{
-					vao = command.vao;
-					glBindVertexArray(vao);
-					++usedVaos;
-				}
-				// Draw
-				glDrawElements(GL_TRIANGLES, command.nIndices, command.indexType, nullptr);
-				triangles += command.nIndices/3;
-			}
-			mNumCommands = 0; // Reset command list
-		}
-
-		void beginFrame()
-		{
-			usedVaos = 0;
-			usedShaders = 0;
-			triangles = 0;
-		}
-
-		void drawStats()
-		{
-			ImGui::Text("Vaos: %d", usedVaos);
-			ImGui::Text("Shaders: %d", usedShaders);
-			ImGui::Text("Triangles: %d", triangles);
-			ImGui::Text("float params: %d", mFloatParams.size());
-			ImGui::Text("Vec3f params: %d", mVec3fParams.size());
-			ImGui::Text("Texture params: %d", mTextureParams.size());
 		}
 
 	private:
@@ -219,8 +121,8 @@ namespace rev{ namespace graphics {
 		std::vector<math::Vec4f> mVec4fParams;
 		std::vector<GLint> mVec4fIndices;
 		std::vector<math::Mat44f>	mMat44fParams;
-		std::vector<GLint> m_mat44fArrayIndices;
-		std::vector<std::vector<math::Mat44f>> m_mat44fArrayParams;
+		std::vector<GLint> mMat44fArrayIndices;
+		std::vector<std::vector<math::Mat44f>> mMat44fArrayParams;
 		std::vector<GLint> mMat44fIndices;
 		std::vector<const Texture*>	mTextureParams;
 		std::vector<GLint> mTextureIndices;

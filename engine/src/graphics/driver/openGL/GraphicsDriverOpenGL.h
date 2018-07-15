@@ -11,6 +11,7 @@
 #include <math/algebra/matrix.h>
 #include <graphics/driver/DefaultFrameBuffer.h>
 #include <memory>
+#include <vector>
 
 namespace rev { namespace graphics {
 
