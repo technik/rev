@@ -18,44 +18,58 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-
-#include <math/algebra/vector.h>
-#include <math/algebra/quaternion.h>
-#include <memory>
 #include <vector>
+#include <game/scene/component.h>
+#include <game/scene/sceneNode.h>
+#include <game/scene/transform/transform.h>
+#include <graphics/scene/animation/animation.h>
+#include <memory>
 
-namespace rev::graphics {
+namespace rev::game {
 
-	class Pose
+	class Animator : public Component
 	{
 	public:
-		struct JointPose
+		void pause();
+		void resume();
+		void reset();
+
+		void playAnimation(std::shared_ptr<graphics::Animation>& anim, bool loop)
 		{
-			math::Quatf rotation;
-			math::Vec3f translation;
-			math::Vec3f scale;
-		};
+			m_anim = anim;
+			m_time = 0;
+			m_loop = loop;
+		}
 
-		std::vector<JointPose> joints;
-	};
-
-	class Animation
-	{
-	public:
-		template<class T>
-		struct Channel
+		void init() override
 		{
-			std::vector<float> t;
-			std::vector<T> values;
-		};
+			m_time = 0;
+			m_tempPose.scale = math::Vec3f::ones();
 
-		void getPose(float t, Pose& dst) const;
-		float duration() const;
-		
-		void getChannelPose(size_t channel, float t, Pose::JointPose& dst);
+			m_target = node()->component<Transform>();
+		}
 
-		std::vector<Channel<math::Vec3f>> m_translationChannels;
-		std::vector<Channel<math::Quatf>> m_rotationChannels;
+		void update(float _dt) override {
+			m_time += _dt;
+			auto duration = m_anim->duration();
+			if(m_loop)
+			{
+				while(m_time > duration)
+					m_time -= duration;
+			}
+
+			m_anim->getChannelPose(0, m_time, m_tempPose);
+
+			m_target->xForm.position() = m_tempPose.translation;
+			m_target->xForm.setRotation(m_tempPose.rotation);
+		}
+
+	private:
+		graphics::Pose::JointPose m_tempPose;
+		Transform* m_target = nullptr;
+		float m_time;
+		bool m_loop = false;
+		std::shared_ptr<graphics::Animation> m_anim;
 	};
 
 }
