@@ -68,28 +68,17 @@ namespace rev { namespace math {
 			return UnitQuaternion(-x(), -y(), -z(), w());
 		}
 
+		static UnitQuaternion lerp(const UnitQuaternion& a, const UnitQuaternion& b, float f)
+		{
+			UnitQuaternion q;
+			q.m = (a.m * (1-f) + b.m * f).normalized();
+			return q;
+		}
+
 		bool operator==(const UnitQuaternion& b) const { return m==b.m; }
 
 		// Other operations
 		operator Matrix33<T>		() const; // Rotation matrix
-											  /*
-		{
-			auto a2 = w()*w();
-			auto b2 = x()*x();
-			auto c2 = y()*y();
-			auto d2 = z()*z();
-			auto ab = w()*x();
-			auto ac = w()*y();
-			auto ad = w()*z();
-			auto bc = x()*y();
-			auto bd = x()*z();
-			auto cd = y()*z();
-			return Mat33f({
-				a2+b2-c2-d2,2*(bc-ad), bd+ac,
-				a2-b2+c2-d2,2*(cd-ab), bc+ad,
-				a2-b2-c2+d2,2*(bd-ac), cd+ab
-				});
-		}*/
 
 		UnitQuaternion	operator *	(const UnitQuaternion& _q) const;
 		Vector3<T>		rotate		(const Vector3<T>& _v) const;

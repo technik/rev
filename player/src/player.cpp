@@ -9,6 +9,7 @@
 #include <core/time/time.h>
 #include <core/tools/log.h>
 #include <game/scene/camera.h>
+#include <game/animation/animator.h>
 #include <game/scene/gltf/gltfLoad.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
@@ -46,7 +47,8 @@ namespace rev {
 			//xForm->xForm.rotate(rotation);
 
 			std::vector<std::shared_ptr<Animation>> animations;
-			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animations);
+			std::vector<std::shared_ptr<SceneNode>> animNodes;
+			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
 			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
 
 			// Default scene light
@@ -66,9 +68,18 @@ namespace rev {
 				mGraphicsScene.irradiance = Texture::load(bg+"_irradiance.hdr", false);
 			}
 
+			// Create animation component
+			game::Animator* animator = nullptr;
+			if(animations.size() > 0)
+			{
+				animator = animNodes[0]->addComponent<Animator>();
+			}
+
 			// Create camera
 			createCamera();
 			mGameScene.root()->init();
+			if(animator)
+				animator->playAnimation(animations[0], true);
 
 			mGameEditor.init(mGraphicsScene);
 			mRenderer.init(*mGfxDriver, *mGfxDriver->frameBuffer());

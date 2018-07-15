@@ -38,5 +38,6 @@ namespace rev { namespace game {
 		const std::string& filePath,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _pool,
+		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		std::vector<std::shared_ptr<graphics::Animation>>& _animations);
 }}

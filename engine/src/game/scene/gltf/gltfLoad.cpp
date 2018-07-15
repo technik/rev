@@ -561,13 +561,16 @@ namespace rev { namespace game {
 	void loadAnimations(
 		const gltf::Document& document,
 		const vector<RenderGeom::Attribute>& accessors,
+		std::vector<std::shared_ptr<SceneNode>>& sceneNodes,
+		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		vector<shared_ptr<Animation>>& _animations)
 	{
 		for(auto& animDesc : document.animations)
 		{
-			graphics::Animation animation;
+			auto& animation = _animations.emplace_back(make_shared<Animation>());
 			std::vector<int> usedNodes;
-			// Precompute channels (TODO: Use this to generate a skeleton)
+			// Precompute channels (TODO: Use this to generate a real skeleton)
+
 			for(auto& channelDesc : animDesc.channels)
 			{
 				// Locate channel ndx
@@ -579,16 +582,18 @@ namespace rev { namespace game {
 				else
 					usedNodes.push_back(targetNode);
 			}
+			// Mark first animated node
+			animNodes.push_back(sceneNodes[usedNodes[0]]);
 			// Resize animation to fit all the channels
-			animation.m_translationChannels.resize(usedNodes.size());
-			animation.m_rotationChannels.resize(usedNodes.size());
+			animation->m_translationChannels.resize(usedNodes.size());
+			animation->m_rotationChannels.resize(usedNodes.size());
 			// Load channel contents
 			for(auto& channelDesc : animDesc.channels)
 			{
 				auto channelNdx = std::find(usedNodes.begin(), usedNodes.end(), channelDesc.target.node) - usedNodes.begin();
 				if(channelDesc.target.path == "rotation")
 				{
-					auto& channel = animation.m_rotationChannels[channelNdx];
+					auto& channel = animation->m_rotationChannels[channelNdx];
 					auto sampler = animDesc.samplers[channelDesc.sampler];
 					auto time = accessors[sampler.input];
 					auto values = accessors[sampler.output];
@@ -608,6 +613,7 @@ namespace rev { namespace game {
 		const std::string& _filePath,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _geomPool,
+		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		vector<shared_ptr<Animation>>& _animations)
 	{
 		// Open file
@@ -638,7 +644,7 @@ namespace rev { namespace game {
 		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);
 
 		// Load animations
-		loadAnimations(document, attributes, _animations);
+		loadAnimations(document, attributes, nodes, animNodes, _animations);
 
 		// Return the right scene
 		int sceneIndex = document.scene == -1 ? 0 : document.scene;

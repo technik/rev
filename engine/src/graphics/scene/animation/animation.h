@@ -50,10 +50,41 @@ namespace rev::graphics {
 		};
 
 		void getPose(float t, Pose& dst) const;
-		float duration() const;
-		
-		void getChannelPose(size_t channel, float t, Pose::JointPose& dst)
+		float duration() const
 		{
+			return m_rotationChannels[0].t.back();
+		}
+		
+		void getChannelPose(size_t channelNdx, float t, Pose::JointPose& dst)
+		{
+			auto& channel = m_rotationChannels[channelNdx];
+			if(channel.t.empty())
+				return;
+			if(t <= channel.t[0])
+			{
+				dst.rotation = channel.values[0];
+				return;
+			}
+			if(t >= channel.t.back())
+			{
+				dst.rotation = channel.values.back();
+				return;
+			}
+			// Value is within two others
+			for(int i = 0; i < channel.t.size(); ++i)
+			{
+				if(channel.t[i+1] > t)
+				{
+					auto& v0 = channel.values[i];
+					auto& v1 = channel.values[i+1];
+					auto t0 = channel.t[i];
+					auto t1 = channel.t[i+1];
+					auto f = (t-t0)/(t1-t0);
+					auto v = math::Quatf::lerp(v0, v1, f);
+					dst.rotation = v;
+					break;
+				}
+			}
 		}
 
 		std::vector<Channel<math::Vec3f>> m_translationChannels;
