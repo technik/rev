@@ -427,7 +427,8 @@ namespace rev { namespace game {
 	auto loadMeshes(
 		const vector<RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
-		const vector<shared_ptr<Material>>& _materials)
+		const vector<shared_ptr<Material>>& _materials,
+		const shared_ptr<Material>& _defaultMaterial)
 	{
 
 		// Load the meshes
@@ -439,8 +440,13 @@ namespace rev { namespace game {
 			auto mesh = meshes.back();
 			for(auto& primitive : meshDesc.primitives)
 			{
-				auto material = _materials[primitive.material];
-				bool needsTangentSpace = !_document.materials[primitive.material].normalTexture.empty();
+				auto material = _defaultMaterial;
+				bool needsTangentSpace = false;
+				if(primitive.material >= 0)
+				{
+					material = _materials[primitive.material];
+					needsTangentSpace = !_document.materials[primitive.material].normalTexture.empty();
+				}
 				auto geometry = loadPrimitive(_document, attributes, primitive, needsTangentSpace);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
@@ -552,11 +558,57 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void loadAnimations(
+		const gltf::Document& document,
+		const vector<RenderGeom::Attribute>& accessors,
+		vector<shared_ptr<Animation>>& _animations)
+	{
+		for(auto& animDesc : document.animations)
+		{
+			graphics::Animation animation;
+			std::vector<int> usedNodes;
+			// Precompute channels (TODO: Use this to generate a skeleton)
+			for(auto& channelDesc : animDesc.channels)
+			{
+				// Locate channel ndx
+				auto targetNode = channelDesc.target.node;
+				auto ndxIter = std::find(usedNodes.begin(), usedNodes.end(), targetNode);
+				auto targetNdx = usedNodes.size();
+				if(ndxIter != usedNodes.end())
+					targetNdx = ndxIter - usedNodes.begin();
+				else
+					usedNodes.push_back(targetNode);
+			}
+			// Resize animation to fit all the channels
+			animation.m_translationChannels.resize(usedNodes.size());
+			animation.m_rotationChannels.resize(usedNodes.size());
+			// Load channel contents
+			for(auto& channelDesc : animDesc.channels)
+			{
+				auto channelNdx = std::find(usedNodes.begin(), usedNodes.end(), channelDesc.target.node) - usedNodes.begin();
+				if(channelDesc.target.path == "rotation")
+				{
+					auto& channel = animation.m_rotationChannels[channelNdx];
+					auto sampler = animDesc.samplers[channelDesc.sampler];
+					auto time = accessors[sampler.input];
+					auto values = accessors[sampler.output];
+					for(int i = 0; i < time.count; ++i)
+					{
+						channel.t.push_back(time.get<float>(i));
+						channel.values.push_back(values.get<math::Quatf>(i));
+					}
+				}
+			}
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
 		SceneNode& _parentNode,
 		const std::string& _filePath,
 		graphics::RenderScene& _gfxWorld,
-		graphics::GeometryPool& _geomPool)
+		graphics::GeometryPool& _geomPool,
+		vector<shared_ptr<Animation>>& _animations)
 	{
 		// Open file
 		auto folder = core::getPathFolder(_filePath);
@@ -580,13 +632,17 @@ namespace rev { namespace game {
 		auto skins = loadSkins(attributes, document);
 		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
 		auto materials = loadMaterials(folder, document, pbrEffect, textures);
-		auto meshes = loadMeshes(attributes, document, materials);
+		auto meshes = loadMeshes(attributes, document, materials, defaultMaterial);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);
 
+		// Load animations
+		loadAnimations(document, attributes, _animations);
+
 		// Return the right scene
-		auto& displayScene = document.scenes[document.scene];
+		int sceneIndex = document.scene == -1 ? 0 : document.scene;
+		auto& displayScene = document.scenes[sceneIndex];
 		for(auto nodeNdx : displayScene.nodes)
 			_parentNode.addChild(nodes[nodeNdx]);
 	}

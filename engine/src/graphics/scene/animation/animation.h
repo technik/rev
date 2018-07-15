@@ -52,7 +52,9 @@ namespace rev::graphics {
 		void getPose(float t, Pose& dst) const;
 		float duration() const;
 		
-		void getChannelPose(size_t channel, float t, Pose::JointPose& dst);
+		void getChannelPose(size_t channel, float t, Pose::JointPose& dst)
+		{
+		}
 
 		std::vector<Channel<math::Vec3f>> m_translationChannels;
 		std::vector<Channel<math::Quatf>> m_rotationChannels;

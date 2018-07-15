@@ -22,7 +22,10 @@
 #include <string>
 #include "../sceneNode.h"
 #include <graphics/driver/geometryPool.h>
+#include <graphics/scene/animation/animation.h>
 #include <graphics/scene/renderScene.h>
+#include <memory>
+#include <vector>
 
 namespace rev { namespace game {
 
@@ -34,5 +37,6 @@ namespace rev { namespace game {
 		SceneNode& parentNode,
 		const std::string& filePath,
 		graphics::RenderScene& _gfxWorld,
-		graphics::GeometryPool& _pool);
+		graphics::GeometryPool& _pool,
+		std::vector<std::shared_ptr<graphics::Animation>>& _animations);
 }}

@@ -237,10 +237,8 @@ vec3 indirectLightPBR(
 	vectors.normal = inputs.normal;
 	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);// * shadow;
 	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
-	//vec3 diffuse = diffuseIBL(inputs, vec3(1.0), occlusion);
 	
-	//return specular + diffuse;
-	return diffuse;
+	return specular + diffuse;
 }
 
 vec4 getBaseColor()
@@ -271,17 +269,17 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
 	float roughness = max(0.01, physics.g);
 	float metallic = physics.b;
-	float occlusion = physics.r;
+	float occlusion = 1.0;//physics.r;
 #else
 	#if defined(float_uRoughness)
-	float roughness = uRoughness;
+		float roughness = uRoughness;
 	#else
-	float roughness = 0.8;
+		float roughness = 0.8;
 	#endif
 	#if defined(float_uMetallic)
-	float metallic = uMetallic;
+		float metallic = uMetallic;
 	#else
-	float metallic = 0.1;
+		float metallic = 0.1;
 	#endif
 	float occlusion = 1.0;
 #endif
@@ -360,7 +358,7 @@ vec4 shadeSurface(ShadeInput inputs)
 		);
 
 	// Complete brdf
-	vec3 direct = 4*uLightColor * (specular + diffuse) * ndl;
+	vec3 direct = uLightColor * (specular + diffuse) * ndl;
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;

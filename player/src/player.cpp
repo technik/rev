@@ -17,6 +17,7 @@
 #include <graphics/renderer/material/material.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/animation/animation.h>
 
 using namespace rev::math;
 using namespace rev::graphics;
@@ -42,8 +43,10 @@ namespace rev {
 				0.f, 1.f, 0.f
 				});
 			auto xForm = gltfRoot->addComponent<Transform>();
-			xForm->xForm.rotate(rotation);
-			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool);
+			//xForm->xForm.rotate(rotation);
+
+			std::vector<std::shared_ptr<Animation>> animations;
+			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animations);
 			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
 
 			// Default scene light
