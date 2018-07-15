@@ -107,6 +107,11 @@ namespace rev { namespace graphics {
 
 		std::string environmentDefines = env ? "#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n" : "";
 		std::string shadowDefines = shadows ? "#define sampler2D_uShadowMap\n#define mat4_uMs2Shadow\n" : "";
+		std::string skinningDefines = "";
+		if(vtxFormat.weights() != RenderGeom::VtxFormat::Storage::None)
+		{
+			skinningDefines = "#define HW_SKINNING\n";
+		}
 
 		// Locate the proper shader in the set
 		const auto& descriptor = std::pair(vtxFormat.code(),  mat.bakedOptions()); // TODO: Hash this once during material setup. Use hash for faster indexing. Maybe incorporate effect in the hash.
@@ -119,6 +124,7 @@ namespace rev { namespace graphics {
 					vertexFormatDefines(vtxFormat).c_str(),
 					environmentDefines.c_str(),
 					shadowDefines.c_str(),
+					skinningDefines.c_str(),
 					mat.bakedOptions().c_str(),
 					mForwardShaderCommonCode.c_str(),
 					mat.effect().code().c_str()
@@ -223,6 +229,7 @@ namespace rev { namespace graphics {
 			// Set up vertex uniforms
 			renderMesh(
 				mesh.geom.get(),
+				mesh.skin.get(),
 				vp* mesh.world, // World-View-Projection
 				mesh.world,
 				eye->position(),
@@ -299,6 +306,7 @@ namespace rev { namespace graphics {
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::renderMesh(
 		const RenderGeom* _mesh,
+		const SkinInstance* _skin,
 		const Mat44f& _wvp,
 		const Mat44f _worldMatrix,
 		const Vec3f _wsEye,
@@ -347,6 +355,9 @@ namespace rev { namespace graphics {
 		// Matrices
 		mBackEnd.addParam(0, _wvp);
 		mBackEnd.addParam(1, _worldMatrix);
+		// Skinning matrix
+		if(_skin)
+			mBackEnd.addParam(30, _skin->appliedPose);
 		// Material
 		if(changedMaterial)
 		{

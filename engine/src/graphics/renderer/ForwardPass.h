@@ -104,6 +104,7 @@ namespace rev{ namespace graphics {
 
 		void renderMesh(
 			const RenderGeom* _mesh,
+			const SkinInstance* _skin,
 			const math::Mat44f& _wvp,
 			const math::Mat44f _worldMatrix,
 			const math::Vec3f _wsEye,

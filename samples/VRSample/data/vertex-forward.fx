@@ -40,6 +40,10 @@ layout(location = 2) in vec4 msTangent;
 layout(location = 3) in vec2 texCoord;
 #endif
 
+#ifdef HW_SKINNING
+layout(location = 30) uniform mat4 joints[64];
+#endif
+
 layout(location = 0) uniform mat4 uWorldViewProjection;
 layout(location = 1) uniform mat4 uWorld;
 #ifdef sampler2D_uShadowMap

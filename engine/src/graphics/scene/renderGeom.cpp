@@ -38,10 +38,10 @@ namespace rev::graphics
 	uint32_t RenderGeom::VtxFormat::code() const
 	{
 		return uint32_t(m_pos) << 24
-			|| uint32_t(m_normal) << 16
-			|| uint32_t(m_tangent) << 8
-			|| uint32_t(m_uv)<<4
-			|| uint32_t(m_weights);
+			| uint32_t(m_normal) << 16
+			| uint32_t(m_tangent) << 8
+			| uint32_t(m_uv)<<4
+			| uint32_t(m_weights);
 	}
 
 	//----------------------------------------------------------------------------------------------
