@@ -93,11 +93,18 @@ void main ( void )
 	vtxWsEyeDir = uWsViewPos - wsPos;
 
 #ifdef HW_SKINNING
-	vec4 skinnedVtx0 = joints[jointIndices.x] * vec4(vertex, 1.0);
-	vec4 skinnedVtx1 = joints[jointIndices.y] * vec4(vertex, 1.0);
-	vec4 skinnedVtx2 = joints[jointIndices.z] * vec4(vertex, 1.0);
-	vec4 skinnedVtx3 = joints[jointIndices.w] * vec4(vertex, 1.0);
+	vec4 vtx4 = vec4(vertex, 1.0);
+	// vec4 skinnedVtx0 = weights.x * joints[jointIndices.x] * vtx4;
+	// vec4 skinnedVtx1 = weights.y * joints[jointIndices.y] * vtx4;
+	// vec4 skinnedVtx2 = weights.z * joints[jointIndices.z] * vtx4;
+	// vec4 skinnedVtx = skinnedVtx0 + skinnedVtx1 + skinnedVtx2;
+
+	vec4 skinnedVtx0 = weights.x * vtx4;
+	vec4 skinnedVtx1 = weights.y * vtx4;
+	vec4 skinnedVtx2 = weights.z * vtx4;
+	vec4 skinnedVtx3 = weights.w * vtx4;
 	vec4 skinnedVtx = skinnedVtx0 + skinnedVtx1 + skinnedVtx2 + skinnedVtx3;
+	//gl_Position = uWorldViewProjection * vec4(skinnedVtx.xyz, 1.0);
 	gl_Position = uWorldViewProjection * skinnedVtx;
 #else
 	gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
