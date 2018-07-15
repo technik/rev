@@ -159,17 +159,33 @@ namespace rev { namespace game {
 		graphics::RenderScene& _gfxWorld)
 	{
 		vector<shared_ptr<SceneNode>> nodes;
-
-		// Create node and add basic components
 		for(auto& nodeDesc : _document.nodes)
 		{
 			auto node = std::make_shared<SceneNode>();
+			nodes.push_back(node);
+
 			node->name = nodeDesc.name; // Node name
 
 			// Optional node transform
 			auto nodeTransform = loadNodeTransform(nodeDesc);
 			if(nodeTransform)
 				node->addComponent(std::move(nodeTransform));
+		}
+
+		// Build hierarchy
+		size_t i = 0;
+		for(auto& nodeDesc : _document.nodes)
+		{
+			auto& node = nodes[i++];
+			for(auto& child : nodeDesc.children)
+				node->addChild(nodes[child]);
+		}
+
+		i = 0;
+		// Create node and add basic components
+		for(auto& nodeDesc : _document.nodes)
+		{
+			auto& node = nodes[i++];
 			
 			// Optional node mesh
 			std::shared_ptr<RenderObj> renderObj;
@@ -203,17 +219,6 @@ namespace rev { namespace game {
 				node->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -Constants<float>::halfPi));
 
 			}
-
-			nodes.push_back(node);
-		}
-
-		// Rebuild hierarchy
-		size_t i = 0;
-		for(auto& nodeDesc : _document.nodes)
-		{
-			auto& node = nodes[i++];
-			for(auto& child : nodeDesc.children)
-				node->addChild(nodes[child]);
 		}
 
 		return nodes;

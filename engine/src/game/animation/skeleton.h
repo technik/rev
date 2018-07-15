@@ -18,34 +18,47 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-
-#include <math/algebra/matrix.h>
-#include <math/algebra/quaternion.h>
-#include <math/algebra/vector.h>
-#include <memory>
 #include <vector>
+#include <graphics/scene/animation/animation.h>
+#include <game/scene/transform/transform.h>
+#include <game/scene/sceneNode.h>
+#include <memory>
 
-namespace rev::graphics {
+namespace rev::game {
 
-	class Skinning
+	class Skeleton
 	{
 	public:
-		std::vector<math::Mat44f> inverseBinding;
-	};
-
-	class SkinInstance
-	{
-	public:
-		void applyPose(const std::vector<math::Mat44f>& pose)
+		Skeleton(const std::vector<std::shared_ptr<SceneNode>>& nodes)
 		{
-			for(size_t i = 0; i < skin->inverseBinding.size(); ++i)
+			m_jointNodes = nodes;
+			for(auto n : nodes)
 			{
-				appliedPose[i] = pose[i] * skin->inverseBinding[i];
+				graphics::Pose::JointPose nodePose;
+				nodePose.scale = math::Vec3f::ones();
+				auto transform = n->component<Transform>();
+				nodePose.rotation = transform->xForm.rotation();
+				nodePose.translation = transform->xForm.position();
 			}
 		}
 
-		std::shared_ptr<Skinning> skin;
-		std::vector<math::Mat44f> appliedPose;
+		void setPose(const graphics::Pose& pose)
+		{
+			int n = 0;
+			for(auto& joint : pose.joints)
+			{
+				auto& node = m_jointNodes[n++];
+				auto transform = node->component<Transform>();
+				transform->xForm.position() = joint.translation;
+				transform->xForm.setRotation(joint.rotation);
+			}
+		}
+		void getReferencePose(graphics::Pose& dst) const { dst = m_referencePose; }
+
+	private:
+		graphics::Pose m_referencePose;
+
+		std::vector<std::shared_ptr<SceneNode>> m_jointNodes;
 	};
 
 }

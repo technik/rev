@@ -19,33 +19,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <math/algebra/matrix.h>
-#include <math/algebra/quaternion.h>
 #include <math/algebra/vector.h>
+#include <math/algebra/quaternion.h>
 #include <memory>
 #include <vector>
 
 namespace rev::graphics {
 
-	class Skinning
+	class Pose
 	{
 	public:
-		std::vector<math::Mat44f> inverseBinding;
+		struct JointPose
+		{
+			math::Quatf rotation;
+			math::Vec3f translation;
+			math::Vec3f scale;
+		};
+
+		std::vector<JointPose> joints;
 	};
 
-	class SkinInstance
+	class Animation
 	{
 	public:
-		void applyPose(const std::vector<math::Mat44f>& pose)
+		template<class T>
+		struct Channel
 		{
-			for(size_t i = 0; i < skin->inverseBinding.size(); ++i)
-			{
-				appliedPose[i] = pose[i] * skin->inverseBinding[i];
-			}
-		}
+			std::vector<float> t;
+			std::vector<T> values;
+		};
 
-		std::shared_ptr<Skinning> skin;
-		std::vector<math::Mat44f> appliedPose;
+		void getPose(float t, Pose& dst) const;
+		float duration() const;
+
+		std::vector<Channel<math::Vec3f>> m_translationChannels;
+		std::vector<Channel<math::Quatf>> m_rotationChannels;
 	};
 
 }
