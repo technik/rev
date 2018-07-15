@@ -22,6 +22,7 @@
 #include <core/tools/log.h>
 #include <core/types/json.h>
 #include <core/string_util.h>
+#include <game/animation/skeleton.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
@@ -98,30 +99,8 @@ namespace rev { namespace game {
 		const gltf::Skin& skinDesc,
 		const vector<RenderGeom::Attribute>& attributes)
 	{
-		// Load skeleton
-		auto& nodes = document.nodes;
-		auto skeleton = std::make_shared<graphics::Skeleton>();
-		auto numJoints = skinDesc.joints.size();
-		// Initialize parent indices to -1
-		skeleton->parentIndices.resize(numJoints, -1);
-		// Traverse nodes to mark child nodes
-		for(auto& joint : skinDesc.joints)
-		{
-			auto& jointNode = document.nodes[joint];
-			for(int i = 0; i < numJoints; ++i)
-			{
-				for(auto& child : jointNode.children)
-				{
-					if(child == i)
-					{
-						skeleton->parentIndices[i] = joint;
-						break;
-					}
-				}
-			}
-		}
-
 		// Load skin's inverse binding matrices
+		auto numJoints = skinDesc.joints.size();
 		auto skin = make_shared<Skinning>();
 		skin->inverseBinding.resize(numJoints);
 		auto IBMs = attributes[skinDesc.inverseBindMatrices];
@@ -130,7 +109,6 @@ namespace rev { namespace game {
 
 		// Load skin instance
 		auto skinInstance = std::make_shared<SkinInstance>();
-		skinInstance->skeleton = skeleton;
 		skinInstance->skin = skin;
 		skinInstance->appliedPose.resize(numJoints, Mat44f::identity());
 
