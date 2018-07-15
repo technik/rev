@@ -368,7 +368,7 @@ vec4 shadeSurface(ShadeInput inputs)
 #else
 	vec3 color = indirect + shadowMask * direct;
 #endif
-	//color = 0.5+0.5*inputs.normal;
+	// color = 0.5+0.5*inputs.normal;
 	return vec4(color, baseColor.a);
 }
 

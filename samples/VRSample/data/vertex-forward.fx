@@ -41,6 +41,8 @@ layout(location = 3) in vec2 texCoord;
 #endif
 
 #ifdef HW_SKINNING
+layout(location = 4) in vec4 weights;
+layout(location = 5) in ivec4 jointIndices;
 layout(location = 30) uniform mat4 joints[64];
 #endif
 
@@ -89,6 +91,16 @@ void main ( void )
 	vtxShadowPos = (uMs2Shadow * vec4(vertex, 1.0)).xyz;
 #endif
 	vtxWsEyeDir = uWsViewPos - wsPos;
+
+#ifdef HW_SKINNING
+	vec4 skinnedVtx0 = joints[jointIndices.x] * vec4(vertex, 1.0);
+	vec4 skinnedVtx1 = joints[jointIndices.y] * vec4(vertex, 1.0);
+	vec4 skinnedVtx2 = joints[jointIndices.z] * vec4(vertex, 1.0);
+	vec4 skinnedVtx3 = joints[jointIndices.w] * vec4(vertex, 1.0);
+	vec4 skinnedVtx = skinnedVtx0 + skinnedVtx1 + skinnedVtx2 + skinnedVtx3;
+	gl_Position = uWorldViewProjection * skinnedVtx;
+#else
 	gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
+#endif
 }
 #endif // VTX_SHADER

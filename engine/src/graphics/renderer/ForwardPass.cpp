@@ -65,6 +65,15 @@ namespace rev { namespace graphics {
 		ShaderProcessor::MetaData metadata;
 		ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
 		// TODO: Actualle use the metadata (unifrom layouts)
+		for(auto& file : metadata.dependencies)
+		{
+			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
+				mPipelines.clear();
+				ShaderProcessor::MetaData metadata;
+				mForwardShaderCommonCode.clear();
+				ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+			};
+		}
 	}	
 
 	//----------------------------------------------------------------------------------------------
