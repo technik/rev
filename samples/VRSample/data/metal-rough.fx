@@ -339,8 +339,9 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 albedo = baseColor.xyz * (1-metallic);
 	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
 	// Single bounce diffuse with analytical solution
-	vec3 Kd = (1-Fs)*1.05*(1-sphg) * INV_PI;
-	vec3 diffuse = Kd * albedo;
+	float ff = 1.05 * (1-pow(1-inputs.ndv,5)) * INV_PI; // Fresnel radiance correction
+	//float Kd = INV_PI;
+	vec3 diffuse = ff * albedo;
 	// Multiple bounce diffuse (WIP)
 	// float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
 	// float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
@@ -362,11 +363,11 @@ vec4 shadeSurface(ShadeInput inputs)
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	vec3 color = indirect + shadowMask * direct + emissive;
+	vec3 color = indirect + shadowMask * direct + ff * emissive;
 #else
 	vec3 color = indirect + shadowMask * direct;
 #endif
-	// color = 0.5+0.5*inputs.normal;
+	//color = diffuse;
 	return vec4(color, baseColor.a);
 }
 

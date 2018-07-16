@@ -44,7 +44,7 @@ namespace rev {
 				0.f, 1.f, 0.f
 				});
 			auto xForm = gltfRoot->addComponent<Transform>();
-			//xForm->xForm.rotate(rotation);
+			xForm->xForm.rotate(rotation);
 
 			std::vector<std::shared_ptr<Animation>> animations;
 			std::vector<std::shared_ptr<SceneNode>> animNodes;
@@ -72,7 +72,7 @@ namespace rev {
 			game::Animator* animator = nullptr;
 			if(animations.size() > 0)
 			{
-				animator = animNodes[0]->addComponent<Animator>();
+				//animator = animNodes[0]->addComponent<Animator>();
 			}
 
 			// Create camera
