@@ -323,6 +323,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	float ndh = max(1e-8, dot(inputs.normal, h));
 	float ndh2 = ndh*ndh;
 	float ggxDen = (ndh2 * (a2-1) + 1);
+	// Missing 1/pi because it's applied at the end to both diffuse and specular
 	float ggx = INV_PI * a2 / (ggxDen*ggxDen);
 
 	float ndl = max(0.0, -dot(uLightDir, inputs.normal));
@@ -330,7 +331,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	// GGX Geometry schlick
 	float g2denA = 2*ndl*inputs.ndv;
 	float g2denB = ndl+inputs.ndv;
-	float g2 = max(0.01, 2*mix(g2denA, g2denB, alpha));
+	float g2 = max(0.01, 2*mix(g2denA, g2denB, alpha)); // Denominator from Hammon GDC 17's PBR diffuse lighting
 
 	float sbrdf = ggx / g2; // Pure mirror brdf
 	vec3 specular = Fs * sbrdf; // complete specular brdf
@@ -339,7 +340,8 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 albedo = baseColor.xyz * (1-metallic);
 	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
 	// Single bounce diffuse with analytical solution
-	float ff = 1.05 * (1-pow(1-inputs.ndv,5)) * INV_PI; // Fresnel radiance correction
+	// Missing 1/pi because it's applied at the end to both diffuse and specular, and should be premultiplied in emissive
+	float ff = 1;//.05 * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
 	//float Kd = INV_PI;
 	vec3 diffuse = ff * albedo;
 	// Multiple bounce diffuse (WIP)
@@ -360,12 +362,13 @@ vec4 shadeSurface(ShadeInput inputs)
 
 	// Complete brdf
 	vec3 direct = uLightColor * (specular + diffuse) * ndl;
+	//indirect = vec3(0.0);
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	vec3 color = indirect + shadowMask * direct + ff * emissive;
+	vec3 color = (indirect + shadowMask * direct)* INV_PI + ff * emissive;
 #else
-	vec3 color = indirect + shadowMask * direct;
+	vec3 color = (indirect + shadowMask * direct) * INV_PI;
 #endif
 	//color = diffuse;
 	return vec4(color, baseColor.a);
