@@ -341,16 +341,16 @@ vec4 shadeSurface(ShadeInput inputs)
 	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
 	// Single bounce diffuse with analytical solution
 	// Missing 1/pi because it's applied at the end to both diffuse and specular, and should be premultiplied in emissive
-	float ff = 1;//.05 * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
-	//float Kd = INV_PI;
-	vec3 diffuse = ff * albedo;
+	float ff = 1.05 * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
+	vec3 smoothTerm = ff * (1-pow(1-ndl, 5))*(1-F0);
 	// Multiple bounce diffuse (WIP)
-	// float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
-	// float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
+	float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
+	float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
 	// float smoothTerm = 1.05*(1-pow(1-ndl, 5))*(1-pow(1-inputs.ndv,5));
-	// float single = INV_PI * mix(smoothTerm, roughTerm, alpha);
-	// float multi = 0.1159*alpha;
+	vec3 single = mix(smoothTerm, vec3(roughTerm), alpha);
+	//float multi = 0.1159*alpha;
 	// vec3 diffuse = albedo * (single + albedo * multi);
+	vec3 diffuse = albedo * single;
 
 	vec3 indirect = indirectLightPBR(
 		inputs,
@@ -361,14 +361,15 @@ vec4 shadeSurface(ShadeInput inputs)
 		);
 
 	// Complete brdf
+	//specular = vec3(0.0);
 	vec3 direct = uLightColor * (specular + diffuse) * ndl;
 	//indirect = vec3(0.0);
 
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	vec3 color = (indirect + shadowMask * direct)* INV_PI + ff * emissive;
+	vec3 color = indirect + (shadowMask * direct)* INV_PI + ff * emissive;
 #else
-	vec3 color = (indirect + shadowMask * direct) * INV_PI;
+	vec3 color = indirect + (shadowMask * direct) * INV_PI;
 #endif
 	//color = diffuse;
 	return vec4(color, baseColor.a);

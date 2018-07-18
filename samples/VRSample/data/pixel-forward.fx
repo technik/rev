@@ -99,9 +99,11 @@ void main (void) {
 
 	// ---- Shading ----
 	// Compute actual lighting
-	vec4 pbrColor = shadeSurface(shadingInputs);
+	vec4 pbrColor = uEV * shadeSurface(shadingInputs);
+
+	//vec3 toneMapped = pbrColor.xyz / (pbrColor.xyz + 1);
 	
-	outColor = vec4(pbrColor.xyz * uEV, pbrColor.a);
+	outColor = vec4(pbrColor.xyz, pbrColor.a);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)
