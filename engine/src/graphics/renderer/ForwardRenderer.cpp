@@ -47,6 +47,7 @@ namespace rev { namespace graphics {
 			mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
 			shadowPass = mShadowPass.get();
 		}
+		mForwardPass->showDebugInfo(m_showDbgInfo);
 		mForwardPass->render(scene,*mRenderTarget,shadowPass);
 	}
 

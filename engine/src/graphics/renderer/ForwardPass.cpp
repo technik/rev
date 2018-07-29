@@ -257,7 +257,8 @@ namespace rev { namespace graphics {
 		mBackEnd.endPass();
 		mBackEnd.submitDraws();
 
-		drawStats();
+		if(m_showDbgInfo)
+			drawStats();
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -484,6 +484,7 @@ namespace rev { namespace game {
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
+		auto sony_fms_lut = Texture::load("sony512.png");
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -524,6 +525,7 @@ namespace rev { namespace game {
 				// TODO: Load normal map in linear space!!
 				mat->addTexture("uNormalMap", getTexture(_assetsFolder, _document, _textures, matDesc.normalTexture.index, false));
 			}
+			mat->addTexture("uFms", sony_fms_lut);
 			materials.push_back(mat);
 		}
 

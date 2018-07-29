@@ -40,6 +40,8 @@ namespace rev { namespace editor {
 		struct ComponentInspector {
 			virtual void showInspectionPanel(game::Component*) const = 0;
 		};
+		
+		bool mShowRenderOptions = false;
 
 	private:
 		void drawMainMenu();
@@ -64,7 +66,6 @@ namespace rev { namespace editor {
 		bool mShowInspector = false;
 		bool mShowProjectExplorer = false;
 		bool mShowMaterialExplorer = false;
-		bool mShowRenderOptions = false;
 		bool mShowNodeTree = false;
 		std::weak_ptr<game::SceneNode>	mSelectedNode;
 		// TODO: This design can be improved

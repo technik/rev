@@ -42,6 +42,7 @@ namespace rev{ namespace graphics {
 		ForwardPass(BackEndRenderer&, GraphicsDriverGL&);
 
 		void render(const RenderScene&, const RenderTarget& _dst, ShadowMapPass* _shadows);
+		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 
 	private:
 		void loadCommonShaderCode();
@@ -113,11 +114,24 @@ namespace rev{ namespace graphics {
 			const std::vector<std::shared_ptr<Light>>& lights,
 			ShadowMapPass* _shadows);
 
+		bool m_showDbgInfo = false;
 		void drawStats();
 		void resetStats();
 		unsigned m_numRenderables;
 		unsigned m_numMeshes;
 		int m_drawLimit;
+
+		struct ShaderPragma
+		{
+			std::string name;
+			bool state;
+			std::string preprocessorLine() const
+			{
+				return "#define " + name + "\n";
+			}
+		};
+
+		std::map<std::string, ShaderPragma> m_pragmas;
 	};
 
 }}

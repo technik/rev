@@ -123,6 +123,7 @@ namespace rev {
 
 		mGameScene.root()->update(dt);
 
+		mRenderer.showDebugInfo(mGameEditor.mShowRenderOptions);
 		mRenderer.render(mGraphicsScene);
 
 		gui::finishFrame(dt);

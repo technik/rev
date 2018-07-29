@@ -58,6 +58,9 @@ layout(location = 15) uniform float uRoughness;
 #ifdef float_uMetallic
 layout(location = 16) uniform float uMetallic;
 #endif
+#ifdef sampler2D_uFms
+layout(location = 17) uniform sampler2D uFms;
+#endif
 
 //---------------------------------------------------------------------------------------
 vec3 specularPBR(
@@ -175,6 +178,9 @@ vec3 specularIBL(
 {
 	vec3 radiance = vec3(0.0);
 	float glossiness = 1.0 - roughness;
+	vec3 fmsA = vec3(0.592665, -1.47034, 1.47196);
+	float r3 = roughness*roughness*roughness;
+	float fmsAvg = fmsA.x*r3 / (1+fmsA.y*roughness+fmsA.z*roughness*roughness);
 
 	for(int i=0; i<nbSamples; ++i)
 	{
@@ -192,7 +198,14 @@ vec3 specularIBL(
 #else
 		vec3 env = gradient3d(Ln);
 #endif
-		radiance += env * cook_torrance_contrib(vdh, ndh, ndl, ndv, specColor, roughness);
+		float emsV = textureLod(uFms, vec2(ndv, roughness), 0).x;
+		float emsL = textureLod(uFms, vec2(ndl, roughness), 0).x;
+		float fms = 0.0;
+		fms = emsV*emsL/fmsAvg;
+
+		radiance += env * fresnel(vdh,specColor) *
+			(cook_torrance_contrib(vdh, ndh, ndl, ndv, roughness)
+			+ fms);
 	}
 	// Remove occlusions on shiny reflections
 	radiance *= mix(occlusion, 1.0, glossiness * glossiness) / float(nbSamples);
@@ -324,7 +337,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	float ndh2 = ndh*ndh;
 	float ggxDen = (ndh2 * (a2-1) + 1);
 	// Missing 1/pi because it's applied at the end to both diffuse and specular
-	float ggx = INV_PI * a2 / (ggxDen*ggxDen);
+	float ggx = a2 / (ggxDen*ggxDen);
 
 	float ndl = max(0.0, -dot(uLightDir, inputs.normal));
 
@@ -334,7 +347,16 @@ vec4 shadeSurface(ShadeInput inputs)
 	float g2 = max(0.01, 2*mix(g2denA, g2denB, alpha)); // Denominator from Hammon GDC 17's PBR diffuse lighting
 
 	float sbrdf = ggx / g2; // Pure mirror brdf
-	vec3 specular = Fs * sbrdf; // complete specular brdf
+	float emsV = textureLod(uFms, vec2(inputs.ndv, roughness), 0).x;
+	//emsV = texture(uFms, vec2(inputs.ndv, roughness)).x;
+	float emsL = textureLod(uFms, vec2(ndl, roughness), 0).x;
+	//emsL = texture(uFms, vec2(ndl, roughness)).x;
+	vec3 fmsA = vec3(0.592665, -1.47034, 1.47196);
+	float r3 = alpha*roughness;
+	float fmsAvg = fmsA.x*r3 / (1+fmsA.y*roughness+fmsA.z*alpha);
+	//float fms = roughness;
+	float fms = emsV*emsL/fmsAvg;
+	vec3 specular = Fs * (sbrdf + fms); // complete specular brdf
 
 	// Single bounce diffuse
 	vec3 albedo = baseColor.xyz * (1-metallic);
@@ -342,15 +364,15 @@ vec4 shadeSurface(ShadeInput inputs)
 	// Single bounce diffuse with analytical solution
 	// Missing 1/pi because it's applied at the end to both diffuse and specular, and should be premultiplied in emissive
 	float ff = 1.05 * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
-	vec3 smoothTerm = ff * (1-pow(1-ndl, 5))*(1-F0);
+	//vec3 smoothTerm = ff * (1-pow(1-ndl, 5))*(1-F0);
 	// Multiple bounce diffuse (WIP)
-	float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
-	float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
+	//float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
+	//float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
 	// float smoothTerm = 1.05*(1-pow(1-ndl, 5))*(1-pow(1-inputs.ndv,5));
-	vec3 single = mix(smoothTerm, vec3(roughTerm), alpha);
+	//vec3 single = mix(smoothTerm, vec3(roughTerm), alpha);
 	//float multi = 0.1159*alpha;
 	// vec3 diffuse = albedo * (single + albedo * multi);
-	vec3 diffuse = albedo * single;
+	vec3 diffuse = albedo * ff;
 
 	vec3 indirect = indirectLightPBR(
 		inputs,
@@ -361,7 +383,6 @@ vec4 shadeSurface(ShadeInput inputs)
 		);
 
 	// Complete brdf
-	//specular = vec3(0.0);
 	vec3 direct = uLightColor * (specular + diffuse) * ndl;
 	//indirect = vec3(0.0);
 

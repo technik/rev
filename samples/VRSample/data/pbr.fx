@@ -150,18 +150,16 @@ float invVisibility(
   return ig1l * ig1v;
 }
 
-vec3 cook_torrance_contrib(
+float cook_torrance_contrib(
   float vdh,
   float ndh,
   float ndl,
   float ndv,
-  vec3 Ks,
   float Roughness)
 {
   // This is the contribution when using importance sampling with the GGX based
   // sample distribution. This means ct_contrib = ct_brdf / ggx_probability
-  return fresnel(vdh,Ks) * (visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
-  //return vec3(visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
+  return visibility(ndl,ndv,Roughness) * (vdh * ndl / ndh);
 }
 
 vec3 importanceSampleGGX(vec2 Xi, vec3 T, vec3 B, vec3 N, float roughness)

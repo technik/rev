@@ -35,12 +35,14 @@ namespace rev { namespace graphics {
 	public:
 		void init	(GraphicsDriverGL& driver, RenderTarget& _renderTarget);
 		void render	(const RenderScene&);
+		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 
 	private:
 		std::unique_ptr<ForwardPass>		mForwardPass;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		RenderTarget*						mRenderTarget = nullptr;
 		std::unique_ptr<BackEndRenderer>	mBackEnd;
+		bool								m_showDbgInfo = false;
 	};
 
 }}
