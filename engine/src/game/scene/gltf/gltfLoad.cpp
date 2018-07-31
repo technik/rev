@@ -629,6 +629,9 @@ namespace rev { namespace game {
 		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
+		auto sony_fms_lut = Texture::load("sony512.png");
+		defaultMaterial->addTexture("uFms", sony_fms_lut);
+
 		// Load buffers
 		vector<core::File*> buffers;
 		for(auto b : document.buffers)
