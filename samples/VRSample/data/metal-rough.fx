@@ -62,42 +62,6 @@ layout(location = 16) uniform float uMetallic;
 layout(location = 17) uniform sampler2D uFms;
 #endif
 
-//---------------------------------------------------------------------------------------
-vec3 specularPBR(
-	ShadeInput inputs,
-	vec3 specColor,
-	float roughness,
-	float metallic,
-	float ndl
-	)
-{
-	vec3 halfV = normalize(inputs.eye + uLightDir);
-	float ndh = max(1e-8,dot(inputs.normal, halfV));
-
-	float F = fresnelSchlick(inputs.ndv);
-	float NDF = GGX_NDF(ndh, roughness);
-	float G   = GeometrySmithGGX(vec2(inputs.ndv, ndl), roughness);
-	float specBRDF = F*G*NDF / 4.0;
-	
-	return mix(specColor, vec3(1.0), specBRDF);
-}
-
-//---------------------------------------------------------------------------------------
-vec3 directLightPBR(
-	ShadeInput inputs,
-	vec3 diffColor,
-	vec3 specColor,
-	float roughness,
-	float metallic
-	)
-{
-	float ndl = max(0.0,dot(inputs.normal,uLightDir));
-	vec3 diffuse = diffColor * ((1.0-metallic) * INV_PI);
-	vec3 specular = specularPBR(inputs, specColor, roughness, metallic, ndl);
-	
-	//return (specular) * ndl * uLightColor;
-	return (diffuse + specular) * ndl * uLightColor;
-}
 
 //---------------------------------------------------------------------------------------
 const vec2 invAtan = vec2(0.1591, 0.3183);
@@ -174,13 +138,13 @@ vec3 specularIBL(
 	vec3 specColor,
 	float roughness,
 	float occlusion,
-	float ndv)
+	float ndv,
+	vec3 Fmsfms)
 {
 	vec3 radiance = vec3(0.0);
 	float glossiness = 1.0 - roughness;
 	vec3 fmsA = vec3(0.592665, -1.47034, 1.47196);
-	float r3 = roughness*roughness*roughness;
-	float fmsAvg = fmsA.x*r3 / (1+fmsA.y*roughness+fmsA.z*roughness*roughness);
+	float alpha = roughness*roughness;
 
 	for(int i=0; i<nbSamples; ++i)
 	{
@@ -193,19 +157,15 @@ vec3 specularIBL(
 		float vdh = max(1e-8, dot(vectors.eye, Hn));
 		float ndh = max(1e-8, dot(vectors.normal, Hn));
 		float lodS = roughness < 0.01 ? 0.0 : computeLOD(Ln, probabilityGGX(ndh, vdh, roughness));
-#ifdef sampler2D_uEnvironment
+#if defined(sampler2D_uEnvironment) && !defined(Furnace)
 		vec3 env = textureLod(uEnvironment, sampleSpherical(Ln), lodS ).xyz;
 #else
 		vec3 env = gradient3d(Ln);
 #endif
-		float emsV = textureLod(uFms, vec2(ndv, roughness), 0).x;
-		float emsL = textureLod(uFms, vec2(ndl, roughness), 0).x;
-		float fms = 0.0;
-		fms = emsV*emsL/fmsAvg;
 
-		radiance += env * fresnel(vdh,specColor) *
-			(cook_torrance_contrib(vdh, ndh, ndl, ndv, roughness)
-			+ fms);
+		radiance += env * (fresnel(vdh,specColor) *
+			cook_torrance_contrib(vdh, ndh, ndl, ndv, roughness)
+			+ Fmsfms);
 	}
 	// Remove occlusions on shiny reflections
 	radiance *= mix(occlusion, 1.0, glossiness * glossiness) / float(nbSamples);
@@ -216,7 +176,7 @@ vec3 specularIBL(
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
-#ifdef sampler2D_uIrradiance
+#if defined(sampler2D_uIrradiance) && !defined(Furnace)
 	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0.0).xyz * occlusion;
 #else
 	return diffColor * gradient3d(inputs.normal) * occlusion;
@@ -226,34 +186,6 @@ vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 }
 
 //---------------------------------------------------------------------------------------
-vec3 indirectLightPBR(
-	ShadeInput inputs,
-	vec3 diffColor,
-	vec3 specColor,
-	float roughness,
-	float occlusion
-	//float shadow
-	)
-{
-	LocalVectors vectors;
-	vectors.eye = inputs.eye;
-#ifdef VTX_TANGENT_SPACE
-	vectors.tangent = inputs.tangent;
-	vectors.bitangent = inputs.bitangent;
-#else
-	// Construct a local orthonormal base
-	vec3 tangent = inputs.normal.zxy;
-	tangent = tangent - dot(tangent, inputs.normal) * inputs.normal;
-	vectors.tangent = normalize(tangent);
-	vectors.bitangent = cross(inputs.normal, vectors.tangent);
-#endif
-	vectors.normal = inputs.normal;
-	vec3 specular = specularIBL(vectors, specColor, roughness, occlusion, inputs.ndv);// * shadow;
-	vec3 diffuse = diffuseIBL(inputs, diffColor, occlusion);
-	
-	return specular + diffuse;
-}
-
 vec4 getBaseColor()
 {
 #if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
@@ -262,6 +194,7 @@ vec4 getBaseColor()
 #else
 	#if defined(sampler2D_uBaseColorMap)
 		vec4 baseColor = texture(uBaseColorMap, vTexCoord);
+		baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
 	#else
 		#if defined(vec4_uBaseColor)
 			vec4 baseColor = uBaseColor;
@@ -280,7 +213,7 @@ vec4 shadeSurface(ShadeInput inputs)
 
 #ifdef sampler2D_uPhysics
 	vec3 physics = texture(uPhysics, vTexCoord).xyz;
-	float roughness = max(0.01, physics.g);
+	float roughness = physics.g;
 	float metallic = physics.b;
 	float occlusion = 1.0;//physics.r;
 #else
@@ -292,7 +225,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	#if defined(float_uMetallic)
 		float metallic = uMetallic;
 	#else
-		float metallic = 0.1;
+		float metallic = 1.0;
 	#endif
 	float occlusion = 1.0;
 #endif
@@ -311,7 +244,6 @@ vec4 shadeSurface(ShadeInput inputs)
 
 #ifdef Furnace
 	occlusion = 1.0;
-	baseColor = vec4(1.0);
 	shadowMask = 1.0;
 #endif
 	if(baseColor.a < 0.5)
@@ -336,8 +268,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	float ndh = max(1e-8, dot(inputs.normal, h));
 	float ndh2 = ndh*ndh;
 	float ggxDen = (ndh2 * (a2-1) + 1);
-	// Missing 1/pi because it's applied at the end to both diffuse and specular
-	float ggx = a2 / (ggxDen*ggxDen);
+	float ggx = a2 * INV_PI / (ggxDen*ggxDen);
 
 	float ndl = max(0.0, -dot(uLightDir, inputs.normal));
 
@@ -348,51 +279,54 @@ vec4 shadeSurface(ShadeInput inputs)
 
 	float sbrdf = ggx / g2; // Pure mirror brdf
 	float emsV = textureLod(uFms, vec2(inputs.ndv, roughness), 0).x;
-	//emsV = texture(uFms, vec2(inputs.ndv, roughness)).x;
 	float emsL = textureLod(uFms, vec2(ndl, roughness), 0).x;
-	//emsL = texture(uFms, vec2(ndl, roughness)).x;
 	vec3 fmsA = vec3(0.592665, -1.47034, 1.47196);
 	float r3 = alpha*roughness;
-	float fmsAvg = fmsA.x*r3 / (1+fmsA.y*roughness+fmsA.z*alpha);
-	//float fms = roughness;
-	float fms = emsV*emsL/fmsAvg;
-	vec3 specular = Fs * (sbrdf + fms); // complete specular brdf
+	float OneMinEavg = (roughness == 0) ? 0.0 : fmsA.x*r3 / (1+fmsA.y*roughness+fmsA.z*alpha);
+	float Eavg = 1-OneMinEavg;
+	float fms = emsV*emsL/max(0.01, OneMinEavg);
+	fms = 0.0;
+	vec3 Favg = (13+8*F0)/42;
+	vec3 Fms = Favg*Favg*Eavg / (1-Favg*OneMinEavg);
+	vec3 directSpecular = Fs * sbrdf;// + Fms * fms; // complete specular brdf
+	//directSpecular = vec3(0.0);
 
 	// Single bounce diffuse
 	vec3 albedo = baseColor.xyz * (1-metallic);
-	//vec3 Kd = (vec3(1.0) - fresnel(ndl, F0)) * INV_PI; // Approximate fresnel with reflectance of perfectly smooth surface
-	// Single bounce diffuse with analytical solution
-	// Missing 1/pi because it's applied at the end to both diffuse and specular, and should be premultiplied in emissive
-	float ff = 1.05 * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
-	//vec3 smoothTerm = ff * (1-pow(1-ndl, 5))*(1-F0);
-	// Multiple bounce diffuse (WIP)
-	//float facing = 0.5 - 0.5*dot(uLightDir, inputs.eye);
-	//float roughTerm = facing*(0.9-0.4*facing)*(0.5+ndh)/ndh;
-	// float smoothTerm = 1.05*(1-pow(1-ndl, 5))*(1-pow(1-inputs.ndv,5));
-	//vec3 single = mix(smoothTerm, vec3(roughTerm), alpha);
-	//float multi = 0.1159*alpha;
-	// vec3 diffuse = albedo * (single + albedo * multi);
-	vec3 diffuse = albedo * ff;
-
-	vec3 indirect = indirectLightPBR(
-		inputs,
-		albedo,
-		F0,
-		roughness,
-		occlusion
-		);
-
-	// Complete brdf
-	vec3 direct = uLightColor * (specular + diffuse) * ndl;
-	//indirect = vec3(0.0);
-
+	float ff = 1.05 * INV_PI * (1-pow(1-inputs.ndv,5)); // Fresnel radiance correction
 #if defined(sampler2D_uEmissive) && !defined(Furnace)
 	vec3 emissive = texture(uEmissive, vTexCoord).xyz;
-	vec3 color = indirect + (shadowMask * direct)* INV_PI + ff * emissive;
+	vec3 directDiffuse = (uLightColor * albedo +emissive) * ff;
 #else
-	vec3 color = indirect + (shadowMask * direct) * INV_PI;
+	vec3 directDiffuse = uLightColor * albedo * ff;
 #endif
-	//color = diffuse;
+
+	// -------- Indirect 
+	LocalVectors vectors;
+	vectors.eye = inputs.eye;
+#ifdef VTX_TANGENT_SPACE
+	vectors.tangent = inputs.tangent;
+	vectors.bitangent = inputs.bitangent;
+#else
+	// Construct a local orthonormal base
+	vec3 tangent = inputs.normal.zxy;
+	tangent = tangent - dot(tangent, inputs.normal) * inputs.normal;
+	vectors.tangent = normalize(tangent);
+	vectors.bitangent = cross(inputs.normal, vectors.tangent);
+#endif
+	vectors.normal = inputs.normal;
+	vec3 indirectSpecular = specularIBL(vectors, F0, max(0.001,roughness), occlusion, inputs.ndv, Fms*fms);
+	vec3 indirectDiffuse = diffuseIBL(inputs, albedo, occlusion);
+
+	vec3 indirect = indirectSpecular + indirectDiffuse;
+
+#ifdef Furnace
+	ndl = 0.0;
+#endif
+	vec3 diffuse = directDiffuse * shadowMask * ndl + indirectDiffuse;
+	vec3 specular = (0.0*uLightColor * directSpecular * ndl + indirectSpecular);
+
+	vec3 color = diffuse + specular;
 	return vec4(color, baseColor.a);
 }
 
