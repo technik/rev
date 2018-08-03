@@ -98,6 +98,16 @@ struct Image
 		return m[i];
 	}
 
+	const Vec3f& at(int x, int y) const
+	{
+		return m[x+y*nx];
+	}
+
+	const Vec3f& at(int i) const
+	{
+		return m[i];
+	}
+
 	void saveHDR(const std::string& fileName) const
 	{
 		stbi_write_hdr(fileName.c_str(), nx, ny, 3, reinterpret_cast<const float*>(m));
@@ -130,6 +140,37 @@ struct Image
 		}
 		auto bytesPerRow = 3*nx;
 		stbi_write_png(fileName.c_str(), nx, ny, 3, raw.data(), bytesPerRow);
+	}
+
+	Image* reduce2x() const
+	{
+		if(nx & 1 || ny & 1) // Odd sizes not supported
+			return nullptr;
+
+		auto reduced = new Image(nx/2, ny/2);
+		for(int i = 0; i < ny/2; ++i)
+		{
+			auto y = 2*i;
+			for(int j = 0; j < nx/2; ++j)
+			{
+				auto x = 2*j;
+				reduced->at(j,i) = 0.25f * (at(x,y)+at(x+1,y)+at(x,y+1)+at(x+1,y+1));
+			}
+		}
+
+		return reduced;
+	}
+
+	std::vector<Image*> generateMipMaps()
+	{
+		std::vector<Image*> mips;
+		auto mip = this;
+		while(mip)
+		{
+			mips.push_back(mip);
+			mip = mip->reduce2x();
+		}
+		return mips;
 	}
 
 	Vec3f* m;
@@ -171,7 +212,7 @@ int main(int _argc, const char** _argv) {
 		return -1;
 	}
 
-	srcImg->save2sRGB(params.out);
+	auto mips = srcImg->generateMipMaps();
 
 	return 0;
 }
