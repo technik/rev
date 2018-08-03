@@ -18,3 +18,10 @@ if(REV_WITH_OPENGL)
 	add_executable(shaderProcessor ${SHDPROC_SOURCE_FILES})
 	set_target_properties(shaderProcessor PROPERTIES FOLDER "tools")
 endif()
+
+#environment probes tool
+file(GLOB_RECURSE PROBE_TOOL "probe/*.cpp" "probe/*.h")
+include_directories("../include")
+include_directories("../engine/src")
+add_executable(probe ${PROBE_TOOL})
+set_target_properties(probe PROPERTIES FOLDER "tools")
