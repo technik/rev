@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <math/algebra/vector.h>
 #include <math/numericTraits.h>
@@ -213,8 +214,8 @@ struct Image
 					{
 						++n;
 						auto uv = sphere2LatLong(sampleDir);
-						auto sx = uv.x() * nx;
-						auto sy = uv.y() * ny;
+						auto sx = uv.x() * (nx-1);
+						auto sy = uv.y() * (ny-1);
 						accum = accum + at(sx,sy) * ndv;
 					}
 				}
@@ -222,6 +223,70 @@ struct Image
 			}
 		}
 		return irradiance;
+	}
+
+	// Pixar's method for orthonormal basis generation
+	void branchlessONB(const Vec3f &n, Vec3f &b1, Vec3f &b2)
+	{
+		float sign = copysignf(1.0f, n.z());
+		const float a = -1.0f / (sign + n.z());
+		const float b = n.x() * n.y() * a;
+		b1 = Vec3f(1.0f + sign * n.x() * n.x() * a, sign * b, -sign * n.x());
+		b2 = Vec3f(b, sign + n.y() * n.y() * a, -n.y());
+	}
+
+	Image* radianceGGX(int nSamples, float r)
+	{
+		RandomGenerator random;
+		auto a = r*r;
+		auto a2 = a*a;
+		auto a2_1 = a2-1;
+
+		auto radiance = new Image(nx, ny);
+		for(int i = 0; i < ny; ++i)
+		{
+			float v = 1-float(i)/ny;
+			for(int j = 0; j < nx; ++j)
+			{
+				float u = float(j)/nx;
+				auto normal = latLong2Sphere(u, v);
+				Vec3f tangent, bitangent;
+				branchlessONB(normal, tangent, bitangent);
+				Vec3f accum = Vec3f(0.f, 0.f, 0.f);
+				for(int n = 0; n < nSamples; ++n)
+				{
+					// -- Importance sample a half-vector direction
+					// Uniform sampling on phi
+					auto phi = TwoPi*float(i)/nSamples;
+					auto sinPhi = sin(phi); // Improve this using only half hemisphere (leverage symmetry)
+					auto cosPhi = cos(phi);
+					// Importance sampling on theta
+					auto e = random.scalar();
+					auto cosTheta2 = (1-e)/(e*a2_1+1);
+					auto cosTheta = std::sqrt(cosTheta2);
+					auto sinTheta = std::sqrt(1-cosTheta2);
+
+					auto half = cosPhi*sinTheta*tangent + sinPhi*sinTheta*bitangent + cosTheta*normal;
+					auto ndh = normal.dot(half);
+					auto hdv = cosTheta;
+					auto light = (2*hdv*half - normal).normalized();
+
+					auto ndl = light.dot(normal);
+					if(ndl > 0)
+					{
+						auto lerp = (2*ndl)*(1-a)+(ndl+1.f)*a;
+						auto g2 = 2 / lerp * ndl;
+						auto uv = sphere2LatLong(light);
+						auto sx = uv.x() * (nx-1);
+						auto sy = uv.y() * (ny-1);
+						auto Li = at(sx, sy);
+						accum = accum + Li * (g2*hdv / ndh);
+					}
+				}
+				radiance->at(j,i) = accum * (1.f/nSamples);
+			}
+		}
+		return radiance;
 	}
 
 	Vec3f* m;
@@ -264,12 +329,18 @@ int main(int _argc, const char** _argv) {
 	}
 
 	auto mips = srcImg->generateMipMaps();
-	auto irradiance = mips.back()->irradianceLambert(4000);
-	irradiance->save2sRGB("irradiancel.png");
-	irradiance = mips[4]->irradianceLambert(4000);
-	irradiance->save2sRGB("irradiance4l.png");
-	//irradiance = mips[3]->irradianceLambert(4000);
-	//irradiance->save2sRGB("irradiance3.png");
+	auto irradiance = mips.back()->irradianceLambert(8000);
+	irradiance->save2sRGB("irradiance.png");
+	auto nMips = mips.size();
+	
+	for(int i = 1; i < nMips; ++i)
+	{
+		stringstream ss;
+		ss << "radiance" << i << ".png";
+		float roughness = float(i) / (nMips-1);
+		auto radiance = mips[i]->radianceGGX(1000*i, roughness);
+		radiance->save2sRGB(ss.str());
+	}
 
 	return 0;
 }
