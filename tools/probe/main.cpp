@@ -8,6 +8,8 @@
 #include <fstream>
 #include <vector>
 #include <math/algebra/vector.h>
+#include <math/numericTraits.h>
+#include <math/noise.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -74,6 +76,23 @@ auto extension(const std::string_view& s)
 float clamp(float t, float a, float b)
 {
 	return max(a, min(b, t));
+}
+
+Vec3f latLong2Sphere(float u, float v)
+{
+	auto z = sin(Pi*(v - 0.5f));
+	auto cosPhi = sqrt(1-z*z);
+	auto theta = TwoPi*u-Pi;
+	auto x = cos(theta) * cosPhi;
+	auto y = sin(theta) * cosPhi;
+	return {x,y,z};
+}
+
+Vec2f sphere2LatLong(const Vec3f& dir)
+{
+	auto u = atan2(dir.y(), dir.x()) / TwoPi + 0.5f;
+	auto v = (float)(asin(-dir.z()) / Pi + 0.5f);
+	return {u, v};
 }
 
 struct Image
@@ -173,6 +192,38 @@ struct Image
 		return mips;
 	}
 
+	Image* irradianceLambert(int nSamples) const
+	{
+		RandomGenerator random;
+		auto irradiance = new Image(nx, ny);
+		for(int i = 0; i < ny; ++i)
+		{
+			float v = 1-float(i)/ny;
+			for(int j = 0; j < nx; ++j)
+			{
+				float u = float(j)/nx;
+				auto irradianceDir = latLong2Sphere(u, v);
+				Vec3f accum = Vec3f(0.f, 0.f, 0.f);
+				for(int n = 0; n < nSamples;)
+				{
+					// Sample on the hemisphere of incomming radiance
+					auto sampleDir = random.unit_vector();
+					auto ndv = sampleDir.dot(irradianceDir);
+					if(ndv > 0)
+					{
+						++n;
+						auto uv = sphere2LatLong(sampleDir);
+						auto sx = uv.x() * nx;
+						auto sy = uv.y() * ny;
+						accum = accum + at(sx,sy) * ndv;
+					}
+				}
+				irradiance->at(j,i) = accum * (1.f/nSamples);
+			}
+		}
+		return irradiance;
+	}
+
 	Vec3f* m;
 	int nx, ny;
 };
@@ -213,6 +264,12 @@ int main(int _argc, const char** _argv) {
 	}
 
 	auto mips = srcImg->generateMipMaps();
+	auto irradiance = mips.back()->irradianceLambert(4000);
+	irradiance->save2sRGB("irradiancel.png");
+	irradiance = mips[4]->irradianceLambert(4000);
+	irradiance->save2sRGB("irradiance4l.png");
+	//irradiance = mips[3]->irradianceLambert(4000);
+	//irradiance->save2sRGB("irradiance3.png");
 
 	return 0;
 }

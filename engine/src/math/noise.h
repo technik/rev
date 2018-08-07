@@ -5,10 +5,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Noise
 
-#ifndef _REV_MATH_NOISE_H_
-#define _REV_MATH_NOISE_H_
+#pragma once
 
 #include "algebra/vector.h"
+#include "numericTraits.h"
+#include <random>
 
 namespace rev {
 	namespace math {
@@ -24,7 +25,28 @@ namespace rev {
 			static Vec2f	grad2[12];
 			static unsigned char p[256];
 		};
+
+		class RandomGenerator
+		{
+		public:
+			float scalar()
+			{
+				return distrib(engine);
+			}
+
+			math::Vec3f unit_vector()
+			{
+				auto theta = math::TwoPi*scalar();
+				auto cosPhi = 2*scalar()-1;
+				auto sinPhi = sqrt(1-cosPhi*cosPhi);
+				return math::Vec3f(
+					cos(theta)*sinPhi,
+					sin(theta)*sinPhi,
+					cosPhi);
+			}
+		private:
+			std::default_random_engine engine;
+			std::uniform_real_distribution<float> distrib;
+		};
 	}
 }	// namespace rev
-
-#endif // _REV_MATH_NOISE_H_
