@@ -104,6 +104,18 @@ struct Image
 		m = new Vec3f[nx*ny];
 	}
 
+	static Image* constantImage(int sx, int sy, float c)
+	{
+		Image* m = new Image(sx, sy);
+		Vec3f color = Vec3f(c,c,c);
+		for(int i = 0; i < m->nPixels(); ++i)
+		{
+			m->at(i) = color;
+		}
+
+		return m;
+	}
+
 	~Image() { delete[] m; }
 
 	int nPixels() const { return nx*ny; }
@@ -330,6 +342,7 @@ int main(int _argc, const char** _argv) {
 
 	// Load source data
 	auto srcImg = loadImage(params.in);
+	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	if(!srcImg)
 	{
@@ -342,14 +355,14 @@ int main(int _argc, const char** _argv) {
 	irradiance->save2sRGB("irradiance.png");
 	auto nMips = mips.size();
 	
-	/*for(int i = 1; i < nMips; ++i)
+	for(int i = 1; i < nMips; ++i)
 	{
 		stringstream ss;
 		ss << "radiance" << i << ".png";
 		float roughness = float(i) / (nMips-1);
 		auto radiance = mips[i]->radianceGGX(1000*i, roughness);
 		radiance->save2sRGB(ss.str());
-	}*/
+	}
 
 	return 0;
 }
