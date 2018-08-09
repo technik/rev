@@ -193,36 +193,46 @@ struct Image
 		return mips;
 	}
 
-	Image* irradianceLambert(int nSamples) const
+	Vec3f convolveRadiance(RandomGenerator& random, size_t nSamples, const Vec3f& normal) const
+	{
+		Vec3f accum = Vec3f(0.f, 0.f, 0.f);
+		for(int n = 0; n < nSamples;)
+		{
+			// Sample on the hemisphere of incomming radiance
+			auto sampleDir = random.unit_vector();
+			auto ndv = sampleDir.dot(normal);
+			if(ndv > 0)
+			{
+				++n;
+				accum = accum + sampleSpherical(sampleDir) * ndv;
+			}
+		}
+		return accum * (2.f/nSamples);
+	}
+
+	template<class Op>
+	Image* traverseLatLong(const Op& op) const
 	{
 		RandomGenerator random;
-		auto irradiance = new Image(nx, ny);
+		auto resultImage = new Image(nx, ny);
 		for(int i = 0; i < ny; ++i)
 		{
 			float v = 1-float(i)/ny;
 			for(int j = 0; j < nx; ++j)
 			{
 				float u = float(j)/nx;
-				auto irradianceDir = latLong2Sphere(u, v);
-				Vec3f accum = Vec3f(0.f, 0.f, 0.f);
-				for(int n = 0; n < nSamples;)
-				{
-					// Sample on the hemisphere of incomming radiance
-					auto sampleDir = random.unit_vector();
-					auto ndv = sampleDir.dot(irradianceDir);
-					if(ndv > 0)
-					{
-						++n;
-						auto uv = sphere2LatLong(sampleDir);
-						auto sx = uv.x() * (nx-1);
-						auto sy = uv.y() * (ny-1);
-						accum = accum + at(sx,sy) * ndv;
-					}
-				}
-				irradiance->at(j,i) = accum * (1.f/nSamples);
+				auto dir = latLong2Sphere(u, v);
+				resultImage->at(j,i) = op(random, dir);
 			}
 		}
-		return irradiance;
+		return resultImage;
+	}
+
+	Image* irradianceLambert(int nSamples) const
+	{
+		return traverseLatLong([this,nSamples](auto& random, auto& irradianceDir){
+			return convolveRadiance(random, nSamples, irradianceDir);
+		});
 	}
 
 	// Pixar's method for orthonormal basis generation
@@ -283,23 +293,9 @@ struct Image
 
 	Image* radianceGGX(size_t nSamples, float r)
 	{
-		RandomGenerator random;
-		auto a = r*r;
-		auto a2 = a*a;
-		auto a2_1 = a2-1;
-
-		auto radiance = new Image(nx, ny);
-		for(int i = 0; i < ny; ++i)
-		{
-			float v = 1-float(i)/ny;
-			for(int j = 0; j < nx; ++j)
-			{
-				float u = float(j)/nx;
-				auto normal = latLong2Sphere(u, v);
-				radiance->at(j,i) = PrefilterEnvMap(nSamples, random, r, normal);
-			}
-		}
-		return radiance;
+		return traverseLatLong([this,nSamples,r](auto& random, auto& normal){
+			return PrefilterEnvMap(nSamples, random, r, normal);
+		});
 	}
 
 	Vec3f* m;
@@ -346,14 +342,14 @@ int main(int _argc, const char** _argv) {
 	irradiance->save2sRGB("irradiance.png");
 	auto nMips = mips.size();
 	
-	for(int i = 1; i < nMips; ++i)
+	/*for(int i = 1; i < nMips; ++i)
 	{
 		stringstream ss;
 		ss << "radiance" << i << ".png";
 		float roughness = float(i) / (nMips-1);
 		auto radiance = mips[i]->radianceGGX(1000*i, roughness);
 		radiance->save2sRGB(ss.str());
-	}
+	}*/
 
 	return 0;
 }
