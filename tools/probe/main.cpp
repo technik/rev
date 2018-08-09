@@ -235,7 +235,53 @@ struct Image
 		b2 = Vec3f(b, sign + n.y() * n.y() * a, -n.y());
 	}
 
-	Image* radianceGGX(int nSamples, float r)
+	Vec3f ImportanceSampleGGX( Vec2f Xi, float Roughness, Vec3f N )
+	{
+		float a = Roughness * Roughness;
+		float Phi = 2 * Pi * Xi.x();
+		float CosTheta = sqrt( (1 - Xi.y()) / ( 1 + (a*a - 1) * Xi.y() ) );
+		float SinTheta = sqrt( 1 - CosTheta * CosTheta );
+		Vec3f H;
+		H.x() = SinTheta * cos( Phi );
+		H.y() = SinTheta * sin( Phi );
+		H.z() = CosTheta;
+		Vec3f UpVector = abs(N.z()) < 0.999 ? Vec3f(0,0,1) : Vec3f(1,0,0);
+		Vec3f TangentX = UpVector.cross(N).normalized();
+		Vec3f TangentY = N.cross(TangentX);
+		// Tangent to world space
+		return TangentX * H.x() + TangentY * H.y() + N * H.z();
+	}
+
+	const Vec3f& sampleSpherical(const Vec3f& dir) const
+	{
+		auto uv = sphere2LatLong(dir);
+		auto sx = uv.x() * (nx-1);
+		auto sy = uv.y() * (ny-1);
+		return at(sx, sy);
+	}
+
+	Vec3f PrefilterEnvMap(size_t numSamples, RandomGenerator& random, float Roughness, Vec3f R )
+	{
+		Vec3f N = R;
+		Vec3f V = R;
+		Vec3f PrefilteredColor = Vec3f(0.f, 0.f, 0.f);
+		float TotalWeight = 0.f;
+		for( size_t i = 0; i < numSamples; i++ )
+		{
+			Vec2f Xi = Vec2f(random.scalar(), random.scalar());
+			Vec3f H = ImportanceSampleGGX( Xi, Roughness, N );
+			Vec3f L = 2 * V.dot(H ) * H - V;
+			float NoL = min(1.f,  N.dot( L ) );
+			if( NoL > 0 )
+			{
+				PrefilteredColor = PrefilteredColor + sampleSpherical(L) * NoL;
+				TotalWeight += NoL;
+			}
+		}
+		return PrefilteredColor * (1/TotalWeight);
+	}
+
+	Image* radianceGGX(size_t nSamples, float r)
 	{
 		RandomGenerator random;
 		auto a = r*r;
@@ -250,40 +296,7 @@ struct Image
 			{
 				float u = float(j)/nx;
 				auto normal = latLong2Sphere(u, v);
-				Vec3f tangent, bitangent;
-				branchlessONB(normal, tangent, bitangent);
-				Vec3f accum = Vec3f(0.f, 0.f, 0.f);
-				for(int n = 0; n < nSamples; ++n)
-				{
-					// -- Importance sample a half-vector direction
-					// Uniform sampling on phi
-					auto phi = TwoPi*float(i)/nSamples;
-					auto sinPhi = sin(phi); // Improve this using only half hemisphere (leverage symmetry)
-					auto cosPhi = cos(phi);
-					// Importance sampling on theta
-					auto e = random.scalar();
-					auto cosTheta2 = (1-e)/(e*a2_1+1);
-					auto cosTheta = std::sqrt(cosTheta2);
-					auto sinTheta = std::sqrt(1-cosTheta2);
-
-					auto half = cosPhi*sinTheta*tangent + sinPhi*sinTheta*bitangent + cosTheta*normal;
-					auto ndh = normal.dot(half);
-					auto hdv = cosTheta;
-					auto light = (2*hdv*half - normal).normalized();
-
-					auto ndl = light.dot(normal);
-					if(ndl > 0)
-					{
-						auto lerp = (2*ndl)*(1-a)+(ndl+1.f)*a;
-						auto g2 = 2 / lerp * ndl;
-						auto uv = sphere2LatLong(light);
-						auto sx = uv.x() * (nx-1);
-						auto sy = uv.y() * (ny-1);
-						auto Li = at(sx, sy);
-						accum = accum + Li * (g2*hdv / ndh);
-					}
-				}
-				radiance->at(j,i) = accum * (1.f/nSamples);
+				radiance->at(j,i) = PrefilterEnvMap(nSamples, random, r, normal);
 			}
 		}
 		return radiance;
