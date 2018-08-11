@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <core/types/json.h>
+#include <nlohmann/json.hpp>
 
 #if (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_HAS_CXX17) && _HAS_CXX17 == 1)
 #define FX_GLTF_HAS_CPP_17

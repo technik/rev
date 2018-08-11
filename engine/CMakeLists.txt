@@ -6,12 +6,6 @@ project(engine)
 
 include(../cmake/common.cmake)
 
-# ---- cjson library is included directly as source -----
-file(GLOB_RECURSE CJSON_SOURCE_FILES "lib/cjson/*.cpp" "lib/cjson/*.h" "lib/cjson/*.inl")
-add_library(cjson STATIC ${CJSON_SOURCE_FILES})
-target_include_directories(cjson PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/cjson)
-set_target_properties(cjson PROPERTIES FOLDER "libs")
-
 # ---- OpenGL ----
 if(REV_WITH_OPENGL)
 	find_package(OpenGL REQUIRED)
@@ -21,7 +15,7 @@ endif()
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src rev)
 add_library(rev STATIC ${PROJECT_SOURCE_FILES})
-target_link_libraries(rev LINK_PUBLIC cjson)
+target_include_directories(rev PRIVATE "../include")
 if(UNIX) # Unix threads require pthread
 	find_package(Threads REQUIRED)
 	target_link_libraries(rev ${CMAKE_THREAD_LIBS_INIT})

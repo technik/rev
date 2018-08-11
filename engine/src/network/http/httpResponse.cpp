@@ -46,9 +46,9 @@ namespace rev {
 			}
 
 			//------------------------------------------------------------------------------------------------------------------
-			Response Response::jsonResponse(const cjson::Json& _payload, unsigned _code) {
+			Response Response::jsonResponse(const Json& _payload, unsigned _code) {
 				Response r(_code, shortDesc(_code));
-				r.setBody(_payload.serialize());
+				r.setBody(_payload.dump());
 				r.headers()["Content-type"] = "application/json";
 				return r;
 			}

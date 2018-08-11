@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include "httpMessage.h"
-#include <cjson/json.h>
+#include <nlohmann/json.hpp>
 
 namespace rev {
 	namespace net {
@@ -15,6 +15,8 @@ namespace rev {
 
 			class Response : public Message {
 			public:
+				using Json = nlohmann::json;
+
 				Response(const std::string& _rawResponse);
 				Response(unsigned _statusCode, const std::string& _desc);
 				virtual ~Response() = default;
@@ -25,7 +27,7 @@ namespace rev {
 				// Different types of response
 				static Response		response200(const std::string& _customMessage = "");
 				static Response		response404(const std::string& _custimMessage = "Error 404: Not found");
-				static Response		jsonResponse(const cjson::Json& _payload, unsigned _code = 200);
+				static Response		jsonResponse(const Json& _payload, unsigned _code = 200);
 				static Response		htmlResponse(const std::string& _fileName, unsigned _code = 200);
 
 			private:

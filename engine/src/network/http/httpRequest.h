@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include "httpMessage.h"
-#include <cjson/json.h>
+#include <nlohmann/json.hpp>
 
 namespace rev {
 	namespace net {
@@ -16,6 +16,8 @@ namespace rev {
 
 			class Request : public Message {
 			public:
+				using Json = nlohmann::json;
+
 				enum METHOD {
 					Get,
 					Post,
@@ -31,7 +33,7 @@ namespace rev {
 				METHOD				method() const { return mMethod; }
 				const std::string&	url() const { return mUrl; }
 
-				static Request		jsonRequest(METHOD, const std::string& _url, const cjson::Json& _payload);
+				static Request		jsonRequest(METHOD, const std::string& _url, const Json& _payload);
 
 			private:
 				int		processMessageLine(const std::string& _raw) override;
