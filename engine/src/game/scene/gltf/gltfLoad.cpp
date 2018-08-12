@@ -485,6 +485,7 @@ namespace rev { namespace game {
 	{
 		std::vector<std::shared_ptr<Material>> materials;
 		auto sony_fms_lut = Texture::load("sony512.png");
+		auto envBRDF = Texture::load("ibl_brdf_lut.png");
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -526,6 +527,7 @@ namespace rev { namespace game {
 				mat->addTexture("uNormalMap", getTexture(_assetsFolder, _document, _textures, matDesc.normalTexture.index, false));
 			}
 			mat->addTexture("uFms", sony_fms_lut);
+			mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
 		}
 
@@ -630,7 +632,9 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		auto sony_fms_lut = Texture::load("sony512.png");
+		auto envBRDF = Texture::load("ibl_brdf_lut.png");
 		defaultMaterial->addTexture("uFms", sony_fms_lut);
+		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Load buffers
 		vector<core::File*> buffers;

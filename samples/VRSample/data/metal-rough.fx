@@ -39,9 +39,8 @@ layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 // Material
 #ifdef sampler2D_uEnvironment
 layout(location = 7) uniform sampler2D uEnvironment;
-#endif
-#ifdef sampler2D_uIrradiance
-layout(location = 8) uniform sampler2D uIrradiance;
+layout(location = 8) uniform sampler2D uEnvBRDF;
+layout(location = 18) uniform int numEnvLevels;
 #endif
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
@@ -73,46 +72,6 @@ vec2 sampleSpherical(vec3 v)
     return uv;
 }
 
-float distortion(vec3 Wn)
-{
-  // Computes the inverse of the solid angle of the (differential) pixel in
-  // the cube map pointed at by Wn
-  float sinT = sqrt(1.0-Wn.y*Wn.y);
-  return sinT;
-}
-
-#ifdef ANDROID
-int nbSamples = 4;
-vec2 fibonacci2D[nbSamples] = {
-	vec2(0.7853981633974483, 0.6180300000000001),
-	vec2(2.356194490192345, 0.23606000000000016),
-	vec2(3.9269908169872414, 0.8540900000000002),
-	vec2(5.497787143782138, 0.4721200000000003)
-}
-#else
-const int nbSamples = 8;
-// x component premultiplied by 2*pi
-const vec2 fibonacci2D[nbSamples] = vec2[](
-	vec2(0.39269908169872414, 0.6180300000000001),
-	vec2(1.1780972450961724, 0.23606000000000016),
-	vec2(1.9634954084936207, 0.8540900000000002),
-	vec2(2.748893571891069, 0.4721200000000003),
-	vec2(3.5342917352885173, 0.09015000000000128),
-	vec2(4.319689898685965, 0.7081800000000005),
-	vec2(5.105088062083414, 0.32620999999999967),
-	vec2(5.890486225480862, 0.9442400000000006)
-);
-#endif
-float computeLOD(vec3 Ln, float p)
-{
-//#if __VERSION__ >= 430
-//	float maxLod = textureQueryLevels(uEnvironment);
-//#else
-	float maxLod = 8.0;
-//#endif
-	return max(0.0, (maxLod-1.5) - 0.5 * log2(float(nbSamples) * p * distortion(Ln)));
-}
-
 //---------------------------------------------------------------------------------------
 struct LocalVectors
 {
@@ -121,16 +80,6 @@ struct LocalVectors
 	vec3 bitangent;
 	vec3 normal;
 };
-
-vec3 gradient3d(vec3 dir)
-{
-#ifdef Furnace
-	return vec3(1.0);
-#else
-	float f = 0.5f + 0.5f * dir.y;
-	return vec3(0.5f, 0.7f, 1.f)*f + (1-f);
-#endif
-}
 
 //---------------------------------------------------------------------------------------
 vec3 specularIBL(
@@ -141,48 +90,26 @@ vec3 specularIBL(
 	float ndv,
 	vec3 Fmsfms)
 {
-	vec3 radiance = vec3(0.0);
-	float glossiness = 1.0 - roughness;
-	vec3 fmsA = vec3(0.592665, -1.47034, 1.47196);
-	float alpha = roughness*roughness;
-
-	for(int i=0; i<nbSamples; ++i)
-	{
-		vec3 Hn = importanceSampleGGX(
-			fibonacci2D[i], vectors.tangent, vectors.bitangent, vectors.normal, roughness);
-		vec3 Ln = -reflect(vectors.eye,Hn);
-
-		float ndl = dot(vectors.normal, Ln);
-		ndl = max( 1e-8, ndl );
-		float vdh = max(1e-8, dot(vectors.eye, Hn));
-		float ndh = max(1e-8, dot(vectors.normal, Hn));
-		float lodS = roughness < 0.01 ? 0.0 : computeLOD(Ln, probabilityGGX(ndh, vdh, roughness));
 #if defined(sampler2D_uEnvironment) && !defined(Furnace)
-		vec3 env = textureLod(uEnvironment, sampleSpherical(Ln), lodS ).xyz;
+	int lodLevel = roughness * numEnvLevels;
+	vec3 radiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), lodLevel).xyz;
+	vec2 envBRDF = textureLod(uEnvBRDF, 0).xy;
+	return radiance * (specColor * envBRDF.x + envBRDF.y) * occlusion;
 #else
-		vec3 env = gradient3d(Ln);
+	// Furnace test environment
+	return vec3(1.0) * occlusion;
 #endif
-
-		radiance += env * (fresnel(vdh,specColor) *
-			cook_torrance_contrib(vdh, ndh, ndl, ndv, roughness)
-			+ Fmsfms);
-	}
-	// Remove occlusions on shiny reflections
-	radiance *= mix(occlusion, 1.0, glossiness * glossiness) / float(nbSamples);
-
-	return radiance;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
 #if defined(sampler2D_uIrradiance) && !defined(Furnace)
-	return diffColor * textureLod(uIrradiance, sampleSpherical(inputs.normal), 0.0).xyz * occlusion;
+	return diffColor * textureLod(uEnvironment, sampleSpherical(inputs.normal), numEnvLevels).xyz * occlusion;
 #else
-	return diffColor * gradient3d(inputs.normal) * occlusion;
-	//return inputs.normal;
+	// Furnace test environment
+	return vec3(1.0) * occlusion;
 #endif
-	//return textureLod(uIrradiance, sampleSpherical(inputs.normal), 0).xyz * occlusion;
 }
 
 //---------------------------------------------------------------------------------------
