@@ -33,113 +33,21 @@ namespace rev { namespace graphics {
 		std::string name;
 
 		Texture() = default;
-		Texture(const Image& image, bool sRGB)
-		{
-			GraphicsDriverGL::checkGLErrors();
-			glGenTextures(1, &mGLName);
-			glBindTexture(GL_TEXTURE_2D, mGLName);
-			GraphicsDriverGL::checkGLErrors();
+		Texture(const Image& image, bool sRGB);
+		Texture(const std::vector<std::shared_ptr<const Image>>& mips, bool sRGB);
 
-			auto format = texFormat(image);
-			auto internalFormat = internalTexFormat(image, sRGB);
-			auto dataType = (image.format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size().x(), image.size().y(), 0, format, dataType, image.data());
-			GraphicsDriverGL::checkGLErrors();
+		~Texture();
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-			GraphicsDriverGL::checkGLErrors();
-
-			glGenerateMipmap(GL_TEXTURE_2D);
-
-			GraphicsDriverGL::checkGLErrors();
-			glBindTexture(GL_TEXTURE_2D, 0);
-			GraphicsDriverGL::checkGLErrors();
-		}
-
-		static std::shared_ptr<Texture> depthTexture(const math::Vec2u& size)
-		{
-			auto texture = std::make_shared<Texture>();
-
-			glGenTextures(1, &texture->mGLName);
-			glBindTexture(GL_TEXTURE_2D, texture->mGLName);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-				size.x(), size.y(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
-
-			return texture;
-		}
-
-		~Texture()
-		{
-			if(mGLName)
-				glDeleteTextures(1, &mGLName);
-		}
-
-		static std::shared_ptr<Texture> load(const std::string _name, bool sRGB = true, unsigned nChannels = 0)
-		{
-			auto img = Image::load(_name, nChannels);
-			if(!img)
-			{
-				core::Log::error("Unable to load texture:\n");
-				core::Log::error(_name);
-				return nullptr;
-			}
-			auto tex = std::make_shared<Texture>(*img, sRGB);
-			tex->name = _name;
-			return tex;
-		}
+		static std::shared_ptr<Texture> depthTexture(const math::Vec2u& size);
+		static std::shared_ptr<Texture> load(const std::string _name, bool sRGB = true, unsigned nChannels = 0);
 
 		// Accessors
 		auto glName() const { return mGLName; }
 
 	private:
 
-		static GLenum internalTexFormat(const Image& image, bool sRGB)
-		{
-			// TODO: Accordint to
-			// https://www.khronos.org/registry/OpenGL-Refpages/es3/html/glTexImage2D.xhtml
-			// Only certain internal formats support mipmap generation.
-			// Maybe we could choose better internal formats for cases where mipmaps are not needed.
-			bool hdr = image.format() == Image::ChannelFormat::Float32;
-			switch(image.nChannels())
-			{
-				case 1:
-					return hdr?GL_R16F:GL_R8;
-				case 2:
-					return hdr?GL_RG16F:GL_RG8;
-				case 3:
-					return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
-					//return hdr?GL_RGBA32F:(sRGB?GL_SRGB8:GL_RGB8);
-					//return hdr?GL_RGBA16F:(GL_RGB8);
-				case 4:
-					return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
-					//return hdr?GL_RGBA16F:(GL_RGBA8);
-			}
-			return hdr?GL_R32F:GL_R8;
-		}
-
-		static GLenum texFormat(const Image& image)
-		{
-			switch(image.nChannels())
-			{
-				case 1:
-					return GL_RED;
-				case 2:
-					return GL_RG;
-				case 3:
-					return GL_RGB;
-				case 4:
-					return GL_RGBA;
-			}
-			return GL_RED;
-		}
+		static GLenum internalTexFormat(const Image& image, bool sRGB);
+		static GLenum texFormat(const Image& image);
 
 		GLuint mGLName = 0;
 	};
