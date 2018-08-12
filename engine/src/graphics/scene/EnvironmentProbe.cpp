@@ -23,6 +23,7 @@
 #include <graphics/Image.h>
 #include <memory>
 #include <vector>
+#include <core/string_util.h>
 
 using Json = nlohmann::json;
 
@@ -31,6 +32,7 @@ namespace rev::graphics
 	//------------------------------------------------------------------------------------------------------------------
 	EnvironmentProbe::EnvironmentProbe(const std::string& jsonName)
 	{
+		auto folder = core::getPathFolder(jsonName);
 		// Open json descriptor
 		Json probeDesc;
 		std::ifstream(jsonName) >> probeDesc;
@@ -41,7 +43,7 @@ namespace rev::graphics
 		for(size_t i = 0; i < m_numLevels; ++i)
 		{
 			auto& desc = probeDesc[i];
-			auto image = Image::load(desc["name"], 3);
+			auto image = Image::load(folder + std::string(desc["name"]), 3);
 			mipImages.push_back(image);
 		}
 
