@@ -347,7 +347,7 @@ namespace rev { namespace graphics {
 		{
 			mBoundProbe = env;
 			mBackEnd.addParam(7, &*env->texture());
-			mBackEnd.addParam(9, env->numLevels());
+			mBackEnd.addParam(18, env->numLevels());
 		}
 		if(!lights.empty())
 		{
