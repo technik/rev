@@ -71,7 +71,7 @@ namespace rev::graphics {
 				return;
 			}
 			// Value is within two others
-			for(int i = 0; i < channel.t.size(); ++i)
+			for(size_t i = 0; i < channel.t.size(); ++i)
 			{
 				if(channel.t[i+1] > t)
 				{

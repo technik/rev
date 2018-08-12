@@ -11,7 +11,9 @@
 #include <math/algebra/vector.h>
 #include <math/numericTraits.h>
 #include <math/noise.h>
+#include <nlohmann/json.hpp>
 
+#define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -22,6 +24,7 @@
 
 using namespace std;
 using namespace rev::math;
+using Json = nlohmann::json;
 
 struct Params {
 	std::string in;
@@ -162,7 +165,7 @@ struct Image
 			float srgb;
 			if(linear <= 0.0031308f)
 			{
-				srgb = uint8_t(clamp(linear * 3294.6, 0.f, 255.f)); 
+				srgb = uint8_t(clamp(linear * 3294.6f, 0.f, 255.f)); 
 			}
 			else
 			{
@@ -340,6 +343,11 @@ int main(int _argc, const char** _argv) {
 	if (!params.parseArguments(_argc, _argv))
 		return -1;
 
+	if(params.out.empty())
+	{
+		params.out = params.in + "_radiance";
+	}
+
 	// Load source data
 	auto srcImg = loadImage(params.in);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
@@ -350,19 +358,39 @@ int main(int _argc, const char** _argv) {
 		return -1;
 	}
 
+	Json probeDesc;
+	probeDesc["mips"] = Json::array();
+	auto& mipsDesc = probeDesc["mips"];
+
+	// Generate mips
 	auto mips = srcImg->generateMipMaps();
-	auto irradiance = mips.back()->irradianceLambert(8000);
-	irradiance->save2sRGB("irradiance.png");
 	auto nMips = mips.size();
 	
-	for(int i = 1; i < nMips; ++i)
+	for(int i = 0; i < nMips; ++i)
 	{
 		stringstream ss;
-		ss << "radiance" << i << ".png";
-		float roughness = float(i) / (nMips-1);
-		auto radiance = mips[i]->radianceGGX(1000*i, roughness);
-		radiance->save2sRGB(ss.str());
+		ss << params.out << i << ".png";
+		auto name = ss.str();
+		Image* radiance = mips[i];
+		if(i > 0)
+		{
+			float roughness = float(i) / (nMips-1);
+			radiance = radiance->radianceGGX(1000*i, roughness);
+		}
+		else if(i == nMips-1)
+		{
+			// Save iradiance in the last mip
+			radiance = radiance->irradianceLambert(8000);
+		}
+		radiance->save2sRGB(name);
+		// Record mip in desc
+		mipsDesc.push_back({});
+		auto& levelDesc = mipsDesc[i];
+		levelDesc["size"] = { radiance->nx, radiance->ny };
+		levelDesc["name"] = name;
 	}
+
+	ofstream(params.out + ".json") << mipsDesc.dump(4);
 
 	return 0;
 }
