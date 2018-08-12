@@ -64,8 +64,8 @@ namespace rev {
 			// Load sky
 			if(!bg.empty())
 			{
-				mGraphicsScene.sky = Texture::load(bg+".hdr", false);
-				mGraphicsScene.irradiance = Texture::load(bg+"_irradiance.hdr", false);
+				auto probe = std::make_shared<EnvironmentProbe>(bg+".json");
+				mGraphicsScene.setEnvironment(probe);
 			}
 
 			// Create animation component

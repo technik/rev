@@ -28,6 +28,7 @@
 #include <graphics/driver/shaderProcessor.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
+#include <graphics/scene/EnvironmentProbe.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
@@ -144,7 +145,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture)
+	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture)
 	{
 		if(!mBackgroundShader)
 		{
@@ -209,14 +210,7 @@ namespace rev { namespace graphics {
 		cullAndSortScene(*eye, _scene);
 
 		// Prepare skybox environment probe
-		EnvironmentProbe environmentProbe;
-		EnvironmentProbe* environmentPtr = nullptr;
-		if(_scene.sky && _scene.irradiance)
-		{
-			environmentProbe.environment = _scene.sky;
-			environmentProbe.irradiance = _scene.irradiance;
-			environmentPtr = &environmentProbe;
-		}
+		auto& environmentPtr = _scene.environment();
 
 		// Compute global variables
 		auto vp = eye->viewProj(_dst.aspectRatio());
@@ -243,15 +237,15 @@ namespace rev { namespace graphics {
 				mesh.world,
 				eye->position(),
 				mesh.material,
-				environmentPtr,
+				&*environmentPtr,
 				_scene.lights(),
 				_shadows);
 			++m_numRenderables;
 		}
 
 		// Render skybox
-		if(_scene.sky)
-			renderBackground(vp, mEV, _scene.sky.get());
+		if(environmentPtr)
+			renderBackground(vp, mEV, &*environmentPtr->texture());
 
 		// Finish pass
 		mBackEnd.endPass();
@@ -352,8 +346,7 @@ namespace rev { namespace graphics {
 		if(env != mBoundProbe)
 		{
 			mBoundProbe = env;
-			mBackEnd.addParam(7, env->environment.get());
-			mBackEnd.addParam(8, env->irradiance.get());
+			mBackEnd.addParam(7, &*env->texture());
 		}
 		if(!lights.empty())
 		{

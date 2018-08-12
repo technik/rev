@@ -31,6 +31,7 @@ namespace rev{ namespace graphics {
 
 	class BackEndRenderer;
 	class Camera;
+	class EnvironmentProbe;
 	class GraphicsDriverGL;
 	class RenderScene;
 	class RenderTarget;
@@ -46,7 +47,7 @@ namespace rev{ namespace graphics {
 
 	private:
 		void loadCommonShaderCode();
-		void renderBackground(const math::Mat44f& viewProj, float exposure, Texture* bgTexture);
+		void renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture);
 		void cull(
 			const math::Vec3f& camPos,
 			const math::Vec3f& viewDir,
@@ -65,13 +66,6 @@ namespace rev{ namespace graphics {
 		std::map<EffectSelector, PipelineSet>	mPipelines;
 
 		std::string vertexFormatDefines(RenderGeom::VtxFormat);
-
-		struct EnvironmentProbe
-		{
-			std::shared_ptr<Texture>	environment;
-			std::shared_ptr<Texture>	irradiance;
-			math::Vec3f lightDir;
-		};
 
 		uint32_t effectCode(bool environment, bool shadows) { return ((environment?1:0)<<1) | (shadows?1:0); }
 

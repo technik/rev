@@ -21,9 +21,9 @@
 #include <vector>
 #include <math/algebra/vector.h>
 #include <memory>
-#include <graphics/driver/texture.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/Light.h>
+#include <graphics/scene/EnvironmentProbe.h>
 
 namespace rev { namespace graphics {
 
@@ -50,13 +50,16 @@ namespace rev { namespace graphics {
 		void addLight(const std::shared_ptr<Light>& light) { m_lights.push_back(light); }
 		const auto& lights() const { return m_lights;}
 
-		std::shared_ptr<Texture>	sky;
-		std::shared_ptr<Texture>	irradiance;
+		void setEnvironment(const std::shared_ptr<const EnvironmentProbe>& probe) { m_environment = probe; }
+		auto& environment() const { return m_environment; }
 
 	private:
 		std::vector<std::shared_ptr<RenderObj>>		m_renderables;
 		std::vector<std::shared_ptr<Light>>			m_lights;
 		std::vector<std::weak_ptr<Camera>>			m_cameras;
+
+		// Environment probe
+		std::shared_ptr<const EnvironmentProbe>			m_environment;
 	};
 
 }}	// namespace rev::graphics
