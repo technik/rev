@@ -41,7 +41,7 @@ namespace rev::graphics
 		m_numLevels = probeDesc.size();
 		
 		std::vector<std::shared_ptr<const Image>> mipImages;
-		for(size_t i = 0; i < m_numLevels; ++i)
+		for(size_t i = 0; i < m_numLevels-1; ++i)
 		{
 			auto& desc = probeDesc[i];
 			auto image = Image::load(folder + std::string(desc["name"]), 3);
