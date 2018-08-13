@@ -41,10 +41,10 @@ namespace rev::graphics
 		m_numLevels = probeDesc.size();
 		
 		std::vector<std::shared_ptr<const Image>> mipImages;
-		for(size_t i = 0; i < m_numLevels-1; ++i)
+		for(size_t i = 0; i < m_numLevels; ++i)
 		{
 			auto& desc = probeDesc[i];
-			auto image = Image::load(folder + std::string(desc["name"]), 3);
+			auto image = Image::load(folder + std::string(desc["name"]), 4);
 			mipImages.push_back(image);
 		}
 
@@ -54,6 +54,5 @@ namespace rev::graphics
 		sampler.wrapS = Texture::SamplerOptions::Wrap::Repeat;
 		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
 		m_texture = std::make_shared<Texture>(mipImages, true, sampler);
-		//m_texture = Texture::load(folder + std::string(probeDesc[0]["name"]), true, 3, sampler);
 	}
 }

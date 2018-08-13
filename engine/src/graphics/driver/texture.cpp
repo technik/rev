@@ -56,6 +56,9 @@ namespace rev::graphics
 		{
 			image = mips[i];
 			glTexImage2D(GL_TEXTURE_2D, i, internalFormat, image->size().x(), image->size().y(), 0, format, dataType, image->data());
+			// Workaround for texture sizes not multiple of four
+			//if(i == 0)
+			//	glGenerateMipmap(GL_TEXTURE_2D);
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -119,8 +122,8 @@ namespace rev::graphics
 				return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
 #else
 				return hdr?GL_RGBA32F:(sRGB?GL_SRGB:GL_RGB8);
+				//return hdr?GL_RGBA32F:GL_RGB8;
 #endif
-				//return hdr?GL_RGBA16F:(GL_RGB8);
 			case 4:
 				return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
 				//return hdr?GL_RGBA16F:(GL_RGBA8);
