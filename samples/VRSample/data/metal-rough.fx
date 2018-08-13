@@ -91,7 +91,7 @@ vec3 specularIBL(
 	float ndv)
 {
 #if defined(sampler2D_uEnvironment) && !defined(Furnace)
-	int lodLevel = int(floor(roughness * numEnvLevels));
+	float lodLevel = roughness * numEnvLevels;
 	vec3 radiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), lodLevel).xyz;
 	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
 	return radiance * (specColor * envBRDF.x + envBRDF.y) * occlusion;

@@ -1,0 +1,44 @@
+[
+    {
+        "name": "monument0.png",
+        "size": [
+            1600,
+            800
+        ]
+    },
+    {
+        "name": "monument1.png",
+        "size": [
+            800,
+            400
+        ]
+    },
+    {
+        "name": "monument2.png",
+        "size": [
+            400,
+            200
+        ]
+    },
+    {
+        "name": "monument3.png",
+        "size": [
+            200,
+            100
+        ]
+    },
+    {
+        "name": "monument4.png",
+        "size": [
+            100,
+            50
+        ]
+    },
+    {
+        "name": "monument5.png",
+        "size": [
+            50,
+            25
+        ]
+    }
+]

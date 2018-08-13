@@ -49,12 +49,13 @@ namespace rev::graphics
 		auto format = texFormat(*image);
 		auto internalFormat = internalTexFormat(*image, sRGB);
 		auto dataType = (image->format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
+		setSamplingInfo(samplerInfo);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mips.size()-1);
 
 		for(size_t i = 0; i < mips.size(); ++i)
 		{
 			image = mips[i];
 			glTexImage2D(GL_TEXTURE_2D, i, internalFormat, image->size().x(), image->size().y(), 0, format, dataType, image->data());
-			setSamplingInfo(samplerInfo);
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -114,8 +115,11 @@ namespace rev::graphics
 			case 2:
 				return hdr?GL_RG16F:GL_RG8;
 			case 3:
+#ifdef ANDROID
 				return hdr?GL_RGBA16F:(sRGB?GL_SRGB8_ALPHA8:GL_RGB8);
-				//return hdr?GL_RGBA32F:(sRGB?GL_SRGB8:GL_RGB8);
+#else
+				return hdr?GL_RGBA32F:(sRGB?GL_SRGB:GL_RGB8);
+#endif
 				//return hdr?GL_RGBA16F:(GL_RGB8);
 			case 4:
 				return hdr?GL_RGBA32F:(sRGB?GL_SRGB8_ALPHA8:GL_RGBA8);
