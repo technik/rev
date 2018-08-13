@@ -30,21 +30,41 @@ namespace rev { namespace graphics {
 	class Texture
 	{
 	public:
+		struct SamplerOptions
+		{
+			enum class Wrap : GLint {
+				Repeat = GL_REPEAT,
+				Clamp = GL_CLAMP_TO_EDGE
+			};
+
+			enum class MinFilter : GLint {
+				Linear = GL_LINEAR,
+				Trilinear = GL_LINEAR_MIPMAP_LINEAR,
+				Nearest = GL_NEAREST
+			};
+
+			Wrap wrapS = Wrap::Repeat;
+			Wrap wrapT = Wrap::Repeat;
+			MinFilter filter = MinFilter::Linear;
+		};
+
 		std::string name;
 
 		Texture() = default;
-		Texture(const Image& image, bool sRGB);
-		Texture(const std::vector<std::shared_ptr<const Image>>& mips, bool sRGB);
+		Texture(const Image& image, bool sRGB, const SamplerOptions& = SamplerOptions());
+		Texture(const std::vector<std::shared_ptr<const Image>>& mips, bool sRGB, const SamplerOptions& = SamplerOptions());
 
 		~Texture();
 
 		static std::shared_ptr<Texture> depthTexture(const math::Vec2u& size);
-		static std::shared_ptr<Texture> load(const std::string _name, bool sRGB = true, unsigned nChannels = 0);
+		static std::shared_ptr<Texture> load(const std::string _name, bool sRGB = true, unsigned nChannels = 0, const SamplerOptions& = SamplerOptions());
 
 		// Accessors
 		auto glName() const { return mGLName; }
 
 	private:
+
+		void setSamplingInfo(const SamplerOptions&);
 
 		static GLenum internalTexFormat(const Image& image, bool sRGB);
 		static GLenum texFormat(const Image& image);

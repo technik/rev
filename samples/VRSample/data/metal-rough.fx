@@ -40,7 +40,7 @@ layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 #ifdef sampler2D_uEnvironment
 layout(location = 7) uniform sampler2D uEnvironment;
 layout(location = 8) uniform sampler2D uEnvBRDF;
-layout(location = 18) uniform int numEnvLevels;
+layout(location = 18) uniform float numEnvLevels;
 #endif
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
@@ -83,17 +83,17 @@ struct LocalVectors
 
 //---------------------------------------------------------------------------------------
 vec3 specularIBL(
+	ShadeInput inputs,
 	LocalVectors vectors,
 	vec3 specColor,
 	float roughness,
 	float occlusion,
-	float ndv,
-	vec3 Fmsfms)
+	float ndv)
 {
 #if defined(sampler2D_uEnvironment) && !defined(Furnace)
-	int lodLevel = roughness * numEnvLevels;
+	int lodLevel = int(floor(roughness * numEnvLevels));
 	vec3 radiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), lodLevel).xyz;
-	vec2 envBRDF = textureLod(uEnvBRDF, 0).xy;
+	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
 	return radiance * (specColor * envBRDF.x + envBRDF.y) * occlusion;
 #else
 	// Furnace test environment
@@ -105,7 +105,7 @@ vec3 specularIBL(
 vec3 diffuseIBL(ShadeInput inputs, vec3 diffColor, float occlusion)
 {
 #if defined(sampler2D_uIrradiance) && !defined(Furnace)
-	return diffColor * textureLod(uEnvironment, sampleSpherical(inputs.normal), numEnvLevels).xyz * occlusion;
+	return diffColor * textureLod(uEnvironment, sampleSpherical(inputs.normal), int(numEnvLevels)).xyz * occlusion;
 #else
 	// Furnace test environment
 	return vec3(1.0) * occlusion;
@@ -242,7 +242,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
-	vec3 indirectSpecular = specularIBL(vectors, F0, max(0.001,roughness), occlusion, inputs.ndv, Fms*fms);
+	vec3 indirectSpecular = specularIBL(inputs, vectors, F0, max(0.001,roughness), occlusion, inputs.ndv);
 	vec3 indirectDiffuse = diffuseIBL(inputs, albedo, occlusion);
 
 	vec3 indirect = indirectSpecular + indirectDiffuse;
@@ -251,7 +251,9 @@ vec4 shadeSurface(ShadeInput inputs)
 	ndl = 0.0;
 #endif
 	vec3 diffuse = directDiffuse * shadowMask * ndl + indirectDiffuse;
-	vec3 specular = (0.0*uLightColor * directSpecular * ndl + indirectSpecular);
+	//vec3 diffuse = indirectDiffuse;
+	//vec3 specular = (0.0*uLightColor * directSpecular * ndl + indirectSpecular);
+	vec3 specular = indirectSpecular;
 
 	vec3 color = diffuse + specular;
 	return vec4(color, baseColor.a);

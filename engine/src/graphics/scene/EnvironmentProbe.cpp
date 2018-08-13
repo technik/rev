@@ -39,7 +39,7 @@ namespace rev::graphics
 
 		// Load all images
 		m_numLevels = probeDesc.size();
-		std::vector<std::shared_ptr<const Image>> mipImages;
+		/*std::vector<std::shared_ptr<const Image>> mipImages;
 		for(size_t i = 0; i < m_numLevels; ++i)
 		{
 			auto& desc = probeDesc[i];
@@ -48,6 +48,11 @@ namespace rev::graphics
 		}
 
 		// Create a new texture with all the levels
-		m_texture = std::make_shared<Texture>(mipImages, true);
+		m_texture = std::make_shared<Texture>(mipImages, true);*/
+		Texture::SamplerOptions sampler;
+		sampler.filter = Texture::SamplerOptions::MinFilter::Trilinear;
+		sampler.wrapS = Texture::SamplerOptions::Wrap::Repeat;
+		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
+		m_texture = Texture::load(folder + std::string(probeDesc[0]["name"]), true, 3, sampler);
 	}
 }

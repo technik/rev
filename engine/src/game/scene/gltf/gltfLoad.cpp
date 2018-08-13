@@ -484,8 +484,11 @@ namespace rev { namespace game {
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
-		auto sony_fms_lut = Texture::load("sony512.png");
-		auto envBRDF = Texture::load("ibl_brdf_lut.png");
+		Texture::SamplerOptions sampler;
+		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
+		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
+		auto sony_fms_lut = Texture::load("sony512.png", false, 0, sampler);
+		auto envBRDF = Texture::load("ibl_brdf_lut.png", false, 0, sampler);
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -632,7 +635,10 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		auto sony_fms_lut = Texture::load("sony512.png");
-		auto envBRDF = Texture::load("ibl_brdf_lut.png");
+		Texture::SamplerOptions sampler;
+		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
+		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
+		auto envBRDF = Texture::load("ibl_brdf_lut.png", true, 0, sampler);
 		defaultMaterial->addTexture("uFms", sony_fms_lut);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 

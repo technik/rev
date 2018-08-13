@@ -22,7 +22,7 @@
 namespace rev::graphics
 {
 	//----------------------------------------------------------------------------------------------
-	Texture::Texture(const Image& image, bool sRGB)
+	Texture::Texture(const Image& image, bool sRGB, const SamplerOptions& samplerInfo)
 	{
 		glGenTextures(1, &mGLName);
 		glBindTexture(GL_TEXTURE_2D, mGLName);
@@ -32,10 +32,7 @@ namespace rev::graphics
 		auto dataType = (image.format() == Image::ChannelFormat::Float32) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size().x(), image.size().y(), 0, format, dataType, image.data());
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		setSamplingInfo(samplerInfo);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -43,7 +40,7 @@ namespace rev::graphics
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture::Texture(const std::vector<std::shared_ptr<const Image>>& mips, bool sRGB)
+	Texture::Texture(const std::vector<std::shared_ptr<const Image>>& mips, bool sRGB, const SamplerOptions& samplerInfo)
 	{
 		glGenTextures(1, &mGLName);
 		glBindTexture(GL_TEXTURE_2D, mGLName);
@@ -57,11 +54,7 @@ namespace rev::graphics
 		{
 			image = mips[i];
 			glTexImage2D(GL_TEXTURE_2D, i, internalFormat, image->size().x(), image->size().y(), 0, format, dataType, image->data());
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			setSamplingInfo(samplerInfo);
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -92,7 +85,7 @@ namespace rev::graphics
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Texture> Texture::load(const std::string _name, bool sRGB, unsigned nChannels)
+	std::shared_ptr<Texture> Texture::load(const std::string _name, bool sRGB, unsigned nChannels, const SamplerOptions& samplerInfo)
 	{
 		auto img = Image::load(_name, nChannels);
 		if(!img)
@@ -101,7 +94,7 @@ namespace rev::graphics
 			core::Log::error(_name);
 			return nullptr;
 		}
-		auto tex = std::make_shared<Texture>(*img, sRGB);
+		auto tex = std::make_shared<Texture>(*img, sRGB, samplerInfo);
 		tex->name = _name;
 		return tex;
 	}
@@ -146,5 +139,14 @@ namespace rev::graphics
 				return GL_RGBA;
 		}
 		return GL_RED;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void Texture::setSamplingInfo(const SamplerOptions& samplerInfo)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)samplerInfo.filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint)samplerInfo.wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint)samplerInfo.wrapT);
 	}
 }
