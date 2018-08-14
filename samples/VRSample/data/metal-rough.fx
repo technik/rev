@@ -66,7 +66,7 @@ layout(location = 17) uniform sampler2D uFms;
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 sampleSpherical(vec3 v)
 {
-	vec2 uv = vec2(atan(v.y, -v.x), asin(-v.z));
+	vec2 uv = vec2(atan(v.y, v.x), asin(-v.z));
     uv *= invAtan;
     uv += 0.5;
     return uv;
@@ -88,16 +88,23 @@ vec3 specularIBL(
 	vec3 specColor,
 	float roughness,
 	float occlusion,
-	float ndv)
+	float ndv,
+	float ndl)
 {
 #if defined(sampler2D_uEnvironment) && !defined(Furnace)
-	float lodLevel = roughness * numEnvLevels;
-	vec3 radiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), lodLevel).xyz;
+	float lodLevel = roughness*roughness * numEnvLevels;
+	vec3 samplerDir = reflect(-inputs.eye, inputs.normal);
+	vec3 radiance = textureLod(uEnvironment, sampleSpherical(samplerDir), lodLevel).xyz;
 	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
-	return radiance * (specColor * envBRDF.x + envBRDF.y) * occlusion;
+	// Multiple scattering 
+
+	float fms = textureLod(uFms, vec2(inputs.ndv, roughness), 0).x;
+	//fms = 0.0;
+	vec3 irradiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), int(numEnvLevels)).xyz;
+
+	return radiance * (specColor * envBRDF.x + envBRDF.y) + fms * irradiance * occlusion;
 #else
-	// Furnace test environment
-	return vec3(1.0) * occlusion;
+	return specColor * envBRDF.x + envBRDF.y;
 #endif
 }
 
@@ -242,7 +249,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
-	vec3 indirectSpecular = specularIBL(inputs, vectors, F0, max(0.001,roughness), occlusion, inputs.ndv);
+	vec3 indirectSpecular = specularIBL(inputs, vectors, F0, max(0.001,roughness), occlusion, inputs.ndv, ndl);
 	vec3 indirectDiffuse = diffuseIBL(inputs, albedo, occlusion);
 
 	vec3 indirect = indirectSpecular + indirectDiffuse;
