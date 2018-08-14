@@ -88,8 +88,7 @@ vec3 specularIBL(
 	vec3 specColor,
 	float roughness,
 	float occlusion,
-	float ndv,
-	float ndl)
+	float ndv)
 {
 #if defined(sampler2D_uEnvironment) && !defined(Furnace)
 	float lodLevel = roughness*roughness * numEnvLevels;
@@ -98,11 +97,12 @@ vec3 specularIBL(
 	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
 	// Multiple scattering 
 
+	vec3 Favg = (13+29*specColor)/42;
 	float fms = textureLod(uFms, vec2(inputs.ndv, roughness), 0).x;
 	//fms = 0.0;
 	vec3 irradiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), int(numEnvLevels)).xyz;
 
-	return radiance * (specColor * envBRDF.x + envBRDF.y) + fms * irradiance * occlusion;
+	return radiance * (specColor * envBRDF.x + envBRDF.y) + Favg * fms * irradiance * occlusion;
 #else
 	return specColor * envBRDF.x + envBRDF.y;
 #endif
@@ -249,7 +249,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	vectors.bitangent = cross(inputs.normal, vectors.tangent);
 #endif
 	vectors.normal = inputs.normal;
-	vec3 indirectSpecular = specularIBL(inputs, vectors, F0, max(0.001,roughness), occlusion, inputs.ndv, ndl);
+	vec3 indirectSpecular = specularIBL(inputs, vectors, F0, max(0.001,roughness), occlusion, inputs.ndv);
 	vec3 indirectDiffuse = diffuseIBL(inputs, albedo, occlusion);
 
 	vec3 indirect = indirectSpecular + indirectDiffuse;
