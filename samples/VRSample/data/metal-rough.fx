@@ -257,8 +257,8 @@ vec4 shadeSurface(ShadeInput inputs)
 #ifdef Furnace
 	ndl = 0.0;
 #endif
-	vec3 diffuse = directDiffuse * shadowMask * ndl + indirectDiffuse;
-	//vec3 diffuse = indirectDiffuse;
+	//vec3 diffuse = directDiffuse * shadowMask * ndl + indirectDiffuse;
+	vec3 diffuse = indirectDiffuse;
 	//vec3 specular = (0.0*uLightColor * directSpecular * ndl + indirectSpecular);
 	vec3 specular = indirectSpecular;
 
