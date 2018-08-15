@@ -541,22 +541,22 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
-		inline Matrix44<Number_> frustrumMatrix(
-			Number_ _yFovRad,
-			Number_ _aspectRatio,
-			Number_ _nearClip,
-			Number_ _farClip)
+		inline Matrix44<Number_> frustumMatrix(
+			Number_ yFovRad,
+			Number_ aspectRatio,
+			Number_ n, // Near clip
+			Number_ f) // Far clip
 		{
 			// Precomputations
-			auto yFocalLength = 1 / std::tan(_yFovRad / 2);
-			auto xFocalLength = yFocalLength / _aspectRatio;
-			auto A = (_farClip+_nearClip)/(_nearClip-_farClip);
-			auto B = 2*_farClip*_nearClip/(_farClip-_nearClip);
+			auto yFocalLength = 1 / std::tan(yFovRad / 2);
+			auto xFocalLength = yFocalLength / aspectRatio;
+			auto A = (f+n)/(n-f);
+			auto B = 2*f*n/(n-f);
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
-				0, 0, yFocalLength, 0,
-				0, A, 0, B,
-				0, 1, 0, 0
+				0, yFocalLength, 0, 0,
+				0, 0,			 A, B,
+				0, 0,			-1, 0
 			});
 		}
 
@@ -568,8 +568,8 @@ namespace rev {
 		{
 			return Matrix44<Number_>({
 				2 / _size.x(), 0,                0,             0,
-				0,             0,                2 / _size.y(), 0,
-				0,             -2 / (_far-_near), 0,            -(_near+_far)/(_far-_near),
+				0,             2 / _size.y(),	 0,				0,
+				0,             0,		 2 / (_near-_far),      (_near+_far)/(_near-_far),
 				0,             0,                0,             1
 				});
 		}

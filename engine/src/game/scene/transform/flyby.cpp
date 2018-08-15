@@ -36,12 +36,12 @@ namespace rev {
 			auto velocity = Vec3f::zero();
 			if (input->held('D'))			velocity.x() += deltaV;
 			if (input->held('A'))			velocity.x() -= deltaV;
-			if (input->held('W'))			velocity.y() += deltaV;
-			if (input->held('S'))			velocity.y() -= deltaV;
+			if (input->held('W'))			velocity.z() -= deltaV;
+			if (input->held('S'))			velocity.z() += deltaV;
 			if (input->held(KeyboardInput::Key::KeyUp))
-				velocity.z() += deltaV;
+				velocity.y() += deltaV;
 			if (input->held(KeyboardInput::Key::KeyDown))
-				velocity.z() -= deltaV;
+				velocity.y() -= deltaV;
 			auto& transform = mSrcTransform->xForm;
 			transform.position() = transform.position() + transform.rotateDirection(velocity) * (_dt * mSpeed);
 
@@ -51,7 +51,7 @@ namespace rev {
 			if (input->held(KeyboardInput::Key::KeyRight))	angSpd -= deltaG;
 			if (input->held(KeyboardInput::Key::KeyLeft))	angSpd += deltaG;
 
-			transform.rotate(Quatf({0,0,1}, angSpd * _dt));
+			transform.rotate(Quatf({0,1,0}, angSpd * _dt));
 		}
 
 	}	// namespace game

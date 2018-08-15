@@ -159,7 +159,7 @@ namespace rev { namespace graphics {
 		if(mBackgroundShader)
 		{
 			auto& cmd = mBackEnd.beginCommand();
-			cmd.cullMode = GL_BACK;
+			glDisable(GL_CULL_FACE);
 			mBackgroundShader->bind();
 			
 			// View projection matrix
@@ -180,12 +180,14 @@ namespace rev { namespace graphics {
 	void setupOpenGLState()
 	{
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_GEQUAL);// GL_LEQUAL);
+		glDepthFunc(GL_LEQUAL);
+
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);
-		glClearColor(1,1,1.f,1.f);
+
 		//glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-		glClearDepthf(0.0);
+		glClearColor(1.f,1.f,1.f,1.f);
+		glClearDepthf(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
@@ -286,7 +288,7 @@ namespace rev { namespace graphics {
 				float medDepth = (center - camPos).dot(viewDir);
 				meshDrawInfo.depth = {medDepth-minDepth, medDepth+maxDepth};
 
-				if(meshDrawInfo.depth.y() > 0) // Object may be visible
+				//if(meshDrawInfo.depth.y() > 0) // Object may be visible
 				{
 					meshDrawInfo.geom = geom;
 					meshDrawInfo.material = primitive.second;

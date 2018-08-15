@@ -8,8 +8,8 @@ out vec3 vtxViewDir;
 //------------------------------------------------------------------------------
 void main ( void )
 {
-	vtxViewDir = (inverse(invViewProj) * vec4(vertex.xy, -1.0, 1.0)).xyz; // Direction from the view point
-	gl_Position = vec4(vertex.xy, -1.0, 1.0);
+	vtxViewDir = (inverse(invViewProj) * vec4(vertex.xy, -1.0, 0.0)).xyz; // Direction from the view point
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
 }
 #endif
 
@@ -21,12 +21,12 @@ in vec3 vtxViewDir;
 layout(location = 3) uniform float uEV;
 layout(location = 7) uniform sampler2D hdrSkyTexture;
 
-float PI = 3.14159265359;
 
+//---------------------------------------------------------------------------------------
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 sampleSpherical(vec3 v)
 {
-	vec2 uv = vec2(atan(v.y, -v.x), asin(-v.z));
+  vec2 uv = vec2(atan(-v.z, v.x), asin(v.y));
     uv *= invAtan;
     uv += 0.5;
     return uv;

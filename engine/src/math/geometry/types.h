@@ -19,7 +19,7 @@ namespace rev {
 				,mNear(_near)
 				,mFar(_far)
 			{
-				mProjection = frustrumMatrix(_fov, _aspectRatio, _near, _far);
+				mProjection = frustumMatrix(_fov, _aspectRatio, _near, _far);
 
 				float tangent = tan(_fov / 2.f);
 				Vec3f minVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_near;

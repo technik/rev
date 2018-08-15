@@ -194,7 +194,6 @@ namespace rev { namespace game {
 				correction.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);
 				correction.block<3,1>(0,2) = Vec3f(0.f,-1.f,0.f);
 				node->addComponent<FlyBy>(1.f, -0.4f);
-				node->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -Constants<float>::halfPi));
 
 			}
 		}

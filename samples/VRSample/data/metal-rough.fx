@@ -61,17 +61,6 @@ layout(location = 16) uniform float uMetallic;
 layout(location = 17) uniform sampler2D uFms;
 #endif
 
-
-//---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.1591, 0.3183);
-vec2 sampleSpherical(vec3 v)
-{
-	vec2 uv = vec2(atan(v.y, v.x), asin(-v.z));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
 //---------------------------------------------------------------------------------------
 struct LocalVectors
 {
@@ -154,7 +143,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	#if defined(float_uRoughness)
 		float roughness = uRoughness;
 	#else
-		float roughness = 0.8;
+		float roughness = 1.0;
 	#endif
 	#if defined(float_uMetallic)
 		float metallic = uMetallic;
@@ -263,6 +252,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 specular = indirectSpecular;
 
 	vec3 color = diffuse + specular;
+	//return vec4(vec3(roughness), baseColor.a);
 	return vec4(color, baseColor.a);
 }
 
