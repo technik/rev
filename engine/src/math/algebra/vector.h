@@ -35,6 +35,34 @@ namespace rev {
 		typedef Vector4<int>		Vec4i;
 		typedef Vector4<float>		Vec4f;
 		typedef Vector4<double>		Vec4d;
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Vector-Vector operations
+        //--------------------------------------------------------------------------------------------------------------
+
+        // Dot product
+        template<class T, size_t n>
+        T dot(const Vector<T, n>& a, const Vector<T, n>& b)
+        {
+            T result(0);
+            for (size_t i = 0; i < n; ++i)
+                result += a[i] * b[i];
+            return result;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        template<class T, size_t n>
+        T squaredNorm(const Vector<T, n>& a)
+        {
+            return dot(a, a);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        template<class T, size_t n>
+        T norm(const Vector<T, n>& a)
+        {
+            return std::sqrt(squaredNorm(a));
+        }
 		
 	}	// namespace math
 }	// namespace rev

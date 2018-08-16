@@ -244,9 +244,6 @@ namespace rev {
 			const TransposeView&	transpose	() const { return *reinterpret_cast<const TransposeView*>(this); }
 			MatrixBase		inverse		() const;
 
-			Element	norm() const		{ return sqrt(squaredNorm()); }
-			Element	squaredNorm() const { return dot(*this); }
-
 			// Component wise operations
 			template<typename OtherM_>
 			Derived cwiseProduct(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=a*b;}); }
@@ -254,14 +251,6 @@ namespace rev {
 			Derived cwiseMax	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::max(a,b);}); }
 			template<typename OtherM_>
 			Derived cwiseMin	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::min(a,b);}); }
-
-			template<typename Other_>
-			Element	dot(const Other_& _other) const { 
-				Element result(0);
-				for(size_t i = 0; i < size; ++i)
-					result += this->coefficient(i)*_other.coefficient(i);
-				return result;
-			}
 			
 			template<typename Other_>
 			Derived cross(const Other_& v) const { 

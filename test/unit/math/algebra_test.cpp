@@ -10,14 +10,41 @@
 using namespace rev::math;
 
 //----------------------------------------------------------------------------------------------------------------------
+void testShaderLikeSyntax()
+{
+    // Simple initialization
+    Vec3f a; // Default construction
+    Vec3f b = { 0.f, 1.f, 2.f };
+    auto c = Vec3f::ones();
+    auto d = Vec3f::zero();
+    //Vec3f e = 2.f;
+    //auto f = Vec3f( Vec2f(1.f, 2.f), 0.f);
+    // Vector Operators (dot, cross, normalize, min, max)
+    auto bdotc = dot(a, b);
+    assert(bdotc == 3.f);
+    // Test nan on min,max to behave like simd, return second operator
+    // Operations with scalars
+    // Utility testing (is normalized)
+    // Test named component access
+
+    // Advanced syntax
+    // Test initialization from vectors with different base numbers
+    // Test initialization of simd vectors by packing or replicating components
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Test matrix vector operations
+
+//----------------------------------------------------------------------------------------------------------------------
 // Test operators on Vec3
 void testVector() {
+    //testShaderLikeSyntax();
 	auto x = Vec2f(1.f,0.f);
-	assert(x.norm() == x.squaredNorm() == 1.f);
+	assert(norm(x) == squaredNorm(x) == 1.f);
 	Vec2f b = { 1.f, 2.f };
 	auto ones = Vec2f::ones();
 
-	auto f = x.dot(b);
+	auto f = dot(x, b);
 	assert(f == 1.f);
 }
 
@@ -79,7 +106,7 @@ void testMatrix() {
 
 bool approx(const Vec3f& a, const Vec3f& b)
 {
-	return (1-a.dot(b)) < 1e-5f;
+	return (1-dot(a, b)) < 1e-5f;
 }
 
 void testQuaternions()
