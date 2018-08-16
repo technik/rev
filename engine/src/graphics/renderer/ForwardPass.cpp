@@ -34,6 +34,7 @@
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
+#include <math/algebra/vector.h>
 
 #ifdef _WIN32
 #include <input/keyboard/keyboardInput.h>
@@ -277,13 +278,13 @@ namespace rev { namespace graphics {
 				// Transform BBox to world space
 				auto worldAABB = geom->bbox().transform(obj->transform);
 				// Get min and max depths along view direction
-				auto aDepth = viewDir.dot(worldAABB.min());
-				auto bDepth = viewDir.dot(worldAABB.max());
+				auto aDepth = dot(viewDir, worldAABB.min());
+				auto bDepth = dot(viewDir, worldAABB.max());
 				auto minDepth = math::min(aDepth, bDepth);
 				auto maxDepth = math::max(aDepth, bDepth);
 				// Transform depths relative to the camera
 				auto center = obj->transform.position();
-				float medDepth = (center - camPos).dot(viewDir);
+				float medDepth = dot((center - camPos), viewDir);
 				meshDrawInfo.depth = {medDepth-minDepth, medDepth+maxDepth};
 
 				if(meshDrawInfo.depth.y() > 0) // Object may be visible
@@ -294,7 +295,7 @@ namespace rev { namespace graphics {
 				}
 			}
 			auto objPos = obj->transform.position();
-			float depth = (objPos - camPos).dot(viewDir);
+			float depth = dot((objPos - camPos), viewDir);
 		}
 	}
 

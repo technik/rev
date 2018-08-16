@@ -349,8 +349,8 @@ namespace rev { namespace game {
 			Vec3f tangent3 = { tangent.x(), tangent.y(), tangent.z() };
 			auto& normal = normals->get<Vec3f>(i);
 			
-			tangent3 = tangent3 - (tangent3.dot(normal) * normal); // Orthogonal tangent
-			tangent3 = tangent3.normalized(); // Orthonormal tangent
+			tangent3 = tangent3 - (dot(tangent3, normal) * normal); // Orthogonal tangent
+			tangent3 = normalize(tangent3); // Orthonormal tangent
 			tangent = { tangent3.x(), tangent3.y(), tangent3.z(), signbit(-tangent.w()) ? -1.f : 1.f };
 		}
 

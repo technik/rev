@@ -39,12 +39,11 @@ namespace rev {
         //--------------------------------------------------------------------------------------------------------------
         // Vector-Vector operations
         //--------------------------------------------------------------------------------------------------------------
-
         // Dot product
-        template<class T, size_t n>
-        T dot(const Vector<T, n>& a, const Vector<T, n>& b)
+        template<class Mat, size_t n>
+        auto dot(const MatrixBase<n, 1, Mat>& a, const MatrixBase<n, 1, Mat>& b) -> typename Mat::Element
         {
-            T result(0);
+            typename Mat::Element result(0);
             for (size_t i = 0; i < n; ++i)
                 result += a[i] * b[i];
             return result;

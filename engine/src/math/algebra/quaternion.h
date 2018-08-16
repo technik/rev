@@ -71,7 +71,7 @@ namespace rev { namespace math {
 		static UnitQuaternion lerp(const UnitQuaternion& a, const UnitQuaternion& b, float f)
 		{
 			UnitQuaternion q;
-			q.m = (a.m * (1-f) + b.m * f).normalized();
+			q.m = normalize(a.m * (1-f) + b.m * f);
 			return q;
 		}
 
