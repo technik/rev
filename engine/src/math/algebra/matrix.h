@@ -484,8 +484,6 @@ namespace rev {
 				static_assert(cols_>=4||rows_>=3, "Vector is not big enough");
 			}
 
-			Matrix normalized() const { return (*this) * (1/this->norm()); }
-
 			// Smarter construction
 			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
 			static Matrix zero()		{ Matrix m; m.setZero(); return m; }

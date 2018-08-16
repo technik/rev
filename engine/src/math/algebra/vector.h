@@ -63,6 +63,13 @@ namespace rev {
         {
             return std::sqrt(squaredNorm(a));
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+        template<class T, size_t n>
+        Vector<T,n> normalize(const Vector<T,n>& a)
+        {
+            return a * (1 / norm(a));
+        }
 		
 	}	// namespace math
 }	// namespace rev
