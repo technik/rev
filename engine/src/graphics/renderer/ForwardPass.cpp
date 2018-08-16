@@ -167,6 +167,7 @@ namespace rev { namespace graphics {
 			// Lighting
 			mBackEnd.addParam(3, exposure);
 			mBackEnd.addParam(7, bgTexture);
+			cmd.cullMode = GL_BACK;
 			cmd.shader = mBackgroundShader.get();
 			cmd.vao = mSkyPlane->getVao();
 			cmd.nIndices = mSkyPlane->indices().count;

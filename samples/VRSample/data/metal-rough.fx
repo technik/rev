@@ -170,7 +170,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	//float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
 	//float shadowEffect = 0.0;//-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
 	//float shadowMask = shadowDepth;// > surfaceDepth) ? 0.0 : 1.0;
-	float shadowMask = (shadowDepth > surfaceDepth) ? 0.0 : 1.0;
+	float shadowMask = (shadowDepth < surfaceDepth) ? 0.0 : 1.0;
 #else
 	float shadowMask = 1.0;
 #endif
@@ -262,8 +262,8 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 specular = indirectSpecular;
 
 	vec3 color = diffuse + specular;
-	//return vec4(vec3(roughness), baseColor.a);
-	return vec4(color, baseColor.a);
+	return vec4(vec3(shadowMask), baseColor.a);
+	//return vec4(color, baseColor.a);
 }
 
 #endif // PXL_SHADER

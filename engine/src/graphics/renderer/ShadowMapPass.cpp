@@ -108,9 +108,9 @@ namespace rev { namespace graphics {
 		biasMatrix(1,3) = -mBias;
 
 		auto orthoSize = castersBBox.size();
-		auto castersMin = -orthoSize.y()/2;
-		auto castersMax = orthoSize.y()/2;
-		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.z()), castersMin, castersMax);
+		auto castersMin = -orthoSize.z()/2;
+		auto castersMax = orthoSize.z()/2;
+		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
 
 		mShadowProj = proj * biasMatrix * shadowView.matrix();
 		mUnbiasedShadowProj = proj * shadowView.matrix();
