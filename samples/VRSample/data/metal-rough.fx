@@ -96,7 +96,8 @@ vec3 specularIBL(
 	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
 	// Multiple scattering 
 
-	vec3 Favg = (13+29*specColor)/42;
+	vec3 Favg = (1+5*specColor)/6;
+	//Favg = (13+29*specColor)/42;
 	float fms = textureLod(uFms, vec2(inputs.ndv, roughness), 0).x;
 	//fms = 0.0;
 	vec3 irradiance = textureLod(uEnvironment, sampleSpherical(inputs.normal), int(numEnvLevels)).xyz;
@@ -182,8 +183,14 @@ vec4 shadeSurface(ShadeInput inputs)
 	if(baseColor.a < 0.5)
 		discard;
 
+
 	const float dielectricF0 = 0.04;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
+	//F0 = vec3(1.00, 0.71, 0.29); // Gold
+	//F0 = vec3(0.91, 0.92, 0.92); // Aluminum
+	//F0 = vec3(0.56, 0.57, 0.58); // Iron
+	//F0 = vec3(0.95, 0.64, 0.54); // Copper
+	//F0 = vec3(0.95, 0.93, 0.88); // Silver
 
 	// specular brdf (geometric terms)
 	float alpha = roughness * roughness;
@@ -262,8 +269,8 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 specular = indirectSpecular;
 
 	vec3 color = diffuse + specular;
-	return vec4(vec3(shadowMask), baseColor.a);
-	//return vec4(color, baseColor.a);
+	//return vec4(vec3(shadowMask), baseColor.a);
+	return vec4(color, baseColor.a);
 }
 
 #endif // PXL_SHADER
