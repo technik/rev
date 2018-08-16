@@ -37,16 +37,6 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 }
 #endif
 
-//---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.1591, 0.3183);
-vec2 sampleSpherical(vec3 v)
-{
-  vec2 uv = vec2(atan(-v.z, v.x), asin(-v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
 //------------------------------------------------------------------------------
 float GGX_NDF(float ndh, float a)
 {
