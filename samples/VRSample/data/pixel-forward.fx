@@ -103,6 +103,7 @@ void main (void) {
 
 	//vec3 toneMapped = pbrColor.xyz / (pbrColor.xyz + 1);
 	
+	//outColor = vec4(toneMapped, pbrColor.a);
 	outColor = vec4(pbrColor.xyz, pbrColor.a);
 }
 

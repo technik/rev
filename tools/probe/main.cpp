@@ -145,7 +145,13 @@ struct Image
 
 	void saveHDR(const std::string& fileName) const
 	{
-		stbi_write_hdr(fileName.c_str(), nx, ny, 3, reinterpret_cast<const float*>(m));
+		if(extension(fileName) != "hdr")
+		{
+			cout << "Only .hdr is supported for hdr output images\n";
+		}
+
+		auto src = reinterpret_cast<const float*>(m);
+		stbi_write_hdr(fileName.c_str(), nx, ny, 3, src);
 	}
 
 	void save2sRGB(const std::string& fileName) const
@@ -200,7 +206,7 @@ struct Image
 	{
 		std::vector<Image*> mips;
 		auto mip = this;
-		while(mip)
+		while(mip && mip->nx > 16 && mip->ny > 16)
 		{
 			mips.push_back(mip);
 			mip = mip->reduce2x();
@@ -365,11 +371,11 @@ int main(int _argc, const char** _argv) {
 	// Generate mips
 	auto mips = srcImg->generateMipMaps();
 	auto nMips = mips.size();
-	
+
 	for(int i = 0; i < nMips; ++i)
 	{
 		stringstream ss;
-		ss << params.out << i << ".png";
+		ss << params.out << i << ".hdr";
 		auto name = ss.str();
 		Image* radiance = mips[i];
 		if(i > 0)
@@ -382,7 +388,7 @@ int main(int _argc, const char** _argv) {
 			// Save iradiance in the last mip
 			radiance = radiance->irradianceLambert(8000);
 		}
-		radiance->save2sRGB(name);
+		radiance->saveHDR(name);
 		// Record mip in desc
 		mipsDesc.push_back({});
 		auto& levelDesc = mipsDesc[i];

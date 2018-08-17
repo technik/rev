@@ -48,7 +48,7 @@
 			"scale": [
 				4,
 				1,
-				2
+				4
 			],
 			"mesh": 0
 		},
@@ -797,7 +797,8 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [1, 0.9858491, 0.9858491, 1],
 				"metallicFactor":0.003,
-				"roughnessFactor":0.134
+				"roughnessFactor":0.866,
+				"baseColorTexture": { "index": 0 }
 			}
 		},
 		{
@@ -805,7 +806,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":1
+				"roughnessFactor":0
 			}
 		},
 		{
@@ -813,7 +814,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.5, 0.5, 0.5, 1],
 				"metallicFactor":0,
-				"roughnessFactor":0
+				"roughnessFactor":1
 			}
 		},
 		{
@@ -821,7 +822,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.875
+				"roughnessFactor":0.125
 			}
 		},
 		{
@@ -829,7 +830,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.75
+				"roughnessFactor":0.25
 			}
 		},
 		{
@@ -837,7 +838,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.625
+				"roughnessFactor":0.375
 			}
 		},
 		{
@@ -853,7 +854,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.375
+				"roughnessFactor":0.625
 			}
 		},
 		{
@@ -861,7 +862,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.25
+				"roughnessFactor":0.75
 			}
 		},
 		{
@@ -869,7 +870,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.125
+				"roughnessFactor":0.875
 			}
 		},
 		{
@@ -877,8 +878,18 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [0.95, 0.64, 0.54, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0
+				"roughnessFactor":1
 			}
+		}
+	],
+	"textures": [
+		{
+			"source": 0
+		}
+	],
+	"images": [
+		{
+			"uri": "Ground-Texture-(gray20).png"
 		}
 	],
 	"bufferViews": [

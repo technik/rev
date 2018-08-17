@@ -1,0 +1,44 @@
+[
+    {
+        "name": "grid0.hdr",
+        "size": [
+            2048,
+            1024
+        ]
+    },
+    {
+        "name": "grid1.hdr",
+        "size": [
+            1024,
+            512
+        ]
+    },
+    {
+        "name": "grid2.hdr",
+        "size": [
+            512,
+            256
+        ]
+    },
+    {
+        "name": "grid3.hdr",
+        "size": [
+            256,
+            128
+        ]
+    },
+    {
+        "name": "grid4.hdr",
+        "size": [
+            128,
+            64
+        ]
+    },
+    {
+        "name": "grid5.hdr",
+        "size": [
+            64,
+            32
+        ]
+    }
+]

@@ -486,8 +486,8 @@ namespace rev { namespace game {
 		Texture::SamplerOptions sampler;
 		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
 		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
-		auto sony_fms_lut = Texture::load("sony512.png", false, 0, sampler);
-		auto envBRDF = Texture::load("ibl_brdf_lut.png", false, 0, sampler);
+		auto sony_fms_lut = Texture::load("sonyHill.png", true, 0, sampler);
+		auto envBRDF = Texture::load("ibl_brdf_lut.png", true, 0, sampler);
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -633,10 +633,10 @@ namespace rev { namespace game {
 		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
-		auto sony_fms_lut = Texture::load("sony512.png");
 		Texture::SamplerOptions sampler;
 		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
 		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
+		auto sony_fms_lut = Texture::load("sonyHill.png", true, 0, sampler);
 		auto envBRDF = Texture::load("ibl_brdf_lut.png", true, 0, sampler);
 		defaultMaterial->addTexture("uFms", sony_fms_lut);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
