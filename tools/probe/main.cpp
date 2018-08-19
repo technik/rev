@@ -381,7 +381,7 @@ int main(int _argc, const char** _argv) {
 		if(i > 0)
 		{
 			float roughness = float(i) / (nMips-1);
-			radiance = radiance->radianceGGX(1000*i, roughness);
+			radiance = radiance->radianceGGX(1000*i*i, roughness);
 		}
 		else if(i == nMips-1)
 		{

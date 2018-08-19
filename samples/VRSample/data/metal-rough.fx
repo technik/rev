@@ -20,6 +20,7 @@
 
 // Metallic-rough pbr shader
 //#define Furnace
+#define BSDF
 
 #ifdef PXL_SHADER
 
@@ -36,19 +37,6 @@ layout(location = 9) uniform sampler2D uShadowMap;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
-// Material
-#ifdef sampler2D_uEnvironment
-layout(location = 7) uniform sampler2D uEnvironment;
-layout(location = 8) uniform sampler2D uEnvBRDF;
-layout(location = 18) uniform float numEnvLevels;
-#endif
-#ifdef vec4_uBaseColor
-layout(location = 14) uniform vec4 uBaseColor;
-#endif
-
-#ifdef sampler2D_uBaseColorMap
-layout(location = 11) uniform sampler2D uBaseColorMap;
-#endif
 layout(location = 12) uniform sampler2D uPhysics;
 layout(location = 13) uniform sampler2D uEmissive;
 #ifdef float_uRoughness
@@ -57,117 +45,64 @@ layout(location = 15) uniform float uRoughness;
 #ifdef float_uMetallic
 layout(location = 16) uniform float uMetallic;
 #endif
-#ifdef sampler2D_uFms
-layout(location = 17) uniform sampler2D uFms;
-#endif
 
-//---------------------------------------------------------------------------------------
-struct LocalVectors
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
-	vec3 eye;
-	vec3 tangent;
-	vec3 bitangent;
-	vec3 normal;
-};
-
-//---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.1591, -0.3183);
-vec2 sampleSpherical(vec3 v)
-{
-  vec2 uv = vec2(atan(-v.x, v.z), asin(v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
-//---------------------------------------------------------------------------------------
-vec3 getIrradiance(vec3 dir)
-{
-#if defined(sampler2D_uIrradiance) && !defined(Furnace)
-	return textureLod(uEnvironment, sampleSpherical(dir), numEnvLevels).xyz;
-#else
-	return vec3(1.0);
-#endif
-}
-
-//---------------------------------------------------------------------------------------
-vec3 getRadiance(vec3 dir, float lodLevel)
-{
-#if defined(sampler2D_uIrradiance) && !defined(Furnace)
-	return textureLod(uEnvironment, sampleSpherical(dir), lodLevel).xyz;
-#else
-	return vec3(1.0);
-#endif
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 //---------------------------------------------------------------------------------------
 vec3 specularIBL(
-	vec3 irradiance,
-	vec3 F0,
-	vec3 normal,
-	vec3 eye,
-	float roughness,
-	float occlusion,
-	float ndv)
+  vec3 irradiance,
+  vec3 F0,
+  vec3 normal,
+  vec3 eye,
+  float roughness,
+  float occlusion,
+  vec3 Favg,
+  float fms,
+  float ndv)
 {
-	// Single scattering
-	float lodLevel = roughness * roughness * numEnvLevels;
-	vec3 samplerDir = reflect(-eye, normal);
-	vec3 radiance = getRadiance(samplerDir, lodLevel);
-	vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
+  // Single scattering
+  float lodLevel = roughness * roughness * numEnvLevels;
+  vec3 samplerDir = reflect(-eye, normal);
+  vec3 radiance = getRadiance(samplerDir, lodLevel);
+  vec2 envBRDF = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 1.0-roughness), 0).xy;
 
-	// Multiple scattering
-	vec3 Favg = (1+5*F0)/6; // Average fresnel
-	float fms = textureLod(uFms, vec2(ndv, roughness), 0).x;
-
-	return radiance * (F0 * envBRDF.x + envBRDF.y) + Favg *fms * irradiance;
+  return radiance * (F0 * envBRDF.x + envBRDF.y) + Favg *fms * irradiance;
 }
 
 //---------------------------------------------------------------------------------------
-vec3 diffuseIBL(vec3 F0, vec3 irradiance, vec3 normal, vec3 diffColor, float occlusion)
+vec3 diffuseIBL(vec3 kD, vec3 F0, vec3 irradiance, vec3 normal, vec3 diffColor, float fms, float occlusion)
 {
-	vec3 MS = (5-5*F0)/6; // Average fresnel
-	return (diffColor + MS) * irradiance;
+  vec3 MS = (5-5*F0)/6;
+  return (kD + MS * fms) * diffColor * irradiance;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 ibl(
-	vec3 F0,
-	vec3 normal,
-	vec3 eye,
-	vec3 albedo,
-	float roughness,
-	float occlusion,
-	float ndv
-	)
+  vec3 F0,
+  vec3 normal,
+  vec3 eye,
+  vec3 albedo,
+  float roughness,
+  float occlusion,
+  float ndv
+  )
 {
-	vec3 irradiance = getIrradiance(normal);
+  vec3 kS = fresnelSchlickRoughness(ndv, F0, roughness);
+  vec3 kD = 1.0 - kS;
 
-	vec3 indirectSpecular = specularIBL(irradiance, F0, normal, eye, roughness, occlusion, ndv);
-	vec3 indirectDiffuse = diffuseIBL(F0, irradiance, normal, albedo, occlusion);
+  vec3 irradiance = getIrradiance(normal);
 
-	return indirectDiffuse + indirectSpecular;
-}
+  // Multiple scattering
+  vec3 Favg = (1+5*F0)/6; // Average fresnel
+  float fms = textureLod(uFms, vec2(ndv, roughness), 0).x;
 
-//---------------------------------------------------------------------------------------
-vec4 getBaseColor()
-{
-#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
-	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
-	vec4 baseColor = baseColorTex*uBaseColor;
-#else
-	#if defined(sampler2D_uBaseColorMap)
-		vec4 baseColor = texture(uBaseColorMap, vTexCoord);
-		baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
-	#else
-		#if defined(vec4_uBaseColor)
-			vec4 baseColor = uBaseColor;
-		#else
-			vec4 baseColor = vec4(1.0);
-		#endif
-	#endif
-#endif
-	return baseColor;
+  vec3 indirectSpecular = specularIBL(irradiance, F0, normal, eye, roughness, occlusion, Favg, fms, ndv);
+  vec3 indirectDiffuse = diffuseIBL(kD, F0, irradiance, normal, albedo, fms, occlusion);
+
+  return indirectDiffuse + indirectSpecular;
 }
 
 //---------------------------------------------------------------------------------------

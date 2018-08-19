@@ -67,9 +67,17 @@ namespace rev { namespace graphics {
 		glGetProgramiv(program, GL_LINK_STATUS, &result);
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &InfoLogLength);
 		if (GL_FALSE == result){
-			std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-			glGetProgramInfoLog(program, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-			Log::error(ProgramErrorMessage.data());
+			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
+			glGetProgramInfoLog(program, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			ImGui::Begin("Shader Error");
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+			ImGui::Text("%s", textMessage.c_str());
+			glGetShaderiv(program, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
+			ShaderErrorMessage.resize(InfoLogLength+1);
+			glGetShaderSource(program, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			std::string completeSource = (char*)ShaderErrorMessage.data();
+			ImGui::Text("%s", completeSource.c_str());
+			ImGui::End();
  			return nullptr;
 		}
 
