@@ -228,13 +228,47 @@ struct Image
 				accum = accum + sampleSpherical(sampleDir) * ndv;
 			}
 		}
-		return accum * (2.f/nSamples);
+		return accum * (TwoPi/nSamples);
+	}
+
+	float RadicalInverse_VdC(size_t bits) 
+	{
+		bits = (bits << 16u) | (bits >> 16u);
+		bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+		bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+		bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+		bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+		return float(bits) * 2.3283064365386963e-10f; // / 0x100000000
+	}
+
+	// Precompute random samples
+	void pregenerateRandomSamples(int nSamples)
+	{
+		randomSamples.resize(nSamples);
+		const float deltaX0 = 1.f/nSamples;
+		for(size_t i = 0; i < nSamples; ++i)
+		{
+			randomSamples[i] = Vec2f(i*deltaX0, RadicalInverse_VdC(i));
+		}
+	}
+
+	// Precompute random samples
+	void pregenerateRandomVectors(int nSamples)
+	{
+		RandomGenerator random;
+		randomVectors.resize(nSamples);
+
+		for(size_t i = 0; i < nSamples; ++i)
+		{
+			randomVectors[i] = random.unit_vector();
+		}
 	}
 
 	template<class Op>
-	Image* traverseLatLong(const Op& op) const
+	Image* traverseLatLongRand(const Op& op) const
 	{
 		RandomGenerator random;
+		// Actual traverse
 		auto resultImage = new Image(nx, ny);
 		for(int i = 0; i < ny; ++i)
 		{
@@ -249,9 +283,9 @@ struct Image
 		return resultImage;
 	}
 
-	Image* irradianceLambert(int nSamples) const
+	Image* irradianceLambert(int nSamples)
 	{
-		return traverseLatLong([this,nSamples](auto& random, auto& irradianceDir){
+		return traverseLatLongRand([this,nSamples](auto& random, auto& irradianceDir){
 			return convolveRadiance(random, nSamples, irradianceDir);
 		});
 	}
@@ -276,11 +310,8 @@ struct Image
 		H.x() = SinTheta * cos( Phi );
 		H.y() = SinTheta * sin( Phi );
 		H.z() = CosTheta;
-		Vec3f UpVector = abs(N.z()) < 0.999 ? Vec3f(0,0,1) : Vec3f(1,0,0);
-		Vec3f TangentX = UpVector.cross(N).normalized();
-		Vec3f TangentY = N.cross(TangentX);
-		// Tangent to world space
-		return TangentX * H.x() + TangentY * H.y() + N * H.z();
+
+		return H;
 	}
 
 	const Vec3f& sampleSpherical(const Vec3f& dir) const
@@ -291,16 +322,22 @@ struct Image
 		return at(sx, sy);
 	}
 
-	Vec3f PrefilterEnvMap(size_t numSamples, RandomGenerator& random, float Roughness, Vec3f R )
+	Vec3f PrefilterEnvMap(size_t numSamples, float Roughness, Vec3f R )
 	{
-		Vec3f N = R;
 		Vec3f V = R;
+		Vec3f N = R;
+		// Compute an orthonormal basis
+		Vec3f tangent, bitangent;
+		branchlessONB(N, tangent, bitangent);
+
+		// Convolve filter
 		Vec3f PrefilteredColor = Vec3f(0.f, 0.f, 0.f);
 		float TotalWeight = 0.f;
 		for( size_t i = 0; i < numSamples; i++ )
 		{
-			Vec2f Xi = Vec2f(random.scalar(), random.scalar());
-			Vec3f H = ImportanceSampleGGX( Xi, Roughness, N );
+			Vec2f Xi = randomSamples[i];
+			Vec3f h = ImportanceSampleGGX( Xi, Roughness, N );
+			Vec3f H = tangent * h.x() + bitangent * h.y() + N * h.z();
 			Vec3f L = 2 * V.dot(H ) * H - V;
 			float NoL = min(1.f,  N.dot( L ) );
 			if( NoL > 0 )
@@ -314,13 +351,28 @@ struct Image
 
 	Image* radianceGGX(size_t nSamples, float r)
 	{
-		return traverseLatLong([this,nSamples,r](auto& random, auto& normal){
-			return PrefilterEnvMap(nSamples, random, r, normal);
-		});
+		pregenerateRandomSamples(nSamples);
+
+		// Actual traverse
+		auto resultImage = new Image(nx, ny);
+		for(int i = 0; i < ny; ++i)
+		{
+			float v = 1-float(i)/ny;
+			for(int j = 0; j < nx; ++j)
+			{
+				float u = float(j)/nx;
+				auto dir = latLong2Sphere(u, v);
+				resultImage->at(j,i) = PrefilterEnvMap(nSamples, r, dir);
+			}
+		}
+
+		return resultImage;
 	}
 
 	Vec3f* m;
 	int nx, ny;
+	std::vector<Vec2f> randomSamples;
+	std::vector<Vec3f> randomVectors;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -378,15 +430,15 @@ int main(int _argc, const char** _argv) {
 		ss << params.out << i << ".hdr";
 		auto name = ss.str();
 		Image* radiance = mips[i];
-		if(i > 0)
-		{
-			float roughness = float(i) / (nMips-1);
-			radiance = radiance->radianceGGX(1000*i*i, roughness);
-		}
-		else if(i == nMips-1)
+		if(radiance == mips.back())
 		{
 			// Save iradiance in the last mip
 			radiance = radiance->irradianceLambert(8000);
+		}
+		else if(i > 0)
+		{
+			float roughness = float(i) / (nMips-1);
+			radiance = radiance->radianceGGX(1000*i*i, roughness);
 		}
 		radiance->saveHDR(name);
 		// Record mip in desc
