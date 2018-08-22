@@ -92,7 +92,7 @@ namespace rev {	namespace graphics {
 		// Create a windown through the windows API
 		HWND mWinapiHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
 			_windowName,
-			WS_SIZEBOX | WS_CAPTION | WS_POPUP | (_visible? WS_VISIBLE : WS_DISABLED),	// Creation options
+			WS_OVERLAPPEDWINDOW | WS_POPUP | (_visible? WS_VISIBLE : WS_DISABLED),	// Creation options
 			_pos.x(),						// X Position
 			_pos.y(),						// Y Position
 			int(_size.x()),				// Width
