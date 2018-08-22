@@ -22,7 +22,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <math/algebra/vector.h>
+
 namespace rev :: gfx
 {
 	HWND createDummyWindow();
+
+	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible);
 }

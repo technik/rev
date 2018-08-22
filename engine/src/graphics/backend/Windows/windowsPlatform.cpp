@@ -77,6 +77,35 @@ namespace rev :: gfx
 			0,				// Height
 			0, 0, 0, 0);				// Windows specific parameters that we don't need
 	}
+
+	//----------------------------------------------------------------------------------------------
+	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible)
+	{
+		if (!sIsWindowClassRegistered)
+			registerClass();
+
+		// Create a windown through the windows API
+		HWND nativeHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
+			_windowName,
+			WS_OVERLAPPEDWINDOW | WS_POPUP | (_visible? WS_VISIBLE : WS_DISABLED),	// Creation options
+			_pos.x(),						// X Position
+			_pos.y(),						// Y Position
+			int(_size.x()),				// Width
+			int(_size.y()),				// Height
+			0, 0, 0, 0);				// Windows specific parameters that we don't need
+
+										// Resize client area
+		RECT rcClient;
+		POINT ptDiff;
+		GetClientRect(nativeHandle, &rcClient);
+		ptDiff.x = _size.x() - rcClient.right;
+		ptDiff.y = _size.y() - rcClient.bottom;
+		MoveWindow(nativeHandle, _pos.x(), _pos.y(), _size.x() + ptDiff.x, _size.y() + ptDiff.y, TRUE);
+		// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
+		// Or see: https://www.3dgep.com/learning-directx12-1/
+
+		return nativeHandle;
+	}
 }
 
 #endif // _WIN32
