@@ -14,6 +14,13 @@ namespace rev {
         struct VectorExpr
         {
             T operator[](size_t i) const { return static_cast<const Derived&>(*this)[i]; }
+
+            template<size_t i>
+            T  getComponent() const
+            {
+                static_assert(i < n);
+                return return static_cast<const Derived&>(*this).getComponent<i>();
+            }
         };
 
 		template<typename T, size_t n>
