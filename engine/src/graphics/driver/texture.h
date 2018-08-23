@@ -39,8 +39,7 @@ namespace rev { namespace graphics {
 
 			enum class MinFilter : GLint {
 				Linear = GL_LINEAR,
-				//Trilinear = GL_LINEAR_MIPMAP_LINEAR,
-				Trilinear = GL_LINEAR_MIPMAP_NEAREST,
+				Trilinear = GL_LINEAR_MIPMAP_LINEAR,
 				Nearest = GL_NEAREST
 			};
 

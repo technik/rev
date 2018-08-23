@@ -44,7 +44,7 @@ namespace rev {
 				0.f, 1.f, 0.f
 				});
 			auto xForm = gltfRoot->addComponent<Transform>();
-			xForm->xForm.rotate(rotation);
+			//xForm->xForm.rotate(rotation);
 
 			std::vector<std::shared_ptr<Animation>> animations;
 			std::vector<std::shared_ptr<SceneNode>> animNodes;
@@ -104,8 +104,9 @@ namespace rev {
 			// Create default camera
 			auto cameraNode = mGameScene.root()->createChild("Camera");
 			cameraNode->addComponent<FlyBy>(10.f, 1.f);
-			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, -4.f, 0.f };
+			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, 4.f, 19.f };
 			cameraNode->addComponent<game::Camera>(&mGraphicsScene);
+			//cameraNode->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, Constants<float>::halfPi));
 		}
 	}
 

@@ -47,7 +47,8 @@ namespace rev { namespace graphics {
 		math::Mat44f viewProj(float _aspectRatio) const
 		{
 			assert(mNear != 0 && mFar > mNear);
-			auto projectionMatrix = math::frustrumMatrix(mFov, _aspectRatio, mNear, mFar);
+			//auto projectionMatrix = math::orthographicMatrix({4.f, 2.f}, mNear, mFar);//(mFov, _aspectRatio, mNear, mFar);
+			auto projectionMatrix = math::frustumMatrix(mFov, _aspectRatio, mNear, mFar);
 			return projectionMatrix * mView;
 		}
 

@@ -21,6 +21,23 @@
 #define PBR_FX
 // Common pbr code
 
+#ifdef vec4_uBaseColor
+layout(location = 14) uniform vec4 uBaseColor;
+#endif
+#ifdef sampler2D_uBaseColorMap
+layout(location = 11) uniform sampler2D uBaseColorMap;
+#endif
+
+// Material
+#ifdef sampler2D_uEnvironment
+layout(location = 7) uniform sampler2D uEnvironment;
+layout(location = 8) uniform sampler2D uEnvBRDF;
+layout(location = 18) uniform float numEnvLevels;
+#endif
+
+#ifdef sampler2D_uFms
+layout(location = 17) uniform sampler2D uFms;
+#endif
 
 #ifdef VTX_TANGENT_SPACE
 //------------------------------------------------------------------------------
@@ -37,146 +54,65 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 }
 #endif
 
-//------------------------------------------------------------------------------
-float GGX_NDF(float ndh, float a)
+
+//---------------------------------------------------------------------------------------
+const vec2 invAtan = vec2(0.1591, -0.3183);
+vec2 sampleSpherical(vec3 v)
 {
-    float a2     = a*a;
-    float ndh2 = ndh*ndh;
-	
-    float denom  = ndh2 * (a2 - 1.0) + 1.0;
-    denom        = PI * denom * denom;
-	
-    return a2 / denom;
+  vec2 uv = vec2(atan(-v.x, v.z), asin(v.y));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
 }
 
-//------------------------------------------------------------------------------
-// Actually: GGX divided by ndv
-// SIMD optimized version
-vec2 GeometrySchlickGGX(vec2 ndv_ndl, float roughness)
+//---------------------------------------------------------------------------------------
+struct LocalVectors
 {
-	float k = roughness/2.0;
-    vec2 denom = ndv_ndl*(1.0-k) + k;
-	
-    return 1.0 / denom;
+  vec3 eye;
+  vec3 tangent;
+  vec3 bitangent;
+  vec3 normal;
+};
+
+//---------------------------------------------------------------------------------------
+vec3 getIrradiance(vec3 dir)
+{
+#if defined(sampler2D_uIrradiance) && !defined(Furnace)
+  return textureLod(uEnvironment, sampleSpherical(dir), numEnvLevels).xyz;
+#else
+  return vec3(1.0);
+#endif
 }
 
-//------------------------------------------------------------------------------
-// Actually: Smith GGX divided by (ndv * ndl)
-// SIMD optimized version
-float GeometrySmithGGX(vec2 ndv_ndl, float roughness)
+//---------------------------------------------------------------------------------------
+vec3 getRadiance(vec3 dir, float lodLevel)
 {
-    vec2 ggx  = GeometrySchlickGGX(ndv_ndl, roughness);
-    return ggx.x * ggx.y;
+#if defined(sampler2D_uIrradiance) && !defined(Furnace)
+  return textureLod(uEnvironment, sampleSpherical(dir), lodLevel).xyz;
+#else
+  return vec3(1.0);
+#endif
 }
 
-#define SPHERICAL_GAUSIAN_SCHLICK
-//------------------------------------------------------------------------------
-float fresnelSchlick(float ndv)
+//---------------------------------------------------------------------------------------
+vec4 getBaseColor()
 {
-#ifdef SPHERICAL_GAUSIAN_SCHLICK
-	// Schlick with Spherical Gaussian approximation
-	// http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-	return exp2((-5.55473*ndv - 6.98316) * ndv);
-#else // !SPHERICAL_GAUSIAN_SCHLICK
-	//return pow(ndl, 5.0);
-	float n = 1.0-ndv;
-	float n2 = n*n;
-	return n2*n2*n;
-#endif // !SPHERICAL_GAUSIAN_SCHLICK
-}
-
-float normal_distrib(
-  float ndh,
-  float Roughness)
-{
-  // use GGX / Trowbridge-Reitz, same as Disney and Unreal 4
-  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
-  float alpha = Roughness * Roughness;
-  float tmp = alpha / max(1e-8,(ndh*ndh*(alpha*alpha-1.0)+1.0));
-  return tmp * tmp * INV_PI;
-}
-
-vec3 fresnel(
-  float cosTheta,
-  vec3 F0)
-{
-  // Schlick with Spherical Gaussian approximation
-  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
-  float sphg = exp2((-5.55473*cosTheta - 6.98316) * cosTheta);
-  //return F0 + (vec3(1.0) - F0) * sphg;
-  return F0 * (1.0 - sphg) + sphg; // Same lerp, change one vector op by one scalar op
-}
-
-float invG1(
-  float ndw, // w is either Ln or Vn
-  float k)
-{
-  // One generic factor of the geometry function divided by ndw
-  // NB : We should have k > 0
-  return ndw*(1.0-k) +  k;
-}
-
-float G1_GGX(float ndv, float alpha)
-{
-  float ndv2 = ndv*ndv;
-  float alpha2 = alpha*alpha;
-  float sqLerp = ndv2*(1-alpha2)+alpha2;
-  float den = 1.0 + sqrt(sqLerp) / ndv;
-  return 1 / (0.5 * den);
-}
-
-float visibility(
-  float ndl,
-  float ndv,
-  float alpha)
-{
-  // Schlick with Smith-like choice of k
-  // cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
-  // visibility is a Cook-Torrance geometry function divided by (n.l)*(n.v)
-  float k = alpha * 0.5;
-  return 1 / (invG1(ndl,k)*invG1(ndv,k));
-}
-
-// Uncorrelated inverse schlick-smith visibility term (approximated)
-float invVisibility(
-    float ndl,
-    float ndv,
-    float alpha)
-{
-  float ck = 2-alpha;
-  float ig1l = ndl*ck + alpha;
-  float ig1v = ndv*ck + alpha;
-  
-  return ig1l * ig1v;
-}
-
-float cook_torrance_contrib(
-  float vdh,
-  float ndh,
-  float ndl,
-  float ndv,
-  float Roughness)
-{
-  // This is the contribution when using importance sampling with the GGX based
-  // sample distribution. This means ct_contrib = ct_brdf / ggx_probability
-  return visibility(ndl,ndv,Roughness) * (vdh * ndl / ndh);
-}
-
-vec3 importanceSampleGGX(vec2 Xi, vec3 T, vec3 B, vec3 N, float roughness)
-{
-  float a = roughness*roughness;
-  float cosT = sqrt((1.0-Xi.y)/(1.0+(a*a-1.0)*Xi.y));
-  float sinT = sqrt(1.0-cosT*cosT);
-  float phi = Xi.x; // premultiplied by 2*pi
-  return
-    T * (sinT*cos(phi)) +
-    B * (sinT*sin(phi)) +
-    N *  cosT;
-}
-
-float probabilityGGX(float ndh, float vdh, float Roughness)
-{
-  return normal_distrib(ndh, Roughness) * ndh / (4.0*vdh);
+#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
+  vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
+  vec4 baseColor = baseColorTex*uBaseColor;
+#else
+  #if defined(sampler2D_uBaseColorMap)
+    vec4 baseColor = texture(uBaseColorMap, vTexCoord);
+    baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
+  #else
+    #if defined(vec4_uBaseColor)
+      vec4 baseColor = uBaseColor;
+    #else
+      vec4 baseColor = vec4(1.0);
+    #endif
+  #endif
+#endif
+  return baseColor;
 }
 
 #endif // PBR_FX
