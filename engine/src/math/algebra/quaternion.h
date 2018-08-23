@@ -50,15 +50,15 @@ namespace rev { namespace math {
 		static UnitQuaternion fromUnitVectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
 			// TODO: This can be made faster by precomputing sqrt(2)
-			auto m = sqrt(2 + 2 * u.dot(v));
-			Vector3<T> w = (1 / m) * u.cross(v);
+			auto m = sqrt(2 + 2 * dot(u, v));
+			Vector3<T> w = (1 / m) * cross(u, v);
 			return UnitQuaternion(w.x(), w.y(), w.z(), m*0.5f);
 		}
 
 		static UnitQuaternion from2Vectors(const Vector3<T>& u, const Vector3<T>& v)
 		{
-			Vector3<T> w = u.cross(v);
-			UnitQuaternion q = UnitQuaternion(w.x(), w.y(), w.z(), u.dot(v));
+			Vector3<T> w = cross(u, v);
+			UnitQuaternion q = UnitQuaternion(w.x(), w.y(), w.z(), dot(u, v));
 			q.w() += q.norm();
 			return q.normalized();
 		}
@@ -91,7 +91,7 @@ namespace rev { namespace math {
 
 		UnitQuaternion(const Vector4<T> raw) : m(raw) {}
 		T				norm		() const { return m.norm(); }
-		UnitQuaternion	normalized() const { return UnitQuaternion(m.normalized()); }
+		UnitQuaternion	normalized() const { return UnitQuaternion(normalized(m)); }
 
 		Vector4<T> m;
 	};

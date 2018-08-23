@@ -251,15 +251,6 @@ namespace rev {
 			Derived cwiseMax	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::max(a,b);}); }
 			template<typename OtherM_>
 			Derived cwiseMin	(const OtherM_& _b) const { return cwiseBinaryOperator(*this,_b,[](Element& dst, Element a, Element b){dst=std::min(a,b);}); }
-			
-			template<typename Other_>
-			Derived cross(const Other_& v) const { 
-				Derived result;
-				result.x() = y()*v.z() - z()*v.y();
-				result.y() = z()*v.x() - x()*v.z();
-				result.z() = x()*v.y() - y()*v.x();
-				return result;
-			}
 
 			Derived abs			() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = std::abs(x); }); }
 			Derived operator-	() const { return cwiseUnaryOperator(*this,[](Element& dst, Element x){ dst = -x; }); }

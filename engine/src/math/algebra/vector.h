@@ -50,6 +50,17 @@ namespace rev {
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        template<class Mat, size_t n>
+        auto cross(const MatrixBase<n, 1, Mat>& a, const MatrixBase<n, 1, Mat>& b) -> MatrixBase<n, 1, Mat>
+        {
+            Derived result;
+            result.x() = a.y()*b.z() - a.z()*b.y();
+            result.y() = a.z()*b.x() - a.x()*b.z();
+            result.z() = a.x()*b.y() - a.y()*b.x();
+            return result;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         template<class T, size_t n>
         T squaredNorm(const Vector<T, n>& a)
         {
