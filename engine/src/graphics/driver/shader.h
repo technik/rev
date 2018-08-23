@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 #include <memory>
-#include "openGL/openGL.h"
+#include <graphics/backend/OpenGL/openGL.h>
 #include <string>
 #include <vector>
 

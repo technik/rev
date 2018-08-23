@@ -26,9 +26,8 @@ namespace rev :: gfx
 	class Device
 	{
 	public:
-#ifdef _WIN32 // Desktop platforms only
-		virtual Window* createWindow	() = 0;
-		virtual void	destroyWindow	(const Window*) = 0;
-#endif
+
+	protected:
+		Device() = default;
 	};
 }

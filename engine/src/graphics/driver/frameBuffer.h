@@ -21,7 +21,7 @@
 
 #include "texture.h"
 #include "renderTarget.h"
-#include "openGL/openGL.h"
+#include <graphics/backend/OpenGL/openGL.h>
 
 namespace rev { namespace graphics {
 

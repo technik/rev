@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "../Windows/windowsPlatform.h"
 #include "deviceOpenGL.h"
 
 namespace rev :: gfx
@@ -26,9 +27,20 @@ namespace rev :: gfx
 	class DeviceOpenGLWindows : public DeviceOpenGL
 	{
 	public:
-		DeviceOpenGLWindows();
 
-		Window* createWindow	() override;
-		void	destroyWindow	(const Window*) override;
+		DeviceOpenGLWindows(HWND targetWindow = 0, bool sRGBFrameBuffer = true);
+		~DeviceOpenGLWindows();
+
+		bool isOk() const { return m_windowHandle != 0; }
+
+	private:
+		void checkSupportedExtensions();
+
+		// Supported extensions
+		bool m_supportSRGBFrameBuffer = false;
+		bool m_supportSRGBTextures = false;
+
+		HWND m_windowHandle = 0;
+		HDC m_deviceContext = 0;
 	};
 }

@@ -2,10 +2,10 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include "shader.h"
-#include "openGL/openGL.h"
 #include <core/platform/fileSystem/file.h>
 #include <core/string_util.h>
 #include <core/tools/log.h>
+#include <graphics/backend/OpenGL/openGL.h>
 #include <graphics/debug/imgui.h>
 
 #include <vector>

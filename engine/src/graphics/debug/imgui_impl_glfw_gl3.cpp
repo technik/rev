@@ -12,7 +12,7 @@
 #include "imgui_impl_glfw_gl3.h"
 #include <graphics/driver/shader.h>
 
-#include <graphics/driver/openGL/openGL.h>
+#include <graphics/backend/openGL/openGL.h>
 
 // Data
 static GLuint       g_FontTexture = 0;

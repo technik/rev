@@ -5,7 +5,7 @@
 
 #ifdef _WIN32
 
-#include "../openGL.h"
+#include <graphics/backend/OpenGL/openGL.h>
 #include <math/algebra/vector.h>
 #include <graphics/driver/DefaultFrameBuffer.h>
 

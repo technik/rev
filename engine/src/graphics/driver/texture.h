@@ -20,7 +20,7 @@
 #pragma once
 
 #include <core/tools/log.h>
-#include <graphics/driver/openGL/openGL.h>
+#include <graphics/backend/openGL/openGL.h>
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 #include <graphics/Image.h>
 #include <string>
