@@ -284,7 +284,7 @@ namespace rev { namespace graphics {
 				auto maxDepth = math::max(aDepth, bDepth);
 				// Transform depths relative to the camera
 				auto center = obj->transform.position();
-				float medDepth = dot((center - camPos), viewDir);
+				float medDepth = dot(Vec3f(center - camPos), viewDir);
 				meshDrawInfo.depth = {medDepth-minDepth, medDepth+maxDepth};
 
 				if(meshDrawInfo.depth.y() > 0) // Object may be visible
@@ -295,7 +295,7 @@ namespace rev { namespace graphics {
 				}
 			}
 			auto objPos = obj->transform.position();
-			float depth = dot((objPos - camPos), viewDir);
+			float depth = dot(Vec3f(objPos - camPos), viewDir);
 		}
 	}
 
