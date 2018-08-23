@@ -21,15 +21,14 @@
 
 namespace rev :: gfx
 {
-	class RenderQueue;
+	class CommandBuffer;
 
-	class Device
+	class RenderPass
 	{
 	public:
+		virtual void reset() = 0;
 
-		virtual RenderQueue& renderQueue() = 0;
-
-	protected:
-		Device() = default;
+		virtual void begin() = 0;
+		virtual void end() = 0;
 	};
 }

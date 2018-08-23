@@ -19,17 +19,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <math/algebra/matrix.h>
+#include <math/algebra/vector.h>
+
+#include <vector>
+
 namespace rev :: gfx
 {
-	class RenderQueue;
+	class Texture;
 
-	class Device
+	class CommandBuffer
 	{
 	public:
+		// Render passes
+		virtual void begin() = 0;
 
-		virtual RenderQueue& renderQueue() = 0;
+		virtual void setShader() = 0;
 
-	protected:
-		Device() = default;
+		// Uniform binding
+		virtual void bindUniform(int pos, float f) = 0;
+		virtual void bindUniform(int pos, const math::Vec3f& f) = 0;
+		virtual void bindUniform(int pos, const math::Vec4f& f) = 0;
+		virtual void bindUniform(int pos, const math::Mat44f& m) = 0;
+		virtual void bindUniform(int pos, const std::vector<math::Mat44f>& matArray) = 0;
+		virtual void bindUniform(int pos, Texture tex) = 0;
+
+		virtual void end() = 0;
 	};
 }

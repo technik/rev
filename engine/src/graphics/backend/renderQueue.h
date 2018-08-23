@@ -21,15 +21,15 @@
 
 namespace rev :: gfx
 {
-	class RenderQueue;
+	class RenderPass;
 
-	class Device
+	class RenderQueue
 	{
 	public:
+		// Render passes
+		virtual RenderPass* createRenderPass() = 0;
+		virtual void destroyRenderPass(const RenderPass&) = 0;
 
-		virtual RenderQueue& renderQueue() = 0;
-
-	protected:
-		Device() = default;
+		virtual void submitPass() = 0;
 	};
 }
