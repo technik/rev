@@ -24,12 +24,10 @@
 
 #include <vector>
 
+#include "renderQueue.h"
+
 namespace rev :: gfx
 {
-	class Pipeline;
-	class VertexArrayObject;
-	class Texture;
-
 	class CommandBuffer
 	{
 	public:
@@ -43,35 +41,19 @@ namespace rev :: gfx
 			// Management
 			void clear();
 
-			// Uniform binding
-			void add(int pos, float f);
-			void add(int pos, const math::Vec3f& f);
-			void add(int pos, const math::Vec4f& f);
-			void add(int pos, const math::Mat44f& m);
-			void add(int pos, const std::vector<math::Mat44f>& matArray);
-			void add(int pos, const Texture& tex);
+			template<class T> using ParamList = std::vector<std::pair<int,T>>;
 
-			// Data access
-			auto& floats()	const { return mFloatParams; }
-			auto& vec3s()	const { return mVec3fParams; }
-			auto& vec4s()	const { return mVec4fParams; }
-			auto& mat4s()	const { return mMat44fParams; }
-			auto& mat4vs()	const { return mMat44fArrayParams; }
-			auto& textures()const { return mTextureParams; }
-
-		private:
-			std::pair<int,int>	mFloatParams;
-			std::pair<int,int>	mVec3fParams;
-			std::pair<int,int>	mVec4fParams;
-			std::pair<int,int>	mMat44fParams;
-			std::pair<int,int>	mMat44fArrayParams;
-			std::pair<int,int>	mTextureParams;
+			ParamList<float> floats;
+			ParamList<math::Vec3f> vec3s;
+			ParamList<math::Vec4f> vec4s;
+			ParamList<math::Mat44f> mat4s;
+			ParamList<RenderQueue::Texture>	textures;
 		};
 
 		// Commands
-		virtual void setPipeline(const Pipeline&) = 0;
+		virtual void setPipeline(const RenderQueue::Pipeline&) = 0;
 		virtual void setUniformData(const UniformBucket&) = 0;
-		virtual void setVertexData(const VertexArrayObject&) = 0;
+		virtual void setVertexData(const RenderQueue::VertexArrayObject&) = 0;
 		virtual void drawTriangles(int numVertices) = 0;
 		virtual void drawLines(int nVertices) = 0;
 

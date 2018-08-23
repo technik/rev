@@ -27,9 +27,18 @@ namespace rev :: gfx
 	{
 	public:
 
-		struct Pipeline {};
-		struct VertexArrayObject {};
-		struct Texture {};
+		struct Resource
+		{
+			int id() const { return m_id;}
+		
+		protected:
+			Resource() = default;
+			int m_id;
+		};
+
+		struct Pipeline : Resource {};
+		struct VertexArrayObject : Resource {};
+		struct Texture : Resource {};
 
 	public:
 		// Render passes
