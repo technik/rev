@@ -74,32 +74,30 @@ namespace rev {
 			static Vector zero()        { Vector m; m.setZero(); return m; }
 			static Vector ones()        { Vector m; m.setOnes(); return m; }
 
-            T&	coefficient(size_t i)       { return m[i]; }
-            T	coefficient(size_t i) const { return m[i]; }
+            T&	operator[]	(size_t i)       { return m[i]; }
+            T	operator[] 	(size_t i) const { return m[i]; }
 
-            T&	operator[]	(size_t i)       { return coefficient(i); }
-            T	operator[] 	(size_t i) const { return coefficient(i); }
+			T&	x()         { return m[0]; }
+			T	x()	const   { return m[0]; }
+			T&	y()         { return m[1]; }
+			T	y()	const   { return m[1]; }
+			T&	z()         { return m[2]; }
+			T	z()	const   { return m[2]; }
+			T&	w()         { return m[3]; }
+			T	w()	const   { return m[3]; }
 
-			T&	x()         { return namedElement<0>(); }
-			T	x()	const   { return namedElement<0>(); }
-			T&	y()         { return namedElement<1>(); }
-			T	y()	const   { return namedElement<1>(); }
-			T&	z()         { return namedElement<2>(); }
-			T	z()	const   { return namedElement<2>(); }
-			T&	w()         { return namedElement<3>(); }
-			T	w()	const   { return namedElement<3>(); }
-
-        private:
-
+            // Compile time accessors
             template<size_t i>
-            T& namedElement()
+            T& getComponent()
             {
-                return coefficient(i);
+                static_assert(i < n);
+                return m[i];
             }
             template<size_t i>
-            T  namedElement() const
+            T  getComponent() const
             {
-                return coefficient(i);
+                static_assert(i < n);
+                return m[i];
             }
 		};
 
