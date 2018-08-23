@@ -68,6 +68,12 @@ namespace rev {
 			static Vector zero()        { Vector m; m.setZero(); return m; }
 			static Vector ones()        { Vector m; m.setOnes(); return m; }
 
+            T&	coefficient(size_t i)       { return m[i]; }
+            T	coefficient(size_t i) const { return m[i]; }
+
+            T&	operator[]	(size_t i)       { return coefficient(i); }
+            T	operator[] 	(size_t i) const { return coefficient(i); }
+
 			T&	x()         { return namedElement<0>(); }
 			T	x()	const   { return namedElement<0>(); }
 			T&	y()         { return namedElement<1>(); }
@@ -82,12 +88,12 @@ namespace rev {
             template<size_t i>
             T& namedElement()
             {
-                return (*this)(i);
+                return coefficient(i);
             }
             template<size_t i>
             T  namedElement() const
             {
-                return (*this)(i);
+                return coefficient(i);
             }
 		};
 
@@ -117,20 +123,20 @@ namespace rev {
         // Vector-Vector operations
         //--------------------------------------------------------------------------------------------------------------
         // Dot product
-        template<class Mat, size_t n>
-        auto dot(const MatrixBase<n, 1, Mat>& a, const MatrixBase<n, 1, Mat>& b) -> typename Mat::Element
+        template<class T, size_t n>
+        T dot(const Vector<T, n>& a, const Vector<T, n>& b)
         {
-            typename Mat::Element result(0);
+            T result(0);
             for (size_t i = 0; i < n; ++i)
                 result += a[i] * b[i];
             return result;
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        template<class Mat, size_t n>
-        auto cross(const MatrixBase<n, 1, Mat>& a, const MatrixBase<n, 1, Mat>& b) -> MatrixBase<n, 1, Mat>
+        template<class T, size_t n>
+        Vector<T, n> cross(const Vector<T, n>& a, const Vector<T, n>& b)
         {
-            Derived result;
+            Vector<T, n> result;
             result.x() = a.y()*b.z() - a.z()*b.y();
             result.y() = a.z()*b.x() - a.x()*b.z();
             result.z() = a.x()*b.y() - a.y()*b.x();
