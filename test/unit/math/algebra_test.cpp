@@ -95,11 +95,11 @@ void testMatrix() {
 	assert(ten.z() == 10.f);
 
 	// Access rows and columns as referencing types
-	{
-		Mat44f m;
-		m.col(0).z() = 5.f;
-		assert(m.row(2).x() == 5.f);
-	}
+	//{
+	//	Mat44f m;
+	//	m.col(0).z() = 5.f;
+	//	assert(m.row(2).x() == 5.f);
+	//}
 
 	// TODO: Test operations with matrices of different base number types
 }

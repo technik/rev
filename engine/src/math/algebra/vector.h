@@ -2,73 +2,94 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 // Generic mathematical vector
-#ifndef _REV_MATH_ALGEBRA_VECTOR_H_
-#define _REV_MATH_ALGEBRA_VECTOR_H_
+#pragma once
 
 #include <cassert>
-#include "matrix.h"
+#include "matrixBase.h"
 
 namespace rev {
 	namespace math {
 
-		template<typename T_, size_t n_>
-        struct Vector
-            : public MatrixBase
-            <
-                n_,1 ,
-                MatrixDenseStorage
-                <
-                    T_, n_, 1,
-                    true,
-                    Vector<T_, n_>
-                >
-            >
-        {
-            using Base = MatrixBase<
-                n_, 1,
-                MatrixDenseStorage
-                <
-                    T_, n_, 1,
-                    true,
-                    Vector<T_, n_>
-                >
-            >;
-            // Basic construction
-            Vector() = default;
-            Vector(const Vector&) = default;
-            Vector(std::initializer_list<T_> _l)
-                : Base(_l)
-            {
-            }
+		template<typename T, size_t n_>
+		struct Vector
+			: public MatrixBase
+			<
+				n_,1 ,
+				MatrixDenseStorage
+				<
+					T, n_, 1,
+					true,
+					Vector<T, n_>
+				>
+			>
+		{
+			using Base = MatrixBase<
+				n_, 1,
+				MatrixDenseStorage
+				<
+					T, n_, 1,
+					true,
+					Vector<T, n_>
+				>
+			>;
+			// Basic construction
+			Vector() = default;
+			Vector(const Vector&) = default;
+			Vector(std::initializer_list<T> _l)
+				: Base(_l)
+			{
+			}
 
-            template<typename Other_>
-            Vector(const Other_& _x)
-                : Base(_x)
-            {
-            }
+			template<typename Other_>
+			Vector(const Other_& _x)
+				: Base(_x)
+			{
+			}
 
-            Vector(T_ _x, T_ _y)
-                : Base{ _x, _y }
-            {
-                static_assert(n_ >= 2, "Vector is not big enough");
-            }
+			Vector(T _x, T _y)
+				: Base{ _x, _y }
+			{
+				static_assert(n_ >= 2, "Vector is not big enough");
+			}
 
-            Vector(T_ _x, T_ _y, T_ _z)
-                : Base{ _x, _y, _z }
-            {
-                static_assert(n_ >= 3, "Vector is not big enough");
-            }
+			Vector(T _x, T _y, T _z)
+				: Base{ _x, _y, _z }
+			{
+				static_assert(n_ >= 3, "Vector is not big enough");
+			}
 
-            Vector(T_ _x, T_ _y, T_ _z, T_ _w)
-                : Base{ _x, _y, _z, _w }
-            {
-                static_assert(n_ >= 4, "Vector is not big enough");
-            }
+			Vector(T _x, T _y, T _z, T _w)
+				: Base{ _x, _y, _z, _w }
+			{
+				static_assert(n_ >= 4, "Vector is not big enough");
+			}
 
-            // Smarter construction
-            static Vector zero()        { Vector m; m.setZero(); return m; }
-            static Vector ones()        { Vector m; m.setOnes(); return m; }
-        };
+			// Smarter construction
+			static Vector zero()        { Vector m; m.setZero(); return m; }
+			static Vector ones()        { Vector m; m.setOnes(); return m; }
+
+			T&	x()         { return namedElement<0>(); }
+			T	x()	const   { return namedElement<0>(); }
+			T&	y()         { return namedElement<1>(); }
+			T	y()	const   { return namedElement<1>(); }
+			T&	z()         { return namedElement<2>(); }
+			T	z()	const   { return namedElement<2>(); }
+			T&	w()         { return namedElement<3>(); }
+			T	w()	const   { return namedElement<3>(); }
+
+        private:
+
+            template<size_t i>
+            T& namedElement()
+            {
+                return (*this)(i);
+            }
+            template<size_t i>
+            T  namedElement() const
+            {
+                return (*this)(i);
+            }
+		};
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
@@ -139,5 +160,3 @@ namespace rev {
 		
 	}	// namespace math
 }	// namespace rev
-
-#endif // _REV_MATH_ALGEBRA_VECTOR_H_
