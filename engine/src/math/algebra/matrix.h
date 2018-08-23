@@ -541,7 +541,7 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> orthographicMatrix(
-			const Matrix<Number_,2,1>& _size,
+			const typename Matrix<Number_,2,1>::Base& _size,
 			Number_ _near, Number_ _far)
 		{
 			return Matrix44<Number_>({

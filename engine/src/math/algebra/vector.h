@@ -12,7 +12,64 @@ namespace rev {
 	namespace math {
 
 		template<typename T_, size_t n_>
-		using Vector = Matrix<T_, n_, 1>;
+        struct Vector
+            : public MatrixBase
+            <
+                n_,1 ,
+                MatrixDenseStorage
+                <
+                    T_, n_, 1,
+                    true,
+                    Vector<T_, n_>
+                >
+            >
+        {
+            using Base = MatrixBase<
+                n_, 1,
+                MatrixDenseStorage
+                <
+                    T_, n_, 1,
+                    true,
+                    Vector<T_, n_>
+                >
+            >;
+            // Basic construction
+            Vector() = default;
+            Vector(const Vector&) = default;
+            Vector(std::initializer_list<T_> _l)
+                : Base(_l)
+            {
+            }
+
+            template<typename Other_>
+            Vector(const Other_& _x)
+                : Base(_x)
+            {
+            }
+
+            Vector(T_ _x, T_ _y)
+                : Base{ _x, _y }
+            {
+                static_assert(n_ >= 2, "Vector is not big enough");
+            }
+
+            Vector(T_ _x, T_ _y, T_ _z)
+                : Base{ _x, _y, _z }
+            {
+                static_assert(n_ >= 3, "Vector is not big enough");
+            }
+
+            Vector(T_ _x, T_ _y, T_ _z, T_ _w)
+                : Base{ _x, _y, _z, _w }
+            {
+                static_assert(n_ >= 4, "Vector is not big enough");
+            }
+
+            // Smarter construction
+            static Vector identity()    { Vector m; m.setIdentity(); return m; }
+            static Vector zero()        { Vector m; m.setZero(); return m; }
+            static Vector ones()        { Vector m; m.setOnes(); return m; }
+        };
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
