@@ -26,10 +26,23 @@ namespace rev :: gfx
 	class RenderQueue
 	{
 	public:
+
+		struct Pipeline {};
+		struct VertexArrayObject {};
+		struct Texture {};
+
+	public:
 		// Render passes
 		virtual RenderPass* createRenderPass() = 0;
 		virtual void destroyRenderPass(const RenderPass&) = 0;
 
 		virtual void submitPass() = 0;
+
+		// Graphics pipelines
+		virtual Pipeline createGraphicsPipeline() = 0;
+
+		// Allocate resources
+		// Textures
+		// VAOs
 	};
 }
