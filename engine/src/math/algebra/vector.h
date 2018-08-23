@@ -10,26 +10,32 @@
 namespace rev {
 	namespace math {
 
-		template<typename T, size_t n_>
-		struct Vector
-			: public MatrixBase
+        template<typename T, size_t n, class Derived>
+        struct VectorExpr
+        {
+            T operator[](size_t i) const { return static_cast<const Derived&>(*this)[i]; }
+        };
+
+		template<typename T, size_t n>
+		struct Vector : VectorExpr<T, n, Vector<T,n>>
+			, public MatrixBase
 			<
-				n_,1 ,
+				n,1 ,
 				MatrixDenseStorage
 				<
-					T, n_, 1,
+					T, n, 1,
 					true,
-					Vector<T, n_>
+					Vector<T, n>
 				>
 			>
 		{
 			using Base = MatrixBase<
-				n_, 1,
+				n, 1,
 				MatrixDenseStorage
 				<
-					T, n_, 1,
+					T, n, 1,
 					true,
-					Vector<T, n_>
+					Vector<T, n>
 				>
 			>;
 			// Basic construction
@@ -49,19 +55,19 @@ namespace rev {
 			Vector(T _x, T _y)
 				: Base{ _x, _y }
 			{
-				static_assert(n_ >= 2, "Vector is not big enough");
+				static_assert(n >= 2, "Vector is not big enough");
 			}
 
 			Vector(T _x, T _y, T _z)
 				: Base{ _x, _y, _z }
 			{
-				static_assert(n_ >= 3, "Vector is not big enough");
+				static_assert(n >= 3, "Vector is not big enough");
 			}
 
 			Vector(T _x, T _y, T _z, T _w)
 				: Base{ _x, _y, _z, _w }
 			{
-				static_assert(n_ >= 4, "Vector is not big enough");
+				static_assert(n >= 4, "Vector is not big enough");
 			}
 
 			// Smarter construction
@@ -123,8 +129,8 @@ namespace rev {
         // Vector-Vector operations
         //--------------------------------------------------------------------------------------------------------------
         // Dot product
-        template<class T, size_t n>
-        T dot(const Vector<T, n>& a, const Vector<T, n>& b)
+        template<class T, size_t n, class Derived1, class Derived2>
+        T dot(const VectorExpr<T, n, Derived1>& a, const VectorExpr<T, n, Derived2>& b)
         {
             T result(0);
             for (size_t i = 0; i < n; ++i)
