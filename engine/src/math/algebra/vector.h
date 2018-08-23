@@ -19,7 +19,7 @@ namespace rev {
             T  getComponent() const
             {
                 static_assert(i < n);
-                return return static_cast<const Derived&>(*this).getComponent<i>();
+                return static_cast<const Derived&>(*this).getComponent<i>();
             }
         };
 
