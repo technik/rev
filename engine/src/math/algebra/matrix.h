@@ -454,27 +454,6 @@ namespace rev {
 				: Base(_x)
 			{}
 
-			Matrix(T_ _x, T_ _y)
-				: Base {_x, _y}
-			{
-				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
-				static_assert(cols_>=2||rows_>=2, "Vector is not big enough");
-			}
-
-			Matrix(T_ _x, T_ _y, T_ _z)
-				: Base { _x, _y, _z }
-			{
-				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
-				static_assert(cols_>=3||rows_>=3, "Vector is not big enough");
-			}
-
-			Matrix(T_ _x, T_ _y, T_ _z, T_ _w)
-				: Base { _x, _y, _z, _w }
-			{
-				static_assert(cols_==1||rows_==1, "This constructor is for vectors only");
-				static_assert(cols_>=4||rows_>=3, "Vector is not big enough");
-			}
-
 			// Smarter construction
 			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
 			static Matrix zero()		{ Matrix m; m.setZero(); return m; }

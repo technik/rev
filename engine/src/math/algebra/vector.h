@@ -66,7 +66,6 @@ namespace rev {
             }
 
             // Smarter construction
-            static Vector identity()    { Vector m; m.setIdentity(); return m; }
             static Vector zero()        { Vector m; m.setZero(); return m; }
             static Vector ones()        { Vector m; m.setOnes(); return m; }
         };
