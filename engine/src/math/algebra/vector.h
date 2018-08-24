@@ -19,8 +19,14 @@ namespace rev {
             T  getComponent() const
             {
                 static_assert(i < n);
-                return static_cast<const Derived&>(*this).getComponent<i>();
+                auto& derived = static_cast<const Derived&>(*this);
+                return derived.template getComponent<i>();
             }
+
+            T	x()	const { return getComponent<0>(); }
+            T	y()	const { return getComponent<1>(); }
+            T	z()	const { return getComponent<2>(); }
+            T	w()	const { return getComponent<3>(); }
         };
 
 		template<typename T, size_t n>
@@ -84,14 +90,15 @@ namespace rev {
             T&	operator[]	(size_t i)       { return m[i]; }
             T	operator[] 	(size_t i) const { return m[i]; }
 
+            using VectorExpr<T, n, Vector<T, n>>::x;
+            using VectorExpr<T, n, Vector<T, n>>::y;
+            using VectorExpr<T, n, Vector<T, n>>::z;
+            using VectorExpr<T, n, Vector<T, n>>::w;
+
 			T&	x()         { return m[0]; }
-			T	x()	const   { return m[0]; }
 			T&	y()         { return m[1]; }
-			T	y()	const   { return m[1]; }
 			T&	z()         { return m[2]; }
-			T	z()	const   { return m[2]; }
 			T&	w()         { return m[3]; }
-			T	w()	const   { return m[3]; }
 
             // Compile time accessors
             template<size_t i>

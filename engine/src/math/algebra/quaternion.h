@@ -32,10 +32,10 @@ namespace rev { namespace math {
 		static UnitQuaternion	identity();
 
 		// Accessors
-		const T& x() const { return m[0]; }
-		const T& y() const { return m[1]; }
-		const T& z() const { return m[2]; }
-		const T& w() const { return m[3]; }
+		T x() const { return m[0]; }
+		T y() const { return m[1]; }
+		T z() const { return m[2]; }
+		T w() const { return m[3]; }
 
 		// Useful constructors
 		/// \param axis is assumed to be normalized
