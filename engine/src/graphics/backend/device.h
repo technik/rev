@@ -27,7 +27,7 @@ namespace rev :: gfx
 	{
 	public:
 
-		virtual RenderQueue& renderQueue() = 0;
+//		virtual RenderQueue& renderQueue() = 0;
 
 	protected:
 		Device() = default;
