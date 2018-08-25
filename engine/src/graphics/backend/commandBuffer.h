@@ -31,9 +31,6 @@ namespace rev :: gfx
 	class CommandBuffer
 	{
 	public:
-		// Command buffer lifetime
-		virtual void begin() = 0;
-		virtual void end() = 0;
 
 		// Uniforms
 		struct UniformBucket
@@ -47,15 +44,42 @@ namespace rev :: gfx
 			ParamList<math::Vec3f> vec3s;
 			ParamList<math::Vec4f> vec4s;
 			ParamList<math::Mat44f> mat4s;
+			ParamList<std::vector<math::Mat44f>> mat4vs;
 			ParamList<RenderQueue::Texture>	textures;
 		};
 
 		// Commands
-		virtual void setPipeline(const RenderQueue::Pipeline&) = 0;
-		virtual void setUniformData(const UniformBucket&) = 0;
-		virtual void setVertexData(const RenderQueue::VertexArrayObject&) = 0;
-		virtual void drawTriangles(int numVertices) = 0;
-		virtual void drawLines(int nVertices) = 0;
+		void setPipeline(const RenderQueue::Pipeline&);
+		void setUniformData(const UniformBucket&);
+		void setVertexData(const RenderQueue::VertexArrayObject&);
+		void drawTriangles(int numVertices);
+		void drawLines(int nVertices);
+		
+		struct Command
+		{
+			enum Opcode {
+				SetPipeline,
+				SetUniform,
+				SetVtxData,
+				DrawTriangles,
+				DrawLines,
+			};
 
+			Opcode command;
+			size_t payload;
+		};
+
+		// Command buffer lifetime
+		void begin();
+		void end();
+		void clear();
+
+		// Access
+		const std::vector<Command> commands() const { m_commands; }
+		const std::vector<UniformBucket> uniforms() const { return m_uniforms; }
+
+	private:
+		std::vector<Command> m_commands;
+		std::vector<UniformBucket> m_uniforms;
 	};
 }
