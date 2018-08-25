@@ -2,7 +2,7 @@
 # Rev project
 # Sample project that creates a simple scene graph
 ################################################################################
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.10)
 project(revAll)
 
 # --- Configurable options -----
@@ -21,7 +21,9 @@ endif()
 
 if(REV_BUILD_PLAYER)
 	add_subdirectory(player)
-endif() 
+endif()
+
+add_subdirectory(samples/Vulkraft)
 
 if(REV_BUILD_TEST)
 	enable_testing()

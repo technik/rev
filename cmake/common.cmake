@@ -4,7 +4,7 @@ if(MSVC)
 	add_definitions(-DNOMINMAX)
 endif(MSVC)
 if(CMAKE_COMPILER_IS_GNUCXX)
-	add_definitions(-std=c++11)
+	add_definitions(-std=c++17)
 endif()
 
 # Clasify sources according to folder structure. Useful for having nice visual studio filters.
