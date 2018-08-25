@@ -19,9 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "deviceOpenGLWindows.h"
-#include "../Windows/windowsPlatform.h"
 #include "../OpenGL/openGL.h"
+#include "../Windows/windowsPlatform.h"
+#include "deviceOpenGLWindows.h"
+#include "renderQueueOpenGLWindows.h"
 
 #include <iostream>
 #include <string>
@@ -185,6 +186,8 @@ namespace rev :: gfx
 			m_windowHandle = targetWindow;
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, false);
 			glDebugMessageCallback(gfxDebugCallback, nullptr);
+
+			m_renderQueue = new RenderQueueOpenGLWindows(m_deviceContext);
 		}
 	}
 

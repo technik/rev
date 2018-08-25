@@ -19,41 +19,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "../Windows/windowsPlatform.h"
+#include "renderQueueOpenGL.h"
+
 namespace rev :: gfx
 {
 	class RenderPass;
 
-	class RenderQueue
+	class RenderQueueOpenGLWindows : public RenderQueueOpenGL
 	{
 	public:
-
-		struct Resource
+		RenderQueueOpenGLWindows(HDC drawContext)
+			: m_drawContext(drawContext)
 		{
-			int id() const { return m_id;}
-		
-		protected:
-			Resource() = default;
-			int m_id;
-		};
+		}
 
-		struct Pipeline : Resource {};
-		struct VertexArrayObject : Resource {};
-		struct Texture : Resource {};
-
-	public:
-		// Render passes
-		virtual RenderPass* createRenderPass() = 0;
-		virtual void destroyRenderPass(const RenderPass&) = 0;
-
-		virtual void submitPass() = 0;
-
-		virtual void present() = 0;
+		void present() override {
+			SwapBuffers(m_drawContext);
+		}
 
 		// Graphics pipelines
-		//virtual Pipeline createGraphicsPipeline() = 0;
+		//Pipeline createGraphicsPipeline() override { return Pipeline }
 
 		// Allocate resources
 		// Textures
 		// VAOs
+
+	private:
+		HDC m_drawContext;
 	};
 }

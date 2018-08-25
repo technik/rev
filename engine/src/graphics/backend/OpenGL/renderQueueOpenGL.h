@@ -19,41 +19,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "../renderQueue.h"
+#include "renderPassOpenGL.h"
+
 namespace rev :: gfx
 {
 	class RenderPass;
 
-	class RenderQueue
+	class RenderQueueOpenGL : public RenderQueue
 	{
 	public:
-
-		struct Resource
-		{
-			int id() const { return m_id;}
-		
-		protected:
-			Resource() = default;
-			int m_id;
-		};
-
-		struct Pipeline : Resource {};
-		struct VertexArrayObject : Resource {};
-		struct Texture : Resource {};
-
-	public:
 		// Render passes
-		virtual RenderPass* createRenderPass() = 0;
-		virtual void destroyRenderPass(const RenderPass&) = 0;
+		RenderPass* createRenderPass() override { return new RenderPassOpenGL(); }
+		void destroyRenderPass(const RenderPass&) override {}
 
-		virtual void submitPass() = 0;
-
-		virtual void present() = 0;
+		void submitPass() override {}
 
 		// Graphics pipelines
-		//virtual Pipeline createGraphicsPipeline() = 0;
+		//Pipeline createGraphicsPipeline() override { return Pipeline }
 
 		// Allocate resources
 		// Textures
 		// VAOs
+
 	};
 }

@@ -20,12 +20,18 @@ int main(int _argc, const char** _argv) {
 	auto wnd = rev::gfx::createWindow({100, 150}, { 200, 200 }, "Vulkraft", true);
 	// Init graphics
 	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(wnd, true);
+	auto& renderQueue = gfxDevice.renderQueue();
+	
+	// TODO: Renderpass
 	
 	// Main loop
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
 			break;
+
+		// Finish frame
+		renderQueue.present();
 	}
 
 	// Clean up

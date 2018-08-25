@@ -27,7 +27,6 @@ namespace rev :: gfx
 	class DeviceOpenGLWindows : public DeviceOpenGL
 	{
 	public:
-
 		DeviceOpenGLWindows(HWND targetWindow = 0, bool sRGBFrameBuffer = true);
 		~DeviceOpenGLWindows();
 

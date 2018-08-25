@@ -20,12 +20,21 @@
 #pragma once
 
 #include "../device.h"
+#include "renderQueueOpenGL.h"
 
 namespace rev :: gfx
 {
 	class DeviceOpenGL : public Device
 	{
+	public:
+		RenderQueue& renderQueue() override
+		{
+			return *m_renderQueue;
+		}
+
 	protected:
 		DeviceOpenGL() = default;
+
+		RenderQueueOpenGL* m_renderQueue = nullptr;
 	};
 }

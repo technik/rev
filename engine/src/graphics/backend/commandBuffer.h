@@ -49,12 +49,6 @@ namespace rev :: gfx
 		};
 
 		// Commands
-		void setPipeline(const RenderQueue::Pipeline&);
-		void setUniformData(const UniformBucket&);
-		void setVertexData(const RenderQueue::VertexArrayObject&);
-		void drawTriangles(int numVertices);
-		void drawLines(int nVertices);
-		
 		struct Command
 		{
 			enum Opcode {
@@ -66,8 +60,17 @@ namespace rev :: gfx
 			};
 
 			Opcode command;
-			size_t payload;
+			int payload;
 		};
+
+		void setPipeline(const RenderQueue::Pipeline& pipeline)
+		{
+			m_commands.emplace_back(Command::SetPipeline, pipeline.id());
+		}
+		void setUniformData(const UniformBucket&);
+		void setVertexData(const RenderQueue::VertexArrayObject&);
+		void drawTriangles(int numVertices);
+		void drawLines(int nVertices);
 
 		// Command buffer lifetime
 		void begin();
