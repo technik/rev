@@ -19,10 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "renderPass.h"
+
 namespace rev :: gfx
 {
-	class RenderPass;
-
 	class RenderQueue
 	{
 	public:
@@ -42,10 +42,10 @@ namespace rev :: gfx
 
 	public:
 		// Render passes
-		virtual RenderPass* createRenderPass() = 0;
+		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
 		virtual void destroyRenderPass(const RenderPass&) = 0;
 
-		virtual void submitPass() = 0;
+		virtual void submitPass(const RenderPass&) = 0;
 
 		virtual void present() = 0;
 

@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <math/algebra/vector.h>
+
 namespace rev :: gfx
 {
 	class CommandBuffer;
@@ -26,6 +28,20 @@ namespace rev :: gfx
 	class RenderPass
 	{
 	public:
+		struct Descriptor
+		{
+			enum class Clear : size_t
+			{
+				Color = 1,
+				Z = 2,
+				All = (Color|Z)
+			};
+
+			math::Vec4f clearColor;
+			float clearDepth;
+			Clear clearFlags;
+		};
+
 		virtual void reset() = 0;
 
 		virtual void begin() = 0;

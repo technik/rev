@@ -30,10 +30,16 @@ namespace rev :: gfx
 	{
 	public:
 		// Render passes
-		RenderPass* createRenderPass() override { return new RenderPassOpenGL(); }
+		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override
+		{
+			return new RenderPassOpenGL(desc);
+		}
 		void destroyRenderPass(const RenderPass&) override {}
 
-		void submitPass() override {}
+		void submitPass(const RenderPass& pass) override {
+			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
+			passGL.submit();
+		}
 
 		// Graphics pipelines
 		//Pipeline createGraphicsPipeline() override { return Pipeline }

@@ -20,15 +20,42 @@
 #pragma once
 
 #include "../renderPass.h"
+#include "openGL.h"
 
 namespace rev :: gfx
 {
 	class RenderPassOpenGL : public RenderPass
 	{
 	public:
+		RenderPassOpenGL(const Descriptor& desc)
+			: m_desc(desc)
+		{}
+
 		void reset() override {}
 
 		void begin() override {}
 		void end() override {}
+
+		// OpenGL specific
+		void submit() const
+		{
+			if((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
+			{
+				glClearColor(m_desc.clearColor.x(),m_desc.clearColor.y(),m_desc.clearColor.z(),m_desc.clearColor.w());
+			}
+			if((int)m_desc.clearFlags & (int)Descriptor::Clear::Z)
+			{
+				glClearDepthf(m_desc.clearDepth);
+			}
+			if((int)m_desc.clearFlags)
+			{
+				glClear(
+					((int)Descriptor::Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
+					|((int)Descriptor::Clear::Z ? GL_DEPTH_BUFFER_BIT : 0));
+			}
+		}
+
+	private:
+		Descriptor m_desc;
 	};
 }

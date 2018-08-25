@@ -21,6 +21,11 @@ int main(int _argc, const char** _argv) {
 	// Init graphics
 	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(wnd, true);
 	auto& renderQueue = gfxDevice.renderQueue();
+	rev::gfx::RenderPass::Descriptor fwdDesc;
+	float grey = 0.5f;
+	fwdDesc.clearColor = { grey,grey,grey, 1.f };
+	fwdDesc.clearFlags = rev::gfx::RenderPass::Descriptor::Clear::Color;
+	auto& fwdPass = *renderQueue.createRenderPass(fwdDesc);
 	
 	// TODO: Renderpass
 	
@@ -30,11 +35,15 @@ int main(int _argc, const char** _argv) {
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
+		// Send clear pass to the GPU
+		renderQueue.submitPass(fwdPass);
+
 		// Finish frame
 		renderQueue.present();
 	}
 
 	// Clean up
+	renderQueue.destroyRenderPass(fwdPass);
 	rev::core::FileSystem::end();
 	//rev::core::OSHandler::shutDown();
 	return 0;
