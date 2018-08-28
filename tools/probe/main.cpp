@@ -13,6 +13,8 @@
 #include <math/noise.h>
 #include <nlohmann/json.hpp>
 
+#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -447,6 +449,9 @@ int main(int _argc, const char** _argv) {
 	// Load source data
 	auto srcImg = loadImage(params.in);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
+
+	// Create a grapics device, so we can use all openGL features
+	rev::gfx::DeviceOpenGLWindows device;
 
 	if(!srcImg)
 	{
