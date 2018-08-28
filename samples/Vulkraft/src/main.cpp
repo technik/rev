@@ -21,13 +21,13 @@ int main(int _argc, const char** _argv) {
 	// Init graphics
 	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(wnd, true);
 	auto& renderQueue = gfxDevice.renderQueue();
+
+	// Renderpass
 	rev::gfx::RenderPass::Descriptor fwdDesc;
 	float grey = 0.5f;
 	fwdDesc.clearColor = { grey,grey,grey, 1.f };
 	fwdDesc.clearFlags = rev::gfx::RenderPass::Descriptor::Clear::Color;
 	auto& fwdPass = *renderQueue.createRenderPass(fwdDesc);
-	
-	// TODO: Renderpass
 	
 	// Main loop
 	for(;;)
