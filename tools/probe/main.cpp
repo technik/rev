@@ -403,8 +403,24 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	probeDesc["mips"] = Json::array();
 	auto& mipsDesc = probeDesc["mips"];
 
+	// Create source cubemap
+	GLuint srcCubeMap;
+	glGenTextures(1, &srcCubeMap);
+	glBindTexture(GL_TEXTURE_2D, srcCubeMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, srcImg->m);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Generate mipmaps from cubemap
+	// Generate irradiance from cubemap
+	// Filter radiance
+
 	// Generate mips
-	auto mips = srcImg->generateMipMaps();
+	/*auto mips = srcImg->generateMipMaps();
 	auto nMips = mips.size();
 
 	for(size_t i = 0; i < nMips; ++i)
@@ -429,7 +445,7 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 		auto& levelDesc = mipsDesc[i];
 		levelDesc["size"] = { radiance->nx, radiance->ny };
 		levelDesc["name"] = name;
-	}
+	}*/
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
 }
