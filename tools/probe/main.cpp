@@ -217,11 +217,11 @@ struct Image
 	Vec3f convolveRadiance(RandomGenerator& random, size_t nSamples, const Vec3f& normal) const
 	{
 		Vec3f accum = Vec3f(0.f, 0.f, 0.f);
-		for(int n = 0; n < nSamples;)
+		for(size_t n = 0; n < nSamples;)
 		{
 			// Sample on the hemisphere of incomming radiance
 			auto sampleDir = random.unit_vector();
-			auto ndv = sampleDir.dot(normal);
+			auto ndv = dot(sampleDir, normal);
 			if(ndv > 0)
 			{
 				++n;
@@ -242,7 +242,7 @@ struct Image
 	}
 
 	// Precompute random samples
-	void pregenerateRandomSamples(int nSamples)
+	void pregenerateRandomSamples(size_t nSamples)
 	{
 		randomSamples.resize(nSamples);
 		const float deltaX0 = 1.f/nSamples;
@@ -253,7 +253,7 @@ struct Image
 	}
 
 	// Precompute random samples
-	void pregenerateRandomVectors(int nSamples)
+	void pregenerateRandomVectors(size_t nSamples)
 	{
 		RandomGenerator random;
 		randomVectors.resize(nSamples);
@@ -319,7 +319,7 @@ struct Image
 		auto uv = sphere2LatLong(dir);
 		auto sx = uv.x() * (nx-1);
 		auto sy = uv.y() * (ny-1);
-		return at(sx, sy);
+		return at((int)sx, (int)sy);
 	}
 
 	Vec3f PrefilterEnvMap(size_t numSamples, float Roughness, Vec3f R )
@@ -338,8 +338,8 @@ struct Image
 			Vec2f Xi = randomSamples[i];
 			Vec3f h = ImportanceSampleGGX( Xi, Roughness, N );
 			Vec3f H = tangent * h.x() + bitangent * h.y() + N * h.z();
-			Vec3f L = 2 * V.dot(H ) * H - V;
-			float NoL = min(1.f,  N.dot( L ) );
+			Vec3f L = 2 * dot(V,H) * H - V;
+			float NoL = min(1.f, dot(N,L) );
 			if( NoL > 0 )
 			{
 				PrefilteredColor = PrefilteredColor + sampleSpherical(L) * NoL;
@@ -424,7 +424,7 @@ int main(int _argc, const char** _argv) {
 	auto mips = srcImg->generateMipMaps();
 	auto nMips = mips.size();
 
-	for(int i = 0; i < nMips; ++i)
+	for(size_t i = 0; i < nMips; ++i)
 	{
 		stringstream ss;
 		ss << params.out << i << ".hdr";
