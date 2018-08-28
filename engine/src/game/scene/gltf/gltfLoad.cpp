@@ -104,7 +104,7 @@ namespace rev { namespace game {
 		auto skin = make_shared<Skinning>();
 		skin->inverseBinding.resize(numJoints);
 		auto IBMs = attributes[skinDesc.inverseBindMatrices];
-		for(auto i = 0; i < numJoints; ++i)
+		for(size_t i = 0; i < numJoints; ++i)
 			skin->inverseBinding[i] = IBMs.get<math::Mat44f>(i);
 
 		// Load skin instance

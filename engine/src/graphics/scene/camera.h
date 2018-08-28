@@ -34,7 +34,7 @@ namespace rev { namespace graphics {
 
 	class Camera {
 	public:
-		Camera(float fov = 0.78f, float near = 0.1f, float far = 10000)
+		Camera(float fov = math::Pi/3, float near = 0.1f, float far = 10000)
 			: mFov(fov)
 			, mNear(near)
 			, mFar(far)

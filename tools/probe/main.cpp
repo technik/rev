@@ -349,18 +349,18 @@ struct Image
 		return PrefilteredColor * (1/TotalWeight);
 	}
 
-	Image* radianceGGX(size_t nSamples, float r)
+	Image* radianceGGX(size_t nSamples, float r, int dstNx, int dstNy)
 	{
 		pregenerateRandomSamples(nSamples);
 
 		// Actual traverse
-		auto resultImage = new Image(nx, ny);
-		for(int i = 0; i < ny; ++i)
+		auto resultImage = new Image(dstNx, dstNy);
+		for(int i = 0; i < dstNy; ++i)
 		{
-			float v = 1-float(i)/ny;
-			for(int j = 0; j < nx; ++j)
+			float v = 1-float(i)/dstNy;
+			for(int j = 0; j < dstNx; ++j)
 			{
-				float u = float(j)/nx;
+				float u = float(j)/dstNx;
 				auto dir = latLong2Sphere(u, v);
 				resultImage->at(j,i) = PrefilterEnvMap(nSamples, r, dir);
 			}
@@ -395,27 +395,8 @@ Image* loadImage(string& fileName)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-int main(int _argc, const char** _argv) {
-	// Parse arguments
-	Params params;
-	if (!params.parseArguments(_argc, _argv))
-		return -1;
-
-	if(params.out.empty())
-	{
-		params.out = params.in + "_radiance";
-	}
-
-	// Load source data
-	auto srcImg = loadImage(params.in);
-	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
-
-	if(!srcImg)
-	{
-		cout << "Error: Unable to load input image\n";
-		return -1;
-	}
-
+void generateProbeFromImage(const Params& params, Image* srcImg)
+{
 	Json probeDesc;
 	probeDesc["mips"] = Json::array();
 	auto& mipsDesc = probeDesc["mips"];
@@ -438,7 +419,7 @@ int main(int _argc, const char** _argv) {
 		else if(i > 0)
 		{
 			float roughness = float(i) / (nMips-1);
-			radiance = radiance->radianceGGX(1000*i*i, roughness);
+			radiance = mips[0]->radianceGGX(1000*i*i, roughness, radiance->nx, radiance->ny);
 		}
 		radiance->saveHDR(name);
 		// Record mip in desc
@@ -449,6 +430,31 @@ int main(int _argc, const char** _argv) {
 	}
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+int main(int _argc, const char** _argv) {
+	// Parse arguments
+	Params params;
+	if (!params.parseArguments(_argc, _argv))
+		return -1;
+
+	if(params.out.empty())
+	{
+		params.out = params.in + "_radiance";
+	}
+
+	// Load source data
+	auto srcImg = loadImage(params.in);
+	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
+
+	if(!srcImg)
+	{
+		cout << "Error: Unable to load input image\n";
+		return -1;
+	}
+
+	generateProbeFromImage(params, srcImg);
 
 	return 0;
 }
