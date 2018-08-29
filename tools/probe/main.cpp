@@ -528,11 +528,8 @@ void main (void) {
 	};
 	for(int i = 0; i < 6; ++i)
 	{
-		glClearColor(i&1?1:0,i&2?1:0,i&4?1:0,1.f);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, srcCubeMap, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
 
-		// TODO: Render using a real shader
 		// Bind uniforms
 		Mat44f view = Mat44f::identity();
 		view.block<3,3>(0,0) = Mat33f(rotations[i]);
@@ -540,24 +537,39 @@ void main (void) {
 		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, reinterpret_cast<const float*>(&viewProj));
 		glUniform1i(1, 0); // Texture stage 0 into uniform 1
 		
+		// Render the quad
 		glBindVertexArray(quad.getVao());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 		glFinish();
 
-		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
 	}
 
 	// Generate mipmaps from cubemap
 	glGenerateTextureMipmap(srcCubeMap);
 	// Generate irradiance from cubemap
+	GLuint dstIrradiance;
+	glGenTextures(1, &dstIrradiance);
+	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Bind irradiance into the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance, 0);
+	glViewport(0,0,srcImg->nx, srcImg->ny);
+	glClearColor(0.f,1.f,0.f,1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	// Filter radiance
 	// Save results to disk
 
-	Image* cubeImg = new Image(cubeSize, cubeSize);
-	stringstream ss;
-	ss << "cube" << 0 << ".png";
-	cubeImg->save2sRGB(ss.str());
+	Image* cubeImg = new Image(srcImg->nx, srcImg->ny);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+	cubeImg->save2sRGB("irradiance.png");
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
 }
