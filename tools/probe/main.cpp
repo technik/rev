@@ -13,6 +13,7 @@
 #include <math/noise.h>
 #include <nlohmann/json.hpp>
 
+#include <core/platform/osHandler.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 
 #define STBI_MSC_SECURE_CRT
@@ -456,14 +457,22 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	
 	// Set up framebuffer
 	//glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
-	glClearColor(1.f,0.f,0.f,1.f);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, srcCubeMap, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glFinish();
-
 	Image* cubeImg = new Image(cubeSize, cubeSize);
-	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, GL_FLOAT, cubeImg->m);
-	cubeImg->save2sRGB("cubePX.png");
+	for(int i = 0; i < 6; ++i)
+	{
+		glClearColor(float(i&1),float(i&2),float(i&4),1.f);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, srcCubeMap, 0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// TODO: Render using a real shader
+
+		glFinish();
+
+		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+		stringstream ss;
+		ss << "cube" << i << ".png";
+		cubeImg->save2sRGB(ss.str());
+	}
 
 	// Generate mipmaps from cubemap
 	// Generate irradiance from cubemap
@@ -517,6 +526,7 @@ int main(int _argc, const char** _argv) {
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	// Create a grapics device, so we can use all openGL features
+	rev::core::OSHandler::startUp();
 	rev::gfx::DeviceOpenGLWindows device;
 
 	if(!srcImg)
