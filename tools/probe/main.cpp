@@ -454,13 +454,65 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, srcLatLong);
 	glViewport(0,0,cubeSize,cubeSize);
+
+	// Create shader
+	string shaderCode = R"(
+#ifdef VTX_SHADER
+layout(location = 0) in vec3 vertex;
+
+layout(location = 0) uniform mat4 viewProj;
+
+out vec3 vtxViewDir;
+
+//------------------------------------------------------------------------------
+void main ( void )
+{
+	mat4 invViewProj = inverse(viewProj);
+	// Direction from the view point to the pixel, in world space
+	vtxViewDir = (invViewProj * vec4(vertex.xy, 1.0, 1.0)).xyz; 
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+}
+#endif
+
+#ifdef PXL_SHADER
+out lowp vec3 outColor;
+in vec3 vtxViewDir;
+
+// Global state
+layout(location = 0) uniform sampler2D uLatLongMap;
+
+
+//---------------------------------------------------------------------------------------
+const vec2 invAtan = vec2(0.1591, 0.3183);
+vec2 sampleSpherical(vec3 v)
+{
+  vec2 uv = vec2(atan(-v.x, v.z), asin(-v.y));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
+}
+
+//------------------------------------------------------------------------------	
+void main (void) {
+	vec3 color = textureLod(uLatLongMap, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
+	//vec3 color = normalize(vtxViewDir).xyz;
+	
+	outColor = color;
+	/*if(vtxViewDir.z < 0.0)
+		outColor = vec3(0.4);
+	if(vtxViewDir.x*vtxViewDir.x+vtxViewDir.z*vtxViewDir.z < 0.008)
+		outColor = vec3(1.0);*/
+}
+
+#endif
+)";
 	
 	// Set up framebuffer
 	//glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
 	Image* cubeImg = new Image(cubeSize, cubeSize);
 	for(int i = 0; i < 6; ++i)
 	{
-		glClearColor(float(i&1),float(i&2),float(i&4),1.f);
+		glClearColor(i&1?1:0,i&2?1:0,i&4?1:0,1.f);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, srcCubeMap, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
