@@ -416,12 +416,12 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 		if(radiance == mips.back())
 		{
 			// Save iradiance in the last mip
-			radiance = radiance->irradianceLambert(8000);
+			radiance = radiance->irradianceLambert(20000);
 		}
 		else if(i > 0)
 		{
 			float roughness = float(i) / (nMips-1);
-			radiance = mips[0]->radianceGGX(1000*i*i, roughness, radiance->nx, radiance->ny);
+			radiance = mips[0]->radianceGGX(8000*i*i, roughness, radiance->nx, radiance->ny);
 		}
 		radiance->saveHDR(name);
 		// Record mip in desc
@@ -451,7 +451,7 @@ int main(int _argc, const char** _argv) {
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	// Create a grapics device, so we can use all openGL features
-	rev::gfx::DeviceOpenGLWindows device;
+	//rev::gfx::DeviceOpenGLWindows device;
 
 	if(!srcImg)
 	{
