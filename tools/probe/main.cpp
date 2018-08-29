@@ -403,17 +403,67 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	probeDesc["mips"] = Json::array();
 	auto& mipsDesc = probeDesc["mips"];
 
-	// Create source cubemap
-	GLuint srcCubeMap;
-	glGenTextures(1, &srcCubeMap);
-	glBindTexture(GL_TEXTURE_2D, srcCubeMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, srcImg->m);
+	// Load latlong texture into the GPU
+	GLuint srcLatLong;
+	glGenTextures(1, &srcLatLong);
+	glBindTexture(GL_TEXTURE_2D, srcLatLong);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, srcImg->m);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// --- Create source cubemap ---
+	// Create the cubemap texture
+	GLuint srcCubeMap;
+	glGenTextures(1, &srcCubeMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
+	GLenum cubemapTextures[] = {
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	};
+	int cubeSize = 512; // TODO: This must be parametric, or a function of source image's size
+	for(auto target : cubemapTextures)
+	{
+		glTexImage2D(target, 0, GL_RGBA32F, cubeSize, cubeSize, 0, GL_RGB, GL_FLOAT, NULL);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // TODO: Trilinear
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// TODO: Max LOD
+
+	// Create a frame buffer using the cubemap
+	GLuint cubeFrameBuffer;
+	glGenFramebuffers(1, &cubeFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
+	// TODO: Maybe use MRT to draw the six faces of the cube at once. Generate 6 sets of uvs in the vertex shader
+	// Render to the texture
+	// Set up source texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, srcLatLong);
+	glViewport(0,0,cubeSize,cubeSize);
+	
+	// Set up framebuffer
+	//glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
+	glClearColor(1.f,0.f,0.f,1.f);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, srcCubeMap, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glFinish();
+
+	Image* cubeImg = new Image(cubeSize, cubeSize);
+	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+	cubeImg->save2sRGB("cubePX.png");
 
 	// Generate mipmaps from cubemap
 	// Generate irradiance from cubemap
