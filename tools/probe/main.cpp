@@ -517,7 +517,6 @@ void main (void) {
 	
 	// Set up framebuffer
 	//glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
-	Image* cubeImg = new Image(cubeSize, cubeSize);
 	rev::math::Quatf rotations[] = 
 	{
 		rev::math::Quatf({0.f,1.f,0.f}, -HalfPi),
@@ -547,42 +546,18 @@ void main (void) {
 		glFinish();
 
 		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
-		stringstream ss;
-		ss << "cube" << i << ".png";
-		cubeImg->save2sRGB(ss.str());
 	}
 
 	// Generate mipmaps from cubemap
+	glGenerateTextureMipmap(srcCubeMap);
 	// Generate irradiance from cubemap
 	// Filter radiance
+	// Save results to disk
 
-	// Generate mips
-	/*auto mips = srcImg->generateMipMaps();
-	auto nMips = mips.size();
-
-	for(size_t i = 0; i < nMips; ++i)
-	{
-		stringstream ss;
-		ss << params.out << i << ".hdr";
-		auto name = ss.str();
-		Image* radiance = mips[i];
-		if(radiance == mips.back())
-		{
-			// Save iradiance in the last mip
-			radiance = radiance->irradianceLambert(8000);
-		}
-		else if(i > 0)
-		{
-			float roughness = float(i) / (nMips-1);
-			radiance = mips[0]->radianceGGX(1000*i*i, roughness, radiance->nx, radiance->ny);
-		}
-		radiance->saveHDR(name);
-		// Record mip in desc
-		mipsDesc.push_back({});
-		auto& levelDesc = mipsDesc[i];
-		levelDesc["size"] = { radiance->nx, radiance->ny };
-		levelDesc["name"] = name;
-	}*/
+	Image* cubeImg = new Image(cubeSize, cubeSize);
+	stringstream ss;
+	ss << "cube" << 0 << ".png";
+	cubeImg->save2sRGB(ss.str());
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
 }
