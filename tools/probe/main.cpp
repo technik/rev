@@ -15,6 +15,8 @@
 
 #include <core/platform/osHandler.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+#include <graphics/driver/shader.h>
+#include <graphics/scene/renderGeom.h>
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_IMPLEMENTATION
@@ -479,14 +481,14 @@ out lowp vec3 outColor;
 in vec3 vtxViewDir;
 
 // Global state
-layout(location = 0) uniform sampler2D uLatLongMap;
+layout(location = 1) uniform sampler2D uLatLongMap;
 
 
 //---------------------------------------------------------------------------------------
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 sampleSpherical(vec3 v)
 {
-  vec2 uv = vec2(atan(-v.x, v.z), asin(-v.y));
+  vec2 uv = vec2(atan(v.x, v.z), asin(v.y));
     uv *= invAtan;
     uv += 0.5;
     return uv;
@@ -506,10 +508,25 @@ void main (void) {
 
 #endif
 )";
+	auto lat2CubeShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	auto quad = rev::graphics::RenderGeom::quad({2.f,2.f});
+
+	// Bind shader
+	lat2CubeShader->bind();
+	auto proj = rev::math::frustumMatrix(HalfPi, 1.f, 0.5f, 10.f);
 	
 	// Set up framebuffer
 	//glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
 	Image* cubeImg = new Image(cubeSize, cubeSize);
+	rev::math::Quatf rotations[] = 
+	{
+		rev::math::Quatf({0.f,1.f,0.f}, -HalfPi),
+		rev::math::Quatf({0.f,1.f,0.f}, HalfPi),
+		rev::math::Quatf({1.f,0.f,0.f}, HalfPi),
+		rev::math::Quatf({1.f,0.f,0.f}, -HalfPi),
+		rev::math::Quatf({0.f,1.f,0.f}, Pi),
+		rev::math::Quatf({0.f,1.f,0.f}, 0.f)
+	};
 	for(int i = 0; i < 6; ++i)
 	{
 		glClearColor(i&1?1:0,i&2?1:0,i&4?1:0,1.f);
@@ -517,6 +534,15 @@ void main (void) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// TODO: Render using a real shader
+		// Bind uniforms
+		Mat44f view = Mat44f::identity();
+		view.block<3,3>(0,0) = Mat33f(rotations[i]);
+		auto viewProj = proj * view;
+		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, reinterpret_cast<const float*>(&viewProj));
+		glUniform1i(1, 0); // Texture stage 0 into uniform 1
+		
+		glBindVertexArray(quad.getVao());
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 		glFinish();
 
