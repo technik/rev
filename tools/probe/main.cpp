@@ -488,10 +488,10 @@ layout(location = 1) uniform sampler2D uLatLongMap;
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 sampleSpherical(vec3 v)
 {
-  vec2 uv = vec2(atan(v.x, v.z), asin(v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
+	vec2 uv = vec2(atan(v.x, -v.z), acos(-v.y));
+	uv *= invAtan;
+	uv.x += 0.5;
+	return uv;
 }
 
 //------------------------------------------------------------------------------	
@@ -521,8 +521,10 @@ void main (void) {
 	{
 		rev::math::Quatf({0.f,1.f,0.f}, -HalfPi),
 		rev::math::Quatf({0.f,1.f,0.f}, HalfPi),
-		rev::math::Quatf({1.f,0.f,0.f}, HalfPi),
-		rev::math::Quatf({1.f,0.f,0.f}, -HalfPi),
+		//rev::math::Quatf({1.f,0.f,0.f}, HalfPi),
+		//rev::math::Quatf({1.f,0.f,0.f}, -HalfPi),
+		rev::math::Quatf(normalize(Vec3f(0.f,1.f,1.f)), Pi),
+		rev::math::Quatf(normalize(Vec3f(0.f,-1.f,1.f)), Pi),
 		rev::math::Quatf({0.f,1.f,0.f}, Pi),
 		rev::math::Quatf({0.f,1.f,0.f}, 0.f)
 	};
@@ -541,17 +543,21 @@ void main (void) {
 		glBindVertexArray(quad.getVao());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
+		Image* cubeImg = new Image(cubeSize, cubeSize);
 		glFinish();
-
+		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+		stringstream ss; ss << "cube" << i << ".png";
+		cubeImg->save2sRGB(ss.str());
 	}
 
 	// Generate mipmaps from cubemap
 	glGenerateTextureMipmap(srcCubeMap);
 	// Generate irradiance from cubemap
+	Image* cubeImg = new Image(256,128);
 	GLuint dstIrradiance;
 	glGenTextures(1, &dstIrradiance);
 	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -560,14 +566,59 @@ void main (void) {
 
 	// Bind irradiance into the framebuffer
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance, 0);
-	glViewport(0,0,srcImg->nx, srcImg->ny);
+	glViewport(0,0,cubeImg->nx, cubeImg->ny);
 	glClearColor(0.f,1.f,0.f,1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	shaderCode = R"(
+#ifdef VTX_SHADER
+layout(location = 0) in vec3 vertex;
+
+out vec2 latLong;
+
+const float Pi = 3.1415927410125732421875;
+
+//------------------------------------------------------------------------------
+void main ( void )
+{
+	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+}
+#endif
+
+#ifdef PXL_SHADER
+out lowp vec3 outColor;
+in vec2 latLong;
+
+// Global state
+layout(location = 0) uniform samplerCube uSkybox;
+
+//------------------------------------------------------------------------------	
+void main (void) {
+	float cPhi = cos(latLong.y);
+	float sPhi = sqrt(1-cPhi*cPhi);
+
+	vec3 samplerDir = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
+
+	outColor = texture(uSkybox, samplerDir).xyz;
+}
+
+#endif
+)";
+	// Bind shader
+	auto irradianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	irradianceShader->bind();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
+	glUniform1i(0, 0);
+
+	// Draw a full screen quad
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 	// Filter radiance
 	// Save results to disk
 
-	Image* cubeImg = new Image(srcImg->nx, srcImg->ny);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
 	cubeImg->save2sRGB("irradiance.png");
 
@@ -593,6 +644,7 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 	rev::gfx::DeviceOpenGLWindows device;
+	
 
 	if(!srcImg)
 	{
