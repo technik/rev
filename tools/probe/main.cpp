@@ -595,13 +595,56 @@ in vec2 latLong;
 layout(location = 0) uniform samplerCube uSkybox;
 
 //------------------------------------------------------------------------------	
+void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
+{
+	float sign = (n.z>=0)?1.0:-1.0;
+	float a = -1.0f / (sign + n.z);
+	float b = n.x * n.z * a;
+	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+//------------------------------------------------------------------------------	
 void main (void) {
 	float cPhi = cos(latLong.y);
 	float sPhi = sqrt(1-cPhi*cPhi);
 
-	vec3 samplerDir = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
+	// Sample direction
+	vec3 normal = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
+	
+	// Get an orthonormal basis
+	vec3 tangent;
+	vec3 bitangent;
+	branchlessONB(normal, tangent, bitangent);
 
-	outColor = textureLod(uSkybox, samplerDir, 4.0).xyz;
+	// Integrate over the hemisphere
+	vec3 accum = vec3(0.f);
+	
+	const float nTheta = 100;
+	const float nPhi = 100;
+	for(float i = 0; i < nTheta; ++i)
+	{
+		vec3 sliceAccum = vec3(0.0); // Slice accum for improved numerical behavior
+		float theta = i * 6.2831854 / nTheta;
+		float cosTheta = cos(theta);
+		float sinTheta = sin(theta);
+		for(float j = 0; j < nPhi; ++j)
+		{
+			float phi = j * 0.5*3.1415927/nPhi;
+			float sinPhi = sin(phi);
+			float cosPhi = sqrt(1-sinPhi*sinPhi);
+
+			vec3 sampleDir = 
+				tangent * cosTheta * sinPhi +
+				bitangent * sinTheta * sinPhi +
+				normal * cosPhi;
+
+			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
+		}
+		accum += 6.2831854 * sliceAccum / nPhi;
+	}
+
+	outColor = accum / nTheta;
 }
 
 #endif
@@ -614,7 +657,7 @@ void main (void) {
 	glUniform1i(0, 0);
 
 	// Draw a full screen quad
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
 	// Filter radiance
