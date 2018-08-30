@@ -439,7 +439,7 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // TODO: Trilinear
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // TODO: Trilinear
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// TODO: Max LOD
 
@@ -543,11 +543,12 @@ void main (void) {
 		glBindVertexArray(quad.getVao());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
-		Image* cubeImg = new Image(cubeSize, cubeSize);
-		glFinish();
-		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
-		stringstream ss; ss << "cube" << i << ".png";
-		cubeImg->save2sRGB(ss.str());
+		// For debugging purposes
+		// Image* cubeImg = new Image(cubeSize, cubeSize);
+		// glFinish();
+		// glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+		// stringstream ss; ss << "cube" << i << ".png";
+		// cubeImg->save2sRGB(ss.str());
 	}
 
 	// Generate mipmaps from cubemap
@@ -600,7 +601,7 @@ void main (void) {
 
 	vec3 samplerDir = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
 
-	outColor = texture(uSkybox, samplerDir).xyz;
+	outColor = textureLod(uSkybox, samplerDir, 4.0).xyz;
 }
 
 #endif
