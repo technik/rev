@@ -599,7 +599,7 @@ void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
 {
 	float sign = (n.z>=0)?1.0:-1.0;
 	float a = -1.0f / (sign + n.z);
-	float b = n.x * n.z * a;
+	float b = n.x * n.y * a;
 	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
 	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
 }
@@ -632,7 +632,7 @@ void main (void) {
 		{
 			float phi = j * 0.5*3.1415927/nPhi;
 			float sinPhi = sin(phi);
-			float cosPhi = sqrt(1-sinPhi*sinPhi);
+			float cosPhi = cos(phi);
 
 			vec3 sampleDir = 
 				tangent * cosTheta * sinPhi +
@@ -640,11 +640,13 @@ void main (void) {
 				normal * cosPhi;
 
 			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
+			//sliceAccum += sampleDir;
 		}
 		accum += 6.2831854 * sliceAccum / nPhi;
 	}
 
-	outColor = accum / nTheta;
+	outColor = 0.5*(accum / nTheta)+0.5;
+	//outColor = 0.5*tangent+0.5;
 }
 
 #endif
