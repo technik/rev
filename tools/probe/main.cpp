@@ -554,117 +554,6 @@ void main (void) {
 
 	// Generate mipmaps from cubemap
 	glGenerateTextureMipmap(srcCubeMap);
-	// Generate irradiance from cubemap
-	size_t nRadianceMips = 5;
-	//Image* cubeImg = new Image(32,16);
-	Image* cubeImg = new Image(32,16);
-	GLuint dstIrradiance;
-	glGenTextures(1, &dstIrradiance);
-	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Bind irradiance into the framebuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance, 0);
-	glViewport(0,0,cubeImg->nx, cubeImg->ny);
-	glClearColor(0.f,1.f,0.f,1.f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	shaderCode = R"(
-#ifdef VTX_SHADER
-layout(location = 0) in vec3 vertex;
-
-out vec2 latLong;
-
-const float Pi = 3.1415927410125732421875;
-
-//------------------------------------------------------------------------------
-void main ( void )
-{
-	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
-	gl_Position = vec4(vertex.xy, 1.0, 1.0);
-}
-#endif
-
-#ifdef PXL_SHADER
-out lowp vec3 outColor;
-in vec2 latLong;
-
-// Global state
-layout(location = 0) uniform samplerCube uSkybox;
-
-//------------------------------------------------------------------------------	
-void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
-{
-	float sign = (n.z>=0)?1.0:-1.0;
-	float a = -1.0f / (sign + n.z);
-	float b = n.x * n.y * a;
-	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
-	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
-}
-
-//------------------------------------------------------------------------------	
-void main (void) {
-	float cPhi = cos(latLong.y);
-	float sPhi = sqrt(1-cPhi*cPhi);
-
-	// Sample direction
-	vec3 normal = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
-	
-	// Get an orthonormal basis
-	vec3 tangent;
-	vec3 bitangent;
-	branchlessONB(normal, tangent, bitangent);
-
-	// Integrate over the hemisphere
-	vec3 accum = vec3(0.f);
-	
-	const float nTheta = 100;
-	const float nPhi = 100;
-	for(float i = 0; i < nTheta; ++i)
-	{
-		vec3 sliceAccum = vec3(0.0); // Slice accum for improved numerical behavior
-		float theta = i * 6.2831854 / nTheta;
-		float cosTheta = cos(theta);
-		float sinTheta = sin(theta);
-		for(float j = 0; j < nPhi; ++j)
-		{
-			float phi = j * 0.5*3.1415927/nPhi;
-			float sinPhi = sin(phi);
-			float cosPhi = cos(phi);
-
-			vec3 sampleDir = 
-				tangent * cosTheta * sinPhi +
-				bitangent * sinTheta * sinPhi +
-				normal * cosPhi;
-
-			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
-		}
-		accum += sliceAccum / nPhi;
-	}
-
-	outColor = 6.2831854 * accum / nTheta;
-}
-
-#endif
-)";
-	// Bind shader
-	auto irradianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
-	irradianceShader->bind();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
-	glUniform1i(0, 0);
-
-	// Draw a full screen quad
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-	glFinish();
-
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
-	cubeImg->save2sRGB("irradiance.png");
 
 	// Filter radiance
 	shaderCode = R"(
@@ -784,10 +673,11 @@ void main (void) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
 	glUniform1i(0, 0);
 
+	size_t nRadianceMips = 5;
 	for(int i = 0; i < nRadianceMips; ++i)
 	{
 		int baseSize = (1<<(8-i));
-		cubeImg = new Image(4*baseSize,2*baseSize);
+		Image* cubeImg = new Image(4*baseSize,2*baseSize);
 		GLuint dstRradiance;
 		glGenTextures(1, &dstRradiance);
 		glBindTexture(GL_TEXTURE_2D, dstRradiance);
@@ -813,10 +703,134 @@ void main (void) {
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
 
 		stringstream ss;
-		ss << "radiance_" << i << ".png";
-		cubeImg->save2sRGB(ss.str());
+		ss << params.out << i << ".hdr";
+		auto name = ss.str();
+		cubeImg->saveHDR(ss.str());
+
+		mipsDesc.push_back({});
+		auto& levelDesc = mipsDesc[i];
+		levelDesc["size"] = { cubeImg->nx, cubeImg->ny };
+		levelDesc["name"] = name;
 	}
 
+	// Generate irradiance from cubemap
+	Image* cubeImg = new Image(32,16);
+	GLuint dstIrradiance;
+	glGenTextures(1, &dstIrradiance);
+	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Bind irradiance into the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance, 0);
+	glViewport(0,0,cubeImg->nx, cubeImg->ny);
+	glClearColor(0.f,1.f,0.f,1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	shaderCode = R"(
+#ifdef VTX_SHADER
+layout(location = 0) in vec3 vertex;
+
+out vec2 latLong;
+
+const float Pi = 3.1415927410125732421875;
+
+//------------------------------------------------------------------------------
+void main ( void )
+{
+	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+}
+#endif
+
+#ifdef PXL_SHADER
+out lowp vec3 outColor;
+in vec2 latLong;
+
+// Global state
+layout(location = 0) uniform samplerCube uSkybox;
+
+//------------------------------------------------------------------------------	
+void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
+{
+	float sign = (n.z>=0)?1.0:-1.0;
+	float a = -1.0f / (sign + n.z);
+	float b = n.x * n.y * a;
+	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+//------------------------------------------------------------------------------	
+void main (void) {
+	float cPhi = cos(latLong.y);
+	float sPhi = sqrt(1-cPhi*cPhi);
+
+	// Sample direction
+	vec3 normal = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
+	
+	// Get an orthonormal basis
+	vec3 tangent;
+	vec3 bitangent;
+	branchlessONB(normal, tangent, bitangent);
+
+	// Integrate over the hemisphere
+	vec3 accum = vec3(0.f);
+	
+	const float nTheta = 100;
+	const float nPhi = 100;
+	for(float i = 0; i < nTheta; ++i)
+	{
+		vec3 sliceAccum = vec3(0.0); // Slice accum for improved numerical behavior
+		float theta = i * 6.2831854 / nTheta;
+		float cosTheta = cos(theta);
+		float sinTheta = sin(theta);
+		for(float j = 0; j < nPhi; ++j)
+		{
+			float phi = j * 0.5*3.1415927/nPhi;
+			float sinPhi = sin(phi);
+			float cosPhi = cos(phi);
+
+			vec3 sampleDir = 
+				tangent * cosTheta * sinPhi +
+				bitangent * sinTheta * sinPhi +
+				normal * cosPhi;
+
+			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
+		}
+		accum += sliceAccum / nPhi;
+	}
+
+	outColor = 6.2831854 * accum / nTheta;
+}
+
+#endif
+)";
+	// Bind shader
+	auto irradianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	irradianceShader->bind();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
+	glUniform1i(0, 0);
+
+	// Draw a full screen quad
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+	glFinish();
+
+	stringstream ss;
+	ss << params.out << nRadianceMips << ".hdr";
+	auto name = ss.str();
+	cubeImg->saveHDR(ss.str());
+
+	mipsDesc.push_back({});
+	auto& levelDesc = mipsDesc.back();
+	levelDesc["size"] = { cubeImg->nx, cubeImg->ny };
+	levelDesc["name"] = name;
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+	cubeImg->saveHDR(name);
 	// Save results to disk
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
