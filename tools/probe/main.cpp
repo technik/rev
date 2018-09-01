@@ -443,6 +443,7 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// TODO: Max LOD
 
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	// Create a frame buffer using the cubemap
 	GLuint cubeFrameBuffer;
 	glGenFramebuffers(1, &cubeFrameBuffer);
@@ -554,7 +555,9 @@ void main (void) {
 	// Generate mipmaps from cubemap
 	glGenerateTextureMipmap(srcCubeMap);
 	// Generate irradiance from cubemap
-	Image* cubeImg = new Image(256,128);
+	size_t nRadianceMips = 5;
+	//Image* cubeImg = new Image(32,16);
+	Image* cubeImg = new Image(32,16);
 	GLuint dstIrradiance;
 	glGenTextures(1, &dstIrradiance);
 	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
@@ -640,13 +643,11 @@ void main (void) {
 				normal * cosPhi;
 
 			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
-			//sliceAccum += sampleDir;
 		}
-		accum += 6.2831854 * sliceAccum / nPhi;
+		accum += sliceAccum / nPhi;
 	}
 
-	outColor = 0.5*(accum / nTheta)+0.5;
-	//outColor = 0.5*tangent+0.5;
+	outColor = 6.2831854 * accum / nTheta;
 }
 
 #endif
@@ -659,14 +660,164 @@ void main (void) {
 	glUniform1i(0, 0);
 
 	// Draw a full screen quad
-	//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-
-	// Filter radiance
-	// Save results to disk
+	glFinish();
 
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
 	cubeImg->save2sRGB("irradiance.png");
+
+	// Filter radiance
+	shaderCode = R"(
+#ifdef VTX_SHADER
+layout(location = 0) in vec3 vertex;
+
+out vec2 latLong;
+
+const float Pi = 3.1415927410125732421875;
+
+//------------------------------------------------------------------------------
+void main ( void )
+{
+	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+}
+#endif
+
+#ifdef PXL_SHADER
+out lowp vec3 outColor;
+in vec2 latLong;
+
+// Global state
+layout(location = 0) uniform samplerCube uSkybox;
+layout(location = 1) uniform float roughness;
+
+//------------------------------------------------------------------------------	
+void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
+{
+	float sign = (n.z>=0)?1.0:-1.0;
+	float a = -1.0f / (sign + n.z);
+	float b = n.x * n.y * a;
+	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+//------------------------------------------------------------------------------
+float RadicalInverse_VdC(uint bits) 
+{
+    bits = (bits << 16u) | (bits >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+
+//------------------------------------------------------------------------------
+vec2 Hammersley(float i, float N)
+{
+    return vec2(float(i)/float(N), RadicalInverse_VdC(uint(i)));
+}
+
+//------------------------------------------------------------------------------	
+vec3 ImportanceSampleGGX(vec2 Xi, float roughness)
+{
+    float a = roughness*roughness;
+	
+    float phi = 6.2831854 * Xi.x;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+	
+    // from spherical coordinates to cartesian coordinates
+    vec3 H;
+    H.x = cos(phi) * sinTheta;
+    H.y = sin(phi) * sinTheta;
+    H.z = cosTheta;
+	
+    return H;
+} 
+
+//------------------------------------------------------------------------------	
+void main (void) {
+	float cPhi = cos(latLong.y);
+	float sPhi = sqrt(1-cPhi*cPhi);
+
+	// Sample direction
+	vec3 normal = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
+	
+	// Get an orthonormal basis
+	vec3 tangent;
+	vec3 bitangent;
+	branchlessONB(normal, tangent, bitangent);
+
+	// Integrate over the hemisphere
+	vec3 accum = vec3(0.0);
+	vec3 V = normal;
+	
+	const float nSamples = 10000;
+	float totalWeight = 0;
+	for(float i = 0; i < nSamples; ++i)
+	{
+		vec2 Xi = Hammersley(i, nSamples);
+		vec3 tsH = ImportanceSampleGGX(Xi, roughness);
+		vec3 wsH = tangent * tsH.x + bitangent * tsH.y + normal * tsH.z;
+
+		vec3 L  = normalize(2.0 * dot(V, wsH) * wsH - V);
+
+		float NdotL = max(dot(normal, L), 0.0);
+		if(NdotL > 0.0)
+		{
+			accum += texture(uSkybox, L).rgb * NdotL;
+			totalWeight += NdotL;
+		}
+	}
+
+	outColor = accum / totalWeight;
+}
+
+#endif
+)";
+
+	// Bind shader
+	auto radianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	radianceShader->bind();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
+	glUniform1i(0, 0);
+
+	for(int i = 0; i < nRadianceMips; ++i)
+	{
+		int baseSize = (1<<(8-i));
+		cubeImg = new Image(4*baseSize,2*baseSize);
+		GLuint dstRradiance;
+		glGenTextures(1, &dstRradiance);
+		glBindTexture(GL_TEXTURE_2D, dstRradiance);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Bind irradiance into the framebuffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstRradiance, 0);
+		glViewport(0,0,cubeImg->nx, cubeImg->ny);
+		glClearColor(0.f,1.f,1.f,1.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Update roughness
+		glUniform1f(1, i/(nRadianceMips-1.f));
+		// Draw a full screen quad
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+		glFinish();
+
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, cubeImg->m);
+
+		stringstream ss;
+		ss << "radiance_" << i << ".png";
+		cubeImg->save2sRGB(ss.str());
+	}
+
+	// Save results to disk
 
 	ofstream(params.out + ".json") << mipsDesc.dump(4);
 }
