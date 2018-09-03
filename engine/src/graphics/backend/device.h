@@ -36,7 +36,7 @@ namespace rev :: gfx
 
 		// Texture
 		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) = 0;
-		virtual void destroyTexture2d(TextureSampler) = 0;
+		virtual void destroyTexture2d(Texture2d) = 0;
 
 	protected:
 		Device() = default;

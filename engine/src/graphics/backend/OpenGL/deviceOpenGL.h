@@ -21,6 +21,7 @@
 
 #include "../device.h"
 #include "renderQueueOpenGL.h"
+#include <vector>
 
 namespace rev :: gfx
 {
@@ -32,9 +33,19 @@ namespace rev :: gfx
 			return *m_renderQueue;
 		}
 
+		// --- Stuff allocation ---
+		// Texture sampler
+		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) override;
+		virtual void destroyTextureSampler(TextureSampler) override;
+
+		// Texture
+		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) override;
+		virtual void destroyTexture2d(Texture2d) override;
+
 	protected:
 		DeviceOpenGL() = default;
 
 		RenderQueueOpenGL* m_renderQueue = nullptr;
+		std::vector<TextureSampler::Descriptor> m_textureSamplers;
 	};
 }

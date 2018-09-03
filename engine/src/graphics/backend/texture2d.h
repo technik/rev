@@ -34,11 +34,11 @@ namespace rev :: gfx
 	public:
 		struct Descriptor
 		{
-			enum class ChannelFormat : GLenum
+			enum class ChannelType : GLenum
 			{
 				Byte = GL_UNSIGNED_BYTE,
 				Float32 = GL_FLOAT
-			} channelFormat;
+			} channelType;
 
 			enum class PixelFormat : GLenum
 			{
@@ -59,8 +59,8 @@ namespace rev :: gfx
 			graphics::Image** srcImages;
 		};
 
-		int32_t id;
-
 		static constexpr int32_t InvalidId = -1;
+
+		int32_t id = InvalidId;
 	};
 }

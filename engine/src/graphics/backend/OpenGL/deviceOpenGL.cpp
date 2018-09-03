@@ -18,8 +18,119 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "deviceOpenGL.h"
+#include <graphics/Image.h>
+#include <math/linear.h>
 
 namespace rev :: gfx
 {
 	//----------------------------------------------------------------------------------------------
+	TextureSampler DeviceOpenGL::createTextureSampler(const TextureSampler::Descriptor& desc)
+	{
+		m_textureSamplers.push_back(desc);
+		TextureSampler sampler;
+		sampler.id = m_textureSamplers.size()-1;
+		return sampler;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::destroyTextureSampler(TextureSampler sampler)
+	{
+		// TODO: Fix this leak
+		if(m_textureSamplers.size() == sampler.id+1)
+		{
+			m_textureSamplers.pop_back();
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Texture2d DeviceOpenGL::createTexture2d(const Texture2d::Descriptor& descriptor)
+	{
+		Texture2d texture;
+		// Validate input data
+		// Generate opengl object
+		GLuint textureName;
+		glGenTextures(1, &textureName);
+		glBindTexture(GL_TEXTURE_2D, textureName);
+		// Locate sampler
+		auto& sampler = m_textureSamplers[descriptor.sampler.id];
+		// Setup sampler options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLenum)sampler.wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLenum)sampler.wrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLenum)sampler.filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Allocate images
+		math::Vec2u mipSize = descriptor.size;
+		// Gather image format from mip 0
+		GLenum imageFormat = GL_RGBA;
+		if(descriptor.srcImages)
+		{
+			auto mip0 = descriptor.srcImages[0];
+			switch(mip0->nChannels())
+			{
+				case 1:
+					imageFormat = GL_R;
+					break;
+				case 2:
+					imageFormat = GL_RG;
+					break;
+				case 3:
+					imageFormat = GL_RGB;
+					break;
+				case 4:
+					imageFormat = GL_RGBA;
+					break;
+				default:
+					assert(false); // Invalid number of channels
+					return texture;
+			}
+		}
+		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
+		size_t submittedLevels = 0;
+		for(size_t i = 0; i < descriptor.mipLevels; ++i)
+		{
+			if(descriptor.srcImages && descriptor.srcImages[i])
+			{ // Send image to the GPU
+				auto image = descriptor.srcImages[i];
+				assert(image->nChannels() == descriptor.srcImages[0]->nChannels());
+				assert(image->format() == descriptor.srcImages[0]->format());
+				assert(image->size() == mipSize);
+				glTexImage2D(GL_TEXTURE_2D, i,
+					(GLint)descriptor.pixelFormat,
+					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
+					(GLenum)imageFormat,
+					(GLint)image->format(),
+					nullptr);
+				++submittedLevels;
+			} else
+			{ // Allocate an empty image
+				glTexImage2D(GL_TEXTURE_2D, i,
+					(GLint)descriptor.pixelFormat,
+					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
+					(GLint)descriptor.pixelFormat,
+					(GLenum)descriptor.channelType,
+					nullptr);
+			}
+			mipSize = {
+				std::max(mipSize.x()/2, 1u),
+				std::max(mipSize.y()/2, 1u)
+			};
+		}
+		// Set mip level bounds
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
+		// Generate mipmaps when needed
+		if(submittedLevels < descriptor.mipLevels)
+			glGenerateTextureMipmap(textureName);
+
+		texture.id = textureName;
+		return texture;
+	}
+
+	void DeviceOpenGL::destroyTexture2d(Texture2d texture)
+	{
+		if(texture.id == Texture2d::InvalidId)
+			return;
+		GLuint textureName = texture.id;
+		glDeleteTextures(1, &textureName);
+	}
 }

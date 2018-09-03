@@ -4,6 +4,7 @@
 // Generic mathematical vector
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include "matrixBase.h"
 
@@ -114,6 +115,15 @@ namespace rev {
                 return m[i];
             }
 		};
+
+		template<typename T, size_t n, class Derived>
+		Vector<T,n> operator/(const VectorExpr<T,n,Derived> v, T k)
+		{
+			Vector<T,n> result;
+			for(size_t i = 0; i < n; ++i)
+				result[i] =  v[i] / k;
+			return result;
+		}
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
