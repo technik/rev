@@ -655,7 +655,7 @@ void main (void) {
 		float NdotL = max(dot(normal, L), 0.0);
 		if(NdotL > 0.0)
 		{
-			accum += texture(uSkybox, L).rgb * NdotL;
+			accum += textureLod(uSkybox, L, roughness * 3.0).rgb * NdotL;
 			totalWeight += NdotL;
 		}
 	}
