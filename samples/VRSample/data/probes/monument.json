@@ -2,43 +2,43 @@
     {
         "name": "monument0.hdr",
         "size": [
-            1600,
-            800
+            1024,
+            512
         ]
     },
     {
         "name": "monument1.hdr",
         "size": [
-            800,
-            400
+            512,
+            256
         ]
     },
     {
         "name": "monument2.hdr",
         "size": [
-            400,
-            200
+            256,
+            128
         ]
     },
     {
         "name": "monument3.hdr",
         "size": [
-            200,
-            100
+            128,
+            64
         ]
     },
     {
         "name": "monument4.hdr",
         "size": [
-            100,
-            50
+            64,
+            32
         ]
     },
     {
         "name": "monument5.hdr",
         "size": [
-            50,
-            25
+            32,
+            16
         ]
     }
 ]

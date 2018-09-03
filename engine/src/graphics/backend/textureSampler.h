@@ -18,23 +18,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "renderQueue.h"
-#include "textureSampler.h"
+
+#include <cstddef>
+#include <graphics/backend/openGL/openGL.h>
 
 namespace rev :: gfx
 {
-	class Device
+	class TextureSampler
 	{
-	public:
-		virtual RenderQueue& renderQueue() = 0;
+		struct Descriptor
+		{
+			enum class Wrap : GLint {
+				Repeat = GL_REPEAT,
+				Clamp = GL_CLAMP_TO_EDGE
+			};
 
-		// Stuff allocation
-		virtual TextureSampler createTextureSampler() = 0;
-		virtual void destroyTextureSampler(TextureSampler) = 0;
+			enum class MinFilter : GLint {
+				Linear = GL_LINEAR,
+				Trilinear = GL_LINEAR_MIPMAP_LINEAR,
+				Nearest = GL_NEAREST
+			};
 
-		//virtual Texture createTexture
+			Wrap wrapS = Wrap::Repeat;
+			Wrap wrapT = Wrap::Repeat;
+			MinFilter filter = MinFilter::Linear;
+		};
 
-	protected:
-		Device() = default;
+		int32_t id;
 	};
 }

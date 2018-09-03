@@ -22,11 +22,12 @@
 
 #include "windowsPlatform.h"
 #include <core/platform/osHandler.h>
+#include <iostream>
 
 namespace rev :: gfx
 {
 	namespace {
-		static bool sIsWindowClassRegistered = false;
+		bool sIsWindowClassRegistered = false;
 
 		//------------------------------------------------------------------------------------------
 		LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
@@ -44,6 +45,7 @@ namespace rev :: gfx
 
 		//------------------------------------------------------------------------------------------
 		void registerClass() {
+			sIsWindowClassRegistered = true;
 			HINSTANCE moduleHandle = GetModuleHandle(NULL);
 			// -- Register a new window class --
 			WNDCLASS winClass = {
@@ -58,7 +60,11 @@ namespace rev :: gfx
 				NULL,
 				"RevWindowClass" };
 
-			RegisterClass(&winClass);
+			if(!RegisterClass(&winClass))
+			{
+				auto error = GetLastError();
+				std::cout << "Failer to register window class. Error code: " << error << "\n";
+			}
 		}
 	}
 	//----------------------------------------------------------------------------------------------
@@ -69,7 +75,7 @@ namespace rev :: gfx
 
 		// Create a windown through the windows API
 		return CreateWindow("RevWindowClass",	// Class name, registered by the video driver
-			"",
+			"Rev",
 			WS_DISABLED, // Prevent user interaction
 			0,						// X Position
 			0,						// Y Position
