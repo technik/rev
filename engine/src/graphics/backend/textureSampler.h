@@ -26,6 +26,7 @@ namespace rev :: gfx
 {
 	class TextureSampler
 	{
+	public:
 		struct Descriptor
 		{
 			enum class Wrap : GLint {

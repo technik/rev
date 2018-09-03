@@ -31,6 +31,7 @@ namespace rev :: gfx
 {
 	class Texture2d
 	{
+	public:
 		struct Descriptor
 		{
 			enum class ChannelFormat : GLenum

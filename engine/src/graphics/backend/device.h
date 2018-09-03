@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "renderQueue.h"
+#include "texture2d.h"
 #include "textureSampler.h"
 
 namespace rev :: gfx
@@ -28,11 +29,14 @@ namespace rev :: gfx
 	public:
 		virtual RenderQueue& renderQueue() = 0;
 
-		// Stuff allocation
-		virtual TextureSampler createTextureSampler() = 0;
+		// --- Stuff allocation ---
+		// Texture sampler
+		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) = 0;
 		virtual void destroyTextureSampler(TextureSampler) = 0;
 
-		//virtual Texture createTexture
+		// Texture
+		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) = 0;
+		virtual void destroyTexture2d(TextureSampler) = 0;
 
 	protected:
 		Device() = default;
