@@ -45,6 +45,8 @@ namespace rev :: gfx
 	protected:
 		DeviceOpenGL() = default;
 
+		static GLenum getInternalFormat(Texture2d::Descriptor::ChannelType , Texture2d::Descriptor::PixelFormat, bool sRGB);
+
 		RenderQueueOpenGL* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
 	};

@@ -87,6 +87,7 @@ namespace rev :: gfx
 		}
 		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
 		size_t submittedLevels = 0;
+		GLenum internalFormat = getInternalFormat(descriptor.channelType, descriptor.pixelFormat, descriptor.sRGB);
 		for(size_t i = 0; i < descriptor.mipLevels; ++i)
 		{
 			if(descriptor.srcImages && descriptor.srcImages[i])
@@ -96,7 +97,7 @@ namespace rev :: gfx
 				assert(image->format() == descriptor.srcImages[0]->format());
 				assert(image->size() == mipSize);
 				glTexImage2D(GL_TEXTURE_2D, i,
-					(GLint)descriptor.pixelFormat,
+					internalFormat,
 					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
 					(GLenum)imageFormat,
 					(GLint)image->format(),
@@ -105,7 +106,7 @@ namespace rev :: gfx
 			} else
 			{ // Allocate an empty image
 				glTexImage2D(GL_TEXTURE_2D, i,
-					(GLint)descriptor.pixelFormat,
+					internalFormat,
 					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
 					(GLint)descriptor.pixelFormat,
 					(GLenum)descriptor.channelType,
@@ -132,5 +133,20 @@ namespace rev :: gfx
 			return;
 		GLuint textureName = texture.id;
 		glDeleteTextures(1, &textureName);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	GLenum DeviceOpenGL::getInternalFormat(
+		Texture2d::Descriptor::ChannelType channel,
+		Texture2d::Descriptor::PixelFormat pixel,
+		bool sRGB)
+	{
+		if( channel == Texture2d::Descriptor::ChannelType::Float32)
+		{
+			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
+				return sRGB ? GL_SRGB : GL_RGB8;
+			else // RGBA
+				return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+		}
 	}
 }
