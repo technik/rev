@@ -43,20 +43,19 @@ namespace rev :: gfx
 			enum class PixelFormat : GLenum
 			{
 				RGB = GL_RGB,
-				sRGB = GL_SRGB,
-				sRGBA = GL_SRGB_ALPHA,
 				RGBA = GL_RGBA
 			} pixelFormat;
 
 			TextureSampler sampler;
+			bool sRGB = false;
 			math::Vec2u size;
 			
-			size_t mipLevels; ///< Number of mipmap levels to be used in this texture
+			size_t mipLevels = 1; ///< Number of mipmap levels to be used in this texture
 
 			/// Chain of images to be used for mipmaps, or null if images will be initialized by the gpu
 			/// If not null, the array must contain exactly "mipLevel" images. Mip levels will be generated
 			/// Automatically starting on the first null pointer contained in the array, up to mipLevels-1.
-			graphics::Image** srcImages;
+			graphics::Image** srcImages = nullptr;
 		};
 
 		static constexpr int32_t InvalidId = -1;

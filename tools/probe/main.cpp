@@ -17,6 +17,7 @@
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/Image.h>
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_IMPLEMENTATION
@@ -29,6 +30,7 @@
 
 using namespace std;
 using namespace rev::math;
+using namespace rev::gfx;
 using Json = nlohmann::json;
 
 struct Params {
@@ -400,23 +402,21 @@ Image* loadImage(string& fileName)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void generateProbeFromImage(const Params& params, Image* srcImg)
+void generateProbeFromImage(const Params& params, Device& device, rev::graphics::Image* srcImg)
 {
 	Json probeDesc;
 	probeDesc["mips"] = Json::array();
 	auto& mipsDesc = probeDesc["mips"];
 
 	// Load latlong texture into the GPU
-	GLuint srcLatLong;
-	glGenTextures(1, &srcLatLong);
-	glBindTexture(GL_TEXTURE_2D, srcLatLong);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, srcImg->nx, srcImg->ny, 0, GL_RGB, GL_FLOAT, srcImg->m);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	auto sampler = device.createTextureSampler(TextureSampler::Descriptor());
+	Texture2d::Descriptor latLongDesc;
+	latLongDesc.sampler = sampler;
+	latLongDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
+	latLongDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
+	latLongDesc.size = srcImg->size();
+	latLongDesc.srcImages = &srcImg;
+	auto srcLatLong = device.createTexture2d(latLongDesc);
 
 	// --- Create source cubemap ---
 	// Create the cubemap texture
@@ -455,7 +455,7 @@ void generateProbeFromImage(const Params& params, Image* srcImg)
 	// Render to the texture
 	// Set up source texture
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, srcLatLong);
+	glBindTexture(GL_TEXTURE_2D, srcLatLong.id);
 	glViewport(0,0,cubeSize,cubeSize);
 
 	// Create shader
@@ -849,7 +849,7 @@ int main(int _argc, const char** _argv) {
 	}
 
 	// Load source data
-	auto srcImg = loadImage(params.in);
+	auto srcImg = rev::graphics::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	// Create a grapics device, so we can use all openGL features
@@ -863,7 +863,7 @@ int main(int _argc, const char** _argv) {
 		return -1;
 	}
 
-	generateProbeFromImage(params, srcImg);
+	generateProbeFromImage(params, device, &*srcImg);
 
 	return 0;
 }
