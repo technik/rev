@@ -409,14 +409,22 @@ void generateProbeFromImage(const Params& params, Device& device, rev::graphics:
 	auto& mipsDesc = probeDesc["mips"];
 
 	// Load latlong texture into the GPU
-	auto sampler = device.createTextureSampler(TextureSampler::Descriptor());
+	// Create a generic sampler for latlong images
+	auto latLongSamplerDesc = TextureSampler::Descriptor();
+	latLongSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp; // Clamp to edge on the vertical axis, since the poles of a latlong image don't match
+	auto latLongSampler = device.createTextureSampler(latLongSamplerDesc);
+	// Create a descriptor for latlong textures
 	Texture2d::Descriptor latLongDesc;
-	latLongDesc.sampler = sampler;
+	latLongDesc.sampler = latLongSampler;
 	latLongDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
 	latLongDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
-	latLongDesc.size = srcImg->size();
+	// Info specific for this image
 	latLongDesc.srcImages = &srcImg;
+	latLongDesc.mipLevels = 1;
+	latLongDesc.size = srcImg->size();
+	// Allocate and init the texture
 	auto srcLatLong = device.createTexture2d(latLongDesc);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// --- Create source cubemap ---
 	// Create the cubemap texture

@@ -93,6 +93,7 @@ namespace rev :: gfx
 			if(descriptor.srcImages && descriptor.srcImages[i])
 			{ // Send image to the GPU
 				auto image = descriptor.srcImages[i];
+				GLenum srcChannelType = image->format() == rev::graphics::Image::ChannelFormat::Float32 ? GL_FLOAT : GL_UNSIGNED_BYTE;
 				assert(image->nChannels() == descriptor.srcImages[0]->nChannels());
 				assert(image->format() == descriptor.srcImages[0]->format());
 				assert(image->size() == mipSize);
@@ -100,8 +101,8 @@ namespace rev :: gfx
 					internalFormat,
 					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
 					(GLenum)imageFormat,
-					(GLint)image->format(),
-					nullptr);
+					srcChannelType,
+					descriptor.srcImages[i]->data());
 				++submittedLevels;
 			} else
 			{ // Allocate an empty image
@@ -109,7 +110,7 @@ namespace rev :: gfx
 					internalFormat,
 					(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
 					(GLint)descriptor.pixelFormat,
-					(GLenum)descriptor.channelType,
+					GL_UNSIGNED_BYTE,
 					nullptr);
 			}
 			mipSize = {
