@@ -488,7 +488,7 @@ void generateProbeFromImage(const Params& params, Device& device, rev::graphics:
 	latLongDesc.size = srcImg->size();
 	// Allocate and init the texture
 	auto srcLatLong = device.createTexture2d(latLongDesc);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	// --- Create source cubemap ---
 	// Create the cubemap texture
@@ -687,24 +687,20 @@ void main (void) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
 	glUniform1i(0, 0);
+	latLongDesc.srcImages = nullptr;
 
 	size_t nRadianceMips = 5;
 	for(int i = 0; i < nRadianceMips; ++i)
 	{
 		int baseSize = (1<<(8-i));
 		Image* cubeImg = new Image(4*baseSize,2*baseSize);
-		GLuint dstRradiance;
-		glGenTextures(1, &dstRradiance);
-		glBindTexture(GL_TEXTURE_2D, dstRradiance);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Update descriptor's texture size
+		latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
+		// Create dst texture
+		auto dstRradiance = device.createTexture2d(latLongDesc);
 
 		// Bind irradiance into the framebuffer
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstRradiance, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstRradiance.id, 0);
 		glViewport(0,0,cubeImg->nx, cubeImg->ny);
 		glClearColor(0.f,1.f,1.f,1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -730,18 +726,13 @@ void main (void) {
 
 	// Generate irradiance from cubemap
 	Image* cubeImg = new Image(32,16);
-	GLuint dstIrradiance;
-	glGenTextures(1, &dstIrradiance);
-	glBindTexture(GL_TEXTURE_2D, dstIrradiance);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, cubeImg->nx, cubeImg->ny, 0, GL_RGB, GL_FLOAT, NULL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Update descriptor's texture size
+	latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
+	// Create dst texture
+	auto dstIrradiance = device.createTexture2d(latLongDesc);
 
 	// Bind irradiance into the framebuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance.id, 0);
 	glViewport(0,0,cubeImg->nx, cubeImg->ny);
 	glClearColor(0.f,1.f,0.f,1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
