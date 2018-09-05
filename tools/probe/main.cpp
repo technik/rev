@@ -401,6 +401,70 @@ Image* loadImage(string& fileName)
 	return img;
 }
 
+string commonPBRCode = R"(
+//------------------------------------------------------------------------------	
+void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
+{
+	float sign = (n.z>=0)?1.0:-1.0;
+	float a = -1.0f / (sign + n.z);
+	float b = n.x * n.y * a;
+	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+//------------------------------------------------------------------------------
+float RadicalInverse_VdC(uint bits) 
+{
+    bits = (bits << 16u) | (bits >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+
+//------------------------------------------------------------------------------
+vec2 Hammersley(float i, float N)
+{
+    return vec2(float(i)/float(N), RadicalInverse_VdC(uint(i)));
+}
+
+//------------------------------------------------------------------------------	
+vec3 ImportanceSampleGGX(vec2 Xi, float roughness)
+{
+    float a = roughness*roughness;
+	
+    float phi = 6.2831854 * Xi.x;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+	
+    // from spherical coordinates to cartesian coordinates
+    vec3 H;
+    H.x = cos(phi) * sinTheta;
+    H.y = sin(phi) * sinTheta;
+    H.z = cosTheta;
+	
+    return H;
+}
+)";
+
+string fullPassVtxShader = R"(
+#ifdef VTX_SHADER
+layout(location = 0) in vec3 vertex;
+
+out vec2 latLong;
+
+const float Pi = 3.1415927410125732421875;
+
+//------------------------------------------------------------------------------
+void main ( void )
+{
+	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
+	gl_Position = vec4(vertex.xy, 1.0, 1.0);
+}
+#endif
+)";
+
 //----------------------------------------------------------------------------------------------------------------------
 void generateProbeFromImage(const Params& params, Device& device, rev::graphics::Image* srcImg)
 {
@@ -564,22 +628,10 @@ void main (void) {
 	glGenerateTextureMipmap(srcCubeMap);
 
 	// Filter radiance
-	shaderCode = R"(
-#ifdef VTX_SHADER
-layout(location = 0) in vec3 vertex;
-
-out vec2 latLong;
-
-const float Pi = 3.1415927410125732421875;
-
-//------------------------------------------------------------------------------
-void main ( void )
-{
-	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
-	gl_Position = vec4(vertex.xy, 1.0, 1.0);
-}
-#endif
-
+	vector<const char*> radianceShaderCode = {
+		commonPBRCode.c_str(),
+		fullPassVtxShader.c_str(),
+		R"(
 #ifdef PXL_SHADER
 out lowp vec3 outColor;
 in vec2 latLong;
@@ -587,51 +639,6 @@ in vec2 latLong;
 // Global state
 layout(location = 0) uniform samplerCube uSkybox;
 layout(location = 1) uniform float roughness;
-
-//------------------------------------------------------------------------------	
-void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
-{
-	float sign = (n.z>=0)?1.0:-1.0;
-	float a = -1.0f / (sign + n.z);
-	float b = n.x * n.y * a;
-	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
-	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
-}
-
-//------------------------------------------------------------------------------
-float RadicalInverse_VdC(uint bits) 
-{
-    bits = (bits << 16u) | (bits >> 16u);
-    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-    return float(bits) * 2.3283064365386963e-10; // / 0x100000000
-}
-
-//------------------------------------------------------------------------------
-vec2 Hammersley(float i, float N)
-{
-    return vec2(float(i)/float(N), RadicalInverse_VdC(uint(i)));
-}
-
-//------------------------------------------------------------------------------	
-vec3 ImportanceSampleGGX(vec2 Xi, float roughness)
-{
-    float a = roughness*roughness;
-	
-    float phi = 6.2831854 * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
-	
-    // from spherical coordinates to cartesian coordinates
-    vec3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
-	
-    return H;
-} 
 
 //------------------------------------------------------------------------------	
 void main (void) {
@@ -672,10 +679,10 @@ void main (void) {
 }
 
 #endif
-)";
+)"};
 
 	// Bind shader
-	auto radianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	auto radianceShader = rev::graphics::Shader::createShader(radianceShaderCode);
 	radianceShader->bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
@@ -739,38 +746,16 @@ void main (void) {
 	glClearColor(0.f,1.f,0.f,1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	shaderCode = R"(
-#ifdef VTX_SHADER
-layout(location = 0) in vec3 vertex;
-
-out vec2 latLong;
-
-const float Pi = 3.1415927410125732421875;
-
-//------------------------------------------------------------------------------
-void main ( void )
-{
-	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
-	gl_Position = vec4(vertex.xy, 1.0, 1.0);
-}
-#endif
-
+	vector<const char*> irradianceCode = {
+		commonPBRCode.c_str(),
+		fullPassVtxShader.c_str(),
+		R"(
 #ifdef PXL_SHADER
 out lowp vec3 outColor;
 in vec2 latLong;
 
 // Global state
 layout(location = 0) uniform samplerCube uSkybox;
-
-//------------------------------------------------------------------------------	
-void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
-{
-	float sign = (n.z>=0)?1.0:-1.0;
-	float a = -1.0f / (sign + n.z);
-	float b = n.x * n.y * a;
-	b1 = vec3(1.0 + sign * n.x * n.x * a, sign * b, -sign * n.x);
-	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
-}
 
 //------------------------------------------------------------------------------	
 void main (void) {
@@ -816,9 +801,9 @@ void main (void) {
 }
 
 #endif
-)";
+)" };
 	// Bind shader
-	auto irradianceShader = rev::graphics::Shader::createShader(shaderCode.c_str());
+	auto irradianceShader = rev::graphics::Shader::createShader(irradianceCode);
 	irradianceShader->bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
