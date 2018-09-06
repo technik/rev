@@ -119,9 +119,9 @@ namespace rev :: gfx
 			};
 		}
 		// Set mip level bounds
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
 		// Generate mipmaps when needed
-		if(submittedLevels < descriptor.mipLevels)
+		if(descriptor.srcImages && descriptor.mipLevels && submittedLevels < descriptor.mipLevels)
 			glGenerateTextureMipmap(textureName);
 
 		texture.id = textureName;
@@ -142,12 +142,19 @@ namespace rev :: gfx
 		Texture2d::Descriptor::PixelFormat pixel,
 		bool sRGB)
 	{
-		if( channel == Texture2d::Descriptor::ChannelType::Float32)
+		if( channel == Texture2d::Descriptor::ChannelType::Byte)
 		{
 			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
 				return sRGB ? GL_SRGB : GL_RGB8;
 			else // RGBA
 				return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+		}
+		else
+		{
+			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
+				return GL_RGB32F;
+			else // RGBA
+				return GL_RGBA32F;
 		}
 	}
 }

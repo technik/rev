@@ -63,13 +63,6 @@ struct Params {
 				out = _argv[i];
 			}
 		} // for
-		return checkParamsAreValid();
-	}
-
-private:
-	bool checkParamsAreValid() {
-		if (in.empty())
-			return false;
 		return true;
 	}
 };
@@ -185,6 +178,26 @@ struct Image
 				srgb = 269.025f * pow(linear,1/2.4f) - 0.055f;
 			}
 			raw[i] = (uint8_t)clamp(srgb, 0.f, 255.f);
+		}
+		auto bytesPerRow = 3*nx;
+		stbi_write_png(fileName.c_str(), nx, ny, 3, raw.data(), bytesPerRow);
+	}
+
+	void saveLinear(const std::string& fileName) const
+	{
+		if(extension(fileName) != "png")
+		{
+			cout << "Only png is supported for output images\n";
+		}
+		auto nBytes = 3*nx*ny;
+		std::vector<uint8_t> raw(nBytes);
+		auto src = reinterpret_cast<const float*>(m);
+
+		// Linear to sRGB conversion following the formal specification of sRGB
+		for(int i = 0; i < nBytes; ++i)
+		{
+			auto linear = src[i] * 255.f;
+			raw[i] = (uint8_t)clamp(linear, 0.f, 255.f);
 		}
 		auto bytesPerRow = 3*nx;
 		stbi_write_png(fileName.c_str(), nx, ny, 3, raw.data(), bytesPerRow);
@@ -807,7 +820,6 @@ void main (void) {
 	stringstream ss;
 	ss << params.out << nRadianceMips << ".hdr";
 	auto name = ss.str();
-	cubeImg->saveHDR(ss.str());
 
 	mipsDesc.push_back({});
 	auto& levelDesc = mipsDesc.back();
@@ -821,11 +833,78 @@ void main (void) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+void generateIblLut(const Params& params, Device& device)
+{
+	Texture2d::Descriptor textureDesc;
+	textureDesc.size = { 512u, 512u };
+	textureDesc.sampler = device.createTextureSampler(TextureSampler::Descriptor());
+	textureDesc.channelType = Texture2d::Descriptor::ChannelType::Byte;
+	textureDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
+	textureDesc.sRGB = false;
+	auto texture = device.createTexture2d(textureDesc);
+
+	vector<const char*> shaderCode = {
+		commonPBRCode.c_str(),
+		fullPassVtxShader.c_str(),
+		R"(
+#ifdef PXL_SHADER
+out lowp vec3 outColor;
+in vec2 latLong;
+
+//------------------------------------------------------------------------------	
+void main (void) {
+
+	outColor = vec3(1.0, 0.0, 0.0);
+}
+
+#endif
+)"};
+
+
+	auto shader = rev::graphics::Shader::createShader(shaderCode);
+	shader->bind();
+	auto quad = rev::graphics::RenderGeom::quad({2.f,2.f});
+	// Create a frame buffer using the cubemap
+	GLuint cubeFrameBuffer;
+	glGenFramebuffers(1, &cubeFrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, cubeFrameBuffer);
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+	// Bind irradiance into the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.id, 0);
+	glViewport(0,0,512,512);
+	glClearColor(0.f,1.f,0.f,1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Draw a full screen quad
+	glBindVertexArray(quad.getVao());
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+	glFinish();
+
+	Image* lut = new Image(512,512);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, lut->m);
+	lut->saveLinear(params.out);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	// Parse arguments
 	Params params;
 	if (!params.parseArguments(_argc, _argv))
 		return -1;
+
+	// Create a grapics device, so we can use all openGL features
+	rev::core::OSHandler::startUp();
+	rev::gfx::DeviceOpenGLWindows device;
+
+	if(params.in.empty())
+	{
+		// Generate brdf LUT
+		if(params.out.empty())
+			params.out = "ibl.png";
+
+		generateIblLut(params, device);
+	}
 
 	if(params.out.empty())
 	{
@@ -835,11 +914,6 @@ int main(int _argc, const char** _argv) {
 	// Load source data
 	auto srcImg = rev::graphics::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
-
-	// Create a grapics device, so we can use all openGL features
-	rev::core::OSHandler::startUp();
-	rev::gfx::DeviceOpenGLWindows device;
-	
 
 	if(!srcImg)
 	{
