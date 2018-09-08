@@ -59,7 +59,7 @@ vec3 specularIBL(
   vec3 eye,
   float roughness,
   float occlusion,
-  vec3 Favg,
+  vec3 Fms,
   vec3 fms,
   float ndv)
 {
@@ -68,7 +68,7 @@ vec3 specularIBL(
   vec3 samplerDir = reflect(-eye, normal);
   vec3 radiance = getRadiance(samplerDir, lodLevel);
 
-  return radiance * (F0 * fms.x + fms.y) + Favg *fms.z * irradiance;
+  return radiance * (F0 * fms.x + fms.y) + Fms *fms.z * irradiance;
 }
 
 //---------------------------------------------------------------------------------------
@@ -100,7 +100,10 @@ vec3 ibl(
   envBRDF.xy = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
   envBRDF.z = 1.0 - (envBRDF.x + envBRDF.y);
 
-  vec3 indirectSpecular = specularIBL(irradiance, F0, normal, eye, roughness, occlusion, Favg, envBRDF, ndv);
+  float Eavg = 1-envBRDF.z;
+  vec3 Fms = Favg*Favg*Eavg/(1-Favg*envBRDF.z);
+
+  vec3 indirectSpecular = specularIBL(irradiance, F0, normal, eye, roughness, occlusion, Fms, envBRDF, ndv);
   vec3 indirectDiffuse = diffuseIBL(kD, F0, irradiance, normal, albedo, envBRDF.z, occlusion);
 
   return indirectDiffuse + indirectSpecular;
@@ -150,13 +153,13 @@ vec4 shadeSurface(ShadeInput inputs)
 
 
 	const float dielectricF0 = 0.04;
-	//metallic = 1.0;
+	metallic = 1.0;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
 	//F0 = vec3(1.0);
 	//F0 = vec3(1.00, 0.71, 0.29); // Gold
 	//F0 = vec3(0.91, 0.92, 0.92); // Aluminum
 	//F0 = vec3(0.56, 0.57, 0.58); // Iron
-	//F0 = vec3(0.95, 0.64, 0.54); // Copper
+	F0 = vec3(0.95, 0.64, 0.54); // Copper
 	//F0 = vec3(0.95, 0.93, 0.88); // Silver
 
 	// specular brdf (geometric terms)
