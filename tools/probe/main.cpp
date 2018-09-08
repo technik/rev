@@ -864,27 +864,25 @@ vec2 IntegrateBRDF( float roughness, float ndv )
 	for( uint i = 0; i < NumSamples; i++ )
 	{
 		vec2 Xi = Hammersley( i, NumSamples );
-		vec3 H = vec3(0.0,0.0,1.0);//ImportanceSampleGGX( Xi, roughness);
-		//vec3 L = 2 * dot( V, H ) * H - V;
-		vec3 L = vec3(-V.x,0.0,V.z);
+		vec3 H = ImportanceSampleGGX( Xi, roughness);
+		vec3 L = 2 * dot( V, H ) * H - V;
 
 		float ndl = clamp( L.z , 0.0, 1.0);
 		float NoH = H.z;
-		float VoH = V.z;//clamp( dot( V, H ) , 0.0, 1.0 );
+		float VoH = clamp( dot( V, H ) , 0.0, 1.0 );
 
-		//if( ndl > 0 )
+		if( ndl > 0 )
 		{
 			// GGX Geometry schlick
-			float k = (roughness+1)*(roughness+1)/8;
+			float k = roughness*roughness/2;
 			float g1V = ndv/(ndv*(1-k)+k);
 			float g1L = ndl/(ndl*(1-k)+k);
 			float G = g1V*g1L;
 
 			float G_Vis = G * VoH / (NoH * ndv);
 			float Fc = pow( 1 - VoH, 5 );
-			//A += (1 - Fc) * G_Vis;
-			A += G_Vis;//(1 - Fc) * G_Vis;
-			//B += Fc * G_Vis;
+			A += (1 - Fc) * G_Vis;
+			B += Fc * G_Vis;
 		}
 	}
 	return vec2( A, B ) / NumSamples;
@@ -893,12 +891,12 @@ vec2 IntegrateBRDF( float roughness, float ndv )
 void main (void) {
 
 	float ndv = gl_FragCoord.x/512;
-	float roughness = 0.0;//gl_FragCoord.y/512;
+	float roughness = gl_FragCoord.y/512;
 
 	vec2 brdf = IntegrateBRDF(roughness, ndv);
 
-	//outColor = vec3(brdf.x, brdf.y, 0.0);
-	outColor = vec3(brdf.x);
+	outColor = vec3(brdf.x, brdf.y, 0.0);
+	//outColor = vec3(brdf.x);
 }
 
 #endif
@@ -928,7 +926,7 @@ void main (void) {
 	Image* lut = new Image(512,512);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, lut->m);
 	//lut->save2sRGB(params.out);
-	lut->saveLinear(params.out);
+	lut->saveHDR(params.out);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -946,7 +944,7 @@ int main(int _argc, const char** _argv) {
 	{
 		// Generate brdf LUT
 		if(params.out.empty())
-			params.out = "ibl.png";
+			params.out = "ibl.hdr";
 
 		generateIblLut(params, device);
 		return 0;

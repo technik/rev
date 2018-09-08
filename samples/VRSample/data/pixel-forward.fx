@@ -33,7 +33,7 @@ in vec3 vtxShadowPos;
 // Global state
 layout(location = 3) uniform float uEV;
 
-const float PI = 3.14159265359;
+const float PI = 3.1415927410125732421875;
 const float TWO_PI = 6.283185307179586;
 const float HALF_PI = 1.5707963267948966;
 const float INV_PI = 0.3183098861837907;
