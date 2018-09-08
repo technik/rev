@@ -152,7 +152,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	const float dielectricF0 = 0.04;
 	//metallic = 1.0;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
-	F0 = vec3(1.0);
+	//F0 = vec3(1.0);
 	//F0 = vec3(1.00, 0.71, 0.29); // Gold
 	//F0 = vec3(0.91, 0.92, 0.92); // Aluminum
 	//F0 = vec3(0.56, 0.57, 0.58); // Iron
