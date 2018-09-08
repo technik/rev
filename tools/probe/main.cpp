@@ -415,6 +415,11 @@ Image* loadImage(string& fileName)
 }
 
 string commonPBRCode = R"(
+const float PI = 3.1415927410125732421875;
+const float TWO_PI = 6.283185307179586;
+const float HALF_PI = 1.5707963267948966;
+const float INV_PI = 0.3183098861837907;
+
 //------------------------------------------------------------------------------	
 void branchlessONB(vec3 n, out vec3 b1, out vec3 b2)
 {
@@ -447,7 +452,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, float roughness)
 {
     float a = roughness*roughness;
 	
-    float phi = 6.2831854 * Xi.x;
+    float phi = TWO_PI * Xi.x;
     float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
     float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
 	
@@ -467,12 +472,10 @@ layout(location = 0) in vec3 vertex;
 
 out vec2 latLong;
 
-const float Pi = 3.1415927410125732421875;
-
 //------------------------------------------------------------------------------
 void main ( void )
 {
-	latLong = vec2(Pi,0.5*Pi) * (vertex.xy + 1);
+	latLong = vec2(PI,0.5*PI) * (vertex.xy + 1);
 	gl_Position = vec4(vertex.xy, 1.0, 1.0);
 }
 #endif
@@ -563,7 +566,7 @@ void main ( void )
 #endif
 
 #ifdef PXL_SHADER
-out lowp vec3 outColor;
+out highp vec3 outColor;
 in vec3 vtxViewDir;
 
 // Global state
@@ -583,13 +586,8 @@ vec2 sampleSpherical(vec3 v)
 //------------------------------------------------------------------------------	
 void main (void) {
 	vec3 color = textureLod(uLatLongMap, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
-	//vec3 color = normalize(vtxViewDir).xyz;
 	
 	outColor = color;
-	/*if(vtxViewDir.z < 0.0)
-		outColor = vec3(0.4);
-	if(vtxViewDir.x*vtxViewDir.x+vtxViewDir.z*vtxViewDir.z < 0.008)
-		outColor = vec3(1.0);*/
 }
 
 #endif
@@ -646,7 +644,7 @@ void main (void) {
 		fullPassVtxShader.c_str(),
 		R"(
 #ifdef PXL_SHADER
-out lowp vec3 outColor;
+out highp vec3 outColor;
 in vec2 latLong;
 
 // Global state
@@ -755,7 +753,7 @@ void main (void) {
 		fullPassVtxShader.c_str(),
 		R"(
 #ifdef PXL_SHADER
-out lowp vec3 outColor;
+out highp vec3 outColor;
 in vec2 latLong;
 
 // Global state
@@ -782,12 +780,12 @@ void main (void) {
 	for(float i = 0; i < nTheta; ++i)
 	{
 		vec3 sliceAccum = vec3(0.0); // Slice accum for improved numerical behavior
-		float theta = i * 6.2831854 / nTheta;
+		float theta = i * TWO_PI / nTheta;
 		float cosTheta = cos(theta);
 		float sinTheta = sin(theta);
 		for(float j = 0; j < nPhi; ++j)
 		{
-			float phi = j * 0.5*3.1415927/nPhi;
+			float phi = j * HALF_PI/nPhi;
 			float sinPhi = sin(phi);
 			float cosPhi = cos(phi);
 
@@ -801,7 +799,7 @@ void main (void) {
 		accum += sliceAccum / nPhi;
 	}
 
-	outColor = 6.2831854 * accum / nTheta;
+	outColor = TWO_PI * accum / nTheta;
 }
 
 #endif
@@ -851,10 +849,56 @@ void generateIblLut(const Params& params, Device& device)
 out lowp vec3 outColor;
 in vec2 latLong;
 
+//------------------------------------------------------------------------------
+vec2 IntegrateBRDF( float roughness, float ndv )
+{
+	vec3 V;
+	V.x = sqrt( 1.0f - ndv * ndv ); // sin
+	V.y = 0;
+	V.z = ndv; // cos
+
+	float A = 0;
+	float B = 0;
+
+	const uint NumSamples = 1024;
+	for( uint i = 0; i < NumSamples; i++ )
+	{
+		vec2 Xi = Hammersley( i, NumSamples );
+		vec3 H = vec3(0.0,0.0,1.0);//ImportanceSampleGGX( Xi, roughness);
+		//vec3 L = 2 * dot( V, H ) * H - V;
+		vec3 L = vec3(-V.x,0.0,V.z);
+
+		float ndl = clamp( L.z , 0.0, 1.0);
+		float NoH = H.z;
+		float VoH = V.z;//clamp( dot( V, H ) , 0.0, 1.0 );
+
+		//if( ndl > 0 )
+		{
+			// GGX Geometry schlick
+			float k = (roughness+1)*(roughness+1)/8;
+			float g1V = ndv/(ndv*(1-k)+k);
+			float g1L = ndl/(ndl*(1-k)+k);
+			float G = g1V*g1L;
+
+			float G_Vis = G * VoH / (NoH * ndv);
+			float Fc = pow( 1 - VoH, 5 );
+			//A += (1 - Fc) * G_Vis;
+			A += G_Vis;//(1 - Fc) * G_Vis;
+			//B += Fc * G_Vis;
+		}
+	}
+	return vec2( A, B ) / NumSamples;
+}
 //------------------------------------------------------------------------------	
 void main (void) {
 
-	outColor = vec3(1.0, 0.0, 0.0);
+	float ndv = gl_FragCoord.x/512;
+	float roughness = 0.0;//gl_FragCoord.y/512;
+
+	vec2 brdf = IntegrateBRDF(roughness, ndv);
+
+	//outColor = vec3(brdf.x, brdf.y, 0.0);
+	outColor = vec3(brdf.x);
 }
 
 #endif
@@ -883,6 +927,7 @@ void main (void) {
 
 	Image* lut = new Image(512,512);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, lut->m);
+	//lut->save2sRGB(params.out);
 	lut->saveLinear(params.out);
 }
 
@@ -904,11 +949,12 @@ int main(int _argc, const char** _argv) {
 			params.out = "ibl.png";
 
 		generateIblLut(params, device);
+		return 0;
 	}
 
 	if(params.out.empty())
 	{
-		params.out = params.in + "_radiance";
+		params.out = params.in;
 	}
 
 	// Load source data
