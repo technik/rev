@@ -76,10 +76,9 @@ vec3 specularIBL(
 }
 
 //---------------------------------------------------------------------------------------
-vec3 diffuseIBL(vec3 kD, vec3 MS, vec3 irradiance, vec3 normal, vec3 diffColor, float fms, float occlusion)
+vec3 diffuseIBL(vec3 kD, vec3 irradiance, vec3 diffColor, float occlusion)
 {
-	//return (kD + MS * fms) * diffColor * irradiance;
-	return (kD * (1-fms) + MS * fms) * diffColor * irradiance;
+	return kD * diffColor * irradiance;
 }
 
 //---------------------------------------------------------------------------------------
@@ -94,7 +93,6 @@ vec3 ibl(
   )
 {
   vec3 kS = fresnelSchlickRoughness(ndv, F0, roughness);
-  vec3 kD = vec3(1.0) - kS;
 
   vec3 irradiance = getIrradiance(normal);
 
@@ -107,10 +105,10 @@ vec3 ibl(
 
   float Eavg = envBRDF.x + envBRDF.y;
   vec3 Fms = (kS*envBRDF.x+envBRDF.y)*Favg*Favg/(1-Favg*fms);
-  vec3 MS = 1-Fms;
-
   vec3 indirectSpecular = specularIBL(irradiance, kS, normal, eye, roughness, occlusion, Fms, envBRDF, ndv);
-  vec3 indirectDiffuse = diffuseIBL(kD, MS, irradiance, normal, albedo, envBRDF.z, occlusion);
+
+  vec3 kD = 1.0 - (kS * envBRDF.x + envBRDF.y) - Fms * fms;
+  vec3 indirectDiffuse = diffuseIBL(kD, irradiance, albedo, occlusion);
 
   return indirectDiffuse + indirectSpecular;
 }
@@ -160,7 +158,7 @@ vec4 shadeSurface(ShadeInput inputs)
 
 	const float dielectricF0 = 0.04;
 	//metallic = 1.0;
-	baseColor.xyz = vec3(1.0);
+	//baseColor.xyz = vec3(1w.0);
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
 	//F0 = vec3(1.0);
 	//F0 = vec3(1.00, 0.71, 0.29); // Gold
