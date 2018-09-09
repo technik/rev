@@ -655,6 +655,8 @@ layout(location = 1) uniform float roughness;
 void main (void) {
 	float cPhi = cos(latLong.y);
 	float sPhi = sqrt(1-cPhi*cPhi);
+	const float nMips = 4;
+	float mip = roughness*(1.7-0.7*roughness) * nMips;
 
 	// Sample direction
 	vec3 normal = vec3(sin(latLong.x)*sPhi,cPhi,cos(latLong.x)*sPhi);
@@ -668,7 +670,7 @@ void main (void) {
 	vec3 accum = vec3(0.0);
 	vec3 V = normal;
 	
-	const float nSamples = 10000;
+	const float nSamples = 10240;
 	float totalWeight = 0;
 	for(float i = 0; i < nSamples; ++i)
 	{
@@ -681,7 +683,7 @@ void main (void) {
 		float NdotL = max(dot(normal, L), 0.0);
 		if(NdotL > 0.0)
 		{
-			accum += textureLod(uSkybox, L, roughness * 3.0).rgb * NdotL;
+			accum += textureLod(uSkybox, L, mip).rgb * NdotL;
 			totalWeight += NdotL;
 		}
 	}
@@ -700,10 +702,11 @@ void main (void) {
 	glUniform1i(0, 0);
 	latLongDesc.srcImages = nullptr;
 
-	size_t nRadianceMips = 5;
+	size_t nRadianceMips = 4;
+	size_t radianceSize = 16;
 	for(int i = 0; i < nRadianceMips; ++i)
 	{
-		int baseSize = (1<<(8-i));
+		int baseSize = (radianceSize<<(nRadianceMips-i)); // The size of a face in an equivalent cubemap
 		Image* cubeImg = new Image(4*baseSize,2*baseSize);
 		// Update descriptor's texture size
 		latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
@@ -736,7 +739,7 @@ void main (void) {
 	}
 
 	// Generate irradiance from cubemap
-	Image* cubeImg = new Image(32,16);
+	Image* cubeImg = new Image(4*radianceSize,2*radianceSize);
 	// Update descriptor's texture size
 	latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
 	// Create dst texture
@@ -794,12 +797,12 @@ void main (void) {
 				bitangent * sinTheta * sinPhi +
 				normal * cosPhi;
 
-			sliceAccum += textureLod(uSkybox, sampleDir, 4.0).xyz * cosPhi * sinPhi;
+			sliceAccum += textureLod(uSkybox, sampleDir, 3.0).xyz * cosPhi * sinPhi;
 		}
 		accum += sliceAccum / nPhi;
 	}
 
-	outColor = TWO_PI * accum / nTheta;
+	outColor = PI * accum / nTheta;
 }
 
 #endif

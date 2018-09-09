@@ -41,10 +41,6 @@ void main (void) {
 	//vec3 color = normalize(vtxViewDir).xyz;
 	
 	outColor = uEV*color;
-	/*if(vtxViewDir.z < 0.0)
-		outColor = vec3(0.4);
-	if(vtxViewDir.x*vtxViewDir.x+vtxViewDir.z*vtxViewDir.z < 0.008)
-		outColor = vec3(1.0);*/
 }
 
 #endif

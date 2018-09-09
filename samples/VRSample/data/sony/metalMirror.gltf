@@ -795,7 +795,7 @@
 		{
 			"name": "ground",
 			"pbrMetallicRoughness": {
-				"baseColorFactor": [1, 0.9858491, 0.9858491, 1],
+				"baseColorFactor": [1, 1, 1, 1],
 				"metallicFactor":0.003,
 				"roughnessFactor":0.866,
 				"baseColorTexture": { "index": 0 }
