@@ -839,7 +839,7 @@ void generateIblLut(const Params& params, Device& device)
 	Texture2d::Descriptor textureDesc;
 	textureDesc.size = { 512u, 512u };
 	textureDesc.sampler = device.createTextureSampler(TextureSampler::Descriptor());
-	textureDesc.channelType = Texture2d::Descriptor::ChannelType::Byte;
+	textureDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
 	textureDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
 	textureDesc.sRGB = false;
 	auto texture = device.createTexture2d(textureDesc);
@@ -849,7 +849,7 @@ void generateIblLut(const Params& params, Device& device)
 		fullPassVtxShader.c_str(),
 		R"(
 #ifdef PXL_SHADER
-out lowp vec3 outColor;
+out highp vec3 outColor;
 in vec2 latLong;
 
 //------------------------------------------------------------------------------
@@ -863,7 +863,7 @@ vec2 IntegrateBRDF( float roughness, float ndv )
 	float A = 0;
 	float B = 0;
 
-	const uint NumSamples = 1024;
+	const uint NumSamples = 4096;
 	for( uint i = 0; i < NumSamples; i++ )
 	{
 		vec2 Xi = Hammersley( i, NumSamples );
@@ -899,12 +899,10 @@ void main (void) {
 	vec2 brdf = IntegrateBRDF(roughness, ndv);
 
 	outColor = vec3(brdf.x, brdf.y, 0.0);
-	//outColor = vec3(brdf.x);
 }
 
 #endif
 )"};
-
 
 	auto shader = rev::graphics::Shader::createShader(shaderCode);
 	shader->bind();
