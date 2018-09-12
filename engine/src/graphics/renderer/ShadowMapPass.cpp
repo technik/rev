@@ -57,7 +57,10 @@ namespace rev { namespace graphics {
 	{
 		// Accumulate all casters into a single shadow space bounding box
 		AABB castersBBox; castersBBox.clear();
-		auto view = light.worldMatrix.orthoNormalInverse();
+		AffineTransform lightRotation = AffineTransform::identity();
+		lightRotation.setRotation(Quatf({1.f, 0.f, 0.f}, HalfPi));
+		auto world = light.worldMatrix * lightRotation; // So that light's +y axis (forward), maps to the -Z in camera
+		auto view = world.orthoNormalInverse();
 		for(auto& obj : renderables)
 		{
 			auto modelToShadow = view * obj->transform;
@@ -69,7 +72,7 @@ namespace rev { namespace graphics {
 			}
 		}
 
-		adjustViewMatrix(light.worldMatrix,castersBBox);// Adjust view matrix
+		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
 		setUpGlobalState(); // Set gl global state
@@ -135,7 +138,7 @@ namespace rev { namespace graphics {
 			for(auto& primitive : renderObj->mesh->mPrimitives)
 			{
 				auto& command = mBackEnd.beginCommand();
-				command.cullMode = affineTransformDeterminant(worldMatrix) > 0.f ? GL_FRONT : GL_BACK;
+				command.cullMode = affineTransformDeterminant(worldMatrix) > 0.f ? GL_BACK : GL_FRONT;
 				//command.cullMode = GL_FRONT;
 				mBackEnd.addParam(0, wvp);
 

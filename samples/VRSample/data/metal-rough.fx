@@ -72,13 +72,13 @@ vec3 specularIBL(
 	vec3 samplerDir = reflect(-eye, normal);
 	vec3 radiance = getRadiance(samplerDir, lodLevel);
 
-	return radiance * (F0 * fms.x + fms.y) + Fms *fms.z * irradiance;
+	return radiance * (F0 * fms.x + fms.y) * occlusion + Fms *fms.z * irradiance;
 }
 
 //---------------------------------------------------------------------------------------
 vec3 diffuseIBL(vec3 kD, vec3 irradiance, vec3 diffColor, float occlusion)
 {
-	return kD * diffColor * irradiance;
+	return kD * diffColor * irradiance * occlusion;
 }
 
 //---------------------------------------------------------------------------------------
@@ -139,11 +139,10 @@ vec4 shadeSurface(ShadeInput inputs)
 #ifdef sampler2D_uShadowMap
 	float shadowDepth = texture(uShadowMap, inputs.shadowPos.xy*0.5+0.5).x;
 	float surfaceDepth = 0.5 + 0.5 * inputs.shadowPos.z;
-	//float shadowHardness = 0.7;
-	//float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
+	float shadowHardness = 0.7;
+	float shadowEffect = 1.0-shadowHardness*max(0.0, dot(uLightDir, inputs.normal));
 	//float shadowEffect = 0.0;//-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
-	//float shadowMask = shadowDepth;// > surfaceDepth) ? 0.0 : 1.0;
-	float shadowMask = (shadowDepth < surfaceDepth) ? 0.0 : 1.0;
+	float shadowMask = (shadowDepth > surfaceDepth) ? shadowEffect : 1.0;
 #else
 	float shadowMask = 1.0;
 #endif
@@ -155,17 +154,8 @@ vec4 shadeSurface(ShadeInput inputs)
 	if(baseColor.a < 0.5)
 		discard;
 
-
 	const float dielectricF0 = 0.04;
-	//metallic = 1.0;
-	//baseColor.xyz = vec3(1w.0);
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
-	//F0 = vec3(1.0);
-	//F0 = vec3(1.00, 0.71, 0.29); // Gold
-	//F0 = vec3(0.91, 0.92, 0.92); // Aluminum
-	//F0 = vec3(0.56, 0.57, 0.58); // Iron
-	//F0 = vec3(0.95, 0.64, 0.54); // Copper
-	//F0 = vec3(0.95, 0.93, 0.88); // Silver
 
 	// specular brdf (geometric terms)
 	float alpha = roughness * roughness;
@@ -215,7 +205,7 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 directDiffuse = uLightColor * albedo * ff;
 #endif
 
-	vec3 color = ibl(F0, inputs.normal, inputs.eye, albedo, roughness, occlusion, inputs.ndv);
+	vec3 color = ibl(F0, inputs.normal, inputs.eye, albedo, roughness, occlusion*shadowMask, inputs.ndv);
 	return vec4(color, baseColor.a);
 }
 

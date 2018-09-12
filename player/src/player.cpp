@@ -54,7 +54,7 @@ namespace rev {
 			// Default scene light
 			{
 				AffineTransform lightXform = AffineTransform::identity();
-				lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.6f, 0.2f)), -Constants<float>::halfPi));
+				lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
 				sceneLight->worldMatrix = lightXform;
 				sceneLight->color = 4*Vec3f::ones();
 				sceneLight->castShadows = true;

@@ -47,5 +47,6 @@ namespace rev { namespace graphics {
 
 	struct DirectionalLight : Light
 	{
+		// Points towards the +y axis
 	};
 }}
