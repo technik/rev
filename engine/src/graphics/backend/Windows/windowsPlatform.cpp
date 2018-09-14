@@ -63,7 +63,7 @@ namespace rev :: gfx
 			if(!RegisterClass(&winClass))
 			{
 				auto error = GetLastError();
-				std::cout << "Failer to register window class. Error code: " << error << "\n";
+				std::cout << "Failed to register window class. Error code: " << error << "\n";
 			}
 		}
 	}

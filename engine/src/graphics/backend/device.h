@@ -21,6 +21,7 @@
 #include "renderQueue.h"
 #include "texture2d.h"
 #include "textureSampler.h"
+#include "frameBuffer.h"
 
 namespace rev :: gfx
 {
@@ -29,7 +30,6 @@ namespace rev :: gfx
 	public:
 		virtual RenderQueue& renderQueue() = 0;
 
-		// --- Stuff allocation ---
 		// Texture sampler
 		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) = 0;
 		virtual void destroyTextureSampler(TextureSampler) = 0;
@@ -37,6 +37,15 @@ namespace rev :: gfx
 		// Texture
 		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) = 0;
 		virtual void destroyTexture2d(Texture2d) = 0;
+
+		// Frame buffers
+		virtual FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) = 0;
+
+		// Render passes
+		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
+		virtual void destroyRenderPass(const RenderPass&) = 0;
+
+		virtual void submitPass(const RenderPass&) = 0;
 
 	protected:
 		Device() = default;

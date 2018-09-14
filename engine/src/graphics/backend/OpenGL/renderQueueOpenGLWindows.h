@@ -20,13 +20,13 @@
 #pragma once
 
 #include "../Windows/windowsPlatform.h"
-#include "renderQueueOpenGL.h"
+#include "../renderQueue.h"
 
 namespace rev :: gfx
 {
 	class RenderPass;
 
-	class RenderQueueOpenGLWindows : public RenderQueueOpenGL
+	class RenderQueueOpenGLWindows : public RenderQueue
 	{
 	public:
 		RenderQueueOpenGLWindows(HDC drawContext)
@@ -37,13 +37,6 @@ namespace rev :: gfx
 		void present() override {
 			SwapBuffers(m_drawContext);
 		}
-
-		// Graphics pipelines
-		//Pipeline createGraphicsPipeline() override { return Pipeline }
-
-		// Allocate resources
-		// Textures
-		// VAOs
 
 	private:
 		HDC m_drawContext;

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
+#include "frameBuffer.h"
 
 namespace rev :: gfx
 {
@@ -37,6 +38,7 @@ namespace rev :: gfx
 				All = (Color|Z)
 			};
 
+			FrameBuffer target;
 			math::Vec4f clearColor;
 			float clearDepth;
 			Clear clearFlags;

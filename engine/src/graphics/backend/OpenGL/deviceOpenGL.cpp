@@ -128,12 +128,53 @@ namespace rev :: gfx
 		return texture;
 	}
 
+	//----------------------------------------------------------------------------------------------
 	void DeviceOpenGL::destroyTexture2d(Texture2d texture)
 	{
 		if(texture.id == Texture2d::InvalidId)
 			return;
 		GLuint textureName = texture.id;
 		glDeleteTextures(1, &textureName);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	FrameBuffer DeviceOpenGL::createFrameBuffer(const FrameBuffer::Descriptor& desc)
+	{
+		FrameBuffer newFb;
+		GLuint fbId;
+		glGenFramebuffers(1, &fbId);
+
+		// Use descriptor info to bind resources
+		glBindFramebuffer(GL_FRAMEBUFFER, fbId);
+
+		int nColorAttachs = 0;
+		for(size_t i = 0; i < desc.numAttachments; ++i)
+		{
+			auto& attachment = desc.attachments[i];
+			GLenum attachment;
+
+			// Color vs depth attachment
+			GLenum attachTarget = GL_DEPTH_ATTACHMENT;
+			if(attachment.target == FrameBuffer::Attachment::Color)
+				attachTarget = GL_COLOR_ATTACHMENT0 + nColorAttachs++;
+
+			// Bind attachment to an attachment point
+			//if(attachment.imageType == FrameBuffer::Attachment::Texture)
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id, attachment.mipLevel);
+			//else // TODO: Render buffer
+				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.RenderBuffer.id);
+		}
+
+		// If configuration was successful, return the new frame buffer
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+		{
+			newFb.id = int32_t(fbId);
+		}
+
+		// Unbind fb to prevent state leaks
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return newFb;
 	}
 
 	//----------------------------------------------------------------------------------------------

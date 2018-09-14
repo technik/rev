@@ -18,35 +18,43 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <cstddef>
 
-#include "../renderQueue.h"
-#include "renderPassOpenGL.h"
+namespace rev::gfx {
 
-namespace rev :: gfx
-{
-	class RenderPass;
-
-	class RenderQueueOpenGL : public RenderQueue
+	class FrameBuffer
 	{
 	public:
-		// Render passes
-		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override
+		struct Attachment
 		{
-			return new RenderPassOpenGL(desc);
-		}
-		void destroyRenderPass(const RenderPass&) override {}
+			enum ImageType
+			{
+				Texture,
+				RenderBuffer
+			} imageType;
 
-		void submitPass(const RenderPass& pass) override {
-			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
-			passGL.submit();
-		}
+			enum Target
+			{
+				Color,
+				Depth
+			} target;
 
-		// Graphics pipelines
-		//Pipeline createGraphicsPipeline() override { return Pipeline }
+			// Info for texture attachments
+			Texture2d texture;
+			size_t mipLevel;
 
-		// Allocate resources
-		// Textures
-		// VAOs
+			// Info for render buffer attachments
+			// TODO
+		};
 
+		struct Descriptor {
+			size_t numAttachments;
+			Attachment* attachments;
+		};
+
+		static constexpr int32_t InvalidId = -1;
+
+		int32_t id = InvalidId;
 	};
+
 }

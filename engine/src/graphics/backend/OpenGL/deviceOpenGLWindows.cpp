@@ -201,6 +201,14 @@ namespace rev :: gfx
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	FrameBuffer DeviceOpenGLWindows::defaultFrameBuffer()
+	{
+		FrameBuffer defaultFb;
+		defaultFb.id = 0;
+		return defaultFb;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	void DeviceOpenGLWindows::checkSupportedExtensions() 
 	{
 		GLint nExtensions;

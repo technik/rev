@@ -27,25 +27,7 @@ namespace rev :: gfx
 	{
 	public:
 
-		struct Resource
-		{
-			int id() const { return m_id;}
-		
-		protected:
-			Resource() = default;
-			int m_id;
-		};
-
-		struct Pipeline : Resource {};
-		struct VertexArrayObject : Resource {};
-		struct Texture : Resource {};
-
 	public:
-		// Render passes
-		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
-		virtual void destroyRenderPass(const RenderPass&) = 0;
-
-		virtual void submitPass(const RenderPass&) = 0;
 
 		virtual void present() = 0;
 
