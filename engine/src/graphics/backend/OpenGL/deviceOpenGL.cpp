@@ -151,7 +151,6 @@ namespace rev :: gfx
 		for(size_t i = 0; i < desc.numAttachments; ++i)
 		{
 			auto& attachment = desc.attachments[i];
-			GLenum attachment;
 
 			// Color vs depth attachment
 			GLenum attachTarget = GL_DEPTH_ATTACHMENT;

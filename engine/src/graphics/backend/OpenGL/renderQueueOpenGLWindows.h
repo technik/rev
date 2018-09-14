@@ -20,13 +20,13 @@
 #pragma once
 
 #include "../Windows/windowsPlatform.h"
-#include "../renderQueue.h"
+#include "renderQueueOpenGL.h"
 
 namespace rev :: gfx
 {
 	class RenderPass;
 
-	class RenderQueueOpenGLWindows : public RenderQueue
+	class RenderQueueOpenGLWindows : public RenderQueueOpenGL
 	{
 	public:
 		RenderQueueOpenGLWindows(HDC drawContext)

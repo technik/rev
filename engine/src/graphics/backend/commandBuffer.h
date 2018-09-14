@@ -63,26 +63,40 @@ namespace rev :: gfx
 			int32_t payload;
 		};
 
+		enum class IndexType
+		{
+			U8,
+			U16,
+			U32
+		};
+
+		struct DrawPayload
+		{
+			int nIndices;
+			IndexType indexType;
+		};
+
 		//void setPipeline(const RenderQueue::Pipeline& pipeline)
 		//{
 		//	m_commands.emplace_back(Command::SetPipeline, pipeline.id());
 		//}
 		void setUniformData(const UniformBucket&);
 		//void setVertexData(const RenderQueue::VertexArrayObject&);
-		void drawTriangles(int numVertices);
-		void drawLines(int nVertices);
+		void drawTriangles(int numVertices, IndexType);
+		void drawLines(int nVertices, IndexType);
 
 		// Command buffer lifetime
-		void begin();
-		void end();
-		void clear();
+		void clear() { m_commands.clear(); }
 
 		// Access
 		const std::vector<Command> commands() const { m_commands; }
-		const std::vector<UniformBucket> uniforms() const { return m_uniforms; }
+		const UniformBucket& getUniforms(size_t i) const { return m_uniforms[i]; }
+		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
 
 	private:
+
 		std::vector<Command> m_commands;
 		std::vector<UniformBucket> m_uniforms;
+		std::vector<DrawPayload> m_draws;
 	};
 }
