@@ -18,45 +18,53 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <cstddef>
 #include <cstdint>
-#include "texture2d.h"
+#include <vector>
 
-namespace rev::gfx {
-
-	class FrameBuffer
+namespace rev :: gfx
+{
+	class Pipeline
 	{
 	public:
-		struct Attachment
+		using Id = int32_t;
+		static constexpr Id InvalidId = -1;
+
+		struct ShaderModule
 		{
-			enum ImageType
-			{
-				Texture,
-				RenderBuffer
-			} imageType;
-
-			enum Target
-			{
-				Color,
-				Depth
-			} target;
-
-			// Info for texture attachments
-			Texture2d texture;
-			size_t mipLevel;
-
-			// Info for render buffer attachments
-			// TODO
+			Id id;
 		};
+
+		// Vertex data / instance data
+		struct Binding // Source buffers
+		{
+			// Binding index
+
+		};
+
+		struct Attribute
+		{
+			// Source buffer
+			// Location (in shader)
+		};
+
+		// TODO: Uniform buffers (VkPipelineLayout)
 
 		struct Descriptor {
-			size_t numAttachments;
-			Attachment* attachments;
+			ShaderModule vtxShader;
+			ShaderModule pxlShader;
+
+			std::vector<Binding> vtxBuffers;
+			std::vector<Binding> instanceBuffers;
+			std::vector<Attribute> attributes;
+
+			// TODO: Fixed function
+			// Depth test
+			// Blending
+			// Culling
+
+			// TODO: Uniform buffers
 		};
 
-		static constexpr int32_t InvalidId = -1;
-
-		int32_t id = InvalidId;
+		Id id = InvalidId;
 	};
-
 }

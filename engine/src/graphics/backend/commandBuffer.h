@@ -89,7 +89,7 @@ namespace rev :: gfx
 		void clear() { m_commands.clear(); }
 
 		// Access
-		const std::vector<Command> commands() const { m_commands; }
+		const std::vector<Command> commands() const { return m_commands; }
 		const UniformBucket& getUniforms(size_t i) const { return m_uniforms[i]; }
 		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
 

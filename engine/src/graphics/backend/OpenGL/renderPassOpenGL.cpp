@@ -49,6 +49,7 @@ namespace rev :: gfx
 
 		// Config viewport
 		glViewport(m_viewportStart.x(), m_viewportStart.y(), m_viewportSize.x(), m_viewportSize.y());
+		glScissor(m_viewportStart.x(), m_viewportStart.y(), m_viewportSize.x(), m_viewportSize.y());
 
 		// Clear
 		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
