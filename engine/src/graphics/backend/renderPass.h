@@ -45,8 +45,7 @@ namespace rev :: gfx
 		};
 
 		virtual void reset() = 0;
-
-		virtual void begin() = 0;
-		virtual void end() = 0;
+		virtual void setViewport(const math::Vec2u& start, const math::Vec2u& size) = 0;
+		virtual void record(const CommandBuffer&) = 0;
 	};
 }

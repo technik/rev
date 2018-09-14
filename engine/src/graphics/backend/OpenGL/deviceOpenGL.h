@@ -53,11 +53,6 @@ namespace rev :: gfx
 		}
 		void destroyRenderPass(const RenderPass&) override {}
 
-		void submitPass(const RenderPass& pass) override {
-			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
-			passGL.submit();
-		}
-
 	protected:
 		DeviceOpenGL() = default;
 

@@ -19,70 +19,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <math/algebra/matrix.h>
-#include <math/algebra/vector.h>
-
-#include <vector>
-
-#include "renderQueue.h"
+#include "../renderQueue.h"
+#include "renderPassOpenGL.h"
 
 namespace rev :: gfx
 {
-	class CommandBuffer
+	class CommandBuffer;
+
+	class RenderQueueOpenGL : public RenderQueue
 	{
 	public:
 
-		// Uniforms
-		struct UniformBucket
-		{
-			// Management
-			void clear();
+		virtual void present() = 0;
 
-			template<class T> using ParamList = std::vector<std::pair<int,T>>;
+		void submitPass(const RenderPass& pass) override {
+			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
+			passGL.submit(*this);
+		}
 
-			ParamList<float> floats;
-			ParamList<math::Vec3f> vec3s;
-			ParamList<math::Vec4f> vec4s;
-			ParamList<math::Mat44f> mat4s;
-			ParamList<std::vector<math::Mat44f>> mat4vs;
-			//ParamList<RenderQueue::Texture>	textures;
-		};
-
-		// Commands
-		struct Command
-		{
-			enum Opcode {
-				SetPipeline,
-				SetUniform,
-				SetVtxData,
-				DrawTriangles,
-				DrawLines,
-			};
-
-			Opcode command;
-			int32_t payload;
-		};
-
-		//void setPipeline(const RenderQueue::Pipeline& pipeline)
-		//{
-		//	m_commands.emplace_back(Command::SetPipeline, pipeline.id());
-		//}
-		void setUniformData(const UniformBucket&);
-		//void setVertexData(const RenderQueue::VertexArrayObject&);
-		void drawTriangles(int numVertices);
-		void drawLines(int nVertices);
-
-		// Command buffer lifetime
-		void begin();
-		void end();
-		void clear();
-
-		// Access
-		const std::vector<Command> commands() const { m_commands; }
-		const std::vector<UniformBucket> uniforms() const { return m_uniforms; }
-
-	private:
-		std::vector<Command> m_commands;
-		std::vector<UniformBucket> m_uniforms;
+		void submitCommandBuffer(const CommandBuffer&);
 	};
 }
+
+
+
+
+

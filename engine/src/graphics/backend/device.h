@@ -25,6 +25,8 @@
 
 namespace rev :: gfx
 {
+	class RenderPass;
+
 	class Device
 	{
 	public:
@@ -44,8 +46,6 @@ namespace rev :: gfx
 		// Render passes
 		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
 		virtual void destroyRenderPass(const RenderPass&) = 0;
-
-		virtual void submitPass(const RenderPass&) = 0;
 
 	protected:
 		Device() = default;

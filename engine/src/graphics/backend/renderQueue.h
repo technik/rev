@@ -27,15 +27,9 @@ namespace rev :: gfx
 	{
 	public:
 
-	public:
-
 		virtual void present() = 0;
 
-		// Graphics pipelines
-		//virtual Pipeline createGraphicsPipeline() = 0;
-
-		// Allocate resources
-		// Textures
-		// VAOs
+		// TODO: Move this into a command buffer?
+		virtual void submitPass(const RenderPass&) = 0;
 	};
 }

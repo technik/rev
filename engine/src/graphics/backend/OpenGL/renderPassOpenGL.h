@@ -21,9 +21,12 @@
 
 #include "../renderPass.h"
 #include "openGL.h"
+#include <vector>
 
 namespace rev :: gfx
 {
+	class RenderQueueOpenGL;
+
 	class RenderPassOpenGL : public RenderPass
 	{
 	public:
@@ -31,31 +34,17 @@ namespace rev :: gfx
 			: m_desc(desc)
 		{}
 
-		void reset() override {}
-
-		void begin() override {}
-		void end() override {}
+		void reset() override;
+		void setViewport(const math::Vec2u& start, const math::Vec2u& size) override;
+		void record(const CommandBuffer&) override;
 
 		// OpenGL specific
-		void submit() const
-		{
-			if((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
-			{
-				glClearColor(m_desc.clearColor.x(),m_desc.clearColor.y(),m_desc.clearColor.z(),m_desc.clearColor.w());
-			}
-			if((int)m_desc.clearFlags & (int)Descriptor::Clear::Z)
-			{
-				glClearDepthf(m_desc.clearDepth);
-			}
-			if((int)m_desc.clearFlags)
-			{
-				glClear(
-					((int)Descriptor::Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
-					|((int)Descriptor::Clear::Z ? GL_DEPTH_BUFFER_BIT : 0));
-			}
-		}
+		void submit(RenderQueueOpenGL& renderQueue) const;
 
 	private:
+		math::Vec2u m_viewportStart;
+		math::Vec2u m_viewportSize;
 		Descriptor m_desc;
+		std::vector<const CommandBuffer*> m_commandList;
 	};
 }
