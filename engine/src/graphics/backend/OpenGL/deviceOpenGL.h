@@ -21,6 +21,7 @@
 
 #include "../device.h"
 #include "renderPassOpenGL.h"
+#include "../pipeline.h"
 #include <vector>
 
 namespace rev :: gfx
@@ -45,7 +46,6 @@ namespace rev :: gfx
 		// Frame buffers
 		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
 		
-
 		// Render passes
 		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override
 		{
@@ -53,12 +53,23 @@ namespace rev :: gfx
 		}
 		void destroyRenderPass(const RenderPass&) override {}
 
+		// OpenGL specifics
+		void bindPipeline(int32_t pipelineId);
+
 	protected:
+
+		struct PipelineInfo
+		{
+			Pipeline::Descriptor desc;
+			GLuint nativeName;
+		};
+
 		DeviceOpenGL() = default;
 
 		static GLenum getInternalFormat(Texture2d::Descriptor::ChannelType , Texture2d::Descriptor::PixelFormat, bool sRGB);
 
 		RenderQueue* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
+		std::vector<PipelineInfo>	m_pipelines;
 	};
 }

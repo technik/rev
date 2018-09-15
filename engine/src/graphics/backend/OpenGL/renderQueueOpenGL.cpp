@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "renderQueueOpenGL.h"
 #include "../commandBuffer.h"
+#include "deviceOpenGL.h"
 
 namespace rev :: gfx
 {
@@ -42,6 +43,11 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	RenderQueueOpenGL::RenderQueueOpenGL(DeviceOpenGL& device)
+		: m_device(device)
+	{}
+
+	//----------------------------------------------------------------------------------------------
 	void RenderQueueOpenGL::submitCommandBuffer(const CommandBuffer& cmdBuffer)
 	{
 		for(auto& cmd : cmdBuffer.commands())
@@ -50,6 +56,7 @@ namespace rev :: gfx
 			{
 				case Command::SetPipeline:
 				{
+					m_device.bindPipeline(cmd.payload);
 					break;
 				}
 				case Command::SetUniform:

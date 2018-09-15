@@ -24,11 +24,13 @@
 
 namespace rev :: gfx
 {
+	class DeviceOpenGL;
 	class CommandBuffer;
 
 	class RenderQueueOpenGL : public RenderQueue
 	{
 	public:
+		RenderQueueOpenGL(DeviceOpenGL&);
 
 		virtual void present() = 0;
 
@@ -38,6 +40,9 @@ namespace rev :: gfx
 		}
 
 		void submitCommandBuffer(const CommandBuffer&);
+
+	private:
+		DeviceOpenGL& m_device;
 	};
 }
 

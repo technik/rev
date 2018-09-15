@@ -197,4 +197,50 @@ namespace rev :: gfx
 				return GL_RGBA32F;
 		}
 	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::bindPipeline(int32_t pipelineId)
+	{
+		const auto& pipeline = m_pipelines[pipelineId];
+		glUseProgram(pipeline.nativeName);
+
+		// Fixed function
+		auto& desc = pipeline.desc;
+		// Depth tests
+		if(Pipeline::Descriptor::DepthTest::None == desc.depthTest)
+		{
+			glDisable(GL_DEPTH_TEST);
+		}
+		else
+		{
+			glEnable(GL_DEPTH_TEST);
+			switch(desc.depthTest)
+			{
+				case Pipeline::Descriptor::DepthTest::Lequal:
+					glDepthFunc(GL_LEQUAL);
+					break;
+				case Pipeline::Descriptor::DepthTest::Gequal:
+					glDepthFunc(GL_GEQUAL);
+					break;
+			}
+		}
+		// Culling
+		if(desc.cullFront || desc.cullBack)
+		{
+			glEnable(GL_CULL_FACE);
+			if(desc.cullBack && desc.cullFront)
+				glCullFace(GL_FRONT_AND_BACK);
+			else if(desc.cullBack)
+				glCullFace(GL_BACK);
+			else
+				glCullFace(GL_FRONT);
+		}
+		else
+			glDisable(GL_CULL_FACE);
+		// Front face winding
+		if(desc.frontFace == Pipeline::Descriptor::CW)
+			glFrontFace(GL_CW);
+		else
+			glFrontFace(GL_CCW);
+	}
 }

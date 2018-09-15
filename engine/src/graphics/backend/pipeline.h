@@ -38,13 +38,23 @@ namespace rev :: gfx
 		struct Binding // Source buffers
 		{
 			// Binding index
-
+			Id id = InvalidId;
 		};
 
 		struct Attribute
 		{
 			// Source buffer
-			// Location (in shader)
+			size_t location; // Location (in shader)
+			size_t offset;
+			enum ComponentType
+			{
+				Float,
+				Int32,
+				U8,
+			} componentType;
+			size_t nComponents;
+			size_t stride;
+			bool normalized;
 		};
 
 		// TODO: Uniform buffers (VkPipelineLayout)
@@ -58,9 +68,19 @@ namespace rev :: gfx
 			std::vector<Attribute> attributes;
 
 			// TODO: Fixed function
-			// Depth test
+			enum class DepthTest {
+				None,
+				Lequal,
+				Gequal
+			} depthTest;// Depth test
 			// Blending
-			// Culling
+			bool cullBack;// Culling
+			bool cullFront;
+			enum Winding
+			{
+				CW,
+				CCW
+			} frontFace;
 
 			// TODO: Uniform buffers
 		};
