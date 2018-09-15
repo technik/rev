@@ -32,9 +32,6 @@ int main(int _argc, const char** _argv) {
 	auto gfxDevice = DeviceOpenGLWindows(wnd, true);
 	auto& renderQueue = gfxDevice.renderQueue();
 
-	// Command buffer to draw a simple quad
-	CommandBuffer cmdBuffer;
-
 	// Renderpass
 	RenderPass::Descriptor fwdDesc;
 	float grey = 0.5f;
@@ -84,6 +81,12 @@ void main (void) {
 	pipelineDesc.vtxShader = vtxShader;
 	pipelineDesc.pxlShader = pxlShader;
 	auto pipeline = gfxDevice.createPipeline(pipelineDesc);
+
+	// Command buffer to draw a simple quad
+	CommandBuffer cmdBuffer;
+	cmdBuffer.setPipeline(pipeline);
+	// Bind vtx data
+	// Draw triangles
 
 	// Record command buffer into the pass
 	fwdPass.record(cmdBuffer);

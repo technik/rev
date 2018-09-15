@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "renderQueue.h"
+#include "pipeline.h"
 
 namespace rev :: gfx
 {
@@ -76,10 +77,10 @@ namespace rev :: gfx
 			IndexType indexType;
 		};
 
-		//void setPipeline(const RenderQueue::Pipeline& pipeline)
-		//{
-		//	m_commands.emplace_back(Command::SetPipeline, pipeline.id());
-		//}
+		void setPipeline(const Pipeline& pipeline)
+		{
+			m_commands.push_back({Command::SetPipeline, pipeline.id});
+		}
 		void setUniformData(const UniformBucket&);
 		//void setVertexData(const RenderQueue::VertexArrayObject&);
 		void drawTriangles(int numVertices, IndexType);
