@@ -222,6 +222,8 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	Pipeline DeviceOpenGL::createPipeline(const Pipeline::Descriptor& desc)
 	{
+		assert(desc.vtxShader.id != Pipeline::InvalidId);
+		assert(desc.pxlShader.id != Pipeline::InvalidId);
 		Pipeline pipeline;
 		// Link the program
 		auto program = glCreateProgram();

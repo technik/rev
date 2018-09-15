@@ -40,7 +40,7 @@ namespace rev :: gfx
 				} stage;
 				std::vector<std::string> code;
 			};
-			Id id;
+			Id id = InvalidId;
 		};
 
 		// Vertex data / instance data
@@ -54,16 +54,16 @@ namespace rev :: gfx
 		{
 			// Source buffer
 			size_t location; // Location (in shader)
-			size_t offset;
+			size_t offset = 0;
 			enum ComponentType
 			{
 				Float,
 				Int32,
 				U8,
-			} componentType;
-			size_t nComponents;
-			size_t stride;
-			bool normalized;
+			} componentType = Float;
+			size_t nComponents = 1;
+			size_t stride = 0;
+			bool normalized = false;
 		};
 
 		// TODO: Uniform buffers (VkPipelineLayout)
@@ -81,15 +81,15 @@ namespace rev :: gfx
 				None,
 				Lequal,
 				Gequal
-			} depthTest;// Depth test
+			} depthTest = DepthTest::None;// Depth test
 			// Blending
-			bool cullBack;// Culling
-			bool cullFront;
+			bool cullBack = false;// Culling
+			bool cullFront = false;
 			enum Winding
 			{
 				CW,
 				CCW
-			} frontFace;
+			} frontFace = CCW;
 
 			// TODO: Uniform buffers
 		};
