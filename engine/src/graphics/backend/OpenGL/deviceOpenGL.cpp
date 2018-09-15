@@ -20,6 +20,9 @@
 #include "deviceOpenGL.h"
 #include <graphics/Image.h>
 #include <math/linear.h>
+#include <iostream>
+
+using namespace std;
 
 namespace rev :: gfx
 {
@@ -174,6 +177,83 @@ namespace rev :: gfx
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		return newFb;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Pipeline::ShaderModule DeviceOpenGL::createShaderModule(const Pipeline::ShaderModule::Descriptor& desc)
+	{
+		Pipeline::ShaderModule shader;
+		std::vector<const char*> code;
+		for(auto c : desc.code)
+		{
+			code.push_back(c.c_str());
+		}
+		auto shaderId = glCreateShader(desc.stage == Pipeline::ShaderModule::Descriptor::Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+		glShaderSource(shaderId, code.size(), code.data(), nullptr);
+		glCompileShader(shaderId);
+
+		GLint result = GL_FALSE;
+		int InfoLogLength = 0;
+		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+		if ( GL_FALSE == result ){
+			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
+			glGetShaderInfoLog(shaderId, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			cout << "DeviceOpenGL::createShaderModule Error\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+			cout << textMessage << "\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			cout << "Program code" << "\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			glGetShaderiv(shaderId, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
+			ShaderErrorMessage.resize(InfoLogLength+1);
+			glGetShaderSource(shaderId, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			std::string completeSource = (char*)ShaderErrorMessage.data();
+			cout << completeSource << "\n";
+		}
+		else
+			shader.id = shaderId;
+
+		return shader;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Pipeline DeviceOpenGL::createPipeline(const Pipeline::Descriptor& desc)
+	{
+		Pipeline pipeline;
+		// Link the program
+		auto program = glCreateProgram();
+		glAttachShader(program, desc.vtxShader.id);
+		glAttachShader(program, desc.pxlShader.id);
+		glLinkProgram(program);
+
+		// Check the program
+		GLint result = GL_FALSE;
+		int InfoLogLength = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, &result);
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &InfoLogLength);
+		if (GL_FALSE == result){
+			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
+			glGetProgramInfoLog(program, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			cout << "DeviceOpenGL::createPipeline Error\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+			cout << textMessage << "\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			cout << "Program code" << "\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			glGetShaderiv(program, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
+			ShaderErrorMessage.resize(InfoLogLength+1);
+			glGetShaderSource(program, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+			std::string completeSource = (char*)ShaderErrorMessage.data();
+			cout << completeSource << "\n";
+		}
+		else
+			pipeline.id = program;
+		return pipeline;
 	}
 
 	//----------------------------------------------------------------------------------------------

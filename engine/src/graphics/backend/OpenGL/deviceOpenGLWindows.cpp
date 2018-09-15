@@ -187,7 +187,7 @@ namespace rev :: gfx
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, false);
 			glDebugMessageCallback(gfxDebugCallback, nullptr);
 
-			m_renderQueue = new RenderQueueOpenGLWindows(m_deviceContext);
+			m_renderQueue = new RenderQueueOpenGLWindows(m_deviceContext, *this);
 		}
 	}
 

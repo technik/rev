@@ -53,6 +53,10 @@ namespace rev :: gfx
 		}
 		void destroyRenderPass(const RenderPass&) override {}
 
+		// Pipeline
+		Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) override;
+		Pipeline createPipeline(const Pipeline::Descriptor&) override;
+
 		// OpenGL specifics
 		void bindPipeline(int32_t pipelineId);
 

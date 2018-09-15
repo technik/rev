@@ -31,6 +31,15 @@ namespace rev :: gfx
 
 		struct ShaderModule
 		{
+			struct Descriptor
+			{
+				enum Stage
+				{
+					Vertex,
+					Pixel
+				} stage;
+				std::vector<std::string> code;
+			};
 			Id id;
 		};
 

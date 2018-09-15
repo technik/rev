@@ -18,10 +18,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include "frameBuffer.h"
 #include "renderQueue.h"
 #include "texture2d.h"
 #include "textureSampler.h"
-#include "frameBuffer.h"
+#include "pipeline.h"
 
 namespace rev :: gfx
 {
@@ -46,6 +47,11 @@ namespace rev :: gfx
 		// Render passes
 		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
 		virtual void destroyRenderPass(const RenderPass&) = 0;
+
+		// Pipeline
+		virtual Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) = 0;
+		virtual Pipeline createPipeline(const Pipeline::Descriptor&) = 0;
+		//virtual bool recreatePipeline(const Pipeline&, const Pipeline::Descriptor&) = 0;
 
 	protected:
 		Device() = default;
