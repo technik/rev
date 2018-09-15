@@ -40,11 +40,13 @@ int main(int _argc, const char** _argv) {
 	float grey = 0.5f;
 	fwdDesc.clearColor = { grey,grey,grey, 1.f };
 	fwdDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
+	fwdDesc.target = gfxDevice.defaultFrameBuffer();
 	auto& fwdPass = *gfxDevice.createRenderPass(fwdDesc);
 	fwdPass.setViewport(windowStart, windowSize);
 
 	// Create vertex shader
 	const string vtxShaderCode = R"(
+#version 450
 layout(location = 0) in vec2 vertex;
 
 void main ( void )
@@ -62,7 +64,9 @@ void main ( void )
 
 	// Create pixel shader
 	const string pxlShaderCode = R"(
+#version 450
 out lowp vec3 outColor;
+
 void main (void) {	
 	outColor = vec3(1.0);
 }

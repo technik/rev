@@ -184,7 +184,7 @@ namespace rev :: gfx
 	{
 		Pipeline::ShaderModule shader;
 		std::vector<const char*> code;
-		for(auto c : desc.code)
+		for(auto& c : desc.code)
 		{
 			code.push_back(c.c_str());
 		}
