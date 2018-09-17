@@ -81,7 +81,11 @@ namespace rev :: gfx
 		{
 			m_commands.push_back({Command::SetPipeline, pipeline.id});
 		}
-		void setUniformData(const UniformBucket&);
+		void setUniformData(const UniformBucket& uniformBucket)
+		{
+			m_commands.push_back({Command::SetUniform, (int32_t)m_uniforms.size() });
+			m_uniforms.push_back(uniformBucket);
+		}
 		void setVertexData(const unsigned& vao)
 		{
 			m_commands.push_back({Command::SetVtxData, (int32_t)vao});

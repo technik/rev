@@ -2,6 +2,7 @@
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa
 //----------------------------------------------------------------------------------------------------------------------
+// Little shadertoy implementation
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
 #include <graphics/backend/commandBuffer.h>
@@ -27,7 +28,7 @@ int main(int _argc, const char** _argv) {
 	// Create the application window
 	Vec2u windowStart = {100, 150};
 	Vec2u windowSize = { 200, 200 };
-	auto wnd = createWindow(windowStart, windowSize, "Vulkraft", true);
+	auto wnd = createWindow(windowStart, windowSize, "ShaderToy", true);
 
 	// Init graphics
 	auto gfxDevice = DeviceOpenGLWindows(wnd, true);
@@ -42,19 +43,17 @@ int main(int _argc, const char** _argv) {
 	auto& fwdPass = *gfxDevice.createRenderPass(fwdDesc);
 	fwdPass.setViewport(Vec2u::zero(), windowSize);
 
-	*OSHandler::get() += [&fwdPass](MSG _msg) {
+	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
 		{
 			// Get new rectangle size without borders
 			RECT clientSurface;
 			GetClientRect(_msg.hwnd, &clientSurface);
-			auto newSize = Vec2u(clientSurface.right, clientSurface.bottom);
-			fwdPass.setViewport(Vec2u::zero(), newSize);
+			windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
+			fwdPass.setViewport(Vec2u::zero(), windowSize);
 			return true;
 		}
 
-		//if(rev::input::PointingInput::get()->processMessage(_msg))
-		//	return true;
 		//if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
 		//	return true;
 		return false;
@@ -83,10 +82,12 @@ void main ( void )
 #version 450
 out lowp vec3 outColor;
 
-layout(location = 0) uniform vec3 color;
+layout(location = 0) uniform vec4 t;
+layout(location = 1) uniform vec4 Window;
 
 void main (void) {	
-	outColor = color;
+	vec2 uv = gl_FragCoord.xy / Window.xy;
+	outColor = vec3(uv.x,uv.y,sin(t.y));
 }
 )";
 	Pipeline::ShaderModule::Descriptor pxlDesc;
@@ -104,7 +105,7 @@ void main (void) {
 	auto pipeline = gfxDevice.createPipeline(pipelineDesc);
 
 	// Create a quad
-	auto quad = rev::graphics::RenderGeom::quad({0.5f, 0.5f});
+	auto quad = rev::graphics::RenderGeom::quad({2.f, 2.f});
 
 	// Command buffer to set pipeline and other common stuff
 	CommandBuffer setupCmd;
@@ -125,15 +126,17 @@ void main (void) {
 	fwdPass.record(quadCmd);
 	
 	// Main loop
-	float t = 0;
+	float t = 0; // t modulo seconds
+	float T = 0; // Total T
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
 		// Modify the uniform command
-		Vec3f color = Vec3f(t,t,t);
-		timeUniform.vec3s.push_back({0, color});
+		auto tVector = Vec4f(t,T,t*t,sin(Pi*t));
+		timeUniform.vec4s.push_back({0, tVector});
+		timeUniform.vec4s.push_back({1, {float(windowSize.x()), float(windowSize.y()), 0.f, 0.f}});
 		uniformCmd.clear();
 		uniformCmd.setUniformData(timeUniform);
 
@@ -144,6 +147,7 @@ void main (void) {
 		renderQueue.present();
 
 		// Update time
+		T += 1.f/60;
 		t += 1.f/60;
 		if(t > 1) t -= 1.f;
 	}
