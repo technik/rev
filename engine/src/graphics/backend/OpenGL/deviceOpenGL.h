@@ -20,7 +20,8 @@
 #pragma once
 
 #include "../device.h"
-#include "renderQueueOpenGL.h"
+#include "renderPassOpenGL.h"
+#include "../pipeline.h"
 #include <vector>
 
 namespace rev :: gfx
@@ -35,19 +36,44 @@ namespace rev :: gfx
 
 		// --- Stuff allocation ---
 		// Texture sampler
-		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) override;
-		virtual void destroyTextureSampler(TextureSampler) override;
+		TextureSampler	createTextureSampler(const TextureSampler::Descriptor&) override;
+		void			destroyTextureSampler(TextureSampler) override;
 
 		// Texture
-		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) override;
-		virtual void destroyTexture2d(Texture2d) override;
+		Texture2d	createTexture2d(const Texture2d::Descriptor&) override;
+		void		destroyTexture2d(Texture2d) override;
+
+		// Frame buffers
+		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
+		
+		// Render passes
+		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override
+		{
+			return new RenderPassOpenGL(desc);
+		}
+		void destroyRenderPass(const RenderPass&) override {}
+
+		// Pipeline
+		Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) override;
+		Pipeline createPipeline(const Pipeline::Descriptor&) override;
+
+		// OpenGL specifics
+		void bindPipeline(int32_t pipelineId);
 
 	protected:
+
+		struct PipelineInfo
+		{
+			Pipeline::Descriptor desc;
+			GLuint nativeName;
+		};
+
 		DeviceOpenGL() = default;
 
 		static GLenum getInternalFormat(Texture2d::Descriptor::ChannelType , Texture2d::Descriptor::PixelFormat, bool sRGB);
 
-		RenderQueueOpenGL* m_renderQueue = nullptr;
+		RenderQueue* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
+		std::vector<PipelineInfo>	m_pipelines;
 	};
 }

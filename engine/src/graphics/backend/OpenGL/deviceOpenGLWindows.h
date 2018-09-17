@@ -32,6 +32,8 @@ namespace rev :: gfx
 
 		bool isOk() const { return m_windowHandle != 0; }
 
+		FrameBuffer defaultFrameBuffer(); // Frame buffer of the main window
+
 	private:
 		void checkSupportedExtensions();
 

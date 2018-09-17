@@ -18,35 +18,82 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-
-#include "../renderQueue.h"
-#include "renderPassOpenGL.h"
+#include <cstdint>
+#include <vector>
 
 namespace rev :: gfx
 {
-	class DeviceOpenGL;
-	class CommandBuffer;
-
-	class RenderQueueOpenGL : public RenderQueue
+	class Pipeline
 	{
 	public:
-		RenderQueueOpenGL(DeviceOpenGL&);
+		using Id = int32_t;
+		static constexpr Id InvalidId = -1;
 
-		virtual void present() = 0;
+		struct ShaderModule
+		{
+			struct Descriptor
+			{
+				enum Stage
+				{
+					Vertex,
+					Pixel
+				} stage;
+				std::vector<std::string> code;
+			};
+			Id id = InvalidId;
+		};
 
-		void submitPass(const RenderPass& pass) override {
-			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
-			passGL.submit(*this);
-		}
+		// Vertex data / instance data
+		struct Binding // Source buffers
+		{
+			// Binding index
+			Id id = InvalidId;
+		};
 
-		void submitCommandBuffer(const CommandBuffer&);
+		struct Attribute
+		{
+			// Source buffer
+			size_t location; // Location (in shader)
+			size_t offset = 0;
+			enum ComponentType
+			{
+				Float,
+				Int32,
+				U8,
+			} componentType = Float;
+			size_t nComponents = 1;
+			size_t stride = 0;
+			bool normalized = false;
+		};
 
-	private:
-		DeviceOpenGL& m_device;
+		// TODO: Uniform buffers (VkPipelineLayout)
+
+		struct Descriptor {
+			ShaderModule vtxShader;
+			ShaderModule pxlShader;
+
+			std::vector<Binding> vtxBuffers;
+			std::vector<Binding> instanceBuffers;
+			std::vector<Attribute> attributes;
+
+			// TODO: Fixed function
+			enum class DepthTest {
+				None,
+				Lequal,
+				Gequal
+			} depthTest = DepthTest::None;// Depth test
+			// Blending
+			bool cullBack = false;// Culling
+			bool cullFront = false;
+			enum Winding
+			{
+				CW,
+				CCW
+			} frontFace = CCW;
+
+			// TODO: Uniform buffers
+		};
+
+		Id id = InvalidId;
 	};
 }
-
-
-
-
-

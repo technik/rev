@@ -18,35 +18,45 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <cstddef>
+#include <cstdint>
+#include "texture2d.h"
 
-#include "../renderQueue.h"
-#include "renderPassOpenGL.h"
+namespace rev::gfx {
 
-namespace rev :: gfx
-{
-	class DeviceOpenGL;
-	class CommandBuffer;
-
-	class RenderQueueOpenGL : public RenderQueue
+	class FrameBuffer
 	{
 	public:
-		RenderQueueOpenGL(DeviceOpenGL&);
+		struct Attachment
+		{
+			enum ImageType
+			{
+				Texture,
+				RenderBuffer
+			} imageType;
 
-		virtual void present() = 0;
+			enum Target
+			{
+				Color,
+				Depth
+			} target;
 
-		void submitPass(const RenderPass& pass) override {
-			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
-			passGL.submit(*this);
-		}
+			// Info for texture attachments
+			Texture2d texture;
+			size_t mipLevel;
 
-		void submitCommandBuffer(const CommandBuffer&);
+			// Info for render buffer attachments
+			// TODO
+		};
 
-	private:
-		DeviceOpenGL& m_device;
+		struct Descriptor {
+			size_t numAttachments;
+			Attachment* attachments;
+		};
+
+		static constexpr int32_t InvalidId = -1;
+
+		int32_t id = InvalidId;
 	};
+
 }
-
-
-
-
-

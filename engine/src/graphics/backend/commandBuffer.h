@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "renderQueue.h"
+#include "pipeline.h"
 
 namespace rev :: gfx
 {
@@ -45,7 +46,7 @@ namespace rev :: gfx
 			ParamList<math::Vec4f> vec4s;
 			ParamList<math::Mat44f> mat4s;
 			ParamList<std::vector<math::Mat44f>> mat4vs;
-			ParamList<RenderQueue::Texture>	textures;
+			//ParamList<RenderQueue::Texture>	textures;
 		};
 
 		// Commands
@@ -60,29 +61,50 @@ namespace rev :: gfx
 			};
 
 			Opcode command;
-			int payload;
+			int32_t payload;
 		};
 
-		void setPipeline(const RenderQueue::Pipeline& pipeline)
+		enum class IndexType
 		{
-			m_commands.emplace_back(Command::SetPipeline, pipeline.id());
+			U8,
+			U16,
+			U32
+		};
+
+		struct DrawPayload
+		{
+			int nIndices;
+			IndexType indexType;
+		};
+
+		void setPipeline(const Pipeline& pipeline)
+		{
+			m_commands.push_back({Command::SetPipeline, pipeline.id});
 		}
 		void setUniformData(const UniformBucket&);
-		void setVertexData(const RenderQueue::VertexArrayObject&);
-		void drawTriangles(int numVertices);
-		void drawLines(int nVertices);
+		void setVertexData(const unsigned& vao)
+		{
+			m_commands.push_back({Command::SetVtxData, (int32_t)vao});
+		}
+		void drawTriangles(int numIndices, IndexType indexType)
+		{
+			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
+			m_draws.push_back({numIndices, indexType});
+		}
+		void drawLines(int nVertices, IndexType);
 
 		// Command buffer lifetime
-		void begin();
-		void end();
-		void clear();
+		void clear() { m_commands.clear(); }
 
 		// Access
-		const std::vector<Command> commands() const { m_commands; }
-		const std::vector<UniformBucket> uniforms() const { return m_uniforms; }
+		const std::vector<Command> commands() const { return m_commands; }
+		const UniformBucket& getUniforms(size_t i) const { return m_uniforms[i]; }
+		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
 
 	private:
+
 		std::vector<Command> m_commands;
 		std::vector<UniformBucket> m_uniforms;
+		std::vector<DrawPayload> m_draws;
 	};
 }

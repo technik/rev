@@ -29,21 +29,15 @@ namespace rev :: gfx
 	class RenderQueueOpenGLWindows : public RenderQueueOpenGL
 	{
 	public:
-		RenderQueueOpenGLWindows(HDC drawContext)
-			: m_drawContext(drawContext)
+		RenderQueueOpenGLWindows(HDC drawContext, DeviceOpenGL& device)
+			: RenderQueueOpenGL(device)
+			, m_drawContext(drawContext)
 		{
 		}
 
 		void present() override {
 			SwapBuffers(m_drawContext);
 		}
-
-		// Graphics pipelines
-		//Pipeline createGraphicsPipeline() override { return Pipeline }
-
-		// Allocate resources
-		// Textures
-		// VAOs
 
 	private:
 		HDC m_drawContext;
