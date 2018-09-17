@@ -58,6 +58,7 @@ namespace rev :: gfx
 		Pipeline createPipeline(const Pipeline::Descriptor&) override;
 
 		// OpenGL specifics
+		virtual FrameBuffer defaultFrameBuffer() = 0; // Frame buffer of the main window
 		void bindPipeline(int32_t pipelineId);
 
 	protected:
