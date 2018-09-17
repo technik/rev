@@ -7,6 +7,7 @@
 #include "player.h"
 
 #include <Windows.h>
+#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <math/algebra/vector.h>
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
@@ -40,8 +41,6 @@ bool processWindowsMsg(MSG _msg) {
 		return true;
 	return false;
 }
-
-
 
 struct CmdLineParams
 {
@@ -108,17 +107,20 @@ int main(int _argc, const char** _argv) {
 	rev::core::OSHandler::startUp();
 	rev::core::FileSystem::init();
 
-	auto nativeWindow = rev::graphics::WindowWin32::createWindow(
+	auto nativeWindow = rev::gfx::createWindow(
 		{40, 40},
 		{params.sx, params.sy},
-		params.scene.empty()?"Rev Player":params.scene.c_str()
+		params.scene.empty()?"Rev Player":params.scene.c_str(),
+		true // Visible
 	);
+	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(nativeWindow, true);
 
 	*rev::core::OSHandler::get() += processWindowsMsg;
 	
 	rev::input::PointingInput::init();
 	rev::input::KeyboardInput::init();
-	rev::Player player;
+
+	rev::Player player(gfxDevice);
 	g_player = &player;
 	if(!player.init(&nativeWindow, params.scene, params.background)) {
 		return -1;

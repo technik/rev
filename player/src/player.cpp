@@ -27,73 +27,69 @@ using namespace rev::game;
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init(Window _window, const std::string& scene, const std::string& bg) {
+	bool Player::init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg) {
 		core::Time::init();
 
-		assert(!mGfxDriver);
-		mGfxDriver = GraphicsDriverGL::createDriver(_window);
-		if(mGfxDriver) {
-			// Create geometry pool
-			mGeometryPool = std::make_unique<GeometryPool>();
-			// Load scene
-			auto gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
-			mGameScene.root()->addChild(gltfRoot);
-			auto rotation = math::Mat33f({
-				-1.f, 0.f, 0.f,
-				0.f, 0.f, 1.f,
-				0.f, 1.f, 0.f
-				});
-			auto xForm = gltfRoot->addComponent<Transform>();
-			//xForm->xForm.rotate(rotation);
+		// Create geometry pool
+		mGeometryPool = std::make_unique<GeometryPool>();
+		// Load scene
+		auto gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		mGameScene.root()->addChild(gltfRoot);
+		auto rotation = math::Mat33f({
+			-1.f, 0.f, 0.f,
+			0.f, 0.f, 1.f,
+			0.f, 1.f, 0.f
+			});
+		auto xForm = gltfRoot->addComponent<Transform>();
+		//xForm->xForm.rotate(rotation);
 
-			std::vector<std::shared_ptr<Animation>> animations;
-			std::vector<std::shared_ptr<SceneNode>> animNodes;
-			loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
-			auto sceneLight = std::make_shared<graphics::DirectionalLight>();
+		std::vector<std::shared_ptr<Animation>> animations;
+		std::vector<std::shared_ptr<SceneNode>> animNodes;
+		loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
+		auto sceneLight = std::make_shared<graphics::DirectionalLight>();
 
-			// Default scene light
-			{
-				AffineTransform lightXform = AffineTransform::identity();
-				lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
-				sceneLight->worldMatrix = lightXform;
-				sceneLight->color = 4*Vec3f::ones();
-				sceneLight->castShadows = true;
-				mGraphicsScene.addLight(sceneLight);
-			}
-
-			// Load sky
-			if(!bg.empty())
-			{
-				auto probe = std::make_shared<EnvironmentProbe>(bg+".json");
-				mGraphicsScene.setEnvironment(probe);
-			}
-
-			// Create animation component
-			game::Animator* animator = nullptr;
-			if(animations.size() > 0)
-			{
-				//animator = animNodes[0]->addComponent<Animator>();
-			}
-
-			// Create camera
-			createCamera();
-			mGameScene.root()->init();
-			if(animator)
-				animator->playAnimation(animations[0], true);
-
-			mGameEditor.init(mGraphicsScene);
-			mRenderer.init(*mGfxDriver, *mGfxDriver->frameBuffer());
-			gui::init(_window->size);
+		// Default scene light
+		{
+			AffineTransform lightXform = AffineTransform::identity();
+			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
+			sceneLight->worldMatrix = lightXform;
+			sceneLight->color = 4*Vec3f::ones();
+			sceneLight->castShadows = true;
+			mGraphicsScene.addLight(sceneLight);
 		}
-		return mGfxDriver != nullptr;
+
+		// Load sky
+		if(!bg.empty())
+		{
+			auto probe = std::make_shared<EnvironmentProbe>(bg+".json");
+			mGraphicsScene.setEnvironment(probe);
+		}
+
+		// Create animation component
+		game::Animator* animator = nullptr;
+		if(animations.size() > 0)
+		{
+			//animator = animNodes[0]->addComponent<Animator>();
+		}
+
+		// Create camera
+		createCamera();
+		mGameScene.root()->init();
+		if(animator)
+			animator->playAnimation(animations[0], true);
+
+		mGameEditor.init(mGraphicsScene);
+		mRenderer.init(m_gfx, m_gfx.defaultFrameBuffer());
+		gui::init(windowSize);
+
+		return true;
 	}
 
 #ifdef _WIN32
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onWindowResize(const math::Vec2u& _newSize)
 	{
-		if(mGfxDriver)
-			mGfxDriver->onWindowResize(_newSize);
+		mRenderer.onResizeTarget(_newSize);
 	}
 #endif // _WIN32
 
