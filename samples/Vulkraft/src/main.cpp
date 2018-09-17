@@ -42,6 +42,24 @@ int main(int _argc, const char** _argv) {
 	auto& fwdPass = *gfxDevice.createRenderPass(fwdDesc);
 	fwdPass.setViewport(Vec2u::zero(), windowSize);
 
+	*OSHandler::get() += [&fwdPass](MSG _msg) {
+		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
+		{
+			// Get new rectangle size without borders
+			RECT clientSurface;
+			GetClientRect(_msg.hwnd, &clientSurface);
+			auto newSize = Vec2u(clientSurface.right, clientSurface.bottom);
+			fwdPass.setViewport(Vec2u::zero(), newSize);
+			return true;
+		}
+
+		//if(rev::input::PointingInput::get()->processMessage(_msg))
+		//	return true;
+		//if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
+		//	return true;
+		return false;
+	};
+
 	// Create vertex shader
 	const string vtxShaderCode = R"(
 #version 450
