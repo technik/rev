@@ -82,8 +82,15 @@ namespace rev :: gfx
 			m_commands.push_back({Command::SetPipeline, pipeline.id});
 		}
 		void setUniformData(const UniformBucket&);
-		//void setVertexData(const RenderQueue::VertexArrayObject&);
-		void drawTriangles(int numVertices, IndexType);
+		void setVertexData(const unsigned& vao)
+		{
+			m_commands.push_back({Command::SetVtxData, (int32_t)vao});
+		}
+		void drawTriangles(int numIndices, IndexType indexType)
+		{
+			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
+			m_draws.push_back({numIndices, indexType});
+		}
 		void drawLines(int nVertices, IndexType);
 
 		// Command buffer lifetime

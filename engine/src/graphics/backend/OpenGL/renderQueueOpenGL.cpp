@@ -66,6 +66,8 @@ namespace rev :: gfx
 				}
 				case Command::SetVtxData:
 				{
+					auto vao = cmd.payload;
+					glBindVertexArray(vao);
 					break;
 				}
 				case Command::DrawTriangles:
