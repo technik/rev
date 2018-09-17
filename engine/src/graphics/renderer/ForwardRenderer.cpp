@@ -21,34 +21,65 @@
 #include "ForwardPass.h"
 #include "graphics/driver/renderTarget.h"
 #include "graphics/scene/renderScene.h"
+#include <graphics/backend/device.h>
+#include <graphics/backend/texture2d.h>
+#include <graphics/backend/textureSampler.h>
+
+using namespace rev::gfx;
 
 namespace rev { namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init(GraphicsDriverGL& driver, RenderTarget& _renderTarget)
+	void ForwardRenderer::init(gfx::Device& device, gfx::FrameBuffer& target)
 	{
-		mRenderTarget = &_renderTarget;
-		mBackEnd = std::make_unique<BackEndRenderer>(driver);
-		mForwardPass = std::make_unique<ForwardPass>(*mBackEnd, driver);
+		m_targetBuffer = &target;
+
+		mForwardPass = std::make_unique<ForwardPass>(device, target);
+
+		// Create a depth texture for shadows
+		auto shadowSamplerDesc = TextureSampler::Descriptor();
+		shadowSamplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		shadowSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		shadowSamplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
+		auto shadowDesc = Texture2d::Descriptor();
+		shadowDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
+		shadowDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::Depth;
+		shadowDesc.sampler = shadowSampler;
 		size_t shadowSize = 4*1024;
-		mShadowPass = std::make_unique<ShadowMapPass>(*mBackEnd, driver, math::Vec2u(shadowSize, shadowSize));
+		shadowDesc.size = {shadowSize, shadowSize};
+		m_shadowsTexture = device.createTexture2d(shadowDesc);
+
+		// Create the depth framebuffer
+		gfx::FrameBuffer::Attachment depthAttachment;
+		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
+		depthAttachment.texture = m_shadowsTexture;
+		gfx::FrameBuffer::Descriptor shadowBufferDesc;
+		shadowBufferDesc.numAttachments = 1;
+		shadowBufferDesc.attachments = &depthAttachment;
+		auto shadowBuffer = device.createFrameBuffer(shadowBufferDesc);
+
+		mShadowPass = std::make_unique<ShadowMapPass>(device, device.createFrameBuffer(shadowBuffer));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const RenderScene& scene) {
+		assert(m_targetBuffer);
+
 		mBackEnd->beginFrame();
-
-		if(!mRenderTarget)
-			return;
-
-		ShadowMapPass* shadowPass = nullptr;
 		if(!scene.lights().empty() && scene.lights()[0]->castShadows)
 		{
 			mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
-			shadowPass = mShadowPass.get();
 		}
 		mForwardPass->showDebugInfo(m_showDbgInfo);
-		mForwardPass->render(scene,*mRenderTarget,shadowPass);
+		mForwardPass->render(scene, m_shadowsTexture);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void ForwardRenderer::onResizeTarget(const math::Vec2u& _newSize)
+	{
+		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
+		mForwardPass->onResizeTarget(_newSize);
 	}
 
 }}

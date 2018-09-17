@@ -21,7 +21,9 @@
 #include <memory>
 #include "ForwardPass.h"
 #include "ShadowMapPass.h"
-#include <graphics/renderer/backend/BackEndRenderer.h>
+#include <graphics/backend/device.h>
+#include <graphics/backend/texture2d.h>
+#include <graphics/backend/frameBuffer.h>
 
 namespace rev { namespace graphics {
 
@@ -33,14 +35,17 @@ namespace rev { namespace graphics {
 	class ForwardRenderer
 	{
 	public:
-		void init	(GraphicsDriverGL& driver, RenderTarget& _renderTarget);
+		void init	(gfx::Device& driver, gfx::FrameBuffer& target);
 		void render	(const RenderScene&);
+		void submit ();
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
+		void onResizeTarget(const math::Vec2u& _newSize);
 
 	private:
+		gfx::Texture2d	 m_shadowsTexture;
 		std::unique_ptr<ForwardPass>		mForwardPass;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
-		RenderTarget*						mRenderTarget = nullptr;
+		gfx::FrameBuffer*					m_targetBuffer = nullptr;
 		std::unique_ptr<BackEndRenderer>	mBackEnd;
 		bool								m_showDbgInfo = false;
 	};
