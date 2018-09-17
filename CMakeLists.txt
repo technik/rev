@@ -24,6 +24,7 @@ if(REV_BUILD_PLAYER)
 endif()
 
 add_subdirectory(samples/Vulkraft)
+add_subdirectory(samples/ShaderToy)
 
 if(REV_BUILD_TEST)
 	enable_testing()
