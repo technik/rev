@@ -254,7 +254,10 @@ namespace rev :: gfx
 			cout << completeSource << "\n";
 		}
 		else
-			pipeline.id = program;
+		{
+			pipeline.id = m_pipelines.size();
+			m_pipelines.push_back({desc, program});
+		}
 		return pipeline;
 	}
 
