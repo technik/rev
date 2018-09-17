@@ -8,6 +8,7 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+#include <graphics/scene/renderGeom.h>
 
 #include <string>
 #include <vector>
@@ -39,12 +40,12 @@ int main(int _argc, const char** _argv) {
 	fwdDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
 	fwdDesc.target = gfxDevice.defaultFrameBuffer();
 	auto& fwdPass = *gfxDevice.createRenderPass(fwdDesc);
-	fwdPass.setViewport(windowStart, windowSize);
+	fwdPass.setViewport(Vec2u::zero(), windowSize);
 
 	// Create vertex shader
 	const string vtxShaderCode = R"(
 #version 450
-layout(location = 0) in vec2 vertex;
+layout(location = 0) in vec3 vertex;
 
 void main ( void )
 {
@@ -82,11 +83,14 @@ void main (void) {
 	pipelineDesc.pxlShader = pxlShader;
 	auto pipeline = gfxDevice.createPipeline(pipelineDesc);
 
+	// Create a quad
+	auto quad = rev::graphics::RenderGeom::quad({0.5f, 0.5f});
+
 	// Command buffer to draw a simple quad
 	CommandBuffer cmdBuffer;
 	cmdBuffer.setPipeline(pipeline);
-	// Bind vtx data
-	// Draw triangles
+	cmdBuffer.setVertexData(quad.getVao());// Bind vtx data
+	cmdBuffer.drawTriangles(quad.indices().count, CommandBuffer::IndexType::U16);// Draw triangles
 
 	// Record command buffer into the pass
 	fwdPass.record(cmdBuffer);
