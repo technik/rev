@@ -92,25 +92,40 @@ vec3 ibl(
   float ndv
   )
 {
-  vec3 kS = fresnelSchlickRoughness(ndv, F0, roughness);
+	// Common code for single and multiple scattering
+	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
+	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
 
-  vec3 irradiance = getIrradiance(normal);
+	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
+	vec3 Fssfss = (kS * f_ab.x + f_ab.y);
 
-  // Multiple scattering
-  vec3 Favg = (1+5*kS)/6; // Average fresnel
-  vec3 envBRDF;
-  envBRDF.xy = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
-  float fms = 1.0 - (envBRDF.x + envBRDF.y);
-  envBRDF.z = fms; // Energy of multiple scattering
+	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
+	vec3 samplerDir = reflect(-eye, normal);
+	vec3 radiance = getRadiance(samplerDir, lodLevel); // Prefiltered radiance
+	vec3 irradiance = getIrradiance(normal); // Cosine-weighted irradiance
 
-  float Eavg = envBRDF.x + envBRDF.y;
-  vec3 Fms = (kS*envBRDF.x+envBRDF.y)*Favg*Favg/(1-Favg*fms);
-  vec3 indirectSpecular = specularIBL(irradiance, kS, normal, eye, roughness, occlusion, Fms, envBRDF, ndv);
+	// Multiple scattering
+	float fms = 1-(f_ab.x+f_ab.y); // MS energy
+	vec3 Favg = F0 + Fr/3; // Average fresnel
+	vec3 Fms = Fssfss*Favg/(1-Favg*fms);
 
-  vec3 kD = 1.0 - (kS * envBRDF.x + envBRDF.y) - Fms * fms;
-  vec3 indirectDiffuse = diffuseIBL(kD, irradiance, albedo, occlusion);
+	// Dielectrics
+	vec3 kD = 1.0 - Fssfss - Fms * fms;
 
-  return indirectDiffuse + indirectSpecular;
+	// Composition
+	return Fssfss * radiance + (Fms * fms + kD*albedo) * irradiance;
+
+
+	// Multiple scattering
+	//vec3 envBRDF;
+	//envBRDF.xy = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
+	//envBRDF.z = fms; // Energy of multiple scattering
+//
+//	//vec3 indirectSpecular = specularIBL(irradiance, kS, normal, eye, roughness, occlusion, Fms, envBRDF, ndv);
+//
+//	//vec3 indirectDiffuse = diffuseIBL(kD, irradiance, albedo, occlusion);
+//
+	//return indirectDiffuse + indirectSpecular;
 }
 
 //---------------------------------------------------------------------------------------
