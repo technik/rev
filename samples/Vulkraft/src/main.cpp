@@ -83,8 +83,10 @@ void main ( void )
 #version 450
 out lowp vec3 outColor;
 
+layout(location = 0) uniform vec3 color;
+
 void main (void) {	
-	outColor = vec3(1.0);
+	outColor = color;
 }
 )";
 	Pipeline::ShaderModule::Descriptor pxlDesc;
@@ -104,26 +106,46 @@ void main (void) {
 	// Create a quad
 	auto quad = rev::graphics::RenderGeom::quad({0.5f, 0.5f});
 
-	// Command buffer to draw a simple quad
-	CommandBuffer cmdBuffer;
-	cmdBuffer.setPipeline(pipeline);
-	cmdBuffer.setVertexData(quad.getVao());// Bind vtx data
-	cmdBuffer.drawTriangles(quad.indices().count, CommandBuffer::IndexType::U16);// Draw triangles
+	// Command buffer to set pipeline and other common stuff
+	CommandBuffer setupCmd;
+	setupCmd.setPipeline(pipeline);
 
-	// Record command buffer into the pass
-	fwdPass.record(cmdBuffer);
+	// Command buffer with chaning uniforms
+	CommandBuffer uniformCmd;
+	CommandBuffer::UniformBucket timeUniform;
+
+	// Command buffer to draw a simple quad
+	CommandBuffer quadCmd;
+	quadCmd.setVertexData(quad.getVao());// Bind vtx data
+	quadCmd.drawTriangles(quad.indices().count, CommandBuffer::IndexType::U16);// Draw triangles
+
+	// Record all command buffers into the pass
+	fwdPass.record(setupCmd);
+	fwdPass.record(uniformCmd);
+	fwdPass.record(quadCmd);
 	
 	// Main loop
+	float t = 0;
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
 			break;
+
+		// Modify the uniform command
+		Vec3f color = Vec3f(t,t,t);
+		timeUniform.vec3s.push_back({0, color});
+		uniformCmd.clear();
+		uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
 		renderQueue.submitPass(fwdPass);
 
 		// Finish frame
 		renderQueue.present();
+
+		// Update time
+		t += 1.f/60;
+		if(t > 1) t -= 1.f;
 	}
 
 	// Clean up
