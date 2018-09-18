@@ -20,9 +20,9 @@
 #include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/backend/renderPass.h>
 #include <graphics/debug/imgui.h>
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
-#include <graphics/renderer/backend/BackEndRenderer.h>
 #include <graphics/driver/shaderProcessor.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
@@ -30,17 +30,39 @@
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
+#include <string>
 
 using namespace rev::math;
+using namespace rev::gfx;
+using namespace std;
 
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	ShadowMapPass::ShadowMapPass(BackEndRenderer& _backEnd, GraphicsDriverGL& _gfxDriver, const Vec2u& _size)
-		: mDriver(_gfxDriver)
-		, mBackEnd(_backEnd)
+	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
+		: m_device(device)
 	{
-		mDepthBuffer = std::make_unique<FrameBuffer>(_size);
+		// Renderpass
+		RenderPass::Descriptor passDesc;
+		passDesc.clearDepth = 0;
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.target = target;
+		passDesc.viewportSize = _size;
+		m_pass = device.createRenderPass(passDesc);
+
+		// Shader stages
+		Pipeline::ShaderModule::Descriptor stageDesc;
+		loadCommonShaderCode();
+		stageDesc.code = { mCommonShaderCode };
+		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
+		m_commonPipelineDesc.vtxShader = m_device.createShaderModule(stageDesc);
+		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
+		m_commonPipelineDesc.pxlShader = m_device.createShaderModule(stageDesc);
+		// Pipeline config
+		m_commonPipelineDesc.cullFront = true;
+		m_commonPipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
+
+		// Vertex format
 		mVtxFormatMask = RenderGeom::VtxFormat(
 			RenderGeom::VtxFormat::Storage::Float32,
 			RenderGeom::VtxFormat::Storage::None,
@@ -49,7 +71,6 @@ namespace rev { namespace graphics {
 			RenderGeom::VtxFormat::Storage::None
 		).code(); // We only care about the format of vertex positions
 
-		loadCommonShaderCode();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -75,22 +96,7 @@ namespace rev { namespace graphics {
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
-		setUpGlobalState(); // Set gl global state
 		renderMeshes(renderables); // Iterate over renderables
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::setUpGlobalState()
-	{
-		mDepthBuffer->bind();
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_GEQUAL); // Keeping the closest back face reduces precision problems
-
-		glClearDepthf(0.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_CULL_FACE);
-		//glDisable(GL_CULL_FACE);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -123,38 +129,65 @@ namespace rev { namespace graphics {
 	void ShadowMapPass::renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables)
 	{
 		auto worldMatrix = Mat44f::identity();
-		// TODO: Performance counters
-		mBackEnd.beginPass();
+
+		struct RenderInfo
+		{
+			Pipeline pipeline;
+			Mat44f wvp;
+			RenderGeom* renderable;
+		};
+
+		// Retrieve all info needed to render the objects
+		std::vector<RenderInfo> renderList;
 
 		for(auto& renderable : renderables)
 		{
-			auto renderObj = renderable;
-			// Get world matrix
-			worldMatrix.block<3,4>(0,0) = renderObj->transform.matrix();
-			// Set up vertex uniforms
-			auto wvp = mShadowProj*worldMatrix;
+			RenderInfo info;
+			worldMatrix.block<3,4>(0,0) = renderable->transform.matrix();
+			info.wvp = mShadowProj*worldMatrix;
 
-			// render
-			for(auto& primitive : renderObj->mesh->mPrimitives)
+			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
+			for(auto& primitive : renderable->mesh->mPrimitives)
 			{
-				auto& command = mBackEnd.beginCommand();
-				command.cullMode = affineTransformDeterminant(worldMatrix) > 0.f ? GL_BACK : GL_FRONT;
-				//command.cullMode = GL_FRONT;
-				mBackEnd.addParam(0, wvp);
-
 				auto& mesh = *primitive.first;
-				command.shader = getShader(mesh.vertexFormat());
-
-				command.vao = mesh.getVao();
-				command.nIndices = mesh.indices().count;
-				command.indexType = mesh.indices().componentType;
-
-				mBackEnd.endCommand();
+				info.pipeline = getPipeline(mesh.vertexFormat(), mirroredGeometry);
+				info.renderable = &mesh;
+				renderList.push_back(info);
 			}
 		}
 
-		mBackEnd.endPass();
-		mBackEnd.submitDraws();
+		// Sort renderables to reuse pipelines as much as possible
+		std::sort(renderList.begin(), renderList.end(), [](auto& a, auto& b){
+			return a.pipeline.id < b.pipeline.id;
+		});
+
+		// Record commands
+		CommandBuffer cmdBuffer;
+		Pipeline activePipeline; // Invalid id
+
+		CommandBuffer::UniformBucket uniforms;
+
+		for(auto& draw : renderList)
+		{
+			// Pipeline
+			if(draw.pipeline.id != activePipeline.id)
+			{
+				cmdBuffer.setPipeline(draw.pipeline);
+				activePipeline = draw.pipeline;
+			}
+			// Uniform
+			uniforms.mat4s.push_back({0, draw.wvp});
+			cmdBuffer.setUniformData(uniforms);
+			uniforms.clear();
+			// Geometry
+			cmdBuffer.setVertexData(draw.renderable->getVao());
+			assert(draw.renderable->indices().componentType == GL_UNSIGNED_SHORT);
+			cmdBuffer.drawTriangles(draw.renderable->indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
+		}
+
+		m_pass->reset();
+		m_pass->record(cmdBuffer);
+		m_device.renderQueue().submitPass(*m_pass);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -162,26 +195,28 @@ namespace rev { namespace graphics {
 	{
 		ShaderProcessor::MetaData metadata;
 		ShaderProcessor::loadCodeFromFile("shadowMap.fx", mCommonShaderCode, metadata);
-		// TODO: Actualle use the metadata (unifrom layouts)
+		// TODO: Actually use the metadata (unifrom layouts)
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ShadowMapPass::getShader(RenderGeom::VtxFormat vtxFormat)
-	{
+	Pipeline ShadowMapPass::getPipeline(RenderGeom::VtxFormat vtxFormat, bool mirroredGeometry)
+	{		
+		auto& pipelineMap = mirroredGeometry ? m_mirroredPipelines : m_regularPipelines;
+
 		auto pipelineCode = vtxFormat.code() & mVtxFormatMask; // Combine shader variations
 
-		// Locate the proper shader in the set
-		auto iter = mPipelines.find(pipelineCode);
-		if(iter == mPipelines.end())
+		auto iter = pipelineMap.find(pipelineCode);
+		if(iter == pipelineMap.end())
 		{
-			iter = mPipelines.emplace(
+			auto pipelineDesc = m_commonPipelineDesc;
+			pipelineDesc.frontFace = mirroredGeometry ? Pipeline::Descriptor::CW : Pipeline::Descriptor::CCW;
+			
+			iter = pipelineMap.emplace(
 				pipelineCode,
-				Shader::createShader({
-					mCommonShaderCode.c_str()
-					})
+				m_device.createPipeline(pipelineDesc)
 			).first;
 		}
-		return iter->second.get();
+		return mirroredGeometry ? m_mirroredPipelines[pipelineCode] : m_regularPipelines[pipelineCode];
 	}
 
 }}

@@ -267,20 +267,16 @@ namespace rev :: gfx
 		Texture2d::Descriptor::PixelFormat pixel,
 		bool sRGB)
 	{
+		// Detect sRGB cases
 		if( channel == Texture2d::Descriptor::ChannelType::Byte)
 		{
 			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
 				return sRGB ? GL_SRGB : GL_RGB8;
-			else // RGBA
+			else if (pixel == Texture2d::Descriptor::PixelFormat::RGBA)
 				return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
 		}
-		else
-		{
-			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
-				return GL_RGB32F;
-			else // RGBA
-				return GL_RGBA32F;
-		}
+		// By default, just cast back to OpenGL
+		return (GLint)pixel;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -59,7 +59,7 @@ namespace rev { namespace graphics {
 		shadowBufferDesc.attachments = &depthAttachment;
 		auto shadowBuffer = device.createFrameBuffer(shadowBufferDesc);
 
-		mShadowPass = std::make_unique<ShadowMapPass>(device, device.createFrameBuffer(shadowBuffer));
+		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowDesc.size);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

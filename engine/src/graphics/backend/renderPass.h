@@ -33,15 +33,18 @@ namespace rev :: gfx
 		{
 			enum class Clear : size_t
 			{
+				None = 0,
 				Color = 1,
-				Z = 2,
-				All = (Color|Z)
+				Depth = 2,
+				All = (Color|Depth)
 			};
 
 			FrameBuffer target;
 			math::Vec4f clearColor;
 			float clearDepth;
-			Clear clearFlags;
+			Clear clearFlags = Clear::None;
+			math::Vec2u viewportStart = {0u, 0u};
+			math::Vec2u viewportSize = {0u, 0u};
 		};
 
 		virtual void reset() = 0;

@@ -77,7 +77,7 @@ namespace rev :: gfx
 			IndexType indexType;
 		};
 
-		void setPipeline(const Pipeline& pipeline)
+		void setPipeline(Pipeline pipeline)
 		{
 			m_commands.push_back({Command::SetPipeline, pipeline.id});
 		}

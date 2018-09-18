@@ -42,6 +42,8 @@ namespace rev :: gfx
 
 			enum class PixelFormat : GLenum
 			{
+				Depth = GL_DEPTH_COMPONENT,
+				RG = GL_RG,
 				RGB = GL_RGB,
 				RGBA = GL_RGBA
 			} pixelFormat;

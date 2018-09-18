@@ -21,12 +21,11 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
-#include <graphics/driver/frameBuffer.h>
-#include <graphics/driver/shader.h>
+#include <graphics/backend/device.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/Light.h>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace rev{ namespace graphics {
@@ -39,39 +38,36 @@ namespace rev{ namespace graphics {
 	class ShadowMapPass
 	{
 	public:
-		ShadowMapPass(BackEndRenderer&, GraphicsDriverGL&, const math::Vec2u& _size);
+		ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size);
 
 		// view camera is used to cull visible objects.
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(const std::vector<std::shared_ptr<RenderObj>>& renderables, const Camera& view, const Light& light);
-
-		auto texture() const { return mDepthBuffer->texture(); }
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
 
 	private:
 
-		void setUpGlobalState();
 		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
 		void renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables);
 
 		void loadCommonShaderCode();
-		Shader* getShader(RenderGeom::VtxFormat);
+		gfx::Pipeline getPipeline(RenderGeom::VtxFormat, bool mirroredGeometry);
 		// Used to combine different vertex formats as long as they share the data needed to render shadows.
 		// This saves a lot on shader permutations.
 		uint32_t mVtxFormatMask;
 
 	private:
-		using ShaderPtr = std::unique_ptr<Shader>;
-		using PipelineSet = std::map<uint32_t, ShaderPtr>;
 
-		GraphicsDriverGL&	mDriver;
-		std::unique_ptr<FrameBuffer>	mDepthBuffer;
-		math::Mat44f					mShadowProj;
-		math::Mat44f					mUnbiasedShadowProj;
-		BackEndRenderer&				mBackEnd;
-		PipelineSet						mPipelines;
-		std::string						mCommonShaderCode;
+		gfx::Device&		m_device;
+		gfx::RenderPass*	m_pass;
+		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
+		math::Mat44f		mShadowProj;
+		math::Mat44f		mUnbiasedShadowProj;
+		std::string			mCommonShaderCode;
 		float mBias = 0.001f;
+
+		std::unordered_map<uint32_t,gfx::Pipeline> m_regularPipelines;
+		std::unordered_map<uint32_t,gfx::Pipeline> m_mirroredPipelines;
 	};
 
 }}
