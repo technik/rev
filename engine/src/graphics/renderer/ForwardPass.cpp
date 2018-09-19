@@ -194,7 +194,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const RenderScene& _scene, const RenderTarget& _dst, ShadowMapPass* _shadows)
+	void ForwardPass::render(const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -209,24 +209,17 @@ namespace rev { namespace graphics {
 		//assert(_scene.cameras().size() <= 1); // Only one camera per scene currently supported
 		auto eye = _scene.cameras()[0].lock(); // TODO: Check for deleted cameras
 		assert(eye);
-
-		// Cull and sort
-		cullAndSortScene(*eye, _scene);
-
+		
 		// Prepare skybox environment probe
-		auto& environmentPtr = _scene.environment();
+		//auto& environmentPtr = _scene.environment();
 
 		// Compute global variables
-		auto vp = eye->viewProj(_dst.aspectRatio());
-		// Prepare graphics device's global state
 		_dst.bind();
-		setupOpenGLState();
-		glViewport(0, 0, _dst.size().x(), _dst.size().y());
+		//glViewport(0, 0, _dst.size().x(), _dst.size().y());
 		// Render
 		resetStats();
 		mBackEnd.beginPass();
 		// Iterate over renderables
-		mBackEnd.reserve(_scene.renderables().size());
 		// Record render commands
 		resetRenderCache();
 		for(const auto& mesh : mZSortedQueue)
@@ -257,49 +250,6 @@ namespace rev { namespace graphics {
 
 		if(m_showDbgInfo)
 			drawStats();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::cull(
-		const math::Vec3f& camPos,
-		const math::Vec3f& viewDir,
-		const std::vector<std::shared_ptr<RenderObj>>& renderables)
-	{
-		mZSortedQueue.clear();
-		MeshInfo meshDrawInfo;
-		for(auto obj : renderables)
-		{
-			auto mesh = obj->mesh;
-			// Set world matrix
-			meshDrawInfo.world = obj->transform.matrix();
-			meshDrawInfo.skin = obj->skin;
-
-			for(size_t i = 0; i < mesh->mPrimitives.size(); ++i)
-			{
-				auto& primitive = mesh->mPrimitives[i];
-				auto& geom = primitive.first;
-				// Transform BBox to world space
-				auto worldAABB = geom->bbox().transform(obj->transform);
-				// Get min and max depths along view direction
-				auto aDepth = dot(viewDir, worldAABB.min());
-				auto bDepth = dot(viewDir, worldAABB.max());
-				auto minDepth = math::min(aDepth, bDepth);
-				auto maxDepth = math::max(aDepth, bDepth);
-				// Transform depths relative to the camera
-				auto center = obj->transform.position();
-				float medDepth = dot(Vec3f(center - camPos), viewDir);
-				meshDrawInfo.depth = {medDepth-minDepth, medDepth+maxDepth};
-
-				//if(meshDrawInfo.depth.y() > 0) // Object may be visible
-				{
-					meshDrawInfo.geom = geom;
-					meshDrawInfo.material = primitive.second;
-					mZSortedQueue.push_back(meshDrawInfo);
-				}
-			}
-			auto objPos = obj->transform.position();
-			float depth = dot(Vec3f(objPos - camPos), viewDir);
-		}
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -44,6 +44,8 @@ namespace rev { namespace graphics {
 	private:
 		void collapseSceneRenderables(const RenderScene&);
 
+		using RenderItem = gfx::RenderItem;
+
 		template<class Filter> // Filter must be an operator (RenderItem) -> bool
 		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
 

@@ -19,7 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/backend/device.h>
 #include <graphics/driver/shader.h>
+#include <graphics/renderer/RenderItem.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/Light.h>
 #include <graphics/scene/renderGeom.h>
@@ -40,22 +43,18 @@ namespace rev{ namespace graphics {
 	class ForwardPass
 	{
 	public:
-		ForwardPass(BackEndRenderer&, GraphicsDriverGL&);
+		ForwardPass(gfx::Device&, const math::Vec2u& viewportSize, gfx::FrameBuffer target);
 
-		void render(const RenderScene&, const RenderTarget& _dst, ShadowMapPass* _shadows);
+		void render(const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 
 	private:
 		void loadCommonShaderCode();
-		//void renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture);
-		//void cull(
-		//	const math::Vec3f& camPos,
-		//	const math::Vec3f& viewDir,
-		//	const std::vector<std::shared_ptr<RenderObj>>& renderables);
-		//void sortByRenderInfo();
-		//void cullAndSortScene(const Camera& cam, const RenderScene& scene);
 
-		GraphicsDriverGL&	mDriver;
+		gfx::Device& m_gfxDevice;
+		gfx::RenderPass& m_gfxPass;
+		gfx::CommandBuffer m_drawCommands;
+
 		float mEV;
 		std::unique_ptr<Material>	mErrorMaterial;
 		using ShaderPtr = std::unique_ptr<Shader>;
@@ -67,7 +66,7 @@ namespace rev{ namespace graphics {
 
 		std::string vertexFormatDefines(RenderGeom::VtxFormat);
 
-		uint32_t effectCode(bool environment, bool shadows) { return ((environment?1:0)<<1) | (shadows?1:0); }
+		uint32_t effectCode(bool mirror, bool environment, bool shadows) { return ((mirror?1:0)<<2) | (environment?1:0)<<1) | (shadows?1:0); }
 
 		Shader* getShader(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows);
 
@@ -86,16 +85,6 @@ namespace rev{ namespace graphics {
 			math::Mat44f world;
 			math::Vec2f depth; // min, max
 		};
-
-		BackEndRenderer&	mBackEnd;
-		std::vector<MeshInfo>	mZSortedQueue;
-
-		// Render cache
-		void resetRenderCache();
-		const EnvironmentProbe* mBoundProbe = nullptr;
-		std::shared_ptr<Material> mBoundMaterial = nullptr;
-		const Shader* mBoundShader = nullptr;
-		uint32_t mLastVtxFormatCode = 0;
 
 		void renderMesh(
 			const RenderGeom* _mesh,
