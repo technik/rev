@@ -37,8 +37,8 @@ namespace rev { namespace math {
 			return x;
 		}
 
-		auto&		position	() 			{ return mMatrix.block<3,1>(0,3); }
-		const auto& position	() const	{ return mMatrix.block<3,1>(0,3); }
+		auto&		position	() 			{ return reinterpret_cast<Vec3f&>(mMatrix.block<3,1>(0,3)); }
+		const auto& position	() const	{ return reinterpret_cast<const Vec3f&>(mMatrix.block<3,1>(0,3)); }
 
 		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3>(0,0) = Mat33f(_q); }
 		auto		rotation	()	const	{ return Quatf(mMatrix.block<3,3>(0,0)); }

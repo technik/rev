@@ -21,9 +21,13 @@
 #include "ForwardPass.h"
 #include "graphics/driver/renderTarget.h"
 #include "graphics/scene/renderScene.h"
+#include <graphics/scene/renderObj.h>
+#include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/texture2d.h>
 #include <graphics/backend/textureSampler.h>
+#include <math/algebra/vector.h>
 
 using namespace rev::gfx;
 
@@ -63,16 +67,35 @@ namespace rev { namespace graphics {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::render(const RenderScene& scene) {
+	void ForwardRenderer::render(const RenderScene& scene, const Camera& eye) {
 		assert(m_targetBuffer);
 
-		mBackEnd->beginFrame();
+		//mBackEnd->beginFrame();
+		//if(!scene.lights().empty() && scene.lights()[0]->castShadows)
+		//{
+		//	mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
+		//}
+
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+
+		// --- Cull stuff
+		// Cull visible objects renderQ -> visible
+		cull(m_renderQueue, m_visible, [&](RenderItem& item) -> bool {
+			return dot(item.world.position() - eye.position(), eye.viewDir()) > 0;
+		});
+
+		// TODO: Cull shadow casters renderQ -> casters
+		// TODO: Cull visible shadow receivers visible -> receivers
+
+		// Render shadows (casters, receivers)
 		if(!scene.lights().empty() && scene.lights()[0]->castShadows)
 		{
-			mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
+			mShadowPass->render(m_renderQueue, m_visible, eye, *scene.lights()[0]);
 		}
-		mForwardPass->showDebugInfo(m_showDbgInfo);
-		mForwardPass->render(scene, m_shadowsTexture);
+
+		// TODO: Sort visible objects
+		mForwardPass->render(m_visible, m_shadowsTexture); // Render visible objects
+		// TODO: Render background
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -80,6 +103,20 @@ namespace rev { namespace graphics {
 	{
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
 		mForwardPass->onResizeTarget(_newSize);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void ForwardRenderer::collapseSceneRenderables(const RenderScene& scene)
+	{
+		m_visible.clear();
+		for(auto obj : scene.renderables())
+		{			
+			for(auto mesh : obj->mesh->mPrimitives)
+			{
+				assert(mesh.first && mesh.second);
+				m_visible.push_back({obj->transform, *mesh.first, *mesh.second});
+			}
+		}
 	}
 
 }}

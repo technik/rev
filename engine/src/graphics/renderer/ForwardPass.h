@@ -47,13 +47,13 @@ namespace rev{ namespace graphics {
 
 	private:
 		void loadCommonShaderCode();
-		void renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture);
-		void cull(
-			const math::Vec3f& camPos,
-			const math::Vec3f& viewDir,
-			const std::vector<std::shared_ptr<RenderObj>>& renderables);
-		void sortByRenderInfo();
-		void cullAndSortScene(const Camera& cam, const RenderScene& scene);
+		//void renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture);
+		//void cull(
+		//	const math::Vec3f& camPos,
+		//	const math::Vec3f& viewDir,
+		//	const std::vector<std::shared_ptr<RenderObj>>& renderables);
+		//void sortByRenderInfo();
+		//void cullAndSortScene(const Camera& cam, const RenderScene& scene);
 
 		GraphicsDriverGL&	mDriver;
 		float mEV;

@@ -36,18 +36,34 @@ namespace rev { namespace graphics {
 	{
 	public:
 		void init	(gfx::Device& driver, gfx::FrameBuffer& target);
-		void render	(const RenderScene&);
+		void render	(const RenderScene&, const Camera& pov);
 		void submit ();
-		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 		void onResizeTarget(const math::Vec2u& _newSize);
+
+	private:
+		void collapseSceneRenderables(const RenderScene&);
 
 	private:
 		gfx::Texture2d	 m_shadowsTexture;
 		std::unique_ptr<ForwardPass>		mForwardPass;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		gfx::FrameBuffer*					m_targetBuffer = nullptr;
-		std::unique_ptr<BackEndRenderer>	mBackEnd;
-		bool								m_showDbgInfo = false;
+
+		// Internal object caches
+		struct RenderItem
+		{
+			math::AffineTransform world;
+			graphics::RenderGeom& geom;
+			graphics::Material& material;
+		};
+
+		template<class Filter> // Filter must be an operator (RenderItem) -> bool
+		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
+
+		std::vector<RenderItem> m_renderQueue;
+		std::vector<RenderItem> m_visible;
+		std::vector<RenderItem> m_sdwCasters;
+		std::vector<RenderItem> m_visibleReceivers;
 	};
 
 }}

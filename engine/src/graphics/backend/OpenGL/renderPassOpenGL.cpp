@@ -56,7 +56,7 @@ namespace rev :: gfx
 		{
 			glClearColor(m_desc.clearColor.x(),m_desc.clearColor.y(),m_desc.clearColor.z(),m_desc.clearColor.w());
 		}
-		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Z)
+		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Depth)
 		{
 			glClearDepthf(m_desc.clearDepth);
 		}
@@ -64,7 +64,7 @@ namespace rev :: gfx
 		{
 			glClear(
 				((int)Descriptor::Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
-				|((int)Descriptor::Clear::Z ? GL_DEPTH_BUFFER_BIT : 0));
+				|((int)Descriptor::Clear::Depth ? GL_DEPTH_BUFFER_BIT : 0));
 		}
 
 		// Send recorded commands
