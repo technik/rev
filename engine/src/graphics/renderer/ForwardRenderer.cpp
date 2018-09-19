@@ -119,4 +119,13 @@ namespace rev { namespace graphics {
 		}
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	template<class Filter> // Filter must be an operator (RenderItem) -> bool
+	void ForwardRenderer::cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter& filter) // TODO: Cull inplace?
+	{
+		for(auto& item : from)
+			if(filter(item))
+				to.push_back(item);
+	}
+
 }}

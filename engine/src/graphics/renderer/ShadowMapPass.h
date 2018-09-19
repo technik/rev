@@ -25,6 +25,7 @@
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/Light.h>
+#include <graphics/renderer/RenderItem.h>
 #include <unordered_map>
 #include <vector>
 
@@ -40,15 +41,19 @@ namespace rev{ namespace graphics {
 	public:
 		ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size);
 
-		// view camera is used to cull visible objects.
+		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
-		void render(const std::vector<std::shared_ptr<RenderObj>>& renderables, const Camera& view, const Light& light);
+		void render(
+			const std::vector<gfx::RenderItem>& shadowCasters,
+			const std::vector<gfx::RenderItem>& shadowReceivers,
+			const Camera& view,
+			const Light& light);
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
 
 	private:
 
 		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
-		void renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables);
+		void renderMeshes(const std::vector<gfx::RenderItem>& renderables);
 
 		void loadCommonShaderCode();
 		gfx::Pipeline getPipeline(RenderGeom::VtxFormat, bool mirroredGeometry);

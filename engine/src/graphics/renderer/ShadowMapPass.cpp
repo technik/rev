@@ -74,7 +74,11 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::render(const std::vector<std::shared_ptr<RenderObj>>& renderables, const Camera& viewCam, const Light& light)
+	void ShadowMapPass::render(
+		const std::vector<gfx::RenderItem>& shadowCasters,
+		const std::vector<gfx::RenderItem>&,// shadowReceivers,
+		const Camera& view,
+		const Light& light)
 	{
 		// Accumulate all casters into a single shadow space bounding box
 		AABB castersBBox; castersBBox.clear();
@@ -82,21 +86,17 @@ namespace rev { namespace graphics {
 		lightRotation.setRotation(Quatf({1.f, 0.f, 0.f}, HalfPi));
 		auto world = light.worldMatrix * lightRotation; // So that light's +y axis (forward), maps to the -Z in camera
 		auto view = world.orthoNormalInverse();
-		for(auto& obj : renderables)
+		for(auto& obj : shadowCasters)
 		{
-			auto modelToShadow = view * obj->transform;
-			for(auto& primitive : obj->mesh->mPrimitives)
-			{
-				// Object's bounding box in shadow space
-				auto bbox = primitive.first->bbox().transform(modelToShadow);
-				castersBBox = math::AABB(castersBBox, bbox);
-			}
+			// Object's bounding box in shadow space
+			auto bbox = obj.geom.bbox().transform(obj.world);
+			castersBBox = math::AABB(castersBBox, bbox);
 		}
 
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
-		renderMeshes(renderables); // Iterate over renderables
+		renderMeshes(shadowCasters); // Iterate over renderables
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::renderMeshes(const std::vector<std::shared_ptr<RenderObj>>& renderables)
+	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables)
 	{
 		auto worldMatrix = Mat44f::identity();
 
@@ -134,26 +134,23 @@ namespace rev { namespace graphics {
 		{
 			Pipeline pipeline;
 			Mat44f wvp;
-			RenderGeom* renderable;
+			RenderGeom& renderable;
 		};
 
 		// Retrieve all info needed to render the objects
 		std::vector<RenderInfo> renderList;
 
-		for(auto& renderable : renderables)
+		for(auto& mesh : renderables)
 		{
-			RenderInfo info;
-			worldMatrix.block<3,4>(0,0) = renderable->transform.matrix();
-			info.wvp = mShadowProj*worldMatrix;
-
+			Mat44f wvp = mShadowProj* mesh.world.matrix();
 			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-			for(auto& primitive : renderable->mesh->mPrimitives)
-			{
-				auto& mesh = *primitive.first;
-				info.pipeline = getPipeline(mesh.vertexFormat(), mirroredGeometry);
-				info.renderable = &mesh;
-				renderList.push_back(info);
-			}
+			auto pipeline = getPipeline(mesh.geom.vertexFormat(), mirroredGeometry);
+
+			renderList.push_back({
+				pipeline,
+				wvp,
+				mesh.geom
+			});
 		}
 
 		// Sort renderables to reuse pipelines as much as possible
@@ -180,9 +177,9 @@ namespace rev { namespace graphics {
 			cmdBuffer.setUniformData(uniforms);
 			uniforms.clear();
 			// Geometry
-			cmdBuffer.setVertexData(draw.renderable->getVao());
-			assert(draw.renderable->indices().componentType == GL_UNSIGNED_SHORT);
-			cmdBuffer.drawTriangles(draw.renderable->indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
+			cmdBuffer.setVertexData(draw.renderable.getVao());
+			assert(draw.renderable.indices().componentType == GL_UNSIGNED_SHORT);
+			cmdBuffer.drawTriangles(draw.renderable.indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
 		}
 
 		m_pass->reset();

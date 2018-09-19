@@ -18,45 +18,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <memory>
-#include "ForwardPass.h"
-#include "ShadowMapPass.h"
-#include <graphics/backend/device.h>
-#include <graphics/backend/texture2d.h>
-#include <graphics/backend/frameBuffer.h>
-#include <graphics/renderer/RenderItem.h>
+#include <math/algebra/affineTransform.h>
 
-namespace rev { namespace graphics {
+namespace rev::graphics
+{
+	class Material;
+	class RenderGeom;
+}
 
-	class Camera;
-	class GraphicsDriverGL;
-	class RenderScene;
-	class RenderTarget;
+namespace rev::gfx {
 
-	class ForwardRenderer
+	struct RenderItem
 	{
-	public:
-		void init	(gfx::Device& driver, gfx::FrameBuffer& target);
-		void render	(const RenderScene&, const Camera& pov);
-		void submit ();
-		void onResizeTarget(const math::Vec2u& _newSize);
-
-	private:
-		void collapseSceneRenderables(const RenderScene&);
-
-		template<class Filter> // Filter must be an operator (RenderItem) -> bool
-		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
-
-	private:
-		gfx::Texture2d	 m_shadowsTexture;
-		std::unique_ptr<ForwardPass>		mForwardPass;
-		std::unique_ptr<ShadowMapPass>		mShadowPass;
-		gfx::FrameBuffer*					m_targetBuffer = nullptr;
-
-		std::vector<RenderItem> m_renderQueue;
-		std::vector<RenderItem> m_visible;
-		std::vector<RenderItem> m_sdwCasters;
-		std::vector<RenderItem> m_visibleReceivers;
+		math::AffineTransform world;
+		graphics::RenderGeom& geom;
+		graphics::Material& material;
 	};
 
-}}
+}
