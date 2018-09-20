@@ -11,6 +11,7 @@
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/scene/renderGeom.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -38,6 +39,8 @@ int main(int _argc, const char** _argv) {
 
 	if(levelName.empty())
 		return -1;
+
+	cout << "Load resource file \"" << levelName <<"\"\n";
 
 	// Clean up
 	FileSystem::end();
