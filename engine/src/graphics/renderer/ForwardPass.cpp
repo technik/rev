@@ -47,9 +47,8 @@ using namespace rev::math;
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
-	ForwardPass::ForwardPass(BackEndRenderer& _backEnd, GraphicsDriverGL& _gfxDriver)
-		: mDriver(_gfxDriver)
-		, mBackEnd(_backEnd)
+	ForwardPass::ForwardPass(gfx::Device& device, const math::Vec2u& viewportSize, gfx::FrameBuffer target)
+		: m_gfxDevice(device)
 	{
 		loadCommonShaderCode();
 		mErrorMaterial = std::make_unique<Material>(make_shared<Effect>("plainColor.fx"));
@@ -57,8 +56,9 @@ namespace rev { namespace graphics {
 
 		mEV = 1.0f;
 		// Init sky resources
-		mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
-		m_drawLimit = -1;
+		
+		//
+
 	}
 
 	//----------------------------------------------------------------------------------------------

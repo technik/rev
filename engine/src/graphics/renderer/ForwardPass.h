@@ -52,7 +52,7 @@ namespace rev{ namespace graphics {
 		void loadCommonShaderCode();
 
 		gfx::Device& m_gfxDevice;
-		gfx::RenderPass& m_gfxPass;
+		gfx::RenderPass* m_gfxPass;
 		gfx::CommandBuffer m_drawCommands;
 
 		float mEV;
@@ -102,7 +102,6 @@ namespace rev{ namespace graphics {
 		void resetStats();
 		unsigned m_numRenderables;
 		unsigned m_numMeshes;
-		int m_drawLimit;
 
 		struct ShaderPragma
 		{

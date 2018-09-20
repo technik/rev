@@ -64,17 +64,13 @@ namespace rev { namespace graphics {
 		auto shadowBuffer = device.createFrameBuffer(shadowBufferDesc);
 
 		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowDesc.size);
+
+		//mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const RenderScene& scene, const Camera& eye) {
 		assert(m_targetBuffer);
-
-		//mBackEnd->beginFrame();
-		//if(!scene.lights().empty() && scene.lights()[0]->castShadows)
-		//{
-		//	mShadowPass->render(scene.renderables(), *scene.cameras()[0].lock(), *scene.lights()[0]);
-		//}
 
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 
