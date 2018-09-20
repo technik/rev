@@ -42,6 +42,7 @@ namespace rev :: gfx
 			math::Vec4f clearColor;
 			float clearDepth;
 			Clear clearFlags;
+			math::Vec2u viewportSize;
 		};
 
 		virtual void reset() = 0;
