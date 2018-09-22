@@ -17,6 +17,8 @@
 
 #include <fstream>
 
+#include "bfg/mapFile.h"
+
 using namespace std;
 using namespace rev::core;
 using namespace rev::gfx;
@@ -229,6 +231,9 @@ int main(int _argc, const char** _argv) {
 	}
 	else
 	{
+		// Load a map
+		id::MapFile map;
+		map.Parse(inFile.c_str());
 	}
 
 	// Clean up
