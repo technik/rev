@@ -98,7 +98,11 @@ namespace rev :: gfx
 		void drawLines(int nVertices, IndexType);
 
 		// Command buffer lifetime
-		void clear() { m_commands.clear(); }
+		void clear() {
+			m_commands.clear();
+			m_uniforms.clear();
+			m_draws.clear();
+		}
 
 		// Access
 		const std::vector<Command> commands() const { return m_commands; }
