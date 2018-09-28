@@ -65,7 +65,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addTexture(const string& name, TexturePtr t)
+	void Material::addTexture(const string& name, gfx::Texture2d t)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)
@@ -76,7 +76,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::bindParams(BackEndRenderer& renderer) const
+	void Material::bindParams(gfx::CommandBuffer::UniformBucket& renderer) const
 	{
 		for(const auto& v : mFloatParams)
 			renderer.addParam(v.first, v.second);

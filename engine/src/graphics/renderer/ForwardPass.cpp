@@ -23,8 +23,8 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
-#include <graphics/debug/imgui.h>
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/backend/renderPass.h>
 #include <graphics/driver/shaderProcessor.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/camera.h>
@@ -44,6 +44,8 @@ using namespace rev::input;
 using namespace std;
 using namespace rev::math;
 
+using namespace rev::gfx;
+
 namespace rev { namespace graphics {
 
 	//----------------------------------------------------------------------------------------------
@@ -52,13 +54,24 @@ namespace rev { namespace graphics {
 	{
 		loadCommonShaderCode();
 		mErrorMaterial = std::make_unique<Material>(make_shared<Effect>("plainColor.fx"));
-		mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
+		//mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
 		mEV = 1.0f;
-		// Init sky resources
-		
-		//
 
+		// Init graphics render pass
+		RenderPass::Descriptor passDesc;
+		passDesc.clearDepth = 1;
+		passDesc.clearColor = { 1.f,1.f,1.f,1.f }; // ?89.f/255.f,235.f/255.f,1.f,1.f
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
+		passDesc.target = target;
+		passDesc.viewportSize = viewportSize;
+		m_pass = device.createRenderPass(passDesc);
+		// Command buffer
+		m_pass->record(m_drawCommands);
+
+		// Common pipeline config
+		m_commonPipelineDesc.cullBack = true;
+		m_commonPipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -95,10 +108,10 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Shader* ForwardPass::getShader(Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows)
+	gfx::Pipeline ForwardPass::getPipeline(Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
 	{
 		// Locate the proper pipeline set
-		auto code = effectCode(env, shadows);
+		auto code = effectCode(mirror, env, shadows);
 		auto setIter = mPipelines.find({code, &mat.effect()});
 		if(setIter == mPipelines.end())
 		{
@@ -129,24 +142,32 @@ namespace rev { namespace graphics {
 		auto iter = pipelineSet.find(descriptor);
 		if(iter == pipelineSet.end())
 		{
+			Pipeline::ShaderModule::Descriptor stageDesc;
+			stageDesc.code = {
+				vertexFormatDefines(vtxFormat).c_str(),
+				environmentDefines.c_str(),
+				shadowDefines.c_str(),
+				skinningDefines.c_str(),
+				mat.bakedOptions().c_str(),
+				mForwardShaderCommonCode.c_str(),
+				mat.effect().code().c_str()
+			};
+			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
+			m_commonPipelineDesc.vtxShader = m_gfxDevice.createShaderModule(stageDesc);
+			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
+			m_commonPipelineDesc.pxlShader = m_gfxDevice.createShaderModule(stageDesc);
+			m_commonPipelineDesc.frontFace = mirror ? Pipeline::Descriptor::Winding::CW : Pipeline::Descriptor::Winding::CCW;
+
 			iter = pipelineSet.emplace(
 				descriptor,
-				Shader::createShader({
-					vertexFormatDefines(vtxFormat).c_str(),
-					environmentDefines.c_str(),
-					shadowDefines.c_str(),
-					skinningDefines.c_str(),
-					mat.bakedOptions().c_str(),
-					mForwardShaderCommonCode.c_str(),
-					mat.effect().code().c_str()
-					})
+				m_gfxDevice.createPipeline(m_commonPipelineDesc)
 			).first;
 		}
-		return iter->second.get();
+		return iter->second;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture)
+	/*void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture)
 	{
 		if(!mBackgroundShader)
 		{
@@ -176,25 +197,10 @@ namespace rev { namespace graphics {
 
 			mBackEnd.endCommand();
 		}
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
-	void setupOpenGLState()
-	{
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-
-		glEnable(GL_CULL_FACE);
-		glFrontFace(GL_CCW);
-
-		//glClearColor(89.f/255.f,235.f/255.f,1.f,1.f);
-		glClearColor(1.f,1.f,1.f,1.f);
-		glClearDepthf(1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
+	void ForwardPass::render(const Camera& eye, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -205,153 +211,55 @@ namespace rev { namespace graphics {
 			loadCommonShaderCode();
 		}
 #endif
-		// Get active camera
-		//assert(_scene.cameras().size() <= 1); // Only one camera per scene currently supported
-		auto eye = _scene.cameras()[0].lock(); // TODO: Check for deleted cameras
-		assert(eye);
 		
 		// Prepare skybox environment probe
 		//auto& environmentPtr = _scene.environment();
 
 		// Compute global variables
-		_dst.bind();
-		//glViewport(0, 0, _dst.size().x(), _dst.size().y());
 		// Render
 		resetStats();
-		mBackEnd.beginPass();
-		// Iterate over renderables
-		// Record render commands
-		resetRenderCache();
-		for(const auto& mesh : mZSortedQueue)
+		m_drawCommands.clear();
+
+		CommandBuffer::UniformBucket uniforms;
+
+		Mat44f wvp;
+		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
+		auto viewProj = eye.viewProj(aspectRatio);
+
+		for(auto& renderable : renderables)
 		{
-			if(m_drawLimit >= 0 && m_numRenderables >= unsigned(m_drawLimit))
-				break;
-			// Set up vertex uniforms
-			renderMesh(
-				mesh.geom.get(),
-				mesh.skin.get(),
-				vp* mesh.world, // World-View-Projection
-				mesh.world,
-				eye->position(),
-				mesh.material,
-				&*environmentPtr,
-				_scene.lights(),
-				_shadows);
-			++m_numRenderables;
+			uniforms.clear();
+			// Matrices
+			Mat44f world = renderable.world.matrix();
+			wvp = viewProj * world;
+			uniforms.addParam(0, wvp);
+			uniforms.addParam(1, world);
+			// Skinning matrix
+			//if(_skin)
+			//	mBackEnd.addParam(30, _skin->appliedPose);
+			renderable.material.bindParams(uniforms);
+			// Lighting
+			uniforms.addParam(3, mEV); // Exposure value
+			uniforms.addParam(4, eye.world().matrix());
+			//Mat44f shadowProj = shadows->shadowProj() * _worldMatrix;
+			//uniforms.addParam(2, shadowProj);
+			uniforms.addParam(9, _shadows);
+
+			bool mirroredGeometry = affineTransformDeterminant(renderable.world) < 0.f;
+			bool useShadows = false;
+			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), nullptr, useShadows, mirroredGeometry);
+			m_drawCommands.setPipeline(pipeline);
+			m_drawCommands.setUniformData(uniforms);
+			m_drawCommands.setVertexData(renderable.geom.getVao());
+			assert(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT);
+			m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16);
 		}
 
-		// Render skybox
-		if(environmentPtr)
-			renderBackground(vp, mEV, &*environmentPtr->texture());
-
 		// Finish pass
-		mBackEnd.endPass();
-		mBackEnd.submitDraws();
+		m_gfxDevice.renderQueue().submitPass(*m_pass);
 
 		if(m_showDbgInfo)
 			drawStats();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::resetRenderCache()
-	{
-		mBoundShader = nullptr;
-		mBoundMaterial = nullptr;
-		mBoundProbe = nullptr;
-		mLastVtxFormatCode = RenderGeom::VtxFormat::invalid();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::renderMesh(
-		const RenderGeom* _mesh,
-		const SkinInstance* _skin,
-		const Mat44f& _wvp,
-		const Mat44f _worldMatrix,
-		const Vec3f _wsEye,
-		const shared_ptr<Material>& _material,
-		const EnvironmentProbe* env,
-		const std::vector<std::shared_ptr<Light>>& lights,
-		ShadowMapPass* shadows
-	)
-	{
-		// Select material
-		bool changedShader = false;
-		bool changedMaterial = false;
-		if(_material != mBoundMaterial || mLastVtxFormatCode != _mesh->vertexFormat().code())
-		{
-			auto shader = getShader(*_material, _mesh->vertexFormat(), env, shadows);
-			if(!shader)
-				return;
-			if(shader != mBoundShader)
-			{
-				resetRenderCache();
-				mBoundShader = shader;
-				changedShader = true;
-				mBoundProbe = nullptr;
-			}
-			mBoundMaterial = _material;
-			changedMaterial = true;
-		}
-		// Begin recording command
-		auto& command = mBackEnd.beginCommand();
-		command.cullMode = affineTransformDeterminant(_worldMatrix) > 0.f ? GL_BACK : GL_FRONT;
-		command.shader = mBoundShader;
-		// Optional sky
-		if(env != mBoundProbe)
-		{
-			mBoundProbe = env;
-			mBackEnd.addParam(7, &*env->texture());
-			mBackEnd.addParam(18, env->numLevels());
-		}
-		if(!lights.empty())
-		{
-			auto& light = lights[0];
-			Vec3f lightDir = light->worldMatrix.rotateDirection({0.f, 1.f, 0.f});
-			mBackEnd.addParam(6, lightDir);
-			mBackEnd.addParam(5, light->color);
-		}
-		// Matrices
-		mBackEnd.addParam(0, _wvp);
-		mBackEnd.addParam(1, _worldMatrix);
-		// Skinning matrix
-		if(_skin)
-			mBackEnd.addParam(30, _skin->appliedPose);
-		// Material
-		if(changedMaterial)
-		{
-			mBoundMaterial->bindParams(mBackEnd);
-		}
-		// Lighting
-		if(changedShader)
-		{
-			mBackEnd.addParam(3, mEV); // Exposure value
-			mBackEnd.addParam(4, _wsEye);
-		}
-		if(shadows)
-		{
-			Mat44f shadowProj = shadows->shadowProj() * _worldMatrix;
-			mBackEnd.addParam(2, shadowProj);
-			mBackEnd.addParam(9, shadows->texture().get());
-		}
-		// Render mesh
-		command.vao = _mesh->getVao();
-		command.nIndices = _mesh->indices().count;
-		command.indexType = _mesh->indices().componentType;
-		++m_numMeshes;
-		mBackEnd.endCommand();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::sortByRenderInfo()
-	{
-		std::sort(
-			mZSortedQueue.begin(),
-			mZSortedQueue.end(),
-			[](const MeshInfo& a, const MeshInfo& b) {
-				return a.material == b.material ?
-					a.geom < b.geom :
-					a.material < b.material;
-				});
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -359,7 +267,7 @@ namespace rev { namespace graphics {
 		m_numMeshes = 0;
 		m_numRenderables = 0;
 	}
-
+	/*
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::drawStats(){
 		// Debug interface
@@ -390,12 +298,5 @@ namespace rev { namespace graphics {
 		ImGui::PopStyleColor();
 		resetStats();
 	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::cullAndSortScene(const Camera& eye, const RenderScene& scene)
-	{
-		cull(eye.position(), eye.viewDir(), scene.renderables());
-		std::sort(mZSortedQueue.begin(), mZSortedQueue.end(), [](const MeshInfo& a, const MeshInfo& b) { return a.depth.y() < b.depth.y(); });
-		sortByRenderInfo();
-	}
+	*/
 }}

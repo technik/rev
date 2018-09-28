@@ -45,7 +45,7 @@ namespace rev{ namespace graphics {
 	public:
 		ForwardPass(gfx::Device&, const math::Vec2u& viewportSize, gfx::FrameBuffer target);
 
-		void render(const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
+		void render(const Camera&, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 
 	private:
@@ -54,13 +54,14 @@ namespace rev{ namespace graphics {
 		gfx::Device& m_gfxDevice;
 		gfx::RenderPass* m_gfxPass;
 		gfx::CommandBuffer m_drawCommands;
+		gfx::RenderPass*	m_pass;
+		math::Vec2u m_viewportSize;
 
 		float mEV;
 		std::unique_ptr<Material>	mErrorMaterial;
-		using ShaderPtr = std::unique_ptr<Shader>;
 
 		using ShaderOptions = std::pair<uint32_t,std::string>;
-		using PipelineSet = std::map<ShaderOptions, ShaderPtr>;
+		using PipelineSet = std::map<ShaderOptions, gfx::Pipeline>;
 		using EffectSelector = std::pair<uint32_t, const Effect*>;
 		std::map<EffectSelector, PipelineSet>	mPipelines;
 
@@ -68,13 +69,10 @@ namespace rev{ namespace graphics {
 
 		uint32_t effectCode(bool mirror, bool environment, bool shadows) { return ((mirror?1:0)<<2) | (environment?1:0)<<1) | (shadows?1:0); }
 
-		Shader* getShader(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows);
+		gfx::Pipeline getPipeline(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
 		std::string mForwardShaderCommonCode;
-		
-		// Sky
-		ShaderPtr mBackgroundShader;
-		std::unique_ptr<RenderGeom> mSkyPlane;
+		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		// Internal rendering structures
 		struct MeshInfo

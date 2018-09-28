@@ -28,6 +28,7 @@
 #include <game/scene/meshRenderer.h>
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
+#include <graphics/backend/device.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderObj.h>
@@ -455,15 +456,15 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Texture> getTexture(
+	gfx::Texture2d getTexture(
 		const std::string& assetsFolder,
 		const gltf::Document& document,
-		std::vector<std::shared_ptr<Texture>>& textures,
+		std::vector<gfx::Texture2d>& textures,
 		int32_t index,
 		bool sRGB)
 	{
 		auto& texture = textures[index];
-		if(texture) // Already allocated, reuse
+		if(texture.id != gfx::Texture2d::InvalidId) // Already allocated, reuse
 			return texture;
 
 		// Not previously allocated, do it now
@@ -476,16 +477,18 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	auto loadMaterials(
+		gfx::Device& gfxDevice,
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
 		const shared_ptr<Effect>& _pbrEffect,
-		std::vector<std::shared_ptr<Texture>>& _textures
+		std::vector<gfx::Texture2d>& _textures
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
-		Texture::SamplerOptions sampler;
-		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
-		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
+		gfx::TextureSampler::Descriptor samplerDesc;
+		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
 		auto sony_fms_lut = Texture::load("sonyHill.png", true, 0, sampler);
 		auto envBRDF = Texture::load("ibl_brdf.hdr", false, 0, sampler);
 		

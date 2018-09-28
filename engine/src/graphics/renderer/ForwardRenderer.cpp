@@ -90,7 +90,9 @@ namespace rev { namespace graphics {
 		}
 
 		// TODO: Sort visible objects
-		mForwardPass->render(m_visible, m_shadowsTexture); // Render visible objects
+		auto eye = scene.cameras()[0].lock(); // TODO: Check for deleted cameras
+		assert(eye);
+		mForwardPass->render(*eye, m_visible, m_shadowsTexture); // Render visible objects
 		// TODO: Render background
 	}
 

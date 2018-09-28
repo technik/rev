@@ -46,7 +46,13 @@ namespace rev :: gfx
 			ParamList<math::Vec4f> vec4s;
 			ParamList<math::Mat44f> mat4s;
 			ParamList<std::vector<math::Mat44f>> mat4vs;
-			//ParamList<RenderQueue::Texture>	textures;
+			ParamList<Texture2d>	textures;
+
+			size_t addParam(int pos, float x) { floats.push_back({pos, x}); return floats.size() -1; }
+			size_t addParam(int pos, math::Vec3f x) { vec3s.push_back({pos, x}); return vec3s.size() -1; }
+			size_t addParam(int pos, math::Vec4f x) { vec4s.push_back({pos, x}); return vec4s.size() -1; }
+			size_t addParam(int pos, math::Mat44f x) { mat4s.push_back({pos, x}); return mat4s.size() -1; }
+			size_t addParam(int pos, Texture2d x) { textures.push_back({pos, x}); return textures.size() -1; }
 		};
 
 		// Commands

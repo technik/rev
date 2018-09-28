@@ -18,8 +18,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <graphics/renderer/backend/BackEndRenderer.h>
-#include <graphics/driver/texture.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/backend/texture2d.h>
 #include <math/algebra/vector.h>
 #include <memory>
 #include <string>
@@ -31,7 +31,6 @@ namespace rev { namespace graphics {
 	class Material
 	{
 	public:
-		using TexturePtr = std::shared_ptr<const Texture>;
 		Effect& effect() { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect);
@@ -40,10 +39,10 @@ namespace rev { namespace graphics {
 		void addParam(const std::string& name,float f);
 		void addParam(const std::string& name, const math::Vec3f& v);
 		void addParam(const std::string& name, const math::Vec4f& v);
-		void addTexture(const std::string& name, TexturePtr t);
+		void addTexture(const std::string& name, gfx::Texture2d t);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(BackEndRenderer& renderer) const;
+		void bindParams(gfx::CommandBuffer::UniformBucket& renderer) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;
@@ -52,7 +51,7 @@ namespace rev { namespace graphics {
 		std::vector<std::pair<GLint,float>>			mFloatParams;
 		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
 		std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
-		std::vector<std::pair<GLint,TexturePtr>>	mTextureParams;
+		std::vector<std::pair<GLint,gfx::Texture2d>>	mTextureParams;
 	};
 
 }}
