@@ -108,7 +108,7 @@ namespace rev { namespace graphics {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	gfx::Pipeline ForwardPass::getPipeline(Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
+	gfx::Pipeline ForwardPass::getPipeline(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
 	{
 		// Locate the proper pipeline set
 		auto code = effectCode(mirror, env, shadows);

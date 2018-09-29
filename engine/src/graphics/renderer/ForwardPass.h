@@ -75,7 +75,7 @@ namespace rev{ namespace graphics {
 			return ((mirror?1:0)<<2) | ((environment?1:0)<<1) | (shadows?1:0);
 		}
 
-		gfx::Pipeline getPipeline(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
+		gfx::Pipeline getPipeline(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
 		std::string mForwardShaderCommonCode;
 		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
