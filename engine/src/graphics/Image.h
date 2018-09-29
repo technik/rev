@@ -45,6 +45,11 @@ namespace rev::gfx {
 			size_t pixelSize() const {
 				return numChannels * ((channel == ChannelFormat::Byte)?1:4);
 			}
+
+			bool operator==(const PixelFormat& b) const
+			{
+				return channel == b.channel && numChannels == b.numChannels;
+			}
 		};
 
 		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());

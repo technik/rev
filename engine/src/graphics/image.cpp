@@ -58,22 +58,22 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	// Constructors from specific color formats
 	Image::Image(const math::Vec2u& size, math::Vec3u8* data)
-		: Image(size, data, {ChannelFormat::Byte, 3})
+		: Image({ChannelFormat::Byte, 3}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4u8* data)
-		: Image(size, data, {ChannelFormat::Byte, 4})
+		: Image({ChannelFormat::Byte, 4}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec3f* data)
-		: Image(size, data, {ChannelFormat::Float32, 3})
+		: Image({ChannelFormat::Float32, 3}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4f* data)
-		: Image(size, data, {ChannelFormat::Float32, 4})
+		: Image({ChannelFormat::Float32, 4}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
@@ -93,6 +93,7 @@ namespace rev::gfx
 		mData = allocatePixelData(mFormat, mCapacity);
 		assert(x.mCapacity >= x.area());
 		memcpy(mData, x.mData, mCapacity);
+		return *this;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -104,6 +105,7 @@ namespace rev::gfx
 		mFormat = x.format();
 		mData = x.mData;
 		x.mCapacity = 0;
+		return *this;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -144,7 +146,7 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	Image Image::proceduralXOR(const math::Vec2u& size, size_t nChannels)
 	{
-		Image xor({ChannelFormat::Byte, nChannels}, size);
+		Image xor({ChannelFormat::Byte, (uint8_t)nChannels}, size);
 		for(unsigned i = 0; i < size.y(); ++i)
 			for(unsigned j = 0; j < size.x(); ++j)
 			{
