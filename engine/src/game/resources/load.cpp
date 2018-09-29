@@ -24,21 +24,21 @@
 
 namespace rev::game
 {
-	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB = true)
+	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB)
 	{
-		gfx::Texture2d texture;
-
 		// Load image from file
 		auto image = gfx::Image::load(fileName, 0);
 
+		// Fill out descriptor
 		gfx::Texture2d::Descriptor descriptor;
-		descriptor.pixelFormat = image.format;
+		descriptor.pixelFormat = image.format();
 		descriptor.sampler = sampler;
 		descriptor.sRGB = sRGB;
 		descriptor.size = image.size();
 		descriptor.srcImages = &image;
 		descriptor.providedImages = 1;
 
-		texture = device.createTexture2d(descriptor);
+		// Create texture in device
+		return device.createTexture2d(descriptor);
 	}
 }
