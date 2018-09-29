@@ -50,7 +50,7 @@ namespace rev { namespace graphics {
 		void addLight(const std::shared_ptr<Light>& light) { m_lights.push_back(light); }
 		const auto& lights() const { return m_lights;}
 
-		void setEnvironment(const std::shared_ptr<const EnvironmentProbe>& probe) { m_environment = probe; }
+		void setEnvironment(const std::shared_ptr<const gfx::EnvironmentProbe>& probe) { m_environment = probe; }
 		auto& environment() const { return m_environment; }
 
 	private:
@@ -59,7 +59,7 @@ namespace rev { namespace graphics {
 		std::vector<std::weak_ptr<Camera>>			m_cameras;
 
 		// Environment probe
-		std::shared_ptr<const EnvironmentProbe>			m_environment;
+		std::shared_ptr<const gfx::EnvironmentProbe>			m_environment;
 	};
 
 }}	// namespace rev::graphics
