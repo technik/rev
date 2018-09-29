@@ -133,16 +133,19 @@ namespace rev {
 		using Vector4 = Vector<T_,4>;
 
 		typedef Vector<unsigned, 2> Vec2u;
+		typedef Vector<uint16_t, 2> Vec2u16;
 		typedef Vector<int, 2>		Vec2i;
 		typedef Vector<float, 2>	Vec2f;
 		typedef Vector<double, 2>	Vec2d;
 
 		typedef Vector3<unsigned>	Vec3u;
+		typedef Vector3<uint8_t>	Vec3u8;
 		typedef Vector3<int>		Vec3i;
 		typedef Vector3<float>		Vec3f;
 		typedef Vector3<double>		Vec3d;
 
 		typedef Vector4<unsigned>	Vec4u;
+		typedef Vector4<uint8_t>	Vec4u8;
 		typedef Vector4<int>		Vec4i;
 		typedef Vector4<float>		Vec4f;
 		typedef Vector4<double>		Vec4d;
