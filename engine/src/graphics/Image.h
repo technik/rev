@@ -19,93 +19,86 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <core/platform/fileSystem/file.h>
-#include <core/tools/log.h>
+#include <cstdint>
+#include <string_view>
 #include <math/algebra/vector.h>
-#include "stb_image.h"
-#include <memory>
-#include <string>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
+	// An image must always have a pixel format, even if it's empty.
+	// This format, however, is mutable, and can be changed when assigning new content to the image
 	class Image
 	{
 	public:
-		enum class ChannelFormat
+
+		enum class ChannelFormat : std::uint8_t
 		{
 			Byte,
 			Float32
 		};
 
-		Image(const math::Vec2u& size, std::shared_ptr<uint8_t> data, unsigned nChannels, ChannelFormat _format)
-			: mNumChannels(nChannels)
-			, mSize(size)
-			, mData(data)
-			, mDataFormat(_format)
-		{}
-
-		// XOR textures are always 8-bits per channel
-		static Image proceduralXOR(unsigned size, unsigned nChannels)
+		struct PixelFormat
 		{
-			auto imgBuffer = std::shared_ptr<uint8_t>( new uint8_t[size*size*nChannels], []( uint8_t *p ){ delete [] p; } );
-			for(unsigned i = 0; i < size; ++i)
-				for(unsigned j = 0; j < size; ++j)
-					for(uint8_t k = 0; k < nChannels; ++k)
-					{
-						auto pixelNdx = i+j*size;
-						auto dataOffset = k + pixelNdx*nChannels;
-						imgBuffer.get()[dataOffset] = uint8_t(i^j);
-					}
-			return Image({size,size}, imgBuffer, nChannels, ChannelFormat::Byte);
-		}
+			ChannelFormat channel;
+			std::uint8_t numChannels;
 
-		// Note: nChannels = 0 sets automatic number of channels
-		static std::shared_ptr<Image> load(const std::string& _name, unsigned nChannels)
-		{
-			core::File file(_name);
-			if(file.sizeInBytes() > 0)
-			{
-				bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
-#ifdef ANDROID
-				if(isHDR)
-					nChannels = 4;
-#endif
-				auto imgFormat = isHDR?ChannelFormat::Float32:ChannelFormat::Byte;
-				int width, height, realNumChannels;
-				uint8_t* imgData;
-				if(isHDR)
-					imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
-				else
-					imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
-				if(imgData)
-				{
-					math::Vec2u size = { unsigned(width), unsigned(height)};
-
-					//core::Log::verbose("Created image ", _name, " with size {", width, ", ", height, "} and ", realNumChannels, " channels");
-					return std::make_shared<Image>(size, std::shared_ptr<uint8_t>(imgData), nChannels?nChannels:(unsigned)realNumChannels, imgFormat);
-				}
+			size_t pixelSize() const {
+				return numChannels * ((channel == ChannelFormat::Byte)?1:4);
 			}
-			else
-			{
-				core::Log::error("Unable to open image file");
-			}
+		};
 
-			return nullptr;
-		}
+		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());
+		Image(const Image&);
+		Image(Image&&);
+
+		// Constructors from specific color formats
+		Image(const math::Vec2u& size, math::Vec3u8* data);
+		Image(const math::Vec2u& size, math::Vec4u8* data);
+		Image(const math::Vec2u& size, math::Vec3f* data);
+		Image(const math::Vec2u& size, math::Vec4f* data);
+
+		~Image();
+
+		Image& operator=(const Image&);
+		Image& operator=(Image&&);
+
+		// Modifiers
+		void		clear(); ///< Clears the size, but doesn't free the storage buffer, so capacity remains intact
+		void		erase(); ///< Erases all data, and restores both size and capacity to 0
+		void		resize(const math::Vec2u& size); ///< Resizing invalidates the original contents
+		void		setPixelFormat(PixelFormat);
 
 		// Accessors
-		unsigned				nChannels() const { return mNumChannels; };
-		ChannelFormat			format() const { return mDataFormat; }
-		const math::Vec2u&		size() const { return mSize; }
+		PixelFormat format()	const	{ return mFormat; }
+		auto&		size()		const	{ return mSize; }
+		size_t		area()		const	{ return size().x() * size().y(); }
 		template<typename T>
-		const T*				data() const { return reinterpret_cast<T*>(mData.get()); }
-		const uint8_t*			data() const { return mData.get(); }
+		auto		data()				{ return reinterpret_cast<T*>(mData); }
+		template<typename T>
+		auto		data()		const	{ return reinterpret_cast<const T*>(mData); }
+		template<typename T>
+		auto&		pixel(const math::Vec2u& pos)				{ return data<T>()[indexFromPos(pos)]; }
+		template<typename T>
+		auto&		pixel(const math::Vec2u& pos) const			{ return data<T>()[indexFromPos(pos)]; }
+
+		// XOR textures are always 8-bits per channel
+		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
+
+		// Note: nChannels = 0 sets automatic number of channels
+		static Image load(std::string_view _name, unsigned nChannels);
 
 	private:
-		unsigned					mNumChannels;
-		math::Vec2u					mSize;
-		std::shared_ptr<uint8_t>	mData;
-		ChannelFormat				mDataFormat;
+		// Base constructor from size and data
+		Image(PixelFormat, const math::Vec2u& size, void* rawData);
+		static void* allocatePixelData(PixelFormat pxlFormat, size_t numPixels);
+		size_t indexFromPos(const math::Vec2u&) const;
+		size_t rawDataSize() const; ///< Size in number of bytes of the allocated storage buffer
+
+	private:
+		math::Vec2u mSize;
+		size_t		mCapacity;
+		PixelFormat mFormat;
+		void*		mData = nullptr;
 	};
 
-}}
+} // namespace rev::gfx
