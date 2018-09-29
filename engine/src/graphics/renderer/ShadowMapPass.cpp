@@ -84,8 +84,6 @@ namespace rev { namespace graphics {
 		AABB castersBBox; castersBBox.clear();
 		AffineTransform lightRotation = AffineTransform::identity();
 		lightRotation.setRotation(Quatf({1.f, 0.f, 0.f}, HalfPi));
-		auto world = light.worldMatrix * lightRotation; // So that light's +y axis (forward), maps to the -Z in camera
-		auto view = world.orthoNormalInverse();
 		for(auto& obj : shadowCasters)
 		{
 			// Object's bounding box in shadow space
@@ -93,6 +91,7 @@ namespace rev { namespace graphics {
 			castersBBox = math::AABB(castersBBox, bbox);
 		}
 
+		auto world = light.worldMatrix * lightRotation; // So that light's +y axis (forward), maps to the -Z in camera
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
@@ -134,7 +133,7 @@ namespace rev { namespace graphics {
 		{
 			Pipeline pipeline;
 			Mat44f wvp;
-			RenderGeom& renderable;
+			const RenderGeom* renderable;
 		};
 
 		// Retrieve all info needed to render the objects
@@ -149,7 +148,7 @@ namespace rev { namespace graphics {
 			renderList.push_back({
 				pipeline,
 				wvp,
-				mesh.geom
+				&mesh.geom
 			});
 		}
 
@@ -177,9 +176,9 @@ namespace rev { namespace graphics {
 			cmdBuffer.setUniformData(uniforms);
 			uniforms.clear();
 			// Geometry
-			cmdBuffer.setVertexData(draw.renderable.getVao());
-			assert(draw.renderable.indices().componentType == GL_UNSIGNED_SHORT);
-			cmdBuffer.drawTriangles(draw.renderable.indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
+			cmdBuffer.setVertexData(draw.renderable->getVao());
+			assert(draw.renderable->indices().componentType == GL_UNSIGNED_SHORT);
+			cmdBuffer.drawTriangles(draw.renderable->indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
 		}
 
 		m_pass->reset();
