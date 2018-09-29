@@ -19,10 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "gltfLoad.h"
 #include "gltf.h"
+#include <core/platform/fileSystem/file.h>
 #include <core/tools/log.h>
-#include <core/types/json.h>
 #include <core/string_util.h>
+#include <core/types/json.h>
 #include <game/animation/skeleton.h>
+#include <game/resources/load.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
@@ -457,9 +459,11 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	gfx::Texture2d getTexture(
+		gfx::Device& device,
 		const std::string& assetsFolder,
 		const gltf::Document& document,
 		std::vector<gfx::Texture2d>& textures,
+		gfx::TextureSampler sampler,
 		int32_t index,
 		bool sRGB)
 	{
@@ -468,9 +472,9 @@ namespace rev { namespace game {
 			return texture;
 
 		// Not previously allocated, do it now
-		auto textDesc = document.textures[index];
-		auto& image = document.images[textDesc.source];
-		texture = Texture::load(assetsFolder + image.uri, sRGB);
+		auto textGltfDesc = document.textures[index];
+		auto& imageDesc = document.images[textGltfDesc.source];
+		texture = game::load2dTextureFromFile(device, sampler, assetsFolder + imageDesc.uri, sRGB);
 
 		return texture;
 	}
