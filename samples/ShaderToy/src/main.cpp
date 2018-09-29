@@ -61,7 +61,7 @@ int main(int _argc, const char** _argv) {
 
 	// Create vertex shader
 	const string vtxShaderCode = R"(
-#version 450
+#version 430
 layout(location = 0) in vec3 vertex;
 
 void main ( void )
@@ -79,7 +79,7 @@ void main ( void )
 
 	// Create pixel shader
 	const string pxlShaderCode = R"(
-#version 450
+#version 430
 out lowp vec3 outColor;
 
 layout(location = 0) uniform vec4 t;
@@ -95,7 +95,7 @@ void main (void) {
 	pxlDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 
 	auto pxlShader = gfxDevice.createShaderModule(pxlDesc);
-	if(vtxShader.id == Pipeline::InvalidId)
+	if(pxlShader.id == Pipeline::InvalidId)
 		return -1;
 
 	// Create the pipeline
@@ -128,6 +128,7 @@ void main (void) {
 	// Main loop
 	float t = 0; // t modulo seconds
 	float T = 0; // Total T
+	unsigned numSeconds = 0;
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
@@ -135,6 +136,7 @@ void main (void) {
 
 		// Modify the uniform command
 		auto tVector = Vec4f(t,T,t*t,sin(Pi*t));
+		timeUniform.clear();
 		timeUniform.vec4s.push_back({0, tVector});
 		timeUniform.vec4s.push_back({1, {float(windowSize.x()), float(windowSize.y()), 0.f, 0.f}});
 		uniformCmd.clear();
@@ -147,9 +149,13 @@ void main (void) {
 		renderQueue.present();
 
 		// Update time
-		T += 1.f/60;
 		t += 1.f/60;
-		if(t > 1) t -= 1.f;
+		if(t > 1)
+		{
+			t -= 1.f;
+			numSeconds++;
+		}
+		T = t + numSeconds;
 	}
 
 	// Clean up
