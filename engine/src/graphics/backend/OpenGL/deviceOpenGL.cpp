@@ -21,6 +21,7 @@
 #include <graphics/Image.h>
 #include <math/linear.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -263,20 +264,45 @@ namespace rev :: gfx
 
 	//----------------------------------------------------------------------------------------------
 	GLenum DeviceOpenGL::getInternalFormat(
-		Texture2d::Descriptor::ChannelType channel,
-		Texture2d::Descriptor::PixelFormat pixel,
+		Image::PixelFormat pixelFmt,
 		bool sRGB)
 	{
 		// Detect sRGB cases
-		if( channel == Texture2d::Descriptor::ChannelType::Byte)
+		if( pixelFmt.channel == Image::ChannelFormat::Byte)
 		{
-			if(pixel == Texture2d::Descriptor::PixelFormat::RGB)
-				return sRGB ? GL_SRGB : GL_RGB8;
-			else if (pixel == Texture2d::Descriptor::PixelFormat::RGBA)
-				return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+			switch(pixelFmt.numChannels)
+			{
+				case 1:
+					return GL_R;
+				case 2:
+					return GL_RG;
+				case 3:
+					return sRGB ? GL_SRGB : GL_RGB8;
+				case 4:
+					return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+				default:
+					assert(!"Images must have [1,4] channels");
+			}
+		}
+		else // Float formats
+		{
+			switch(pixelFmt.numChannels)
+			{
+				case 1:
+					return GL_R;
+				case 2:
+					return GL_RG;
+				case 3:
+					return GL_RGB8;
+				case 4:
+					return GL_RGBA;
+				default:
+					assert(!"Images must have [1,4] channels");
+			}
 		}
 		// By default, just cast back to OpenGL
-		return (GLint)pixel;
+		assert(!"Unsupported pixel format");
+		return (GLint)GL_INVALID_ENUM;
 	}
 
 	//----------------------------------------------------------------------------------------------

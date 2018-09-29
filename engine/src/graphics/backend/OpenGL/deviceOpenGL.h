@@ -71,7 +71,7 @@ namespace rev :: gfx
 
 		DeviceOpenGL() = default;
 
-		static GLenum getInternalFormat(Texture2d::Descriptor::ChannelType , Texture2d::Descriptor::PixelFormat, bool sRGB);
+		static GLenum getInternalFormat(Image::PixelFormat, bool sRGB);
 
 		RenderQueue* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
