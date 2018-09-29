@@ -62,7 +62,7 @@ int main(int _argc, const char** _argv) {
 
 	// Create vertex shader
 	const string vtxShaderCode = R"(
-#version 450
+#version 430
 layout(location = 0) in vec3 vertex;
 
 void main ( void )
@@ -80,7 +80,7 @@ void main ( void )
 
 	// Create pixel shader
 	const string pxlShaderCode = R"(
-#version 450
+#version 430
 out lowp vec3 outColor;
 
 layout(location = 0) uniform vec3 color;
@@ -94,7 +94,7 @@ void main (void) {
 	pxlDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 
 	auto pxlShader = gfxDevice.createShaderModule(pxlDesc);
-	if(vtxShader.id == Pipeline::InvalidId)
+	if(pxlShader.id == Pipeline::InvalidId)
 		return -1;
 
 	// Create the pipeline

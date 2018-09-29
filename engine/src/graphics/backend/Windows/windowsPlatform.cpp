@@ -44,8 +44,10 @@ namespace rev :: gfx
 		}
 
 		//------------------------------------------------------------------------------------------
-		void registerClass() {
-			sIsWindowClassRegistered = true;
+		bool registerClass() {
+			if(sIsWindowClassRegistered)
+				return true;
+
 			HINSTANCE moduleHandle = GetModuleHandle(NULL);
 			// -- Register a new window class --
 			WNDCLASS winClass = {
@@ -64,21 +66,24 @@ namespace rev :: gfx
 			{
 				auto error = GetLastError();
 				std::cout << "Failed to register window class. Error code: " << error << "\n";
+				return false;
 			}
+			sIsWindowClassRegistered = true;
+			return true;
 		}
 	}
 	//----------------------------------------------------------------------------------------------
 	HWND createDummyWindow()
 	{
-		if (!sIsWindowClassRegistered)
-			registerClass();
+		if(!registerClass())
+			return NULL;
 
 		// Create a windown through the windows API
 		return CreateWindow("RevWindowClass",	// Class name, registered by the video driver
 			"Rev",
 			WS_DISABLED, // Prevent user interaction
-			0,						// X Position
-			0,						// Y Position
+			0,				// X Position
+			0,				// Y Position
 			0,				// Width
 			0,				// Height
 			0, 0, 0, 0);				// Windows specific parameters that we don't need
@@ -87,8 +92,8 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible)
 	{
-		if (!sIsWindowClassRegistered)
-			registerClass();
+		if (!registerClass())
+			return NULL;
 
 		// Create a windown through the windows API
 		HWND nativeHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
