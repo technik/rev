@@ -24,13 +24,14 @@
 #include <memory>
 #include <vector>
 #include <core/string_util.h>
+#include <graphics/backend/device.h>
 
 using Json = nlohmann::json;
 
-namespace rev::graphics
+namespace rev::gfx
 {
 	//------------------------------------------------------------------------------------------------------------------
-	EnvironmentProbe::EnvironmentProbe(const std::string& jsonName)
+	EnvironmentProbe::EnvironmentProbe(Device& device, const std::string& jsonName)
 	{
 		auto folder = core::getPathFolder(jsonName);
 		// Open json descriptor
@@ -40,7 +41,7 @@ namespace rev::graphics
 		// Load all images
 		m_numLevels = probeDesc.size();
 		
-		std::vector<std::shared_ptr<const Image>> mipImages;
+		std::vector<Image> mipImages;
 		for(size_t i = 0; i < m_numLevels; ++i)
 		{
 			auto& desc = probeDesc[i];
@@ -49,10 +50,20 @@ namespace rev::graphics
 		}
 
 		// Create a new texture with all the levels
-		Texture::SamplerOptions sampler;
-		sampler.filter = Texture::SamplerOptions::MinFilter::Trilinear;
-		sampler.wrapS = Texture::SamplerOptions::Wrap::Repeat;
-		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
-		m_texture = std::make_shared<Texture>(mipImages, true, sampler);
+		TextureSampler::Descriptor samplerDesc;
+		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Trilinear;
+		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Repeat;
+		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		auto sampler = device.createTextureSampler(samplerDesc);
+
+		Texture2d::Descriptor descriptor;
+		descriptor.sampler = sampler;
+		descriptor.pixelFormat = mipImages[0].format();
+		descriptor.mipLevels = mipImages.size();
+		descriptor.providedImages = mipImages.size();
+		descriptor.srcImages = mipImages.data();
+		descriptor.size = mipImages[0].size();
+		descriptor.sRGB = true;
+		m_texture = device.createTexture2d(descriptor);
 	}
 }

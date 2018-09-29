@@ -19,21 +19,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/driver/texture.h>
+#include <graphics/backend/texture2d.h>
 
-namespace rev::graphics
+namespace rev::gfx
 {
+	class Device;
+
 	class EnvironmentProbe
 	{
 	public:
-		EnvironmentProbe(const std::string& jsonName);
+		EnvironmentProbe(Device&, const std::string& jsonName);
 
 		auto& texture() const { return m_texture; }
 		// Last level actually doubles as irradiance
 		size_t numLevels() const { return m_numLevels; }
 
 	private:
-		std::shared_ptr<const Texture>	m_texture;
+		Texture2d	m_texture;
 		size_t m_numLevels;
 	};
 }	// namespace rev::graphics
