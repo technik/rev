@@ -27,17 +27,20 @@
 #include <memory>
 #include <vector>
 
-namespace rev { namespace game {
+namespace rev::gfx { class Device; }
+
+namespace rev::game {
 
 	/// Load a gltf scene
 	/// Add renderable content to _gfxWorld
 	/// filePath must not contain folder, file name and extension
 	/// If parentNode is not nullptr, all the scene nodes will be added as children to it
 	void loadGLTFScene(
+		gfx::Device& gfxDevice,
 		SceneNode& parentNode,
 		const std::string& filePath,
 		graphics::RenderScene& _gfxWorld,
 		graphics::GeometryPool& _pool,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		std::vector<std::shared_ptr<graphics::Animation>>& _animations);
-}}
+}

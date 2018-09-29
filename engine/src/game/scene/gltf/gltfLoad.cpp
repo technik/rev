@@ -37,7 +37,6 @@
 #include <graphics/scene/animation/skinning.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
-#include <memory>
 #include <vector>
 
 using Json = rev::core::Json;
@@ -493,8 +492,8 @@ namespace rev { namespace game {
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto sony_fms_lut = Texture::load("sonyHill.png", true, 0, sampler);
-		auto envBRDF = Texture::load("ibl_brdf.hdr", false, 0, sampler);
+		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false);
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -507,7 +506,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(_assetsFolder, _document, _textures, albedoNdx, false));
+					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, albedoNdx, false));
 				}
 				// Base color factor
 				{
@@ -521,7 +520,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(_assetsFolder, _document, _textures, ndx, false));
+					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, ndx, false));
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
 					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
@@ -529,11 +528,11 @@ namespace rev { namespace game {
 					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(_assetsFolder, _document, _textures, matDesc.emissiveTexture.index, false));
+				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, matDesc.emissiveTexture.index, false));
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(_assetsFolder, _document, _textures, matDesc.normalTexture.index, false));
+				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, matDesc.normalTexture.index, false));
 			}
 			mat->addTexture("uFms", sony_fms_lut);
 			mat->addTexture("uEnvBRDF", envBRDF);
@@ -622,6 +621,7 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	void loadGLTFScene(
+		gfx::Device& gfxDevice,
 		SceneNode& _parentNode,
 		const std::string& _filePath,
 		graphics::RenderScene& _gfxWorld,
@@ -640,11 +640,12 @@ namespace rev { namespace game {
 		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
-		Texture::SamplerOptions sampler;
-		sampler.wrapS = Texture::SamplerOptions::Wrap::Clamp;
-		sampler.wrapT = Texture::SamplerOptions::Wrap::Clamp;
-		auto sony_fms_lut = Texture::load("sonyHill.png", true, 0, sampler);
-		auto envBRDF = Texture::load("ibl_brdf.hdr", false, 0, sampler);
+		gfx::TextureSampler::Descriptor samplerDesc;
+		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
+		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false);
 		defaultMaterial->addTexture("uFms", sony_fms_lut);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
@@ -657,8 +658,8 @@ namespace rev { namespace game {
 
 		// Load resources
 		auto skins = loadSkins(attributes, document);
-		std::vector<std::shared_ptr<Texture>> textures(document.textures.size(), nullptr);
-		auto materials = loadMaterials(folder, document, pbrEffect, textures);
+		std::vector<gfx::Texture2d> textures(document.textures.size());
+		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, textures);
 		auto meshes = loadMeshes(attributes, document, materials, defaultMaterial);
 
 		// Load nodes
