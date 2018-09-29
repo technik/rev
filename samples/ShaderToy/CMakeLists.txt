@@ -13,4 +13,4 @@ add_executable(ShaderToy ${SOURCE_FILES})
 # Visual studio specifics
 
 set_target_properties(ShaderToy PROPERTIES FOLDER "samples")
-target_link_libraries (ShaderToy LINK_PUBLIC rev)
+target_link_libraries (ShaderToy LINK_PUBLIC revCore revMath revGfx revInput)
