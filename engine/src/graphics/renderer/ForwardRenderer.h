@@ -36,7 +36,7 @@ namespace rev { namespace graphics {
 	class ForwardRenderer
 	{
 	public:
-		void init	(gfx::Device& driver, gfx::FrameBuffer& target);
+		void init	(gfx::Device& driver, const math::Vec2u& targetSize, gfx::FrameBuffer& target);
 		void render	(const RenderScene&, const Camera& pov);
 		void submit ();
 		void onResizeTarget(const math::Vec2u& _newSize);

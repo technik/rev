@@ -31,8 +31,8 @@ namespace rev::gfx {
 	struct RenderItem
 	{
 		math::AffineTransform world;
-		graphics::RenderGeom& geom;
-		graphics::Material& material;
+		const graphics::RenderGeom& geom;
+		const graphics::Material& material;
 	};
 
 }

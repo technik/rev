@@ -34,11 +34,11 @@ using namespace rev::gfx;
 namespace rev { namespace graphics {
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init(gfx::Device& device, gfx::FrameBuffer& target)
+	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
 	{
 		m_targetBuffer = &target;
 
-		mForwardPass = std::make_unique<ForwardPass>(device, target);
+		mForwardPass = std::make_unique<ForwardPass>(device, targetSize, target);
 
 		// Create a depth texture for shadows
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
@@ -47,8 +47,9 @@ namespace rev { namespace graphics {
 		shadowSamplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
 		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
 		auto shadowDesc = Texture2d::Descriptor();
-		shadowDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
-		shadowDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::Depth;
+		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		shadowDesc.pixelFormat.numChannels = 1;
+		shadowDesc.depth = true;
 		shadowDesc.sampler = shadowSampler;
 		size_t shadowSize = 4*1024;
 		shadowDesc.size = {shadowSize, shadowSize};
@@ -76,7 +77,7 @@ namespace rev { namespace graphics {
 
 		// --- Cull stuff
 		// Cull visible objects renderQ -> visible
-		cull(m_renderQueue, m_visible, [&](RenderItem& item) -> bool {
+		cull(m_renderQueue, m_visible, [&](const RenderItem& item) -> bool {
 			return dot(item.world.position() - eye.position(), eye.viewDir()) > 0;
 		});
 
@@ -90,9 +91,7 @@ namespace rev { namespace graphics {
 		}
 
 		// TODO: Sort visible objects
-		auto eye = scene.cameras()[0].lock(); // TODO: Check for deleted cameras
-		assert(eye);
-		mForwardPass->render(*eye, m_visible, m_shadowsTexture); // Render visible objects
+		mForwardPass->render(eye, m_visible, m_shadowsTexture); // Render visible objects
 		// TODO: Render background
 	}
 

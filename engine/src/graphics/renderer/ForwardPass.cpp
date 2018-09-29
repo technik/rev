@@ -245,7 +245,7 @@ namespace rev { namespace graphics {
 			//uniforms.addParam(2, shadowProj);
 			uniforms.addParam(9, _shadows);
 
-			bool mirroredGeometry = affineTransformDeterminant(renderable.world) < 0.f;
+			bool mirroredGeometry = affineTransformDeterminant(renderable.world.matrix()) < 0.f;
 			bool useShadows = false;
 			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), nullptr, useShadows, mirroredGeometry);
 			m_drawCommands.setPipeline(pipeline);

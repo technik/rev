@@ -47,6 +47,9 @@ namespace rev{ namespace graphics {
 
 		void render(const Camera&, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
+		void onResizeTarget(const math::Vec2u&) {
+			// TODO
+		}
 
 	private:
 		void loadCommonShaderCode();
@@ -67,7 +70,10 @@ namespace rev{ namespace graphics {
 
 		std::string vertexFormatDefines(RenderGeom::VtxFormat);
 
-		uint32_t effectCode(bool mirror, bool environment, bool shadows) { return ((mirror?1:0)<<2) | (environment?1:0)<<1) | (shadows?1:0); }
+		uint32_t effectCode(bool mirror, bool environment, bool shadows)
+		{
+			return ((mirror?1:0)<<2) | ((environment?1:0)<<1) | (shadows?1:0);
+		}
 
 		gfx::Pipeline getPipeline(Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
