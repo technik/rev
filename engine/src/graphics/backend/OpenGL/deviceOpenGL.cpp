@@ -93,6 +93,11 @@ namespace rev :: gfx
 					return texture;
 			}
 		}
+		if(descriptor.depth)
+		{
+			assert(descriptor.pixelFormat.numChannels == 1);
+			imageFormat = GL_DEPTH;
+		}
 		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
 		GLenum internalFormat = getInternalFormat(descriptor.pixelFormat, descriptor.sRGB);
 		// Submit provided images to the device

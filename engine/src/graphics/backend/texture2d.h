@@ -34,6 +34,7 @@ namespace rev :: gfx
 			Image::PixelFormat pixelFormat;
 			TextureSampler sampler;
 			bool sRGB = false;
+			bool depth = false;
 			math::Vec2u size;
 			
 			/// Number of mipmap levels to be used in this texture

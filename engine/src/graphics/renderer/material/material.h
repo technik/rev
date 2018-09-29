@@ -31,7 +31,7 @@ namespace rev { namespace graphics {
 	class Material
 	{
 	public:
-		Effect& effect() { return *mEffect;}
+		Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect);
 
