@@ -85,7 +85,7 @@ namespace rev { namespace graphics {
 		for(const auto& v : mVec4fParams)
 			renderer.addParam(v.first, v.second);
 		for(const auto& t : mTextureParams)
-			renderer.addParam(t.first, t.second.get());
+			renderer.addParam(t.first, t.second);
 	}
 
 }}
