@@ -22,10 +22,7 @@
 #include <cstddef>
 #include "textureSampler.h"
 #include <math/algebra/vector.h>
-
-namespace rev :: graphics {
-	class Image;
-}
+#include <graphics/Image.h>
 
 namespace rev :: gfx
 {
@@ -34,30 +31,20 @@ namespace rev :: gfx
 	public:
 		struct Descriptor
 		{
-			enum class ChannelType : GLenum
-			{
-				Byte = GL_UNSIGNED_BYTE,
-				Float32 = GL_FLOAT
-			} channelType;
-
-			enum class PixelFormat : GLenum
-			{
-				Depth = GL_DEPTH_COMPONENT,
-				RG = GL_RG,
-				RGB = GL_RGB,
-				RGBA = GL_RGBA
-			} pixelFormat;
-
+			Image::PixelFormat pixelFormat;
 			TextureSampler sampler;
 			bool sRGB = false;
 			math::Vec2u size;
 			
-			size_t mipLevels = 1; ///< Number of mipmap levels to be used in this texture
+			/// Number of mipmap levels to be used in this texture
+			/// 0 means compute automatically
+			size_t mipLevels = 0;
 
-			/// Chain of images to be used for mipmaps, or null if images will be initialized by the gpu
-			/// If not null, the array must contain exactly "mipLevel" images. Mip levels will be generated
-			/// Automatically starting on the first null pointer contained in the array, up to mipLevels-1.
-			graphics::Image** srcImages = nullptr;
+			/// Array of images to be used for mipmaps, or null if images will be initialized by the gpu
+			/// If not null, the array must contain exactly "providedImages" images. Mip levels will be generated
+			/// Automatically for the range [providedImages, mipLevels-1].
+			Image* srcImages = nullptr;
+			size_t providedImages = 0;
 		};
 
 		static constexpr int32_t InvalidId = -1;
