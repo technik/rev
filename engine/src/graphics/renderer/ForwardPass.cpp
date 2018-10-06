@@ -46,7 +46,7 @@ using namespace rev::math;
 
 using namespace rev::gfx;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	ForwardPass::ForwardPass(gfx::Device& device, const math::Vec2u& viewportSize, gfx::FrameBuffer target)
@@ -258,8 +258,8 @@ namespace rev { namespace graphics {
 		// Finish pass
 		m_gfxDevice.renderQueue().submitPass(*m_pass);
 
-		if(m_showDbgInfo)
-			drawStats();
+		//if(m_showDbgInfo)
+		//	drawStats();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -299,4 +299,4 @@ namespace rev { namespace graphics {
 		resetStats();
 	}
 	*/
-}}
+}

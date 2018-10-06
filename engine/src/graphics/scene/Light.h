@@ -23,7 +23,7 @@
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	struct Light
 	{
@@ -49,4 +49,4 @@ namespace rev { namespace graphics {
 	{
 		// Points towards the +y axis
 	};
-}}
+}

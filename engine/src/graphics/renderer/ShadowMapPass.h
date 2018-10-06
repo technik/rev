@@ -29,7 +29,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace rev{ namespace graphics {
+namespace rev::gfx {
 
 	class BackEndRenderer;
 	class Camera;
@@ -44,8 +44,8 @@ namespace rev{ namespace graphics {
 		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(
-			const std::vector<gfx::RenderItem>& shadowCasters,
-			const std::vector<gfx::RenderItem>& shadowReceivers,
+			const std::vector<RenderItem>& shadowCasters,
+			const std::vector<RenderItem>& shadowReceivers,
 			const Camera& view,
 			const Light& light);
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
@@ -75,4 +75,4 @@ namespace rev{ namespace graphics {
 		std::unordered_map<uint32_t,gfx::Pipeline> m_mirroredPipelines;
 	};
 
-}}
+}

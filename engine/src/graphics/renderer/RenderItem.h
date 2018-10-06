@@ -20,19 +20,16 @@
 #pragma once
 #include <math/algebra/affineTransform.h>
 
-namespace rev::graphics
-{
+namespace rev::gfx {
+
 	class Material;
 	class RenderGeom;
-}
-
-namespace rev::gfx {
 
 	struct RenderItem
 	{
 		math::AffineTransform world;
-		const graphics::RenderGeom& geom;
-		const graphics::Material& material;
+		const RenderGeom& geom;
+		const Material& material;
 	};
 
 }

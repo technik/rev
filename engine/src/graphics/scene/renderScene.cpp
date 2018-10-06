@@ -4,6 +4,6 @@
 #include "renderScene.h"
 #include "renderObj.h"
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
-}}	// namespace rev::graphics
+}	// namespace rev::gfx

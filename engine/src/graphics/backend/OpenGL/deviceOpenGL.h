@@ -61,7 +61,32 @@ namespace rev :: gfx
 		virtual FrameBuffer defaultFrameBuffer() = 0; // Frame buffer of the main window
 		void bindPipeline(int32_t pipelineId);
 
+		// Buffers
+		Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) override
+		{
+			Buffer buffer;
+			buffer.id = allocateStaticBuffer(GL_ARRAY_BUFFER, byteSize, data);
+			return buffer;
+		}
+
+		Buffer allocateIndexBuffer(size_t byteSize, const void* data) override
+		{
+			Buffer buffer;
+			buffer.id = allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, byteSize, data);
+			return buffer;
+		}
+
 	protected:
+
+		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, const void* data)
+		{
+			GLuint vbo;
+			glGenBuffers(1,&vbo);
+			glBindBuffer(target, vbo);
+			glBufferData(target, byteSize, data, GL_STATIC_DRAW);
+			glBindBuffer(target, 0);
+			return vbo;
+		}
 
 		struct PipelineInfo
 		{

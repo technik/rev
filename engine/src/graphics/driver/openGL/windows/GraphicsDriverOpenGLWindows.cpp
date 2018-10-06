@@ -10,22 +10,22 @@
 
 using namespace std;
 
-namespace rev {	namespace graphics {
+namespace rev::gfx {
 
 	GraphicsDriverGL* GraphicsDriverGL::s_instance = nullptr;
 
-	void APIENTRY gfxDebugCallback(GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar *message,
-		const void *userParam)
-	{
-		cout << message << "\n";
-	}
-
 	namespace {
+		void APIENTRY gfxDebugCallback(GLenum source,
+			GLenum type,
+			GLuint id,
+			GLenum severity,
+			GLsizei length,
+			const GLchar *message,
+			const void *userParam)
+		{
+			cout << message << "\n";
+		}
+
 		static bool sIsWindowClassRegistered = false;
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ namespace rev {	namespace graphics {
 				0,				// Height
 				0, 0, 0, 0);				// Windows specific parameters that we don't need
 
-			rev::graphics::WindowWin32 window;
+			rev::gfx::WindowWin32 window;
 			window.nativeWindow = mWinapiHandle;
 			return window;
 		}
@@ -108,134 +108,136 @@ namespace rev {	namespace graphics {
 		MoveWindow(mWinapiHandle, _pos.x(), _pos.y(), _size.x() + ptDiff.x, _size.y() + ptDiff.y, TRUE);
 		// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
 
-		rev::graphics::WindowWin32 window;
+		rev::gfx::WindowWin32 window;
 		window.nativeWindow = mWinapiHandle;
 		window.size = _size;
 		return window;
 	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void setDummyPixelFormat(HDC deviceContext)
-	{
-		PIXELFORMATDESCRIPTOR pfd = {
-			sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
-			1,											// Version Number
-			PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-			PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-			PFD_SWAP_EXCHANGE |							// Prefer framebuffer swap
-			PFD_DOUBLEBUFFER,							// Must Support Double Buffering
-			PFD_TYPE_RGBA,								// Request An RGBA Format
-			32,											// Color Depth
-			0, 0, 0, 0, 0, 0,							// Color Bits Ignored
-			0,											// No Alpha Buffer
-			0,											// Shift Bit Ignored
-			0,											// No Accumulation Buffer
-			0, 0, 0, 0,									// Accumulation Bits Ignored
-			24,											// 24 Bit Z-Buffer (Depth Buffer)  
-			8,											// Stencil Buffer
-			0,											// No Auxiliary Buffer
-			PFD_MAIN_PLANE,								// Main Drawing Layer
-			0,											// Reserved
-			0, 0, 0										// Layer Masks Ignored
-		};
-
-		GLuint pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
-		DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
-		SetPixelFormat(deviceContext, pixelFormat, &pfd);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	bool loadOpenGLExtensions(HWND& dummyWindowHandle, HGLRC& dummyRenderContext)
-	{
-		// Create a dummy window
-		auto dummyWindow = createDummyWindow();
-		dummyWindowHandle = dummyWindow.nativeWindow;
-		// Set dummy pixel format
-		auto deviceContext = GetDC(dummyWindowHandle);
-		setDummyPixelFormat(deviceContext);
-		// Create dummy context
-		dummyRenderContext = wglCreateContext(deviceContext);
-		wglMakeCurrent(deviceContext, dummyRenderContext);
-		
-		// Load extensions
-		GLenum res = glewInit();
-		if (res != GLEW_OK) {
-			cout << "Error: " << glewGetErrorString(res) << "\n";
-			return false;
-		}
-
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	bool setFinalPixelFormat(HDC deviceContext, bool sRGBFrameBuffer)
-	{
-		std::vector<int> intPFAttributes = {
-			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-			WGL_COLOR_BITS_ARB, 32,
-			WGL_DEPTH_BITS_ARB, 24,
-		};
-		if(sRGBFrameBuffer)
+	namespace {
+		//------------------------------------------------------------------------------------------------------------------
+		void setDummyPixelFormat(HDC deviceContext)
 		{
-			intPFAttributes.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
-			intPFAttributes.push_back(GL_TRUE);
-			intPFAttributes.push_back(WGL_COLORSPACE_EXT);
-			intPFAttributes.push_back(WGL_COLORSPACE_SRGB_EXT);
-		};
-		intPFAttributes.push_back(0);
+			PIXELFORMATDESCRIPTOR pfd = {
+				sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
+				1,											// Version Number
+				PFD_DRAW_TO_WINDOW |						// Format Must Support Window
+				PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
+				PFD_SWAP_EXCHANGE |							// Prefer framebuffer swap
+				PFD_DOUBLEBUFFER,							// Must Support Double Buffering
+				PFD_TYPE_RGBA,								// Request An RGBA Format
+				32,											// Color Depth
+				0, 0, 0, 0, 0, 0,							// Color Bits Ignored
+				0,											// No Alpha Buffer
+				0,											// Shift Bit Ignored
+				0,											// No Accumulation Buffer
+				0, 0, 0, 0,									// Accumulation Bits Ignored
+				24,											// 24 Bit Z-Buffer (Depth Buffer)  
+				8,											// Stencil Buffer
+				0,											// No Auxiliary Buffer
+				PFD_MAIN_PLANE,								// Main Drawing Layer
+				0,											// Reserved
+				0, 0, 0										// Layer Masks Ignored
+			};
 
-		int pixelFormat;
-		UINT numFormats;
-
-		if(wglChoosePixelFormatARB(
-			deviceContext,
-			intPFAttributes.data(),
-			nullptr, 
-			1,
-			&pixelFormat,
-			&numFormats))
-		{
-			PIXELFORMATDESCRIPTOR pfd;
+			GLuint pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
 			DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 			SetPixelFormat(deviceContext, pixelFormat, &pfd);
-			return true;
 		}
 
-		return false;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	bool createFinalOpenGLContext(HDC deviceContext, bool sRGBFrameBuffer)
-	{
-		if (!wglCreateContextAttribsARB) 
-			return false;
-
-		// Set proper pixel format
-		if(!setFinalPixelFormat(deviceContext, sRGBFrameBuffer))
-			return false;
-
-		// Set context attributes
-		int contextAttribs[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			WGL_CONTEXT_FLAGS_ARB, 0
-#ifdef _DEBUG
-			| WGL_CONTEXT_DEBUG_BIT_ARB
-#endif
-			,NULL
-		};
-		// Create context
-		HGLRC renderContext = wglCreateContextAttribsARB(deviceContext, NULL, contextAttribs);
-		if (renderContext) {
-			wglMakeCurrent(deviceContext, renderContext);
-			return true;
-		}
+		//------------------------------------------------------------------------------------------------------------------
+		bool loadOpenGLExtensions(HWND& dummyWindowHandle, HGLRC& dummyRenderContext)
+		{
+			// Create a dummy window
+			auto dummyWindow = createDummyWindow();
+			dummyWindowHandle = dummyWindow.nativeWindow;
+			// Set dummy pixel format
+			auto deviceContext = GetDC(dummyWindowHandle);
+			setDummyPixelFormat(deviceContext);
+			// Create dummy context
+			dummyRenderContext = wglCreateContext(deviceContext);
+			wglMakeCurrent(deviceContext, dummyRenderContext);
 		
-		return false;
+			// Load extensions
+			GLenum res = glewInit();
+			if (res != GLEW_OK) {
+				cout << "Error: " << glewGetErrorString(res) << "\n";
+				return false;
+			}
+
+			return true;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		bool setFinalPixelFormat(HDC deviceContext, bool sRGBFrameBuffer)
+		{
+			std::vector<int> intPFAttributes = {
+				WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+				WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+				WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+				WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+				WGL_COLOR_BITS_ARB, 32,
+				WGL_DEPTH_BITS_ARB, 24,
+			};
+			if(sRGBFrameBuffer)
+			{
+				intPFAttributes.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
+				intPFAttributes.push_back(GL_TRUE);
+				intPFAttributes.push_back(WGL_COLORSPACE_EXT);
+				intPFAttributes.push_back(WGL_COLORSPACE_SRGB_EXT);
+			};
+			intPFAttributes.push_back(0);
+
+			int pixelFormat;
+			UINT numFormats;
+
+			if(wglChoosePixelFormatARB(
+				deviceContext,
+				intPFAttributes.data(),
+				nullptr, 
+				1,
+				&pixelFormat,
+				&numFormats))
+			{
+				PIXELFORMATDESCRIPTOR pfd;
+				DescribePixelFormat(deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+				SetPixelFormat(deviceContext, pixelFormat, &pfd);
+				return true;
+			}
+
+			return false;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
+		bool createFinalOpenGLContext(HDC deviceContext, bool sRGBFrameBuffer)
+		{
+			if (!wglCreateContextAttribsARB) 
+				return false;
+
+			// Set proper pixel format
+			if(!setFinalPixelFormat(deviceContext, sRGBFrameBuffer))
+				return false;
+
+			// Set context attributes
+			int contextAttribs[] = {
+				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+				WGL_CONTEXT_FLAGS_ARB, 0
+	#ifdef _DEBUG
+				| WGL_CONTEXT_DEBUG_BIT_ARB
+	#endif
+				,NULL
+			};
+			// Create context
+			HGLRC renderContext = wglCreateContextAttribsARB(deviceContext, NULL, contextAttribs);
+			if (renderContext) {
+				wglMakeCurrent(deviceContext, renderContext);
+				return true;
+			}
+		
+			return false;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -306,6 +308,6 @@ namespace rev {	namespace graphics {
 		}
 	}
 
-} }	// namespace rev::graphics
+} // namespace rev::gfx
 
 #endif // _WIN32

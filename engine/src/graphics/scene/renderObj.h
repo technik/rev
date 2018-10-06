@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class RenderMesh;
 
@@ -31,4 +31,4 @@ namespace rev { namespace graphics {
 		std::shared_ptr<const SkinInstance> skin;
 	};
 
-}}	// namespace rev::graphics
+}	// namespace rev::gfx

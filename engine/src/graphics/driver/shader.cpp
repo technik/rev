@@ -13,7 +13,7 @@
 using namespace rev::core;
 using namespace std;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	namespace {	
 #ifdef ANDROID
@@ -134,5 +134,4 @@ namespace rev { namespace graphics {
 		return true;
 	}
 
-}}	// namespace rev::graphics
-
+} // namespace rev::gfx

@@ -21,7 +21,7 @@
 #include <graphics/scene/animation/animation.h>
 
 using namespace rev::math;
-using namespace rev::graphics;
+using namespace rev::gfx;
 using namespace rev::game;
 
 namespace rev {
@@ -45,8 +45,8 @@ namespace rev {
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(*gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
-		auto sceneLight = std::make_shared<graphics::DirectionalLight>();
+		loadGLTFScene(m_gfx, *gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
+		auto sceneLight = std::make_shared<gfx::DirectionalLight>();
 
 		// Default scene light
 		{
@@ -61,7 +61,7 @@ namespace rev {
 		// Load sky
 		if(!bg.empty())
 		{
-			auto probe = std::make_shared<EnvironmentProbe>(bg+".json");
+			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg+".json");
 			mGraphicsScene.setEnvironment(probe);
 		}
 
@@ -78,8 +78,7 @@ namespace rev {
 		if(animator)
 			animator->playAnimation(animations[0], true);
 
-		mGameEditor.init(mGraphicsScene);
-		mRenderer.init(m_gfx, m_gfx.defaultFrameBuffer());
+		mRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
 		gui::init(windowSize);
 
 		return true;
@@ -109,22 +108,19 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::update()
 	{
-		if(!mGfxDriver)
-			return true;
 		core::Time::get()->update();
-		gui::startFrame(mGfxDriver->frameBuffer()->size());
-
-		mGameEditor.update(mGameScene);
+		//gui::startFrame(->frameBuffer()->size());
 
 		auto dt = core::Time::get()->frameTime();
 
 		mGameScene.root()->update(dt);
 
-		mRenderer.showDebugInfo(mGameEditor.mShowRenderOptions);
-		mRenderer.render(mGraphicsScene);
+		//mRenderer.showDebugInfo(mGameEditor.mShowRenderOptions);
+		mRenderer.render(mGraphicsScene, *mGraphicsScene.cameras()[0].lock());
 
-		gui::finishFrame(dt);
-		mGfxDriver->swapBuffers();
+		//gui::finishFrame(dt);
+		m_gfx.renderQueue().present();
+		//mGfxDriver->swapBuffers();
 
 		return true;
 	}

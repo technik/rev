@@ -32,16 +32,16 @@ namespace rev { namespace game {
 	public:
 
 		//------------------------------------------------------------------------------------------
-		Camera(graphics::RenderScene* scene)
+		Camera(gfx::RenderScene* scene)
 		{
-			mCam = std::make_shared<graphics::Camera>();
+			mCam = std::make_shared<gfx::Camera>();
 			scene->addCamera(mCam);
 		}
 
 		//------------------------------------------------------------------------------------------
-		Camera(graphics::RenderScene* scene, float fov, float near, float far)
+		Camera(gfx::RenderScene* scene, float fov, float _near, float _far)
 		{
-			mCam = std::make_shared<graphics::Camera>(fov, near, far);
+			mCam = std::make_shared<gfx::Camera>(fov, _near, _far);
 			scene->addCamera(mCam);
 		}
 
@@ -60,7 +60,7 @@ namespace rev { namespace game {
 
 	private:
 		Transform*	mTransform = nullptr;
-		std::shared_ptr<graphics::Camera> mCam;
+		std::shared_ptr<gfx::Camera> mCam;
 	};
 
 }}

@@ -26,7 +26,7 @@
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/renderer/RenderItem.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Camera;
 	class GraphicsDriverGL;
@@ -61,4 +61,4 @@ namespace rev { namespace graphics {
 		std::vector<RenderItem> m_visibleReceivers;
 	};
 
-}}
+}

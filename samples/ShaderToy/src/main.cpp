@@ -105,7 +105,7 @@ void main (void) {
 	auto pipeline = gfxDevice.createPipeline(pipelineDesc);
 
 	// Create a quad
-	auto quad = rev::graphics::RenderGeom::quad({2.f, 2.f});
+	auto quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
 
 	// Command buffer to set pipeline and other common stuff
 	CommandBuffer setupCmd;

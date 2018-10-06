@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class GraphicsDriverGL : public GraphicsDriverGLBase
 	{
@@ -114,4 +114,4 @@ namespace rev { namespace graphics {
 		std::unique_ptr<DefaultFrameBuffer> mFrameBuffer;
 	};
 
-}}
+}

@@ -171,7 +171,7 @@ namespace rev :: gfx
 		if(!targetWindow)
 			targetWindow = createWindow({0,0}, {0,0}, "", false);
 
-		checkSupportedExtensions();
+		//checkSupportedExtensions();
 
 		// Try to create context with attributes
 		m_deviceContext = GetDC(targetWindow); // Device contex

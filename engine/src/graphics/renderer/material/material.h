@@ -26,7 +26,7 @@
 #include <vector>
 #include "Effect.h"
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Material
 	{
@@ -54,4 +54,4 @@ namespace rev { namespace graphics {
 		std::vector<std::pair<GLint,gfx::Texture2d>>	mTextureParams;
 	};
 
-}}
+}

@@ -6,13 +6,13 @@
 #include "transform/transform.h"
 #include <graphics/scene/renderObj.h>
 
-using namespace rev::graphics;
+using namespace rev::gfx;
 
 namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	MeshRenderer::MeshRenderer(
-		const std::shared_ptr<graphics::RenderObj>& renderObj
+		const std::shared_ptr<gfx::RenderObj>& renderObj
 	)
 		: mRenderable(renderObj)
 	{

@@ -36,7 +36,7 @@ using namespace rev::math;
 using namespace rev::gfx;
 using namespace std;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
@@ -215,4 +215,4 @@ namespace rev { namespace graphics {
 		return mirroredGeometry ? m_mirroredPipelines[pipelineCode] : m_regularPipelines[pipelineCode];
 	}
 
-}}
+}

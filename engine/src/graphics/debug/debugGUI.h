@@ -4,7 +4,7 @@
 #include <functional>
 #include <math/algebra/vector.h>
 
-namespace rev { namespace graphics { namespace gui {
+namespace rev::gfx::gui {
 
 	void init(const math::Vec2u& _windowSize);
 	void startFrame(const math::Vec2u& _windowSize);
@@ -20,4 +20,4 @@ namespace rev { namespace graphics { namespace gui {
 	void slider(const char* name, float&, float min, float max);
 	void colorPicker(const char* name, math::Vec3f& _clr);
 
-}}}
+}

@@ -11,4 +11,4 @@ file(GLOB_RECURSE PLAYER_SOURCE_FILES "src/*.cpp" "src/*.h" "src/*.inl")
 GroupSources(src player)
 add_executable(revPlayer ${PLAYER_SOURCE_FILES})
 
-target_link_libraries (revPlayer LINK_PUBLIC rev)
+target_link_libraries (revPlayer LINK_PRIVATE revGame)

@@ -16,7 +16,7 @@
 
 // Data
 static GLuint       g_FontTexture = 0;
-std::unique_ptr<rev::graphics::Shader>	g_shader;
+std::unique_ptr<rev::gfx::Shader>	g_shader;
 static int          g_VertHandle = 0, g_FragHandle = 0;
 static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
 static int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
@@ -192,7 +192,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
         "}\n"
 		"#endif // PXL_SHADER\n"
 		"\n";
-	g_shader = rev::graphics::Shader::createShader(shader_code);
+	g_shader = rev::gfx::Shader::createShader(shader_code);
 
     g_AttribLocationTex = 1;
     g_AttribLocationProjMtx = 0;

@@ -23,7 +23,7 @@
 using namespace std;
 using namespace rev::math;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	Material::Material(const shared_ptr<Effect>& _effect)
@@ -88,4 +88,4 @@ namespace rev { namespace graphics {
 			renderer.addParam(t.first, t.second);
 	}
 
-}}
+}

@@ -31,9 +31,9 @@ namespace rev { namespace game {
 	class SpotLight : public Component
 	{
 	public:
-		SpotLight(graphics::RenderScene& _scene, float apertureRadians, float range, const math::Vec3f& color)
+		SpotLight(gfx::RenderScene& _scene, float apertureRadians, float range, const math::Vec3f& color)
 		{
-			mLight = std::make_shared<graphics::SpotLight>();
+			mLight = std::make_shared<gfx::SpotLight>();
 			_scene.addLight(mLight);
 			mLight->range = range;
 			mLight->color = color;
@@ -52,7 +52,7 @@ namespace rev { namespace game {
 
 	private:
 		Transform* mTransform = nullptr;
-		std::shared_ptr<graphics::SpotLight>	mLight;
+		std::shared_ptr<gfx::SpotLight>	mLight;
 	};
 
 }}	// namespace rev::game

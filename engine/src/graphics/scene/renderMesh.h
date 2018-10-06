@@ -24,7 +24,7 @@
 #include "renderGeom.h"
 #include "../renderer/material/material.h"
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class RenderMesh {
 	public:
@@ -36,4 +36,4 @@ namespace rev { namespace graphics {
 		std::vector<Primitive> mPrimitives;
 	};
 
-}} // namespace rev::graphics
+} // namespace rev::gfx

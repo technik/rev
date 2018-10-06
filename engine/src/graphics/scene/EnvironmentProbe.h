@@ -38,4 +38,4 @@ namespace rev::gfx
 		Texture2d	m_texture;
 		size_t m_numLevels;
 	};
-}	// namespace rev::graphics
+}	// namespace rev::gfx

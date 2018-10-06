@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class RenderObj;
 	class RenderGeom;
@@ -109,4 +109,4 @@ namespace rev { namespace graphics {
 		Buffer mNdxData;*/
 	};
 
-}}
+}

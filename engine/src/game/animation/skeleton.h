@@ -34,7 +34,7 @@ namespace rev::game {
 			m_jointNodes = nodes;
 			for(auto n : nodes)
 			{
-				graphics::Pose::JointPose nodePose;
+				gfx::Pose::JointPose nodePose;
 				nodePose.scale = math::Vec3f::ones();
 				auto transform = n->component<Transform>();
 				nodePose.rotation = transform->xForm.rotation();
@@ -42,7 +42,7 @@ namespace rev::game {
 			}
 		}
 
-		void setPose(const graphics::Pose& pose)
+		void setPose(const gfx::Pose& pose)
 		{
 			int n = 0;
 			for(auto& joint : pose.joints)
@@ -53,10 +53,10 @@ namespace rev::game {
 				transform->xForm.setRotation(joint.rotation);
 			}
 		}
-		void getReferencePose(graphics::Pose& dst) const { dst = m_referencePose; }
+		void getReferencePose(gfx::Pose& dst) const { dst = m_referencePose; }
 
 	private:
-		graphics::Pose m_referencePose;
+		gfx::Pose m_referencePose;
 
 		std::vector<std::shared_ptr<SceneNode>> m_jointNodes;
 	};

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <graphics/scene/renderScene.h>
+#include <game/scene/sceneNode.h>
 
 #include <cassert>
 #include <iostream>

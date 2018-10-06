@@ -30,7 +30,7 @@
 #undef far
 #endif // _WIN32
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Camera {
 	public:
@@ -87,4 +87,4 @@ namespace rev { namespace graphics {
 		return math::AABB(minP, maxP);
 	}
 
-}}
+}

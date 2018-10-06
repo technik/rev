@@ -4,7 +4,7 @@
 #include <cassert>
 #include <graphics/driver/shaderProcessor.h>
 
-using namespace rev::graphics;
+using namespace rev::gfx;
 using Context = ShaderProcessor::Context;
 using MetaData = ShaderProcessor::MetaData;
 

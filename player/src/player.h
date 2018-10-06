@@ -3,7 +3,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include "editor/editor.h"
 #include <game/scene/scene.h>
 #include <game/scene/ComponentLoader.h>
 #include <graphics/backend/OpenGL/deviceOpenGL.h>
@@ -12,7 +11,6 @@
 #include <graphics/scene/renderScene.h>
 #include <graphics/driver/geometryPool.h>
 
-using namespace rev::editor;
 
 namespace rev {
 
@@ -38,14 +36,13 @@ namespace rev {
 	private:
 		void createCamera();
 
-		game::ComponentLoader					mComponentFactory;
-		graphics::RenderScene					mGraphicsScene;
-		game::Scene								mGameScene;
-		const graphics::Camera*					mCamera;
-		graphics::ForwardRenderer				mRenderer;
-		gfx::DeviceOpenGL&						m_gfx;
-		Editor									mGameEditor;
-		std::unique_ptr<graphics::GeometryPool>	mGeometryPool;
+		game::ComponentLoader				mComponentFactory;
+		gfx::RenderScene					mGraphicsScene;
+		game::Scene							mGameScene;
+		const gfx::Camera*					mCamera;
+		gfx::ForwardRenderer				mRenderer;
+		gfx::DeviceOpenGL&					m_gfx;
+		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
 	};
 
 }	// namespace rev

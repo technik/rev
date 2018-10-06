@@ -9,7 +9,7 @@
 #include <math/algebra/vector.h>
 #include <graphics/driver/DefaultFrameBuffer.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class WindowWin32
 	{
@@ -53,6 +53,6 @@ namespace rev { namespace graphics {
 
 	typedef GraphicsDriverGLWindows GraphicsDriverGLBase;
 
-}} // namespace rev::graphics
+} // namespace rev::gfx
 
 #endif // _WIN32

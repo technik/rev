@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Shader {
 	public:
@@ -22,4 +22,4 @@ namespace rev { namespace graphics {
 		GLuint mGLProgram = 0;
 	};
 
-}}	// namespace rev::graphics
+} // namespace rev::gfx

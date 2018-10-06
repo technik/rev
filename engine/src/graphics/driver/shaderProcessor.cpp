@@ -25,7 +25,7 @@
 
 using namespace std;
 
-namespace rev::graphics
+namespace rev::gfx
 {
 
 	//----------------------------------------------------------------------------------------------
@@ -234,4 +234,4 @@ namespace rev::graphics
 		return true;
 	}
 
-}	// namespace rev::graphics
+}	// namespace rev::gfx

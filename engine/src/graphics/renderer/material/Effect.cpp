@@ -25,7 +25,7 @@
 
 using namespace std;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	Effect::Effect(const string& _fileName)
@@ -72,4 +72,4 @@ namespace rev { namespace graphics {
 		loadFromFile(fileName, metadata);
 		invokeCallbacks();
 	}
-}}
+}

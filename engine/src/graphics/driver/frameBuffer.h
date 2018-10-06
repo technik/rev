@@ -23,7 +23,7 @@
 #include "renderTarget.h"
 #include <graphics/backend/OpenGL/openGL.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class FrameBuffer : public RenderTarget
 	{

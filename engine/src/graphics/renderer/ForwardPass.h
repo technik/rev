@@ -30,7 +30,7 @@
 #include <map>
 #include <unordered_map>
 
-namespace rev{ namespace graphics {
+namespace rev::gfx {
 
 	class BackEndRenderer;
 	class Camera;
@@ -120,4 +120,4 @@ namespace rev{ namespace graphics {
 		std::map<std::string, ShaderPragma> m_pragmas;
 	};
 
-}}
+}

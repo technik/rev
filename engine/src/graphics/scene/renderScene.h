@@ -25,7 +25,7 @@
 #include <graphics/scene/Light.h>
 #include <graphics/scene/EnvironmentProbe.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Material;
 	class RenderGeom;
@@ -62,4 +62,4 @@ namespace rev { namespace graphics {
 		std::shared_ptr<const gfx::EnvironmentProbe>			m_environment;
 	};
 
-}}	// namespace rev::graphics
+}	// namespace rev::gfx

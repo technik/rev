@@ -25,7 +25,7 @@
 #include <functional>
 #include <graphics/driver/shaderProcessor.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class Effect
 	{
@@ -61,4 +61,4 @@ namespace rev { namespace graphics {
 		// This should allow optimization of shaders when some computations won't be used.
 	};
 
-}}
+}

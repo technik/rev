@@ -8,7 +8,7 @@
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
 
-namespace rev { namespace graphics { namespace gui {
+namespace rev::gfx { namespace gui {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void init(const math::Vec2u& _windowSize) {
@@ -168,4 +168,4 @@ namespace rev { namespace graphics { namespace gui {
 		ImGui::ColorEdit3(name, _clr.data());
 	}
 
-}}}
+}}

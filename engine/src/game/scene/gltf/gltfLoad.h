@@ -39,8 +39,8 @@ namespace rev::game {
 		gfx::Device& gfxDevice,
 		SceneNode& parentNode,
 		const std::string& filePath,
-		graphics::RenderScene& _gfxWorld,
-		graphics::GeometryPool& _pool,
+		gfx::RenderScene& _gfxWorld,
+		gfx::GeometryPool& _pool,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
-		std::vector<std::shared_ptr<graphics::Animation>>& _animations);
+		std::vector<std::shared_ptr<gfx::Animation>>& _animations);
 }

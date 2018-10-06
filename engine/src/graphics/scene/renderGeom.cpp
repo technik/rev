@@ -22,7 +22,7 @@
 #include "renderGeom.h"
 #include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
-namespace rev::graphics
+namespace rev::gfx
 {
 	//----------------------------------------------------------------------------------------------
 	RenderGeom::VtxFormat::VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights)
@@ -88,12 +88,12 @@ namespace rev::graphics
 		// VAO
 		glGenVertexArrays(1,&m_vao);
 		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo.id);
 
 		// Attributes
 		for(auto& [ndx, attribute] : m_vtxAttributes)
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo.id);
 			glVertexAttribPointer(ndx, attribute.nComponents, attribute.componentType, attribute.normalized, attribute.stride, attribute.offset);
 			glEnableVertexAttribArray(ndx); // Vertex pos
 		}
@@ -121,13 +121,13 @@ namespace rev::graphics
 		idxBv->byteLength = 2*indices.size();
 		idxBv->data = indices.data();
 		idxBv->byteStride = 0;
-		idxBv->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data);
+		idxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data);
 
 		auto vtxBv = std::make_shared<BufferView>();
 		vtxBv->byteLength = sizeof(math::Vec3f)*vertices.size();
 		vtxBv->data = vertices.data();
 		vtxBv->byteStride = 0;
-		vtxBv->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data);
+		vtxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data);
 
 		Attribute idxAttr {
 			idxBv,

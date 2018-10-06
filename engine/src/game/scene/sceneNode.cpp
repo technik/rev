@@ -24,7 +24,7 @@
 #include <graphics/debug/imgui.h>
 #include <core/tools/log.h>
 
-using namespace rev::graphics;
+using namespace rev::gfx;
 
 namespace rev { namespace game {
 

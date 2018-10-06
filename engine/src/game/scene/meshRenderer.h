@@ -21,7 +21,6 @@
 #include "component.h"
 #include <memory>
 #include <graphics/scene/renderObj.h>
-#include <graphics/driver/texture.h>
 
 namespace rev { namespace game {
 
@@ -30,7 +29,7 @@ namespace rev { namespace game {
 	class MeshRenderer : public Component {
 	public:
 		MeshRenderer( // TODO: Move serialization out of the game component
-			const std::shared_ptr<graphics::RenderObj>& renderObj
+			const std::shared_ptr<gfx::RenderObj>& renderObj
 		);
 
 		~MeshRenderer()
@@ -41,12 +40,12 @@ namespace rev { namespace game {
 		void init		() override;
 		void update		(float _dt) override;
 
-		const	graphics::RenderObj& renderObj() const { return *mRenderable; }
-				graphics::RenderObj& renderObj() { return *mRenderable; }
+		const	gfx::RenderObj& renderObj() const { return *mRenderable; }
+				gfx::RenderObj& renderObj() { return *mRenderable; }
 
 	private:
-		const std::shared_ptr<graphics::RenderObj>	mRenderable;
-		Transform*									mSrcTransform = nullptr;
+		const std::shared_ptr<gfx::RenderObj>	mRenderable;
+		Transform*								mSrcTransform = nullptr;
 	};
 
 }}	// namespace rev::game

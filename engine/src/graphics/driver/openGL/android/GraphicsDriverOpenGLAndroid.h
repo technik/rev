@@ -8,7 +8,7 @@
 #include "../openGL.h"
 #include <math/algebra/vector.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class AndroidScreen
 	{
@@ -39,6 +39,6 @@ namespace rev { namespace graphics {
 
 	typedef GraphicsDriverGLAndroid GraphicsDriverGLBase;
 
-}} // namespace rev::graphics
+}} // namespace rev::gfx
 
 #endif // ANDROID

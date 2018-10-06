@@ -28,6 +28,12 @@ namespace rev :: gfx
 {
 	class RenderPass;
 
+	struct Buffer
+	{
+		static constexpr int Invalid = 0;
+		int id = -1;
+	};
+
 	class Device
 	{
 	public:
@@ -52,6 +58,10 @@ namespace rev :: gfx
 		virtual Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) = 0;
 		virtual Pipeline createPipeline(const Pipeline::Descriptor&) = 0;
 		//virtual bool recreatePipeline(const Pipeline&, const Pipeline::Descriptor&) = 0;
+
+		// Buffers
+		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
+		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
 
 	protected:
 		Device() = default;

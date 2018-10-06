@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace rev::graphics {
+namespace rev::gfx {
 
 	class Skinning
 	{

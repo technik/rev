@@ -31,7 +31,7 @@
 
 using namespace rev::gfx;
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
@@ -125,4 +125,4 @@ namespace rev { namespace graphics {
 				to.push_back(item);
 	}
 
-}}
+}

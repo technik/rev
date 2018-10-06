@@ -20,7 +20,7 @@
 #pragma once
 #include <math/algebra/vector.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class RenderTarget
 	{
@@ -38,4 +38,4 @@ namespace rev { namespace graphics {
 		math::Vec2u mSize;
 	};
 
-}}
+}

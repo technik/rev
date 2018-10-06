@@ -34,7 +34,7 @@ namespace rev::game {
 		void resume();
 		void reset();
 
-		void playAnimation(std::shared_ptr<graphics::Animation>& anim, bool loop)
+		void playAnimation(std::shared_ptr<gfx::Animation>& anim, bool loop)
 		{
 			m_anim = anim;
 			m_time = 0;
@@ -65,11 +65,11 @@ namespace rev::game {
 		}
 
 	private:
-		graphics::Pose::JointPose m_tempPose;
+		gfx::Pose::JointPose m_tempPose;
 		Transform* m_target = nullptr;
 		float m_time;
 		bool m_loop = false;
-		std::shared_ptr<graphics::Animation> m_anim;
+		std::shared_ptr<gfx::Animation> m_anim;
 	};
 
 }

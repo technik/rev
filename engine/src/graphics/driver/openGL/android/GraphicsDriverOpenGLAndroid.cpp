@@ -19,7 +19,7 @@ void gfxDebugCallback(GLenum source,
 	rev::core::Log::error(_message);
 }
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	void printGLString(const char* name, GLenum e) {
 		core::Log::info("GL ", name, " = ", glGetString(e));
@@ -105,6 +105,6 @@ namespace rev { namespace graphics {
 		eglSwapBuffers(display, surface);
 	}
 
-}} // namespace rev::graphics
+}} // namespace rev::gfx
 
 #endif // ANDROID

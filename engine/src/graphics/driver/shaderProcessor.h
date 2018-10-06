@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace rev::graphics
+namespace rev::gfx
 {
 	class ShaderProcessor
 	{
@@ -75,4 +75,4 @@ namespace rev::graphics
 		static bool processUniform(const std::string& line, MetaData& metadata);
 	};
 
-} // namespace rev::graphics
+} // namespace rev::gfx

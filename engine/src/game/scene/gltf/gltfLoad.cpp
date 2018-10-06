@@ -28,6 +28,7 @@
 #include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
 #include <game/scene/meshRenderer.h>
+#include <game/scene/meshRenderer.h>
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
 #include <graphics/backend/device.h>
@@ -42,7 +43,7 @@
 using Json = rev::core::Json;
 
 using namespace fx;
-using namespace rev::graphics;
+using namespace rev::gfx;
 using namespace rev::math;
 using namespace std;
 
@@ -99,7 +100,7 @@ namespace rev { namespace game {
 	auto loadSkin(
 		const gltf::Document& document,
 		const gltf::Skin& skinDesc,
-		const vector<RenderGeom::Attribute>& attributes)
+		const vector<gfx::RenderGeom::Attribute>& attributes)
 	{
 		// Load skin's inverse binding matrices
 		auto numJoints = skinDesc.joints.size();
@@ -118,7 +119,7 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadSkins(const vector<RenderGeom::Attribute>& attributes, const gltf::Document& document)
+	auto loadSkins(const vector<gfx::RenderGeom::Attribute>& attributes, const gltf::Document& document)
 	{
 		std::vector<std::shared_ptr<SkinInstance>> skins;
 		for(auto& skin : document.skins)
@@ -136,7 +137,7 @@ namespace rev { namespace game {
 		const vector<shared_ptr<SkinInstance>>& _skins,
 		const vector<shared_ptr<Material>>& _materials,
 		shared_ptr<Material> _defaultMaterial,
-		graphics::RenderScene& _gfxWorld)
+		gfx::RenderScene& _gfxWorld)
 	{
 		vector<shared_ptr<SceneNode>> nodes;
 		for(auto& nodeDesc : _document.nodes)
@@ -206,9 +207,9 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	auto readAttributes(
 		const gltf::Document& _document,
-		const vector<shared_ptr<RenderGeom::BufferView>>& _bufferViews)
+		const vector<shared_ptr<gfx::RenderGeom::BufferView>>& _bufferViews)
 	{
-		vector<RenderGeom::Attribute> attributes(_document.accessors.size());
+		vector<gfx::RenderGeom::Attribute> attributes(_document.accessors.size());
 
 		for(size_t i = 0; i < attributes.size(); ++i)
 		{
@@ -251,18 +252,19 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	const RenderGeom::Attribute* registerAttribute(
+	const gfx::RenderGeom::Attribute* registerAttribute(
+		gfx::Device& device,
 		const gltf::Primitive& _primitive,
 		const char* tag,
-		const vector<RenderGeom::Attribute>& _attributes)
+		const vector<gfx::RenderGeom::Attribute>& _attributes)
 	{
 		if(auto posIt = _primitive.attributes.find(tag); posIt != _primitive.attributes.end())
 		{
 			auto& attribute = _attributes[posIt->second];
 			auto& bv = *attribute.bufferView;
 		
-			if(!bv.vbo)
-				bv.vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, bv.byteLength, bv.data);
+			if(!bv.vbo.id)
+				bv.vbo = device.allocateStaticVtxBuffer(bv.byteLength, bv.data);
 
 			return &attribute;
 		}
@@ -271,11 +273,12 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	RenderGeom::Attribute* generateTangentSpace(
-		const RenderGeom::Attribute* positions,
-		const RenderGeom::Attribute* uvs,
-		const RenderGeom::Attribute* normals,
-		const RenderGeom::Attribute* indices)
+	gfx::RenderGeom::Attribute* generateTangentSpace(
+		gfx::Device& device,
+		const gfx::RenderGeom::Attribute* positions,
+		const gfx::RenderGeom::Attribute* uvs,
+		const gfx::RenderGeom::Attribute* normals,
+		const gfx::RenderGeom::Attribute* indices)
 	{
 		if(uvs->nComponents != 2)
 		{
@@ -283,7 +286,7 @@ namespace rev { namespace game {
 			return nullptr;
 		}
 		// Accessor data
-		auto tangents = new RenderGeom::Attribute;
+		auto tangents = new gfx::RenderGeom::Attribute;
 		tangents->componentType = (GLenum)gltf::Accessor::ComponentType::Float;
 		tangents->count = uvs->count;
 		tangents->nComponents = 4;
@@ -291,7 +294,7 @@ namespace rev { namespace game {
 		tangents->offset = 0;
 		tangents->stride = 0;
 		// Buffer view
-		tangents->bufferView = make_shared<RenderGeom::BufferView>();
+		tangents->bufferView = make_shared<gfx::RenderGeom::BufferView>();
 		auto& tanBv = *tangents->bufferView;
 		tanBv.byteLength = tangents->count * tangents->nComponents * sizeof(float);
 		tanBv.byteStride = 0;
@@ -356,7 +359,7 @@ namespace rev { namespace game {
 		}
 
 		// TODO: Allocate buffer in graphics driver
-		tanBv.vbo = graphics::GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, tanBv.byteLength, tanBv.data);
+		tanBv.vbo = device.allocateStaticVtxBuffer(tanBv.byteLength, tanBv.data);
 		delete[] reinterpret_cast<const Vec4f*>(tanBv.data);
 		delete[] indexData;
 		tanBv.data = nullptr;
@@ -366,8 +369,9 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	shared_ptr<RenderGeom> loadPrimitive(
+		gfx::Device& device,
 		const gltf::Document& _document,
-		const vector<RenderGeom::Attribute>& _attributes,
+		const vector<gfx::RenderGeom::Attribute>& _attributes,
 		const gltf::Primitive& _primitive,
 		bool _needsTangentSpace)
 	{
@@ -375,20 +379,20 @@ namespace rev { namespace game {
 		if(_primitive.indices < 0)
 			return nullptr;
 
-		const RenderGeom::Attribute* indices = &_attributes[_primitive.indices];
-		if(!indices->bufferView->vbo)
+		const gfx::RenderGeom::Attribute* indices = &_attributes[_primitive.indices];
+		if(!indices->bufferView->vbo.id)
 		{
 			auto& bv = *indices->bufferView;
-			indices->bufferView->vbo = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, bv.byteLength, bv.data);
+			indices->bufferView->vbo = device.allocateIndexBuffer(bv.byteLength, bv.data);
 		}
 
 		// Read primitive attributes
-		const RenderGeom::Attribute* position = registerAttribute(_primitive, "POSITION", _attributes);
-		const RenderGeom::Attribute* normals = registerAttribute(_primitive, "NORMAL", _attributes);
-		const RenderGeom::Attribute* tangents = registerAttribute(_primitive, "TANGENT", _attributes);
-		const RenderGeom::Attribute* uv0 = registerAttribute(_primitive, "TEXCOORD_0", _attributes);
-		const RenderGeom::Attribute* weights = registerAttribute(_primitive, "WEIGHTS_0", _attributes);
-		const RenderGeom::Attribute* joints = registerAttribute(_primitive, "JOINTS_0", _attributes);
+		const gfx::RenderGeom::Attribute* position = registerAttribute(device, _primitive, "POSITION", _attributes);
+		const gfx::RenderGeom::Attribute* normals = registerAttribute(device, _primitive, "NORMAL", _attributes);
+		const gfx::RenderGeom::Attribute* tangents = registerAttribute(device, _primitive, "TANGENT", _attributes);
+		const gfx::RenderGeom::Attribute* uv0 = registerAttribute(device, _primitive, "TEXCOORD_0", _attributes);
+		const gfx::RenderGeom::Attribute* weights = registerAttribute(device, _primitive, "WEIGHTS_0", _attributes);
+		const gfx::RenderGeom::Attribute* joints = registerAttribute(device, _primitive, "JOINTS_0", _attributes);
 
 		if(_needsTangentSpace && !tangents)
 		{
@@ -397,7 +401,7 @@ namespace rev { namespace game {
 				core::Log::error("Mesh requires tangent space but doesn't provide normals or uvs. Normal generation is not supported. Skipping primitive");
 				return nullptr;
 			}
-			tangents = generateTangentSpace(position, uv0, normals, indices);
+			tangents = generateTangentSpace(device, position, uv0, normals, indices);
 		}
 
 		return std::make_shared<RenderGeom>(indices, position, normals, tangents, uv0, weights, joints);
@@ -406,19 +410,18 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	auto loadBufferViews(const gltf::Document& _document, const vector<core::File*>& buffers)
 	{
-		vector<std::shared_ptr<RenderGeom::BufferView>> bvs;
+		vector<std::shared_ptr<gfx::RenderGeom::BufferView>> bvs;
 
 		for(auto& bv : _document.bufferViews)
 		{
 			auto bufferData = reinterpret_cast<const uint8_t*>(buffers[bv.buffer]->buffer());
 
-			RenderGeom::BufferView bufferView;
-			bufferView.vbo = 0;
+			gfx::RenderGeom::BufferView bufferView;
 			bufferView.byteStride = (GLint)bv.byteStride;
 			bufferView.data = &bufferData[bv.byteOffset];
 			bufferView.byteLength = bv.byteLength;
 
-			bvs.push_back( make_shared<RenderGeom::BufferView>(bufferView) );
+			bvs.push_back( make_shared<gfx::RenderGeom::BufferView>(bufferView) );
 		}
 
 		return bvs;
@@ -426,7 +429,8 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	auto loadMeshes(
-		const vector<RenderGeom::Attribute>& attributes,
+		gfx::Device& device,
+		const vector<gfx::RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
 		const vector<shared_ptr<Material>>& _materials,
 		const shared_ptr<Material>& _defaultMaterial)
@@ -448,7 +452,7 @@ namespace rev { namespace game {
 					material = _materials[primitive.material];
 					needsTangentSpace = !_document.materials[primitive.material].normalTexture.empty();
 				}
-				auto geometry = loadPrimitive(_document, attributes, primitive, needsTangentSpace);
+				auto geometry = loadPrimitive(device, _document, attributes, primitive, needsTangentSpace);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
 		}
@@ -572,7 +576,7 @@ namespace rev { namespace game {
 	//----------------------------------------------------------------------------------------------
 	void loadAnimations(
 		const gltf::Document& document,
-		const vector<RenderGeom::Attribute>& accessors,
+		const vector<gfx::RenderGeom::Attribute>& accessors,
 		std::vector<std::shared_ptr<SceneNode>>& sceneNodes,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		vector<shared_ptr<Animation>>& _animations)
@@ -624,8 +628,8 @@ namespace rev { namespace game {
 		gfx::Device& gfxDevice,
 		SceneNode& _parentNode,
 		const std::string& _filePath,
-		graphics::RenderScene& _gfxWorld,
-		graphics::GeometryPool& _geomPool,
+		gfx::RenderScene& _gfxWorld,
+		gfx::GeometryPool& _geomPool,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		vector<shared_ptr<Animation>>& _animations)
 	{
@@ -660,7 +664,7 @@ namespace rev { namespace game {
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
 		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, textures);
-		auto meshes = loadMeshes(attributes, document, materials, defaultMaterial);
+		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);

@@ -107,9 +107,10 @@ int main(int _argc, const char** _argv) {
 	rev::core::OSHandler::startUp();
 	rev::core::FileSystem::init();
 
+	auto windowSize = Vec2u(params.sx, params.sy);
 	auto nativeWindow = rev::gfx::createWindow(
 		{40, 40},
-		{params.sx, params.sy},
+		windowSize,
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
 		true // Visible
 	);
@@ -122,7 +123,7 @@ int main(int _argc, const char** _argv) {
 
 	rev::Player player(gfxDevice);
 	g_player = &player;
-	if(!player.init(&nativeWindow, params.scene, params.background)) {
+	if(!player.init(windowSize, params.scene, params.background)) {
 		return -1;
 	}
 	for(;;) {

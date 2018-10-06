@@ -22,7 +22,7 @@
 
 #include <graphics/backend/OpenGL/openGL.h>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class DefaultFrameBuffer : public RenderTarget
 	{
@@ -44,4 +44,4 @@ namespace rev { namespace graphics {
 		}
 	};
 
-}}
+}

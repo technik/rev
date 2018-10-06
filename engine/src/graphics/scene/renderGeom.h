@@ -20,6 +20,7 @@
 #pragma once
 
 #include <graphics/backend/openGL/openGL.h>
+#include <graphics/backend/device.h>
 #include <math/algebra/vector.h>
 #include <math/geometry/aabb.h>
 #include <math/geometry/types.h>
@@ -27,7 +28,7 @@
 #include <vector>
 #include <memory>
 
-namespace rev { namespace graphics {
+namespace rev::gfx {
 
 	class RenderGeom {
 	public:
@@ -55,7 +56,7 @@ namespace rev { namespace graphics {
 
 		struct BufferView
 		{
-			GLuint vbo;
+			Buffer vbo;
 			GLint byteStride;
 			size_t byteLength;
 			const void* data;
@@ -108,4 +109,4 @@ namespace rev { namespace graphics {
 		void initOpenGL();
 	};
 
-}}
+}
