@@ -42,8 +42,6 @@ namespace rev :: gfx
 		void submit(RenderQueueOpenGL& renderQueue) const;
 
 	private:
-		math::Vec2u m_viewportStart;
-		math::Vec2u m_viewportSize;
 		Descriptor m_desc;
 		std::vector<const CommandBuffer*> m_commandList;
 	};

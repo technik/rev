@@ -31,8 +31,8 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	void RenderPassOpenGL::setViewport(const math::Vec2u& start, const math::Vec2u& size)
 	{
-		m_viewportStart = start;
-		m_viewportSize = size;
+		m_desc.viewportStart = start;
+		m_desc.viewportSize = size;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -48,8 +48,8 @@ namespace rev :: gfx
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id);
 
 		// Config viewport
-		glViewport(m_viewportStart.x(), m_viewportStart.y(), m_viewportSize.x(), m_viewportSize.y());
-		glScissor(m_viewportStart.x(), m_viewportStart.y(), m_viewportSize.x(), m_viewportSize.y());
+		glViewport(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());
+		glScissor(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());
 
 		// Clear
 		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)

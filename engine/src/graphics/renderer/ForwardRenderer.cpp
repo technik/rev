@@ -36,7 +36,7 @@ namespace rev::gfx {
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
 	{
-		m_targetBuffer = &target;
+		m_targetBuffer = target;
 
 		mForwardPass = std::make_unique<ForwardPass>(device, targetSize, target);
 
@@ -71,7 +71,7 @@ namespace rev::gfx {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const RenderScene& scene, const Camera& eye) {
-		assert(m_targetBuffer);
+		assert(m_targetBuffer.id != FrameBuffer::InvalidId);
 
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 

@@ -53,7 +53,7 @@ namespace rev::gfx {
 		gfx::Texture2d	 m_shadowsTexture;
 		std::unique_ptr<ForwardPass>		mForwardPass;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
-		gfx::FrameBuffer*					m_targetBuffer = nullptr;
+		gfx::FrameBuffer					m_targetBuffer;
 
 		std::vector<RenderItem> m_renderQueue;
 		std::vector<RenderItem> m_visible;

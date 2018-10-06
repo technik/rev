@@ -106,11 +106,11 @@ namespace rev::gfx {
 		shadowWorldXForm.position() = shadowCenter;
 		auto shadowView = shadowWorldXForm.orthoNormalInverse();
 
-		if(ImGui::Begin("ShadowMap"))
-		{
-			ImGui::SliderFloat("Shadow bias", &mBias, -0.01f, 0.01f);
-		}
-		ImGui::End();
+		//if(ImGui::Begin("ShadowMap"))
+		//{
+		//	ImGui::SliderFloat("Shadow bias", &mBias, -0.01f, 0.01f);
+		//}
+		//ImGui::End();
 
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(1,3) = -mBias;
