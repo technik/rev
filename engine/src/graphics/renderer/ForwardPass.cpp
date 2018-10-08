@@ -61,7 +61,7 @@ namespace rev::gfx {
 		// Init graphics render pass
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 1;
-		passDesc.clearColor = { 1.f,1.f,1.f,1.f }; // ?89.f/255.f,235.f/255.f,1.f,1.f
+		passDesc.clearColor = { 0.f,0.f,0.f,1.f }; // ?89.f/255.f,235.f/255.f,1.f,1.f
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
 		passDesc.target = target;
 		passDesc.viewportSize = viewportSize;

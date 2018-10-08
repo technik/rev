@@ -94,6 +94,8 @@ namespace rev :: gfx
 			// TODO: Uniform buffers
 		};
 
+		bool isValid() const { return id != InvalidId; }
+
 		Id id = InvalidId;
 	};
 }

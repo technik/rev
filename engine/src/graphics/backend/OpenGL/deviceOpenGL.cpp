@@ -52,7 +52,8 @@ namespace rev :: gfx
 		// Validate input data
 		assert((descriptor.srcImages && descriptor.providedImages)
 			|| (!descriptor.srcImages && !descriptor.providedImages));
-		assert(descriptor.providedImages <= descriptor.mipLevels);
+		assert(descriptor.providedImages <= descriptor.mipLevels
+			|| descriptor.mipLevels == 0);
 		Texture2d texture;
 		// Validate input data
 		// Generate opengl object
@@ -129,11 +130,12 @@ namespace rev :: gfx
 				nullptr);
 		}
 		// Set mip level bounds
+		//if(descriptor.mipLevels > 0)
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
 		// Generate mipmaps when needed
-		if(descriptor.providedImages < descriptor.mipLevels)
-			glGenerateTextureMipmap(textureName);
-
+		if(descriptor.providedImages < descriptor.mipLevels || descriptor.mipLevels == 0)
+			//glGenerateTextureMipmap(textureName);
+			glGenerateMipmap(GL_TEXTURE_2D);
 		texture.id = textureName;
 		return texture;
 	}
@@ -191,6 +193,10 @@ namespace rev :: gfx
 	{
 		Pipeline::ShaderModule shader;
 		std::vector<const char*> code;
+		if(desc.stage == Pipeline::ShaderModule::Descriptor::Vertex)
+			code.push_back("#define VTX_SHADER\n");
+		else
+			code.push_back("#define PXL_SHADERn");
 		for(auto& c : desc.code)
 		{
 			code.push_back(c.c_str());
@@ -251,14 +257,6 @@ namespace rev :: gfx
 			cout << "//----------------------------------------------------------------------------------------------\n";
 			std::string textMessage = (char*)ShaderErrorMessage.data();
 			cout << textMessage << "\n";
-			cout << "//----------------------------------------------------------------------------------------------\n";
-			cout << "Program code" << "\n";
-			cout << "//----------------------------------------------------------------------------------------------\n";
-			glGetShaderiv(program, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
-			ShaderErrorMessage.resize(InfoLogLength+1);
-			glGetShaderSource(program, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-			std::string completeSource = (char*)ShaderErrorMessage.data();
-			cout << completeSource << "\n";
 		}
 		else
 		{
@@ -314,6 +312,7 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	void DeviceOpenGL::bindPipeline(int32_t pipelineId)
 	{
+		assert(pipelineId != Pipeline::InvalidId);
 		const auto& pipeline = m_pipelines[pipelineId];
 		glUseProgram(pipeline.nativeName);
 

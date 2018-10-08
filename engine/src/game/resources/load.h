@@ -27,5 +27,5 @@ namespace rev::gfx {
 
 namespace rev::game
 {
-	gfx::Texture2d load2dTextureFromFile(gfx::Device&, gfx::TextureSampler, std::string_view fileName, bool sRGB = true);
+	gfx::Texture2d load2dTextureFromFile(gfx::Device&, gfx::TextureSampler, std::string_view fileName, bool sRGB = true, int nMips = 0);
 }

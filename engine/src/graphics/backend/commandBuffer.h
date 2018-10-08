@@ -91,6 +91,7 @@ namespace rev :: gfx
 
 		void setPipeline(Pipeline pipeline)
 		{
+			assert(pipeline.isValid());
 			m_commands.push_back({Command::SetPipeline, pipeline.id});
 		}
 		void setUniformData(const UniformBucket& uniformBucket)

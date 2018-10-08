@@ -496,8 +496,8 @@ namespace rev { namespace game {
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false);
+		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true, 1);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false, 1);
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
@@ -648,8 +648,8 @@ namespace rev { namespace game {
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false);
+		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true, 1);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uFms", sony_fms_lut);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
