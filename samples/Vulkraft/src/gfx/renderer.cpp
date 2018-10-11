@@ -4,6 +4,7 @@
 // Minecraft-style sample game
 //----------------------------------------------------------------------------------------------------------------------
 #include "renderer.h"
+#include "world.h"
 
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/backend/pipeline.h>
@@ -22,13 +23,17 @@ namespace vkft::gfx
 	{
 		initForwardPass(targetSize);
 		initGeometryPipeline();
+		mTargetFov = float(targetSize.x()) / targetSize.y();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Renderer::render(const World&)
+	void Renderer::render(const World& world, const rev::gfx::Camera& camera)
 	{
 		mRenderCommands.clear();
 		mRenderCommands.setPipeline(mFwdPipeline);
+
+		mRenderCommands.setVertexData(world.quad.getVao());
+		mRenderCommands.drawTriangles(world.quad.indices().count, CommandBuffer::IndexType::U16);
 
 		mGfxDevice.renderQueue().submitPass(*mForwardPass);
 		mGfxDevice.renderQueue().present();
@@ -38,6 +43,7 @@ namespace vkft::gfx
 	void Renderer::onResizeTarget(const rev::math::Vec2u& newSize)
 	{
 		mForwardPass->setViewport(Vec2u::zero(), newSize);
+		mTargetFov = float(newSize.x()) / newSize.y();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

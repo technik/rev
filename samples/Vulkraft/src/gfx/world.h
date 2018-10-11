@@ -5,9 +5,19 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
+#include <graphics/scene/renderGeom.h>
+
 namespace vkft::gfx {
 
 	class World
-	{};
+	{
+	public:
+		World()
+		{
+			quad = rev::gfx::RenderGeom::quad({0.5f, 0.5f});
+		}
+
+		rev::gfx::RenderGeom quad;
+	};
 
 }

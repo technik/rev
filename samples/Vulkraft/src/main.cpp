@@ -5,11 +5,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
-#include <graphics/backend/commandBuffer.h>
+#include <graphics/scene/camera.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
-#include <graphics/scene/renderGeom.h>
 
 #include <string>
 #include <vector>
@@ -57,16 +56,9 @@ int main(int _argc, const char** _argv) {
 		//	return true;
 		return false;
 	};
-
-	// Create a quad
-	//auto quad = rev::gfx::RenderGeom::quad({0.5f, 0.5f});
-	//
-	//// Command buffer to draw a simple quad
-	//CommandBuffer quadCmd;
-	//quadCmd.setVertexData(quad.getVao());// Bind vtx data
-	//quadCmd.drawTriangles(quad.indices().count, CommandBuffer::IndexType::U16);// Draw triangles
 	
 	vkft::gfx::World world;
+	rev::gfx::Camera camera;
 
 	// Main loop
 	float t = 0;
@@ -82,7 +74,7 @@ int main(int _argc, const char** _argv) {
 		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
-		renderer.render(world);
+		renderer.render(world, camera);
 
 		// Update time
 		t += 1.f/60;
