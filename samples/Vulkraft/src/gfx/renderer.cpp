@@ -9,6 +9,7 @@
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/backend/pipeline.h>
 #include <graphics/backend/renderPass.h>
+#include <graphics/scene/camera.h>
 
 #include <string>
 
@@ -32,6 +33,11 @@ namespace vkft::gfx
 		mRenderCommands.clear();
 		mRenderCommands.setPipeline(mFwdPipeline);
 
+		Mat44f wvp = camera.viewProj(mTargetFov);
+		mUniforms.clear();
+		mUniforms.addParam(0, wvp);
+
+		mRenderCommands.setUniformData(mUniforms);
 		mRenderCommands.setVertexData(world.quad.getVao());
 		mRenderCommands.drawTriangles(world.quad.indices().count, CommandBuffer::IndexType::U16);
 
@@ -68,9 +74,12 @@ namespace vkft::gfx
 		const std::string vtxShaderCode = R"(
 layout(location = 0) in vec3 vertex;
 
+// Uniforms
+layout(location = 0) uniform mat4 wvp;
+
 void main ( void )
 {
-	gl_Position = vec4(vertex.xy, 0.0, 1.0);
+	gl_Position = wvp * vec4(vertex.xy, 0.0, 1.0);
 }
 )";
 		Pipeline::ShaderModule::Descriptor vtxDesc;
@@ -85,10 +94,8 @@ void main ( void )
 		const std::string pxlShaderCode = R"(
 out lowp vec3 outColor;
 
-layout(location = 0) uniform vec3 color;
-
 void main (void) {	
-	outColor = color;
+	outColor = vec3(1.0);
 }
 )";
 		Pipeline::ShaderModule::Descriptor pxlDesc;

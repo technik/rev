@@ -58,7 +58,11 @@ int main(int _argc, const char** _argv) {
 	};
 	
 	vkft::gfx::World world;
+
+	auto camXForm = AffineTransform::identity();
+	camXForm.position() = rev::math::Vec3f{0.f, 0.f, 1.f };
 	rev::gfx::Camera camera;
+	camera.setWorldTransform(camXForm);
 
 	// Main loop
 	float t = 0;
