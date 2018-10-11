@@ -396,7 +396,7 @@ struct Image
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-Image* loadImage(string& fileName)
+::Image* loadImage(string& fileName)
 {
 	// Load source data
 	int nx, ny, nc;
@@ -405,7 +405,7 @@ Image* loadImage(string& fileName)
 	if(!rawData)
 		return nullptr;
 	
-	auto img = new Image(nx, ny);
+	auto img = new ::Image(nx, ny);
 	for(int i = 0; i < img->nPixels(); ++i)
 		img->at(i) = reinterpret_cast<Vec3f&>(rawData[3*i]);
 
@@ -482,7 +482,7 @@ void main ( void )
 )";
 
 //----------------------------------------------------------------------------------------------------------------------
-void generateProbeFromImage(const Params& params, Device& device, rev::graphics::Image* srcImg)
+void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Image* srcImg)
 {
 	Json probeDesc;
 	probeDesc["mips"] = Json::array();
@@ -496,10 +496,11 @@ void generateProbeFromImage(const Params& params, Device& device, rev::graphics:
 	// Create a descriptor for latlong textures
 	Texture2d::Descriptor latLongDesc;
 	latLongDesc.sampler = latLongSampler;
-	latLongDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
-	latLongDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
+	latLongDesc.pixelFormat.channel = rev::gfx::Image::ChannelFormat::Float32;
+	latLongDesc.pixelFormat.numChannels = 4;
 	// Info specific for this image
-	latLongDesc.srcImages = &srcImg;
+	latLongDesc.srcImages = srcImg;
+	latLongDesc.providedImages = 1;
 	latLongDesc.mipLevels = 1;
 	latLongDesc.size = srcImg->size();
 	// Allocate and init the texture
@@ -592,8 +593,8 @@ void main (void) {
 
 #endif
 )";
-	auto lat2CubeShader = rev::graphics::Shader::createShader(shaderCode.c_str());
-	auto quad = rev::graphics::RenderGeom::quad({2.f,2.f});
+	auto lat2CubeShader = rev::gfx::Shader::createShader(shaderCode.c_str());
+	auto quad = rev::gfx::RenderGeom::quad({2.f,2.f});
 
 	// Bind shader
 	lat2CubeShader->bind();
@@ -695,7 +696,7 @@ void main (void) {
 )"};
 
 	// Bind shader
-	auto radianceShader = rev::graphics::Shader::createShader(radianceShaderCode);
+	auto radianceShader = rev::gfx::Shader::createShader(radianceShaderCode);
 	radianceShader->bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
@@ -707,7 +708,7 @@ void main (void) {
 	for(int i = 0; i < nRadianceMips; ++i)
 	{
 		int baseSize = (radianceSize<<(nRadianceMips-i)); // The size of a face in an equivalent cubemap
-		Image* cubeImg = new Image(4*baseSize,2*baseSize);
+		::Image* cubeImg = new ::Image(4*baseSize,2*baseSize);
 		// Update descriptor's texture size
 		latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
 		// Create dst texture
@@ -739,7 +740,7 @@ void main (void) {
 	}
 
 	// Generate irradiance from cubemap
-	Image* cubeImg = new Image(4*radianceSize,2*radianceSize);
+	::Image* cubeImg = new ::Image(4*radianceSize,2*radianceSize);
 	// Update descriptor's texture size
 	latLongDesc.size = { (uint32_t)cubeImg->nx, (uint32_t)cubeImg->ny };
 	// Create dst texture
@@ -808,7 +809,7 @@ void main (void) {
 #endif
 )" };
 	// Bind shader
-	auto irradianceShader = rev::graphics::Shader::createShader(irradianceCode);
+	auto irradianceShader = rev::gfx::Shader::createShader(irradianceCode);
 	irradianceShader->bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
@@ -839,8 +840,8 @@ void generateIblLut(const Params& params, Device& device)
 	Texture2d::Descriptor textureDesc;
 	textureDesc.size = { 512u, 512u };
 	textureDesc.sampler = device.createTextureSampler(TextureSampler::Descriptor());
-	textureDesc.channelType = Texture2d::Descriptor::ChannelType::Float32;
-	textureDesc.pixelFormat = Texture2d::Descriptor::PixelFormat::RGBA;
+	textureDesc.pixelFormat.channel = rev::gfx::Image::ChannelFormat::Float32;
+	textureDesc.pixelFormat.numChannels = 4;
 	textureDesc.sRGB = false;
 	auto texture = device.createTexture2d(textureDesc);
 
@@ -904,9 +905,9 @@ void main (void) {
 #endif
 )"};
 
-	auto shader = rev::graphics::Shader::createShader(shaderCode);
+	auto shader = rev::gfx::Shader::createShader(shaderCode);
 	shader->bind();
-	auto quad = rev::graphics::RenderGeom::quad({2.f,2.f});
+	auto quad = rev::gfx::RenderGeom::quad({2.f,2.f});
 	// Create a frame buffer using the cubemap
 	GLuint cubeFrameBuffer;
 	glGenFramebuffers(1, &cubeFrameBuffer);
@@ -924,7 +925,7 @@ void main (void) {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 	glFinish();
 
-	Image* lut = new Image(512,512);
+	::Image* lut = new ::Image(512,512);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, lut->m);
 	//lut->save2sRGB(params.out);
 	lut->saveHDR(params.out);
@@ -957,7 +958,7 @@ int main(int _argc, const char** _argv) {
 	}
 
 	// Load source data
-	auto srcImg = rev::graphics::Image::load(params.in, 3);
+	auto srcImg = ::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	if(!srcImg)
