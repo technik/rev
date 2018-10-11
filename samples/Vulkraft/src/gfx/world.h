@@ -14,10 +14,10 @@ namespace vkft::gfx {
 	public:
 		World()
 		{
-			quad = rev::gfx::RenderGeom::quad({0.5f, 0.5f});
+			mTileGeom = rev::gfx::RenderGeom::quad({0.5f, 0.5f});
 		}
 
-		rev::gfx::RenderGeom quad;
+		rev::gfx::RenderGeom mTileGeom;
 	};
 
 }

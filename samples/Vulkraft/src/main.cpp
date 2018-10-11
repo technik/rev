@@ -10,6 +10,13 @@
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 
+#include <game/scene/camera.h>
+#include <game/scene/transform/flyby.h>
+#include <game/scene/transform/transform.h>
+
+#include <input/pointingInput.h>
+#include <input/keyboard/keyboardInput.h>
+
 #include <string>
 #include <vector>
 
@@ -22,10 +29,28 @@ using namespace rev::gfx;
 using namespace rev::math;
 
 //--------------------------------------------------------------------------------------------------------------
+void initCamera(rev::game::SceneNode*& camNode, rev::game::FlyBy*& player, rev::gfx::Camera*& gfxCam)
+{
+	camNode = new rev::game::SceneNode("player camera");
+	const float camSpeed = 1.f;
+	const float camAngSpeed = 1.f;
+	auto xform = camNode->addComponent<rev::game::Transform>();
+	player = camNode->addComponent<rev::game::FlyBy>(camSpeed, camAngSpeed);
+	xform->xForm.position() = rev::math::Vec3f{0.f, 0.f, 1.f };
+	gfxCam = &*camNode->addComponent<rev::game::Camera>()->cam();
+
+	camNode->init();
+}
+
+//--------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	// Init engine core systems
 	OSHandler::startUp();
 	FileSystem::init();
+
+	// Init input systems
+	rev::input::KeyboardInput::init();
+	rev::input::PointingInput::init();
 
 	// Create the application window
 	Vec2u windowStart = {100, 150};
@@ -50,19 +75,19 @@ int main(int _argc, const char** _argv) {
 			return true;
 		}
 
-		//if(rev::input::PointingInput::get()->processMessage(_msg))
-		//	return true;
-		//if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
-		//	return true;
+		if(rev::input::PointingInput::get()->processMessage(_msg))
+			return true;
+		if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
+			return true;
 		return false;
 	};
 	
 	vkft::gfx::World world;
 
-	auto camXForm = AffineTransform::identity();
-	camXForm.position() = rev::math::Vec3f{0.f, 0.f, 1.f };
-	rev::gfx::Camera camera;
-	camera.setWorldTransform(camXForm);
+	rev::game::SceneNode* camNode = nullptr;
+	rev::game::FlyBy* player = nullptr;
+	rev::gfx::Camera* playerCam = nullptr;
+	initCamera(camNode, player, playerCam);
 
 	// Main loop
 	float t = 0;
@@ -71,6 +96,7 @@ int main(int _argc, const char** _argv) {
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
+		camNode->update(1.f/60);
 		// Modify the uniform command
 		//Vec3f color = Vec3f(t,t,t);
 		//timeUniform.vec3s.push_back({0, color});
@@ -78,7 +104,7 @@ int main(int _argc, const char** _argv) {
 		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
-		renderer.render(world, camera);
+		renderer.render(world, *playerCam);
 
 		// Update time
 		t += 1.f/60;

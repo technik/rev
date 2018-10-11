@@ -13,4 +13,4 @@ add_executable(vulkraft ${SOURCE_FILES})
 # Visual studio specifics
 
 set_target_properties(vulkraft PROPERTIES FOLDER "samples")
-target_link_libraries (vulkraft LINK_PUBLIC revCore revMath revGfx revInput)
+target_link_libraries (vulkraft LINK_PUBLIC revCore revMath revGfx revInput revGame)
