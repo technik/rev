@@ -23,7 +23,6 @@
 #include "sceneNode.h"
 #include "transform/transform.h"
 #include <graphics/scene/camera.h>
-#include <graphics/scene/renderScene.h>
 
 namespace rev { namespace game {
 
@@ -32,17 +31,15 @@ namespace rev { namespace game {
 	public:
 
 		//------------------------------------------------------------------------------------------
-		Camera(gfx::RenderScene* scene)
+		Camera()
 		{
 			mCam = std::make_shared<gfx::Camera>();
-			scene->addCamera(mCam);
 		}
 
 		//------------------------------------------------------------------------------------------
-		Camera(gfx::RenderScene* scene, float fov, float _near, float _far)
+		Camera(float fov, float _near, float _far)
 		{
 			mCam = std::make_shared<gfx::Camera>(fov, _near, _far);
-			scene->addCamera(mCam);
 		}
 
 		//------------------------------------------------------------------------------------------

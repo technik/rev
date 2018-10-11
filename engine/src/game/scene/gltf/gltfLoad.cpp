@@ -191,7 +191,8 @@ namespace rev { namespace game {
 					cout << "Error: Cameras are only supported in separate nodes with no children\n";
 				}
 				auto& cam = _document.cameras[nodeDesc.camera];
-				node->addComponent<game::Camera>(&_gfxWorld, cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				auto camComponent = node->addComponent<game::Camera>(cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				_gfxWorld.addCamera(camComponent->cam());
 				// Camera correction matrix
 				auto correction = Mat44f::identity();
 				correction.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);
