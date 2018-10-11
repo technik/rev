@@ -193,6 +193,7 @@ namespace rev :: gfx
 	{
 		Pipeline::ShaderModule shader;
 		std::vector<const char*> code;
+		code.push_back("#version 450\n");
 		if(desc.stage == Pipeline::ShaderModule::Descriptor::Vertex)
 			code.push_back("#define VTX_SHADER\n");
 		else

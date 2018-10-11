@@ -26,7 +26,7 @@ int main(int _argc, const char** _argv) {
 
 	// Create the application window
 	Vec2u windowStart = {100, 150};
-	Vec2u windowSize = { 200, 200 };
+	Vec2u windowSize = { 400, 300 };
 	auto wnd = createWindow(windowStart, windowSize, "Vulkraft", true);
 
 	// Init graphics
@@ -62,7 +62,6 @@ int main(int _argc, const char** _argv) {
 
 	// Create vertex shader
 	const string vtxShaderCode = R"(
-#version 430
 layout(location = 0) in vec3 vertex;
 
 void main ( void )
@@ -80,7 +79,6 @@ void main ( void )
 
 	// Create pixel shader
 	const string pxlShaderCode = R"(
-#version 430
 out lowp vec3 outColor;
 
 layout(location = 0) uniform vec3 color;
