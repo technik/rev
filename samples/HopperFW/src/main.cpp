@@ -24,6 +24,8 @@
 #include "gfx/renderer.h"
 #include "gfx/world.h"
 
+#include "serial.h"
+
 using namespace std;
 using namespace rev::core;
 using namespace rev::gfx;
@@ -102,6 +104,8 @@ int main(int _argc, const char** _argv) {
 	// Board state
 	bool ledOn = false;
 
+	dmc::SerialWin32 serialPort("COM5", 9600);
+
 	// Main loop
 	float t = 0;
 	for(;;)
@@ -110,11 +114,6 @@ int main(int _argc, const char** _argv) {
 			break;
 
 		camNode->update(1.f/60);
-		// Modify the uniform command
-		//Vec3f color = Vec3f(t,t,t);
-		//timeUniform.vec3s.push_back({0, color});
-		//uniformCmd.clear();
-		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
 		renderer.render(world, *playerCam);
@@ -131,6 +130,10 @@ int main(int _argc, const char** _argv) {
 			if(newLedState != ledOn)
 			{
 				ledOn = newLedState;
+				if(ledOn)
+					serialPort.write('A');
+				else
+					serialPort.write('B');
 			}
 			gui::endWindow();
 		}
