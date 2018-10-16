@@ -25,6 +25,7 @@ endif()
 
 add_subdirectory(samples/Vulkraft)
 add_subdirectory(samples/ShaderToy)
+add_subdirectory(samples/HopperFW)
 
 if(REV_BUILD_TEST)
 	enable_testing()
