@@ -103,6 +103,8 @@ int main(int _argc, const char** _argv) {
 
 	// Board state
 	bool ledOn = false;
+	float normalizedPwm = 0.f;
+	uint8_t pwm = 0;
 
 	dmc::SerialWin32 serialPort("COM5", 9600);
 
@@ -125,15 +127,27 @@ int main(int _argc, const char** _argv) {
 		if(gui::beginWindow("Hopper controls"))
 		{
 			gui::text("Hello hopper");
+
+			// Led check box
 			bool newLedState;
 			ImGui::Checkbox("Led", &newLedState);
-			if(newLedState != ledOn)
+
+			// PWM slider
+			ImGui::SliderFloat("PWM Out", &normalizedPwm, 0.f, 1.f);
+			uint8_t newPwm;
+			newPwm = uint8_t(std::clamp(normalizedPwm, 0.f, 1.f) * 255);
+
+			// Send data packet
+			if(newLedState != ledOn || newPwm != pwm)
 			{
 				ledOn = newLedState;
+				pwm = newPwm;
 				if(ledOn)
-					serialPort.write("HRAa", 4);
+					serialPort.write("HRA", 3);
 				else
-					serialPort.write("HRBs", 4);
+					serialPort.write("HRB", 3);
+
+				serialPort.write(pwm);
 			}
 			gui::endWindow();
 		}
