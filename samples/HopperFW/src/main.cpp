@@ -131,9 +131,9 @@ int main(int _argc, const char** _argv) {
 			{
 				ledOn = newLedState;
 				if(ledOn)
-					serialPort.write('A');
+					serialPort.write("HRAa", 4);
 				else
-					serialPort.write('B');
+					serialPort.write("HRBs", 4);
 			}
 			gui::endWindow();
 		}
