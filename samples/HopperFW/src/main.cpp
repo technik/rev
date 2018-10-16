@@ -9,6 +9,7 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+#include <graphics/debug/debugGUI.h>
 
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
@@ -64,14 +65,14 @@ int main(int _argc, const char** _argv) {
 	// Init renderer
 	vkft::gfx::Renderer renderer(gfxDevice, windowSize);
 
-	*OSHandler::get() += [&renderer](MSG _msg) {
+	*OSHandler::get() += [&renderer, &windowSize](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
 		{
 			// Get new rectangle size without borders
 			RECT clientSurface;
 			GetClientRect(_msg.hwnd, &clientSurface);
-			auto newSize = Vec2u(clientSurface.right, clientSurface.bottom);
-			renderer.onResizeTarget(newSize);
+			windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
+			renderer.onResizeTarget(windowSize);
 			return true;
 		}
 
@@ -81,13 +82,25 @@ int main(int _argc, const char** _argv) {
 			return true;
 		return false;
 	};
-	
+
 	vkft::gfx::World world;
 
 	rev::game::SceneNode* camNode = nullptr;
 	rev::game::FlyBy* player = nullptr;
 	rev::gfx::Camera* playerCam = nullptr;
 	initCamera(camNode, player, playerCam);
+
+	// Init ImGui render pass
+	RenderPass::Descriptor passDesc;
+	passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
+	passDesc.target = gfxDevice.defaultFrameBuffer();
+	passDesc.viewportSize = windowSize;
+	auto guiPass = gfxDevice.createRenderPass(passDesc);
+
+	gui::init(windowSize);
+
+	// Board state
+	bool ledOn = false;
 
 	// Main loop
 	float t = 0;
@@ -105,8 +118,26 @@ int main(int _argc, const char** _argv) {
 
 		// Send pass to the GPU
 		renderer.render(world, *playerCam);
-		gfxDevice.renderQueue().present();
 
+		gfxDevice.renderQueue().submitPass(*guiPass); // Bind frame buffer before calling ImGui
+
+		gui::startFrame(windowSize);
+
+		if(gui::beginWindow("Hopper controls"))
+		{
+			gui::text("Hello hopper");
+			bool newLedState;
+			ImGui::Checkbox("Led", &newLedState);
+			if(newLedState != ledOn)
+			{
+				ledOn = newLedState;
+			}
+			gui::endWindow();
+		}
+
+		gui::finishFrame(1/60.f);
+
+		gfxDevice.renderQueue().present();
 		// Update time
 		t += 1.f/60;
 		if(t > 1) t -= 1.f;
