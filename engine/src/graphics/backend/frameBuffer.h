@@ -43,7 +43,7 @@ namespace rev::gfx {
 
 			// Info for texture attachments
 			Texture2d texture;
-			size_t mipLevel;
+			size_t mipLevel = 0;
 
 			// Info for render buffer attachments
 			// TODO
@@ -53,6 +53,8 @@ namespace rev::gfx {
 			size_t numAttachments;
 			Attachment* attachments;
 		};
+
+		bool valid() const { return id != InvalidId; }
 
 		static constexpr int32_t InvalidId = -1;
 

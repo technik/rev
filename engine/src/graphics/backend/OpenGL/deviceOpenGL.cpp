@@ -97,10 +97,10 @@ namespace rev :: gfx
 		if(descriptor.depth)
 		{
 			assert(descriptor.pixelFormat.numChannels == 1);
-			imageFormat = GL_DEPTH;
+			imageFormat = GL_DEPTH_COMPONENT;
 		}
 		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
-		GLenum internalFormat = getInternalFormat(descriptor.pixelFormat, descriptor.sRGB);
+		GLenum internalFormat = getInternalFormat(descriptor);
 		// Submit provided images to the device
 		for(size_t i = 0; i < descriptor.providedImages; ++i)
 		{
@@ -177,9 +177,22 @@ namespace rev :: gfx
 		}
 
 		// If configuration was successful, return the new frame buffer
-		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+		auto fbState = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if(fbState == GL_FRAMEBUFFER_COMPLETE)
 		{
 			newFb.id = int32_t(fbId);
+		}
+		else
+		{
+			if(fbState == GL_FRAMEBUFFER_UNDEFINED)
+				cout << "Framebuffer undefined\n";
+			else if(fbState == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+				cout << "Framebuffer incomplete attachment\n";
+			else if(fbState == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+				cout << "Missing framebuffer attachment\n";
+			else
+				cout << "Incomplete framebuffer, other reasons\n";
+			assert( false );
 		}
 
 		// Unbind fb to prevent state leaks
@@ -268,30 +281,30 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GLenum DeviceOpenGL::getInternalFormat(
-		Image::PixelFormat pixelFmt,
-		bool sRGB)
+	GLenum DeviceOpenGL::getInternalFormat(const Texture2d::Descriptor& desc)
 	{
+		if(desc.depth)
+			return GL_DEPTH_COMPONENT;
 		// Detect sRGB cases
-		if( pixelFmt.channel == Image::ChannelFormat::Byte)
+		if( desc.pixelFormat.channel == Image::ChannelFormat::Byte)
 		{
-			switch(pixelFmt.numChannels)
+			switch(desc.pixelFormat.numChannels)
 			{
 				case 1:
 					return GL_R;
 				case 2:
 					return GL_RG;
 				case 3:
-					return sRGB ? GL_SRGB : GL_RGB8;
+					return desc.sRGB ? GL_SRGB : GL_RGB8;
 				case 4:
-					return sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+					return desc.sRGB ? GL_SRGB_ALPHA : GL_RGBA;
 				default:
 					assert(!"Images must have [1,4] channels");
 			}
 		}
 		else // Float formats
 		{
-			switch(pixelFmt.numChannels)
+			switch(desc.pixelFormat.numChannels)
 			{
 				case 1:
 					return GL_R;

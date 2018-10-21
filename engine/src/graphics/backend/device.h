@@ -30,7 +30,9 @@ namespace rev :: gfx
 
 	struct Buffer
 	{
-		static constexpr int Invalid = 0;
+		bool valid() const { return id >= 0; }
+
+		static constexpr int Invalid = -1;
 		int id = -1;
 	};
 

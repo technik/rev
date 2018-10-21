@@ -45,6 +45,7 @@ namespace rev :: gfx
 	void RenderPassOpenGL::submit(RenderQueueOpenGL& renderQueue) const
 	{
 		// Bind the frame buffer
+		assert(m_desc.target.valid());
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id);
 
 		// Config viewport

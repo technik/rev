@@ -42,6 +42,7 @@ namespace rev::gfx {
 	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
 	{
+		assert(target.valid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 0;

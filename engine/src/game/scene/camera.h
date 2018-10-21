@@ -54,6 +54,7 @@ namespace rev { namespace game {
 		}
 
 		const auto& cam() const { return mCam; }
+		auto& cam() { return mCam; }
 
 	private:
 		Transform*	mTransform = nullptr;
