@@ -49,6 +49,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   esc.attach(10);
+  esc.write(0);
 }
 
 void loop() {
