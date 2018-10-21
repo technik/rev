@@ -100,7 +100,8 @@ namespace rev {
 			auto cameraNode = mGameScene.root()->createChild("Camera");
 			cameraNode->addComponent<FlyBy>(10.f, 1.f);
 			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, 4.f, 19.f };
-			cameraNode->addComponent<game::Camera>(&mGraphicsScene);
+			auto camComponent = cameraNode->addComponent<game::Camera>();
+			mCamera = &*camComponent->cam();
 			//cameraNode->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, Constants<float>::halfPi));
 		}
 	}
@@ -116,7 +117,7 @@ namespace rev {
 		mGameScene.root()->update(dt);
 
 		//mRenderer.showDebugInfo(mGameEditor.mShowRenderOptions);
-		mRenderer.render(mGraphicsScene, *mGraphicsScene.cameras()[0].lock());
+		mRenderer.render(mGraphicsScene, *mCamera);
 
 		//gui::finishFrame(dt);
 		m_gfx.renderQueue().present();
