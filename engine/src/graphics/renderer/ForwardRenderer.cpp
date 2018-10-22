@@ -51,6 +51,7 @@ namespace rev::gfx {
 		shadowDesc.pixelFormat.numChannels = 1;
 		shadowDesc.depth = true;
 		shadowDesc.sampler = shadowSampler;
+		shadowDesc.mipLevels = 1;
 		size_t shadowSize = 4*1024;
 		shadowDesc.size = {shadowSize, shadowSize};
 		m_shadowsTexture = device.createTexture2d(shadowDesc);

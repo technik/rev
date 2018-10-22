@@ -54,6 +54,7 @@ namespace rev :: gfx
 			|| (!descriptor.srcImages && !descriptor.providedImages));
 		assert(descriptor.providedImages <= descriptor.mipLevels
 			|| descriptor.mipLevels == 0);
+		assert(descriptor.mipLevels > 0 || descriptor.providedImages > 0);
 		Texture2d texture;
 		// Validate input data
 		// Generate opengl object
@@ -210,7 +211,7 @@ namespace rev :: gfx
 		if(desc.stage == Pipeline::ShaderModule::Descriptor::Vertex)
 			code.push_back("#define VTX_SHADER\n");
 		else
-			code.push_back("#define PXL_SHADERn");
+			code.push_back("#define PXL_SHADER\n");
 		for(auto& c : desc.code)
 		{
 			code.push_back(c.c_str());
