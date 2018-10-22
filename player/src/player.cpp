@@ -110,18 +110,12 @@ namespace rev {
 	bool Player::update()
 	{
 		core::Time::get()->update();
-		//gui::startFrame(->frameBuffer()->size());
-
 		auto dt = core::Time::get()->frameTime();
 
 		mGameScene.root()->update(dt);
 
-		//mRenderer.showDebugInfo(mGameEditor.mShowRenderOptions);
 		mRenderer.render(mGraphicsScene, *mCamera);
-
-		//gui::finishFrame(dt);
 		m_gfx.renderQueue().present();
-		//mGfxDriver->swapBuffers();
 
 		return true;
 	}
