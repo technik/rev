@@ -39,6 +39,15 @@ namespace rev :: gfx
 				glUniformMatrix4fv(entry.first, 1, !math::Mat44f::is_col_major, entry.second.data());
 			for(auto& entry : bucket.mat4vs)
 				glUniformMatrix4fv(entry.first, entry.second.size(), !math::Mat44f::is_col_major, entry.second[0].data());
+			
+			int texStage = 0;
+			for(auto& tex : bucket.textures)
+			{
+				glActiveTexture(GL_TEXTURE0 + texStage);
+				glBindTexture(GL_TEXTURE_2D, tex.second.id);
+				glUniform1i(tex.first, texStage);
+				++texStage;
+			}
 		}
 	}
 

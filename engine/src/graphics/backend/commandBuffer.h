@@ -43,6 +43,7 @@ namespace rev :: gfx
 				vec4s.clear();
 				mat4s.clear();
 				mat4vs.clear();
+				textures.clear();
 			}
 
 			template<class T> using ParamList = std::vector<std::pair<int,T>>;

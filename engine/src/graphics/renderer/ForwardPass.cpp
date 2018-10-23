@@ -53,8 +53,6 @@ namespace rev::gfx {
 		: m_gfxDevice(device)
 	{
 		loadCommonShaderCode();
-		mErrorMaterial = std::make_unique<Material>(make_shared<Effect>("plainColor.fx"));
-		//mErrorMaterial->addTexture(string("albedo"), std::make_shared<Texture>(Image::proceduralXOR(256, 4), false));
 
 		mEV = 1.0f;
 
@@ -174,40 +172,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	/*void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture)
-	{
-		if(!mBackgroundShader)
-		{
-			// Try to load shader
-			core::File code("sky.fx");
-			mBackgroundShader = Shader::createShader( code.bufferAsText() );
-			core::FileSystem::get()->onFileChanged("sky.fx") += [this](const char*) {
-				mBackgroundShader = nullptr;
-			};
-		}
-		if(mBackgroundShader)
-		{
-			auto& cmd = mBackEnd.beginCommand();
-			glDisable(GL_CULL_FACE);
-			mBackgroundShader->bind();
-			
-			// View projection matrix
-			mBackEnd.addParam(0, viewProj);
-			// Lighting
-			mBackEnd.addParam(3, exposure);
-			mBackEnd.addParam(7, bgTexture);
-			cmd.cullMode = GL_BACK;
-			cmd.shader = mBackgroundShader.get();
-			cmd.vao = mSkyPlane->getVao();
-			cmd.nIndices = mSkyPlane->indices().count;
-			cmd.indexType= mSkyPlane->indices().componentType;
-
-			mBackEnd.endCommand();
-		}
-	}*/
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const Camera& eye, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
+	void ForwardPass::render(const Camera& eye, const EnvironmentProbe* env, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -218,9 +183,6 @@ namespace rev::gfx {
 			loadCommonShaderCode();
 		}
 #endif
-		
-		// Prepare skybox environment probe
-		//auto& environmentPtr = _scene.environment();
 
 		// Compute global variables
 		// Render
@@ -235,9 +197,15 @@ namespace rev::gfx {
 
 		for(auto& renderable : renderables)
 		{
-			uniforms.clear();
 			// Matrices
 			Mat44f world = renderable.world.matrix();
+			bool mirroredGeometry = affineTransformDeterminant(world) < 0.f;
+			bool useShadows = false;
+			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), env, useShadows, mirroredGeometry);
+			if(!pipeline.isValid())
+				continue;
+
+			uniforms.clear();
 			wvp = viewProj * world;
 			uniforms.addParam(0, wvp);
 			uniforms.addParam(1, world);
@@ -247,16 +215,16 @@ namespace rev::gfx {
 			renderable.material.bindParams(uniforms);
 			// Lighting
 			uniforms.addParam(3, mEV); // Exposure value
-			uniforms.addParam(4, eye.world().matrix());
+			uniforms.addParam(4, eye.world().position());
 			//Mat44f shadowProj = shadows->shadowProj() * _worldMatrix;
 			//uniforms.addParam(2, shadowProj);
-			uniforms.addParam(9, _shadows);
+			//uniforms.addParam(9, _shadows);
+			if(env)
+			{
+				uniforms.addParam(7, env->texture());
+				uniforms.addParam(18, (float)env->numLevels());
+			}
 
-			bool mirroredGeometry = affineTransformDeterminant(renderable.world.matrix()) < 0.f;
-			bool useShadows = false;
-			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), nullptr, useShadows, mirroredGeometry);
-			if(!pipeline.isValid())
-				continue;
 			m_drawCommands.setPipeline(pipeline);
 			m_drawCommands.setUniformData(uniforms);
 			m_drawCommands.setVertexData(renderable.geom.getVao());

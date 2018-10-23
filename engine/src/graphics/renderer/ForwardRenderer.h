@@ -43,6 +43,7 @@ namespace rev::gfx {
 
 	private:
 		void collapseSceneRenderables(const RenderScene&);
+		void initBackgroundPass(gfx::Device& device, const math::Vec2u& targetSize);
 
 		using RenderItem = gfx::RenderItem;
 
@@ -50,11 +51,17 @@ namespace rev::gfx {
 		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
 
 	private:
-		gfx::Texture2d	 m_shadowsTexture;
-		std::unique_ptr<ForwardPass>		mForwardPass;
+		gfx::Texture2d						m_shadowsTexture;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
+		std::unique_ptr<ForwardPass>		mForwardPass;
 		gfx::FrameBuffer					m_targetBuffer;
 
+		// Background rendering
+		gfx::RenderPass*					mBgPass;
+		gfx::CommandBuffer					mBgCommands;
+		gfx::Pipeline						nBgPipeline;
+
+		// Renderable queues
 		std::vector<RenderItem> m_renderQueue;
 		std::vector<RenderItem> m_visible;
 		std::vector<RenderItem> m_sdwCasters;
