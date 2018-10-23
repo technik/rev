@@ -203,6 +203,53 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	auto splitLines(const std::string& openglErrorString)
+	{
+		std::vector<std::string_view>  errorMessages;
+		size_t searchPos = 0;
+
+		auto lineEnd = openglErrorString.find("\n");
+		while(lineEnd != std::string::npos)
+		{
+			errorMessages.emplace_back(&openglErrorString[searchPos], lineEnd-searchPos);
+			searchPos = lineEnd+1;
+			lineEnd = openglErrorString.find("\n", searchPos);
+		}
+
+		if(searchPos < openglErrorString.size()-1)
+		{
+			errorMessages.emplace_back(&openglErrorString[searchPos]);
+		}
+
+		return errorMessages;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void printShaderError(const std::string& openglErrorString, const std::string& code)
+	{
+		// Split error code into separate errors.
+		std::vector<std::string_view>  errorMessages = splitLines(openglErrorString);
+
+		std::vector<string_view> splitCode = splitLines(code);
+
+		for(auto& line : errorMessages)
+		{
+			// Extract file and line info
+			auto openParenPos = line.find('(');
+			auto errorLineNumber = std::atoi(line.substr(openParenPos+1).data());
+			
+			std::cout << ">> " << line << "\n\n";
+			int minLine = std::max(0, errorLineNumber-3);
+			int maxLine = std::min<int>(code.size(), errorLineNumber+3);
+			for(int i = minLine; i < maxLine; ++i)
+			{
+				std::cout << "(" << i << "): " << splitCode[i] << "\n";
+			}
+			std::cout << "\n";
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
 	Pipeline::ShaderModule DeviceOpenGL::createShaderModule(const Pipeline::ShaderModule::Descriptor& desc)
 	{
 		Pipeline::ShaderModule shader;
@@ -225,21 +272,17 @@ namespace rev :: gfx
 		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &InfoLogLength);
 		if ( GL_FALSE == result ){
+			// Get error message
 			std::vector<char> ShaderErrorMessage(InfoLogLength+1);
 			glGetShaderInfoLog(shaderId, InfoLogLength, NULL, &ShaderErrorMessage[0]);
-			cout << "//----------------------------------------------------------------------------------------------\n";
-			cout << "DeviceOpenGL::createShaderModule Error\n";
-			cout << "//----------------------------------------------------------------------------------------------\n";
 			std::string textMessage = (char*)ShaderErrorMessage.data();
-			cout << textMessage << "\n";
-			cout << "//----------------------------------------------------------------------------------------------\n";
-			cout << "Program code" << "\n";
-			cout << "//----------------------------------------------------------------------------------------------\n";
+
+			// Get source code
 			glGetShaderiv(shaderId, GL_SHADER_SOURCE_LENGTH, &InfoLogLength);
 			ShaderErrorMessage.resize(InfoLogLength+1);
 			glGetShaderSource(shaderId, InfoLogLength, NULL, &ShaderErrorMessage[0]);
 			std::string completeSource = (char*)ShaderErrorMessage.data();
-			cout << completeSource << "\n";
+			printShaderError(textMessage, completeSource);
 		}
 		else
 			shader.id = shaderId;

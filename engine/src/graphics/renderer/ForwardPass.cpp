@@ -156,11 +156,18 @@ namespace rev::gfx {
 			m_commonPipelineDesc.vtxShader = m_gfxDevice.createShaderModule(stageDesc);
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 			m_commonPipelineDesc.pxlShader = m_gfxDevice.createShaderModule(stageDesc);
-			m_commonPipelineDesc.frontFace = mirror ? Pipeline::Descriptor::Winding::CW : Pipeline::Descriptor::Winding::CCW;
+			// Check against invalid pipeline code
+			Pipeline pipeline;
+			if(m_commonPipelineDesc.vtxShader.valid()
+			&& m_commonPipelineDesc.pxlShader.valid())
+			{
+				m_commonPipelineDesc.frontFace = mirror ? Pipeline::Descriptor::Winding::CW : Pipeline::Descriptor::Winding::CCW;
+				pipeline = m_gfxDevice.createPipeline(m_commonPipelineDesc);
+			}
 
 			iter = pipelineSet.emplace(
 				descriptor,
-				m_gfxDevice.createPipeline(m_commonPipelineDesc)
+				pipeline
 			).first;
 		}
 		return iter->second;
@@ -248,6 +255,8 @@ namespace rev::gfx {
 			bool mirroredGeometry = affineTransformDeterminant(renderable.world.matrix()) < 0.f;
 			bool useShadows = false;
 			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), nullptr, useShadows, mirroredGeometry);
+			if(!pipeline.isValid())
+				continue;
 			m_drawCommands.setPipeline(pipeline);
 			m_drawCommands.setUniformData(uniforms);
 			m_drawCommands.setVertexData(renderable.geom.getVao());

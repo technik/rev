@@ -41,6 +41,8 @@ namespace rev :: gfx
 				std::vector<std::string> code;
 			};
 			Id id = InvalidId;
+
+			bool valid() const { return id != InvalidId; }
 		};
 
 		// Vertex data / instance data
