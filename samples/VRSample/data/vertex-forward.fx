@@ -51,7 +51,7 @@ layout(location = 1) uniform mat4 uWorld;
 #ifdef sampler2D_uShadowMap
 layout(location = 2) uniform mat4 uMs2Shadow;
 #endif
-layout(location = 4) uniform vec3 uWsViewPos; // Direction toward viewpoint
+layout(location = 4) uniform vec3 uWsViewPos;
 
 #ifdef VTX_TANGENT_SPACE
 out vec4 vtxTangent;

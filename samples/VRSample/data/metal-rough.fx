@@ -51,6 +51,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+#ifdef sampler2D_uEnvironment
 //---------------------------------------------------------------------------------------
 vec3 specularIBL(
   vec3 irradiance,
@@ -114,19 +115,8 @@ vec3 ibl(
 
 	// Composition
 	return Fssfss * radiance + (Fms * fms + kD*albedo) * irradiance;
-
-
-	// Multiple scattering
-	//vec3 envBRDF;
-	//envBRDF.xy = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
-	//envBRDF.z = fms; // Energy of multiple scattering
-//
-//	//vec3 indirectSpecular = specularIBL(irradiance, kS, normal, eye, roughness, occlusion, Fms, envBRDF, ndv);
-//
-//	//vec3 indirectDiffuse = diffuseIBL(kD, irradiance, albedo, occlusion);
-//
-	//return indirectDiffuse + indirectSpecular;
 }
+#endif // sampler2D_uEnvironment
 
 //---------------------------------------------------------------------------------------
 vec4 shadeSurface(ShadeInput inputs)
@@ -220,7 +210,12 @@ vec4 shadeSurface(ShadeInput inputs)
 	vec3 directDiffuse = uLightColor * albedo * ff;
 #endif
 
+#ifdef sampler2D_uEnvironment
 	vec3 color = ibl(F0, inputs.normal, inputs.eye, albedo, roughness, occlusion*shadowMask, inputs.ndv);
+#else
+	vec3 color = albedo;
+#endif
+	color = color;
 	return vec4(color, baseColor.a);
 }
 
