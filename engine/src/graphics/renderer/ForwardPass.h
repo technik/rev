@@ -47,8 +47,9 @@ namespace rev::gfx {
 
 		void render(const Camera&, const EnvironmentProbe* env, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
-		void onResizeTarget(const math::Vec2u&) {
-			// TODO
+		void onResizeTarget(const math::Vec2u& newSize) {
+			m_viewportSize = newSize;
+			m_pass->setViewport({0,0}, newSize);
 		}
 
 	private:
