@@ -32,10 +32,12 @@ namespace rev {
 
 		// Common components
 		bool update();
+		void updateUI(float dt);
 
 	private:
 		void createCamera();
 
+		math::Vec2u m_windowSize;
 		game::ComponentLoader				mComponentFactory;
 		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
@@ -43,6 +45,34 @@ namespace rev {
 		gfx::ForwardRenderer				mRenderer;
 		gfx::DeviceOpenGL&					m_gfx;
 		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
+
+	private:
+
+		struct ViewerState
+		{
+			bool floor = false;
+		};
+
+		struct BgOptions
+		{
+			bool shadows = false;
+			float shadowIntensity = 0.5f;
+			float elevation = 1.f;
+			float rotation = 0.f;
+			math::Vec3f shadowDir;
+		} m_bgOptions;
+
+		struct PostFX
+		{
+			bool bloom = false;
+			float bloomThreshold = 1.f;
+		};
+
+		struct RenderOptions
+		{
+			float EV = 0.f;
+			PostFX postOptions;
+		};
 	};
 
 }	// namespace rev

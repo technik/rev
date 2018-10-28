@@ -81,7 +81,7 @@ namespace rev {
 			animator->playAnimation(animations[0], true);
 
 		mRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
-		mRenderer.onResizeTarget(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
+		onWindowResize(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
 		gui::init(windowSize);
 
 		return true;
@@ -91,6 +91,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onWindowResize(const math::Vec2u& _newSize)
 	{
+		m_windowSize = _newSize;
 		mRenderer.onResizeTarget(_newSize);
 	}
 #endif // _WIN32
@@ -102,10 +103,10 @@ namespace rev {
 			// Create default camera
 			auto cameraNode = mGameScene.root()->createChild("Camera");
 			cameraNode->addComponent<FlyBy>(2.f, 1.f);
-			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, 4.f, 19.f };
+			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
+			cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
 			auto camComponent = cameraNode->addComponent<game::Camera>();
 			mCamera = &*camComponent->cam();
-			//cameraNode->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, Constants<float>::halfPi));
 		}
 		else
 		{
@@ -119,12 +120,36 @@ namespace rev {
 		core::Time::get()->update();
 		auto dt = core::Time::get()->frameTime();
 
+		updateUI(dt);
+
 		mGameScene.root()->update(dt);
 
+		// Render
 		mRenderer.render(mGraphicsScene, *mCamera);
+		ImGui::Render();
 		m_gfx.renderQueue().present();
 
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::updateUI(float dt)
+	{
+		gui::startFrame(m_windowSize);
+
+		if(ImGui::Begin("Environment"))
+		{
+			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
+			if(m_bgOptions.shadows)
+			{
+				gui::slider("Shadow intensity", m_bgOptions.shadowIntensity, 0.f, 1.f);
+				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
+				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
+			}
+			ImGui::End();
+		}
+
+		gui::finishFrame(dt);
 	}
 
 }	// namespace rev
