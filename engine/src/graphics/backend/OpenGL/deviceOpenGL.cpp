@@ -242,7 +242,7 @@ namespace rev :: gfx
 			int maxLine = std::min<int>(code.size(), errorLineNumber+3);
 			for(int i = minLine; i < maxLine; ++i)
 			{
-				std::cout << "(" << i << "): " << splitCode[i] << "\n";
+				std::cout << "(" << i+1 << "): " << splitCode[i] << "\n";
 			}
 			std::cout << "\n";
 		}
