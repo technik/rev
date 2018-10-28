@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ForwardRenderer.h"
 #include "ForwardPass.h"
+#include <core/platform/fileSystem/file.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include "graphics/driver/renderTarget.h"
 #include "graphics/scene/renderScene.h"
 #include <graphics/scene/renderObj.h>
@@ -32,39 +34,6 @@
 using namespace rev::gfx;
 
 namespace rev::gfx {
-
-	//----------------------------------------------------------------------------------------------
-	/*void ForwardPass::renderBackground(const math::Mat44f& viewProj, float exposure, const Texture* bgTexture)
-	{
-	if(!mBackgroundShader)
-	{
-	// Try to load shader
-	core::File code("sky.fx");
-	mBackgroundShader = Shader::createShader( code.bufferAsText() );
-	core::FileSystem::get()->onFileChanged("sky.fx") += [this](const char*) {
-	mBackgroundShader = nullptr;
-	};
-	}
-	if(mBackgroundShader)
-	{
-	auto& cmd = mBackEnd.beginCommand();
-	glDisable(GL_CULL_FACE);
-	mBackgroundShader->bind();
-
-	// View projection matrix
-	mBackEnd.addParam(0, viewProj);
-	// Lighting
-	mBackEnd.addParam(3, exposure);
-	mBackEnd.addParam(7, bgTexture);
-	cmd.cullMode = GL_BACK;
-	cmd.shader = mBackgroundShader.get();
-	cmd.vao = mSkyPlane->getVao();
-	cmd.nIndices = mSkyPlane->indices().count;
-	cmd.indexType= mSkyPlane->indices().componentType;
-
-	mBackEnd.endCommand();
-	}
-	}*/
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
@@ -102,7 +71,6 @@ namespace rev::gfx {
 
 		// Background pass
 		initBackgroundPass(device, targetSize);
-		//mSkyPlane = std::make_unique<RenderGeom>(RenderGeom::quad(2.f*Vec2f::ones()));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -127,15 +95,30 @@ namespace rev::gfx {
 		}
 
 		// TODO: Sort visible objects
-		mForwardPass->render(eye, &*scene.environment(), m_visible, m_shadowsTexture); // Render visible objects
-		// TODO: Render background
+		auto env = &*scene.environment();
+		mForwardPass->render(eye, env, m_visible, m_shadowsTexture); // Render visible objects
+		if(env && m_bgPass->isOk())
+		{
+			// Uniforms
+			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
+			CommandBuffer::UniformBucket bgUniforms;
+			bgUniforms.mat4s.push_back({0, eye.viewProj(aspectRatio) });
+			bgUniforms.vec4s.push_back({1, math::Vec4f(float(m_targetSize.x()), float(m_targetSize.y()), 0.f, 0.f) });
+			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
+			bgUniforms.textures.push_back({7, env->texture()} );
+			// Render
+			m_bgPass->render(bgUniforms);
+			m_bgPass->submit();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::onResizeTarget(const math::Vec2u& _newSize)
 	{
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
+		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
+		m_bgPass->onResizeTarget(_newSize);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -161,22 +144,24 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
-		mBgPass = device.createRenderPass(passDesc);
+		m_bgPass = new FullScreenPass(device, passDesc);
 
 		// Shader stages
 		std::string skyShaderCode;
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("shadowMap.fx", skyShaderCode, metadata);
+		ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
+		m_bgPass->setPassCode(skyShaderCode.c_str());
 
-		Pipeline::ShaderModule::Descriptor stageDesc;
-		stageDesc.code = { skyShaderCode };
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-		gfx::Pipeline::Descriptor skyPipelineDesc;
-		skyPipelineDesc.vtxShader = device.createShaderModule(stageDesc);
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-		skyPipelineDesc.pxlShader = device.createShaderModule(stageDesc);
-		// Pipeline config
-		skyPipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
+		// Shader reload
+		for(auto& file : metadata.dependencies)
+		{
+			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
+				std::string skyShaderCode;
+				ShaderProcessor::MetaData metadata;
+				ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
+				m_bgPass->setPassCode(skyShaderCode.c_str());
+			};
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

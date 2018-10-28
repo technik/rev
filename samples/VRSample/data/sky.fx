@@ -1,29 +1,11 @@
-#ifdef VTX_SHADER
-layout(location = 0) in vec3 vertex;
-
-layout(location = 0) uniform mat4 viewProj;
-
-out vec3 vtxViewDir;
-
-//------------------------------------------------------------------------------
-void main ( void )
-{
-	// TODO: Move the inverse to CPU ? 
-	mat4 invViewProj = inverse(viewProj);
-	// Direction from the view point to the pixel, in world space
-	vtxViewDir = (invViewProj * vec4(vertex.xy, 1.0, 1.0)).xyz; 
-	gl_Position = vec4(vertex.xy, 1.0, 1.0);
-}
-#endif
 
 #ifdef PXL_SHADER
-out lowp vec3 outColor;
-in vec3 vtxViewDir;
 
 // Global state
+layout(location = 0) uniform mat4 viewProj;
+layout(location = 1) uniform vec4 Window;
 layout(location = 3) uniform float uEV;
 layout(location = 7) uniform sampler2D hdrSkyTexture;
-
 
 //---------------------------------------------------------------------------------------
 const vec2 invAtan = vec2(0.1591, 0.3183);
@@ -36,11 +18,14 @@ vec2 sampleSpherical(vec3 v)
 }
 
 //------------------------------------------------------------------------------	
-void main (void) {
+vec3 shade () {
+	mat4 invViewProj = inverse(viewProj);
+	vec2 uv = 2*gl_FragCoord.xy / Window.xy - 1;
+	// Direction from the view point to the pixel, in world space
+	vec3 vtxViewDir = (invViewProj * vec4(uv, 1.0, 1.0)).xyz;
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
-	//vec3 color = normalize(vtxViewDir).xyz;
 	
-	outColor = uEV*color;
+	return pow(2, uEV) * color;
 }
 
 #endif

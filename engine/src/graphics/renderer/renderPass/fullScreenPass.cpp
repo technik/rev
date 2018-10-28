@@ -39,7 +39,7 @@ namespace rev::gfx {
 
 	void main ( void )
 	{
-		gl_Position = vec4(vertex.xy, 0.0, 1.0);
+		gl_Position = vec4(vertex.xy, 1.0, 1.0);
 	}
 #endif
 
@@ -77,13 +77,14 @@ void main (void) {
 		// Pixel shader
 		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 		auto pxlShader = m_device.createShaderModule(stageDesc);
-		if(vtxShader.id == Pipeline::InvalidId)
+		if(pxlShader.id == Pipeline::InvalidId)
 			return;
 
 		// Link pipeline
 		Pipeline::Descriptor pipelineDesc;
 		pipelineDesc.vtxShader = vtxShader;
 		pipelineDesc.pxlShader = pxlShader;
+		pipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
 		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 

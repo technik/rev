@@ -25,6 +25,7 @@
 #include <graphics/backend/texture2d.h>
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/renderer/RenderItem.h>
+#include <graphics/renderer/renderPass/fullScreenPass.h>
 
 namespace rev::gfx {
 
@@ -38,7 +39,6 @@ namespace rev::gfx {
 	public:
 		void init	(gfx::Device& driver, const math::Vec2u& targetSize, gfx::FrameBuffer& target);
 		void render	(const RenderScene&, const Camera& pov);
-		void submit ();
 		void onResizeTarget(const math::Vec2u& _newSize);
 
 	private:
@@ -51,15 +51,13 @@ namespace rev::gfx {
 		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
 
 	private:
+		math::Vec2u m_targetSize;
+
 		gfx::Texture2d						m_shadowsTexture;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		std::unique_ptr<ForwardPass>		mForwardPass;
+		FullScreenPass*						m_bgPass;
 		gfx::FrameBuffer					m_targetBuffer;
-
-		// Background rendering
-		gfx::RenderPass*					mBgPass;
-		gfx::CommandBuffer					mBgCommands;
-		gfx::Pipeline						nBgPipeline;
 
 		// Renderable queues
 		std::vector<RenderItem> m_renderQueue;
