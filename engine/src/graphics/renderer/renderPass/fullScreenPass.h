@@ -31,6 +31,8 @@ namespace rev::gfx {
 	public:
 		FullScreenPass(gfx::Device&, const RenderPass::Descriptor& desc, const char* code = nullptr);
 
+		void setPassCode(const char* code);
+
 		void render(const CommandBuffer::UniformBucket& passUniforms);
 		void submit() const;
 

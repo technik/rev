@@ -56,8 +56,35 @@ void main (void) {
 		if(code)
 		{
 			// Initialize pipeline on start
-			//setPassCode(code);
+			setPassCode(code);
 		}
+	}
+
+	void FullScreenPass::setPassCode(const char* code)
+	{
+		m_pipeline = Pipeline(); // Invalidate pipeline
+
+		// Prepare code
+		Pipeline::ShaderModule::Descriptor stageDesc;
+		stageDesc.code = { m_commonCode, std::string(code) };
+
+		// Vertex shader
+		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
+		auto vtxShader = m_device.createShaderModule(stageDesc);
+		if(vtxShader.id == Pipeline::InvalidId)
+			return;
+
+		// Pixel shader
+		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
+		auto pxlShader = m_device.createShaderModule(stageDesc);
+		if(vtxShader.id == Pipeline::InvalidId)
+			return;
+
+		// Link pipeline
+		Pipeline::Descriptor pipelineDesc;
+		pipelineDesc.vtxShader = vtxShader;
+		pipelineDesc.pxlShader = pxlShader;
+		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 
 	void FullScreenPass::render(const CommandBuffer::UniformBucket& passUniforms)
