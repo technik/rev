@@ -1,0 +1,37 @@
+[
+    {
+        "name": "C:\\repos\\rev\\samples\\gltfViewer\\data\\probes\\lake0.hdr",
+        "size": [
+            1024,
+            512
+        ]
+    },
+    {
+        "name": "C:\\repos\\rev\\samples\\gltfViewer\\data\\probes\\lake1.hdr",
+        "size": [
+            512,
+            256
+        ]
+    },
+    {
+        "name": "C:\\repos\\rev\\samples\\gltfViewer\\data\\probes\\lake2.hdr",
+        "size": [
+            256,
+            128
+        ]
+    },
+    {
+        "name": "C:\\repos\\rev\\samples\\gltfViewer\\data\\probes\\lake3.hdr",
+        "size": [
+            128,
+            64
+        ]
+    },
+    {
+        "name": "C:\\repos\\rev\\samples\\gltfViewer\\data\\probes\\lake4.hdr",
+        "size": [
+            64,
+            32
+        ]
+    }
+]
