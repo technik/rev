@@ -296,10 +296,6 @@
 			}
 		}
 	],
-	"textures": [
-	],
-	"images": [
-	],
 	"bufferViews": [
 			{
 				"buffer": 0,

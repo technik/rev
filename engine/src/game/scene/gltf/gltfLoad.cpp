@@ -22,7 +22,7 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/tools/log.h>
 #include <core/string_util.h>
-#include <core/types/json.h>
+#include <nlohmann/json.hpp>
 #include <game/animation/skeleton.h>
 #include <game/resources/load.h>
 #include <game/scene/transform/transform.h>
@@ -40,7 +40,7 @@
 #include <graphics/renderer/material/material.h>
 #include <vector>
 
-using Json = rev::core::Json;
+using Json = nlohmann::json;
 
 using namespace fx;
 using namespace rev::gfx;
@@ -557,8 +557,9 @@ namespace rev { namespace game {
 			return false;
 		}
 		// Load gltf document
+		auto jsonText = sceneFile.bufferAsText();
 		document = gltf::detail::Create(
-			Json::parse(sceneFile.bufferAsText()),
+			Json::parse(jsonText, nullptr, false),
 			{ folder, {}});
 
 		// Verify document is supported

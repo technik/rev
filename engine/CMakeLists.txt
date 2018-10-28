@@ -50,6 +50,7 @@ GroupSources(src/game src)
 add_library(revGame STATIC ${GAME_SOURCE_FILES})
 target_include_directories(revGame PRIVATE "../include" ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_include_directories (revGame PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
+target_include_directories (revGame PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include )
 target_link_libraries(revGame LINK_PUBLIC revCore revMath revInput revGfx)
 set_target_properties(revGame PROPERTIES FOLDER rev)
 
