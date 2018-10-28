@@ -19,10 +19,6 @@
 #include <graphics/scene/renderGeom.h>
 #include <graphics/Image.h>
 
-#define STBI_MSC_SECURE_CRT
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
@@ -394,25 +390,6 @@ struct Image
 	std::vector<Vec2f> randomSamples;
 	std::vector<Vec3f> randomVectors;
 };
-
-//----------------------------------------------------------------------------------------------------------------------
-::Image* loadImage(string& fileName)
-{
-	// Load source data
-	int nx, ny, nc;
-
-	auto rawData = stbi_loadf(fileName.c_str(), &nx, &ny, &nc, 3);
-	if(!rawData)
-		return nullptr;
-	
-	auto img = new ::Image(nx, ny);
-	for(int i = 0; i < img->nPixels(); ++i)
-		img->at(i) = reinterpret_cast<Vec3f&>(rawData[3*i]);
-
-	stbi_image_free(rawData);
-
-	return img;
-}
 
 string commonPBRCode = R"(
 const float PI = 3.1415927410125732421875;
@@ -842,6 +819,7 @@ void generateIblLut(const Params& params, Device& device)
 	textureDesc.sampler = device.createTextureSampler(TextureSampler::Descriptor());
 	textureDesc.pixelFormat.channel = rev::gfx::Image::ChannelFormat::Float32;
 	textureDesc.pixelFormat.numChannels = 4;
+	textureDesc.mipLevels = 1;
 	textureDesc.sRGB = false;
 	auto texture = device.createTexture2d(textureDesc);
 
@@ -927,8 +905,10 @@ void main (void) {
 
 	::Image* lut = new ::Image(512,512);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, lut->m);
-	//lut->save2sRGB(params.out);
-	lut->saveHDR(params.out);
+	if(params.out.find(".png"))
+		lut->saveLinear(params.out);
+	else
+		lut->saveHDR(params.out);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -958,16 +938,16 @@ int main(int _argc, const char** _argv) {
 	}
 
 	// Load source data
-	auto srcImg = ::Image::load(params.in, 3);
+	auto srcImg = rev::gfx::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
-	if(!srcImg)
+	if(!srcImg.data<void*>())
 	{
 		cout << "Error: Unable to load input image\n";
 		return -1;
 	}
 
-	generateProbeFromImage(params, device, &*srcImg);
+	generateProbeFromImage(params, device, &srcImg);
 
 	return 0;
 }
