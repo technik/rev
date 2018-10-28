@@ -679,6 +679,7 @@ void main (void) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
 	glUniform1i(0, 0);
 	latLongDesc.srcImages = nullptr;
+	latLongDesc.providedImages = 0;
 
 	size_t nRadianceMips = 4;
 	size_t radianceSize = 16;
