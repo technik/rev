@@ -131,11 +131,10 @@ namespace rev :: gfx
 				nullptr);
 		}
 		// Set mip level bounds
-		//if(descriptor.mipLevels > 0)
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
+		if(descriptor.mipLevels != 0)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
 		// Generate mipmaps when needed
 		if(descriptor.providedImages < descriptor.mipLevels || descriptor.mipLevels == 0)
-			//glGenerateTextureMipmap(textureName);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		texture.id = textureName;
 		return texture;
