@@ -61,7 +61,7 @@ namespace rev {
 		// Load sky
 		if(!bg.empty())
 		{
-			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg+".json");
+			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg);
 			mGraphicsScene.setEnvironment(probe);
 		}
 

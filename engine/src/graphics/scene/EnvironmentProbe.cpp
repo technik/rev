@@ -46,6 +46,8 @@ namespace rev::gfx
 		{
 			auto& desc = probeDesc[i];
 			auto image = Image::load(folder + std::string(desc["name"]), 4);
+			if(!image.data<void*>())
+				return;
 			mipImages.push_back(image);
 		}
 
