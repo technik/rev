@@ -79,6 +79,7 @@ namespace rev {
 			animator->playAnimation(animations[0], true);
 
 		mRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
+		mRenderer.onResizeTarget(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
 		gui::init(windowSize);
 
 		return true;
