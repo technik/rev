@@ -9,7 +9,7 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
-#include <graphics/scene/renderGeom.h>
+#include <graphics/renderer/renderPass/fullScreenPass.h>
 
 #include <string>
 #include <vector>
@@ -35,13 +35,14 @@ int main(int _argc, const char** _argv) {
 	auto& renderQueue = gfxDevice.renderQueue();
 
 	// Renderpass
-	RenderPass::Descriptor fwdDesc;
+	RenderPass::Descriptor fullScreenDesc;
 	float grey = 0.5f;
-	fwdDesc.clearColor = { grey,grey,grey, 1.f };
-	fwdDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
-	fwdDesc.target = gfxDevice.defaultFrameBuffer();
-	auto& fwdPass = *gfxDevice.createRenderPass(fwdDesc);
-	fwdPass.setViewport(Vec2u::zero(), windowSize);
+	fullScreenDesc.clearColor = { grey,grey,grey, 1.f };
+	fullScreenDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
+	fullScreenDesc.target = gfxDevice.defaultFrameBuffer();
+	fullScreenDesc.viewportSize = windowSize;
+
+	FullScreenPass renderPass(gfxDevice, fullScreenDesc);
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
@@ -50,7 +51,7 @@ int main(int _argc, const char** _argv) {
 			RECT clientSurface;
 			GetClientRect(_msg.hwnd, &clientSurface);
 			windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
-			fwdPass.setViewport(Vec2u::zero(), windowSize);
+			renderPass.onResizeTarget(windowSize);
 			return true;
 		}
 
@@ -59,69 +60,24 @@ int main(int _argc, const char** _argv) {
 		return false;
 	};
 
-	// Create vertex shader
-	const string vtxShaderCode = R"(
-layout(location = 0) in vec3 vertex;
-
-void main ( void )
-{
-	gl_Position = vec4(vertex.xy, 0.0, 1.0);
-}
-)";
-	Pipeline::ShaderModule::Descriptor vtxDesc;
-	vtxDesc.code = { vtxShaderCode };
-	vtxDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-
-	auto vtxShader = gfxDevice.createShaderModule(vtxDesc);
-	if(vtxShader.id == Pipeline::InvalidId)
-		return -1;
-
-	// Create pixel shader
-	const string pxlShaderCode = R"(
-out lowp vec3 outColor;
+	// Actual shader code
+	const string fullScreenCode = R"(
+#ifdef PXL_SHADER
 
 layout(location = 0) uniform vec4 t;
 layout(location = 1) uniform vec4 Window;
 
-void main (void) {	
+vec3 shade () {	
 	vec2 uv = gl_FragCoord.xy / Window.xy;
-	outColor = vec3(uv.x,uv.y,sin(t.y));
+	return vec3(uv.x,uv.y,sin(t.y));
 }
+
+#endif
 )";
-	Pipeline::ShaderModule::Descriptor pxlDesc;
-	pxlDesc.code = { pxlShaderCode };
-	pxlDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-
-	auto pxlShader = gfxDevice.createShaderModule(pxlDesc);
-	if(pxlShader.id == Pipeline::InvalidId)
-		return -1;
-
-	// Create the pipeline
-	Pipeline::Descriptor pipelineDesc;
-	pipelineDesc.vtxShader = vtxShader;
-	pipelineDesc.pxlShader = pxlShader;
-	auto pipeline = gfxDevice.createPipeline(pipelineDesc);
-
-	// Create a quad
-	auto quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
-
-	// Command buffer to set pipeline and other common stuff
-	CommandBuffer setupCmd;
-	setupCmd.setPipeline(pipeline);
+	renderPass.setPassCode(fullScreenCode.c_str());
 
 	// Command buffer with chaning uniforms
-	CommandBuffer uniformCmd;
 	CommandBuffer::UniformBucket timeUniform;
-
-	// Command buffer to draw a simple quad
-	CommandBuffer quadCmd;
-	quadCmd.setVertexData(quad.getVao());// Bind vtx data
-	quadCmd.drawTriangles(quad.indices().count, CommandBuffer::IndexType::U16);// Draw triangles
-
-	// Record all command buffers into the pass
-	fwdPass.record(setupCmd);
-	fwdPass.record(uniformCmd);
-	fwdPass.record(quadCmd);
 	
 	// Main loop
 	float t = 0; // t modulo seconds
@@ -137,11 +93,9 @@ void main (void) {
 		timeUniform.clear();
 		timeUniform.vec4s.push_back({0, tVector});
 		timeUniform.vec4s.push_back({1, {float(windowSize.x()), float(windowSize.y()), 0.f, 0.f}});
-		uniformCmd.clear();
-		uniformCmd.setUniformData(timeUniform);
 
-		// Send pass to the GPU
-		renderQueue.submitPass(fwdPass);
+		renderPass.render(timeUniform);
+		renderPass.submit();
 
 		// Finish frame
 		renderQueue.present();
@@ -157,7 +111,6 @@ void main (void) {
 	}
 
 	// Clean up
-	gfxDevice.destroyRenderPass(fwdPass);
 	FileSystem::end();
 	return 0;
 }

@@ -36,6 +36,7 @@ namespace rev::gfx {
 		void render(const CommandBuffer::UniformBucket& passUniforms);
 		void submit() const;
 
+		bool isOk() const { return m_pipeline.isValid(); }
 		void onResizeTarget(const math::Vec2u& newSize)
 		{
 			m_pass->setViewport(math::Vec2u::zero(), newSize);
