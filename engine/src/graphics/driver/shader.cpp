@@ -101,9 +101,6 @@ namespace rev::gfx {
 		{
 			if(!c)
 			{
-				/*ImGui::Begin("Shader Error");
-				ImGui::Text("Error building shader: One of the code fragments is null");
-				ImGui::End();*/
 				return false;
 			}
 			code.push_back(c);
