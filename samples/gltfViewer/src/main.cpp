@@ -45,7 +45,7 @@ bool processWindowsMsg(MSG _msg) {
 struct CmdLineParams
 {
 	std::string scene;
-	std::string background;
+	std::string environment;
 	unsigned sx = 640;
 	unsigned sy = 480;
 	float fov = 45.f;
@@ -53,8 +53,8 @@ struct CmdLineParams
 	int process(const std::vector<std::string>& args, int i)
 	{
 		auto& arg = args[i];
-		if(arg == "-bg") {
-			background = args[i+1];
+		if(arg == "-env") {
+			environment = args[i+1];
 			return 2;
 		}
 		if(arg == "-scene")
@@ -123,7 +123,7 @@ int main(int _argc, const char** _argv) {
 
 	rev::Player player(gfxDevice);
 	g_player = &player;
-	if(!player.init(windowSize, params.scene, params.background)) {
+	if(!player.init(windowSize, params.scene, params.environment)) {
 		return -1;
 	}
 	for(;;) {

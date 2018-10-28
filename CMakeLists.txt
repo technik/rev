@@ -19,12 +19,9 @@ if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
 
-if(REV_BUILD_PLAYER)
-	add_subdirectory(player)
-endif()
-
 add_subdirectory(samples/Vulkraft)
 add_subdirectory(samples/ShaderToy)
+add_subdirectory(samples/GltfViewer)
 
 if(REV_BUILD_TEST)
 	enable_testing()
