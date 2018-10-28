@@ -234,9 +234,6 @@ namespace rev::gfx {
 
 		// Finish pass
 		m_gfxDevice.renderQueue().submitPass(*m_pass);
-
-		//if(m_showDbgInfo)
-		//	drawStats();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -244,36 +241,4 @@ namespace rev::gfx {
 		m_numMeshes = 0;
 		m_numRenderables = 0;
 	}
-	/*
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::drawStats(){
-		// Debug interface
-		if(ImGui::Begin("Forward pass"))
-		{
-			float exposure = std::log2(mEV);
-			ImGui::SliderFloat("EV", &exposure, -2.f, 3.f);
-			mEV = std::pow(2.f,exposure);
-			int maxDraws = m_drawLimit >= 0 ? m_drawLimit : mZSortedQueue.size();
-			ImGui::SliderInt("Max Draws", &maxDraws, 0, mZSortedQueue.size());
-			m_drawLimit = maxDraws < mZSortedQueue.size() ? maxDraws : -1;
-		}
-		ImGui::End();
-
-		const float DISTANCE = 10.f;
-		ImVec2 window_pos = ImVec2(ImGui::GetIO().DisplaySize.x - DISTANCE, ImGui::GetIO().DisplaySize.y - DISTANCE - 40);
-		ImVec2 window_pos_pivot = ImVec2(1.0f, 1.0f);
-		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Transparent background
-		bool isOpen = true;
-		if (ImGui::Begin("Render Counters", &isOpen, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
-		{
-			ImGui::Text("Renderables: %d", m_numRenderables);
-			ImGui::Text("Meshes: %d", m_numMeshes);
-			mBackEnd.drawStats();
-		}
-		ImGui::End();
-		ImGui::PopStyleColor();
-		resetStats();
-	}
-	*/
 }

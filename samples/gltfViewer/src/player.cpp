@@ -34,6 +34,7 @@ namespace rev {
 		mGeometryPool = std::make_unique<GeometryPool>();
 		// Load scene
 		auto gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		//gltfRoot->addComponent<Orbit>(Vec2f{0.1f, 0.1f});
 		mGameScene.root()->addChild(gltfRoot);
 		auto rotation = math::Mat33f({
 			-1.f, 0.f, 0.f,
@@ -100,11 +101,15 @@ namespace rev {
 		{
 			// Create default camera
 			auto cameraNode = mGameScene.root()->createChild("Camera");
-			cameraNode->addComponent<FlyBy>(10.f, 1.f);
+			cameraNode->addComponent<FlyBy>(2.f, 1.f);
 			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.f, 4.f, 19.f };
 			auto camComponent = cameraNode->addComponent<game::Camera>();
 			mCamera = &*camComponent->cam();
 			//cameraNode->component<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, Constants<float>::halfPi));
+		}
+		else
+		{
+			mCamera = &*mGraphicsScene.cameras()[0].lock();
 		}
 	}
 
