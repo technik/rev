@@ -62,7 +62,8 @@ namespace rev {
 		if(!bg.empty())
 		{
 			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg);
-			mGraphicsScene.setEnvironment(probe);
+			if(probe->numLevels())
+				mGraphicsScene.setEnvironment(probe);
 		}
 
 		// Create animation component

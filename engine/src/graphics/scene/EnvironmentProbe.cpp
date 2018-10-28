@@ -25,6 +25,7 @@
 #include <vector>
 #include <core/string_util.h>
 #include <graphics/backend/device.h>
+#include <iostream>
 
 using Json = nlohmann::json;
 
@@ -46,8 +47,12 @@ namespace rev::gfx
 		{
 			auto& desc = probeDesc[i];
 			auto image = Image::load(folder + std::string(desc["name"]), 4);
-			if(!image.data<void*>())
+			if(!image.data<>())
+			{
+				std::cout << "EnvironmentProbe error: unable to load image " << folder << std::string(desc["name"]);
+				m_numLevels = 0;
 				return;
+			}
 			mipImages.push_back(image);
 		}
 

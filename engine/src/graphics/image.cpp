@@ -32,7 +32,8 @@ namespace rev::gfx
 		, mFormat(pxlFormat)
 	{
 		mCapacity = area();
-		mData = allocatePixelData(pxlFormat, mCapacity);
+		if(mCapacity)
+			mData = allocatePixelData(pxlFormat, mCapacity);
 	}
 
 	//----------------------------------------------------------------------------------------------

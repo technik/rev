@@ -77,9 +77,9 @@ namespace rev::gfx {
 		PixelFormat format()	const	{ return mFormat; }
 		auto&		size()		const	{ return mSize; }
 		size_t		area()		const	{ return size().x() * size().y(); }
-		template<typename T>
+		template<typename T = void*>
 		auto		data()				{ return reinterpret_cast<T*>(mData); }
-		template<typename T>
+		template<typename T = const void*>
 		auto		data()		const	{ return reinterpret_cast<const T*>(mData); }
 		template<typename T>
 		auto&		pixel(const math::Vec2u& pos)				{ return data<T>()[indexFromPos(pos)]; }
