@@ -10,13 +10,16 @@
 #include <core/tools/log.h>
 #include <game/scene/camera.h>
 #include <game/animation/animator.h>
+#include <game/resources/load.h>
 #include <game/scene/gltf/gltfLoad.h>
+#include <game/scene/meshRenderer.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/debug/debugGUI.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/renderer/material/Effect.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/animation/animation.h>
 
@@ -76,6 +79,7 @@ namespace rev {
 
 		// Create camera
 		createCamera();
+		createFloor();
 		mGameScene.root()->init();
 		if(animator)
 			animator->playAnimation(animations[0], true);
@@ -112,6 +116,36 @@ namespace rev {
 		{
 			mCamera = &*mGraphicsScene.cameras()[0].lock();
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::createFloor() {
+
+		auto floorNode = mGameScene.root()->createChild("floor");
+		floorNode->addComponent<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
+
+		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad({10.f, 10.f}));
+
+		// Create default material
+		auto pbrEffect = std::make_shared<Effect>("metal-rough.fx");
+		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
+
+		gfx::TextureSampler::Descriptor samplerDesc;
+		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		auto sampler = m_gfx.createTextureSampler(samplerDesc);
+		auto sony_fms_lut = load2dTextureFromFile(m_gfx, sampler, "sonyHill.png", true, 1);
+		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "ibl_brdf.hdr", false, 1);
+		defaultMaterial->addTexture("uFms", sony_fms_lut);
+		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
+
+		// Create mesh renderer component
+		auto renderable = std::make_shared<gfx::RenderMesh>();
+		renderable->mPrimitives.push_back({floorMesh, defaultMaterial});
+		auto renderObj = std::make_shared<gfx::RenderObj>(renderable);
+		mGraphicsScene.renderables().push_back(renderObj);
+
+		floorNode->addComponent<game::MeshRenderer>(renderObj);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

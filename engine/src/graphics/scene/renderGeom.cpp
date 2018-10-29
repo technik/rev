@@ -115,19 +115,34 @@ namespace rev::gfx
 		{-half_x,  half_y, 0.f },
 		{ half_x,  half_y, 0.f }
 		};
+		std::vector<math::Vec3f> normals = {
+			{0.f, 0.f, 1.f },
+			{0.f, 0.f, 1.f },
+			{0.f, 0.f, 1.f },
+			{0.f, 0.f, 1.f }
+		};
 
 		// Buffer views
+		// Indices
 		auto idxBv = std::make_shared<BufferView>();
 		idxBv->byteLength = 2*indices.size();
 		idxBv->data = indices.data();
 		idxBv->byteStride = 0;
 		idxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data);
 
+		// Vertices
 		auto vtxBv = std::make_shared<BufferView>();
 		vtxBv->byteLength = sizeof(math::Vec3f)*vertices.size();
 		vtxBv->data = vertices.data();
 		vtxBv->byteStride = 0;
 		vtxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data);
+
+		// Normals
+		auto nrmBv = std::make_shared<BufferView>();
+		nrmBv->byteLength = sizeof(math::Vec3f)*vertices.size();
+		nrmBv->data = normals.data();
+		nrmBv->byteStride = 0;
+		nrmBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, nrmBv->byteLength, nrmBv->data);
 
 		Attribute idxAttr {
 			idxBv,
@@ -151,6 +166,17 @@ namespace rev::gfx
 			math::AABB()
 		};
 
-		return RenderGeom(&idxAttr, &vtxAttr, nullptr, nullptr, nullptr, nullptr, nullptr);
+		Attribute nrmAttr {
+			nrmBv,
+			nullptr,
+			GL_FLOAT,
+			3,
+			0,
+			normals.size(),
+			false,
+			math::AABB()
+		};
+
+		return RenderGeom(&idxAttr, &vtxAttr, &nrmAttr, nullptr, nullptr, nullptr, nullptr);
 	}
 }

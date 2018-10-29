@@ -36,6 +36,7 @@ namespace rev {
 
 	private:
 		void createCamera();
+		void createFloor();
 
 		math::Vec2u m_windowSize;
 		game::ComponentLoader				mComponentFactory;
