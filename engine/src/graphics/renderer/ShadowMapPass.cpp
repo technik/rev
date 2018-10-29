@@ -107,7 +107,7 @@ namespace rev::gfx {
 
 		auto lightSpaceCastersBBox = castersBBox.transform(shadowWorldXForm);
 		Mat44f biasMatrix = Mat44f::identity();
-		biasMatrix(2,3) = -mBias;
+		biasMatrix(2,3) = mBias;
 
 		auto orthoSize = lightSpaceCastersBBox.size();
 		auto castersMin = -orthoSize.z()/2;

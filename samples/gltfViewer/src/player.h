@@ -52,12 +52,12 @@ namespace rev {
 
 		struct ViewerState
 		{
-			bool floor = false;
+			bool floor = true;
 		};
 
 		struct BgOptions
 		{
-			bool shadows = false;
+			bool shadows = true;
 			float shadowIntensity = 0.5f;
 			float elevation = math::Constants<float>::halfPi*0.4;
 			float rotation = 0.f;
