@@ -45,7 +45,7 @@ namespace rev::gfx {
 		assert(target.valid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 0;
+		passDesc.clearDepth = 1;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = target;
 		passDesc.viewportSize = _size;
@@ -83,8 +83,6 @@ namespace rev::gfx {
 	{
 		// Accumulate all casters into a single shadow space bounding box
 		AABB castersBBox; castersBBox.clear();
-		AffineTransform lightRotation = AffineTransform::identity();
-		lightRotation.setRotation(Quatf({1.f, 0.f, 0.f}, HalfPi));
 		for(auto& obj : shadowCasters)
 		{
 			// Object's bounding box in shadow space
@@ -92,7 +90,7 @@ namespace rev::gfx {
 			castersBBox = math::AABB(castersBBox, bbox);
 		}
 
-		auto world = light.worldMatrix * lightRotation; // So that light's +y axis (forward), maps to the -Z in camera
+		auto world = light.worldMatrix; // So that light's +y axis (forward), maps to the -Z in camera
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
@@ -100,23 +98,18 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& shadowWorld, const math::AABB& castersBBox)
+	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& wsLight, const math::AABB& castersBBox)
 	{
-		auto shadowWorldXForm = shadowWorld;
-		auto shadowCenter = shadowWorld.transformPosition(castersBBox.origin());
+		auto shadowWorldXForm = wsLight;
+		auto shadowCenter = castersBBox.origin();
 		shadowWorldXForm.position() = shadowCenter;
 		auto shadowView = shadowWorldXForm.orthoNormalInverse();
 
-		//if(ImGui::Begin("ShadowMap"))
-		//{
-		//	ImGui::SliderFloat("Shadow bias", &mBias, -0.01f, 0.01f);
-		//}
-		//ImGui::End();
-
+		auto lightSpaceCastersBBox = castersBBox.transform(shadowWorldXForm);
 		Mat44f biasMatrix = Mat44f::identity();
-		biasMatrix(1,3) = -mBias;
+		biasMatrix(2,3) = -mBias;
 
-		auto orthoSize = castersBBox.size();
+		auto orthoSize = lightSpaceCastersBBox.size();
 		auto castersMin = -orthoSize.z()/2;
 		auto castersMax = orthoSize.z()/2;
 		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);

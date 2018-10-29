@@ -41,6 +41,10 @@ namespace rev::gfx {
 		void render	(const RenderScene&, const Camera& pov);
 		void onResizeTarget(const math::Vec2u& _newSize);
 
+		void drawDebugUI();
+
+		float& shadowBias() { return mShadowPass->bias(); }
+
 	private:
 		void collapseSceneRenderables(const RenderScene&);
 		void initBackgroundPass(gfx::Device& device, const math::Vec2u& targetSize);

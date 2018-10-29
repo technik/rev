@@ -109,7 +109,7 @@ int main(int _argc, const char** _argv) {
 
 	auto windowSize = Vec2u(params.sx, params.sy);
 	auto nativeWindow = rev::gfx::createWindow(
-		{40, 40},
+		{80, 80},
 		windowSize,
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
 		true // Visible

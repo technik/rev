@@ -47,16 +47,16 @@ namespace rev {
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
 		loadGLTFScene(m_gfx, *gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
-		auto sceneLight = std::make_shared<gfx::DirectionalLight>();
+		m_envLight = std::make_shared<gfx::DirectionalLight>();
 
 		// Default scene light
 		{
 			AffineTransform lightXform = AffineTransform::identity();
 			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
-			sceneLight->worldMatrix = lightXform;
-			sceneLight->color = 4*Vec3f::ones();
-			sceneLight->castShadows = true;
-			mGraphicsScene.addLight(sceneLight);
+			m_envLight->worldMatrix = lightXform;
+			m_envLight->color = 4*Vec3f::ones();
+			m_envLight->castShadows = true;
+			mGraphicsScene.addLight(m_envLight);
 		}
 
 		// Load sky
@@ -145,9 +145,20 @@ namespace rev {
 				gui::slider("Shadow intensity", m_bgOptions.shadowIntensity, 0.f, 1.f);
 				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
 				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
+
+				gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
 			}
-			ImGui::End();
+
 		}
+		ImGui::End();
+		mRenderer.drawDebugUI();
+		
+		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
+		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
+
+		AffineTransform lightXform = AffineTransform::identity();
+		lightXform.setRotation(rotation * elevation);
+		m_envLight->worldMatrix = lightXform;
 
 		gui::finishFrame(dt);
 	}

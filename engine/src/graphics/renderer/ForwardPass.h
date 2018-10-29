@@ -45,7 +45,12 @@ namespace rev::gfx {
 	public:
 		ForwardPass(gfx::Device&, const math::Vec2u& viewportSize, gfx::FrameBuffer target);
 
-		void render(const Camera&, const EnvironmentProbe* env, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows);
+		void render(
+			const Camera& eye,
+			const EnvironmentProbe* env,
+			bool shadows,
+			const std::vector<gfx::RenderItem>& renderables,
+			const CommandBuffer::UniformBucket& sharedUniforms);
 		void showDebugInfo(bool show) { m_showDbgInfo = show; }
 		void onResizeTarget(const math::Vec2u& newSize) {
 			m_viewportSize = newSize;

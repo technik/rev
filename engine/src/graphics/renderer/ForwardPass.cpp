@@ -172,7 +172,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(const Camera& eye, const EnvironmentProbe* env, const std::vector<gfx::RenderItem>& renderables, gfx::Texture2d _shadows)
+	void ForwardPass::render(
+		const Camera& eye,
+		const EnvironmentProbe* env,
+		bool useShadows,
+		const std::vector<gfx::RenderItem>& renderables,
+		const CommandBuffer::UniformBucket& sharedUniforms)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -200,7 +205,6 @@ namespace rev::gfx {
 			// Matrices
 			Mat44f world = renderable.world.matrix();
 			bool mirroredGeometry = affineTransformDeterminant(world) < 0.f;
-			bool useShadows = false;
 			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), env, useShadows, mirroredGeometry);
 			if(!pipeline.isValid())
 				continue;
@@ -216,9 +220,6 @@ namespace rev::gfx {
 			// Lighting
 			uniforms.addParam(3, mEV); // Exposure value
 			uniforms.addParam(4, eye.world().position());
-			//Mat44f shadowProj = shadows->shadowProj() * _worldMatrix;
-			//uniforms.addParam(2, shadowProj);
-			//uniforms.addParam(9, _shadows);
 			if(env)
 			{
 				uniforms.addParam(7, env->texture());
@@ -227,6 +228,7 @@ namespace rev::gfx {
 
 			m_drawCommands.setPipeline(pipeline);
 			m_drawCommands.setUniformData(uniforms);
+			m_drawCommands.setUniformData(sharedUniforms);
 			m_drawCommands.setVertexData(renderable.geom.getVao());
 			assert(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT);
 			m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16);

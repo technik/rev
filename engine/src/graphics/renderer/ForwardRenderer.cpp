@@ -21,6 +21,8 @@
 #include "ForwardPass.h"
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/fileSystem/fileSystem.h>
+#include <graphics/debug/debugGUI.h>
+#include <graphics/debug/imgui.h>
 #include "graphics/driver/renderTarget.h"
 #include "graphics/scene/renderScene.h"
 #include <graphics/scene/renderObj.h>
@@ -88,15 +90,22 @@ namespace rev::gfx {
 		// TODO: Cull shadow casters renderQ -> casters
 		// TODO: Cull visible shadow receivers visible -> receivers
 
+		CommandBuffer::UniformBucket sharedUniforms;
 		// Render shadows (casters, receivers)
-		if(!scene.lights().empty() && scene.lights()[0]->castShadows)
+		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
+		if(useShadows)
 		{
-			mShadowPass->render(m_renderQueue, m_visible, eye, *scene.lights()[0]);
+			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0]);
+			math::Mat44f shadowProj = mShadowPass->shadowProj();
+			sharedUniforms.addParam(2, shadowProj);
+			sharedUniforms.addParam(9, m_shadowsTexture);
+			math::Vec3f lightDir = shadowProj.block<3,1>(0,2);
+			sharedUniforms.addParam(6, lightDir);
 		}
 
 		// TODO: Sort visible objects
 		auto env = &*scene.environment();
-		mForwardPass->render(eye, env, m_visible, m_shadowsTexture); // Render visible objects
+		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms); // Render visible objects
 		if(env && m_bgPass->isOk())
 		{
 			// Uniforms
@@ -119,6 +128,16 @@ namespace rev::gfx {
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
 		m_bgPass->onResizeTarget(_newSize);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void ForwardRenderer::drawDebugUI()
+	{
+		if(ImGui::Begin("Debug Fwd Renderer"))
+		{
+			ImGui::Image((void*)m_shadowsTexture.id, {256, 256});
+		}
+		ImGui::End();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

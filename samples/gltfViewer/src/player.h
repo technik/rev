@@ -45,6 +45,7 @@ namespace rev {
 		gfx::ForwardRenderer				mRenderer;
 		gfx::DeviceOpenGL&					m_gfx;
 		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
+		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 
 	private:
 
@@ -57,7 +58,7 @@ namespace rev {
 		{
 			bool shadows = false;
 			float shadowIntensity = 0.5f;
-			float elevation = 1.f;
+			float elevation = math::Constants<float>::halfPi*0.4;
 			float rotation = 0.f;
 			math::Vec3f shadowDir;
 		} m_bgOptions;

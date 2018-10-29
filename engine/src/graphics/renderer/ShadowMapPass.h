@@ -50,6 +50,8 @@ namespace rev::gfx {
 			const Light& light);
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
 
+		float& bias() { return mBias; }
+
 	private:
 
 		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
