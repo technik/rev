@@ -41,6 +41,9 @@ namespace rev::gfx {
 	public:
 		ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size);
 
+		static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
+		static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
+
 		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(

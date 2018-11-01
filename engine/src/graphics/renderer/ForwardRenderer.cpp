@@ -42,34 +42,17 @@ namespace rev::gfx {
 	{
 		m_targetBuffer = target;
 
-		mForwardPass = std::make_unique<ForwardPass>(device, targetSize, target);
-
-		// Create a depth texture for shadows
-		auto shadowSamplerDesc = TextureSampler::Descriptor();
-		shadowSamplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		shadowSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
-		shadowSamplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
-		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
-		auto shadowDesc = Texture2d::Descriptor();
-		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		shadowDesc.pixelFormat.numChannels = 1;
-		shadowDesc.depth = true;
-		shadowDesc.sampler = shadowSampler;
-		shadowDesc.mipLevels = 1;
+		// Create the depth texture and framebuffer
 		size_t shadowSize = 4*1024;
-		shadowDesc.size = {shadowSize, shadowSize};
-		m_shadowsTexture = device.createTexture2d(shadowDesc);
+		auto shadowTexSize = math::Vec2u{shadowSize, shadowSize};
+		m_shadowsTexture = ShadowMapPass::createShadowMapTexture(device, shadowTexSize);
+		auto shadowBuffer = ShadowMapPass::createShadowBuffer(device, m_shadowsTexture);
+		
+		// Create shadow pass
+		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowTexSize);
 
-		// Create the depth framebuffer
-		gfx::FrameBuffer::Attachment depthAttachment;
-		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
-		depthAttachment.texture = m_shadowsTexture;
-		gfx::FrameBuffer::Descriptor shadowBufferDesc;
-		shadowBufferDesc.numAttachments = 1;
-		shadowBufferDesc.attachments = &depthAttachment;
-		auto shadowBuffer = device.createFrameBuffer(shadowBufferDesc);
-
-		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowDesc.size);
+		// Create the geometry forward pass
+		mForwardPass = std::make_unique<ForwardPass>(device, targetSize, target);
 
 		// Background pass
 		initBackgroundPass(device, targetSize);

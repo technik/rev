@@ -75,6 +75,37 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
+	{
+		auto shadowSamplerDesc = TextureSampler::Descriptor();
+		shadowSamplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		shadowSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		shadowSamplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
+		auto shadowDesc = Texture2d::Descriptor();
+		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		shadowDesc.pixelFormat.numChannels = 1;
+		shadowDesc.depth = true;
+		shadowDesc.sampler = shadowSampler;
+		shadowDesc.mipLevels = 1;
+		shadowDesc.size = size;
+
+		return device.createTexture2d(shadowDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
+	{
+		gfx::FrameBuffer::Attachment depthAttachment;
+		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
+		depthAttachment.texture = texture;
+		gfx::FrameBuffer::Descriptor shadowBufferDesc;
+		shadowBufferDesc.numAttachments = 1;
+		shadowBufferDesc.attachments = &depthAttachment;
+		return device.createFrameBuffer(shadowBufferDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::render(
 		const std::vector<gfx::RenderItem>& shadowCasters,
 		const std::vector<gfx::RenderItem>&,// shadowReceivers,
