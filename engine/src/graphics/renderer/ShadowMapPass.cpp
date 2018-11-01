@@ -21,6 +21,7 @@
 
 #include <core/platform/fileSystem/file.h>
 #include <graphics/backend/commandBuffer.h>
+#include <graphics/backend/device.h>
 #include <graphics/backend/renderPass.h>
 #include <graphics/debug/imgui.h>
 #include <graphics/driver/shaderProcessor.h>

@@ -21,7 +21,6 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
-#include <graphics/backend/device.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/Light.h>
@@ -39,7 +38,7 @@ namespace rev::gfx {
 	class ShadowMapPass
 	{
 	public:
-		ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size);
+		ShadowMapPass(Device& device, FrameBuffer target, const math::Vec2u& _size);
 
 		static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
 		static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
@@ -68,9 +67,9 @@ namespace rev::gfx {
 
 	private:
 
-		gfx::Device&		m_device;
-		gfx::RenderPass*	m_pass;
-		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
+		Device&		m_device;
+		RenderPass*	m_pass;
+		Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
 		math::Mat44f		mShadowProj;
 		math::Mat44f		mUnbiasedShadowProj;
 		std::string			mCommonShaderCode;
