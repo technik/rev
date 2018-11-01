@@ -58,7 +58,6 @@ namespace rev {
 		struct BgOptions
 		{
 			bool shadows = true;
-			float shadowIntensity = 0.5f;
 			float elevation = math::Constants<float>::halfPi*0.4;
 			float rotation = 0.f;
 			math::Vec3f shadowDir;

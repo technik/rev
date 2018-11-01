@@ -50,10 +50,11 @@ namespace rev {
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
 		loadGLTFScene(m_gfx, *gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
-		m_envLight = std::make_shared<gfx::DirectionalLight>();
 
 		// Default scene light
 		{
+			m_envLight = std::make_shared<gfx::DirectionalLight>();
+			m_envLight->castShadows = true;
 			AffineTransform lightXform = AffineTransform::identity();
 			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
 			m_envLight->worldMatrix = lightXform;
@@ -176,13 +177,12 @@ namespace rev {
 			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
 			if(m_bgOptions.shadows)
 			{
-				gui::slider("Shadow intensity", m_bgOptions.shadowIntensity, 0.f, 1.f);
 				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
 				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
 
 				gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
 			}
-
+			m_envLight->castShadows = m_bgOptions.shadows;
 		}
 		ImGui::End();
 		mRenderer.drawDebugUI();
