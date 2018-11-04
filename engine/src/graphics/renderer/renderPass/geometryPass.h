@@ -21,7 +21,9 @@
 
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/backend/commandBuffer.h>
+#include <graphics/renderer/material/effect.h>
 #include <graphics/scene/renderGeom.h>
+#include <string>
 #include <vector>
 
 namespace rev::gfx {
@@ -31,7 +33,7 @@ namespace rev::gfx {
 	class GeometryPass
 	{
 	public:
-		GeometryPass(Device& device, const char* passShaderCode);
+		GeometryPass(Device& device, const std::string& effectFileName);
 
 		struct Geometry
 		{
@@ -41,6 +43,11 @@ namespace rev::gfx {
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
 		void render(const std::vector<Geometry>& geometry, const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
+
+	private:
+		Effect passEffect; // Effect containing the pass' common code
+
+		// Stored pipelines
 	};
 
 }	// namespace rev::gfx
