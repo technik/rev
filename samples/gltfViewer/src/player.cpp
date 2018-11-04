@@ -110,7 +110,7 @@ namespace rev {
 			cameraNode->addComponent<FlyBy>(2.f, 1.f);
 			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
 			cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-			auto camComponent = cameraNode->addComponent<game::Camera>();
+			auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 1000);
 			mCamera = &*camComponent->cam();
 		}
 		else
