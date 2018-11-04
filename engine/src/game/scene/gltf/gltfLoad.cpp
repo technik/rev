@@ -499,11 +499,16 @@ namespace rev { namespace game {
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
 		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true, 1);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false, 1);
+
+		auto clearCoatEffect = std::make_shared<Effect>("clearCoat.fx");
+		auto clearCoat = std::make_shared<Material>(clearCoatEffect);
 		
 		// Load materials
 		for(auto& matDesc : _document.materials)
 		{
 			auto mat = std::make_shared<Material>(_pbrEffect);
+			if(matDesc.name == "carPaint")
+				mat = clearCoat;
 			auto& pbrDesc = matDesc.pbrMetallicRoughness;
 			if(!pbrDesc.empty())
 			{
