@@ -17,48 +17,21 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include <functional>
-#include <graphics/driver/shaderProcessor.h>
+#include "geometryPass.h"
 
 namespace rev::gfx {
 
-	class Effect
+	GeometryPass::GeometryPass(Device& device, const std::string& effectFileName)
+		: mPassEffect(effectFileName)
 	{
-	public:
-		// Effect creation
-		Effect(const std::string& _fileName);
+		mPassEffect.onReload([](const Effect&)
+		{
+			m_pipelines.clear();
+		});
+	}
 
-		using Property = ShaderProcessor::Uniform;
+	void GeometryPass::render(const std::vector<Geometry>& geometry, const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out)
+	{
+	}
 
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
-
-		using ReloadCb = std::function<void(const Effect&)>;
-
-		void onReload(ReloadCb cb) {
-			m_reloadCbs.push_back(cb);
-		}
-
-	private:
-		void invokeCallbacks();
-		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
-
-		void reload(const char* _filename);
-
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
-	};
-
-}
+}	// namespace rev::gfx

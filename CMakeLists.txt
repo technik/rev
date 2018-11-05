@@ -15,6 +15,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(engine)
+
 if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()

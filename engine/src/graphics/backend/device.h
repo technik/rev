@@ -59,7 +59,6 @@ namespace rev :: gfx
 		// Pipeline
 		virtual Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) = 0;
 		virtual Pipeline createPipeline(const Pipeline::Descriptor&) = 0;
-		//virtual bool recreatePipeline(const Pipeline&, const Pipeline::Descriptor&) = 0;
 
 		// Buffers
 		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
@@ -67,5 +66,6 @@ namespace rev :: gfx
 
 	protected:
 		Device() = default;
+		std::vector<PipelinePoolInfo> mPipelinePools;
 	};
 }

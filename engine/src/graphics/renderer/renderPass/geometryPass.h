@@ -24,6 +24,8 @@
 #include <graphics/renderer/material/effect.h>
 #include <graphics/scene/renderGeom.h>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace rev::gfx {
@@ -35,19 +37,47 @@ namespace rev::gfx {
 	public:
 		GeometryPass(Device& device, const std::string& effectFileName);
 
-		struct Geometry
+		// PipelineGroupId can be filled with arbitrary user content.
+		// Usually, they're a bitmask representing things like shadow use,
+		// mirrored geometry, etc.
+		// The important thing is that two pieces of geometry with different
+		// PipelineGroupId will always have separate shader pipelines
+		using PipelineGroupId = uint32_t;
+
+		struct Instance
 		{
-			RenderGeom buffers;
+			Effect* vtxEffect;
+			Effect* pxlEffect;
+			uint32_t extraNdx;
+			Pipeline::RasterOptions::Mask raster;
+			size_t geometryIndex;
 			CommandBuffer::UniformBucket uniforms;
 		};
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
-		void render(const std::vector<Geometry>& geometry, const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
+		void begin();
+		void render(
+			const std::vector<RenderGeom*>& geometry,
+			const std::vector<std::string>& extraCodeBlocks,
+			const std::vector<Instance>& instances,
+			CommandBuffer& out);
+
+		void setUniforms(size_t frequencyId, const CommandBuffer::UniformBucket& bucket);
 
 	private:
-		Effect passEffect; // Effect containing the pass' common code
 
+		Effect mPassEffect; // Effect containing the pass' common code
+
+		using GeomEffects = std::pair<Effect*,Effect*>;
+		using ShaderExtra = std::pair<Pipeline::RasterOptions::Mask, std::string>; // Raster, extra code
+		using PipelineGroupId = std::pair<GeomEffects, ShaderExtra>;
 		// Stored pipelines
+		std::unordered_map<PipelineGroupId, Pipeline> mPipelines;
+
+		// Uniforms with varying update frequency
+		// Struct of arrays: mFrequencies[i] -> mPassUniforms[i];
+		std::vector<size_t> mFrequencies;
+		std::vector<CommandBuffer::UniformBucket> mPassUniforms;
 	};
 
 }	// namespace rev::gfx
