@@ -7,16 +7,6 @@
 OutputPin<Pin13> led;
 Servo esc;
 
-/*void wireRead(ImuData& out)
-{
-  auto dst = reinterpret_cast<uint8_t*>(&out);
-  for(unsigned i = 0; i < sizeof(ImuData); ++i)
-  {
-    *dst = Wire.read();
-    ++dst;
-  }
-}*/
-
 struct MsgProcessor
 {
   enum class State
@@ -58,14 +48,7 @@ struct MsgProcessor
 
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 
-void setupSensor()
-{
-  Wire.begin();
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x6b);
-  Wire.write(0);
-  Wire.endTransmission(true);
-}
+Mpu6050 imu;
 
 void print(const Vec3u& v)
 {
@@ -80,15 +63,10 @@ void print(const Vec3u& v)
 
 void readSensor()
 {
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x3b);
-  Wire.endTransmission(false);
-//  Wire.requestFrom(MPU_addr,sizeof(ImuData),true);
-  //ImuData state;
-  //wireRead(state);
-  //Serial.print("\nAcc : "); print(state.accel);
-  //Serial.print("; Gyr = "); print(state.gyro);
-  //Serial.print("; Tmp = "); Serial.println(state.temp);
+  imu.readSensor();
+  Serial.print("\nAcc : "); print(imu.accel());
+  Serial.print("; Gyr = "); print(imu.gyro());
+  Serial.print("; Tmp = "); Serial.println(imu.temp());
 }
 
 MsgProcessor stateMachine;
@@ -98,7 +76,7 @@ void setup() {
   Serial.begin(9600);
   esc.attach(10);
   esc.write(0);
-  setupSensor();
+  imu.configSensor();
 }
 
 unsigned long lastMillis = 0;

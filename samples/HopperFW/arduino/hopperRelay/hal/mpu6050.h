@@ -17,6 +17,12 @@ public:
 	unsigned temp() const { return m_temp; }
 
 private:
+	void receive(unsigned&);
+	void receive(Vec3u&);
+
+private:
+	const uint8_t MpuI2cAddress = 0x68;
+
 	Vec3u m_accel, m_gyro;
 	unsigned m_temp;
 };
