@@ -5,7 +5,7 @@
 void Mpu6050::configSensor() const
 {
 	Wire.begin();
-	Wire.beginTransmission(MPU_addr);
+	Wire.beginTransmission(MpuI2cAddress);
 	Wire.write(0x6b);
 	Wire.write(0);
 	Wire.endTransmission(true);
@@ -13,10 +13,10 @@ void Mpu6050::configSensor() const
 
 coid Mpu6050::readSensor()
 {
-	Wire.beginTransmission(MPU_addr);
+	Wire.beginTransmission(MpuI2cAddress);
 	Wire.write(0x3b);
 	Wire.endTransmission(false);
-	Wire.requestFrom(MPU_addr,sizeof(ImuData),true);
+	Wire.requestFrom(MpuI2cAddress,sizeof(Mpu6050),true);
 	receive(m_accel);
 	receive(m_temp);
 	receive(m_gyro);
