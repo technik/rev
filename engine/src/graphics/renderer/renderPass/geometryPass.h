@@ -21,7 +21,6 @@
 
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/backend/commandBuffer.h>
-#include <graphics/renderer/material/effect.h>
 #include <graphics/scene/renderGeom.h>
 #include <string>
 #include <unordered_map>
@@ -31,11 +30,12 @@
 namespace rev::gfx {
 
 	class Device;
+	class ShaderCodeFragment;
 
 	class GeometryPass
 	{
 	public:
-		GeometryPass(Device& device, const std::string& effectFileName);
+		GeometryPass(Device& device, ShaderCodeFragment& passCommonCode);
 
 		// PipelineGroupId can be filled with arbitrary user content.
 		// Usually, they're a bitmask representing things like shadow use,
@@ -46,8 +46,7 @@ namespace rev::gfx {
 
 		struct Instance
 		{
-			Effect* vtxEffect;
-			Effect* pxlEffect;
+			ShaderCodeFragment* instanceCode;
 			uint32_t extraNdx;
 			Pipeline::RasterOptions::Mask raster;
 			size_t geometryIndex;
@@ -66,13 +65,11 @@ namespace rev::gfx {
 
 	private:
 
-		Effect mPassEffect; // Effect containing the pass' common code
+		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
 
-		using GeomEffects = std::pair<Effect*,Effect*>;
-		using ShaderExtra = std::pair<Pipeline::RasterOptions::Mask, std::string>; // Raster, extra code
-		using PipelineGroupId = std::pair<GeomEffects, ShaderExtra>;
+		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
-		std::unordered_map<PipelineGroupId, Pipeline> mPipelines;
+		std::unordered_map<PipelineSrc, Pipeline> mPipelines;
 
 		// Uniforms with varying update frequency
 		// Struct of arrays: mFrequencies[i] -> mPassUniforms[i];

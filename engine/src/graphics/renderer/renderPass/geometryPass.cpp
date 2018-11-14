@@ -18,19 +18,26 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "geometryPass.h"
+#include <graphics/shaders/shaderCodeFragment.h>
 
 namespace rev::gfx {
 
-	GeometryPass::GeometryPass(Device& device, const std::string& effectFileName)
-		: mPassEffect(effectFileName)
+	//----------------------------------------------------------------------------------------------
+	GeometryPass::GeometryPass(Device& device, ShaderCodeFragment& passCommonCode)
+		: mPassCommonCode(&passCommonCode)
 	{
-		mPassEffect.onReload([](const Effect&)
+		passCommonCode.onReload([this](const ShaderCodeFragment&)
 		{
-			m_pipelines.clear();
+			mPipelines.clear();
 		});
 	}
 
-	void GeometryPass::render(const std::vector<Geometry>& geometry, const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out)
+	//----------------------------------------------------------------------------------------------
+	void GeometryPass::render(
+		const std::vector<RenderGeom*>& geometry,
+		const std::vector<std::string>& extraCodeBlocks,
+		const std::vector<Instance>& instances,
+		CommandBuffer& out)
 	{
 	}
 
