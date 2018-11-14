@@ -46,10 +46,10 @@ namespace rev::gfx {
 
 		struct Instance
 		{
-			ShaderCodeFragment* instanceCode;
+			uint32_t geometryIndex;
 			uint32_t extraNdx;
+			ShaderCodeFragment* instanceCode;
 			Pipeline::RasterOptions::Mask raster;
-			size_t geometryIndex;
 			CommandBuffer::UniformBucket uniforms;
 		};
 
@@ -61,8 +61,6 @@ namespace rev::gfx {
 			const std::vector<Instance>& instances,
 			CommandBuffer& out);
 
-		void setUniforms(size_t frequencyId, const CommandBuffer::UniformBucket& bucket);
-
 	private:
 
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
@@ -70,11 +68,6 @@ namespace rev::gfx {
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
 		std::unordered_map<PipelineSrc, Pipeline> mPipelines;
-
-		// Uniforms with varying update frequency
-		// Struct of arrays: mFrequencies[i] -> mPassUniforms[i];
-		std::vector<size_t> mFrequencies;
-		std::vector<CommandBuffer::UniformBucket> mPassUniforms;
 	};
 
 }	// namespace rev::gfx
