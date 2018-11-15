@@ -82,6 +82,7 @@ namespace rev::gfx {
 		mZPrePass->submit();
 
 		CommandBuffer::UniformBucket sharedUniforms;
+		sharedUniforms.addParam(29, m_depthTexture);
 		// Render shadows (casters, receivers)
 		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		if(useShadows)
