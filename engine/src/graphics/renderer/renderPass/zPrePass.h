@@ -35,30 +35,25 @@ namespace rev::gfx {
 
 	class Camera;
 
-	class ShadowMapPass
+	class ZPrePass
 	{
 	public:
-		ShadowMapPass(Device& device, FrameBuffer target, const math::Vec2u& _size);
+		ZPrePass(Device& device, FrameBuffer target, const math::Vec2u& _size);
 
-		static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
-		static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
+		static Texture2d createDepthMapTexture(Device& device, const math::Vec2u& size);
+		static FrameBuffer createDepthBuffer(Device& device, Texture2d texture);
+
+		void onResizeTarget(const math::Vec2u& newSize) {
+			m_viewportSize = newSize;
+		}
 
 		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(
-			const std::vector<RenderItem>& shadowCasters,
-			const std::vector<RenderItem>& shadowReceivers,
-			const Camera& view,
-			const Light& light);
-		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
+			const Camera& eye,
+			const std::vector<gfx::RenderItem>& renderables
+		);
 		void submit();
-
-		float& bias() { return mBias; }
-
-	private:
-
-		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
-		void renderMeshes(const std::vector<gfx::RenderItem>& renderables);
 
 	private:
 		Device&		m_device;
@@ -67,9 +62,8 @@ namespace rev::gfx {
 		ShaderCodeFragment m_commonCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
+		math::Vec2u m_viewportSize;
 
-		math::Mat44f		mShadowProj;
-		math::Mat44f		mUnbiasedShadowProj;
 		float mBias = 0.001f;
 	};
 
