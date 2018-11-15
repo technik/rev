@@ -24,12 +24,17 @@ namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	GeometryPass::GeometryPass(Device& device, ShaderCodeFragment& passCommonCode)
-		: mPassCommonCode(&passCommonCode)
+		: mDevice(device)
+		, mPassCommonCode(&passCommonCode)
 	{
 		passCommonCode.onReload([this](const ShaderCodeFragment&)
 		{
 			mPipelines.clear();
 		});
+
+		// Common pipeline config
+		m_commonPipelineDesc.raster.cullBack = true;
+		m_commonPipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -72,6 +77,37 @@ namespace rev::gfx {
 				CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U32;
 			out.drawTriangles(geom->indices().count, indexType);
 		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Pipeline GeometryPass::getPipeline(const Instance& instance)
+	{
+		auto key = std::pair(instance.raster, instance.instanceCode);
+		auto iter = mPipelines.find(key);
+		if(iter == mPipelines.end())
+		{
+			Pipeline::ShaderModule::Descriptor stageDesc;
+			mPassCommonCode->collapse(stageDesc.code);
+			instance.instanceCode->collapse(stageDesc.code);
+			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
+			m_commonPipelineDesc.vtxShader = mDevice.createShaderModule(stageDesc);
+			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
+			m_commonPipelineDesc.pxlShader = mDevice.createShaderModule(stageDesc);
+			// Check against invalid pipeline code
+			Pipeline pipeline;
+			if(m_commonPipelineDesc.vtxShader.valid()
+				&& m_commonPipelineDesc.pxlShader.valid())
+			{
+				m_commonPipelineDesc.raster = Pipeline::RasterOptions::fromMask(instance.raster);
+				pipeline = mDevice.createPipeline(m_commonPipelineDesc);
+			}
+
+			if(pipeline.isValid())
+			{
+				iter = mPipelines.emplace(key, pipeline).first;
+			}
+		}
+		return iter->second;
 	}
 
 }	// namespace rev::gfx

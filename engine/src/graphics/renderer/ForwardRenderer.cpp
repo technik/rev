@@ -40,6 +40,7 @@ namespace rev::gfx {
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
 	{
+		m_device = &device;
 		m_targetBuffer = target;
 
 		// Create the depth texture and framebuffer

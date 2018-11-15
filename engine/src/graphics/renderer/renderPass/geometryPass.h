@@ -52,9 +52,11 @@ namespace rev::gfx {
 			CommandBuffer& out);
 
 	private:
+		Device& mDevice;
 		Pipeline getPipeline(const Instance&);
 
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
+		Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
