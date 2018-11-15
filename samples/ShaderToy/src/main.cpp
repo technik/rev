@@ -7,8 +7,9 @@
 #include <core/platform/osHandler.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
-#include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+#include <graphics/backend/renderPass.h>
+#include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
 
 #include <string>
@@ -41,8 +42,11 @@ int main(int _argc, const char** _argv) {
 	fullScreenDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
 	fullScreenDesc.target = gfxDevice.defaultFrameBuffer();
 	fullScreenDesc.viewportSize = windowSize;
+	auto fullScreenPass = gfxDevice.createRenderPass(fullScreenDesc);
+	CommandBuffer fsCommandBuffer;
+	fullScreenPass->record(fsCommandBuffer);
 
-	FullScreenPass renderPass(gfxDevice, fullScreenDesc);
+	FullScreenPass fullScreenFilter(gfxDevice, fullScreenDesc);
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
@@ -51,7 +55,7 @@ int main(int _argc, const char** _argv) {
 			RECT clientSurface;
 			GetClientRect(_msg.hwnd, &clientSurface);
 			windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
-			renderPass.onResizeTarget(windowSize);
+			fullScreenPass->setViewport({0,0}, windowSize);
 			return true;
 		}
 
@@ -74,7 +78,7 @@ vec3 shade () {
 
 #endif
 )";
-	renderPass.setPassCode(fullScreenCode.c_str());
+	fullScreenFilter.setPassCode(fullScreenCode.c_str());
 
 	// Command buffer with chaning uniforms
 	CommandBuffer::UniformBucket timeUniform;
@@ -94,10 +98,11 @@ vec3 shade () {
 		timeUniform.vec4s.push_back({0, tVector});
 		timeUniform.vec4s.push_back({1, {float(windowSize.x()), float(windowSize.y()), 0.f, 0.f}});
 
-		renderPass.render(timeUniform);
-		renderPass.submit();
+		fsCommandBuffer.clear();
+		fullScreenFilter.render(timeUniform, fsCommandBuffer);
 
 		// Finish frame
+		renderQueue.submitPass(*fullScreenPass);
 		renderQueue.present();
 
 		// Update time

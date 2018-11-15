@@ -28,10 +28,6 @@ namespace rev::gfx {
 		// Create a full screen quad
 		m_quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
 
-		// Create pass
-		m_pass = device.createRenderPass(desc);
-		m_pass->record(m_commands);
-
 		// Common pass code
 		m_commonCode = R"(
 #ifdef VTX_SHADER
@@ -88,23 +84,15 @@ void main (void) {
 		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 
-	void FullScreenPass::render(const CommandBuffer::UniformBucket& passUniforms)
+	void FullScreenPass::render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out)
 	{
 		if(!m_pipeline.isValid())
 			return;
 
-		assert(m_pass);
-		m_commands.clear();
-		m_commands.setPipeline(m_pipeline);
-		m_commands.setUniformData(passUniforms);
-		m_commands.setVertexData(m_quad.getVao());
-		m_commands.drawTriangles(6, CommandBuffer::IndexType::U16);
-	}
-
-	void FullScreenPass::submit() const
-	{
-		assert(m_pass);
-		m_device.renderQueue().submitPass(*m_pass);
+		out.setPipeline(m_pipeline);
+		out.setUniformData(passUniforms);
+		out.setVertexData(m_quad.getVao());
+		out.drawTriangles(6, CommandBuffer::IndexType::U16);
 	}
 
 }
