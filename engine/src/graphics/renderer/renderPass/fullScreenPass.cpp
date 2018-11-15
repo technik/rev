@@ -22,7 +22,7 @@
 
 namespace rev::gfx {
 
-	FullScreenPass::FullScreenPass(gfx::Device& device, const RenderPass::Descriptor& desc, const char* code)
+	FullScreenPass::FullScreenPass(gfx::Device& device, const char* code)
 		: m_device(device)
 	{
 		// Create a full screen quad

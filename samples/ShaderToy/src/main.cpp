@@ -46,7 +46,7 @@ int main(int _argc, const char** _argv) {
 	CommandBuffer fsCommandBuffer;
 	fullScreenPass->record(fsCommandBuffer);
 
-	FullScreenPass fullScreenFilter(gfxDevice, fullScreenDesc);
+	FullScreenPass fullScreenFilter(gfxDevice);
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)

@@ -89,7 +89,7 @@ namespace rev::gfx {
 		// TODO: Sort visible objects
 		auto env = &*scene.environment();
 		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms); // Render visible objects
-		if(env && m_bgPass->isOk())
+		if(env && m_bgRenderer->isOk())
 		{
 			// Uniforms
 			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
@@ -99,8 +99,9 @@ namespace rev::gfx {
 			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
 			bgUniforms.textures.push_back({7, env->texture()} );
 			// Render
-			m_bgPass->render(bgUniforms);
-			m_bgPass->submit();
+			m_bgCommands.clear();
+			m_bgRenderer->render(bgUniforms, m_bgCommands);
+			m_device->renderQueue().submitPass(*m_bgPass);
 		}
 	}
 
@@ -110,7 +111,7 @@ namespace rev::gfx {
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
-		m_bgPass->onResizeTarget(_newSize);
+		m_bgPass->setViewport({ 0,0 }, _newSize);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -146,13 +147,15 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
-		m_bgPass = new FullScreenPass(device, passDesc);
+		m_bgRenderer = new FullScreenPass(device);
+		m_bgPass = device.createRenderPass(passDesc);
+		m_bgPass->record(m_bgCommands);
 
 		// Shader stages
 		std::string skyShaderCode;
 		ShaderProcessor::MetaData metadata;
 		ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
-		m_bgPass->setPassCode(skyShaderCode.c_str());
+		m_bgRenderer->setPassCode(skyShaderCode.c_str());
 
 		// Shader reload
 		for(auto& file : metadata.dependencies)
@@ -161,9 +164,10 @@ namespace rev::gfx {
 				std::string skyShaderCode;
 				ShaderProcessor::MetaData metadata;
 				ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
-				m_bgPass->setPassCode(skyShaderCode.c_str());
+				m_bgRenderer->setPassCode(skyShaderCode.c_str());
 			};
 		}
+
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, const RenderPass::Descriptor& desc, const char* code = nullptr);
+		FullScreenPass(gfx::Device&, const char* code = nullptr);
 
 		void setPassCode(const char* code);
 

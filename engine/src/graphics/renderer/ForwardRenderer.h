@@ -37,7 +37,7 @@ namespace rev::gfx {
 	class ForwardRenderer
 	{
 	public:
-		void init	(gfx::Device& driver, const math::Vec2u& targetSize, gfx::FrameBuffer& target);
+		void init	(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target);
 		void render	(const RenderScene&, const Camera& pov);
 		void onResizeTarget(const math::Vec2u& _newSize);
 
@@ -60,10 +60,13 @@ namespace rev::gfx {
 		gfx::Texture2d						m_shadowsTexture;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		std::unique_ptr<ForwardPass>		mForwardPass;
-		FullScreenPass*						m_bgPass;
+		FullScreenPass*						m_bgRenderer;
+		gfx::RenderPass*					m_bgPass = nullptr;
+		gfx::CommandBuffer					m_bgCommands;
 		gfx::FrameBuffer					m_targetBuffer;
 
 		// Renderable queues
+		gfx::Device* m_device;
 		std::vector<RenderItem> m_renderQueue;
 		std::vector<RenderItem> m_visible;
 		std::vector<RenderItem> m_sdwCasters;
