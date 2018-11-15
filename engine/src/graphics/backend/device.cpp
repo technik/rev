@@ -21,16 +21,4 @@
 
 namespace rev::gfx {
 
-
-	PipelinePool Device::createPipelinePool(const Pipeline::ShaderModule::Descriptor& desc, const std::vector<std::string>& commonCode)
-	{
-		mPipelinePools.emplace_back(desc, commonCode);
-		return PipelinePool { mPipelinePools.size()-1 };
-	}
-
-	Pipeline Device::createPipeline(PipelinePool pool, const std::vector<std::string>& extraCode)
-	{
-		//
-	}
-
 }

@@ -128,12 +128,4 @@ namespace rev :: gfx
 
 		Id id = InvalidId;
 	};
-
-	struct PipelinePool
-	{
-		using Id = int32_t;
-		static constexpr Id InvalidId = -1;
-		bool valid() const { return id != InvalidId; }
-		Id id = InvalidId;
-	};
 }

@@ -61,8 +61,8 @@ namespace rev::gfx {
 		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 		m_commonPipelineDesc.pxlShader = m_device.createShaderModule(stageDesc);
 		// Pipeline config
-		m_commonPipelineDesc.cullFront = true;
-		m_commonPipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
+		m_commonPipelineDesc.raster.cullFront = true;
+		m_commonPipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
 
 		// Vertex format
 		mVtxFormatMask = RenderGeom::VtxFormat(
@@ -231,7 +231,7 @@ namespace rev::gfx {
 		if(iter == pipelineMap.end())
 		{
 			auto pipelineDesc = m_commonPipelineDesc;
-			pipelineDesc.frontFace = mirroredGeometry ? Pipeline::Descriptor::CW : Pipeline::Descriptor::CCW;
+			pipelineDesc.raster.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
 			
 			iter = pipelineMap.emplace(
 				pipelineCode,

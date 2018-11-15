@@ -35,10 +35,43 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void GeometryPass::render(
 		const std::vector<RenderGeom*>& geometry,
-		const std::vector<std::string>& extraCodeBlocks,
 		const std::vector<Instance>& instances,
 		CommandBuffer& out)
 	{
+		// Render state caches
+		RenderGeom* lastGeom = nullptr;
+		ShaderCodeFragment* lastCode = nullptr;
+		Pipeline::RasterOptions::Mask lastMask = 0;
+
+		for (auto& instance : instances)
+		{
+			// Set up graphics pipeline
+			if (lastCode != instance.instanceCode || lastMask != instance.raster)
+			{
+				lastCode = instance.instanceCode;
+				lastMask = instance.raster;
+				auto pipeline = getPipeline(instance);
+				out.setPipeline(pipeline);
+			}
+
+			// Set up geometry
+			auto geom = geometry[instance.geometryIndex];
+			if (geom != lastGeom)
+			{
+				lastGeom = geom;
+				out.setVertexData(geom->getVao());
+			}
+
+			// Set up uniforms
+			out.setUniformData(instance.uniforms);
+			// Draw
+			CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U16;
+			if(geom->indices().componentType == GL_UNSIGNED_BYTE)
+				CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U8;
+			if (geom->indices().componentType == GL_UNSIGNED_INT)
+				CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U32;
+			out.drawTriangles(geom->indices().count, indexType);
+		}
 	}
 
 }	// namespace rev::gfx

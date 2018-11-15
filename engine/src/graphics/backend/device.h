@@ -66,6 +66,5 @@ namespace rev :: gfx
 
 	protected:
 		Device() = default;
-		std::vector<PipelinePoolInfo> mPipelinePools;
 	};
 }

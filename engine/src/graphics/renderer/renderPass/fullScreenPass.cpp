@@ -84,7 +84,7 @@ void main (void) {
 		Pipeline::Descriptor pipelineDesc;
 		pipelineDesc.vtxShader = vtxShader;
 		pipelineDesc.pxlShader = pxlShader;
-		pipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
+		pipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
 		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 

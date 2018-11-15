@@ -23,7 +23,7 @@
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -37,37 +37,28 @@ namespace rev::gfx {
 	public:
 		GeometryPass(Device& device, ShaderCodeFragment& passCommonCode);
 
-		// PipelineGroupId can be filled with arbitrary user content.
-		// Usually, they're a bitmask representing things like shadow use,
-		// mirrored geometry, etc.
-		// The important thing is that two pieces of geometry with different
-		// PipelineGroupId will always have separate shader pipelines
-		using PipelineGroupId = uint32_t;
-
 		struct Instance
 		{
-			uint32_t geometryIndex;
-			uint32_t extraNdx;
 			ShaderCodeFragment* instanceCode;
 			Pipeline::RasterOptions::Mask raster;
 			CommandBuffer::UniformBucket uniforms;
+			uint32_t geometryIndex;
 		};
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
-		void begin();
 		void render(
 			const std::vector<RenderGeom*>& geometry,
-			const std::vector<std::string>& extraCodeBlocks,
 			const std::vector<Instance>& instances,
 			CommandBuffer& out);
 
 	private:
+		Pipeline getPipeline(const Instance&);
 
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
 
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
-		std::unordered_map<PipelineSrc, Pipeline> mPipelines;
+		std::map<PipelineSrc, Pipeline> mPipelines;
 	};
 
 }	// namespace rev::gfx
