@@ -47,7 +47,7 @@ namespace rev::gfx {
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
 		void render(
-			const std::vector<RenderGeom*>& geometry,
+			const std::vector<const RenderGeom*>& geometry,
 			const std::vector<Instance>& instances,
 			CommandBuffer& out);
 

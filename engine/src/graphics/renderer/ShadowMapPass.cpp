@@ -42,6 +42,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
+		, m_geomPass(device, m_commonCode)
 	{
 		assert(target.valid());
 		// Renderpass
@@ -51,27 +52,21 @@ namespace rev::gfx {
 		passDesc.target = target;
 		passDesc.viewportSize = _size;
 		m_pass = device.createRenderPass(passDesc);
+		m_pass->record(m_commands);
 
-		// Shader stages
-		Pipeline::ShaderModule::Descriptor stageDesc;
-		loadCommonShaderCode();
-		stageDesc.code = { mCommonShaderCode };
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-		m_commonPipelineDesc.vtxShader = m_device.createShaderModule(stageDesc);
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-		m_commonPipelineDesc.pxlShader = m_device.createShaderModule(stageDesc);
 		// Pipeline config
-		m_commonPipelineDesc.raster.cullFront = true;
-		m_commonPipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
+		m_commonCode = ShaderCodeFragment::loadFromFile("shadowMap.fx");
+		m_rasterOptions.cullFront = true;
+		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 
 		// Vertex format
-		mVtxFormatMask = RenderGeom::VtxFormat(
+		/*mVtxFormatMask = RenderGeom::VtxFormat(
 			RenderGeom::VtxFormat::Storage::Float32,
 			RenderGeom::VtxFormat::Storage::None,
 			RenderGeom::VtxFormat::Storage::None,
 			RenderGeom::VtxFormat::Storage::None,
 			RenderGeom::VtxFormat::Storage::None
-		).code(); // We only care about the format of vertex positions
+		).code(); // We only care about the format of vertex positions*/
 
 	}
 
@@ -130,6 +125,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void ShadowMapPass::submit()
+	{
+		m_device.renderQueue().submitPass(*m_pass);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& wsLight, const math::AABB& castersBBox)
 	{
 		auto shadowWorldXForm = wsLight;
@@ -139,7 +140,7 @@ namespace rev::gfx {
 
 		auto lightSpaceCastersBBox = castersBBox.transform(shadowWorldXForm);
 		Mat44f biasMatrix = Mat44f::identity();
-		biasMatrix(2,3) = mBias;
+		biasMatrix(2,3) = -mBias;
 
 		auto orthoSize = lightSpaceCastersBBox.size();
 		auto castersMin = -orthoSize.z()/2;
@@ -155,90 +156,37 @@ namespace rev::gfx {
 	{
 		auto worldMatrix = Mat44f::identity();
 
-		struct RenderInfo
-		{
-			Pipeline pipeline;
-			Mat44f wvp;
-			const RenderGeom* renderable;
-		};
+		GeometryPass::Instance instance;
+		instance.geometryIndex = uint32_t(-1);
+		instance.instanceCode = nullptr;
 
 		// Retrieve all info needed to render the objects
-		std::vector<RenderInfo> renderList;
+		std::vector<GeometryPass::Instance> renderList;
+		std::vector<const RenderGeom*> geometry;
+		const RenderGeom* lastGeom = nullptr;
 
 		for(auto& mesh : renderables)
 		{
-			Mat44f wvp = mShadowProj* mesh.world.matrix();
+			// Raster options
 			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-			auto pipeline = getPipeline(mesh.geom.vertexFormat(), mirroredGeometry);
-
-			renderList.push_back({
-				pipeline,
-				wvp,
-				&mesh.geom
-			});
+			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
+			instance.raster = m_rasterOptions.mask();
+			// Uniforms
+			instance.uniforms.clear();
+			Mat44f wvp = mShadowProj* mesh.world.matrix();
+			instance.uniforms.mat4s.push_back({0, wvp});
+			// Geometry
+			if(lastGeom != &mesh.geom)
+			{
+				instance.geometryIndex++;
+				geometry.push_back(&mesh.geom);
+			}
+			renderList.push_back(instance);
 		}
-
-		// Sort renderables to reuse pipelines as much as possible
-		std::sort(renderList.begin(), renderList.end(), [](auto& a, auto& b){
-			return a.pipeline.id < b.pipeline.id;
-		});
 
 		// Record commands
-		CommandBuffer cmdBuffer;
-		Pipeline activePipeline; // Invalid id
-
-		CommandBuffer::UniformBucket uniforms;
-
-		for(auto& draw : renderList)
-		{
-			// Pipeline
-			if(draw.pipeline.id != activePipeline.id)
-			{
-				cmdBuffer.setPipeline(draw.pipeline);
-				activePipeline = draw.pipeline;
-			}
-			// Uniform
-			uniforms.mat4s.push_back({0, draw.wvp});
-			cmdBuffer.setUniformData(uniforms);
-			uniforms.clear();
-			// Geometry
-			cmdBuffer.setVertexData(draw.renderable->getVao());
-			assert(draw.renderable->indices().componentType == GL_UNSIGNED_SHORT);
-			cmdBuffer.drawTriangles(draw.renderable->indices().count, CommandBuffer::IndexType::U16); // TODO, this isn't always U16
-		}
-
-		m_pass->reset();
-		m_pass->record(cmdBuffer);
-		m_device.renderQueue().submitPass(*m_pass);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::loadCommonShaderCode()
-	{
-		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("shadowMap.fx", mCommonShaderCode, metadata);
-		// TODO: Actually use the metadata (unifrom layouts)
-	}
-
-	//----------------------------------------------------------------------------------------------
-	Pipeline ShadowMapPass::getPipeline(RenderGeom::VtxFormat vtxFormat, bool mirroredGeometry)
-	{		
-		auto& pipelineMap = mirroredGeometry ? m_mirroredPipelines : m_regularPipelines;
-
-		auto pipelineCode = vtxFormat.code() & mVtxFormatMask; // Combine shader variations
-
-		auto iter = pipelineMap.find(pipelineCode);
-		if(iter == pipelineMap.end())
-		{
-			auto pipelineDesc = m_commonPipelineDesc;
-			pipelineDesc.raster.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-			
-			iter = pipelineMap.emplace(
-				pipelineCode,
-				m_device.createPipeline(pipelineDesc)
-			).first;
-		}
-		return mirroredGeometry ? m_mirroredPipelines[pipelineCode] : m_regularPipelines[pipelineCode];
+		m_commands.clear();
+		m_geomPass.render(geometry, renderList, m_commands);
 	}
 
 }

@@ -84,4 +84,11 @@ namespace rev::gfx {
 			m_childB->collapse(out);
 	}
 
+	//----------------------------------------------------------------------------------------------
+	void ShaderCodeFragment::invokeReload()
+	{
+		for(auto& fn : m_reloadListeners)
+			fn(*this);
+	}
+
 }

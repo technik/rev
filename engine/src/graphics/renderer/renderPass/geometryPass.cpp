@@ -39,12 +39,12 @@ namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	void GeometryPass::render(
-		const std::vector<RenderGeom*>& geometry,
+		const std::vector<const RenderGeom*>& geometry,
 		const std::vector<Instance>& instances,
 		CommandBuffer& out)
 	{
 		// Render state caches
-		RenderGeom* lastGeom = nullptr;
+		const RenderGeom* lastGeom = nullptr;
 		ShaderCodeFragment* lastCode = nullptr;
 		Pipeline::RasterOptions::Mask lastMask = 0;
 
@@ -86,13 +86,19 @@ namespace rev::gfx {
 		auto iter = mPipelines.find(key);
 		if(iter == mPipelines.end())
 		{
+			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
-			mPassCommonCode->collapse(stageDesc.code);
-			instance.instanceCode->collapse(stageDesc.code);
+			if(mPassCommonCode)
+				mPassCommonCode->collapse(stageDesc.code);
+			if(instance.instanceCode)
+				instance.instanceCode->collapse(stageDesc.code);
+
+			// Build pipeline stages
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
 			m_commonPipelineDesc.vtxShader = mDevice.createShaderModule(stageDesc);
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 			m_commonPipelineDesc.pxlShader = mDevice.createShaderModule(stageDesc);
+
 			// Check against invalid pipeline code
 			Pipeline pipeline;
 			if(m_commonPipelineDesc.vtxShader.valid()
@@ -102,10 +108,8 @@ namespace rev::gfx {
 				pipeline = mDevice.createPipeline(m_commonPipelineDesc);
 			}
 
-			if(pipeline.isValid())
-			{
+			if(pipeline.isValid()) // TODO: Reload when instance code changes
 				iter = mPipelines.emplace(key, pipeline).first;
-			}
 		}
 		return iter->second;
 	}

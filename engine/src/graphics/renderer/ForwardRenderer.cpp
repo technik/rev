@@ -80,6 +80,7 @@ namespace rev::gfx {
 		if(useShadows)
 		{
 			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0]);
+			mShadowPass->submit();
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);

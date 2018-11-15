@@ -21,6 +21,9 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/renderer/renderPass/geometryPass.h>
+#include <graphics/shaders/shaderCodeFragment.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderObj.h>
 #include <graphics/scene/Light.h>
@@ -51,6 +54,7 @@ namespace rev::gfx {
 			const Camera& view,
 			const Light& light);
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
+		void submit();
 
 		float& bias() { return mBias; }
 
@@ -59,24 +63,17 @@ namespace rev::gfx {
 		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
 		void renderMeshes(const std::vector<gfx::RenderItem>& renderables);
 
-		void loadCommonShaderCode();
-		gfx::Pipeline getPipeline(RenderGeom::VtxFormat, bool mirroredGeometry);
-		// Used to combine different vertex formats as long as they share the data needed to render shadows.
-		// This saves a lot on shader permutations.
-		uint32_t mVtxFormatMask;
-
 	private:
-
 		Device&		m_device;
 		RenderPass*	m_pass;
-		Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
+		CommandBuffer m_commands;
+		ShaderCodeFragment m_commonCode;
+		Pipeline::RasterOptions m_rasterOptions;
+		GeometryPass m_geomPass;
+
 		math::Mat44f		mShadowProj;
 		math::Mat44f		mUnbiasedShadowProj;
-		std::string			mCommonShaderCode;
 		float mBias = 0.001f;
-
-		std::unordered_map<uint32_t,gfx::Pipeline> m_regularPipelines;
-		std::unordered_map<uint32_t,gfx::Pipeline> m_mirroredPipelines;
 	};
 
 }
