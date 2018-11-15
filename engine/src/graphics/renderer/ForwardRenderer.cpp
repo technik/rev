@@ -44,12 +44,15 @@ namespace rev::gfx {
 		m_targetBuffer = target;
 
 		// Create the depth texture and framebuffer
+		m_depthTexture = ZPrePass::createDepthMapTexture(device, targetSize);
+		auto depthBuffer = ShadowMapPass::createShadowBuffer(device, m_depthTexture);
+		mZPrePass = std::make_unique<ZPrePass>(device, depthBuffer, targetSize);
+		
+		// Create shadow pass
 		size_t shadowSize = 4*1024;
 		auto shadowTexSize = math::Vec2u{shadowSize, shadowSize};
 		m_shadowsTexture = ShadowMapPass::createShadowMapTexture(device, shadowTexSize);
 		auto shadowBuffer = ShadowMapPass::createShadowBuffer(device, m_shadowsTexture);
-		
-		// Create shadow pass
 		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowTexSize);
 
 		// Create the geometry forward pass
@@ -73,6 +76,10 @@ namespace rev::gfx {
 
 		// TODO: Cull shadow casters renderQ -> casters
 		// TODO: Cull visible shadow receivers visible -> receivers
+
+		// Z Prepass
+		mZPrePass->render(eye, m_visible);
+		mZPrePass->submit();
 
 		CommandBuffer::UniformBucket sharedUniforms;
 		// Render shadows (casters, receivers)
@@ -114,6 +121,7 @@ namespace rev::gfx {
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
 		m_bgPass->setViewport({ 0,0 }, _newSize);
+		mZPrePass->onResizeTarget(_newSize);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

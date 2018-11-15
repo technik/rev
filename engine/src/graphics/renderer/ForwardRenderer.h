@@ -26,6 +26,7 @@
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/renderer/RenderItem.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
+#include <graphics/renderer/renderPass/zPrePass.h>
 
 namespace rev::gfx {
 
@@ -58,8 +59,10 @@ namespace rev::gfx {
 		math::Vec2u m_targetSize;
 
 		gfx::Texture2d						m_shadowsTexture;
+		gfx::Texture2d						m_depthTexture;
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		std::unique_ptr<ForwardPass>		mForwardPass;
+		std::unique_ptr<ZPrePass>			mZPrePass;
 		FullScreenPass*						m_bgRenderer;
 		gfx::RenderPass*					m_bgPass = nullptr;
 		gfx::CommandBuffer					m_bgCommands;
