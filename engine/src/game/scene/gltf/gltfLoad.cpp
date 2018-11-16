@@ -494,10 +494,9 @@ namespace rev { namespace game {
 	{
 		std::vector<std::shared_ptr<Material>> materials;
 		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Repeat;
-		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Repeat;
+		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true, 1);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false, 1);
 		
 		// Load materials
@@ -539,7 +538,6 @@ namespace rev { namespace game {
 				// TODO: Load normal map in linear space!!
 				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, matDesc.normalTexture.index, false));
 			}
-			mat->addTexture("uFms", sony_fms_lut);
 			mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
 		}
@@ -650,9 +648,7 @@ namespace rev { namespace game {
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto sony_fms_lut = load2dTextureFromFile(gfxDevice, sampler, "sonyHill.png", true, 1);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "ibl_brdf.hdr", false, 1);
-		defaultMaterial->addTexture("uFms", sony_fms_lut);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Load buffers
