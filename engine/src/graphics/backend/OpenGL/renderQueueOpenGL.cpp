@@ -25,29 +25,31 @@ namespace rev :: gfx
 {
 	using Command = CommandBuffer::Command;
 
-	namespace {
-
-		void setUniforms(const CommandBuffer::UniformBucket& bucket)
-		{
-			for(auto& entry : bucket.floats)
-				glUniform1f(entry.first, entry.second);
-			for(auto& entry : bucket.vec3s)
-				glUniform3f(entry.first, entry.second[0], entry.second[1], entry.second[2]);
-			for(auto& entry : bucket.vec4s)
-				glUniform4f(entry.first, entry.second[0], entry.second[1], entry.second[2], entry.second[3]);
-			for(auto& entry : bucket.mat4s)
-				glUniformMatrix4fv(entry.first, 1, !math::Mat44f::is_col_major, entry.second.data());
-			for(auto& entry : bucket.mat4vs)
-				glUniformMatrix4fv(entry.first, entry.second.size(), !math::Mat44f::is_col_major, entry.second[0].data());
+	void RenderQueueOpenGL::setUniforms(const CommandBuffer::UniformBucket& bucket)
+	{
+		for(auto& entry : bucket.floats)
+			glUniform1f(entry.first, entry.second);
+		for(auto& entry : bucket.vec3s)
+			glUniform3f(entry.first, entry.second[0], entry.second[1], entry.second[2]);
+		for(auto& entry : bucket.vec4s)
+			glUniform4f(entry.first, entry.second[0], entry.second[1], entry.second[2], entry.second[3]);
+		for(auto& entry : bucket.mat4s)
+			glUniformMatrix4fv(entry.first, 1, !math::Mat44f::is_col_major, entry.second.data());
+		for(auto& entry : bucket.mat4vs)
+			glUniformMatrix4fv(entry.first, entry.second.size(), !math::Mat44f::is_col_major, entry.second[0].data());
 			
-			int texStage = 0;
-			for(auto& tex : bucket.textures)
+		for(auto& tex : bucket.textures)
+		{
+			auto slotIter = m_textureSlots.find(tex.first);
+			if(slotIter == m_textureSlots.end())
 			{
-				glActiveTexture(GL_TEXTURE0 + texStage);
-				glBindTexture(GL_TEXTURE_2D, tex.second.id);
-				glUniform1i(tex.first, texStage);
-				++texStage;
+				slotIter = m_textureSlots.emplace(tex.first,(int)m_textureSlots.size()).first;
 			}
+			int texStage = slotIter->second;
+			glActiveTexture(GL_TEXTURE0 + texStage);
+			glBindTexture(GL_TEXTURE_2D, tex.second.id);
+			glUniform1i(tex.first, texStage);
+			++texStage;
 		}
 	}
 

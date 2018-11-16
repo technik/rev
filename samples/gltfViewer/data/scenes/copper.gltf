@@ -13,26 +13,6 @@
 	],
 	"nodes": [
 		{
-			"name": "rig",
-			"translation": [
-				0,
-				0,
-				0
-			],
-			"rotation": [
-				0,
-				0,
-				0,
-				1
-			],
-			"scale": [
-				1,
-				1,
-				1
-			],
-			"children": [ 1, 7]
-		},
-		{
 			"name": "balls",
 			"translation": [
 				0,
@@ -50,7 +30,7 @@
 				1,
 				1
 			],
-			"children": [ 2, 3, 4, 5, 6]
+			"children": [ 1, 2, 3, 4, 5]
 		},
 		{
 			"name": "r-0",
@@ -151,25 +131,6 @@
 				1
 			],
 			"mesh": 4
-		},
-		{
-			"name": "front",
-			"translation": [
-				0,
-				0,
-				6
-			],
-			"rotation": [
-				0,
-				1,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
 		}
 	],
 	"meshes": [
