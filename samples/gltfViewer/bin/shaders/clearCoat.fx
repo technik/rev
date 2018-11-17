@@ -143,20 +143,21 @@ vec4 shadeSurface(ShadeInput inputs)
 	if(baseColor.a < 0.5)
 		discard;
 
+	metallic = 0.2;
 	baseColor.xyz = vec3(1.0,0.0,0.0);
-	float c0 = sin(vtxShadowPos.x*20) * sin(vtxShadowPos.y*40) * sin(vtxShadowPos.z*40);
-	baseColor.xyz *= vec3((tan(c0*10)*c0 > 0.05)? 0.0 : 1.0);
+	//float c0 = sin(vtxShadowPos.x*20) * sin(vtxShadowPos.y*40) * sin(vtxShadowPos.z*40);
+	//baseColor.xyz *= vec3((tan(c0*10)*c0 > 0.05)? 0.0 : 1.0);
 	roughness = 0.70;
-	metallic = 0.20;
 	const float dielectricF0 = 0.04;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
+	vec3 albedo = baseColor.xyz * (1-metallic);
 #ifdef sampler2D_uEnvironment
-	vec3 color = ibl(F0, inputs.normal, inputs.eye, baseColor.xyz, roughness, occlusion, shadowMask, inputs.ndv);
+	vec3 color = ibl(F0, inputs.normal, inputs.eye, albedo, roughness, occlusion, shadowMask, inputs.ndv);
 #else
 	vec3 color = baseColor.xyz;
 #endif
 	//color = vec3(shadowMask);
-	return vec4(color*.0, baseColor.a);
+	return vec4(color, baseColor.a);
 }
 
 #endif // PXL_SHADER

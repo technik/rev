@@ -128,14 +128,14 @@ namespace rev {
 		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad({10.f, 10.f}));
 
 		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("../data/shaders/metal-rough.fx");
+		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = m_gfx.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "../data/shaders/ibl_brdf.hdr", false, 1);
+		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "shaders/ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Create mesh renderer component

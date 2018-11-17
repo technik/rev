@@ -497,9 +497,9 @@ namespace rev { namespace game {
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "../data/shaders/ibl_brdf.hdr", false, 1);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 
-		auto clearCoatEffect = std::make_shared<Effect>("../data/shaders/clearCoat.fx");
+		auto clearCoatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
 		auto clearCoat = std::make_shared<Material>(clearCoatEffect);
 		
 		// Load materials
@@ -646,14 +646,14 @@ namespace rev { namespace game {
 			return;
 
 		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("../data/shaders/metal-rough.fx");
+		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "../data/shaders/ibl_brdf.hdr", false, 1);
+		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Load buffers

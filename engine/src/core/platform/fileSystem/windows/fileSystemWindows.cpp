@@ -9,6 +9,7 @@
 #include "fileSystemWindows.h"
 #include <iostream>
 #include <string>
+#include <filesystem>
 
 using namespace std;
 
@@ -69,9 +70,11 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		void FileSystemWindows::doFileChanged(const string& _fileName)
 		{
-			auto res = mFileChangedEvents.find(_fileName);
+			auto fileName = _fileName;
+			std::replace(fileName.begin(), fileName.end(), '\\', '/');
+			auto res = mFileChangedEvents.find(std::string(fileName));
 			if (res != mFileChangedEvents.end())
-				res->second(_fileName.c_str());
+				res->second(fileName.c_str());
 		}
 
 		//------------------------------------------------------------------------------------------------------------------

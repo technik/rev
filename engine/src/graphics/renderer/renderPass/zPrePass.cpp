@@ -51,7 +51,7 @@ namespace rev::gfx {
 		createRenderPass(_size);
 
 		// Pipeline config
-		m_commonCode = ShaderCodeFragment::loadFromFile("../data/shaders/zPrePass.fx");
+		m_commonCode = ShaderCodeFragment::loadFromFile("shaders/zPrePass.fx");
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 	}

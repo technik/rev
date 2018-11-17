@@ -55,7 +55,7 @@ namespace rev::gfx {
 		m_pass->record(m_commands);
 
 		// Pipeline config
-		m_commonCode = ShaderCodeFragment::loadFromFile("../data/shaders/shadowMap.fx");
+		m_commonCode = ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx");
 		m_rasterOptions.cullFront = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 	}

@@ -26,4 +26,5 @@ Debug
 imgui.ini
 indy
 sports
-bin
+
+/samples/Doom3/bin
