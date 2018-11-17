@@ -122,7 +122,10 @@ namespace rev::gfx {
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
 		m_bgPass->setViewport({ 0,0 }, _newSize);
-		mZPrePass->onResizeTarget(_newSize);
+		if(m_depthTexture.isValid())
+			m_device->destroyTexture2d(m_depthTexture);
+		m_depthTexture = ZPrePass::createDepthMapTexture(*m_device, _newSize);
+		mZPrePass->onResizeTarget(_newSize, m_depthTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

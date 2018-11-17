@@ -43,9 +43,7 @@ namespace rev::gfx {
 		static Texture2d createDepthMapTexture(Device& device, const math::Vec2u& size);
 		static FrameBuffer createDepthBuffer(Device& device, Texture2d texture);
 
-		void onResizeTarget(const math::Vec2u& newSize) {
-			m_viewportSize = newSize;
-		}
+		void onResizeTarget(const math::Vec2u& newSize, Texture2d targetTexture);
 
 		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
@@ -56,6 +54,8 @@ namespace rev::gfx {
 		void submit();
 
 	private:
+		void createRenderPass(const math::Vec2u& _size);
+
 		Device&		m_device;
 		RenderPass*	m_pass;
 		CommandBuffer m_commands;
@@ -63,6 +63,7 @@ namespace rev::gfx {
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 		math::Vec2u m_viewportSize;
+		FrameBuffer m_frameBuffer;
 
 		float mBias = 0.001f;
 	};

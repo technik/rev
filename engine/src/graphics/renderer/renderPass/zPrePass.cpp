@@ -47,18 +47,25 @@ namespace rev::gfx {
 		m_viewportSize = _size;
 
 		// Renderpass
-		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 1;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
-		passDesc.target = target;
-		passDesc.viewportSize = _size;
-		m_pass = device.createRenderPass(passDesc);
-		m_pass->record(m_commands);
+		m_frameBuffer = target;
+		createRenderPass(_size);
 
 		// Pipeline config
 		m_commonCode = ShaderCodeFragment::loadFromFile("../data/shaders/zPrePass.fx");
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void ZPrePass::createRenderPass(const math::Vec2u& _size)
+	{
+		RenderPass::Descriptor passDesc;
+		passDesc.clearDepth = 1;
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.target = m_frameBuffer;
+		passDesc.viewportSize = _size;
+		m_pass = m_device.createRenderPass(passDesc);
+		m_pass->record(m_commands);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -90,6 +97,13 @@ namespace rev::gfx {
 		shadowBufferDesc.numAttachments = 1;
 		shadowBufferDesc.attachments = &depthAttachment;
 		return device.createFrameBuffer(shadowBufferDesc);
+	}
+
+	void ZPrePass::onResizeTarget(const math::Vec2u& newSize, Texture2d targetTexture) {
+		m_viewportSize = newSize;
+		m_device.destroyRenderPass(*m_pass);
+		m_frameBuffer = createDepthBuffer(m_device, targetTexture);
+		createRenderPass(newSize);
 	}
 
 	//----------------------------------------------------------------------------------------------

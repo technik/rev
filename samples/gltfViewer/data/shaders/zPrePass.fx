@@ -14,7 +14,7 @@ out lowp vec3 outColor;
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	outColor = vec3(1.0);
+	//outColor = vec3(1.0);
 }
 
 #endif
