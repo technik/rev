@@ -28,6 +28,8 @@ namespace rev::game
 	{
 		// Load image from file
 		auto image = gfx::Image::load(fileName, 0);
+		if(!image.data())
+			return gfx::Texture2d();
 
 		// Fill out descriptor
 		gfx::Texture2d::Descriptor descriptor;

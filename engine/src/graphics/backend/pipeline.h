@@ -68,6 +68,46 @@ namespace rev :: gfx
 			bool normalized = false;
 		};
 
+		enum class DepthTest {
+			None = 0,
+			Lequal = 1,
+			Gequal = 2
+		};
+
+		enum class Winding
+		{
+			CW,
+			CCW
+		};
+
+		struct RasterOptions
+		{
+			bool cullBack = false;// Culling
+			bool cullFront = false;
+			Winding frontFace = Winding::CCW;
+			DepthTest depthTest = DepthTest::None;// Depth test
+
+			using Mask = uint32_t;
+
+			Mask mask() const {
+				Mask m = 0;
+				m |= (cullBack?1:0);
+				m |= (cullFront?1:0)<<1;
+				m |= ((frontFace==Winding::CCW)?1:0)<<2;
+				m |= (int(depthTest))<<3;
+				return m;
+			}
+
+			static RasterOptions fromMask(Mask m)
+			{
+				RasterOptions r;
+				r.cullBack = m & 1;
+				r.cullFront = m & (1<<1);
+				r.frontFace = Winding((m>>2) & 1);
+				r.depthTest = DepthTest(m>>3);
+				return r;
+			}
+		};
 		// TODO: Uniform buffers (VkPipelineLayout)
 
 		struct Descriptor {
@@ -78,21 +118,9 @@ namespace rev :: gfx
 			std::vector<Binding> instanceBuffers;
 			std::vector<Attribute> attributes;
 
-			// TODO: Fixed function
-			enum class DepthTest {
-				None,
-				Lequal,
-				Gequal
-			} depthTest = DepthTest::None;// Depth test
-			// Blending
-			bool cullBack = false;// Culling
-			bool cullFront = false;
-			enum Winding
-			{
-				CW,
-				CCW
-			} frontFace = CCW;
+			RasterOptions raster;
 
+			// TODO: Blending
 			// TODO: Uniform buffers
 		};
 

@@ -18,47 +18,39 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include <functional>
-#include <graphics/driver/shaderProcessor.h>
+
+#include <graphics/backend/frameBuffer.h>
 
 namespace rev::gfx {
 
-	class Effect
+	class Device;
+
+	class DeferredRenderer
 	{
 	public:
-		// Effect creation
-		Effect(const std::string& _fileName);
-
-		using Property = ShaderProcessor::Uniform;
-
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
-
-		using ReloadCb = std::function<void(const Effect&)>;
-
-		void onReload(ReloadCb cb) {
-			m_reloadCbs.push_back(cb);
-		}
+		DeferredRenderer(Device& device, FrameBuffer target, const math::Vec2u& _size);
 
 	private:
-		void invokeCallbacks();
-		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
+		void createBuffers();
+		void createRenderPasses();
 
-		void reload(const char* _filename);
+	private:
+		Device&		m_device;
 
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
+		// Geometry pass
+		// Shadow pass
+		// SSAO pass
+		// Lighting pass
+		// Environment pass ?
+
+		// Shadow map(s)
+		// SSAO map F32 / RGB32
+		// SSAO blur map
+		// G-Buffer:
+		//	Normals buffer -> RGB32
+		//	Depth map -> F32
+		//	Albedo, metallic, roughness -> RGB8
+		//	Emissive -> RGB32
 	};
 
-}
+}	// namespace rev::gfx

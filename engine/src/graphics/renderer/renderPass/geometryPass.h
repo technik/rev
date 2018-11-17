@@ -18,47 +18,49 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <memory>
+
+#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/scene/renderGeom.h>
 #include <string>
-#include <unordered_map>
+#include <map>
+#include <utility>
 #include <vector>
-#include <functional>
-#include <graphics/driver/shaderProcessor.h>
 
 namespace rev::gfx {
 
-	class Effect
+	class Device;
+	class ShaderCodeFragment;
+
+	class GeometryPass
 	{
 	public:
-		// Effect creation
-		Effect(const std::string& _fileName);
+		GeometryPass(Device& device, ShaderCodeFragment& passCommonCode);
 
-		using Property = ShaderProcessor::Uniform;
+		struct Instance
+		{
+			ShaderCodeFragment* instanceCode;
+			Pipeline::RasterOptions::Mask raster;
+			CommandBuffer::UniformBucket uniforms;
+			uint32_t geometryIndex;
+		};
 
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
-
-		using ReloadCb = std::function<void(const Effect&)>;
-
-		void onReload(ReloadCb cb) {
-			m_reloadCbs.push_back(cb);
-		}
+		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
+		void render(
+			const std::vector<const RenderGeom*>& geometry,
+			const std::vector<Instance>& instances,
+			CommandBuffer& out);
 
 	private:
-		void invokeCallbacks();
-		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
+		Device& mDevice;
+		Pipeline getPipeline(const Instance&);
 
-		void reload(const char* _filename);
+		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
+		Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
 
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
+		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
+		// Stored pipelines
+		std::map<PipelineSrc, Pipeline> mPipelines;
 	};
 
-}
+}	// namespace rev::gfx

@@ -377,30 +377,30 @@ namespace rev :: gfx
 		// Fixed function
 		auto& desc = pipeline.desc;
 		// Depth tests
-		if(Pipeline::Descriptor::DepthTest::None == desc.depthTest)
+		if(Pipeline::DepthTest::None == desc.raster.depthTest)
 		{
 			glDisable(GL_DEPTH_TEST);
 		}
 		else
 		{
 			glEnable(GL_DEPTH_TEST);
-			switch(desc.depthTest)
+			switch(desc.raster.depthTest)
 			{
-				case Pipeline::Descriptor::DepthTest::Lequal:
+				case Pipeline::DepthTest::Lequal:
 					glDepthFunc(GL_LEQUAL);
 					break;
-				case Pipeline::Descriptor::DepthTest::Gequal:
+				case Pipeline::DepthTest::Gequal:
 					glDepthFunc(GL_GEQUAL);
 					break;
 			}
 		}
 		// Culling
-		if(desc.cullFront || desc.cullBack)
+		if(desc.raster.cullFront || desc.raster.cullBack)
 		{
 			glEnable(GL_CULL_FACE);
-			if(desc.cullBack && desc.cullFront)
+			if(desc.raster.cullBack && desc.raster.cullFront)
 				glCullFace(GL_FRONT_AND_BACK);
-			else if(desc.cullBack)
+			else if(desc.raster.cullBack)
 				glCullFace(GL_BACK);
 			else
 				glCullFace(GL_FRONT);
@@ -408,7 +408,7 @@ namespace rev :: gfx
 		else
 			glDisable(GL_CULL_FACE);
 		// Front face winding
-		if(desc.frontFace == Pipeline::Descriptor::CW)
+		if(desc.raster.frontFace == Pipeline::Winding::CW)
 			glFrontFace(GL_CW);
 		else
 			glFrontFace(GL_CCW);

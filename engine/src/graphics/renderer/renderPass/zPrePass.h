@@ -19,46 +19,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
-#include <string>
+#include <math/algebra/affineTransform.h>
+#include <math/geometry/aabb.h>
+#include <graphics/backend/commandBuffer.h>
+#include <graphics/renderer/renderPass/geometryPass.h>
+#include <graphics/shaders/shaderCodeFragment.h>
+#include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderObj.h>
+#include <graphics/scene/Light.h>
+#include <graphics/renderer/RenderItem.h>
 #include <unordered_map>
 #include <vector>
-#include <functional>
-#include <graphics/driver/shaderProcessor.h>
 
 namespace rev::gfx {
 
-	class Effect
+	class Camera;
+
+	class ZPrePass
 	{
 	public:
-		// Effect creation
-		Effect(const std::string& _fileName);
+		ZPrePass(Device& device, FrameBuffer target, const math::Vec2u& _size);
 
-		using Property = ShaderProcessor::Uniform;
+		static Texture2d createDepthMapTexture(Device& device, const math::Vec2u& size);
+		static FrameBuffer createDepthBuffer(Device& device, Texture2d texture);
 
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
+		void onResizeTarget(const math::Vec2u& newSize, Texture2d targetTexture);
 
-		using ReloadCb = std::function<void(const Effect&)>;
-
-		void onReload(ReloadCb cb) {
-			m_reloadCbs.push_back(cb);
-		}
+		// view camera is used to adjust projection frustum.
+		// Culling BBox is extended towards the camera before culling actually happens
+		void render(
+			const Camera& eye,
+			const std::vector<gfx::RenderItem>& renderables
+		);
+		void submit();
 
 	private:
-		void invokeCallbacks();
-		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
+		void createRenderPass(const math::Vec2u& _size);
 
-		void reload(const char* _filename);
+		Device&		m_device;
+		RenderPass*	m_pass;
+		CommandBuffer m_commands;
+		ShaderCodeFragment m_commonCode;
+		Pipeline::RasterOptions m_rasterOptions;
+		GeometryPass m_geomPass;
+		math::Vec2u m_viewportSize;
+		FrameBuffer m_frameBuffer;
 
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
+		float mBias = 0.001f;
 	};
 
 }

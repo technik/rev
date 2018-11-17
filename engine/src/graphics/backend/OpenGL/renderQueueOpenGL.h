@@ -20,12 +20,13 @@
 #pragma once
 
 #include "../renderQueue.h"
+#include "../commandBuffer.h"
 #include "renderPassOpenGL.h"
+#include <map>
 
 namespace rev :: gfx
 {
 	class DeviceOpenGL;
-	class CommandBuffer;
 
 	class RenderQueueOpenGL : public RenderQueue
 	{
@@ -42,7 +43,10 @@ namespace rev :: gfx
 		void submitCommandBuffer(const CommandBuffer&);
 
 	private:
+		void setUniforms(const CommandBuffer::UniformBucket& bucket);
+
 		DeviceOpenGL& m_device;
+		std::map<int,int> m_textureSlots;
 	};
 }
 

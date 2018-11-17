@@ -29,18 +29,13 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, const RenderPass::Descriptor& desc, const char* code = nullptr);
+		FullScreenPass(gfx::Device&, const char* code = nullptr);
 
 		void setPassCode(const char* code);
 
-		void render(const CommandBuffer::UniformBucket& passUniforms);
-		void submit() const;
+		void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
 
 		bool isOk() const { return m_pipeline.isValid(); }
-		void onResizeTarget(const math::Vec2u& newSize)
-		{
-			m_pass->setViewport(math::Vec2u::zero(), newSize);
-		}
 
 	private:
 		gfx::Device& m_device;
@@ -48,9 +43,6 @@ namespace rev::gfx {
 
 		std::string m_commonCode;
 		Pipeline m_pipeline;
-
-		CommandBuffer m_commands;
-		RenderPass* m_pass = nullptr;
 	};
 
 }

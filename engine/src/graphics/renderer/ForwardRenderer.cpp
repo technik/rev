@@ -40,15 +40,19 @@ namespace rev::gfx {
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
 	{
+		m_device = &device;
 		m_targetBuffer = target;
 
 		// Create the depth texture and framebuffer
+		m_depthTexture = ZPrePass::createDepthMapTexture(device, targetSize);
+		auto depthBuffer = ShadowMapPass::createShadowBuffer(device, m_depthTexture);
+		mZPrePass = std::make_unique<ZPrePass>(device, depthBuffer, targetSize);
+		
+		// Create shadow pass
 		size_t shadowSize = 4*1024;
 		auto shadowTexSize = math::Vec2u{shadowSize, shadowSize};
 		m_shadowsTexture = ShadowMapPass::createShadowMapTexture(device, shadowTexSize);
 		auto shadowBuffer = ShadowMapPass::createShadowBuffer(device, m_shadowsTexture);
-		
-		// Create shadow pass
 		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowTexSize);
 
 		// Create the geometry forward pass
@@ -73,12 +77,18 @@ namespace rev::gfx {
 		// TODO: Cull shadow casters renderQ -> casters
 		// TODO: Cull visible shadow receivers visible -> receivers
 
+		// Z Prepass
+		mZPrePass->render(eye, m_visible);
+		mZPrePass->submit();
+
 		CommandBuffer::UniformBucket sharedUniforms;
+		sharedUniforms.addParam(29, m_depthTexture);
 		// Render shadows (casters, receivers)
 		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		if(useShadows)
 		{
 			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0]);
+			mShadowPass->submit();
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);
@@ -89,7 +99,7 @@ namespace rev::gfx {
 		// TODO: Sort visible objects
 		auto env = &*scene.environment();
 		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms); // Render visible objects
-		if(env && m_bgPass->isOk())
+		if(env && m_bgRenderer->isOk())
 		{
 			// Uniforms
 			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
@@ -99,8 +109,9 @@ namespace rev::gfx {
 			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
 			bgUniforms.textures.push_back({7, env->texture()} );
 			// Render
-			m_bgPass->render(bgUniforms);
-			m_bgPass->submit();
+			m_bgCommands.clear();
+			m_bgRenderer->render(bgUniforms, m_bgCommands);
+			m_device->renderQueue().submitPass(*m_bgPass);
 		}
 	}
 
@@ -110,7 +121,11 @@ namespace rev::gfx {
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
-		m_bgPass->onResizeTarget(_newSize);
+		m_bgPass->setViewport({ 0,0 }, _newSize);
+		if(m_depthTexture.isValid())
+			m_device->destroyTexture2d(m_depthTexture);
+		m_depthTexture = ZPrePass::createDepthMapTexture(*m_device, _newSize);
+		mZPrePass->onResizeTarget(_newSize, m_depthTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -146,13 +161,15 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
-		m_bgPass = new FullScreenPass(device, passDesc);
+		m_bgRenderer = new FullScreenPass(device);
+		m_bgPass = device.createRenderPass(passDesc);
+		m_bgPass->record(m_bgCommands);
 
 		// Shader stages
 		std::string skyShaderCode;
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
-		m_bgPass->setPassCode(skyShaderCode.c_str());
+		ShaderProcessor::loadCodeFromFile("../data/shaders/sky.fx", skyShaderCode, metadata);
+		m_bgRenderer->setPassCode(skyShaderCode.c_str());
 
 		// Shader reload
 		for(auto& file : metadata.dependencies)
@@ -160,10 +177,11 @@ namespace rev::gfx {
 			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
 				std::string skyShaderCode;
 				ShaderProcessor::MetaData metadata;
-				ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
-				m_bgPass->setPassCode(skyShaderCode.c_str());
+				ShaderProcessor::loadCodeFromFile("../data/shaders/sky.fx", skyShaderCode, metadata);
+				m_bgRenderer->setPassCode(skyShaderCode.c_str());
 			};
 		}
+
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

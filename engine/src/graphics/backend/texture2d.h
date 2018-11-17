@@ -46,8 +46,10 @@ namespace rev :: gfx
 			/// Automatically for the range [providedImages, mipLevels-1].
 			Image* srcImages = nullptr;
 			size_t providedImages = 0;
+
 		};
 
+		bool isValid() const { return InvalidId != id; }
 		static constexpr int32_t InvalidId = -1;
 
 		int32_t id = InvalidId;

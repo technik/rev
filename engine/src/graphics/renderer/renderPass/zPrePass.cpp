@@ -17,9 +17,8 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "ShadowMapPass.h"
+#include "zPrePass.h"
 
-#include <core/platform/fileSystem/file.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/renderPass.h>
@@ -40,28 +39,37 @@ using namespace std;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
+	ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
 		, m_geomPass(device, m_commonCode)
 	{
 		assert(target.valid());
+		m_viewportSize = _size;
+
 		// Renderpass
-		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 1;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
-		passDesc.target = target;
-		passDesc.viewportSize = _size;
-		m_pass = device.createRenderPass(passDesc);
-		m_pass->record(m_commands);
+		m_frameBuffer = target;
+		createRenderPass(_size);
 
 		// Pipeline config
-		m_commonCode = ShaderCodeFragment::loadFromFile("../data/shaders/shadowMap.fx");
-		m_rasterOptions.cullFront = true;
+		m_commonCode = ShaderCodeFragment::loadFromFile("../data/shaders/zPrePass.fx");
+		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
+	void ZPrePass::createRenderPass(const math::Vec2u& _size)
+	{
+		RenderPass::Descriptor passDesc;
+		passDesc.clearDepth = 1;
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.target = m_frameBuffer;
+		passDesc.viewportSize = _size;
+		m_pass = m_device.createRenderPass(passDesc);
+		m_pass->record(m_commands);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Texture2d ZPrePass::createDepthMapTexture(Device& device, const math::Vec2u& size)
 	{
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
 		shadowSamplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
@@ -80,7 +88,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
+	FrameBuffer ZPrePass::createDepthBuffer(Device& device, Texture2d texture)
 	{
 		gfx::FrameBuffer::Attachment depthAttachment;
 		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
@@ -91,58 +99,18 @@ namespace rev::gfx {
 		return device.createFrameBuffer(shadowBufferDesc);
 	}
 
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::render(
-		const std::vector<gfx::RenderItem>& shadowCasters,
-		const std::vector<gfx::RenderItem>&,// shadowReceivers,
-		const Camera& view,
-		const Light& light)
-	{
-		// Accumulate all casters into a single shadow space bounding box
-		AABB castersBBox; castersBBox.clear();
-		for(auto& obj : shadowCasters)
-		{
-			// Object's bounding box in shadow space
-			auto bbox = obj.geom.bbox().transform(obj.world);
-			castersBBox = math::AABB(castersBBox, bbox);
-		}
-
-		auto world = light.worldMatrix; // So that light's +y axis (forward), maps to the -Z in camera
-		adjustViewMatrix(world, castersBBox);// Adjust view matrix
-
-		// Render
-		renderMeshes(shadowCasters); // Iterate over renderables
+	void ZPrePass::onResizeTarget(const math::Vec2u& newSize, Texture2d targetTexture) {
+		m_viewportSize = newSize;
+		m_device.destroyRenderPass(*m_pass);
+		m_frameBuffer = createDepthBuffer(m_device, targetTexture);
+		createRenderPass(newSize);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::submit()
-	{
-		m_device.renderQueue().submitPass(*m_pass);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& wsLight, const math::AABB& castersBBox)
-	{
-		auto shadowWorldXForm = wsLight;
-		auto shadowCenter = castersBBox.origin();
-		shadowWorldXForm.position() = shadowCenter;
-		auto shadowView = shadowWorldXForm.orthoNormalInverse();
-
-		auto lightSpaceCastersBBox = castersBBox.transform(shadowWorldXForm);
-		Mat44f biasMatrix = Mat44f::identity();
-		biasMatrix(2,3) = -mBias;
-
-		auto orthoSize = lightSpaceCastersBBox.size();
-		auto castersMin = -orthoSize.z()/2;
-		auto castersMax = orthoSize.z()/2;
-		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
-
-		mShadowProj = proj * biasMatrix * shadowView.matrix();
-		mUnbiasedShadowProj = proj * shadowView.matrix();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables)
+	void ZPrePass::render(
+		const Camera& eye,
+		const std::vector<gfx::RenderItem>& renderables
+	)
 	{
 		auto worldMatrix = Mat44f::identity();
 
@@ -155,6 +123,9 @@ namespace rev::gfx {
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
 
+		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
+		auto viewProj = eye.viewProj(aspectRatio);
+
 		for(auto& mesh : renderables)
 		{
 			// Raster options
@@ -163,7 +134,7 @@ namespace rev::gfx {
 			instance.raster = m_rasterOptions.mask();
 			// Uniforms
 			instance.uniforms.clear();
-			Mat44f wvp = mShadowProj* mesh.world.matrix();
+			Mat44f wvp = viewProj * mesh.world.matrix();
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
 			if(lastGeom != &mesh.geom)
@@ -179,4 +150,9 @@ namespace rev::gfx {
 		m_geomPass.render(geometry, renderList, m_commands);
 	}
 
+	//----------------------------------------------------------------------------------------------
+	void ZPrePass::submit()
+	{
+		m_device.renderQueue().submitPass(*m_pass);
+	}
 }

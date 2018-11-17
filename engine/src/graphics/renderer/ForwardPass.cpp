@@ -68,15 +68,15 @@ namespace rev::gfx {
 		m_pass->record(m_drawCommands);
 
 		// Common pipeline config
-		m_commonPipelineDesc.cullBack = true;
-		m_commonPipelineDesc.depthTest = Pipeline::Descriptor::DepthTest::Lequal;
+		m_commonPipelineDesc.raster.cullBack = true;
+		m_commonPipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void ForwardPass::loadCommonShaderCode()
 	{
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+		ShaderProcessor::loadCodeFromFile("../data/shaders/forward.fx", mForwardShaderCommonCode, metadata);
 		// TODO: Actualle use the metadata (unifrom layouts)
 		for(auto& file : metadata.dependencies)
 		{
@@ -84,7 +84,7 @@ namespace rev::gfx {
 				mPipelines.clear();
 				ShaderProcessor::MetaData metadata;
 				mForwardShaderCommonCode.clear();
-				ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+				ShaderProcessor::loadCodeFromFile("../data/shaders/forward.fx", mForwardShaderCommonCode, metadata);
 			};
 		}
 	}	
@@ -119,7 +119,7 @@ namespace rev::gfx {
 			).first;
 			auto& effect = mat.effect();
 			// Listen to effect reload
-			mat.effect().onReload([this, code](Effect& effect){
+			mat.effect().onReload([this, code](const Effect& effect){
 				auto setIter = mPipelines.find({code, &effect});
 				if(setIter != mPipelines.end())
 					setIter->second.clear();
@@ -159,7 +159,7 @@ namespace rev::gfx {
 			if(m_commonPipelineDesc.vtxShader.valid()
 			&& m_commonPipelineDesc.pxlShader.valid())
 			{
-				m_commonPipelineDesc.frontFace = mirror ? Pipeline::Descriptor::Winding::CW : Pipeline::Descriptor::Winding::CCW;
+				m_commonPipelineDesc.raster.frontFace = mirror ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
 				pipeline = m_gfxDevice.createPipeline(m_commonPipelineDesc);
 			}
 

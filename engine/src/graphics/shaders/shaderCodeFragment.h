@@ -18,47 +18,49 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
+
 #include <functional>
+#include <string>
+#include <vector>
 #include <graphics/driver/shaderProcessor.h>
 
 namespace rev::gfx {
 
-	class Effect
+	class ShaderCodeFragment
 	{
 	public:
-		// Effect creation
-		Effect(const std::string& _fileName);
+		// Default constructor
+		ShaderCodeFragment() = default;
+		// Constructor from code
+		ShaderCodeFragment(const char* code);
+		// Composition constructor
+		ShaderCodeFragment(ShaderCodeFragment& a, ShaderCodeFragment& b);
+		static ShaderCodeFragment loadFromFile(const std::string& path);
 
-		using Property = ShaderProcessor::Uniform;
+		// Add all fragments of code
+		void collapse(std::vector<std::string>& dst) const;
 
-		const Property* property(const std::string& name) const;
-		const std::vector<Property>& properties() const { return m_properties; }
-		const std::string& code() const { return m_code; }
+		using ReloadCb = std::function<void(ShaderCodeFragment&)>;
+		void onReload(ReloadCb cb)
+		{
+			m_reloadListeners.push_back(cb);
+		}
 
-		using ReloadCb = std::function<void(const Effect&)>;
-
-		void onReload(ReloadCb cb) {
-			m_reloadCbs.push_back(cb);
+		const ShaderProcessor::MetaData& metadata() const
+		{
+			return m_metaData;
 		}
 
 	private:
-		void invokeCallbacks();
-		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
 
-		void reload(const char* _filename);
+		void invokeReload();
 
-		std::vector<ReloadCb>	m_reloadCbs;
-		std::vector<Property>	m_properties;
-		std::string				m_code;
-		// TODO: Support shader permutations by defining #pragma shader_option in a shader
-		// when the material enables the option, the shader option will be #defined in the material
-		// Advanced uses may allow enumerated or integer values for the options
-		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
-		// This should allow optimization of shaders when some computations won't be used.
+		ShaderProcessor::MetaData m_metaData;
+		std::vector<ReloadCb> m_reloadListeners;
+		std::string m_srcCode;
+		std::string m_processedCode;
+		const ShaderCodeFragment* m_childA = nullptr;
+		const ShaderCodeFragment* m_childB = nullptr;
 	};
 
-}
+}	// namespace rev::gfx
