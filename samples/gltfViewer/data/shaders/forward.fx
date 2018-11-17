@@ -17,31 +17,8 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "load.h"
-#include <graphics/backend/device.h>
-#include <graphics/Image.h>
-#include <core/platform/fileSystem/file.h>
 
-namespace rev::game
-{
-	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nMips)
-	{
-		// Load image from file
-		auto image = gfx::Image::load(fileName, 0);
-		if(!image.data())
-			return gfx::Texture2d();
-
-		// Fill out descriptor
-		gfx::Texture2d::Descriptor descriptor;
-		descriptor.pixelFormat = image.format();
-		descriptor.sampler = sampler;
-		descriptor.sRGB = sRGB;
-		descriptor.size = image.size();
-		descriptor.srcImages = &image;
-		descriptor.providedImages = 1;
-		descriptor.mipLevels = nMips;
-
-		// Create texture in device
-		return device.createTexture2d(descriptor);
-	}
-}
+// Global shader code for forward shading pass
+#include "vertex-forward.fx"
+#include "pixel-forward.fx"
+// Include can't be the last line

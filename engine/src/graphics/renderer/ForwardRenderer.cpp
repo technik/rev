@@ -168,7 +168,7 @@ namespace rev::gfx {
 		// Shader stages
 		std::string skyShaderCode;
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
+		ShaderProcessor::loadCodeFromFile("../data/shaders/sky.fx", skyShaderCode, metadata);
 		m_bgRenderer->setPassCode(skyShaderCode.c_str());
 
 		// Shader reload
@@ -177,7 +177,7 @@ namespace rev::gfx {
 			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
 				std::string skyShaderCode;
 				ShaderProcessor::MetaData metadata;
-				ShaderProcessor::loadCodeFromFile("sky.fx", skyShaderCode, metadata);
+				ShaderProcessor::loadCodeFromFile("../data/shaders/sky.fx", skyShaderCode, metadata);
 				m_bgRenderer->setPassCode(skyShaderCode.c_str());
 			};
 		}

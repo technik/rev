@@ -76,7 +76,7 @@ namespace rev::gfx {
 	void ForwardPass::loadCommonShaderCode()
 	{
 		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+		ShaderProcessor::loadCodeFromFile("../data/shaders/forward.fx", mForwardShaderCommonCode, metadata);
 		// TODO: Actualle use the metadata (unifrom layouts)
 		for(auto& file : metadata.dependencies)
 		{
@@ -84,7 +84,7 @@ namespace rev::gfx {
 				mPipelines.clear();
 				ShaderProcessor::MetaData metadata;
 				mForwardShaderCommonCode.clear();
-				ShaderProcessor::loadCodeFromFile("forward.fx", mForwardShaderCommonCode, metadata);
+				ShaderProcessor::loadCodeFromFile("../data/shaders/forward.fx", mForwardShaderCommonCode, metadata);
 			};
 		}
 	}	
