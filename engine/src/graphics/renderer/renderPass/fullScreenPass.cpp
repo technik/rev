@@ -92,7 +92,7 @@ void main (void) {
 		out.setPipeline(m_pipeline);
 		out.setUniformData(passUniforms);
 		out.setVertexData(m_quad.getVao());
-		out.drawTriangles(6, CommandBuffer::IndexType::U16);
+		out.drawTriangles(6, CommandBuffer::IndexType::U16, nullptr);
 	}
 
 }

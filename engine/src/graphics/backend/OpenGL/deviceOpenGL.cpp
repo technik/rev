@@ -351,13 +351,13 @@ namespace rev :: gfx
 			switch(desc.pixelFormat.numChannels)
 			{
 				case 1:
-					return GL_R;
+					return GL_R32F;
 				case 2:
-					return GL_RG;
+					return GL_RG32F;
 				case 3:
-					return GL_RGB8;
+					return GL_RGB32F;
 				case 4:
-					return GL_RGBA;
+					return GL_RGBA32F;
 				default:
 					assert(!"Images must have [1,4] channels");
 			}

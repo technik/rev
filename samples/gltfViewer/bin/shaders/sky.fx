@@ -25,7 +25,9 @@ vec3 shade () {
 	vec3 vtxViewDir = (invViewProj * vec4(uv, 1.0, 1.0)).xyz;
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
 	
+	color.xyz = color.xyz / (0.4+color.xyz);
 	return pow(pow(2, uEV) * color, vec3(0.4545));
+	//return color.r > 1.0 ? vec3(1.0,0.0,0.0) : color;//pow(color, vec3(1.0004545));
 }
 
 #endif

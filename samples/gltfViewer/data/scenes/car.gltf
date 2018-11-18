@@ -28462,7 +28462,7 @@
 		{
 			"name": "rubber",
 			"pbrMetallicRoughness": {
-				"baseColorFactor": [0, 0, 0, 1],
+				"baseColorFactor": [0.2078431, 0.2078431, 0.2078431, 1],
 				"metallicFactor":0.01,
 				"roughnessFactor":1
 			}
@@ -28472,7 +28472,7 @@
 			"pbrMetallicRoughness": {
 				"baseColorFactor": [1, 0.71, 0.29, 1],
 				"metallicFactor":1,
-				"roughnessFactor":0.1
+				"roughnessFactor":0.25
 			}
 		},
 		{

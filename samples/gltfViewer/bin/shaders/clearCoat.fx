@@ -63,38 +63,34 @@ vec3 ibl(
   float shadow,
   float ndv
   )
-{
+{	
 	// Common code for single and multiple scattering
-	vec2 f_ab = textureLod(uEnvBRDF, vec2(min(0.99,ndv), max(0.01, roughness)), 0).xy;
-	vec2 f_ccab = textureLod(uEnvBRDF, vec2(min(0.99,ndv), 0.01), 0).xy;
-	vec3 samplerDir = reflect(-eye, normal);
-
-	// Clear coat reflectivity
-	float coatF0 = 0.053; // Approx reflectivity of transparent plastics
-	float ccAvgFresnel = coatF0 + (1-coatF0)/3;
-	float ccKs = coatF0 + (1-coatF0) * pow(1.0-ndv, 5.0);
-	vec3 ccContrib = ccKs * pow(getRadiance(samplerDir, 0.0), vec3(1.0)) * shadow;
-
-	// Very rough approx to fresnel against clear coat
-	F0 = F0*F0;
 	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
 	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
-	vec3 Fssfss = (kS * f_ab.x + f_ab.y); // Normalized reflectivity
+
+	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
+	vec3 FssEss = kS * f_ab.x + f_ab.y;
+	float Ess = f_ab.x + f_ab.y;
+	float Ems = 1-Ess;
 
 	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
-	vec3 radiance = pow(getRadiance(samplerDir, lodLevel), vec3(1.0)); // Prefiltered radiance
-	vec3 irradiance = occlusion * pow(getIrradiance(normal), vec3(1.0)); // Cosine-weighted irradiance
+	vec3 samplerDir = reflect(-eye, normal);
+	vec3 radiance = pow(getRadiance(samplerDir, lodLevel), vec3(1.0)) * mix(occlusion * shadow,1,max(0.0,dot(normal,samplerDir))); // Prefiltered radiance
 
+	//if(radiance.r > 1.0 && radiance.g > 1.0 && radiance.b > 1.0)
+	//	radiance.rgb = vec3(1.0, 0.0, 0.0);
+	vec3 irradiance = pow(getIrradiance(normal), vec3(1.0)) * occlusion * shadow; // Cosine-weighted irradiance
+
+	//if(irradiance.r > 1.0 && irradiance.g > 1.0 && irradiance.b > 1.0)
+	//	irradiance.rgb = vec3(0.0, 1.0, 0.0);
 	// Multiple scattering
-	float fms = 1-(f_ab.x+f_ab.y); // MS energy
-	vec3 Favg = F0 + Fr/3; // Average fresnel
-	vec3 Fms = Fssfss*Favg/(1-Favg*fms);
+	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
-	vec3 kD = 1.0 - Fssfss - Fms * fms;
+	vec3 kD = 1.0 - (FssEss + Fms* Ems);
 
 	// Composition
-	return ccContrib + ((1-ccContrib) * Fssfss * radiance + (1-ccAvgFresnel) * (Fms * fms + kD*albedo) * irradiance) * shadow;
+	return FssEss * radiance + (Fms * Ems + kD*albedo) * irradiance;
 }
 #endif // sampler2D_uEnvironment
 
@@ -143,11 +139,11 @@ vec4 shadeSurface(ShadeInput inputs)
 	if(baseColor.a < 0.5)
 		discard;
 
-	metallic = 0.2;
-	baseColor.xyz = vec3(1.0,0.0,0.0);
+	metallic = 0.1;
+	baseColor.xyz = vec3(1.0,1.0,1.0);
 	//float c0 = sin(vtxShadowPos.x*20) * sin(vtxShadowPos.y*40) * sin(vtxShadowPos.z*40);
 	//baseColor.xyz *= vec3((tan(c0*10)*c0 > 0.05)? 0.0 : 1.0);
-	roughness = 0.70;
+	roughness = 0.01;
 	const float dielectricF0 = 0.04;
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
 	vec3 albedo = baseColor.xyz * (1-metallic);

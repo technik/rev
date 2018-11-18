@@ -83,8 +83,10 @@ vec3 ibl(
 
 	// Dielectrics
 	vec3 kD = 1.0 - (FssEss + Fms* Ems);
+	//vec3 kD = 1.0 - kS;
 
 	// Composition
+	//return (FssEss * radiance + kD*albedo * irradiance);
 	return (FssEss * radiance + (Fms * Ems + kD*albedo) * irradiance);
 }
 #endif // sampler2D_uEnvironment

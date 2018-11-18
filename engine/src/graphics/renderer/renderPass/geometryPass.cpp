@@ -72,10 +72,10 @@ namespace rev::gfx {
 			// Draw
 			CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U16;
 			if(geom->indices().componentType == GL_UNSIGNED_BYTE)
-				CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U8;
+				indexType = CommandBuffer::IndexType::U8;
 			if (geom->indices().componentType == GL_UNSIGNED_INT)
-				CommandBuffer::IndexType indexType = CommandBuffer::IndexType::U32;
-			out.drawTriangles(geom->indices().count, indexType);
+				indexType = CommandBuffer::IndexType::U32;
+			out.drawTriangles(geom->indices().count, indexType, geom->indices().offset);
 		}
 	}
 

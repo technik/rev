@@ -88,6 +88,7 @@ namespace rev :: gfx
 		{
 			int nIndices;
 			IndexType indexType;
+			void* offset = nullptr;
 		};
 
 		void setPipeline(Pipeline pipeline)
@@ -104,10 +105,10 @@ namespace rev :: gfx
 		{
 			m_commands.push_back({Command::SetVtxData, (int32_t)vao});
 		}
-		void drawTriangles(int numIndices, IndexType indexType)
+		void drawTriangles(int numIndices, IndexType indexType, void* offset)
 		{
 			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
-			m_draws.push_back({numIndices, indexType});
+			m_draws.push_back({numIndices, indexType, offset});
 		}
 		void drawLines(int nVertices, IndexType);
 

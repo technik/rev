@@ -230,8 +230,12 @@ namespace rev::gfx {
 			m_drawCommands.setUniformData(uniforms);
 			m_drawCommands.setUniformData(sharedUniforms);
 			m_drawCommands.setVertexData(renderable.geom.getVao());
-			assert(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT);
-			m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16);
+			if(renderable.geom.indices().componentType == GL_UNSIGNED_BYTE)
+				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U8, renderable.geom.indices().offset);
+			if(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT)
+				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16, renderable.geom.indices().offset);
+			if(renderable.geom.indices().componentType == GL_UNSIGNED_INT)
+				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U32, renderable.geom.indices().offset);
 		}
 
 		// Finish pass

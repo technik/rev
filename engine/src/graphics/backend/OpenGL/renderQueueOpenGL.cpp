@@ -90,7 +90,7 @@ namespace rev :: gfx
 					if(drawInfo.indexType == CommandBuffer::IndexType::U32)
 						indexType = GL_UNSIGNED_INT;
 
-					glDrawElements(GL_TRIANGLES, drawInfo.nIndices, indexType, nullptr);
+					glDrawElements(GL_TRIANGLES, drawInfo.nIndices, indexType, drawInfo.offset);
 					break;
 				}
 				case Command::DrawLines:
@@ -102,7 +102,7 @@ namespace rev :: gfx
 					if(drawInfo.indexType == CommandBuffer::IndexType::U32)
 						indexType = GL_UNSIGNED_INT;
 
-					glDrawElements(GL_LINES, drawInfo.nIndices, indexType, nullptr);
+					glDrawElements(GL_LINES, drawInfo.nIndices, indexType, drawInfo.offset);
 					break;
 				}
 			}

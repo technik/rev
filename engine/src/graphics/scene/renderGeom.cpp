@@ -55,7 +55,7 @@ namespace rev::gfx
 		const Attribute* joints)
 	{
 		assert(indices);
-		assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
+		//assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
 		m_indices = *indices;
 		assert(position);
 		m_vtxAttributes.emplace_back(0, *position);

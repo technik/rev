@@ -125,7 +125,7 @@ namespace rev {
 		auto floorNode = mGameScene.root()->createChild("floor");
 		floorNode->addComponent<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
 
-		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad({10.f, 10.f}));
+		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad({100.f, 100.f}));
 
 		// Create default material
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");

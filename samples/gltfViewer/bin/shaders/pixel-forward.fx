@@ -131,7 +131,7 @@ void main (void) {
 	offsets[7] = normalize(0.9*shadingInputs.normal-1.0*shadingInputs.tangent);
 	offsets[8] = 0.4*normalize(0.9*shadingInputs.normal-1.0*shadingInputs.bitangent);
 	float occluding = 0.0;
-	float aoRadius = 0.02;
+	float aoRadius = 0.05;
 	for(int i = 0; i < 1; ++i)
 	{
 		vec3 wsSamplePos = vtxWorldPos + aoRadius*offsets[i];
@@ -143,7 +143,7 @@ void main (void) {
 		vec3 wsDistance = wsRasterPoint.xyz - vtxWorldPos;
 		float rangeCheck = smoothstep(0.0,1.0, dot(wsDistance,wsDistance) / (aoRadius*aoRadius));
 		
-		occluding += dot(wsDistance, shadingInputs.normal) > 0.0001 ? 1.0*rangeCheck : 0.0;
+		occluding += dot(wsDistance, shadingInputs.normal) > 0.02 ? 1.0*rangeCheck : 0.0;
 	}
 	float ao = 1.0-(occluding/9);
 	shadingInputs.ao = ao;
@@ -151,6 +151,9 @@ void main (void) {
 	// ---- Shading ----
 	// Compute actual lighting
 	vec4 pbrColor = uEV * shadeSurface(shadingInputs);
+	//if(pbrColor.b > 1.0)
+	//	pbrColor.rgb = vec3(1.0, 0.0, 0.0);
+	pbrColor.xyz = pbrColor.xyz / (0.4+pbrColor.xyz);
 	vec3 toneMapped = pow(pbrColor.xyz, vec3(0.4545));
 
 	outColor = vec4(toneMapped, pbrColor.a);
