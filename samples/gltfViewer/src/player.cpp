@@ -141,10 +141,11 @@ namespace rev {
 		// Create mesh renderer component
 		auto renderable = std::make_shared<gfx::RenderMesh>();
 		renderable->mPrimitives.push_back({floorMesh, defaultMaterial});
-		auto renderObj = std::make_shared<gfx::RenderObj>(renderable);
-		mGraphicsScene.renderables().push_back(renderObj);
+		m_floorGeom = std::make_shared<gfx::RenderObj>(renderable);
+		m_floorGeom->visible = false;
+		mGraphicsScene.renderables().push_back(m_floorGeom);
 
-		floorNode->addComponent<game::MeshRenderer>(renderObj);
+		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -172,6 +173,7 @@ namespace rev {
 
 		if(ImGui::Begin("Environment"))
 		{
+			ImGui::Checkbox("Floor", &m_floorGeom->visible);
 			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
 			if(m_bgOptions.shadows)
 			{

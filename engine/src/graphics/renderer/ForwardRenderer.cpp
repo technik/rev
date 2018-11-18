@@ -144,6 +144,8 @@ namespace rev::gfx {
 		m_visible.clear();
 		for(auto obj : scene.renderables())
 		{			
+			if(!obj->visible)
+				continue;
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);

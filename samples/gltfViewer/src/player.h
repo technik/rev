@@ -47,6 +47,7 @@ namespace rev {
 		gfx::DeviceOpenGL&					m_gfx;
 		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
+		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
 
 	private:
 

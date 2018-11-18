@@ -26,6 +26,7 @@ namespace rev::gfx {
 			mesh = _mesh;
 		}
 
+		bool visible = true;
 		math::AffineTransform	transform;
 		std::shared_ptr<const RenderMesh> mesh;
 		std::shared_ptr<const SkinInstance> skin;

@@ -173,6 +173,13 @@ namespace rev::gfx
 			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
 			int width, height, realNumChannels;
 			uint8_t* imgData;
+			if(!nChannels)
+			{
+				int srcChannels;
+				stbi_info_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &srcChannels);
+				if(srcChannels < 3)
+					nChannels = 4;
+			}
 			// Read image data from buffer
 			if(isHDR)
 				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);

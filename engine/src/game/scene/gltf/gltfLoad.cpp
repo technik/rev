@@ -467,7 +467,7 @@ namespace rev { namespace game {
 		const std::string& assetsFolder,
 		const gltf::Document& document,
 		std::vector<gfx::Texture2d>& textures,
-		gfx::TextureSampler sampler,
+		gfx::TextureSampler defaultSampler,
 		int32_t index,
 		bool sRGB)
 	{
@@ -478,7 +478,13 @@ namespace rev { namespace game {
 		// Not previously allocated, do it now
 		auto textGltfDesc = document.textures[index];
 		auto& imageDesc = document.images[textGltfDesc.source];
-		texture = game::load2dTextureFromFile(device, sampler, assetsFolder + imageDesc.uri, sRGB);
+		if(textGltfDesc.sampler >= 0)
+		{
+			// TODO: Support custom samplers
+			//auto gltfSampler = document.samplers[textGltfDesc.sampler];
+			//if(gltfSampler.wrapS == gltf::Sampler::WrappingMode::Repeat
+		}
+		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB);
 
 		return texture;
 	}
@@ -499,6 +505,11 @@ namespace rev { namespace game {
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 
+		// Create default texture sampler
+		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Repeat;
+		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Repeat;
+		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
+
 		auto clearCoatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
 		auto clearCoat = std::make_shared<Material>(clearCoatEffect);
 		
@@ -515,7 +526,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, albedoNdx, false));
+					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false));
 				}
 				// Base color factor
 				{
@@ -529,7 +540,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, ndx, false));
+					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
 					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
@@ -537,11 +548,11 @@ namespace rev { namespace game {
 					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, matDesc.emissiveTexture.index, false));
+				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, sampler, matDesc.normalTexture.index, false));
+				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false));
 			}
 			mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
