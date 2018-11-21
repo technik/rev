@@ -83,6 +83,7 @@ vec3 ibl(
 	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
+	vec3 Edss = 1 - (FssEss + Fms * Ems);
 	vec3 kD = albedo * Edss / (1-albedo*(1-Edss));
 
 	// Composition
