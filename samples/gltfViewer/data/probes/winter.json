@@ -1,0 +1,37 @@
+[
+    {
+        "name": "winter0.hdr",
+        "size": [
+            1024,
+            512
+        ]
+    },
+    {
+        "name": "winter1.hdr",
+        "size": [
+            512,
+            256
+        ]
+    },
+    {
+        "name": "winter2.hdr",
+        "size": [
+            256,
+            128
+        ]
+    },
+    {
+        "name": "winter3.hdr",
+        "size": [
+            128,
+            64
+        ]
+    },
+    {
+        "name": "winter4.hdr",
+        "size": [
+            64,
+            32
+        ]
+    }
+]

@@ -1,0 +1,37 @@
+[
+    {
+        "name": "zion0.hdr",
+        "size": [
+            1024,
+            512
+        ]
+    },
+    {
+        "name": "zion1.hdr",
+        "size": [
+            512,
+            256
+        ]
+    },
+    {
+        "name": "zion2.hdr",
+        "size": [
+            256,
+            128
+        ]
+    },
+    {
+        "name": "zion3.hdr",
+        "size": [
+            128,
+            64
+        ]
+    },
+    {
+        "name": "zion4.hdr",
+        "size": [
+            64,
+            32
+        ]
+    }
+]

@@ -72,6 +72,7 @@ vec3 ibl(
 	vec3 FssEss = kS * f_ab.x + f_ab.y;
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
+	//Ems = 0.f;
 
 	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
 	vec3 samplerDir = reflect(-eye, normal);
@@ -82,12 +83,10 @@ vec3 ibl(
 	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
-	vec3 kD = 1.0 - (FssEss + Fms* Ems);
-	//vec3 kD = 1.0 - kS;
+	vec3 kD = albedo * Edss / (1-albedo*(1-Edss));
 
 	// Composition
-	//return (FssEss * radiance + kD*albedo * irradiance);
-	return (FssEss * radiance + (Fms * Ems + kD*albedo) * irradiance);
+	return (FssEss * radiance + (Fms * Ems + kD) * irradiance);
 }
 #endif // sampler2D_uEnvironment
 

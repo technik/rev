@@ -72,6 +72,7 @@ vec3 ibl(
 	vec3 FssEss = kS * f_ab.x + f_ab.y;
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
+	Ems = 0.0;
 
 	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
 	vec3 samplerDir = reflect(-eye, normal);
