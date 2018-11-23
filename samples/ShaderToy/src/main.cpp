@@ -46,7 +46,21 @@ int main(int _argc, const char** _argv) {
 	CommandBuffer fsCommandBuffer;
 	fullScreenPass->record(fsCommandBuffer);
 
-	FullScreenPass fullScreenFilter(gfxDevice);
+
+	// Actual shader code
+	FullScreenPass fullScreenFilter(gfxDevice, R"(
+#ifdef PXL_SHADER
+
+layout(location = 0) uniform vec4 t;
+layout(location = 1) uniform vec4 Window;
+
+vec3 shade () {	
+	vec2 uv = gl_FragCoord.xy / Window.xy;
+	return vec3(uv.x,uv.y,sin(t.y));
+}
+
+#endif
+)");
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
@@ -63,22 +77,6 @@ int main(int _argc, const char** _argv) {
 		//	return true;
 		return false;
 	};
-
-	// Actual shader code
-	const string fullScreenCode = R"(
-#ifdef PXL_SHADER
-
-layout(location = 0) uniform vec4 t;
-layout(location = 1) uniform vec4 Window;
-
-vec3 shade () {	
-	vec2 uv = gl_FragCoord.xy / Window.xy;
-	return vec3(uv.x,uv.y,sin(t.y));
-}
-
-#endif
-)";
-	fullScreenFilter.setPassCode(fullScreenCode.c_str());
 
 	// Command buffer with chaning uniforms
 	CommandBuffer::UniformBucket timeUniform;
