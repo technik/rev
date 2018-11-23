@@ -65,6 +65,11 @@ namespace rev :: gfx
 		{
 			switch(cmd.command)
 			{
+				case Command::BeginPass:
+				{
+					m_device.bindPass(cmd.payload, *this);
+					break;
+				}
 				case Command::SetPipeline:
 				{
 					m_device.bindPipeline(cmd.payload);

@@ -30,8 +30,9 @@ namespace rev :: gfx
 	class RenderPassOpenGL : public RenderPass
 	{
 	public:
-		RenderPassOpenGL(const Descriptor& desc)
-			: m_desc(desc)
+		RenderPassOpenGL(const Descriptor& desc, int32_t id)
+			: RenderPass(id)
+			, m_desc(desc)
 		{}
 
 		void reset() override;
@@ -39,6 +40,7 @@ namespace rev :: gfx
 		void record(const CommandBuffer&) override;
 
 		// OpenGL specific
+		void bindTo(RenderQueueOpenGL& renderQueue) const;
 		void submit(RenderQueueOpenGL& renderQueue) const;
 
 	private:

@@ -21,12 +21,13 @@
 
 #include <math/algebra/vector.h>
 #include "frameBuffer.h"
+#include "namedResource.h"
 
 namespace rev :: gfx
 {
 	class CommandBuffer;
 
-	class RenderPass
+	class RenderPass : public NamedResource
 	{
 	public:
 		struct Descriptor
@@ -50,5 +51,9 @@ namespace rev :: gfx
 		virtual void reset() = 0;
 		virtual void setViewport(const math::Vec2u& start, const math::Vec2u& size) = 0;
 		virtual void record(const CommandBuffer&) = 0;
+
+	protected:
+		RenderPass() = default;
+		RenderPass(int32_t id) : NamedResource(id) {}
 	};
 }

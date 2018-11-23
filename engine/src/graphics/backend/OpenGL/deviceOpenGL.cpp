@@ -22,6 +22,7 @@
 #include <math/linear.h>
 #include <iostream>
 #include <string>
+#include "renderQueueOpenGL.h"
 
 using namespace std;
 
@@ -199,6 +200,20 @@ namespace rev :: gfx
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		return newFb;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::bindPass(int32_t pass, RenderQueue& queue)
+	{
+		m_passes[pass]->bindTo(static_cast<RenderQueueOpenGL&>(queue));
+	}
+
+	//----------------------------------------------------------------------------------------------
+	RenderPass* DeviceOpenGL::createRenderPass(const RenderPass::Descriptor& desc)
+	{
+		auto newPass = new RenderPassOpenGL(desc, (int32_t)m_passes.size());
+		m_passes.push_back(newPass);
+		return newPass;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void RenderPassOpenGL::submit(RenderQueueOpenGL& renderQueue) const
+	void RenderPassOpenGL::bindTo(RenderQueueOpenGL& renderQueue) const
 	{
 		// Bind the frame buffer
 		assert(m_desc.target.valid());
@@ -53,20 +53,27 @@ namespace rev :: gfx
 		glScissor(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());
 
 		// Clear
-		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
+		if ((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
 		{
-			glClearColor(m_desc.clearColor.x(),m_desc.clearColor.y(),m_desc.clearColor.z(),m_desc.clearColor.w());
+			glClearColor(m_desc.clearColor.x(), m_desc.clearColor.y(), m_desc.clearColor.z(), m_desc.clearColor.w());
 		}
-		if((int)m_desc.clearFlags & (int)Descriptor::Clear::Depth)
+		if ((int)m_desc.clearFlags & (int)Descriptor::Clear::Depth)
 		{
 			glClearDepthf(m_desc.clearDepth);
 		}
-		if((int)m_desc.clearFlags)
+		if ((int)m_desc.clearFlags)
 		{
 			glClear(
 				((int)Descriptor::Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
-				|((int)Descriptor::Clear::Depth ? GL_DEPTH_BUFFER_BIT : 0));
+				| ((int)Descriptor::Clear::Depth ? GL_DEPTH_BUFFER_BIT : 0));
 		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void RenderPassOpenGL::submit(RenderQueueOpenGL& renderQueue) const
+	{
+		// Bind the frame buffer
+		bindTo(renderQueue);
 
 		// Send recorded commands
 		for(auto cmdBuffer : m_commandList)

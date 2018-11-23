@@ -94,7 +94,8 @@ namespace rev :: gfx
 
 		void beginPass(RenderPass& pass)
 		{
-			// TODO
+			assert(pass.isValid());
+			m_commands.push_back({ Command::BeginPass, pass.id() });
 		}
 
 		void setPipeline(Pipeline pipeline)

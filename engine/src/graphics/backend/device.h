@@ -51,6 +51,7 @@ namespace rev :: gfx
 		virtual FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) = 0;
 
 		// Render passes
+		virtual void bindPass(int32_t pass, RenderQueue& queue) = 0;
 		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
 		virtual void destroyRenderPass(const RenderPass&) = 0;
 

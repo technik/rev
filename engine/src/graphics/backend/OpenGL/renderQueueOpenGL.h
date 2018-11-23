@@ -40,7 +40,7 @@ namespace rev :: gfx
 			passGL.submit(*this);
 		}
 
-		void submitCommandBuffer(const CommandBuffer&);
+		void submitCommandBuffer(const CommandBuffer&) override;
 
 	private:
 		void setUniforms(const CommandBuffer::UniformBucket& bucket);

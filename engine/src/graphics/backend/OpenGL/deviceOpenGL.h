@@ -47,10 +47,8 @@ namespace rev :: gfx
 		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
 		
 		// Render passes
-		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override
-		{
-			return new RenderPassOpenGL(desc);
-		}
+		void bindPass(int32_t pass, RenderQueue& queue) override;
+		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override;
 		void destroyRenderPass(const RenderPass&) override {}
 
 		// Pipeline
@@ -99,5 +97,6 @@ namespace rev :: gfx
 		RenderQueue* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
 		std::vector<PipelineInfo>	m_pipelines;
+		std::vector<RenderPassOpenGL*>	m_passes;
 	};
 }

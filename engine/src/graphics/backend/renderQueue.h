@@ -23,6 +23,8 @@
 
 namespace rev :: gfx
 {
+	class CommandBuffer;
+
 	class RenderQueue
 	{
 	public:
@@ -31,5 +33,6 @@ namespace rev :: gfx
 
 		// TODO: Move this into a command buffer?
 		virtual void submitPass(const RenderPass&) = 0;
+		virtual void submitCommandBuffer(const CommandBuffer&) = 0;
 	};
 }
