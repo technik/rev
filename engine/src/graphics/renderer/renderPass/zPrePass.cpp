@@ -65,7 +65,6 @@ namespace rev::gfx {
 		passDesc.target = m_frameBuffer;
 		passDesc.viewportSize = _size;
 		m_pass = m_device.createRenderPass(passDesc);
-		m_pass->record(m_commands);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -109,7 +108,8 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void ZPrePass::render(
 		const Camera& eye,
-		const std::vector<gfx::RenderItem>& renderables
+		const std::vector<gfx::RenderItem>& renderables,
+		CommandBuffer& dst
 	)
 	{
 		auto worldMatrix = Mat44f::identity();
@@ -146,13 +146,7 @@ namespace rev::gfx {
 		}
 
 		// Record commands
-		m_commands.clear();
-		m_geomPass.render(geometry, renderList, m_commands);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ZPrePass::submit()
-	{
-		m_device.renderQueue().submitPass(*m_pass);
+		dst.beginPass(*m_pass);
+		m_geomPass.render(geometry, renderList, dst);
 	}
 }

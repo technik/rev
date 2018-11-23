@@ -64,8 +64,6 @@ namespace rev::gfx {
 		passDesc.target = target;
 		passDesc.viewportSize = viewportSize;
 		m_pass = device.createRenderPass(passDesc);
-		// Command buffer
-		m_pass->record(m_drawCommands);
 
 		// Common pipeline config
 		m_commonPipelineDesc.raster.cullBack = true;
@@ -177,7 +175,8 @@ namespace rev::gfx {
 		const EnvironmentProbe* env,
 		bool useShadows,
 		const std::vector<gfx::RenderItem>& renderables,
-		const CommandBuffer::UniformBucket& sharedUniforms)
+		const CommandBuffer::UniformBucket& sharedUniforms,
+		CommandBuffer& dst)
 	{
 #ifdef _WIN32
 		// Shader reload
@@ -191,14 +190,12 @@ namespace rev::gfx {
 
 		// Compute global variables
 		// Render
-		resetStats();
-		m_drawCommands.clear();
-
 		CommandBuffer::UniformBucket uniforms;
 
 		Mat44f wvp;
 		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
+		dst.beginPass(*m_pass);
 
 		for(auto& renderable : renderables)
 		{
@@ -226,25 +223,16 @@ namespace rev::gfx {
 				uniforms.addParam(18, (float)env->numLevels());
 			}
 
-			m_drawCommands.setPipeline(pipeline);
-			m_drawCommands.setUniformData(uniforms);
-			m_drawCommands.setUniformData(sharedUniforms);
-			m_drawCommands.setVertexData(renderable.geom.getVao());
+			dst.setPipeline(pipeline);
+			dst.setUniformData(uniforms);
+			dst.setUniformData(sharedUniforms);
+			dst.setVertexData(renderable.geom.getVao());
 			if(renderable.geom.indices().componentType == GL_UNSIGNED_BYTE)
-				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U8, renderable.geom.indices().offset);
+				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U8, renderable.geom.indices().offset);
 			if(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT)
-				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16, renderable.geom.indices().offset);
+				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16, renderable.geom.indices().offset);
 			if(renderable.geom.indices().componentType == GL_UNSIGNED_INT)
-				m_drawCommands.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U32, renderable.geom.indices().offset);
+				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U32, renderable.geom.indices().offset);
 		}
-
-		// Finish pass
-		m_gfxDevice.renderQueue().submitPass(*m_pass);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ForwardPass::resetStats(){
-		m_numMeshes = 0;
-		m_numRenderables = 0;
 	}
 }

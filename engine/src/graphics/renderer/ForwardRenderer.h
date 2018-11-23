@@ -65,7 +65,6 @@ namespace rev::gfx {
 		std::unique_ptr<ZPrePass>			mZPrePass;
 		FullScreenPass*						m_bgRenderer;
 		gfx::RenderPass*					m_bgPass = nullptr;
-		gfx::CommandBuffer					m_bgCommands;
 		gfx::FrameBuffer					m_targetBuffer;
 
 		// Renderable queues

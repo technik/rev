@@ -50,8 +50,9 @@ namespace rev::gfx {
 			const EnvironmentProbe* env,
 			bool shadows,
 			const std::vector<gfx::RenderItem>& renderables,
-			const CommandBuffer::UniformBucket& sharedUniforms);
-		void showDebugInfo(bool show) { m_showDbgInfo = show; }
+			const CommandBuffer::UniformBucket& sharedUniforms,
+			CommandBuffer& dst);
+
 		void onResizeTarget(const math::Vec2u& newSize) {
 			m_viewportSize = newSize;
 			m_pass->setViewport({0,0}, newSize);
@@ -62,7 +63,6 @@ namespace rev::gfx {
 
 		gfx::Device& m_gfxDevice;
 		gfx::RenderPass* m_gfxPass;
-		gfx::CommandBuffer m_drawCommands;
 		gfx::RenderPass*	m_pass;
 		math::Vec2u m_viewportSize;
 
@@ -95,23 +95,6 @@ namespace rev::gfx {
 			math::Mat44f world;
 			math::Vec2f depth; // min, max
 		};
-
-		void renderMesh(
-			const RenderGeom* _mesh,
-			const SkinInstance* _skin,
-			const math::Mat44f& _wvp,
-			const math::Mat44f _worldMatrix,
-			const math::Vec3f _wsEye,
-			const std::shared_ptr<Material>& _material,
-			const EnvironmentProbe* env,
-			const std::vector<std::shared_ptr<Light>>& lights,
-			ShadowMapPass* _shadows);
-
-		bool m_showDbgInfo = false;
-		void drawStats();
-		void resetStats();
-		unsigned m_numRenderables;
-		unsigned m_numMeshes;
 
 		struct ShaderPragma
 		{

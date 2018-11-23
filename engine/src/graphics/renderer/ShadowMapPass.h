@@ -49,21 +49,20 @@ namespace rev::gfx {
 			const std::vector<RenderItem>& shadowCasters,
 			const std::vector<RenderItem>& shadowReceivers,
 			const Camera& view,
-			const Light& light);
+			const Light& light,
+			CommandBuffer& dst);
 		const math::Mat44f& shadowProj() const { return mUnbiasedShadowProj; }
-		void submit();
 
 		float& bias() { return mBias; }
 
 	private:
 
 		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
-		void renderMeshes(const std::vector<gfx::RenderItem>& renderables);
+		void renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst);
 
 	private:
 		Device&		m_device;
 		RenderPass*	m_pass;
-		CommandBuffer m_commands;
 		ShaderCodeFragment m_commonCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;

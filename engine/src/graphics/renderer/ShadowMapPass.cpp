@@ -52,7 +52,6 @@ namespace rev::gfx {
 		passDesc.target = target;
 		passDesc.viewportSize = _size;
 		m_pass = device.createRenderPass(passDesc);
-		m_pass->record(m_commands);
 
 		// Pipeline config
 		m_commonCode = ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx");
@@ -96,7 +95,8 @@ namespace rev::gfx {
 		const std::vector<gfx::RenderItem>& shadowCasters,
 		const std::vector<gfx::RenderItem>&,// shadowReceivers,
 		const Camera& view,
-		const Light& light)
+		const Light& light,
+		CommandBuffer& dst)
 	{
 		// Accumulate all casters into a single shadow space bounding box
 		AABB castersBBox; castersBBox.clear();
@@ -111,13 +111,8 @@ namespace rev::gfx {
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
-		renderMeshes(shadowCasters); // Iterate over renderables
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::submit()
-	{
-		m_device.renderQueue().submitPass(*m_pass);
+		dst.beginPass(*m_pass);
+		renderMeshes(shadowCasters, dst); // Iterate over renderables
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -142,7 +137,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables)
+	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst)
 	{
 		auto worldMatrix = Mat44f::identity();
 
@@ -175,8 +170,7 @@ namespace rev::gfx {
 		}
 
 		// Record commands
-		m_commands.clear();
-		m_geomPass.render(geometry, renderList, m_commands);
+		m_geomPass.render(geometry, renderList, dst);
 	}
 
 }

@@ -49,16 +49,15 @@ namespace rev::gfx {
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(
 			const Camera& eye,
-			const std::vector<gfx::RenderItem>& renderables
+			const std::vector<gfx::RenderItem>& renderables,
+			CommandBuffer& dst
 		);
-		void submit();
 
 	private:
 		void createRenderPass(const math::Vec2u& _size);
 
 		Device&		m_device;
 		RenderPass*	m_pass;
-		CommandBuffer m_commands;
 		ShaderCodeFragment m_commonCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;

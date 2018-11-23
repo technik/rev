@@ -78,8 +78,8 @@ namespace rev::gfx {
 		// TODO: Cull visible shadow receivers visible -> receivers
 
 		// Z Prepass
-		mZPrePass->render(eye, m_visible);
-		mZPrePass->submit();
+		CommandBuffer frameCommands;
+		mZPrePass->render(eye, m_visible, frameCommands);
 
 		CommandBuffer::UniformBucket sharedUniforms;
 		sharedUniforms.addParam(29, m_depthTexture);
@@ -87,18 +87,18 @@ namespace rev::gfx {
 		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		if(useShadows)
 		{
-			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0]);
-			mShadowPass->submit();
+			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0], frameCommands);
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);
 			math::Vec3f lightDir = shadowProj.block<3,1>(0,2);
 			sharedUniforms.addParam(6, lightDir);
 		}
+		m_device->renderQueue().submitCommandBuffer(frameCommands);
 
 		// TODO: Sort visible objects
 		auto env = &*scene.environment();
-		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms); // Render visible objects
+		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms, frameCommands); // Render visible objects
 		if(env && m_bgRenderer->isOk())
 		{
 			// Uniforms
@@ -109,10 +109,11 @@ namespace rev::gfx {
 			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
 			bgUniforms.textures.push_back({7, env->texture()} );
 			// Render
-			m_bgCommands.clear();
-			m_bgRenderer->render(bgUniforms, m_bgCommands);
-			m_device->renderQueue().submitPass(*m_bgPass);
+			frameCommands.beginPass(*m_bgPass);
+			m_bgRenderer->render(bgUniforms, frameCommands);
 		}
+
+		m_device->renderQueue().submitCommandBuffer(frameCommands);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -165,7 +166,6 @@ namespace rev::gfx {
 		passDesc.viewportSize = targetSize;
 		m_bgRenderer = new FullScreenPass(device);
 		m_bgPass = device.createRenderPass(passDesc);
-		m_bgPass->record(m_bgCommands);
 
 		// Shader stages
 		std::string skyShaderCode;
