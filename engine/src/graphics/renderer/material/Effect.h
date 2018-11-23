@@ -49,11 +49,12 @@ namespace rev::gfx {
 		void invokeCallbacks();
 		void loadFromFile(const char* _fileName, ShaderProcessor::MetaData& metadata);
 
-		void reload(const char* _filename);
+		void reload();
 
 		std::vector<ReloadCb>	m_reloadCbs;
 		std::vector<Property>	m_properties;
 		std::string				m_code;
+		std::string				m_fileName;
 		// TODO: Support shader permutations by defining #pragma shader_option in a shader
 		// when the material enables the option, the shader option will be #defined in the material
 		// Advanced uses may allow enumerated or integer values for the options

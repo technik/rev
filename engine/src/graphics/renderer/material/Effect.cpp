@@ -29,12 +29,13 @@ namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	Effect::Effect(const string& _fileName)
+		: m_fileName(_fileName)
 	{
 		ShaderProcessor::MetaData metadata;
 		loadFromFile(_fileName.c_str(), metadata);
 #ifdef _WIN32
 		for(auto& dep : metadata.dependencies)
-			core::FileSystem::get()->onFileChanged(dep) += [this](const char* fileName){ this->reload(fileName); };
+			core::FileSystem::get()->onFileChanged(dep) += [this](const char* fileName){ this->reload(); };
 #endif
 	}
 
@@ -64,12 +65,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Effect::reload(const char* fileName)
+	void Effect::reload()
 	{
 		m_properties.clear();
 		m_code.clear();
 		ShaderProcessor::MetaData metadata;
-		loadFromFile(fileName, metadata);
+		loadFromFile(m_fileName.c_str(), metadata);
 		invokeCallbacks();
 	}
 }

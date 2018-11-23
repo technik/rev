@@ -8,7 +8,7 @@ layout(location = 3) uniform float uEV;
 layout(location = 7) uniform sampler2D hdrSkyTexture;
 
 //---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.1591, 0.3183);
+const vec2 invAtan = vec2(0.159154943, 0.31830988);
 vec2 sampleSpherical(vec3 v)
 {
   vec2 uv = vec2(atan(-v.x, v.z), asin(-v.y));
