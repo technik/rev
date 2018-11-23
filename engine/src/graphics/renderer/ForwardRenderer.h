@@ -63,8 +63,7 @@ namespace rev::gfx {
 		std::unique_ptr<ShadowMapPass>		mShadowPass;
 		std::unique_ptr<ForwardPass>		mForwardPass;
 		std::unique_ptr<ZPrePass>			mZPrePass;
-		FullScreenPass*						m_bgRenderer;
-		gfx::RenderPass*					m_bgPass = nullptr;
+		std::unique_ptr<FullScreenPass>		m_bgPass;
 		gfx::FrameBuffer					m_targetBuffer;
 
 		// Renderable queues

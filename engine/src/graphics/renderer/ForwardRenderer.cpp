@@ -99,7 +99,7 @@ namespace rev::gfx {
 		// Forward pass
 		auto env = &*scene.environment();
 		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms, frameCommands); // Render visible objects
-		if(env && m_bgRenderer->isOk())
+		if(env)
 		{
 			// Uniforms
 			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
@@ -109,8 +109,7 @@ namespace rev::gfx {
 			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
 			bgUniforms.textures.push_back({7, env->texture()} );
 			// Render
-			frameCommands.beginPass(*m_bgPass);
-			m_bgRenderer->render(bgUniforms, frameCommands);
+			m_bgPass->render(bgUniforms, frameCommands);
 		}
 
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
@@ -122,7 +121,6 @@ namespace rev::gfx {
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
-		m_bgPass->setViewport({ 0,0 }, _newSize);
 		if(m_depthTexture.isValid())
 			m_device->destroyTexture2d(m_depthTexture);
 		m_depthTexture = ZPrePass::createDepthMapTexture(*m_device, _newSize);
@@ -164,26 +162,7 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
-		m_bgRenderer = new FullScreenPass(device);
-		m_bgPass = device.createRenderPass(passDesc);
-
-		// Shader stages
-		std::string skyShaderCode;
-		ShaderProcessor::MetaData metadata;
-		ShaderProcessor::loadCodeFromFile("shaders/sky.fx", skyShaderCode, metadata);
-		m_bgRenderer->setPassCode(skyShaderCode.c_str());
-
-		// Shader reload
-		for(auto& file : metadata.dependencies)
-		{
-			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
-				std::string skyShaderCode;
-				ShaderProcessor::MetaData metadata;
-				ShaderProcessor::loadCodeFromFile("shaders/sky.fx", skyShaderCode, metadata);
-				m_bgRenderer->setPassCode(skyShaderCode.c_str());
-			};
-		}
-
+		m_bgPass = std::make_unique<FullScreenPass>(device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
