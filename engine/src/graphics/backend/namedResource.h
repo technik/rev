@@ -24,7 +24,7 @@ namespace rev::gfx
 {
 	struct NamedResource
 	{
-		bool id() const { return m_id; }
+		auto id() const { return m_id; }
 		bool isValid() const { return m_id != InvalidId; }
 
 	protected:
