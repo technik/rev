@@ -29,7 +29,7 @@ namespace rev::gfx {
 		m_quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
 
 		// Common pass code
-		m_commonCode = R"(
+		m_baseCode = ShaderCodeFragment(R"(
 #ifdef VTX_SHADER
 	layout(location = 0) in vec3 vertex;
 
@@ -48,7 +48,7 @@ void main (void) {
 	outColor = shade();
 }
 #endif
-)";
+)");
 		if(code)
 		{
 			// Initialize pipeline on start
@@ -60,9 +60,12 @@ void main (void) {
 	{
 		m_pipeline = Pipeline(); // Invalidate pipeline
 
+		m_passCode = ShaderCodeFragment(code);
+		m_completeCode = ShaderCodeFragment(m_baseCode, m_passCode);
+
 		// Prepare code
 		Pipeline::ShaderModule::Descriptor stageDesc;
-		stageDesc.code = { m_commonCode, std::string(code) };
+		m_completeCode.collapse(stageDesc.code);
 
 		// Vertex shader
 		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;

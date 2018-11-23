@@ -23,6 +23,7 @@
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/shaders/shaderCodeFragment.h>
 
 namespace rev::gfx {
 
@@ -41,7 +42,9 @@ namespace rev::gfx {
 		gfx::Device& m_device;
 		RenderGeom m_quad;
 
-		std::string m_commonCode;
+		ShaderCodeFragment m_baseCode;
+		ShaderCodeFragment m_passCode;
+		ShaderCodeFragment m_completeCode;
 		Pipeline m_pipeline;
 	};
 
