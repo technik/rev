@@ -521,7 +521,7 @@ void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Imag
 	// Render to the texture
 	// Set up source texture
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, srcLatLong.id);
+	glBindTexture(GL_TEXTURE_2D, srcLatLong.id());
 	glViewport(0,0,cubeSize,cubeSize);
 
 	// Create shader
@@ -693,7 +693,7 @@ void main (void) {
 		auto dstRradiance = device.createTexture2d(latLongDesc);
 
 		// Bind irradiance into the framebuffer
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstRradiance.id, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstRradiance.id(), 0);
 		glViewport(0,0,cubeImg->nx, cubeImg->ny);
 		glClearColor(0.f,1.f,1.f,1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -725,7 +725,7 @@ void main (void) {
 	auto dstIrradiance = device.createTexture2d(latLongDesc);
 
 	// Bind irradiance into the framebuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance.id, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dstIrradiance.id(), 0);
 	glViewport(0,0,cubeImg->nx, cubeImg->ny);
 	glClearColor(0.f,1.f,0.f,1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -895,7 +895,7 @@ void main (void) {
 	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 	// Bind irradiance into the framebuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.id, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.id(), 0);
 	glViewport(0,0,512,512);
 	glClearColor(0.f,1.f,0.f,1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
