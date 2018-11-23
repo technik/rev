@@ -22,7 +22,7 @@
 
 namespace rev::gfx {
 
-	FullScreenPass::FullScreenPass(gfx::Device& device, const char* code)
+	FullScreenPass::FullScreenPass(gfx::Device& device, const ShaderCodeFragment* code)
 		: m_device(device)
 	{
 		// Create a full screen quad
@@ -52,15 +52,15 @@ void main (void) {
 		if(code)
 		{
 			// Initialize pipeline on start
-			setPassCode(code);
+			setPassCode(*code);
 		}
 	}
 
-	void FullScreenPass::setPassCode(const char* code)
+	void FullScreenPass::setPassCode(const ShaderCodeFragment& code)
 	{
 		m_pipeline = Pipeline(); // Invalidate pipeline
 
-		m_passCode = ShaderCodeFragment(code);
+		m_passCode = code;
 		m_completeCode = ShaderCodeFragment(m_baseCode, m_passCode);
 
 		// Prepare code

@@ -96,7 +96,7 @@ namespace rev::gfx {
 		}
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
 
-		// TODO: Sort visible objects
+		// Forward pass
 		auto env = &*scene.environment();
 		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms, frameCommands); // Render visible objects
 		if(env && m_bgRenderer->isOk())

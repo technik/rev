@@ -30,9 +30,9 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, const char* code = nullptr);
+		FullScreenPass(gfx::Device&, const ShaderCodeFragment* code = nullptr);
 
-		void setPassCode(const char* code);
+		void setPassCode(const ShaderCodeFragment& code);
 
 		void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
 
