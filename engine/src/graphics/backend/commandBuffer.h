@@ -66,6 +66,7 @@ namespace rev :: gfx
 		struct Command
 		{
 			enum Opcode {
+				BeginPass,
 				SetPipeline,
 				SetUniform,
 				SetVtxData,
@@ -90,6 +91,11 @@ namespace rev :: gfx
 			IndexType indexType;
 			void* offset = nullptr;
 		};
+
+		void beginPass(RenderPass& pass)
+		{
+			// TODO
+		}
 
 		void setPipeline(Pipeline pipeline)
 		{

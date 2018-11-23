@@ -869,7 +869,8 @@ vec2 IntegrateBRDF( float roughness, float ndv )
 		}
 	}
 	return vec2( A, B ) / NumSamples;
-}
+}
+
 //------------------------------------------------------------------------------	
 void main (void) {
 

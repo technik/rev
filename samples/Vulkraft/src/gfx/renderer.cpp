@@ -39,7 +39,7 @@ namespace vkft::gfx
 
 		mRenderCommands.setUniformData(mUniforms);
 		mRenderCommands.setVertexData(world.mTileGeom.getVao());
-		mRenderCommands.drawTriangles(world.mTileGeom.indices().count, CommandBuffer::IndexType::U16);
+		mRenderCommands.drawTriangles(world.mTileGeom.indices().count, CommandBuffer::IndexType::U16, nullptr);
 
 		mGfxDevice.renderQueue().submitPass(*mForwardPass);
 		mGfxDevice.renderQueue().present();

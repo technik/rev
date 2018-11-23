@@ -88,12 +88,12 @@ namespace rev::gfx
 		// VAO
 		glGenVertexArrays(1,&m_vao);
 		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo.id);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo.id());
 
 		// Attributes
 		for(auto& [ndx, attribute] : m_vtxAttributes)
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo.id);
+			glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo.id());
 			glVertexAttribPointer(ndx, attribute.nComponents, attribute.componentType, attribute.normalized, attribute.stride, attribute.offset);
 			glEnableVertexAttribArray(ndx); // Vertex pos
 		}
@@ -128,21 +128,21 @@ namespace rev::gfx
 		idxBv->byteLength = 2*indices.size();
 		idxBv->data = indices.data();
 		idxBv->byteStride = 0;
-		idxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data);
+		idxBv->vbo = gfx::Buffer(GraphicsDriverGL::get()->allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBv->byteLength, idxBv->data));
 
 		// Vertices
 		auto vtxBv = std::make_shared<BufferView>();
 		vtxBv->byteLength = sizeof(math::Vec3f)*vertices.size();
 		vtxBv->data = vertices.data();
 		vtxBv->byteStride = 0;
-		vtxBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data);
+		vtxBv->vbo = gfx::Buffer(GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, vtxBv->byteLength, vtxBv->data));
 
 		// Normals
 		auto nrmBv = std::make_shared<BufferView>();
 		nrmBv->byteLength = sizeof(math::Vec3f)*vertices.size();
 		nrmBv->data = normals.data();
 		nrmBv->byteStride = 0;
-		nrmBv->vbo.id = GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, nrmBv->byteLength, nrmBv->data);
+		nrmBv->vbo = gfx::Buffer(GraphicsDriverGL::get()->allocateStaticBuffer(GL_ARRAY_BUFFER, nrmBv->byteLength, nrmBv->data));
 
 		Attribute idxAttr {
 			idxBv,

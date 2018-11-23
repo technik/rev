@@ -64,15 +64,13 @@ namespace rev :: gfx
 		// Buffers
 		Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) override
 		{
-			Buffer buffer;
-			buffer.id = allocateStaticBuffer(GL_ARRAY_BUFFER, byteSize, data);
+			Buffer buffer = allocateStaticBuffer(GL_ARRAY_BUFFER, byteSize, data);
 			return buffer;
 		}
 
 		Buffer allocateIndexBuffer(size_t byteSize, const void* data) override
 		{
-			Buffer buffer;
-			buffer.id = allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, byteSize, data);
+			Buffer buffer = allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, byteSize, data);
 			return buffer;
 		}
 

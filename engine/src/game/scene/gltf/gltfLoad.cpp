@@ -264,7 +264,7 @@ namespace rev { namespace game {
 			auto& attribute = _attributes[posIt->second];
 			auto& bv = *attribute.bufferView;
 		
-			if(!bv.vbo.valid())
+			if(!bv.vbo.isValid())
 				bv.vbo = device.allocateStaticVtxBuffer(bv.byteLength, bv.data);
 
 			return &attribute;
@@ -381,7 +381,7 @@ namespace rev { namespace game {
 			return nullptr;
 
 		const gfx::RenderGeom::Attribute* indices = &_attributes[_primitive.indices];
-		if(!indices->bufferView->vbo.valid())
+		if(!indices->bufferView->vbo.isValid())
 		{
 			auto& bv = *indices->bufferView;
 			indices->bufferView->vbo = device.allocateIndexBuffer(bv.byteLength, bv.data);

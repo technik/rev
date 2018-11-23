@@ -18,51 +18,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "frameBuffer.h"
-#include "renderQueue.h"
-#include "namedResource.h"
-#include "texture2d.h"
-#include "textureSampler.h"
-#include "pipeline.h"
+#include <cstdint>
 
-namespace rev :: gfx
+namespace rev::gfx
 {
-	class RenderPass;
-
-	struct Buffer : NamedResource {
-		Buffer() = default;
-		Buffer(unsigned id) : NamedResource(id) {}
-	};
-
-	class Device
+	struct NamedResource
 	{
-	public:
-		virtual RenderQueue& renderQueue() = 0;
-
-		// Texture sampler
-		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) = 0;
-		virtual void destroyTextureSampler(TextureSampler) = 0;
-
-		// Texture
-		virtual Texture2d createTexture2d(const Texture2d::Descriptor&) = 0;
-		virtual void destroyTexture2d(Texture2d) = 0;
-
-		// Frame buffers
-		virtual FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) = 0;
-
-		// Render passes
-		virtual RenderPass* createRenderPass(const RenderPass::Descriptor&) = 0;
-		virtual void destroyRenderPass(const RenderPass&) = 0;
-
-		// Pipeline
-		virtual Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) = 0;
-		virtual Pipeline createPipeline(const Pipeline::Descriptor&) = 0;
-
-		// Buffers
-		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
-		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
+		bool id() const { return m_id; }
+		bool isValid() const { return m_id != InvalidId; }
 
 	protected:
-		Device() = default;
+		static constexpr int32_t InvalidId = -1;
+
+		NamedResource() : m_id(InvalidId) {}
+		NamedResource(int32_t id) : m_id(id) {}
+
+		int32_t m_id;
 	};
 }
