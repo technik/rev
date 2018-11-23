@@ -47,7 +47,7 @@ namespace rev :: gfx
 			}
 			int texStage = slotIter->second;
 			glActiveTexture(GL_TEXTURE0 + texStage);
-			glBindTexture(GL_TEXTURE_2D, tex.second.id);
+			glBindTexture(GL_TEXTURE_2D, tex.second.id());
 			glUniform1i(tex.first, texStage);
 			++texStage;
 		}

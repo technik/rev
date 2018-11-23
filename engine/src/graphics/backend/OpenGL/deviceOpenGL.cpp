@@ -137,16 +137,15 @@ namespace rev :: gfx
 		if((descriptor.providedImages && (descriptor.providedImages < descriptor.mipLevels))
 			|| descriptor.mipLevels == 0)
 			glGenerateMipmap(GL_TEXTURE_2D);
-		texture.id = textureName;
-		return texture;
+		return Texture2d(textureName);
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void DeviceOpenGL::destroyTexture2d(Texture2d texture)
 	{
-		if(texture.id == Texture2d::InvalidId)
+		if(!texture.isValid())
 			return;
-		GLuint textureName = texture.id;
+		GLuint textureName = texture.id();
 		glDeleteTextures(1, &textureName);
 	}
 
@@ -172,7 +171,7 @@ namespace rev :: gfx
 
 			// Bind attachment to an attachment point
 			//if(attachment.imageType == FrameBuffer::Attachment::Texture)
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id, attachment.mipLevel);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
 			//else // TODO: Render buffer
 				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.RenderBuffer.id);
 		}

@@ -133,7 +133,7 @@ namespace rev::gfx {
 	{
 		if(ImGui::Begin("Debug Fwd Renderer"))
 		{
-			ImGui::Image((void*)m_shadowsTexture.id, {256, 256});
+			ImGui::Image((void*)m_shadowsTexture.id(), {256, 256});
 		}
 		ImGui::End();
 	}

@@ -472,7 +472,7 @@ namespace rev { namespace game {
 		bool sRGB)
 	{
 		auto& texture = textures[index];
-		if(texture.id != gfx::Texture2d::InvalidId) // Already allocated, reuse
+		if(texture.isValid()) // Already allocated, reuse
 			return texture;
 
 		// Not previously allocated, do it now

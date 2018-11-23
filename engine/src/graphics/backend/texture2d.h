@@ -22,13 +22,15 @@
 #include <cstddef>
 #include "textureSampler.h"
 #include <math/algebra/vector.h>
+#include "namedResource.h"
 #include <graphics/Image.h>
 
 namespace rev :: gfx
 {
-	class Texture2d
+	struct Texture2d : NamedResource
 	{
 	public:
+
 		struct Descriptor
 		{
 			Image::PixelFormat pixelFormat;
@@ -46,12 +48,9 @@ namespace rev :: gfx
 			/// Automatically for the range [providedImages, mipLevels-1].
 			Image* srcImages = nullptr;
 			size_t providedImages = 0;
-
 		};
 
-		bool isValid() const { return InvalidId != id; }
-		static constexpr int32_t InvalidId = -1;
-
-		int32_t id = InvalidId;
+		Texture2d() = default;
+		Texture2d(int32_t id) : NamedResource(id) {}
 	};
 }
