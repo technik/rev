@@ -99,6 +99,8 @@ namespace rev::gfx {
 		// Forward pass
 		auto env = &*scene.environment();
 		mForwardPass->render(eye, env, useShadows, m_visible, sharedUniforms, frameCommands); // Render visible objects
+
+		// Background
 		if(env)
 		{
 			// Uniforms
