@@ -60,6 +60,17 @@ namespace rev { namespace game {
 			return nullptr;
 		}
 
+		// This traverse includes the node itself
+		template<class Op>
+		void traverseSubtree(Op& op)
+		{
+			op(*this);
+			for(auto& c : mChildren)
+			{
+				c->traverseSubtree(op);
+			}
+		}
+
 		template<class T, class ... Args>
 		T* addComponent(Args ... args)
 		{
