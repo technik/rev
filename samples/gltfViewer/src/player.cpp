@@ -176,20 +176,21 @@ namespace rev {
 		if(ImGui::Begin("Player options"))
 		{
 			ImGui::InputFloat("Camera speed", &m_flyby->speed());
-			if(ImGui::BeginChild("Environment"))
-			{
-				ImGui::Checkbox("Floor", &m_floorGeom->visible);
-				ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
-				if(m_bgOptions.shadows)
-				{
-					gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
-					gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
+			ImGui::Checkbox("Floor", &m_floorGeom->visible);
+		}
+		ImGui::End();
 
-					gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
-				}
-				m_envLight->castShadows = m_bgOptions.shadows;
+		if(ImGui::Begin("Render options"))
+		{
+			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
+			if(m_bgOptions.shadows)
+			{
+				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
+				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
+
+				gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
 			}
-			ImGui::EndChild();
+			m_envLight->castShadows = m_bgOptions.shadows;
 		}
 		ImGui::End();
 		mRenderer.drawDebugUI();
