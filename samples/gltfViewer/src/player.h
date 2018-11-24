@@ -4,7 +4,6 @@
 #pragma once
 
 #include <game/scene/scene.h>
-#include <game/scene/ComponentLoader.h>
 #include <graphics/backend/OpenGL/deviceOpenGL.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/scene/camera.h>
@@ -44,9 +43,11 @@ namespace rev {
 		void createFloor();
 
 		math::Vec2u m_windowSize;
-		game::ComponentLoader				mComponentFactory;
+
+		// Scene
 		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
+		math::AABB							m_globalBBox;
 
 		// Camera options
 		const gfx::Camera*					mFlybyCam = nullptr;

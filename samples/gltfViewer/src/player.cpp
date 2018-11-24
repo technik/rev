@@ -89,14 +89,14 @@ namespace rev {
 		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
 
 		// Compute scene bbox
-		math::AABB globalBBox;
+		m_globalBBox;
 		m_gltfRoot->traverseSubtree([&](SceneNode& node){
 			if(auto renderer = node.component<game::MeshRenderer>())
 			{
 				auto localbbox = renderer->renderObj().mesh->m_bbox;
 				auto transform = node.component<Transform>();
 				auto wsBbox = transform->absoluteXForm() * localbbox;
-				globalBBox.add(wsBbox);
+				m_globalBBox.add(wsBbox);
 			}
 		});
 	}
@@ -125,9 +125,14 @@ namespace rev {
 	void Player::createFloor() {
 
 		auto floorNode = mGameScene.root()->createChild("floor");
-		floorNode->addComponent<Transform>()->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
+		auto sceneSize = m_globalBBox.size();
+		auto floorXForm = floorNode->addComponent<Transform>();
+		floorXForm->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
+		floorXForm->xForm.position() = m_globalBBox.origin();
+		floorXForm->xForm.position().y() = m_globalBBox.min().y();
 
-		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad({100.f, 100.f}));
+		const float floorScale = 4.f;
+		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad(floorScale * Vec2f(sceneSize.x(), sceneSize.z())));
 
 		// Create default material
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
