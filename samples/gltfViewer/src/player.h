@@ -14,6 +14,11 @@
 
 namespace rev {
 
+	namespace game {
+		class FlyBy;
+		class Orbit;
+	}
+
 	class Player {
 	public:
 		Player(gfx::DeviceOpenGL& device)
@@ -42,7 +47,12 @@ namespace rev {
 		game::ComponentLoader				mComponentFactory;
 		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
-		const gfx::Camera*					mCamera;
+
+		// Camera options
+		const gfx::Camera*					mFlybyCam = nullptr;
+		const gfx::Camera*					mOrbitCam = nullptr;
+		game::FlyBy*						m_flyby;
+		game::Orbit*						m_orbit;
 		gfx::ForwardRenderer				mRenderer;
 		gfx::DeviceOpenGL&					m_gfx;
 		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;

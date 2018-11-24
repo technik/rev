@@ -33,6 +33,7 @@ namespace rev { namespace game {
 
 		void init		() override;
 		void update		(float _dt) override;
+		float& speed() { return mSpeed; }
 
 	private:
 		float mSpeed;

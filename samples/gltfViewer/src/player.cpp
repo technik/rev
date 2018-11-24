@@ -103,20 +103,22 @@ namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
-		if(mGraphicsScene.cameras().empty())
-		{
-			// Create default camera
-			auto cameraNode = mGameScene.root()->createChild("Camera");
-			cameraNode->addComponent<FlyBy>(2.f, 1.f);
-			cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-			cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-			auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 1000.f);
-			mCamera = &*camComponent->cam();
-		}
-		else
-		{
-			mCamera = &*mGraphicsScene.cameras()[0].lock();
-		}
+		
+		// Create fliby camera
+		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
+		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
+		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
+		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
+		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 1000.f);
+		mFlybyCam = &*camComponent->cam();
+		
+		// Create orbit camera
+		cameraNode = mGameScene.root()->createChild("Orbit cam");
+		m_orbit = cameraNode->addComponent<Orbit>(Vec2f{2.f, 1.f});
+		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
+		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
+		camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 1000.f);
+		mOrbitCam = &*camComponent->cam();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -159,7 +161,7 @@ namespace rev {
 		mGameScene.root()->update(dt);
 
 		// Render
-		mRenderer.render(mGraphicsScene, *mCamera);
+		mRenderer.render(mGraphicsScene, *mFlybyCam);
 		ImGui::Render();
 		m_gfx.renderQueue().present();
 
@@ -171,18 +173,23 @@ namespace rev {
 	{
 		gui::startFrame(m_windowSize);
 
-		if(ImGui::Begin("Environment"))
+		if(ImGui::Begin("Player options"))
 		{
-			ImGui::Checkbox("Floor", &m_floorGeom->visible);
-			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
-			if(m_bgOptions.shadows)
+			ImGui::InputFloat("Camera speed", &m_flyby->speed());
+			if(ImGui::BeginChild("Environment"))
 			{
-				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
-				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
+				ImGui::Checkbox("Floor", &m_floorGeom->visible);
+				ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
+				if(m_bgOptions.shadows)
+				{
+					gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
+					gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
 
-				gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
+					gui::slider("Shadow bias", mRenderer.shadowBias(), -0.1f, 0.1f);
+				}
+				m_envLight->castShadows = m_bgOptions.shadows;
 			}
-			m_envLight->castShadows = m_bgOptions.shadows;
+			ImGui::EndChild();
 		}
 		ImGui::End();
 		mRenderer.drawDebugUI();
