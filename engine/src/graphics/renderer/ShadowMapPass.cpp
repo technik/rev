@@ -44,7 +44,7 @@ namespace rev::gfx {
 		: m_device(device)
 		, m_geomPass(device, m_commonCode)
 	{
-		assert(target.valid());
+		assert(target.isValid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 1;

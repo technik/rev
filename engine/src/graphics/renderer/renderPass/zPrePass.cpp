@@ -43,7 +43,7 @@ namespace rev::gfx {
 		: m_device(device)
 		, m_geomPass(device, m_commonCode)
 	{
-		assert(target.valid());
+		assert(target.isValid());
 		m_viewportSize = _size;
 
 		// Renderpass

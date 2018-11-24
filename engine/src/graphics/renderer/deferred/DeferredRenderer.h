@@ -38,6 +38,7 @@ namespace rev::gfx {
 		Device&		m_device;
 
 		// Geometry pass
+		FrameBuffer m_GBuffer;
 		// Shadow pass
 		// SSAO pass
 		// Lighting pass

@@ -205,9 +205,7 @@ namespace rev :: gfx
 	//------------------------------------------------------------------------------------------------------------------
 	FrameBuffer DeviceOpenGLWindows::defaultFrameBuffer()
 	{
-		FrameBuffer defaultFb;
-		defaultFb.id = 0;
-		return defaultFb;
+		return FrameBuffer(0);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

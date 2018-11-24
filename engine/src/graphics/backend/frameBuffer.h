@@ -25,7 +25,7 @@
 
 namespace rev::gfx {
 
-	class FrameBuffer : NamedResource
+	struct FrameBuffer : NamedResource
 	{
 	public:
 		struct Attachment

@@ -181,7 +181,7 @@ namespace rev :: gfx
 		auto fbState = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if(fbState == GL_FRAMEBUFFER_COMPLETE)
 		{
-			newFb.id = int32_t(fbId);
+			newFb = FrameBuffer(fbId);
 		}
 		else
 		{

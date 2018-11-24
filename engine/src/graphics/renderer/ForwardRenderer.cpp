@@ -64,7 +64,7 @@ namespace rev::gfx {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::render(const RenderScene& scene, const Camera& eye) {
-		assert(m_targetBuffer.id != FrameBuffer::InvalidId);
+		assert(m_targetBuffer.isValid());
 
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 
@@ -158,7 +158,7 @@ namespace rev::gfx {
 	//------------------------------------------------------------------------------------------------------------------
 	void ForwardRenderer::initBackgroundPass(gfx::Device& device, const math::Vec2u& targetSize)
 	{
-		assert(m_targetBuffer.valid());
+		assert(m_targetBuffer.isValid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
