@@ -21,10 +21,11 @@
 #include <cstddef>
 #include <cstdint>
 #include "texture2d.h"
+#include "namedResource.h"
 
 namespace rev::gfx {
 
-	class FrameBuffer
+	class FrameBuffer : NamedResource
 	{
 	public:
 		struct Attachment
@@ -54,11 +55,8 @@ namespace rev::gfx {
 			Attachment* attachments;
 		};
 
-		bool valid() const { return id != InvalidId; }
-
-		static constexpr int32_t InvalidId = -1;
-
-		int32_t id = InvalidId;
+		FrameBuffer(int32_t id) : NamedResource(id) {}
+		FrameBuffer() = default;
 	};
 
 }
