@@ -117,4 +117,14 @@ namespace rev::math
 		Vector mMin;
 		Vector mMax;
 	};
+
+	inline AABB operator*(const AffineTransform& xform, const AABB& aabb)
+	{
+		auto center = aabb.origin();
+		auto halfSize = aabb.max() - center;
+		auto rotSize = xform.rotateDirection(halfSize);
+		halfSize = math::abs(rotSize);
+		center = xform.transformPosition(center);
+		return AABB(center - halfSize, center + halfSize);
+	}
 }
