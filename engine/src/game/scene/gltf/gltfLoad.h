@@ -21,7 +21,6 @@
 
 #include <string>
 #include "../sceneNode.h"
-#include <graphics/driver/geometryPool.h>
 #include <graphics/scene/animation/animation.h>
 #include <graphics/scene/renderScene.h>
 #include <memory>
@@ -40,7 +39,6 @@ namespace rev::game {
 		SceneNode& parentNode,
 		const std::string& filePath,
 		gfx::RenderScene& _gfxWorld,
-		gfx::GeometryPool& _pool,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		std::vector<std::shared_ptr<gfx::Animation>>& _animations);
 }

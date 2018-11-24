@@ -456,6 +456,7 @@ namespace rev { namespace game {
 				auto geometry = loadPrimitive(device, _document, attributes, primitive, needsTangentSpace);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
+			mesh->updateBBox();
 		}
 
 		return meshes;
@@ -645,7 +646,6 @@ namespace rev { namespace game {
 		SceneNode& _parentNode,
 		const std::string& _filePath,
 		gfx::RenderScene& _gfxWorld,
-		gfx::GeometryPool& _geomPool,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
 		vector<shared_ptr<Animation>>& _animations)
 	{
