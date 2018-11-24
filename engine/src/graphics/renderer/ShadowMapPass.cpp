@@ -103,8 +103,8 @@ namespace rev::gfx {
 		for(auto& obj : shadowCasters)
 		{
 			// Object's bounding box in shadow space
-			auto bbox = obj.geom.bbox().transform(obj.world);
-			castersBBox = math::AABB(castersBBox, bbox);
+			auto bbox = obj.world * obj.geom.bbox();
+			castersBBox.add(bbox);
 		}
 
 		auto world = light.worldMatrix; // So that light's +y axis (forward), maps to the -Z in camera
