@@ -85,6 +85,12 @@ namespace rev::math
 			mMax = math::max(v, mMax);
 		}
 
+		void add(const AABB& b)
+		{
+			mMin = math::min(mMin, b.min());
+			mMax = math::max(b.max(), mMax);
+		}
+
 		const Vector& min() const { return mMin; }
 		const Vector& max() const { return mMax; }
 		Vector size() const { return mMax - mMin; }

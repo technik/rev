@@ -34,6 +34,16 @@ namespace rev::gfx {
 		>;
 		
 		std::vector<Primitive> mPrimitives;
+		void updateBBox()
+		{
+			m_bbox.clear();
+			for(auto& primitive : mPrimitives)
+			{
+				m_bbox.add(primitive.first->bbox());
+			}
+		}
+
+		math::AABB m_bbox;
 	};
 
 } // namespace rev::gfx
