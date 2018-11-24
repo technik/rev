@@ -81,15 +81,19 @@ namespace rev {
 	void Player::loadScene(const std::string& scene)
 	{
 		m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		m_gltfRoot->addComponent<Transform>();
 		mGameScene.root()->addChild(m_gltfRoot);
-		auto xForm = m_gltfRoot->addComponent<Transform>();
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
 		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::updateSceneBBox()
+	{
 		// Compute scene bbox
-		m_globalBBox;
+		m_globalBBox.clear();
 		m_gltfRoot->traverseSubtree([&](SceneNode& node){
 			if(auto renderer = node.component<game::MeshRenderer>())
 			{
@@ -99,6 +103,10 @@ namespace rev {
 				m_globalBBox.add(wsBbox);
 			}
 		});
+
+		// Re-center scene
+		auto xForm = m_gltfRoot->component<Transform>();
+		xForm->xForm.position() = -m_globalBBox.origin();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

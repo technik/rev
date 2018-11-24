@@ -41,6 +41,7 @@ namespace rev {
 		void loadScene(const std::string& scene);
 		void createCamera();
 		void createFloor();
+		void updateSceneBBox();
 
 		math::Vec2u m_windowSize;
 
