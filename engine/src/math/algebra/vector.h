@@ -174,6 +174,16 @@ namespace rev {
             return result;
         }
 
+		//--------------------------------------------------------------------------------------------------------------
+		template<class T, size_t n>
+		Vector<T, n> abs(const Vector<T, n>& a)
+		{
+			Vector<T, n> result;
+			for(size_t i = 0; i < n; ++i)
+				result[i] = std::abs(a[i]);
+			return result;
+		}
+
         //--------------------------------------------------------------------------------------------------------------
         template<class T, size_t n>
         T squaredNorm(const Vector<T, n>& a)
