@@ -29,7 +29,6 @@ namespace rev {
 		Player& operator=(const Player&) = delete;
 
 		bool init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg);
-		void loadScene(const std::string& _assetFileName);
 
 #ifdef _WIN32
 		void onWindowResize(const math::Vec2u& _newSize);
@@ -40,6 +39,7 @@ namespace rev {
 		void updateUI(float dt);
 
 	private:
+		void loadScene(const std::string& scene);
 		void createCamera();
 		void createFloor();
 
@@ -58,6 +58,7 @@ namespace rev {
 		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
+		std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
 

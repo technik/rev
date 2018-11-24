@@ -30,26 +30,11 @@ using namespace rev::game;
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg) {
+	bool Player::init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg)
+	{
 		core::Time::init();
-
-		// Create geometry pool
-		mGeometryPool = std::make_unique<GeometryPool>();
-		// Load scene
-		auto gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
-		//gltfRoot->addComponent<Orbit>(Vec2f{0.1f, 0.1f});
-		mGameScene.root()->addChild(gltfRoot);
-		auto rotation = math::Mat33f({
-			-1.f, 0.f, 0.f,
-			0.f, 0.f, 1.f,
-			0.f, 1.f, 0.f
-			});
-		auto xForm = gltfRoot->addComponent<Transform>();
-		//xForm->xForm.rotate(rotation);
-
-		std::vector<std::shared_ptr<Animation>> animations;
-		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(m_gfx, *gltfRoot, scene, mGraphicsScene, *mGeometryPool, animNodes, animations);
+				
+		loadScene(scene);
 
 		// Default scene light
 		{
@@ -71,19 +56,10 @@ namespace rev {
 				mGraphicsScene.setEnvironment(probe);
 		}
 
-		// Create animation component
-		game::Animator* animator = nullptr;
-		if(animations.size() > 0)
-		{
-			//animator = animNodes[0]->addComponent<Animator>();
-		}
-
 		// Create camera
 		createCamera();
 		createFloor();
 		mGameScene.root()->init();
-		if(animator)
-			animator->playAnimation(animations[0], true);
 
 		mRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
 		onWindowResize(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
@@ -100,6 +76,30 @@ namespace rev {
 		mRenderer.onResizeTarget(_newSize);
 	}
 #endif // _WIN32
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::loadScene(const std::string& scene)
+	{
+		m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		mGameScene.root()->addChild(m_gltfRoot);
+		auto xForm = m_gltfRoot->addComponent<Transform>();
+
+		std::vector<std::shared_ptr<Animation>> animations;
+		std::vector<std::shared_ptr<SceneNode>> animNodes;
+		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+
+		// Compute scene bbox
+		math::AABB globalBBox;
+		m_gltfRoot->traverseSubtree([&](SceneNode& node){
+			if(auto renderer = node.component<game::MeshRenderer>())
+			{
+				auto localbbox = renderer->renderObj().mesh->m_bbox;
+				auto transform = node.component<Transform>();
+				auto wsBbox = transform->absoluteXForm() * localbbox;
+				globalBBox.add(wsBbox);
+			}
+		});
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera() {
