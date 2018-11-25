@@ -55,6 +55,12 @@ namespace rev::gfx
 			std::vector<std::string>	pragmas;
 			std::vector<Uniform>		uniforms;
 			std::vector<std::string>	dependencies;
+
+			void clear() {
+				pragmas.clear();
+				uniforms.clear();
+				dependencies.clear();
+			}
 		};
 
 		struct Context

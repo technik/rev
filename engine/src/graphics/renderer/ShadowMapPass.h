@@ -63,7 +63,6 @@ namespace rev::gfx {
 	private:
 		Device&		m_device;
 		RenderPass*	m_pass;
-		ShaderCodeFragment m_commonCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 

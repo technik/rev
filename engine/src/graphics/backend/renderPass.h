@@ -40,6 +40,7 @@ namespace rev :: gfx
 				All = (Color|Depth)
 			};
 
+			int numColorAttachs = 1;
 			FrameBuffer target;
 			math::Vec4f clearColor;
 			float clearDepth;

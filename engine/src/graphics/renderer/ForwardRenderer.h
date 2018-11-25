@@ -31,7 +31,6 @@
 namespace rev::gfx {
 
 	class Camera;
-	class GraphicsDriverGL;
 	class RenderScene;
 	class RenderTarget;
 
@@ -67,7 +66,7 @@ namespace rev::gfx {
 		gfx::FrameBuffer					m_targetBuffer;
 
 		// Renderable queues
-		gfx::Device* m_device;
+		gfx::Device* m_device = nullptr;
 		std::vector<RenderItem> m_renderQueue;
 		std::vector<RenderItem> m_visible;
 		std::vector<RenderItem> m_sdwCasters;

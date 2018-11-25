@@ -6,6 +6,7 @@
 #include <game/scene/scene.h>
 #include <graphics/backend/OpenGL/deviceOpenGL.h>
 #include <graphics/renderer/ForwardRenderer.h>
+#include <graphics/renderer/deferred/DeferredRenderer.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderScene.h>
 #include <graphics/driver/geometryPool.h>
@@ -55,14 +56,22 @@ namespace rev {
 		const gfx::Camera*					mOrbitCam = nullptr;
 		game::FlyBy*						m_flyby;
 		game::Orbit*						m_orbit;
-		gfx::ForwardRenderer				mRenderer;
+
+		// Renderer
+		gfx::ForwardRenderer				mForwardRenderer;
+		gfx::DeferredRenderer				mDeferred;
 		gfx::DeviceOpenGL&					m_gfx;
-		std::unique_ptr<gfx::GeometryPool>	mGeometryPool;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
 		std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
+
+		enum class RenderPath
+		{
+			Forward,
+			Deferred
+		} m_renderPath = RenderPath::Deferred;
 
 		struct ViewerState
 		{

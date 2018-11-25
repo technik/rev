@@ -22,6 +22,7 @@
 #include "../renderPass.h"
 #include "openGL.h"
 #include <vector>
+#include <cstdint>
 
 namespace rev :: gfx
 {
@@ -30,10 +31,7 @@ namespace rev :: gfx
 	class RenderPassOpenGL : public RenderPass
 	{
 	public:
-		RenderPassOpenGL(const Descriptor& desc, int32_t id)
-			: RenderPass(id)
-			, m_desc(desc)
-		{}
+		RenderPassOpenGL(const Descriptor& desc, int numDrawBuffers, std::int32_t id);
 
 		void reset() override;
 		void setViewport(const math::Vec2u& start, const math::Vec2u& size) override;
@@ -46,5 +44,6 @@ namespace rev :: gfx
 	private:
 		Descriptor m_desc;
 		std::vector<const CommandBuffer*> m_commandList;
+		std::vector<GLenum> m_colorAttachs;
 	};
 }

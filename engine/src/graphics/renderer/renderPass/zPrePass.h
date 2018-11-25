@@ -58,7 +58,6 @@ namespace rev::gfx {
 
 		Device&		m_device;
 		RenderPass*	m_pass;
-		ShaderCodeFragment m_commonCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 		math::Vec2u m_viewportSize;

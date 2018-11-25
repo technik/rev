@@ -22,14 +22,14 @@
 
 namespace rev::gfx {
 
-	FullScreenPass::FullScreenPass(gfx::Device& device, const ShaderCodeFragment& code)
+	FullScreenPass::FullScreenPass(gfx::Device& device, ShaderCodeFragment* code)
 		: m_device(device)
 	{
 		// Create a full screen quad
 		m_quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
 
 		// Common pass code
-		m_baseCode = ShaderCodeFragment(R"(
+		m_baseCode = new ShaderCodeFragment(R"(
 #ifdef VTX_SHADER
 	layout(location = 0) in vec3 vertex;
 
@@ -53,16 +53,34 @@ void main (void) {
 		setPassCode(code);
 	}
 
-	void FullScreenPass::setPassCode(const ShaderCodeFragment& code)
+	FullScreenPass::~FullScreenPass()
+	{
+		if(m_completeCode)
+			delete m_completeCode;
+		if(m_baseCode)
+			delete m_baseCode;
+		if(m_passCode)
+			delete m_passCode;
+	}
+
+	void FullScreenPass::setPassCode(ShaderCodeFragment* code)
 	{
 		m_pipeline = Pipeline(); // Invalidate pipeline
 
-		m_passCode = code;
-		m_completeCode = ShaderCodeFragment(m_baseCode, m_passCode);
+		if(code != m_passCode)
+		{
+			m_passCode = code;
+			m_shaderListeners.push_back(code->onReload(
+				[this](ShaderCodeFragment& reloadedCode) {
+					this->setPassCode(&reloadedCode);
+				})
+			);
+			m_completeCode = new ShaderCodeFragment(m_baseCode, m_passCode);
+		}
 
 		// Prepare code
 		Pipeline::ShaderModule::Descriptor stageDesc;
-		m_completeCode.collapse(stageDesc.code);
+		m_completeCode->collapse(stageDesc.code);
 
 		// Vertex shader
 		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;

@@ -18,16 +18,15 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "geometryPass.h"
-#include <graphics/shaders/shaderCodeFragment.h>
 
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	GeometryPass::GeometryPass(Device& device, ShaderCodeFragment& passCommonCode)
+	GeometryPass::GeometryPass(Device& device, ShaderCodeFragment* passCommonCode)
 		: mDevice(device)
-		, mPassCommonCode(&passCommonCode)
+		, mPassCommonCode(passCommonCode)
 	{
-		passCommonCode.onReload([this](const ShaderCodeFragment&)
+		mPassCommonCode->onReload([this](const ShaderCodeFragment&)
 		{
 			mPipelines.clear();
 		});
@@ -53,10 +52,15 @@ namespace rev::gfx {
 			// Set up graphics pipeline
 			if (lastCode != instance.instanceCode || lastMask != instance.raster)
 			{
-				lastCode = instance.instanceCode;
-				lastMask = instance.raster;
 				auto pipeline = getPipeline(instance);
-				out.setPipeline(pipeline);
+				if(pipeline.isValid())
+				{
+					lastCode = instance.instanceCode;
+					lastMask = instance.raster;
+					out.setPipeline(pipeline);
+				}
+				else
+					continue;
 			}
 
 			// Set up geometry
@@ -88,8 +92,7 @@ namespace rev::gfx {
 		{
 			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
-			if(mPassCommonCode)
-				mPassCommonCode->collapse(stageDesc.code);
+			mPassCommonCode->collapse(stageDesc.code);
 			if(instance.instanceCode)
 				instance.instanceCode->collapse(stageDesc.code);
 
@@ -108,8 +111,7 @@ namespace rev::gfx {
 				pipeline = mDevice.createPipeline(m_commonPipelineDesc);
 			}
 
-			if(pipeline.isValid()) // TODO: Reload when instance code changes
-				iter = mPipelines.emplace(key, pipeline).first;
+			iter = mPipelines.emplace(key, pipeline).first;
 		}
 		return iter->second;
 	}

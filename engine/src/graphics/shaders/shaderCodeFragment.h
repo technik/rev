@@ -22,7 +22,9 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <core/event.h>
 #include <graphics/driver/shaderProcessor.h>
+#include <core/platform/fileSystem/fileSystem.h>
 
 namespace rev::gfx {
 
@@ -34,16 +36,18 @@ namespace rev::gfx {
 		// Constructor from code
 		ShaderCodeFragment(const char* code);
 		// Composition constructor
-		ShaderCodeFragment(ShaderCodeFragment& a, ShaderCodeFragment& b);
-		static ShaderCodeFragment loadFromFile(const std::string& path);
+		ShaderCodeFragment(ShaderCodeFragment* a, ShaderCodeFragment* b);
+		static ShaderCodeFragment* loadFromFile(const std::string& path);
 
 		// Add all fragments of code
 		void collapse(std::vector<std::string>& dst) const;
 
+		using ReloadEvent = core::Event<ShaderCodeFragment&>;
+		using ReloadListener = ReloadEvent::Listener;
 		using ReloadCb = std::function<void(ShaderCodeFragment&)>;
-		void onReload(ReloadCb cb)
+		std::shared_ptr<ReloadListener> onReload(ReloadCb cb)
 		{
-			m_reloadListeners.push_back(cb);
+			return m_onReload += cb;
 		}
 
 		const ShaderProcessor::MetaData& metadata() const
@@ -52,11 +56,15 @@ namespace rev::gfx {
 		}
 
 	private:
+		ShaderCodeFragment(const ShaderCodeFragment&) = delete;
+		ShaderCodeFragment& operator=(const ShaderCodeFragment&) = delete;
 
-		void invokeReload();
+		using FileListener = core::FileSystem::FileEvent::Listener;
+		std::vector<std::shared_ptr<FileListener>> m_fileListeners;
+
+		ReloadEvent m_onReload;
 
 		ShaderProcessor::MetaData m_metaData;
-		std::vector<ReloadCb> m_reloadListeners;
 		std::string m_srcCode;
 		std::string m_processedCode;
 		const ShaderCodeFragment* m_childA = nullptr;

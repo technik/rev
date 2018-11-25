@@ -33,8 +33,6 @@
 #include <graphics/backend/textureSampler.h>
 #include <math/algebra/vector.h>
 
-using namespace rev::gfx;
-
 namespace rev::gfx {
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -46,10 +46,16 @@ namespace rev::gfx {
 
 		math::Mat44f viewProj(float _aspectRatio) const
 		{
+			return projection(_aspectRatio) * mView;
+		}
+
+		const math::Mat44f& view() const { return mView; }
+
+		math::Mat44f projection(float _aspectRatio) const
+		{
 			assert(mNear != 0 && mFar > mNear);
 			//auto projectionMatrix = math::orthographicMatrix({4.f, 2.f}, mNear, mFar);//(mFov, _aspectRatio, mNear, mFar);
-			auto projectionMatrix = math::frustumMatrix(mFov, _aspectRatio, mNear, mFar);
-			return projectionMatrix * mView;
+			return math::frustumMatrix(mFov, _aspectRatio, mNear, mFar);
 		}
 
 		void setWorldTransform(const math::AffineTransform& _x)

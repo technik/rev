@@ -30,9 +30,10 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, const ShaderCodeFragment& code = nullptr);
+		FullScreenPass(gfx::Device&, ShaderCodeFragment* code = nullptr);
+		~FullScreenPass();
 
-		void setPassCode(const ShaderCodeFragment& code);
+		void setPassCode(ShaderCodeFragment* code);
 
 		void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
 
@@ -42,10 +43,13 @@ namespace rev::gfx {
 		gfx::Device& m_device;
 		RenderGeom m_quad;
 
-		ShaderCodeFragment m_baseCode;
-		ShaderCodeFragment m_passCode;
-		ShaderCodeFragment m_completeCode;
+		ShaderCodeFragment* m_baseCode = nullptr;
+		ShaderCodeFragment* m_passCode = nullptr;
+		ShaderCodeFragment* m_completeCode;
 		Pipeline m_pipeline;
+
+		using ShaderListener = ShaderCodeFragment::ReloadListener;
+		std::vector<std::shared_ptr<ShaderListener>> m_shaderListeners;
 	};
 
 }

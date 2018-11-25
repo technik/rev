@@ -20,29 +20,67 @@
 #pragma once
 
 #include <graphics/backend/frameBuffer.h>
+#include <graphics/renderer/RenderItem.h>
+#include <graphics/renderer/renderPass/geometryPass.h>
+#include <graphics/renderer/renderPass/fullScreenPass.h>
+#include <vector>
 
 namespace rev::gfx {
 
+	class Camera;
 	class Device;
+	class RenderPass;
+	class RenderScene;
 
 	class DeferredRenderer
 	{
 	public:
-		DeferredRenderer(Device& device, FrameBuffer target, const math::Vec2u& _size);
+		void init(Device& device, const math::Vec2u& _size, FrameBuffer target);
+
+		void render	(const RenderScene&, const Camera& pov);
+		void onResizeTarget(const math::Vec2u& _newSize);
+
+		//void drawDebugUI();
 
 	private:
 		void createBuffers();
-		void createRenderPasses();
+		void createRenderPasses(gfx::FrameBuffer target);
+		void collapseSceneRenderables(const RenderScene&);
+		Texture2d createGBufferTexture(Device& device, const math::Vec2u& size);
+		void createPBRTextures(Device& device, const math::Vec2u& size);
+		Texture2d createDepthTexture(Device& device, const math::Vec2u& size);
+		FrameBuffer createGBuffer(Device& device, Texture2d depth, Texture2d normal);
+
+		using RenderItem = gfx::RenderItem;
+
+		template<class Filter> // Filter must be an operator (RenderItem) -> bool
+		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
 
 	private:
-		Device&		m_device;
+		Device*		m_device = nullptr;
+		math::Vec2u m_viewportSize;
+		FrameBuffer m_targetFb;
+
+		// Geometry arrays
+		std::vector<RenderItem> m_renderQueue;
+		std::vector<RenderItem> m_visible;
 
 		// Geometry pass
-		FrameBuffer m_GBuffer;
+		Pipeline::RasterOptions m_rasterOptions;
+		gfx::Texture2d			m_depthTexture;
+		gfx::Texture2d			m_gBufferTexture;
+		gfx::Texture2d			m_albedoTexture;
+		gfx::Texture2d			m_specularTexture;
+		FrameBuffer				mGBuffer;
+		RenderPass*				m_gBufferPass = nullptr;
+		GeometryPass*			m_gPass = nullptr;
+
 		// Shadow pass
 		// SSAO pass
 		// Lighting pass
-		// Environment pass ?
+		Texture2d			m_brdfIbl;
+		RenderPass*			m_lPass = nullptr;
+		FullScreenPass*		m_lightingPass = nullptr;
 
 		// Shadow map(s)
 		// SSAO map F32 / RGB32

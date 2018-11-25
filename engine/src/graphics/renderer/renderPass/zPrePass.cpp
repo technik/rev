@@ -41,7 +41,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
-		, m_geomPass(device, m_commonCode)
+		, m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/zPrePass.fx"))
 	{
 		assert(target.isValid());
 		m_viewportSize = _size;
@@ -51,7 +51,6 @@ namespace rev::gfx {
 		createRenderPass(_size);
 
 		// Pipeline config
-		m_commonCode = ShaderCodeFragment::loadFromFile("shaders/zPrePass.fx");
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 	}

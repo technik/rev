@@ -211,7 +211,7 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	RenderPass* DeviceOpenGL::createRenderPass(const RenderPass::Descriptor& desc)
 	{
-		auto newPass = new RenderPassOpenGL(desc, (int32_t)m_passes.size());
+		auto newPass = new RenderPassOpenGL(desc, desc.numColorAttachs, (int32_t)m_passes.size());
 		m_passes.push_back(newPass);
 		return newPass;
 	}

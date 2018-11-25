@@ -22,6 +22,7 @@
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/shaders/shaderCodeFragment.h>
 #include <string>
 #include <map>
 #include <utility>
@@ -35,7 +36,7 @@ namespace rev::gfx {
 	class GeometryPass
 	{
 	public:
-		GeometryPass(Device& device, ShaderCodeFragment& passCommonCode);
+		GeometryPass(Device& device, ShaderCodeFragment* passCommonCode);
 
 		struct Instance
 		{

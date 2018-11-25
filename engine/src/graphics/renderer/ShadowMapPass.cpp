@@ -42,7 +42,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
-		, m_geomPass(device, m_commonCode)
+		, m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx"))
 	{
 		assert(target.isValid());
 		// Renderpass
@@ -54,7 +54,6 @@ namespace rev::gfx {
 		m_pass = device.createRenderPass(passDesc);
 
 		// Pipeline config
-		m_commonCode = ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx");
 		m_rasterOptions.cullFront = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
 	}

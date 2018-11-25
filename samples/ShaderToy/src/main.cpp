@@ -48,7 +48,7 @@ int main(int _argc, const char** _argv) {
 
 
 	// Actual shader code
-	FullScreenPass fullScreenFilter(gfxDevice, R"(
+	FullScreenPass fullScreenFilter(gfxDevice, new ShaderCodeFragment(R"(
 #ifdef PXL_SHADER
 
 layout(location = 0) uniform vec4 t;
@@ -60,7 +60,7 @@ vec3 shade () {
 }
 
 #endif
-)");
+)"));
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)

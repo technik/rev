@@ -19,21 +19,284 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "DeferredRenderer.h"
+#include <graphics/backend/renderPass.h>
+#include <graphics/scene/camera.h>
+#include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
+#include <graphics/scene/renderObj.h>
+#include <graphics/scene/renderScene.h>
+#include <graphics/shaders/shaderCodeFragment.h>
+#include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
+
+using namespace rev::math;
 
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	DeferredRenderer::DeferredRenderer(Device& device, FrameBuffer target, const math::Vec2u& _size)
-		: m_device(device)
+	void DeferredRenderer::init(Device& device, const math::Vec2u& size, FrameBuffer target)
 	{
+		m_targetFb = target;
+		m_device = &device;
+		m_viewportSize = size;
 		createBuffers();
-		createRenderPasses();
+		createRenderPasses(target);
+
+		// Load ibl texture
+		auto iblImg = Image::load("shaders/ibl_brdf.hdr", 2);
+		TextureSampler::Descriptor samplerDesc;
+		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+
+		Texture2d::Descriptor ibl_desc;
+		ibl_desc.providedImages = 1;
+		ibl_desc.mipLevels = 1;
+		ibl_desc.sRGB = false;
+		ibl_desc.pixelFormat = iblImg.format();
+		ibl_desc.srcImages = &iblImg;
+		ibl_desc.size = iblImg.size();
+		ibl_desc.sampler = device.createTextureSampler(samplerDesc);
+		m_brdfIbl = device.createTexture2d(ibl_desc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
+	{
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+
+		// --- Cull stuff
+		// Cull visible objects renderQ -> visible
+		//cull(m_renderQueue, m_visible, [&](const RenderItem& item) -> bool {
+		//	return dot(item.world.position() - eye.position(), eye.viewDir()) > 0;
+		//});
+
+		auto worldMatrix = Mat44f::identity();
+		GeometryPass::Instance instance;
+		instance.geometryIndex = uint32_t(-1);
+		instance.instanceCode = nullptr;
+
+		std::vector<GeometryPass::Instance> renderList;
+		std::vector<const RenderGeom*> geometry;
+		const RenderGeom* lastGeom = nullptr;
+
+		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
+		auto viewProj = eye.viewProj(aspectRatio);
+
+		for(auto& mesh : m_visible)
+		{
+			// Raster options
+			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
+			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
+			instance.raster = m_rasterOptions.mask();
+			// Uniforms
+			instance.uniforms.clear();
+			Mat44f world = mesh.world.matrix();
+			Mat44f wvp = viewProj * world;
+			instance.uniforms.mat4s.push_back({0, wvp});
+			instance.uniforms.mat4s.push_back({1, world});
+			// Geometry
+			if(lastGeom != &mesh.geom)
+			{
+				instance.geometryIndex++;
+				geometry.push_back(&mesh.geom);
+			}
+			renderList.push_back(instance);
+		}
+
+		// Record passes
+		CommandBuffer frameCommands;
+		// G-pass
+		frameCommands.beginPass(*m_gBufferPass);
+		m_gPass->render(geometry, renderList, frameCommands);
+		
+		// Light-pass
+		if(auto env = scene.environment())
+		{
+			CommandBuffer::UniformBucket envUniforms;
+			auto projection = eye.projection(aspectRatio);
+			Mat44f invView = eye.world().matrix();
+			envUniforms.addParam(0, projection);
+			envUniforms.addParam(1, invView);
+			envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+			envUniforms.addParam(3, 1.f);
+
+			envUniforms.addParam(4, env->texture());
+			envUniforms.addParam(5, m_brdfIbl);
+			envUniforms.addParam(6, env->numLevels());
+
+			envUniforms.addParam(7, m_gBufferTexture);
+			envUniforms.addParam(8, m_depthTexture);
+			
+			frameCommands.beginPass(*m_lPass);
+			m_lightingPass->render(envUniforms, frameCommands);
+		}
+
+		// Submit
+		m_device->renderQueue().submitCommandBuffer(frameCommands);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeferredRenderer::onResizeTarget(const math::Vec2u& _newSize)
+	{
+		// Skip it for now
+		m_viewportSize = _newSize;
+		m_gBufferPass->setViewport({0,0}, _newSize);
+		m_lPass->setViewport({0,0}, _newSize);
+
+		// Recreate internal buffers
+		m_device->destroyTexture2d(m_gBufferTexture);
+		m_device->destroyTexture2d(m_depthTexture);
+		m_device->destroyTexture2d(m_albedoTexture);
+		m_device->destroyTexture2d(m_specularTexture);
+		createBuffers();
+		if(m_gPass)
+			delete m_gPass;
+		if(m_gBufferPass)
+			delete m_gBufferPass;
+		if(m_lightingPass)
+			delete m_lightingPass;
+		if(m_lPass)
+			delete m_lPass;
+		createRenderPasses(m_targetFb);
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::createBuffers()
 	{
-		// Skip it by now
+		// Skip it for now
+		m_gBufferTexture = createGBufferTexture(*m_device, m_viewportSize);
+		m_depthTexture = createDepthTexture(*m_device, m_viewportSize);
+		createPBRTextures(*m_device, m_viewportSize);
+		mGBuffer = createGBuffer(*m_device, m_depthTexture, m_gBufferTexture);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeferredRenderer::createRenderPasses(gfx::FrameBuffer target)
+	{
+		m_rasterOptions.cullBack = true;
+		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
+
+		// G-Buffer pass
+		RenderPass::Descriptor passDesc;
+		passDesc.clearDepth = 1;
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
+		passDesc.target = mGBuffer;
+		passDesc.numColorAttachs = 3;
+		passDesc.viewportSize = m_viewportSize;
+
+		m_gBufferPass = m_device->createRenderPass(passDesc);
+		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
+
+		// Lighting pass
+		passDesc.clearDepth = 1;
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.target = target;
+		passDesc.numColorAttachs = 1;
+		passDesc.viewportSize = m_viewportSize;
+		m_lPass = m_device->createRenderPass(passDesc);
+		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class Filter> // Filter must be an operator (RenderItem) -> bool
+	void DeferredRenderer::cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter& filter) // TODO: Cull inplace?
+	{
+		for(auto& item : from)
+			if(filter(item))
+				to.push_back(item);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene)
+	{
+		m_visible.clear();
+		for(auto obj : scene.renderables())
+		{			
+			if(!obj->visible)
+				continue;
+			for(auto mesh : obj->mesh->mPrimitives)
+			{
+				assert(mesh.first && mesh.second);
+				m_visible.push_back({obj->transform, *mesh.first, *mesh.second});
+			}
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Texture2d DeferredRenderer::createGBufferTexture(Device& device, const math::Vec2u& size)
+	{
+		auto samplerDesc = TextureSampler::Descriptor();
+		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		auto sampler = device.createTextureSampler(samplerDesc);
+		auto textureDesc = Texture2d::Descriptor();
+		textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+		textureDesc.pixelFormat.numChannels = 4;
+		textureDesc.depth = false;
+		textureDesc.sampler = sampler;
+		textureDesc.mipLevels = 1;
+		textureDesc.size = size;
+
+		return device.createTexture2d(textureDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeferredRenderer::createPBRTextures(Device& device, const math::Vec2u& size)
+	{
+		auto samplerDesc = TextureSampler::Descriptor();
+		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		auto sampler = device.createTextureSampler(samplerDesc);
+		auto textureDesc = Texture2d::Descriptor();
+		textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+		textureDesc.pixelFormat.numChannels = 4;
+		textureDesc.depth = false;
+		textureDesc.sampler = sampler;
+		textureDesc.mipLevels = 1;
+		textureDesc.size = size;
+
+		m_albedoTexture = device.createTexture2d(textureDesc);
+		m_specularTexture = device.createTexture2d(textureDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Texture2d DeferredRenderer::createDepthTexture(Device& device, const math::Vec2u& size)
+	{
+		auto samplerDesc = TextureSampler::Descriptor();
+		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		auto sampler = device.createTextureSampler(samplerDesc);
+		auto textureDesc = Texture2d::Descriptor();
+		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		textureDesc.pixelFormat.numChannels = 1;
+		textureDesc.depth = true;
+		textureDesc.sampler = sampler;
+		textureDesc.mipLevels = 1;
+		textureDesc.size = size;
+
+		return device.createTexture2d(textureDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	FrameBuffer DeferredRenderer::createGBuffer(Device& device, Texture2d depth, Texture2d normal)
+	{
+		gfx::FrameBuffer::Attachment attachments[4];
+		attachments[0].target = gfx::FrameBuffer::Attachment::Target::Depth;
+		attachments[0].texture = depth;
+		attachments[1].target = gfx::FrameBuffer::Attachment::Target::Color;
+		attachments[1].texture = normal;
+		attachments[2].target = gfx::FrameBuffer::Attachment::Target::Color;
+		attachments[2].texture = m_albedoTexture;
+		attachments[3].target = gfx::FrameBuffer::Attachment::Target::Color;
+		attachments[3].texture = m_specularTexture;
+		gfx::FrameBuffer::Descriptor shadowBufferDesc;
+		shadowBufferDesc.numAttachments = 4;
+		shadowBufferDesc.attachments = attachments;
+		return device.createFrameBuffer(shadowBufferDesc);
 	}
 
 } // namespace rev::gfx

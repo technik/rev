@@ -23,6 +23,23 @@
 namespace rev :: gfx
 {
 	//----------------------------------------------------------------------------------------------
+	RenderPassOpenGL::RenderPassOpenGL(const Descriptor& desc, int numDrawBuffers, int32_t id)
+		: RenderPass(id)
+		, m_desc(desc)
+	{
+		if(desc.target.id() == 0)
+		{
+			m_colorAttachs.push_back(GL_BACK_LEFT);
+		}
+		else
+		{
+			m_colorAttachs.resize(numDrawBuffers);
+			for(int i = 0; i < numDrawBuffers; ++i)
+				m_colorAttachs[i] = GL_COLOR_ATTACHMENT0+i;
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void RenderPassOpenGL::reset()
 	{
 		m_commandList.clear();
@@ -47,6 +64,7 @@ namespace rev :: gfx
 		// Bind the frame buffer
 		assert(m_desc.target.isValid());
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id());
+		glDrawBuffers(m_colorAttachs.size(), m_colorAttachs.data());
 
 		// Config viewport
 		glViewport(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());

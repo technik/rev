@@ -31,42 +31,50 @@ namespace rev::gfx {
 		ShaderProcessor::processCode(context, true, m_processedCode, m_metaData);
 
 		// Setup reload callback for all dependencies
+		auto onFileChanged = [this](const char*) {
+			ShaderProcessor::Context context;
+			context.m_pendingCode.push_back({0, m_srcCode});
+			this->m_processedCode.clear();
+			this->m_metaData.clear();
+			ShaderProcessor::processCode(context, true, m_processedCode, m_metaData);
+			this->m_onReload(*this);
+		};
 		for(auto& file : m_metaData.dependencies)
 		{
-			core::FileSystem::get()->onFileChanged(file) += [this](const char*) {
-				ShaderProcessor::Context context;
-				context.m_pendingCode.push_back({0, m_srcCode});
-				ShaderProcessor::processCode(context, true, m_processedCode, m_metaData);
-			};
+			m_fileListeners.push_back(core::FileSystem::get()->onFileChanged(file) += onFileChanged);
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	ShaderCodeFragment::ShaderCodeFragment(ShaderCodeFragment& a, ShaderCodeFragment& b)
-		: m_childA(&a)
-		, m_childB(&b)
+	ShaderCodeFragment::ShaderCodeFragment(ShaderCodeFragment* a, ShaderCodeFragment* b)
+		: m_childA(a)
+		, m_childB(b)
 	{
 		// reload when either child reloads
 		auto reloadCb = [this](const ShaderCodeFragment&)
 		{
-			this->invokeReload();
+			this->m_onReload(*this);
 		};
-		a.onReload(reloadCb);
-		b.onReload(reloadCb);
+		a->onReload(reloadCb);
+		b->onReload(reloadCb);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	ShaderCodeFragment ShaderCodeFragment::loadFromFile(const std::string& path)
+	ShaderCodeFragment* ShaderCodeFragment::loadFromFile(const std::string& path)
 	{
-		ShaderCodeFragment fragment;
-		ShaderProcessor::loadCodeFromFile(path, fragment.m_processedCode, fragment.m_metaData);
+		auto fragment = new ShaderCodeFragment();
+		ShaderProcessor::loadCodeFromFile(path, fragment->m_processedCode, fragment->m_metaData);
 
 		// Subscribte to file changes and dependencies
-		for(auto& file : fragment.m_metaData.dependencies)
+		auto onFileChanged = [fragment, path](const char*) {
+			fragment->m_processedCode.clear();
+			fragment->m_metaData.clear();
+			ShaderProcessor::loadCodeFromFile(path, fragment->m_processedCode, fragment->m_metaData);
+			fragment->m_onReload(*fragment);
+		};
+		for(auto& file : fragment->m_metaData.dependencies)
 		{
-			core::FileSystem::get()->onFileChanged(file) += [&fragment, path](const char*) {
-				ShaderProcessor::loadCodeFromFile(path, fragment.m_processedCode, fragment.m_metaData);
-			};
+			fragment->m_fileListeners.push_back(core::FileSystem::get()->onFileChanged(file) += onFileChanged);
 		}
 		return fragment;
 	}
@@ -83,12 +91,4 @@ namespace rev::gfx {
 		if(m_childB)
 			m_childB->collapse(out);
 	}
-
-	//----------------------------------------------------------------------------------------------
-	void ShaderCodeFragment::invokeReload()
-	{
-		for(auto& fn : m_reloadListeners)
-			fn(*this);
-	}
-
 }
