@@ -21,98 +21,134 @@
 #define PBR_FX
 // Common pbr code
 
+#if defined(sampler2D_uNormalMap) && defined(VTX_UV_FLOAT) && defined(VTX_TANGENT_FLOAT)
+#define VTX_TANGENT_SPACE
+#endif
+
 #ifdef vec4_uBaseColor
 layout(location = 14) uniform vec4 uBaseColor;
 #endif
 #ifdef sampler2D_uBaseColorMap
 layout(location = 11) uniform sampler2D uBaseColorMap;
 #endif
-
-// Material
-#ifdef sampler2D_uEnvironment
-layout(location = 7) uniform sampler2D uEnvironment;
+layout(location = 12) uniform sampler2D uPhysics;
+layout(location = 13) uniform sampler2D uEmissive;
+#ifdef float_uRoughness
+layout(location = 15) uniform float uRoughness;
+#endif
+#ifdef float_uMetallic
+layout(location = 16) uniform float uMetallic;
+#endif
 layout(location = 8) uniform sampler2D uEnvBRDF;
-layout(location = 18) uniform float numEnvLevels;
+#ifdef VTX_TANGENT_SPACE
+layout(location = 10) uniform sampler2D uNormalMap;
 #endif
 
-#ifdef sampler2D_uFms
-layout(location = 17) uniform sampler2D uFms;
+#ifdef PXL_SHADER
+// Pixel inputs
+in vec3 vtxWsNormal;
+#ifdef VTX_UV_FLOAT
+in vec2 vTexCoord;
+#endif
+#ifdef VTX_TANGENT_SPACE
+in vec4 vtxTangent;
+#endif
 #endif
 
 #ifdef VTX_TANGENT_SPACE
 //------------------------------------------------------------------------------
 vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 {
-  vec3 texNormal = (255.f/128.f)*texture(uNormalMap, vTexCoord).xyz - 1.0;
-  
-  //return normal;
-  return normalize(
-    tangent*texNormal.x +
-    bitangent*texNormal.y +
-    normal*max(texNormal.z, 1e-8)
-  );
+	vec3 texNormal = (255.f/128.f)*texture(uNormalMap, vTexCoord).xyz - 1.0;
+	
+	//return normal;
+	return normalize(
+		tangent*texNormal.x +
+		bitangent*texNormal.y +
+		normal*max(texNormal.z, 1e-8)
+	);
 }
 #endif
-
-
-//---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.159154943, -0.31830988);
-vec2 sampleSpherical(vec3 v)
-{
-  vec2 uv = vec2(atan(-v.x, v.z), asin(v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
-//---------------------------------------------------------------------------------------
-struct LocalVectors
-{
-  vec3 eye;
-  vec3 tangent;
-  vec3 bitangent;
-  vec3 normal;
-};
-
-//---------------------------------------------------------------------------------------
-vec3 getIrradiance(vec3 dir)
-{
-#if defined(sampler2D_uIrradiance) && !defined(Furnace)
-  return textureLod(uEnvironment, sampleSpherical(dir), numEnvLevels).xyz;
-#else
-  return vec3(1.0);
-#endif
-}
-
-//---------------------------------------------------------------------------------------
-vec3 getRadiance(vec3 dir, float lodLevel)
-{
-#if defined(sampler2D_uIrradiance) && !defined(Furnace)
-  return textureLod(uEnvironment, sampleSpherical(dir), lodLevel).xyz;
-#else
-  return vec3(1.0);
-#endif
-}
 
 //---------------------------------------------------------------------------------------
 vec4 getBaseColor()
 {
 #if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
-  vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
-  vec4 baseColor = baseColorTex*uBaseColor;
+	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
+	vec4 baseColor = baseColorTex*uBaseColor;
 #else
-  #if defined(sampler2D_uBaseColorMap)
-    vec4 baseColor = texture(uBaseColorMap, vTexCoord);
-    baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
-  #else
-    #if defined(vec4_uBaseColor)
-      vec4 baseColor = uBaseColor;
-    #else
-      vec4 baseColor = vec4(1.0);
-    #endif
-  #endif
+	#if defined(sampler2D_uBaseColorMap)
+		vec4 baseColor = texture(uBaseColorMap, vTexCoord);
+		baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
+	#else
+		#if defined(vec4_uBaseColor)
+			vec4 baseColor = uBaseColor;
+		#else
+			vec4 baseColor = vec4(1.0);
+		#endif
+	#endif
 #endif
-  return baseColor;
+	return baseColor;
 }
+
+struct Physics
+{
+	float roughness;
+	float metallic;
+	float ao;
+};
+
+Physics getPhysics()
+{
+	Physics phyParam;
+#ifdef sampler2D_uPhysics
+	vec3 physics = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y)).xyz;
+	phyParam.roughness = physics.g;
+	phyParam.metallic = physics.b;
+#else
+	#if defined(float_uRoughness)
+		phyParam.roughness = uRoughness;
+	#else
+		phyParam.roughness = 1.0;
+	#endif
+	#if defined(float_uMetallic)
+		phyParam.metallic = uMetallic;
+	#else
+		phyParam.metallic = 1.0;
+	#endif
+#endif
+	phyParam.ao = 1.0;
+#ifdef SpecularSetup
+	phyParam.roughness = 1.0 - phyParam.roughness;
+#endif
+	return phyParam;
+}
+
+struct PBRParams
+{
+	vec4 specular_r; // specular.xyz, ao
+	vec4 albedo; // albedo, alpha
+};
+
+PBRParams getPBRParams()
+{
+	PBRParams params;
+	vec4 baseColor = getBaseColor();
+
+#ifdef SpecularSetup
+	params.specular_r = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y));
+	//params.specular_r.a = 0.50;
+	params.albedo.xyz = baseColor.xyz;
+#else
+	Physics physics = getPhysics();
+	const float dielectricF0 = 0.04;
+	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, physics.metallic);
+	params.specular_r = vec4(F0, physics.roughness);
+	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
+	params.albedo.a = 1.0;
+#endif
+	return params;
+}
+
 
 #endif // PBR_FX

@@ -78,7 +78,7 @@ namespace rev::gfx {
 
 	ShaderCodeFragment* DeferredRenderer::getMaterialCode(RenderGeom::VtxFormat vtxFormat, const Material& material)
 	{
-		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions();
+		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions() + material.effect().code();
 		auto iter = m_materialCode.find(completeCode);
 		if(iter == m_materialCode.end())
 		{

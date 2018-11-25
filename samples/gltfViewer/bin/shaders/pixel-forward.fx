@@ -145,7 +145,7 @@ void main (void) {
 		
 		occluding += dot(wsDistance, shadingInputs.normal) > 0.0001 ? 1.0*rangeCheck : 0.0;
 	}
-	float ao = 1.0;//-(occluding/9);
+	float ao = 1.0-(occluding/9);
 	shadingInputs.ao = ao;
 	
 	// ---- Shading ----

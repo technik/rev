@@ -37,15 +37,6 @@ layout(location = 9) uniform sampler2D uShadowMap;
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
-layout(location = 12) uniform sampler2D uPhysics;
-layout(location = 13) uniform sampler2D uEmissive;
-#ifdef float_uRoughness
-layout(location = 15) uniform float uRoughness;
-#endif
-#ifdef float_uMetallic
-layout(location = 16) uniform float uMetallic;
-#endif
-
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);

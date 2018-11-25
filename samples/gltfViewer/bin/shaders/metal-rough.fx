@@ -24,94 +24,29 @@
 
 #ifdef PXL_SHADER
 
-#ifdef VTX_TANGENT_SPACE
+/*#ifdef VTX_TANGENT_SPACE
 layout(location = 10) uniform sampler2D uNormalMap;
 #endif
 #ifdef sampler2D_uShadowMap
 layout(location = 9) uniform sampler2D uShadowMap;
 #endif
+// Material
+#ifdef sampler2D_uEnvironment
+layout(location = 7) uniform sampler2D uEnvironment;
+layout(location = 8) uniform sampler2D uEnvBRDF;
+layout(location = 18) uniform float numEnvLevels;
+#endif
 
 #include "pbr.fx"
+#include "ibl.fx"
 
 // Lighting 
 layout(location = 5) uniform vec3 uLightColor;
 layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
-layout(location = 12) uniform sampler2D uPhysics;
-layout(location = 13) uniform sampler2D uEmissive;
-#ifdef float_uRoughness
-layout(location = 15) uniform float uRoughness;
-#endif
-#ifdef float_uMetallic
-layout(location = 16) uniform float uMetallic;
-#endif
-
-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-#ifdef sampler2D_uEnvironment
-//---------------------------------------------------------------------------------------
-vec3 ibl(
-  vec3 F0,
-  vec3 normal,
-  vec3 eye,
-  vec3 albedo,
-  float roughness,
-  float occlusion,
-  float shadow,
-  float ndv
-  )
-{
-	// Common code for single and multiple scattering
-	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
-	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
-
-	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
-	vec3 FssEss = kS * f_ab.x + f_ab.y;
-	float Ess = f_ab.x + f_ab.y;
-	float Ems = 1-Ess;
-	//Ems = 0.f;
-
-	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
-	vec3 samplerDir = reflect(-eye, normal);
-	vec3 radiance = getRadiance(samplerDir, lodLevel) * mix(occlusion * shadow,1,max(0.0,dot(normal,samplerDir))); // Prefiltered radiance
-	vec3 irradiance = getIrradiance(normal) * occlusion * shadow; // Cosine-weighted irradiance
-
-	// Multiple scattering
-	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
-
-	// Dielectrics
-	vec3 Edss = 1 - (FssEss + Fms * Ems);
-	vec3 kD = albedo * Edss / (1-albedo*(1-Edss));
-
-	// Composition
-	return (FssEss * radiance + (Fms * Ems + kD) * irradiance);
-}
-#endif // sampler2D_uEnvironment
-
 //---------------------------------------------------------------------------------------
 vec4 shadeSurface(ShadeInput inputs)
 {
-	vec4 baseColor = getBaseColor();
-
-#ifdef sampler2D_uPhysics
-	vec3 physics = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y)).xyz;
-	float roughness = physics.g;
-	float metallic = physics.b;
-#else
-	#if defined(float_uRoughness)
-		float roughness = uRoughness;
-	#else
-		float roughness = 1.0;
-	#endif
-	#if defined(float_uMetallic)
-		float metallic = uMetallic;
-	#else
-		float metallic = 1.0;
-	#endif
-#endif
 
 #ifdef sampler2D_uShadowMap
 	vec3 surfacePos = inputs.shadowPos*0.5+0.5;
@@ -136,16 +71,13 @@ vec4 shadeSurface(ShadeInput inputs)
 	if(baseColor.a < 0.5)
 		discard;
 
-	const float dielectricF0 = 0.04;
-	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, metallic);
-
+	PBRParams pbr = getPBRParams();
 #ifdef sampler2D_uEnvironment
-	vec3 albedo = baseColor.xyz*(1-metallic);
-	vec3 color = ibl(F0, inputs.normal, inputs.eye, albedo, roughness, occlusion, shadowMask, inputs.ndv);
+	vec3 color = ibl(pbr.specular_r.xyz, inputs.normal, inputs.eye, pbr.albedo.xyz, pbr.specular_r.a, occlusion, shadowMask, inputs.ndv);
 #else
-	vec3 color = baseColor.xyz;
+	vec3 color = pbr.albedo.xyz;
 #endif
 	return vec4(color, baseColor.a);
-}
+}*/
 
 #endif // PXL_SHADER

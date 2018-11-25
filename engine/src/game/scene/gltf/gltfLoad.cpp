@@ -496,6 +496,7 @@ namespace rev { namespace game {
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
 		const shared_ptr<Effect>& _pbrEffect,
+		const shared_ptr<Effect>& _specEffect,
 		std::vector<gfx::Texture2d>& _textures
 		)
 	{
@@ -517,7 +518,18 @@ namespace rev { namespace game {
 		// Load materials
 		for(auto& matDesc : _document.materials)
 		{
-			auto mat = std::make_shared<Material>(_pbrEffect);
+			std::shared_ptr<Material> mat;
+			bool specular = false;
+			if(matDesc.extensionsAndExtras.find("extensions") != matDesc.extensionsAndExtras.end())
+			{
+				auto& extensions = matDesc.extensionsAndExtras["extensions"];
+				if(extensions.find("KHR_materials_pbrSpecularGlossiness") != extensions.end())
+					specular = true;
+			}
+			if(specular)
+				mat = std::make_shared<Material>(_specEffect);
+			else
+				mat = std::make_shared<Material>(_pbrEffect);
 			if(matDesc.name == "carPaint")
 				mat = clearCoat;
 			auto& pbrDesc = matDesc.pbrMetallicRoughness;
@@ -658,6 +670,7 @@ namespace rev { namespace game {
 
 		// Create default material
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
+		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
@@ -677,7 +690,7 @@ namespace rev { namespace game {
 		// Load resources
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
-		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, textures);
+		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
 		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
 
 		// Load nodes
