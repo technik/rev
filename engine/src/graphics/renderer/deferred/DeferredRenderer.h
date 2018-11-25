@@ -50,6 +50,8 @@ namespace rev::gfx {
 		void createPBRTextures(Device& device, const math::Vec2u& size);
 		Texture2d createDepthTexture(Device& device, const math::Vec2u& size);
 		FrameBuffer createGBuffer(Device& device, Texture2d depth, Texture2d normal);
+		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
+		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
 
 		using RenderItem = gfx::RenderItem;
 
@@ -66,6 +68,7 @@ namespace rev::gfx {
 		std::vector<RenderItem> m_visible;
 
 		// Geometry pass
+		std::map<std::string, ShaderCodeFragment*> m_materialCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		gfx::Texture2d			m_depthTexture;
 		gfx::Texture2d			m_gBufferTexture;

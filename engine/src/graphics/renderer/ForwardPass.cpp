@@ -85,7 +85,7 @@ namespace rev::gfx {
 				ShaderProcessor::loadCodeFromFile("shaders/forward.fx", mForwardShaderCommonCode, metadata);
 			};
 		}
-	}	
+	}
 
 	//----------------------------------------------------------------------------------------------
 	std::string ForwardPass::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)

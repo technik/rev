@@ -43,7 +43,7 @@ namespace rev::gfx {
 		createRenderPasses(target);
 
 		// Load ibl texture
-		auto iblImg = Image::load("shaders/ibl_brdf.hdr", 2);
+		auto iblImg = Image::load("shaders/ibl_brdf.hdr", 4);
 		TextureSampler::Descriptor samplerDesc;
 		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
 		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
@@ -58,6 +58,33 @@ namespace rev::gfx {
 		ibl_desc.size = iblImg.size();
 		ibl_desc.sampler = device.createTextureSampler(samplerDesc);
 		m_brdfIbl = device.createTexture2d(ibl_desc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::string DeferredRenderer::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
+	{
+		// TODO: Create this defines procedurally with more information from the actual rendergeom
+		std::string defines;
+		if(vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_POSITION_FLOAT 0\n";
+		if(vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_NORMAL_FLOAT 1\n";
+		if(vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_TANGENT_FLOAT 2\n";
+		if(vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
+			defines += "#define VTX_UV_FLOAT 3\n";
+		return defines;
+	}
+
+	ShaderCodeFragment* DeferredRenderer::getMaterialCode(RenderGeom::VtxFormat vtxFormat, const Material& material)
+	{
+		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions();
+		auto iter = m_materialCode.find(completeCode);
+		if(iter == m_materialCode.end())
+		{
+			iter = m_materialCode.emplace(completeCode, new ShaderCodeFragment(completeCode.c_str())).first;
+		}
+		return iter->second;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -98,6 +125,8 @@ namespace rev::gfx {
 			// Geometry
 			if(lastGeom != &mesh.geom)
 			{
+				mesh.material.bindParams(instance.uniforms);
+				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
 				instance.geometryIndex++;
 				geometry.push_back(&mesh.geom);
 			}
@@ -127,6 +156,8 @@ namespace rev::gfx {
 
 			envUniforms.addParam(7, m_gBufferTexture);
 			envUniforms.addParam(8, m_depthTexture);
+			envUniforms.addParam(9, m_specularTexture);
+			envUniforms.addParam(10, m_albedoTexture);
 			
 			frameCommands.beginPass(*m_lPass);
 			m_lightingPass->render(envUniforms, frameCommands);

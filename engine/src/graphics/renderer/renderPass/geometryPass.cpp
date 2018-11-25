@@ -26,10 +26,10 @@ namespace rev::gfx {
 		: mDevice(device)
 		, mPassCommonCode(passCommonCode)
 	{
-		mPassCommonCode->onReload([this](const ShaderCodeFragment&)
+		m_shaderListeners.push_back(mPassCommonCode->onReload([this](const ShaderCodeFragment&)
 		{
 			mPipelines.clear();
-		});
+		}));
 
 		// Common pipeline config
 		m_commonPipelineDesc.raster.cullBack = true;
@@ -92,9 +92,9 @@ namespace rev::gfx {
 		{
 			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
-			mPassCommonCode->collapse(stageDesc.code);
 			if(instance.instanceCode)
 				instance.instanceCode->collapse(stageDesc.code);
+			mPassCommonCode->collapse(stageDesc.code);
 
 			// Build pipeline stages
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;

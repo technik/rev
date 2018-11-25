@@ -62,6 +62,7 @@ namespace rev::gfx {
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
 		std::map<PipelineSrc, Pipeline> mPipelines;
+		std::vector<std::shared_ptr<ShaderCodeFragment::ReloadListener>> m_shaderListeners;
 	};
 
 }	// namespace rev::gfx
