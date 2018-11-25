@@ -8,6 +8,7 @@
 #define _REV_CORE_EVENT_H_
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace rev {
@@ -17,33 +18,42 @@ namespace rev {
 		public:
 			typedef std::function<void(Arg_...)>	Delegate;
 
+			struct Listener
+			{
+				Listener(Delegate _d) : m_delegate(_d) {}
+				Delegate m_delegate;
+			};
+
 			// Handle delegates
-			void operator+=(Delegate);
-			void operator-=(Delegate);
+			std::shared_ptr<Listener> operator+=(Delegate);
+			void operator-=(const std::shared_ptr<Listener>&);
 			void clear() { mDelegates.clear(); }
 
 			// Invoke
 			void operator()(Arg_...) const;
 
 		private:
-			std::vector<Delegate>	mDelegates;
+			std::vector<std::weak_ptr<Listener>>	mListeners;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Inline
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename...Arg_>
-		void Event<Arg_...>::operator+=(Delegate _delegate) {
-			mDelegates.push_back(_delegate);
+		auto Event<Arg_...>::operator+=(Delegate _delegate) -> std::shared_ptr<Listener>
+		{
+			auto listener = std::make_shared<Listener>(_delegate);
+			mListeners.push_back(listener);
+			return listener;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<typename...Arg_>
-		void Event<Arg_...>::operator-= (Delegate _delegate)
+		void Event<Arg_...>::operator-= (const std::shared_ptr<Listener>& listener)
 		{
-			for (auto i = mDelegates.begin(); i != mDelegates.end(); ++i) {
-				if (*i == _delegate) {
-					mDelegates.erase(i);
+			for (auto i = mListeners.begin(); i != mListeners.end(); ++i) {
+				if (*i == listener) {
+					i = mListeners.erase(i);
 					return;
 				}
 			}
@@ -53,8 +63,12 @@ namespace rev {
 		template<typename...Arg_>
 		void Event<Arg_...>::operator()(Arg_ ... _args) const
 		{
-			for (auto curDelegate : mDelegates)
-				curDelegate(_args...);
+			for (auto& listener : mListeners)
+			{
+				auto p = listener.lock();
+				if(p)
+					p->m_delegate(_args...);
+			}
 		}
 
 	}	// namespace core
