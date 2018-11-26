@@ -77,6 +77,7 @@ namespace rev::gfx {
 		FrameBuffer				mGBuffer;
 		RenderPass*				m_gBufferPass = nullptr;
 		GeometryPass*			m_gPass = nullptr;
+		std::unique_ptr<FullScreenPass>		m_bgPass;
 
 		// Shadow pass
 		// SSAO pass

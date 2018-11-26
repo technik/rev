@@ -161,6 +161,16 @@ namespace rev::gfx {
 			
 			frameCommands.beginPass(*m_lPass);
 			m_lightingPass->render(envUniforms, frameCommands);
+
+			// Background
+			// Uniforms
+			CommandBuffer::UniformBucket bgUniforms;
+			bgUniforms.mat4s.push_back({0, eye.viewProj(aspectRatio) });
+			bgUniforms.vec4s.push_back({1, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
+			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
+			bgUniforms.textures.push_back({7, env->texture()} );
+			// Render
+			m_bgPass->render(bgUniforms, frameCommands);
 		}
 
 		// Submit
@@ -227,6 +237,12 @@ namespace rev::gfx {
 		passDesc.viewportSize = m_viewportSize;
 		m_lPass = m_device->createRenderPass(passDesc);
 		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
+
+		// Background pass
+		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
+		passDesc.target = target;
+		passDesc.viewportSize = m_viewportSize;
+		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
