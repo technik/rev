@@ -20,6 +20,8 @@ layout(location = 10) uniform sampler2D uAlbedoMap;
 
 #include "ibl.fx"
 
+out float gl_FragDepth;
+
 //------------------------------------------------------------------------------	
 vec3 shade () {
 	//mat4 invViewProj = inverse(proj);
@@ -28,7 +30,8 @@ vec3 shade () {
 	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
 	vec3 wsNormal = normalize(compressedNormal * 2 - 1);
 
-	float zClipDepth = texture(uDepthMap, uv).x*2-1;
+	gl_FragDepth = texture(uDepthMap, uv).x;
+	float zClipDepth = gl_FragDepth*2-1;
 	float wClip = proj[3][2] / (zClipDepth - proj[2][2]/proj[2][3]);
 	vec2 xyClip = uv*2-1;
 	vec3 csPos = vec3(xyClip.x, xyClip.y, zClipDepth);

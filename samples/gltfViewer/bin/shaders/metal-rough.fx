@@ -24,6 +24,13 @@
 
 #ifdef PXL_SHADER
 
+layout(location = 14) uniform vec4 uBaseColor;
+layout(location = 15) uniform float uRoughness;
+layout(location = 16) uniform float uMetallic;
+// Maps
+layout(location = 11) uniform sampler2D uBaseColorMap;
+layout(location = 12) uniform sampler2D uPhysics;
+
 /*#ifdef VTX_TANGENT_SPACE
 layout(location = 10) uniform sampler2D uNormalMap;
 #endif

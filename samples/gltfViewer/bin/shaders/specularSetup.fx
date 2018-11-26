@@ -24,7 +24,13 @@
 
 #ifdef PXL_SHADER
 
-#define SpecularSetup
+layout(location = 14) uniform vec4 uDiffuseColor; // diffuse, alpha
+layout(location = 14) uniform vec4 uDiffuseColor; 
+layout(location = 15) uniform float uRoughness;
+layout(location = 16) uniform float uMetallic;
+// Maps
+layout(location = 11) uniform sampler2D uBaseColorMap;
+layout(location = 12) uniform sampler2D uPhysics;
 
 #include "pbr.fx"
 

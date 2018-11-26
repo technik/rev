@@ -25,19 +25,13 @@
 #define VTX_TANGENT_SPACE
 #endif
 
-#ifdef vec4_uBaseColor
-layout(location = 14) uniform vec4 uBaseColor;
-#endif
-#ifdef sampler2D_uBaseColorMap
-layout(location = 11) uniform sampler2D uBaseColorMap;
-#endif
-layout(location = 12) uniform sampler2D uPhysics;
+// Common params for both models
 layout(location = 13) uniform sampler2D uEmissive;
+// TODO: AO Map
+
 #ifdef float_uRoughness
-layout(location = 15) uniform float uRoughness;
 #endif
 #ifdef float_uMetallic
-layout(location = 16) uniform float uMetallic;
 #endif
 layout(location = 8) uniform sampler2D uEnvBRDF;
 #ifdef VTX_TANGENT_SPACE
