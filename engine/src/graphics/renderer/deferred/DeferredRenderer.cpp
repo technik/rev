@@ -83,6 +83,9 @@ namespace rev::gfx {
 		if(iter == m_materialCode.end())
 		{
 			iter = m_materialCode.emplace(completeCode, new ShaderCodeFragment(completeCode.c_str())).first;
+			material.effect().onReload([this](const Effect&){
+				m_materialCode.clear();
+			});
 		}
 		return iter->second;
 	}
@@ -106,6 +109,7 @@ namespace rev::gfx {
 		std::vector<GeometryPass::Instance> renderList;
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
+		const Material* lastMaterial = nullptr;
 
 		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
@@ -123,8 +127,10 @@ namespace rev::gfx {
 			instance.uniforms.mat4s.push_back({0, wvp});
 			instance.uniforms.mat4s.push_back({1, world});
 			// Geometry
-			if(lastGeom != &mesh.geom)
+			if((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
 			{
+				lastMaterial = &mesh.material;
+				lastGeom = &mesh.geom;
 				mesh.material.bindParams(instance.uniforms);
 				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
 				instance.geometryIndex++;

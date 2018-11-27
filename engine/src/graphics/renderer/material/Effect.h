@@ -24,6 +24,8 @@
 #include <vector>
 #include <functional>
 #include <graphics/driver/shaderProcessor.h>
+#include <core/platform/fileSystem/fileSystem.h>
+#include <memory>
 
 namespace rev::gfx {
 
@@ -55,6 +57,8 @@ namespace rev::gfx {
 		std::vector<Property>	m_properties;
 		std::string				m_code;
 		std::string				m_fileName;
+		using FileListener = std::shared_ptr<core::FileSystem::FileEvent::Listener>;
+		std::vector<FileListener> m_fileListeners;
 		// TODO: Support shader permutations by defining #pragma shader_option in a shader
 		// when the material enables the option, the shader option will be #defined in the material
 		// Advanced uses may allow enumerated or integer values for the options

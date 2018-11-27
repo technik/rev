@@ -21,7 +21,6 @@
 #include <sstream>
 #include <graphics/driver/shader.h>
 #include <graphics/driver/shaderProcessor.h>
-#include <core/platform/fileSystem/fileSystem.h>
 
 using namespace std;
 
@@ -35,7 +34,9 @@ namespace rev::gfx {
 		loadFromFile(_fileName.c_str(), metadata);
 #ifdef _WIN32
 		for(auto& dep : metadata.dependencies)
-			core::FileSystem::get()->onFileChanged(dep) += [this](const char* fileName){ this->reload(); };
+			m_fileListeners.push_back(core::FileSystem::get()->onFileChanged(dep) += [this](const char* fileName){
+				this->reload();
+			});
 #endif
 	}
 
