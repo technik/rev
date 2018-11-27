@@ -24,13 +24,16 @@
 
 namespace rev::gfx {
 
+	class CommandBuffer;
+
 	class RenderGraph
 	{
 	public:
 		// Graph lifetime
 		void reset();
-		void bake();
-		void execute();
+		void compile();
+		void recordExecution(CommandBuffer& dst); // Record graph execution into a command buffer for deferred submision
+		void run(); // Execute graph on the fly, submitting command buffers as they are ready
 		void clearResources(); // Free allocated memory resources
 
 		// Resources
@@ -80,7 +83,6 @@ namespace rev::gfx {
 		// By default, write to a new resource
 		Attachment writeColor(FrameBuffer, int bindingLocation, ReadMode, Attachment = Attachment());
 		Attachment writeDepth(FrameBuffer, ReadMode, Attachment = Attachment());
-
 	};
 
 }
