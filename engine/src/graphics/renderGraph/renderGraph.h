@@ -19,6 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "../backend/namedResource.h"
+#include <math/algebra/vector.h>
+
 namespace rev::gfx {
 
 	class RenderGraph
@@ -28,13 +31,56 @@ namespace rev::gfx {
 		void reset();
 		void bake();
 		void execute();
+		void clearResources(); // Free allocated memory resources
 
 		// Resources
-		using TextureResource = int;
+		enum class ColorFormat
+		{
+			None,
+			RGBA8,
+			sRGBA8,
+			RGBA32
+		};
+
+		enum class DepthFormat
+		{
+			None,
+			f24,
+			f32
+		};
+
+		struct Attachment : NamedResource {};
 
 		// Graph building
-		TextureResource createTexture(); // TODO: Texture/fb desc
-		TextureResource wirte(TextureResource);
+		enum class ReadMode
+		{
+			clear,
+			keep,
+			discard
+		};
+
+		enum HWAntiAlias
+		{
+			none,
+			msaa2x,
+			msaa4x,
+			msaa8x
+		};
+
+		struct FrameBufferOptions
+		{
+			math::Vec2u size;
+		};
+
+		struct FrameBuffer : NamedResource {};
+
+		FrameBuffer frameBuffer(const math::Vec2u& size, HWAntiAlias);
+		Attachment readColor(int bindingLocation, Attachment);
+		Attachment readDepth(Attachment);
+		// By default, write to a new resource
+		Attachment writeColor(FrameBuffer, int bindingLocation, ReadMode, Attachment = Attachment());
+		Attachment writeDepth(FrameBuffer, ReadMode, Attachment = Attachment());
+
 	};
 
 }
