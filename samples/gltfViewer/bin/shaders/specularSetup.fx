@@ -25,13 +25,40 @@
 #ifdef PXL_SHADER
 
 layout(location = 14) uniform vec4 uDiffuseColor; // diffuse, alpha
-layout(location = 14) uniform vec4 uDiffuseColor; 
-layout(location = 15) uniform float uRoughness;
-layout(location = 16) uniform float uMetallic;
+layout(location = 15) uniform vec4 uSpecGloss;
 // Maps
-layout(location = 11) uniform sampler2D uBaseColorMap;
-layout(location = 12) uniform sampler2D uPhysics;
+layout(location = 11) uniform sampler2D uDiffuseMap;
+layout(location = 12) uniform sampler2D uSpecGlossMap;
 
 #include "pbr.fx"
+
+//---------------------------------------------------------------------------------------
+vec4 getBaseColor()
+{
+	// Default color
+	vec4 baseColor = vec4(1.0);
+	// scalar factor
+	#if defined(vec4_uBaseColor)
+		baseColor = uBaseColor;
+	#endif
+	// Texture
+	#if defined(sampler2D_uDiffuseMap)
+		baseColor *= texture(uDiffuseMap, vTexCoord);
+	#endif
+	return baseColor;
+}
+
+//---------------------------------------------------------------------------------------
+PBRParams getPBRParams()
+{
+	PBRParams params;
+
+	params.albedo = uDiffuseColor;
+	params.specular_r = uSpecGloss;
+
+	// TODO: Maps
+
+	return params;
+}
 
 #endif // PXL_SHADER

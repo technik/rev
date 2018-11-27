@@ -19,11 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // Metallic-rough pbr shader
-//#define Furnace
-#define BSDF
-
 #ifdef PXL_SHADER
 
+// Shading params
 layout(location = 14) uniform vec4 uBaseColor;
 layout(location = 15) uniform float uRoughness;
 layout(location = 16) uniform float uMetallic;
@@ -31,60 +29,68 @@ layout(location = 16) uniform float uMetallic;
 layout(location = 11) uniform sampler2D uBaseColorMap;
 layout(location = 12) uniform sampler2D uPhysics;
 
-/*#ifdef VTX_TANGENT_SPACE
-layout(location = 10) uniform sampler2D uNormalMap;
-#endif
-#ifdef sampler2D_uShadowMap
-layout(location = 9) uniform sampler2D uShadowMap;
-#endif
-// Material
-#ifdef sampler2D_uEnvironment
-layout(location = 7) uniform sampler2D uEnvironment;
-layout(location = 8) uniform sampler2D uEnvBRDF;
-layout(location = 18) uniform float numEnvLevels;
-#endif
-
 #include "pbr.fx"
-#include "ibl.fx"
-
-// Lighting 
-layout(location = 5) uniform vec3 uLightColor;
-layout(location = 6) uniform vec3 uLightDir; // Direction toward light
 
 //---------------------------------------------------------------------------------------
-vec4 shadeSurface(ShadeInput inputs)
+vec4 getBaseColor()
 {
+	// Default color
+	vec4 baseColor = vec4(1.0);
+	// scalar factor
+	#if defined(vec4_uBaseColor)
+		baseColor = uBaseColor;
+	#endif
+	// Texture
+	#if defined(sampler2D_uBaseColorMap)
+		baseColor *= texture(uBaseColorMap, vTexCoord);
+	#endif
+	return baseColor;
+}
 
-#ifdef sampler2D_uShadowMap
-	vec3 surfacePos = inputs.shadowPos*0.5+0.5;
-	float casterDepth = texture(uShadowMap, surfacePos.xy).x;
-	float shadowHardness = 1.0;
-	float shadowEffect = 1.0-shadowHardness*max(0.0, dot(-uLightDir, inputs.normal));
-	float shadowMask = (casterDepth < min(1.0, surfacePos.z)) ? shadowEffect : 1.0;
-	if((surfacePos.x < 0.0) || (surfacePos.x > 1.0)
-		|| (surfacePos.y < 0.0) || (surfacePos.y > 1.0))
-	{
-		shadowMask = 1.0;
-	}
-#else
-	float shadowMask = 1.0;
-#endif
+//---------------------------------------------------------------------------------------
+struct Physics
+{
+	float roughness;
+	float metallic;
+	float ao;
+};
 
-	float occlusion = inputs.ao;
-#ifdef Furnace
-	occlusion = 1.0;
-	shadowMask = 1.0;
+Physics getPhysics()
+{
+	Physics phyParam;
+	// Default params
+	phyParam.roughness = 1.0;
+	phyParam.metallic = 1.0;
+	phyParam.ao = 1.0;
+	// floats
+	#ifdef float_uRoughness
+		phyParam.roughness = uRoughness;
+	#endif
+	#ifdef float_uMetallic
+		phyParam.metallic = uMetallic;
+	#endif
+	// Texture
+#ifdef sampler2D_uPhysics
+	vec3 physics = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y)).xyz;
+	phyParam.roughness *= physics.g;
+	phyParam.metallic *= physics.b;
 #endif
-	if(baseColor.a < 0.5)
-		discard;
+	return phyParam;
+}
 
-	PBRParams pbr = getPBRParams();
-#ifdef sampler2D_uEnvironment
-	vec3 color = ibl(pbr.specular_r.xyz, inputs.normal, inputs.eye, pbr.albedo.xyz, pbr.specular_r.a, occlusion, shadowMask, inputs.ndv);
-#else
-	vec3 color = pbr.albedo.xyz;
-#endif
-	return vec4(color, baseColor.a);
-}*/
+PBRParams getPBRParams()
+{
+	PBRParams params;
+	vec4 baseColor = getBaseColor();
+
+	Physics physics = getPhysics();
+	const float dielectricF0 = 0.04;
+	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, physics.metallic);
+	params.specular_r = vec4(F0, physics.roughness);
+	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
+	params.albedo.a = 1.0;
+
+	return params;
+}
 
 #endif // PXL_SHADER

@@ -64,85 +64,12 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 }
 #endif
 
-//---------------------------------------------------------------------------------------
-vec4 getBaseColor()
-{
-#if defined(sampler2D_uBaseColorMap) && defined(vec4_uBaseColor)
-	vec4 baseColorTex = texture(uBaseColorMap, vTexCoord);
-	vec4 baseColor = baseColorTex*uBaseColor;
-#else
-	#if defined(sampler2D_uBaseColorMap)
-		vec4 baseColor = texture(uBaseColorMap, vTexCoord);
-		baseColor = vec4(pow(baseColor.r, 2.2), pow(baseColor.g, 2.2), pow(baseColor.b, 2.2), baseColor.a);
-	#else
-		#if defined(vec4_uBaseColor)
-			vec4 baseColor = uBaseColor;
-		#else
-			vec4 baseColor = vec4(1.0);
-		#endif
-	#endif
-#endif
-	return baseColor;
-}
-
-struct Physics
-{
-	float roughness;
-	float metallic;
-	float ao;
-};
-
-Physics getPhysics()
-{
-	Physics phyParam;
-#ifdef sampler2D_uPhysics
-	vec3 physics = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y)).xyz;
-	phyParam.roughness = physics.g;
-	phyParam.metallic = physics.b;
-#else
-	#if defined(float_uRoughness)
-		phyParam.roughness = uRoughness;
-	#else
-		phyParam.roughness = 1.0;
-	#endif
-	#if defined(float_uMetallic)
-		phyParam.metallic = uMetallic;
-	#else
-		phyParam.metallic = 1.0;
-	#endif
-#endif
-	phyParam.ao = 1.0;
-#ifdef SpecularSetup
-	phyParam.roughness = 1.0 - phyParam.roughness;
-#endif
-	return phyParam;
-}
-
 struct PBRParams
 {
 	vec4 specular_r; // specular.xyz, ao
 	vec4 albedo; // albedo, alpha
 };
 
-PBRParams getPBRParams()
-{
-	PBRParams params;
-	vec4 baseColor = getBaseColor();
-
-#ifdef SpecularSetup
-	params.specular_r = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y));
-	//params.specular_r.a = 0.50;
-	params.albedo.xyz = baseColor.xyz;
-#else
-	Physics physics = getPhysics();
-	const float dielectricF0 = 0.04;
-	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, physics.metallic);
-	params.specular_r = vec4(F0, physics.roughness);
-	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
-	params.albedo.a = 1.0;
-#endif
-	return params;
-}
-
+PBRParams getPBRParams();
 
 #endif // PBR_FX
