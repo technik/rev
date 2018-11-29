@@ -21,14 +21,18 @@
 
 #include "../backend/namedResource.h"
 #include <math/algebra/vector.h>
+#include <functional>
+#include <map>
 
 namespace rev::gfx {
 
 	class CommandBuffer;
+	class Device;
 
 	class RenderGraph
 	{
 	public:
+		RenderGraph(Device&);
 		// Graph lifetime
 		void reset();
 		void compile();
@@ -52,7 +56,10 @@ namespace rev::gfx {
 			f32
 		};
 
-		struct Attachment : NamedResource {};
+		struct Attachment : NamedResource {
+			Attachment() = default;
+			Attachment(int id) : NamedResource(id) {}
+		};
 
 		// Graph building
 		enum class ReadMode
@@ -75,14 +82,49 @@ namespace rev::gfx {
 			math::Vec2u size;
 		};
 
-		struct FrameBuffer : NamedResource {};
+		struct Pass : NamedResource {
+			Pass() = default;
+			Pass(int id) : NamedResource(id) {}
+		};
 
-		FrameBuffer frameBuffer(const math::Vec2u& size, HWAntiAlias);
-		Attachment readColor(int bindingLocation, Attachment);
-		Attachment readDepth(Attachment);
+		Pass pass(const math::Vec2u& size, HWAntiAlias);
+		void readColor(Pass, int bindingLocation, Attachment);
+		void readDepth(Pass, int bindingLocation, Attachment);
 		// By default, write to a new resource
-		Attachment writeColor(FrameBuffer, int bindingLocation, ReadMode, Attachment = Attachment());
-		Attachment writeDepth(FrameBuffer, ReadMode, Attachment = Attachment());
+		Attachment writeColor(Pass, int bindingLocation, ReadMode, Attachment = Attachment());
+		Attachment writeDepth(Pass, ReadMode, Attachment = Attachment());
+
+		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;
+		template<class PassExec>
+		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
+
+		// Resource access during execution
+		Texture2d getTexture(Attachment) const;
+
+	private:
+		Device& m_device;
+		int m_nextResourceId = 0;
+
+		struct WriteAttachment
+		{
+			ReadMode m_readMode;
+			Attachment m_beforeWrite;
+			Attachment m_afterWrite;
+		};
+
+		struct RenderPassInfo
+		{
+			std::map<int, Attachment> m_colorInputs;
+			std::map<int, Attachment> m_depthInputs;
+			std::map<int, WriteAttachment> m_colorOutputs;
+			WriteAttachment m_depthOutput;
+
+			math::Vec2u m_targetSize;
+			PassExecution m_execution;
+			HWAntiAlias m_antiAlias;
+		};
+
+		std::vector<RenderPassInfo> m_renderPasses;
 	};
 
 }
