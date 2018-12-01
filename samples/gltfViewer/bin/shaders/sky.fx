@@ -2,8 +2,9 @@
 #ifdef PXL_SHADER
 
 // Global state
-layout(location = 0) uniform mat4 viewProj;
-layout(location = 1) uniform vec4 Window;
+layout(location = 0) uniform mat4 invView;
+layout(location = 1) uniform mat4 proj;
+layout(location = 2) uniform vec4 Window;
 layout(location = 3) uniform float uEV;
 layout(location = 7) uniform sampler2D hdrSkyTexture;
 
@@ -19,15 +20,14 @@ vec2 sampleSpherical(vec3 v)
 
 //------------------------------------------------------------------------------	
 vec3 shade () {
-	mat4 invViewProj = inverse(viewProj);
+	mat4 invProj = inverse(proj);
 	vec2 uv = 2*gl_FragCoord.xy / Window.xy - 1;
 	// Direction from the view point to the pixel, in world space
-	vec3 vtxViewDir = (invViewProj * vec4(uv, 1.0, 1.0)).xyz;
-	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(vtxViewDir)), 0.0).xyz;
+	vec4 vsPixelPos = invProj * vec4(uv, 1.0, 1.0);
+	vec3 wsViewDir = (invView * vec4(vsPixelPos.xyz, 0.0)).xyz;
+	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(wsViewDir)), 0.0).xyz;
 	
-	//color.xyz = color.xyz / (1.0+color.xyz);
 	return pow(pow(2, uEV) * color, vec3(0.4545));
-	//return color.r > 1.0 ? vec3(1.0,0.0,0.0) : color;//pow(color, vec3(1.0004545));
 }
 
 #endif
