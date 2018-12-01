@@ -99,7 +99,7 @@ namespace rev::gfx {
 		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
 
 		// Resource access during execution
-		Texture2d getTexture(Attachment) const;
+		//Texture2d getTexture(Attachment) const;
 
 	private:
 		Device& m_device;

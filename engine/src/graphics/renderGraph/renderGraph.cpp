@@ -50,7 +50,7 @@ namespace rev::gfx {
 			// fb
 			// viewport
 			// clear
-			pass.m_execution(dst); // Record pass commands
+//			pass.m_execution(dst); // Record pass commands
 		}
 	}
 
@@ -72,18 +72,9 @@ namespace rev::gfx {
 		Pass newPass (m_renderPasses.size());
 		m_renderPasses.emplace_back();
 		auto& passInfo = m_renderPasses.back();
-		passInfo.m_antiAlias == aa;
+		passInfo.m_antiAlias = aa;
 		passInfo.m_targetSize = size;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::pass(const math::Vec2u& size, HWAntiAlias aa) -> Pass
-	{
-		Pass newPass (m_renderPasses.size());
-		m_renderPasses.emplace_back();
-		auto& passInfo = m_renderPasses.back();
-		passInfo.m_antiAlias == aa;
-		passInfo.m_targetSize = size;
+		return newPass;
 	}
 
 	//----------------------------------------------------------------------------------------------
