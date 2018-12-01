@@ -50,8 +50,9 @@ vec3 shade () {
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
 	
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);
-	vec3 toneMapped = color*uEV / (1+uEV*color);
-	return pow(toneMapped, vec3(0.4545));
+	//vec3 toneMapped = color*uEV / (1+uEV*color);
+	//return pow(toneMapped, vec3(0.4545));
+	return pow(color, vec3(0.4545));
 }
 
 #endif

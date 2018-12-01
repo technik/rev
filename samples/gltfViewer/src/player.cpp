@@ -117,9 +117,10 @@ namespace rev {
 		// Create fliby camera
 		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
-		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 100.f);
+		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
+		//cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
+		//cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
+		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 100.f);
 		mFlybyCam = &*camComponent->cam();
 		
 		// Create orbit camera

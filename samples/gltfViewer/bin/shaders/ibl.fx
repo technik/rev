@@ -2,10 +2,10 @@
 #define IBL_FX
 // IBL
 //---------------------------------------------------------------------------------------
-const vec2 invAtan = vec2(0.159154943, -0.31830988);
+const vec2 invAtan = vec2(0.159154943, 0.31830988);
 vec2 sampleSpherical(vec3 v)
 {
-  vec2 uv = vec2(atan(-v.x, v.z), asin(v.y));
+  vec2 uv = vec2(atan(-v.x, v.z), asin(-v.y));
     uv *= invAtan;
     uv += 0.5;
     return uv;
@@ -44,30 +44,39 @@ vec3 ibl(
   float ndv
   )
 {
+	albedo = vec3(0.0);
+	F0 = vec3(0.95, 0.64, 0.54);
+	//F0 = vec3(1.0);
 	// Common code for single and multiple scattering
 	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
 	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
 
 	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
 	vec3 FssEss = kS * f_ab.x + f_ab.y;
-	float Ess = f_ab.x + f_ab.y;
-	float Ems = 1-Ess;
-	//Ems = 0.f;
 
-	float lodLevel = roughness * (1.3-0.3*roughness) * numEnvLevels;
-	vec3 samplerDir = reflect(normal, eye);
-	vec3 radiance = getRadiance(samplerDir, lodLevel) * mix(occlusion * shadow,1,max(0.0,dot(normal,samplerDir))); // Prefiltered radiance
-	vec3 irradiance = getIrradiance(normal) * occlusion * shadow; // Cosine-weighted irradiance
+	float lodLevel = roughness * numEnvLevels;
+	vec3 reflDir = reflect(-eye, normal);
+	vec3 radiance = getRadiance(reflDir, lodLevel); // Prefiltered radiance
+	vec3 irradiance = getIrradiance(normal); // Cosine-weighted irradiance
 
 	// Multiple scattering
-	vec3 Fms = vec3(0.0);//FssEss*FssEss/(Ess-FssEss*Ems);
+	float Ess = f_ab.x + f_ab.y;
+	float Ems = 1-Ess;
+	vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
+	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
-	vec3 kD = albedo * Edss / (1-albedo*(1-Edss));
+	vec3 kD = albedo * Edss;
+	//if(false)
+	{
+		Ems = 0.0;
+		kD = (1.0-kS) * albedo;
+	}
 
 	// Composition
-	return (FssEss * radiance + (Fms * Ems + kD) * irradiance);
+	return FssEss * radiance + (Fms*Ems+kD) * irradiance;
+	//return vec3(radiance);
 }
 #endif // sampler2D_uEnvironment
 
