@@ -286,7 +286,7 @@ namespace rev::gfx {
 		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
 		auto sampler = device.createTextureSampler(samplerDesc);
 		auto textureDesc = Texture2d::Descriptor();
-		textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
 		textureDesc.pixelFormat.numChannels = 4;
 		textureDesc.depth = false;
 		textureDesc.sampler = sampler;
