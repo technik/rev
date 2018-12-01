@@ -1,0 +1,160 @@
+{
+	"asset": {
+		"version" : "2.0",
+		"generator": "technik's gltf 2.0 exporter",
+		"copyright": "2018 (c) Carmelo J. Fdez-Agüera"
+	},
+	"scene" : 0,
+	"scenes": [
+		{
+			"name": "unityScene",
+			"nodes": [ 0 ]
+		}
+	],
+	"nodes": [
+		{
+			"name": "BarracksSingle",
+			"translation": [
+				44.1,
+				2.57,
+				66.68
+			],
+			"rotation": [
+				0,
+				0.499451,
+				0,
+				0.8663421
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 0
+		}
+	],
+	"meshes": [
+		{
+			"name": "BarracksSingle",
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 4,
+					"material": 0, 
+					"mode": 4
+				},
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 5,
+					"material": 1, 
+					"mode": 4
+				}
+			]
+		}
+	],
+	"materials": [
+		{
+			"name": "Building01",
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [1, 1, 1, 1],
+				"metallicFactor":1,
+				"roughnessFactor":1
+			}
+		},
+		{
+			"name": "Building02",
+			"pbrMetallicRoughness": {
+				"baseColorFactor": [1, 1, 1, 1],
+				"metallicFactor":1,
+				"roughnessFactor":1
+			}
+		}
+	],
+	"textures": [
+	],
+	"images": [
+	],
+	"bufferViews": [
+			{
+				"buffer": 0,
+				"byteLength": 371088,
+				"byteOffset": 0,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 33318,
+				"byteOffset": 371088,
+				"target": 34963
+			},
+			{
+				"buffer": 0,
+				"byteLength": 26472,
+				"byteOffset": 404406,
+				"target": 34963
+			}
+	],
+	"accessors": [
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 7731,
+			"type": "VEC3",
+			"min": [-5.386743, -0.1336985, -3.66994],
+			"max": [4.359853, 10.02462, 4.162647]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 7731,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 7731,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 7731,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 16659,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView" : 2,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 13236,
+			"type": "SCALAR"
+		}
+	],
+	"buffers": [
+		{
+			"byteLength": 430878,
+			"uri": "house.bin"
+		}
+	]
+}
