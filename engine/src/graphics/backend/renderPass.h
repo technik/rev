@@ -30,6 +30,7 @@ namespace rev :: gfx
 	class RenderPass : public NamedResource
 	{
 	public:
+
 		struct Descriptor
 		{
 			enum class Clear : size_t

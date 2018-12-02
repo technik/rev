@@ -67,6 +67,9 @@ namespace rev :: gfx
 		{
 			enum Opcode {
 				BeginPass,
+				BindFrameBuffer,
+				SetViewport,
+				SetScissor,
 				SetPipeline,
 				SetUniform,
 				SetVtxData,
@@ -85,17 +88,27 @@ namespace rev :: gfx
 			U32
 		};
 
-		struct DrawPayload
-		{
-			int nIndices;
-			IndexType indexType;
-			void* offset = nullptr;
-		};
-
 		void beginPass(RenderPass& pass)
 		{
 			assert(pass.isValid());
 			m_commands.push_back({ Command::BeginPass, pass.id() });
+		}
+		void bindFrameBuffer(FrameBuffer fb)
+		{
+			assert(fb.isValid());
+			m_commands.push_back({ Command::BindFrameBuffer, fb.id() });
+		}
+
+		void setViewport(const math::Vec2u& start, const math::Vec2u& size)
+		{
+			m_commands.push_back({ Command::SetViewport, (int32_t)m_rect.size() });
+			m_rect.push_back({start, size});
+		}
+
+		void setScissor(const math::Vec2u& start, const math::Vec2u& size)
+		{
+			m_commands.push_back({ Command::SetScissor, (int32_t)m_rect.size() });
+			m_rect.push_back({start, size});
 		}
 
 		void setPipeline(Pipeline pipeline)
@@ -126,15 +139,29 @@ namespace rev :: gfx
 			m_draws.clear();
 		}
 
+		struct DrawPayload
+		{
+			int nIndices;
+			IndexType indexType;
+			void* offset = nullptr;
+		};
+
+		struct WindowRect
+		{
+			math::Vec2u pos, size;
+		};
+
 		// Access
 		const std::vector<Command> commands() const { return m_commands; }
 		const UniformBucket& getUniforms(size_t i) const { return m_uniforms[i]; }
 		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
+		const WindowRect& getRect(size_t i) const { return m_rect[i]; }
 
 	private:
 
 		std::vector<Command> m_commands;
 		std::vector<UniformBucket> m_uniforms;
 		std::vector<DrawPayload> m_draws;
+		std::vector<WindowRect> m_rect;
 	};
 }

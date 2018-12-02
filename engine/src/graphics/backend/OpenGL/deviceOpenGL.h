@@ -45,6 +45,7 @@ namespace rev :: gfx
 
 		// Frame buffers
 		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
+		void bindFrameBuffer(int32_t fb);
 		
 		// Render passes
 		void bindPass(int32_t pass, RenderQueue& queue) override;

@@ -171,10 +171,10 @@ namespace rev :: gfx
 				attachTarget = GL_COLOR_ATTACHMENT0 + nColorAttachs++;
 
 			// Bind attachment to an attachment point
-			//if(attachment.imageType == FrameBuffer::Attachment::Texture)
+			if(attachment.imageType == FrameBuffer::Attachment::Texture)
 				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
-			//else // TODO: Render buffer
-				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.RenderBuffer.id);
+			else
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.texture.id());
 		}
 
 		// If configuration was successful, return the new frame buffer
@@ -206,6 +206,12 @@ namespace rev :: gfx
 	void DeviceOpenGL::bindPass(int32_t pass, RenderQueue& queue)
 	{
 		m_passes[pass]->bindTo(static_cast<RenderQueueOpenGL&>(queue));
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::bindFrameBuffer(int32_t fb)
+	{
+		//
 	}
 
 	//----------------------------------------------------------------------------------------------

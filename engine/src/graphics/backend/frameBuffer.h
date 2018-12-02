@@ -45,6 +45,7 @@ namespace rev::gfx {
 			// Info for texture attachments
 			Texture2d texture;
 			size_t mipLevel = 0;
+			// TODO: Layers and cubemap sides
 
 			// Info for render buffer attachments
 			// TODO

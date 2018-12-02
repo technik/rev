@@ -20,9 +20,11 @@
 #pragma once
 
 #include "../backend/namedResource.h"
-#include <math/algebra/vector.h>
 #include <functional>
+#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/texture2d.h>
 #include <map>
+#include <math/algebra/vector.h>
 
 namespace rev::gfx {
 
@@ -36,14 +38,14 @@ namespace rev::gfx {
 		// Graph lifetime
 		void reset();
 		void compile();
-		void recordExecution(CommandBuffer& dst); // Record graph execution into a command buffer for deferred submision
+		// Record graph execution into a command buffer for deferred submision
+		void recordExecution(CommandBuffer& dst);
 		void run(); // Execute graph on the fly, submitting command buffers as they are ready
 		void clearResources(); // Free allocated memory resources
 
 		// Resources
 		enum class ColorFormat
 		{
-			None,
 			RGBA8,
 			sRGBA8,
 			RGBA32
@@ -51,7 +53,6 @@ namespace rev::gfx {
 
 		enum class DepthFormat
 		{
-			None,
 			f24,
 			f32
 		};
@@ -91,15 +92,15 @@ namespace rev::gfx {
 		void readColor(Pass, int bindingLocation, Attachment);
 		void readDepth(Pass, int bindingLocation, Attachment);
 		// By default, write to a new resource
-		Attachment writeColor(Pass, int bindingLocation, ReadMode, Attachment = Attachment());
-		Attachment writeDepth(Pass, ReadMode, Attachment = Attachment());
+		Attachment writeColor(Pass, ColorFormat, int bindingLocation, ReadMode, Attachment = Attachment());
+		Attachment writeDepth(Pass, DepthFormat, ReadMode, Attachment = Attachment());
 
 		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;
 		template<class PassExec>
 		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
 
 		// Resource access during execution
-		//Texture2d getTexture(Attachment) const;
+		Texture2d getTexture(Attachment) const;
 
 	private:
 		Device& m_device;
@@ -122,9 +123,13 @@ namespace rev::gfx {
 			math::Vec2u m_targetSize;
 			PassExecution m_execution;
 			HWAntiAlias m_antiAlias;
+
+			FrameBuffer m_targetFB;
 		};
 
 		std::vector<RenderPassInfo> m_renderPasses;
+		std::map<int32_t,Texture2d> m_resolvedTextures;
+		TextureSampler m_linearSampler;
 	};
 
 }

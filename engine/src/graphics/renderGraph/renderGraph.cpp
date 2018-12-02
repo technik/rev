@@ -26,7 +26,13 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	RenderGraph::RenderGraph(Device& device)
 		: m_device(device)
-	{}
+	{
+		TextureSampler::Descriptor desc;
+		desc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		desc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
+		desc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		m_linearSampler = device.createTextureSampler(desc);
+	}
 
 	//----------------------------------------------------------------------------------------------
 	void RenderGraph::reset()
@@ -46,11 +52,41 @@ namespace rev::gfx {
 	{
 		for(auto& pass : m_renderPasses)
 		{
+			// Is fb allocated already?
+			if(!pass.m_targetFB.isValid()) {
+				FrameBuffer::Descriptor fbDesc;
+				// Create descriptor attachments
+				std::vector<FrameBuffer::Attachment> targetAtt;
+				bool writesDepth = pass.m_depthOutput.m_afterWrite.isValid();
+				targetAtt.resize(pass.m_colorOutputs.size() + writesDepth ? 1 : 0);
+
+				// Fill in attachments
+				size_t i = 0;
+				for(; i < pass.m_colorOutputs.size(); ++i)
+				{
+					targetAtt[i].imageType = FrameBuffer::Attachment::Texture;
+					targetAtt[i].target = FrameBuffer::Attachment::Color;
+					auto attachAlias = pass.m_colorOutputs.at((int)i).m_afterWrite;
+					targetAtt[i].texture = m_resolvedTextures.at(attachAlias.id());
+				}
+				if(writesDepth)
+				{
+					targetAtt[i].imageType = FrameBuffer::Attachment::Texture;
+					targetAtt[i].target = FrameBuffer::Attachment::Depth;
+					auto attachAlias = pass.m_depthOutput.m_afterWrite;
+					targetAtt[i].texture = m_resolvedTextures.at(attachAlias.id());
+				}
+
+				fbDesc.attachments = targetAtt.data();
+				fbDesc.numAttachments = targetAtt.size();
+
+				pass.m_targetFB = m_device.createFrameBuffer(fbDesc);
+			}
 			// Bind pass resources
-			// fb
-			// viewport
-			// clear
-//			pass.m_execution(dst); // Record pass commands
+			dst.bindFrameBuffer(pass.m_targetFB);
+			dst.setViewport(math::Vec2u::zero(), pass.m_targetSize); // viewport
+			dst.setScissor(math::Vec2u::zero(), pass.m_targetSize); // clear
+			pass.m_execution(*this, dst); // Record pass commands
 		}
 	}
 
@@ -92,21 +128,51 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeColor(Pass pass, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
+	auto RenderGraph::writeColor(Pass pass, ColorFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
 	{
 		Attachment afterWrite(m_nextResourceId++);
 		WriteAttachment outAttach { readMode, src, afterWrite };
+		if(src.isValid()) // Resolve new attachment to previous texture
+			m_resolvedTextures.emplace(afterWrite.id(), m_resolvedTextures.at(src.id()));
+		else // Create a new texture for the attachment
+		{
+			Texture2d::Descriptor desc;
+			desc.depth = false;
+			desc.mipLevels = 1;
+			desc.pixelFormat.numChannels = 4;
+			desc.pixelFormat.channel = (colorFmt == ColorFormat::RGBA32) ? Image::ChannelFormat::Float32 : Image::ChannelFormat::Byte;
+			desc.sRGB = (colorFmt == ColorFormat::sRGBA8);
+			desc.providedImages = 0;
+			desc.size = m_renderPasses[pass.id()].m_targetSize;
+			desc.sampler = m_linearSampler;
+			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+		}
 		m_renderPasses[pass.id()].m_colorOutputs.emplace(bindingLocation, outAttach );
 		return afterWrite;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeDepth(Pass pass, ReadMode readMode, Attachment src) -> Attachment
+	auto RenderGraph::writeDepth(Pass pass, DepthFormat, ReadMode readMode, Attachment src) -> Attachment
 	{
 		Attachment afterWrite(m_nextResourceId++);
 		WriteAttachment outAttach { readMode, src, afterWrite };
 		auto& renderPass = m_renderPasses[pass.id()];
 		assert(!renderPass.m_depthOutput.m_afterWrite.isValid()); // We can only write to one depth attachment per pass
+		if(src.isValid()) // Resolve new attachment to previous texture
+			m_resolvedTextures.emplace(afterWrite.id(), m_resolvedTextures.at(src.id()));
+		else // Create a new texture for the attachment
+		{
+			Texture2d::Descriptor desc;
+			desc.depth = true;
+			desc.mipLevels = 1;
+			desc.pixelFormat.numChannels = 1;
+			desc.pixelFormat.channel = Image::ChannelFormat::Float32;
+			desc.sRGB = false;
+			desc.providedImages = 0;
+			desc.size = m_renderPasses[pass.id()].m_targetSize;
+			desc.sampler = m_linearSampler;
+			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+		}
 		m_renderPasses[pass.id()].m_depthOutput = outAttach;
 		return afterWrite;
 	}

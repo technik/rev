@@ -70,6 +70,10 @@ namespace rev :: gfx
 					m_device.bindPass(cmd.payload, *this);
 					break;
 				}
+				case Command::BindFrameBuffer:
+				{
+					m_device.bindFrameBuffer(cmd.payload);
+				}
 				case Command::SetPipeline:
 				{
 					m_device.bindPipeline(cmd.payload);
