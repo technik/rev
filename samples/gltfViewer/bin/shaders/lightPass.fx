@@ -28,7 +28,7 @@ vec3 shade () {
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	// Direction from the view point to the pixel, in view space
 	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
-	vec3 wsNormal = normalize(compressedNormal * 2 - 1);
+	vec3 wsNormal = compressedNormal;
 
 	gl_FragDepth = texture(uDepthMap, uv).x;
 	float zClipDepth = gl_FragDepth*2-1;
@@ -53,6 +53,7 @@ vec3 shade () {
 	//vec3 toneMapped = color*uEV / (1+uEV*color);
 	//return pow(toneMapped, vec3(0.4545));
 	return pow(color, vec3(0.4545));
+	//return wsNormal;
 }
 
 #endif

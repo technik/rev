@@ -90,10 +90,8 @@ vec3 computeWsNormal()
 #ifdef VTX_TANGENT_SPACE
 	vec3 tangent = normalize(vtxTangent.xyz);
 	vec3 normal = normalize(vtxWsNormal);
-	vec3 bitangent = cross(normal, tangent) * vtxTangent.w;
-	vec3 tsNormal = getSampledNormal(tangent, bitangent, normal);
-
-	return normal*tsNormal.z + tangent*tsNormal.x + bitangent*tsNormal.y;
+	vec3 bitangent = normalize(cross(normal, tangent) * vtxTangent.w);
+	return getSampledNormal(tangent, bitangent, normal);
 #else
 	return normalize(vtxWsNormal);
 #endif
@@ -101,7 +99,7 @@ vec3 computeWsNormal()
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	outWsNormal = vec4(computeWsNormal()*0.5+0.5, 1.0);
+	outWsNormal = vec4(computeWsNormal(), 0.0);
 
 	PBRParams pbr = getPBRParams();
 	outSpecular = pbr.specular_r;
