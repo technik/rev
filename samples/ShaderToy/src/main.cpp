@@ -11,6 +11,7 @@
 #include <graphics/backend/renderPass.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
+#include <graphics/renderGraph/renderGraph.h>
 
 #include <string>
 #include <vector>
@@ -36,6 +37,13 @@ int main(int _argc, const char** _argv) {
 	auto& renderQueue = gfxDevice.renderQueue();
 
 	// Renderpass
+	/*
+	RenderGraph renderGraph(gfxDevice);
+	auto fsPass = renderGraph.pass(windowSize, RenderGraph::HWAntiAlias::none);
+	auto color = renderGraph.writeColor(fsPass, RenderGraph::ColorFormat::RGBA8, 0, RenderGraph::ReadMode::discard);
+	//TODO: renderGraph.readColor(color).clearColor()
+	*/
+
 	RenderPass::Descriptor fullScreenDesc;
 	float grey = 0.5f;
 	fullScreenDesc.clearColor = { grey,grey,grey, 1.f };
@@ -44,8 +52,6 @@ int main(int _argc, const char** _argv) {
 	fullScreenDesc.viewportSize = windowSize;
 	auto fullScreenPass = gfxDevice.createRenderPass(fullScreenDesc);
 	CommandBuffer fsCommandBuffer;
-	fullScreenPass->record(fsCommandBuffer);
-
 
 	// Actual shader code
 	FullScreenPass fullScreenFilter(gfxDevice, new ShaderCodeFragment(R"(
@@ -97,10 +103,11 @@ vec3 shade () {
 		timeUniform.vec4s.push_back({1, {float(windowSize.x()), float(windowSize.y()), 0.f, 0.f}});
 
 		fsCommandBuffer.clear();
+		fsCommandBuffer.beginPass(*fullScreenPass);
 		fullScreenFilter.render(timeUniform, fsCommandBuffer);
 
 		// Finish frame
-		renderQueue.submitPass(*fullScreenPass);
+		renderQueue.submitCommandBuffer(fsCommandBuffer);
 		renderQueue.present();
 
 		// Update time
