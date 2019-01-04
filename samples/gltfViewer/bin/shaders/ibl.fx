@@ -63,12 +63,13 @@ vec3 ibl(
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
 	vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
-	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
+	vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
+	//Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
 	vec3 kD = albedo * Edss;
-	//if(false)
+	if(false)
 	{
 		Ems = 0.0;
 		kD = (1.0-kS) * albedo;
