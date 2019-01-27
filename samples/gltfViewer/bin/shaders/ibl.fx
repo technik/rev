@@ -44,9 +44,6 @@ vec3 ibl(
   float ndv
   )
 {
-	albedo = vec3(0.0);
-	F0 = vec3(0.95, 0.64, 0.54);
-	//F0 = vec3(1.0);
 	// Common code for single and multiple scattering
 	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
 	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
@@ -62,9 +59,10 @@ vec3 ibl(
 	// Multiple scattering
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
-	vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
+	//vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
+	//if(normal.x > 0)
+	vec3 Favg = F0 + (1-F0)*0.0476190476; // Pi/21
 	vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
-	//Fms = FssEss*FssEss/(Ess-FssEss*Ems);
 
 	// Dielectrics
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
@@ -77,7 +75,6 @@ vec3 ibl(
 
 	// Composition
 	return FssEss * radiance + (Fms*Ems+kD) * irradiance;
-	//return vec3(radiance);
 }
 #endif // sampler2D_uEnvironment
 
