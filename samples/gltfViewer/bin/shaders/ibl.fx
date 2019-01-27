@@ -59,8 +59,10 @@ vec3 ibl(
 	// Multiple scattering
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
-	vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
-	vec3 Fms = FssEss*FssEss/(Ess-FssEss*Ems);
+	//vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
+	//if(normal.x > 0)
+	vec3 Favg = F0 + (1-F0)*0.0476190476; // Pi/21
+	vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
 
 	// Dielectrics
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
