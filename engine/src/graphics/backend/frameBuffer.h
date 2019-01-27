@@ -34,7 +34,7 @@ namespace rev::gfx {
 			{
 				Texture,
 				RenderBuffer
-			} imageType;
+			} imageType = ImageType::Texture;
 
 			enum Target
 			{

@@ -80,10 +80,11 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
 	{
-		gfx::FrameBuffer::Attachment depthAttachment;
-		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
+		FrameBuffer::Attachment depthAttachment;
+		depthAttachment.target = FrameBuffer::Attachment::Target::Depth;
+		depthAttachment.imageType = FrameBuffer::Attachment::ImageType::Texture;
 		depthAttachment.texture = texture;
-		gfx::FrameBuffer::Descriptor shadowBufferDesc;
+		FrameBuffer::Descriptor shadowBufferDesc;
 		shadowBufferDesc.numAttachments = 1;
 		shadowBufferDesc.attachments = &depthAttachment;
 		return device.createFrameBuffer(shadowBufferDesc);

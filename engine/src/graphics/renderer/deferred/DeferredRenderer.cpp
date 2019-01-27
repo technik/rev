@@ -347,10 +347,10 @@ namespace rev::gfx {
 		attachments[2].texture = m_albedoTexture;
 		attachments[3].target = gfx::FrameBuffer::Attachment::Target::Color;
 		attachments[3].texture = m_specularTexture;
-		gfx::FrameBuffer::Descriptor shadowBufferDesc;
-		shadowBufferDesc.numAttachments = 4;
-		shadowBufferDesc.attachments = attachments;
-		return device.createFrameBuffer(shadowBufferDesc);
+		gfx::FrameBuffer::Descriptor gBufferDesc;
+		gBufferDesc.numAttachments = 4;
+		gBufferDesc.attachments = attachments;
+		return device.createFrameBuffer(gBufferDesc);
 	}
 
 } // namespace rev::gfx
