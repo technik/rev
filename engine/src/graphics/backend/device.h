@@ -24,6 +24,7 @@
 #include "texture2d.h"
 #include "textureSampler.h"
 #include "pipeline.h"
+#include "../shaders/computeShader.h"
 
 namespace rev :: gfx
 {
@@ -59,11 +60,26 @@ namespace rev :: gfx
 		virtual Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) = 0;
 		virtual Pipeline createPipeline(const Pipeline::Descriptor&) = 0;
 
+		// Compute shaders
+		virtual ComputeShader createComputeShader(const std::vector<std::string>& code) = 0;
+		virtual void destroyComputeShader(const ComputeShader& shader) = 0;
+
 		// Buffers
 		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
 		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
 
+		// Retrieve device info
+		struct Limits
+		{
+			math::Vec3i computeWorkGroupCount;
+			math::Vec3i computeWorkGroupSize;
+			int computeWorkGruopTotalInvokes = -1;
+		};
+
+		const Limits& getDeviceLimits() { return m_deviceLimits; }
+
 	protected:
+		Limits m_deviceLimits;
 		Device() = default;
 	};
 }

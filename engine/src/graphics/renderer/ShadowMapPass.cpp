@@ -62,9 +62,9 @@ namespace rev::gfx {
 	Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
 	{
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
-		shadowSamplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		shadowSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
-		shadowSamplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		shadowSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		shadowSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		shadowSamplerDesc.filter = TextureSampler::MinFilter::Linear;
 		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
 		auto shadowDesc = Texture2d::Descriptor();
 		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;

@@ -22,6 +22,7 @@
 #include "../device.h"
 #include "renderPassOpenGL.h"
 #include "../pipeline.h"
+
 #include <vector>
 
 namespace rev :: gfx
@@ -55,6 +56,10 @@ namespace rev :: gfx
 		// Pipeline
 		Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) override;
 		Pipeline createPipeline(const Pipeline::Descriptor&) override;
+
+		// Compute shaders
+		ComputeShader createComputeShader(const std::vector<std::string>& code) override;
+		void destroyComputeShader(const ComputeShader& shader) override;
 
 		// OpenGL specifics
 		virtual FrameBuffer defaultFrameBuffer() = 0; // Frame buffer of the main window
@@ -99,5 +104,7 @@ namespace rev :: gfx
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
 		std::vector<PipelineInfo>	m_pipelines;
 		std::vector<RenderPassOpenGL*>	m_passes;
+
+		void readDeviceLimits();
 	};
 }

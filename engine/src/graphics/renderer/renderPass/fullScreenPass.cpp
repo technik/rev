@@ -50,7 +50,8 @@ void main (void) {
 #endif
 )");
 		// Initialize pipeline on start
-		setPassCode(code);
+		if(code)
+			setPassCode(code);
 	}
 
 	FullScreenPass::~FullScreenPass()
@@ -65,6 +66,7 @@ void main (void) {
 
 	void FullScreenPass::setPassCode(ShaderCodeFragment* code)
 	{
+		assert(code);
 		m_pipeline = Pipeline(); // Invalidate pipeline
 
 		if(code != m_passCode)

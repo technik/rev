@@ -28,9 +28,9 @@ namespace rev::gfx {
 		: m_device(device)
 	{
 		TextureSampler::Descriptor desc;
-		desc.filter = TextureSampler::Descriptor::MinFilter::Linear;
-		desc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		desc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		desc.filter = TextureSampler::MinFilter::Linear;
+		desc.wrapS = TextureSampler::Wrap::Clamp;
+		desc.wrapT = TextureSampler::Wrap::Clamp;
 		m_linearSampler = device.createTextureSampler(desc);
 	}
 

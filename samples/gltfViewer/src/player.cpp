@@ -150,8 +150,8 @@ namespace rev {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
 		auto sampler = m_gfx.createTextureSampler(samplerDesc);
 		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "shaders/ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);

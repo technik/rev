@@ -9,6 +9,7 @@
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/backend/pipeline.h>
 #include <graphics/backend/renderPass.h>
+#include <graphics/backend/texture2d.h>
 #include <graphics/scene/camera.h>
 
 #include <string>
@@ -21,95 +22,92 @@ namespace vkft::gfx
 	//------------------------------------------------------------------------------------------------------------------
 	Renderer::Renderer(rev::gfx::DeviceOpenGLWindows& device, const Vec2u& targetSize)
 		: mGfxDevice(device)
+		, m_rasterPass(device)
 	{
-		initForwardPass(targetSize);
-		initGeometryPipeline();
-		mTargetFov = float(targetSize.x()) / targetSize.y();
+		// Create reusable texture descriptor
+		TextureSampler::Descriptor bufferSamplerDesc;
+		bufferSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
+		bufferSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		bufferSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		m_rtBufferSampler = mGfxDevice.createTextureSampler(bufferSamplerDesc);
+
+		// Create an intermediate buffer of the right size
+		onResizeTarget(targetSize);
+
+		// Create the full screen pass to draw the result
+		m_rasterCode = new ShaderCodeFragment(R"(
+			#ifdef PXL_SHADER
+
+			// Global state
+			layout(location = 0) uniform vec4 uWindow;
+			layout(location = 1) uniform sampler2D uRayTracedBuffer;
+
+			//------------------------------------------------------------------------------	
+			vec3 shade () {
+				vec2 uv = gl_FragCoord.xy / uWindow.xy;
+				return texture(uRayTracedBuffer, uv).xyz;
+			}
+
+			#endif
+			)");
+		m_rasterPass.setPassCode(m_rasterCode);
+
+		// Show compute device limits on console
+		auto& limits = mGfxDevice.getDeviceLimits();
+		std::cout << "Compute group max count: " << limits.computeWorkGroupCount.x() << " " << limits.computeWorkGroupCount.y() << " " << limits.computeWorkGroupCount.z() << "\n";
+		std::cout << "Compute group max size: " << limits.computeWorkGroupSize.x() << " " << limits.computeWorkGroupSize.y() << " " << limits.computeWorkGroupSize.z() << "\n";
+		std::cout << "Compute max invokations: " << limits.computeWorkGruopTotalInvokes << "\n";
+
+		// Create compute shader
+		m_raytracer = mGfxDevice.createComputeShader();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const World& world, const rev::gfx::Camera& camera)
 	{
-		mRenderCommands.clear();
-		mRenderCommands.setPipeline(mFwdPipeline);
+		CommandBuffer commands;
+		
+		// Prepare pass data
+		CommandBuffer::UniformBucket uniforms;
+		Vec4f uWindow;
+		uWindow.x() = (float)m_targetSize.x();
+		uWindow.y() = (float)m_targetSize.y();
+		uniforms.addParam(0, uWindow);
+		uniforms.addParam(1, m_raytracingTexture);
 
-		Mat44f wvp = camera.viewProj(mTargetFov);
-		mUniforms.clear();
-		mUniforms.addParam(0, wvp);
+		// Render graph
+		// Dispathc compute shader
+		commands.dispatchCompute(m_raytracer, m_targetSize.x(), m_targetSize.y(), 1);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		m_rasterPass.render(uniforms, commands);
 
-		mRenderCommands.setUniformData(mUniforms);
-		mRenderCommands.setVertexData(world.mTileGeom.getVao());
-		mRenderCommands.drawTriangles(world.mTileGeom.indices().count, CommandBuffer::IndexType::U16, nullptr);
-
-		mGfxDevice.renderQueue().submitPass(*mForwardPass);
+		// Submit
+		mGfxDevice.renderQueue().submitCommandBuffer(commands);
 		mGfxDevice.renderQueue().present();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::onResizeTarget(const rev::math::Vec2u& newSize)
 	{
-		mForwardPass->setViewport(Vec2u::zero(), newSize);
+		m_targetSize = newSize;
 		mTargetFov = float(newSize.x()) / newSize.y();
-	}
 
-	//------------------------------------------------------------------------------------------------------------------
-	void Renderer::initForwardPass(const Vec2u& targetSize)
-	{
-		RenderPass::Descriptor fwdDesc;
-		float grey = 0.5f;
-		fwdDesc.clearColor = { grey,grey,grey, 1.f };
-		fwdDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
-		fwdDesc.target = mGfxDevice.defaultFrameBuffer();
+		// Delete previous target if needed
+		if(m_raytracingTexture.isValid())
+		{
+			mGfxDevice.destroyTexture2d(m_raytracingTexture);
+		}
 
-		// Allocate the render pass in the device
-		mForwardPass = mGfxDevice.createRenderPass(fwdDesc);
-		mForwardPass->setViewport(Vec2u::zero(), targetSize);
-		mForwardPass->record(mRenderCommands);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Renderer::initGeometryPipeline()
-	{
-		// Create vertex shader
-		const std::string vtxShaderCode = R"(
-layout(location = 0) in vec3 vertex;
-
-// Uniforms
-layout(location = 0) uniform mat4 wvp;
-
-void main ( void )
-{
-	gl_Position = wvp * vec4(vertex.xy, 0.0, 1.0);
-}
-)";
-		Pipeline::ShaderModule::Descriptor vtxDesc;
-		vtxDesc.code = { vtxShaderCode };
-		vtxDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-
-		auto vtxShader = mGfxDevice.createShaderModule(vtxDesc);
-		if(vtxShader.id == Pipeline::InvalidId)
-			return;
-
-		// Create pixel shader
-		const std::string pxlShaderCode = R"(
-out lowp vec3 outColor;
-
-void main (void) {	
-	outColor = vec3(1.0);
-}
-)";
-		Pipeline::ShaderModule::Descriptor pxlDesc;
-		pxlDesc.code = { pxlShaderCode };
-		pxlDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-
-		auto pxlShader = mGfxDevice.createShaderModule(pxlDesc);
-		if(pxlShader.id == Pipeline::InvalidId)
-			return;
-
-		// Create the pipeline
-		Pipeline::Descriptor pipelineDesc;
-		pipelineDesc.vtxShader = vtxShader;
-		pipelineDesc.pxlShader = pxlShader;
-		mFwdPipeline = mGfxDevice.createPipeline(pipelineDesc);
+		// Create the raytracing texture
+		Texture2d::Descriptor bufferDesc;
+		bufferDesc.depth = false;
+		bufferDesc.mipLevels = 1;
+		bufferDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		bufferDesc.pixelFormat.numChannels = 4;
+		bufferDesc.providedImages = 0;
+		bufferDesc.sampler = m_rtBufferSampler;
+		bufferDesc.size = newSize;
+		bufferDesc.sRGB = false;
+		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
 	}
 }

@@ -19,32 +19,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <cstddef>
-#include <graphics/backend/openGL/openGL.h>
+#include "../backend/namedResource.h"
 
 namespace rev :: gfx
 {
-	class TextureSampler
+	struct ComputeShader : NamedResource
 	{
-	public:
-		enum class Wrap : GLint {
-			Repeat = GL_REPEAT,
-			Clamp = GL_CLAMP_TO_EDGE
-		};
-
-		enum class MinFilter : GLint {
-			Linear = GL_LINEAR,
-			Trilinear = GL_LINEAR_MIPMAP_LINEAR,
-			Nearest = GL_NEAREST
-		};
-
-		struct Descriptor
-		{
-			Wrap wrapS = Wrap::Repeat;
-			Wrap wrapT = Wrap::Repeat;
-			MinFilter filter = MinFilter::Linear;
-		};
-
-		int32_t id;
+		ComputeShader() = default;
+		ComputeShader(int32_t id) : NamedResource(id) {}
 	};
 }

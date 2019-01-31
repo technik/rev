@@ -7,6 +7,7 @@
 
 #include <graphics/backend/device.h>
 #include <graphics/backend/commandBuffer.h>
+#include <graphics/renderer/renderPass/fullScreenPass.h>
 
 namespace rev::gfx {
 	class Camera;
@@ -27,19 +28,17 @@ namespace vkft::gfx
 		void onResizeTarget(const rev::math::Vec2u& targetSize);
 
 	private:
+		rev::gfx::ComputeShader m_raytracer;
 
-		void initForwardPass(const rev::math::Vec2u& targetSize);
-		void initGeometryPipeline();
+		rev::gfx::Texture2d m_raytracingTexture;
+		rev::gfx::TextureSampler m_rtBufferSampler;
 
+		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
+		rev::gfx::FullScreenPass m_rasterPass;
 		rev::gfx::DeviceOpenGLWindows& mGfxDevice;
-
-		rev::gfx::CommandBuffer::UniformBucket mUniforms;
-
-		rev::gfx::Pipeline mFwdPipeline;
-		rev::gfx::CommandBuffer mRenderCommands;
-		rev::gfx::RenderPass* mForwardPass = nullptr;
 
 		// Render parameters
 		float mTargetFov;
+		rev::math::Vec2u m_targetSize;
 	};
 }

@@ -345,6 +345,33 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	ComputeShader DeviceOpenGL::createComputeShader(const std::vector<std::string>& code)
+	{
+		std::vector<const char*> raw_code;
+		raw_code.push_back("#version 450\n");
+		for(auto& c : code)
+		{
+			raw_code.push_back(c.c_str());
+		}
+		GLuint shaderId = glCreateShader(GL_COMPUTE_SHADER);
+		glShaderSource(shaderId, raw_code.size(), raw_code.data(), nullptr);
+		glCompileShader(shaderId);
+		// check for compilation errors as per normal here
+
+		GLuint programId = glCreateProgram();
+		glAttachShader(programId, shaderId);
+		glLinkProgram(programId);
+
+		return ComputeShader(programId);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::destroyComputeShader(const ComputeShader& shader)
+	{
+		glDeleteProgram(shader.id());
+	}
+
+	//----------------------------------------------------------------------------------------------
 	GLenum DeviceOpenGL::getInternalFormat(const Texture2d::Descriptor& desc)
 	{
 		if(desc.depth)
@@ -432,5 +459,27 @@ namespace rev :: gfx
 			glFrontFace(GL_CW);
 		else
 			glFrontFace(GL_CCW);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::readDeviceLimits()
+	{
+		// Read compute shader limits
+		int groupCount[3];
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &groupCount[0]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &groupCount[1]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &groupCount[2]);
+		m_deviceLimits.computeWorkGroupCount.x() = groupCount[0];
+		m_deviceLimits.computeWorkGroupCount.y() = groupCount[1];
+		m_deviceLimits.computeWorkGroupCount.z() = groupCount[2];
+
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &groupCount[0]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &groupCount[1]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &groupCount[2]);
+		m_deviceLimits.computeWorkGroupSize.x() = groupCount[0];
+		m_deviceLimits.computeWorkGroupSize.y() = groupCount[1];
+		m_deviceLimits.computeWorkGroupSize.z() = groupCount[2];
+
+		glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &m_deviceLimits.computeWorkGruopTotalInvokes);
 	}
 }

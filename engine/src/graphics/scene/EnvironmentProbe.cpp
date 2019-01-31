@@ -58,9 +58,9 @@ namespace rev::gfx
 
 		// Create a new texture with all the levels
 		TextureSampler::Descriptor samplerDesc;
-		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Trilinear;
-		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Repeat;
-		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::MinFilter::Trilinear;
+		samplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 		auto sampler = device.createTextureSampler(samplerDesc);
 
 		Texture2d::Descriptor descriptor;

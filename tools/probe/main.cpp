@@ -468,7 +468,7 @@ void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Imag
 	// Load latlong texture into the GPU
 	// Create a generic sampler for latlong images
 	auto latLongSamplerDesc = TextureSampler::Descriptor();
-	latLongSamplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp; // Clamp to edge on the vertical axis, since the poles of a latlong image don't match
+	latLongSamplerDesc.wrapT = TextureSampler::Wrap::Clamp; // Clamp to edge on the vertical axis, since the poles of a latlong image don't match
 	auto latLongSampler = device.createTextureSampler(latLongSamplerDesc);
 	// Create a descriptor for latlong textures
 	Texture2d::Descriptor latLongDesc;

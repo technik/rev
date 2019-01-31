@@ -502,14 +502,14 @@ namespace rev { namespace game {
 	{
 		std::vector<std::shared_ptr<Material>> materials;
 		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 
 		// Create default texture sampler
-		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Repeat;
-		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Repeat;
+		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Repeat;
+		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
 		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
 
 		auto clearCoatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
@@ -674,8 +674,8 @@ namespace rev { namespace game {
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
 		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
 		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);

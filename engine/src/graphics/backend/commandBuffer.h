@@ -75,10 +75,16 @@ namespace rev :: gfx
 				SetVtxData,
 				DrawTriangles,
 				DrawLines,
+				MemoryBarrier
 			};
 
 			Opcode command;
 			int32_t payload;
+		};
+
+		enum class MemoryBarrier : int32_t
+		{
+			ImageAccess = 0
 		};
 
 		enum class IndexType
@@ -131,6 +137,11 @@ namespace rev :: gfx
 			m_draws.push_back({numIndices, indexType, offset});
 		}
 		void drawLines(int nVertices, IndexType);
+
+		void memoryBarrier(MemoryBarrier barrier)
+		{
+			m_commands.push_back({Command::MemoryBarrier, (int32_t)barrier});
+		}
 
 		// Command buffer lifetime
 		void clear() {

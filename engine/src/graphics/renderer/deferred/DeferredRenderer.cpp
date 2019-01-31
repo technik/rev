@@ -45,9 +45,9 @@ namespace rev::gfx {
 		// Load ibl texture
 		auto iblImg = Image::load("shaders/ibl_brdf.hdr", 4);
 		TextureSampler::Descriptor samplerDesc;
-		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
-		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::MinFilter::Linear;
+		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 
 		Texture2d::Descriptor ibl_desc;
 		ibl_desc.providedImages = 1;
@@ -281,9 +281,9 @@ namespace rev::gfx {
 	Texture2d DeferredRenderer::createGBufferTexture(Device& device, const math::Vec2u& size)
 	{
 		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::MinFilter::Linear;
 		auto sampler = device.createTextureSampler(samplerDesc);
 		auto textureDesc = Texture2d::Descriptor();
 		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
@@ -300,9 +300,9 @@ namespace rev::gfx {
 	void DeferredRenderer::createPBRTextures(Device& device, const math::Vec2u& size)
 	{
 		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::MinFilter::Linear;
 		auto sampler = device.createTextureSampler(samplerDesc);
 		auto textureDesc = Texture2d::Descriptor();
 		textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
@@ -320,9 +320,9 @@ namespace rev::gfx {
 	Texture2d DeferredRenderer::createDepthTexture(Device& device, const math::Vec2u& size)
 	{
 		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Descriptor::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::Descriptor::MinFilter::Linear;
+		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
+		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		samplerDesc.filter = TextureSampler::MinFilter::Linear;
 		auto sampler = device.createTextureSampler(samplerDesc);
 		auto textureDesc = Texture2d::Descriptor();
 		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
