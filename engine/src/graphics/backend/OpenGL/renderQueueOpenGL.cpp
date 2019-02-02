@@ -119,17 +119,17 @@ namespace rev :: gfx
 					glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 					break;
 				}
+				case Command::SetComputeProgram:
+				{
+					glUseProgram(cmd.payload);
+					break;
+				}
 				case Command::DispatchCompute:
 				{
 					auto& payload = cmdBuffer.getCompute(cmd.payload);
-					glUseProgram(payload.program.id());
-					auto& uniforms = cmdBuffer.getUniforms(payload.uniforms);
-					//setUniforms();
 					// Override images
-					for(auto& tex : uniforms.textures)
-					{
-						glBindImageTexture(tex.first, tex.second.id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-					}
+					if(payload.targetTexture.isValid())
+						glBindImageTexture(0, payload.targetTexture.id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 					glDispatchCompute(payload.groupSize.x(), payload.groupSize.y(), payload.groupSize.z());
 					break;
 				}

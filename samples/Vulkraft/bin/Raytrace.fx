@@ -1,4 +1,10 @@
+// Local work group
 layout(local_size_x = 1, local_size_y = 1) in;
+
+// Input uniforms
+layout(location = 1) uniform vec4 uWindow;
+
+// Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 
 vec3 skyColor(vec3 dir)
@@ -88,7 +94,7 @@ void main() {
   
 	//
 	// Compute uvs
-	vec2 uvs = vec2(pixel_coords.x / 300.0, pixel_coords.y / 300.0) * 2 - vec2(4/3.0, 1);
+	vec2 uvs = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec3 rd = normalize(vec3(uvs.x, 1.0, uvs.y));
 	vec3 ro = vec3(0,-5.0,1.7);
 

@@ -87,19 +87,25 @@ namespace vkft::gfx
 	{
 		CommandBuffer commands;
 		CommandBuffer::UniformBucket uniforms;
+
+		if(!m_raytracer.isValid())
+			return;
 		
-		uniforms.addParam(0, m_raytracingTexture);
-		commands.dispatchCompute(m_raytracer, uniforms, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
-		// Prepare pass data
+		// Prepare data
 		Vec4f uWindow;
-		uniforms.clear();
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
+
+		// Dispatch compute shader
+		uniforms.addParam(1, uWindow);
+		commands.setComputeProgram(m_raytracer);
+		commands.setUniformData(uniforms);
+		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+
+		// Render full screen texture
+		uniforms.clear();
 		uniforms.addParam(0, uWindow);
 		uniforms.addParam(1, m_raytracingTexture);
-
-		// Render graph
-		// Dispathc compute shader
 		commands.beginPass(*m_finalPass);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
 		m_rasterPass.render(uniforms, commands);
@@ -114,6 +120,8 @@ namespace vkft::gfx
 	{
 		m_targetSize = newSize;
 		mTargetFov = float(newSize.x()) / newSize.y();
+		if(m_finalPass)
+			m_finalPass->setViewport({0,0}, newSize);
 
 		// Delete previous target if needed
 		if(m_raytracingTexture.isValid())

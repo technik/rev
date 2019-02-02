@@ -77,7 +77,8 @@ namespace rev :: gfx
 				DrawTriangles,
 				DrawLines,
 				MemoryBarrier,
-				DispatchCompute
+				DispatchCompute,
+				SetComputeProgram
 			};
 
 			Opcode command;
@@ -145,12 +146,16 @@ namespace rev :: gfx
 			m_commands.push_back({Command::MemoryBarrier, (int32_t)barrier});
 		}
 
+		void setComputeProgram(ComputeShader program)
+		{
+			m_commands.push_back({Command::SetComputeProgram, (int32_t)program.id() });
+		}
+
 		// Compute
-		void dispatchCompute(ComputeShader program, const UniformBucket& uniforms, const math::Vec3i& groupSize)
+		void dispatchCompute(Texture2d targetTexture, const math::Vec3i& groupSize)
 		{
 			m_commands.push_back({Command::DispatchCompute, (int32_t)m_computes.size() });
-			m_computes.push_back({program, (int32_t)m_uniforms.size(), groupSize});
-			m_uniforms.push_back(uniforms);
+			m_computes.push_back({targetTexture, groupSize});
 		}
 
 		// Command buffer lifetime
@@ -169,8 +174,7 @@ namespace rev :: gfx
 
 		struct ComputePayload
 		{
-			ComputeShader program;
-			int32_t uniforms;
+			Texture2d targetTexture;
 			math::Vec3i groupSize;
 		};
 

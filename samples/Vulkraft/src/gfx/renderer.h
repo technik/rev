@@ -37,7 +37,7 @@ namespace vkft::gfx
 		rev::gfx::ShaderCodeFragment * m_computeCode = nullptr;
 		std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener> m_computeReloadListener;
 		rev::gfx::FullScreenPass m_rasterPass;
-		rev::gfx::RenderPass* m_finalPass;
+		rev::gfx::RenderPass* m_finalPass = nullptr;
 
 		rev::gfx::DeviceOpenGLWindows& mGfxDevice;
 
