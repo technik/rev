@@ -74,7 +74,9 @@ namespace vkft::gfx
 		m_computeReloadListener = m_computeCode->onReload([this](ShaderCodeFragment& fragment){
 			std::vector<std::string> code;
 			fragment.collapse(code);
-			m_raytracer = mGfxDevice.createComputeShader(code);
+			auto newCompute = mGfxDevice.createComputeShader(code);
+			if(newCompute.isValid())
+				m_raytracer = newCompute;
 		});
 
 		m_raytracer = mGfxDevice.createComputeShader(code);
