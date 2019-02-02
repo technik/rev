@@ -26,6 +26,7 @@
 
 #include "renderQueue.h"
 #include "pipeline.h"
+#include "../shaders/computeShader.h"
 
 namespace rev :: gfx
 {
@@ -75,7 +76,8 @@ namespace rev :: gfx
 				SetVtxData,
 				DrawTriangles,
 				DrawLines,
-				MemoryBarrier
+				MemoryBarrier,
+				DispatchCompute
 			};
 
 			Opcode command;
@@ -143,6 +145,14 @@ namespace rev :: gfx
 			m_commands.push_back({Command::MemoryBarrier, (int32_t)barrier});
 		}
 
+		// Compute
+		void dispatchCompute(ComputeShader program, const UniformBucket& uniforms, const math::Vec3i& groupSize)
+		{
+			m_commands.push_back({Command::DispatchCompute, (int32_t)m_computes.size() });
+			m_computes.push_back({program, (int32_t)m_uniforms.size(), groupSize});
+			m_uniforms.push_back(uniforms);
+		}
+
 		// Command buffer lifetime
 		void clear() {
 			m_commands.clear();
@@ -157,6 +167,13 @@ namespace rev :: gfx
 			void* offset = nullptr;
 		};
 
+		struct ComputePayload
+		{
+			ComputeShader program;
+			int32_t uniforms;
+			math::Vec3i groupSize;
+		};
+
 		struct WindowRect
 		{
 			math::Vec2u pos, size;
@@ -167,6 +184,7 @@ namespace rev :: gfx
 		const UniformBucket& getUniforms(size_t i) const { return m_uniforms[i]; }
 		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
 		const WindowRect& getRect(size_t i) const { return m_rect[i]; }
+		const ComputePayload& getCompute(size_t i) const { return m_computes[i]; }
 
 	private:
 
@@ -174,5 +192,6 @@ namespace rev :: gfx
 		std::vector<UniformBucket> m_uniforms;
 		std::vector<DrawPayload> m_draws;
 		std::vector<WindowRect> m_rect;
+		std::vector<ComputePayload> m_computes;
 	};
 }

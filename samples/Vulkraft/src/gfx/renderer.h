@@ -35,6 +35,8 @@ namespace vkft::gfx
 
 		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
 		rev::gfx::FullScreenPass m_rasterPass;
+		rev::gfx::RenderPass* m_finalPass;
+
 		rev::gfx::DeviceOpenGLWindows& mGfxDevice;
 
 		// Render parameters

@@ -52,6 +52,15 @@ namespace vkft::gfx
 			)");
 		m_rasterPass.setPassCode(m_rasterCode);
 
+		RenderPass::Descriptor fullScreenDesc;
+		float grey = 0.5f;
+		fullScreenDesc.clearColor = { grey,grey,grey, 1.f };
+		fullScreenDesc.clearDepth = 1.0;
+		fullScreenDesc.clearFlags = RenderPass::Descriptor::Clear::All;
+		fullScreenDesc.target = mGfxDevice.defaultFrameBuffer();
+		fullScreenDesc.viewportSize = targetSize;
+		m_finalPass = mGfxDevice.createRenderPass(fullScreenDesc);
+
 		// Show compute device limits on console
 		auto& limits = mGfxDevice.getDeviceLimits();
 		std::cout << "Compute group max count: " << limits.computeWorkGroupCount.x() << " " << limits.computeWorkGroupCount.y() << " " << limits.computeWorkGroupCount.z() << "\n";
@@ -59,17 +68,37 @@ namespace vkft::gfx
 		std::cout << "Compute max invokations: " << limits.computeWorkGruopTotalInvokes << "\n";
 
 		// Create compute shader
-		m_raytracer = mGfxDevice.createComputeShader();
+		m_raytracer = mGfxDevice.createComputeShader({R"(
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
+
+void main() {
+	// base pixel colour for image
+	vec4 pixel = vec4(1.0, 0.0, 0.0, 1.0);
+	// get index in global work group i.e x,y position
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+  
+	//
+	// interesting stuff happens here later
+	//
+  
+	// output to a specific pixel in the image
+	imageStore(img_output, pixel_coords, pixel);
+}
+			)"});
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const World& world, const rev::gfx::Camera& camera)
 	{
 		CommandBuffer commands;
-		
-		// Prepare pass data
 		CommandBuffer::UniformBucket uniforms;
+		
+		uniforms.addParam(0, m_raytracingTexture);
+		commands.dispatchCompute(m_raytracer, uniforms, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+		// Prepare pass data
 		Vec4f uWindow;
+		uniforms.clear();
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
 		uniforms.addParam(0, uWindow);
@@ -77,7 +106,7 @@ namespace vkft::gfx
 
 		// Render graph
 		// Dispathc compute shader
-		commands.dispatchCompute(m_raytracer, m_targetSize.x(), m_targetSize.y(), 1);
+		commands.beginPass(*m_finalPass);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
 		m_rasterPass.render(uniforms, commands);
 

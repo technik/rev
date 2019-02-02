@@ -348,7 +348,7 @@ namespace rev :: gfx
 	ComputeShader DeviceOpenGL::createComputeShader(const std::vector<std::string>& code)
 	{
 		std::vector<const char*> raw_code;
-		raw_code.push_back("#version 450\n");
+		raw_code.push_back("#version 430\n");
 		for(auto& c : code)
 		{
 			raw_code.push_back(c.c_str());
@@ -357,11 +357,43 @@ namespace rev :: gfx
 		glShaderSource(shaderId, raw_code.size(), raw_code.data(), nullptr);
 		glCompileShader(shaderId);
 		// check for compilation errors as per normal here
+		GLint result = GL_FALSE;
+		int infoLogLength = 0;
+		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if ( GL_FALSE == result ){
+			// Get error message
+			std::vector<char> ShaderErrorMessage(infoLogLength+1);
+			glGetShaderInfoLog(shaderId, infoLogLength, NULL, &ShaderErrorMessage[0]);
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+
+			// Get source code
+			glGetShaderiv(shaderId, GL_SHADER_SOURCE_LENGTH, &infoLogLength);
+			ShaderErrorMessage.resize(infoLogLength+1);
+			glGetShaderSource(shaderId, infoLogLength, NULL, &ShaderErrorMessage[0]);
+			std::string completeSource = (char*)ShaderErrorMessage.data();
+			printShaderError(textMessage, completeSource);
+		}
 
 		GLuint programId = glCreateProgram();
 		glAttachShader(programId, shaderId);
 		glLinkProgram(programId);
 
+		// Check the program
+		result = GL_FALSE;
+		infoLogLength = 0;
+		glGetProgramiv(programId, GL_LINK_STATUS, &result);
+		glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLogLength);
+		if (GL_FALSE == result){
+			std::vector<char> ShaderErrorMessage(infoLogLength+1);
+			glGetProgramInfoLog(programId, infoLogLength, NULL, &ShaderErrorMessage[0]);
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			cout << "DeviceOpenGL::createPipeline Error\n";
+			cout << "//----------------------------------------------------------------------------------------------\n";
+			std::string textMessage = (char*)ShaderErrorMessage.data();
+			cout << textMessage << "\n";
+			programId = -1; // Invalidate
+		}
 		return ComputeShader(programId);
 	}
 
