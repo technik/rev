@@ -8,6 +8,7 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
+#include <random>
 
 namespace rev::gfx {
 	class Camera;
@@ -29,9 +30,14 @@ namespace vkft::gfx
 
 	private:
 		rev::gfx::ComputeShader m_raytracer;
-
 		rev::gfx::Texture2d m_raytracingTexture;
 		rev::gfx::TextureSampler m_rtBufferSampler;
+
+		// Noise
+		rev::gfx::Texture2d::Descriptor m_noiseDesc;
+		rev::gfx::Image* m_noiseImage = nullptr;
+		std::default_random_engine m_rng;
+		rev::gfx::Texture2d m_noiseTexture;
 
 		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
 		rev::gfx::ShaderCodeFragment * m_computeCode = nullptr;

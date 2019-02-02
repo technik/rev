@@ -31,6 +31,20 @@ namespace vkft::gfx
 		bufferSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 		m_rtBufferSampler = mGfxDevice.createTextureSampler(bufferSamplerDesc);
 
+		// Noise texture sampler
+		TextureSampler::Descriptor noiseSamplerDesc;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Linear;
+		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
+		m_noiseDesc.sampler = mGfxDevice.createTextureSampler(noiseSamplerDesc);
+		m_noiseDesc.depth = false;
+		m_noiseDesc.mipLevels = 1;
+		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		m_noiseDesc.pixelFormat.numChannels = 4;
+		m_noiseDesc.providedImages = 1;
+		m_noiseDesc.size = Vec2u(64,64);
+		m_noiseDesc.sRGB = false;
+
 		// Create an intermediate buffer of the right size
 		onResizeTarget(targetSize);
 
@@ -96,8 +110,30 @@ namespace vkft::gfx
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
 
+		// Create a brand new noise texture
+		if(m_noiseTexture.isValid())
+		{
+			mGfxDevice.destroyTexture2d(m_noiseTexture);
+		}
+		if(m_noiseImage)
+			delete m_noiseImage;
+		Vec4f* noise = new Vec4f[64*64];
+		std::uniform_real_distribution<float> noiseDistrib;
+		for(int i = 0; i < 64*64; ++i)
+		{
+			noise[i].x() = noiseDistrib(m_rng);
+			noise[i].y() = noiseDistrib(m_rng);
+			noise[i].z() = noiseDistrib(m_rng);
+			noise[i].w() = noiseDistrib(m_rng);
+		}
+		m_noiseImage = new rev::gfx::Image(Vec2u(64,64), noise);
+		m_noiseDesc.srcImages = m_noiseImage;
+		m_noiseTexture = mGfxDevice.createTexture2d(m_noiseDesc);
+
 		// Dispatch compute shader
 		uniforms.addParam(1, uWindow);
+		uniforms.addParam(2, camera.world().matrix());
+		uniforms.addParam(3, m_noiseTexture);
 		commands.setComputeProgram(m_raytracer);
 		commands.setUniformData(uniforms);
 		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
