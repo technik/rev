@@ -59,7 +59,12 @@ namespace vkft::gfx
 			//------------------------------------------------------------------------------	
 			vec3 shade () {
 				vec2 uv = gl_FragCoord.xy / uWindow.xy;
-				return texture(uRayTracedBuffer, uv).xyz;
+				vec4 tBuffer = texture(uRayTracedBuffer, uv);
+				vec3 color = tBuffer.xyz;
+
+				color = color / (1+color);
+
+				return pow(color, vec3(0.4545));
 			}
 
 			#endif

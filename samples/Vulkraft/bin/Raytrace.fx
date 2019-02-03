@@ -102,18 +102,21 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	return t;
 }
 
-vec3 color(vec3 ro, vec3 rd)
+vec3 color(vec3 ro, vec3 rd, out float tOut)
 {
 	vec3 normal;
 	vec3 atten = vec3(1.0);
 	vec3 light = vec3(0.0);
 	float tMax = 100.0;
+	tOut = tMax;
 	for(int i = 0; i < 4; ++i)
 	{
 		vec3 albedo;
 		float t = hit(ro,rd, normal, albedo, tMax);
 		if(t > 0.0)
 		{
+			if(i == 0)
+				tOut = t;
 			atten *= albedo;
 			//light += atten * skyColor(normal);
 			ro = ro + rd * t + 0.0001 * normal;
@@ -143,7 +146,7 @@ vec3 color(vec3 ro, vec3 rd)
 
 void main() {
 	// base pixel colour for image
-	vec4 pixel = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 pixel = vec4(0.0);
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
   
@@ -154,9 +157,9 @@ void main() {
 	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 
 	// Tonemapping and gamma correction
-	pixel.xyz = color(ro, rd);
-	pixel.xyz = pixel.xyz / (pixel.xyz + 1);
-	//pixel.xyz = pow(pixel.xyz, vec3(0.4545));
+	float t;
+	pixel.xyz = color(ro, rd, t);
+	pixel.w = t;
   
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
