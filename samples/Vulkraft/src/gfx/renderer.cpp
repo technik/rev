@@ -49,26 +49,10 @@ namespace vkft::gfx
 		onResizeTarget(targetSize);
 
 		// Create the full screen pass to draw the result
-		m_rasterCode = new ShaderCodeFragment(R"(
-			#ifdef PXL_SHADER
-
-			// Global state
-			layout(location = 0) uniform vec4 uWindow;
-			layout(location = 1) uniform sampler2D uRayTracedBuffer;
-
-			//------------------------------------------------------------------------------	
-			vec3 shade () {
-				vec2 uv = gl_FragCoord.xy / uWindow.xy;
-				vec4 tBuffer = texture(uRayTracedBuffer, uv);
-				vec3 color = tBuffer.xyz;
-
-				color = color / (1+color);
-
-				return pow(color, vec3(0.4545));
-			}
-
-			#endif
-			)");
+		m_rasterCode = ShaderCodeFragment::loadFromFile("raster.fx");
+		m_rasterReloadListener = m_rasterCode->onReload([this](ShaderCodeFragment& fragment){
+				m_rasterPass.setPassCode(&fragment);
+		});
 		m_rasterPass.setPassCode(m_rasterCode);
 
 		RenderPass::Descriptor fullScreenDesc;
@@ -137,7 +121,8 @@ namespace vkft::gfx
 
 		// Dispatch compute shader
 		uniforms.addParam(1, uWindow);
-		uniforms.addParam(2, camera.world().matrix());
+		Mat44f curCamWorld = camera.world().matrix();
+		uniforms.addParam(2, curCamWorld);
 		uniforms.addParam(3, m_noiseTexture);
 		commands.setComputeProgram(m_raytracer);
 		commands.setUniformData(uniforms);
@@ -154,6 +139,9 @@ namespace vkft::gfx
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
 		mGfxDevice.renderQueue().present();
+
+		// TAA for next frame
+		m_oldCamWorld = curCamWorld;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -168,6 +156,7 @@ namespace vkft::gfx
 		if(m_raytracingTexture.isValid())
 		{
 			mGfxDevice.destroyTexture2d(m_raytracingTexture);
+			mGfxDevice.destroyTexture2d(m_taaAccumTexture);
 		}
 
 		// Create the raytracing texture
@@ -181,5 +170,7 @@ namespace vkft::gfx
 		bufferDesc.size = newSize;
 		bufferDesc.sRGB = false;
 		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
+		m_taaAccumTexture = mGfxDevice.createTexture2d(bufferDesc);
+		m_freshTaa = true;
 	}
 }

@@ -160,6 +160,8 @@ void main() {
 	float t;
 	pixel.xyz = color(ro, rd, t);
 	pixel.w = t;
+
+	// TODO: Temporal anti aliasing
   
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);

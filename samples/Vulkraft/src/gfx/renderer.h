@@ -31,6 +31,9 @@ namespace vkft::gfx
 	private:
 		rev::gfx::ComputeShader m_raytracer;
 		rev::gfx::Texture2d m_raytracingTexture;
+		rev::gfx::Texture2d m_taaAccumTexture;
+		bool m_freshTaa = true;
+		rev::math::Mat44f m_oldCamWorld;
 		rev::gfx::TextureSampler m_rtBufferSampler;
 
 		// Noise
@@ -42,6 +45,7 @@ namespace vkft::gfx
 		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
 		rev::gfx::ShaderCodeFragment * m_computeCode = nullptr;
 		std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener> m_computeReloadListener;
+		std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener> m_rasterReloadListener;
 		rev::gfx::FullScreenPass m_rasterPass;
 		rev::gfx::RenderPass* m_finalPass = nullptr;
 
