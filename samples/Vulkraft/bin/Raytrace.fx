@@ -27,13 +27,11 @@ struct ImplicitRay
 	vec3 d;
 };
 
-float hitBox(in ImplicitRay r, out vec3 normal, out vec3 albedo, float tMax)
+float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float tMax)
 {
 	float t = -1.0;
-	vec3 boxMin = vec3(-1.0, 0.0, -4.0);
-	vec3 boxMax = vec3(0.0, 1.0, -3.0);
-	vec3 t1 = (boxMin - r.o) * r.n;
-	vec3 t2 = (boxMax - r.o) * r.n;
+	vec3 t1 = (b.min - r.o) * r.n;
+	vec3 t2 = (b.max - r.o) * r.n;
 	// Swapping the order of comparison is important because of NaN behavior
 	vec3 tEnter = min(t2,t1); // Enters
 	vec3 tExit = max(t1,t2); // Exits
@@ -42,7 +40,7 @@ float hitBox(in ImplicitRay r, out vec3 normal, out vec3 albedo, float tMax)
 	if(minLeave >= maxEnter)
 	{
 		t = maxEnter;
-		vec3 center = (boxMin + boxMax) * 0.5;
+		vec3 center = (b.min + b.max) * 0.5;
 		vec3 dif = t * r.d + r.o - center;
 		vec3 absDif = abs(dif);
 		float maxDif = max(absDif.x, max(absDif.y, absDif.z));
@@ -63,6 +61,16 @@ float hitBox(in ImplicitRay r, out vec3 normal, out vec3 albedo, float tMax)
 	return t;
 }
 
+Box boxes[6] = 
+{
+	{ vec3(-1.0, 0.0, -4.0), vec3(0.0, 1.0, -3.0) },
+	{ vec3(-1.0, 1.0, -4.0), vec3(0.0, 2.0, -3.0) },
+	{ vec3(1.0, 0.0, -4.0), vec3(2.0, 1.0, -3.0) },
+	{ vec3(-1.0, 0.0, -3.0), vec3(0.0, 1.0, -2.0) },
+	{ vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, -3.0) },
+	{ vec3(0.0, 1.0, -4.0), vec3(1.0, 2.0, -3.0) },
+};
+
 float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 {
 	float t = -1.0;
@@ -80,12 +88,16 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	ir.o = ro;
 	ir.n = vec3(1.0) / rd;
 	ir.d = rd;
-	float tBox = hitBox(ir, tNormal, tAlbedo, tMax);
-	if(tBox > 0)
+	for(int i = 0; i < 6; ++i)
 	{
-		albedo = tAlbedo;
-		normal = tNormal;
-		t = tBox;
+		float tBox = hitBox(boxes[i], ir, tNormal, tAlbedo, tMax);
+		if(tBox > 0)
+		{
+			albedo = tAlbedo;
+			normal = tNormal;
+			t = tBox;
+			tMax = t;
+		}
 	}
 	return t;
 }
