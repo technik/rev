@@ -61,15 +61,110 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float
 	return t;
 }
 
+float hitSphere(in vec4 sphere, in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
+{
+	vec3 rRo = ro - sphere.xyz;
+	float b = 2*dot(rRo,rd);
+	float c = dot(rRo,rRo) - sphere.w*sphere.w;
+	float det = b*b-4*c;
+	if(det >= 0)
+	{
+		float t = (-b-sqrt(det))/2;
+		normal = normalize(rRo + t* rd);
+		albedo = vec3(1.0);
+		if (t < tMax)
+			return t;
+	}
+	return -1.0;
+}
+
 Box boxes[6] = 
 {
-	{ vec3(-1.0, 0.0, -4.0), vec3(0.0, 1.0, -3.0) },
+	{ vec3(-1.0, 0.0, -5.0), vec3(0.0, 1.0, -4.0) },
 	{ vec3(-1.0, 1.0, -4.0), vec3(0.0, 2.0, -3.0) },
 	{ vec3(1.0, 0.0, -4.0), vec3(2.0, 1.0, -3.0) },
 	{ vec3(-1.0, 0.0, -3.0), vec3(0.0, 1.0, -2.0) },
 	{ vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, -3.0) },
-	{ vec3(0.0, 1.0, -4.0), vec3(1.0, 2.0, -3.0) },
+	{ vec3(0.0, 1.0, -4.0), vec3(1.0, 2.0, -3.0) }
 };
+
+struct Node
+{
+	int childMask; // 1: Child node: 0: Child leaf
+	int offset[8];
+};
+
+Node octree[2] = {
+	{ 0xff, {1,0,0,1,0,1,1,0} },
+	{ 0xff, {0,0,0,0,0,0,0,0} }
+};
+
+Box octreeBBox = { vec3(0.0, 0.0, -7.0), vec3(2.0, 2.0, -5.0) };
+
+float hitSubtree(
+	in Box treeBB,
+	in ImplicitRay r,
+	out vec3 normal,
+	out vec3 albedo,
+	float tMax)
+{
+	float t = -1.0;
+	Node nodeStack[3];
+	noteStack[0] = 0; // Start at the root
+	Box boxStack[3];
+	boxStack[0] = treeBB; // Start with the input bbox
+	int childStack[3];
+	int childStack[0] = 0; // Start with the first child
+	int curDepth = 0;
+	while(curDepth >= 0)
+	{
+		int i = stack[curDepth];
+		Node node = octree[stack[curDepth]];
+		vec3 midPoint = (bbox.max + bbox.min) * 0.5;
+		vec3 childSize = midPoint-bbox.min;
+		for(int i = 0; i < 8; ++i) // Iterate over children
+		{
+			int px = i&1;
+			int py = i&2;
+			int pz = i&4;
+			vec3 childMin = vec3(
+				px<0?bbox.min.x:midPoint.x,
+				py<0?bbox.min.y:midPoint.y,
+				pz<0?bbox.min.z:midPoint.z
+			);
+			Box childBV = { childMin, childMin+childSize };
+			if(tree.offset[i] > 0) // Child branch
+			{
+				vec3 cNormal, cAlbedo;
+				float tC = hitSubtree(childBV, tree.offset[i], r, cNormal, cAlbedo, tMax);
+				if(tC > 0.0)
+				{
+					t = tC;
+					tMax = t;
+					albedo = vec3(0.9);
+					normal = cNormal;
+				}
+			}
+			else // Child leaf
+			{
+				if((tree.childMask & (1<<i)) > 0)
+				{
+					vec3 cNormal, cAlbedo;
+					float tC = hitBox(childBV, r, cNormal, cAlbedo, tMax);
+					if(tC > 0.0)
+					{
+						t = tC;
+						tMax = t;
+						albedo = vec3(0.9);
+						normal = cNormal;
+					}
+				}	
+			}
+		}
+	}
+	
+	return t;
+}
 
 float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 {
@@ -98,6 +193,23 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 			t = tBox;
 			tMax = t;
 		}
+	}
+	vec3 sAlbedo;
+	vec3 sNormal;
+	//float tS = hitBox(boxes[0], ir, tNormal, tAlbedo, tMax);
+	/*float tS = hitSphere(vec4(0.0,0.0,0.0,2.0), ro, normalize(rd), sNormal, sAlbedo, tMax);
+	if(tS > 0.0)
+	{
+		albedo = sAlbedo;
+		normal = sNormal;
+		t = tS;
+	}*/
+	float tT = hitSubtree(octreeBBox, 0, ir, sNormal, sAlbedo, tMax);
+	if(tT > 0.0)
+	{
+		albedo = sAlbedo;
+		normal = sNormal;
+		t = tT;
 	}
 	return t;
 }
@@ -147,12 +259,15 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
+	
+	float noiseX = float((gl_GlobalInvocationID.x) % 64) / 64;
+	float noiseY = float((gl_GlobalInvocationID.y) % 64) / 64;
+	vec4 noise = texture(uNoise, vec2(noiseX, noiseY));
 	// get index in global work group i.e x,y position
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-  
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);// + noise.xy;
 	//
 	// Compute uvs
-	vec2 uvs = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
+	vec2 uvs = (vec2(pixel_coords.x, pixel_coords.y)+noise.xy) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec3 rd = (uView * vec4(normalize(vec3(uvs.x, uvs.y, -2.0)), 0.0)).xyz;
 	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 

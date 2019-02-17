@@ -47,7 +47,7 @@ namespace rev::gfx {
 		mZPrePass = std::make_unique<ZPrePass>(device, depthBuffer, targetSize);
 		
 		// Create shadow pass
-		size_t shadowSize = 4*1024;
+		unsigned shadowSize = 4*1024;
 		auto shadowTexSize = math::Vec2u{shadowSize, shadowSize};
 		m_shadowsTexture = ShadowMapPass::createShadowMapTexture(device, shadowTexSize);
 		auto shadowBuffer = ShadowMapPass::createShadowBuffer(device, m_shadowsTexture);
