@@ -174,6 +174,20 @@ void branchlessONB(in vec3 n, out vec3 b1, out vec3 b2)
 	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
 }
 
+vec3 orthonormalVec3(in vec3 normal)
+{
+	float fDot = abs(dot(normal, vec3(0, 1, 0)));
+  	if (fDot < 0.999f)
+    	return cross(normal, vec3(0, 1, 0));
+  	return cross(normal, vec3(1, 0, 0));
+}
+
+void onb(in vec3 n, out vec3 b1, out vec3 b2)
+{
+	b1 = orthonormalVec3(n);
+	b2 = cross(n,b1);
+}
+
 vec3 randomUnitVector(in vec2 seed)
 {
 	float theta = TwoPi*seed.x;
@@ -189,10 +203,12 @@ vec3 randomUnitVector(in vec2 seed)
 vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 {
 	vec3 tangent, bitangent;
-	branchlessONB(normal, tangent, bitangent);
-	vec3 rv = randomUnitVector(seed);
+	onb(normal, tangent, bitangent);
+	float t = cos(seed.x*TwoPi*0.5);
+	float b = cos(seed.y*TwoPi*0.5);
+	float z = sqrt(1-b*b-t*t);
 
-	return tangent * rv.x + bitangent * rv.y + normal * rv.z;
+	return tangent * t + bitangent * b + normal * z;
 }
 
 vec3 color(vec3 ro, vec3 rd, out float tOut)
@@ -219,8 +235,7 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 			vec4 noise = texture(uNoise, vec2(noiseX, noiseY));
 			if(noise.x > 0.15)
 			{
-				//rd = lambertianDirection(normal, noise.yz);
-				rd = randomUnitVector(noise.yz);
+				rd = lambertianDirection(normal, noise.yz);
 				if(dot(rd,normal) < 0.0)
 					rd = -rd;
 			}
