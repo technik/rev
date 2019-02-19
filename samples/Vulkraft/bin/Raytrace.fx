@@ -9,6 +9,9 @@ layout(location = 3) uniform sampler2D uNoise;
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 
+const float HalfPi = 1.57079637050628662109375f;
+const float TwoPi = 6.2831852436065673828125f;
+
 vec3 skyColor(vec3 dir)
 {
 	return 2*mix(vec3(0.5, 0.7, 0.85), vec3(0.95), dir.y);
@@ -109,59 +112,6 @@ float hitSubtree(
 	float tMax)
 {
 	float t = -1.0;
-	Node nodeStack[3];
-	noteStack[0] = 0; // Start at the root
-	Box boxStack[3];
-	boxStack[0] = treeBB; // Start with the input bbox
-	int childStack[3];
-	int childStack[0] = 0; // Start with the first child
-	int curDepth = 0;
-	while(curDepth >= 0)
-	{
-		int i = stack[curDepth];
-		Node node = octree[stack[curDepth]];
-		vec3 midPoint = (bbox.max + bbox.min) * 0.5;
-		vec3 childSize = midPoint-bbox.min;
-		for(int i = 0; i < 8; ++i) // Iterate over children
-		{
-			int px = i&1;
-			int py = i&2;
-			int pz = i&4;
-			vec3 childMin = vec3(
-				px<0?bbox.min.x:midPoint.x,
-				py<0?bbox.min.y:midPoint.y,
-				pz<0?bbox.min.z:midPoint.z
-			);
-			Box childBV = { childMin, childMin+childSize };
-			if(tree.offset[i] > 0) // Child branch
-			{
-				vec3 cNormal, cAlbedo;
-				float tC = hitSubtree(childBV, tree.offset[i], r, cNormal, cAlbedo, tMax);
-				if(tC > 0.0)
-				{
-					t = tC;
-					tMax = t;
-					albedo = vec3(0.9);
-					normal = cNormal;
-				}
-			}
-			else // Child leaf
-			{
-				if((tree.childMask & (1<<i)) > 0)
-				{
-					vec3 cNormal, cAlbedo;
-					float tC = hitBox(childBV, r, cNormal, cAlbedo, tMax);
-					if(tC > 0.0)
-					{
-						t = tC;
-						tMax = t;
-						albedo = vec3(0.9);
-						normal = cNormal;
-					}
-				}	
-			}
-		}
-	}
 	
 	return t;
 }
@@ -204,14 +154,45 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 		normal = sNormal;
 		t = tS;
 	}*/
-	float tT = hitSubtree(octreeBBox, 0, ir, sNormal, sAlbedo, tMax);
+	/*float tT = hitSubtree(octreeBBox, ir, sNormal, sAlbedo, tMax);
 	if(tT > 0.0)
 	{
 		albedo = sAlbedo;
 		normal = sNormal;
 		t = tT;
-	}
+	}*/
 	return t;
+}
+
+// Pixar's method for orthonormal basis generation
+void branchlessONB(in vec3 n, out vec3 b1, out vec3 b2)
+{
+	float sign = n.z > 0.0 ? 1.0 : 0.0;
+	const float a = -1.0f / (sign + n.z);
+	const float b = n.x * n.y * a;
+	b1 = vec3(1.0f + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+vec3 randomUnitVector(in vec2 seed)
+{
+	float theta = TwoPi*seed.x;
+	float cosPhi = 2*seed.y-1;
+	float sinPhi = sqrt(1-cosPhi*cosPhi);
+	return vec3(
+		cos(theta)*sinPhi,
+		cosPhi,
+		sin(theta)*sinPhi
+		);
+}
+
+vec3 lambertianDirection(in vec3 normal, in vec2 seed)
+{
+	vec3 tangent, bitangent;
+	branchlessONB(normal, tangent, bitangent);
+	vec3 rv = randomUnitVector(seed);
+
+	return tangent * rv.x + bitangent * rv.y + normal * rv.z;
 }
 
 vec3 color(vec3 ro, vec3 rd, out float tOut)
@@ -224,7 +205,7 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 	for(int i = 0; i < 4; ++i)
 	{
 		vec3 albedo;
-		float t = hit(ro,rd, normal, albedo, tMax);
+		float t = hit(ro, rd, normal, albedo, tMax);
 		if(t > 0.0)
 		{
 			if(i == 0)
@@ -236,15 +217,15 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 			float noiseX = float((gl_GlobalInvocationID.x + i) % 64) / 64;
 			float noiseY = float((gl_GlobalInvocationID.y + (i>>1)) % 64) / 64;
 			vec4 noise = texture(uNoise, vec2(noiseX, noiseY));
-			rd = reflect(rd, normal);
-			if(noise.w > 0.15)
+			if(noise.x > 0.15)
 			{
-				vec3 randomV = noise.xyz * 2 - 1;
-				if(dot(randomV,normal) > 0.0)
-					rd = randomV;
-				else
-					rd = -randomV;
+				//rd = lambertianDirection(normal, noise.yz);
+				rd = randomUnitVector(noise.yz);
+				if(dot(rd,normal) < 0.0)
+					rd = -rd;
 			}
+			else
+				rd = reflect(rd, normal);
 		}
 		else
 		{
