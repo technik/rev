@@ -29,6 +29,12 @@ namespace vkft::gfx
 		void onResizeTarget(const rev::math::Vec2u& targetSize);
 
 	private:
+		void loadNoiseTextures();
+
+	private:
+		static constexpr unsigned NumBlueNoiseTextures = 64;
+		rev::gfx::Texture2d m_blueNoise[NumBlueNoiseTextures];
+
 		rev::gfx::ComputeShader m_raytracer;
 		rev::gfx::Texture2d m_raytracingTexture;
 		rev::gfx::Texture2d m_taaAccumTexture;
@@ -37,10 +43,8 @@ namespace vkft::gfx
 		rev::gfx::TextureSampler m_rtBufferSampler;
 
 		// Noise
-		rev::gfx::Texture2d::Descriptor m_noiseDesc;
-		rev::gfx::Image* m_noiseImage = nullptr;
 		std::default_random_engine m_rng;
-		rev::gfx::Texture2d m_noiseTexture;
+		std::uniform_int_distribution<unsigned> m_noisePermutations;
 
 		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
 		rev::gfx::ShaderCodeFragment * m_computeCode = nullptr;

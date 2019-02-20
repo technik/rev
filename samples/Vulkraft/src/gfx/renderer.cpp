@@ -11,8 +11,10 @@
 #include <graphics/backend/renderPass.h>
 #include <graphics/backend/texture2d.h>
 #include <graphics/scene/camera.h>
+#include <graphics/Image.h>
 
 #include <string>
+#include <sstream>
 
 using namespace rev::gfx;
 using namespace rev::math;
@@ -22,28 +24,16 @@ namespace vkft::gfx
 	//------------------------------------------------------------------------------------------------------------------
 	Renderer::Renderer(rev::gfx::DeviceOpenGLWindows& device, const Vec2u& targetSize)
 		: mGfxDevice(device)
+		, m_noisePermutations(0,NumBlueNoiseTextures)
 		, m_rasterPass(device)
 	{
+		loadNoiseTextures();
 		// Create reusable texture descriptor
 		TextureSampler::Descriptor bufferSamplerDesc;
 		bufferSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
 		bufferSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
 		bufferSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 		m_rtBufferSampler = mGfxDevice.createTextureSampler(bufferSamplerDesc);
-
-		// Noise texture sampler
-		TextureSampler::Descriptor noiseSamplerDesc;
-		noiseSamplerDesc.filter = TextureSampler::MinFilter::Linear;
-		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
-		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
-		m_noiseDesc.sampler = mGfxDevice.createTextureSampler(noiseSamplerDesc);
-		m_noiseDesc.depth = false;
-		m_noiseDesc.mipLevels = 1;
-		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		m_noiseDesc.pixelFormat.numChannels = 4;
-		m_noiseDesc.providedImages = 1;
-		m_noiseDesc.size = Vec2u(64,64);
-		m_noiseDesc.sRGB = false;
 
 		// Create an intermediate buffer of the right size
 		onResizeTarget(targetSize);
@@ -99,31 +89,12 @@ namespace vkft::gfx
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
 
-		// Create a brand new noise texture
-		if(m_noiseTexture.isValid())
-		{
-			mGfxDevice.destroyTexture2d(m_noiseTexture);
-		}
-		if(m_noiseImage)
-			delete m_noiseImage;
-		Vec4f* noise = new Vec4f[64*64];
-		std::uniform_real_distribution<float> noiseDistrib;
-		for(int i = 0; i < 64*64; ++i)
-		{
-			noise[i].x() = noiseDistrib(m_rng);
-			noise[i].y() = noiseDistrib(m_rng);
-			noise[i].z() = noiseDistrib(m_rng);
-			noise[i].w() = noiseDistrib(m_rng);
-		}
-		m_noiseImage = new rev::gfx::Image(Vec2u(64,64), noise);
-		m_noiseDesc.srcImages = m_noiseImage;
-		m_noiseTexture = mGfxDevice.createTexture2d(m_noiseDesc);
-
 		// Dispatch compute shader
 		uniforms.addParam(1, uWindow);
 		Mat44f curCamWorld = camera.world().matrix();
 		uniforms.addParam(2, curCamWorld);
-		uniforms.addParam(3, m_noiseTexture);
+		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
+		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
 		commands.setComputeProgram(m_raytracer);
 		commands.setUniformData(uniforms);
 		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
@@ -172,5 +143,38 @@ namespace vkft::gfx
 		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_taaAccumTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_freshTaa = true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Renderer::loadNoiseTextures()
+	{
+		// Noise texture sampler
+		TextureSampler::Descriptor noiseSamplerDesc;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Linear;
+		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
+
+		rev::gfx::Texture2d::Descriptor m_noiseDesc;
+		m_noiseDesc.sampler = mGfxDevice.createTextureSampler(noiseSamplerDesc);
+		m_noiseDesc.depth = false;
+		m_noiseDesc.mipLevels = 1;
+		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		m_noiseDesc.pixelFormat.numChannels = 4;
+		m_noiseDesc.providedImages = 1;
+		m_noiseDesc.size = Vec2u(64,64);
+		m_noiseDesc.sRGB = false;
+
+		for(unsigned i = 0; i < NumBlueNoiseTextures; ++i)
+		{
+			// Load image from file
+			std::stringstream imageName;
+			imageName << "../assets/blueNoise/LDR_RGBA_" << i << ".png";
+			auto image = Image::load(imageName.str(), 0);
+			if(image.data())
+			{
+				m_noiseDesc.srcImages = &image;
+				m_blueNoise[i] = mGfxDevice.createTexture2d(m_noiseDesc);
+			}
+		}
 	}
 }
