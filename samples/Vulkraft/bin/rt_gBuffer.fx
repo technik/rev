@@ -7,7 +7,7 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 	vec3 light = vec3(0.0);
 	float tMax = 100.0;
 	tOut = tMax;
-	for(int i = 0; i < 4; ++i)
+	for(int i = 0; i < 2; ++i)
 	{
 		vec3 albedo;
 		float t = hit(ro, rd, normal, albedo, tMax);
@@ -18,8 +18,8 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 			atten *= 0.5 * albedo;
 			ro = ro + rd * t + 0.0001 * normal;
 			// Scatter reflected light
-			float noiseX = float((gl_GlobalInvocationID.x + i)) / 64;
-			float noiseY = float((gl_GlobalInvocationID.y + (i>>1))) / 64;
+			float noiseX = float((gl_GlobalInvocationID.x + i) % 64) / 64;
+			float noiseY = float((gl_GlobalInvocationID.y + (i>>1)) % 64) / 64;
 			vec4 noise = textureLod(uNoise, vec2(noiseX, noiseY), 0);
 
 			// Compute direct contribution
@@ -50,7 +50,7 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 
 void main() {
 	// base pixel colour for image
-	vec4 pixel = vec4(0.0);
+	vec4 pixel = vec4(0.0,0.0,0.0,-1.0); // (Normal.xyz, t)
 	
 	float noiseX = float((gl_GlobalInvocationID.x) % 64) / 64;
 	float noiseY = float((gl_GlobalInvocationID.y) % 64) / 64;
@@ -60,13 +60,19 @@ void main() {
 	//
 	// Compute uvs
 	vec2 uvs = (vec2(pixel_coords.x, pixel_coords.y)+noise.xy) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
-	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 	vec3 rd = (uView * vec4(normalize(vec3(uvs.x, uvs.y, -2.0)), 0.0)).xyz;
+	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 
-	float t;
-	pixel.xyz = color(ro, rd, t);
-	pixel.w = t;
-
+	vec3 normal;
+	vec3 albedo;
+	float tMax = 1000.0;
+	float t = hit(ro, rd, normal, albedo, tMax);
+	if(t > 0)
+	{
+		pixel.xyz = normal;
+		pixel.w = t;
+	}
+  
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
 }

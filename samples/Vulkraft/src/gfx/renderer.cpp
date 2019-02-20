@@ -89,7 +89,8 @@ namespace vkft::gfx
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
 
-		// Dispatch compute shader
+		// Dispatch gBuffer shader
+		/*uniforms.clear();
 		uniforms.addParam(1, uWindow);
 		Mat44f curCamWorld = camera.world().matrix();
 		uniforms.addParam(2, curCamWorld);
@@ -97,6 +98,48 @@ namespace vkft::gfx
 		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
 		commands.setComputeProgram(m_raytracer);
 		commands.setUniformData(uniforms);
+		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+
+		// Dispatch first shadow (direct light contrib)
+		uniforms.clear();
+		uniforms.addParam(1, uWindow);
+		Mat44f curCamWorld = camera.world().matrix();
+		uniforms.addParam(2, curCamWorld);
+		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
+		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
+		commands.setComputeProgram(m_raytracer);
+		commands.setUniformData(uniforms);
+		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+
+		// Dispatch indirect light
+		uniforms.clear();
+		uniforms.addParam(1, uWindow);
+		Mat44f curCamWorld = camera.world().matrix();
+		uniforms.addParam(2, curCamWorld);
+		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
+		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
+		commands.setComputeProgram(m_raytracer);
+		commands.setUniformData(uniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(m_indirectLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});*/
+
+		// All following 3 at once?
+		// Denoise shadow
+		// Denoise indirect light
+		// Compose image
+		uniforms.clear();
+		uniforms.addParam(1, uWindow);
+		Mat44f curCamWorld = camera.world().matrix();
+		uniforms.addParam(2, curCamWorld);
+		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
+		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
+		/*uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
+		uniforms.addParam(4, m_gBufferTexture);
+		uniforms.addParam(5, m_directLightTexture);
+		uniforms.addParam(6, m_indirectLightTexture);*/
+		commands.setComputeProgram(m_raytracer);
+		commands.setUniformData(uniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
 		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
 		// Render full screen texture
