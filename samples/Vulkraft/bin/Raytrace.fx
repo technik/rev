@@ -167,7 +167,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 // Pixar's method for orthonormal basis generation
 void branchlessONB(in vec3 n, out vec3 b1, out vec3 b2)
 {
-	float sign = n.z > 0.0 ? 1.0 : 0.0;
+	float sign = n.z > 0.0 ? 1.0 : -1.0;
 	const float a = -1.0f / (sign + n.z);
 	const float b = n.x * n.y * a;
 	b1 = vec3(1.0f + sign * n.x * n.x * a, sign * b, -sign * n.x);
@@ -203,7 +203,7 @@ vec3 randomUnitVector(in vec2 seed)
 vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 {
 	vec3 tangent, bitangent;
-	onb(normal, tangent, bitangent);
+	branchlessONB(normal, tangent, bitangent);
 	float t = cos(seed.x*TwoPi*0.5);
 	float b = cos(seed.y*TwoPi*0.5);
 	float z = sqrt(1-b*b-t*t);
@@ -236,8 +236,6 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 			if(noise.x > 0.15)
 			{
 				rd = lambertianDirection(normal, noise.yz);
-				if(dot(rd,normal) < 0.0)
-					rd = -rd;
 			}
 			else
 				rd = reflect(rd, normal);
