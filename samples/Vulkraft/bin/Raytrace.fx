@@ -191,12 +191,12 @@ void onb(in vec3 n, out vec3 b1, out vec3 b2)
 vec3 randomUnitVector(in vec2 seed)
 {
 	float theta = TwoPi*seed.x;
-	float cosPhi = 2*seed.y-1;
-	float sinPhi = sqrt(1-cosPhi*cosPhi);
+	float z = 2*(seed.y+seed.y/255.0)-1;
+	float horRad = sqrt(1-z*z);
 	return vec3(
-		cos(theta)*sinPhi,
-		cosPhi,
-		sin(theta)*sinPhi
+		cos(theta)*horRad,
+		z,
+		sin(theta)*horRad
 		);
 }
 
@@ -218,7 +218,7 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 	vec3 light = vec3(0.0);
 	float tMax = 100.0;
 	tOut = tMax;
-	for(int i = 0; i < 4; ++i)
+	for(int i = 0; i < 2; ++i)
 	{
 		vec3 albedo;
 		float t = hit(ro, rd, normal, albedo, tMax);
@@ -226,16 +226,25 @@ vec3 color(vec3 ro, vec3 rd, out float tOut)
 		{
 			if(i == 0)
 				tOut = t;
-			atten *= albedo;
-			//light += atten * skyColor(normal);
+			atten *= 0.5 * albedo;
 			ro = ro + rd * t + 0.0001 * normal;
 			// Scatter reflected light
 			float noiseX = float((gl_GlobalInvocationID.x + i) % 64) / 64;
 			float noiseY = float((gl_GlobalInvocationID.y + (i>>1)) % 64) / 64;
-			vec4 noise = texture(uNoise, vec2(noiseX, noiseY));
-			if(noise.x > 0.15)
+			vec4 noise = textureLod(uNoise, vec2(noiseX, noiseY), 0);
+
+			// Compute direct contribution
+			vec3 skyDir = randomUnitVector(noise.xy);
+			if(dot(skyDir,normal) < 0)
+				skyDir = -skyDir;
+			vec3 skyNorm, skyAlbedo;
+			if(hit(ro, skyDir, skyNorm, skyAlbedo, tMax) < 0)
+				light += atten * skyColor(rd);
+
+			// Indirect contribution
+			if(noise.y > 0.15)
 			{
-				rd = lambertianDirection(normal, noise.yz);
+				rd = lambertianDirection(normal, noise.zw);
 			}
 			else
 				rd = reflect(rd, normal);
