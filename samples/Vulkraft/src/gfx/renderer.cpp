@@ -24,7 +24,7 @@ namespace vkft::gfx
 	//------------------------------------------------------------------------------------------------------------------
 	Renderer::Renderer(rev::gfx::DeviceOpenGLWindows& device, const Vec2u& targetSize)
 		: mGfxDevice(device)
-		, m_noisePermutations(0,NumBlueNoiseTextures)
+		, m_noisePermutations(0,NumBlueNoiseTextures-1)
 		, m_rasterPass(device)
 	{
 		loadNoiseTextures();
@@ -73,7 +73,10 @@ namespace vkft::gfx
 		CommandBuffer commands;
         CommandBuffer::UniformBucket passUniforms;
 
-		if(!m_composeCompute.isValid())
+		if(!m_composeCompute.isValid()
+		|| !m_gBufferCompute.isValid()
+		|| !m_directLightCompute.isValid()
+		|| !m_indirectLightCompute.isValid())
 			return;
 
         // Optimization ideas:
@@ -99,7 +102,7 @@ namespace vkft::gfx
         commands.setUniformData(commonUniforms);
 		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
-		// Dispatch first shadow (direct light contrib)
+		// Dispatch direct light
         passUniforms.clear();
         passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
         unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
@@ -125,11 +128,9 @@ namespace vkft::gfx
 		// Denoise indirect light
 		// Compose image
 		passUniforms.clear();
-		noiseTextureNdx = m_noisePermutations(m_rng);
-        passUniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-        passUniforms.addParam(4, m_gBufferTexture);
-        passUniforms.addParam(5, m_directLightTexture);
-        passUniforms.addParam(6, m_indirectLightTexture);
+        passUniforms.addParam(3, m_gBufferTexture);
+        passUniforms.addParam(4, m_directLightTexture);
+        passUniforms.addParam(5, m_indirectLightTexture);
 		commands.setComputeProgram(m_composeCompute);
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);

@@ -30,7 +30,7 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float
 	vec3 tEnter = min(t2,t1); // Enters
 	vec3 tExit = max(t1,t2); // Exits
 	float maxEnter = max(tEnter.x,max(tEnter.y,max(tEnter.z,0.0))); // If nan, return second operand, which is never nan
-	float minLeave = min(tExit.x,min(tExit.y,min(tExit.z,tMax))); // If nan, return second operand, which is never nan
+	float minLeave = min(tExit.x, min(tExit.y, min(tExit.z, tMax))); // If nan, return second operand, which is never nan
 	if(minLeave >= maxEnter)
 	{
 		t = maxEnter;
@@ -40,17 +40,18 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float
 		float maxDif = max(absDif.x, max(absDif.y, absDif.z));
 		if(maxDif == absDif.x)
 		{
-			normal = normalize(vec3(dif.x, 0.0, 0.0));
+			normal = vec3(dif.x, 0.0, 0.0)/abs(dif.x);
 		}
 		else if(maxDif == absDif.y)
 		{
-			normal = normalize(vec3(0.0, dif.y, 0.0));
+			normal = vec3(0.0, dif.y, 0.0)/abs(dif.y);
 		}
 		else
 		{
-			normal = normalize(vec3(0.0, 0.0, dif.z));
+			normal = vec3(0.0, 0.0, dif.z)/abs(dif.z);
 		}
 		albedo = vec3(0.35, 0.5, 0.35);
+		return maxEnter;
 	}
 	return t;
 }
@@ -77,8 +78,9 @@ vec3 skyColor(vec3 dir)
 	return 2*mix(vec3(0.5, 0.7, 0.85), vec3(0.95), dir.y);
 }
 
-Box boxes[6] = 
+Box boxes[7] = 
 {
+	{ vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0) },
 	{ vec3(-1.0, 0.0, -5.0), vec3(0.0, 1.0, -4.0) },
 	{ vec3(-1.0, 1.0, -4.0), vec3(0.0, 2.0, -3.0) },
 	{ vec3(1.0, 0.0, -4.0), vec3(2.0, 1.0, -3.0) },
@@ -104,7 +106,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	ir.o = ro;
 	ir.n = vec3(1.0) / rd;
 	ir.d = rd;
-	for(int i = 0; i < 6; ++i)
+	for(int i = 0; i < 7; ++i)
 	{
 		float tBox = hitBox(boxes[i], ir, tNormal, tAlbedo, tMax);
 		if(tBox > 0)
@@ -112,11 +114,9 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 			albedo = tAlbedo;
 			normal = tNormal;
 			t = tBox;
-			tMax = t;
+			tMax = tBox;
 		}
 	}
-	vec3 sAlbedo;
-	vec3 sNormal;
 	return t;
 }
 
@@ -162,7 +162,35 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	branchlessONB(normal, tangent, bitangent);
 	float t = cos(seed.x*TwoPi*0.5);
 	float b = cos(seed.y*TwoPi*0.5);
-	float z = sqrt(1-b*b-t*t);
+	float z = sqrt(max(1-b*b-t*t, 0.0));
 
 	return tangent * t + bitangent * b + normal * z;
+}
+
+vec3 directContrib(in vec3 ro, in vec3 normal, vec4 noise)
+{
+	vec3 directLight = vec3(0.0);
+
+	// Sample a random location in the unit hemisphere
+	/*rd = randomUnitVector(noise.xy); // Specular lighting
+	if(dot(rd,normal) < 0)
+		rd = -rd;*/
+
+	// Trace ray to the sky to gather light contribution
+	// Idea: Can store a spherical harmonic of surrounding illumination and use it to importance sample the environment
+	// Maybe that precomputation can improve convergence for indoor scenes where sky is almost always covered
+
+	// Diffuse lighting
+	//vec3 rd = randomUnitVector(noise.zw);
+	vec3 rd = lambertianDirection(normal, noise.zw);
+	if(dot(rd,normal) < 0)
+		rd = -rd;
+	float tMax = 1000.0;
+	vec3 albedo, tNormal; // ignored
+	float t = hit(ro, rd, tNormal, albedo, tMax);
+	if(t < 0.0)
+	{
+		directLight += skyColor(rd);
+	}
+	return directLight;
 }

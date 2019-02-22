@@ -5,10 +5,10 @@ layout(rgba32f, binding = 0) writeonly uniform image2D gBufferOut;
 
 void main() {
 	// get index in global work group i.e x,y position
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);// + noise.xy;
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
 	// Compute uvs
-	vec2 uvs = (vec2(pixel_coords.x, pixel_coords.y)+noise.xy) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
+	vec2 uvs = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 	vec3 rd = (uView * vec4(normalize(vec3(uvs.x, uvs.y, -2.0)), 0.0)).xyz;
 
