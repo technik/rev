@@ -75,6 +75,15 @@ namespace vkft::gfx
 
 		if(!m_composeCompute.isValid())
 			return;
+
+        // Optimization ideas:
+        // - Run a broad phase conservative g-buffer to reduce distance traversed by primary rays
+        // - Or just rasterize the g-buffer. Which also allows you to take advantage of normal mapping and all things
+        //   that can be done on deferred.
+        // - Indirect lighting would use raytraced geometry and discard things like normal mapping. Also simplified
+        //   shading, and probably increased roughness. Could even use environment probes for terciary lighting
+        // - For supporting many lights, do as clustered forward and precompute a list of affecting lights per cluster
+        // - Can that list work for both direct and indirect lighting?
 		
 		// Prepare data
 		Vec4f uWindow;
