@@ -30,26 +30,33 @@ namespace vkft::gfx
 
 	private:
 		void loadNoiseTextures();
+        void loadShaderAndSetListener(const std::string& shaderFile, rev::gfx::ComputeShader& dst);
 
 	private:
+        // Noise
 		static constexpr unsigned NumBlueNoiseTextures = 64;
 		rev::gfx::Texture2d m_blueNoise[NumBlueNoiseTextures];
-
-		rev::gfx::ComputeShader m_raytracer;
-		rev::gfx::Texture2d m_raytracingTexture;
-		rev::gfx::Texture2d m_taaAccumTexture;
-		bool m_freshTaa = true;
-		rev::math::Mat44f m_oldCamWorld;
-		rev::gfx::TextureSampler m_rtBufferSampler;
-
-		// Noise
 		std::default_random_engine m_rng;
 		std::uniform_int_distribution<unsigned> m_noisePermutations;
 
+        // Buffers
+        rev::gfx::Texture2d m_gBufferTexture;
+        rev::gfx::Texture2d m_directLightTexture;
+        rev::gfx::Texture2d m_indirectLightTexture;
+        rev::gfx::Texture2d m_raytracingTexture;
+
+        // Compute programs
+        std::vector<rev::gfx::ShaderCodeFragment*> m_computeCode; // Code fragments for all compute programs
+        rev::gfx::ComputeShader m_gBufferCompute;
+        rev::gfx::ComputeShader m_directLightCompute;
+        rev::gfx::ComputeShader m_indirectLightCompute;
+        rev::gfx::ComputeShader m_composeCompute;
+
+		rev::gfx::TextureSampler m_rtBufferSampler;
+
 		rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
-		rev::gfx::ShaderCodeFragment * m_computeCode = nullptr;
-		std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener> m_computeReloadListener;
-		std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener> m_rasterReloadListener;
+        using ShaderReloadListener = std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener>;
+        std::vector<ShaderReloadListener> m_reloadListeners;
 		rev::gfx::FullScreenPass m_rasterPass;
 		rev::gfx::RenderPass* m_finalPass = nullptr;
 

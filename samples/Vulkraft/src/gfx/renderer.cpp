@@ -40,9 +40,9 @@ namespace vkft::gfx
 
 		// Create the full screen pass to draw the result
 		m_rasterCode = ShaderCodeFragment::loadFromFile("raster.fx");
-		m_rasterReloadListener = m_rasterCode->onReload([this](ShaderCodeFragment& fragment){
+		m_reloadListeners.push_back(m_rasterCode->onReload([this](ShaderCodeFragment& fragment){
 				m_rasterPass.setPassCode(&fragment);
-		});
+		}));
 		m_rasterPass.setPassCode(m_rasterCode);
 
 		RenderPass::Descriptor fullScreenDesc;
@@ -61,101 +61,83 @@ namespace vkft::gfx
 		std::cout << "Compute max invokations: " << limits.computeWorkGruopTotalInvokes << "\n";
 
 		// Create compute shader
-		m_computeCode = ShaderCodeFragment::loadFromFile("Raytrace.fx");
-		std::vector<std::string> code;
-		m_computeCode->collapse(code);
-		m_computeReloadListener = m_computeCode->onReload([this](ShaderCodeFragment& fragment){
-			std::vector<std::string> code;
-			fragment.collapse(code);
-			auto newCompute = mGfxDevice.createComputeShader(code);
-			if(newCompute.isValid())
-				m_raytracer = newCompute;
-		});
-
-		m_raytracer = mGfxDevice.createComputeShader(code);
+        loadShaderAndSetListener("rtGBuffer.fx", m_gBufferCompute);
+        loadShaderAndSetListener("rtDirect.fx", m_directLightCompute);
+        loadShaderAndSetListener("rtIndirect.fx", m_indirectLightCompute);
+        loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const World& world, const rev::gfx::Camera& camera)
 	{
 		CommandBuffer commands;
-		CommandBuffer::UniformBucket uniforms;
+        CommandBuffer::UniformBucket passUniforms;
 
-		if(!m_raytracer.isValid())
+		if(!m_composeCompute.isValid())
 			return;
 		
 		// Prepare data
 		Vec4f uWindow;
 		uWindow.x() = (float)m_targetSize.x();
 		uWindow.y() = (float)m_targetSize.y();
+        CommandBuffer::UniformBucket commonUniforms;
+        commonUniforms.addParam(1, uWindow);
+		Mat44f curCamWorld = camera.world().matrix();
+        commonUniforms.addParam(2, curCamWorld);
 
 		// Dispatch gBuffer shader
-		/*uniforms.clear();
-		uniforms.addParam(1, uWindow);
-		Mat44f curCamWorld = camera.world().matrix();
-		uniforms.addParam(2, curCamWorld);
-		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
-		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-		commands.setComputeProgram(m_raytracer);
-		commands.setUniformData(uniforms);
+		commands.setComputeProgram(m_gBufferCompute);
+        commands.setUniformData(commonUniforms);
 		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
 		// Dispatch first shadow (direct light contrib)
-		uniforms.clear();
-		uniforms.addParam(1, uWindow);
-		Mat44f curCamWorld = camera.world().matrix();
-		uniforms.addParam(2, curCamWorld);
-		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
-		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-		commands.setComputeProgram(m_raytracer);
-		commands.setUniformData(uniforms);
-		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+        passUniforms.clear();
+        passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
+        unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
+        passUniforms.addParam(4, m_blueNoise[noiseTextureNdx]);
+        commands.setComputeProgram(m_directLightCompute);
+        commands.setUniformData(commonUniforms);
+        commands.setUniformData(passUniforms);
+        commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
+        commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
-		// Dispatch indirect light
-		uniforms.clear();
-		uniforms.addParam(1, uWindow);
-		Mat44f curCamWorld = camera.world().matrix();
-		uniforms.addParam(2, curCamWorld);
-		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
-		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-		commands.setComputeProgram(m_raytracer);
-		commands.setUniformData(uniforms);
-		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_indirectLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});*/
+        // Dispatch indirect light
+        passUniforms.clear();
+        passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
+        noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for secondary light
+        passUniforms.addParam(4, m_blueNoise[noiseTextureNdx]);
+        commands.setComputeProgram(m_indirectLightCompute);
+        commands.setUniformData(commonUniforms);
+        commands.setUniformData(passUniforms);
+        commands.dispatchCompute(m_indirectLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
-		// All following 3 at once?
-		// Denoise shadow
+		// All following 3 at once:
+		// Denoise direct light
 		// Denoise indirect light
 		// Compose image
-		uniforms.clear();
-		uniforms.addParam(1, uWindow);
-		Mat44f curCamWorld = camera.world().matrix();
-		uniforms.addParam(2, curCamWorld);
-		unsigned noiseTextureNdx = m_noisePermutations(m_rng);
-		uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-		/*uniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
-		uniforms.addParam(4, m_gBufferTexture);
-		uniforms.addParam(5, m_directLightTexture);
-		uniforms.addParam(6, m_indirectLightTexture);*/
-		commands.setComputeProgram(m_raytracer);
-		commands.setUniformData(uniforms);
+		passUniforms.clear();
+		noiseTextureNdx = m_noisePermutations(m_rng);
+        passUniforms.addParam(3, m_blueNoise[noiseTextureNdx]);
+        passUniforms.addParam(4, m_gBufferTexture);
+        passUniforms.addParam(5, m_directLightTexture);
+        passUniforms.addParam(6, m_indirectLightTexture);
+		commands.setComputeProgram(m_composeCompute);
+        commands.setUniformData(commonUniforms);
+        commands.setUniformData(passUniforms);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
 		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
 		// Render full screen texture
-		uniforms.clear();
-		uniforms.addParam(0, uWindow);
-		uniforms.addParam(1, m_raytracingTexture);
+        passUniforms.clear();
+        passUniforms.addParam(0, uWindow);
+        passUniforms.addParam(1, m_raytracingTexture);
 		commands.beginPass(*m_finalPass);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		m_rasterPass.render(uniforms, commands);
+		m_rasterPass.render(passUniforms, commands);
 
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
 		mGfxDevice.renderQueue().present();
-
-		// TAA for next frame
-		m_oldCamWorld = curCamWorld;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -169,11 +151,13 @@ namespace vkft::gfx
 		// Delete previous target if needed
 		if(m_raytracingTexture.isValid())
 		{
-			mGfxDevice.destroyTexture2d(m_raytracingTexture);
-			mGfxDevice.destroyTexture2d(m_taaAccumTexture);
+            mGfxDevice.destroyTexture2d(m_gBufferTexture);
+            mGfxDevice.destroyTexture2d(m_directLightTexture);
+            mGfxDevice.destroyTexture2d(m_indirectLightTexture);
+            mGfxDevice.destroyTexture2d(m_raytracingTexture);
 		}
 
-		// Create the raytracing texture
+		// Create a common descriptor for all buffers
 		Texture2d::Descriptor bufferDesc;
 		bufferDesc.depth = false;
 		bufferDesc.mipLevels = 1;
@@ -183,9 +167,12 @@ namespace vkft::gfx
 		bufferDesc.sampler = m_rtBufferSampler;
 		bufferDesc.size = newSize;
 		bufferDesc.sRGB = false;
-		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
-		m_taaAccumTexture = mGfxDevice.createTexture2d(bufferDesc);
-		m_freshTaa = true;
+
+        // Create the buffers
+        m_gBufferTexture = mGfxDevice.createTexture2d(bufferDesc);
+        m_directLightTexture = mGfxDevice.createTexture2d(bufferDesc);
+        m_indirectLightTexture = mGfxDevice.createTexture2d(bufferDesc);
+        m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -220,4 +207,23 @@ namespace vkft::gfx
 			}
 		}
 	}
+
+    //------------------------------------------------------------------------------------------------------------------
+    void Renderer::loadShaderAndSetListener(const std::string& shaderFile, ComputeShader& dst)
+    {
+        m_computeCode.push_back(nullptr);
+        auto& dstFragment = m_computeCode.back();
+        dstFragment = ShaderCodeFragment::loadFromFile(shaderFile);
+        std::vector<std::string> code;
+        dstFragment->collapse(code);
+        m_reloadListeners.emplace_back(dstFragment->onReload([this,&dst](ShaderCodeFragment& fragment) {
+            std::vector<std::string> code;
+            fragment.collapse(code);
+            auto newCompute = mGfxDevice.createComputeShader(code);
+            if (newCompute.isValid())
+                dst = newCompute;
+        }));
+
+        dst = mGfxDevice.createComputeShader(code);
+    }
 }
