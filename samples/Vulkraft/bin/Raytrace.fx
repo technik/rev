@@ -1,5 +1,10 @@
 #include "rt_common.fx"
 
+layout(location = 3) uniform sampler2D uNoise;
+
+// Output texture
+layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
+
 vec3 color(vec3 ro, vec3 rd, out float tOut)
 {
 	vec3 normal;

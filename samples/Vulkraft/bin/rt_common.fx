@@ -4,10 +4,6 @@ layout(local_size_x = 1, local_size_y = 1) in;
 // Input uniforms
 layout(location = 1) uniform vec4 uWindow;
 layout(location = 2) uniform mat4 uView;
-layout(location = 3) uniform sampler2D uNoise;
-
-// Output texture
-layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;
