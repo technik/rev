@@ -21,9 +21,8 @@ struct ImplicitRay
 	vec3 d;
 };
 
-float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float tMax)
+float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 {
-	float t = -1.0;
 	vec3 t1 = (b.min - r.o) * r.n;
 	vec3 t2 = (b.max - r.o) * r.n;
 	// Swapping the order of comparison is important because of NaN behavior
@@ -33,27 +32,27 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, out vec3 albedo, float
 	float minLeave = min(tExit.x, min(tExit.y, min(tExit.z, tMax))); // If nan, return second operand, which is never nan
 	if(minLeave >= maxEnter)
 	{
-		t = maxEnter;
-		vec3 center = (b.min + b.max) * 0.5;
-		vec3 dif = t * r.d + r.o - center;
-		vec3 absDif = abs(dif);
-		float maxDif = max(absDif.x, max(absDif.y, absDif.z));
-		if(maxDif == absDif.x)
+		if(maxEnter == tEnter.x)
 		{
-			normal = vec3(dif.x, 0.0, 0.0)/abs(dif.x);
+			normal = vec3(1.0, 0.0, 0.0);
 		}
-		else if(maxDif == absDif.y)
+		else if(maxEnter == tEnter.y)
 		{
-			normal = vec3(0.0, dif.y, 0.0)/abs(dif.y);
+			normal = vec3(0.0, 1.0, 0.0);
 		}
 		else
 		{
-			normal = vec3(0.0, 0.0, dif.z)/abs(dif.z);
+			normal = vec3(0.0, 0.0, 1.0);
 		}
-		albedo = vec3(0.35, 0.5, 0.35);
+		if(dot(normal,r.d) > 0)
+			normal = -normal;
 		return maxEnter;
 	}
-	return t;
+	else
+	{
+		normal = vec3(1.0,0.0,0.0);
+		return -1.0;
+	}
 }
 
 float hitSphere(in vec4 sphere, in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
@@ -75,7 +74,7 @@ float hitSphere(in vec4 sphere, in vec3 ro, in vec3 rd, out vec3 normal, out vec
 
 vec3 skyColor(vec3 dir)
 {
-	return 2*mix(vec3(0.5, 0.7, 0.85), vec3(0.95), dir.y);
+	return 2*mix(vec3(0.0045, 0.638, 1.0), vec3(0.95,0.95,1.0), dir.y);
 }
 
 Box boxes[7] = 
@@ -101,17 +100,22 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	}
 	// Hit box
 	vec3 tNormal;
-	vec3 tAlbedo;
 	ImplicitRay ir;
 	ir.o = ro;
 	ir.n = vec3(1.0) / rd;
+	if(rd.x == 0.0)
+		ir.n.x = 100000.0;
+	if(rd.y == 0.0)
+		ir.n.y = 100000.0;
+	if(rd.z == 0.0)
+		ir.n.z = 100000.0;
 	ir.d = rd;
 	for(int i = 0; i < 7; ++i)
 	{
-		float tBox = hitBox(boxes[i], ir, tNormal, tAlbedo, tMax);
+		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
 		if(tBox > 0)
 		{
-			albedo = tAlbedo;
+			albedo = vec3(0.35, 0.5, 0.35);
 			normal = tNormal;
 			t = tBox;
 			tMax = tBox;
