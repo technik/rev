@@ -10,7 +10,7 @@ vec3 shade () {
 	vec4 tBuffer = texture(uRayTracedBuffer, uv);
 	vec3 color = tBuffer.xyz;
 
-	color = color / (1+color);
+	//color = color / (1+color);
 
 	return pow(color, vec3(0.4545));
 }

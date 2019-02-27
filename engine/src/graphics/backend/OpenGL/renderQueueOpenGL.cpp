@@ -51,6 +51,14 @@ namespace rev :: gfx
 			glUniform1i(tex.first, texStage);
 			++texStage;
 		}
+
+		for(auto& out : bucket.computeOut)
+		{
+			// Override images
+			if(out.second.isValid())
+				glBindImageTexture(out.first, out.second.id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+			break;
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -155,8 +155,8 @@ vec3 randomUnitVector(in vec2 seed)
 	float horRad = sqrt(1-z*z);
 	return vec3(
 		cos(theta)*horRad,
-		z,
-		sin(theta)*horRad
+		sin(theta)*horRad,
+		z
 		);
 }
 

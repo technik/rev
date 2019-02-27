@@ -35,6 +35,10 @@ vec3 indirectContrib(in vec3 ro, in vec3 normal)
 		vec3 secondPoint = ro + t*rd+0.001*tNormal;
 		directLight = directContrib(secondPoint, tNormal, noise);
 	}
+	else
+	{
+		
+	}
 	return directLight;
 }
 

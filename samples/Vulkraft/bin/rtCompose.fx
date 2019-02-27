@@ -3,9 +3,12 @@
 layout(location = 3) uniform sampler2D uGBuffer;
 layout(location = 4) uniform sampler2D uDirectLight;
 layout(location = 5) uniform sampler2D uIndirectLight;
+layout(location = 6) uniform sampler2D uDirectTaaSrc;
+layout(location = 7) uniform mat4 uOldView;
 
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
+layout(rgba32f, binding = 1) uniform image2D direct_taa;
 
 void main() {
 	// base pixel colour for image
@@ -21,13 +24,18 @@ void main() {
 	vec3 light = vec3(0.0);
 	vec3 secondLight = vec3(0.0);
 
-	const int windowSize = 3;
+	const int windowSize = 5;
 	const int minTap = -windowSize/2;
 	const int maxTap = windowSize/2;
 
 	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 	vec3 rd = (uView * vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0)).xyz;
+	if(gBuffer.w < 0.0)
+	{
+		imageStore(img_output, pixel_coords, vec4(skyColor(rd),1.0));
+		return;
+	}
 	vec3 localPoint = ro+gBuffer.w*rd+gBuffer.xyz*1e-4;
 	vec3 green = vec3(0.00, 0.5, 0.15);
 	vec3 albedo = (localPoint.y > 0.85) ? green : vec3(0.63, 0.42, 0.2717);
@@ -56,19 +64,32 @@ void main() {
 			}
 		}
 	}
-	vec3 directLight = weight > 0.0 ? albedo*(light+secondLight)/weight : vec3(0.0);
+
+	vec3 smoothLight = light/weight;
+
+	// Compute screen coordinates reprojected into prev frame
+	vec4 prevPoint = uOldView*inverse(uView)*vec4(localPoint,1.0);
+	vec4 prevRd = inverse(uOldView)*prevPoint-vec4(0,0,0,1.0);
+	vec2 prevXY = -2.0*prevRd.xy/prevRd.z;
+	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
+
+	vec3 prevLight = texelFetch(uDirectTaaSrc,
+						 ivec2(prevXY.x, prevXY.y)
+						 , 0).xyz;
+	vec3 denoisedDirect = mix(prevLight, smoothLight, 0.1);
+
+
+	vec3 directLight = weight > 0.0 ? albedo*denoisedDirect : vec3(0.0);
 
 	//pixel.xyz = vec3(gBuffer.w/8.0);
 	if(gBuffer.w > 0.0)
 		pixel.xyz = directLight.xyz;
+		//pixel.xyz = vec3(prevX/uWindow.x);
 	else
 		pixel.xyz = skyColor(rd);
 	pixel.w = 1;
-	/*if(gBuffer.w >= 0.0)
-		pixel.xyz = vec3(gBuffer.xyz);
-	else
-		pixel.xyz = vec3(1.0,0.0,0.0);*/
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
+	imageStore(direct_taa, pixel_coords, vec4(denoisedDirect,1.0));
 }

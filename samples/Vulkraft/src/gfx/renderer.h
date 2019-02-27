@@ -41,9 +41,11 @@ namespace vkft::gfx
 
         // Buffers
         rev::gfx::Texture2d m_gBufferTexture;
-        rev::gfx::Texture2d m_directLightTexture;
+		rev::gfx::Texture2d m_directLightTexture;
+		rev::gfx::Texture2d m_directLightTAABuffer[2];
         rev::gfx::Texture2d m_indirectLightTexture;
         rev::gfx::Texture2d m_raytracingTexture;
+		int m_taaIndex = 0;
 
         // Compute programs
         std::vector<rev::gfx::ShaderCodeFragment*> m_computeCode; // Code fragments for all compute programs
@@ -64,6 +66,7 @@ namespace vkft::gfx
 
 		// Render parameters
 		float mTargetFov;
+		rev::math::Mat44f m_taaView;
 		rev::math::Vec2u m_targetSize;
 	};
 }

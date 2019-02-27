@@ -65,6 +65,8 @@ namespace vkft::gfx
         loadShaderAndSetListener("rtDirect.fx", m_directLightCompute);
         loadShaderAndSetListener("rtIndirect.fx", m_indirectLightCompute);
         loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
+
+		m_taaView = Mat44f::identity();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -94,15 +96,17 @@ namespace vkft::gfx
 		uWindow.y() = (float)m_targetSize.y();
         CommandBuffer::UniformBucket commonUniforms;
         commonUniforms.addParam(1, uWindow);
-		Mat44f curCamWorld = camera.world().matrix();
-        commonUniforms.addParam(2, curCamWorld);
+		float aspectRatio = uWindow.x() / uWindow.y();
+		Mat44f curView = camera.world().matrix();
+
+        commonUniforms.addParam(2, curView);
 
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
         commands.setUniformData(commonUniforms);
 		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
-		// Dispatch direct light
+		// Dispatch light contributions
         passUniforms.clear();
         passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
         unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
@@ -128,9 +132,14 @@ namespace vkft::gfx
 		// Denoise indirect light
 		// Compose image
 		passUniforms.clear();
+		passUniforms.addComputeOutput(1, m_directLightTAABuffer[m_taaIndex]);
+		m_taaIndex^=1;
         passUniforms.addParam(3, m_gBufferTexture);
         passUniforms.addParam(4, m_directLightTexture);
-        passUniforms.addParam(5, m_indirectLightTexture);
+		passUniforms.addParam(5, m_indirectLightTexture);
+		passUniforms.addParam(6, m_directLightTAABuffer[m_taaIndex]);
+		passUniforms.addParam(7, m_taaView);
+		m_taaView = curView;
 		commands.setComputeProgram(m_composeCompute);
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
@@ -181,8 +190,10 @@ namespace vkft::gfx
         // Create the buffers
         m_gBufferTexture = mGfxDevice.createTexture2d(bufferDesc);
         m_directLightTexture = mGfxDevice.createTexture2d(bufferDesc);
+		m_directLightTAABuffer[0] = mGfxDevice.createTexture2d(bufferDesc);
+		m_directLightTAABuffer[1] = mGfxDevice.createTexture2d(bufferDesc);
         m_indirectLightTexture = mGfxDevice.createTexture2d(bufferDesc);
-        m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
+		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -198,7 +209,7 @@ namespace vkft::gfx
 		m_noiseDesc.sampler = mGfxDevice.createTextureSampler(noiseSamplerDesc);
 		m_noiseDesc.depth = false;
 		m_noiseDesc.mipLevels = 1;
-		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
 		m_noiseDesc.pixelFormat.numChannels = 4;
 		m_noiseDesc.providedImages = 1;
 		m_noiseDesc.size = Vec2u(64,64);
@@ -206,6 +217,22 @@ namespace vkft::gfx
 
 		for(unsigned i = 0; i < NumBlueNoiseTextures; ++i)
 		{
+#if 1
+			// Create a brand new noise texture
+			Vec4f* noise = new Vec4f[64*64];
+			std::uniform_real_distribution<float> noiseDistrib;
+			for(int i = 0; i < 64*64; ++i)
+			{
+				noise[i].x() = noiseDistrib(m_rng);
+				noise[i].y() = noiseDistrib(m_rng);
+				noise[i].z() = noiseDistrib(m_rng);
+				noise[i].w() = noiseDistrib(m_rng);
+			}
+			auto image = new rev::gfx::Image(m_noiseDesc.size, noise);
+			m_noiseDesc.srcImages = image;
+			m_blueNoise[i] = mGfxDevice.createTexture2d(m_noiseDesc);
+			delete image;
+#else
 			// Load image from file
 			std::stringstream imageName;
 			imageName << "../assets/blueNoise/LDR_RGBA_" << i << ".png";
@@ -215,6 +242,7 @@ namespace vkft::gfx
 				m_noiseDesc.srcImages = &image;
 				m_blueNoise[i] = mGfxDevice.createTexture2d(m_noiseDesc);
 			}
+#endif
 		}
 	}
 
