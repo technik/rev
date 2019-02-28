@@ -4,7 +4,42 @@ layout(location = 3) uniform sampler2D uGBuffer;
 layout(location = 4) uniform sampler2D uNoise;
 
 // Output texture
-layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
+layout(rgba32f, binding = 0) writeonly uniform image2D direct_out;
+layout(rgba32f, binding = 1) writeonly uniform image2D indirect_out;
+
+void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
+{
+	vec3 atten = vec3(1.0);
+	vec3 light = vec3(0.0);
+
+	float tMax = 100.0;
+	vec3 bouncePoint;
+	vec3 bounceNormal;
+	vec3 rd = lambertianDirection(normal, noise.xy);
+	{
+		vec3 albedo;
+		float t = hit(ro, rd, bounceNormal, albedo, min(tMax,10.8));
+		if(t > 0.0)
+		{
+			direct = vec3(0);
+			bouncePoint = ro + rd * t + 0.0001 * normal;
+			// Scatter reflected light
+
+			// Compute direct contribution
+			vec3 bounceDir = lambertianDirection(bounceNormal, noise.zw);
+			if(hit_any(bouncePoint, bounceDir, tMax) < 0)
+				indirect = albedo * skyColor(bounceDir);
+			else
+				indirect = vec3(0.0);
+		}
+		else
+		{
+			// Sky
+			direct = skyColor(rd);
+			indirect = vec3(0);
+		}
+	}
+}
 
 void main() {
 	// base pixel colour for image
@@ -20,15 +55,15 @@ void main() {
 	if(gBufferData.w < 0.0)
 		return;
 	vec3 normal = gBufferData.xyz;
-	ro = ro + gBufferData.w * rd + 1e-5 * normal;
+	vec3 surfacePoint = ro + gBufferData.w * rd + 1e-5 * normal;
 
 	// Scatter reflected light
-	float noiseX = float(gl_GlobalInvocationID.x) / 64;
-	float noiseY = float(gl_GlobalInvocationID.y) / 64;
-	vec4 noise = textureLod(uNoise, vec2(noiseX, noiseY), 0);
-	pixel.xyz = directContrib(ro, normal, noise);
+	vec4 noise = texelFetch(uNoise, pixel_coords%64, 0);
+	vec4 indirect = vec4(vec3(0.0),1.0);
+	color(surfacePoint, normal, noise, pixel.xyz, indirect.xyz);
 	pixel.w = 1.0;
 
 	// output to a specific pixel in the image
-	imageStore(img_output, pixel_coords, pixel);
+	imageStore(direct_out, pixel_coords, pixel);
+	imageStore(indirect_out, pixel_coords, indirect);
 }

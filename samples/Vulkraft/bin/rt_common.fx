@@ -124,6 +124,35 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	return t;
 }
 
+float hit_any(in vec3 ro, in vec3 rd, float tMax)
+{
+	if(rd.y < -0.0001) // Hit plane
+	{
+		return 1.0;
+	}
+	// Hit box
+	vec3 tNormal;
+	ImplicitRay ir;
+	ir.o = ro;
+	ir.n = vec3(1.0) / rd;
+	if(rd.x == 0.0)
+		ir.n.x = 100000.0;
+	if(rd.y == 0.0)
+		ir.n.y = 100000.0;
+	if(rd.z == 0.0)
+		ir.n.z = 100000.0;
+	ir.d = rd;
+	for(int i = 0; i < 7; ++i)
+	{
+		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
+		if(tBox > 0)
+		{
+			return 1.0;
+		}
+	}
+	return -1.0;
+}
+
 // Pixar's method for orthonormal basis generation
 void branchlessONB(in vec3 n, out vec3 b1, out vec3 b2)
 {
@@ -164,37 +193,14 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 {
 	vec3 tangent, bitangent;
 	branchlessONB(normal, tangent, bitangent);
-	float t = cos(seed.x*TwoPi*0.5);
-	float b = cos(seed.y*TwoPi*0.5);
-	float z = sqrt(max(1-b*b-t*t, 0.0));
+	float theta = TwoPi*seed.x;
+	float z = cos(HalfPi*seed.y);
+	float horRad = sqrt(1-z*z);
+	vec3 n = vec3(
+		cos(theta)*horRad,
+		sin(theta)*horRad,
+		z
+		);
 
-	return tangent * t + bitangent * b + normal * z;
-}
-
-vec3 directContrib(in vec3 ro, in vec3 normal, vec4 noise)
-{
-	vec3 directLight = vec3(0.0);
-
-	// Sample a random location in the unit hemisphere
-	/*rd = randomUnitVector(noise.xy); // Specular lighting
-	if(dot(rd,normal) < 0)
-		rd = -rd;*/
-
-	// Trace ray to the sky to gather light contribution
-	// Idea: Can store a spherical harmonic of surrounding illumination and use it to importance sample the environment
-	// Maybe that precomputation can improve convergence for indoor scenes where sky is almost always covered
-
-	// Diffuse lighting
-	//vec3 rd = randomUnitVector(noise.zw);
-	vec3 rd = lambertianDirection(normal, noise.zw);
-	if(dot(rd,normal) < 0)
-		rd = -rd;
-	float tMax = 1000.0;
-	vec3 albedo, tNormal; // ignored
-	float t = hit(ro, rd, tNormal, albedo, tMax);
-	if(t < 0.0)
-	{
-		directLight += skyColor(rd);
-	}
-	return directLight;
+	return tangent * n.x + bitangent * n.y + normal * n.z;
 }

@@ -51,7 +51,6 @@ namespace vkft::gfx
         std::vector<rev::gfx::ShaderCodeFragment*> m_computeCode; // Code fragments for all compute programs
         rev::gfx::ComputeShader m_gBufferCompute;
         rev::gfx::ComputeShader m_directLightCompute;
-        rev::gfx::ComputeShader m_indirectLightCompute;
         rev::gfx::ComputeShader m_composeCompute;
 
 		rev::gfx::TextureSampler m_rtBufferSampler;

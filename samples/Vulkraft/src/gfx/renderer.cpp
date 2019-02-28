@@ -63,7 +63,6 @@ namespace vkft::gfx
 		// Create compute shader
         loadShaderAndSetListener("rtGBuffer.fx", m_gBufferCompute);
         loadShaderAndSetListener("rtDirect.fx", m_directLightCompute);
-        loadShaderAndSetListener("rtIndirect.fx", m_indirectLightCompute);
         loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
 
 		m_taaView = Mat44f::identity();
@@ -77,8 +76,7 @@ namespace vkft::gfx
 
 		if(!m_composeCompute.isValid()
 		|| !m_gBufferCompute.isValid()
-		|| !m_directLightCompute.isValid()
-		|| !m_indirectLightCompute.isValid())
+		|| !m_directLightCompute.isValid())
 			return;
 
         // Optimization ideas:
@@ -109,6 +107,7 @@ namespace vkft::gfx
 		// Dispatch light contributions
         passUniforms.clear();
         passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
+		passUniforms.addComputeOutput(1, m_indirectLightTexture);
         unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
         passUniforms.addParam(4, m_blueNoise[noiseTextureNdx]);
         commands.setComputeProgram(m_directLightCompute);
@@ -116,16 +115,6 @@ namespace vkft::gfx
         commands.setUniformData(passUniforms);
         commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
-
-        // Dispatch indirect light
-        passUniforms.clear();
-        passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
-        noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for secondary light
-        passUniforms.addParam(4, m_blueNoise[noiseTextureNdx]);
-        commands.setComputeProgram(m_indirectLightCompute);
-        commands.setUniformData(commonUniforms);
-        commands.setUniformData(passUniforms);
-        commands.dispatchCompute(m_indirectLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
 		// All following 3 at once:
 		// Denoise direct light

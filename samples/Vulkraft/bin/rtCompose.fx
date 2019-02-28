@@ -24,7 +24,7 @@ void main() {
 	vec3 light = vec3(0.0);
 	vec3 secondLight = vec3(0.0);
 
-	const int windowSize = 5;
+	const int windowSize = 7;
 	const int minTap = -windowSize/2;
 	const int maxTap = windowSize/2;
 
@@ -65,7 +65,7 @@ void main() {
 		}
 	}
 
-	vec3 smoothLight = light/weight;
+	vec3 smoothLight = (light+secondLight)/weight;
 
 	// Compute screen coordinates reprojected into prev frame
 	vec4 prevPoint = uOldView*inverse(uView)*vec4(localPoint,1.0);
@@ -76,10 +76,9 @@ void main() {
 	vec3 prevLight = texelFetch(uDirectTaaSrc,
 						 ivec2(prevXY.x, prevXY.y)
 						 , 0).xyz;
-	vec3 denoisedDirect = mix(prevLight, smoothLight, 0.02);
 
-
-	vec3 directLight = weight > 0.0 ? albedo*denoisedDirect : vec3(0.0);
+	vec3 denoised = mix(prevLight, smoothLight, 0.1);
+	vec3 directLight = weight > 0.0 ? albedo*denoised : vec3(0.0);
 
 	//pixel.xyz = vec3(gBuffer.w/8.0);
 	if(gBuffer.w > 0.0)
@@ -91,5 +90,5 @@ void main() {
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
-	imageStore(direct_taa, pixel_coords, vec4(denoisedDirect,1.0));
+	imageStore(direct_taa, pixel_coords, vec4(denoised,1.0));
 }
