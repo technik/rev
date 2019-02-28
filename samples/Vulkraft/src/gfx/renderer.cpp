@@ -201,7 +201,7 @@ namespace vkft::gfx
 	{
 		// Noise texture sampler
 		TextureSampler::Descriptor noiseSamplerDesc;
-		noiseSamplerDesc.filter = TextureSampler::MinFilter::Linear;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
 		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
 		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
 
@@ -217,7 +217,7 @@ namespace vkft::gfx
 
 		for(unsigned i = 0; i < NumBlueNoiseTextures; ++i)
 		{
-#if 1
+#if 0
 			// Create a brand new noise texture
 			Vec4f* noise = new Vec4f[64*64];
 			std::uniform_real_distribution<float> noiseDistrib;

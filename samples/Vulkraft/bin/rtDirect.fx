@@ -13,11 +13,10 @@ void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
 	// Compute uvs
-	vec2 uvs = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
 	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
 	vec3 rd = (uView * vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0)).xyz;
-	vec4 gBufferData = textureLod(uGBuffer, uvs, 0);
+	vec4 gBufferData = texelFetch(uGBuffer, pixel_coords, 0);
 	if(gBufferData.w < 0.0)
 		return;
 	vec3 normal = gBufferData.xyz;

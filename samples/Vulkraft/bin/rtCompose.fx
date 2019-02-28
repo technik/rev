@@ -18,7 +18,7 @@ void main() {
 	//
 	// Compute uvs
 	vec2 centerUV = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
-	vec4 gBuffer = textureLod(uGBuffer, centerUV, 0);
+	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
 
 	float weight = 0.0;
 	vec3 light = vec3(0.0);
@@ -46,16 +46,16 @@ void main() {
 		for(int j = minTap; j <= maxTap; ++j)
 		{
 			vec2 uvs = vec2(pixel_coords.x+i, pixel_coords.y+j) * (1/uWindow.xy);
-			vec4 pointGBuffer = textureLod(uGBuffer, uvs, 0);
+			vec4 pointGBuffer = texelFetch(uGBuffer, pixel_coords+ivec2(i,j), 0);
 			if(pointGBuffer.w > 0.0)
 			{
 				float localWeight = max(0.0, dot(pointGBuffer.xyz, gBuffer.xyz));
 				localWeight *= sqrt(0.5)*windowSize-sqrt(float(i*i+j*j));
 				localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
-				vec4 direct = textureLod(uDirectLight, uvs, 0);
+				vec4 direct = texelFetch(uDirectLight, pixel_coords+ivec2(i,j), 0);
 				if(direct.w < 0.0)
 					continue;
-				vec4 indirect = textureLod(uIndirectLight, uvs, 0);
+				vec4 indirect = texelFetch(uIndirectLight, pixel_coords+ivec2(i,j), 0);
 				if(indirect.w < 0.0)
 					continue;
 				light += direct.xyz * localWeight;
@@ -76,7 +76,7 @@ void main() {
 	vec3 prevLight = texelFetch(uDirectTaaSrc,
 						 ivec2(prevXY.x, prevXY.y)
 						 , 0).xyz;
-	vec3 denoisedDirect = mix(prevLight, smoothLight, 0.1);
+	vec3 denoisedDirect = mix(prevLight, smoothLight, 0.02);
 
 
 	vec3 directLight = weight > 0.0 ? albedo*denoisedDirect : vec3(0.0);
@@ -84,7 +84,7 @@ void main() {
 	//pixel.xyz = vec3(gBuffer.w/8.0);
 	if(gBuffer.w > 0.0)
 		pixel.xyz = directLight.xyz;
-		//pixel.xyz = vec3(prevX/uWindow.x);
+		//pixel.xyz = gBuffer.xyz;
 	else
 		pixel.xyz = skyColor(rd);
 	pixel.w = 1;
