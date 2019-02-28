@@ -24,19 +24,48 @@ void main() {
 	vec3 light = vec3(0.0);
 	vec3 secondLight = vec3(0.0);
 
-	const int windowSize = 7;
+	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
+	vec4 ro = uView * vec4(0,0,0,1.0);
+	vec4 ssRd = vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0);
+	vec4 rd = uView * ssRd;
+	vec4 localPoint = ro+gBuffer.w*rd+vec4(gBuffer.xyz,0.0)*1e-4;
+
+	// Compute screen coordinates reprojected into prev frame
+	vec4 prevRo = uOldView*vec4(0,0,0,1.0);
+	vec4 prevRd = normalize(localPoint-prevRo);
+	vec4 prevSSRd = inverse(uOldView)*prevRd;
+	vec2 prevXY = -2.0*prevSSRd.xy/prevSSRd.z;
+	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
+
+	float taaWeight = 0.9;
+	// Clamp taa to window
+	if(prevXY.x < 0 || prevXY.y < 0 || prevXY.x > uWindow.x || prevXY.y > uWindow.y)
+		taaWeight = 0.0;
+	vec4 taa = texelFetch(uDirectTaaSrc, ivec2(prevXY.x, prevXY.y), 0);
+	vec3 prevLight = taa.xyz;
+	float prevT = taa.w;
+	if(prevT < 0.0)
+		taaWeight = 0.0;
+	else
+	{
+		vec4 reprojected = prevRo + prevT*prevRd;
+		vec4 reproDist = reprojected-ro+gBuffer.w*rd;
+		//if(dot(reproDist,reproDist) > 10.0)
+		//	taaWeight = 0.0;
+	}
+
+	int windowSize = 5;
+	//if(taaWeight < 0.5)
+	//	windowSize = 11;
 	const int minTap = -windowSize/2;
 	const int maxTap = windowSize/2;
 
-	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
-	vec3 ro = (uView * vec4(0,0,0,1.0)).xyz;
-	vec3 rd = (uView * vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0)).xyz;
 	if(gBuffer.w < 0.0)
 	{
-		imageStore(img_output, pixel_coords, vec4(skyColor(rd),1.0));
+		imageStore(img_output, pixel_coords, vec4(skyColor(rd.xyz),1.0));
+		imageStore(direct_taa, pixel_coords, vec4(vec3(0.0),-1));
 		return;
 	}
-	vec3 localPoint = ro+gBuffer.w*rd+gBuffer.xyz*1e-4;
 	vec3 green = vec3(0.00, 0.5, 0.15);
 	vec3 albedo = (localPoint.y > 0.85) ? green : vec3(0.63, 0.42, 0.2717);
 	albedo *= ((int(localPoint.x*8)%2)^(int(localPoint.z*8)%2)^(int(localPoint.y*8)%2))*0.1+0.9;
@@ -67,17 +96,7 @@ void main() {
 
 	vec3 smoothLight = (light+secondLight)/weight;
 
-	// Compute screen coordinates reprojected into prev frame
-	vec4 prevPoint = uOldView*inverse(uView)*vec4(localPoint,1.0);
-	vec4 prevRd = inverse(uOldView)*prevPoint-vec4(0,0,0,1.0);
-	vec2 prevXY = -2.0*prevRd.xy/prevRd.z;
-	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
-
-	vec3 prevLight = texelFetch(uDirectTaaSrc,
-						 ivec2(prevXY.x, prevXY.y)
-						 , 0).xyz;
-
-	vec3 denoised = mix(prevLight, smoothLight, 0.1);
+	vec3 denoised = mix(smoothLight, prevLight, taaWeight);
 	vec3 directLight = weight > 0.0 ? albedo*denoised : vec3(0.0);
 
 	//pixel.xyz = vec3(gBuffer.w/8.0);
@@ -85,10 +104,10 @@ void main() {
 		pixel.xyz = directLight.xyz;
 		//pixel.xyz = gBuffer.xyz;
 	else
-		pixel.xyz = skyColor(rd);
+		pixel.xyz = skyColor(rd.xyz);
 	pixel.w = 1;
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
-	imageStore(direct_taa, pixel_coords, vec4(denoised,1.0));
+	imageStore(direct_taa, pixel_coords, vec4(denoised,gBuffer.w));
 }
