@@ -88,19 +88,22 @@ Box boxes[7] =
 	{ vec3(0.0, 1.0, -4.0), vec3(1.0, 2.0, -3.0) }
 };
 
-float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
+struct Node
 {
-	float t = -1.0;
-	if(rd.y < -0.0001) // Hit plane
-	{
-		normal = vec3(0.0,1.0,0.0);
-		t = -ro.y / rd.y;
-		albedo = vec3(0.85, 0.5, 0.4);
-		tMax = t;
-	}
-	// Hit box
-	vec3 tNormal;
-	ImplicitRay ir;
+	// top 16 bits: child offset
+	// middle 8 bits: leaf mask
+	// bottom 8 bits: valid mask
+	int descriptor;
+};
+
+Node tree[1] =
+{
+	{ 0xfdfd }
+};
+
+
+void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
+{
 	ir.o = ro;
 	ir.n = vec3(1.0) / rd;
 	if(rd.x == 0.0)
@@ -110,6 +113,90 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 	if(rd.z == 0.0)
 		ir.n.z = 100000.0;
 	ir.d = rd;
+}
+
+bool voxelExists(int parentNdx, int childNdx)
+{
+	return (tree[parentNdx].descriptor & childNdx) != 0;
+}
+
+void stepRay(in ivec3 oldPos, in int scale, in ImplicitRay ray, out ivec3 pos, out int idx)
+{}
+
+float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
+{
+	const int MAX_DEPTH = 3;
+	Box rootBox = { vec3(1.0, 0.0, -2.0), vec3(5.0, 4.0, 2.0) };
+	vec3 childSize = (rootBox.max - rootBox.min)*0.5;
+	//float tBox = hitBox(rootBox, ir, normal, tMax); // Temporarily just to get a normal
+
+	Box bboxStack[MAX_DEPTH];
+	int childStack[MAX_DEPTH];
+	bboxStack[0] = rootBox;
+	childStack[0] = 0;
+
+	int depth = 1;
+	//while(depth < MAX_DEPTH)
+	{
+		float tBox = -1.0;
+		float maxTChild = tMax;
+		for(int childNdx = 0; childNdx < 8; ++childNdx)
+		{
+			if(voxelExists(0,(1<<childNdx)))
+			{
+				vec3 boxStart = rootBox.min;
+				if((childNdx & 4) != 0)
+					boxStart.x += childSize.x;
+				if((childNdx & 2) != 0)
+					boxStart.y += childSize.y;
+				if((childNdx & 1) != 0)
+					boxStart.z += childSize.z;
+				vec3 tNormal;
+				Box childBox = {boxStart, boxStart+childSize};
+				float tChild = hitBox(childBox, ir, tNormal, tMax);
+				if(tChild > 0.0)
+				{
+					tBox = tChild;
+					tMax = tChild;
+					normal = tNormal;
+				}
+			}
+		}
+		return tBox;
+	}
+}
+
+
+float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
+{
+	float t = -1.0;
+	if(rd.y < 0.0) // Hit plane
+	{
+		normal = vec3(0.0,1.0,0.0);
+		t = -ro.y / rd.y;
+		albedo = vec3(0.85, 0.5, 0.4);
+		tMax = t;
+	}
+	
+	// Convert ray to its implicit representation
+	ImplicitRay ir;
+	toImplicit(ro,rd,ir);
+
+	// Hit octree
+	{
+		vec3 tNormal;
+		float tOctree = hitOctree(ir, tNormal, tMax);
+		if(tOctree > 0)
+		{
+			albedo = vec3(0.8);
+			normal = tNormal;
+			t = tOctree;
+			tMax = tOctree;
+		}
+	}
+	
+	// Hit box
+	vec3 tNormal;
 	for(int i = 0; i < 7; ++i)
 	{
 		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
@@ -126,22 +213,26 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
 {
-	if(rd.y < -0.0001) // Hit plane
+	if(rd.y < 0.0) // Hit plane
 	{
 		return 1.0;
 	}
+	
+	// Convert ray to its implicit representation
+	ImplicitRay ir;
+	toImplicit(ro,rd,ir);
+
+	// Hit octree
+	{
+		vec3 tNormal;
+		float tOctree = hitOctree(ir, tNormal, tMax);
+		if(tOctree > 0)
+		{
+			tMax = tOctree;
+		}
+	}
 	// Hit box
 	vec3 tNormal;
-	ImplicitRay ir;
-	ir.o = ro;
-	ir.n = vec3(1.0) / rd;
-	if(rd.x == 0.0)
-		ir.n.x = 100000.0;
-	if(rd.y == 0.0)
-		ir.n.y = 100000.0;
-	if(rd.z == 0.0)
-		ir.n.z = 100000.0;
-	ir.d = rd;
 	for(int i = 0; i < 7; ++i)
 	{
 		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
