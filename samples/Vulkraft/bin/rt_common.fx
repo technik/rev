@@ -94,11 +94,20 @@ struct Node
 	// middle 8 bits: leaf mask
 	// bottom 8 bits: valid mask
 	int descriptor;
+	int childOffset[8];
 };
 
-Node tree[1] =
+Node tree[9] =
 {
-	{ 0xfdfd }
+	{ 0xfdff , {1,2,3,4,5,6,7,8}},
+	{ 0xff5f , {1,2,3,4,5,6,6,7}},
+	{ 0xff0b , {1,2,3,4,5,6,6,7}},
+	{ 0xff13 , {1,2,3,4,5,6,6,7}},
+	{ 0xff33 , {1,2,3,4,5,6,6,7}},
+	{ 0xfff5 , {1,2,3,4,5,6,6,7}},
+	{ 0xffb0 , {1,2,3,4,5,6,6,7}},
+	{ 0xff33 , {1,2,3,4,5,6,6,7}},
+	{ 0xff33 , {1,2,3,4,5,6,6,7}},
 };
 
 
@@ -125,26 +134,33 @@ void stepRay(in ivec3 oldPos, in int scale, in ImplicitRay ray, out ivec3 pos, o
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 3;
-	Box rootBox = { vec3(1.0, 0.0, -2.0), vec3(5.0, 4.0, 2.0) };
-	vec3 childSize = (rootBox.max - rootBox.min)*0.5;
-	//float tBox = hitBox(rootBox, ir, normal, tMax); // Temporarily just to get a normal
+	const int MAX_DEPTH = 2;
 
+	Box rootBox = { vec3(1.0, 0.0, -2.0), vec3(5.0, 4.0, 2.0) };
 	Box bboxStack[MAX_DEPTH];
-	int childStack[MAX_DEPTH];
 	bboxStack[0] = rootBox;
+
+	int childStack[MAX_DEPTH];
 	childStack[0] = 0;
 
+	int nodeScack[MAX_DEPTH];
+	nodeScack[0] = 0;
+	float tLeaf = -1.0;
+
 	int depth = 1;
-	//while(depth < MAX_DEPTH)
+	while(depth > 0)
 	{
-		float tBox = -1.0;
-		float maxTChild = tMax;
-		for(int childNdx = 0; childNdx < 8; ++childNdx)
+		int childNdx = childStack[depth-1];
+		Box parentBox = bboxStack[depth-1];
+		int parentNdx = nodeScack[depth-1];
+
+		vec3 childSize = (parentBox.max - parentBox.min)*0.5;
+
+		for(; childNdx < 8; ++childNdx)
 		{
-			if(voxelExists(0,(1<<childNdx)))
+			if(voxelExists(parentNdx,(1<<childNdx)))
 			{
-				vec3 boxStart = rootBox.min;
+				vec3 boxStart = parentBox.min;
 				if((childNdx & 4) != 0)
 					boxStart.x += childSize.x;
 				if((childNdx & 2) != 0)
@@ -156,14 +172,30 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				float tChild = hitBox(childBox, ir, tNormal, tMax);
 				if(tChild > 0.0)
 				{
-					tBox = tChild;
-					tMax = tChild;
-					normal = tNormal;
+					// Push
+					if(depth < MAX_DEPTH)
+					{
+						childStack[depth-1] = childNdx+1; // Store next sibling in this level
+						childStack[depth] = 0;
+						bboxStack[depth] = childBox;
+						nodeScack[depth] = parentNdx + childNdx + 1;
+						++depth;
+						break;
+					}
+					else
+					{
+						tMax = tChild;
+						normal = tNormal;
+						tLeaf = tChild;
+					}
 				}
 			}
 		}
-		return tBox;
+		// Pop
+		if(childNdx == 8)
+			--depth;
 	}
+	return tLeaf;
 }
 
 
