@@ -67,9 +67,12 @@ void main() {
 		return;
 	}
 	vec3 green = vec3(0.00, 0.5, 0.15);
-	vec3 albedo = (localPoint.y > 0.85) ? green : vec3(0.63, 0.42, 0.2717);
-	if(localPoint.y > 2.1)
-		albedo = vec3(0.8);
+	vec3 sand = vec3(0.63, 0.42, 0.2717);
+	vec3 albedo = green;
+	if(localPoint.y > 0.01)
+		albedo = vec3(0.7);
+	if(localPoint.y > 2.0)
+		albedo = vec3(0.35, 0.2, 0.15);
 	albedo *= ((int(localPoint.x*8)%2)^(int(localPoint.z*8)%2)^(int(localPoint.y*8)%2))*0.1+0.9;
 
 	for(int i = minTap; i <= maxTap; ++i)

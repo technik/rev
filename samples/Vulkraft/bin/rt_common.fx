@@ -77,17 +77,6 @@ vec3 skyColor(vec3 dir)
 	return 2*mix(vec3(0.0045, 0.638, 1.0), vec3(0.95,0.95,1.0), dir.y);
 }
 
-Box boxes[7] = 
-{
-	{ vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0) },
-	{ vec3(-1.0, 0.0, -5.0), vec3(0.0, 1.0, -4.0) },
-	{ vec3(-1.0, 1.0, -4.0), vec3(0.0, 2.0, -3.0) },
-	{ vec3(1.0, 0.0, -4.0), vec3(2.0, 1.0, -3.0) },
-	{ vec3(-1.0, 0.0, -3.0), vec3(0.0, 1.0, -2.0) },
-	{ vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, -3.0) },
-	{ vec3(0.0, 1.0, -4.0), vec3(1.0, 2.0, -3.0) }
-};
-
 struct Node
 {
 	// top 16 bits: child offset
@@ -102,12 +91,12 @@ Node tree[9] =
 	{ 0xfdff , {1,2,3,4,5,6,7,8}},
 	{ 0xff5f , {1,2,3,4,5,6,6,7}},
 	{ 0xff0b , {1,2,3,4,5,6,6,7}},
-	{ 0xff13 , {1,2,3,4,5,6,6,7}},
-	{ 0xff33 , {1,2,3,4,5,6,6,7}},
+	{ 0xff93 , {1,2,3,4,5,6,6,7}},
+	{ 0xff63 , {1,2,3,4,5,6,6,7}},
 	{ 0xfff5 , {1,2,3,4,5,6,6,7}},
 	{ 0xffb0 , {1,2,3,4,5,6,6,7}},
-	{ 0xff33 , {1,2,3,4,5,6,6,7}},
-	{ 0xff33 , {1,2,3,4,5,6,6,7}},
+	{ 0xff39 , {1,2,3,4,5,6,6,7}},
+	{ 0xff36 , {1,2,3,4,5,6,6,7}},
 };
 
 
@@ -136,7 +125,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
 	const int MAX_DEPTH = 2;
 
-	Box rootBox = { vec3(1.0, 0.0, -2.0), vec3(5.0, 4.0, 2.0) };
+	Box rootBox = { vec3(-2.0, 0.0, -4.0), vec3(2.0, 4.0, 0.0) };
 	Box bboxStack[MAX_DEPTH];
 	bboxStack[0] = rootBox;
 
@@ -226,20 +215,6 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 			tMax = tOctree;
 		}
 	}
-	
-	// Hit box
-	vec3 tNormal;
-	for(int i = 0; i < 7; ++i)
-	{
-		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
-		if(tBox > 0)
-		{
-			albedo = vec3(0.35, 0.5, 0.35);
-			normal = tNormal;
-			t = tBox;
-			tMax = tBox;
-		}
-	}
 	return t;
 }
 
@@ -261,16 +236,6 @@ float hit_any(in vec3 ro, in vec3 rd, float tMax)
 		if(tOctree > 0)
 		{
 			tMax = tOctree;
-		}
-	}
-	// Hit box
-	vec3 tNormal;
-	for(int i = 0; i < 7; ++i)
-	{
-		float tBox = hitBox(boxes[i], ir, tNormal, tMax);
-		if(tBox > 0)
-		{
-			return 1.0;
 		}
 	}
 	return -1.0;
