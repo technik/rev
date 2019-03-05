@@ -30,6 +30,7 @@ namespace vkft::gfx
 
 	private:
 		void loadNoiseTextures();
+		void loadTexturePack();
         void loadShaderAndSetListener(const std::string& shaderFile, rev::gfx::ComputeShader& dst);
 
 	private:
@@ -67,5 +68,6 @@ namespace vkft::gfx
 		float mTargetFov;
 		rev::math::Mat44f m_taaView;
 		rev::math::Vec2u m_targetSize;
+		rev::gfx::Texture2d m_texturePack;
 	};
 }

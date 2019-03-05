@@ -19,6 +19,7 @@ void main() {
 	// Compute uvs
 	vec2 centerUV = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
 	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
+	vec3 worldNormal = gBuffer.xyz;
 
 	float weight = 0.0;
 	vec3 light = vec3(0.0);
@@ -66,14 +67,29 @@ void main() {
 		imageStore(direct_taa, pixel_coords, vec4(vec3(0.0),-1));
 		return;
 	}
-	vec3 green = vec3(0.00, 0.5, 0.15);
-	vec3 sand = vec3(0.63, 0.42, 0.2717);
-	vec3 albedo = green;
+
+	ivec2 tileOffset = ivec2(0,0);
 	if(localPoint.y > 0.01)
-		albedo = vec3(0.7);
-	if(localPoint.y > 2.0)
-		albedo = vec3(0.35, 0.2, 0.15);
-	albedo *= ((int(localPoint.x*8)%2)^(int(localPoint.z*8)%2)^(int(localPoint.y*8)%2))*0.1+0.9;
+		tileOffset = ivec2(2,4);
+	if(localPoint.y > 1.99)
+		tileOffset = ivec2(4,0);
+	vec2 texUV;
+	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
+	{
+		texUV = fract(localPoint.xz);
+	}
+	else
+	{
+		vec3 bitan = vec3(0.0,-1.0,0.0);
+		vec3 tan = cross(bitan, worldNormal);
+		float u = dot(localPoint.xyz,tan);
+		float v = dot(localPoint.xyz,bitan);
+		texUV = fract(vec2(u, v));
+	}
+	int texLOD = max(0,min(4,int(log2(gBuffer.w/7))));
+	int sampleScale = (16>>texLOD);
+	texUV = (texUV+tileOffset)*sampleScale;
+	vec3 albedo = texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
 
 	for(int i = minTap; i <= maxTap; ++i)
 	{

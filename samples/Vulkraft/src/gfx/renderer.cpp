@@ -28,6 +28,7 @@ namespace vkft::gfx
 		, m_rasterPass(device)
 	{
 		loadNoiseTextures();
+		loadTexturePack();
 		// Create reusable texture descriptor
 		TextureSampler::Descriptor bufferSamplerDesc;
 		bufferSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
@@ -98,6 +99,7 @@ namespace vkft::gfx
 		Mat44f curView = camera.world().matrix();
 
         commonUniforms.addParam(2, curView);
+		commonUniforms.addParam(8, m_texturePack);
 
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
@@ -183,6 +185,33 @@ namespace vkft::gfx
 		m_directLightTAABuffer[1] = mGfxDevice.createTexture2d(bufferDesc);
         m_indirectLightTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Renderer::loadTexturePack()
+	{
+		// Noise texture sampler
+		TextureSampler::Descriptor noiseSamplerDesc;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Linear;
+		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
+
+		rev::gfx::Texture2d::Descriptor texDescriptor;
+		texDescriptor.sampler = mGfxDevice.createTextureSampler(noiseSamplerDesc);
+		texDescriptor.depth = false;
+		texDescriptor.mipLevels = 0;
+		texDescriptor.pixelFormat.channel = Image::ChannelFormat::Byte;
+		texDescriptor.pixelFormat.numChannels = 4;
+		texDescriptor.providedImages = 1;
+		texDescriptor.size = Vec2u(256,256);
+		texDescriptor.sRGB = true;
+
+		auto image = Image::load("minecraft.jpg", 0);
+		if(image.data())
+		{
+			texDescriptor.srcImages = &image;
+			m_texturePack = mGfxDevice.createTexture2d(texDescriptor);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
