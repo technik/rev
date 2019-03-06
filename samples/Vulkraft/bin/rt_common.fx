@@ -160,7 +160,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				vec3 tNormal;
 				Box childBox = {boxStart, boxStart+childSize};
 				float tChild = hitBox(childBox, ir, tNormal, tMax);
-				if(tChild > 0.0)
+				if(tChild >= 0.0)
 				{
 					// Push
 					if(depth < MAX_DEPTH)

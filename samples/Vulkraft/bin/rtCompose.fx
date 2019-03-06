@@ -90,6 +90,7 @@ void main() {
 	int sampleScale = (16>>texLOD);
 	texUV = (texUV+tileOffset)*sampleScale;
 	vec3 albedo = texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
+	//albedo = vec3(0.7);
 
 	for(int i = minTap; i <= maxTap; ++i)
 	{
