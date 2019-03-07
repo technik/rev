@@ -6,40 +6,29 @@ layout(location = 4) uniform sampler2D uNoise;
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 
-vec3 indirectContrib(in vec3 ro, in vec3 normal)
+vec3 indirectContrib(in vec3 ro, in vec3 normal, in vec4 noise)
 {
 	vec3 directLight = vec3(0.0);
 	// Scatter reflected light
-	float noiseX = float(gl_GlobalInvocationID.x) / 64;
-	float noiseY = float(gl_GlobalInvocationID.y) / 64;
-	vec4 noise = textureLod(uNoise, vec2(noiseX, noiseY), 0);
-
-	// Sample a random location in the unit hemisphere
-	/*rd = randomUnitVector(noise.xy); // Specular lighting
-	if(dot(rd,normal) < 0)
-		rd = -rd;*/
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	vec4 noise = texelFetch(uNoise, pixel_coords%64, 0);
 
 	// Trace ray to the sky to gather light contribution
 	// Idea: Can store a spherical harmonic of surrounding illumination and use it to importance sample the environment
 	// Maybe that precomputation can improve convergence for indoor scenes where sky is almost always covered
 
 	// Diffuse lighting
-	vec3 rd = randomUnitVector(noise.xy);
-	if(dot(rd,normal) < 0)
-		rd = -rd;
-	float tMax = 1000.0;
-	vec3 albedo, tNormal; // ignored
-	float t = hit(ro, rd, tNormal, albedo, tMax);
+	vec3 rd = lambertianDirection(normal, noise.wz);
+
+	float tMax = 100.0;
+	vec3 tNormal; // ignored
+	float t = hit(ro, rd, tNormal, tMax);
 	if(t > 0.0)
 	{
-		vec3 secondPoint = ro + t*rd+0.001*tNormal;
+		vec3 secondPoint = ro+0.001*tNormal + t*rd;
 		directLight = directContrib(secondPoint, tNormal, noise);
 	}
-	else
-	{
-		
-	}
-	return directLight;
+	return vec3(0.5);
 }
 
 void main() {
@@ -59,7 +48,7 @@ void main() {
 	vec3 normal = gBufferData.xyz;
 	ro = ro + gBufferData.w * rd + 1e-5 * normal;
 
-	pixel.xyz = indirectContrib(ro, normal);
+	pixel.xyz = vec3(100.5);//indirectContrib(ro, normal);
 	pixel.w = 1.0;
 
 	// output to a specific pixel in the image

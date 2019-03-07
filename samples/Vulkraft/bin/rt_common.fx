@@ -22,6 +22,37 @@ struct ImplicitRay
 	vec3 d;
 };
 
+#ifdef GBUFFER
+vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
+{
+	// Choose material
+	ivec2 tileOffset = ivec2(0,0);
+	if(worldPos.y > 0.01)
+		tileOffset = ivec2(2,4);
+	if(worldPos.y > 1.99)
+		tileOffset = ivec2(4,0);
+	// Compute uvs
+	vec2 texUV;
+	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
+	{
+		texUV = fract(worldPos.xz);
+	}
+	else
+	{
+		vec3 bitan = vec3(0.0,-1.0,0.0);
+		vec3 tan = cross(bitan, worldNormal);
+		float u = dot(worldPos.xyz,tan);
+		float v = dot(worldPos.xyz,bitan);
+		texUV = fract(vec2(u, v));
+	}
+	int texLOD = max(0,min(4,lodBias + int(log2(t/7))));
+	int sampleScale = (16>>texLOD);
+	texUV = (texUV+tileOffset)*sampleScale;
+
+	return texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
+}
+#endif
+
 float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 {
 	vec3 t1 = (b.min - r.o) * r.n;
@@ -55,60 +86,9 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
-float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax, float tout)
-{
-	vec3 t1 = (b.min - r.o) * r.n;
-	vec3 t2 = (b.max - r.o) * r.n;
-	// Swapping the order of comparison is important because of NaN behavior
-	vec3 tEnter = min(t2,t1); // Enters
-	vec3 tExit = max(t1,t2); // Exits
-	float maxEnter = max(tEnter.x,max(tEnter.y,max(tEnter.z,0.0))); // If nan, return second operand, which is never nan
-	float minLeave = min(tExit.x, min(tExit.y, min(tExit.z, tMax))); // If nan, return second operand, which is never nan
-	if(minLeave >= maxEnter)
-	{
-		tout = minLeave;
-		if(maxEnter == tEnter.x)
-		{
-			normal = vec3(1.0, 0.0, 0.0);
-		}
-		else if(maxEnter == tEnter.y)
-		{
-			normal = vec3(0.0, 1.0, 0.0);
-		}
-		else
-		{
-			normal = vec3(0.0, 0.0, 1.0);
-		}
-		if(dot(normal,r.d) > 0)
-			normal = -normal;
-		return maxEnter;
-	}
-	else
-	{
-		return -1.0;
-	}
-}
-
-float hitSphere(in vec4 sphere, in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
-{
-	vec3 rRo = ro - sphere.xyz;
-	float b = 2*dot(rRo,rd);
-	float c = dot(rRo,rRo) - sphere.w*sphere.w;
-	float det = b*b-4*c;
-	if(det >= 0)
-	{
-		float t = (-b-sqrt(det))/2;
-		normal = normalize(rRo + t* rd);
-		albedo = vec3(1.0);
-		if (t < tMax)
-			return t;
-	}
-	return -1.0;
-}
-
 vec3 skyColor(vec3 dir)
 {
-	return 2*mix(vec3(0.0045, 0.638, 1.0), vec3(0.95,0.95,1.0), dir.y);
+	return 2*mix(2*vec3(0.0045, 0.238, 0.680), 2*vec3(0.95,0.95,1.0), dir.y);
 }
 
 struct Node
@@ -155,6 +135,11 @@ bool voxelExists(int parentNdx, int childNdx)
 void stepRay(in ivec3 oldPos, in int scale, in ImplicitRay ray, out ivec3 pos, out int idx)
 {}
 
+float traceOctree(in ImplicitRay ir, out vec3 normal, in vec3 tEnter, in vec3 tExit, in float t0, in float t1)
+{
+	return -1.0;
+}
+
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
 	const int MAX_DEPTH = 2;
@@ -188,6 +173,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 
 	int nodeStack[MAX_DEPTH];
 	nodeStack[0] = parentNode;
+	ivec3 pos = ivec3(childNdx>>2, (childNdx>>1)&1, childNdx&1);
 
 	while(t < tExitOctree)
 	{
@@ -201,12 +187,16 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			{
 				depth += 1;
 				// Compute child ndx
-				int childNode = parentNode + childNdx;
-				nodeStack[depth] = childNode;
-				//tExitLevel = min(tExitLevel,min(tcross.x,min(tcross.y,tcross.z)));
-				//tcross = min(tEnter,tExit,0.5);
-				//childNdx = (t > tcross.x ? 4 : 0) | (t > tcross.y ? 2:0) | (t > tcross.z ? 1:0);
-				// childNdx ^= octantMask;
+				//parentNode = parentNode + childNdx;
+				//nodeStack[depth] = parentNode;
+				pos = pos<<1;
+				//pos = pos&1;
+				/*vec3 voxelSize = (t2p - t1p) / (1<<depth);
+				tExitLevel = min(tExitLevel,min(tcross.x,min(tcross.y,tcross.z)));
+				tcross = (pos+1)*voxelSize+t1p;
+				childNdx = (t > tcross.x ? 4 : 0) | (t > tcross.y ? 2:0) | (t > tcross.z ? 1:0);
+				childNdx ^= octantMask;
+				continue;*/
 
 			}
 			// Compute normal
@@ -223,30 +213,37 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 		{
 			// Figure out next event
 			vec3 tEvent = max(vec3(t), tcross);
-			float nextEvent = tExitOctree;
+			float nextEvent = tExitLevel;
 			if(tEvent.x > t)
 				nextEvent = tEvent.x;
 			if(tEvent.y > t)
 				nextEvent = min(tEvent.y, nextEvent);
 			if(tEvent.z > t)
 				nextEvent = min(tEvent.z, nextEvent);
-			if(nextEvent >= tExitOctree) // No more internal planes to cross
+			if(nextEvent >= tExitLevel) // No more internal planes to cross
 			{
-				//normal = vec3(1.0,0.0,1.0);
+				if(depth == 1)
+				{
+					t = tExitLevel;
+					return -1.0;
+				}
 				// Should actually pop one level here
-				t = tExitLevel;
-				return -1.0;
+				--depth;
+				pos = pos>>1;
+				childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | pos.z&1;
+				vec3 voxelSize = (t2p - t1p) / (1<<depth);
+				tcross = (pos+1)*voxelSize+t1p;
+				tExit = voxelSize+tcross;
+				tExitLevel = min(tExitOctree,min(tExit.x,min(tExit.y,tExit.z)));
+				parentNode = nodeStack[depth-1];
 			}
-			else // Advance to sibling voxel
-			{
-				t = nextEvent;
-				if(t == tEvent.x)
-					childNdx ^= 4;
-				if(t == tEvent.y)
-					childNdx ^= 2;
-				if(t == tEvent.z)
-					childNdx ^= 1;
-			}
+			t = nextEvent;
+			if(t == tEvent.x)
+				childNdx ^= 4;
+			if(t == tEvent.y)
+				childNdx ^= 2;
+			if(t == tEvent.z)
+				childNdx ^= 1;
 		}
 	}
 
@@ -254,14 +251,13 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 }
 
 
-float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
+float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 {
 	float t = -1.0;
 	if(rd.y < 0.0) // Hit plane
 	{
 		normal = vec3(0.0,1.0,0.0);
 		t = -ro.y / rd.y;
-		albedo = vec3(0.85, 0.5, 0.4);
 		tMax = t;
 	}
 	
@@ -275,7 +271,6 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 albedo, float tMax)
 		float tOctree = hitOctree(ir, tNormal, tMax);
 		if(tOctree >= 0)
 		{
-			albedo = vec3(0.8);
 			normal = tNormal;
 			t = tOctree;
 			tMax = tOctree;
@@ -334,7 +329,7 @@ void onb(in vec3 n, out vec3 b1, out vec3 b2)
 vec3 randomUnitVector(in vec2 seed)
 {
 	float theta = TwoPi*seed.x;
-	float z = 2*(seed.y+seed.y/255.0)-1;
+	float z = 2*seed.y-1;
 	float horRad = sqrt(1-z*z);
 	return vec3(
 		cos(theta)*horRad,
@@ -348,7 +343,7 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	vec3 tangent, bitangent;
 	branchlessONB(normal, tangent, bitangent);
 	float theta = TwoPi*seed.x;
-	float z = cos(HalfPi*seed.y);
+	float z = seed.y*seed.y;
 	float horRad = sqrt(1-z*z);
 	vec3 n = vec3(
 		cos(theta)*horRad,

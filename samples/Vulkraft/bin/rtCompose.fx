@@ -1,6 +1,7 @@
+#define GBUFFER
+layout(location = 3) uniform sampler2D uGBuffer;
 #include "rt_common.fx"
 
-layout(location = 3) uniform sampler2D uGBuffer;
 layout(location = 4) uniform sampler2D uDirectLight;
 layout(location = 5) uniform sampler2D uIndirectLight;
 layout(location = 6) uniform sampler2D uDirectTaaSrc;
@@ -38,7 +39,7 @@ void main() {
 	vec2 prevXY = -2.0*prevSSRd.xy/prevSSRd.z;
 	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
 
-	float taaWeight = 0.9;
+	float taaWeight = 0.95;
 	// Clamp taa to window
 	if(prevXY.x < 0 || prevXY.y < 0 || prevXY.x > uWindow.x || prevXY.y > uWindow.y)
 		taaWeight = 0.0;
@@ -55,7 +56,7 @@ void main() {
 		//	taaWeight = 0.0;
 	}
 
-	int windowSize = 5;
+	int windowSize = 7;
 	//if(taaWeight < 0.5)
 	//	windowSize = 11;
 	const int minTap = -windowSize/2;
@@ -68,29 +69,7 @@ void main() {
 		return;
 	}
 
-	ivec2 tileOffset = ivec2(0,0);
-	if(localPoint.y > 0.01)
-		tileOffset = ivec2(2,4);
-	if(localPoint.y > 1.99)
-		tileOffset = ivec2(4,0);
-	vec2 texUV;
-	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
-	{
-		texUV = fract(localPoint.xz);
-	}
-	else
-	{
-		vec3 bitan = vec3(0.0,-1.0,0.0);
-		vec3 tan = cross(bitan, worldNormal);
-		float u = dot(localPoint.xyz,tan);
-		float v = dot(localPoint.xyz,bitan);
-		texUV = fract(vec2(u, v));
-	}
-	int texLOD = max(0,min(4,int(log2(gBuffer.w/7))));
-	int sampleScale = (16>>texLOD);
-	texUV = (texUV+tileOffset)*sampleScale;
-	vec3 albedo = texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
-	//albedo = vec3(0.7);
+	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 
 	for(int i = minTap; i <= maxTap; ++i)
 	{
@@ -117,6 +96,7 @@ void main() {
 	}
 
 	vec3 smoothLight = (light+secondLight)/weight;
+	//vec3 smoothLight = (secondLight)/weight;
 
 	vec3 denoised = mix(smoothLight, prevLight, taaWeight);
 	vec3 directLight = weight > 0.0 ? albedo*denoised : vec3(0.0);

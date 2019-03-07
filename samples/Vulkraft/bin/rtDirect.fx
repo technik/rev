@@ -1,6 +1,7 @@
+layout(location = 3) uniform sampler2D uGBuffer;
+#define GBUFFER
 #include "rt_common.fx"
 
-layout(location = 3) uniform sampler2D uGBuffer;
 layout(location = 4) uniform sampler2D uNoise;
 
 // Output texture
@@ -15,18 +16,20 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
 	float tMax = 100.0;
 	vec3 bouncePoint;
 	vec3 bounceNormal;
-	vec3 rd = lambertianDirection(normal, noise.xy);
+	vec3 rd = lambertianDirection(normal, noise.zw);
 	{
-		vec3 albedo;
-		float t = hit(ro, rd, bounceNormal, albedo, min(tMax,10.8));
+		float t = hit(ro, rd, bounceNormal, min(tMax,4.0));
 		if(t > 0.0)
 		{
+			vec3 albedo = fetchAlbedo(ro+t*rd, bounceNormal, t, 1);
 			direct = vec3(0);
 			bouncePoint = ro + rd * t + 0.0001 * normal;
 			// Scatter reflected light
 
 			// Compute direct contribution
-			vec3 bounceDir = lambertianDirection(bounceNormal, noise.zw);
+			vec3 bounceDir = randomUnitVector(noise.xy);
+			if(dot(bounceDir,bounceNormal) < 0)
+				bounceDir = -bounceDir;
 			if(hit_any(bouncePoint, bounceDir, tMax) < 0)
 				indirect = albedo * skyColor(bounceDir);
 			else

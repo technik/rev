@@ -13,9 +13,8 @@ void main() {
 	vec3 rd = (uView * vec4(normalize(vec3(uvs.x, uvs.y, -2.0)), 0.0)).xyz;
 
 	float tMax = 1000.0;
-	vec3 albedo; // Ignored
 	vec3 normal = vec3(0.0, 0.0, -1.0);
-	float t = hit(ro, rd, normal, albedo, tMax);
+	float t = hit(ro, rd, normal, tMax);
 	vec4 gBufferPixel = vec4(normal,t);
 
 	// output to a specific pixel in the image
