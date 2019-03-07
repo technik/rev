@@ -124,7 +124,8 @@ void main() {
 	//pixel.xyz = vec3(gBuffer.w/8.0);
 	if(gBuffer.w > 0.0)
 		pixel.xyz = directLight.xyz;
-		//pixel.xyz = gBuffer.xyz;
+		//pixel.xyz = 0.5*gBuffer.xyz+0.5;
+		//pixel.xyz = vec3(gBuffer.w*0.1);
 	else
 		pixel.xyz = skyColor(rd.xyz);
 	pixel.w = 1;
