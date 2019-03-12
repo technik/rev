@@ -97,20 +97,20 @@ struct Node
 	// middle 8 bits: leaf mask
 	// bottom 8 bits: valid mask
 	int descriptor;
-	int childOffset[8];
 };
 
+const Box rootBox = { vec3(-2.0, 0.0, -4.0), vec3(2.0, 4.0, 0.0) };
 Node tree[9] =
 {
-	{ 0xfdfd , {1,2,3,4,5,6,7,8}},
-	{ 0xff5f , {1,2,3,4,5,6,6,7}},
-	{ 0xff0b , {1,2,3,4,5,6,6,7}},
-	{ 0xff93 , {1,2,3,4,5,6,6,7}},
-	{ 0xff63 , {1,2,3,4,5,6,6,7}},
-	{ 0xfff5 , {1,2,3,4,5,6,6,7}},
-	{ 0xffb0 , {1,2,3,4,5,6,6,7}},
-	{ 0xff39 , {1,2,3,4,5,6,6,7}},
-	{ 0xff36 , {1,2,3,4,5,6,6,7}},
+	{ 0x7f<<8 | 0xff },
+	{ 0xff<<8 | 0x5f },
+	{ 0xff<<8 | 0x0b },
+	{ 0xff<<8 | 0x93 },
+	{ 0xff<<8 | 0x63 },
+	{ 0xff<<8 | 0xf5 },
+	{ 0xff<<8 | 0xb0 },
+	{ 0xff<<8 | 0x39 },
+	{ 0xff<<8 | 0x00 },
 };
 
 
@@ -129,7 +129,12 @@ void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 
 bool voxelExists(int parentNdx, int childNdx)
 {
-	return (tree[parentNdx].descriptor & childNdx) != 0;
+	return (tree[parentNdx].descriptor & (1<<childNdx)) != 0;
+}
+
+bool isLeaf(int parentNdx, int childNdx)
+{
+	return (tree[parentNdx].descriptor & (0x1<<(childNdx+8))) != 0;
 }
 
 void stepRay(in ivec3 oldPos, in int scale, in ImplicitRay ray, out ivec3 pos, out int idx)
@@ -140,114 +145,135 @@ float traceOctree(in ImplicitRay ir, out vec3 normal, in vec3 tEnter, in vec3 tE
 	return -1.0;
 }
 
+int findFirstChild(in vec3 tCross, int octantMask, double t)
+{
+	int crossedPlanesMask = (t>tCross.x? 4 : 0) | (t > tCross.y? 2 : 0) | (t > tCross.z? 1 : 0);
+	return crossedPlanesMask ^ octantMask;
+}
+
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
 	const int MAX_DEPTH = 2;
 
-	Box rootBox = { vec3(-2.0, 0.0, -4.0), vec3(2.0, 4.0, 0.0) };
-
 	// Find first child
-	vec3 t1p = (rootBox.min - ir.o) * ir.n;
-	vec3 t2p = (rootBox.max - ir.o) * ir.n;
+	vec3 t1 = (rootBox.min - ir.o) * ir.n;
+	vec3 t2 = (rootBox.max - ir.o) * ir.n;
 	// Swapping the order of comparison is important because of NaN behavior
-	vec3 tEnter = min(t2p,t1p); // Enters
-	vec3 tExit = max(t1p,t2p); // Enters
+	vec3 tNear = min(t1,t2); // Intersection with the planes that are closer to the ray origin
+	vec3 tFar = max(t2,t1); // Intersection with the planes that are further from the ray origin
 
-	// Time of first intersection with the octree
-	// Initialize t to the first intersection
-	float t = max(max(max(0.0,tEnter.x),tEnter.y),tEnter.z); // If nan, return first operand, which is never nan
-	float tExitOctree = min(min(min(tMax,tExit.x),tExit.y),tExit.z); // If nan, return first operand, which is never nan
-	if(tExitOctree < t)
+	// Set t to the first intersection with the cube
+	float t = max(max(max(0.0,tNear.x),tNear.y),tNear.z); // If nan, return first operand, which is never nan
+	float tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z); // If nan, return first operand, which is never nan
+	if(tExit < t)
 		return -1.0; // Skip everything
 
-	vec3 p0 = ir.o + t * ir.d;
-	vec3 center = mix(rootBox.min, rootBox.max, 0.5);
-	int childNdx = (p0.x > center.x ? 4 : 0) | (p0.y > center.y ? 2:0) | (p0.z > center.z ? 1:0); // Initialize childNdx to the contact point
+	ivec3 pos = ivec3(ir.d.x<0?1:0, ir.d.y<0?1:0, ir.d.z<0?1:0);
+	int octantMask = pos.x<<2 | pos.y<<1 | pos.z;
+	vec3 tcross = ((rootBox.min + rootBox.max)*0.5 - ir.o) * ir.n;
+	int childNdx = findFirstChild(tcross, octantMask, t);
 
-	vec3 tcross = mix(tEnter, tExit, 0.5);
-	int octantMask = (ir.d.x < 0 ? 4 : 0) | (ir.d.y < 0 ? 2 : 0) | (ir.d.z < 0 ? 1 : 0);
-
-	float tExitLevel = tExitOctree;
-	int depth = 1;
+	int depth = 0;
 	int parentNode = 0;
 
+	// Parent node stack
 	int nodeStack[MAX_DEPTH];
 	nodeStack[0] = parentNode;
-	ivec3 pos = ivec3(childNdx>>2, (childNdx>>1)&1, childNdx&1);
 
-	while(t < tExitOctree)
+	while(t<tExit)
 	{
-		if(voxelExists(parentNode,(1<<childNdx)))
+		if(voxelExists(parentNode,childNdx))
 		{
-			// Find hit plane from t
-			int orderedNdx = childNdx ^ octantMask;
-			tEnter = vec3((orderedNdx&4)!=0?tcross.x:tEnter.x, (orderedNdx&2)!=0?tcross.y:tEnter.y, (orderedNdx&1)!=0?tcross.z:tEnter.z);
-			// Should actually push one level here, unless we're at leaf level
-			if(depth < MAX_DEPTH)
+			if(isLeaf(parentNode,childNdx))
 			{
-				depth += 1;
-				// Compute child ndx
-				//parentNode = parentNode + childNdx;
-				//nodeStack[depth] = parentNode;
-				pos = pos<<1;
-				//pos = pos&1;
-				/*vec3 voxelSize = (t2p - t1p) / (1<<depth);
-				tExitLevel = min(tExitLevel,min(tcross.x,min(tcross.y,tcross.z)));
-				tcross = (pos+1)*voxelSize+t1p;
-				childNdx = (t > tcross.x ? 4 : 0) | (t > tcross.y ? 2:0) | (t > tcross.z ? 1:0);
-				childNdx ^= octantMask;
-				continue;*/
+				// Compute normal
+				normal = vec3(0.0, 0.0, 1.0);
+				if(t == tNear.x || t == tcross.x)
+					normal = vec3(1.0, 0.0, .0);
+				else if(t == tNear.y || t == tcross.y)
+					normal = vec3(0.0, 1.0, 0.0);
+				if(dot(normal,ir.d) > 0)
+					normal = -normal;
 
+				return t;
 			}
-			// Compute normal
-			normal = vec3(0.0, 0.0, 1.0);
-			if(t == tEnter.x)
-				normal = vec3(1.0, 0.0, .0);
-			else if(t == tEnter.y)
-				normal = vec3(0.0, 1.0, 0.0);
-			if(dot(normal,ir.d) > 0)
-				normal = -normal;
-			return t;
+			else
+			{	
+				// Push one level
+				nodeStack[depth] = parentNode;
+				parentNode = parentNode + childNdx +1;
+				++depth;
+				// Find first child
+				vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
+				vec3 crossPlane = rootBox.min + childSize * (2*vec3(pos)+1);
+				tcross = (crossPlane - ir.o) * ir.n;
+				childNdx = findFirstChild(tcross, octantMask, t);
+				pos.x = (pos.x<<1) | ((childNdx&4)>>2);
+				pos.y = (pos.y<<1) | ((childNdx&2)>>1);
+				pos.z = (pos.z<<1) | (childNdx&1);
+
+				continue;
+			}
 		}
 		else
 		{
 			// Figure out next event
-			vec3 tEvent = max(vec3(t), tcross);
-			float nextEvent = tExitLevel;
-			if(tEvent.x > t)
-				nextEvent = tEvent.x;
-			if(tEvent.y > t)
-				nextEvent = min(tEvent.y, nextEvent);
-			if(tEvent.z > t)
-				nextEvent = min(tEvent.z, nextEvent);
-			if(nextEvent >= tExitLevel) // No more internal planes to cross
+			float nextEvent = tMax;
+			if(tcross.x > t)
+				nextEvent = min(nextEvent, tcross.x);
+			if(tcross.y > t)
+				nextEvent = min(nextEvent, tcross.y);
+			if(tcross.z > t)
+				nextEvent = min(nextEvent, tcross.z);
+
+			while(nextEvent == tMax) // While next event != internal plane
 			{
-				if(depth == 1)
+				if(depth >= 0)
 				{
-					t = tExitLevel;
-					return -1.0;
+					// Pop. TODO: Review pop logic
+					--depth;
+					pos >>= 1;
+					childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | pos.z&1;
+					vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
+					vec3 crossPlane = rootBox.min + childSize * vec3(pos|1);
+					tcross = (crossPlane - ir.o) * ir.n;
+
+					float lastEvent = max(max(max(0.0,tcross.x), tcross.y), tcross.z);
+					parentNode = nodeStack[depth];
+
+					nextEvent = tMax;
+					if(tcross.x > t)
+						nextEvent = min(nextEvent, tcross.x);
+					if(tcross.y > t)
+						nextEvent = min(nextEvent, tcross.y);
+					if(tcross.z > t)
+						nextEvent = min(nextEvent, tcross.z);
 				}
-				// Should actually pop one level here
-				--depth;
-				pos = pos>>1;
-				childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | pos.z&1;
-				vec3 voxelSize = (t2p - t1p) / (1<<depth);
-				tcross = (pos+1)*voxelSize+t1p;
-				tExit = voxelSize+tcross;
-				tExitLevel = min(tExitOctree,min(tExit.x,min(tExit.y,tExit.z)));
-				parentNode = nodeStack[depth-1];
+				else
+					return -1.0; // no collision
 			}
+
+			// Switch to next sibling
 			t = nextEvent;
-			if(t == tEvent.x)
+			if(t==tcross.x)
+			{
 				childNdx ^= 4;
-			if(t == tEvent.y)
+				pos.x ^= 1;
+			}
+			if(t==tcross.y)
+			{
 				childNdx ^= 2;
-			if(t == tEvent.z)
+				pos.y ^= 1;
+			}
+			if(t==tcross.z)
+			{
+				pos.z ^= 1;
 				childNdx ^= 1;
+			}
 		}
 	}
 
-	return t;
+	return -1.0;
 }
 
 
