@@ -102,7 +102,7 @@ struct Node
 const Box rootBox = { vec3(-2.0, 0.0, -4.0), vec3(2.0, 4.0, 0.0) };
 Node tree[9] =
 {
-	{ 0x7f<<8 | 0xff },
+	{ 0x00<<8 | 0xff },
 	{ 0xff<<8 | 0x5f },
 	{ 0xff<<8 | 0x0b },
 	{ 0xff<<8 | 0x93 },
@@ -110,7 +110,7 @@ Node tree[9] =
 	{ 0xff<<8 | 0xf5 },
 	{ 0xff<<8 | 0xb0 },
 	{ 0xff<<8 | 0x39 },
-	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x36 },
 };
 
 
@@ -137,14 +137,6 @@ bool isLeaf(int parentNdx, int childNdx)
 	return (tree[parentNdx].descriptor & (0x1<<(childNdx+8))) != 0;
 }
 
-void stepRay(in ivec3 oldPos, in int scale, in ImplicitRay ray, out ivec3 pos, out int idx)
-{}
-
-float traceOctree(in ImplicitRay ir, out vec3 normal, in vec3 tEnter, in vec3 tExit, in float t0, in float t1)
-{
-	return -1.0;
-}
-
 int findFirstChild(in vec3 tCross, int octantMask, double t)
 {
 	int crossedPlanesMask = (t>tCross.x? 4 : 0) | (t > tCross.y? 2 : 0) | (t > tCross.z? 1 : 0);
@@ -168,10 +160,10 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	if(tExit < t)
 		return -1.0; // Skip everything
 
-	ivec3 pos = ivec3(ir.d.x<0?1:0, ir.d.y<0?1:0, ir.d.z<0?1:0);
-	int octantMask = pos.x<<2 | pos.y<<1 | pos.z;
+	int octantMask = (ir.d.x<0?4:0) | (ir.d.y<0?2:0) | (ir.d.z<0?1:0);
 	vec3 tcross = ((rootBox.min + rootBox.max)*0.5 - ir.o) * ir.n;
 	int childNdx = findFirstChild(tcross, octantMask, t);
+	ivec3 pos = ivec3(childNdx>>2, (childNdx>>1) & 1, childNdx&1);
 
 	int depth = 0;
 	int parentNode = 0;
@@ -208,9 +200,12 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				vec3 crossPlane = rootBox.min + childSize * (2*vec3(pos)+1);
 				tcross = (crossPlane - ir.o) * ir.n;
 				childNdx = findFirstChild(tcross, octantMask, t);
-				pos.x = (pos.x<<1) | ((childNdx&4)>>2);
+				pos.x = (pos.x<<1) | (childNdx>>2);
 				pos.y = (pos.y<<1) | ((childNdx&2)>>1);
 				pos.z = (pos.z<<1) | (childNdx&1);
+				crossPlane = crossPlane + childSize; // Planes to exit
+				tFar = (crossPlane - ir.o) * ir.n;
+				//tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z);
 
 				continue;
 			}
@@ -218,7 +213,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 		else
 		{
 			// Figure out next event
-			float nextEvent = tMax;
+			float nextEvent = tExit;
 			if(tcross.x > t)
 				nextEvent = min(nextEvent, tcross.x);
 			if(tcross.y > t)
@@ -226,22 +221,25 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			if(tcross.z > t)
 				nextEvent = min(nextEvent, tcross.z);
 
-			while(nextEvent == tMax) // While next event != internal plane
+			while(nextEvent == tExit) // While next event != internal plane
 			{
 				if(depth >= 0)
 				{
 					// Pop. TODO: Review pop logic
 					--depth;
-					pos >>= 1;
-					childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | pos.z&1;
+					pos.x = pos.x >> 1;
+					pos.y = pos.y >> 1;
+					pos.z = pos.z >> 1;
+					childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | (pos.z&1);
 					vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
-					vec3 crossPlane = rootBox.min + childSize * vec3(pos|1);
+					vec3 crossPlane = rootBox.min + childSize * vec3(pos.x|1, pos.y|1, pos.z|1);
 					tcross = (crossPlane - ir.o) * ir.n;
+					crossPlane = crossPlane + childSize; // Planes to exit
+					tFar = (crossPlane - ir.o) * ir.n;
+					//tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z);
 
-					float lastEvent = max(max(max(0.0,tcross.x), tcross.y), tcross.z);
 					parentNode = nodeStack[depth];
-
-					nextEvent = tMax;
+					nextEvent = tExit;
 					if(tcross.x > t)
 						nextEvent = min(nextEvent, tcross.x);
 					if(tcross.y > t)
@@ -267,8 +265,8 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			}
 			if(t==tcross.z)
 			{
-				pos.z ^= 1;
 				childNdx ^= 1;
+				pos.z ^= 1;
 			}
 		}
 	}
