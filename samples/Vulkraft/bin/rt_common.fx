@@ -160,10 +160,11 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	if(tExit < t)
 		return -1.0; // Skip everything
 
-	int octantMask = (ir.d.x<0?4:0) | (ir.d.y<0?2:0) | (ir.d.z<0?1:0);
+	int rayDirMask = (ir.d.x<0?4:0) | (ir.d.y<0?2:0) | (ir.d.z<0?1:0);
 	vec3 tcross = ((rootBox.min + rootBox.max)*0.5 - ir.o) * ir.n;
-	int childNdx = findFirstChild(tcross, octantMask, t);
+	int childNdx = findFirstChild(tcross, rayDirMask, t);
 	ivec3 pos = ivec3(childNdx>>2, (childNdx>>1) & 1, childNdx&1);
+	vec3 cornerDir = vec3(1-(rayDirMask>>2), 1-(rayDirMask>>1&1), 1-(rayDirMask&1));
 
 	int depth = 0;
 	int parentNode = 0;
@@ -171,6 +172,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	// Parent node stack
 	int nodeStack[MAX_DEPTH];
 	nodeStack[0] = parentNode;
+	int eventMask = 0;
 
 	while(t<tExit)
 	{
@@ -180,9 +182,9 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			{
 				// Compute normal
 				normal = vec3(0.0, 0.0, 1.0);
-				if(t == tNear.x || t == tcross.x)
+				if((eventMask&4)!=0)
 					normal = vec3(1.0, 0.0, .0);
-				else if(t == tNear.y || t == tcross.y)
+				else if((eventMask&2)!=0)
 					normal = vec3(0.0, 1.0, 0.0);
 				if(dot(normal,ir.d) > 0)
 					normal = -normal;
@@ -199,7 +201,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
 				vec3 crossPlane = rootBox.min + childSize * (2*vec3(pos)+1);
 				tcross = (crossPlane - ir.o) * ir.n;
-				childNdx = findFirstChild(tcross, octantMask, t);
+				childNdx = findFirstChild(tcross, rayDirMask, t);
 				pos.x = (pos.x<<1) | (childNdx>>2);
 				pos.y = (pos.y<<1) | ((childNdx&2)>>1);
 				pos.z = (pos.z<<1) | (childNdx&1);
@@ -213,57 +215,45 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 		else
 		{
 			// Figure out next event
-			float nextEvent = tExit;
-			if(tcross.x > t)
-				nextEvent = min(nextEvent, tcross.x);
-			if(tcross.y > t)
-				nextEvent = min(nextEvent, tcross.y);
-			if(tcross.z > t)
-				nextEvent = min(nextEvent, tcross.z);
+			vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
+			vec3 nextPlanes = rootBox.min + childSize * (vec3(pos.x,pos.y,pos.z)+cornerDir);
+			vec3 tcorner = (nextPlanes - ir.o) * ir.n;
 
-			while(nextEvent == tExit) // While next event != internal plane
+			float tEvent = min(min(min(tMax,tcorner.x),tcorner.y),tcorner.z);
+			if(tEvent >= tMax)
+				return -1.0;
+			// Which planes must me crossed
+			eventMask = (tEvent==tcorner.x?4:0)|(tEvent==tcorner.y?2:0)|(tEvent==tcorner.z?1:0);
+			// Which planes can be stepped without poping
+			int canStep = childNdx^ 7 ^rayDirMask;
+			while((canStep&eventMask) != eventMask) // Pop until we can!
 			{
-				if(depth >= 0)
+				if(depth == 0)
+					return -1.0;
+				else // Pop one level
 				{
-					// Pop. TODO: Review pop logic
 					--depth;
-					pos.x = pos.x >> 1;
-					pos.y = pos.y >> 1;
-					pos.z = pos.z >> 1;
+					pos >>= 1;
 					childNdx = (pos.x&1)<<2 | (pos.y&1)<<1 | (pos.z&1);
-					vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
-					vec3 crossPlane = rootBox.min + childSize * vec3(pos.x|1, pos.y|1, pos.z|1);
-					tcross = (crossPlane - ir.o) * ir.n;
-					crossPlane = crossPlane + childSize; // Planes to exit
-					tFar = (crossPlane - ir.o) * ir.n;
-					//tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z);
+					canStep = childNdx^ 7 ^rayDirMask;
 
 					parentNode = nodeStack[depth];
-					nextEvent = tExit;
-					if(tcross.x > t)
-						nextEvent = min(nextEvent, tcross.x);
-					if(tcross.y > t)
-						nextEvent = min(nextEvent, tcross.y);
-					if(tcross.z > t)
-						nextEvent = min(nextEvent, tcross.z);
 				}
-				else
-					return -1.0; // no collision
 			}
 
 			// Switch to next sibling
-			t = nextEvent;
-			if(t==tcross.x)
+			t = tEvent;
+			if((eventMask&4) != 0)
 			{
 				childNdx ^= 4;
 				pos.x ^= 1;
 			}
-			if(t==tcross.y)
+			if((eventMask&2) != 0)
 			{
 				childNdx ^= 2;
 				pos.y ^= 1;
 			}
-			if(t==tcross.z)
+			if((eventMask&1) != 0)
 			{
 				childNdx ^= 1;
 				pos.z ^= 1;

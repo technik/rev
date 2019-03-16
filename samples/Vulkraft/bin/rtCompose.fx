@@ -56,7 +56,7 @@ void main() {
 		//	taaWeight = 0.0;
 	}
 
-	int windowSize = 7;
+	int windowSize = 5;
 	//if(taaWeight < 0.5)
 	//	windowSize = 11;
 	const int minTap = -windowSize/2;
