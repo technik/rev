@@ -89,7 +89,7 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 
 vec3 skyColor(vec3 dir)
 {
-	return 2*mix(2*vec3(0.0045, 0.238, 0.680), 2*vec3(0.95,0.95,1.0), dir.y);
+	return 2*mix(2*vec3(0.0045, 0.238, 0.680), 2*vec3(0.95,0.95,1.0), normalize(dir).y);
 }
 
 struct Node
@@ -100,17 +100,49 @@ struct Node
 	int descriptor;
 };
 
-const Box rootBox = { vec3(-2.0, 0.0, -4.0), vec3(2.0, 4.0, 0.0) };
-Node tree[9] =
+const Box rootBox = { vec3(-4.0, 0.0, -8.0), vec3(4.0, 8.0, 0.0) };
+Node tree[5+4*8] =
 {
-	{ 0x00<<8 | 0xff },
-	{ 0xff<<8 | 0x5f },
+	{ 0<<16 | 0x00<<8 | 0x33 }, // Top level
+	{ 3<<16 | 0x00<<8 | 0xff }, // Mid level
+	{ 10<<16 | 0x00<<8 | 0xff }, // Mid level
+	{ 17<<16 | 0x00<<8 | 0xff }, // Mid level
+	{ 24<<16 | 0x00<<8 | 0xff }, // Mid level
+	// Cube a
+	{ 0xff<<8 | 0x57 },
 	{ 0xff<<8 | 0x0b },
 	{ 0xff<<8 | 0x93 },
+	{ 0xff<<8 | 0xc3 },
+	{ 0xff<<8 | 0x55 },
+	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x99 },
+	{ 0xff<<8 | 0x4c },
+	// Cube b
+	{ 0xff<<8 | 0x07 },
+	{ 0xff<<8 | 0xab },
+	{ 0xff<<8 | 0xc3 },
 	{ 0xff<<8 | 0x63 },
-	{ 0xff<<8 | 0xf5 },
+	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x8c },
+	{ 0xff<<8 | 0x66 },
+	// Cube c
+	{ 0xff<<8 | 0x55 },
+	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x99 },
+	{ 0xff<<8 | 0xc4 },
+	{ 0xff<<8 | 0x75 },
 	{ 0xff<<8 | 0xb0 },
 	{ 0xff<<8 | 0x39 },
+	{ 0xff<<8 | 0x3c },
+	// Cube d
+	{ 0xff<<8 | 0x00 },
+	{ 0xff<<8 | 0x2a },
+	{ 0xff<<8 | 0xc8 },
+	{ 0xff<<8 | 0x66 },
+	{ 0xff<<8 | 0x70 },
+	{ 0xff<<8 | 0xb2 },
+	{ 0xff<<8 | 0x3c },
 	{ 0xff<<8 | 0x36 },
 };
 
@@ -155,7 +187,7 @@ int childNode(int parentNode, int childNdx)
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 2;
+	const int MAX_DEPTH = 3;
 
 	// Find first child
 	vec3 t1 = (rootBox.min - ir.o) * ir.n;
@@ -184,7 +216,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	nodeStack[0] = parentNode;
 	int eventMask = (t==tNear.x?4:0)|(t==tNear.y?2:0)|(t==tNear.z?1:0);
 
-	while(t<tExit)
+	while(true)
 	{
 		if(voxelExists(parentNode,childNdx))
 		{
@@ -216,9 +248,6 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				pos.x = (pos.x<<1) | (childNdx>>2);
 				pos.y = (pos.y<<1) | ((childNdx&2)>>1);
 				pos.z = (pos.z<<1) | (childNdx&1);
-				crossPlane = crossPlane + childSize; // Planes to exit
-				tFar = (crossPlane - ir.o) * ir.n;
-				//tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z);
 
 				continue;
 			}
@@ -230,18 +259,16 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			vec3 nextPlanes = rootBox.min + childSize * (vec3(pos.x,pos.y,pos.z)+cornerDir);
 			vec3 tcorner = (nextPlanes - ir.o) * ir.n;
 
-			float tEvent = min(min(min(tMax,tcorner.x),tcorner.y),tcorner.z);
-			if(tEvent >= tMax)
+			tExit = min(min(min(tMax,tcorner.x),tcorner.y),tcorner.z);
+			if(tExit >= tMax)
 				return -1.0;
 			// Which planes must me crossed
-			eventMask = (tEvent==tcorner.x?4:0)|(tEvent==tcorner.y?2:0)|(tEvent==tcorner.z?1:0);
+			eventMask = (tExit==tcorner.x?4:0)|(tExit==tcorner.y?2:0)|(tExit==tcorner.z?1:0);
 			// Which planes can be stepped without poping
 			int canStep = childNdx^ 7 ^rayDirMask;
 			while((canStep&eventMask) != eventMask) // Pop until we can!
 			{
-				if(depth == 0)
-					return -1.0;
-				else // Pop one level
+				if(depth > 0)
 				{
 					--depth;
 					pos >>= 1;
@@ -250,10 +277,12 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 
 					parentNode = nodeStack[depth];
 				}
+				else // Pop one level
+					return -1.0;
 			}
 
 			// Switch to next sibling
-			t = tEvent;
+			t = tExit;
 			if((eventMask&4) != 0)
 			{
 				childNdx ^= 4;
@@ -365,16 +394,5 @@ vec3 randomUnitVector(in vec2 seed)
 
 vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 {
-	vec3 tangent, bitangent;
-	branchlessONB(normal, tangent, bitangent);
-	float theta = TwoPi*seed.x;
-	float z = seed.y*seed.y;
-	float horRad = sqrt(1-z*z);
-	vec3 n = vec3(
-		cos(theta)*horRad,
-		sin(theta)*horRad,
-		z
-		);
-
-	return tangent * n.x + bitangent * n.y + normal * n.z;
+	return normal + 0.98 * randomUnitVector(seed);
 }

@@ -56,7 +56,7 @@ void main() {
 		//	taaWeight = 0.0;
 	}
 
-	int windowSize = 5;
+	int windowSize = 1;
 	//if(taaWeight < 0.5)
 	//	windowSize = 11;
 	const int minTap = -windowSize/2;
@@ -96,7 +96,8 @@ void main() {
 	}
 
 	vec3 smoothLight = (light+secondLight)/weight;
-	//vec3 smoothLight = (secondLight)/weight;
+	//smoothLight = (secondLight)/weight;
+	//smoothLight = (light)/weight;
 
 	vec3 denoised = mix(smoothLight, prevLight, taaWeight);
 	vec3 directLight = weight > 0.0 ? albedo*denoised : vec3(0.0);

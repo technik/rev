@@ -27,7 +27,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
 			// Scatter reflected light
 
 			// Compute direct contribution
-			vec3 bounceDir = randomUnitVector(noise.xy);
+			vec3 bounceDir = lambertianDirection(bounceNormal,noise.xy);
 			if(dot(bounceDir,bounceNormal) < 0)
 				bounceDir = -bounceDir;
 			if(hit_any(bouncePoint, bounceDir, tMax) < 0)
