@@ -39,7 +39,7 @@ void main() {
 	vec2 prevXY = -2.0*prevSSRd.xy/prevSSRd.z;
 	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
 
-	float taaWeight = 0.95;
+	float taaWeight = 0.9;
 	// Clamp taa to window
 	if(prevXY.x < 0 || prevXY.y < 0 || prevXY.x > uWindow.x || prevXY.y > uWindow.y)
 		taaWeight = 0.0;

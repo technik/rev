@@ -25,6 +25,7 @@ struct ImplicitRay
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
+	//return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
 	if(worldPos.y > 0.01)
@@ -143,6 +144,15 @@ int findFirstChild(in vec3 tCross, int octantMask, double t)
 	return crossedPlanesMask ^ octantMask;
 }
 
+int childNode(int parentNode, int childNdx)
+{
+	int firstChildOffet = 1 + (tree[parentNode].descriptor>>16);
+	for(int i = 0; i < childNdx; ++i)
+		if((tree[parentNode].descriptor & (1<<i)) != 0)
+			++firstChildOffet;
+	return parentNode + firstChildOffet;
+}
+
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
 	const int MAX_DEPTH = 2;
@@ -172,7 +182,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	// Parent node stack
 	int nodeStack[MAX_DEPTH];
 	nodeStack[0] = parentNode;
-	int eventMask = 0;
+	int eventMask = (t==tNear.x?4:0)|(t==tNear.y?2:0)|(t==tNear.z?1:0);
 
 	while(t<tExit)
 	{
@@ -186,6 +196,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 					normal = vec3(1.0, 0.0, .0);
 				else if((eventMask&2)!=0)
 					normal = vec3(0.0, 1.0, 0.0);
+				// Reverse direction
 				if(dot(normal,ir.d) > 0)
 					normal = -normal;
 
@@ -195,7 +206,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			{	
 				// Push one level
 				nodeStack[depth] = parentNode;
-				parentNode = parentNode + childNdx +1;
+				parentNode = childNode(parentNode, childNdx);
 				++depth;
 				// Find first child
 				vec3 childSize = (rootBox.max-rootBox.min)*(1.0/(2<<depth));
