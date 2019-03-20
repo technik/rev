@@ -11,6 +11,42 @@ layout(location = 7) uniform mat4 uOldView;
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 layout(rgba32f, binding = 1) uniform image2D direct_taa;
 
+vec3 computeWorldPos(mat4 view, ivec2 pixel_coords, float t)
+{
+	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
+	vec4 ro = view * vec4(0,0,0,1.0);
+	vec4 ssRd = vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0);
+	vec4 rd = view * ssRd;
+	return (ro + t * rd).xyz;
+}
+
+ivec2 pixelCoordFromWorldPos(mat4 view, vec3 worldPos)
+{
+	vec4 ssRo = vec4(0,0,0,1.0);
+	vec4 ssRd = inverse(view) * vec4(worldPos,1.0) - ssRo;
+	vec2 ssXY = ssRd.xy * (-2.0/ssRd.z);
+	vec2 pixel = (ssXY + vec2(uWindow.x/uWindow.y, 1)) * uWindow.y/2.0;
+	return ivec2(pixel.x+0.5, pixel.y+0.5);
+}
+
+float oldT(ivec2 pixel)
+{
+	return texelFetch(uDirectTaaSrc, pixel, 0).w;
+}
+
+bool reuseTaa(float curT)
+{
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	vec3 curPos = computeWorldPos(uView, pixel_coords, curT);
+	ivec2 oldPxl = pixelCoordFromWorldPos(uOldView, curPos);
+	if(oldPxl.x < 0 || oldPxl.y < 0 || oldPxl.x > uWindow.x || oldPxl.y > uWindow.y)
+		return false;
+	float lastT = oldT(oldPxl);
+	vec3 oldPos = computeWorldPos(uOldView, oldPxl, lastT);
+	vec3 distance = oldPos-curPos;
+	return dot(distance, distance) < 0.001;
+}
+
 void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
@@ -104,9 +140,15 @@ void main() {
 
 	//pixel.xyz = vec3(gBuffer.w/8.0);
 	if(gBuffer.w > 0.0)
+	{
 		pixel.xyz = directLight.xyz;
 		//pixel.xyz = 0.5*gBuffer.xyz+0.5;
 		//pixel.xyz = vec3(gBuffer.w*0.1);
+		if(reuseTaa(gBuffer.w))
+			pixel.xyz = vec3(0.0,1.0,0.0);
+		else
+			pixel.xyz = vec3(1.0,0.0,0.0);
+	}
 	else
 		pixel.xyz = skyColor(rd.xyz);
 	pixel.w = 1;
