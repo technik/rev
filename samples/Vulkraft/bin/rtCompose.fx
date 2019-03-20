@@ -29,44 +29,49 @@ ivec2 pixelCoordFromWorldPos(mat4 view, vec3 worldPos)
 	return ivec2(pixel.x+0.5, pixel.y+0.5);
 }
 
-float oldT(ivec2 pixel)
-{
-	return texelFetch(uDirectTaaSrc, pixel, 0).w;
-}
-
-bool reuseTaa(float curT)
+bool reuseTaa(float curT, out vec4 taa)
 {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec3 curPos = computeWorldPos(uView, pixel_coords, curT);
 	ivec2 oldPxl = pixelCoordFromWorldPos(uOldView, curPos);
-	if(oldPxl.x < 0 || oldPxl.y < 0 || oldPxl.x > uWindow.x || oldPxl.y > uWindow.y)
+	if(oldPxl.x < 0 || oldPxl.y < 0 || oldPxl.x >= uWindow.x || oldPxl.y >= uWindow.y)
 		return false;
-	float lastT = oldT(oldPxl);
+	taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
+	float lastT = taa.w;
+	if(lastT < 0.0)
+		return false;
 	vec3 oldPos = computeWorldPos(uOldView, oldPxl, lastT);
 	vec3 distance = oldPos-curPos;
-	return dot(distance, distance) < 0.001;
+	return dot(distance, distance) < 0.05;
+}
+
+vec3 irradiance(in vec3 dir)
+{
+	return skyColor(normalize(dir + vec3(0.0,1.0,0.0)));
 }
 
 void main() {
-	// base pixel colour for image
-	vec4 pixel = vec4(0.0);
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
 	// Compute uvs
 	vec2 centerUV = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
 	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
-	vec3 worldNormal = gBuffer.xyz;
 
-	float weight = 0.0;
-	vec3 light = vec3(0.0);
-	vec3 secondLight = vec3(0.0);
+	vec3 worldNormal = gBuffer.xyz;
 
 	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
 	vec4 ro = uView * vec4(0,0,0,1.0);
 	vec4 ssRd = vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0);
 	vec4 rd = uView * ssRd;
 	vec4 localPoint = ro+gBuffer.w*rd+vec4(gBuffer.xyz,0.0)*1e-4;
+
+	if(gBuffer.w < 0.0)
+	{
+		imageStore(img_output, pixel_coords, vec4(skyColor(rd.xyz),1.0));
+		imageStore(direct_taa, pixel_coords, vec4(vec3(0.0),-1));
+		return;
+	}
 
 	// Compute screen coordinates reprojected into prev frame
 	vec4 prevRo = uOldView*vec4(0,0,0,1.0);
@@ -75,24 +80,29 @@ void main() {
 	vec2 prevXY = -2.0*prevSSRd.xy/prevSSRd.z;
 	prevXY = (prevXY*uWindow.y+0.5 + uWindow.xy)*0.5;
 
-	float taaWeight = 0.9;
-	// Clamp taa to window
-	if(prevXY.x < 0 || prevXY.y < 0 || prevXY.x > uWindow.x || prevXY.y > uWindow.y)
-		taaWeight = 0.0;
-	vec4 taa = texelFetch(uDirectTaaSrc, ivec2(prevXY.x, prevXY.y), 0);
-	vec3 prevLight = taa.xyz;
-	float prevT = taa.w;
-	if(prevT < 0.0)
-		taaWeight = 0.0;
+
+	float weight = 1.0;
+	vec4 directBuffer = texelFetch(uDirectLight, pixel_coords, 0);
+	float visibility = directBuffer.w < 0.0 ? 1.0 : 0.0;
+	float sunVisibility = directBuffer.z < 0.0 ? 1.0 : 0.0;
+	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
+
+	// Temporal denoising
+	int windowSize = 7;
+	vec4 taa = vec4(0.0,0.0,0.0,0.0);
+	float taaWeight = 0.0;
+	if(reuseTaa(gBuffer.w, taa))
+	{
+		windowSize = 1;
+		taaWeight = taa.y / (taa.y + 1.0);
+		taa.y = min(63.0, taa.y+1.0);
+	}
 	else
 	{
-		vec4 reprojected = prevRo + prevT*prevRd;
-		vec4 reproDist = reprojected-ro+gBuffer.w*rd;
-		//if(dot(reproDist,reproDist) > 10.0)
-		//	taaWeight = 0.0;
+		taa.y = 1.0;
 	}
+	taa.w = gBuffer.w;
 
-	int windowSize = 1;
 	//if(taaWeight < 0.5)
 	//	windowSize = 11;
 	const int minTap = -windowSize/2;
@@ -107,7 +117,8 @@ void main() {
 
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 
-	for(int i = minTap; i <= maxTap; ++i)
+	float kernelWeight = 1.0;
+	/*for(int i = minTap; i <= maxTap; ++i)
 	{
 		for(int j = minTap; j <= maxTap; ++j)
 		{
@@ -118,42 +129,48 @@ void main() {
 				float localWeight = max(0.0, dot(pointGBuffer.xyz, gBuffer.xyz));
 				localWeight *= sqrt(0.5)*windowSize-sqrt(float(i*i+j*j));
 				localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
+				kernelWeight += localWeight;
 				vec4 direct = texelFetch(uDirectLight, pixel_coords+ivec2(i,j), 0);
 				if(direct.w < 0.0)
-					continue;
-				vec4 indirect = texelFetch(uIndirectLight, pixel_coords+ivec2(i,j), 0);
-				if(indirect.w < 0.0)
-					continue;
-				light += direct.xyz * localWeight;
-				secondLight += indirect.xyz * localWeight;
-				weight += localWeight;
+				{
+					visibility += kernelWeight;
+				}
+				if(direct.z < 0.0)
+				{
+					sunVisibility += kernelWeight;
+				}
 			}
 		}
-	}
+	}*/
+	
+	visibility = mix(visibility/kernelWeight, taa.x, taaWeight);
+	sunVisibility = mix(sunVisibility/kernelWeight, taa.z, taaWeight);
+	taa.x = visibility;
+	taa.z = sunVisibility;
 
-	vec3 smoothLight = (light+secondLight)/weight;
-	//smoothLight = (secondLight)/weight;
-	//smoothLight = (light)/weight;
-
-	vec3 denoised = mix(smoothLight, prevLight, taaWeight);
-	vec3 directLight = weight > 0.0 ? albedo*denoised : vec3(0.0);
-
-	//pixel.xyz = vec3(gBuffer.w/8.0);
+	// base pixel colour for image
+	vec4 pixel = vec4(0.0);
 	if(gBuffer.w > 0.0)
 	{
-		pixel.xyz = directLight.xyz;
+		vec3 smoothLight = visibility * irradiance(gBuffer.xyz) + 2.0 * sunVisibility;
+		vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
+		pixel.xyz = albedo*(smoothLight + secondLight);
+
+		//pixel.xyz = vec3(sunVisibility);
 		//pixel.xyz = 0.5*gBuffer.xyz+0.5;
 		//pixel.xyz = vec3(gBuffer.w*0.1);
-		if(reuseTaa(gBuffer.w))
-			pixel.xyz = vec3(0.0,1.0,0.0);
-		else
-			pixel.xyz = vec3(1.0,0.0,0.0);
+		//if(reuseTaa(gBuffer.w))
+		//	pixel.xyz = vec3(0.0,1.0,0.0);
+		//else
+		//	pixel.xyz = vec3(1.0,0.0,0.0);
 	}
 	else
+	{
 		pixel.xyz = skyColor(rd.xyz);
+	}
 	pixel.w = 1;
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
-	imageStore(direct_taa, pixel_coords, vec4(denoised,gBuffer.w));
+	imageStore(direct_taa, pixel_coords, taa);
 }

@@ -8,7 +8,7 @@ layout(location = 1) uniform sampler2D uRayTracedBuffer;;
 vec3 shade () {
 	vec2 uv = gl_FragCoord.xy / uWindow.xy;
 	vec4 tBuffer = texture(uRayTracedBuffer, uv);
-	vec3 color = tBuffer.xyz;
+	vec3 color = 0.5*tBuffer.xyz;
 
 	color = color / (1+color);
 

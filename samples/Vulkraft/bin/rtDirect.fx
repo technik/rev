@@ -8,7 +8,7 @@ layout(location = 4) uniform sampler2D uNoise;
 layout(rgba32f, binding = 0) writeonly uniform image2D direct_out;
 layout(rgba32f, binding = 1) writeonly uniform image2D indirect_out;
 
-void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
+void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec3 indirect)
 {
 	vec3 atten = vec3(1.0);
 	vec3 light = vec3(0.0);
@@ -18,11 +18,11 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
 	vec3 bounceNormal;
 	vec3 rd = lambertianDirection(normal, noise.zw);
 	{
-		float t = hit(ro, rd, bounceNormal, min(tMax,4.0));
+		float tSun = hit(ro, mix(rd,sunDir,0.95), bounceNormal, tMax);
+		float t = hit(ro, rd, bounceNormal, min(tMax,20.0));
 		if(t > 0.0)
 		{
 			vec3 albedo = fetchAlbedo(ro+t*rd, bounceNormal, t, 1);
-			direct = vec3(0);
 			bouncePoint = ro + rd * t + 0.0001 * normal;
 			// Scatter reflected light
 
@@ -38,15 +38,16 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec3 direct, out vec3 indirect)
 		else
 		{
 			// Sky
-			direct = skyColor(rd);
 			indirect = vec3(0);
 		}
+		// Direct visibilities
+		direct = vec4(0.0,0.0,tSun,t);
 	}
 }
 
 void main() {
 	// base pixel colour for image
-	vec4 pixel = vec4(0.0);
+	vec4 pixel = vec4(vec3(0.0),-1.0);
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
@@ -63,8 +64,7 @@ void main() {
 	// Scatter reflected light
 	vec4 noise = texelFetch(uNoise, pixel_coords%64, 0);
 	vec4 indirect = vec4(vec3(0.0),1.0);
-	color(surfacePoint, normal, noise, pixel.xyz, indirect.xyz);
-	pixel.w = 1.0;
+	color(surfacePoint, normal, noise, pixel, indirect.xyz);
 
 	// output to a specific pixel in the image
 	imageStore(direct_out, pixel_coords, pixel);

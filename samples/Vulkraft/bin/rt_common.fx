@@ -87,9 +87,10 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
+vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
 vec3 skyColor(vec3 dir)
 {
-	return 2*mix(2*vec3(0.0045, 0.238, 0.680), 2*vec3(0.95,0.95,1.0), normalize(dir).y);
+	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
 }
 
 struct Node
