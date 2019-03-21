@@ -1,6 +1,7 @@
 #include "rt_common.fx"
 
 
+
 void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0,0.0,0.0,-1.0); // (Normal.xyz, t)
@@ -22,7 +23,7 @@ void main() {
 	float t = hit(ro, rd, normal, albedo, tMax);
 	if(t >= 0)
 	{
-		pixel.xyz = vec3(1.0,0.0,0.0);//normal;
+		pixel.xyz = normal;
 		pixel.w = t;
 	}
   

@@ -3,8 +3,10 @@ layout(local_size_x = 1, local_size_y = 1) in;
 
 // Input uniforms
 layout(location = 1) uniform vec4 uWindow;
-layout(location = 2) uniform mat4 uView;
+layout(location = 2) uniform mat4 uCamWorld;
 layout(location = 8) uniform sampler2D uTexturePack;
+layout(location = 9) uniform mat4 uViewMtx;
+layout(location = 10) uniform mat4 uProj;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;
@@ -21,6 +23,19 @@ struct ImplicitRay
 	vec3 n;
 	vec3 d;
 };
+
+vec3 worldSpaceRay(vec2 clipSpacePos)
+{
+	float zClipDepth = 0.0;
+	float wClip = uProj[3][2] / (zClipDepth - uProj[2][2]/uProj[2][3]);
+	vec3 csPos = vec3(clipSpacePos.x, clipSpacePos.y, zClipDepth);
+	vec4 vsPos = (inverse(uProj) * vec4(csPos, 1))*wClip;
+	vec4 wsPos = uCamWorld * vsPos;
+	vec4 wsEyePos = uCamWorld * vec4(vec3(0.0), 1.0);
+
+	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
+	return -wsEyeDir;
+}
 
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)

@@ -36,8 +36,8 @@ void initCamera(rev::game::SceneNode*& camNode, rev::game::FlyBy*& player, rev::
 	const float camAngSpeed = 1.f;
 	auto xform = camNode->addComponent<rev::game::Transform>();
 	player = camNode->addComponent<rev::game::FlyBy>(camSpeed, camAngSpeed);
-	xform->xForm.position() = rev::math::Vec3f{0.f, 1.7f, 0.f };
-	gfxCam = &*camNode->addComponent<rev::game::Camera>()->cam();
+	xform->xForm.position() = rev::math::Vec3f{0.f, 1.7f, 8.f };
+	gfxCam = &*camNode->addComponent<rev::game::Camera>(rev::math::Pi/4, 0.1f, 1000.f)->cam();
 
 	camNode->init();
 }

@@ -13,27 +13,30 @@ layout(rgba32f, binding = 1) uniform image2D direct_taa;
 
 vec3 computeWorldPos(mat4 view, ivec2 pixel_coords, float t)
 {
-	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
-	vec4 ro = view * vec4(0,0,0,1.0);
-	vec4 ssRd = vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0);
-	vec4 rd = view * ssRd;
-	return (ro + t * rd).xyz;
+	vec2 csPos = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.xy) - vec2(1, 1);
+
+	vec4 posB = vec4(csPos.x, csPos.y, 1.0, 1.0);
+
+	mat4 invProj = inverse(uProj); 
+	vec4 vsDir = normalize(invProj * posB);
+	vec4 wsPos = inverse(view) * vec4((t*vsDir).xyz,1.0);
+	return wsPos.xyz;
 }
 
 ivec2 pixelCoordFromWorldPos(mat4 view, vec3 worldPos)
 {
-	vec4 ssRo = vec4(0,0,0,1.0);
-	vec4 ssRd = inverse(view) * vec4(worldPos,1.0) - ssRo;
-	vec2 ssXY = ssRd.xy * (-2.0/ssRd.z);
-	vec2 pixel = (ssXY + vec2(uWindow.x/uWindow.y, 1)) * uWindow.y/2.0;
+	vec4 ssPos = uProj * view * vec4(worldPos, 1.0);
+	vec2 ssXY = ssPos.xy / ssPos.w;
+	vec2 pixel = (ssXY * 0.5 + 0.5) * uWindow.xy;
 	return ivec2(pixel.x+0.5, pixel.y+0.5);
 }
 
 bool reuseTaa(float curT, out vec4 taa)
 {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec3 curPos = computeWorldPos(uView, pixel_coords, curT);
+	vec3 curPos = computeWorldPos(uViewMtx, pixel_coords, curT);
 	ivec2 oldPxl = pixelCoordFromWorldPos(uOldView, curPos);
+
 	if(oldPxl.x < 0 || oldPxl.y < 0 || oldPxl.x >= uWindow.x || oldPxl.y >= uWindow.y)
 		return false;
 	taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
@@ -42,7 +45,8 @@ bool reuseTaa(float curT, out vec4 taa)
 		return false;
 	vec3 oldPos = computeWorldPos(uOldView, oldPxl, lastT);
 	vec3 distance = oldPos-curPos;
-	return dot(distance, distance) < 0.05;
+	float error = abs(dot(distance, distance)/curT);
+	return error < 0.1;
 }
 
 vec3 irradiance(in vec3 dir)
@@ -55,15 +59,13 @@ void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
 	// Compute uvs
-	vec2 centerUV = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
 	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
 
 	vec3 worldNormal = gBuffer.xyz;
 
-	vec2 xy = vec2(pixel_coords.x, pixel_coords.y) * (2/uWindow.y) - vec2(uWindow.x/uWindow.y, 1);
-	vec4 ro = uView * vec4(0,0,0,1.0);
-	vec4 ssRd = vec4(normalize(vec3(xy.x, xy.y, -2.0)), 0.0);
-	vec4 rd = uView * ssRd;
+	vec2 pixelUVs = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
+	vec4 ro = uCamWorld * vec4(0,0,0,1.0);
+	vec4 rd = vec4(worldSpaceRay(2*pixelUVs-1), 0.0);
 	vec4 localPoint = ro+gBuffer.w*rd+vec4(gBuffer.xyz,0.0)*1e-4;
 
 	if(gBuffer.w < 0.0)
@@ -95,7 +97,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + 1.0);
-		taa.y = min(63.0, taa.y+1.0);
+		taa.y = min(31.0, taa.y+1.0);
 	}
 	else
 	{
@@ -157,7 +159,8 @@ void main() {
 		pixel.xyz = albedo*(smoothLight + secondLight);
 
 		//pixel.xyz = vec3(sunVisibility);
-		//pixel.xyz = 0.5*gBuffer.xyz+0.5;
+		//pixel.xyz = vec3(visibility);
+		//pixel.xyz = gBuffer.xyz;
 		//pixel.xyz = vec3(gBuffer.w*0.1);
 		//if(reuseTaa(gBuffer.w))
 		//	pixel.xyz = vec3(0.0,1.0,0.0);

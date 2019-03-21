@@ -96,10 +96,14 @@ namespace vkft::gfx
         CommandBuffer::UniformBucket commonUniforms;
         commonUniforms.addParam(1, uWindow);
 		float aspectRatio = uWindow.x() / uWindow.y();
-		Mat44f curView = camera.world().matrix();
+		Mat44f worldMtx = camera.world().matrix();
+		Mat44f view = camera.view();
+		Mat44f proj = camera.projection(aspectRatio);
 
-        commonUniforms.addParam(2, curView);
+        commonUniforms.addParam(2, worldMtx);
 		commonUniforms.addParam(8, m_texturePack);
+		commonUniforms.addParam(9, view);
+		commonUniforms.addParam(10, proj);
 
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
@@ -130,7 +134,7 @@ namespace vkft::gfx
 		passUniforms.addParam(5, m_indirectLightTexture);
 		passUniforms.addParam(6, m_directLightTAABuffer[m_taaIndex]);
 		passUniforms.addParam(7, m_taaView);
-		m_taaView = curView;
+		m_taaView = view;
 		commands.setComputeProgram(m_composeCompute);
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
