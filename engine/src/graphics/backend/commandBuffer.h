@@ -62,7 +62,7 @@ namespace rev :: gfx
 			size_t addParam(int pos, math::Vec3f x) { vec3s.push_back({pos, x}); return vec3s.size() -1; }
 			size_t addParam(int pos, math::Vec4f x) { vec4s.push_back({pos, x}); return vec4s.size() -1; }
 			size_t addParam(int pos, math::Mat44f x) { mat4s.push_back({pos, x}); return mat4s.size() -1; }
-			size_t addParam(int pos, Texture2d x) { textures.push_back({pos, x}); return textures.size() -1; }
+			size_t addParam(int pos, Texture2d x) { assert(x.isValid()); textures.push_back({pos, x}); return textures.size() -1; }
 			size_t addComputeOutput(int pos, Texture2d x) { computeOut.push_back({pos, x}); return computeOut.size() -1; }
 		};
 

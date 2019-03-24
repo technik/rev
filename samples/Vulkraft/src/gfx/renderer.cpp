@@ -96,14 +96,15 @@ namespace vkft::gfx
         CommandBuffer::UniformBucket commonUniforms;
         commonUniforms.addParam(1, uWindow);
 		float aspectRatio = uWindow.x() / uWindow.y();
-		Mat44f worldMtx = camera.world().matrix();
+		Mat44f camWorldMtx = camera.world().matrix();
 		Mat44f view = camera.view();
 		Mat44f proj = camera.projection(aspectRatio);
 
-        commonUniforms.addParam(2, worldMtx);
-		commonUniforms.addParam(8, m_texturePack);
-		commonUniforms.addParam(9, view);
-		commonUniforms.addParam(10, proj);
+        commonUniforms.addParam(2, camWorldMtx);
+		commonUniforms.addParam(3, view);
+		commonUniforms.addParam(4, proj);
+		commonUniforms.addParam(5, m_texturePack);
+		commonUniforms.addParam(6, Vec4f(m_noisePermutations(m_rng),m_noisePermutations(m_rng),0.f,0.f));
 
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
@@ -112,10 +113,10 @@ namespace vkft::gfx
 
 		// Dispatch light contributions
         passUniforms.clear();
-        passUniforms.addParam(3, m_gBufferTexture); // So we can read from the g-buffer
+        passUniforms.addParam(11, m_gBufferTexture); // So we can read from the g-buffer
 		passUniforms.addComputeOutput(1, m_indirectLightTexture);
         unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
-        passUniforms.addParam(4, m_blueNoise[noiseTextureNdx]);
+        passUniforms.addParam(12, m_blueNoise[noiseTextureNdx]);
         commands.setComputeProgram(m_directLightCompute);
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
@@ -128,12 +129,14 @@ namespace vkft::gfx
 		// Compose image
 		passUniforms.clear();
 		passUniforms.addComputeOutput(1, m_directLightTAABuffer[m_taaIndex]);
+		passUniforms.addComputeOutput(2, m_indirectLightTAABuffer[m_taaIndex]);
 		m_taaIndex^=1;
-        passUniforms.addParam(3, m_gBufferTexture);
-        passUniforms.addParam(4, m_directLightTexture);
-		passUniforms.addParam(5, m_indirectLightTexture);
-		passUniforms.addParam(6, m_directLightTAABuffer[m_taaIndex]);
-		passUniforms.addParam(7, m_taaView);
+        passUniforms.addParam(11, m_gBufferTexture);
+        passUniforms.addParam(12, m_directLightTexture);
+		passUniforms.addParam(13, m_indirectLightTexture);
+		passUniforms.addParam(14, m_directLightTAABuffer[m_taaIndex]);
+		passUniforms.addParam(15, m_indirectLightTAABuffer[m_taaIndex]);
+		passUniforms.addParam(16, m_taaView);
 		m_taaView = view;
 		commands.setComputeProgram(m_composeCompute);
         commands.setUniformData(commonUniforms);
@@ -187,6 +190,8 @@ namespace vkft::gfx
         m_directLightTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_directLightTAABuffer[0] = mGfxDevice.createTexture2d(bufferDesc);
 		m_directLightTAABuffer[1] = mGfxDevice.createTexture2d(bufferDesc);
+		m_indirectLightTAABuffer[0] = mGfxDevice.createTexture2d(bufferDesc);
+		m_indirectLightTAABuffer[1] = mGfxDevice.createTexture2d(bufferDesc);
         m_indirectLightTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
 	}

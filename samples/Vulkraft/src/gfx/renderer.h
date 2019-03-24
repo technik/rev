@@ -44,6 +44,7 @@ namespace vkft::gfx
         rev::gfx::Texture2d m_gBufferTexture;
 		rev::gfx::Texture2d m_directLightTexture;
 		rev::gfx::Texture2d m_directLightTAABuffer[2];
+		rev::gfx::Texture2d m_indirectLightTAABuffer[2];
         rev::gfx::Texture2d m_indirectLightTexture;
         rev::gfx::Texture2d m_raytracingTexture;
 		int m_taaIndex = 0;

@@ -4,9 +4,10 @@ layout(local_size_x = 1, local_size_y = 1) in;
 // Input uniforms
 layout(location = 1) uniform vec4 uWindow;
 layout(location = 2) uniform mat4 uCamWorld;
-layout(location = 8) uniform sampler2D uTexturePack;
-layout(location = 9) uniform mat4 uViewMtx;
-layout(location = 10) uniform mat4 uProj;
+layout(location = 3) uniform mat4 uViewMtx;
+layout(location = 4) uniform mat4 uProj;
+layout(location = 5) uniform sampler2D uTexturePack;
+layout(location = 6) uniform vec4 uNoiseOffset;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;
@@ -40,7 +41,7 @@ vec3 worldSpaceRay(vec2 clipSpacePos)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	//return vec3(0.5);
+	return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
 	if(worldPos.y > 0.01)
@@ -116,7 +117,6 @@ struct Node
 	int descriptor;
 };
 
-const Box rootBox = { vec3(-4.0, 0.0, -8.0), vec3(4.0, 8.0, 0.0) };
 Node tree[5+4*8] =
 {
 	{ 0<<16 | 0x00<<8 | 0x33 }, // Top level
@@ -161,18 +161,12 @@ Node tree[5+4*8] =
 	{ 0xff<<8 | 0x3c },
 	{ 0xff<<8 | 0x36 },
 };
-
+const Box rootBox = { vec3(-4.0, 0.0, -8.0), vec3(4.0, 8.0, 0.0) };
 
 void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 {
 	ir.o = ro;
-	ir.n = vec3(1.0) / rd;
-	if(rd.x == 0.0)
-		ir.n.x = 100000.0;
-	if(rd.y == 0.0)
-		ir.n.y = 100000.0;
-	if(rd.z == 0.0)
-		ir.n.z = 100000.0;
+	ir.n = 1.0 / rd;
 	ir.d = rd;
 }
 
@@ -203,7 +197,7 @@ int childNode(int parentNode, int childNdx)
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 3;
+	const int MAX_DEPTH = 2;
 
 	// Find first child
 	vec3 t1 = (rootBox.min - ir.o) * ir.n;
@@ -216,9 +210,9 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	float t = max(max(max(0.0,tNear.x),tNear.y),tNear.z); // If nan, return first operand, which is never nan
 	float tExit = min(min(min(tMax,tFar.x),tFar.y),tFar.z); // If nan, return first operand, which is never nan
 	if(tExit < t)
-		return -1.0; // Skip everything
+		return -1.0; // Box not in range, Skip everything
 
-	int rayDirMask = (ir.d.x<0?4:0) | (ir.d.y<0?2:0) | (ir.d.z<0?1:0);
+	int rayDirMask = (ir.d.x<=0?4:0) | (ir.d.y<=0?2:0) | (ir.d.z<=0?1:0);
 	vec3 tcross = ((rootBox.min + rootBox.max)*0.5 - ir.o) * ir.n;
 	int childNdx = findFirstChild(tcross, rayDirMask, t);
 	ivec3 pos = ivec3(childNdx>>2, (childNdx>>1) & 1, childNdx&1);
@@ -264,8 +258,6 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				pos.x = (pos.x<<1) | (childNdx>>2);
 				pos.y = (pos.y<<1) | ((childNdx&2)>>1);
 				pos.z = (pos.z<<1) | (childNdx&1);
-
-				continue;
 			}
 		}
 		else
@@ -284,7 +276,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 			int canStep = childNdx^ 7 ^rayDirMask;
 			while((canStep&eventMask) != eventMask) // Pop until we can!
 			{
-				if(depth > 0)
+				if(depth > 0) // Pop one level
 				{
 					--depth;
 					pos >>= 1;
@@ -293,8 +285,10 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 
 					parentNode = nodeStack[depth];
 				}
-				else // Pop one level
+				else
+				{
 					return -1.0;
+				}
 			}
 
 			// Switch to next sibling
@@ -324,17 +318,18 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 {
 	float t = -1.0;
-	if(rd.y < 0.0) // Hit plane
-	{
-		normal = vec3(0.0,1.0,0.0);
-		t = -ro.y / rd.y;
-		tMax = t;
-	}
-	
 	// Convert ray to its implicit representation
 	ImplicitRay ir;
 	toImplicit(ro,rd,ir);
 
+	// Hit ground plane
+	if(rd.y < 0.0)
+	{
+		normal = vec3(0.0,1.0,0.0);
+		t = -ro.y * ir.n.y;
+		tMax = t;
+	}
+	
 	// Hit octree
 	{
 		vec3 tNormal;
@@ -351,7 +346,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
 {
-	if(rd.y < 0.0) // Hit plane
+	if(rd.y <= 0.0) // Hit plane
 	{
 		return 1.0;
 	}
