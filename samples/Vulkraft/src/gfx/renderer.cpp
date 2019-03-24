@@ -244,7 +244,7 @@ namespace vkft::gfx
 
 		for(unsigned i = 0; i < NumBlueNoiseTextures; ++i)
 		{
-#if 0
+#if 1
 			// Create a brand new noise texture
 			Vec4f* noise = new Vec4f[64*64];
 			std::uniform_real_distribution<float> noiseDistrib;

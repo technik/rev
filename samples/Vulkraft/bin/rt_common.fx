@@ -104,6 +104,7 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 }
 
 vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
+vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
 vec3 skyColor(vec3 dir)
 {
 	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
@@ -398,12 +399,12 @@ vec3 randomUnitVector(in vec2 seed)
 	float horRad = sqrt(1-z*z);
 	return vec3(
 		cos(theta)*horRad,
-		sin(theta)*horRad,
-		z
+		z,
+		sin(theta)*horRad
 		);
 }
 
 vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 {
-	return normal + 0.98 * randomUnitVector(seed);
+	return normal + 0.985 * randomUnitVector(seed);
 }
