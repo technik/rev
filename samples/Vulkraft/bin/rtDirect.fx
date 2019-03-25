@@ -70,7 +70,7 @@ void main() {
 	// Compute uvs
 	vec2 pixelUVs = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
 	vec3 ro = (uCamWorld * vec4(0,0,0,1.0)).xyz;
-	vec3 rd = worldSpaceRay(2*pixelUVs-1);
+	vec3 rd = worldSpaceRay(uCamWorld, 2*pixelUVs-1);
 	vec4 gBufferData = texelFetch(uGBuffer, pixel_coords, 0);
 	if(gBufferData.w < 0.0)
 		return;

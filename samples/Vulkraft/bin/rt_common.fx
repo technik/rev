@@ -25,14 +25,14 @@ struct ImplicitRay
 	vec3 d;
 };
 
-vec3 worldSpaceRay(vec2 clipSpacePos)
+vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 {
 	float zClipDepth = 0.0;
 	float wClip = uProj[3][2] / (zClipDepth - uProj[2][2]/uProj[2][3]);
 	vec3 csPos = vec3(clipSpacePos.x, clipSpacePos.y, zClipDepth);
 	vec4 vsPos = (inverse(uProj) * vec4(csPos, 1))*wClip;
-	vec4 wsPos = uCamWorld * vsPos;
-	vec4 wsEyePos = uCamWorld * vec4(vec3(0.0), 1.0);
+	vec4 wsPos = camWorld * vsPos;
+	vec4 wsEyePos = camWorld * vec4(vec3(0.0), 1.0);
 
 	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
 	return -wsEyeDir;
@@ -41,7 +41,7 @@ vec3 worldSpaceRay(vec2 clipSpacePos)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	return vec3(0.5);
+	//return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
 	if(worldPos.y > 0.01)

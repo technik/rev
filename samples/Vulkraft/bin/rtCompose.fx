@@ -13,33 +13,42 @@ layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
 layout(rgba32f, binding = 1) writeonly uniform image2D direct_taa;
 layout(rgba32f, binding = 2) writeonly uniform image2D indirect_taa;
 
-vec2 ssUvFromWorldPos(mat4 view, vec3 worldPos)
+vec2 ssFromWorldPos(mat4 view, vec3 worldPos)
 {
 	vec4 ssPos = uProj * view * vec4(worldPos, 1.0);
-	vec2 ssXY = ssPos.xy / ssPos.w;
-	return ssXY * 0.5+0.5;
+	return ssPos.xy / ssPos.w;
+}
+
+vec2 uvFromWorldPos(mat4 view, vec3 worldPos)
+{
+	return ssFromWorldPos(view,worldPos) * 0.5+0.5;
+}
+
+vec3 worldPosFromSS(mat4 view, vec2 ssPos, float t)
+{
+	vec4 posB = vec4(ssPos.x, ssPos.y, 1.0, 1.0);
+
+	mat4 invProj = inverse(uProj); 
+	mat4 camWorld = inverse(view);
+	vec4 wsDir = vec4(worldSpaceRay(camWorld, ssPos), 0.0);
+	vec4 wsPos = t * wsDir + camWorld * vec4(0,0,0,1);
+	return wsPos.xyz;
 }
 
 vec3 worldPosFromUV(mat4 view, vec2 uvs, float t)
 {
-	vec2 csPos = uvs * 2 - 1;
-	vec4 posB = vec4(csPos.x, csPos.y, 1.0, 1.0);
-
-	mat4 invProj = inverse(uProj); 
-	vec4 vsDir = normalize(invProj * posB);
-	vec4 wsPos = inverse(view) * vec4((t*vsDir).xyz,1.0);
-	return wsPos.xyz;
+	return worldPosFromSS(view, uvs * 2 - 1, t);
 }
 
 vec3 worldPosFromPixel(mat4 view, ivec2 pixel_coords, float t)
 {
-	vec2 uvs = vec2(pixel_coords.x+0.5, pixel_coords.y+0.5) /uWindow.xy;
+	vec2 uvs = vec2(pixel_coords.x+0.5, pixel_coords.y+0.5) / uWindow.xy;
 	return worldPosFromUV(view, uvs, t);
 }
 
 ivec2 pixelFromUV(vec2 uv)
 {
-	return ivec2(uv*uWindow.xy+0.5-0.001);
+	return ivec2(uv*uWindow.xy);
 }
 
 bool reuseTaa(float curT, out vec4 taa, out vec4 indirectTaa)
@@ -48,20 +57,52 @@ bool reuseTaa(float curT, out vec4 taa, out vec4 indirectTaa)
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
 	
-	vec2 oldUV = ssUvFromWorldPos(uOldView, curPos);
+	vec2 oldSS = ssFromWorldPos(uOldView, curPos);
 
-	if(oldUV.x < 0 || oldUV.y < 0 || oldUV.x >= 1.0 || oldUV.y >= 1.0)
+	if(oldSS.x <= -1 || oldSS.y <= -1 || oldSS.x >= 1.0 || oldSS.y >= 1.0)
 		return false;
-	ivec2 oldPxl = pixelFromUV(oldUV);
+
+	ivec2 oldPxl = pixelFromUV(oldSS*0.5+0.5);
 	taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
 	float lastT = taa.w;
 	if(lastT < 0.0)
 		return false;
 	indirectTaa = texelFetch(uIndirectTaaSrc, oldPxl, 0);
-	vec3 oldPos = worldPosFromUV(uOldView, oldUV, lastT);
+	vec3 oldPos = worldPosFromPixel(uOldView, oldPxl, lastT);
 	vec3 distance = oldPos-curPos;
-	float error = abs(dot(distance, distance)/curT);
-	return error < 0.0001;
+	float error = sqrt(dot(distance, distance))/curT;
+	return error < 0.009;
+}
+
+vec3 ssReprojError(float curT)
+{
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
+	vec2 reconstUV = uvFromWorldPos(uViewMtx, curPos);
+	pixelFromUV(reconstUV);
+	//return vec3((reconstUV*uWindow.xy-0.5)-pixel_coords, 0.0);
+	return vec3(pixelFromUV(reconstUV)-pixel_coords, 0.0);
+}
+
+vec3 reprojError(float curT)
+{
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
+	
+	vec2 oldSS = ssFromWorldPos(uOldView, curPos);
+
+	if(oldSS.x <= -1 || oldSS.y <= -1 || oldSS.x >= 1.0 || oldSS.y >= 1.0)
+		return vec3(0);
+	ivec2 oldPxl = pixelFromUV(oldSS*0.5+0.5);
+	vec4 taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
+	float lastT = taa.w;
+	if(lastT < 0.0)
+		return vec3(0);
+
+	//vec3 oldPos = worldPosFromSS(uOldView, oldSS, lastT);
+	vec3 oldPos = worldPosFromPixel(uOldView, oldPxl, lastT);
+	vec3 distance = oldPos-curPos;
+	return vec3(abs(distance)/(curT*0.1));
 }
 
 vec3 irradiance(in vec3 dir)
@@ -74,7 +115,7 @@ void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
 	vec2 pixelUVs = vec2(pixel_coords.x+0.5, pixel_coords.y+0.5) * (1/uWindow.xy);
-	vec4 rd = vec4(worldSpaceRay(2*pixelUVs-1), 0.0);
+	vec4 rd = vec4(worldSpaceRay(uCamWorld,2*pixelUVs-1), 0.0);
 	if(gBuffer.w < 0.0)
 	{
 		imageStore(img_output, pixel_coords, vec4(skyColor(rd.xyz),1.0));
@@ -92,15 +133,15 @@ void main() {
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
 
 	// Temporal denoising
-	int windowSize = 15;
+	int windowSize = 9;
 	vec4 taa = vec4(0);
 	vec4 indirectTaa = vec4(0);
 	float taaWeight = 0.0;
 	if(reuseTaa(gBuffer.w, taa, indirectTaa))
 	{
-		windowSize = 1;
-		taaWeight = taa.y / (taa.y + 1.0);
-		taa.y = min(31.0, taa.y+1.0);
+		windowSize = 5;
+		taaWeight = taa.y / (taa.y + windowSize*windowSize);
+		taa.y = min(511.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -123,7 +164,7 @@ void main() {
 			{
 				float localWeight = max(0.0, dot(pointGBuffer.xyz, gBuffer.xyz));
 				localWeight *= sqrt(0.5)*windowSize-sqrt(float(i*i+j*j));
-				//localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
+				localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
 				kernelWeight += localWeight;
 				vec4 direct = texelFetch(uDirectLight, pixel_coords+ivec2(i,j), 0);
 				if(direct.w < 0.0)
@@ -152,7 +193,6 @@ void main() {
 	vec4 localPoint = ro+rd*gBuffer.w-gBuffer*0.1;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	pixel.xyz = albedo*(smoothLight+secondLight.xyz);
-	pixel.xyz = (secondLight.xyz);
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
