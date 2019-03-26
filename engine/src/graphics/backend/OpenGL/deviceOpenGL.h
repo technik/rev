@@ -78,6 +78,12 @@ namespace rev :: gfx
 			return buffer;
 		}
 
+		Buffer allocateStorageBuffer(size_t byteSize, const void* data) override
+		{
+			Buffer buffer = allocateStaticBuffer(GL_SHADER_STORAGE_BUFFER, byteSize, data);
+			return buffer;
+		}
+
 	protected:
 
 		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, const void* data)

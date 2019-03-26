@@ -57,12 +57,14 @@ namespace rev :: gfx
 			ParamList<std::vector<math::Mat44f>> mat4vs;
 			ParamList<Texture2d>	textures;
 			ParamList<Texture2d>	computeOut;
+			ParamList<Buffer>	storageBuffers;
 
 			size_t addParam(int pos, float x) { floats.push_back({pos, x}); return floats.size() -1; }
 			size_t addParam(int pos, math::Vec3f x) { vec3s.push_back({pos, x}); return vec3s.size() -1; }
 			size_t addParam(int pos, math::Vec4f x) { vec4s.push_back({pos, x}); return vec4s.size() -1; }
 			size_t addParam(int pos, math::Mat44f x) { mat4s.push_back({pos, x}); return mat4s.size() -1; }
 			size_t addParam(int pos, Texture2d x) { assert(x.isValid()); textures.push_back({pos, x}); return textures.size() -1; }
+			size_t addParam(int pos, Buffer x) { assert(x.isValid()); storageBuffers.push_back({pos, x}); return storageBuffers.size() -1; }
 			size_t addComputeOutput(int pos, Texture2d x) { computeOut.push_back({pos, x}); return computeOut.size() -1; }
 		};
 

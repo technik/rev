@@ -67,6 +67,7 @@ namespace rev :: gfx
 		// Buffers
 		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
 		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
+		virtual Buffer allocateStorageBuffer(size_t byteSize, const void* data) = 0;
 
 		// Retrieve device info
 		struct Limits
