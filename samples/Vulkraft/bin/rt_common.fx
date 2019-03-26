@@ -8,6 +8,10 @@ layout(location = 3) uniform mat4 uViewMtx;
 layout(location = 4) uniform mat4 uProj;
 layout(location = 5) uniform sampler2D uTexturePack;
 layout(location = 6) uniform vec4 uNoiseOffset;
+layout(std430, binding = 7) buffer VoxelOctree
+{
+	int descriptor[];
+} sbVoxelOctree;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;
@@ -124,7 +128,7 @@ Node tree[5+4*8] =
 	{ 3<<16 | 0x00<<8 | 0xff }, // Mid level
 	{ 10<<16 | 0x00<<8 | 0xff }, // Mid level
 	{ 17<<16 | 0x00<<8 | 0xff }, // Mid level
-	{ 24<<16 | 0x00<<8 | 0xff }, // Mid level
+	{ 24<<16 | 0x00<<8 | 0x00 }, // Mid level
 	// Cube a
 	{ 0xff<<8 | 0x57 },
 	{ 0xff<<8 | 0x0b },
@@ -173,12 +177,12 @@ void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 
 bool voxelExists(int parentNdx, int childNdx)
 {
-	return (tree[parentNdx].descriptor & (1<<childNdx)) != 0;
+	return (sbVoxelOctree.descriptor[parentNdx] & (1<<childNdx)) != 0;
 }
 
 bool isLeaf(int parentNdx, int childNdx)
 {
-	return (tree[parentNdx].descriptor & (0x1<<(childNdx+8))) != 0;
+	return (sbVoxelOctree.descriptor[parentNdx] & (0x1<<(childNdx+8))) != 0;
 }
 
 int findFirstChild(in vec3 tCross, int octantMask, double t)
@@ -189,9 +193,10 @@ int findFirstChild(in vec3 tCross, int octantMask, double t)
 
 int childNode(int parentNode, int childNdx)
 {
-	int firstChildOffet = 1 + (tree[parentNode].descriptor>>16);
+	int parentDesc = sbVoxelOctree.descriptor[parentNode];
+	int firstChildOffet = 1 + (parentDesc>>16);
 	for(int i = 0; i < childNdx; ++i)
-		if((tree[parentNode].descriptor & (1<<i)) != 0)
+		if((parentDesc & (1<<i)) != 0)
 			++firstChildOffet;
 	return parentNode + firstChildOffet;
 }

@@ -26,6 +26,7 @@
 
 #include "renderQueue.h"
 #include "pipeline.h"
+#include "device.h"
 #include "../shaders/computeShader.h"
 
 namespace rev :: gfx

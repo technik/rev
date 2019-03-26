@@ -15,16 +15,19 @@ namespace rev::gfx {
 	class DeviceOpenGLWindows; 
 }
 
+namespace vkft {
+	class VoxelOctree;
+}
+
 namespace vkft::gfx
 {
-	class World;
 
 	class Renderer
 	{
 	public:
 		Renderer(rev::gfx::DeviceOpenGLWindows&, const rev::math::Vec2u& targetSize);
 
-		void render(const World&, const rev::gfx::Camera&);
+		void render(const VoxelOctree&, const rev::gfx::Camera&);
 
 		void onResizeTarget(const rev::math::Vec2u& targetSize);
 

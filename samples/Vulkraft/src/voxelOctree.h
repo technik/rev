@@ -5,19 +5,19 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <graphics/scene/renderGeom.h>
+#include <graphics/backend/device.h>
 
-namespace vkft::gfx {
-
-	class World
+namespace vkft
+{
+	class VoxelOctree
 	{
 	public:
-		World()
-		{
-			mTileGeom = rev::gfx::RenderGeom::quad({0.5f, 0.5f});
-		}
+		VoxelOctree(rev::gfx::Device& gpu);
 
-		rev::gfx::RenderGeom mTileGeom;
+		rev::gfx::Buffer gpuBuffer() const { return m_gpuBuffer; }
+
+	private:
+		rev::gfx::Device& m_gpu;
+		rev::gfx::Buffer m_gpuBuffer;
 	};
-
 }

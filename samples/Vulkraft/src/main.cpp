@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "gfx/renderer.h"
-#include "gfx/world.h"
+#include "voxelOctree.h"
 
 using namespace std;
 using namespace rev::core;
@@ -81,13 +81,15 @@ int main(int _argc, const char** _argv) {
 			return true;
 		return false;
 	};
-	
-	vkft::gfx::World world;
 
+	// Init game elements
 	rev::game::SceneNode* camNode = nullptr;
 	rev::game::FlyBy* player = nullptr;
 	rev::gfx::Camera* playerCam = nullptr;
 	initCamera(camNode, player, playerCam);
+
+	// Init map
+	vkft::VoxelOctree voxelMap(gfxDevice);
 
 	// Main loop
 	float t = 0;
@@ -104,7 +106,7 @@ int main(int _argc, const char** _argv) {
 		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
-		renderer.render(world, *playerCam);
+		renderer.render(voxelMap, *playerCam);
 
 		// Update time
 		t += 1.f/60;

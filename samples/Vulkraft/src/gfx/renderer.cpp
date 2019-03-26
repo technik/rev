@@ -4,7 +4,7 @@
 // Minecraft-style sample game
 //----------------------------------------------------------------------------------------------------------------------
 #include "renderer.h"
-#include "world.h"
+#include "../voxelOctree.h"
 
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/backend/pipeline.h>
@@ -70,7 +70,7 @@ namespace vkft::gfx
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Renderer::render(const World& world, const rev::gfx::Camera& camera)
+	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera)
 	{
 		CommandBuffer commands;
         CommandBuffer::UniformBucket passUniforms;
@@ -105,6 +105,7 @@ namespace vkft::gfx
 		commonUniforms.addParam(4, proj);
 		commonUniforms.addParam(5, m_texturePack);
 		commonUniforms.addParam(6, Vec4f(m_noisePermutations(m_rng),m_noisePermutations(m_rng),0.f,0.f));
+		commonUniforms.addParam(7, worldMap.gpuBuffer());
 
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
