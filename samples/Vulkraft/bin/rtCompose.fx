@@ -139,9 +139,9 @@ void main() {
 	float taaWeight = 0.0;
 	if(reuseTaa(gBuffer.w, taa, indirectTaa))
 	{
-		windowSize = 5;
+		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(511.0, taa.y+windowSize*windowSize);
+		taa.y = min(31.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{

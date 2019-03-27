@@ -90,7 +90,7 @@ int main(int _argc, const char** _argv) {
 
 	// Init map
 	vkft::VoxelOctree::FullGrid rawGrid;
-	vkft::VoxelOctree::generateGrid(2, rawGrid);
+	vkft::VoxelOctree::generateGrid(5, rawGrid);
 	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
 
 	// Main loop

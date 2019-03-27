@@ -159,7 +159,7 @@ int childNode(int parentNode, int childNdx)
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 2;
+	const int MAX_DEPTH = 8;
 
 	// Find first child
 	vec3 t1 = (rootBox.min - ir.o) * ir.n;

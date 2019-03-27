@@ -83,12 +83,12 @@ namespace vkft
 		for(int i = layers.size()-1; i >= 0; --i)
 		{
 			int sideSize = 1<<i;
-			int axisMask = ~(int(-1)<<(i+1));
+			int axisMask = ~(int(-1)<<(i));
 
 			for(int parent = 0; parent < layers[i].size(); ++parent)
 			{
-				int x = parent>>(2*sideSize);
-				int y = (parent>>sideSize) & axisMask;
+				int x = parent>>(2*i);
+				int y = (parent>>i) & axisMask;
 				int z = parent & axisMask;
 
 				uint8_t validMask = 0;
