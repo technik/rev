@@ -12,9 +12,17 @@ namespace vkft
 	class VoxelOctree
 	{
 	public:
-		VoxelOctree(rev::gfx::Device& gpu);
+		struct FullGrid
+		{
+			int depth;
+			std::vector<uint8_t> voxels;
+		};
+
+		VoxelOctree(rev::gfx::Device& gpu, const FullGrid& rawData);
 
 		rev::gfx::Buffer gpuBuffer() const { return m_gpuBuffer; }
+		
+		static void generateGrid(int depth, FullGrid& dst);
 
 	private:
 		rev::gfx::Device& m_gpu;

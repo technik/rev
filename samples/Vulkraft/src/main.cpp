@@ -89,7 +89,9 @@ int main(int _argc, const char** _argv) {
 	initCamera(camNode, player, playerCam);
 
 	// Init map
-	vkft::VoxelOctree voxelMap(gfxDevice);
+	vkft::VoxelOctree::FullGrid rawGrid;
+	vkft::VoxelOctree::generateGrid(2, rawGrid);
+	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
 
 	// Main loop
 	float t = 0;
