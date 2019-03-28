@@ -45,13 +45,13 @@ vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	return vec3(0.5);
+	//return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
-	if(worldPos.y > 0.01)
-		tileOffset = ivec2(2,4);
-	if(worldPos.y > 1.99)
-		tileOffset = ivec2(4,0);
+	//if(worldPos.y > 0.01)
+	//	tileOffset = ivec2(2,4);
+	//if(worldPos.y > 1.99)
+	//	tileOffset = ivec2(4,0);
 	// Compute uvs
 	vec2 texUV;
 	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
@@ -122,7 +122,7 @@ struct Node
 	int descriptor;
 };
 
-const Box rootBox = { vec3(-4.0, 0.0, -8.0), vec3(4.0, 8.0, 0.0) };
+const Box rootBox = { vec3(-32.0, -32.0, -32.0), vec3(32.0, 32.0, 32.0) };
 
 void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 {
@@ -150,7 +150,7 @@ int findFirstChild(in vec3 tCross, int octantMask, double t)
 int childNode(int parentNode, int childNdx)
 {
 	int parentDesc = sbVoxelOctree.descriptor[parentNode];
-	int firstChildOffet = 1 + (parentDesc>>16);
+	int firstChildOffet = 1+(parentDesc>>16);
 	for(int i = 0; i < childNdx; ++i)
 		if((parentDesc & (1<<i)) != 0)
 			++firstChildOffet;
@@ -159,7 +159,7 @@ int childNode(int parentNode, int childNdx)
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 8;
+	const int MAX_DEPTH = 6;
 
 	// Find first child
 	vec3 t1 = (rootBox.min - ir.o) * ir.n;
@@ -192,7 +192,7 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 	{
 		if(voxelExists(parentNode,childNdx))
 		{
-			if(isLeaf(parentNode,childNdx))
+			if(depth == MAX_DEPTH-1)
 			{
 				// Compute normal
 				normal = vec3(0.0, 0.0, 1.0);
@@ -203,6 +203,18 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				// Reverse direction
 				if(dot(normal,ir.d) > 0)
 					normal = -normal;
+				int colorval = parentNode;
+
+				/*int parentDesc = sbVoxelOctree.descriptor[parentNode];
+				int firstChildOffet = 0+(parentDesc>>16);
+				int childOffet = 1+firstChildOffet;
+				for(int i = 0; i < childNdx; ++i)
+					if((parentDesc & (1<<i)) != 0)
+						++childOffet;
+				colorval = childOffet+parentNode;
+
+				normal = vec3(colorval==9+56, dot(normal, vec3(0.1,0.2,0.3)), parentNode==9);
+				//normal = vec3(firstChildOffet==49, dot(normal, vec3(0.1,0.2,0.3)), parentNode==8);*/
 
 				return t;
 			}
@@ -285,12 +297,12 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 	toImplicit(ro,rd,ir);
 
 	// Hit ground plane
-	if(rd.y < 0.0)
+	/*if(rd.y < 0.0)
 	{
 		normal = vec3(0.0,1.0,0.0);
 		t = -ro.y * ir.n.y;
 		tMax = t;
-	}
+	}*/
 	
 	// Hit octree
 	{
@@ -308,10 +320,10 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
 {
-	if(rd.y <= 0.0) // Hit plane
+	/*if(rd.y <= 0.0) // Hit plane
 	{
 		return 1.0;
-	}
+	}*/
 	
 	// Convert ray to its implicit representation
 	ImplicitRay ir;

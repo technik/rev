@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(31.0, taa.y+windowSize*windowSize);
+		taa.y = min(15.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -189,14 +189,14 @@ void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothLight = visibility * irradiance(gBuffer.xyz) + 0.50 * sunVisibility;
+	vec3 smoothLight = visibility * 0.1*irradiance(gBuffer.xyz) + 0.50 * sunVisibility;
 	vec4 localPoint = ro+rd*gBuffer.w-gBuffer*0.1;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	pixel.xyz = albedo*(smoothLight+secondLight.xyz);
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
-	//pixel.xyz = 0.5*gBuffer.xyz+0.5;
+	//pixel.xyz = gBuffer.xyz;
 	//pixel.xyz = vec3(gBuffer.w*0.1);
 	//if(reuseTaa(gBuffer.w))
 	//	pixel.xyz = vec3(0.0,1.0,0.0);

@@ -32,7 +32,7 @@ using namespace rev::math;
 void initCamera(rev::game::SceneNode*& camNode, rev::game::FlyBy*& player, rev::gfx::Camera*& gfxCam)
 {
 	camNode = new rev::game::SceneNode("player camera");
-	const float camSpeed = 1.f;
+	const float camSpeed = 4.f;
 	const float camAngSpeed = 1.f;
 	auto xform = camNode->addComponent<rev::game::Transform>();
 	player = camNode->addComponent<rev::game::FlyBy>(camSpeed, camAngSpeed);
@@ -90,7 +90,7 @@ int main(int _argc, const char** _argv) {
 
 	// Init map
 	vkft::VoxelOctree::FullGrid rawGrid;
-	vkft::VoxelOctree::generateGrid(3, rawGrid);
+	vkft::VoxelOctree::generateGrid(6, rawGrid);
 	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
 
 	// Main loop

@@ -4,6 +4,7 @@
 // Minecraft-style sample game
 //----------------------------------------------------------------------------------------------------------------------
 #include "voxelOctree.h"
+#include <list>
 
 namespace vkft
 {
@@ -107,31 +108,42 @@ namespace vkft
 
 		// Build tree recursively out of the layers (breadth first)
 		std::vector<int32_t> nodes;
-		int childOffset = 1;
-		for(int layerNdx = 0; layerNdx < layers.size(); ++ layerNdx)
+		std::list<std::pair<uint8_t,int32_t>> childrenStack; // layer, index
+		childrenStack.push_back({0,0});
+		while(!childrenStack.empty())
 		{
-			const auto& layer = layers[layerNdx];
-			int sideSize = 1<<layerNdx;
-			//int axisMask = ~(int(-1)<<(layerNdx+1));
-			for(int i = 0; i < layer.size(); ++i)
+			const auto parent = childrenStack.front();
+			childrenStack.pop_front();
+
+			uint8_t layerNdx = parent.first;
+			int32_t parentPos = parent.second;
+			int32_t axisMask = ~(int32_t(-1)<<(layerNdx)); // i ones. eg, i=3 ->  0b0000'0111
+
+			int x = parentPos>>(2*layerNdx);
+			int y = (parentPos>>layerNdx) & axisMask;
+			int z = parentPos & axisMask;
+
+			assert(childrenStack.size() < uint16_t(-1));
+			uint16_t childOffset = (uint16_t)childrenStack.size();
+			uint8_t validMask = layers[layerNdx][parentPos];
+			nodes.push_back(int32_t(childOffset) << 16 | validMask);
+
+			// Don't add leafs
+			if(layerNdx == treeDepth-1)
+				continue;
+
+			// Push children
+			int32_t childSideSize = 2<<layerNdx;
+			for(uint8_t child = 0; child < 8; ++child)
 			{
-				assert(childOffset > 0);
-				--childOffset;
-
-				int node = layer[i];
-				if(node != 0) // Node has children, so it needs to be stored, and needs an offset
+				if(validMask & (1<<child))
 				{
-					if(layerNdx == layers.size()-1)
-						node |= node<<8; // Leaf mask
-					// Child offset
-					assert(childOffset < uint16_t(-1));
-					node |= childOffset<<16;
-					// Increase child offset for next node by the number of children this node has.
-					for(int i = 0; i < 8; ++i)
-						childOffset += node&i ? 1:0;
-					nodes.push_back(node);
+					int cx = 2*x+(child>>2);
+					int cy = 2*y+((child>>1)&1);
+					int cz = 2*z+(child&1);
+					int childPos = ((cx*childSideSize)+cy)*childSideSize+cz;
+					childrenStack.push_back({layerNdx+1, childPos});
 				}
-
 			}
 		}
 
@@ -157,7 +169,10 @@ namespace vkft
 				for(int k = 0; k < sideSize; ++k)
 				{
 					int index = rowOffset + k;
-					dst.voxels[index] = (i <= j && k <= j )? 1 : 0;
+					float x = float(i)/(sideSize-1);
+					float z = float(k)/(sideSize-1);
+					float h = (sideSize-1)*(sin(10*x)*0.025+0.5 + sin(16*z)*0.01);
+					dst.voxels[index] = j <= h? 1 : 0;
 				}
 			}
 		}
