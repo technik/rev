@@ -83,7 +83,7 @@ namespace vkft
 		for(int i = layers.size()-1; i >= 0; --i)
 		{
 			int sideSize = 1<<i;
-			int axisMask = ~(int(-1)<<(i));
+			int axisMask = ~(int(-1)<<(i)); // i ones. eg, i=3 ->  0b0000'0111
 
 			for(int parent = 0; parent < layers[i].size(); ++parent)
 			{
@@ -112,7 +112,7 @@ namespace vkft
 		{
 			const auto& layer = layers[layerNdx];
 			int sideSize = 1<<layerNdx;
-			int axisMask = ~(int(-1)<<(layerNdx+1));
+			//int axisMask = ~(int(-1)<<(layerNdx+1));
 			for(int i = 0; i < layer.size(); ++i)
 			{
 				assert(childOffset > 0);
@@ -157,7 +157,7 @@ namespace vkft
 				for(int k = 0; k < sideSize; ++k)
 				{
 					int index = rowOffset + k;
-					dst.voxels[index] = i <= j ? 1 : 0;
+					dst.voxels[index] = (i <= j && k <= j )? 1 : 0;
 				}
 			}
 		}
