@@ -123,10 +123,10 @@ namespace vkft
 			int y = (parentPos>>layerNdx) & axisMask;
 			int z = parentPos & axisMask;
 
-			assert(childrenStack.size() < uint16_t(-1));
+			assert(childrenStack.size() < uint32_t(-1)>>8);
 			uint16_t childOffset = (uint16_t)childrenStack.size();
 			uint8_t validMask = layers[layerNdx][parentPos];
-			nodes.push_back(int32_t(childOffset) << 16 | validMask);
+			nodes.push_back(int32_t(childOffset) << 8 | validMask);
 
 			// Don't add leafs
 			if(layerNdx == treeDepth-1)

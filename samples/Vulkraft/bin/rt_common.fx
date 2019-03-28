@@ -136,10 +136,10 @@ bool voxelExists(int parentNdx, int childNdx)
 	return (sbVoxelOctree.descriptor[parentNdx] & (1<<childNdx)) != 0;
 }
 
-bool isLeaf(int parentNdx, int childNdx)
-{
-	return (sbVoxelOctree.descriptor[parentNdx] & (0x1<<(childNdx+8))) != 0;
-}
+//bool isLeaf(int parentNdx, int childNdx)
+//{
+//	return (sbVoxelOctree.descriptor[parentNdx] & (0x1<<(childNdx+8))) != 0;
+//}
 
 int findFirstChild(in vec3 tCross, int octantMask, double t)
 {
@@ -150,7 +150,7 @@ int findFirstChild(in vec3 tCross, int octantMask, double t)
 int childNode(int parentNode, int childNdx)
 {
 	int parentDesc = sbVoxelOctree.descriptor[parentNode];
-	int firstChildOffet = 1+(parentDesc>>16);
+	int firstChildOffet = 1+(parentDesc>>8);
 	for(int i = 0; i < childNdx; ++i)
 		if((parentDesc & (1<<i)) != 0)
 			++firstChildOffet;
@@ -159,7 +159,7 @@ int childNode(int parentNode, int childNdx)
 
 float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 {
-	const int MAX_DEPTH = 6;
+	const int MAX_DEPTH = 5;
 
 	// Find first child
 	vec3 t1 = (rootBox.min - ir.o) * ir.n;
@@ -204,17 +204,6 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 				if(dot(normal,ir.d) > 0)
 					normal = -normal;
 				int colorval = parentNode;
-
-				/*int parentDesc = sbVoxelOctree.descriptor[parentNode];
-				int firstChildOffet = 0+(parentDesc>>16);
-				int childOffet = 1+firstChildOffet;
-				for(int i = 0; i < childNdx; ++i)
-					if((parentDesc & (1<<i)) != 0)
-						++childOffet;
-				colorval = childOffet+parentNode;
-
-				normal = vec3(colorval==9+56, dot(normal, vec3(0.1,0.2,0.3)), parentNode==9);
-				//normal = vec3(firstChildOffet==49, dot(normal, vec3(0.1,0.2,0.3)), parentNode==8);*/
 
 				return t;
 			}
