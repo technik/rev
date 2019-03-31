@@ -21,6 +21,7 @@
 
 #include "../Windows/windowsPlatform.h"
 #include "../doubleBufferSwapChain.h"
+#include "deviceDirectX12.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -36,7 +37,10 @@ namespace rev::gfx
 		DoubleBufferSwapChainDX12(DeviceDirectX12& device, Microsoft::WRL::ComPtr<IDXGISwapChain4> dxgiSwapChain4);
 
 	private:
+		DeviceDirectX12::DescriptorHeap* m_rtvHeap;
+
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_backBuffers[2];
 	};
 }

@@ -19,6 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "doubleBufferSwapChainDX12.h"
 
+#include <wrl.h>
+
+using namespace Microsoft::WRL;
+
 namespace rev ::gfx
 {
 	//----------------------------------------------------------------------------------------------
@@ -26,5 +30,15 @@ namespace rev ::gfx
 		: m_dxgiSwapChain4(dxgiSwapChain4)
 	{
 		// Allocate a descriptor heap for the image views in the chain
+		m_rtvHeap = device.createDescriptorHeap(2, DeviceDirectX12::DescriptorHeap::Type::RenderTarget);
+
+		// Retrieve swap chain buffers
+		for (int i = 0; i < 2; ++i)
+		{
+			m_dxgiSwapChain4->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i]));
+		}
+
+		// Create views
+		device.createRenderTargetViews(*m_rtvHeap, 2, m_backBuffers);
 	}
 }

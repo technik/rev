@@ -92,7 +92,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Device::DescriptorHeap* DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type)
+	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type) -> DescriptorHeap*
 	{
 		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;
 
@@ -100,10 +100,24 @@ namespace rev :: gfx
 		desc.NumDescriptors = numDescriptors;
 
 		desc.Type = (D3D12_DESCRIPTOR_HEAP_TYPE)type;
+		//desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
 		ThrowIfFailed(m_d3d12Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&dx12DescriptorHeap)));
 
 		return new DescriptorHeap (dx12DescriptorHeap);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceDirectX12::createRenderTargetViews(DescriptorHeap& heap, size_t n, ComPtr<ID3D12Resource>* images)
+	{
+		auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(heap.m_dx12Heap->GetCPUDescriptorHandleForHeapStart());
+
+		for(int i = 0; i < n; ++i)
+		{
+			m_d3d12Device->CreateRenderTargetView(images[i].Get(), nullptr, rtvHandle);
+			rtvHandle.ptr += rtvDescriptorSize;
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------

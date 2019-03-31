@@ -39,20 +39,11 @@ namespace rev :: gfx
 	class Device
 	{
 	public:
-		struct DescriptorHeap {
-			enum class Type : int 
-			{
-				ShaderResource = (int)D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-				Sampler = (int)D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
-				RenderTarget = (int)D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-				DepthStencil = (int)D3D12_DESCRIPTOR_HEAP_TYPE_DSV
-			};
-		};
+		struct RenderTargetView {};
 
 	public:
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
-		virtual DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type) = 0;
 
 		virtual RenderQueue& renderQueue() = 0;
 

@@ -36,8 +36,16 @@ namespace rev :: gfx
 	class DeviceDirectX12 : public Device
 	{
 	public:
-		struct DescriptorHeap : public Device::DescriptorHeap
+		struct DescriptorHeap
 		{
+			enum class Type : int 
+			{
+				ShaderResource = (int)D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+				Sampler = (int)D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+				RenderTarget = (int)D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+				DepthStencil = (int)D3D12_DESCRIPTOR_HEAP_TYPE_DSV
+			};
+
 			DescriptorHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& dx12)
 				: m_dx12Heap(dx12)
 			{}
@@ -45,11 +53,19 @@ namespace rev :: gfx
 			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dx12Heap;
 		};
 
+		struct RenderTargetView
+		{};
+
 	public:
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
-		Device::DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type) override;
+		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
+
+		void createRenderTargetViews(
+			DescriptorHeap& heap,
+			size_t n,
+			Microsoft::WRL::ComPtr<ID3D12Resource>* images);
 
 		//Window* createWindow	() override;
 		//void	destroyWindow	(const Window*) override;
