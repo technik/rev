@@ -70,7 +70,8 @@ namespace rev {
 		enum class RenderPath
 		{
 			Forward,
-			Deferred
+			Deferred,
+			Raytracing
 		} m_renderPath = RenderPath::Deferred;
 
 		struct ViewerState

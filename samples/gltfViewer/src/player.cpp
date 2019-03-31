@@ -176,10 +176,19 @@ namespace rev {
 		mGameScene.root()->update(dt);
 
 		// Render scene
-		if(m_renderPath == RenderPath::Forward)
-			mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
-		else
-			mDeferred.render(mGraphicsScene, *mFlybyCam);
+		switch(m_renderPath)
+		{
+			case RenderPath::Forward:
+			{
+				mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
+				break;
+			}
+			case RenderPath::Deferred:
+			{
+				mDeferred.render(mGraphicsScene, *mFlybyCam);
+				break;
+			}
+		}
 		// Render gui
 		ImGui::Render();
 
