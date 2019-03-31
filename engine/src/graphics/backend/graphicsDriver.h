@@ -25,9 +25,13 @@ namespace rev::gfx
 	class GraphicsDriver
 	{
 	public:
-		struct PhysicalDeviceProperties
-		{};
+		struct PhysicalDeviceInfo
+		{
+			float shaderModel = 2;
+			size_t dedicatedVideoMemory = 0;
+		};
 
-		virtual void enumeratePhysicalDevices(PhysicalDeviceProperties* dst, int maxDevices) = 0;
+		/// \return the number of devices found
+		virtual int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) = 0;
 	};
 }

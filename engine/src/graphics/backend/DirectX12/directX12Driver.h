@@ -37,7 +37,7 @@ namespace rev :: gfx
 		DirectX12Driver();
 
 		// Physical devices
-		void enumeratePhysicalDevices(PhysicalDeviceProperties* dst, int maxDevices) override;
+		int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) override;
 
 	private:
 		void createDeviceFactory();

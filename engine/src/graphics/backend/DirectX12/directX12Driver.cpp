@@ -53,6 +53,32 @@ namespace rev :: gfx
 		createDeviceFactory();
 	}
 
+	//----------------------------------------------------------------------------------------------
+	int DirectX12Driver::enumeratePhysicalDevices(PhysicalDeviceInfo* devices, int maxDevices)
+	{
+		ComPtr<IDXGIAdapter1> dxgiAdapter1;
+		int physicalDevices = 0;
+
+		for (UINT i = 0; physicalDevices < maxDevices && m_dxgiFactory->EnumAdapters1(i, &dxgiAdapter1) != DXGI_ERROR_NOT_FOUND; ++i)
+		{
+			DXGI_ADAPTER_DESC1 dxgiAdapterDesc1;
+			dxgiAdapter1->GetDesc1(&dxgiAdapterDesc1);
+
+			// Check to see if the adapter can create a D3D12 device without actually 
+			// creating it. The adapter with the largest dedicated video memory
+			// is favored.
+			if(dxgiAdapterDesc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+				continue; // Only care about phisical devices
+
+			if (SUCCEEDED(D3D12CreateDevice(dxgiAdapter1.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr)))
+			{
+				devices[physicalDevices].shaderModel = 5;
+				devices[physicalDevices].dedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
+			}
+		}
+
+		return physicalDevices;
+	}
 
 	//----------------------------------------------------------------------------------------------
 	void DirectX12Driver::createDeviceFactory()
