@@ -22,7 +22,8 @@
 namespace rev :: gfx
 {
 	//----------------------------------------------------------------------------------------------
-	DeviceDirectX12::DeviceDirectX12()
+	DeviceDirectX12::DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device)
+		: m_d3d12Device(d3d12Device)
 	{
 	}
 }

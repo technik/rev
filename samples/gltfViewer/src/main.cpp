@@ -7,7 +7,8 @@
 #include "player.h"
 
 #include <Windows.h>
-#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
+#include <graphics/backend/Windows/windowsPlatform.h>
+#include <graphics/backend/DirectX12/directX12Driver.h>
 #include <math/algebra/vector.h>
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
@@ -15,6 +16,7 @@
 #include <core/platform/fileSystem/fileSystem.h>
 
 using namespace rev::math;
+using namespace rev::gfx;
 
 //--------------------------------------------------------------------------------------------------------------
 rev::Player* g_player = nullptr;
@@ -107,6 +109,33 @@ int main(int _argc, const char** _argv) {
 	rev::core::OSHandler::startUp();
 	rev::core::FileSystem::init();
 
+	// Init graphics
+	GraphicsDriver* gfxDriver = new DirectX12Driver();
+	const int MAX_GRAPHICS_CARDS = 5;
+	GraphicsDriver::PhysicalDeviceInfo physicalDevices[MAX_GRAPHICS_CARDS];
+	int numGfxCards = gfxDriver->enumeratePhysicalDevices(physicalDevices, MAX_GRAPHICS_CARDS);
+
+	size_t maxVideoMemory = 0;
+	int bestDevice = -1;
+	for(int i = 0; i < numGfxCards; ++i)
+	{
+		if(physicalDevices[i].dedicatedVideoMemory > maxVideoMemory)
+		{
+			bestDevice = i;
+		}
+	}
+
+	if(bestDevice < 0)
+	{
+		std::cout << "Unable to find a suitable graphics card\n";
+		return -1;
+	}
+
+	GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver->createPhysicalDevice(bestDevice);
+
+
+
+
 	auto windowSize = Vec2u(params.sx, params.sy);
 	auto nativeWindow = rev::gfx::createWindow(
 		{80, 80},
@@ -114,7 +143,8 @@ int main(int _argc, const char** _argv) {
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
 		true // Visible
 	);
-	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(nativeWindow, true);
+
+	
 
 	*rev::core::OSHandler::get() += processWindowsMsg;
 	

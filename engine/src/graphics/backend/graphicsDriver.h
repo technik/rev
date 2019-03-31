@@ -21,6 +21,8 @@
 
 namespace rev::gfx
 {
+	class Device;
+
 	/// Interface for dealing with low level tasks of graphics APIs.
 	class GraphicsDriver
 	{
@@ -33,12 +35,13 @@ namespace rev::gfx
 			int deviceApiIndex; // Used to actually create the physical device with the underlying api.
 		};
 
-		struct PhysicalDevice
-		{
-		};
+		struct PhysicalDevice {};
 
 		/// \return the number of devices found
 		virtual int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) = 0;
+
+		// Device creation
 		virtual PhysicalDevice* createPhysicalDevice(int deviceIndex) = 0;
+		virtual Device* createDevice(const PhysicalDevice& adapter) = 0;
 	};
 }

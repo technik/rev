@@ -33,10 +33,11 @@ namespace rev :: gfx
 	class DeviceDirectX12 : public Device
 	{
 	public:
-		DeviceDirectX12();
+		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device);
 
 		//Window* createWindow	() override;
 		//void	destroyWindow	(const Window*) override;
 	private:
+		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
 	};
 }
