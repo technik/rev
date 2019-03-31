@@ -44,7 +44,7 @@ namespace rev :: gfx
 		}
 
 		//------------------------------------------------------------------------------------------
-		bool registerClass() {
+		bool registerClass(bool useCursor) {
 			if(sIsWindowClassRegistered)
 				return true;
 
@@ -57,7 +57,7 @@ namespace rev :: gfx
 				0,
 				moduleHandle,
 				NULL,	// Default icon
-				NULL,	// No cursor shape
+				useCursor ? ::LoadCursor(NULL, IDC_ARROW) : NULL,	// No cursor shape
 				NULL,
 				NULL,
 				"RevWindowClass" };
@@ -73,9 +73,9 @@ namespace rev :: gfx
 		}
 	}
 	//----------------------------------------------------------------------------------------------
-	HWND createDummyWindow()
+	HWND createDummyWindow(bool useCursor)
 	{
-		if(!registerClass())
+		if(!registerClass(useCursor))
 			return NULL;
 
 		// Create a windown through the windows API
@@ -90,9 +90,9 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible)
+	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool useCursor, bool _visible)
 	{
-		if (!registerClass())
+		if (!registerClass(useCursor))
 			return NULL;
 
 		// Create a windown through the windows API
