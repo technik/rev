@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifdef _WIN32
 #include "directX12Driver.h"
+#include <iostream>
 
 using namespace Microsoft::WRL;
 
@@ -50,6 +51,10 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	DirectX12Driver::DirectX12Driver()
 	{
+#ifdef _DEBUG
+		enableDebugLayer();
+#endif // _DEBUG
+
 		createDeviceFactory();
 	}
 
@@ -72,12 +77,32 @@ namespace rev :: gfx
 
 			if (SUCCEEDED(D3D12CreateDevice(dxgiAdapter1.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr)))
 			{
+				devices[physicalDevices].deviceApiIndex = i;
 				devices[physicalDevices].shaderModel = 5;
 				devices[physicalDevices].dedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
 			}
 		}
 
 		return physicalDevices;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	auto DirectX12Driver::createPhysicalDevice(int deviceIndex) -> PhysicalDevice*
+	{
+		ComPtr<IDXGIAdapter1> dxgiAdapter1;
+		auto res = m_dxgiFactory->EnumAdapters1(deviceIndex, &dxgiAdapter1);
+		// Validate index
+		if(res == DXGI_ERROR_NOT_FOUND)
+		{
+			assert(false);
+			std::cout << "Invalid physical device index. This index wasn't retrieved using DirectX12Driver::enumeratePhysicalDevices\n";
+			return nullptr;
+		}
+		// Cast to a valid index
+		auto physicalDevice = new PhysicalDeviceDX12();
+		dxgiAdapter1.As(&physicalDevice->m_adapter);
+
+		return physicalDevice;
 	}
 
 	//----------------------------------------------------------------------------------------------

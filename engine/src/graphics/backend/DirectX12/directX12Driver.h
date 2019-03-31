@@ -38,6 +38,13 @@ namespace rev :: gfx
 
 		// Physical devices
 		int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) override;
+		PhysicalDevice* createPhysicalDevice(int deviceIndex) override;
+
+	private:
+		struct PhysicalDeviceDX12 : PhysicalDevice
+		{
+			ComPtr<IDXGIAdapter4> m_adapter;
+		};
 
 	private:
 		void createDeviceFactory();

@@ -29,9 +29,16 @@ namespace rev::gfx
 		{
 			float shaderModel = 2;
 			size_t dedicatedVideoMemory = 0;
+
+			int deviceApiIndex; // Used to actually create the physical device with the underlying api.
+		};
+
+		struct PhysicalDevice
+		{
 		};
 
 		/// \return the number of devices found
 		virtual int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) = 0;
+		virtual PhysicalDevice* createPhysicalDevice(int deviceIndex) = 0;
 	};
 }
