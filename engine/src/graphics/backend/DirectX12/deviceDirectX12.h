@@ -38,6 +38,8 @@ namespace rev :: gfx
 		//Window* createWindow	() override;
 		//void	destroyWindow	(const Window*) override;
 	private:
+		void enableDebugInfo();
+
 		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
 	};
 }

@@ -132,6 +132,12 @@ int main(int _argc, const char** _argv) {
 	}
 
 	GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver->createPhysicalDevice(bestDevice);
+	Device* gfxDevice = gfxDriver->createDevice(*gfxCard);
+	if(!gfxDevice)
+	{
+		std::cout << "Unable to create graphics device\n";
+		return -1;
+	}
 
 
 
