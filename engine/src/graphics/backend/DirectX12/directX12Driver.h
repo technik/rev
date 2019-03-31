@@ -39,7 +39,7 @@ namespace rev :: gfx
 		// Physical devices
 		int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) override;
 		PhysicalDevice* createPhysicalDevice(int deviceIndex) override;
-		Device* createDevice(const PhysicalDevice& adapter) override;
+		Device* createDevice(const PhysicalDevice& adapter, int numQueues, const CommandQueue::Info* commandQueueDescs) override;
 
 	private:
 		struct PhysicalDeviceDX12 : PhysicalDevice

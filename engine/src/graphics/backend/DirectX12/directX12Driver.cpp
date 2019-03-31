@@ -107,12 +107,16 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto DirectX12Driver::createDevice(const PhysicalDevice& adapter) -> Device*
+	auto DirectX12Driver::createDevice(
+		const PhysicalDevice& adapter,
+		int numQueues,
+		const CommandQueue::Info* commandQueueDescs)
+		-> Device*
 	{
 		auto& adapterDX12 = static_cast<const PhysicalDeviceDX12&>(adapter);
 		ComPtr<ID3D12Device2> d3d12Device2;
 		D3D12CreateDevice(adapterDX12.m_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&d3d12Device2));
-		return new DeviceDirectX12(d3d12Device2);
+		return new DeviceDirectX12(d3d12Device2, numQueues, commandQueueDescs);
 	}
 
 	//----------------------------------------------------------------------------------------------

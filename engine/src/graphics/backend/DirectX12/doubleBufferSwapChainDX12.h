@@ -18,37 +18,25 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-// DirectX 12 specific headers.
+
+#include "../Windows/windowsPlatform.h"
+#include "../doubleBufferSwapChain.h"
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
-#include <d3dcompiler.h>
-
-#include "../device.h"
-#include "../Windows/windowsPlatform.h"
-#include "../commandQueue.h"
-
-#include <vector>
-
 #include <wrl.h>
 
-namespace rev :: gfx
+namespace rev::gfx
 {
-	class DeviceDirectX12 : public Device
+	class DoubleBufferSwapChainDX12 : public DoubleBufferSwapChain
 	{
 	public:
-		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
+		DoubleBufferSwapChainDX12(Microsoft::WRL::ComPtr<IDXGISwapChain4> dxgiSwapChain4)
+			: m_dxgiSwapChain4(dxgiSwapChain4)
+		{}
 
-		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
-
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
 	private:
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> createCommandQueue(const CommandQueue::Info& queueInfo);
-		void enableDebugInfo();
-		void createDeviceFactory();
-
-		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
-		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
-		std::vector<Microsoft::WRL::ComPtr<ID3D12CommandQueue>> m_commandQueues;
+		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
+		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;
 	};
 }

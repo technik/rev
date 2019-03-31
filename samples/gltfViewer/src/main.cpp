@@ -132,23 +132,42 @@ int main(int _argc, const char** _argv) {
 	}
 
 	GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver->createPhysicalDevice(bestDevice);
-	Device* gfxDevice = gfxDriver->createDevice(*gfxCard);
+
+	CommandQueue::Info commandQueues[3];
+	commandQueues[0].type = CommandQueue::Graphics;
+	commandQueues[0].priority = CommandQueue::Normal;
+	commandQueues[1].type = CommandQueue::Compute;
+	commandQueues[1].priority = CommandQueue::Normal;
+	commandQueues[2].type = CommandQueue::Copy;
+	commandQueues[2].priority = CommandQueue::Normal;
+
+	Device* gfxDevice = gfxDriver->createDevice(*gfxCard, 3, commandQueues);
 	if(!gfxDevice)
 	{
 		std::cout << "Unable to create graphics device\n";
 		return -1;
 	}
 
-
-
-
+	// Swap chain creation
 	auto windowSize = Vec2u(params.sx, params.sy);
 	auto nativeWindow = rev::gfx::createWindow(
 		{80, 80},
 		windowSize,
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
+		true,
 		true // Visible
 	);
+
+	DoubleBufferSwapChain::Info swapChainInfo;
+	swapChainInfo.pixelFormat.channel = Image::ChannelFormat::Byte;
+	swapChainInfo.pixelFormat.numChannels = 4;
+	swapChainInfo.size = windowSize;
+
+	gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
+
+
+
+
 
 	
 

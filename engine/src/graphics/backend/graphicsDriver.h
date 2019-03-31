@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "commandQueue.h"
+
 namespace rev::gfx
 {
 	class Device;
@@ -40,8 +42,10 @@ namespace rev::gfx
 		/// \return the number of devices found
 		virtual int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) = 0;
 
-		// Device creation
+		// -- Device management --
 		virtual PhysicalDevice* createPhysicalDevice(int deviceIndex) = 0;
-		virtual Device* createDevice(const PhysicalDevice& adapter) = 0;
+
+		/// Create a new graphics device hosted in \param adapter and containing the requested command queues
+		virtual Device* createDevice(const PhysicalDevice& adapter, int numQueues, const CommandQueue::Info* commandQueueDesc) = 0;
 	};
 }

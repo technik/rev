@@ -19,19 +19,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "../Windows/windowsPlatform.h"
-
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <wrl.h>
-
 namespace rev::gfx
 {
-	class DoubleBufferSwapChainDX12
+	class CommandQueue
 	{
 	public:
-		//
-	private:
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
+		enum Type
+		{
+			Graphics,
+			Compute,
+			Copy
+		};
+		enum Priority
+		{
+			Normal,
+			High,
+			RealTime
+		};
+
+		struct Info
+		{
+			Type type;
+			Priority priority;
+		};
 	};
 }

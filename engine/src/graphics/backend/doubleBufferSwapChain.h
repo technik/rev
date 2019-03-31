@@ -19,10 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <math/algebra/vector.h>
+#include <graphics/Image.h>
+
 namespace rev::gfx
 {
 	class DoubleBufferSwapChain
 	{
 	public:
+		struct Info
+		{
+			math::Vec2u size;
+			Image::PixelFormat pixelFormat;
+			bool stereo = false;
+			unsigned numSamples = 1;
+			bool fullScreen = false;
+		};
 	};
 }

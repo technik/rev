@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "deviceDirectX12.h"
+#include "doubleBufferSwapChainDirectX.h"
 
 using namespace Microsoft::WRL;
 
@@ -34,12 +35,93 @@ inline void ThrowIfFailed(HRESULT hr)
 namespace rev :: gfx
 {
 	//----------------------------------------------------------------------------------------------
-	DeviceDirectX12::DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device)
+	DeviceDirectX12::DeviceDirectX12(
+		Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device,
+		int numQueues,
+		const CommandQueue::Info* commandQueueDescs)
 		: m_d3d12Device(d3d12Device)
 	{
+		createDeviceFactory();
 #if defined(_DEBUG)
 		enableDebugInfo();
 #endif
+		// Create command queues
+		for(int i = 0; i < numQueues; ++i)
+		{
+			//
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	DoubleBufferSwapChain* DeviceDirectX12::createSwapChain(
+		HWND window,
+		int commandQueueIndex,
+		const DoubleBufferSwapChain::Info& info)
+	{
+		// Swap chain desc
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+		swapChainDesc.Width = info.size.x();
+		swapChainDesc.Height = info.size.y();
+		assert(info.pixelFormat.channel == Image::ChannelFormat::Byte);
+		assert(info.pixelFormat.numChannels == 4);
+		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapChainDesc.Stereo = info.stereo;
+		assert(info.numSamples == 1); // Multisampling not supported in dx12?
+		swapChainDesc.SampleDesc = {1, 0};
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 2;
+		swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+
+		// Create swap chain
+		ComPtr<IDXGISwapChain1> swapChain1;
+		m_dxgiFactory->CreateSwapChainForHwnd(
+			m_commandQueues[commandQueueIndex].Get(),
+			window,
+			&swapChainDesc,
+			nullptr,
+			nullptr,
+			&swapChain1);
+
+		m_dxgiFactory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER);
+
+		ComPtr<IDXGISwapChain4> dxgiSwapChain4;
+		swapChain1.As(&dxgiSwapChain4);
+		return new DoubleBufferSwapChainDX12(dxgiSwapChain4);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	ComPtr<ID3D12CommandQueue> DeviceDirectX12::createCommandQueue(const CommandQueue::Info& queueInfo)
+	{
+		D3D12_COMMAND_QUEUE_DESC dx12Desc = {};
+		switch(queueInfo.type)
+		{
+			case CommandQueue::Graphics:
+				dx12Desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+				break;
+			case CommandQueue::Compute:
+				dx12Desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+				break;
+			case CommandQueue::Copy:
+				dx12Desc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+				break;
+		}
+		switch(queueInfo.priority) {
+			case CommandQueue::Normal:
+				dx12Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+				break;
+			case CommandQueue::High:
+				dx12Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+				break;
+			case CommandQueue::RealTime:
+				dx12Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
+				break;
+		}
+		ComPtr<ID3D12CommandQueue> dx12CommandQueue;
+		m_d3d12Device->CreateCommandQueue(&dx12Desc, IID_PPV_ARGS(&dx12CommandQueue));
+
+		return dx12CommandQueue;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -77,5 +159,16 @@ namespace rev :: gfx
 
 			ThrowIfFailed(pInfoQueue->PushStorageFilter(&NewFilter));
 		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceDirectX12::createDeviceFactory()
+	{
+		// Create device factory
+		UINT factoryFlags = 0;
+#ifdef _DEBUG
+		factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif // _DEBUG
+		CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&m_dxgiFactory));
 	}
 }
