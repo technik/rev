@@ -36,9 +36,20 @@ namespace rev :: gfx
 	class DeviceDirectX12 : public Device
 	{
 	public:
+		struct DescriptorHeap : public Device::DescriptorHeap
+		{
+			DescriptorHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& dx12)
+				: m_dx12Heap(dx12)
+			{}
+
+			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dx12Heap;
+		};
+
+	public:
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
+		Device::DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type) override;
 
 		//Window* createWindow	() override;
 		//void	destroyWindow	(const Window*) override;

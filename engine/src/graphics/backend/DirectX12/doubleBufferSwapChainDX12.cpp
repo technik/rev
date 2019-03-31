@@ -17,26 +17,14 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
+#include "doubleBufferSwapChainDX12.h"
 
-#include "../Windows/windowsPlatform.h"
-#include "../doubleBufferSwapChain.h"
-
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <wrl.h>
-
-namespace rev::gfx
+namespace rev ::gfx
 {
-	class DeviceDirectX12;
-
-	class DoubleBufferSwapChainDX12 : public DoubleBufferSwapChain
+	//----------------------------------------------------------------------------------------------
+	DoubleBufferSwapChainDX12::DoubleBufferSwapChainDX12(DeviceDirectX12& device, Microsoft::WRL::ComPtr<IDXGISwapChain4> dxgiSwapChain4)
+		: m_dxgiSwapChain4(dxgiSwapChain4)
 	{
-	public:
-		DoubleBufferSwapChainDX12(DeviceDirectX12& device, Microsoft::WRL::ComPtr<IDXGISwapChain4> dxgiSwapChain4);
-
-	private:
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;
-	};
+		// Allocate a descriptor heap for the image views in the chain
+	}
 }

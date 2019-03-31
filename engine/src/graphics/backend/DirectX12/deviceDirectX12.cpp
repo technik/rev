@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "deviceDirectX12.h"
-#include "doubleBufferSwapChainDirectX.h"
+#include "doubleBufferSwapChainDX12.h"
 
 using namespace Microsoft::WRL;
 
@@ -88,7 +88,22 @@ namespace rev :: gfx
 
 		ComPtr<IDXGISwapChain4> dxgiSwapChain4;
 		swapChain1.As(&dxgiSwapChain4);
-		return new DoubleBufferSwapChainDX12(dxgiSwapChain4);
+		return new DoubleBufferSwapChainDX12(*this, dxgiSwapChain4);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Device::DescriptorHeap* DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type)
+	{
+		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;
+
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = numDescriptors;
+
+		desc.Type = (D3D12_DESCRIPTOR_HEAP_TYPE)type;
+
+		ThrowIfFailed(m_d3d12Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&dx12DescriptorHeap)));
+
+		return new DescriptorHeap (dx12DescriptorHeap);
 	}
 
 	//----------------------------------------------------------------------------------------------
