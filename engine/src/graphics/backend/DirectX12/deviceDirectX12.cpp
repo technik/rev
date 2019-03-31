@@ -17,26 +17,12 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-// DirectX 12 specific headers.
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
-
-#include "../device.h"
-#include "../Windows/windowsPlatform.h"
-
-#include <wrl.h>
+#include "deviceDirectX12.h"
 
 namespace rev :: gfx
 {
-	class DeviceDirectX12 : public Device
+	//----------------------------------------------------------------------------------------------
+	DeviceDirectX12::DeviceDirectX12()
 	{
-	public:
-		DeviceDirectX12();
-
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
-	private:
-	};
+	}
 }

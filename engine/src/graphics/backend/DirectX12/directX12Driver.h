@@ -23,20 +23,25 @@
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 
-#include "../device.h"
+#include "../graphicsDriver.h"
 #include "../Windows/windowsPlatform.h"
 
 #include <wrl.h>
 
 namespace rev :: gfx
 {
-	class DeviceDirectX12 : public Device
+	/// Handles low level DX12 tasks, like retrieving properties of physical devices
+	class DirectX12Driver : public GraphicsDriver
 	{
 	public:
-		DeviceDirectX12();
+		DirectX12Driver();
 
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
+		// Physical devices
+		void enumeratePhysicalDevices(PhysicalDeviceProperties* dst, int maxDevices) override;
+
 	private:
+		void createDeviceFactory();
+		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
 	};
 }
+#pragma once

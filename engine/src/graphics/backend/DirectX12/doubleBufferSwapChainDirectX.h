@@ -18,25 +18,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-// DirectX 12 specific headers.
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
 
-#include "../device.h"
 #include "../Windows/windowsPlatform.h"
 
+#include <d3d12.h>
+#include <dxgi1_6.h>
 #include <wrl.h>
 
-namespace rev :: gfx
+namespace rev::gfx
 {
-	class DeviceDirectX12 : public Device
+	class DoubleBufferSwapChainDX12
 	{
 	public:
-		DeviceDirectX12();
-
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
+		//
 	private:
+		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 	};
 }

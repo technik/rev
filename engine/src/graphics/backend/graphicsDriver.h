@@ -18,25 +18,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-// DirectX 12 specific headers.
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
 
-#include "../device.h"
-#include "../Windows/windowsPlatform.h"
-
-#include <wrl.h>
-
-namespace rev :: gfx
+namespace rev::gfx
 {
-	class DeviceDirectX12 : public Device
+	/// Interface for dealing with low level tasks of graphics APIs.
+	class GraphicsDriver
 	{
 	public:
-		DeviceDirectX12();
+		struct PhysicalDeviceProperties
+		{};
 
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
-	private:
+		virtual void enumeratePhysicalDevices(PhysicalDeviceProperties* dst, int maxDevices) = 0;
 	};
 }
