@@ -120,7 +120,7 @@ namespace rev :: gfx
 
 		ThrowIfFailed(commandList->Close());
 
-		return new CommandListDX12(commandList);
+		return new CommandListDX12(allocator, commandList);
 	}
 
 	//----------------------------------------------------------------------------------------------

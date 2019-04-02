@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandQueueDX12.h"
+#include "commandListDX12.h"
 #include "fenceDX12.h"
 
 namespace rev::gfx {
@@ -33,5 +34,12 @@ namespace rev::gfx {
 		return fenceValueForSignal;
 	}
 
+	//-----------------------------------------------------------------------------
+	void CommandQueueDX12::executeCommandList(CommandList& list)
+	{
+		auto& dx12CmdList = static_cast<CommandListDX12&>(list);
+		ID3D12CommandList* lst = dx12CmdList.m_commandList.Get();
+		m_dx12Queue->ExecuteCommandLists(1, &lst);
+	}
 }
 

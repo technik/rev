@@ -21,5 +21,47 @@
 
 namespace rev::gfx {
 
+	namespace {
+		D3D12_RESOURCE_STATES dx12StateFromCommon(CommandList::ResourceState commonState)
+		{
+			switch(commonState) {
+				case CommandList::ResourceState::RenderTarget:
+					return D3D12_RESOURCE_STATE_RENDER_TARGET;
+				case CommandList::ResourceState::PixelShaderResource:
+					return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+				case CommandList::ResourceState::CopySource:
+					return D3D12_RESOURCE_STATE_COPY_SOURCE;
+				case CommandList::ResourceState::CopyDst:
+					return D3D12_RESOURCE_STATE_COPY_DEST;
+				case CommandList::ResourceState::GenericRead:
+					return D3D12_RESOURCE_STATE_GENERIC_READ;
+				case CommandList::ResourceState::Present:
+					return D3D12_RESOURCE_STATE_PRESENT;
+			}
+
+			return D3D12_RESOURCE_STATE_COMMON;
+		}
+	}
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after)
+	{
+		if(barrierType != Barrier::Transition)
+			return;
+
+
+
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = dx12StateFromCommon(before);
+		barrier.Transition.StateAfter = dx12StateFromCommon(after);
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.pResource
+		barrier.Aliasing.pResourceBefore = nullptr;
+		barrier.Aliasing.pResourceAfter = nullptr;
+		barrier.UAV.pResource = nullptr;
+
+		m_commandList->ResourceBarrier(1, &barrier);
+	}
 }
 

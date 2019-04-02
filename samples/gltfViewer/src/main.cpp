@@ -167,12 +167,15 @@ int main(int _argc, const char** _argv) {
 
 	gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
 
+	// Create two command lists, for alternate frames
+	int backBufferIndex = 0;
+	CommandList* cmdLists[2];
+	cmdLists[0] = gfxDevice->createCommandList(CommandList::Graphics);
+	cmdLists[1] = gfxDevice->createCommandList(CommandList::Graphics);
+	GpuBuffer* backBuffers[2];
+	auto& graphicsQueue = gfxDevice->commandQueue(0);
 
-
-
-
-	
-
+	// --- Init other systems ---
 	*rev::core::OSHandler::get() += processWindowsMsg;
 	
 	rev::input::PointingInput::init();
@@ -191,6 +194,13 @@ int main(int _argc, const char** _argv) {
 			return 0;
 
 		// Render
+		backBufferIndex ^= 1;
+		auto& cmdList = cmdLists[backBufferIndex];
+		cmdList->reset();
+		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
+
+		graphicsQueue.executeCommandList(*cmdList);
 	}
 	return -2;
 }

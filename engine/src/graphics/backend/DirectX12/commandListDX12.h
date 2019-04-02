@@ -29,15 +29,24 @@ namespace rev::gfx {
 	class CommandListDX12 : public CommandList
 	{
 	public:
-		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
-			: m_commandList(dx12CmdList)
+		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_cmdAllocator, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
+			: m_cmdAllocator(m_cmdAllocator)
+			, m_commandList(dx12CmdList)
 		{}
 
-		// --- Commands ---
+		void reset() override
+		{
+			m_cmdAllocator->Reset();
+			m_commandList->Reset(m_cmdAllocator.Get(), nullptr);
+		}
 
+		// --- Commands ---
+		void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) override;
+
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
 	private:
 		uint64_t m_lastValue = 0;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_cmdAllocator;
 	};
 }
 

@@ -35,6 +35,7 @@ namespace rev::gfx {
 
 		// --- Commands ---
 		uint64_t signalFence(Fence& fence) override;
+		void executeCommandList(CommandList& list) override;
 
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_dx12Queue;
 	};

@@ -26,6 +26,7 @@
 #include "../device.h"
 #include "../Windows/windowsPlatform.h"
 #include "../commandQueue.h"
+#include "commandQueueDX12.h"
 
 #include <vector>
 
@@ -34,7 +35,6 @@
 namespace rev :: gfx
 {
 	class CommandList;
-	class CommandQueueDX12;
 
 	class DeviceDirectX12 : public Device
 	{
@@ -62,6 +62,7 @@ namespace rev :: gfx
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
 		CommandList* createCommandList(CommandList::Type commandType) override;
 		Fence* createFence() override;
+		CommandQueue& commandQueue(size_t index) const override { return *m_commandQueues[index]; }
 
 	public: // DirectX 12 specific
 		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);

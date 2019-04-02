@@ -23,6 +23,7 @@
 namespace rev::gfx
 {
 	class Fence;
+	class CommandList;
 
 	class CommandQueue
 	{
@@ -49,5 +50,8 @@ namespace rev::gfx
 		// ---- Synchronization ----
 		/// \return the fence value the CPU must wait for to reach this sync point.
 		virtual uint64_t signalFence(Fence&) = 0;
+
+		// Run commands
+		virtual void executeCommandList(CommandList& list) = 0;
 	};
 }

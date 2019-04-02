@@ -23,6 +23,7 @@
 namespace rev::gfx {
 
 	class Fence;
+	class GpuBuffer;
 
 	class CommandList
 	{
@@ -35,6 +36,24 @@ namespace rev::gfx {
 			Bundle
 		};
 
+		enum class Barrier
+		{
+			Transition
+		};
+
+		enum class ResourceState
+		{
+			RenderTarget,
+			PixelShaderResource,
+			CopySource,
+			CopyDst,
+			GenericRead,
+			Present
+		};
+
+		virtual void reset() = 0;
+
 		// Commands
+		virtual void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) = 0;
 	};
 }
