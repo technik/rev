@@ -24,7 +24,7 @@
 
 namespace rev::game
 {
-	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nMips)
+	/*gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nMips)
 	{
 		// Load image from file
 		auto image = gfx::Image::load(fileName, 0);
@@ -43,5 +43,5 @@ namespace rev::game
 
 		// Create texture in device
 		return device.createTexture2d(descriptor);
-	}
+	}*/
 }

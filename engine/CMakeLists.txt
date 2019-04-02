@@ -42,6 +42,7 @@ add_library(revGfx STATIC ${GRAPHICS_SOURCE_FILES})
 target_include_directories(revGfx PRIVATE "../include" ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_include_directories (revGfx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
 target_link_libraries(revGfx LINK_PRIVATE revMath revCore)
+target_link_libraries(revGfx LINK_PRIVATE "d3d12.lib" "dxgi.lib" "d3dcompiler.lib")
 set_target_properties(revGfx PROPERTIES FOLDER rev)
 
 # game

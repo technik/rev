@@ -133,6 +133,7 @@ int main(int _argc, const char** _argv) {
 
 	GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver->createPhysicalDevice(bestDevice);
 
+	// Create one command queue of each type, all with the same prioriry
 	CommandQueue::Info commandQueues[3];
 	commandQueues[0].type = CommandQueue::Graphics;
 	commandQueues[0].priority = CommandQueue::Normal;
@@ -176,7 +177,7 @@ int main(int _argc, const char** _argv) {
 	rev::input::PointingInput::init();
 	rev::input::KeyboardInput::init();
 
-	rev::Player player(gfxDevice);
+	rev::Player player;
 	g_player = &player;
 	if(!player.init(windowSize, params.scene, params.environment)) {
 		return -1;
@@ -187,6 +188,8 @@ int main(int _argc, const char** _argv) {
 			return 0;
 		if(!player.update())
 			return 0;
+
+		// Render
 	}
 	return -2;
 }

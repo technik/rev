@@ -4,7 +4,6 @@
 #pragma once
 
 #include <game/scene/scene.h>
-#include <graphics/backend/OpenGL/deviceOpenGL.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/renderer/deferred/DeferredRenderer.h>
 #include <graphics/scene/camera.h>
@@ -21,8 +20,7 @@ namespace rev {
 
 	class Player {
 	public:
-		Player(gfx::DeviceOpenGL& device)
-			: m_gfx(device)
+		Player()
 		{}
 
 		Player(const Player&) = delete;
@@ -58,12 +56,11 @@ namespace rev {
 		game::Orbit*						m_orbit;
 
 		// Renderer
-		gfx::ForwardRenderer				mForwardRenderer;
-		gfx::DeferredRenderer				mDeferred;
-		gfx::DeviceOpenGL&					m_gfx;
-		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
-		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
-		std::shared_ptr<game::SceneNode>	m_gltfRoot;
+		//gfx::ForwardRenderer				mForwardRenderer;
+		//gfx::DeferredRenderer				mDeferred;
+		//std::shared_ptr<gfx::DirectionalLight>	m_envLight;
+		//std::shared_ptr<gfx::RenderObj>		m_floorGeom;
+		//std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
 

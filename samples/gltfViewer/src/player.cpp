@@ -34,7 +34,7 @@ namespace rev {
 	{
 		core::Time::init();
 				
-		loadScene(scene);
+		/*loadScene(scene);
 
 		// Default scene light
 		{
@@ -64,7 +64,7 @@ namespace rev {
 		mForwardRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
 		mDeferred.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
 		onWindowResize(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
-		gui::init(windowSize);
+		gui::init(windowSize);*/
 
 		return true;
 	}
@@ -74,28 +74,28 @@ namespace rev {
 	void Player::onWindowResize(const math::Vec2u& _newSize)
 	{
 		m_windowSize = _newSize;
-		mForwardRenderer.onResizeTarget(_newSize);
-		mDeferred.onResizeTarget(_newSize);
+		//mForwardRenderer.onResizeTarget(_newSize);
+		//mDeferred.onResizeTarget(_newSize);
 	}
 #endif // _WIN32
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
-		m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		/*m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
 		m_gltfRoot->addComponent<Transform>();
 		mGameScene.root()->addChild(m_gltfRoot);
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateSceneBBox()
 	{
 		// Compute scene bbox
-		m_globalBBox.clear();
+		/*m_globalBBox.clear();
 		m_gltfRoot->traverseSubtree([&](SceneNode& node){
 			if(auto renderer = node.component<game::MeshRenderer>())
 			{
@@ -108,7 +108,7 @@ namespace rev {
 
 		// Re-center scene
 		auto xForm = m_gltfRoot->component<Transform>();
-		xForm->xForm.position() = -m_globalBBox.origin();
+		xForm->xForm.position() = -m_globalBBox.origin();*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createFloor() {
 
-		auto floorNode = mGameScene.root()->createChild("floor");
+		/*auto floorNode = mGameScene.root()->createChild("floor");
 		auto sceneSize = m_globalBBox.size();
 		auto floorXForm = floorNode->addComponent<Transform>();
 		floorXForm->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
@@ -163,7 +163,7 @@ namespace rev {
 		m_floorGeom->visible = false;
 		mGraphicsScene.renderables().push_back(m_floorGeom);
 
-		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);
+		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -180,12 +180,12 @@ namespace rev {
 		{
 			case RenderPath::Forward:
 			{
-				mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
+				//mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
 				break;
 			}
 			case RenderPath::Deferred:
 			{
-				mDeferred.render(mGraphicsScene, *mFlybyCam);
+				//mDeferred.render(mGraphicsScene, *mFlybyCam);
 				break;
 			}
 		}
@@ -193,14 +193,14 @@ namespace rev {
 		ImGui::Render();
 
 		// Present to screen
-		m_gfx.renderQueue().present();
+		//m_gfx.renderQueue().present();
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateUI(float dt)
 	{
-		gui::startFrame(m_windowSize);
+		/*gui::startFrame(m_windowSize);
 
 		if(ImGui::Begin("Player options"))
 		{
@@ -237,7 +237,7 @@ namespace rev {
 		lightXform.setRotation(rotation * elevation);
 		m_envLight->worldMatrix = lightXform;
 
-		gui::finishFrame(dt);
+		gui::finishFrame(dt);*/
 	}
 
 }	// namespace rev

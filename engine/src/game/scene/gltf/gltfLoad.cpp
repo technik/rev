@@ -259,7 +259,7 @@ namespace rev { namespace game {
 		const char* tag,
 		const vector<gfx::RenderGeom::Attribute>& _attributes)
 	{
-		if(auto posIt = _primitive.attributes.find(tag); posIt != _primitive.attributes.end())
+		/*if(auto posIt = _primitive.attributes.find(tag); posIt != _primitive.attributes.end())
 		{
 			auto& attribute = _attributes[posIt->second];
 			auto& bv = *attribute.bufferView;
@@ -268,7 +268,7 @@ namespace rev { namespace game {
 				bv.vbo = device.allocateStaticVtxBuffer(bv.byteLength, bv.data);
 
 			return &attribute;
-		}
+		}*/
 
 		return nullptr;
 	}
@@ -360,7 +360,7 @@ namespace rev { namespace game {
 		}
 
 		// TODO: Allocate buffer in graphics driver
-		tanBv.vbo = device.allocateStaticVtxBuffer(tanBv.byteLength, tanBv.data);
+		//tanBv.vbo = device.allocateStaticVtxBuffer(tanBv.byteLength, tanBv.data);
 		delete[] reinterpret_cast<const Vec4f*>(tanBv.data);
 		delete[] indexData;
 		tanBv.data = nullptr;
@@ -384,7 +384,7 @@ namespace rev { namespace game {
 		if(!indices->bufferView->vbo.isValid())
 		{
 			auto& bv = *indices->bufferView;
-			indices->bufferView->vbo = device.allocateIndexBuffer(bv.byteLength, bv.data);
+			//indices->bufferView->vbo = device.allocateIndexBuffer(bv.byteLength, bv.data);
 		}
 
 		// Read primitive attributes
@@ -504,13 +504,13 @@ namespace rev { namespace game {
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
+		//auto sampler = gfxDevice.createTextureSampler(samplerDesc);
+		//auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 
 		// Create default texture sampler
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Repeat;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
-		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
+		//auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
 
 		auto clearCoatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
 		auto clearCoat = std::make_shared<Material>(clearCoatEffect);
@@ -539,7 +539,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false));
+					//mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false));
 				}
 				// Base color factor
 				{
@@ -553,21 +553,21 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
+					//mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
 					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
 				if(pbrDesc.metallicFactor != 1.f)
 					mat->addParam("uMetallic", pbrDesc.metallicFactor);
 			}
-			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));
+			//if(!matDesc.emissiveTexture.empty())
+			//	mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false));
+				//mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false));
 			}
-			mat->addTexture("uEnvBRDF", envBRDF);
+			//mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
 		}
 
@@ -676,9 +676,9 @@ namespace rev { namespace game {
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
-		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
+		//auto sampler = gfxDevice.createTextureSampler(samplerDesc);
+		//auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
+		//defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Load buffers
 		vector<core::File*> buffers;
