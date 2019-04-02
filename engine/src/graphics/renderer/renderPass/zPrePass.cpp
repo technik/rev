@@ -63,11 +63,11 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = m_frameBuffer;
 		passDesc.viewportSize = _size;
-		m_pass = m_device.createRenderPass(passDesc);
+//		m_pass = m_device.createRenderPass(passDesc);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture2d ZPrePass::createDepthMapTexture(Device& device, const math::Vec2u& size)
+	/*Texture2d ZPrePass::createDepthMapTexture(Device& device, const math::Vec2u& size)
 	{
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
 		shadowSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
@@ -102,7 +102,7 @@ namespace rev::gfx {
 		m_device.destroyRenderPass(*m_pass);
 		m_frameBuffer = createDepthBuffer(m_device, targetTexture);
 		createRenderPass(newSize);
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
 	void ZPrePass::render(

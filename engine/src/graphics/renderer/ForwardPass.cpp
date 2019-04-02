@@ -63,7 +63,7 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
 		passDesc.target = target;
 		passDesc.viewportSize = viewportSize;
-		m_pass = device.createRenderPass(passDesc);
+		//m_pass = device.createRenderPass(passDesc);
 
 		// Common pipeline config
 		m_commonPipelineDesc.raster.cullBack = true;
@@ -149,16 +149,16 @@ namespace rev::gfx {
 				mat.effect().code().c_str()
 			};
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-			m_commonPipelineDesc.vtxShader = m_gfxDevice.createShaderModule(stageDesc);
+			//m_commonPipelineDesc.vtxShader = m_gfxDevice.createShaderModule(stageDesc);
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-			m_commonPipelineDesc.pxlShader = m_gfxDevice.createShaderModule(stageDesc);
+			//m_commonPipelineDesc.pxlShader = m_gfxDevice.createShaderModule(stageDesc);
 			// Check against invalid pipeline code
 			Pipeline pipeline;
 			if(m_commonPipelineDesc.vtxShader.valid()
 			&& m_commonPipelineDesc.pxlShader.valid())
 			{
 				m_commonPipelineDesc.raster.frontFace = mirror ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-				pipeline = m_gfxDevice.createPipeline(m_commonPipelineDesc);
+				//pipeline = m_gfxDevice.createPipeline(m_commonPipelineDesc);
 			}
 
 			iter = pipelineSet.emplace(

@@ -51,7 +51,7 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = target;
 		passDesc.viewportSize = _size;
-		m_pass = device.createRenderPass(passDesc);
+		//m_pass = device.createRenderPass(passDesc);
 
 		// Pipeline config
 		m_rasterOptions.cullFront = true;
@@ -59,26 +59,26 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
+	/*Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
 	{
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
 		shadowSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
 		shadowSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 		shadowSamplerDesc.filter = TextureSampler::MinFilter::Linear;
-		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
+		//auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
 		auto shadowDesc = Texture2d::Descriptor();
 		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
 		shadowDesc.pixelFormat.numChannels = 1;
 		shadowDesc.depth = true;
-		shadowDesc.sampler = shadowSampler;
+		//shadowDesc.sampler = shadowSampler;
 		shadowDesc.mipLevels = 1;
 		shadowDesc.size = size;
 
-		return device.createTexture2d(shadowDesc);
-	}
+		//return device.createTexture2d(shadowDesc);
+	}*/
 
 	//----------------------------------------------------------------------------------------------
-	FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
+	/*FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
 	{
 		FrameBuffer::Attachment depthAttachment;
 		depthAttachment.target = FrameBuffer::Attachment::Target::Depth;
@@ -88,7 +88,7 @@ namespace rev::gfx {
 		shadowBufferDesc.numAttachments = 1;
 		shadowBufferDesc.attachments = &depthAttachment;
 		return device.createFrameBuffer(shadowBufferDesc);
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::render(

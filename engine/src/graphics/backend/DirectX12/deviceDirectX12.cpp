@@ -159,7 +159,7 @@ namespace rev :: gfx
 		auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(heap.m_dx12Heap->GetCPUDescriptorHandleForHeapStart());
 
-		for(int i = 0; i < n; ++i)
+		for(size_t i = 0; i < n; ++i)
 		{
 			m_d3d12Device->CreateRenderTargetView(images[i].Get(), nullptr, rtvHandle);
 			rtvHandle.ptr += rtvDescriptorSize;

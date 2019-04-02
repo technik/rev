@@ -56,8 +56,8 @@ namespace rev::gfx {
 		ibl_desc.pixelFormat = iblImg.format();
 		ibl_desc.srcImages = &iblImg;
 		ibl_desc.size = iblImg.size();
-		ibl_desc.sampler = device.createTextureSampler(samplerDesc);
-		m_brdfIbl = device.createTexture2d(ibl_desc);
+		//ibl_desc.sampler = device.createTextureSampler(samplerDesc);
+		//m_brdfIbl = device.createTexture2d(ibl_desc);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ namespace rev::gfx {
 		}
 
 		// Submit
-		m_device->renderQueue().submitCommandBuffer(frameCommands);
+		//m_device->renderQueue().submitCommandBuffer(frameCommands);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -193,10 +193,10 @@ namespace rev::gfx {
 		m_lPass->setViewport({0,0}, _newSize);
 
 		// Recreate internal buffers
-		m_device->destroyTexture2d(m_gBufferTexture);
-		m_device->destroyTexture2d(m_depthTexture);
-		m_device->destroyTexture2d(m_albedoTexture);
-		m_device->destroyTexture2d(m_specularTexture);
+		//m_device->destroyTexture2d(m_gBufferTexture);
+		//m_device->destroyTexture2d(m_depthTexture);
+		//m_device->destroyTexture2d(m_albedoTexture);
+		//m_device->destroyTexture2d(m_specularTexture);
 		createBuffers();
 		if(m_gPass)
 			delete m_gPass;
@@ -233,7 +233,7 @@ namespace rev::gfx {
 		passDesc.numColorAttachs = 3;
 		passDesc.viewportSize = m_viewportSize;
 
-		m_gBufferPass = m_device->createRenderPass(passDesc);
+		//m_gBufferPass = m_device->createRenderPass(passDesc);
 		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
 
 		// Lighting pass
@@ -242,7 +242,7 @@ namespace rev::gfx {
 		passDesc.target = target;
 		passDesc.numColorAttachs = 1;
 		passDesc.viewportSize = m_viewportSize;
-		m_lPass = m_device->createRenderPass(passDesc);
+		//m_lPass = m_device->createRenderPass(passDesc);
 		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
 
 		// Background pass
@@ -278,7 +278,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture2d DeferredRenderer::createGBufferTexture(Device& device, const math::Vec2u& size)
+	/*Texture2d DeferredRenderer::createGBufferTexture(Device& device, const math::Vec2u& size)
 	{
 		auto samplerDesc = TextureSampler::Descriptor();
 		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
@@ -351,6 +351,6 @@ namespace rev::gfx {
 		gBufferDesc.numAttachments = 4;
 		gBufferDesc.attachments = attachments;
 		return device.createFrameBuffer(gBufferDesc);
-	}
+	}*/
 
 } // namespace rev::gfx

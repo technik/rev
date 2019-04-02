@@ -21,7 +21,7 @@
 #include <chrono>
 
 namespace rev::gfx {
-	struct Fence {
+	class Fence {
 		virtual void waitForValue(uint64_t awaitValue, std::chrono::milliseconds timeout) = 0;
 	};
 }

@@ -98,7 +98,7 @@ namespace rev::gfx {
 
 			// Build pipeline stages
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-			m_commonPipelineDesc.vtxShader = mDevice.createShaderModule(stageDesc);
+/*			m_commonPipelineDesc.vtxShader = mDevice.createShaderModule(stageDesc);
 			stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
 			m_commonPipelineDesc.pxlShader = mDevice.createShaderModule(stageDesc);
 
@@ -111,7 +111,7 @@ namespace rev::gfx {
 				pipeline = mDevice.createPipeline(m_commonPipelineDesc);
 			}
 
-			iter = mPipelines.emplace(key, pipeline).first;
+			iter = mPipelines.emplace(key, pipeline).first;*/
 		}
 		return iter->second;
 	}

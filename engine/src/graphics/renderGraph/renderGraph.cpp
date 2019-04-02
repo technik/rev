@@ -31,7 +31,7 @@ namespace rev::gfx {
 		desc.filter = TextureSampler::MinFilter::Linear;
 		desc.wrapS = TextureSampler::Wrap::Clamp;
 		desc.wrapT = TextureSampler::Wrap::Clamp;
-		m_linearSampler = device.createTextureSampler(desc);
+		//m_linearSampler = device.createTextureSampler(desc);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ namespace rev::gfx {
 				fbDesc.attachments = targetAtt.data();
 				fbDesc.numAttachments = targetAtt.size();
 
-				pass.m_targetFB = m_device.createFrameBuffer(fbDesc);
+				//pass.m_targetFB = m_device.createFrameBuffer(fbDesc);
 			}
 			// Bind pass resources
 			dst.bindFrameBuffer(pass.m_targetFB);
@@ -95,7 +95,7 @@ namespace rev::gfx {
 	{
 		CommandBuffer frameCommands;
 		recordExecution(frameCommands);
-		m_device.renderQueue().submitCommandBuffer(frameCommands);
+		//m_device.renderQueue().submitCommandBuffer(frameCommands);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ namespace rev::gfx {
 			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
-			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+			//m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
 		}
 		m_renderPasses[pass.id()].m_colorOutputs.emplace(bindingLocation, outAttach );
 		return afterWrite;
@@ -171,7 +171,7 @@ namespace rev::gfx {
 			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
-			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+			//m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
 		}
 		m_renderPasses[pass.id()].m_depthOutput = outAttach;
 		return afterWrite;

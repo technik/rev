@@ -92,7 +92,7 @@ namespace rev::gfx {
 			math::Vec3f lightDir = shadowProj.block<3,1>(0,2);
 			sharedUniforms.addParam(6, lightDir);
 		}
-		m_device->renderQueue().submitCommandBuffer(frameCommands);
+		//m_device->renderQueue().submitCommandBuffer(frameCommands);
 
 		// Forward pass
 		auto env = &*scene.environment();
@@ -112,7 +112,7 @@ namespace rev::gfx {
 			m_bgPass->render(bgUniforms, frameCommands);
 		}
 
-		m_device->renderQueue().submitCommandBuffer(frameCommands);
+		//m_device->renderQueue().submitCommandBuffer(frameCommands);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -121,8 +121,8 @@ namespace rev::gfx {
 		// TODO: Resize shadow buffer accordingly, or at least the viewport it uses
 		m_targetSize = _newSize;
 		mForwardPass->onResizeTarget(_newSize);
-		if(m_depthTexture.isValid())
-			m_device->destroyTexture2d(m_depthTexture);
+		//if(m_depthTexture.isValid())
+		//	m_device->destroyTexture2d(m_depthTexture);
 		m_depthTexture = ZPrePass::createDepthMapTexture(*m_device, _newSize);
 		mZPrePass->onResizeTarget(_newSize, m_depthTexture);
 	}

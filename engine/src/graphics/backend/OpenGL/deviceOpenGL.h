@@ -30,55 +30,55 @@ namespace rev :: gfx
 	class DeviceOpenGL : public Device
 	{
 	public:
-		RenderQueue& renderQueue() override
+		RenderQueue& renderQueue()
 		{
 			return *m_renderQueue;
 		}
 
 		// --- Stuff allocation ---
 		// Texture sampler
-		TextureSampler	createTextureSampler(const TextureSampler::Descriptor&) override;
-		void			destroyTextureSampler(TextureSampler) override;
+		TextureSampler	createTextureSampler(const TextureSampler::Descriptor&);
+		void			destroyTextureSampler(TextureSampler);
 
 		// Texture
-		Texture2d	createTexture2d(const Texture2d::Descriptor&) override;
-		void		destroyTexture2d(Texture2d) override;
+		Texture2d	createTexture2d(const Texture2d::Descriptor&);
+		void		destroyTexture2d(Texture2d);
 
 		// Frame buffers
-		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
+		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&);
 		void bindFrameBuffer(int32_t fb);
 		
 		// Render passes
-		void bindPass(int32_t pass, RenderQueue& queue) override;
-		RenderPass* createRenderPass(const RenderPass::Descriptor& desc) override;
-		void destroyRenderPass(const RenderPass&) override {}
+		void bindPass(int32_t pass, RenderQueue& queue);
+		RenderPass* createRenderPass(const RenderPass::Descriptor& desc);
+		void destroyRenderPass(const RenderPass&) {}
 
 		// Pipeline
-		Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&) override;
-		Pipeline createPipeline(const Pipeline::Descriptor&) override;
+		Pipeline::ShaderModule createShaderModule(const Pipeline::ShaderModule::Descriptor&);
+		Pipeline createPipeline(const Pipeline::Descriptor&);
 
 		// Compute shaders
-		ComputeShader createComputeShader(const std::vector<std::string>& code) override;
-		void destroyComputeShader(const ComputeShader& shader) override;
+		ComputeShader createComputeShader(const std::vector<std::string>& code);
+		void destroyComputeShader(const ComputeShader& shader);
 
 		// OpenGL specifics
 		virtual FrameBuffer defaultFrameBuffer() = 0; // Frame buffer of the main window
 		void bindPipeline(int32_t pipelineId);
 
 		// Buffers
-		Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) override
+		Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data)
 		{
 			Buffer buffer = allocateStaticBuffer(GL_ARRAY_BUFFER, byteSize, data);
 			return buffer;
 		}
 
-		Buffer allocateIndexBuffer(size_t byteSize, const void* data) override
+		Buffer allocateIndexBuffer(size_t byteSize, const void* data)
 		{
 			Buffer buffer = allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, byteSize, data);
 			return buffer;
 		}
 
-		Buffer allocateStorageBuffer(size_t byteSize, const void* data) override
+		Buffer allocateStorageBuffer(size_t byteSize, const void* data)
 		{
 			Buffer buffer = allocateStaticBuffer(GL_SHADER_STORAGE_BUFFER, byteSize, data);
 			return buffer;

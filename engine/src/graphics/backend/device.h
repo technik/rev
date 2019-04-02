@@ -49,7 +49,7 @@ namespace rev :: gfx
 		virtual CommandList* createCommandList(CommandList::Type commandType) = 0;
 		virtual Fence* createFence() = 0;
 
-		virtual RenderQueue& renderQueue() = 0;
+		/*virtual RenderQueue& renderQueue() = 0;
 
 		// Texture sampler
 		virtual TextureSampler createTextureSampler(const TextureSampler::Descriptor&) = 0;
@@ -78,7 +78,7 @@ namespace rev :: gfx
 		// Buffers
 		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
 		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
-		virtual Buffer allocateStorageBuffer(size_t byteSize, const void* data) = 0;
+		virtual Buffer allocateStorageBuffer(size_t byteSize, const void* data) = 0;*/
 
 		// Retrieve device info
 		struct Limits

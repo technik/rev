@@ -61,16 +61,16 @@ namespace rev::gfx
 		samplerDesc.filter = TextureSampler::MinFilter::Trilinear;
 		samplerDesc.wrapS = TextureSampler::Wrap::Repeat;
 		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
-		auto sampler = device.createTextureSampler(samplerDesc);
+		//auto sampler = device.createTextureSampler(samplerDesc);
 
 		Texture2d::Descriptor descriptor;
-		descriptor.sampler = sampler;
+		//descriptor.sampler = sampler;
 		descriptor.pixelFormat = mipImages[0].format();
 		descriptor.mipLevels = mipImages.size();
 		descriptor.providedImages = mipImages.size();
 		descriptor.srcImages = mipImages.data();
 		descriptor.size = mipImages[0].size();
 		descriptor.sRGB = true;
-		m_texture = device.createTexture2d(descriptor);
+		//m_texture = device.createTexture2d(descriptor);
 	}
 }
