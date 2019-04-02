@@ -172,7 +172,7 @@ namespace rev {
 		core::Time::get()->update();
 		auto dt = core::Time::get()->frameTime();
 
-		updateUI(dt);
+		//updateUI(dt);
 		mGameScene.root()->update(dt);
 
 		// Render scene
@@ -190,7 +190,7 @@ namespace rev {
 			}
 		}
 		// Render gui
-		ImGui::Render();
+		//ImGui::Render();
 
 		// Present to screen
 		//m_gfx.renderQueue().present();

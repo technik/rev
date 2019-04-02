@@ -122,6 +122,7 @@ int main(int _argc, const char** _argv) {
 		if(physicalDevices[i].dedicatedVideoMemory > maxVideoMemory)
 		{
 			bestDevice = i;
+			maxVideoMemory = physicalDevices[i].dedicatedVideoMemory;
 		}
 	}
 

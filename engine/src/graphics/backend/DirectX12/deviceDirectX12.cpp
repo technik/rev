@@ -49,9 +49,10 @@ namespace rev :: gfx
 		enableDebugInfo();
 #endif
 		// Create command queues
+		m_commandQueues.resize(numQueues);
 		for(int i = 0; i < numQueues; ++i)
 		{
-			//
+			m_commandQueues[i] = createCommandQueue(commandQueueDescs[i]);
 		}
 	}
 

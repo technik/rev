@@ -81,6 +81,7 @@ namespace rev :: gfx
 				devices[physicalDevices].deviceApiIndex = i;
 				devices[physicalDevices].shaderModel = 5;
 				devices[physicalDevices].dedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
+				++physicalDevices;
 			}
 		}
 
