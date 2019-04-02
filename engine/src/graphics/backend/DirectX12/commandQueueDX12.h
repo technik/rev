@@ -30,14 +30,13 @@ namespace rev::gfx {
 	{
 	public:
 		CommandQueueDX12(Microsoft::WRL::ComPtr<ID3D12CommandQueue> dx12CmdQueue)
-			: m_commandQueue(dx12CmdQueue)
+			: m_dx12Queue(dx12CmdQueue)
 		{}
 
 		// --- Commands ---
 		uint64_t signalFence(Fence& fence) override;
 
-	private:
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_dx12Queue;
 	};
 }
 

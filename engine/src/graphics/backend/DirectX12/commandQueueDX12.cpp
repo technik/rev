@@ -28,7 +28,7 @@ namespace rev::gfx {
 		auto dx12Fence = static_cast<FenceDX12&>(fence);
 		uint64_t fenceValueForSignal = ++dx12Fence.m_lastValue;
 
-		m_commandQueue->Signal(dx12Fence.m_dx12Fence.Get(), fenceValueForSignal);
+		m_dx12Queue->Signal(dx12Fence.m_dx12Fence.Get(), fenceValueForSignal);
 
 		return fenceValueForSignal;
 	}

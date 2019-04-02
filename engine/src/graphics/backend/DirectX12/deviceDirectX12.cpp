@@ -18,8 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
+#include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
+#include "fenceDX12.h"
 
 using namespace Microsoft::WRL;
 
@@ -78,7 +80,7 @@ namespace rev :: gfx
 		// Create swap chain
 		ComPtr<IDXGISwapChain1> swapChain1;
 		m_dxgiFactory->CreateSwapChainForHwnd(
-			m_commandQueues[commandQueueIndex].Get(),
+			m_commandQueues[commandQueueIndex]->m_dx12Queue.Get(),
 			window,
 			&swapChainDesc,
 			nullptr,
@@ -173,7 +175,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	ComPtr<ID3D12CommandQueue> DeviceDirectX12::createCommandQueue(const CommandQueue::Info& queueInfo)
+	CommandQueueDX12* DeviceDirectX12::createCommandQueue(const CommandQueue::Info& queueInfo)
 	{
 		D3D12_COMMAND_QUEUE_DESC dx12Desc = {};
 		switch(queueInfo.type)
@@ -202,7 +204,7 @@ namespace rev :: gfx
 		ComPtr<ID3D12CommandQueue> dx12CommandQueue;
 		m_d3d12Device->CreateCommandQueue(&dx12Desc, IID_PPV_ARGS(&dx12CommandQueue));
 
-		return dx12CommandQueue;
+		return new CommandQueueDX12(dx12CommandQueue);
 	}
 
 	//----------------------------------------------------------------------------------------------

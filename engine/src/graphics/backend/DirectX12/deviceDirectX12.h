@@ -34,6 +34,7 @@
 namespace rev :: gfx
 {
 	class CommandList;
+	class CommandQueueDX12;
 
 	class DeviceDirectX12 : public Device
 	{
@@ -73,12 +74,12 @@ namespace rev :: gfx
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> createCommandQueue(const CommandQueue::Info& queueInfo);
+		CommandQueueDX12* createCommandQueue(const CommandQueue::Info& queueInfo);
 		void enableDebugInfo();
 		void createDeviceFactory();
 
 		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
 		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
-		std::vector<Microsoft::WRL::ComPtr<>> m_commandQueues;
+		std::vector<CommandQueueDX12*> m_commandQueues;
 	};
 }
