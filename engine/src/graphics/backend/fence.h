@@ -18,7 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <chrono>
 
 namespace rev::gfx {
-	struct Fence {};
+	struct Fence {
+		virtual void waitForValue(uint64_t awaitValue, std::chrono::milliseconds timeout) = 0;
+	};
 }

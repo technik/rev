@@ -32,6 +32,16 @@ namespace rev::gfx {
 			, m_event(osEvent)
 		{}
 
+		void waitForValue(uint64_t awaitValue, std::chrono::milliseconds timeout) override
+		{
+			if (m_dx12Fence->GetCompletedValue() < awaitValue)
+			{
+				m_dx12Fence->SetEventOnCompletion(awaitValue, m_event);
+				// Spin on this event
+				::WaitForSingleObject(m_event, static_cast<DWORD>(timeout.count()));
+			}
+		}
+
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_dx12Fence;
 		HANDLE m_event;
 		uint64_t m_lastValue = 0;
