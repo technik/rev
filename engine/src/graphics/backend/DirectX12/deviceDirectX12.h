@@ -33,6 +33,8 @@
 
 namespace rev :: gfx
 {
+	class CommandList;
+
 	class DeviceDirectX12 : public Device
 	{
 	public:
@@ -60,6 +62,9 @@ namespace rev :: gfx
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
+		CommandList* createCommandList(CommandList::Type commandType) override;
+
+	public: // DirectX 12 specific
 		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
 
 		void createRenderTargetViews(
@@ -67,8 +72,8 @@ namespace rev :: gfx
 			size_t n,
 			Microsoft::WRL::ComPtr<ID3D12Resource>* images);
 
-		//Window* createWindow	() override;
-		//void	destroyWindow	(const Window*) override;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> createCommandQueue(const CommandQueue::Info& queueInfo);
 		void enableDebugInfo();

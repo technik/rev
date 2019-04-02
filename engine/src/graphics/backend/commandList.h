@@ -18,38 +18,18 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-// DirectX 12 specific headers.
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
 
-#include "../graphicsDriver.h"
-#include "../Windows/windowsPlatform.h"
+namespace rev::gfx {
 
-#include <wrl.h>
-
-namespace rev :: gfx
-{
-	/// Handles low level DX12 tasks, like retrieving properties of physical devices
-	class DirectX12Driver : public GraphicsDriver
+	class CommandList
 	{
 	public:
-		DirectX12Driver();
-
-		// Physical devices
-		int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) override;
-		PhysicalDevice* createPhysicalDevice(int deviceIndex) override;
-		Device* createDevice(const PhysicalDevice& adapter, int numQueues, const CommandQueue::Info* commandQueueDescs) override;
-
-	private:
-		struct PhysicalDeviceDX12 : PhysicalDevice
+		enum Type
 		{
-			Microsoft::WRL::ComPtr<IDXGIAdapter4> m_adapter;
+			Graphics,
+			Compute,
+			Copy,
+			Bundle
 		};
-
-	private:
-		void createDeviceFactory();
-		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
 	};
 }
-#pragma once

@@ -18,38 +18,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-// DirectX 12 specific headers.
+#include "../commandList.h"
+
 #include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
-
-#include "../graphicsDriver.h"
 #include "../Windows/windowsPlatform.h"
-
 #include <wrl.h>
 
-namespace rev :: gfx
-{
-	/// Handles low level DX12 tasks, like retrieving properties of physical devices
-	class DirectX12Driver : public GraphicsDriver
+namespace rev::gfx {
+
+	class CommandListDX12 : public CommandList
 	{
 	public:
-		DirectX12Driver();
-
-		// Physical devices
-		int enumeratePhysicalDevices(PhysicalDeviceInfo* dst, int maxDevices) override;
-		PhysicalDevice* createPhysicalDevice(int deviceIndex) override;
-		Device* createDevice(const PhysicalDevice& adapter, int numQueues, const CommandQueue::Info* commandQueueDescs) override;
+		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
+			: m_commandList(dx12CmdList)
+		{}
 
 	private:
-		struct PhysicalDeviceDX12 : PhysicalDevice
-		{
-			Microsoft::WRL::ComPtr<IDXGIAdapter4> m_adapter;
-		};
-
-	private:
-		void createDeviceFactory();
-		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
 	};
 }
-#pragma once
+

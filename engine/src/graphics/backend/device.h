@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include "commandList.h"
 #include "doubleBufferSwapChain.h"
 #include "frameBuffer.h"
 #include "renderQueue.h"
@@ -44,6 +45,7 @@ namespace rev :: gfx
 	public:
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
+		virtual CommandList* createCommandList(CommandList::Type commandType) = 0;
 
 		virtual RenderQueue& renderQueue() = 0;
 

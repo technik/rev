@@ -147,7 +147,8 @@ namespace rev :: gfx
 	{
 		// Windows specific initialization
 		// create an invisible window to init the context
-		m_windowHandle = createDummyWindow();
+		bool useCursor = true;
+		m_windowHandle = createDummyWindow(useCursor);
 
 		// Common initialization
 		// Set dummy pixel format
@@ -169,7 +170,7 @@ namespace rev :: gfx
 
 		// If no target window was provided, create an invisible one
 		if(!targetWindow)
-			targetWindow = createWindow({0,0}, {0,0}, "", false);
+			targetWindow = createWindow({0,0}, {0,0}, "", useCursor, false);
 
 		//checkSupportedExtensions();
 
