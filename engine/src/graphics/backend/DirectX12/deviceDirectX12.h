@@ -55,14 +55,12 @@ namespace rev :: gfx
 			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dx12Heap;
 		};
 
-		struct RenderTargetView
-		{};
-
 	public:
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
 		CommandList* createCommandList(CommandList::Type commandType) override;
+		Fence* createFence() override;
 
 	public: // DirectX 12 specific
 		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
@@ -81,6 +79,6 @@ namespace rev :: gfx
 
 		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
 		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
-		std::vector<Microsoft::WRL::ComPtr<ID3D12CommandQueue>> m_commandQueues;
+		std::vector<Microsoft::WRL::ComPtr<>> m_commandQueues;
 	};
 }

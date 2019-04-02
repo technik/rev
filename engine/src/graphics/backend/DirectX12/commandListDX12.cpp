@@ -17,27 +17,9 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-#include "../commandList.h"
-
-#include <d3d12.h>
-#include "../Windows/windowsPlatform.h"
-#include <wrl.h>
+#include "commandListDX12.h"
 
 namespace rev::gfx {
 
-	class CommandListDX12 : public CommandList
-	{
-	public:
-		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
-			: m_commandList(dx12CmdList)
-		{}
-
-		// --- Commands ---
-
-	private:
-		uint64_t m_lastValue = 0;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
-	};
 }
 

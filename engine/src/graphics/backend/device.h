@@ -20,6 +20,7 @@
 #pragma once
 #include "commandList.h"
 #include "doubleBufferSwapChain.h"
+#include "fence.h"
 #include "frameBuffer.h"
 #include "renderQueue.h"
 #include "namedResource.h"
@@ -46,6 +47,7 @@ namespace rev :: gfx
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
 		virtual CommandList* createCommandList(CommandList::Type commandType) = 0;
+		virtual Fence* createFence() = 0;
 
 		virtual RenderQueue& renderQueue() = 0;
 

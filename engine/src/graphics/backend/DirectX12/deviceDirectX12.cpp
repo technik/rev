@@ -121,6 +121,21 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	auto DeviceDirectX12::createFence() -> Fence*
+	{
+		ComPtr<ID3D12Fence> fence;
+
+		ThrowIfFailed(m_d3d12Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+
+		HANDLE fenceEvent;
+
+		fenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+		assert(fenceEvent && "Failed to create fence event.");
+
+		return new FenceDX12(fence, fenceEvent);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type) -> DescriptorHeap*
 	{
 		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;

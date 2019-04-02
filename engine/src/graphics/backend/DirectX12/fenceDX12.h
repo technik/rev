@@ -18,26 +18,23 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "../commandList.h"
+#include "../fence.h"
 
 #include <d3d12.h>
-#include "../Windows/windowsPlatform.h"
 #include <wrl.h>
 
 namespace rev::gfx {
 
-	class CommandListDX12 : public CommandList
+	struct FenceDX12 : public Fence
 	{
-	public:
-		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
-			: m_commandList(dx12CmdList)
+		FenceDX12(Microsoft::WRL::ComPtr<ID3D12Fence> dx12Fence, HANDLE osEvent)
+			: m_dx12Fence(dx12Fence)
+			, m_event(osEvent)
 		{}
 
-		// --- Commands ---
-
-	private:
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_dx12Fence;
+		HANDLE m_event;
 		uint64_t m_lastValue = 0;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
 	};
-}
 
+}

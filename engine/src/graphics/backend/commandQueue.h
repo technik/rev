@@ -42,5 +42,9 @@ namespace rev::gfx
 			Type type;
 			Priority priority;
 		};
+
+		// ---- Synchronization ----
+		/// \return the fence value the CPU must wait for to reach this sync point.
+		virtual uint64_t signalFence(Fence&) = 0;
 	};
 }
