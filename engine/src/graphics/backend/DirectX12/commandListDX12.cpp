@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
+#include "GpuBufferDX12.h"
 
 namespace rev::gfx {
 
@@ -48,7 +49,7 @@ namespace rev::gfx {
 		if(barrierType != Barrier::Transition)
 			return;
 
-
+		auto* dx12Resource = static_cast<GpuBufferDX12*>(resource);
 
 		D3D12_RESOURCE_BARRIER barrier = {};
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -56,7 +57,7 @@ namespace rev::gfx {
 		barrier.Transition.StateBefore = dx12StateFromCommon(before);
 		barrier.Transition.StateAfter = dx12StateFromCommon(after);
 		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		barrier.Transition.pResource
+		barrier.Transition.pResource = dx12Resource->m_dx12Buffer.Get();
 		barrier.Aliasing.pResourceBefore = nullptr;
 		barrier.Aliasing.pResourceAfter = nullptr;
 		barrier.UAV.pResource = nullptr;
