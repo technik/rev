@@ -891,7 +891,7 @@ namespace gltf
 
                 return document;
             }
-            catch (std::exception &)
+            catch (std::exception & e)
             {
                 std::throw_with_nested(invalid_gltf_document("Invalid glTF document. See nested exception for details."));
             }

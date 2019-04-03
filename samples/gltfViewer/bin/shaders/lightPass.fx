@@ -19,8 +19,10 @@ layout(location = 10) uniform sampler2D uAlbedoMap;
 #define sampler2D_uEnvironment
 
 #include "ibl.fx"
+#include "rt_common.fx"
 
 out float gl_FragDepth;
+
 
 //------------------------------------------------------------------------------	
 vec3 shade () {
@@ -40,13 +42,27 @@ vec3 shade () {
 	vec4 wsEyePos = invView * vec4(vec3(0.0), 1.0);
 
 	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
+	float occlusion = 1.0;
+	float shadow = 1.0;
+
+	Box impostor;
+	impostor.min = vec3(-0.5,0,-0.5);
+	impostor.max = vec3(0.5,0.5,0.5);
+
+	ImplicitRay eyeRay;
+	toImplicit(wsEyePos.xyz, -wsEyeDir, eyeRay);
+	vec3 boxNormal;
+
+	if(hitBox(impostor, eyeRay, boxNormal, 1000.0) > 0)
+	{
+		occlusion = 0.5;
+		return boxNormal*0.5+0.5;
+	}
 
 	vec4 f0_roughness = texture(uSpecularMap, uv);
 	vec3 albedo = texture(uAlbedoMap, uv).xyz;
 	vec3 F0 = f0_roughness.xyz;
 	float r = f0_roughness.a;
-	float occlusion = 1.0;
-	float shadow = 1.0;
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
 	
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);

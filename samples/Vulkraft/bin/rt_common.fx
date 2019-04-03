@@ -29,6 +29,56 @@ struct ImplicitRay
 	vec3 d;
 };
 
+struct Triangle
+{
+	vec3 v[3];
+};
+
+Triangle tri = 
+{
+	{
+		vec3(0,0.0,0),
+		vec3(0,1.5,0),
+		vec3(1,0.0,0)
+	}
+};
+
+float hitTriangle(ImplicitRay r, out vec3 normal, float tMax)
+{
+	vec3 h0 = tri.v[0] - r.o;
+	vec3 h1 = tri.v[1] - r.o;
+	vec3 h2 = tri.v[2] - r.o;
+
+	vec3 a0 = cross(h0,h1);
+	vec3 a1 = cross(h1,h2);
+	vec3 a2 = cross(h2,h0);
+
+	vec3 e1 = normalize(tri.v[2]-tri.v[1]);
+	vec3 e0 = normalize(tri.v[1]-tri.v[0]);
+	normal = normalize(cross(e0,e1));
+
+	if((dot(a0,r.d) < 0) && (dot(a1,r.d) < 0) && (dot(a2,r.d) < 0))
+	{
+		float t = dot(normal, h0) / dot(r.d, normal);
+		if(t > 0 && t < tMax)
+		{
+			return t;
+		}
+	}
+
+	if((dot(a0,r.d) > 0) && (dot(a1,r.d) > 0) && (dot(a2,r.d) > 0))
+	{
+		normal = -normal;
+		float t = dot(normal, h0) / dot(r.d, normal);
+		if(t > 0 && t < tMax)
+		{
+			return t;
+		}
+	}
+
+	return -1.0;
+}
+
 vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 {
 	float zClipDepth = 0.0;
@@ -45,7 +95,7 @@ vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	//return vec3(0.5);
+	return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
 	//if(worldPos.y > 0.01)
@@ -286,15 +336,26 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 	toImplicit(ro,rd,ir);
 
 	// Hit ground plane
-	/*if(rd.y < 0.0)
+	if(rd.y < 0.0)
 	{
 		normal = vec3(0.0,1.0,0.0);
 		t = -ro.y * ir.n.y;
 		tMax = t;
-	}*/
+	}
+
+	{
+		vec3 tNormal;
+		float tTri = hitTriangle(ir, tNormal, tMax);
+		if(tTri >= 0)
+		{
+			normal = tNormal;
+			t = tTri;
+			tMax = tTri;
+		}
+	}
 	
 	// Hit octree
-	{
+	/*{
 		vec3 tNormal;
 		float tOctree = hitOctree(ir, tNormal, tMax);
 		if(tOctree >= 0)
@@ -303,30 +364,39 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 			t = tOctree;
 			tMax = tOctree;
 		}
-	}
+	}*/
 	return t;
 }
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
 {
-	/*if(rd.y <= 0.0) // Hit plane
+	if(rd.y <= 0.0) // Hit plane
 	{
 		return 1.0;
-	}*/
+	}
 	
 	// Convert ray to its implicit representation
 	ImplicitRay ir;
 	toImplicit(ro,rd,ir);
 
-	// Hit octree
 	{
+		vec3 tNormal;
+		float tTri = hitTriangle(ir, tNormal, tMax);
+		if(tTri >= 0)
+		{
+			return tTri;
+		}
+	}
+
+	// Hit octree
+	/*{
 		vec3 tNormal;
 		float tOctree = hitOctree(ir, tNormal, tMax);
 		if(tOctree >= 0)
 		{
 			return tOctree;
 		}
-	}
+	}*/
 	return -1.0;
 }
 

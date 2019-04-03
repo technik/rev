@@ -133,7 +133,7 @@ void main() {
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
 
 	// Temporal denoising
-	int windowSize = 9;
+	int windowSize = 1;//9;
 	vec4 taa = vec4(0);
 	vec4 indirectTaa = vec4(0);
 	float taaWeight = 0.0;
@@ -196,7 +196,7 @@ void main() {
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
-	//pixel.xyz = gBuffer.xyz;
+	//pixel.xyz = 0.5*gBuffer.xyz+0.5;
 	//pixel.xyz = vec3(gBuffer.w*0.1);
 	//if(reuseTaa(gBuffer.w))
 	//	pixel.xyz = vec3(0.0,1.0,0.0);
