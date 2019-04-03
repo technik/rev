@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
+#include "commandPoolDX12.h"
 #include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
@@ -96,7 +97,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	CommandList* DeviceDirectX12::createCommandList(CommandList::Type commandType)
+	CommandPool* DeviceDirectX12::createCommandPool(CommandList::Type commandType)
 	{
 		D3D12_COMMAND_LIST_TYPE dxType;
 		switch(commandType)
@@ -115,12 +116,37 @@ namespace rev :: gfx
 				break;
 		}
 		auto allocator = createCommandAllocator(dxType);
+
+		return new CommandPoolDX12(allocator);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	CommandList* DeviceDirectX12::createCommandList(CommandList::Type commandType, CommandPool& cmdPool)
+	{
+		D3D12_COMMAND_LIST_TYPE dxType;
+		switch(commandType)
+		{
+			case CommandList::Graphics:
+				dxType = D3D12_COMMAND_LIST_TYPE_DIRECT;
+				break;
+			case CommandList::Compute:
+				dxType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+				break;
+			case CommandList::Copy:
+				dxType = D3D12_COMMAND_LIST_TYPE_COPY;
+				break;
+			case CommandList::Bundle:
+				dxType = D3D12_COMMAND_LIST_TYPE_BUNDLE;
+				break;
+		}
+
+		CommandPoolDX12& dx12Pool = static_cast<CommandPoolDX12&>(cmdPool);
 		ComPtr<ID3D12GraphicsCommandList> commandList;
-		ThrowIfFailed(m_d3d12Device->CreateCommandList(0, dxType, allocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
+		ThrowIfFailed(m_d3d12Device->CreateCommandList(0, dxType, dx12Pool.m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
 
 		ThrowIfFailed(commandList->Close());
 
-		return new CommandListDX12(allocator, commandList);
+		return new CommandListDX12(commandList);
 	}
 
 	//----------------------------------------------------------------------------------------------

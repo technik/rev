@@ -22,6 +22,7 @@
 
 namespace rev::gfx {
 	class Fence {
-		virtual void waitForValue(uint64_t awaitValue, std::chrono::milliseconds timeout) = 0;
+	public:
+		virtual void waitForValue(uint64_t awaitValue, std::chrono::milliseconds timeout = std::chrono::milliseconds::max()) = 0;
 	};
 }

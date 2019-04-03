@@ -9,6 +9,8 @@
 #include <Windows.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
+#include <graphics/backend/commandPool.h>
+#include <graphics/backend/fence.h>
 #include <math/algebra/vector.h>
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
@@ -165,15 +167,20 @@ int main(int _argc, const char** _argv) {
 	swapChainInfo.pixelFormat.numChannels = 4;
 	swapChainInfo.size = windowSize;
 
-	gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
+	DoubleBufferSwapChain* swapChain = gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
 
 	// Create two command lists, for alternate frames
 	int backBufferIndex = 0;
-	CommandList* cmdLists[2];
-	cmdLists[0] = gfxDevice->createCommandList(CommandList::Graphics);
-	cmdLists[1] = gfxDevice->createCommandList(CommandList::Graphics);
+	CommandPool* cmdPools[2];
+	cmdPools[0] = gfxDevice->createCommandPool(CommandList::Graphics);
+	cmdPools[1] = gfxDevice->createCommandPool(CommandList::Graphics);
+	CommandList* cmdList = gfxDevice->createCommandList(CommandList::Graphics, *cmdPools[0]);
 	GpuBuffer* backBuffers[2];
+	backBuffers[0] = swapChain->backBuffer(0);
+	backBuffers[1] = swapChain->backBuffer(1);
 	auto& graphicsQueue = gfxDevice->commandQueue(0);
+	Fence* mRenderFence = gfxDevice->createFence();
+	uint64_t fenceValues[2] = {};
 
 	// --- Init other systems ---
 	*rev::core::OSHandler::get() += processWindowsMsg;
@@ -194,13 +201,21 @@ int main(int _argc, const char** _argv) {
 			return 0;
 
 		// Render
-		backBufferIndex ^= 1;
-		auto& cmdList = cmdLists[backBufferIndex];
-		cmdList->reset();
-		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
-		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
+		CommandPool* cmdPool = cmdPools[backBufferIndex];
+		GpuBuffer* backBuffer = backBuffers[backBufferIndex];
+		cmdPool->reset();
+		cmdList->reset(*cmdPool);
+		//cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+		//cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
+		cmdList->close();
 
 		graphicsQueue.executeCommandList(*cmdList);
+		
+		fenceValues[backBufferIndex] = graphicsQueue.signalFence(*mRenderFence);
+
+		backBufferIndex ^= 1;
+
+		mRenderFence->waitForValue(fenceValues[backBufferIndex]);
 	}
 	return -2;
 }

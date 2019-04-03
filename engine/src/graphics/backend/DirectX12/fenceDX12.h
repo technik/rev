@@ -25,8 +25,9 @@
 
 namespace rev::gfx {
 
-	struct FenceDX12 : public Fence
+	class FenceDX12 : public Fence
 	{
+	public:
 		FenceDX12(Microsoft::WRL::ComPtr<ID3D12Fence> dx12Fence, HANDLE osEvent)
 			: m_dx12Fence(dx12Fence)
 			, m_event(osEvent)

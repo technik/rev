@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "../commandList.h"
+#include "commandPoolDX12.h"
 
 #include <d3d12.h>
 #include "../Windows/windowsPlatform.h"
@@ -29,24 +30,25 @@ namespace rev::gfx {
 	class CommandListDX12 : public CommandList
 	{
 	public:
-		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_cmdAllocator, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
-			: m_cmdAllocator(m_cmdAllocator)
-			, m_commandList(dx12CmdList)
+		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
+			: m_commandList(dx12CmdList)
 		{}
 
-		void reset() override
+		void reset(CommandPool& cmdPool) override
 		{
-			m_cmdAllocator->Reset();
-			m_commandList->Reset(m_cmdAllocator.Get(), nullptr);
+			CommandPoolDX12& cmdPoolDx12 = static_cast<CommandPoolDX12&>(cmdPool);
+			m_commandList->Reset(cmdPoolDx12.m_cmdAllocator.Get(), nullptr);
+		}
+
+		void close() override
+		{
+			m_commandList->Close();
 		}
 
 		// --- Commands ---
 		void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) override;
 
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
-	private:
-		uint64_t m_lastValue = 0;
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_cmdAllocator;
 	};
 }
 

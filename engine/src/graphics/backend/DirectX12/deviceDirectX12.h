@@ -60,7 +60,8 @@ namespace rev :: gfx
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
-		CommandList* createCommandList(CommandList::Type commandType) override;
+		CommandPool* createCommandPool(CommandList::Type commandType) override;
+		CommandList* createCommandList(CommandList::Type commandType, CommandPool& cmdPool) override;
 		Fence* createFence() override;
 		CommandQueue& commandQueue(size_t index) const override { return *m_commandQueues[index]; }
 

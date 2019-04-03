@@ -33,6 +33,7 @@ namespace rev :: gfx
 {
 	class RenderPass;
 	class CommandQueue;
+	class CommandPool;
 
 	struct Buffer : NamedResource {
 		Buffer() = default;
@@ -47,7 +48,8 @@ namespace rev :: gfx
 	public:
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
-		virtual CommandList* createCommandList(CommandList::Type commandType) = 0;
+		virtual CommandPool* createCommandPool(CommandList::Type commandType) = 0;
+		virtual CommandList* createCommandList(CommandList::Type commandType, CommandPool& cmdPool) = 0;
 		virtual Fence* createFence() = 0;
 		virtual CommandQueue& commandQueue(size_t index) const = 0;
 

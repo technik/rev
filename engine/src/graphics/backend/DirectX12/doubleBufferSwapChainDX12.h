@@ -22,6 +22,7 @@
 #include "../Windows/windowsPlatform.h"
 #include "../doubleBufferSwapChain.h"
 #include "deviceDirectX12.h"
+#include "GpuBufferDX12.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -29,18 +30,19 @@
 
 namespace rev::gfx
 {
-	class DeviceDirectX12;
 
 	class DoubleBufferSwapChainDX12 : public DoubleBufferSwapChain
 	{
 	public:
 		DoubleBufferSwapChainDX12(DeviceDirectX12& device, Microsoft::WRL::ComPtr<IDXGISwapChain4> dxgiSwapChain4);
 
+		GpuBuffer* backBuffer(size_t ndx) override { return m_backBuffers[ndx]; }
+
 	private:
 		DeviceDirectX12::DescriptorHeap* m_rtvHeap;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_backBuffers[2];
+		GpuBufferDX12* m_backBuffers[2];
 	};
 }

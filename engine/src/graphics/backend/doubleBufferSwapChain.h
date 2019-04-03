@@ -24,6 +24,8 @@
 
 namespace rev::gfx
 {
+	class GpuBuffer;
+
 	class DoubleBufferSwapChain
 	{
 	public:
@@ -35,5 +37,8 @@ namespace rev::gfx
 			unsigned numSamples = 1;
 			bool fullScreen = false;
 		};
+
+		virtual GpuBuffer* backBuffer(size_t ndx) = 0;
+
 	};
 }

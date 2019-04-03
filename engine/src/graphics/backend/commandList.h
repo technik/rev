@@ -24,6 +24,7 @@ namespace rev::gfx {
 
 	class Fence;
 	class GpuBuffer;
+	class CommandPool;
 
 	class CommandList
 	{
@@ -51,7 +52,8 @@ namespace rev::gfx {
 			Present
 		};
 
-		virtual void reset() = 0;
+		virtual void reset(CommandPool& cmdPool) = 0;
+		virtual void close() = 0;
 
 		// Commands
 		virtual void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) = 0;

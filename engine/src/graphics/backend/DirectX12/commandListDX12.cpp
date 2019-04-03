@@ -58,9 +58,6 @@ namespace rev::gfx {
 		barrier.Transition.StateAfter = dx12StateFromCommon(after);
 		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		barrier.Transition.pResource = dx12Resource->m_dx12Buffer.Get();
-		barrier.Aliasing.pResourceBefore = nullptr;
-		barrier.Aliasing.pResourceAfter = nullptr;
-		barrier.UAV.pResource = nullptr;
 
 		m_commandList->ResourceBarrier(1, &barrier);
 	}
