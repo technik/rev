@@ -29,6 +29,84 @@ struct ImplicitRay
 	vec3 d;
 };
 
+const int NUM_TRIS = 8;
+
+struct Triangle
+{
+	vec3 v[3];
+};
+
+Triangle model[NUM_TRIS] = 
+{
+	{{
+		vec3(0,0,0),
+		vec3(1,1,0),
+		vec3(0,1,1)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(0,1,1),
+		vec3(-1,1,0)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(-1,1,0),
+		vec3(0,1,-1)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(0,1,-1),
+		vec3(1,1,0)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(0,1,1),
+		vec3(1,1,0)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(-1,1,0),
+		vec3(0,1,1)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(0,1,-1),
+		vec3(-1,1,0)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(1,1,0),
+		vec3(0,1,-1)
+	}}
+};
+
+float hitTriangle(int ndx, in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
+{
+	Triangle tri = model[ndx];
+	vec3 h0 = tri.v[0] - ro;
+	vec3 h1 = tri.v[1] - ro;
+	vec3 h2 = tri.v[2] - ro;
+
+	vec3 a0 = cross(h0,h1);
+	vec3 a1 = cross(h1,h2);
+	vec3 a2 = cross(h2,h0);
+
+	if((dot(a0,rd) < 0) && (dot(a1,rd) < 0) && (dot(a2,rd) < 0))
+	{
+		vec3 e0 = tri.v[1] - tri.v[0];
+		vec3 e1 = tri.v[2] - tri.v[1];
+		normal = cross(e0,e1);
+		float t = dot(normal, h0)/dot(rd, normal);
+
+		if( t >= 0 && t < tMax)
+		{
+			return t;
+		}
+	}
+
+	return -1.0;
+}
+
 vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 {
 	float zClipDepth = 0.0;
@@ -282,17 +360,30 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 {
 	float t = -1.0;
 	// Convert ray to its implicit representation
-	ImplicitRay ir;
-	toImplicit(ro,rd,ir);
 
 	// Hit ground plane
-	/*if(rd.y < 0.0)
+	if(rd.y < 0.0)
 	{
 		normal = vec3(0.0,1.0,0.0);
-		t = -ro.y * ir.n.y;
+		t = -ro.y / rd.y;
 		tMax = t;
-	}*/
+	}
+
+	// Hit triangle model
+	for(int i = 0; i < NUM_TRIS; ++i)
+	{
+		vec3 tNormal;
+		float tTri = hitTriangle(i, ro, rd, tNormal, tMax);
+		if(tTri > 0)
+		{
+			t = tTri;
+			tMax = tTri;
+			normal = tNormal;
+		}
+	}
 	
+	/*ImplicitRay ir;
+	toImplicit(ro,rd,ir);
 	// Hit octree
 	{
 		vec3 tNormal;
@@ -303,22 +394,32 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 			t = tOctree;
 			tMax = tOctree;
 		}
-	}
+	}*/
 	return t;
 }
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
 {
-	/*if(rd.y <= 0.0) // Hit plane
+	if(rd.y <= 0.0) // Hit plane
 	{
 		return 1.0;
-	}*/
+	}
 	
 	// Convert ray to its implicit representation
-	ImplicitRay ir;
-	toImplicit(ro,rd,ir);
+
+	for(int i = 0; i < NUM_TRIS; ++i)
+	{
+		vec3 tNormal;
+		float tTri = hitTriangle(i, ro, rd, tNormal, tMax);
+		if(tTri > 0)
+		{
+			return tTri;
+		}
+	}
 
 	// Hit octree
+	/*ImplicitRay ir;
+	toImplicit(ro,rd,ir);
 	{
 		vec3 tNormal;
 		float tOctree = hitOctree(ir, tNormal, tMax);
@@ -326,7 +427,7 @@ float hit_any(in vec3 ro, in vec3 rd, float tMax)
 		{
 			return tOctree;
 		}
-	}
+	}*/
 	return -1.0;
 }
 

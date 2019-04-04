@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(15.0, taa.y+windowSize*windowSize);
+		taa.y = min(1.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -196,7 +196,7 @@ void main() {
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
-	//pixel.xyz = gBuffer.xyz;
+	//pixel.xyz = vec3(gBuffer)*0.5+0.5;
 	//pixel.xyz = vec3(gBuffer.w*0.1);
 	//if(reuseTaa(gBuffer.w))
 	//	pixel.xyz = vec3(0.0,1.0,0.0);

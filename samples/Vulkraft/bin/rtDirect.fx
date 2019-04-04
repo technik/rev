@@ -49,7 +49,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 		bouncePoint = ro + rd * t + 0.00001 * bounceNormal;
 		// Scatter reflected light
 		// Compute direct contribution
-		indirect = vec4(sampleDirectLight(bouncePoint, bounceNormal, noise, tMax), 1.0);
+		indirect = vec4(0.5*albedo*sampleDirectLight(bouncePoint, bounceNormal, noise, tMax), 1.0);
 	}
 	else
 	{
