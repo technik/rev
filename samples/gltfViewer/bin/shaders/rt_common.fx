@@ -18,80 +18,52 @@ struct ImplicitRay
 
 struct Triangle
 {
-	vec3 v[3];
+	ivec3 indices;
+};
+
+vec3 vertices[6] = 
+{
+	vec3(0.0, 0.0, 0.0),
+	vec3(0.5, 0.5, 0.0),
+	vec3(0.0, 0.5, 0.5),
+	vec3(-0.5, 0.5, 0.0),
+	vec3(0.0, 0.5,-0.5),
+	vec3(0.0, 1.0, 0.0)
 };
 
 const int NUM_TRIS = 8;
 Triangle triangles[NUM_TRIS] = 
 {
-	{{
-		vec3(0,0,0),
-		vec3(1,1,0),
-		vec3(0,1,1)
-	}},
-	{{
-		vec3(0,0,0),
-		vec3(0,1,1),
-		vec3(-1,1,0)
-	}},
-	{{
-		vec3(0,0,0),
-		vec3(-1,1,0),
-		vec3(0,1,-1)
-	}},
-	{{
-		vec3(0,0,0),
-		vec3(0,1,-1),
-		vec3(1,1,0)
-	}},
-	{{
-		vec3(0,2,0),
-		vec3(1,1,0),
-		vec3(0,1,1)
-	}},
-	{{
-		vec3(0,2,0),
-		vec3(0,1,1),
-		vec3(-1,1,0)
-	}},
-	{{
-		vec3(0,2,0),
-		vec3(-1,1,0),
-		vec3(0,1,-1)
-	}},
-	{{
-		vec3(0,2,0),
-		vec3(0,1,-1),
-		vec3(1,1,0)
-	}}
+	{ ivec3(0,1,2) },
+	{ ivec3(0,2,3) },
+	{ ivec3(0,3,4) },
+	{ ivec3(0,4,1) },
+	{ ivec3(2,1,5) },
+	{ ivec3(3,2,5) },
+	{ ivec3(4,3,5) },
+	{ ivec3(1,4,5) }
 };
 
 float hitTriangle(Triangle tri, ImplicitRay r, out vec3 normal, float tMax)
 {
-	vec3 h0 = tri.v[0] - r.o;
-	vec3 h1 = tri.v[1] - r.o;
-	vec3 h2 = tri.v[2] - r.o;
+	vec3 v0 = vertices[tri.indices.x];
+	vec3 v1 = vertices[tri.indices.y];
+	vec3 v2 = vertices[tri.indices.z];
+
+	vec3 h0 = v0 - r.o;
+	vec3 h1 = v1 - r.o;
+	vec3 h2 = v2 - r.o;
 
 	vec3 a0 = cross(h0,h1);
 	vec3 a1 = cross(h1,h2);
 	vec3 a2 = cross(h2,h0);
 
-	vec3 e1 = normalize(tri.v[2]-tri.v[1]);
-	vec3 e0 = normalize(tri.v[1]-tri.v[0]);
+	vec3 e1 = normalize(v2-v1);
+	vec3 e0 = normalize(v1-v0);
 	normal = normalize(cross(e0,e1));
 
 	if((dot(a0,r.d) < 0) && (dot(a1,r.d) < 0) && (dot(a2,r.d) < 0))
 	{
-		float t = dot(normal, h0) / dot(r.d, normal);
-		if(t > 0 && t < tMax)
-		{
-			return t;
-		}
-	}
-
-	if((dot(a0,r.d) > 0) && (dot(a1,r.d) > 0) && (dot(a2,r.d) > 0))
-	{
-		normal = -normal;
 		float t = dot(normal, h0) / dot(r.d, normal);
 		if(t > 0 && t < tMax)
 		{
