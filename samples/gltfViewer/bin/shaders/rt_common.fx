@@ -44,19 +44,6 @@ Triangle triangles[NUM_TRIS] =
 	{ ivec3(1,4,5) }
 };
 
-struct BVHNode
-{
-	int childOffset;
-	int leafMask;
-	Box AABB1;
-	Box AABB2;
-};
-
-float hitBVH()
-{
-	return -1.0;
-}
-
 float hitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
 	vec3 v0 = vertices[tri.indices.x];
@@ -120,12 +107,35 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
-vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
-vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
-vec3 skyColor(vec3 dir)
+struct BVHNode
 {
-	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
-}
+	int childOffset;
+	int leafMask;
+	Box AABB1;
+	Box AABB2;
+};
+
+BVHNode bvhTree[3] =
+{
+	{
+		0,
+		0,
+		{vec3(-0.5,0.0,-0.5), vec3(0.5,0.5,0.5)},
+		{vec3(-0.5,0.5,-0.5), vec3(0.5,1.0,0.5)}
+	},
+	{
+		0,
+		0,
+		{vec3(-0.5,0.0,-0.5), vec3(0.5,0.5,0.5)},
+		{vec3(-0.5,0.5,-0.5), vec3(0.5,1.0,0.5)}
+	},
+	{
+		0,
+		0,
+		{vec3(-0.5,0.0,-0.5), vec3(0.5,0.5,0.5)},
+		{vec3(-0.5,0.5,-0.5), vec3(0.5,1.0,0.5)}
+	}
+};
 
 void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 {
@@ -134,25 +144,57 @@ void toImplicit(in vec3 ro, in vec3 rd, out ImplicitRay ir)
 	ir.d = rd;
 }
 
-
-float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
+float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
+	ImplicitRay ir;
+	toImplicit(ro, rd, ir);
 	float t = -1.0;
-	// Convert ray to its implicit representation
 
-	// Hit ground plane
-	for(int i = 0; i < NUM_TRIS; ++i)
+	// Child A
+	vec3 tNormal;
+	if(hitBox(bvhTree[0].AABB1, ir, tNormal, tMax) > 0)
 	{
-		vec3 tNormal;
-		float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
-		if(tTri > 0)
+		for(int i = 0; i < 4; ++i)
 		{
-			normal = tNormal;
-			tMax = tTri;
-			t = tTri;
+			vec3 tNormal;
+			float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
+			if(tTri > 0)
+			{
+				normal = tNormal;
+				tMax = tTri;
+				t = tTri;
+			}
+		}
+	}
+
+	// Child B
+	if(hitBox(bvhTree[0].AABB2, ir, tNormal, tMax) > 0)
+	{
+		for(int i = 4; i < NUM_TRIS; ++i)
+		{
+			vec3 tNormal;
+			float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
+			if(tTri > 0)
+			{
+				normal = tNormal;
+				tMax = tTri;
+				t = tTri;
+			}
 		}
 	}
 	return t;
+}
+
+vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
+vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
+vec3 skyColor(vec3 dir)
+{
+	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
+}
+
+float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
+{
+	return hitBVH(ro, rd, normal, tMax);
 }
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
