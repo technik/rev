@@ -44,15 +44,28 @@ Triangle triangles[NUM_TRIS] =
 	{ ivec3(1,4,5) }
 };
 
-float hitTriangle(Triangle tri, ImplicitRay r, out vec3 normal, float tMax)
+struct BVHNode
+{
+	int childOffset;
+	int leafMask;
+	Box AABB1;
+	Box AABB2;
+};
+
+float hitBVH()
+{
+	return -1.0;
+}
+
+float hitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
 	vec3 v0 = vertices[tri.indices.x];
 	vec3 v1 = vertices[tri.indices.y];
 	vec3 v2 = vertices[tri.indices.z];
 
-	vec3 h0 = v0 - r.o;
-	vec3 h1 = v1 - r.o;
-	vec3 h2 = v2 - r.o;
+	vec3 h0 = v0 - ro;
+	vec3 h1 = v1 - ro;
+	vec3 h2 = v2 - ro;
 
 	vec3 a0 = cross(h0,h1);
 	vec3 a1 = cross(h1,h2);
@@ -62,9 +75,9 @@ float hitTriangle(Triangle tri, ImplicitRay r, out vec3 normal, float tMax)
 	vec3 e0 = normalize(v1-v0);
 	normal = normalize(cross(e0,e1));
 
-	if((dot(a0,r.d) < 0) && (dot(a1,r.d) < 0) && (dot(a2,r.d) < 0))
+	if((dot(a0,rd) < 0) && (dot(a1,rd) < 0) && (dot(a2,rd) < 0))
 	{
-		float t = dot(normal, h0) / dot(r.d, normal);
+		float t = dot(normal, h0) / dot(rd, normal);
 		if(t > 0 && t < tMax)
 		{
 			return t;
@@ -126,14 +139,12 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 {
 	float t = -1.0;
 	// Convert ray to its implicit representation
-	ImplicitRay ir;
-	toImplicit(ro,rd,ir);
 
 	// Hit ground plane
 	for(int i = 0; i < NUM_TRIS; ++i)
 	{
 		vec3 tNormal;
-		float tTri = hitTriangle(triangles[i], ir, tNormal, tMax);
+		float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
 		if(tTri > 0)
 		{
 			normal = tNormal;
@@ -149,20 +160,6 @@ float hit_any(in vec3 ro, in vec3 rd, float tMax)
 	/*if(rd.y <= 0.0) // Hit plane
 	{
 		return 1.0;
-	}*/
-	
-	// Convert ray to its implicit representation
-	ImplicitRay ir;
-	toImplicit(ro,rd,ir);
-
-	// Hit octree
-	/*{
-		vec3 tNormal;
-		float tOctree = hitOctree(ir, tNormal, tMax);
-		if(tOctree >= 0)
-		{
-			return tOctree;
-		}
 	}*/
 	return -1.0;
 }
