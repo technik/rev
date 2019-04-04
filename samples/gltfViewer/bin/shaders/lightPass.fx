@@ -45,17 +45,13 @@ vec3 shade () {
 	float occlusion = 1.0;
 	float shadow = 1.0;
 
-	Box impostor;
-	impostor.min = vec3(-0.5,0,-0.5);
-	impostor.max = vec3(0.5,0.5,0.5);
-
 	ImplicitRay eyeRay;
 	toImplicit(wsEyePos.xyz, -wsEyeDir, eyeRay);
 	vec3 boxNormal;
 
-	if(hitBox(impostor, eyeRay, boxNormal, 1000.0) > 0)
+	if(hit(wsEyePos.xyz, -wsEyeDir, boxNormal, 1000.0) > 0)
 	{
-		occlusion = 0.5;
+		occlusion = 0.0;
 		return boxNormal*0.5+0.5;
 	}
 

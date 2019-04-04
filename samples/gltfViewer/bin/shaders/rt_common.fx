@@ -16,6 +16,92 @@ struct ImplicitRay
 	vec3 d;
 };
 
+struct Triangle
+{
+	vec3 v[3];
+};
+
+const int NUM_TRIS = 8;
+Triangle triangles[NUM_TRIS] = 
+{
+	{{
+		vec3(0,0,0),
+		vec3(1,1,0),
+		vec3(0,1,1)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(0,1,1),
+		vec3(-1,1,0)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(-1,1,0),
+		vec3(0,1,-1)
+	}},
+	{{
+		vec3(0,0,0),
+		vec3(0,1,-1),
+		vec3(1,1,0)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(1,1,0),
+		vec3(0,1,1)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(0,1,1),
+		vec3(-1,1,0)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(-1,1,0),
+		vec3(0,1,-1)
+	}},
+	{{
+		vec3(0,2,0),
+		vec3(0,1,-1),
+		vec3(1,1,0)
+	}}
+};
+
+float hitTriangle(Triangle tri, ImplicitRay r, out vec3 normal, float tMax)
+{
+	vec3 h0 = tri.v[0] - r.o;
+	vec3 h1 = tri.v[1] - r.o;
+	vec3 h2 = tri.v[2] - r.o;
+
+	vec3 a0 = cross(h0,h1);
+	vec3 a1 = cross(h1,h2);
+	vec3 a2 = cross(h2,h0);
+
+	vec3 e1 = normalize(tri.v[2]-tri.v[1]);
+	vec3 e0 = normalize(tri.v[1]-tri.v[0]);
+	normal = normalize(cross(e0,e1));
+
+	if((dot(a0,r.d) < 0) && (dot(a1,r.d) < 0) && (dot(a2,r.d) < 0))
+	{
+		float t = dot(normal, h0) / dot(r.d, normal);
+		if(t > 0 && t < tMax)
+		{
+			return t;
+		}
+	}
+
+	if((dot(a0,r.d) > 0) && (dot(a1,r.d) > 0) && (dot(a2,r.d) > 0))
+	{
+		normal = -normal;
+		float t = dot(normal, h0) / dot(r.d, normal);
+		if(t > 0 && t < tMax)
+		{
+			return t;
+		}
+	}
+
+	return -1.0;
+}
+
 float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 {
 	vec3 t1 = (b.min - r.o) * r.n;
@@ -72,24 +158,17 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 	toImplicit(ro,rd,ir);
 
 	// Hit ground plane
-	/*if(rd.y < 0.0)
-	{
-		normal = vec3(0.0,1.0,0.0);
-		t = -ro.y * ir.n.y;
-		tMax = t;
-	}*/
-	
-	/*// Hit octree
+	for(int i = 0; i < NUM_TRIS; ++i)
 	{
 		vec3 tNormal;
-		float tOctree = hitOctree(ir, tNormal, tMax);
-		if(tOctree >= 0)
+		float tTri = hitTriangle(triangles[i], ir, tNormal, tMax);
+		if(tTri > 0)
 		{
 			normal = tNormal;
-			t = tOctree;
-			tMax = tOctree;
+			tMax = tTri;
+			t = tTri;
 		}
-	}*/
+	}
 	return t;
 }
 
