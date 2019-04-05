@@ -185,38 +185,59 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 	toImplicit(ro, rd, ir);
 	float t = -1.0;
 
-	// Child A
-	vec3 tNormal;
-	if(hitBox(bvhTree[0].AABB1, ir, tNormal, tMax) > 0)
+	int curNodeNdx = 0;
+	BVHNode curNode;
+
+	for(;;)
 	{
-		for(int i = 0; i < 4; ++i)
+		curNode = bvhTree[curNodeNdx];
+		// Child A
+		// Is leaf?
+		vec3 tNormal;
+		if((curNode.leafMask & 1) != 0)
 		{
-			vec3 tNormal;
-			float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
+			float tTri = hitTriangle(triangles[curNode.childOffset], ro, rd, tNormal, tMax);
 			if(tTri > 0)
 			{
-				normal = tNormal;
 				tMax = tTri;
 				t = tTri;
+				normal = tNormal;
 			}
 		}
+		else
+		{
+			if(hitBox(curNode.AABB1, ir, tNormal, tMax) > 0)
+			{
+				curNodeNdx += curNode.childOffset;
+				continue;
+			}
+		}
+
+		if((curNode.leafMask & 2) != 0)
+		{
+			float tTri = hitTriangle(triangles[curNode.childOffset+1], ro, rd, tNormal, tMax);
+			if(tTri > 0)
+			{
+				tMax = tTri;
+				t = tTri;
+				normal = tNormal;
+			}
+		}
+		else
+		{
+			if(hitBox(curNode.AABB2, ir, tNormal, tMax) > 0)
+			{
+				curNodeNdx += curNode.childOffset;
+				continue;
+			}
+		}
+
+		if(curNode.nextOffset == 0)
+			break;
+		
+		curNodeNdx = curNodeNdx + curNode.nextOffset;
 	}
 
-	// Child B
-	if(hitBox(bvhTree[0].AABB2, ir, tNormal, tMax) > 0)
-	{
-		for(int i = 4; i < NUM_TRIS; ++i)
-		{
-			vec3 tNormal;
-			float tTri = hitTriangle(triangles[i], ro, rd, tNormal, tMax);
-			if(tTri > 0)
-			{
-				normal = tNormal;
-				tMax = tTri;
-				t = tTri;
-			}
-		}
-	}
 	return t;
 }
 
