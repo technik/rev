@@ -111,7 +111,7 @@ struct BVHNode
 {
 	int childOffset;
 	int nextOffset;
-	int leafMask;
+	int leafMask; // Higher (30) bits are the index of triengles
 	Box AABB1;
 	Box AABB2;
 };
@@ -150,23 +150,23 @@ BVHNode bvhTree[7] =
 		{vec3(-0.5,0.0, 0.0), vec3(0.0,0.5,0.5)}
 	},
 	{
-		2,
+		0,
 		-2,
-		3,
+		3 | 2<<2,
 		{vec3( 0.0,0.0,-0.5), vec3(0.5,0.5,0.0)},
 		{vec3( 0.0,0.0, 0.0), vec3(0.5,0.5,0.5)}
 	},
 	{
-		4,
+		0,
 		1,
-		3,
+		3 | 4<<2,
 		{vec3(-0.5,0.5,-0.5), vec3(0.0,1.0,0.0)},
 		{vec3(-0.5,0.5, 0.0), vec3(0.0,1.0,0.5)}
 	},
 	{
-		6,
 		0,
-		3,
+		0,
+		3 | 6<<2,
 		{vec3( 0.0,0.5,-0.5), vec3(0.5,1.0,0.0)},
 		{vec3( 0.0,0.5, 0.0), vec3(0.5,1.0,0.5)}
 	}
@@ -194,9 +194,11 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		// Child A
 		// Is leaf?
 		vec3 tNormal;
+		int triNdx = curNode.leafMask>>2;
 		if((curNode.leafMask & 1) != 0)
 		{
-			float tTri = hitTriangle(triangles[curNode.childOffset], ro, rd, tNormal, tMax);
+			float tTri = hitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
+			triNdx+=1;
 			if(tTri > 0)
 			{
 				tMax = tTri;
@@ -215,7 +217,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 
 		if((curNode.leafMask & 2) != 0)
 		{
-			float tTri = hitTriangle(triangles[curNode.childOffset+1], ro, rd, tNormal, tMax);
+			float tTri = hitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
 			if(tTri > 0)
 			{
 				tMax = tTri;
