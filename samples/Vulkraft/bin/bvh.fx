@@ -111,15 +111,16 @@ float hitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 	vec3 a1 = cross(h1,h2);
 	vec3 a2 = cross(h2,h0);
 
-	vec3 e1 = normalize(v2-v1);
-	vec3 e0 = normalize(v1-v0);
-	normal = normalize(cross(e0,e1));
+	vec3 e1 = v2-v1;
+	vec3 e0 = v1-v0;
+	normal = cross(e0,e1);
 
-	if((dot(a0,rd) < 0) && (dot(a1,rd) < 0) && (dot(a2,rd) < 0))
+	if((dot(a0,rd) <= 0) && (dot(a1,rd) <= 0) && (dot(a2,rd) <= 0))
 	{
 		float t = dot(normal, h0) / dot(rd, normal);
-		if(t > 0 && t < tMax)
+		if(t >= 0 && t <= tMax)
 		{
+			normal = normalize(normal);
 			return t;
 		}
 	}
@@ -148,7 +149,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		{
 			float tTri = hitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
 			triNdx+=1;
-			if(tTri > 0)
+			if(tTri >= 0)
 			{
 				tMax = tTri;
 				t = tTri;
@@ -157,7 +158,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			if(hitBox(curNode.AABB1, ir, tNormal, tMax) > 0)
+			if(hitBox(curNode.AABB1, ir, tNormal, tMax) >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
 				continue;
@@ -167,7 +168,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		if((curNode.leafMask & 2) != 0)
 		{
 			float tTri = hitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
-			if(tTri > 0)
+			if(tTri >= 0)
 			{
 				tMax = tTri;
 				t = tTri;
@@ -176,7 +177,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			if(hitBox(curNode.AABB2, ir, tNormal, tMax) > 0)
+			if(hitBox(curNode.AABB2, ir, tNormal, tMax) >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
 				continue;
