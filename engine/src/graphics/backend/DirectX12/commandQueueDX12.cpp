@@ -23,13 +23,23 @@
 
 namespace rev::gfx {
 
+	// From DXSampleHelper.h 
+	// Source: https://github.com/Microsoft/DirectX-Graphics-Samples
+	inline void ThrowIfFailed(HRESULT hr)
+	{
+		if (FAILED(hr))
+		{
+			throw std::exception();
+		}
+	}
+
 	//-----------------------------------------------------------------------------
 	uint64_t CommandQueueDX12::signalFence(Fence& fence)
 	{
-		auto dx12Fence = static_cast<FenceDX12&>(fence);
+		auto& dx12Fence = static_cast<FenceDX12&>(fence);
 		uint64_t fenceValueForSignal = ++dx12Fence.m_lastValue;
 
-		m_dx12Queue->Signal(dx12Fence.m_dx12Fence.Get(), fenceValueForSignal);
+		ThrowIfFailed(m_dx12Queue->Signal(dx12Fence.m_dx12Fence.Get(), fenceValueForSignal));
 
 		return fenceValueForSignal;
 	}

@@ -38,11 +38,16 @@ namespace rev::gfx
 
 		GpuBuffer* backBuffer(size_t ndx) override { return m_backBuffers[ndx]; }
 
+		void present() override;
+		int getCurrentBackBuffer() override;
+
 	private:
 		DeviceDirectX12::DescriptorHeap* m_rtvHeap;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;
 		GpuBufferDX12* m_backBuffers[2];
+
+		int m_backBufferNdx = 0;
 	};
 }

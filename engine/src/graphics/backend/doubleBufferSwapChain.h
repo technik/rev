@@ -39,6 +39,8 @@ namespace rev::gfx
 		};
 
 		virtual GpuBuffer* backBuffer(size_t ndx) = 0;
+		virtual void present() = 0;
+		virtual int getCurrentBackBuffer() = 0;
 
 	};
 }

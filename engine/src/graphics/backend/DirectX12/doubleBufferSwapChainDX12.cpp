@@ -43,4 +43,17 @@ namespace rev ::gfx
 		// Create views
 		device.createRenderTargetViews(*m_rtvHeap, 2, backBuffers);
 	}
+
+	//----------------------------------------------------------------------------------------------
+	void DoubleBufferSwapChainDX12::present()
+	{
+		m_dxgiSwapChain4->Present(1, 0);
+		m_backBufferNdx ^= 1;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	int DoubleBufferSwapChainDX12::getCurrentBackBuffer()
+	{
+		return m_backBufferNdx;
+	}
 }

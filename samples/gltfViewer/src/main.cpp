@@ -205,15 +205,16 @@ int main(int _argc, const char** _argv) {
 		GpuBuffer* backBuffer = backBuffers[backBufferIndex];
 		cmdPool->reset();
 		cmdList->reset(*cmdPool);
-		//cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
-		//cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
+		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
 		cmdList->close();
 
 		graphicsQueue.executeCommandList(*cmdList);
 		
 		fenceValues[backBufferIndex] = graphicsQueue.signalFence(*mRenderFence);
+		swapChain->present();
 
-		backBufferIndex ^= 1;
+		backBufferIndex = swapChain->getCurrentBackBuffer();
 
 		mRenderFence->waitForValue(fenceValues[backBufferIndex]);
 	}
