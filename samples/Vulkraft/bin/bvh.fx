@@ -115,6 +115,10 @@ float hitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 	vec3 e0 = v1-v0;
 	normal = cross(e0,e1);
 
+	vec3 E1 = v1-v0;
+	vec3 E2 = v2-v0;
+	vec3 T = ro-v0;
+
 	if((dot(a0,rd) <= 0) && (dot(a1,rd) <= 0) && (dot(a2,rd) <= 0))
 	{
 		float t = dot(normal, h0) / dot(rd, normal);
@@ -138,6 +142,7 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 	int curNodeNdx = 0;
 	BVHNode curNode;
 
+	float tBox;
 	for(;;)
 	{
 		curNode = bvhTree[curNodeNdx];
@@ -158,7 +163,8 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			if(hitBox(curNode.AABB1, ir, tNormal, tMax) >= 0)
+			tBox = hitBox(curNode.AABB1, ir, tNormal, tMax);
+			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
 				continue;
@@ -177,7 +183,8 @@ float hitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			if(hitBox(curNode.AABB2, ir, tNormal, tMax) >= 0)
+			tBox = hitBox(curNode.AABB2, ir, tNormal, tMax);
+			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
 				continue;
