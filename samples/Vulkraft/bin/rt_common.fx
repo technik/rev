@@ -34,9 +34,9 @@ vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	return vec3(0.5);
+	return vec3(0.8);
 	// Choose material
-	ivec2 tileOffset = ivec2(0,0);
+	/*ivec2 tileOffset = ivec2(0,0);
 	//if(worldPos.y > 0.01)
 	//	tileOffset = ivec2(2,4);
 	//if(worldPos.y > 1.99)
@@ -59,12 +59,12 @@ vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 	int sampleScale = (16>>texLOD);
 	texUV = (texUV+tileOffset)*sampleScale;
 
-	return texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
+	return texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;*/
 }
 #endif
 
 vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
-vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
+vec3 sunLight = vec3(1.0,1.0,0.8);
 vec3 skyColor(vec3 dir)
 {
 	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
@@ -85,7 +85,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 	// BVH
 	{
 		vec3 tNormal;
-		float tModel = hitBVH(ro, rd, tNormal, tMax);
+		float tModel = closestHitBVH(ro, rd, tNormal, tMax);
 		if(tModel > 0)
 		{
 			t = tModel;
@@ -106,8 +106,7 @@ float hit_any(in vec3 ro, in vec3 rd, float tMax)
 
 	// BVH
 	{
-		vec3 tNormal;
-		float tModel = hitBVH(ro, rd, tNormal, tMax);
+		float tModel = hitBVH(ro, rd, tMax);
 		if(tModel > 0)
 		{
 			return tModel;

@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(15.0, taa.y+windowSize*windowSize);
+		taa.y = min(7.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void main() {
 	const int maxTap = windowSize/2;
 
 	float kernelWeight = 1.0;
-	for(int i = minTap; i <= maxTap; ++i)
+	/*for(int i = minTap; i <= maxTap; ++i)
 	{
 		for(int j = minTap; j <= maxTap; ++j)
 		{
@@ -178,7 +178,7 @@ void main() {
 				secondLight += localWeight*texelFetch(uIndirectLight, pixel_coords+ivec2(i,j), 0).xyz;
 			}
 		}
-	}
+	}*/
 	
 	visibility = mix(visibility/kernelWeight, max(0.0,taa.x), taaWeight);
 	sunVisibility = mix(sunVisibility/kernelWeight, max(0.0,taa.z), taaWeight);
@@ -189,7 +189,7 @@ void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothLight = visibility * 0.1*irradiance(gBuffer.xyz) + 0.50 * sunVisibility;
+	vec3 smoothLight = visibility * irradiance(gBuffer.xyz) + sunVisibility * sunLight;
 	vec4 localPoint = ro+rd*gBuffer.w-gBuffer*0.1;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	pixel.xyz = albedo*(smoothLight+secondLight.xyz);

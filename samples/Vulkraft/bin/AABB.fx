@@ -43,4 +43,24 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
+float hitBoxAny(in Box b, in ImplicitRay r, float tMax)
+{
+	float dontOptimizeNan = 0.0000000000000000000000000001;
+	vec3 t1 = (b.min - r.o+dontOptimizeNan) * r.n;
+	vec3 t2 = (b.max - r.o+dontOptimizeNan) * r.n;
+	// Swapping the order of comparison is important because of NaN behavior
+	vec3 tEnter = min(t1,t2); // Enters
+	vec3 tExit = max(t1,t2); // Exits
+	float maxEnter = max(tEnter.x,max(tEnter.y,max(tEnter.z,0.0))); // If nan, return second operand, which is never nan
+	float minLeave = min(tExit.x, min(tExit.y, min(tExit.z, tMax))); // If nan, return second operand, which is never nan
+	if(minLeave >= maxEnter)
+	{
+		return maxEnter;
+	}
+	else
+	{
+		return -1.0;
+	}
+}
+
 #endif // _AABB_FX_

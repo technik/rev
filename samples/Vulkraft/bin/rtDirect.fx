@@ -14,16 +14,18 @@ vec3 sampleDirectLight(vec3 point, vec3 normal, vec4 noise, float tMax)
 	vec3 light = vec3(0);
 	// Sample sky light
 	vec3 rd = lambertianDirection(normal, noise.xy);
-	vec3 hitNormal;
-	float tSky = hit(point, rd, hitNormal, tMax);
-	if(tSky < 0)
-		light += skyColor(rd);
+	if(normal.y > 0)
+	{
+		float tSky = hit_any(point, rd, tMax);
+		if(tSky < 0)
+			light += skyColor(rd);
+	}
 	
 	// Sample sun light
 	vec3 sunSampleDir = mix(rd,sunDir,0.95);
 	if(dot(sunDir, sunSampleDir) > 0)
 	{
-		float tSun = hit(point, mix(point,sunDir,0.95), hitNormal, tMax);
+		float tSun = hit_any(point, mix(point,sunDir,0.95), tMax);
 		if(tSun < 0)
 			light += sunLight * dot(sunDir, sunSampleDir);
 	}
@@ -41,7 +43,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 	vec3 bounceNormal;
 	vec3 rd = lambertianDirection(normal, noise.zw);
 	
-	float tSun = hit(ro, mix(rd,sunDir,0.95), bounceNormal, tMax);
+	float tSun = hit_any(ro, mix(rd,sunDir,0.95), tMax);
 	float t = hit(ro, rd, bounceNormal, min(tMax,10.0));
 	if(t > 0.0)
 	{
@@ -49,7 +51,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 		bouncePoint = ro + rd * t + 0.00001 * bounceNormal;
 		// Scatter reflected light
 		// Compute direct contribution
-		indirect = vec4(sampleDirectLight(bouncePoint, bounceNormal, noise, tMax), 1.0);
+		indirect = vec4(albedo*sampleDirectLight(bouncePoint, bounceNormal, noise, tMax), 1.0);
 	}
 	else
 	{
