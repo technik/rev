@@ -13,21 +13,21 @@ vec3 sampleDirectLight(vec3 point, vec3 normal, vec4 noise, float tMax)
 {
 	vec3 light = vec3(0);
 	// Sample sky light
-	vec3 rd = lambertianDirection(normal, noise.xy);
 	if(normal.y > 0)
 	{
+		vec3 rd = lambertianDirection(normal, noise.xy);
 		float tSky = hit_any(point, rd, tMax);
 		if(tSky < 0)
 			light += skyColor(rd);
 	}
 	
 	// Sample sun light
-	vec3 sunSampleDir = mix(rd,sunDir,0.95);
+	vec3 sunSampleDir = sunDir + sunDiskSize * randomUnitVector(noise.zw);
 	if(dot(sunDir, sunSampleDir) > 0)
 	{
-		float tSun = hit_any(point, mix(point,sunDir,0.95), tMax);
+		float tSun = hit_any(point, sunSampleDir, tMax);
 		if(tSun < 0)
-			light += sunLight * dot(sunDir, sunSampleDir);
+			light += sunLight * dot(sunSampleDir, normal);
 	}
 
 	return light;
@@ -41,14 +41,23 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 	float tMax = 100.0;
 	vec3 bouncePoint;
 	vec3 bounceNormal;
-	vec3 rd = lambertianDirection(normal, noise.zw);
 	
-	float tSun = hit_any(ro, mix(rd,sunDir,0.95), tMax);
-	float t = hit(ro, rd, bounceNormal, min(tMax,10.0));
+	// Sun
+	float tSun = -1.0;
+	vec3 sunSampleDir = sunDir + sunDiskSize * randomUnitVector(noise.zw);
+	if(dot(sunDir, sunSampleDir) > 0)
+	{
+		tSun = hit_any(ro, sunSampleDir, tMax);
+	}
+
+	// Sky/secondary surface
+	float t = -1.0;
+	vec3 rd = lambertianDirection(normal, noise.zw);
+	t = hit(ro, rd, bounceNormal, min(tMax,10.0));
 	if(t > 0.0)
 	{
 		vec3 albedo = fetchAlbedo(ro+t*rd, bounceNormal, t, 1);
-		bouncePoint = ro + rd * t + 0.00001 * bounceNormal;
+		bouncePoint = ro + rd * t + 1e-5 * bounceNormal;
 		// Scatter reflected light
 		// Compute direct contribution
 		indirect = vec4(albedo*sampleDirectLight(bouncePoint, bounceNormal, noise, tMax), 1.0);
