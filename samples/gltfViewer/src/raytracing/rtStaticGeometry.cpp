@@ -20,9 +20,15 @@
 #include "rtStaticGeometry.h"
 
 //--------------------------------------------------------------------------------------------------
-RTStaticGeometry::RTStaticGeometry(rev::math::Vec3f* vtxBuffer, uint16_t* ndxBuffer)
+RTStaticGeometry::RTStaticGeometry(rev::math::Vec3f* vtxBuffer, size_t nVertices, uint32_t* ndxBuffer, size_t nIndices)
 {
 	// Build bvh
 	// Create storage buffers
 	// Submit buffers
+}
+
+//--------------------------------------------------------------------------------------------------
+RTStaticGeometry* RTStaticGeometry::loadGltf(const char* fileName)
+{
+	return nullptr;
 }

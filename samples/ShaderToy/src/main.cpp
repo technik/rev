@@ -36,14 +36,6 @@ int main(int _argc, const char** _argv) {
 	auto gfxDevice = DeviceOpenGLWindows(wnd, true);
 	auto& renderQueue = gfxDevice.renderQueue();
 
-	// Renderpass
-	/*
-	RenderGraph renderGraph(gfxDevice);
-	auto fsPass = renderGraph.pass(windowSize, RenderGraph::HWAntiAlias::none);
-	auto color = renderGraph.writeColor(fsPass, RenderGraph::ColorFormat::RGBA8, 0, RenderGraph::ReadMode::discard);
-	//TODO: renderGraph.readColor(color).clearColor()
-	*/
-
 	RenderPass::Descriptor fullScreenDesc;
 	float grey = 0.5f;
 	fullScreenDesc.clearColor = { grey,grey,grey, 1.f };

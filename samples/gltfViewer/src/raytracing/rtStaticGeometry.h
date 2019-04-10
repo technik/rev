@@ -24,5 +24,7 @@
 class RTStaticGeometry
 {
 public:
-	RTStaticGeometry(rev::math::Vec3f* vtxBuffer, uint16_t* ndxBuffer);
+	RTStaticGeometry(rev::math::Vec3f* vtxBuffer, size_t nVertices, uint32_t* ndxBuffer, size_t nIndices);
+	
+	static RTStaticGeometry* loadGltf(const char* fileName);
 };

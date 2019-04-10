@@ -11,10 +11,6 @@ layout(location = 3) uniform mat4 uViewMtx;
 layout(location = 4) uniform mat4 uProj;
 layout(location = 5) uniform sampler2D uTexturePack;
 layout(location = 6) uniform vec4 uNoiseOffset;
-layout(std430, binding = 7) buffer VoxelOctree
-{
-	int descriptor[];
-} sbVoxelOctree;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;

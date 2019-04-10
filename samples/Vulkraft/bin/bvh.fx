@@ -15,20 +15,22 @@ struct BVHNode
 
 struct Triangle
 {
-	ivec3 indices;
+	int indices[3];
 };
 
 const int NUM_TRIS = 8;
+//layout(std430, binding = 7) buffer Triangle triangles[NUM_TRIS];
+
 Triangle triangles[NUM_TRIS] = 
 {
-	{ ivec3(0,1,2) },
-	{ ivec3(0,2,3) },
-	{ ivec3(0,3,4) },
-	{ ivec3(0,4,1) },
-	{ ivec3(2,1,5) },
-	{ ivec3(3,2,5) },
-	{ ivec3(4,3,5) },
-	{ ivec3(1,4,5) }
+	{ {0,1,2} },
+	{ {0,2,3} },
+	{ {0,3,4} },
+	{ {0,4,1} },
+	{ {2,1,5} },
+	{ {3,2,5} },
+	{ {4,3,5} },
+	{ {1,4,5} }
 };
 
 vec3 vertices[6] = 
@@ -99,9 +101,9 @@ BVHNode bvhTree[7] =
 
 float hitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
-	vec3 v0 = vertices[tri.indices.x];
-	vec3 v1 = vertices[tri.indices.y];
-	vec3 v2 = vertices[tri.indices.z];
+	vec3 v0 = vertices[tri.indices[0]];
+	vec3 v1 = vertices[tri.indices[1]];
+	vec3 v2 = vertices[tri.indices[2]];
 
 	vec3 h0 = v0 - ro;
 	vec3 h1 = v1 - ro;
