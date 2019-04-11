@@ -4,13 +4,18 @@
 
 #include "ImplicitRay.fx"
 
+struct RelativeBBox
+{
+	ivec4 min;
+	ivec4 max;
+};
+
 struct BVHNode
 {
 	int childOffset;
 	int nextOffset;
 	int leafMask; // Higher (30) bits are the index of triengles
-	Box AABB1;
-	Box AABB2;
+	Box AABB[2];
 };
 
 layout(std430, binding = 7) buffer NdxBuffer
@@ -23,6 +28,9 @@ layout(std430, binding = 8) buffer VtxBuffer
 	float pos[];
 } modelVertices;
 
+vec3 octaBBoxMin = vec3(-0.5,0.0,-0.5);
+vec3 octaBBoxSize = vec3(1);
+
 BVHNode bvhTree[7] =
 {
 	// level 0
@@ -30,52 +38,52 @@ BVHNode bvhTree[7] =
 		1,
 		1,
 		0,
-		{vec3(-0.5,0.0,-0.5), vec3(0.5,0.5,0.5)},
-		{vec3(-0.5,0.5,-0.5), vec3(0.5,1.0,0.5)}
+		{{vec3(0), vec3(1,0.5,1)},
+		{vec3(0,0.5,0), vec3(1,1.0,1)}}
 	},
 	// Level 1
 	{
 		2,
 		1,
 		0,
-		{vec3(-0.5,0.0,-0.5), vec3(0.0,0.5,0.5)},
-		{vec3( 0.0,0.0,-0.5), vec3(0.5,0.5,0.5)}
+		{{vec3(0), vec3(0.5,0.5,1)},
+		{vec3( 0.5,0.0,0), vec3(1,0.5,1)}}
 	},
 	{
 		3,
 		0,
 		0,
-		{vec3(-0.5,0.5,-0.5), vec3(0.0,1.0,0.5)},
-		{vec3( 0.0,0.5,-0.5), vec3(0.5,1.0,0.5)}
+		{{vec3(0,0.5,0), vec3(0.5,1.0,1)},
+		{vec3( 0.5,0.5,0), vec3(1,1.0,1)}}
 	},
 	// level 2
 	{
 		0,
 		1,
 		3,
-		{vec3(-0.5,0.0,-0.5), vec3(0.0,0.5,0.0)},
-		{vec3(-0.5,0.0, 0.0), vec3(0.0,0.5,0.5)}
+		{{vec3(0), vec3(0.5,0.5,0.5)},
+		{vec3(0,0.0, 0.5), vec3(0.5,0.5,1)}}
 	},
 	{
 		0,
 		-2,
 		3 | 2<<2,
-		{vec3( 0.0,0.0,-0.5), vec3(0.5,0.5,0.0)},
-		{vec3( 0.0,0.0, 0.0), vec3(0.5,0.5,0.5)}
+		{{vec3( 0.5,0.0,0), vec3(1,0.5,0.5)},
+		{vec3( 0.5,0.0, 0.5), vec3(1,0.5,1)}}
 	},
 	{
 		0,
 		1,
 		3 | 4<<2,
-		{vec3(-0.5,0.5,-0.5), vec3(0.0,1.0,0.0)},
-		{vec3(-0.5,0.5, 0.0), vec3(0.0,1.0,0.5)}
+		{{vec3(0,0.5,0), vec3(0.5,1.0,0.5)},
+		{vec3(0,0.5, 0.5), vec3(0.5,1.0,1)}}
 	},
 	{
 		0,
 		0,
 		3 | 6<<2,
-		{vec3( 0.0,0.5,-0.5), vec3(0.5,1.0,0.0)},
-		{vec3( 0.0,0.5, 0.0), vec3(0.5,1.0,0.5)}
+		{{vec3( 0.5,0.5,0), vec3(1,1.0,0.5)},
+		{vec3( 0.5,0.5, 0.5), vec3(1)}}
 	}
 };
 
@@ -148,6 +156,14 @@ float closestHitTriangle(int triNdx, vec3 ro, vec3 rd, out vec3 normal, float tM
 	return -1.0;
 }
 
+Box getChildBBox(BVHNode node, int ndx)
+{
+	Box localBBox = node.AABB[ndx];
+	localBBox.min += octaBBoxMin;
+	localBBox.max += octaBBoxMin;
+	return localBBox;
+}
+
 float hitBVH(vec3 ro, vec3 rd, float tMax)
 {
 	ImplicitRay ir;
@@ -175,7 +191,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 		}
 		else
 		{
-			tBox = hitBoxAny(curNode.AABB1, ir, tMax);
+			tBox = hitBoxAny(getChildBBox(curNode,0), ir, tMax);
 			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
@@ -193,7 +209,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 		}
 		else
 		{
-			tBox = hitBoxAny(curNode.AABB2, ir, tMax);
+			tBox = hitBoxAny(getChildBBox(curNode,1), ir, tMax);
 			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
@@ -240,7 +256,7 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			tBox = hitBox(curNode.AABB1, ir, tNormal, tMax);
+			tBox = hitBox(getChildBBox(curNode,0), ir, tNormal, tMax);
 			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
@@ -260,7 +276,7 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		}
 		else
 		{
-			tBox = hitBox(curNode.AABB2, ir, tNormal, tMax);
+			tBox = hitBox(getChildBBox(curNode,1), ir, tNormal, tMax);
 			if(tBox >= 0)
 			{
 				curNodeNdx += curNode.childOffset;
