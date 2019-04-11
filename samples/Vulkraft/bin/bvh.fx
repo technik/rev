@@ -13,35 +13,15 @@ struct BVHNode
 	Box AABB2;
 };
 
-struct Triangle
+layout(std430, binding = 7) buffer NdxBuffer
 {
-	int indices[3];
-};
+	int indices[];
+} modelFaces;
 
-const int NUM_TRIS = 8;
-//layout(std430, binding = 7) buffer Triangle triangles[NUM_TRIS];
-
-Triangle triangles[NUM_TRIS] = 
+layout(std430, binding = 8) buffer VtxBuffer
 {
-	{ {0,1,2} },
-	{ {0,2,3} },
-	{ {0,3,4} },
-	{ {0,4,1} },
-	{ {2,1,5} },
-	{ {3,2,5} },
-	{ {4,3,5} },
-	{ {1,4,5} }
-};
-
-vec3 vertices[6] = 
-{
-	vec3(0.0, 0.0, 0.0),
-	vec3(0.5, 0.5, 0.0),
-	vec3(0.0, 0.5, 0.5),
-	vec3(-0.5, 0.5, 0.0),
-	vec3(0.0, 0.5,-0.5),
-	vec3(0.0, 1.0, 0.0)
-};
+	float pos[];
+} modelVertices;
 
 BVHNode bvhTree[7] =
 {
@@ -99,11 +79,14 @@ BVHNode bvhTree[7] =
 	}
 };
 
-float hitTriangle(Triangle tri, vec3 ro, vec3 rd, float tMax)
+float hitTriangle(int triNdx, vec3 ro, vec3 rd, float tMax)
 {
-	vec3 v0 = vertices[tri.indices[0]];
-	vec3 v1 = vertices[tri.indices[1]];
-	vec3 v2 = vertices[tri.indices[2]];
+	int v0Ndx = 3*modelFaces.indices[triNdx*3+0];
+	int v1Ndx = 3*modelFaces.indices[triNdx*3+1];
+	int v2Ndx = 3*modelFaces.indices[triNdx*3+2];
+	vec3 v0 = vec3(modelVertices.pos[v0Ndx], modelVertices.pos[v0Ndx+1], modelVertices.pos[v0Ndx+2]);
+	vec3 v1 = vec3(modelVertices.pos[v1Ndx], modelVertices.pos[v1Ndx+1], modelVertices.pos[v1Ndx+2]);
+	vec3 v2 = vec3(modelVertices.pos[v2Ndx], modelVertices.pos[v2Ndx+1], modelVertices.pos[v2Ndx+2]);
 
 	vec3 e1 = v2-v1;
 	vec3 e0 = v1-v0;
@@ -131,11 +114,14 @@ float hitTriangle(Triangle tri, vec3 ro, vec3 rd, float tMax)
 	return -1.0;
 }
 
-float closestHitTriangle(Triangle tri, vec3 ro, vec3 rd, out vec3 normal, float tMax)
+float closestHitTriangle(int triNdx, vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
-	vec3 v0 = vertices[tri.indices[0]];
-	vec3 v1 = vertices[tri.indices[1]];
-	vec3 v2 = vertices[tri.indices[2]];
+	int v0Ndx = 3*modelFaces.indices[triNdx*3+0];
+	int v1Ndx = 3*modelFaces.indices[triNdx*3+1];
+	int v2Ndx = 3*modelFaces.indices[triNdx*3+2];
+	vec3 v0 = vec3(modelVertices.pos[v0Ndx], modelVertices.pos[v0Ndx+1], modelVertices.pos[v0Ndx+2]);
+	vec3 v1 = vec3(modelVertices.pos[v1Ndx], modelVertices.pos[v1Ndx+1], modelVertices.pos[v1Ndx+2]);
+	vec3 v2 = vec3(modelVertices.pos[v2Ndx], modelVertices.pos[v2Ndx+1], modelVertices.pos[v2Ndx+2]);
 
 	vec3 h0 = v0 - ro;
 	vec3 h1 = v1 - ro;
@@ -180,7 +166,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 		int triNdx = curNode.leafMask>>2;
 		if((curNode.leafMask & 1) != 0)
 		{
-			float tTri = hitTriangle(triangles[triNdx], ro, rd, tMax);
+			float tTri = hitTriangle(triNdx, ro, rd, tMax);
 			if(tTri >= 0)
 			{
 				return 1.0;
@@ -199,7 +185,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 
 		if((curNode.leafMask & 2) != 0)
 		{
-			float tTri = hitTriangle(triangles[triNdx], ro, rd, tMax);
+			float tTri = hitTriangle(triNdx, ro, rd, tMax);
 			if(tTri >= 0)
 			{
 				return 1.0;
@@ -243,7 +229,7 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 		int triNdx = curNode.leafMask>>2;
 		if((curNode.leafMask & 1) != 0)
 		{
-			float tTri = closestHitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
+			float tTri = closestHitTriangle(triNdx, ro, rd, tNormal, tMax);
 			triNdx+=1;
 			if(tTri >= 0)
 			{
@@ -264,7 +250,7 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 
 		if((curNode.leafMask & 2) != 0)
 		{
-			float tTri = closestHitTriangle(triangles[triNdx], ro, rd, tNormal, tMax);
+			float tTri = closestHitTriangle(triNdx, ro, rd, tNormal, tMax);
 			if(tTri >= 0)
 			{
 				tMax = tTri;

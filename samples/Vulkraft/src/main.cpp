@@ -22,12 +22,14 @@
 #include <chrono>
 
 #include "gfx/renderer.h"
-#include "voxelOctree.h"
+#include "gfx/rtStaticGeometry.h"
 
 using namespace std;
 using namespace rev::core;
 using namespace rev::gfx;
 using namespace rev::math;
+
+using namespace vkft;
 
 //--------------------------------------------------------------------------------------------------------------
 void initCamera(rev::game::SceneNode*& camNode, rev::game::FlyBy*& player, rev::gfx::Camera*& gfxCam)
@@ -90,10 +92,8 @@ int main(int _argc, const char** _argv) {
 	rev::gfx::Camera* playerCam = nullptr;
 	initCamera(camNode, player, playerCam);
 
-	// Init map
-	vkft::VoxelOctree::FullGrid rawGrid;
-	vkft::VoxelOctree::generateGrid(5, rawGrid);
-	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
+	// Init geometry
+	RTStaticGeometry* modelGeometry = RTStaticGeometry::loadGltf(gfxDevice, "");
 
 	// Init gui
 	gui::init(windowSize);
@@ -107,7 +107,6 @@ int main(int _argc, const char** _argv) {
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
-
 		gui::startFrame(windowSize);
 
 		camNode->update(dt);
@@ -118,7 +117,7 @@ int main(int _argc, const char** _argv) {
 		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
-		renderer.render(voxelMap, *playerCam);
+		renderer.render(*modelGeometry, *playerCam);
 
 		// Draw ImGui on top of everything else
 		gui::finishFrame(dt);

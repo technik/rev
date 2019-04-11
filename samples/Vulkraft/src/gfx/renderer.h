@@ -16,7 +16,7 @@ namespace rev::gfx {
 }
 
 namespace vkft {
-	class VoxelOctree;
+	class RTStaticGeometry;
 }
 
 namespace vkft::gfx
@@ -27,7 +27,7 @@ namespace vkft::gfx
 	public:
 		Renderer(rev::gfx::DeviceOpenGLWindows&, const rev::math::Vec2u& targetSize);
 
-		void render(const VoxelOctree&, const rev::gfx::Camera&);
+		void render(const RTStaticGeometry& model, const rev::gfx::Camera&);
 
 		void onResizeTarget(const rev::math::Vec2u& targetSize);
 
