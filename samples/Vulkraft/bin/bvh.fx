@@ -29,7 +29,7 @@ layout(std430, binding = 8) buffer VtxBuffer
 } modelVertices;
 
 vec3 octaBBoxMin = vec3(-0.5,0.0,-0.5);
-vec3 octaBBoxSize = vec3(1);
+vec3 octaBBoxSize = vec3(0.5);
 
 BVHNode bvhTree[7] =
 {
@@ -38,52 +38,52 @@ BVHNode bvhTree[7] =
 		1,
 		1,
 		0,
-		{{vec3(0), vec3(1,0.5,1)},
-		{vec3(0,0.5,0), vec3(1,1.0,1)}}
+		{{vec3(0), vec3(2,1,2)},
+		{vec3(0,1,0), vec3(2)}}
 	},
 	// Level 1
 	{
 		2,
 		1,
 		0,
-		{{vec3(0), vec3(0.5,0.5,1)},
-		{vec3( 0.5,0.0,0), vec3(1,0.5,1)}}
+		{{vec3(0), vec3(1,1,2)},
+		{vec3( 1,0.0,0), vec3(2,1,2)}}
 	},
 	{
 		3,
 		0,
 		0,
-		{{vec3(0,0.5,0), vec3(0.5,1.0,1)},
-		{vec3( 0.5,0.5,0), vec3(1,1.0,1)}}
+		{{vec3(0,1,0), vec3(1,2,2)},
+		{vec3( 1,1,0), vec3(2)}}
 	},
 	// level 2
 	{
 		0,
 		1,
 		3,
-		{{vec3(0), vec3(0.5,0.5,0.5)},
-		{vec3(0,0.0, 0.5), vec3(0.5,0.5,1)}}
+		{{vec3(0), vec3(1)},
+		{vec3(0,0.0, 1), vec3(1,1,2)}}
 	},
 	{
 		0,
 		-2,
 		3 | 2<<2,
-		{{vec3( 0.5,0.0,0), vec3(1,0.5,0.5)},
-		{vec3( 0.5,0.0, 0.5), vec3(1,0.5,1)}}
+		{{vec3( 1,0.0,0), vec3(2,1,1)},
+		{vec3( 1,0.0, 1), vec3(2,1,2)}}
 	},
 	{
 		0,
 		1,
 		3 | 4<<2,
-		{{vec3(0,0.5,0), vec3(0.5,1.0,0.5)},
-		{vec3(0,0.5, 0.5), vec3(0.5,1.0,1)}}
+		{{vec3(0,1,0), vec3(1,2,1)},
+		{vec3(0,1,1), vec3(1,2,2)}}
 	},
 	{
 		0,
 		0,
 		3 | 6<<2,
-		{{vec3( 0.5,0.5,0), vec3(1,1.0,0.5)},
-		{vec3( 0.5,0.5, 0.5), vec3(1)}}
+		{{vec3( 1,1,0), vec3(2,2,1)},
+		{vec3( 1), vec3(2)}}
 	}
 };
 
@@ -159,15 +159,16 @@ float closestHitTriangle(int triNdx, vec3 ro, vec3 rd, out vec3 normal, float tM
 Box getChildBBox(BVHNode node, int ndx)
 {
 	Box localBBox = node.AABB[ndx];
-	localBBox.min += octaBBoxMin;
-	localBBox.max += octaBBoxMin;
-	return localBBox;
+	Box scaledBBox;
+	scaledBBox.min = localBBox.min.xyz * octaBBoxSize;
+	scaledBBox.max = localBBox.max.xyz * octaBBoxSize;
+	return scaledBBox;
 }
 
 float hitBVH(vec3 ro, vec3 rd, float tMax)
 {
 	ImplicitRay ir;
-	toImplicit(ro, rd, ir);
+	toImplicit(ro- octaBBoxMin, rd, ir);
 	float t = -1.0;
 
 	int curNodeNdx = 0;
@@ -229,7 +230,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 {
 	ImplicitRay ir;
-	toImplicit(ro, rd, ir);
+	toImplicit(ro- octaBBoxMin, rd, ir);
 	float t = -1.0;
 
 	int curNodeNdx = 0;
