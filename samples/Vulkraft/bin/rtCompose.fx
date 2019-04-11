@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(3.0, taa.y+windowSize*windowSize);
+		taa.y = min(7.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{

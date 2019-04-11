@@ -155,7 +155,6 @@ namespace vkft::gfx
 
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
-		mGfxDevice.renderQueue().present();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

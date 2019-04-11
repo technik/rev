@@ -64,7 +64,7 @@ vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 #endif
 
 vec3 sunDir = normalize(vec3(-1.0,2.0,2.0));
-float sunDiskSize = 0.025;
+float sunDiskSize = 0.0125;
 vec3 sunLight = 2*vec3(1.0,1.0,0.8);
 vec3 skyColor(vec3 dir)
 {

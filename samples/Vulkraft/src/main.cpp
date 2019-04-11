@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "gfx/renderer.h"
 #include "voxelOctree.h"
@@ -64,13 +65,14 @@ int main(int _argc, const char** _argv) {
 	// Init renderer
 	vkft::gfx::Renderer renderer(gfxDevice, windowSize);
 
-	*OSHandler::get() += [&renderer](MSG _msg) {
+	*OSHandler::get() += [&renderer, &windowSize](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
 		{
 			// Get new rectangle size without borders
 			RECT clientSurface;
 			GetClientRect(_msg.hwnd, &clientSurface);
 			auto newSize = Vec2u(clientSurface.right, clientSurface.bottom);
+			windowSize = newSize;
 			renderer.onResizeTarget(newSize);
 			return true;
 		}
@@ -93,14 +95,22 @@ int main(int _argc, const char** _argv) {
 	vkft::VoxelOctree::generateGrid(5, rawGrid);
 	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
 
+	// Init gui
+	gui::init(windowSize);
+
 	// Main loop
 	float t = 0;
+	auto t0 = std::chrono::high_resolution_clock::now();
+	float dt = 1.f/60;
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
-		camNode->update(1.f/60);
+
+		gui::startFrame(windowSize);
+
+		camNode->update(dt);
 		// Modify the uniform command
 		//Vec3f color = Vec3f(t,t,t);
 		//timeUniform.vec3s.push_back({0, color});
@@ -110,9 +120,19 @@ int main(int _argc, const char** _argv) {
 		// Send pass to the GPU
 		renderer.render(voxelMap, *playerCam);
 
+		// Draw ImGui on top of everything else
+		gui::finishFrame(dt);
+		ImGui::Render();
+
+		gfxDevice.renderQueue().present();
+
 		// Update time
-		t += 1.f/60;
-		if(t > 1) t -= 1.f;
+		auto t1 = std::chrono::high_resolution_clock::now();
+		dt = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() * 1e-3f;
+		t0 = t1;
+		t += dt;
+		if(t > 1)
+			t -= 1.f;
 	}
 
 	// Clean up
