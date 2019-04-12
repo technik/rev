@@ -4,18 +4,12 @@
 
 #include "ImplicitRay.fx"
 
-struct RelativeBBox
-{
-	ivec4 min;
-	ivec4 max;
-};
 
 struct BVHNode
 {
-	int childOffset;
 	int nextOffset;
 	int leafMask; // Higher (30) bits are the index of triengles
-	Box AABB[2];
+	ivec3 AABB[2];
 };
 
 layout(std430, binding = 7) buffer NdxBuffer
@@ -31,59 +25,74 @@ layout(std430, binding = 8) buffer VtxBuffer
 vec3 octaBBoxMin = vec3(-0.5,0.0,-0.5);
 vec3 octaBBoxSize = vec3(0.5);
 
+Box getChildBBox(BVHNode node, int ndx)
+{
+	ivec3 localBBox = node.AABB[ndx];
+	ivec3 relMin = localBBox & 0xffff;
+	ivec3 relMax = localBBox >> 16;
+	Box scaledBBox;
+	scaledBBox.min = relMin * octaBBoxSize;
+	scaledBBox.max = relMax * octaBBoxSize;
+	return scaledBBox;
+}
+
+int getChildOffset(BVHNode node)
+{
+	return node.nextOffset>>16;
+}
+
+int getNextOffset(BVHNode node)
+{
+	int lowWord = node.nextOffset & 0xffff;
+	return (lowWord & (1<<15)) == 0? lowWord : (lowWord | 0xffff0000);
+}
+
 BVHNode bvhTree[7] =
 {
 	// level 0
 	{
-		1,
-		1,
+		1<<16 | 1,
 		0,
-		{{vec3(0), vec3(2,1,2)},
-		{vec3(0,1,0), vec3(2)}}
+		{ivec3(0) + ivec3(2,1,2) << 16,
+		ivec3(0,1,0) + ivec3(2) << 16}
 	},
 	// Level 1
 	{
-		2,
-		1,
+		2<<16 | 1,
 		0,
-		{{vec3(0), vec3(1,1,2)},
-		{vec3( 1,0.0,0), vec3(2,1,2)}}
+		{ivec3(0) + ivec3(1,1,2) << 16,
+		ivec3( 1,0.0,0)+ ivec3(2,1,2) << 16}
 	},
 	{
-		3,
+		3<<16 | 0,
 		0,
-		0,
-		{{vec3(0,1,0), vec3(1,2,2)},
-		{vec3( 1,1,0), vec3(2)}}
+		{ivec3(0,1,0)+ ivec3(1,2,2) << 16,
+		ivec3( 1,1,0)+ ivec3(2) << 16}
 	},
 	// level 2
 	{
-		0,
-		1,
+		0 | 1,
 		3,
-		{{vec3(0), vec3(1)},
-		{vec3(0,0.0, 1), vec3(1,1,2)}}
+		{ivec3(0)+ ivec3(1),
+		ivec3(0,0.0, 1)+ ivec3(1,1,2)}
 	},
 	{
-		0,
-		-2,
+		0 | (-2&0xffff),
 		3 | 2<<2,
-		{{vec3( 1,0.0,0), vec3(2,1,1)},
-		{vec3( 1,0.0, 1), vec3(2,1,2)}}
+		{ivec3( 1,0.0,0)+ ivec3(2,1,1),
+		ivec3( 1,0.0, 1)+ ivec3(2,1,2)}
 	},
 	{
-		0,
-		1,
+		0 | 1,
 		3 | 4<<2,
-		{{vec3(0,1,0), vec3(1,2,1)},
-		{vec3(0,1,1), vec3(1,2,2)}}
+		{ivec3(0,1,0)+ ivec3(1,2,1),
+		ivec3(0,1,1)+ ivec3(1,2,2)}
 	},
 	{
-		0,
-		0,
+		0 | 0,
 		3 | 6<<2,
-		{{vec3( 1,1,0), vec3(2,2,1)},
-		{vec3( 1), vec3(2)}}
+		{ivec3( 1,1,0)+ ivec3(2,2,1),
+		ivec3( 1)+ ivec3(2)}
 	}
 };
 
@@ -156,15 +165,6 @@ float closestHitTriangle(int triNdx, vec3 ro, vec3 rd, out vec3 normal, float tM
 	return -1.0;
 }
 
-Box getChildBBox(BVHNode node, int ndx)
-{
-	Box localBBox = node.AABB[ndx];
-	Box scaledBBox;
-	scaledBBox.min = localBBox.min.xyz * octaBBoxSize;
-	scaledBBox.max = localBBox.max.xyz * octaBBoxSize;
-	return scaledBBox;
-}
-
 float hitBVH(vec3 ro, vec3 rd, float tMax)
 {
 	ImplicitRay ir;
@@ -195,7 +195,7 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 			tBox = hitBoxAny(getChildBBox(curNode,0), ir, tMax);
 			if(tBox >= 0)
 			{
-				curNodeNdx += curNode.childOffset;
+				curNodeNdx += getChildOffset(curNode);
 				continue;
 			}
 		}
@@ -213,15 +213,15 @@ float hitBVH(vec3 ro, vec3 rd, float tMax)
 			tBox = hitBoxAny(getChildBBox(curNode,1), ir, tMax);
 			if(tBox >= 0)
 			{
-				curNodeNdx += curNode.childOffset;
+				curNodeNdx += getChildOffset(curNode);
 				continue;
 			}
 		}
 
-		if(curNode.nextOffset == 0)
+		if(getNextOffset(curNode) == 0)
 			break;
 		
-		curNodeNdx = curNodeNdx + curNode.nextOffset;
+		curNodeNdx = curNodeNdx + getNextOffset(curNode);
 	}
 
 	return t;
@@ -260,7 +260,7 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 			tBox = hitBox(getChildBBox(curNode,0), ir, tNormal, tMax);
 			if(tBox >= 0)
 			{
-				curNodeNdx += curNode.childOffset;
+				curNodeNdx += getChildOffset(curNode);
 				continue;
 			}
 		}
@@ -280,15 +280,15 @@ float closestHitBVH(vec3 ro, vec3 rd, out vec3 normal, float tMax)
 			tBox = hitBox(getChildBBox(curNode,1), ir, tNormal, tMax);
 			if(tBox >= 0)
 			{
-				curNodeNdx += curNode.childOffset;
+				curNodeNdx += getChildOffset(curNode);
 				continue;
 			}
 		}
 
-		if(curNode.nextOffset == 0)
+		if(getNextOffset(curNode) == 0)
 			break;
 		
-		curNodeNdx = curNodeNdx + curNode.nextOffset;
+		curNodeNdx = curNodeNdx + getNextOffset(curNode);
 	}
 
 	return t;
