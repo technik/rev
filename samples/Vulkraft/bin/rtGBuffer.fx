@@ -9,9 +9,8 @@ void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
 	// Compute uvs
-	vec2 uvs = 2*vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) / uWindow.xy-1;
-	vec3 ro = (inverse(uViewMtx) * vec4(0,0,0,1.0)).xyz;
-	vec3 rd = worldSpaceRay(uCamWorld, uvs);
+	vec3 ro, rd;
+	worldRayFromPixel(uCamWorld, pixel_coords, ro, rd);
 
 	float tMax = 1000.0;
 	vec3 normal = vec3(0.0, 0.0, -1.0);

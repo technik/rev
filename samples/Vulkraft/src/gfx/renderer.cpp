@@ -97,6 +97,9 @@ namespace vkft::gfx
         commonUniforms.addParam(1, uWindow);
 		float aspectRatio = uWindow.x() / uWindow.y();
 		Mat44f camWorldMtx = camera.world().matrix();
+		Vec4f fovTg = Vec4f::zero();
+		fovTg.y() = std::tan(camera.fov() / 2);
+		fovTg.x() = aspectRatio * fovTg.y();
 		Mat44f view = camera.view();
 		Mat44f proj = camera.projection(aspectRatio);
 
@@ -104,7 +107,8 @@ namespace vkft::gfx
 		commonUniforms.addParam(3, view);
 		commonUniforms.addParam(4, proj);
 		commonUniforms.addParam(5, m_texturePack);
-		commonUniforms.addParam(6, Vec4f(m_noisePermutations(m_rng),m_noisePermutations(m_rng),0.f,0.f));
+		commonUniforms.addParam(6, Vec4f(m_noisePermutations(m_rng),m_noisePermutations(m_rng),m_noisePermutations(m_rng),m_noisePermutations(m_rng)));
+		commonUniforms.addParam(9, fovTg);
 		commonUniforms.addParam(7, geometry.m_gpuIndices);
 		commonUniforms.addParam(8, geometry.m_gpuVertices);
 

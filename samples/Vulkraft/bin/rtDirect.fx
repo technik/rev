@@ -73,15 +73,11 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 }
 
 void main() {
-	// base pixel colour for image
-	vec4 pixel = vec4(vec3(0.0),-1.0);
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
-	// Compute uvs
-	vec2 pixelUVs = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
-	vec3 ro = (uCamWorld * vec4(0,0,0,1.0)).xyz;
-	vec3 rd = worldSpaceRay(uCamWorld, 2*pixelUVs-1);
+	vec3 ro, rd;
+	worldRayFromPixel(uCamWorld, pixel_coords, ro, rd);
 	vec4 gBufferData = texelFetch(uGBuffer, pixel_coords, 0);
 	if(gBufferData.w < 0.0)
 		return;
@@ -92,6 +88,8 @@ void main() {
 	ivec2 noise_coord = ivec2(pixel_coords.x+uNoiseOffset.x,pixel_coords.y+uNoiseOffset.y);
 	vec4 noise = texelFetch(uNoise, noise_coord%64, 0);
 	vec4 indirect = vec4(vec3(0.0),1.0);
+	// base pixel colour for image
+	vec4 pixel = vec4(vec3(0.0),-1.0);
 	color(surfacePoint, normal, noise, pixel, indirect);
 
 	// output to a specific pixel in the image

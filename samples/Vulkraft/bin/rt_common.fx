@@ -11,6 +11,7 @@ layout(location = 3) uniform mat4 uViewMtx;
 layout(location = 4) uniform mat4 uProj;
 layout(location = 5) uniform sampler2D uTexturePack;
 layout(location = 6) uniform vec4 uNoiseOffset;
+layout(location = 9) uniform vec4 uFovTg;
 
 const float HalfPi = 1.57079637050628662109375f;
 const float TwoPi = 6.2831852436065673828125f;
@@ -20,15 +21,34 @@ const float TwoPi = 6.2831852436065673828125f;
 
 vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 {
-	float zClipDepth = 0.0;
-	float wClip = uProj[3][2] / (zClipDepth - uProj[2][2]/uProj[2][3]);
-	vec3 csPos = vec3(clipSpacePos.x, clipSpacePos.y, zClipDepth);
-	vec4 vsPos = (inverse(uProj) * vec4(csPos, 1))*wClip;
-	vec4 wsPos = camWorld * vsPos;
-	vec4 wsEyePos = camWorld * vec4(vec3(0.0), 1.0);
+	vec4 viewSpaceRay = vec4(clipSpacePos*uFovTg.xy, -1.0, 0.0);
+	return (camWorld * viewSpaceRay).xyz;
+}
 
-	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
-	return -wsEyeDir;
+void worldRayFromPixel(mat4 camWorld, ivec2 pixel_coord, out vec3 ro, out vec3 rd)
+{
+	vec2 uvs = (vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) + vec2(0.5)) / uWindow.xy;
+	ro = (camWorld * vec4(0,0,0,1.0)).xyz;
+	rd = worldSpaceRay(camWorld, 2*uvs-1);
+}
+
+vec3 worldPosFromSS(mat4 view, vec2 ssPos, float t)
+{
+	vec3 vsPos = vec3(ssPos*uFovTg.xy, -1.0)*t;
+	mat4 camWorld = inverse(view);
+	vec4 wsPos = camWorld * vec4(vsPos,1);
+	return wsPos.xyz;
+}
+
+vec3 worldPosFromUV(mat4 view, vec2 uvs, float t)
+{
+	return worldPosFromSS(view, uvs * 2 - 1, t);
+}
+
+vec3 worldPosFromPixel(mat4 view, ivec2 pixel_coords, float t)
+{
+	vec2 uvs = vec2(pixel_coords.x+0.5, pixel_coords.y+0.5) / uWindow.xy;
+	return worldPosFromUV(view, uvs, t);
 }
 
 #ifdef GBUFFER
