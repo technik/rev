@@ -18,11 +18,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "rtStaticGeometry.h"
+#include "bvh.h"
 
 namespace vkft {
 
 	namespace {
-		uint32_t octahedronIndices[8*3] = 
+		uint16_t octahedronIndices[8*3] = 
 		{
 			0,1,2,
 			0,2,3,
@@ -44,13 +45,25 @@ namespace vkft {
 			{ 0.0, 1.0, 0.0 }
 		};
 	}
-		//--------------------------------------------------------------------------------------------------
-	RTStaticGeometry::RTStaticGeometry(rev::gfx::Device& gfxDevice, rev::math::Vec3f* vtxBuffer, size_t nVertices, uint32_t* ndxBuffer, size_t nIndices) {
+
+	//--------------------------------------------------------------------------------------------------
+	RTStaticGeometry::RTStaticGeometry(rev::gfx::Device& gfxDevice, rev::math::Vec3f* vtxBuffer, size_t nVertices, uint16_t* ndxBuffer, size_t nIndices) {
 		// Build bvh
+		std::vector<uint16_t> indices(ndxBuffer, ndxBuffer+nIndices);
+		std::vector<rev::math::Vec3f> vertices(vtxBuffer, vtxBuffer+nVertices);
+		// Sort triangles by centroid
+		AABBTree bvh(indices, vertices);
+
 		// Create storage buffers
 
 		// Submit buffers
-		m_gpuIndices = gfxDevice.allocateStorageBuffer(sizeof(int32_t)*nIndices, ndxBuffer);
+			// Temporary, copy index buffers to different sized buffer
+		uint32_t doubleIndices[8*3];
+		for(int i = 0; i < 24; ++i)
+		{
+			doubleIndices[i] = ndxBuffer[i];
+		}
+		m_gpuIndices = gfxDevice.allocateStorageBuffer(sizeof(uint32_t)*nIndices, doubleIndices);
 		m_gpuVertices = gfxDevice.allocateStorageBuffer(sizeof(rev::math::Vec3f)*nVertices, vtxBuffer);
 	}
 

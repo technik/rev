@@ -93,6 +93,8 @@ namespace rev::math
 
 		const Vector& min() const { return mMin; }
 		const Vector& max() const { return mMax; }
+		Vector& min() { return mMin; }
+		Vector& max() { return mMax; }
 		Vector size() const { return mMax - mMin; }
 		Vector origin() const { return 0.5f*(mMin + mMax); }
 

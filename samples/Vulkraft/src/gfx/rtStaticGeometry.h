@@ -32,7 +32,7 @@ namespace vkft {
 	class RTStaticGeometry
 	{
 	public:
-		RTStaticGeometry(rev::gfx::Device& gfxDevice, rev::math::Vec3f* vtxBuffer, size_t nVertices, uint32_t* ndxBuffer, size_t nIndices);
+		RTStaticGeometry(rev::gfx::Device& gfxDevice, rev::math::Vec3f* vtxBuffer, size_t nVertices, uint16_t* ndxBuffer, size_t nIndices);
 
 		static RTStaticGeometry* loadGltf(rev::gfx::Device& gfxDevice, const char* fileName);
 
