@@ -25,6 +25,7 @@
 namespace rev::gfx
 {
 	class GpuBuffer;
+	class RenderTargetView;
 
 	class DoubleBufferSwapChain
 	{
@@ -41,6 +42,7 @@ namespace rev::gfx
 		virtual GpuBuffer* backBuffer(size_t ndx) = 0;
 		virtual void present() = 0;
 		virtual int getCurrentBackBuffer() = 0;
+		virtual RenderTargetView* renderTarget(int i) = 0;
 
 	};
 }

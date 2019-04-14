@@ -181,7 +181,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void DeviceDirectX12::createRenderTargetViews(DescriptorHeap& heap, size_t n, ComPtr<ID3D12Resource>* images)
+	void DeviceDirectX12::createRenderTargetViews(DescriptorHeap& heap, size_t n, ComPtr<ID3D12Resource>* images, RenderTargetViewDX12* rtvOut)
 	{
 		auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(heap.m_dx12Heap->GetCPUDescriptorHandleForHeapStart());
@@ -189,6 +189,7 @@ namespace rev :: gfx
 		for(size_t i = 0; i < n; ++i)
 		{
 			m_d3d12Device->CreateRenderTargetView(images[i].Get(), nullptr, rtvHandle);
+			rtvOut[i].handle = rtvHandle;
 			rtvHandle.ptr += rtvDescriptorSize;
 		}
 	}

@@ -22,6 +22,7 @@
 #include "../Windows/windowsPlatform.h"
 #include "../doubleBufferSwapChain.h"
 #include "deviceDirectX12.h"
+#include "renderTargetViewDX12.h"
 #include "GpuBufferDX12.h"
 
 #include <d3d12.h>
@@ -41,8 +42,11 @@ namespace rev::gfx
 		void present() override;
 		int getCurrentBackBuffer() override;
 
+		RenderTargetView* renderTarget(int i) { return &m_renderTarget[i]; }
+
 	private:
 		DeviceDirectX12::DescriptorHeap* m_rtvHeap;
+		RenderTargetViewDX12 m_renderTarget[2];
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;

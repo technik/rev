@@ -34,7 +34,7 @@
 
 namespace rev :: gfx
 {
-	class CommandList;
+	class RenderTargetViewDX12;
 
 	class DeviceDirectX12 : public Device
 	{
@@ -71,7 +71,8 @@ namespace rev :: gfx
 		void createRenderTargetViews(
 			DescriptorHeap& heap,
 			size_t n,
-			Microsoft::WRL::ComPtr<ID3D12Resource>* images);
+			Microsoft::WRL::ComPtr<ID3D12Resource>* images,
+			RenderTargetViewDX12* rtvOut);
 
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 

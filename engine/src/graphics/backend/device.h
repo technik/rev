@@ -43,9 +43,6 @@ namespace rev :: gfx
 	class Device
 	{
 	public:
-		struct RenderTargetView {};
-
-	public:
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
 		virtual CommandPool* createCommandPool(CommandList::Type commandType) = 0;
