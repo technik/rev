@@ -1,3 +1,6 @@
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+#define OVERRIDE_LGS
+
 #define GBUFFER
 layout(location = 11) uniform sampler2D uGBuffer;
 #include "rt_common.fx"

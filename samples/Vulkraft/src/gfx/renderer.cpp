@@ -115,7 +115,7 @@ namespace vkft::gfx
 		// Dispatch gBuffer shader
 		commands.setComputeProgram(m_gBufferCompute);
         commands.setUniformData(commonUniforms);
-		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)(m_targetSize.x()+7)/8, (int)(m_targetSize.y()+7)/8, 1});
 
 		// Dispatch light contributions
         passUniforms.clear();
@@ -127,7 +127,7 @@ namespace vkft::gfx
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
         commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
-        commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+        commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)(m_targetSize.x()+7)/8, (int)(m_targetSize.y()+7)/8, 1 });
 
 		// All following 3 at once:
 		// Denoise direct light
@@ -148,7 +148,7 @@ namespace vkft::gfx
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)(m_targetSize.x()+7)/8, (int)(m_targetSize.y()+7)/8, 1});
 
 		// Render full screen texture
         passUniforms.clear();

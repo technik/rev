@@ -37,7 +37,7 @@ public:
 		// Construct tree
 		mNodes.reserve(triangles.size()-1);
 		mNodes.resize(1);
-		initSubtree(mNodes[0], triangles.begin(), triangles.end(), 0, globalBBox);
+		initSubtree(mNodes[0], 0, triangles.begin(), triangles.end(), 0, globalBBox);
 	}
 
 	struct Node
@@ -182,7 +182,7 @@ void AABBTree::initNodeChild(
 	{
 		mNodes.push_back(Node());
 		childBBox.clear();
-		initSubtree(mNodes.back(), elementsBegin, elementsEnd, nextAxis, childBBox);
+		initSubtree(mNodes.back(), 0, elementsBegin, elementsEnd, nextAxis, childBBox);
 	}
 	else // Child A is a leaf
 	{

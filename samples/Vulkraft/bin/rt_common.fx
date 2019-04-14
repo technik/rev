@@ -1,8 +1,10 @@
 #ifndef _RT_COMMON_FX_
 #define _RT_COMMON_FX_
 
+#ifndef OVERRIDE_LGS
 // Local work group
 layout(local_size_x = 1, local_size_y = 1) in;
+#endif
 
 // Input uniforms
 layout(location = 1) uniform vec4 uWindow;

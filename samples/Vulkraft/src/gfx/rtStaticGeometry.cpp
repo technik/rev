@@ -52,7 +52,7 @@ namespace vkft {
 		std::vector<uint16_t> indices(ndxBuffer, ndxBuffer+nIndices);
 		std::vector<rev::math::Vec3f> vertices(vtxBuffer, vtxBuffer+nVertices);
 		// Sort triangles by centroid
-		AABBTree bvh(indices, vertices);
+		//AABBTree bvh(indices, vertices);
 
 		// Create storage buffers
 
