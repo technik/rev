@@ -47,6 +47,7 @@ namespace rev::gfx {
 
 		// --- Commands ---
 		void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) override;
+		void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) override;
 
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
 	};

@@ -19,12 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <cstdint>
+#include <math/algebra/vector.h>
 
 namespace rev::gfx {
 
 	class Fence;
 	class GpuBuffer;
 	class CommandPool;
+	class RenderTargetView;
 
 	class CommandList
 	{
@@ -57,5 +59,6 @@ namespace rev::gfx {
 
 		// Commands
 		virtual void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) = 0;
+		virtual void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) = 0;
 	};
 }

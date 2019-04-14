@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
 #include "GpuBufferDX12.h"
+#include "renderTargetViewDX12.h"
 
 namespace rev::gfx {
 
@@ -43,6 +44,7 @@ namespace rev::gfx {
 			return D3D12_RESOURCE_STATE_COMMON;
 		}
 	}
+
 	//----------------------------------------------------------------------------------------------
 	void CommandListDX12::resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after)
 	{
@@ -60,6 +62,13 @@ namespace rev::gfx {
 		barrier.Transition.pResource = dx12Resource->m_dx12Buffer.Get();
 
 		m_commandList->ResourceBarrier(1, &barrier);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::clearRenderTarget(RenderTargetView* rt, math::Vec4f color)
+	{
+		auto* rtdx12 = static_cast<RenderTargetViewDX12*>(rt);
+		m_commandList->ClearRenderTargetView(rtdx12->handle, color.data(), 0, nullptr);
 	}
 }
 

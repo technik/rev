@@ -206,6 +206,7 @@ int main(int _argc, const char** _argv) {
 		cmdPool->reset();
 		cmdList->reset(*cmdPool);
 		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+		cmdList->clearRenderTarget(swapChain->renderTarget(backBufferIndex), Vec4f(0.f,1.f,0.f,1.f));
 		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
 		cmdList->close();
 
