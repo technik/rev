@@ -64,7 +64,7 @@ namespace rev :: gfx
 		// Bind the frame buffer
 		assert(m_desc.target.isValid());
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id());
-		glDrawBuffers(m_colorAttachs.size(), m_colorAttachs.data());
+		glDrawBuffers((GLsizei)m_colorAttachs.size(), m_colorAttachs.data());
 
 		// Config viewport
 		glViewport(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());

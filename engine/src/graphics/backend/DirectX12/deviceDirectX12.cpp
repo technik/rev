@@ -165,12 +165,67 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	GpuBuffer* DeviceDirectX12::createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize)
+	{
+		// Default resource state
+		D3D12_RESOURCE_STATES defaultState;
+		// Heap properties
+		D3D12_HEAP_PROPERTIES heapProperties = {};
+		switch (bufferType)
+		{
+		case BufferType::Resident:
+			heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+			defaultState = D3D12_RESOURCE_STATE_COPY_DEST;
+			break;
+		case BufferType::Upload:
+			heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+			defaultState = D3D12_RESOURCE_STATE_GENERIC_READ;
+			break;
+		case BufferType::ReadBack:
+			heapProperties.Type = D3D12_HEAP_TYPE_READBACK;
+			defaultState = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			break;
+		default:
+			assert(false);
+			return nullptr;
+		}
+		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		if (bufferType == BufferType::Resident)
+			heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L1; // Resident buffers, prefer GPU memory
+		else
+			heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0; // Staging buffers, prefer system memory
+
+		// Resource descriptor
+		D3D12_RESOURCE_DESC bufferResourceDesc = {};
+		bufferResourceDesc.Alignment = 0;
+		bufferResourceDesc.Width = bufferSize;
+		bufferResourceDesc.Height = 1;
+		bufferResourceDesc.DepthOrArraySize = 1;
+		bufferResourceDesc.MipLevels = 1;
+		bufferResourceDesc.SampleDesc.Count = 1;
+		bufferResourceDesc.SampleDesc.Quality = 0;
+		bufferResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		// TODO: Should these flags apply to texture resources only?
+		if (flags & ResourceFlags::IsRenderTarget)
+			bufferResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		if (flags & ResourceFlags::IsDepthStencil)
+			bufferResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+
+		ComPtr<ID3D12Resource> dstResource;
+		m_d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, defaultState, nullptr, IID_PPV_ARGS(&dstResource));
+
+		return new GpuBufferDX12(dstResource);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type) -> DescriptorHeap*
 	{
 		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;
 
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.NumDescriptors = numDescriptors;
+		desc.NumDescriptors = (UINT)numDescriptors;
 
 		desc.Type = (D3D12_DESCRIPTOR_HEAP_TYPE)type;
 		//desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;

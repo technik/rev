@@ -65,6 +65,9 @@ namespace rev :: gfx
 		Fence* createFence() override;
 		CommandQueue& commandQueue(size_t index) const override { return *m_commandQueues[index]; }
 
+		// Resources
+		GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) override;
+
 	public: // DirectX 12 specific
 		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
 

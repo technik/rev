@@ -34,6 +34,7 @@ namespace rev :: gfx
 	class RenderPass;
 	class CommandQueue;
 	class CommandPool;
+	class GpuBuffer;
 
 	struct Buffer : NamedResource {
 		Buffer() = default;
@@ -43,12 +44,31 @@ namespace rev :: gfx
 	class Device
 	{
 	public:
+
+		enum BufferType
+		{
+			Resident, // Resident on gpu memory, fastest gpu bandwidth
+			Upload, // Used to upload content from the CPU to the GPU
+			ReadBack // Used to read content from the GPU back into the CPU
+		};
+
+		enum ResourceFlags
+		{
+			None = 0,
+			IsRenderTarget = 1,
+			IsDepthStencil = 2,
+		};
+
+
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;
 		virtual CommandPool* createCommandPool(CommandList::Type commandType) = 0;
 		virtual CommandList* createCommandList(CommandList::Type commandType, CommandPool& cmdPool) = 0;
 		virtual Fence* createFence() = 0;
 		virtual CommandQueue& commandQueue(size_t index) const = 0;
+
+		// Resources
+		virtual GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

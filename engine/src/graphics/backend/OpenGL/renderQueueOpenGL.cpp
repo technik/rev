@@ -36,7 +36,7 @@ namespace rev :: gfx
 		for(auto& entry : bucket.mat4s)
 			glUniformMatrix4fv(entry.first, 1, !math::Mat44f::is_col_major, entry.second.data());
 		for(auto& entry : bucket.mat4vs)
-			glUniformMatrix4fv(entry.first, entry.second.size(), !math::Mat44f::is_col_major, entry.second[0].data());
+			glUniformMatrix4fv(entry.first, (GLsizei)entry.second.size(), !math::Mat44f::is_col_major, entry.second[0].data());
 		for(auto& entry : bucket.storageBuffers)
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, entry.first, entry.second.id());
 			
