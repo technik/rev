@@ -182,6 +182,29 @@ int main(int _argc, const char** _argv) {
 	Fence* mRenderFence = gfxDevice->createFence();
 	uint64_t fenceValues[2] = {};
 
+	// Create command list for copying data
+	CommandPool* copyCommandPool = gfxDevice->createCommandPool(CommandList::Copy);
+	copyCommandPool->reset();
+	CommandList* copyCmdList = gfxDevice->createCommandList(CommandList::Copy, *copyCommandPool);
+	copyCmdList->reset(*copyCommandPool);
+
+	// Create a staging buffer
+	auto* stagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 4 * sizeof(rev::math::Vec3f));
+	auto* vtxBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 4 * sizeof(rev::math::Vec3f));
+
+	rev::math::Vec3f vtx[4] = {
+		rev::math::Vec3f(1.f,0.f,0.f),
+		rev::math::Vec3f(0.f,1.f,0.f),
+		rev::math::Vec3f(0.f,0.f,1.f),
+		rev::math::Vec3f(1.f,1.f,1.f)
+	};
+	copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 4 * sizeof(rev::math::Vec3f), vtx);
+	copyCmdList->close();
+	auto& copyQueue = gfxDevice->commandQueue(2);
+	copyQueue.executeCommandList(*copyCmdList);
+	auto copyFenceValue = copyQueue.signalFence(*mRenderFence);
+	mRenderFence->waitForValue(copyFenceValue);
+
 	// --- Init other systems ---
 	*rev::core::OSHandler::get() += processWindowsMsg;
 	

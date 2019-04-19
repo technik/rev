@@ -60,5 +60,7 @@ namespace rev::gfx {
 		// Commands
 		virtual void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) = 0;
 		virtual void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) = 0;
+
+		virtual void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) = 0;
 	};
 }

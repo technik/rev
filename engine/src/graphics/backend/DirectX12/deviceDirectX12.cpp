@@ -190,14 +190,11 @@ namespace rev :: gfx
 			return nullptr;
 		}
 		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		if (bufferType == BufferType::Resident)
-			heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L1; // Resident buffers, prefer GPU memory
-		else
-			heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0; // Staging buffers, prefer system memory
 
 		// Resource descriptor
 		D3D12_RESOURCE_DESC bufferResourceDesc = {};
 		bufferResourceDesc.Alignment = 0;
+		bufferResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		bufferResourceDesc.Width = bufferSize;
 		bufferResourceDesc.Height = 1;
 		bufferResourceDesc.DepthOrArraySize = 1;
