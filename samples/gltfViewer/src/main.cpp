@@ -169,12 +169,13 @@ int main(int _argc, const char** _argv) {
 
 	DoubleBufferSwapChain* swapChain = gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
 
-	// Create two command lists, for alternate frames
+	// Create two command pools, for alternate frames
 	int backBufferIndex = 0;
 	CommandPool* cmdPools[2];
 	cmdPools[0] = gfxDevice->createCommandPool(CommandList::Graphics);
 	cmdPools[1] = gfxDevice->createCommandPool(CommandList::Graphics);
 	CommandList* cmdList = gfxDevice->createCommandList(CommandList::Graphics, *cmdPools[0]);
+	cmdList->close();
 	GpuBuffer* backBuffers[2];
 	backBuffers[0] = swapChain->backBuffer(0);
 	backBuffers[1] = swapChain->backBuffer(1);
@@ -184,9 +185,7 @@ int main(int _argc, const char** _argv) {
 
 	// Create command list for copying data
 	CommandPool* copyCommandPool = gfxDevice->createCommandPool(CommandList::Copy);
-	copyCommandPool->reset();
 	CommandList* copyCmdList = gfxDevice->createCommandList(CommandList::Copy, *copyCommandPool);
-	copyCmdList->reset(*copyCommandPool);
 
 	// Create a staging buffer
 	auto* stagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 4 * sizeof(rev::math::Vec3f));

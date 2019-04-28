@@ -23,6 +23,7 @@
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
 #include "fenceDX12.h"
+#include "d3dx12.h"
 
 using namespace Microsoft::WRL;
 
@@ -144,8 +145,6 @@ namespace rev :: gfx
 		ComPtr<ID3D12GraphicsCommandList> commandList;
 		ThrowIfFailed(m_d3d12Device->CreateCommandList(0, dxType, dx12Pool.m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
 
-		ThrowIfFailed(commandList->Close());
-
 		return new CommandListDX12(commandList);
 	}
 
@@ -170,19 +169,19 @@ namespace rev :: gfx
 		// Default resource state
 		D3D12_RESOURCE_STATES defaultState;
 		// Heap properties
-		D3D12_HEAP_PROPERTIES heapProperties = {};
+		CD3DX12_HEAP_PROPERTIES heapProperties = {};
 		switch (bufferType)
 		{
 		case BufferType::Resident:
-			heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+			heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 			defaultState = D3D12_RESOURCE_STATE_COPY_DEST;
 			break;
 		case BufferType::Upload:
-			heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+			heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 			defaultState = D3D12_RESOURCE_STATE_GENERIC_READ;
 			break;
 		case BufferType::ReadBack:
-			heapProperties.Type = D3D12_HEAP_TYPE_READBACK;
+			heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
 			defaultState = D3D12_RESOURCE_STATE_COPY_SOURCE;
 			break;
 		default:
@@ -192,23 +191,15 @@ namespace rev :: gfx
 		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 
 		// Resource descriptor
-		D3D12_RESOURCE_DESC bufferResourceDesc = {};
-		bufferResourceDesc.Alignment = 0;
-		bufferResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferResourceDesc.Width = bufferSize;
-		bufferResourceDesc.Height = 1;
-		bufferResourceDesc.DepthOrArraySize = 1;
-		bufferResourceDesc.MipLevels = 1;
-		bufferResourceDesc.SampleDesc.Count = 1;
-		bufferResourceDesc.SampleDesc.Quality = 0;
-		bufferResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		D3D12_RESOURCE_FLAGS dx12flags = D3D12_RESOURCE_FLAG_NONE;
 
 		// TODO: Should these flags apply to texture resources only?
 		if (flags & ResourceFlags::IsRenderTarget)
-			bufferResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			dx12flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		if (flags & ResourceFlags::IsDepthStencil)
-			bufferResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+			dx12flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
+		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, dx12flags);
 
 		ComPtr<ID3D12Resource> dstResource;
 		m_d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, defaultState, nullptr, IID_PPV_ARGS(&dstResource));

@@ -35,7 +35,8 @@ inline bool operator!=(const D3D12_VIEWPORT& l, const D3D12_VIEWPORT& r)
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RECT : public D3D12_RECT
 {
-	CD3DX12_RECT() = default;
+	CD3DX12_RECT()
+	{}
 	explicit CD3DX12_RECT(const D3D12_RECT& o) :
 		D3D12_RECT(o)
 	{}
@@ -50,12 +51,15 @@ struct CD3DX12_RECT : public D3D12_RECT
 		right = Right;
 		bottom = Bottom;
 	}
+	~CD3DX12_RECT() {}
+	operator const D3D12_RECT&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_VIEWPORT : public D3D12_VIEWPORT
 {
-	CD3DX12_VIEWPORT() = default;
+	CD3DX12_VIEWPORT()
+	{}
 	explicit CD3DX12_VIEWPORT(const D3D12_VIEWPORT& o) :
 		D3D12_VIEWPORT(o)
 	{}
@@ -82,7 +86,7 @@ struct CD3DX12_VIEWPORT : public D3D12_VIEWPORT
 		FLOAT minDepth = D3D12_MIN_DEPTH,
 		FLOAT maxDepth = D3D12_MAX_DEPTH)
 	{
-		auto Desc = pResource->GetDesc();
+		D3D12_RESOURCE_DESC Desc = pResource->GetDesc();
 		const UINT64 SubresourceWidth = Desc.Width >> mipSlice;
 		const UINT64 SubresourceHeight = Desc.Height >> mipSlice;
 		switch (Desc.Dimension)
@@ -112,12 +116,15 @@ struct CD3DX12_VIEWPORT : public D3D12_VIEWPORT
 		MinDepth = minDepth;
 		MaxDepth = maxDepth;
 	}
+	~CD3DX12_VIEWPORT() {}
+	operator const D3D12_VIEWPORT&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_BOX : public D3D12_BOX
 {
-	CD3DX12_BOX() = default;
+	CD3DX12_BOX()
+	{}
 	explicit CD3DX12_BOX(const D3D12_BOX& o) :
 		D3D12_BOX(o)
 	{}
@@ -160,13 +167,15 @@ struct CD3DX12_BOX : public D3D12_BOX
 		bottom = Bottom;
 		back = Back;
 	}
+	~CD3DX12_BOX() {}
+	operator const D3D12_BOX&() const { return *this; }
 };
-inline bool operator==(const D3D12_BOX & l, const D3D12_BOX & r)
+inline bool operator==(const D3D12_BOX& l, const D3D12_BOX& r)
 {
 	return l.left == r.left && l.top == r.top && l.front == r.front &&
 		l.right == r.right && l.bottom == r.bottom && l.back == r.back;
 }
-inline bool operator!=(const D3D12_BOX & l, const D3D12_BOX & r)
+inline bool operator!=(const D3D12_BOX& l, const D3D12_BOX& r)
 {
 	return !(l == r);
 }
@@ -174,7 +183,8 @@ inline bool operator!=(const D3D12_BOX & l, const D3D12_BOX & r)
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_DEPTH_STENCIL_DESC : public D3D12_DEPTH_STENCIL_DESC
 {
-	CD3DX12_DEPTH_STENCIL_DESC() = default;
+	CD3DX12_DEPTH_STENCIL_DESC()
+	{}
 	explicit CD3DX12_DEPTH_STENCIL_DESC(const D3D12_DEPTH_STENCIL_DESC& o) :
 		D3D12_DEPTH_STENCIL_DESC(o)
 	{}
@@ -222,12 +232,15 @@ struct CD3DX12_DEPTH_STENCIL_DESC : public D3D12_DEPTH_STENCIL_DESC
 		BackFace.StencilPassOp = backStencilPassOp;
 		BackFace.StencilFunc = backStencilFunc;
 	}
+	~CD3DX12_DEPTH_STENCIL_DESC() {}
+	operator const D3D12_DEPTH_STENCIL_DESC&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_DEPTH_STENCIL_DESC1 : public D3D12_DEPTH_STENCIL_DESC1
 {
-	CD3DX12_DEPTH_STENCIL_DESC1() = default;
+	CD3DX12_DEPTH_STENCIL_DESC1()
+	{}
 	explicit CD3DX12_DEPTH_STENCIL_DESC1(const D3D12_DEPTH_STENCIL_DESC1& o) :
 		D3D12_DEPTH_STENCIL_DESC1(o)
 	{}
@@ -296,7 +309,9 @@ struct CD3DX12_DEPTH_STENCIL_DESC1 : public D3D12_DEPTH_STENCIL_DESC1
 		BackFace.StencilFunc = backStencilFunc;
 		DepthBoundsTestEnable = depthBoundsTestEnable;
 	}
-	operator D3D12_DEPTH_STENCIL_DESC() const
+	~CD3DX12_DEPTH_STENCIL_DESC1() {}
+	operator const D3D12_DEPTH_STENCIL_DESC1&() const { return *this; }
+	operator const D3D12_DEPTH_STENCIL_DESC() const
 	{
 		D3D12_DEPTH_STENCIL_DESC D;
 		D.DepthEnable = DepthEnable;
@@ -320,7 +335,8 @@ struct CD3DX12_DEPTH_STENCIL_DESC1 : public D3D12_DEPTH_STENCIL_DESC1
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_BLEND_DESC : public D3D12_BLEND_DESC
 {
-	CD3DX12_BLEND_DESC() = default;
+	CD3DX12_BLEND_DESC()
+	{}
 	explicit CD3DX12_BLEND_DESC(const D3D12_BLEND_DESC& o) :
 		D3D12_BLEND_DESC(o)
 	{}
@@ -339,12 +355,15 @@ struct CD3DX12_BLEND_DESC : public D3D12_BLEND_DESC
 		for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
 			RenderTarget[i] = defaultRenderTargetBlendDesc;
 	}
+	~CD3DX12_BLEND_DESC() {}
+	operator const D3D12_BLEND_DESC&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RASTERIZER_DESC : public D3D12_RASTERIZER_DESC
 {
-	CD3DX12_RASTERIZER_DESC() = default;
+	CD3DX12_RASTERIZER_DESC()
+	{}
 	explicit CD3DX12_RASTERIZER_DESC(const D3D12_RASTERIZER_DESC& o) :
 		D3D12_RASTERIZER_DESC(o)
 	{}
@@ -387,12 +406,15 @@ struct CD3DX12_RASTERIZER_DESC : public D3D12_RASTERIZER_DESC
 		ForcedSampleCount = forcedSampleCount;
 		ConservativeRaster = conservativeRaster;
 	}
+	~CD3DX12_RASTERIZER_DESC() {}
+	operator const D3D12_RASTERIZER_DESC&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RESOURCE_ALLOCATION_INFO : public D3D12_RESOURCE_ALLOCATION_INFO
 {
-	CD3DX12_RESOURCE_ALLOCATION_INFO() = default;
+	CD3DX12_RESOURCE_ALLOCATION_INFO()
+	{}
 	explicit CD3DX12_RESOURCE_ALLOCATION_INFO(const D3D12_RESOURCE_ALLOCATION_INFO& o) :
 		D3D12_RESOURCE_ALLOCATION_INFO(o)
 	{}
@@ -403,13 +425,15 @@ struct CD3DX12_RESOURCE_ALLOCATION_INFO : public D3D12_RESOURCE_ALLOCATION_INFO
 		SizeInBytes = size;
 		Alignment = alignment;
 	}
+	operator const D3D12_RESOURCE_ALLOCATION_INFO&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_HEAP_PROPERTIES : public D3D12_HEAP_PROPERTIES
 {
-	CD3DX12_HEAP_PROPERTIES() = default;
-	explicit CD3DX12_HEAP_PROPERTIES(const D3D12_HEAP_PROPERTIES& o) :
+	CD3DX12_HEAP_PROPERTIES()
+	{}
+	explicit CD3DX12_HEAP_PROPERTIES(const D3D12_HEAP_PROPERTIES &o) :
 		D3D12_HEAP_PROPERTIES(o)
 	{}
 	CD3DX12_HEAP_PROPERTIES(
@@ -435,20 +459,21 @@ struct CD3DX12_HEAP_PROPERTIES : public D3D12_HEAP_PROPERTIES
 		CreationNodeMask = creationNodeMask;
 		VisibleNodeMask = nodeMask;
 	}
+	operator const D3D12_HEAP_PROPERTIES&() const { return *this; }
 	bool IsCPUAccessible() const
 	{
 		return Type == D3D12_HEAP_TYPE_UPLOAD || Type == D3D12_HEAP_TYPE_READBACK || (Type == D3D12_HEAP_TYPE_CUSTOM &&
 			(CPUPageProperty == D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE || CPUPageProperty == D3D12_CPU_PAGE_PROPERTY_WRITE_BACK));
 	}
 };
-inline bool operator==(const D3D12_HEAP_PROPERTIES & l, const D3D12_HEAP_PROPERTIES & r)
+inline bool operator==(const D3D12_HEAP_PROPERTIES& l, const D3D12_HEAP_PROPERTIES& r)
 {
 	return l.Type == r.Type && l.CPUPageProperty == r.CPUPageProperty &&
 		l.MemoryPoolPreference == r.MemoryPoolPreference &&
 		l.CreationNodeMask == r.CreationNodeMask &&
 		l.VisibleNodeMask == r.VisibleNodeMask;
 }
-inline bool operator!=(const D3D12_HEAP_PROPERTIES & l, const D3D12_HEAP_PROPERTIES & r)
+inline bool operator!=(const D3D12_HEAP_PROPERTIES& l, const D3D12_HEAP_PROPERTIES& r)
 {
 	return !(l == r);
 }
@@ -456,8 +481,9 @@ inline bool operator!=(const D3D12_HEAP_PROPERTIES & l, const D3D12_HEAP_PROPERT
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_HEAP_DESC : public D3D12_HEAP_DESC
 {
-	CD3DX12_HEAP_DESC() = default;
-	explicit CD3DX12_HEAP_DESC(const D3D12_HEAP_DESC& o) :
+	CD3DX12_HEAP_DESC()
+	{}
+	explicit CD3DX12_HEAP_DESC(const D3D12_HEAP_DESC &o) :
 		D3D12_HEAP_DESC(o)
 	{}
 	CD3DX12_HEAP_DESC(
@@ -525,19 +551,20 @@ struct CD3DX12_HEAP_DESC : public D3D12_HEAP_DESC
 		Alignment = resAllocInfo.Alignment;
 		Flags = flags;
 	}
+	operator const D3D12_HEAP_DESC&() const { return *this; }
 	bool IsCPUAccessible() const
 	{
 		return static_cast<const CD3DX12_HEAP_PROPERTIES*>(&Properties)->IsCPUAccessible();
 	}
 };
-inline bool operator==(const D3D12_HEAP_DESC & l, const D3D12_HEAP_DESC & r)
+inline bool operator==(const D3D12_HEAP_DESC& l, const D3D12_HEAP_DESC& r)
 {
 	return l.SizeInBytes == r.SizeInBytes &&
 		l.Properties == r.Properties &&
 		l.Alignment == r.Alignment &&
 		l.Flags == r.Flags;
 }
-inline bool operator!=(const D3D12_HEAP_DESC & l, const D3D12_HEAP_DESC & r)
+inline bool operator!=(const D3D12_HEAP_DESC& l, const D3D12_HEAP_DESC& r)
 {
 	return !(l == r);
 }
@@ -545,8 +572,9 @@ inline bool operator!=(const D3D12_HEAP_DESC & l, const D3D12_HEAP_DESC & r)
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_CLEAR_VALUE : public D3D12_CLEAR_VALUE
 {
-	CD3DX12_CLEAR_VALUE() = default;
-	explicit CD3DX12_CLEAR_VALUE(const D3D12_CLEAR_VALUE& o) :
+	CD3DX12_CLEAR_VALUE()
+	{}
+	explicit CD3DX12_CLEAR_VALUE(const D3D12_CLEAR_VALUE &o) :
 		D3D12_CLEAR_VALUE(o)
 	{}
 	CD3DX12_CLEAR_VALUE(
@@ -566,13 +594,15 @@ struct CD3DX12_CLEAR_VALUE : public D3D12_CLEAR_VALUE
 		memcpy(&DepthStencil.Depth, &depth, sizeof(depth));
 		DepthStencil.Stencil = stencil;
 	}
+	operator const D3D12_CLEAR_VALUE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RANGE : public D3D12_RANGE
 {
-	CD3DX12_RANGE() = default;
-	explicit CD3DX12_RANGE(const D3D12_RANGE& o) :
+	CD3DX12_RANGE()
+	{}
+	explicit CD3DX12_RANGE(const D3D12_RANGE &o) :
 		D3D12_RANGE(o)
 	{}
 	CD3DX12_RANGE(
@@ -582,13 +612,15 @@ struct CD3DX12_RANGE : public D3D12_RANGE
 		Begin = begin;
 		End = end;
 	}
+	operator const D3D12_RANGE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RANGE_UINT64 : public D3D12_RANGE_UINT64
 {
-	CD3DX12_RANGE_UINT64() = default;
-	explicit CD3DX12_RANGE_UINT64(const D3D12_RANGE_UINT64& o) :
+	CD3DX12_RANGE_UINT64()
+	{}
+	explicit CD3DX12_RANGE_UINT64(const D3D12_RANGE_UINT64 &o) :
 		D3D12_RANGE_UINT64(o)
 	{}
 	CD3DX12_RANGE_UINT64(
@@ -598,13 +630,15 @@ struct CD3DX12_RANGE_UINT64 : public D3D12_RANGE_UINT64
 		Begin = begin;
 		End = end;
 	}
+	operator const D3D12_RANGE_UINT64&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_SUBRESOURCE_RANGE_UINT64 : public D3D12_SUBRESOURCE_RANGE_UINT64
 {
-	CD3DX12_SUBRESOURCE_RANGE_UINT64() = default;
-	explicit CD3DX12_SUBRESOURCE_RANGE_UINT64(const D3D12_SUBRESOURCE_RANGE_UINT64& o) :
+	CD3DX12_SUBRESOURCE_RANGE_UINT64()
+	{}
+	explicit CD3DX12_SUBRESOURCE_RANGE_UINT64(const D3D12_SUBRESOURCE_RANGE_UINT64 &o) :
 		D3D12_SUBRESOURCE_RANGE_UINT64(o)
 	{}
 	CD3DX12_SUBRESOURCE_RANGE_UINT64(
@@ -623,13 +657,15 @@ struct CD3DX12_SUBRESOURCE_RANGE_UINT64 : public D3D12_SUBRESOURCE_RANGE_UINT64
 		Range.Begin = begin;
 		Range.End = end;
 	}
+	operator const D3D12_SUBRESOURCE_RANGE_UINT64&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_SHADER_BYTECODE : public D3D12_SHADER_BYTECODE
 {
-	CD3DX12_SHADER_BYTECODE() = default;
-	explicit CD3DX12_SHADER_BYTECODE(const D3D12_SHADER_BYTECODE& o) :
+	CD3DX12_SHADER_BYTECODE()
+	{}
+	explicit CD3DX12_SHADER_BYTECODE(const D3D12_SHADER_BYTECODE &o) :
 		D3D12_SHADER_BYTECODE(o)
 	{}
 	CD3DX12_SHADER_BYTECODE(
@@ -645,13 +681,15 @@ struct CD3DX12_SHADER_BYTECODE : public D3D12_SHADER_BYTECODE
 		pShaderBytecode = _pShaderBytecode;
 		BytecodeLength = bytecodeLength;
 	}
+	operator const D3D12_SHADER_BYTECODE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_TILED_RESOURCE_COORDINATE : public D3D12_TILED_RESOURCE_COORDINATE
 {
-	CD3DX12_TILED_RESOURCE_COORDINATE() = default;
-	explicit CD3DX12_TILED_RESOURCE_COORDINATE(const D3D12_TILED_RESOURCE_COORDINATE& o) :
+	CD3DX12_TILED_RESOURCE_COORDINATE()
+	{}
+	explicit CD3DX12_TILED_RESOURCE_COORDINATE(const D3D12_TILED_RESOURCE_COORDINATE &o) :
 		D3D12_TILED_RESOURCE_COORDINATE(o)
 	{}
 	CD3DX12_TILED_RESOURCE_COORDINATE(
@@ -665,13 +703,15 @@ struct CD3DX12_TILED_RESOURCE_COORDINATE : public D3D12_TILED_RESOURCE_COORDINAT
 		Z = z;
 		Subresource = subresource;
 	}
+	operator const D3D12_TILED_RESOURCE_COORDINATE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_TILE_REGION_SIZE : public D3D12_TILE_REGION_SIZE
 {
-	CD3DX12_TILE_REGION_SIZE() = default;
-	explicit CD3DX12_TILE_REGION_SIZE(const D3D12_TILE_REGION_SIZE& o) :
+	CD3DX12_TILE_REGION_SIZE()
+	{}
+	explicit CD3DX12_TILE_REGION_SIZE(const D3D12_TILE_REGION_SIZE &o) :
 		D3D12_TILE_REGION_SIZE(o)
 	{}
 	CD3DX12_TILE_REGION_SIZE(
@@ -687,13 +727,15 @@ struct CD3DX12_TILE_REGION_SIZE : public D3D12_TILE_REGION_SIZE
 		Height = height;
 		Depth = depth;
 	}
+	operator const D3D12_TILE_REGION_SIZE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_SUBRESOURCE_TILING : public D3D12_SUBRESOURCE_TILING
 {
-	CD3DX12_SUBRESOURCE_TILING() = default;
-	explicit CD3DX12_SUBRESOURCE_TILING(const D3D12_SUBRESOURCE_TILING& o) :
+	CD3DX12_SUBRESOURCE_TILING()
+	{}
+	explicit CD3DX12_SUBRESOURCE_TILING(const D3D12_SUBRESOURCE_TILING &o) :
 		D3D12_SUBRESOURCE_TILING(o)
 	{}
 	CD3DX12_SUBRESOURCE_TILING(
@@ -707,13 +749,15 @@ struct CD3DX12_SUBRESOURCE_TILING : public D3D12_SUBRESOURCE_TILING
 		DepthInTiles = depthInTiles;
 		StartTileIndexInOverallResource = startTileIndexInOverallResource;
 	}
+	operator const D3D12_SUBRESOURCE_TILING&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_TILE_SHAPE : public D3D12_TILE_SHAPE
 {
-	CD3DX12_TILE_SHAPE() = default;
-	explicit CD3DX12_TILE_SHAPE(const D3D12_TILE_SHAPE& o) :
+	CD3DX12_TILE_SHAPE()
+	{}
+	explicit CD3DX12_TILE_SHAPE(const D3D12_TILE_SHAPE &o) :
 		D3D12_TILE_SHAPE(o)
 	{}
 	CD3DX12_TILE_SHAPE(
@@ -725,13 +769,15 @@ struct CD3DX12_TILE_SHAPE : public D3D12_TILE_SHAPE
 		HeightInTexels = heightInTexels;
 		DepthInTexels = depthInTexels;
 	}
+	operator const D3D12_TILE_SHAPE&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RESOURCE_BARRIER : public D3D12_RESOURCE_BARRIER
 {
-	CD3DX12_RESOURCE_BARRIER() = default;
-	explicit CD3DX12_RESOURCE_BARRIER(const D3D12_RESOURCE_BARRIER& o) :
+	CD3DX12_RESOURCE_BARRIER()
+	{}
+	explicit CD3DX12_RESOURCE_BARRIER(const D3D12_RESOURCE_BARRIER &o) :
 		D3D12_RESOURCE_BARRIER(o)
 	{}
 	static inline CD3DX12_RESOURCE_BARRIER Transition(
@@ -741,8 +787,9 @@ struct CD3DX12_RESOURCE_BARRIER : public D3D12_RESOURCE_BARRIER
 		UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
 		D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE)
 	{
-		CD3DX12_RESOURCE_BARRIER result = {};
-		D3D12_RESOURCE_BARRIER& barrier = result;
+		CD3DX12_RESOURCE_BARRIER result;
+		ZeroMemory(&result, sizeof(result));
+		D3D12_RESOURCE_BARRIER &barrier = result;
 		result.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		result.Flags = flags;
 		barrier.Transition.pResource = pResource;
@@ -755,8 +802,9 @@ struct CD3DX12_RESOURCE_BARRIER : public D3D12_RESOURCE_BARRIER
 		_In_ ID3D12Resource* pResourceBefore,
 		_In_ ID3D12Resource* pResourceAfter)
 	{
-		CD3DX12_RESOURCE_BARRIER result = {};
-		D3D12_RESOURCE_BARRIER& barrier = result;
+		CD3DX12_RESOURCE_BARRIER result;
+		ZeroMemory(&result, sizeof(result));
+		D3D12_RESOURCE_BARRIER &barrier = result;
 		result.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;
 		barrier.Aliasing.pResourceBefore = pResourceBefore;
 		barrier.Aliasing.pResourceAfter = pResourceAfter;
@@ -765,19 +813,22 @@ struct CD3DX12_RESOURCE_BARRIER : public D3D12_RESOURCE_BARRIER
 	static inline CD3DX12_RESOURCE_BARRIER UAV(
 		_In_ ID3D12Resource* pResource)
 	{
-		CD3DX12_RESOURCE_BARRIER result = {};
-		D3D12_RESOURCE_BARRIER& barrier = result;
+		CD3DX12_RESOURCE_BARRIER result;
+		ZeroMemory(&result, sizeof(result));
+		D3D12_RESOURCE_BARRIER &barrier = result;
 		result.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 		barrier.UAV.pResource = pResource;
 		return result;
 	}
+	operator const D3D12_RESOURCE_BARRIER&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_PACKED_MIP_INFO : public D3D12_PACKED_MIP_INFO
 {
-	CD3DX12_PACKED_MIP_INFO() = default;
-	explicit CD3DX12_PACKED_MIP_INFO(const D3D12_PACKED_MIP_INFO& o) :
+	CD3DX12_PACKED_MIP_INFO()
+	{}
+	explicit CD3DX12_PACKED_MIP_INFO(const D3D12_PACKED_MIP_INFO &o) :
 		D3D12_PACKED_MIP_INFO(o)
 	{}
 	CD3DX12_PACKED_MIP_INFO(
@@ -791,13 +842,15 @@ struct CD3DX12_PACKED_MIP_INFO : public D3D12_PACKED_MIP_INFO
 		NumTilesForPackedMips = numTilesForPackedMips;
 		StartTileIndexInOverallResource = startTileIndexInOverallResource;
 	}
+	operator const D3D12_PACKED_MIP_INFO&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_SUBRESOURCE_FOOTPRINT : public D3D12_SUBRESOURCE_FOOTPRINT
 {
-	CD3DX12_SUBRESOURCE_FOOTPRINT() = default;
-	explicit CD3DX12_SUBRESOURCE_FOOTPRINT(const D3D12_SUBRESOURCE_FOOTPRINT& o) :
+	CD3DX12_SUBRESOURCE_FOOTPRINT()
+	{}
+	explicit CD3DX12_SUBRESOURCE_FOOTPRINT(const D3D12_SUBRESOURCE_FOOTPRINT &o) :
 		D3D12_SUBRESOURCE_FOOTPRINT(o)
 	{}
 	CD3DX12_SUBRESOURCE_FOOTPRINT(
@@ -823,28 +876,25 @@ struct CD3DX12_SUBRESOURCE_FOOTPRINT : public D3D12_SUBRESOURCE_FOOTPRINT
 		Depth = (resDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D ? resDesc.DepthOrArraySize : 1);
 		RowPitch = rowPitch;
 	}
+	operator const D3D12_SUBRESOURCE_FOOTPRINT&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_TEXTURE_COPY_LOCATION : public D3D12_TEXTURE_COPY_LOCATION
 {
-	CD3DX12_TEXTURE_COPY_LOCATION() = default;
-	explicit CD3DX12_TEXTURE_COPY_LOCATION(const D3D12_TEXTURE_COPY_LOCATION& o) :
+	CD3DX12_TEXTURE_COPY_LOCATION()
+	{}
+	explicit CD3DX12_TEXTURE_COPY_LOCATION(const D3D12_TEXTURE_COPY_LOCATION &o) :
 		D3D12_TEXTURE_COPY_LOCATION(o)
 	{}
-	CD3DX12_TEXTURE_COPY_LOCATION(_In_ ID3D12Resource* pRes)
-	{
-		pResource = pRes;
-		Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		PlacedFootprint = {};
-	}
-	CD3DX12_TEXTURE_COPY_LOCATION(_In_ ID3D12Resource* pRes, D3D12_PLACED_SUBRESOURCE_FOOTPRINT const& Footprint)
+	CD3DX12_TEXTURE_COPY_LOCATION(ID3D12Resource* pRes) { pResource = pRes; }
+	CD3DX12_TEXTURE_COPY_LOCATION(ID3D12Resource* pRes, D3D12_PLACED_SUBRESOURCE_FOOTPRINT const& Footprint)
 	{
 		pResource = pRes;
 		Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		PlacedFootprint = Footprint;
 	}
-	CD3DX12_TEXTURE_COPY_LOCATION(_In_ ID3D12Resource* pRes, UINT Sub)
+	CD3DX12_TEXTURE_COPY_LOCATION(ID3D12Resource* pRes, UINT Sub)
 	{
 		pResource = pRes;
 		Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
@@ -855,8 +905,8 @@ struct CD3DX12_TEXTURE_COPY_LOCATION : public D3D12_TEXTURE_COPY_LOCATION
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_DESCRIPTOR_RANGE : public D3D12_DESCRIPTOR_RANGE
 {
-	CD3DX12_DESCRIPTOR_RANGE() = default;
-	explicit CD3DX12_DESCRIPTOR_RANGE(const D3D12_DESCRIPTOR_RANGE& o) :
+	CD3DX12_DESCRIPTOR_RANGE() { }
+	explicit CD3DX12_DESCRIPTOR_RANGE(const D3D12_DESCRIPTOR_RANGE &o) :
 		D3D12_DESCRIPTOR_RANGE(o)
 	{}
 	CD3DX12_DESCRIPTOR_RANGE(
@@ -882,7 +932,7 @@ struct CD3DX12_DESCRIPTOR_RANGE : public D3D12_DESCRIPTOR_RANGE
 	}
 
 	static inline void Init(
-		_Out_ D3D12_DESCRIPTOR_RANGE& range,
+		_Out_ D3D12_DESCRIPTOR_RANGE &range,
 		D3D12_DESCRIPTOR_RANGE_TYPE rangeType,
 		UINT numDescriptors,
 		UINT baseShaderRegister,
@@ -901,8 +951,8 @@ struct CD3DX12_DESCRIPTOR_RANGE : public D3D12_DESCRIPTOR_RANGE
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_DESCRIPTOR_TABLE : public D3D12_ROOT_DESCRIPTOR_TABLE
 {
-	CD3DX12_ROOT_DESCRIPTOR_TABLE() = default;
-	explicit CD3DX12_ROOT_DESCRIPTOR_TABLE(const D3D12_ROOT_DESCRIPTOR_TABLE& o) :
+	CD3DX12_ROOT_DESCRIPTOR_TABLE() {}
+	explicit CD3DX12_ROOT_DESCRIPTOR_TABLE(const D3D12_ROOT_DESCRIPTOR_TABLE &o) :
 		D3D12_ROOT_DESCRIPTOR_TABLE(o)
 	{}
 	CD3DX12_ROOT_DESCRIPTOR_TABLE(
@@ -920,7 +970,7 @@ struct CD3DX12_ROOT_DESCRIPTOR_TABLE : public D3D12_ROOT_DESCRIPTOR_TABLE
 	}
 
 	static inline void Init(
-		_Out_ D3D12_ROOT_DESCRIPTOR_TABLE& rootDescriptorTable,
+		_Out_ D3D12_ROOT_DESCRIPTOR_TABLE &rootDescriptorTable,
 		UINT numDescriptorRanges,
 		_In_reads_opt_(numDescriptorRanges) const D3D12_DESCRIPTOR_RANGE* _pDescriptorRanges)
 	{
@@ -932,8 +982,8 @@ struct CD3DX12_ROOT_DESCRIPTOR_TABLE : public D3D12_ROOT_DESCRIPTOR_TABLE
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_CONSTANTS : public D3D12_ROOT_CONSTANTS
 {
-	CD3DX12_ROOT_CONSTANTS() = default;
-	explicit CD3DX12_ROOT_CONSTANTS(const D3D12_ROOT_CONSTANTS& o) :
+	CD3DX12_ROOT_CONSTANTS() {}
+	explicit CD3DX12_ROOT_CONSTANTS(const D3D12_ROOT_CONSTANTS &o) :
 		D3D12_ROOT_CONSTANTS(o)
 	{}
 	CD3DX12_ROOT_CONSTANTS(
@@ -953,7 +1003,7 @@ struct CD3DX12_ROOT_CONSTANTS : public D3D12_ROOT_CONSTANTS
 	}
 
 	static inline void Init(
-		_Out_ D3D12_ROOT_CONSTANTS& rootConstants,
+		_Out_ D3D12_ROOT_CONSTANTS &rootConstants,
 		UINT num32BitValues,
 		UINT shaderRegister,
 		UINT registerSpace = 0)
@@ -967,8 +1017,8 @@ struct CD3DX12_ROOT_CONSTANTS : public D3D12_ROOT_CONSTANTS
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_DESCRIPTOR : public D3D12_ROOT_DESCRIPTOR
 {
-	CD3DX12_ROOT_DESCRIPTOR() = default;
-	explicit CD3DX12_ROOT_DESCRIPTOR(const D3D12_ROOT_DESCRIPTOR& o) :
+	CD3DX12_ROOT_DESCRIPTOR() {}
+	explicit CD3DX12_ROOT_DESCRIPTOR(const D3D12_ROOT_DESCRIPTOR &o) :
 		D3D12_ROOT_DESCRIPTOR(o)
 	{}
 	CD3DX12_ROOT_DESCRIPTOR(
@@ -985,7 +1035,7 @@ struct CD3DX12_ROOT_DESCRIPTOR : public D3D12_ROOT_DESCRIPTOR
 		Init(*this, shaderRegister, registerSpace);
 	}
 
-	static inline void Init(_Out_ D3D12_ROOT_DESCRIPTOR& table, UINT shaderRegister, UINT registerSpace = 0)
+	static inline void Init(_Out_ D3D12_ROOT_DESCRIPTOR &table, UINT shaderRegister, UINT registerSpace = 0)
 	{
 		table.ShaderRegister = shaderRegister;
 		table.RegisterSpace = registerSpace;
@@ -995,13 +1045,13 @@ struct CD3DX12_ROOT_DESCRIPTOR : public D3D12_ROOT_DESCRIPTOR
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 {
-	CD3DX12_ROOT_PARAMETER() = default;
-	explicit CD3DX12_ROOT_PARAMETER(const D3D12_ROOT_PARAMETER& o) :
+	CD3DX12_ROOT_PARAMETER() {}
+	explicit CD3DX12_ROOT_PARAMETER(const D3D12_ROOT_PARAMETER &o) :
 		D3D12_ROOT_PARAMETER(o)
 	{}
 
 	static inline void InitAsDescriptorTable(
-		_Out_ D3D12_ROOT_PARAMETER& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER &rootParam,
 		UINT numDescriptorRanges,
 		_In_reads_(numDescriptorRanges) const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges,
 		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
@@ -1012,7 +1062,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 	}
 
 	static inline void InitAsConstants(
-		_Out_ D3D12_ROOT_PARAMETER& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER &rootParam,
 		UINT num32BitValues,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
@@ -1024,7 +1074,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 	}
 
 	static inline void InitAsConstantBufferView(
-		_Out_ D3D12_ROOT_PARAMETER& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
@@ -1035,7 +1085,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 	}
 
 	static inline void InitAsShaderResourceView(
-		_Out_ D3D12_ROOT_PARAMETER& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
@@ -1046,7 +1096,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 	}
 
 	static inline void InitAsUnorderedAccessView(
-		_Out_ D3D12_ROOT_PARAMETER& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
@@ -1101,8 +1151,8 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_STATIC_SAMPLER_DESC : public D3D12_STATIC_SAMPLER_DESC
 {
-	CD3DX12_STATIC_SAMPLER_DESC() = default;
-	explicit CD3DX12_STATIC_SAMPLER_DESC(const D3D12_STATIC_SAMPLER_DESC& o) :
+	CD3DX12_STATIC_SAMPLER_DESC() {}
+	explicit CD3DX12_STATIC_SAMPLER_DESC(const D3D12_STATIC_SAMPLER_DESC &o) :
 		D3D12_STATIC_SAMPLER_DESC(o)
 	{}
 	CD3DX12_STATIC_SAMPLER_DESC(
@@ -1137,7 +1187,7 @@ struct CD3DX12_STATIC_SAMPLER_DESC : public D3D12_STATIC_SAMPLER_DESC
 	}
 
 	static inline void Init(
-		_Out_ D3D12_STATIC_SAMPLER_DESC& samplerDesc,
+		_Out_ D3D12_STATIC_SAMPLER_DESC &samplerDesc,
 		UINT shaderRegister,
 		D3D12_FILTER filter = D3D12_FILTER_ANISOTROPIC,
 		D3D12_TEXTURE_ADDRESS_MODE addressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
@@ -1203,40 +1253,40 @@ struct CD3DX12_STATIC_SAMPLER_DESC : public D3D12_STATIC_SAMPLER_DESC
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_SIGNATURE_DESC : public D3D12_ROOT_SIGNATURE_DESC
 {
-	CD3DX12_ROOT_SIGNATURE_DESC() = default;
-	explicit CD3DX12_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC& o) :
+	CD3DX12_ROOT_SIGNATURE_DESC() {}
+	explicit CD3DX12_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC &o) :
 		D3D12_ROOT_SIGNATURE_DESC(o)
 	{}
 	CD3DX12_ROOT_SIGNATURE_DESC(
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init(numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
 	}
 	CD3DX12_ROOT_SIGNATURE_DESC(CD3DX12_DEFAULT)
 	{
-		Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+		Init(0, NULL, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 	}
 
 	inline void Init(
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init(*this, numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
 	}
 
 	static inline void Init(
-		_Out_ D3D12_ROOT_SIGNATURE_DESC& desc,
+		_Out_ D3D12_ROOT_SIGNATURE_DESC &desc,
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		desc.NumParameters = numParameters;
@@ -1250,8 +1300,8 @@ struct CD3DX12_ROOT_SIGNATURE_DESC : public D3D12_ROOT_SIGNATURE_DESC
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_DESCRIPTOR_RANGE1 : public D3D12_DESCRIPTOR_RANGE1
 {
-	CD3DX12_DESCRIPTOR_RANGE1() = default;
-	explicit CD3DX12_DESCRIPTOR_RANGE1(const D3D12_DESCRIPTOR_RANGE1& o) :
+	CD3DX12_DESCRIPTOR_RANGE1() { }
+	explicit CD3DX12_DESCRIPTOR_RANGE1(const D3D12_DESCRIPTOR_RANGE1 &o) :
 		D3D12_DESCRIPTOR_RANGE1(o)
 	{}
 	CD3DX12_DESCRIPTOR_RANGE1(
@@ -1279,7 +1329,7 @@ struct CD3DX12_DESCRIPTOR_RANGE1 : public D3D12_DESCRIPTOR_RANGE1
 	}
 
 	static inline void Init(
-		_Out_ D3D12_DESCRIPTOR_RANGE1& range,
+		_Out_ D3D12_DESCRIPTOR_RANGE1 &range,
 		D3D12_DESCRIPTOR_RANGE_TYPE rangeType,
 		UINT numDescriptors,
 		UINT baseShaderRegister,
@@ -1300,8 +1350,8 @@ struct CD3DX12_DESCRIPTOR_RANGE1 : public D3D12_DESCRIPTOR_RANGE1
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_DESCRIPTOR_TABLE1 : public D3D12_ROOT_DESCRIPTOR_TABLE1
 {
-	CD3DX12_ROOT_DESCRIPTOR_TABLE1() = default;
-	explicit CD3DX12_ROOT_DESCRIPTOR_TABLE1(const D3D12_ROOT_DESCRIPTOR_TABLE1& o) :
+	CD3DX12_ROOT_DESCRIPTOR_TABLE1() {}
+	explicit CD3DX12_ROOT_DESCRIPTOR_TABLE1(const D3D12_ROOT_DESCRIPTOR_TABLE1 &o) :
 		D3D12_ROOT_DESCRIPTOR_TABLE1(o)
 	{}
 	CD3DX12_ROOT_DESCRIPTOR_TABLE1(
@@ -1319,7 +1369,7 @@ struct CD3DX12_ROOT_DESCRIPTOR_TABLE1 : public D3D12_ROOT_DESCRIPTOR_TABLE1
 	}
 
 	static inline void Init(
-		_Out_ D3D12_ROOT_DESCRIPTOR_TABLE1& rootDescriptorTable,
+		_Out_ D3D12_ROOT_DESCRIPTOR_TABLE1 &rootDescriptorTable,
 		UINT numDescriptorRanges,
 		_In_reads_opt_(numDescriptorRanges) const D3D12_DESCRIPTOR_RANGE1* _pDescriptorRanges)
 	{
@@ -1331,8 +1381,8 @@ struct CD3DX12_ROOT_DESCRIPTOR_TABLE1 : public D3D12_ROOT_DESCRIPTOR_TABLE1
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_DESCRIPTOR1 : public D3D12_ROOT_DESCRIPTOR1
 {
-	CD3DX12_ROOT_DESCRIPTOR1() = default;
-	explicit CD3DX12_ROOT_DESCRIPTOR1(const D3D12_ROOT_DESCRIPTOR1& o) :
+	CD3DX12_ROOT_DESCRIPTOR1() {}
+	explicit CD3DX12_ROOT_DESCRIPTOR1(const D3D12_ROOT_DESCRIPTOR1 &o) :
 		D3D12_ROOT_DESCRIPTOR1(o)
 	{}
 	CD3DX12_ROOT_DESCRIPTOR1(
@@ -1352,7 +1402,7 @@ struct CD3DX12_ROOT_DESCRIPTOR1 : public D3D12_ROOT_DESCRIPTOR1
 	}
 
 	static inline void Init(
-		_Out_ D3D12_ROOT_DESCRIPTOR1& table,
+		_Out_ D3D12_ROOT_DESCRIPTOR1 &table,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_ROOT_DESCRIPTOR_FLAGS flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE)
@@ -1366,13 +1416,13 @@ struct CD3DX12_ROOT_DESCRIPTOR1 : public D3D12_ROOT_DESCRIPTOR1
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 {
-	CD3DX12_ROOT_PARAMETER1() = default;
-	explicit CD3DX12_ROOT_PARAMETER1(const D3D12_ROOT_PARAMETER1& o) :
+	CD3DX12_ROOT_PARAMETER1() {}
+	explicit CD3DX12_ROOT_PARAMETER1(const D3D12_ROOT_PARAMETER1 &o) :
 		D3D12_ROOT_PARAMETER1(o)
 	{}
 
 	static inline void InitAsDescriptorTable(
-		_Out_ D3D12_ROOT_PARAMETER1& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER1 &rootParam,
 		UINT numDescriptorRanges,
 		_In_reads_(numDescriptorRanges) const D3D12_DESCRIPTOR_RANGE1* pDescriptorRanges,
 		D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
@@ -1383,7 +1433,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 	}
 
 	static inline void InitAsConstants(
-		_Out_ D3D12_ROOT_PARAMETER1& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER1 &rootParam,
 		UINT num32BitValues,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
@@ -1395,7 +1445,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 	}
 
 	static inline void InitAsConstantBufferView(
-		_Out_ D3D12_ROOT_PARAMETER1& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER1 &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_ROOT_DESCRIPTOR_FLAGS flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
@@ -1407,7 +1457,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 	}
 
 	static inline void InitAsShaderResourceView(
-		_Out_ D3D12_ROOT_PARAMETER1& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER1 &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_ROOT_DESCRIPTOR_FLAGS flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
@@ -1419,7 +1469,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 	}
 
 	static inline void InitAsUnorderedAccessView(
-		_Out_ D3D12_ROOT_PARAMETER1& rootParam,
+		_Out_ D3D12_ROOT_PARAMETER1 &rootParam,
 		UINT shaderRegister,
 		UINT registerSpace = 0,
 		D3D12_ROOT_DESCRIPTOR_FLAGS flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
@@ -1478,16 +1528,16 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC : public D3D12_VERSIONED_ROOT_SIGNATURE_DESC
 {
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC() = default;
-	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& o) :
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC() {}
+	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC &o) :
 		D3D12_VERSIONED_ROOT_SIGNATURE_DESC(o)
 	{}
-	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC& o)
+	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC &o)
 	{
 		Version = D3D_ROOT_SIGNATURE_VERSION_1_0;
 		Desc_1_0 = o;
 	}
-	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC1& o)
+	explicit CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(const D3D12_ROOT_SIGNATURE_DESC1 &o)
 	{
 		Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
 		Desc_1_1 = o;
@@ -1496,7 +1546,7 @@ struct CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC : public D3D12_VERSIONED_ROOT_SIGNA
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init_1_0(numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
@@ -1505,32 +1555,32 @@ struct CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC : public D3D12_VERSIONED_ROOT_SIGNA
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER1* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init_1_1(numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
 	}
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC(CD3DX12_DEFAULT)
 	{
-		Init_1_1(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+		Init_1_1(0, NULL, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 	}
 
 	inline void Init_1_0(
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init_1_0(*this, numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
 	}
 
 	static inline void Init_1_0(
-		_Out_ D3D12_VERSIONED_ROOT_SIGNATURE_DESC& desc,
+		_Out_ D3D12_VERSIONED_ROOT_SIGNATURE_DESC &desc,
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		desc.Version = D3D_ROOT_SIGNATURE_VERSION_1_0;
@@ -1545,18 +1595,18 @@ struct CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC : public D3D12_VERSIONED_ROOT_SIGNA
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER1* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		Init_1_1(*this, numParameters, _pParameters, numStaticSamplers, _pStaticSamplers, flags);
 	}
 
 	static inline void Init_1_1(
-		_Out_ D3D12_VERSIONED_ROOT_SIGNATURE_DESC& desc,
+		_Out_ D3D12_VERSIONED_ROOT_SIGNATURE_DESC &desc,
 		UINT numParameters,
 		_In_reads_opt_(numParameters) const D3D12_ROOT_PARAMETER1* _pParameters,
 		UINT numStaticSamplers = 0,
-		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = nullptr,
+		_In_reads_opt_(numStaticSamplers) const D3D12_STATIC_SAMPLER_DESC* _pStaticSamplers = NULL,
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE)
 	{
 		desc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
@@ -1571,22 +1621,22 @@ struct CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC : public D3D12_VERSIONED_ROOT_SIGNA
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_CPU_DESCRIPTOR_HANDLE : public D3D12_CPU_DESCRIPTOR_HANDLE
 {
-	CD3DX12_CPU_DESCRIPTOR_HANDLE() = default;
-	explicit CD3DX12_CPU_DESCRIPTOR_HANDLE(const D3D12_CPU_DESCRIPTOR_HANDLE& o) :
+	CD3DX12_CPU_DESCRIPTOR_HANDLE() {}
+	explicit CD3DX12_CPU_DESCRIPTOR_HANDLE(const D3D12_CPU_DESCRIPTOR_HANDLE &o) :
 		D3D12_CPU_DESCRIPTOR_HANDLE(o)
 	{}
 	CD3DX12_CPU_DESCRIPTOR_HANDLE(CD3DX12_DEFAULT) { ptr = 0; }
-	CD3DX12_CPU_DESCRIPTOR_HANDLE(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE& other, INT offsetScaledByIncrementSize)
+	CD3DX12_CPU_DESCRIPTOR_HANDLE(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE &other, INT offsetScaledByIncrementSize)
 	{
 		InitOffsetted(other, offsetScaledByIncrementSize);
 	}
-	CD3DX12_CPU_DESCRIPTOR_HANDLE(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE& other, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	CD3DX12_CPU_DESCRIPTOR_HANDLE(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE &other, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
 		InitOffsetted(other, offsetInDescriptors, descriptorIncrementSize);
 	}
 	CD3DX12_CPU_DESCRIPTOR_HANDLE& Offset(INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
-		ptr += INT64(offsetInDescriptors) * UINT64(descriptorIncrementSize);
+		ptr += offsetInDescriptors * descriptorIncrementSize;
 		return *this;
 	}
 	CD3DX12_CPU_DESCRIPTOR_HANDLE& Offset(INT offsetScaledByIncrementSize)
@@ -1598,56 +1648,56 @@ struct CD3DX12_CPU_DESCRIPTOR_HANDLE : public D3D12_CPU_DESCRIPTOR_HANDLE
 	{
 		return (ptr == other.ptr);
 	}
-	bool operator!=(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE & other) const
+	bool operator!=(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE& other) const
 	{
 		return (ptr != other.ptr);
 	}
-	CD3DX12_CPU_DESCRIPTOR_HANDLE& operator=(const D3D12_CPU_DESCRIPTOR_HANDLE & other)
+	CD3DX12_CPU_DESCRIPTOR_HANDLE &operator=(const D3D12_CPU_DESCRIPTOR_HANDLE &other)
 	{
 		ptr = other.ptr;
 		return *this;
 	}
 
-	inline void InitOffsetted(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE & base, INT offsetScaledByIncrementSize)
+	inline void InitOffsetted(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE &base, INT offsetScaledByIncrementSize)
 	{
 		InitOffsetted(*this, base, offsetScaledByIncrementSize);
 	}
 
-	inline void InitOffsetted(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE & base, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	inline void InitOffsetted(_In_ const D3D12_CPU_DESCRIPTOR_HANDLE &base, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
 		InitOffsetted(*this, base, offsetInDescriptors, descriptorIncrementSize);
 	}
 
-	static inline void InitOffsetted(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE & handle, _In_ const D3D12_CPU_DESCRIPTOR_HANDLE & base, INT offsetScaledByIncrementSize)
+	static inline void InitOffsetted(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE &handle, _In_ const D3D12_CPU_DESCRIPTOR_HANDLE &base, INT offsetScaledByIncrementSize)
 	{
 		handle.ptr = base.ptr + offsetScaledByIncrementSize;
 	}
 
-	static inline void InitOffsetted(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE & handle, _In_ const D3D12_CPU_DESCRIPTOR_HANDLE & base, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	static inline void InitOffsetted(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE &handle, _In_ const D3D12_CPU_DESCRIPTOR_HANDLE &base, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
-		handle.ptr = static_cast<SIZE_T>(base.ptr + INT64(offsetInDescriptors) * UINT64(descriptorIncrementSize));
+		handle.ptr = base.ptr + offsetInDescriptors * descriptorIncrementSize;
 	}
 };
 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_GPU_DESCRIPTOR_HANDLE : public D3D12_GPU_DESCRIPTOR_HANDLE
 {
-	CD3DX12_GPU_DESCRIPTOR_HANDLE() = default;
-	explicit CD3DX12_GPU_DESCRIPTOR_HANDLE(const D3D12_GPU_DESCRIPTOR_HANDLE& o) :
+	CD3DX12_GPU_DESCRIPTOR_HANDLE() {}
+	explicit CD3DX12_GPU_DESCRIPTOR_HANDLE(const D3D12_GPU_DESCRIPTOR_HANDLE &o) :
 		D3D12_GPU_DESCRIPTOR_HANDLE(o)
 	{}
 	CD3DX12_GPU_DESCRIPTOR_HANDLE(CD3DX12_DEFAULT) { ptr = 0; }
-	CD3DX12_GPU_DESCRIPTOR_HANDLE(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE& other, INT offsetScaledByIncrementSize)
+	CD3DX12_GPU_DESCRIPTOR_HANDLE(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE &other, INT offsetScaledByIncrementSize)
 	{
 		InitOffsetted(other, offsetScaledByIncrementSize);
 	}
-	CD3DX12_GPU_DESCRIPTOR_HANDLE(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE& other, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	CD3DX12_GPU_DESCRIPTOR_HANDLE(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE &other, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
 		InitOffsetted(other, offsetInDescriptors, descriptorIncrementSize);
 	}
 	CD3DX12_GPU_DESCRIPTOR_HANDLE& Offset(INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
-		ptr += INT64(offsetInDescriptors) * UINT64(descriptorIncrementSize);
+		ptr += offsetInDescriptors * descriptorIncrementSize;
 		return *this;
 	}
 	CD3DX12_GPU_DESCRIPTOR_HANDLE& Offset(INT offsetScaledByIncrementSize)
@@ -1659,34 +1709,34 @@ struct CD3DX12_GPU_DESCRIPTOR_HANDLE : public D3D12_GPU_DESCRIPTOR_HANDLE
 	{
 		return (ptr == other.ptr);
 	}
-	inline bool operator!=(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE & other) const
+	inline bool operator!=(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE& other) const
 	{
 		return (ptr != other.ptr);
 	}
-	CD3DX12_GPU_DESCRIPTOR_HANDLE& operator=(const D3D12_GPU_DESCRIPTOR_HANDLE & other)
+	CD3DX12_GPU_DESCRIPTOR_HANDLE &operator=(const D3D12_GPU_DESCRIPTOR_HANDLE &other)
 	{
 		ptr = other.ptr;
 		return *this;
 	}
 
-	inline void InitOffsetted(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE & base, INT offsetScaledByIncrementSize)
+	inline void InitOffsetted(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE &base, INT offsetScaledByIncrementSize)
 	{
 		InitOffsetted(*this, base, offsetScaledByIncrementSize);
 	}
 
-	inline void InitOffsetted(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE & base, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	inline void InitOffsetted(_In_ const D3D12_GPU_DESCRIPTOR_HANDLE &base, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
 		InitOffsetted(*this, base, offsetInDescriptors, descriptorIncrementSize);
 	}
 
-	static inline void InitOffsetted(_Out_ D3D12_GPU_DESCRIPTOR_HANDLE & handle, _In_ const D3D12_GPU_DESCRIPTOR_HANDLE & base, INT offsetScaledByIncrementSize)
+	static inline void InitOffsetted(_Out_ D3D12_GPU_DESCRIPTOR_HANDLE &handle, _In_ const D3D12_GPU_DESCRIPTOR_HANDLE &base, INT offsetScaledByIncrementSize)
 	{
 		handle.ptr = base.ptr + offsetScaledByIncrementSize;
 	}
 
-	static inline void InitOffsetted(_Out_ D3D12_GPU_DESCRIPTOR_HANDLE & handle, _In_ const D3D12_GPU_DESCRIPTOR_HANDLE & base, INT offsetInDescriptors, UINT descriptorIncrementSize)
+	static inline void InitOffsetted(_Out_ D3D12_GPU_DESCRIPTOR_HANDLE &handle, _In_ const D3D12_GPU_DESCRIPTOR_HANDLE &base, INT offsetInDescriptors, UINT descriptorIncrementSize)
 	{
-		handle.ptr = static_cast<UINT64>(base.ptr + INT64(offsetInDescriptors) * UINT64(descriptorIncrementSize));
+		handle.ptr = base.ptr + offsetInDescriptors * descriptorIncrementSize;
 	}
 };
 
@@ -1698,7 +1748,7 @@ inline UINT D3D12CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT PlaneSlice
 
 //------------------------------------------------------------------------------------------------
 template <typename T, typename U, typename V>
-inline void D3D12DecomposeSubresource(UINT Subresource, UINT MipLevels, UINT ArraySize, _Out_ T & MipSlice, _Out_ U & ArraySlice, _Out_ V & PlaneSlice)
+inline void D3D12DecomposeSubresource(UINT Subresource, UINT MipLevels, UINT ArraySize, _Out_ T& MipSlice, _Out_ U& ArraySlice, _Out_ V& PlaneSlice)
 {
 	MipSlice = static_cast<T>(Subresource % MipLevels);
 	ArraySlice = static_cast<U>((Subresource / MipLevels) % ArraySize);
@@ -1707,11 +1757,11 @@ inline void D3D12DecomposeSubresource(UINT Subresource, UINT MipLevels, UINT Arr
 
 //------------------------------------------------------------------------------------------------
 inline UINT8 D3D12GetFormatPlaneCount(
-	_In_ ID3D12Device * pDevice,
+	_In_ ID3D12Device* pDevice,
 	DXGI_FORMAT Format
 )
 {
-	D3D12_FEATURE_DATA_FORMAT_INFO formatInfo = { Format, 0 };
+	D3D12_FEATURE_DATA_FORMAT_INFO formatInfo = { Format };
 	if (FAILED(pDevice->CheckFeatureSupport(D3D12_FEATURE_FORMAT_INFO, &formatInfo, sizeof(formatInfo))))
 	{
 		return 0;
@@ -1722,7 +1772,8 @@ inline UINT8 D3D12GetFormatPlaneCount(
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
 {
-	CD3DX12_RESOURCE_DESC() = default;
+	CD3DX12_RESOURCE_DESC()
+	{}
 	explicit CD3DX12_RESOURCE_DESC(const D3D12_RESOURCE_DESC& o) :
 		D3D12_RESOURCE_DESC(o)
 	{}
@@ -1814,20 +1865,21 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
 	{
 		return (Dimension != D3D12_RESOURCE_DIMENSION_TEXTURE3D ? DepthOrArraySize : 1);
 	}
-	inline UINT8 PlaneCount(_In_ ID3D12Device * pDevice) const
+	inline UINT8 PlaneCount(_In_ ID3D12Device* pDevice) const
 	{
 		return D3D12GetFormatPlaneCount(pDevice, Format);
 	}
-	inline UINT Subresources(_In_ ID3D12Device * pDevice) const
+	inline UINT Subresources(_In_ ID3D12Device* pDevice) const
 	{
-		return MipLevels * ArraySize()* PlaneCount(pDevice);
+		return MipLevels * ArraySize() * PlaneCount(pDevice);
 	}
 	inline UINT CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT PlaneSlice)
 	{
 		return D3D12CalcSubresource(MipSlice, ArraySlice, PlaneSlice, MipLevels, ArraySize());
 	}
+	operator const D3D12_RESOURCE_DESC&() const { return *this; }
 };
-inline bool operator==(const D3D12_RESOURCE_DESC & l, const D3D12_RESOURCE_DESC & r)
+inline bool operator==(const D3D12_RESOURCE_DESC& l, const D3D12_RESOURCE_DESC& r)
 {
 	return l.Dimension == r.Dimension &&
 		l.Alignment == r.Alignment &&
@@ -1841,7 +1893,7 @@ inline bool operator==(const D3D12_RESOURCE_DESC & l, const D3D12_RESOURCE_DESC 
 		l.Layout == r.Layout &&
 		l.Flags == r.Flags;
 }
-inline bool operator!=(const D3D12_RESOURCE_DESC & l, const D3D12_RESOURCE_DESC & r)
+inline bool operator!=(const D3D12_RESOURCE_DESC& l, const D3D12_RESOURCE_DESC& r)
 {
 	return !(l == r);
 }
@@ -1849,7 +1901,8 @@ inline bool operator!=(const D3D12_RESOURCE_DESC & l, const D3D12_RESOURCE_DESC 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_VIEW_INSTANCING_DESC : public D3D12_VIEW_INSTANCING_DESC
 {
-	CD3DX12_VIEW_INSTANCING_DESC() = default;
+	CD3DX12_VIEW_INSTANCING_DESC()
+	{}
 	explicit CD3DX12_VIEW_INSTANCING_DESC(const D3D12_VIEW_INSTANCING_DESC& o) :
 		D3D12_VIEW_INSTANCING_DESC(o)
 	{}
@@ -1868,13 +1921,15 @@ struct CD3DX12_VIEW_INSTANCING_DESC : public D3D12_VIEW_INSTANCING_DESC
 		pViewInstanceLocations = InViewInstanceLocations;
 		Flags = InFlags;
 	}
+	~CD3DX12_VIEW_INSTANCING_DESC() {}
+	operator const D3D12_VIEW_INSTANCING_DESC&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
 // Row-by-row memcpy
 inline void MemcpySubresource(
-	_In_ const D3D12_MEMCPY_DEST * pDest,
-	_In_ const D3D12_SUBRESOURCE_DATA * pSrc,
+	_In_ const D3D12_MEMCPY_DEST* pDest,
+	_In_ const D3D12_SUBRESOURCE_DATA* pSrc,
 	SIZE_T RowSizeInBytes,
 	UINT NumRows,
 	UINT NumSlices)
@@ -1895,14 +1950,14 @@ inline void MemcpySubresource(
 //------------------------------------------------------------------------------------------------
 // Returns required size of a buffer to be used for data upload
 inline UINT64 GetRequiredIntermediateSize(
-	_In_ ID3D12Resource * pDestinationResource,
+	_In_ ID3D12Resource* pDestinationResource,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES) UINT FirstSubresource,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES - FirstSubresource) UINT NumSubresources)
 {
-	auto Desc = pDestinationResource->GetDesc();
+	D3D12_RESOURCE_DESC Desc = pDestinationResource->GetDesc();
 	UINT64 RequiredSize = 0;
 
-	ID3D12Device* pDevice = nullptr;
+	ID3D12Device* pDevice;
 	pDestinationResource->GetDevice(__uuidof(*pDevice), reinterpret_cast<void**>(&pDevice));
 	pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, 0, nullptr, nullptr, nullptr, &RequiredSize);
 	pDevice->Release();
@@ -1913,23 +1968,23 @@ inline UINT64 GetRequiredIntermediateSize(
 //------------------------------------------------------------------------------------------------
 // All arrays must be populated (e.g. by calling GetCopyableFootprints)
 inline UINT64 UpdateSubresources(
-	_In_ ID3D12GraphicsCommandList * pCmdList,
-	_In_ ID3D12Resource * pDestinationResource,
-	_In_ ID3D12Resource * pIntermediate,
+	_In_ ID3D12GraphicsCommandList* pCmdList,
+	_In_ ID3D12Resource* pDestinationResource,
+	_In_ ID3D12Resource* pIntermediate,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES) UINT FirstSubresource,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES - FirstSubresource) UINT NumSubresources,
 	UINT64 RequiredSize,
-	_In_reads_(NumSubresources) const D3D12_PLACED_SUBRESOURCE_FOOTPRINT * pLayouts,
-	_In_reads_(NumSubresources) const UINT * pNumRows,
-	_In_reads_(NumSubresources) const UINT64 * pRowSizesInBytes,
-	_In_reads_(NumSubresources) const D3D12_SUBRESOURCE_DATA * pSrcData)
+	_In_reads_(NumSubresources) const D3D12_PLACED_SUBRESOURCE_FOOTPRINT* pLayouts,
+	_In_reads_(NumSubresources) const UINT* pNumRows,
+	_In_reads_(NumSubresources) const UINT64* pRowSizesInBytes,
+	_In_reads_(NumSubresources) const D3D12_SUBRESOURCE_DATA* pSrcData)
 {
 	// Minor validation
-	auto IntermediateDesc = pIntermediate->GetDesc();
-	auto DestinationDesc = pDestinationResource->GetDesc();
+	D3D12_RESOURCE_DESC IntermediateDesc = pIntermediate->GetDesc();
+	D3D12_RESOURCE_DESC DestinationDesc = pDestinationResource->GetDesc();
 	if (IntermediateDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER ||
 		IntermediateDesc.Width < RequiredSize + pLayouts[0].Offset ||
-		RequiredSize > SIZE_T(-1) ||
+		RequiredSize > (SIZE_T) - 1 ||
 		(DestinationDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER &&
 		(FirstSubresource != 0 || NumSubresources != 1)))
 	{
@@ -1937,7 +1992,7 @@ inline UINT64 UpdateSubresources(
 	}
 
 	BYTE* pData;
-	HRESULT hr = pIntermediate->Map(0, nullptr, reinterpret_cast<void**>(&pData));
+	HRESULT hr = pIntermediate->Map(0, NULL, reinterpret_cast<void**>(&pData));
 	if (FAILED(hr))
 	{
 		return 0;
@@ -1945,11 +2000,11 @@ inline UINT64 UpdateSubresources(
 
 	for (UINT i = 0; i < NumSubresources; ++i)
 	{
-		if (pRowSizesInBytes[i] > SIZE_T(-1)) return 0;
-		D3D12_MEMCPY_DEST DestData = { pData + pLayouts[i].Offset, pLayouts[i].Footprint.RowPitch, SIZE_T(pLayouts[i].Footprint.RowPitch) * SIZE_T(pNumRows[i]) };
-		MemcpySubresource(&DestData, &pSrcData[i], static_cast<SIZE_T>(pRowSizesInBytes[i]), pNumRows[i], pLayouts[i].Footprint.Depth);
+		if (pRowSizesInBytes[i] > (SIZE_T)-1) return 0;
+		D3D12_MEMCPY_DEST DestData = { pData + pLayouts[i].Offset, pLayouts[i].Footprint.RowPitch, pLayouts[i].Footprint.RowPitch * pNumRows[i] };
+		MemcpySubresource(&DestData, &pSrcData[i], (SIZE_T)pRowSizesInBytes[i], pNumRows[i], pLayouts[i].Footprint.Depth);
 	}
-	pIntermediate->Unmap(0, nullptr);
+	pIntermediate->Unmap(0, NULL);
 
 	if (DestinationDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
 	{
@@ -1971,13 +2026,13 @@ inline UINT64 UpdateSubresources(
 //------------------------------------------------------------------------------------------------
 // Heap-allocating UpdateSubresources implementation
 inline UINT64 UpdateSubresources(
-	_In_ ID3D12GraphicsCommandList * pCmdList,
-	_In_ ID3D12Resource * pDestinationResource,
-	_In_ ID3D12Resource * pIntermediate,
+	_In_ ID3D12GraphicsCommandList* pCmdList,
+	_In_ ID3D12Resource* pDestinationResource,
+	_In_ ID3D12Resource* pIntermediate,
 	UINT64 IntermediateOffset,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES) UINT FirstSubresource,
 	_In_range_(0, D3D12_REQ_SUBRESOURCES - FirstSubresource) UINT NumSubresources,
-	_In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA * pSrcData)
+	_In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA* pSrcData)
 {
 	UINT64 RequiredSize = 0;
 	UINT64 MemToAlloc = static_cast<UINT64>(sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) + sizeof(UINT) + sizeof(UINT64)) * NumSubresources;
@@ -1986,16 +2041,16 @@ inline UINT64 UpdateSubresources(
 		return 0;
 	}
 	void* pMem = HeapAlloc(GetProcessHeap(), 0, static_cast<SIZE_T>(MemToAlloc));
-	if (pMem == nullptr)
+	if (pMem == NULL)
 	{
 		return 0;
 	}
-	auto pLayouts = reinterpret_cast<D3D12_PLACED_SUBRESOURCE_FOOTPRINT*>(pMem);
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT* pLayouts = reinterpret_cast<D3D12_PLACED_SUBRESOURCE_FOOTPRINT*>(pMem);
 	UINT64* pRowSizesInBytes = reinterpret_cast<UINT64*>(pLayouts + NumSubresources);
-	UINT * pNumRows = reinterpret_cast<UINT*>(pRowSizesInBytes + NumSubresources);
+	UINT* pNumRows = reinterpret_cast<UINT*>(pRowSizesInBytes + NumSubresources);
 
-	auto Desc = pDestinationResource->GetDesc();
-	ID3D12Device * pDevice = nullptr;
+	D3D12_RESOURCE_DESC Desc = pDestinationResource->GetDesc();
+	ID3D12Device* pDevice;
 	pDestinationResource->GetDevice(__uuidof(*pDevice), reinterpret_cast<void**>(&pDevice));
 	pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, IntermediateOffset, pLayouts, pNumRows, pRowSizesInBytes, &RequiredSize);
 	pDevice->Release();
@@ -2009,21 +2064,21 @@ inline UINT64 UpdateSubresources(
 // Stack-allocating UpdateSubresources implementation
 template <UINT MaxSubresources>
 inline UINT64 UpdateSubresources(
-	_In_ ID3D12GraphicsCommandList * pCmdList,
-	_In_ ID3D12Resource * pDestinationResource,
-	_In_ ID3D12Resource * pIntermediate,
+	_In_ ID3D12GraphicsCommandList* pCmdList,
+	_In_ ID3D12Resource* pDestinationResource,
+	_In_ ID3D12Resource* pIntermediate,
 	UINT64 IntermediateOffset,
 	_In_range_(0, MaxSubresources) UINT FirstSubresource,
 	_In_range_(1, MaxSubresources - FirstSubresource) UINT NumSubresources,
-	_In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA * pSrcData)
+	_In_reads_(NumSubresources) D3D12_SUBRESOURCE_DATA* pSrcData)
 {
 	UINT64 RequiredSize = 0;
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT Layouts[MaxSubresources];
 	UINT NumRows[MaxSubresources];
 	UINT64 RowSizesInBytes[MaxSubresources];
 
-	auto Desc = pDestinationResource->GetDesc();
-	ID3D12Device* pDevice = nullptr;
+	D3D12_RESOURCE_DESC Desc = pDestinationResource->GetDesc();
+	ID3D12Device* pDevice;
 	pDestinationResource->GetDevice(__uuidof(*pDevice), reinterpret_cast<void**>(&pDevice));
 	pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, IntermediateOffset, Layouts, NumRows, RowSizesInBytes, &RequiredSize);
 	pDevice->Release();
@@ -2039,13 +2094,13 @@ inline bool D3D12IsLayoutOpaque(D3D12_TEXTURE_LAYOUT Layout)
 
 //------------------------------------------------------------------------------------------------
 template <typename t_CommandListType>
-inline ID3D12CommandList* const* CommandListCast(t_CommandListType * const* pp)
+inline ID3D12CommandList * const * CommandListCast(t_CommandListType * const * pp)
 {
 	// This cast is useful for passing strongly typed command list pointers into
 	// ExecuteCommandLists.
 	// This cast is valid as long as the const-ness is respected. D3D12 APIs do
 	// respect the const-ness of their arguments.
-	return reinterpret_cast<ID3D12CommandList* const*>(pp);
+	return reinterpret_cast<ID3D12CommandList * const *>(pp);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -2054,14 +2109,14 @@ inline ID3D12CommandList* const* CommandListCast(t_CommandListType * const* pp)
 // two code paths for building root signatures, this helper method reconstructs a 1.0 signature when
 // 1.1 is not supported.
 inline HRESULT D3DX12SerializeVersionedRootSignature(
-	_In_ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC * pRootSignatureDesc,
+	_In_ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignatureDesc,
 	D3D_ROOT_SIGNATURE_VERSION MaxVersion,
-	_Outptr_ ID3DBlob * *ppBlob,
-	_Always_(_Outptr_opt_result_maybenull_) ID3DBlob * *ppErrorBlob)
+	_Outptr_ ID3DBlob** ppBlob,
+	_Always_(_Outptr_opt_result_maybenull_) ID3DBlob** ppErrorBlob)
 {
-	if (ppErrorBlob != nullptr)
+	if (ppErrorBlob != NULL)
 	{
-		*ppErrorBlob = nullptr;
+		*ppErrorBlob = NULL;
 	}
 
 	switch (MaxVersion)
@@ -2078,12 +2133,12 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
 			const D3D12_ROOT_SIGNATURE_DESC1& desc_1_1 = pRootSignatureDesc->Desc_1_1;
 
 			const SIZE_T ParametersSize = sizeof(D3D12_ROOT_PARAMETER) * desc_1_1.NumParameters;
-			void* pParameters = (ParametersSize > 0) ? HeapAlloc(GetProcessHeap(), 0, ParametersSize) : nullptr;
-			if (ParametersSize > 0 && pParameters == nullptr)
+			void* pParameters = (ParametersSize > 0) ? HeapAlloc(GetProcessHeap(), 0, ParametersSize) : NULL;
+			if (ParametersSize > 0 && pParameters == NULL)
 			{
 				hr = E_OUTOFMEMORY;
 			}
-			auto pParameters_1_0 = reinterpret_cast<D3D12_ROOT_PARAMETER*>(pParameters);
+			D3D12_ROOT_PARAMETER* pParameters_1_0 = reinterpret_cast<D3D12_ROOT_PARAMETER*>(pParameters);
 
 			if (SUCCEEDED(hr))
 			{
@@ -2112,12 +2167,12 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
 						const D3D12_ROOT_DESCRIPTOR_TABLE1& table_1_1 = desc_1_1.pParameters[n].DescriptorTable;
 
 						const SIZE_T DescriptorRangesSize = sizeof(D3D12_DESCRIPTOR_RANGE) * table_1_1.NumDescriptorRanges;
-						void* pDescriptorRanges = (DescriptorRangesSize > 0 && SUCCEEDED(hr)) ? HeapAlloc(GetProcessHeap(), 0, DescriptorRangesSize) : nullptr;
-						if (DescriptorRangesSize > 0 && pDescriptorRanges == nullptr)
+						void* pDescriptorRanges = (DescriptorRangesSize > 0 && SUCCEEDED(hr)) ? HeapAlloc(GetProcessHeap(), 0, DescriptorRangesSize) : NULL;
+						if (DescriptorRangesSize > 0 && pDescriptorRanges == NULL)
 						{
 							hr = E_OUTOFMEMORY;
 						}
-						auto pDescriptorRanges_1_0 = reinterpret_cast<D3D12_DESCRIPTOR_RANGE*>(pDescriptorRanges);
+						D3D12_DESCRIPTOR_RANGE* pDescriptorRanges_1_0 = reinterpret_cast<D3D12_DESCRIPTOR_RANGE*>(pDescriptorRanges);
 
 						if (SUCCEEDED(hr))
 						{
@@ -2171,16 +2226,17 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RT_FORMAT_ARRAY : public D3D12_RT_FORMAT_ARRAY
 {
-	CD3DX12_RT_FORMAT_ARRAY() = default;
+	CD3DX12_RT_FORMAT_ARRAY() {}
 	explicit CD3DX12_RT_FORMAT_ARRAY(const D3D12_RT_FORMAT_ARRAY& o)
 		: D3D12_RT_FORMAT_ARRAY(o)
 	{}
-	explicit CD3DX12_RT_FORMAT_ARRAY(_In_reads_(NumFormats) const DXGI_FORMAT* pFormats, UINT NumFormats)
+	explicit CD3DX12_RT_FORMAT_ARRAY(const DXGI_FORMAT* pFormats, UINT NumFormats)
 	{
 		NumRenderTargets = NumFormats;
 		memcpy(RTFormats, pFormats, sizeof(RTFormats));
 		// assumes ARRAY_SIZE(pFormats) == ARRAY_SIZE(RTFormats)
 	}
+	operator const D3D12_RT_FORMAT_ARRAY&() const { return *this; }
 };
 
 //------------------------------------------------------------------------------------------------
@@ -2193,8 +2249,6 @@ struct CD3DX12_RT_FORMAT_ARRAY : public D3D12_RT_FORMAT_ARRAY
 struct DefaultSampleMask { operator UINT() { return UINT_MAX; } };
 struct DefaultSampleDesc { operator DXGI_SAMPLE_DESC() { return DXGI_SAMPLE_DESC{ 1, 0 }; } };
 
-#pragma warning(push)
-#pragma warning(disable : 4324)
 template <typename InnerStructType, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, typename DefaultArg = InnerStructType>
 class alignas(void*) CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT
 {
@@ -2202,13 +2256,12 @@ private:
 	D3D12_PIPELINE_STATE_SUBOBJECT_TYPE _Type;
 	InnerStructType _Inner;
 public:
-	CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT() noexcept : _Type(Type), _Inner(DefaultArg()) {}
+	CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT() : _Type(Type), _Inner(DefaultArg()) {}
 	CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT(InnerStructType const& i) : _Type(Type), _Inner(i) {}
 	CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT& operator=(InnerStructType const& i) { _Inner = i; return *this; }
 	operator InnerStructType() const { return _Inner; }
-	operator InnerStructType& () { return _Inner; }
+	operator InnerStructType&() { return _Inner; }
 };
-#pragma warning(pop)
 typedef CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT< D3D12_PIPELINE_STATE_FLAGS, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS>                             CD3DX12_PIPELINE_STATE_STREAM_FLAGS;
 typedef CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT< UINT, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK>                         CD3DX12_PIPELINE_STATE_STREAM_NODE_MASK;
 typedef CD3DX12_PIPELINE_STATE_STREAM_SUBOBJECT< ID3D12RootSignature*, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE>                    CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE;
@@ -2268,14 +2321,13 @@ struct ID3DX12PipelineParserCallbacks
 	virtual void ErrorDuplicateSubobject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE /*DuplicateType*/) {}
 	virtual void ErrorUnknownSubobject(UINT /*UnknownTypeValue*/) {}
 
-	virtual ~ID3DX12PipelineParserCallbacks() = default;
 };
 
 // CD3DX12_PIPELINE_STATE_STREAM1 Works on RS3+ (where there is a new view instancing subobject).  
 // Use CD3DX12_PIPELINE_STATE_STREAM for RS2+ support.
 struct CD3DX12_PIPELINE_STATE_STREAM1
 {
-	CD3DX12_PIPELINE_STATE_STREAM1() = default;
+	CD3DX12_PIPELINE_STATE_STREAM1() {}
 	CD3DX12_PIPELINE_STATE_STREAM1(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& Desc)
 		: Flags(Desc.Flags)
 		, NodeMask(Desc.NodeMask)
@@ -2305,9 +2357,7 @@ struct CD3DX12_PIPELINE_STATE_STREAM1
 		, pRootSignature(Desc.pRootSignature)
 		, CS(CD3DX12_SHADER_BYTECODE(Desc.CS))
 		, CachedPSO(Desc.CachedPSO)
-	{
-		static_cast<D3D12_DEPTH_STENCIL_DESC1&>(DepthStencilState).DepthEnable = false;
-	}
+	{}
 	CD3DX12_PIPELINE_STATE_STREAM_FLAGS Flags;
 	CD3DX12_PIPELINE_STATE_STREAM_NODE_MASK NodeMask;
 	CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE pRootSignature;
@@ -2372,7 +2422,7 @@ struct CD3DX12_PIPELINE_STATE_STREAM1
 // See CD3DX12_PIPELINE_STATE_STREAM1 for instance.
 struct CD3DX12_PIPELINE_STATE_STREAM
 {
-	CD3DX12_PIPELINE_STATE_STREAM() = default;
+	CD3DX12_PIPELINE_STATE_STREAM() {}
 	CD3DX12_PIPELINE_STATE_STREAM(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& Desc)
 		: Flags(Desc.Flags)
 		, NodeMask(Desc.NodeMask)
@@ -2464,7 +2514,7 @@ struct CD3DX12_PIPELINE_STATE_STREAM
 struct CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER : public ID3DX12PipelineParserCallbacks
 {
 	CD3DX12_PIPELINE_STATE_STREAM1 PipelineStream;
-	CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER() noexcept
+	CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER()
 		: SeenDSS(false)
 	{
 		// Adjust defaults to account for absent members.
@@ -2475,31 +2525,31 @@ struct CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER : public ID3DX12PipelineParser
 	}
 
 	// ID3DX12PipelineParserCallbacks
-	void FlagsCb(D3D12_PIPELINE_STATE_FLAGS Flags) override { PipelineStream.Flags = Flags; }
-	void NodeMaskCb(UINT NodeMask) override { PipelineStream.NodeMask = NodeMask; }
-	void RootSignatureCb(ID3D12RootSignature* pRootSignature) override { PipelineStream.pRootSignature = pRootSignature; }
-	void InputLayoutCb(const D3D12_INPUT_LAYOUT_DESC& InputLayout) override { PipelineStream.InputLayout = InputLayout; }
-	void IBStripCutValueCb(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue) override { PipelineStream.IBStripCutValue = IBStripCutValue; }
-	void PrimitiveTopologyTypeCb(D3D12_PRIMITIVE_TOPOLOGY_TYPE PrimitiveTopologyType) override { PipelineStream.PrimitiveTopologyType = PrimitiveTopologyType; }
-	void VSCb(const D3D12_SHADER_BYTECODE& VS) override { PipelineStream.VS = VS; }
-	void GSCb(const D3D12_SHADER_BYTECODE& GS) override { PipelineStream.GS = GS; }
-	void StreamOutputCb(const D3D12_STREAM_OUTPUT_DESC& StreamOutput) override { PipelineStream.StreamOutput = StreamOutput; }
-	void HSCb(const D3D12_SHADER_BYTECODE& HS) override { PipelineStream.HS = HS; }
-	void DSCb(const D3D12_SHADER_BYTECODE& DS) override { PipelineStream.DS = DS; }
-	void PSCb(const D3D12_SHADER_BYTECODE& PS) override { PipelineStream.PS = PS; }
-	void CSCb(const D3D12_SHADER_BYTECODE& CS) override { PipelineStream.CS = CS; }
-	void BlendStateCb(const D3D12_BLEND_DESC& BlendState) override { PipelineStream.BlendState = CD3DX12_BLEND_DESC(BlendState); }
-	void DepthStencilStateCb(const D3D12_DEPTH_STENCIL_DESC& DepthStencilState) override
+	void FlagsCb(D3D12_PIPELINE_STATE_FLAGS Flags) { PipelineStream.Flags = Flags; }
+	void NodeMaskCb(UINT NodeMask) { PipelineStream.NodeMask = NodeMask; }
+	void RootSignatureCb(ID3D12RootSignature* pRootSignature) { PipelineStream.pRootSignature = pRootSignature; }
+	void InputLayoutCb(const D3D12_INPUT_LAYOUT_DESC& InputLayout) { PipelineStream.InputLayout = InputLayout; }
+	void IBStripCutValueCb(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue) { PipelineStream.IBStripCutValue = IBStripCutValue; }
+	void PrimitiveTopologyTypeCb(D3D12_PRIMITIVE_TOPOLOGY_TYPE PrimitiveTopologyType) { PipelineStream.PrimitiveTopologyType = PrimitiveTopologyType; }
+	void VSCb(const D3D12_SHADER_BYTECODE& VS) { PipelineStream.VS = VS; }
+	void GSCb(const D3D12_SHADER_BYTECODE& GS) { PipelineStream.GS = GS; }
+	void StreamOutputCb(const D3D12_STREAM_OUTPUT_DESC& StreamOutput) { PipelineStream.StreamOutput = StreamOutput; }
+	void HSCb(const D3D12_SHADER_BYTECODE& HS) { PipelineStream.HS = HS; }
+	void DSCb(const D3D12_SHADER_BYTECODE& DS) { PipelineStream.DS = DS; }
+	void PSCb(const D3D12_SHADER_BYTECODE& PS) { PipelineStream.PS = PS; }
+	void CSCb(const D3D12_SHADER_BYTECODE& CS) { PipelineStream.CS = CS; }
+	void BlendStateCb(const D3D12_BLEND_DESC& BlendState) { PipelineStream.BlendState = CD3DX12_BLEND_DESC(BlendState); }
+	void DepthStencilStateCb(const D3D12_DEPTH_STENCIL_DESC& DepthStencilState)
 	{
 		PipelineStream.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC1(DepthStencilState);
 		SeenDSS = true;
 	}
-	void DepthStencilState1Cb(const D3D12_DEPTH_STENCIL_DESC1& DepthStencilState) override
+	void DepthStencilState1Cb(const D3D12_DEPTH_STENCIL_DESC1& DepthStencilState)
 	{
 		PipelineStream.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC1(DepthStencilState);
 		SeenDSS = true;
 	}
-	void DSVFormatCb(DXGI_FORMAT DSVFormat) override
+	void DSVFormatCb(DXGI_FORMAT DSVFormat)
 	{
 		PipelineStream.DSVFormat = DSVFormat;
 		if (!SeenDSS && DSVFormat != DXGI_FORMAT_UNKNOWN)
@@ -2508,12 +2558,15 @@ struct CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER : public ID3DX12PipelineParser
 			static_cast<D3D12_DEPTH_STENCIL_DESC1&>(PipelineStream.DepthStencilState).DepthEnable = true;
 		}
 	}
-	void RasterizerStateCb(const D3D12_RASTERIZER_DESC& RasterizerState) override { PipelineStream.RasterizerState = CD3DX12_RASTERIZER_DESC(RasterizerState); }
-	void RTVFormatsCb(const D3D12_RT_FORMAT_ARRAY& RTVFormats) override { PipelineStream.RTVFormats = RTVFormats; }
-	void SampleDescCb(const DXGI_SAMPLE_DESC& SampleDesc) override { PipelineStream.SampleDesc = SampleDesc; }
-	void SampleMaskCb(UINT SampleMask) override { PipelineStream.SampleMask = SampleMask; }
-	void ViewInstancingCb(const D3D12_VIEW_INSTANCING_DESC& ViewInstancingDesc) override { PipelineStream.ViewInstancingDesc = CD3DX12_VIEW_INSTANCING_DESC(ViewInstancingDesc); }
-	void CachedPSOCb(const D3D12_CACHED_PIPELINE_STATE& CachedPSO) override { PipelineStream.CachedPSO = CachedPSO; }
+	void RasterizerStateCb(const D3D12_RASTERIZER_DESC& RasterizerState) { PipelineStream.RasterizerState = CD3DX12_RASTERIZER_DESC(RasterizerState); }
+	void RTVFormatsCb(const D3D12_RT_FORMAT_ARRAY& RTVFormats) { PipelineStream.RTVFormats = RTVFormats; }
+	void SampleDescCb(const DXGI_SAMPLE_DESC& SampleDesc) { PipelineStream.SampleDesc = SampleDesc; }
+	void SampleMaskCb(UINT SampleMask) { PipelineStream.SampleMask = SampleMask; }
+	void ViewInstancingCb(const D3D12_VIEW_INSTANCING_DESC& ViewInstancingDesc) { PipelineStream.ViewInstancingDesc = CD3DX12_VIEW_INSTANCING_DESC(ViewInstancingDesc); }
+	void CachedPSOCb(const D3D12_CACHED_PIPELINE_STATE& CachedPSO) { PipelineStream.CachedPSO = CachedPSO; }
+	void ErrorBadInputParameter(UINT) {}
+	void ErrorDuplicateSubobject(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE) {}
+	void ErrorUnknownSubobject(UINT) {}
 
 private:
 	bool SeenDSS;
@@ -2530,25 +2583,26 @@ inline D3D12_PIPELINE_STATE_SUBOBJECT_TYPE D3DX12GetBaseSubobjectType(D3D12_PIPE
 	}
 }
 
-inline HRESULT D3DX12ParsePipelineStream(const D3D12_PIPELINE_STATE_STREAM_DESC & Desc, ID3DX12PipelineParserCallbacks * pCallbacks)
+inline HRESULT D3DX12ParsePipelineStream(const D3D12_PIPELINE_STATE_STREAM_DESC& Desc, ID3DX12PipelineParserCallbacks* pCallbacks)
 {
-	if (pCallbacks == nullptr)
-	{
-		return E_INVALIDARG;
-	}
-
 	if (Desc.SizeInBytes == 0 || Desc.pPipelineStateSubobjectStream == nullptr)
 	{
 		pCallbacks->ErrorBadInputParameter(1); // first parameter issue
 		return E_INVALIDARG;
 	}
 
-	bool SubobjectSeen[D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID] = {};
+	if (pCallbacks == nullptr)
+	{
+		pCallbacks->ErrorBadInputParameter(2); // second parameter issue
+		return E_INVALIDARG;
+	}
+
+	bool SubobjectSeen[D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID] = { 0 };
 	for (SIZE_T CurOffset = 0, SizeOfSubobject = 0; CurOffset < Desc.SizeInBytes; CurOffset += SizeOfSubobject)
 	{
 		BYTE* pStream = static_cast<BYTE*>(Desc.pPipelineStateSubobjectStream) + CurOffset;
 		auto SubobjectType = *reinterpret_cast<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE*>(pStream);
-		if (SubobjectType < 0 || SubobjectType >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID)
+		if (SubobjectType >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID)
 		{
 			pCallbacks->ErrorUnknownSubobject(SubobjectType);
 			return E_INVALIDARG;
@@ -2663,801 +2717,7 @@ inline HRESULT D3DX12ParsePipelineStream(const D3D12_PIPELINE_STATE_STREAM_DESC 
 	return S_OK;
 }
 
-//------------------------------------------------------------------------------------------------
-inline bool operator==(const D3D12_CLEAR_VALUE & a, const D3D12_CLEAR_VALUE & b)
-{
-	if (a.Format != b.Format) return false;
-	if (a.Format == DXGI_FORMAT_D24_UNORM_S8_UINT
-		|| a.Format == DXGI_FORMAT_D16_UNORM
-		|| a.Format == DXGI_FORMAT_D32_FLOAT
-		|| a.Format == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
-	{
-		return (a.DepthStencil.Depth == b.DepthStencil.Depth) &&
-			(a.DepthStencil.Stencil == b.DepthStencil.Stencil);
-	}
-	else {
-		return (a.Color[0] == b.Color[0]) &&
-			(a.Color[1] == b.Color[1]) &&
-			(a.Color[2] == b.Color[2]) &&
-			(a.Color[3] == b.Color[3]);
-	}
-}
-inline bool operator==(const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS & a, const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS & b)
-{
-	return a.ClearValue == b.ClearValue;
-}
-inline bool operator==(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS & a, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS & b)
-{
-	if (a.pSrcResource != b.pSrcResource) return false;
-	if (a.pDstResource != b.pDstResource) return false;
-	if (a.SubresourceCount != b.SubresourceCount) return false;
-	if (a.Format != b.Format) return false;
-	if (a.ResolveMode != b.ResolveMode) return false;
-	if (a.PreserveResolveSource != b.PreserveResolveSource) return false;
-	return true;
-}
-inline bool operator==(const D3D12_RENDER_PASS_BEGINNING_ACCESS & a, const D3D12_RENDER_PASS_BEGINNING_ACCESS & b)
-{
-	if (a.Type != b.Type) return false;
-	if (a.Type == D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR && !(a.Clear == b.Clear)) return false;
-	return true;
-}
-inline bool operator==(const D3D12_RENDER_PASS_ENDING_ACCESS & a, const D3D12_RENDER_PASS_ENDING_ACCESS & b)
-{
-	if (a.Type != b.Type) return false;
-	if (a.Type == D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE && !(a.Resolve == b.Resolve)) return false;
-	return true;
-}
-inline bool operator==(const D3D12_RENDER_PASS_RENDER_TARGET_DESC & a, const D3D12_RENDER_PASS_RENDER_TARGET_DESC & b)
-{
-	if (a.cpuDescriptor.ptr != b.cpuDescriptor.ptr) return false;
-	if (!(a.BeginningAccess == b.BeginningAccess)) return false;
-	if (!(a.EndingAccess == b.EndingAccess)) return false;
-	return true;
-}
-inline bool operator==(const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC & a, const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC & b)
-{
-	if (a.cpuDescriptor.ptr != b.cpuDescriptor.ptr) return false;
-	if (!(a.DepthBeginningAccess == b.DepthBeginningAccess)) return false;
-	if (!(a.StencilBeginningAccess == b.StencilBeginningAccess)) return false;
-	if (!(a.DepthEndingAccess == b.DepthEndingAccess)) return false;
-	if (!(a.StencilEndingAccess == b.StencilEndingAccess)) return false;
-	return true;
-}
-
-
-#ifndef D3DX12_NO_STATE_OBJECT_HELPERS
-
-//================================================================================================
-// D3DX12 State Object Creation Helpers
-// 
-// Helper classes for creating new style state objects out of an arbitrary set of subobjects.
-// Uses STL
-//
-// Start by instantiating CD3DX12_STATE_OBJECT_DESC (see it's public methods).
-// One of its methods is CreateSubobject(), which has a comment showing a couple of options for
-// defining subobjects using the helper classes for each subobject (CD3DX12_DXIL_LIBRARY_SUBOBJECT 
-// etc.). The subobject helpers each have methods specific to the subobject for configuring it's 
-// contents.
-// 
-//================================================================================================
-#include <list>
-#include <vector>
-#include <string>
-#include <memory>
-#include <wrl/client.h>
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_STATE_OBJECT_DESC
-{
-public:
-	CD3DX12_STATE_OBJECT_DESC()
-	{
-		Init(D3D12_STATE_OBJECT_TYPE_COLLECTION);
-	}
-	CD3DX12_STATE_OBJECT_DESC(D3D12_STATE_OBJECT_TYPE Type)
-	{
-		Init(Type);
-	}
-	void SetStateObjectType(D3D12_STATE_OBJECT_TYPE Type) { m_Desc.Type = Type; }
-	operator const D3D12_STATE_OBJECT_DESC& ()
-	{
-		// Do final preparation work
-		m_RepointedAssociations.clear();
-		m_SubobjectArray.clear();
-		m_SubobjectArray.reserve(m_Desc.NumSubobjects);
-		// Flatten subobjects into an array (each flattened subobject still has a 
-		// member that's a pointer to it's desc that's not flattened)
-		for (auto Iter = m_SubobjectList.begin();
-			Iter != m_SubobjectList.end(); Iter++)
-		{
-			m_SubobjectArray.push_back(*Iter);
-			// Store new location in array so we can redirect pointers contained in subobjects 
-			Iter->pSubobjectArrayLocation = &m_SubobjectArray.back();
-		}
-		// For subobjects with pointer fields, create a new copy of those subobject definitions
-		// with fixed pointers
-		for (UINT i = 0; i < m_Desc.NumSubobjects; i++)
-		{
-			if (m_SubobjectArray[i].Type == D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION)
-			{
-				auto pOriginalSubobjectAssociation =
-					reinterpret_cast<const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(m_SubobjectArray[i].pDesc);
-				D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION Repointed = *pOriginalSubobjectAssociation;
-				auto pWrapper =
-					static_cast<const SUBOBJECT_WRAPPER*>(pOriginalSubobjectAssociation->pSubobjectToAssociate);
-				Repointed.pSubobjectToAssociate = pWrapper->pSubobjectArrayLocation;
-				m_RepointedAssociations.push_back(Repointed);
-				m_SubobjectArray[i].pDesc = &m_RepointedAssociations.back();
-			}
-		}
-		// Below: using ugly way to get pointer in case .data() is not defined
-		m_Desc.pSubobjects = m_Desc.NumSubobjects ? &m_SubobjectArray[0] : nullptr;
-		return m_Desc;
-	}
-	operator const D3D12_STATE_OBJECT_DESC* ()
-	{
-		// Cast calls the above final preparation work
-		return &static_cast<const D3D12_STATE_OBJECT_DESC&>(*this);
-	}
-
-	// CreateSubobject creates a sububject helper (e.g. CD3DX12_HIT_GROUP_SUBOBJECT) 
-	// whose lifetime is owned by this class.
-	// e.g. 
-	// 
-	//    CD3DX12_STATE_OBJECT_DESC Collection1(D3D12_STATE_OBJECT_TYPE_COLLECTION);
-	//    auto Lib0 = Collection1.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
-	//    Lib0->SetDXILLibrary(&pMyAppDxilLibs[0]);
-	//    Lib0->DefineExport(L"rayGenShader0"); // in practice these export listings might be 
-	//                                          // data/engine driven
-	//    etc.
-	//
-	// Alternatively, users can instantiate sububject helpers explicitly, such as via local 
-	// variables instead, passing the state object desc that should point to it into the helper 
-	// constructor (or call mySubobjectHelper.AddToStateObject(Collection1)).  
-	// In this alternative scenario, the user must keep the subobject alive as long as the state 
-	// object it is associated with is alive, else it's pointer references will be stale.
-	// e.g.
-	//
-	//    CD3DX12_STATE_OBJECT_DESC RaytracingState2(D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE);
-	//    CD3DX12_DXIL_LIBRARY_SUBOBJECT LibA(RaytracingState2);
-	//    LibA.SetDXILLibrary(&pMyAppDxilLibs[4]); // not manually specifying exports 
-	//                                             // - meaning all exports in the libraries 
-	//                                             // are exported
-	//    etc.
-
-	template<typename T>
-	T* CreateSubobject()
-	{
-		T* pSubobject = new T(*this);
-		m_OwnedSubobjectHelpers.emplace_back(pSubobject);
-		return pSubobject;
-	}
-
-private:
-	D3D12_STATE_SUBOBJECT* TrackSubobject(D3D12_STATE_SUBOBJECT_TYPE Type, void* pDesc)
-	{
-		SUBOBJECT_WRAPPER Subobject;
-		Subobject.pSubobjectArrayLocation = nullptr;
-		Subobject.Type = Type;
-		Subobject.pDesc = pDesc;
-		m_SubobjectList.push_back(Subobject);
-		m_Desc.NumSubobjects++;
-		return &m_SubobjectList.back();
-	}
-	void Init(D3D12_STATE_OBJECT_TYPE Type)
-	{
-		SetStateObjectType(Type);
-		m_Desc.pSubobjects = nullptr;
-		m_Desc.NumSubobjects = 0;
-		m_SubobjectList.clear();
-		m_SubobjectArray.clear();
-		m_RepointedAssociations.clear();
-	}
-	typedef struct SUBOBJECT_WRAPPER : public D3D12_STATE_SUBOBJECT
-	{
-		D3D12_STATE_SUBOBJECT* pSubobjectArrayLocation; // new location when flattened into array 
-														// for repointing pointers in subobjects
-	} SUBOBJECT_WRAPPER;
-	D3D12_STATE_OBJECT_DESC m_Desc;
-	std::list<SUBOBJECT_WRAPPER>   m_SubobjectList; // Pointers to list nodes handed out so 
-													// these can be edited live
-	std::vector<D3D12_STATE_SUBOBJECT> m_SubobjectArray; // Built at the end, copying list contents
-
-	std::list<D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION>
-		m_RepointedAssociations; // subobject type that contains pointers to other subobjects, 
-								 // repointed to flattened array
-
-	class StringContainer
-	{
-	public:
-		LPCWSTR LocalCopy(LPCWSTR string, bool bSingleString = false)
-		{
-			if (string)
-			{
-				if (bSingleString)
-				{
-					m_Strings.clear();
-					m_Strings.push_back(string);
-				}
-				else
-				{
-					m_Strings.push_back(string);
-				}
-				return m_Strings.back().c_str();
-			}
-			else
-			{
-				return nullptr;
-			}
-		}
-		void clear() { m_Strings.clear(); }
-	private:
-		std::list<std::wstring> m_Strings;
-	};
-
-	class SUBOBJECT_HELPER_BASE
-	{
-	public:
-		SUBOBJECT_HELPER_BASE() { Init(); };
-		virtual ~SUBOBJECT_HELPER_BASE() {};
-		virtual D3D12_STATE_SUBOBJECT_TYPE Type() const = 0;
-		void AddToStateObject(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-		{
-			m_pSubobject = ContainingStateObject.TrackSubobject(Type(), Data());
-		}
-	protected:
-		virtual void* Data() = 0;
-		void Init() { m_pSubobject = nullptr; }
-		D3D12_STATE_SUBOBJECT* m_pSubobject;
-	};
-
-#if(__cplusplus >= 201103L)
-	std::list<std::unique_ptr<const SUBOBJECT_HELPER_BASE>> m_OwnedSubobjectHelpers;
-#else
-	class OWNED_HELPER
-	{
-	public:
-		OWNED_HELPER(const SUBOBJECT_HELPER_BASE* pHelper) { m_pHelper = pHelper; }
-		~OWNED_HELPER() { delete m_pHelper; }
-		const SUBOBJECT_HELPER_BASE* m_pHelper;
-	};
-
-	std::list<OWNED_HELPER> m_OwnedSubobjectHelpers;
-#endif
-
-	friend class CD3DX12_DXIL_LIBRARY_SUBOBJECT;
-	friend class CD3DX12_EXISTING_COLLECTION_SUBOBJECT;
-	friend class CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT;
-	friend class CD3DX12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
-	friend class CD3DX12_HIT_GROUP_SUBOBJECT;
-	friend class CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT;
-	friend class CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT;
-	friend class CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT;
-	friend class CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT;
-	friend class CD3DX12_STATE_OBJECT_CONFIG_SUBOBJECT;
-	friend class CD3DX12_NODE_MASK_SUBOBJECT;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_DXIL_LIBRARY_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_DXIL_LIBRARY_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_DXIL_LIBRARY_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetDXILLibrary(D3D12_SHADER_BYTECODE* pCode)
-	{
-		static const D3D12_SHADER_BYTECODE Default = {};
-		m_Desc.DXILLibrary = pCode ? *pCode : Default;
-	}
-	void DefineExport(
-		LPCWSTR Name,
-		LPCWSTR ExportToRename = nullptr,
-		D3D12_EXPORT_FLAGS Flags = D3D12_EXPORT_FLAG_NONE)
-	{
-		D3D12_EXPORT_DESC Export;
-		Export.Name = m_Strings.LocalCopy(Name);
-		Export.ExportToRename = m_Strings.LocalCopy(ExportToRename);
-		Export.Flags = Flags;
-		m_Exports.push_back(Export);
-		m_Desc.pExports = &m_Exports[0];  // using ugly way to get pointer in case .data() is not defined
-		m_Desc.NumExports = static_cast<UINT>(m_Exports.size());
-	}
-	template<size_t N>
-	void DefineExports(LPCWSTR(&Exports)[N])
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			DefineExport(Exports[i]);
-		}
-	}
-	void DefineExports(LPCWSTR* Exports, UINT N)
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			DefineExport(Exports[i]);
-		}
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_DXIL_LIBRARY_DESC& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-		m_Strings.clear();
-		m_Exports.clear();
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_DXIL_LIBRARY_DESC m_Desc;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer m_Strings;
-	std::vector<D3D12_EXPORT_DESC> m_Exports;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_EXISTING_COLLECTION_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_EXISTING_COLLECTION_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_EXISTING_COLLECTION_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetExistingCollection(ID3D12StateObject* pExistingCollection)
-	{
-		m_Desc.pExistingCollection = pExistingCollection;
-		m_CollectionRef = pExistingCollection;
-	}
-	void DefineExport(
-		LPCWSTR Name,
-		LPCWSTR ExportToRename = nullptr,
-		D3D12_EXPORT_FLAGS Flags = D3D12_EXPORT_FLAG_NONE)
-	{
-		D3D12_EXPORT_DESC Export;
-		Export.Name = m_Strings.LocalCopy(Name);
-		Export.ExportToRename = m_Strings.LocalCopy(ExportToRename);
-		Export.Flags = Flags;
-		m_Exports.push_back(Export);
-		m_Desc.pExports = &m_Exports[0]; // using ugly way to get pointer in case .data() is not defined
-		m_Desc.NumExports = static_cast<UINT>(m_Exports.size());
-	}
-	template<size_t N>
-	void DefineExports(LPCWSTR(&Exports)[N])
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			DefineExport(Exports[i]);
-		}
-	}
-	void DefineExports(LPCWSTR* Exports, UINT N)
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			DefineExport(Exports[i]);
-		}
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_EXISTING_COLLECTION_DESC& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-		m_CollectionRef = nullptr;
-		m_Strings.clear();
-		m_Exports.clear();
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_EXISTING_COLLECTION_DESC m_Desc;
-	Microsoft::WRL::ComPtr<ID3D12StateObject> m_CollectionRef;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer m_Strings;
-	std::vector<D3D12_EXPORT_DESC> m_Exports;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetSubobjectToAssociate(const D3D12_STATE_SUBOBJECT& SubobjectToAssociate)
-	{
-		m_Desc.pSubobjectToAssociate = &SubobjectToAssociate;
-	}
-	void AddExport(LPCWSTR Export)
-	{
-		m_Desc.NumExports++;
-		m_Exports.push_back(m_Strings.LocalCopy(Export));
-		m_Desc.pExports = &m_Exports[0];  // using ugly way to get pointer in case .data() is not defined
-	}
-	template<size_t N>
-	void AddExports(LPCWSTR (&Exports)[N])
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			AddExport(Exports[i]);
-		}
-	}
-	void AddExports(LPCWSTR* Exports, UINT N)
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			AddExport(Exports[i]);
-		}
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-		m_Strings.clear();
-		m_Exports.clear();
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION m_Desc;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer m_Strings;
-	std::vector<LPCWSTR> m_Exports;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION()
-	{
-		Init();
-	}
-	CD3DX12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetSubobjectNameToAssociate(LPCWSTR SubobjectToAssociate)
-	{
-		m_Desc.SubobjectToAssociate = m_SubobjectName.LocalCopy(SubobjectToAssociate, true);
-	}
-	void AddExport(LPCWSTR Export)
-	{
-		m_Desc.NumExports++;
-		m_Exports.push_back(m_Strings.LocalCopy(Export));
-		m_Desc.pExports = &m_Exports[0];  // using ugly way to get pointer in case .data() is not defined
-	}
-	template<size_t N>
-	void AddExports(LPCWSTR (&Exports)[N])
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			AddExport(Exports[i]);
-		}
-	}
-	void AddExports(LPCWSTR* Exports, UINT N)
-	{
-		for (UINT i = 0; i < N; i++)
-		{
-			AddExport(Exports[i]);
-		}
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-		m_Strings.clear();
-		m_SubobjectName.clear();
-		m_Exports.clear();
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION m_Desc;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer m_Strings;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer m_SubobjectName;
-	std::vector<LPCWSTR> m_Exports;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_HIT_GROUP_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_HIT_GROUP_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_HIT_GROUP_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetHitGroupExport(LPCWSTR exportName)
-	{
-		m_Desc.HitGroupExport = m_Strings[0].LocalCopy(exportName, true);
-	}
-	void SetHitGroupType(D3D12_HIT_GROUP_TYPE Type) { m_Desc.Type = Type; }
-	void SetAnyHitShaderImport(LPCWSTR importName)
-	{
-		m_Desc.AnyHitShaderImport = m_Strings[1].LocalCopy(importName, true);
-	}
-	void SetClosestHitShaderImport(LPCWSTR importName)
-	{
-		m_Desc.ClosestHitShaderImport = m_Strings[2].LocalCopy(importName, true);
-	}
-	void SetIntersectionShaderImport(LPCWSTR importName)
-	{
-		m_Desc.IntersectionShaderImport = m_Strings[3].LocalCopy(importName, true);
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_HIT_GROUP_DESC& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-		for (UINT i = 0; i < m_NumStrings; i++)
-		{
-			m_Strings[i].clear();
-		}
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_HIT_GROUP_DESC m_Desc;
-	static const UINT m_NumStrings = 4;
-	CD3DX12_STATE_OBJECT_DESC::StringContainer
-		m_Strings[m_NumStrings]; // one string for every entrypoint name
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void Config(UINT MaxPayloadSizeInBytes, UINT MaxAttributeSizeInBytes)
-	{
-		m_Desc.MaxPayloadSizeInBytes = MaxPayloadSizeInBytes;
-		m_Desc.MaxAttributeSizeInBytes = MaxAttributeSizeInBytes;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_RAYTRACING_SHADER_CONFIG& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_RAYTRACING_SHADER_CONFIG m_Desc;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void Config(UINT MaxTraceRecursionDepth)
-	{
-		m_Desc.MaxTraceRecursionDepth = MaxTraceRecursionDepth;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_RAYTRACING_PIPELINE_CONFIG& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_RAYTRACING_PIPELINE_CONFIG m_Desc;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetRootSignature(ID3D12RootSignature* pRootSig)
-	{
-		m_pRootSig = pRootSig;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator ID3D12RootSignature* () const { return m_pRootSig.Get(); }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_pRootSig = nullptr;
-	}
-	void* Data() { return m_pRootSig.GetAddressOf(); }
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pRootSig;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetRootSignature(ID3D12RootSignature* pRootSig)
-	{
-		m_pRootSig = pRootSig;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator ID3D12RootSignature* () const { return m_pRootSig.Get(); }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_pRootSig = nullptr;
-	}
-	void* Data() { return m_pRootSig.GetAddressOf(); }
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pRootSig;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_STATE_OBJECT_CONFIG_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_STATE_OBJECT_CONFIG_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_STATE_OBJECT_CONFIG_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetFlags(D3D12_STATE_OBJECT_FLAGS Flags)
-	{
-		m_Desc.Flags = Flags;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_STATE_OBJECT_CONFIG& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_STATE_OBJECT_CONFIG m_Desc;
-};
-
-//------------------------------------------------------------------------------------------------
-class CD3DX12_NODE_MASK_SUBOBJECT
-	: public CD3DX12_STATE_OBJECT_DESC::SUBOBJECT_HELPER_BASE
-{
-public:
-	CD3DX12_NODE_MASK_SUBOBJECT()
-	{
-		Init();
-	}
-	CD3DX12_NODE_MASK_SUBOBJECT(CD3DX12_STATE_OBJECT_DESC& ContainingStateObject)
-	{
-		Init();
-		AddToStateObject(ContainingStateObject);
-	}
-	void SetNodeMask(UINT NodeMask)
-	{
-		m_Desc.NodeMask = NodeMask;
-	}
-	D3D12_STATE_SUBOBJECT_TYPE Type() const
-	{
-		return D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK;
-	}
-	operator const D3D12_STATE_SUBOBJECT& () const { return *m_pSubobject; }
-	operator const D3D12_NODE_MASK& () const { return m_Desc; }
-private:
-	void Init()
-	{
-		SUBOBJECT_HELPER_BASE::Init();
-		m_Desc = {};
-	}
-	void* Data() { return &m_Desc; }
-	D3D12_NODE_MASK m_Desc;
-};
-
-#endif // #ifndef D3DX12_NO_STATE_OBJECT_HELPERS
 
 #endif // defined( __cplusplus )
 
 #endif //__D3DX12_H__
-
-
