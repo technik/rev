@@ -187,17 +187,25 @@ int main(int _argc, const char** _argv) {
 	CommandPool* copyCommandPool = gfxDevice->createCommandPool(CommandList::Copy);
 	CommandList* copyCmdList = gfxDevice->createCommandList(CommandList::Copy, *copyCommandPool);
 
-	// Create a staging buffer
-	auto* stagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 4 * sizeof(rev::math::Vec3f));
-	auto* vtxBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 4 * sizeof(rev::math::Vec3f));
+	// Create buffers for vertex data
+	auto* stagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
+	auto* vtxBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
 
-	rev::math::Vec3f vtx[4] = {
+	rev::math::Vec3f vtx[3] = {
 		rev::math::Vec3f(1.f,0.f,0.f),
 		rev::math::Vec3f(0.f,1.f,0.f),
-		rev::math::Vec3f(0.f,0.f,1.f),
-		rev::math::Vec3f(1.f,1.f,1.f)
+		rev::math::Vec3f(-1.f,0.f,0.f)
 	};
-	copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 4 * sizeof(rev::math::Vec3f), vtx);
+	copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
+
+	// Create buffers for index data
+	auto* indexStagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+	auto* indexBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+
+	uint16_t indices[3] = { 0, 1, 2 };
+	copyCmdList->uploadBufferContent(*indexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
+
+	// Execute copy on a command queue
 	copyCmdList->close();
 	auto& copyQueue = gfxDevice->commandQueue(2);
 	copyQueue.executeCommandList(*copyCmdList);
