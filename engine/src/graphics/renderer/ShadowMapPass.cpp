@@ -20,7 +20,6 @@
 #include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/renderPass.h>
 #include <graphics/debug/imgui.h>
@@ -111,8 +110,8 @@ namespace rev::gfx {
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
-		dst.beginPass(*m_pass);
-		renderMeshes(shadowCasters, dst); // Iterate over renderables
+		//dst.beginPass(*m_pass);
+		//renderMeshes(shadowCasters, dst); // Iterate over renderables
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -137,7 +136,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst)
+	/*void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst)
 	{
 		auto worldMatrix = Mat44f::identity();
 
@@ -171,6 +170,6 @@ namespace rev::gfx {
 
 		// Record commands
 		m_geomPass.render(geometry, renderList, dst);
-	}
+	}*/
 
 }

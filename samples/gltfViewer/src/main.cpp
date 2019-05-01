@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
+#include <graphics/backend/DirectX12/d3dx12.h>
 #include <graphics/backend/commandPool.h>
 #include <graphics/backend/fence.h>
 #include <math/algebra/vector.h>
@@ -211,6 +212,10 @@ int main(int _argc, const char** _argv) {
 	copyQueue.executeCommandList(*copyCmdList);
 	auto copyFenceValue = copyQueue.signalFence(*mRenderFence);
 	mRenderFence->waitForValue(copyFenceValue);
+
+	// --- Shader work ---
+	
+
 
 	// --- Init other systems ---
 	*rev::core::OSHandler::get() += processWindowsMsg;

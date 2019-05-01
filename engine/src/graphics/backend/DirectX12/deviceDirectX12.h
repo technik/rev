@@ -68,6 +68,9 @@ namespace rev :: gfx
 		// Resources
 		GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) override;
 
+		// Pipelines
+		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
+
 	public: // DirectX 12 specific
 		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
 

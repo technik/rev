@@ -18,7 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
-#include <graphics/backend/openGL/openGL.h>
 
 using namespace std;
 using namespace rev::math;
@@ -26,7 +25,7 @@ using namespace rev::math;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	Material::Material(const shared_ptr<Effect>& _effect)
+	/*Material::Material(const shared_ptr<Effect>& _effect)
 		: mEffect(_effect)
 	{
 	}
@@ -86,6 +85,6 @@ namespace rev::gfx {
 			renderer.addParam(v.first, v.second);
 		for(const auto& t : mTextureParams)
 			renderer.addParam(t.first, t.second);
-	}
+	}*/
 
 }

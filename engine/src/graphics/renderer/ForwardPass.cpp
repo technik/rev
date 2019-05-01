@@ -23,7 +23,6 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/renderPass.h>
 #include <graphics/driver/shaderProcessor.h>
 #include <graphics/renderer/material/material.h>
@@ -104,7 +103,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	gfx::Pipeline ForwardPass::getPipeline(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
+	/*gfx::Pipeline ForwardPass::getPipeline(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
 	{
 		// Locate the proper pipeline set
 		auto code = effectCode(mirror, env, shadows);
@@ -167,10 +166,10 @@ namespace rev::gfx {
 			).first;
 		}
 		return iter->second;
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
-	void ForwardPass::render(
+	/*void ForwardPass::render(
 		const Camera& eye,
 		const EnvironmentProbe* env,
 		bool useShadows,
@@ -234,5 +233,5 @@ namespace rev::gfx {
 			if(renderable.geom.indices().componentType == GL_UNSIGNED_INT)
 				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U32, renderable.geom.indices().offset);
 		}
-	}
+	}*/
 }

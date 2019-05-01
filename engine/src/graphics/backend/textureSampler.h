@@ -19,15 +19,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <cstddef>
-#include <graphics/backend/openGL/openGL.h>
+#include <cstdint>
+//#include <graphics/backend/openGL/openGL.h>
 
 namespace rev :: gfx
 {
 	class TextureSampler
 	{
 	public:
-		enum class Wrap : GLint {
+		/*enum class Wrap : GLint {
 			Repeat = GL_REPEAT,
 			Clamp = GL_CLAMP_TO_EDGE
 		};
@@ -43,7 +43,7 @@ namespace rev :: gfx
 			Wrap wrapS = Wrap::Repeat;
 			Wrap wrapT = Wrap::Repeat;
 			MinFilter filter = MinFilter::Linear;
-		};
+		};*/
 
 		int32_t id;
 	};

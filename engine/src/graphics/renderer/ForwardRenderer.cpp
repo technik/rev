@@ -36,7 +36,7 @@
 namespace rev::gfx {
 
 	//------------------------------------------------------------------------------------------------------------------
-	void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
+	/*void ForwardRenderer::init(gfx::Device& device, const math::Vec2u& targetSize, gfx::FrameBuffer& target)
 	{
 		m_device = &device;
 		m_targetBuffer = target;
@@ -173,5 +173,5 @@ namespace rev::gfx {
 			if(filter(item))
 				to.push_back(item);
 	}
-
+	*/
 }

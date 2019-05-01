@@ -24,6 +24,7 @@
 #include "doubleBufferSwapChainDX12.h"
 #include "fenceDX12.h"
 #include "d3dx12.h"
+#include <d3dcompiler.h>
 
 using namespace Microsoft::WRL;
 
@@ -205,6 +206,90 @@ namespace rev :: gfx
 		m_d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, defaultState, nullptr, IID_PPV_ARGS(&dstResource));
 
 		return new GpuBufferDX12(dstResource);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	// TODO: Maybe stuff all this code into a PipelineDX12 class
+	auto DeviceDirectX12::createPipeline(const Pipeline::PipielineDesc& desc) -> Pipeline*
+	{
+		D3D12_INPUT_ELEMENT_DESC vtxPosLayout = {};
+		vtxPosLayout.SemanticName = "position";
+		vtxPosLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vtxPosLayout.InputSlot = 0;
+		vtxPosLayout.AlignedByteOffset = sizeof(rev::math::Vec3f);
+		vtxPosLayout.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+
+		// Create a root signature.
+		D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		if (FAILED(m_d3d12Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+		{
+			featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+		}
+
+		// Allow input layout and deny unnecessary access to certain pipeline stages.
+		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+		rootParameters[0].InitAsConstants(16, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
+		rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+
+		// Serialize the root signature.
+		ComPtr<ID3DBlob> rootSignatureBlob;
+		ComPtr<ID3DBlob> errorBlob;
+		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDescription,
+			featureData.HighestVersion, &rootSignatureBlob, &errorBlob));
+		// Create the root signature.
+		ComPtr<ID3D12RootSignature> rootSignature;
+		ThrowIfFailed(m_d3d12Device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
+			rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
+
+		// TODO: Create shaders from code
+		ComPtr<ID3DBlob> vertexShaderBlob;
+		ThrowIfFailed(D3DReadFileToBlob(L"vertex.cso", &vertexShaderBlob));
+
+		// Load the pixel shader.
+		ComPtr<ID3DBlob> pixelShaderBlob;
+		ThrowIfFailed(D3DReadFileToBlob(L"fragment.cso", &pixelShaderBlob));
+
+		// Pipeline State Object
+		struct PipelineStateStream
+		{
+			CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE pRootSignature;
+			CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+			CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
+			CD3DX12_PIPELINE_STATE_STREAM_VS VS;
+			CD3DX12_PIPELINE_STATE_STREAM_PS PS;
+			CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
+			CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
+		} pipelineStateStream;
+
+		D3D12_RT_FORMAT_ARRAY rtvFormats = {};
+		rtvFormats.NumRenderTargets = 1;
+		rtvFormats.RTFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		pipelineStateStream.pRootSignature = rootSignature.Get();
+		pipelineStateStream.InputLayout = { &vtxPosLayout, 1 };
+		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
+		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
+		pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		pipelineStateStream.RTVFormats = rtvFormats;
+
+		D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
+	sizeof(PipelineStateStream), &pipelineStateStream
+		};
+		ComPtr<ID3D12PipelineState> pipelineState;
+		ThrowIfFailed(m_d3d12Device->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pipelineState)));
+
+		return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -21,7 +21,6 @@
 
 #include <graphics/backend/device.h>
 #include <graphics/backend/frameBuffer.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 
@@ -35,9 +34,9 @@ namespace rev::gfx {
 
 		void setPassCode(ShaderCodeFragment* code);
 
-		void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
+		//void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
 
-		bool isOk() const { return m_pipeline.isValid(); }
+		//bool isOk() const { return m_pipeline.isValid(); }
 
 	private:
 		gfx::Device& m_device;

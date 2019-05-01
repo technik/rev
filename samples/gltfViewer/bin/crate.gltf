@@ -1,0 +1,230 @@
+{
+	"asset": {
+		"version" : "2.0",
+		"generator": "technik's gltf 2.0 exporter",
+		"copyright": "2018 (c) Carmelo J. Fdez-Agüera"
+	},
+	"scene" : 0,
+	"scenes": [
+		{
+			"name": "unityScene",
+			"nodes": [ 0 ]
+		}
+	],
+    "images" : [
+        {
+            "uri" : "crate_baseColor.png"
+        },
+        {
+            "uri" : "crate_pbr.png"
+        },
+        {
+            "uri" : "crate_normal.png"
+        },
+        {
+            "uri" : "crate_AO.png"
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        },
+        {
+            "sampler" : 0,
+            "source" : 3
+        }
+    ],
+    "materials" : [
+        {
+            "name" : "Crate_Scifi_A",
+            "normalTexture" :
+            {
+                "index" : 2
+            },
+            "occlusionTexture" :
+            {
+                "index" : 3
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" :
+                {
+                    "index" : 0
+                },
+                "metallicRoughnessTexture" :
+                {
+                    "index" : 1
+                }
+            }
+        }
+    ],
+	"nodes": [
+		{
+			"name": "Crate_Scifi_A (16)",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				-0.717,
+				0.0,
+				0.0,
+				0.717
+			],
+			"scale": [
+				1,
+				1.00000,
+				1.00000
+			],
+			"children": [ 1, 2, 3]
+		},
+		{
+			"name": "Collision_Crate_Scifi_A",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			]
+		},
+		{
+			"name": "Geom_Crate_Scifi_A_LOD00",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			],
+			"mesh": 0
+		},
+		{
+			"name": "LPG_Crate_Scifi_A",
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0,
+				1
+			],
+			"scale": [
+				1,
+				1,
+				1
+			]
+		}
+	],
+	"meshes": [
+		{
+			"name": "Geom_Crate_Scifi_A_LOD00",
+			"primitives": [
+				{
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TANGENT": 2,
+						"TEXCOORD_0": 3
+					},
+					"indices" : 4,
+					"material": 0, 
+					"mode": 4
+				}
+			]
+		}
+	],
+	"bufferViews": [
+			{
+				"buffer": 0,
+				"byteLength": 280560,
+				"byteOffset": 0,
+				"byteStride": 48,
+				"target": 34962
+			},
+			{
+				"buffer": 0,
+				"byteLength": 36780,
+				"byteOffset": 280560,
+				"target": 34963
+			}
+	],
+	"accessors": [
+		{
+			"bufferView" : 0,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 5845,
+			"type": "VEC3",
+			"min": [-0.6990699, -0.9242685, -1.192093E-07],
+			"max": [0.6990694, 0.924268, 1.229381]
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 12,
+			"componentType": 5126,
+			"count": 5845,
+			"type": "VEC3"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 24,
+			"componentType": 5126,
+			"count": 5845,
+			"type": "VEC4"
+		},
+		{
+			"bufferView" : 0,
+			"byteOffset": 40,
+			"componentType": 5126,
+			"count": 5845,
+			"type": "VEC2"
+		},
+		{
+			"bufferView" : 1,
+			"byteOffset": 0,
+			"componentType": 5123,
+			"count": 18390,
+			"type": "SCALAR"
+		}
+	],
+	"buffers": [
+		{
+			"byteLength": 317340,
+			"uri": "crate.bin"
+		}
+	]
+}

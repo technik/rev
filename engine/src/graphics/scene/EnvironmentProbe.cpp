@@ -32,7 +32,7 @@ using Json = nlohmann::json;
 namespace rev::gfx
 {
 	//------------------------------------------------------------------------------------------------------------------
-	EnvironmentProbe::EnvironmentProbe(Device& device, const std::string& jsonName)
+	/*EnvironmentProbe::EnvironmentProbe(Device& device, const std::string& jsonName)
 	{
 		auto folder = core::getPathFolder(jsonName);
 		// Open json descriptor
@@ -72,5 +72,5 @@ namespace rev::gfx
 		descriptor.size = mipImages[0].size();
 		descriptor.sRGB = true;
 		//m_texture = device.createTexture2d(descriptor);
-	}
+	}*/
 }

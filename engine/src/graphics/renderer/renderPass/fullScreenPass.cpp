@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "fullScreenPass.h"
+/*#include "fullScreenPass.h"
 
 namespace rev::gfx {
 
@@ -86,7 +86,7 @@ void main (void) {
 
 		// Vertex shader
 		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-		/*auto vtxShader = m_device.createShaderModule(stageDesc);
+		auto vtxShader = m_device.createShaderModule(stageDesc);
 		if(vtxShader.id == Pipeline::InvalidId)
 			return;
 
@@ -101,7 +101,7 @@ void main (void) {
 		pipelineDesc.vtxShader = vtxShader;
 		pipelineDesc.pxlShader = pxlShader;
 		pipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
-		m_pipeline = m_device.createPipeline(pipelineDesc);*/
+		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 
 	void FullScreenPass::render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out)
@@ -116,3 +116,4 @@ void main (void) {
 	}
 
 }
+*/

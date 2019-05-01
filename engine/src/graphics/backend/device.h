@@ -28,6 +28,7 @@
 #include "textureSampler.h"
 #include "pipeline.h"
 #include "../shaders/computeShader.h"
+#include "Windows/windowsPlatform.h"
 
 namespace rev :: gfx
 {
@@ -69,6 +70,9 @@ namespace rev :: gfx
 
 		// Resources
 		virtual GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) = 0;
+
+		// Pipelines
+		virtual Pipeline* createPipeline(const Pipeline::PipielineDesc&) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "zPrePass.h"
 
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/renderPass.h>
 #include <graphics/debug/imgui.h>
@@ -39,7 +38,7 @@ using namespace std;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
+	/*ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
 		, m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/zPrePass.fx"))
 	{
@@ -102,7 +101,7 @@ namespace rev::gfx {
 		m_device.destroyRenderPass(*m_pass);
 		m_frameBuffer = createDepthBuffer(m_device, targetTexture);
 		createRenderPass(newSize);
-	}*/
+	}
 
 	//----------------------------------------------------------------------------------------------
 	void ZPrePass::render(
@@ -147,5 +146,5 @@ namespace rev::gfx {
 		// Record commands
 		dst.beginPass(*m_pass);
 		m_geomPass.render(geometry, renderList, dst);
-	}
+	}*/
 }

@@ -20,7 +20,6 @@
 #pragma once
 
 #include <graphics/backend/frameBuffer.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <string>
@@ -42,7 +41,7 @@ namespace rev::gfx {
 		{
 			ShaderCodeFragment* instanceCode;
 			Pipeline::RasterOptions::Mask raster;
-			CommandBuffer::UniformBucket uniforms;
+			//CommandBuffer::UniformBucket uniforms;
 			uint32_t geometryIndex;
 		};
 
@@ -57,7 +56,7 @@ namespace rev::gfx {
 		Pipeline getPipeline(const Instance&);
 
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
-		Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
+		Pipeline::PipielineDesc m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines

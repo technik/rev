@@ -34,7 +34,7 @@ using namespace rev::math;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::init(Device& device, const math::Vec2u& size, FrameBuffer target)
+	/*void DeferredRenderer::init(Device& device, const math::Vec2u& size, FrameBuffer target)
 	{
 		m_targetFb = target;
 		m_device = &device;

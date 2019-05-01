@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
-#include <graphics/backend/commandBuffer.h>
+//#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 #include <graphics/driver/shader.h>
 #include <graphics/renderer/RenderItem.h>
@@ -45,13 +45,13 @@ namespace rev::gfx {
 	public:
 		ForwardPass(gfx::Device&, const math::Vec2u& viewportSize, gfx::FrameBuffer target);
 
-		void render(
+		/*void render(
 			const Camera& eye,
 			const EnvironmentProbe* env,
 			bool shadows,
 			const std::vector<gfx::RenderItem>& renderables,
 			const CommandBuffer::UniformBucket& sharedUniforms,
-			CommandBuffer& dst);
+			CommandBuffer& dst);*/
 
 		void onResizeTarget(const math::Vec2u& newSize) {
 			m_viewportSize = newSize;
@@ -84,7 +84,7 @@ namespace rev::gfx {
 		gfx::Pipeline getPipeline(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
 		std::string mForwardShaderCommonCode;
-		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines
+		gfx::Pipeline::PipielineDesc m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		// Internal rendering structures
 		struct MeshInfo

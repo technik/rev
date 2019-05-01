@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "renderGraph.h"
-#include <graphics/backend/commandBuffer.h>
+//#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 
 namespace rev::gfx {
@@ -27,11 +27,11 @@ namespace rev::gfx {
 	RenderGraph::RenderGraph(Device& device)
 		: m_device(device)
 	{
-		TextureSampler::Descriptor desc;
+		/*TextureSampler::Descriptor desc;
 		desc.filter = TextureSampler::MinFilter::Linear;
 		desc.wrapS = TextureSampler::Wrap::Clamp;
 		desc.wrapT = TextureSampler::Wrap::Clamp;
-		//m_linearSampler = device.createTextureSampler(desc);
+		//m_linearSampler = device.createTextureSampler(desc);*/
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -83,18 +83,18 @@ namespace rev::gfx {
 				//pass.m_targetFB = m_device.createFrameBuffer(fbDesc);
 			}
 			// Bind pass resources
-			dst.bindFrameBuffer(pass.m_targetFB);
-			dst.setViewport(math::Vec2u::zero(), pass.m_targetSize); // viewport
-			dst.setScissor(math::Vec2u::zero(), pass.m_targetSize); // clear
-			pass.m_execution(*this, dst); // Record pass commands
+			//dst.bindFrameBuffer(pass.m_targetFB);
+			//dst.setViewport(math::Vec2u::zero(), pass.m_targetSize); // viewport
+			//dst.setScissor(math::Vec2u::zero(), pass.m_targetSize); // clear
+			//pass.m_execution(*this, dst); // Record pass commands
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void RenderGraph::run()
 	{
-		CommandBuffer frameCommands;
-		recordExecution(frameCommands);
+		//CommandBuffer frameCommands;
+		//recordExecution(frameCommands);
 		//m_device.renderQueue().submitCommandBuffer(frameCommands);
 	}
 

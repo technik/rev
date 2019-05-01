@@ -3,7 +3,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "debugGUI.h"
 #include "imgui.h"
-#include "imgui_impl_glfw_gl3.h"
 #include <core/tools/log.h>
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
@@ -12,7 +11,7 @@ namespace rev::gfx { namespace gui {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void init(const math::Vec2u& _windowSize) {
-		ImGui_ImplGlfwGL3_Init();
+		//ImGui_ImplGlfwGL3_Init();
 
 		auto& io = ImGui::GetIO();
 		io.DisplaySize.x = float(_windowSize.x());
@@ -68,7 +67,7 @@ namespace rev::gfx { namespace gui {
 		}
 
 		// Begin frame
-		ImGui_ImplGlfwGL3_NewFrame();
+		//ImGui_ImplGlfwGL3_NewFrame();
 	}
 
 	void drawFPS(float _dt)

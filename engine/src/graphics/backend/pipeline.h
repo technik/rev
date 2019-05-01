@@ -29,41 +29,33 @@ namespace rev :: gfx
 		using Id = int32_t;
 		static constexpr Id InvalidId = -1;
 
-		struct ShaderModule
+		enum DataType
 		{
-			struct Descriptor
-			{
-				enum Stage
-				{
-					Vertex,
-					Pixel
-				} stage;
-				std::vector<std::string> code;
-			};
-			Id id = InvalidId;
-
-			bool valid() const { return id != InvalidId; }
+			Float,
+			Int32,
+			U8,
 		};
 
-		// Vertex data / instance data
-		struct Binding // Source buffers
+		struct Uniform
 		{
-			// Binding index
-			Id id = InvalidId;
+			DataType componentType;
+			uint32_t numComponents = 1;// 1 single, 2 vec2, 3 vec3, 4 vec4
+			uint32_t count = 0; // Array size, 0 if it's not an array
+		};
+
+		struct UniformLayoutDesc
+		{
+			uint32_t numUniforms;
+			Uniform* uniform;
 		};
 
 		struct Attribute
 		{
 			// Source buffer
-			size_t location; // Location (in shader)
+			size_t binding; // Location (in shader)
 			size_t offset = 0;
-			enum ComponentType
-			{
-				Float,
-				Int32,
-				U8,
-			} componentType = Float;
-			size_t nComponents = 1;
+			DataType componentType = Float;
+			size_t numComponents = 1;
 			size_t stride = 0;
 			bool normalized = false;
 		};
@@ -91,10 +83,10 @@ namespace rev :: gfx
 
 			Mask mask() const {
 				Mask m = 0;
-				m |= (cullBack?1:0);
-				m |= (cullFront?1:0)<<1;
-				m |= ((frontFace==Winding::CCW)?1:0)<<2;
-				m |= (int(depthTest))<<3;
+				m |= (cullBack ? 1 : 0);
+				m |= (cullFront ? 1 : 0) << 1;
+				m |= ((frontFace == Winding::CCW) ? 1 : 0) << 2;
+				m |= (int(depthTest)) << 3;
 				return m;
 			}
 
@@ -102,30 +94,27 @@ namespace rev :: gfx
 			{
 				RasterOptions r;
 				r.cullBack = m & 1;
-				r.cullFront = m & (1<<1);
-				r.frontFace = Winding((m>>2) & 1);
-				r.depthTest = DepthTest(m>>3);
+				r.cullFront = m & (1 << 1);
+				r.frontFace = Winding((m >> 2) & 1);
+				r.depthTest = DepthTest(m >> 3);
 				return r;
 			}
 		};
-		// TODO: Uniform buffers (VkPipelineLayout)
 
-		struct Descriptor {
-			ShaderModule vtxShader;
-			ShaderModule pxlShader;
+		struct PipielineDesc
+		{
+			// Vtx stage
+			int numAttributes;
+			Attribute* vtxAttributes; // TODO: This can be reused later for instance data
+			UniformLayoutDesc vtxUniforms;
+			std::vector<std::string> vtxCode;
 
-			std::vector<Binding> vtxBuffers;
-			std::vector<Binding> instanceBuffers;
-			std::vector<Attribute> attributes;
-
+			// Pxl stage
+			UniformLayoutDesc pxlUniforms;
+			std::vector<std::string> pxlCode;
 			RasterOptions raster;
 
-			// TODO: Blending
-			// TODO: Uniform buffers
+			// TODO: Define render targets
 		};
-
-		bool isValid() const { return id != InvalidId; }
-
-		Id id = InvalidId;
 	};
 }

@@ -18,7 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/texture2d.h>
 #include <math/algebra/vector.h>
 #include <memory>
@@ -42,16 +41,16 @@ namespace rev::gfx {
 		void addTexture(const std::string& name, gfx::Texture2d t);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(gfx::CommandBuffer::UniformBucket& renderer) const;
+		//void bindParams(gfx::CommandBuffer::UniformBucket& renderer) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;
 		std::string mShaderOptionsCode;
 
-		std::vector<std::pair<GLint,float>>			mFloatParams;
-		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
-		std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
-		std::vector<std::pair<GLint,gfx::Texture2d>>	mTextureParams;
+		//std::vector<std::pair<GLint,float>>			mFloatParams;
+		//std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
+		//std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
+		//std::vector<std::pair<GLint,gfx::Texture2d>>	mTextureParams;
 	};
 
 }

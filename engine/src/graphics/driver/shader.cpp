@@ -5,16 +5,15 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/string_util.h>
 #include <core/tools/log.h>
-#include <graphics/backend/OpenGL/openGL.h>
 #include <graphics/debug/imgui.h>
 
 #include <vector>
 
 using namespace rev::core;
 using namespace std;
-
+/*
 namespace rev::gfx {
-
+	
 	namespace {	
 #ifdef ANDROID
 		const std::string GLSL_VERSION = 
@@ -132,3 +131,4 @@ namespace rev::gfx {
 	}
 
 } // namespace rev::gfx
+*/

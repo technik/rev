@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/openGL/openGL.h>
 #include <graphics/backend/device.h>
 #include <math/algebra/vector.h>
 #include <math/geometry/aabb.h>
@@ -57,7 +56,7 @@ namespace rev::gfx {
 		struct BufferView
 		{
 			Buffer vbo;
-			GLint byteStride;
+			//GLint byteStride;
 			size_t byteLength;
 			const void* data;
 		};
@@ -70,11 +69,11 @@ namespace rev::gfx {
 				return formattedData[i];
 			}
 			std::shared_ptr<BufferView> bufferView;
-			GLvoid* offset;
-			GLenum componentType;
-			GLint nComponents;
-			GLsizei stride;
-			GLsizei count;
+			//GLvoid* offset;
+			//GLenum componentType;
+			//GLint nComponents;
+			//GLsizei stride;
+			//GLsizei count;
 			bool normalized;
 			math::AABB bounds;
 		};
@@ -93,7 +92,7 @@ namespace rev::gfx {
 
 		static RenderGeom quad(const math::Vec2f& size);
 
-		GLuint getVao() const { return m_vao; }
+		//GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
 		const math::AABB& bbox() const { return m_bbox; }
 		VtxFormat vertexFormat() const { return m_vtxFormat; }
@@ -101,8 +100,8 @@ namespace rev::gfx {
 	private:
 		VtxFormat m_vtxFormat;
 		math::AABB m_bbox;
-		GLuint m_vao = 0;
-		std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
+		//GLuint m_vao = 0;
+		//std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
 		Attribute m_indices;
 
 	private:

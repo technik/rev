@@ -20,7 +20,6 @@
 #pragma once
 
 #include "renderGeom.h"
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
 namespace rev::gfx
 {
@@ -56,7 +55,7 @@ namespace rev::gfx
 	{
 		assert(indices);
 		//assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
-		m_indices = *indices;
+		/*m_indices = *indices;
 		assert(position);
 		m_vtxAttributes.emplace_back(0, *position);
 		m_vtxFormat = VtxFormat(
@@ -79,14 +78,14 @@ namespace rev::gfx
 
 		m_bbox = position->bounds;
 
-		initOpenGL();
+		initOpenGL();*/
 	}
 
 	//----------------------------------------------------------------------------------------------
 	void RenderGeom::initOpenGL() {
 
 		// VAO
-		glGenVertexArrays(1,&m_vao);
+		/*glGenVertexArrays(1,&m_vao);
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo.id());
 
@@ -99,11 +98,11 @@ namespace rev::gfx
 		}
 
 		// Unbind VAO
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
 	}
 	
 	//----------------------------------------------------------------------------------------------
-	RenderGeom RenderGeom::quad(const math::Vec2f& size)
+	/*RenderGeom RenderGeom::quad(const math::Vec2f& size)
 	{
 		// Raw data
 		auto half_x = 0.5f*size.x();
@@ -124,7 +123,7 @@ namespace rev::gfx
 
 		// Buffer views
 		// Indices
-		auto idxBv = std::make_shared<BufferView>();
+		/*auto idxBv = std::make_shared<BufferView>();
 		idxBv->byteLength = 2*indices.size();
 		idxBv->data = indices.data();
 		idxBv->byteStride = 0;
@@ -178,5 +177,5 @@ namespace rev::gfx
 		};
 
 		return RenderGeom(&idxAttr, &vtxAttr, &nrmAttr, nullptr, nullptr, nullptr, nullptr);
-	}
+	}*/
 }
