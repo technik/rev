@@ -39,6 +39,7 @@
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
 #include <vector>
+#include <sstream>
 
 using Json = nlohmann::json;
 
@@ -140,12 +141,19 @@ namespace rev { namespace game {
 		gfx::RenderScene& _gfxWorld)
 	{
 		vector<shared_ptr<SceneNode>> nodes;
+		int anonimousNodes = 0;
 		for(auto& nodeDesc : _document.nodes)
 		{
 			auto node = std::make_shared<SceneNode>();
 			nodes.push_back(node);
 
 			node->name = nodeDesc.name; // Node name
+			if (node->name.empty())
+			{
+				std::stringstream ss;
+				ss << "#node" << anonimousNodes++;
+				node->name = ss.str();
+			}
 
 			// Optional node transform
 			auto nodeTransform = loadNodeTransform(nodeDesc);
@@ -530,8 +538,7 @@ namespace rev { namespace game {
 				mat = std::make_shared<Material>(_specEffect);
 			else
 				mat = std::make_shared<Material>(_pbrEffect);
-			if(matDesc.name == "carPaint")
-				mat = clearCoat;
+			mat->name = matDesc.name;
 			auto& pbrDesc = matDesc.pbrMetallicRoughness;
 			if(!pbrDesc.empty())
 			{
@@ -659,7 +666,8 @@ namespace rev { namespace game {
 		const std::string& _filePath,
 		gfx::RenderScene& _gfxWorld,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
-		vector<shared_ptr<Animation>>& _animations)
+		vector<shared_ptr<Animation>>& _animations,
+		std::vector<std::shared_ptr<Material>>& materials)
 	{
 		// Open file
 		auto folder = core::getPathFolder(_filePath);
@@ -690,7 +698,7 @@ namespace rev { namespace game {
 		// Load resources
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
-		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
+		materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
 		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
 
 		// Load nodes

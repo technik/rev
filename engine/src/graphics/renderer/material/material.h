@@ -31,6 +31,7 @@ namespace rev::gfx {
 	class Material
 	{
 	public:
+		std::string name;
 		Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect);

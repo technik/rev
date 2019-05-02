@@ -23,6 +23,7 @@
 #include "../sceneNode.h"
 #include <graphics/scene/animation/animation.h>
 #include <graphics/scene/renderScene.h>
+#include <graphics/renderer/material/material.h>
 #include <memory>
 #include <vector>
 
@@ -40,5 +41,6 @@ namespace rev::game {
 		const std::string& filePath,
 		gfx::RenderScene& _gfxWorld,
 		std::vector<std::shared_ptr<SceneNode>>& animNodes,
-		std::vector<std::shared_ptr<gfx::Animation>>& _animations);
+		std::vector<std::shared_ptr<gfx::Animation>>& _animations,
+		std::vector<std::shared_ptr<gfx::Material>>& materials);
 }

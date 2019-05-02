@@ -10,6 +10,7 @@
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderScene.h>
 #include <graphics/driver/geometryPool.h>
+#include <graphics/renderer/material/material.h>
 
 
 namespace rev {
@@ -50,6 +51,7 @@ namespace rev {
 		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
 		math::AABB							m_globalBBox;
+		std::vector<std::shared_ptr<gfx::Material>> m_materials;
 
 		// Camera options
 		const gfx::Camera*					mFlybyCam = nullptr;

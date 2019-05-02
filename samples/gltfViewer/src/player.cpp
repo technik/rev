@@ -88,7 +88,7 @@ namespace rev {
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations, m_materials);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -197,6 +197,18 @@ namespace rev {
 		return true;
 	}
 
+	void gltfTreeGUI(game::SceneNode& node)
+	{
+		if (ImGui::TreeNode(node.name.c_str()))
+		{
+			for (auto child : node.children())
+			{
+				gltfTreeGUI(*child);
+			}
+			ImGui::TreePop();
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateUI(float dt)
 	{
@@ -212,6 +224,24 @@ namespace rev {
 				m_renderPath = RenderPath::Forward;
 			else
 				m_renderPath = RenderPath::Deferred;
+		}
+		ImGui::End();
+
+		if (ImGui::Begin("GLTF Tree"))
+		{
+			gltfTreeGUI(*mGameScene.root()->children()[0]);
+		}
+		ImGui::End();
+		if (ImGui::Begin("Materials"))
+		{
+			for (auto m : m_materials)
+			{
+				if (ImGui::TreeNode(m->name.c_str()))
+				{
+					gui::text(m->name.c_str());
+					ImGui::TreePop();
+				}
+			}
 		}
 		ImGui::End();
 
