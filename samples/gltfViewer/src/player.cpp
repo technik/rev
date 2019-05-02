@@ -238,7 +238,23 @@ namespace rev {
 			{
 				if (ImGui::TreeNode(m->name.c_str()))
 				{
-					gui::text(m->name.c_str());
+					for (auto& p : m->effect().properties())
+					{
+						if (p.type == ShaderProcessor::Uniform::Scalar)
+						{
+							auto param = m->floatParam(p.location);
+							if (param)
+								gui::slider(p.name.c_str(), *param, 0.f, 1.f);
+						}
+						else if (p.type == ShaderProcessor::Uniform::Vec4)
+						{
+							auto param = m->vec4Param(p.location);
+							if (param)
+								gui::colorPicker(p.name.c_str(), *param);
+						}
+						else
+							gui::text(p.name.c_str());
+					}
 					ImGui::TreePop();
 				}
 			}

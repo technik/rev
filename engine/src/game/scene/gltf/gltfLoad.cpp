@@ -528,14 +528,19 @@ namespace rev { namespace game {
 		{
 			std::shared_ptr<Material> mat;
 			bool specular = false;
+			bool clearCoat = false;
 			if(matDesc.extensionsAndExtras.find("extensions") != matDesc.extensionsAndExtras.end())
 			{
 				auto& extensions = matDesc.extensionsAndExtras["extensions"];
 				if(extensions.find("KHR_materials_pbrSpecularGlossiness") != extensions.end())
 					specular = true;
+				if (extensions.find("clearCoat") != extensions.end())
+					specular = true;
 			}
 			if(specular)
 				mat = std::make_shared<Material>(_specEffect);
+			else if(clearCoat)
+				mat = std::make_shared<Material>(_pbrEffect);
 			else
 				mat = std::make_shared<Material>(_pbrEffect);
 			mat->name = matDesc.name;
@@ -562,10 +567,15 @@ namespace rev { namespace game {
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
 					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
 				}
-				if(pbrDesc.roughnessFactor != 1.f)
-					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
-				if(pbrDesc.metallicFactor != 1.f)
-					mat->addParam("uMetallic", pbrDesc.metallicFactor);
+				mat->addParam("uRoughness", pbrDesc.roughnessFactor);
+				mat->addParam("uMetallic", pbrDesc.metallicFactor);
+				// Extra params for car shading
+				if (clearCoat)
+				{
+					mat->addParam("uCoatCover", 1.f);
+					mat->addParam("uCoatRoughness", 0.f);
+					mat->addParam("uFlakeCover", 0.f);
+				}
 			}
 			if(!matDesc.emissiveTexture.empty())
 				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));

@@ -19,5 +19,6 @@ namespace rev::gfx::gui {
 	void text(const char*);
 	void slider(const char* name, float&, float min, float max);
 	void colorPicker(const char* name, math::Vec3f& _clr);
+	void colorPicker(const char* name, math::Vec4f& _clr);
 
 }

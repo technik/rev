@@ -45,6 +45,24 @@ namespace rev::gfx {
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
 		void bindParams(gfx::CommandBuffer::UniformBucket& renderer) const;
 
+		float * floatParam(int binding) {
+			for (auto& param : mFloatParams)
+			{
+				if (binding == param.first)
+					return &param.second;
+			}
+			return nullptr;
+		}
+
+		math::Vec4f * vec4Param(int binding) {
+			for (auto& param : mVec4fParams)
+			{
+				if (binding == param.first)
+					return &param.second;
+			}
+			return nullptr;
+		}
+
 	private:
 		const std::shared_ptr<Effect> mEffect;
 		std::string mShaderOptionsCode;

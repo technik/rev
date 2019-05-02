@@ -165,4 +165,10 @@ namespace rev::gfx { namespace gui {
 		ImGui::ColorEdit3(name, _clr.data());
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void colorPicker(const char* name, math::Vec4f& _clr)
+	{
+		ImGui::ColorEdit4(name, _clr.data());
+	}
+
 }}
