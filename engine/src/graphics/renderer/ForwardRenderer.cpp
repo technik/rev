@@ -104,8 +104,9 @@ namespace rev::gfx {
 			// Uniforms
 			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
 			CommandBuffer::UniformBucket bgUniforms;
-			bgUniforms.mat4s.push_back({0, eye.viewProj(aspectRatio) });
-			bgUniforms.vec4s.push_back({1, math::Vec4f(float(m_targetSize.x()), float(m_targetSize.y()), 0.f, 0.f) });
+			bgUniforms.mat4s.push_back({ 0, eye.world().matrix() });
+			bgUniforms.mat4s.push_back({ 1, eye.projection(aspectRatio) });
+			bgUniforms.vec4s.push_back({ 2, math::Vec4f(float(m_targetSize.x()), float(m_targetSize.y()), 0.f, 0.f) });
 			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
 			bgUniforms.textures.push_back({7, env->texture()} );
 			// Render
