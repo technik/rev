@@ -17,6 +17,7 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#define FORWARD_PASS
 #ifdef PXL_SHADER
 
 out lowp vec4 outColor;
@@ -150,7 +151,8 @@ void main (void) {
 	
 	// ---- Shading ----
 	// Compute actual lighting
-	vec4 pbrColor = uEV * shadeSurface(shadingInputs);
+	vec4 surface = shadeSurface(shadingInputs);
+	vec4 pbrColor = uEV * surface;
 	//if(pbrColor.b > 1.0)
 	//	pbrColor.rgb = vec3(1.0, 0.0, 0.0);
 	//pbrColor.xyz = pbrColor.xyz / (1.0+pbrColor.xyz);

@@ -505,6 +505,7 @@ namespace rev { namespace game {
 		const gltf::Document& _document,
 		const shared_ptr<Effect>& _pbrEffect,
 		const shared_ptr<Effect>& _specEffect,
+		const shared_ptr<Effect>& _coatEffect,
 		std::vector<gfx::Texture2d>& _textures
 		)
 	{
@@ -535,12 +536,12 @@ namespace rev { namespace game {
 				if(extensions.find("KHR_materials_pbrSpecularGlossiness") != extensions.end())
 					specular = true;
 				if (extensions.find("clearCoat") != extensions.end())
-					specular = true;
+					clearCoat = true;
 			}
 			if(specular)
 				mat = std::make_shared<Material>(_specEffect);
 			else if(clearCoat)
-				mat = std::make_shared<Material>(_pbrEffect);
+				mat = std::make_shared<Material>(_coatEffect);
 			else
 				mat = std::make_shared<Material>(_pbrEffect);
 			mat->name = matDesc.name;
@@ -689,6 +690,7 @@ namespace rev { namespace game {
 		// Create default material
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
+		auto coatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
 		gfx::TextureSampler::Descriptor samplerDesc;
@@ -708,7 +710,7 @@ namespace rev { namespace game {
 		// Load resources
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
-		materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
+		materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, coatEffect, textures);
 		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
 
 		// Load nodes

@@ -33,7 +33,7 @@ layout(location = 13) uniform sampler2D uEmissive;
 #endif
 #ifdef float_uMetallic
 #endif
-layout(location = 8) uniform sampler2D uEnvBRDF;
+layout(location = 5) uniform sampler2D uEnvBRDF;
 #ifdef VTX_TANGENT_SPACE
 layout(location = 10) uniform sampler2D uNormalMap;
 #endif
@@ -61,6 +61,13 @@ vec3 getSampledNormal(vec3 tangent, vec3 bitangent, vec3 normal)
 		bitangent*texNormal.y +
 		normal*max(texNormal.z, 1e-8)
 	);
+}
+#endif
+
+#ifdef FORWARD_PASS
+vec4 shadeSurface(ShadeInput inputs)
+{
+	return vec4(1.0);
 }
 #endif
 

@@ -44,9 +44,23 @@ vec3 ibl(
   float ndv
   )
 {
+	#ifdef CLEAR_COAT
+	asd
+	vec3 F0Coat = vec3(0.9);
+	vec3 FrCoat = max(vec3(1.0 - uCoatRoughness), F0Coat) - F0Coat;
+	vec3 kSCoat = F0Coat + FrCoat * pow(1.0-ndv, 5.0);
+	#endif
 	// Common code for single and multiple scattering
 	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
 	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
+
+	#ifdef CLEAR_COAT
+	kS = 0*kS;
+	#endif
+
+	#ifdef CLEAR_COAT
+	kS = vec3(0)*kSCoat;
+	#endif
 
 	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
 	vec3 FssEss = kS * f_ab.x + f_ab.y;
