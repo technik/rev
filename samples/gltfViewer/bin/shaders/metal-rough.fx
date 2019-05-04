@@ -92,6 +92,17 @@ PBRParams getPBRParams()
 	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
 	params.albedo.a = 1.0;
 
+	#ifdef CLEAR_COAT
+	params.coatCover = uCoatCover;
+	params.coatRoughness = uCoatRoughness;
+	params.flakeCover = uFlakeCover;
+	//params.f = 1.0;
+	#else
+	params.coatCover = 0.0;
+	params.coatRoughness = 0.0;
+	params.flakeCover = 0.0;
+	#endif
+
 	return params;
 }
 

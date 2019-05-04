@@ -82,6 +82,7 @@ void main ( void )
 layout(location = 0) out lowp vec4 outWsNormal;
 layout(location = 1) out lowp vec4 outAlbedo;
 layout(location = 2) out lowp vec4 outSpecular;
+layout(location = 3) out lowp vec4 outCoat;
 
 //------------------------------------------------------------------------------
 vec3 computeWsNormal()
@@ -105,6 +106,7 @@ void main (void) {
 	outSpecular = pbr.specular_r;
 
 	outAlbedo = pbr.albedo;
+	outCoat = vec4(pbr.coatCover, pbr.coatRoughness, pbr.flakeCover, 1.0);
 }
 
 #endif // PXL_SHADER

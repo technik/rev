@@ -21,9 +21,9 @@ vec2 sampleSpherical(vec3 v)
 //------------------------------------------------------------------------------	
 vec3 shade () {
 	mat4 invProj = inverse(proj);
-	vec2 uv = 2*gl_FragCoord.xy / Window.xy - 1;
+	vec2 uv = 2*gl_FragCoord.xy / (Window.xy+1) - 1;
 	// Direction from the view point to the pixel, in world space
-	vec4 vsPixelPos = invProj * vec4(uv, 1.0, 1.0);
+	vec4 vsPixelPos = invProj * vec4(uv, 0.0, 1.0);
 	vec3 wsViewDir = (invView * vec4(vsPixelPos.xyz, 0.0)).xyz;
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(wsViewDir)), 0.0).xyz;
 	

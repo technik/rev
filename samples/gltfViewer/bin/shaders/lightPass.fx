@@ -15,6 +15,7 @@ layout(location = 7) uniform sampler2D uGBuffer;
 layout(location = 8) uniform sampler2D uDepthMap;
 layout(location = 9) uniform sampler2D uSpecularMap;
 layout(location = 10) uniform sampler2D uAlbedoMap;
+layout(location = 11) uniform sampler2D uCoatMap;
 
 #define sampler2D_uEnvironment
 
@@ -45,14 +46,15 @@ vec3 shade () {
 	vec3 albedo = texture(uAlbedoMap, uv).xyz;
 	vec3 F0 = f0_roughness.xyz;
 	float r = f0_roughness.a;
+	vec3 coatParams = texture(uCoatMap, uv).xyz;
 	float occlusion = 1.0;
 	float shadow = 1.0;
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
 	
-	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);
+	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, coatParams, shadow, ndv);
 	vec3 toneMapped = color*uEV / (1+uEV*color);
-	return pow(toneMapped, vec3(0.4545));
-	//return pow(color, vec3(0.4545));
+	//return pow(toneMapped, vec3(0.4545));
+	return pow(color, vec3(0.4545));
 }
 
 #endif

@@ -74,6 +74,7 @@ namespace rev::gfx {
 		gfx::Texture2d			m_gBufferTexture;
 		gfx::Texture2d			m_albedoTexture;
 		gfx::Texture2d			m_specularTexture;
+		gfx::Texture2d			m_coatTexture;
 		FrameBuffer				mGBuffer;
 		RenderPass*				m_gBufferPass = nullptr;
 		GeometryPass*			m_gPass = nullptr;

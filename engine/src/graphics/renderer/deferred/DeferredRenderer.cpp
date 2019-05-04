@@ -1,4 +1,4 @@
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
 // Copyright 2018 Carmelo J Fdez-Aguera
@@ -164,6 +164,7 @@ namespace rev::gfx {
 			envUniforms.addParam(8, m_depthTexture);
 			envUniforms.addParam(9, m_specularTexture);
 			envUniforms.addParam(10, m_albedoTexture);
+			envUniforms.addParam(11, m_coatTexture);
 			
 			frameCommands.beginPass(*m_lPass);
 			m_lightingPass->render(envUniforms, frameCommands);
@@ -197,6 +198,7 @@ namespace rev::gfx {
 		m_device->destroyTexture2d(m_depthTexture);
 		m_device->destroyTexture2d(m_albedoTexture);
 		m_device->destroyTexture2d(m_specularTexture);
+		m_device->destroyTexture2d(m_coatTexture);
 		createBuffers();
 		if(m_gPass)
 			delete m_gPass;
@@ -230,7 +232,7 @@ namespace rev::gfx {
 		passDesc.clearDepth = 1;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
 		passDesc.target = mGBuffer;
-		passDesc.numColorAttachs = 3;
+		passDesc.numColorAttachs = 4;
 		passDesc.viewportSize = m_viewportSize;
 
 		m_gBufferPass = m_device->createRenderPass(passDesc);
@@ -314,6 +316,7 @@ namespace rev::gfx {
 
 		m_albedoTexture = device.createTexture2d(textureDesc);
 		m_specularTexture = device.createTexture2d(textureDesc);
+		m_coatTexture = device.createTexture2d(textureDesc);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -338,7 +341,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	FrameBuffer DeferredRenderer::createGBuffer(Device& device, Texture2d depth, Texture2d normal)
 	{
-		gfx::FrameBuffer::Attachment attachments[4];
+		gfx::FrameBuffer::Attachment attachments[5];
 		attachments[0].target = gfx::FrameBuffer::Attachment::Target::Depth;
 		attachments[0].texture = depth;
 		attachments[1].target = gfx::FrameBuffer::Attachment::Target::Color;
@@ -347,8 +350,10 @@ namespace rev::gfx {
 		attachments[2].texture = m_albedoTexture;
 		attachments[3].target = gfx::FrameBuffer::Attachment::Target::Color;
 		attachments[3].texture = m_specularTexture;
+		attachments[4].target = gfx::FrameBuffer::Attachment::Target::Color;
+		attachments[4].texture = m_coatTexture;
 		gfx::FrameBuffer::Descriptor gBufferDesc;
-		gBufferDesc.numAttachments = 4;
+		gBufferDesc.numAttachments = 5;
 		gBufferDesc.attachments = attachments;
 		return device.createFrameBuffer(gBufferDesc);
 	}

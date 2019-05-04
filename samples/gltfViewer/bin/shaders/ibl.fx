@@ -40,33 +40,49 @@ vec3 ibl(
   vec3 albedo,
   float roughness,
   float occlusion,
+  vec3 coatParams,
   float shadow,
   float ndv
   )
 {
-	#ifdef CLEAR_COAT
-	asd
-	vec3 F0Coat = vec3(0.9);
-	vec3 FrCoat = max(vec3(1.0 - uCoatRoughness), F0Coat) - F0Coat;
-	vec3 kSCoat = F0Coat + FrCoat * pow(1.0-ndv, 5.0);
-	#endif
+	vec3 shading = vec3(0);
+	vec3 reflDir = reflect(-eye, normal);
+	vec3 kCoat;
+	{
+		float coatCover = coatParams.x;
+		float coatRoughness = coatParams.y;
+		vec3 F0Coat = vec3(0.08);
+		vec3 FrCoat = max(vec3(1.0 - coatRoughness), F0Coat) - F0Coat;
+		vec3 kS = F0Coat + FrCoat * pow(1.0-ndv, 5.0);
+		vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, coatRoughness), 0).xy;
+		vec3 FssEss = kS * f_ab.x + f_ab.y;
+		float lodLevel = coatRoughness * numEnvLevels;
+		vec3 radiance = getRadiance(reflDir, lodLevel); // Prefiltered radiance
+		shading += (radiance * FssEss) * coatCover;
+		//shading = FssEss;
+		// Multiple scattering
+		float Ess = f_ab.x + f_ab.y;
+		float Ems = 1-Ess;
+		//vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
+		//if(normal.x > 0)
+		vec3 Favg = F0 + (1-F0)*0.0476190476; // Pi/21
+		vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
+
+		// Dielectrics
+		kCoat = (FssEss + Fms * Ems) * coatCover;
+	}
+
 	// Common code for single and multiple scattering
+	float flakeCover = coatParams.z*0.1;
+	F0 = mix(F0, vec3(0.97), flakeCover);
+	roughness = 1-(1-roughness)*(1-flakeCover);
 	vec3 Fr = max(vec3(1.0 - roughness), F0) - F0; // Roughness dependent fresnel
 	vec3 kS = F0 + Fr * pow(1.0-ndv, 5.0);
-
-	#ifdef CLEAR_COAT
-	kS = 0*kS;
-	#endif
-
-	#ifdef CLEAR_COAT
-	kS = vec3(0)*kSCoat;
-	#endif
 
 	vec2 f_ab = textureLod(uEnvBRDF, vec2(ndv, roughness), 0).xy;
 	vec3 FssEss = kS * f_ab.x + f_ab.y;
 
 	float lodLevel = roughness * numEnvLevels;
-	vec3 reflDir = reflect(-eye, normal);
 	vec3 radiance = getRadiance(reflDir, lodLevel); // Prefiltered radiance
 	vec3 irradiance = getIrradiance(normal); // Cosine-weighted irradiance
 
@@ -80,10 +96,12 @@ vec3 ibl(
 
 	// Dielectrics
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
-	vec3 kD = albedo * Edss;
+	vec3 kD = albedo*(1-flakeCover) * Edss;
 
 	// Composition
-	return FssEss * radiance + (Fms*Ems+kD) * irradiance;
+	//shading = kCoat;
+	shading += (1-kCoat)*(FssEss * radiance + (Fms*Ems+kD) * irradiance);
+	return shading;
 }
 #endif // sampler2D_uEnvironment
 
