@@ -214,7 +214,19 @@ int main(int _argc, const char** _argv) {
 	mRenderFence->waitForValue(copyFenceValue);
 
 	// --- Shader work ---
-	
+	Pipeline::Attribute vtxPos;
+	vtxPos.binding = 0;
+	vtxPos.componentType = Pipeline::DataType::Float;
+	vtxPos.numComponents = 3;
+	vtxPos.offset = 0;
+	vtxPos.stride = 3 * sizeof(float);
+
+	Pipeline::PipielineDesc shaderDesc;
+	shaderDesc.numAttributes = 1;
+	shaderDesc.vtxAttributes = &vtxPos;
+	shaderDesc.vtxUniforms.numUniforms = 0;
+	shaderDesc.vtxUniforms.uniform = nullptr;
+	Pipeline* triShader = gfxDevice->createPipeline(shaderDesc);
 
 
 	// --- Init other systems ---
