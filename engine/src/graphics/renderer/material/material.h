@@ -32,6 +32,7 @@ namespace rev::gfx {
 	{
 	public:
 		std::string name;
+		bool transparent = false;
 		Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect);

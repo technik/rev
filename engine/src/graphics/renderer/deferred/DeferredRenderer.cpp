@@ -116,6 +116,8 @@ namespace rev::gfx {
 
 		for(auto& mesh : m_visible)
 		{
+			if (mesh.material.transparent)
+				continue;
 			// Raster options
 			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
 			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;

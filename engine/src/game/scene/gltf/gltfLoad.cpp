@@ -478,7 +478,8 @@ namespace rev { namespace game {
 		std::vector<gfx::Texture2d>& textures,
 		gfx::TextureSampler defaultSampler,
 		int32_t index,
-		bool sRGB)
+		bool sRGB,
+		int& numChannels)
 	{
 		auto& texture = textures[index];
 		if(texture.isValid()) // Already allocated, reuse
@@ -493,7 +494,7 @@ namespace rev { namespace game {
 			//auto gltfSampler = document.samplers[textGltfDesc.sampler];
 			//if(gltfSampler.wrapS == gltf::Sampler::WrappingMode::Repeat
 		}
-		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB);
+		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, numChannels, sRGB);
 
 		return texture;
 	}
@@ -546,13 +547,16 @@ namespace rev { namespace game {
 				mat = std::make_shared<Material>(_pbrEffect);
 			mat->name = matDesc.name;
 			auto& pbrDesc = matDesc.pbrMetallicRoughness;
+			int texNumChannels = 0;
 			if(!pbrDesc.empty())
 			{
 				// Base color
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false));
+					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false, texNumChannels));
+					if (texNumChannels == 4)
+						mat->transparent = true;
 				}
 				// Base color factor
 				{
@@ -560,13 +564,15 @@ namespace rev { namespace game {
 					auto& color = reinterpret_cast<const math::Vec4f&>(colorDesc);
 					if(color != Vec4f::ones())
 						mat->addParam("uBaseColor", color);
+					if (color.w() < 1.0)
+						mat->transparent = true;
 				}
 				// Metallic-roughness
 				if(!pbrDesc.metallicRoughnessTexture.empty())
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
+					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, texNumChannels));
 				}
 				mat->addParam("uRoughness", pbrDesc.roughnessFactor);
 				mat->addParam("uMetallic", pbrDesc.metallicFactor);
@@ -579,11 +585,11 @@ namespace rev { namespace game {
 				}
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));
+				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false, texNumChannels));
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false));
+				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false, texNumChannels));
 			}
 			mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
