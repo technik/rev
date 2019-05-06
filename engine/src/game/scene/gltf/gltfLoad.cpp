@@ -49,7 +49,7 @@ using namespace std;
 
 namespace rev { namespace game {
 
-	math::Vec3f loadVec3f(const Json& v)
+	/*math::Vec3f loadVec3f(const Json& v)
 	{
 		return Vec3f {
 			v[0].get<float>(),
@@ -268,7 +268,7 @@ namespace rev { namespace game {
 				bv.vbo = device.allocateStaticVtxBuffer(bv.byteLength, bv.data);
 
 			return &attribute;
-		}*/
+		}
 
 		return nullptr;
 	}
@@ -704,5 +704,5 @@ namespace rev { namespace game {
 		auto& displayScene = document.scenes[sceneIndex];
 		for(auto nodeNdx : displayScene.nodes)
 			_parentNode.addChild(nodes[nodeNdx]);
-	}
+	}*/
 }}
