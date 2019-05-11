@@ -217,7 +217,7 @@ namespace rev :: gfx
 		vtxPosLayout.SemanticName = "position";
 		vtxPosLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vtxPosLayout.InputSlot = 0;
-		vtxPosLayout.AlignedByteOffset = sizeof(rev::math::Vec3f);
+		vtxPosLayout.AlignedByteOffset = 0;// sizeof(rev::math::Vec3f);
 		vtxPosLayout.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
 		// Create a root signature.
