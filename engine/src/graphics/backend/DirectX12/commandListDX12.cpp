@@ -20,6 +20,7 @@
 #include "commandListDX12.h"
 #include "GpuBufferDX12.h"
 #include "renderTargetViewDX12.h"
+#include "pipelineDX12.h"
 #include "d3dx12.h"
 
 namespace rev::gfx {
@@ -70,6 +71,93 @@ namespace rev::gfx {
 	{
 		auto* rtdx12 = static_cast<RenderTargetViewDX12*>(rt);
 		m_commandList->ClearRenderTargetView(rtdx12->handle, color.data(), 0, nullptr);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindPipeline(const Pipeline* pipeline)
+	{
+		auto dx12Pipeline = static_cast<const PipelineDX12*>(pipeline);
+		m_commandList->SetPipelineState(dx12Pipeline->m_pipelineState.Get());
+		m_commandList->SetGraphicsRootSignature(dx12Pipeline->m_rootSignature.Get());
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer* attrBuffer)
+	{
+		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
+
+		D3D12_VERTEX_BUFFER_VIEW attrDesc;
+		attrDesc.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress();
+		attrDesc.SizeInBytes = sizeInBytes;
+		attrDesc.StrideInBytes = stride;
+
+		m_commandList->IASetVertexBuffers(binding, 1, &attrDesc);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindIndexBuffer(int sizeInBytes, NdxBufferFormat ndxType, GpuBuffer* attrBuffer)
+	{
+		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
+
+		D3D12_INDEX_BUFFER_VIEW IndexBufferView;
+		IndexBufferView.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress();
+		IndexBufferView.SizeInBytes = sizeInBytes;
+		switch (ndxType)
+		{
+		case NdxBufferFormat::U8:
+			IndexBufferView.Format = DXGI_FORMAT_R8_UINT;
+			break;
+		case NdxBufferFormat::U16:
+			IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+			break;
+		case NdxBufferFormat::U32:
+			IndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		m_commandList->IASetIndexBuffer(&IndexBufferView);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindRenderTarget(RenderTargetView* rt)
+	{
+		auto rt12 = static_cast<RenderTargetViewDX12*>(rt);
+
+		m_commandList->OMSetRenderTargets(1, &rt12->handle, false, nullptr);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::drawIndexed(int indexOffset, int indexCount, int vertexOffset)
+	{
+		m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_commandList->DrawIndexedInstanced(indexCount, 1, indexOffset, vertexOffset, 0);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::setViewport(const math::Vec2u& pos, const math::Vec2u& size)
+	{
+		D3D12_VIEWPORT viewport;
+		viewport.TopLeftX = pos.x();
+		viewport.TopLeftY = pos.y();
+		viewport.Width = size.x();
+		viewport.Height = size.y();
+		viewport.MinDepth = 0.f;
+		viewport.MaxDepth = 1.f;
+		m_commandList->RSSetViewports(1, &viewport);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::setScissor(const math::Vec2u& pos, const math::Vec2u& size)
+	{
+		D3D12_RECT scissor;
+		scissor.left = pos.x();
+		scissor.right = pos.x() + size.x();
+		scissor.top = pos.y();
+		scissor.bottom = pos.y() + size.y();
+		m_commandList->RSSetScissorRects(1, &scissor);
 	}
 
 	//----------------------------------------------------------------------------------------------

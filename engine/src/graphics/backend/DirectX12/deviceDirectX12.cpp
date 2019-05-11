@@ -22,6 +22,7 @@
 #include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
+#include "pipelineDX12.h"
 #include "fenceDX12.h"
 #include "d3dx12.h"
 #include <d3dcompiler.h>
@@ -235,11 +236,12 @@ namespace rev :: gfx
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-		rootParameters[0].InitAsConstants(16, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		//CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+		//rootParameters[0].InitAsConstants(16, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
-		rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+		rootSignatureDescription.Init_1_1(0, nullptr, 0, nullptr, rootSignatureFlags);
+		//rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
 		// Serialize the root signature.
 		ComPtr<ID3DBlob> rootSignatureBlob;
@@ -280,7 +282,7 @@ namespace rev :: gfx
 		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
 		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
-		pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		pipelineStateStream.DSVFormat = DXGI_FORMAT_UNKNOWN;
 		pipelineStateStream.RTVFormats = rtvFormats;
 
 		D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
@@ -289,7 +291,11 @@ namespace rev :: gfx
 		ComPtr<ID3D12PipelineState> pipelineState;
 		ThrowIfFailed(m_d3d12Device->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pipelineState)));
 
-		return nullptr;
+		PipelineDX12* pipeline = new PipelineDX12();
+		pipeline->m_pipelineState = pipelineState;
+		pipeline->m_rootSignature = rootSignature;
+
+		return pipeline;
 	}
 
 	//----------------------------------------------------------------------------------------------

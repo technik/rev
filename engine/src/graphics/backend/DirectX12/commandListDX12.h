@@ -49,6 +49,16 @@ namespace rev::gfx {
 		void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) override;
 		void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) override;
 
+		void bindPipeline(const Pipeline*) override;
+		void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*) override;
+		void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*) override;
+		void bindRenderTarget(RenderTargetView* rt) override;
+
+		void drawIndexed(int indexOffset, int indexCount, int vertexOffset) override;
+
+		void setViewport(const math::Vec2u& pos, const math::Vec2u& size) override;
+		void setScissor(const math::Vec2u& pos, const math::Vec2u& size) override;
+
 		void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) override;
 
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;

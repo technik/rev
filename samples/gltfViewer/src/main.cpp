@@ -193,18 +193,18 @@ int main(int _argc, const char** _argv) {
 	auto* vtxBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
 
 	rev::math::Vec3f vtx[3] = {
-		rev::math::Vec3f(1.f,0.f,0.f),
+		rev::math::Vec3f(2.f,0.f,0.f),
 		rev::math::Vec3f(0.f,1.f,0.f),
-		rev::math::Vec3f(-1.f,0.f,0.f)
+		rev::math::Vec3f(-0.5f,0.f,0.f)
 	};
 	copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
 
 	// Create buffers for index data
-	auto* indexStagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
-	auto* indexBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+	auto* indexStagingBuffer = gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 6 * sizeof(uint16_t));
+	auto* indexBuffer = gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 6 * sizeof(uint16_t));
 
-	uint16_t indices[3] = { 0, 1, 2 };
-	copyCmdList->uploadBufferContent(*indexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
+	uint16_t indices[6] = { 0, 1, 2, 0, 2, 1 };
+	copyCmdList->uploadBufferContent(*indexBuffer, *indexStagingBuffer, 6 * sizeof(uint16_t), indices);
 
 	// Execute copy on a command queue
 	copyCmdList->close();
@@ -254,6 +254,15 @@ int main(int _argc, const char** _argv) {
 		cmdList->reset(*cmdPool);
 		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
 		cmdList->clearRenderTarget(swapChain->renderTarget(backBufferIndex), Vec4f(0.f,1.f,0.f,1.f));
+
+		cmdList->bindPipeline(triShader);
+		cmdList->bindAttribute(0, 3*sizeof(Vec3f), sizeof(Vec3f), vtxBuffer);
+		cmdList->bindIndexBuffer(6 * sizeof(uint16_t), CommandList::NdxBufferFormat::U16, indexBuffer);
+		cmdList->bindRenderTarget(swapChain->renderTarget(backBufferIndex));
+		cmdList->setViewport(Vec2u::zero(), windowSize);
+		cmdList->setScissor(Vec2u::zero(), windowSize);
+		cmdList->drawIndexed(0, 6, 0);
+
 		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
 		cmdList->close();
 

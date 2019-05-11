@@ -23,9 +23,10 @@
 
 namespace rev::gfx {
 
+	class CommandPool;
 	class Fence;
 	class GpuBuffer;
-	class CommandPool;
+	class Pipeline;
 	class RenderTargetView;
 
 	class CommandList
@@ -54,12 +55,29 @@ namespace rev::gfx {
 			Present
 		};
 
+		enum NdxBufferFormat
+		{
+			U8,
+			U16,
+			U32
+		};
+
 		virtual void reset(CommandPool& cmdPool) = 0;
 		virtual void close() = 0;
 
 		// Commands
 		virtual void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) = 0;
 		virtual void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) = 0;
+
+		virtual void bindPipeline(const Pipeline*) = 0;
+		virtual void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*) = 0;
+		virtual void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*) = 0;
+		virtual void bindRenderTarget(RenderTargetView* rt) = 0;
+
+		virtual void drawIndexed(int indexOffset, int indexCount, int vertexOffset) = 0;
+
+		virtual void setViewport(const math::Vec2u& pos, const math::Vec2u& size) = 0;
+		virtual void setScissor(const math::Vec2u& pos, const math::Vec2u& size) = 0;
 
 		virtual void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) = 0;
 	};
