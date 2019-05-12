@@ -226,6 +226,10 @@ int main(int _argc, const char** _argv) {
 	shaderDesc.vtxAttributes = &vtxPos;
 	shaderDesc.vtxUniforms.numUniforms = 0;
 	shaderDesc.vtxUniforms.uniform = nullptr;
+	auto vtxCode = ShaderCodeFragment::loadFromFile("../data/vertex.hlsl");
+	vtxCode->collapse(shaderDesc.vtxCode);
+	auto pxlCode = ShaderCodeFragment::loadFromFile("../data/fragment.hlsl");
+	pxlCode->collapse(shaderDesc.pxlCode);
 	Pipeline* triShader = gfxDevice->createPipeline(shaderDesc);
 
 

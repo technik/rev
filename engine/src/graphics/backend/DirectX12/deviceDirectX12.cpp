@@ -26,6 +26,8 @@
 #include "fenceDX12.h"
 #include "d3dx12.h"
 #include <d3dcompiler.h>
+#include <fstream>
+#include <string>
 
 using namespace Microsoft::WRL;
 
@@ -213,6 +215,21 @@ namespace rev :: gfx
 	// TODO: Maybe stuff all this code into a PipelineDX12 class
 	auto DeviceDirectX12::createPipeline(const Pipeline::PipielineDesc& desc) -> Pipeline*
 	{
+		// Build the shader modules first, because that can fail
+		// TODO: Create shaders from code
+		ID3DBlob* vertexShaderBlob;
+		if(!compileShaderCode(desc.vtxCode, vertexShaderBlob, "vs_5_1"))
+		{
+			return nullptr;
+		}
+		ID3DBlob* pixelShaderBlob;
+		if (!compileShaderCode(desc.pxlCode, pixelShaderBlob, "ps_5_1"))
+		{
+			vertexShaderBlob->Release();
+			return nullptr;
+		}
+
+		// Configure input layout
 		D3D12_INPUT_ELEMENT_DESC vtxPosLayout = {};
 		vtxPosLayout.SemanticName = "position";
 		vtxPosLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -253,14 +270,6 @@ namespace rev :: gfx
 		ThrowIfFailed(m_d3d12Device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
 			rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 
-		// TODO: Create shaders from code
-		ComPtr<ID3DBlob> vertexShaderBlob;
-		ThrowIfFailed(D3DReadFileToBlob(L"vertex.cso", &vertexShaderBlob));
-
-		// Load the pixel shader.
-		ComPtr<ID3DBlob> pixelShaderBlob;
-		ThrowIfFailed(D3DReadFileToBlob(L"fragment.cso", &pixelShaderBlob));
-
 		// Pipeline State Object
 		struct PipelineStateStream
 		{
@@ -280,8 +289,8 @@ namespace rev :: gfx
 		pipelineStateStream.pRootSignature = rootSignature.Get();
 		pipelineStateStream.InputLayout = { &vtxPosLayout, 1 };
 		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
-		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
+		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob);
+		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob);
 		pipelineStateStream.DSVFormat = DXGI_FORMAT_UNKNOWN;
 		pipelineStateStream.RTVFormats = rtvFormats;
 
@@ -367,6 +376,44 @@ namespace rev :: gfx
 		m_d3d12Device->CreateCommandQueue(&dx12Desc, IID_PPV_ARGS(&dx12CommandQueue));
 
 		return new CommandQueueDX12(dx12CommandQueue);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	bool DeviceDirectX12::compileShaderCode(const std::vector<std::string>& code, ID3DBlob*& shaderModuleBlob, const char* target)
+	{
+		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+		flags |= D3DCOMPILE_DEBUG;
+#endif
+		// Bypass DX restriction of only being able to compile shaders from file:
+		// Save code into a file, then load it from there
+		std::ofstream shaderFile("temp-shader.hlsl");
+		for (auto& segment : code)
+		{
+			shaderFile << segment << "\n";
+		}
+		shaderFile.close();
+
+		shaderModuleBlob = nullptr;
+		ID3DBlob* errorBlob = nullptr;
+		HRESULT hr = D3DCompileFromFile(L"temp-shader.hlsl", nullptr, nullptr, "main", target, flags, 0, &shaderModuleBlob, &errorBlob);
+		// Prefer higher CS shader profile when possible as CS 5.0 provides better performance on 11-class hardware.
+		if (FAILED(hr))
+		{
+			if (errorBlob)
+			{
+				OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+				errorBlob->Release();
+			}
+
+			if (shaderModuleBlob)
+				shaderModuleBlob->Release();
+
+			return false;
+		}
+
+		//const D3D_SHADER_MACRO defines[] = {};
+		return true;
 	}
 
 	//----------------------------------------------------------------------------------------------

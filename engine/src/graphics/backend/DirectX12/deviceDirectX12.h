@@ -84,6 +84,7 @@ namespace rev :: gfx
 
 	private:
 		CommandQueueDX12* createCommandQueue(const CommandQueue::Info& queueInfo);
+		bool compileShaderCode(const std::vector<std::string>& code, ID3DBlob*& shaderModuleBlob, const char* target);
 		void enableDebugInfo();
 		void createDeviceFactory();
 
