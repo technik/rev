@@ -226,11 +226,30 @@ int main(int _argc, const char** _argv) {
 	shaderDesc.vtxAttributes = &vtxPos;
 	shaderDesc.vtxUniforms.numUniforms = 0;
 	shaderDesc.vtxUniforms.uniform = nullptr;
-	auto vtxCode = ShaderCodeFragment::loadFromFile("../data/vertex.hlsl");
+	auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 	vtxCode->collapse(shaderDesc.vtxCode);
-	auto pxlCode = ShaderCodeFragment::loadFromFile("../data/fragment.hlsl");
+	auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
 	pxlCode->collapse(shaderDesc.pxlCode);
 	Pipeline* triShader = gfxDevice->createPipeline(shaderDesc);
+
+	// Dynamic shader reload
+	auto vtxHook = vtxCode->onReload([&](ShaderCodeFragment& vtxFragment)
+	{
+		shaderDesc.vtxCode.clear();
+		vtxFragment.collapse(shaderDesc.vtxCode);
+		auto newShader = gfxDevice->createPipeline(shaderDesc);
+		if (newShader)
+			triShader = newShader;
+	});
+
+	auto pxlHook = pxlCode->onReload([&](ShaderCodeFragment& pxlFragment)
+	{
+		shaderDesc.pxlCode.clear();
+		pxlFragment.collapse(shaderDesc.pxlCode);
+		auto newShader = gfxDevice->createPipeline(shaderDesc);
+		if (newShader)
+			triShader = newShader;
+	});
 
 
 	// --- Init other systems ---
