@@ -221,11 +221,16 @@ int main(int _argc, const char** _argv) {
 	vtxPos.offset = 0;
 	vtxPos.stride = 3 * sizeof(float);
 
+	Pipeline::Uniform vtxUniforms[1];
+	vtxUniforms[0].componentType = Pipeline::Float;
+	vtxUniforms[0].numComponents = 16;
+	vtxUniforms[0].count = 1;
+
 	Pipeline::PipielineDesc shaderDesc;
 	shaderDesc.numAttributes = 1;
 	shaderDesc.vtxAttributes = &vtxPos;
-	shaderDesc.vtxUniforms.numUniforms = 0;
-	shaderDesc.vtxUniforms.uniform = nullptr;
+	shaderDesc.vtxUniforms.numUniforms = 1;
+	shaderDesc.vtxUniforms.uniform = vtxUniforms;
 	auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 	vtxCode->collapse(shaderDesc.vtxCode);
 	auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
