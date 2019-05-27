@@ -21,8 +21,29 @@ using namespace rev::core;
 using namespace rev::gfx;
 using namespace rev::math;
 
+struct CmdLineArguments
+{
+    CmdLineArguments(int _argc, const char** _argv)
+    {
+        if (_argc > 1)
+        {
+            shaderFileName = _argv[1];
+        }
+        else
+        {
+            cout << "Missing argument: Shader file name\n";
+        }
+    }
+
+    const char* shaderFileName = nullptr;
+};
+
 //--------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
+    CmdLineArguments args(_argc, _argv);
+    if (!args.shaderFileName)
+        return -1;
+
 	// Init engine core systems
 	OSHandler::startUp();
 	FileSystem::init();
@@ -54,19 +75,8 @@ int main(int _argc, const char** _argv) {
 	CommandBuffer fsCommandBuffer;
 
 	// Actual shader code
-	FullScreenPass fullScreenFilter(gfxDevice, new ShaderCodeFragment(R"(
-#ifdef PXL_SHADER
+    FullScreenPass fullScreenFilter(gfxDevice, ShaderCodeFragment::loadFromFile(args.shaderFileName));
 
-layout(location = 0) uniform vec4 t;
-layout(location = 1) uniform vec4 Window;
-
-vec3 shade () {	
-	vec2 uv = gl_FragCoord.xy / Window.xy;
-	return vec3(uv.x,uv.y,sin(t.y));
-}
-
-#endif
-)"));
 
 	*OSHandler::get() += [&](MSG _msg) {
 		if(_msg.message == WM_SIZING || _msg.message == WM_SIZE)
