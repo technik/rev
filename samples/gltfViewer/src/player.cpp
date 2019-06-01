@@ -4,25 +4,16 @@
 #include <cassert>
 #define STB_IMAGE_IMPLEMENTATION
 #include "player.h"
-#include <math/algebra/vector.h>
-#include <core/platform/fileSystem/file.h>
-#include <core/time/time.h>
-#include <core/tools/log.h>
-#include <game/scene/camera.h>
-#include <game/animation/animator.h>
-#include <game/resources/load.h>
-#include <game/scene/gltf/gltfLoad.h>
-#include <game/scene/meshRenderer.h>
-#include <game/scene/transform/flyby.h>
-#include <game/scene/transform/orbit.h>
-#include <game/scene/transform/transform.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/renderer/material/material.h>
-#include <graphics/renderer/material/Effect.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/animation/animation.h>
+
 #include <core/platform/cmdLineParser.h>
+#include <core/platform/fileSystem/fileSystem.h>
+#include <core/time/time.h>
+#include <graphics/backend/device.h>
+#include <graphics/backend/DirectX12/directX12Driver.h>
+#include <graphics/backend/doubleBufferSwapChain.h>
+#include <graphics/shaders/shaderCodeFragment.h>
+#include <math/algebra/vector.h>
+#include <iostream>
 
 using namespace rev::math;
 using namespace rev::gfx;
@@ -43,41 +34,97 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	bool Player::initGraphicsDevice()
+	{
+		// Init graphics
+		DirectX12Driver gfxDriver;
+		const int MAX_GRAPHICS_CARDS = 5;
+		GraphicsDriver::PhysicalDeviceInfo physicalDevices[MAX_GRAPHICS_CARDS];
+		int numGfxCards = gfxDriver.enumeratePhysicalDevices(physicalDevices, MAX_GRAPHICS_CARDS);
+
+		size_t maxVideoMemory = 0;
+		int bestDevice = -1;
+		for (int i = 0; i < numGfxCards; ++i)
+		{
+			if (physicalDevices[i].dedicatedVideoMemory > maxVideoMemory)
+			{
+				bestDevice = i;
+				maxVideoMemory = physicalDevices[i].dedicatedVideoMemory;
+			}
+		}
+
+		if (bestDevice < 0)
+		{
+			std::cout << "Unable to find a suitable graphics card\n";
+			return false;
+		}
+
+		GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver.createPhysicalDevice(bestDevice);
+
+		// Create one command queue of each type, all with the same prioriry
+		CommandQueue::Info commandQueues[3];
+		commandQueues[0].type = CommandQueue::Graphics;
+		commandQueues[0].priority = CommandQueue::Normal;
+		commandQueues[1].type = CommandQueue::Compute;
+		commandQueues[1].priority = CommandQueue::Normal;
+		commandQueues[2].type = CommandQueue::Copy;
+		commandQueues[2].priority = CommandQueue::Normal;
+
+		m_gfxDevice = gfxDriver.createDevice(*gfxCard, 3, commandQueues);
+		if (!m_gfxDevice)
+		{
+			std::cout << "Unable to create graphics device\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::createSwapChain()
+	{
+		auto nativeWindow = rev::gfx::createWindow(
+			{ 80, 80 },
+			m_windowSize,
+			"Rev Player",
+			true,
+			true // Visible
+		);
+
+		DoubleBufferSwapChain::Info swapChainInfo;
+		swapChainInfo.pixelFormat.channel = Image::ChannelFormat::Byte;
+		swapChainInfo.pixelFormat.numChannels = 4;
+		swapChainInfo.size = m_windowSize;
+
+		m_swapChain = m_gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
+
+		m_backBuffers[0] = m_swapChain->backBuffer(0);
+		m_backBuffers[1] = m_swapChain->backBuffer(1);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init(const CmdLineOptions& options)
 	{
 		core::Time::init();
-				
-		/*loadScene(scene);
+		
+		rev::core::FileSystem::init();
 
-		// Default scene light
-		{
-			m_envLight = std::make_shared<gfx::DirectionalLight>();
-			m_envLight->castShadows = true;
-			AffineTransform lightXform = AffineTransform::identity();
-			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
-			m_envLight->worldMatrix = lightXform;
-			m_envLight->color = 4*Vec3f::ones();
-			m_envLight->castShadows = true;
-			mGraphicsScene.addLight(m_envLight);
-		}
+		m_windowSize = options.windowSize;
+		initGraphicsDevice();
+		createSwapChain();
 
-		// Load sky
-		if(!bg.empty())
-		{
-			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg);
-			if(probe->numLevels())
-				mGraphicsScene.setEnvironment(probe);
-		}
+		// Create two command pools, for alternate frames
+		int backBufferIndex = 0;
+		m_frameCmdPools[0] = m_gfxDevice->createCommandPool(CommandList::Graphics);
+		m_frameCmdPools[1] = m_gfxDevice->createCommandPool(CommandList::Graphics);
+		m_frameCmdList = m_gfxDevice->createCommandList(CommandList::Graphics, *m_frameCmdPools[0]);
+		m_frameCmdList->close(); // Close immediately so that we can immediately reset it at the beginning of the first frame
+		m_frameFence = m_gfxDevice->createFence();
 
-		// Create camera
-		createCamera();
-		createFloor();
-		mGameScene.root()->init();
-
-		mForwardRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
-		mDeferred.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
-		onWindowResize(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
-		gui::init(windowSize);*/
+		// Create command list for copying data
+		m_copyCommandPool = m_gfxDevice->createCommandPool(CommandList::Copy);
+		
+		loadScene(options.scene);
 
 		return true;
 	}
@@ -95,13 +142,77 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
-		/*m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
-		m_gltfRoot->addComponent<Transform>();
-		mGameScene.root()->addChild(m_gltfRoot);
+		Fence* sceneLoadFence = m_gfxDevice->createFence();
+		CommandList* copyCmdList = m_gfxDevice->createCommandList(CommandList::Copy, *m_copyCommandPool);
 
-		std::vector<std::shared_ptr<Animation>> animations;
-		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);*/
+		// Create buffers for vertex data
+		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
+		auto* vtxBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
+
+		rev::math::Vec3f vtx[3] = {
+			rev::math::Vec3f(0.5f,0.1f,0.5f),
+			rev::math::Vec3f(0.f,-1.f,0.f),
+			rev::math::Vec3f(-0.5f,0.f,0.f)
+		};
+		copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
+
+		// Create buffers for index data
+		auto* indexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+		auto* indexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+
+		uint16_t indices[3] = { 0, 1, 2 };
+		copyCmdList->uploadBufferContent(*indexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
+
+		// Execute copy on a command queue
+		copyCmdList->close();
+		auto& copyQueue = m_gfxDevice->commandQueue(2);
+		copyQueue.executeCommandList(*copyCmdList);
+		auto copyFenceValue = copyQueue.signalFence(*sceneLoadFence);
+
+		// --- Shader work ---
+		Pipeline::Attribute vtxPos;
+		vtxPos.binding = 0;
+		vtxPos.componentType = Pipeline::DataType::Float;
+		vtxPos.numComponents = 3;
+		vtxPos.offset = 0;
+		vtxPos.stride = 3 * sizeof(float);
+
+		Pipeline::Uniform vtxUniforms[1];
+		vtxUniforms[0].componentType = Pipeline::Float;
+		vtxUniforms[0].numComponents = 16;
+		vtxUniforms[0].count = 1;
+
+		Pipeline::PipielineDesc shaderDesc;
+		shaderDesc.numAttributes = 1;
+		shaderDesc.vtxAttributes = &vtxPos;
+		shaderDesc.vtxUniforms.numUniforms = 1;
+		shaderDesc.vtxUniforms.uniform = vtxUniforms;
+		auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
+		vtxCode->collapse(shaderDesc.vtxCode);
+		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
+		pxlCode->collapse(shaderDesc.pxlCode);
+		Pipeline* triShader = m_gfxDevice->createPipeline(shaderDesc);
+
+		// Dynamic shader reload
+		auto vtxHook = vtxCode->onReload([&](ShaderCodeFragment& vtxFragment)
+		{
+			shaderDesc.vtxCode.clear();
+			vtxFragment.collapse(shaderDesc.vtxCode);
+			auto newShader = m_gfxDevice->createPipeline(shaderDesc);
+			if (newShader)
+				triShader = newShader;
+		});
+
+		auto pxlHook = pxlCode->onReload([&](ShaderCodeFragment& pxlFragment)
+		{
+			shaderDesc.pxlCode.clear();
+			pxlFragment.collapse(shaderDesc.pxlCode);
+			auto newShader = m_gfxDevice->createPipeline(shaderDesc);
+			if (newShader)
+				triShader = newShader;
+		});
+
+		sceneLoadFence->waitForValue(copyFenceValue);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -128,7 +239,7 @@ namespace rev {
 	void Player::createCamera() {
 		
 		// Create fliby camera
-		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
+		/*auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
 		//cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
@@ -142,7 +253,7 @@ namespace rev {
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
 		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
 		camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 100.f);
-		mOrbitCam = &*camComponent->cam();
+		mOrbitCam = &*camComponent->cam();*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -184,26 +295,9 @@ namespace rev {
 	{
 		core::Time::get()->update();
 		auto dt = core::Time::get()->frameTime();
-
-		//updateUI(dt);
-		mGameScene.root()->update(dt);
-
+		
 		// Render scene
-		switch(m_renderPath)
-		{
-			case RenderPath::Forward:
-			{
-				//mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-			case RenderPath::Deferred:
-			{
-				//mDeferred.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-		}
-		// Render gui
-		//ImGui::Render();
+		auto& graphicsQueue = m_gfxDevice->commandQueue(0);
 
 		// Present to screen
 		//m_gfx.renderQueue().present();

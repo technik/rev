@@ -3,19 +3,26 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <game/scene/scene.h>
-#include <graphics/renderer/ForwardRenderer.h>
-#include <graphics/renderer/deferred/DeferredRenderer.h>
-#include <graphics/scene/camera.h>
-#include <graphics/scene/renderScene.h>
-#include <graphics/driver/geometryPool.h>
 #include <math/numericTraits.h>
+#include <math/algebra/vector.h>
+
+#include <string>
 
 namespace rev {
 
 	namespace game {
 		class FlyBy;
 		class Orbit;
+	}
+
+	namespace gfx
+	{
+		class CommandList;
+		class CommandPool;
+		class Device;
+		class DoubleBufferSwapChain;
+		class Fence;
+		class GpuBuffer;
 	}
 
 	class Player {
@@ -47,30 +54,28 @@ namespace rev {
 		void updateUI(float dt);
 
 	private:
+
+		bool initGraphicsDevice();
+		void createSwapChain();
+
 		void loadScene(const std::string& scene);
 		void createCamera();
 		void createFloor();
 		void updateSceneBBox();
 
+		// Player state
 		math::Vec2u m_windowSize;
+		int m_backBufferIndex = 0;
+		uint64_t m_frameFenceValues[2] = {};
 
-		// Scene
-		gfx::RenderScene					mGraphicsScene;
-		game::Scene							mGameScene;
-		math::AABB							m_globalBBox;
-
-		// Camera options
-		const gfx::Camera*					mFlybyCam = nullptr;
-		const gfx::Camera*					mOrbitCam = nullptr;
-		game::FlyBy*						m_flyby;
-		game::Orbit*						m_orbit;
-
-		// Renderer
-		//gfx::ForwardRenderer				mForwardRenderer;
-		//gfx::DeferredRenderer				mDeferred;
-		//std::shared_ptr<gfx::DirectionalLight>	m_envLight;
-		//std::shared_ptr<gfx::RenderObj>		m_floorGeom;
-		//std::shared_ptr<game::SceneNode>	m_gltfRoot;
+		// Render resources
+		gfx::Device* m_gfxDevice;
+		gfx::CommandPool* m_copyCommandPool;
+		gfx::DoubleBufferSwapChain* m_swapChain;
+		gfx::GpuBuffer* m_backBuffers[2];
+		gfx::Fence* m_frameFence;
+		gfx::CommandPool* m_frameCmdPools[2];
+		gfx::CommandList* m_frameCmdList;
 
 	private:
 
