@@ -51,9 +51,13 @@ namespace rev {
 			static void end();
 			static FileSystem*	get();
 
-			void registerPath(const std::filesystem::path& path);
+			using Path = std::filesystem::path;
+
+			void registerPath(const Path& path);
+			// Locate an existing path within the registered folders or, if it doesn't exist, return an empty path.
+			Path resolvePath(const Path&) const;
 			// Returns nullptr if the file doesn't exist in any of the registered paths, or the working directory
-			File* readFile(const std::filesystem::path& filename) const;
+			File* readFile(const Path& filename) const;
 
 			// TODO: Scoped filesystem access with temporary sets of overriding paths?
 

@@ -57,24 +57,33 @@ namespace rev {
 		//--------------------------------------------------------------------------------------------------------------
 		File* FileSystem::readFile(const std::filesystem::path& filename) const
 		{
-			if (filename.is_relative())
+			auto resolved = resolvePath(filename);
+			if(resolved.empty())
+				return nullptr;
+			return new File(resolved.generic_u8string());
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		auto FileSystem::resolvePath(const Path& path) const -> Path
+		{
+			if (path.is_relative())
 			{
 				// Try concatenating with all registered paths
-				for (auto& path : m_registedPaths)
+				for (auto& prefix : m_registedPaths)
 				{
-					auto fullPath = path / filename;
+					auto fullPath = prefix / path;
 					if (std::filesystem::exists(fullPath))
 					{
-						return new File(filename.generic_u8string().c_str());
+						return fullPath;
 					}
 				}
 			}
 			// Finally, try just the unmodified path (either absolute or relative)
-			if (std::filesystem::exists(filename))
+			if (std::filesystem::exists(path))
 			{
-				return new File(filename.generic_u8string().c_str());
+				return path;
 			}
-			return nullptr;
+			return Path();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

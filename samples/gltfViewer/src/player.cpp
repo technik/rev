@@ -7,11 +7,13 @@
 
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/fileSystem.h>
+#include <core/platform/fileSystem/file.h>
 #include <core/time/time.h>
+#include <game/scene/camera.h>
+#include <game/scene/gltf/gltf.h>
 #include <game/scene/sceneNode.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/transform/flyby.h>
-#include <game/scene/camera.h>
 #include <graphics/backend/commandPool.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
@@ -149,11 +151,44 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
-		Fence* sceneLoadFence = m_gfxDevice->createFence();
+		// Load gltf file
+		std::filesystem::path scenePath(scene);
+		auto assetFilename = core::FileSystem::get()->resolvePath(scenePath);
+		if (assetFilename.empty())
+		{
+			std::cout << "Unable to locate asset: " << scene << "\n";
+			return;
+		}
+
+		auto folder = assetFilename.parent_path();
+		// Load gltf document
+		fx::gltf::Document document;
+		core::File sceneFile(assetFilename.generic_u8string());
+		auto jsonText = sceneFile.bufferAsText();
+		document = fx::gltf::detail::Create(
+			nlohmann::json::parse(jsonText, nullptr, false),
+			{ folder.generic_u8string(), {} });
+
+		// Verify document is supported
+		auto asset = document.asset;
+		if (asset.version != "2.0") {
+			std::cout << "Wrong format version. GLTF assets must be 2.0\n";
+			return;
+		}
+
+		// Copy buffer into the GPU
+		if (document.buffers.size() > 1)
+		{
+			std::cout << "Unsupported file. Only one buffer is supported per gltf file\n";
+		}
 		CommandList* copyCmdList = m_gfxDevice->createCommandList(CommandList::Copy, *m_copyCommandPool);
+		auto bufferSize = document.buffers[0].byteLength;
+		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, bufferSize);
+		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, bufferSize);
+		copyCmdList->uploadBufferContent(*m_sceneGpuBuffer, *stagingBuffer, bufferSize, document.buffers[0].data.data());
 
 		// Create buffers for vertex data
-		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
+		auto* vertexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
 		m_sceneVertexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
 
 		rev::math::Vec3f vtx[3] = {
@@ -161,7 +196,7 @@ namespace rev {
 			rev::math::Vec3f(0.f,-1.f,0.f),
 			rev::math::Vec3f(-0.5f,0.f,0.f)
 		};
-		copyCmdList->uploadBufferContent(*m_sceneVertexBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
+		copyCmdList->uploadBufferContent(*m_sceneVertexBuffer, *vertexStagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
 
 		// Create buffers for index data
 		auto* indexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
@@ -174,6 +209,7 @@ namespace rev {
 		copyCmdList->close();
 		auto& copyQueue = m_gfxDevice->commandQueue(2);
 		copyQueue.executeCommandList(*copyCmdList);
+		Fence* sceneLoadFence = m_gfxDevice->createFence();
 		auto copyFenceValue = copyQueue.signalFence(*sceneLoadFence);
 
 		// --- Shader work ---

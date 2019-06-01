@@ -81,6 +81,7 @@ namespace rev {
 
 		gfx::GpuBuffer* m_sceneIndexBuffer;
 		gfx::GpuBuffer* m_sceneVertexBuffer;
+		gfx::GpuBuffer* m_sceneGpuBuffer;
 	private:
 
 		enum class RenderPath
