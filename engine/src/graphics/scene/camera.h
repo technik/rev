@@ -24,20 +24,14 @@
 #include <math/geometry/aabb.h>
 #include <cassert>
 
-#ifdef _WIN32
-// Undef win32 crap
-#undef near
-#undef far
-#endif // _WIN32
-
 namespace rev::gfx {
 
 	class Camera {
 	public:
-		Camera(float fov = math::Pi/3, float near = 0.1f, float far = 10000)
-			: mFov(fov)
-			, mNear(near)
-			, mFar(far)
+		Camera(float _fov = math::Pi/3, float _near = 0.1f, float _far = 10000)
+			: mFov(_fov)
+			, mNear(_near)
+			, mFar(_far)
 		{
 			assert(mNear != 0 && mFar > mNear);
 			mView = math::Mat44f::identity();
@@ -65,7 +59,7 @@ namespace rev::gfx {
 		}
 
 		// aabb in the local frame of the camera
-		math::AABB aabb(float near, float far, float aspectRatio) const;
+		math::AABB aabb(float _near, float _far, float aspectRatio) const;
 
 		// World space accessors
 		math::Vec3f position() const { return mWorld.position(); }
@@ -73,8 +67,8 @@ namespace rev::gfx {
 		const math::AffineTransform& world() const { return mWorld; }
 
 		// Camera parameters
-		auto near() const { return mNear; }
-		auto far() const { return mFar; }
+		auto nearClip() const { return mNear; }
+		auto farClip() const { return mFar; }
 		auto fov() const { return mFov; }
 
 	private:

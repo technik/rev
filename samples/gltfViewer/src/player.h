@@ -13,10 +13,12 @@ namespace rev {
 	namespace game {
 		class FlyBy;
 		class Orbit;
+		class SceneNode;
 	}
 
 	namespace gfx
 	{
+		class Camera;
 		class CommandList;
 		class CommandPool;
 		class Device;
@@ -58,11 +60,14 @@ namespace rev {
 		void createSwapChain();
 
 		void loadScene(const std::string& scene);
+		void createCamera();
 
 		// Player state
 		math::Vec2u m_windowSize;
 		int m_backBufferIndex = 0;
 		uint64_t m_frameFenceValues[2] = {};
+		game::SceneNode* m_camNode;
+		gfx::Camera* m_renderCam;
 
 		// Render resources
 		gfx::Device* m_gfxDevice;
