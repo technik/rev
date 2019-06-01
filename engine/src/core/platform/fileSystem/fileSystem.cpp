@@ -74,6 +74,7 @@ namespace rev {
 			{
 				return new File(filename.generic_u8string().c_str());
 			}
+			return nullptr;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------

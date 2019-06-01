@@ -55,6 +55,8 @@ namespace rev {
 			// Returns nullptr if the file doesn't exist in any of the registered paths, or the working directory
 			File* readFile(const std::filesystem::path& filename) const;
 
+			// TODO: Scoped filesystem access with temporary sets of overriding paths?
+
 #endif // _WIN32
 		private:
 			FileSystem() = default;
@@ -68,5 +70,3 @@ namespace rev {
 		};
 	}
 }	// namespace rev
-
-#endif // _REV_CORE_PLATFORM_FILESYSTEM_FILESYSTEM_H_
