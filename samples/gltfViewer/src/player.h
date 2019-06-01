@@ -23,6 +23,7 @@ namespace rev {
 		class DoubleBufferSwapChain;
 		class Fence;
 		class GpuBuffer;
+		class Pipeline;
 	}
 
 	class Player {
@@ -49,9 +50,7 @@ namespace rev {
 		void onWindowResize(const math::Vec2u& _newSize);
 #endif // _WIN32
 
-		// Common components
 		bool update();
-		void updateUI(float dt);
 
 	private:
 
@@ -59,9 +58,6 @@ namespace rev {
 		void createSwapChain();
 
 		void loadScene(const std::string& scene);
-		void createCamera();
-		void createFloor();
-		void updateSceneBBox();
 
 		// Player state
 		math::Vec2u m_windowSize;
@@ -76,7 +72,10 @@ namespace rev {
 		gfx::Fence* m_frameFence;
 		gfx::CommandPool* m_frameCmdPools[2];
 		gfx::CommandList* m_frameCmdList;
+		gfx::Pipeline* m_gBufferShader;
 
+		gfx::GpuBuffer* m_sceneIndexBuffer;
+		gfx::GpuBuffer* m_sceneVertexBuffer;
 	private:
 
 		enum class RenderPath

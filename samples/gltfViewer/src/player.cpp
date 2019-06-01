@@ -8,6 +8,7 @@
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/time/time.h>
+#include <graphics/backend/commandPool.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
 #include <graphics/backend/doubleBufferSwapChain.h>
@@ -147,21 +148,21 @@ namespace rev {
 
 		// Create buffers for vertex data
 		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
-		auto* vtxBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
+		m_sceneVertexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
 
 		rev::math::Vec3f vtx[3] = {
 			rev::math::Vec3f(0.5f,0.1f,0.5f),
 			rev::math::Vec3f(0.f,-1.f,0.f),
 			rev::math::Vec3f(-0.5f,0.f,0.f)
 		};
-		copyCmdList->uploadBufferContent(*vtxBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
+		copyCmdList->uploadBufferContent(*m_sceneVertexBuffer, *stagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
 
 		// Create buffers for index data
 		auto* indexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
-		auto* indexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
+		m_sceneIndexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
 
 		uint16_t indices[3] = { 0, 1, 2 };
-		copyCmdList->uploadBufferContent(*indexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
+		copyCmdList->uploadBufferContent(*m_sceneIndexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
 
 		// Execute copy on a command queue
 		copyCmdList->close();
@@ -191,7 +192,7 @@ namespace rev {
 		vtxCode->collapse(shaderDesc.vtxCode);
 		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
 		pxlCode->collapse(shaderDesc.pxlCode);
-		Pipeline* triShader = m_gfxDevice->createPipeline(shaderDesc);
+		m_gBufferShader = m_gfxDevice->createPipeline(shaderDesc);
 
 		// Dynamic shader reload
 		auto vtxHook = vtxCode->onReload([&](ShaderCodeFragment& vtxFragment)
@@ -200,7 +201,7 @@ namespace rev {
 			vtxFragment.collapse(shaderDesc.vtxCode);
 			auto newShader = m_gfxDevice->createPipeline(shaderDesc);
 			if (newShader)
-				triShader = newShader;
+				m_gBufferShader = newShader;
 		});
 
 		auto pxlHook = pxlCode->onReload([&](ShaderCodeFragment& pxlFragment)
@@ -209,85 +210,10 @@ namespace rev {
 			pxlFragment.collapse(shaderDesc.pxlCode);
 			auto newShader = m_gfxDevice->createPipeline(shaderDesc);
 			if (newShader)
-				triShader = newShader;
+				m_gBufferShader = newShader;
 		});
 
 		sceneLoadFence->waitForValue(copyFenceValue);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::updateSceneBBox()
-	{
-		// Compute scene bbox
-		/*m_globalBBox.clear();
-		m_gltfRoot->traverseSubtree([&](SceneNode& node){
-			if(auto renderer = node.component<game::MeshRenderer>())
-			{
-				auto localbbox = renderer->renderObj().mesh->m_bbox;
-				auto transform = node.component<Transform>();
-				auto wsBbox = transform->absoluteXForm() * localbbox;
-				m_globalBBox.add(wsBbox);
-			}
-		});
-
-		// Re-center scene
-		auto xForm = m_gltfRoot->component<Transform>();
-		xForm->xForm.position() = -m_globalBBox.origin();*/
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::createCamera() {
-		
-		// Create fliby camera
-		/*auto cameraNode = mGameScene.root()->createChild("Flyby cam");
-		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
-		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
-		//cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-		//cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 100.f);
-		mFlybyCam = &*camComponent->cam();
-		
-		// Create orbit camera
-		cameraNode = mGameScene.root()->createChild("Orbit cam");
-		m_orbit = cameraNode->addComponent<Orbit>(Vec2f{2.f, 1.f});
-		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-		camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 100.f);
-		mOrbitCam = &*camComponent->cam();*/
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::createFloor() {
-
-		/*auto floorNode = mGameScene.root()->createChild("floor");
-		auto sceneSize = m_globalBBox.size();
-		auto floorXForm = floorNode->addComponent<Transform>();
-		floorXForm->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
-		floorXForm->xForm.position() = m_globalBBox.origin();
-		floorXForm->xForm.position().y() = m_globalBBox.min().y();
-
-		const float floorScale = 4.f;
-		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad(floorScale * Vec2f(sceneSize.x(), sceneSize.z())));
-
-		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
-		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
-
-		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = m_gfx.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "shaders/ibl_brdf.hdr", false, 1);
-		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
-
-		// Create mesh renderer component
-		auto renderable = std::make_shared<gfx::RenderMesh>();
-		renderable->mPrimitives.push_back({floorMesh, defaultMaterial});
-		m_floorGeom = std::make_shared<gfx::RenderObj>(renderable);
-		m_floorGeom->visible = false;
-		mGraphicsScene.renderables().push_back(m_floorGeom);
-
-		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -299,52 +225,34 @@ namespace rev {
 		// Render scene
 		auto& graphicsQueue = m_gfxDevice->commandQueue(0);
 
+		// Render
+		CommandPool* cmdPool = m_frameCmdPools[m_backBufferIndex];
+		GpuBuffer* backBuffer = m_backBuffers[m_backBufferIndex];
+		cmdPool->reset();
+		m_frameCmdList->reset(*cmdPool);
+		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
+
+		m_frameCmdList->bindPipeline(m_gBufferShader);
+		m_frameCmdList->bindAttribute(0, 3 * sizeof(Vec3f), sizeof(Vec3f), m_sceneVertexBuffer);
+		m_frameCmdList->bindIndexBuffer(3 * sizeof(uint16_t), CommandList::NdxBufferFormat::U16, m_sceneIndexBuffer);
+		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex));
+		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
+		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
+		m_frameCmdList->drawIndexed(0, 3, 0);
+
+		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
+		m_frameCmdList->close();
+
+		graphicsQueue.executeCommandList(*m_frameCmdList);
+		m_frameFenceValues[m_backBufferIndex] = graphicsQueue.signalFence(*m_frameFence);
+
 		// Present to screen
-		//m_gfx.renderQueue().present();
+		m_swapChain->present();
+		m_backBufferIndex = m_swapChain->getCurrentBackBuffer();
+		m_frameFence->waitForValue(m_frameFenceValues[m_backBufferIndex]);
+
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::updateUI(float dt)
-	{
-		/*gui::startFrame(m_windowSize);
-
-		if(ImGui::Begin("Player options"))
-		{
-			ImGui::InputFloat("Camera speed", &m_flyby->speed());
-			ImGui::Checkbox("Floor", &m_floorGeom->visible);
-			bool fwdRender = m_renderPath == RenderPath::Forward;
-			ImGui::Checkbox("Forward", &fwdRender);
-			if(fwdRender)
-				m_renderPath = RenderPath::Forward;
-			else
-				m_renderPath = RenderPath::Deferred;
-		}
-		ImGui::End();
-
-		if(ImGui::Begin("Render options"))
-		{
-			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
-			if(m_bgOptions.shadows)
-			{
-				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
-				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
-
-				gui::slider("Shadow bias", mForwardRenderer.shadowBias(), -0.1f, 0.1f);
-			}
-			m_envLight->castShadows = m_bgOptions.shadows;
-		}
-		ImGui::End();
-		mForwardRenderer.drawDebugUI();
-		
-		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
-		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
-
-		AffineTransform lightXform = AffineTransform::identity();
-		lightXform.setRotation(rotation * elevation);
-		m_envLight->worldMatrix = lightXform;
-
-		gui::finishFrame(dt);*/
 	}
 
 }	// namespace rev
