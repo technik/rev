@@ -79,6 +79,8 @@ namespace rev::gfx {
 		virtual void setViewport(const math::Vec2u& pos, const math::Vec2u& size) = 0;
 		virtual void setScissor(const math::Vec2u& pos, const math::Vec2u& size) = 0;
 
+		virtual void setConstants(uint32_t regIndex, uint32_t size, const void* data) = 0;
+
 		virtual void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) = 0;
 	};
 }

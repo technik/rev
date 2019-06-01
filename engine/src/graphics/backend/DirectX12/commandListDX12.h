@@ -59,6 +59,8 @@ namespace rev::gfx {
 		void setViewport(const math::Vec2u& pos, const math::Vec2u& size) override;
 		void setScissor(const math::Vec2u& pos, const math::Vec2u& size) override;
 
+		void setConstants(uint32_t regIndex0, uint32_t size, const void* data) override;
+
 		void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) override;
 
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;

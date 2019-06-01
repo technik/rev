@@ -39,13 +39,13 @@ namespace rev :: gfx
 		struct Uniform
 		{
 			DataType componentType;
-			uint32_t numComponents = 1;// 1 single, 2 vec2, 3 vec3, 4 vec4
+			uint32_t numComponents = 1;// 1 single, 2 vec2, 3 vec3, 4 vec4, 16 mat4
 			uint32_t count = 0; // Array size, 0 if it's not an array
 
 			uint32_t byteSize() const
 			{
 				uint32_t size = componentType == U8? 1 : 4;
-				return size * numComponents;
+				return size * numComponents * (count ? count : 1);
 			}
 		};
 

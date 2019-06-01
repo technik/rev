@@ -366,25 +366,32 @@ namespace rev :: gfx
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
-		ComPtr<ID3D12RootSignature> rootSignature;
 		std::vector<CD3DX12_ROOT_PARAMETER1> rootParameters;
 		rootParameters.resize(desc.vtxUniforms.numUniforms + desc.pxlUniforms.numUniforms);
 		int paramNdx = 0;
 		// Shader space 0 is for vertex shader, and shader space 1 is for pixel shaders
+		int shaderRegister = 0;
 		for (int i = 0; i < desc.vtxUniforms.numUniforms; ++i)
 		{
 			auto& parameter = desc.vtxUniforms.uniform[i];
-			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize(), i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+			assert(parameter.byteSize() % 16 == 0);
+			int numRegisters = parameter.byteSize() / 16;
+			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize()/4, shaderRegister, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+			shaderRegister += numRegisters;
 		}
+		shaderRegister = 0;
 		for (int i = 0; i < desc.pxlUniforms.numUniforms; ++i)
 		{
 			auto& parameter = desc.pxlUniforms.uniform[i];
-			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize(), i, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+			assert(parameter.byteSize() % 16 == 0);
+			int numRegisters = parameter.byteSize() / 16;
+			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize()/4, shaderRegister, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+			shaderRegister += numRegisters;
 		}
 
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
-		rootSignatureDescription.Init_1_1(0, nullptr, 0, nullptr, rootSignatureFlags);
-		//rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+		//rootSignatureDescription.Init_1_1(0, nullptr, 0, nullptr, rootSignatureFlags);
+		rootSignatureDescription.Init_1_1(rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
 
 		// Serialize the root signature.
 		ComPtr<ID3DBlob> rootSignatureBlob;
@@ -392,6 +399,7 @@ namespace rev :: gfx
 		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDescription,
 			featureData.HighestVersion, &rootSignatureBlob, &errorBlob));
 		// Create the root signature.
+		ComPtr<ID3D12RootSignature> rootSignature;
 		ThrowIfFailed(m_d3d12Device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
 			rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 

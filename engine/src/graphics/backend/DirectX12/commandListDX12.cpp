@@ -161,6 +161,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::setConstants(uint32_t regIndex0, uint32_t size, const void* data)
+	{
+		m_commandList->SetGraphicsRoot32BitConstants(regIndex0, size / 4, data, 0);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void CommandListDX12::uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data)
 	{
 		auto& destBufferdx12 = static_cast<const GpuBufferDX12&>(dst);

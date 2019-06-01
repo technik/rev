@@ -14,6 +14,7 @@
 #include <graphics/backend/doubleBufferSwapChain.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 #include <iostream>
 
 using namespace rev::math;
@@ -178,15 +179,20 @@ namespace rev {
 		vtxPos.offset = 0;
 		vtxPos.stride = 3 * sizeof(float);
 
-		Pipeline::Uniform vtxUniforms[1];
+		Pipeline::Uniform vtxUniforms[2];
+		// World matrix
 		vtxUniforms[0].componentType = Pipeline::Float;
 		vtxUniforms[0].numComponents = 16;
-		vtxUniforms[0].count = 1;
+		vtxUniforms[0].count = 0;
+		// View-Projection matrix
+		vtxUniforms[1].componentType = Pipeline::Float;
+		vtxUniforms[1].numComponents = 16;
+		vtxUniforms[1].count = 0;
 
 		Pipeline::PipielineDesc shaderDesc;
 		shaderDesc.numAttributes = 1;
 		shaderDesc.vtxAttributes = &vtxPos;
-		shaderDesc.vtxUniforms.numUniforms = 1;
+		shaderDesc.vtxUniforms.numUniforms = 2;
 		shaderDesc.vtxUniforms.uniform = vtxUniforms;
 		auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 		vtxCode->collapse(shaderDesc.vtxCode);
@@ -234,8 +240,12 @@ namespace rev {
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
 
 		m_frameCmdList->bindPipeline(m_gBufferShader);
-		m_frameCmdList->bindAttribute(0, 3 * sizeof(Vec3f), sizeof(Vec3f), m_sceneVertexBuffer);
+		// Global uniforms
+		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->bindAttribute(0, 3 * sizeof(math::Vec3f), sizeof(math::Vec3f), m_sceneVertexBuffer);
 		m_frameCmdList->bindIndexBuffer(3 * sizeof(uint16_t), CommandList::NdxBufferFormat::U16, m_sceneIndexBuffer);
+		// Instance Uniforms
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex));
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
