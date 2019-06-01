@@ -118,6 +118,7 @@ namespace rev {
 			Number_ n, // Near clip
 			Number_ f) // Far clip
 		{
+			assert(yFovRad < math::Constants<Number_>::pi);
 			// Precomputations
 			auto yFocalLength = 1 / std::tan(yFovRad / 2);
 			auto xFocalLength = yFocalLength / aspectRatio;
