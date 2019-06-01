@@ -82,12 +82,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer* attrBuffer)
+	void CommandListDX12::bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer* attrBuffer, uint32_t offset)
 	{
 		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
 
 		D3D12_VERTEX_BUFFER_VIEW attrDesc;
-		attrDesc.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress();
+		attrDesc.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + offset;
 		attrDesc.SizeInBytes = sizeInBytes;
 		attrDesc.StrideInBytes = stride;
 
@@ -95,12 +95,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindIndexBuffer(int sizeInBytes, NdxBufferFormat ndxType, GpuBuffer* attrBuffer)
+	void CommandListDX12::bindIndexBuffer(int sizeInBytes, NdxBufferFormat ndxType, GpuBuffer* attrBuffer, uint32_t offset)
 	{
 		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
 
 		D3D12_INDEX_BUFFER_VIEW IndexBufferView;
-		IndexBufferView.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress();
+		IndexBufferView.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + offset;
 		IndexBufferView.SizeInBytes = sizeInBytes;
 		switch (ndxType)
 		{

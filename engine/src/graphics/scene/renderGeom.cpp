@@ -45,19 +45,16 @@ namespace rev::gfx
 
 	//----------------------------------------------------------------------------------------------
 	RenderGeom::RenderGeom(
-		const Attribute* indices,
-		const Attribute* position,
+		const Attribute& indices,
+		const Attribute& position,
 		const Attribute* normal,
 		const Attribute* tangent,
 		const Attribute* uv0,
 		const Attribute* weights,
 		const Attribute* joints)
+		: m_indices(indices)
+		, m_vertices(position)
 	{
-		assert(indices);
-		//assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
-		/*m_indices = *indices;
-		assert(position);
-		m_vtxAttributes.emplace_back(0, *position);
 		m_vtxFormat = VtxFormat(
 			VtxFormat::Storage::Float32,
 			normal?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
@@ -65,40 +62,8 @@ namespace rev::gfx
 			uv0?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
 			(weights&&joints)?VtxFormat::Storage::Float32 : VtxFormat::Storage::None
 		);
-		if(normal)
-			m_vtxAttributes.emplace_back(1, *normal);
-		if(tangent)
-			m_vtxAttributes.emplace_back(2, *tangent);
-		if(uv0)
-			m_vtxAttributes.emplace_back(3, *uv0);
-		if(weights)
-			m_vtxAttributes.emplace_back(4, *weights);
-		if(joints)
-			m_vtxAttributes.emplace_back(5, *joints);
 
-		m_bbox = position->bounds;
-
-		initOpenGL();*/
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGeom::initOpenGL() {
-
-		// VAO
-		/*glGenVertexArrays(1,&m_vao);
-		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indices.bufferView->vbo.id());
-
-		// Attributes
-		for(auto& [ndx, attribute] : m_vtxAttributes)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, attribute.bufferView->vbo.id());
-			glVertexAttribPointer(ndx, attribute.nComponents, attribute.componentType, attribute.normalized, attribute.stride, attribute.offset);
-			glEnableVertexAttribArray(ndx); // Vertex pos
-		}
-
-		// Unbind VAO
-		glBindVertexArray(0);*/
+		m_bbox = position.bounds;
 	}
 	
 	//----------------------------------------------------------------------------------------------

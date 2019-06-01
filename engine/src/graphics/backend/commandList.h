@@ -70,8 +70,8 @@ namespace rev::gfx {
 		virtual void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) = 0;
 
 		virtual void bindPipeline(const Pipeline*) = 0;
-		virtual void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*) = 0;
-		virtual void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*) = 0;
+		virtual void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*, uint32_t offset = 0) = 0;
+		virtual void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*, uint32_t offset = 0) = 0;
 		virtual void bindRenderTarget(RenderTargetView* rt) = 0;
 
 		virtual void drawIndexed(int indexOffset, int indexCount, int vertexOffset) = 0;

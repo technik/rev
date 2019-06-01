@@ -26,6 +26,7 @@ namespace rev {
 		class Fence;
 		class GpuBuffer;
 		class Pipeline;
+		class RenderGeom;
 	}
 
 	class Player {
@@ -82,6 +83,7 @@ namespace rev {
 		gfx::GpuBuffer* m_sceneIndexBuffer;
 		gfx::GpuBuffer* m_sceneVertexBuffer;
 		gfx::GpuBuffer* m_sceneGpuBuffer;
+		gfx::RenderGeom* m_geom;
 	private:
 
 		enum class RenderPath

@@ -34,7 +34,10 @@ namespace rev::gfx {
 		struct VtxFormat {
 			enum class Storage : uint8_t {
 				None = 0,
-				Float32
+				Float32,
+				u8,
+				u16,
+				u32
 			};
 
 			VtxFormat() = default;
@@ -55,57 +58,55 @@ namespace rev::gfx {
 
 		struct BufferView
 		{
-			Buffer vbo;
-			//GLint byteStride;
+			GpuBuffer* vbo;
+			uint32_t byteOffset;
+			uint32_t byteStride;
 			size_t byteLength;
-			const void* data;
 		};
 
 		struct Attribute
 		{
-			/*template<class T> auto& get(size_t i) const {
+			template<class T> auto& get(size_t i) const {
 				auto rawData = (void*)((int)bufferView->data + (int)offset);
 				auto formattedData = reinterpret_cast<const T*>(rawData);
 				return formattedData[i];
-			}*/
+			}
+
 			std::shared_ptr<BufferView> bufferView;
-			//GLvoid* offset;
-			//GLenum componentType;
-			//GLint nComponents;
-			//GLsizei stride;
-			//GLsizei count;
-			bool normalized;
 			math::AABB bounds;
+			uint32_t offset;
+			uint32_t stride;
+			uint32_t count;
+			VtxFormat::Storage componentType;
+			uint8_t nComponents;
+			bool normalized;
 		};
 
 	public:
 		RenderGeom() = default;
 
 		RenderGeom(
-			const Attribute* indices,
-			const Attribute* position,
+			const Attribute& indices,
+			const Attribute& position,
 			const Attribute* normal,
 			const Attribute* tangent,
 			const Attribute* uv0,
 			const Attribute* weights,
 			const Attribute* joints);
 
-		static RenderGeom quad(const math::Vec2f& size);
-
+		//static RenderGeom quad(const math::Vec2f& size);
 		//GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
+		auto& vertices() const { return m_indices; }
 		const math::AABB& bbox() const { return m_bbox; }
 		VtxFormat vertexFormat() const { return m_vtxFormat; }
 
 	private:
 		VtxFormat m_vtxFormat;
 		math::AABB m_bbox;
-		//GLuint m_vao = 0;
-		//std::vector<std::pair<GLuint, Attribute>> m_vtxAttributes; // Attribute index, attribute data
-		Attribute m_indices;
 
-	private:
-		void initOpenGL();
+		Attribute m_vertices;
+		Attribute m_indices;
 	};
 
 }

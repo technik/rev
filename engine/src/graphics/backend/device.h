@@ -37,11 +37,6 @@ namespace rev :: gfx
 	class CommandPool;
 	class GpuBuffer;
 
-	struct Buffer : NamedResource {
-		Buffer() = default;
-		Buffer(unsigned id) : NamedResource(id) {}
-	};
-
 	class Device
 	{
 	public:
