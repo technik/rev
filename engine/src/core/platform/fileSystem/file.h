@@ -22,7 +22,7 @@ namespace rev {
 		class File : public NamedResource<File>
 		{
 		public:
-			File(const std::string& _path); // File must exist
+			File(const std::string& _path);
 			~File();
 
 			const void *	buffer		() const;
