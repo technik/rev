@@ -35,7 +35,7 @@ namespace rev::core
 
 		void addFlag(std::string_view tag, const FlagDelegate& _delegate);
 		// Add an argument with just one parameter
-		void addSimpleArgument(std::string_view tag, const SimpleDelegate& _delegate);
+		void addArgument(std::string_view tag, const SimpleDelegate& _delegate);
 
 		void parse(int argc, const char** argv);
 

@@ -30,7 +30,7 @@ namespace rev::core
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CmdLineParser::addSimpleArgument(std::string_view _tag, const SimpleDelegate& _delegate)
+	void CmdLineParser::addArgument(std::string_view _tag, const SimpleDelegate& _delegate)
 	{
 		m_simpleArguments.insert(pair<string, SimpleDelegate>(_tag, _delegate));
 	}

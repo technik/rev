@@ -63,6 +63,14 @@ namespace rev {
 		static constexpr float HalfPi = Constants<float>::halfPi;
 		static constexpr float Pi = Constants<float>::pi;
 		static constexpr float TwoPi = Constants<float>::twoPi;
+
+		template<class T>
+		constexpr T radians(T degrees)
+		{
+			constexpr auto deg2rad = (Constants<T>::pi / 180);
+			static_assert(deg2rad != 0, "This conversion can't be used with integer types");
+			return degrees * deg2rad;
+		}
 	}
 }
 

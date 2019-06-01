@@ -47,67 +47,10 @@ bool processWindowsMsg(MSG _msg) {
 	return false;
 }
 
-struct CmdLineParams
-{
-	std::string scene;
-	std::string environment;
-	unsigned sx = 640;
-	unsigned sy = 480;
-	float fov = 45.f;
-
-	int process(const std::vector<std::string>& args, int i)
-	{
-		auto& arg = args[i];
-		if(arg == "-env") {
-			environment = args[i+1];
-			return 2;
-		}
-		if(arg == "-scene")
-		{
-			scene = args[i+1];
-			return 2;
-		}
-		if(arg == "-w")
-		{
-			sx = atoi(args[i+1].c_str());
-			return 2;
-		}
-		if(arg == "-h")
-		{
-			sy = atoi(args[i+1].c_str());
-			return 2;
-		}
-		if(arg == "-fov")
-		{
-			fov = (float)atof(args[i+1].c_str());
-			return 2;
-		}
-		if(arg == "-fullHD")
-		{
-			sx = 1920;
-			sy = 1080;
-			return 1;
-		}
-		return 1;
-	}
-
-	CmdLineParams(int _argc, const char** _argv)
-	{
-		std::vector<std::string> args(_argc);
-		// Read all params
-		int i = 0;
-		for(auto& s : args)
-			s = _argv[i++];
-		i = 0;
-		while(i < _argc)
-			i += process(args, i);
-	}
-};
-
 //--------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 
-	CmdLineParams params(_argc,_argv);
+	rev::Player::CmdLineOptions params(_argc,_argv);
 
 	rev::core::OSHandler::startUp();
 	rev::core::FileSystem::init();
@@ -154,10 +97,9 @@ int main(int _argc, const char** _argv) {
 	}
 
 	// Swap chain creation
-	auto windowSize = Vec2u(params.sx, params.sy);
 	auto nativeWindow = rev::gfx::createWindow(
 		{80, 80},
-		windowSize,
+		params.windowSize,
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
 		true,
 		true // Visible
@@ -166,7 +108,7 @@ int main(int _argc, const char** _argv) {
 	DoubleBufferSwapChain::Info swapChainInfo;
 	swapChainInfo.pixelFormat.channel = Image::ChannelFormat::Byte;
 	swapChainInfo.pixelFormat.numChannels = 4;
-	swapChainInfo.size = windowSize;
+	swapChainInfo.size = params.windowSize;
 
 	DoubleBufferSwapChain* swapChain = gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
 
@@ -259,13 +201,12 @@ int main(int _argc, const char** _argv) {
 
 	// --- Init other systems ---
 	*rev::core::OSHandler::get() += processWindowsMsg;
-	
 	rev::input::PointingInput::init();
 	rev::input::KeyboardInput::init();
 
 	rev::Player player;
 	g_player = &player;
-	if(!player.init(windowSize, params.scene, params.environment)) {
+	if(!player.init(params)) {
 		return -1;
 	}
 	for(;;) {
@@ -287,8 +228,8 @@ int main(int _argc, const char** _argv) {
 		cmdList->bindAttribute(0, 3*sizeof(Vec3f), sizeof(Vec3f), vtxBuffer);
 		cmdList->bindIndexBuffer(3 * sizeof(uint16_t), CommandList::NdxBufferFormat::U16, indexBuffer);
 		cmdList->bindRenderTarget(swapChain->renderTarget(backBufferIndex));
-		cmdList->setViewport(Vec2u::zero(), windowSize);
-		cmdList->setScissor(Vec2u::zero(), windowSize);
+		cmdList->setViewport(Vec2u::zero(), params.windowSize);
+		cmdList->setScissor(Vec2u::zero(), params.windowSize);
 		cmdList->drawIndexed(0, 3, 0);
 
 		cmdList->resourceBarrier(backBuffers[backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);

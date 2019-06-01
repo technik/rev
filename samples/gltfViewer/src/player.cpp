@@ -22,6 +22,7 @@
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/animation/animation.h>
+#include <core/platform/cmdLineParser.h>
 
 using namespace rev::math;
 using namespace rev::gfx;
@@ -30,7 +31,19 @@ using namespace rev::game;
 namespace rev {
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg)
+	Player::CmdLineOptions::CmdLineOptions(int _argc, const char** _argv)
+	{
+		core::CmdLineParser argParser;
+		argParser.addArgument("sx", [this](const char* sx) { windowSize.x() = atoi(sx); });
+		argParser.addArgument("sy", [this](const char* sy) { windowSize.y() = atoi(sy); });
+		argParser.addArgument("scene", [this](const char* _scene) { scene = _scene; });
+		argParser.addFlag("fullHD", [this]() { windowSize = { 1920, 1980 }; });
+
+		argParser.parse(_argc, _argv);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Player::init(const CmdLineOptions& options)
 	{
 		core::Time::init();
 				

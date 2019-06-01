@@ -9,7 +9,7 @@
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderScene.h>
 #include <graphics/driver/geometryPool.h>
-
+#include <math/numericTraits.h>
 
 namespace rev {
 
@@ -20,13 +20,23 @@ namespace rev {
 
 	class Player {
 	public:
+
+		struct CmdLineOptions
+		{
+			rev::math::Vec2u windowSize = rev::math::Vec2u(640, 480);
+			float vFov = math::radians(45.f);
+			std::string scene;
+
+			CmdLineOptions(int _argc, const char** _argv);
+		};
+
 		Player()
 		{}
 
 		Player(const Player&) = delete;
 		Player& operator=(const Player&) = delete;
 
-		bool init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg);
+		bool init(const CmdLineOptions& options);
 
 #ifdef _WIN32
 		void onWindowResize(const math::Vec2u& _newSize);
