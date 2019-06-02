@@ -277,15 +277,29 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeapDX12::Type type) -> DescriptorHeapDX12*
+	DescriptorHeap* DeviceDirectX12::createDescriptorHeap(uint32_t numDescriptors, DescriptorType type, bool shaderVisible)
 	{
 		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;
 
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 		desc.NumDescriptors = (UINT)numDescriptors;
-
-		desc.Type = (D3D12_DESCRIPTOR_HEAP_TYPE)type;
-		//desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		switch (type)
+		{
+		case DescriptorType::RenderTarget:
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			break;
+		case DescriptorType::DepthStencil:
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+			break;
+		case DescriptorType::Sampler:
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+			break;
+		case DescriptorType::ShaderResource:
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			break;
+		}
+		if(shaderVisible && type == DescriptorType::ShaderResource)
+			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
 		ThrowIfFailed(m_d3d12Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&dx12DescriptorHeap)));
 

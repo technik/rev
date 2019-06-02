@@ -50,8 +50,9 @@ namespace rev :: gfx
 		virtual CommandQueue& commandQueue(size_t index) const = 0;
 
 		// Resources
+		virtual DescriptorHeap* createDescriptorHeap(uint32_t numDescriptors, DescriptorType, bool shaderVisible = true) = 0;
 		virtual GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) = 0;
-
+		
 		// Pipelines
 		virtual Pipeline* createPipeline(const Pipeline::PipielineDesc&) = 0;
 

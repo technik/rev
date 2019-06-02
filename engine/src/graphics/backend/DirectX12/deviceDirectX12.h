@@ -50,14 +50,13 @@ namespace rev :: gfx
 		CommandQueue& commandQueue(size_t index) const override { return *m_commandQueues[index]; }
 
 		// Resources
+		DescriptorHeap* createDescriptorHeap(uint32_t numDescriptors, DescriptorType, bool shaderVisible) override;
 		GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) override;
 
 		// Pipelines
 		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
 
 	public: // DirectX 12 specific
-		DescriptorHeapDX12* createDescriptorHeap(size_t numDescriptors, DescriptorHeapDX12::Type);
-
 		void createRenderTargetViews(
 			DescriptorHeapDX12& heap,
 			size_t n,

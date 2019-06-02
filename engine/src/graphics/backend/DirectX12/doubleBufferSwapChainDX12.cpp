@@ -31,7 +31,7 @@ namespace rev ::gfx
 		: m_dxgiSwapChain4(dxgiSwapChain4)
 	{
 		// Allocate a descriptor heap for the image views in the chain
-		m_rtvHeap = device.createDescriptorHeap(2, DescriptorHeapDX12::Type::RenderTarget);
+		m_rtvHeap = static_cast<DescriptorHeapDX12*>(device.createDescriptorHeap(2, DescriptorType::RenderTarget, false));
 
 		// Retrieve swap chain buffers
 		ComPtr<ID3D12Resource> backBuffers[2];

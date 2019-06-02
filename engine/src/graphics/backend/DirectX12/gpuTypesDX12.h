@@ -45,14 +45,6 @@ namespace rev::gfx
 	//-------------------------------------------------------------------------------------------------
 	struct DescriptorHeapDX12 : DescriptorHeap
 	{
-		enum class Type : int
-		{
-			ShaderResource = (int)D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			Sampler = (int)D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
-			RenderTarget = (int)D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-			DepthStencil = (int)D3D12_DESCRIPTOR_HEAP_TYPE_DSV
-		};
-
 		DescriptorHeapDX12(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& dx12)
 			: m_dx12Heap(dx12)
 		{}

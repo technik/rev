@@ -21,6 +21,14 @@
 
 namespace rev::gfx
 {
+	enum class DescriptorType
+	{
+		RenderTarget,
+		DepthStencil,
+		Sampler,
+		ShaderResource,
+	};
+
 	class DescriptorHeap
 	{};
 

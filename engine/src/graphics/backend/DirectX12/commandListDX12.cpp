@@ -142,6 +142,7 @@ namespace rev::gfx {
 		viewport.TopLeftY = (FLOAT)pos.y();
 		viewport.Width = (FLOAT)size.x();
 		viewport.Height = (FLOAT)size.y();
+		// Min,max ranges are [0,1]
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
 		m_commandList->RSSetViewports(1, &viewport);
