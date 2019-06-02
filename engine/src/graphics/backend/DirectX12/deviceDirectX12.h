@@ -26,7 +26,9 @@
 #include "../device.h"
 #include "../Windows/windowsPlatform.h"
 #include "../commandQueue.h"
+
 #include "commandQueueDX12.h"
+#include "gpuTypesDX12.h"
 
 #include <vector>
 
@@ -38,24 +40,6 @@ namespace rev :: gfx
 
 	class DeviceDirectX12 : public Device
 	{
-	public:
-		struct DescriptorHeap
-		{
-			enum class Type : int 
-			{
-				ShaderResource = (int)D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-				Sampler = (int)D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
-				RenderTarget = (int)D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-				DepthStencil = (int)D3D12_DESCRIPTOR_HEAP_TYPE_DSV
-			};
-
-			DescriptorHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& dx12)
-				: m_dx12Heap(dx12)
-			{}
-
-			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dx12Heap;
-		};
-
 	public:
 		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
@@ -72,10 +56,10 @@ namespace rev :: gfx
 		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
 
 	public: // DirectX 12 specific
-		DescriptorHeap* createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type);
+		DescriptorHeapDX12* createDescriptorHeap(size_t numDescriptors, DescriptorHeapDX12::Type);
 
 		void createRenderTargetViews(
-			DescriptorHeap& heap,
+			DescriptorHeapDX12& heap,
 			size_t n,
 			Microsoft::WRL::ComPtr<ID3D12Resource>* images,
 			RenderTargetViewDX12* rtvOut);

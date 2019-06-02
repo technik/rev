@@ -22,6 +22,7 @@
 #include "doubleBufferSwapChain.h"
 #include "fence.h"
 #include "frameBuffer.h"
+#include "gpuTypes.h"
 #include "renderQueue.h"
 #include "namedResource.h"
 #include "texture2d.h"
@@ -40,21 +41,6 @@ namespace rev :: gfx
 	class Device
 	{
 	public:
-
-		enum BufferType
-		{
-			Resident, // Resident on gpu memory, fastest gpu bandwidth
-			Upload, // Used to upload content from the CPU to the GPU
-			ReadBack // Used to read content from the GPU back into the CPU
-		};
-
-		enum ResourceFlags
-		{
-			None = 0,
-			IsRenderTarget = 1,
-			IsDepthStencil = 2,
-		};
-
 
 		/// \param commandQueueIndex index of the command queue that will be used to present the images in this swap chain.
 		virtual DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) = 0;

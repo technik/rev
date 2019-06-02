@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include "../commandList.h"
-#include "commandPoolDX12.h"
+#include "gpuTypesDX12.h"
 
 #include <d3d12.h>
 #include "../Windows/windowsPlatform.h"

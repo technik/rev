@@ -18,8 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
-#include "GpuBufferDX12.h"
-#include "renderTargetViewDX12.h"
 #include "pipelineDX12.h"
 #include "d3dx12.h"
 
@@ -140,10 +138,10 @@ namespace rev::gfx {
 	void CommandListDX12::setViewport(const math::Vec2u& pos, const math::Vec2u& size)
 	{
 		D3D12_VIEWPORT viewport;
-		viewport.TopLeftX = pos.x();
-		viewport.TopLeftY = pos.y();
-		viewport.Width = size.x();
-		viewport.Height = size.y();
+		viewport.TopLeftX = (FLOAT)pos.x();
+		viewport.TopLeftY = (FLOAT)pos.y();
+		viewport.Width = (FLOAT)size.x();
+		viewport.Height = (FLOAT)size.y();
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
 		m_commandList->RSSetViewports(1, &viewport);

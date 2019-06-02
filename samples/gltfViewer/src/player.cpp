@@ -14,7 +14,6 @@
 #include <game/scene/sceneNode.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/transform/flyby.h>
-#include <graphics/backend/commandPool.h>
 #include <graphics/backend/device.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
 #include <graphics/backend/doubleBufferSwapChain.h>
@@ -267,8 +266,8 @@ namespace rev {
 		}
 		CommandList* copyCmdList = m_gfxDevice->createCommandList(CommandList::Copy, *m_copyCommandPool);
 		auto bufferSize = document.buffers[0].byteLength;
-		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, bufferSize);
-		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, bufferSize);
+		auto* stagingBuffer = m_gfxDevice->createCommitedResource(BufferType::Upload, ResourceFlags::None, bufferSize);
+		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(BufferType::Resident, ResourceFlags::None, bufferSize);
 		copyCmdList->uploadBufferContent(*m_sceneGpuBuffer, *stagingBuffer, bufferSize, document.buffers[0].data.data());
 		// Immediately execute copy on a command queue
 		copyCmdList->close();

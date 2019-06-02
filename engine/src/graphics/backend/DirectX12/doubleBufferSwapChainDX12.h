@@ -21,9 +21,7 @@
 
 #include "../Windows/windowsPlatform.h"
 #include "../doubleBufferSwapChain.h"
-#include "deviceDirectX12.h"
-#include "renderTargetViewDX12.h"
-#include "GpuBufferDX12.h"
+#include "gpuTypesDX12.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -31,6 +29,7 @@
 
 namespace rev::gfx
 {
+	class DeviceDirectX12;
 
 	class DoubleBufferSwapChainDX12 : public DoubleBufferSwapChain
 	{
@@ -45,7 +44,7 @@ namespace rev::gfx
 		RenderTargetView* renderTarget(int i) { return &m_renderTarget[i]; }
 
 	private:
-		DeviceDirectX12::DescriptorHeap* m_rtvHeap;
+		DescriptorHeapDX12* m_rtvHeap;
 		RenderTargetViewDX12 m_renderTarget[2];
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;

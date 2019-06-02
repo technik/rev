@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "doubleBufferSwapChainDX12.h"
+#include "deviceDirectX12.h"
 
 #include <wrl.h>
 
@@ -30,7 +31,7 @@ namespace rev ::gfx
 		: m_dxgiSwapChain4(dxgiSwapChain4)
 	{
 		// Allocate a descriptor heap for the image views in the chain
-		m_rtvHeap = device.createDescriptorHeap(2, DeviceDirectX12::DescriptorHeap::Type::RenderTarget);
+		m_rtvHeap = device.createDescriptorHeap(2, DescriptorHeapDX12::Type::RenderTarget);
 
 		// Retrieve swap chain buffers
 		ComPtr<ID3D12Resource> backBuffers[2];

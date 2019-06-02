@@ -18,7 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
-#include "commandPoolDX12.h"
 #include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
@@ -278,7 +277,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeap::Type type) -> DescriptorHeap*
+	auto DeviceDirectX12::createDescriptorHeap(size_t numDescriptors, DescriptorHeapDX12::Type type) -> DescriptorHeapDX12*
 	{
 		ComPtr<ID3D12DescriptorHeap> dx12DescriptorHeap;
 
@@ -290,11 +289,11 @@ namespace rev :: gfx
 
 		ThrowIfFailed(m_d3d12Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&dx12DescriptorHeap)));
 
-		return new DescriptorHeap (dx12DescriptorHeap);
+		return new DescriptorHeapDX12 (dx12DescriptorHeap);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void DeviceDirectX12::createRenderTargetViews(DescriptorHeap& heap, size_t n, ComPtr<ID3D12Resource>* images, RenderTargetViewDX12* rtvOut)
+	void DeviceDirectX12::createRenderTargetViews(DescriptorHeapDX12& heap, size_t n, ComPtr<ID3D12Resource>* images, RenderTargetViewDX12* rtvOut)
 	{
 		auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(heap.m_dx12Heap->GetCPUDescriptorHandleForHeapStart());
@@ -371,7 +370,7 @@ namespace rev :: gfx
 		int paramNdx = 0;
 		// Shader space 0 is for vertex shader, and shader space 1 is for pixel shaders
 		int shaderRegister = 0;
-		for (int i = 0; i < desc.vtxUniforms.numUniforms; ++i)
+		for (uint32_t i = 0; i < desc.vtxUniforms.numUniforms; ++i)
 		{
 			auto& parameter = desc.vtxUniforms.uniform[i];
 			assert(parameter.byteSize() % 16 == 0);
@@ -380,7 +379,7 @@ namespace rev :: gfx
 			shaderRegister += numRegisters;
 		}
 		shaderRegister = 0;
-		for (int i = 0; i < desc.pxlUniforms.numUniforms; ++i)
+		for (uint32_t i = 0; i < desc.pxlUniforms.numUniforms; ++i)
 		{
 			auto& parameter = desc.pxlUniforms.uniform[i];
 			assert(parameter.byteSize() % 16 == 0);
@@ -391,7 +390,7 @@ namespace rev :: gfx
 
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
 		//rootSignatureDescription.Init_1_1(0, nullptr, 0, nullptr, rootSignatureFlags);
-		rootSignatureDescription.Init_1_1(rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
+		rootSignatureDescription.Init_1_1((UINT)rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
 
 		// Serialize the root signature.
 		ComPtr<ID3DBlob> rootSignatureBlob;

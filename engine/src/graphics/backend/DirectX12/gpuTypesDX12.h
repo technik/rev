@@ -18,14 +18,14 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "../commandPool.h"
 
+#include "../gpuTypes.h"
 #include <d3d12.h>
-#include "../Windows/windowsPlatform.h"
 #include <wrl.h>
 
-namespace rev::gfx {
-
+namespace rev::gfx
+{
+	//-------------------------------------------------------------------------------------------------
 	class CommandPoolDX12 : public CommandPool
 	{
 	public:
@@ -40,6 +40,41 @@ namespace rev::gfx {
 
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_cmdAllocator;
 	private:
+	};
+
+	//-------------------------------------------------------------------------------------------------
+	struct DescriptorHeapDX12 : DescriptorHeap
+	{
+		enum class Type : int
+		{
+			ShaderResource = (int)D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			Sampler = (int)D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+			RenderTarget = (int)D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+			DepthStencil = (int)D3D12_DESCRIPTOR_HEAP_TYPE_DSV
+		};
+
+		DescriptorHeapDX12(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& dx12)
+			: m_dx12Heap(dx12)
+		{}
+
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dx12Heap;
+	};
+
+	//-------------------------------------------------------------------------------------------------
+	struct GpuBufferDX12 : public GpuBuffer
+	{
+		GpuBufferDX12(Microsoft::WRL::ComPtr<ID3D12Resource> dx12Buffer)
+			: m_dx12Buffer(dx12Buffer)
+		{}
+
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_dx12Buffer;
+	};
+
+	//-------------------------------------------------------------------------------------------------
+	class RenderTargetViewDX12 : public RenderTargetView
+	{
+	public:
+		D3D12_CPU_DESCRIPTOR_HANDLE handle;
 	};
 }
 

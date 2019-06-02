@@ -19,11 +19,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-namespace rev::gfx {
+namespace rev::gfx
+{
+	class DescriptorHeap
+	{};
+
+	class GpuBuffer
+	{};
 
 	class RenderTargetView
+	{};
+
+	enum BufferType
 	{
-	public:
+		Resident, // Resident on gpu memory, fastest gpu bandwidth
+		Upload, // Used to upload content from the CPU to the GPU
+		ReadBack // Used to read content from the GPU back into the CPU
 	};
 
+	enum ResourceFlags
+	{
+		None = 0,
+		IsRenderTarget = 1,
+		IsDepthStencil = 2,
+	};
+
+	class CommandPool
+	{
+	public:
+		enum Type
+		{
+			Graphics,
+			Compute,
+			Copy,
+			Bundle
+		};
+
+		virtual void reset() = 0;
+	};
 }
