@@ -41,11 +41,11 @@ namespace rev::gfx
 		void present() override;
 		int getCurrentBackBuffer() override;
 
-		RenderTargetView* renderTarget(int i) { return &m_renderTarget[i]; }
+		RenderTargetView* renderTarget(int i) { return m_renderTarget[i]; }
 
 	private:
-		DescriptorHeapDX12* m_rtvHeap;
-		RenderTargetViewDX12 m_renderTarget[2];
+		DescriptorHeap* m_rtvHeap;
+		RenderTargetView* m_renderTarget[2];
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxSwapChain;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_dxgiSwapChain4;

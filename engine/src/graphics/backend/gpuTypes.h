@@ -35,8 +35,15 @@ namespace rev::gfx
 	class GpuBuffer
 	{};
 
+	enum class RenderTargetType
+	{
+		Depth,
+		Color
+	};
+
 	class RenderTargetView
-	{};
+	{
+	};
 
 	enum BufferType
 	{

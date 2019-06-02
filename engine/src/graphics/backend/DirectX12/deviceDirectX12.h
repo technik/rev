@@ -51,17 +51,14 @@ namespace rev :: gfx
 
 		// Resources
 		DescriptorHeap* createDescriptorHeap(uint32_t numDescriptors, DescriptorType, bool shaderVisible) override;
+		RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t& offset, RenderTargetType rtType, const GpuBuffer& image) override;
+
 		GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) override;
 
 		// Pipelines
 		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
 
 	public: // DirectX 12 specific
-		void createRenderTargetViews(
-			DescriptorHeapDX12& heap,
-			size_t n,
-			Microsoft::WRL::ComPtr<ID3D12Resource>* images,
-			RenderTargetViewDX12* rtvOut);
 
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 

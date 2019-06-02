@@ -51,6 +51,8 @@ namespace rev :: gfx
 
 		// Resources
 		virtual DescriptorHeap* createDescriptorHeap(uint32_t numDescriptors, DescriptorType, bool shaderVisible = true) = 0;
+		// Offset gets incremented by the size of the descriptor
+		virtual RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t& offset, RenderTargetType rtType, const GpuBuffer& image) = 0;
 		virtual GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) = 0;
 		
 		// Pipelines

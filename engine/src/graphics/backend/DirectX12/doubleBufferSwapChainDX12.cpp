@@ -31,7 +31,7 @@ namespace rev ::gfx
 		: m_dxgiSwapChain4(dxgiSwapChain4)
 	{
 		// Allocate a descriptor heap for the image views in the chain
-		m_rtvHeap = static_cast<DescriptorHeapDX12*>(device.createDescriptorHeap(2, DescriptorType::RenderTarget, false));
+		m_rtvHeap = device.createDescriptorHeap(2, DescriptorType::RenderTarget, false);
 
 		// Retrieve swap chain buffers
 		ComPtr<ID3D12Resource> backBuffers[2];
@@ -42,7 +42,11 @@ namespace rev ::gfx
 		}
 
 		// Create views
-		device.createRenderTargetViews(*m_rtvHeap, 2, backBuffers, m_renderTarget);
+		uint32_t heapOffset = 0;
+		for (int i = 0; i < 2; ++i)
+		{
+			m_renderTarget[i] = device.createRenderTargetView(*m_rtvHeap, heapOffset, RenderTargetType::Color, *m_backBuffers[i]);
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------

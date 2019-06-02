@@ -307,17 +307,20 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void DeviceDirectX12::createRenderTargetViews(DescriptorHeapDX12& heap, size_t n, ComPtr<ID3D12Resource>* images, RenderTargetViewDX12* rtvOut)
+	RenderTargetView* DeviceDirectX12::createRenderTargetView(DescriptorHeap& heap, uint32_t& offset, RenderTargetType rtType, const GpuBuffer& image)
 	{
-		auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(heap.m_dx12Heap->GetCPUDescriptorHandleForHeapStart());
+		auto dx12Buffer = static_cast<const GpuBufferDX12&>(image).m_dx12Buffer;
+		auto dx12Heap = static_cast<DescriptorHeapDX12&>(heap).m_dx12Heap;
+		
+		auto rtv = new RenderTargetViewDX12();
+		rtv->handle = dx12Heap->GetCPUDescriptorHandleForHeapStart();
+		rtv->handle.ptr += offset;
+		m_d3d12Device->CreateRenderTargetView(dx12Buffer.Get(), nullptr, rtv->handle);
 
-		for(size_t i = 0; i < n; ++i)
-		{
-			m_d3d12Device->CreateRenderTargetView(images[i].Get(), nullptr, rtvHandle);
-			rtvOut[i].handle = rtvHandle;
-			rtvHandle.ptr += rtvDescriptorSize;
-		}
+		D3D12_DESCRIPTOR_HEAP_TYPE descriptorType = rtType == RenderTargetType::Color ? D3D12_DESCRIPTOR_HEAP_TYPE_RTV : D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		offset+= m_d3d12Device->GetDescriptorHandleIncrementSize(descriptorType);
+
+		return rtv;
 	}
 
 	//----------------------------------------------------------------------------------------------
