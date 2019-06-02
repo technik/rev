@@ -48,11 +48,12 @@ namespace rev::gfx {
 		// --- Commands ---
 		void resourceBarrier(GpuBuffer* resource, Barrier barrierType, ResourceState before, ResourceState after) override;
 		void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) override;
+		void clearDepth(RenderTargetView* depthBufferView, float depth) override;
 
 		void bindPipeline(const Pipeline*) override;
 		void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*, uint32_t offset) override;
 		void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*, uint32_t offset) override;
-		void bindRenderTarget(RenderTargetView* rt) override;
+		void bindRenderTarget(RenderTargetView* rt, RenderTargetView* depth) override;
 
 		void drawIndexed(int indexOffset, int indexCount, int vertexOffset) override;
 

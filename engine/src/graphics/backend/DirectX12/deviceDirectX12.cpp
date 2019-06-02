@@ -206,11 +206,7 @@ namespace rev :: gfx
 		// Default resource state
 		D3D12_RESOURCE_STATES defaultState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
-		// Heap properties
-		CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-
 		// Resource descriptor
-		D3D12_RESOURCE_FLAGS dx12flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 			DXGI_FORMAT_D32_FLOAT,
 			size.x(), size.y(),
@@ -361,7 +357,10 @@ namespace rev :: gfx
 		rtv->handle = dx12Heap->GetCPUDescriptorHandleForHeapStart();
 		if(offset)
 			rtv->handle.ptr += *offset;
-		m_d3d12Device->CreateRenderTargetView(dx12Buffer.Get(), nullptr, rtv->handle);
+		if(rtType == RenderTargetType::Depth)
+			m_d3d12Device->CreateDepthStencilView(dx12Buffer.Get(), nullptr, rtv->handle);
+		else
+			m_d3d12Device->CreateRenderTargetView(dx12Buffer.Get(), nullptr, rtv->handle);
 
 		if (offset)
 		{

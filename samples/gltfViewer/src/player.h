@@ -27,6 +27,7 @@ namespace rev {
 		class GpuBuffer;
 		class Pipeline;
 		class RenderGeom;
+		class RenderTargetView;
 	}
 
 	class Player {
@@ -76,6 +77,7 @@ namespace rev {
 		gfx::DoubleBufferSwapChain* m_swapChain;
 		gfx::GpuBuffer* m_backBuffers[2];
 		gfx::GpuBuffer* m_depthBuffer = nullptr;
+		gfx::RenderTargetView* m_depthBV = nullptr;
 		gfx::Fence* m_frameFence;
 		gfx::CommandPool* m_frameCmdPools[2];
 		gfx::CommandList* m_frameCmdList;

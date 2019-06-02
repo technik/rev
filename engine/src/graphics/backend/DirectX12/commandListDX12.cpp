@@ -72,6 +72,13 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::clearDepth(RenderTargetView* depthBufferView, float depth)
+	{
+		auto* rtdx12 = static_cast<RenderTargetViewDX12*>(depthBufferView);
+		m_commandList->ClearDepthStencilView(rtdx12->handle, D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void CommandListDX12::bindPipeline(const Pipeline* pipeline)
 	{
 		auto dx12Pipeline = static_cast<const PipelineDX12*>(pipeline);
@@ -120,11 +127,12 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindRenderTarget(RenderTargetView* rt)
+	void CommandListDX12::bindRenderTarget(RenderTargetView* color, RenderTargetView* depth)
 	{
-		auto rt12 = static_cast<RenderTargetViewDX12*>(rt);
+		auto rt12 = static_cast<RenderTargetViewDX12*>(color);
+		auto depthDx12 = static_cast<RenderTargetViewDX12*>(depth);
 
-		m_commandList->OMSetRenderTargets(1, &rt12->handle, false, nullptr);
+		m_commandList->OMSetRenderTargets(1, &rt12->handle, false, depth ? &depthDx12->handle : nullptr);
 	}
 
 	//----------------------------------------------------------------------------------------------

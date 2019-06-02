@@ -123,6 +123,8 @@ namespace rev {
 
 		// Create depth buffer
 		m_depthBuffer = m_gfxDevice->createDepthBuffer(m_windowSize);
+		auto depth_heap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::DepthStencil);
+		m_depthBV = m_gfxDevice->createRenderTargetView(*depth_heap, nullptr, RenderTargetType::Depth, *m_depthBuffer);
 
 		// Create two command pools, for alternate frames
 		int backBufferIndex = 0;
@@ -373,9 +375,10 @@ namespace rev {
 		m_frameCmdList->reset(*cmdPool);
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
+		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
 		m_frameCmdList->bindPipeline(m_gBufferShader);
-		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex));
+		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
 		// Global uniforms
