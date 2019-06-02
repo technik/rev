@@ -80,8 +80,6 @@ namespace rev {
 		gfx::CommandList* m_frameCmdList;
 		gfx::Pipeline* m_gBufferShader;
 
-		gfx::GpuBuffer* m_sceneIndexBuffer;
-		gfx::GpuBuffer* m_sceneVertexBuffer;
 		gfx::GpuBuffer* m_sceneGpuBuffer;
 		gfx::RenderGeom* m_geom;
 	private:

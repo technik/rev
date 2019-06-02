@@ -18,6 +18,7 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/DirectX12/directX12Driver.h>
 #include <graphics/backend/doubleBufferSwapChain.h>
+#include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
@@ -148,6 +149,89 @@ namespace rev {
 	}
 #endif // _WIN32
 
+	namespace {
+		RenderGeom::Attribute readAttribute(const fx::gltf::Accessor& accessor, const fx::gltf::BufferView& bv, GpuBuffer* data)
+		{
+			RenderGeom::Attribute attribute;
+			attribute.count = accessor.count;
+			attribute.offset = accessor.byteOffset + bv.byteOffset;
+			attribute.byteLenght = bv.byteLength - accessor.byteOffset;
+			attribute.data = data;
+			// Component type
+			switch (accessor.componentType)
+			{
+			case fx::gltf::Accessor::ComponentType::UnsignedByte:
+			{
+				attribute.componentType = RenderGeom::VtxFormat::Storage::u8;
+				break;
+			}
+			case fx::gltf::Accessor::ComponentType::UnsignedShort:
+			{
+				attribute.componentType = RenderGeom::VtxFormat::Storage::u16;
+				break;
+			}
+			case fx::gltf::Accessor::ComponentType::UnsignedInt:
+			{
+				attribute.componentType = RenderGeom::VtxFormat::Storage::u32;
+				break;
+			}
+			case fx::gltf::Accessor::ComponentType::Float:
+			{
+				attribute.componentType = RenderGeom::VtxFormat::Storage::Float32;
+				break;
+			}
+			case fx::gltf::Accessor::ComponentType::None:
+			{
+				attribute.componentType = RenderGeom::VtxFormat::Storage::None;
+				break;
+			}
+			default:
+			{
+				assert(false && "Component type not supported");
+				break;
+			}
+			}
+			// Element type
+			switch (accessor.type)
+			{
+			case fx::gltf::Accessor::Type::Scalar:
+				attribute.nComponents = 1;
+				break;
+			case fx::gltf::Accessor::Type::Vec2:
+				attribute.nComponents = 2;
+				break;
+			case fx::gltf::Accessor::Type::Vec3:
+				attribute.nComponents = 3;
+				break;
+			case fx::gltf::Accessor::Type::Vec4:
+				attribute.nComponents = 4;
+				break;
+			case fx::gltf::Accessor::Type::Mat2:
+				attribute.nComponents = 4;
+				break;
+			case fx::gltf::Accessor::Type::Mat3:
+				attribute.nComponents = 9;
+				break;
+			case fx::gltf::Accessor::Type::Mat4:
+				attribute.nComponents = 16;
+				break;
+			}
+			// Stride
+			attribute.stride = bv.byteStride ? bv.byteStride : attribute.elementSize();
+
+			// Optional bounding box
+			if (accessor.min.size() > 0 && accessor.max.size() > 0)
+			{
+				attribute.bounds = math::AABB(
+					*reinterpret_cast<const math::Vec3f*>(accessor.min.data()),
+					*reinterpret_cast<const math::Vec3f*>(accessor.max.data()));
+			}
+			else attribute.bounds.clear();
+
+			return attribute;
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
@@ -186,31 +270,23 @@ namespace rev {
 		auto* stagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, bufferSize);
 		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, bufferSize);
 		copyCmdList->uploadBufferContent(*m_sceneGpuBuffer, *stagingBuffer, bufferSize, document.buffers[0].data.data());
-
-		// Create buffers for vertex data
-		auto* vertexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
-		m_sceneVertexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(rev::math::Vec3f));
-
-		rev::math::Vec3f vtx[3] = {
-			rev::math::Vec3f(0.5f,0.1f,0.5f),
-			rev::math::Vec3f(0.f,-1.f,0.f),
-			rev::math::Vec3f(-0.5f,0.f,0.f)
-		};
-		copyCmdList->uploadBufferContent(*m_sceneVertexBuffer, *vertexStagingBuffer, 3 * sizeof(rev::math::Vec3f), vtx);
-
-		// Create buffers for index data
-		auto* indexStagingBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Upload, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
-		m_sceneIndexBuffer = m_gfxDevice->createCommitedResource(Device::BufferType::Resident, Device::ResourceFlags::None, 3 * sizeof(uint16_t));
-
-		uint16_t indices[3] = { 0, 1, 2 };
-		copyCmdList->uploadBufferContent(*m_sceneIndexBuffer, *indexStagingBuffer, 3 * sizeof(uint16_t), indices);
-
-		// Execute copy on a command queue
+		// Immediately execute copy on a command queue
 		copyCmdList->close();
 		auto& copyQueue = m_gfxDevice->commandQueue(2);
 		copyQueue.executeCommandList(*copyCmdList);
 		Fence* sceneLoadFence = m_gfxDevice->createFence();
 		auto copyFenceValue = copyQueue.signalFence(*sceneLoadFence);
+
+		// Create Buffer views and attributes for the first mesh available
+		auto& primitive = document.meshes[0].primitives[0];
+		auto& indexAccessor = document.accessors[primitive.indices];
+		auto& indexBv = document.bufferViews[indexAccessor.bufferView];
+		RenderGeom::Attribute indexAttribute = readAttribute(indexAccessor, indexBv, m_sceneGpuBuffer);
+		auto& positionAccessor = document.accessors[primitive.attributes.at("POSITION")];
+		auto& positionBv = document.bufferViews[positionAccessor.bufferView];
+		RenderGeom::Attribute positionAttribute = readAttribute(positionAccessor, positionBv, m_sceneGpuBuffer);
+
+		m_geom = new RenderGeom(indexAttribute, positionAttribute, nullptr, nullptr, nullptr, nullptr, nullptr);
 
 		// --- Shader work ---
 		Pipeline::Attribute vtxPos;
@@ -305,12 +381,12 @@ namespace rev {
 		float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
 		math::Mat44f viewProj = m_renderCam->viewProj(aspectRatio).transpose();
 		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), viewProj.data());
-		m_frameCmdList->bindAttribute(0, 3 * sizeof(math::Vec3f), sizeof(math::Vec3f), m_sceneVertexBuffer);
-		m_frameCmdList->bindIndexBuffer(3 * sizeof(uint16_t), CommandList::NdxBufferFormat::U16, m_sceneIndexBuffer);
+		m_frameCmdList->bindAttribute(0, m_geom->vertices().byteLenght, m_geom->vertices().stride, m_geom->vertices().data, m_geom->vertices().offset);
+		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
 		// Instance Uniforms
 		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
 
-		m_frameCmdList->drawIndexed(0, 3, 0);
+		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
 
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
 		m_frameCmdList->close();

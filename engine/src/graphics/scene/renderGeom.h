@@ -34,10 +34,10 @@ namespace rev::gfx {
 		struct VtxFormat {
 			enum class Storage : uint8_t {
 				None = 0,
-				Float32,
-				u8,
-				u16,
-				u32
+				Float32 = 4,
+				u8 = 1,
+				u16 = 2,
+				u32 = 4
 			};
 
 			VtxFormat() = default;
@@ -58,25 +58,22 @@ namespace rev::gfx {
 
 		struct BufferView
 		{
-			GpuBuffer* vbo;
+			GpuBuffer* data;
 			uint32_t byteOffset;
 			uint32_t byteStride;
-			size_t byteLength;
+			uint32_t byteLength;
 		};
 
+		// Resolved buffer accessor
 		struct Attribute
 		{
-			template<class T> auto& get(size_t i) const {
-				auto rawData = (void*)((int)bufferView->data + (int)offset);
-				auto formattedData = reinterpret_cast<const T*>(rawData);
-				return formattedData[i];
-			}
-
-			std::shared_ptr<BufferView> bufferView;
+			uint32_t elementSize() const { return nComponents*(uint8_t)componentType; }
+			GpuBuffer* data;
 			math::AABB bounds;
 			uint32_t offset;
 			uint32_t stride;
 			uint32_t count;
+			uint32_t byteLenght;
 			VtxFormat::Storage componentType;
 			uint8_t nComponents;
 			bool normalized;
@@ -97,7 +94,7 @@ namespace rev::gfx {
 		//static RenderGeom quad(const math::Vec2f& size);
 		//GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
-		auto& vertices() const { return m_indices; }
+		auto& vertices() const { return m_vertices; }
 		const math::AABB& bbox() const { return m_bbox; }
 		VtxFormat vertexFormat() const { return m_vtxFormat; }
 
