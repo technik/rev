@@ -62,7 +62,7 @@ namespace rev::gfx {
 	private:
 		Device&		m_device;
 		RenderPass*	m_pass;
-		Pipeline::RasterOptions m_rasterOptions;
+		RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 
 		math::Mat44f		mShadowProj;

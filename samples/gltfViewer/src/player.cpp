@@ -319,6 +319,12 @@ namespace rev {
 		vtxCode->collapse(shaderDesc.vtxCode);
 		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
 		pxlCode->collapse(shaderDesc.pxlCode);
+
+		// Raster options
+		RasterOptions rasterOptions;
+		rasterOptions.cullBack = true;
+		rasterOptions.depthTest = ZTest::Gequal;
+
 		m_gBufferShader = m_gfxDevice->createPipeline(shaderDesc);
 
 		// Dynamic shader reload

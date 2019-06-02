@@ -40,7 +40,7 @@ namespace rev::gfx {
 		struct Instance
 		{
 			ShaderCodeFragment* instanceCode;
-			Pipeline::RasterOptions::Mask raster;
+			RasterOptions::Mask raster;
 			//CommandBuffer::UniformBucket uniforms;
 			uint32_t geometryIndex;
 		};
@@ -58,7 +58,7 @@ namespace rev::gfx {
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
 		Pipeline::PipielineDesc m_commonPipelineDesc; // Config common to all shadow pipelines
 
-		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
+		using PipelineSrc = std::pair<RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
 		std::map<PipelineSrc, Pipeline> mPipelines;
 		std::vector<std::shared_ptr<ShaderCodeFragment::ReloadListener>> m_shaderListeners;

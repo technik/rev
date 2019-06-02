@@ -288,6 +288,7 @@ namespace rev :: gfx
 			CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
 			CD3DX12_PIPELINE_STATE_STREAM_VS VS;
 			CD3DX12_PIPELINE_STATE_STREAM_PS PS;
+			CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL DS;
 			CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
 			CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
 		} pipelineStateStream;
@@ -301,7 +302,13 @@ namespace rev :: gfx
 		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob);
 		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob);
-		pipelineStateStream.DSVFormat = DXGI_FORMAT_UNKNOWN;
+		D3D12_DEPTH_STENCIL_DESC depthDesc;
+		depthDesc.DepthEnable = TRUE;
+		depthDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		depthDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		depthDesc.StencilEnable = FALSE;
+		pipelineStateStream.DS = CD3DX12_DEPTH_STENCIL_DESC(depthDesc);
+		pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 		pipelineStateStream.RTVFormats = rtvFormats;
 
 		D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {

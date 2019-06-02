@@ -66,7 +66,7 @@ namespace rev::gfx {
 
 		// Common pipeline config
 		m_commonPipelineDesc.raster.cullBack = true;
-		m_commonPipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
+		m_commonPipelineDesc.raster.depthTest = ZTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------

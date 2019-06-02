@@ -48,6 +48,47 @@ namespace rev::gfx
 		}
 	};
 
+	enum class ZTest {
+		None = 0,
+		Lequal = 1,
+		Gequal = 2
+	};
+
+	enum class Winding
+	{
+		CW,
+		CCW
+	};
+
+	struct RasterOptions
+	{
+		bool cullBack = false;// Culling
+		bool cullFront = false;
+		Winding frontFace = Winding::CCW;
+		ZTest depthTest = ZTest::None;// Depth test
+
+		using Mask = uint32_t;
+
+		Mask mask() const {
+			Mask m = 0;
+			m |= (cullBack ? 1 : 0);
+			m |= (cullFront ? 1 : 0) << 1;
+			m |= ((frontFace == Winding::CCW) ? 1 : 0) << 2;
+			m |= (int(depthTest)) << 3;
+			return m;
+		}
+
+		static RasterOptions fromMask(Mask m)
+		{
+			RasterOptions r;
+			r.cullBack = m & 1;
+			r.cullFront = m & (1 << 1);
+			r.frontFace = Winding((m >> 2) & 1);
+			r.depthTest = ZTest(m >> 3);
+			return r;
+		}
+	};
+
 	enum class DescriptorType
 	{
 		RenderTarget,

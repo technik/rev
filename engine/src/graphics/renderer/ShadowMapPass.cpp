@@ -54,7 +54,7 @@ namespace rev::gfx {
 
 		// Pipeline config
 		m_rasterOptions.cullFront = true;
-		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
+		m_rasterOptions.depthTest = ZTest::Lequal;
 	}
 
 	//----------------------------------------------------------------------------------------------

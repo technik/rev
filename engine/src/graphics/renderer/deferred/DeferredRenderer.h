@@ -69,7 +69,7 @@ namespace rev::gfx {
 
 		// Geometry pass
 		std::map<std::string, ShaderCodeFragment*> m_materialCode;
-		Pipeline::RasterOptions m_rasterOptions;
+		RasterOptions m_rasterOptions;
 		gfx::Texture2d			m_depthTexture;
 		gfx::Texture2d			m_gBufferTexture;
 		gfx::Texture2d			m_albedoTexture;
