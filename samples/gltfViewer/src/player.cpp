@@ -100,7 +100,7 @@ namespace rev {
 		);
 
 		DoubleBufferSwapChain::Info swapChainInfo;
-		swapChainInfo.pixelFormat.channel = Image::ChannelFormat::Byte;
+		swapChainInfo.pixelFormat.componentType = ScalarType::uint8;
 		swapChainInfo.pixelFormat.numChannels = 4;
 		swapChainInfo.size = m_windowSize;
 
@@ -120,6 +120,9 @@ namespace rev {
 		m_windowSize = options.windowSize;
 		initGraphicsDevice();
 		createSwapChain();
+
+		// Create depth buffer
+		m_depthBuffer = m_gfxDevice->createDepthBuffer(m_windowSize);
 
 		// Create two command pools, for alternate frames
 		int backBufferIndex = 0;
@@ -266,8 +269,8 @@ namespace rev {
 		}
 		CommandList* copyCmdList = m_gfxDevice->createCommandList(CommandList::Copy, *m_copyCommandPool);
 		auto bufferSize = document.buffers[0].byteLength;
-		auto* stagingBuffer = m_gfxDevice->createCommitedResource(BufferType::Upload, ResourceFlags::None, bufferSize);
-		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(BufferType::Resident, ResourceFlags::None, bufferSize);
+		auto* stagingBuffer = m_gfxDevice->createCommitedResource(BufferType::Upload, bufferSize);
+		m_sceneGpuBuffer = m_gfxDevice->createCommitedResource(BufferType::Resident, bufferSize);
 		copyCmdList->uploadBufferContent(*m_sceneGpuBuffer, *stagingBuffer, bufferSize, document.buffers[0].data.data());
 		// Immediately execute copy on a command queue
 		copyCmdList->close();

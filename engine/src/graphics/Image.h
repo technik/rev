@@ -22,6 +22,7 @@
 #include <cstdint>
 #include <string_view>
 #include <math/algebra/vector.h>
+#include <graphics/backend/gpuTypes.h>
 
 namespace rev::gfx {
 
@@ -30,28 +31,6 @@ namespace rev::gfx {
 	class Image
 	{
 	public:
-
-		enum class ChannelFormat : std::uint8_t
-		{
-			Byte,
-			Float32
-		};
-
-		struct PixelFormat
-		{
-			ChannelFormat channel;
-			std::uint8_t numChannels;
-
-			size_t pixelSize() const {
-				return numChannels * ((channel == ChannelFormat::Byte)?1:4);
-			}
-
-			bool operator==(const PixelFormat& b) const
-			{
-				return channel == b.channel && numChannels == b.numChannels;
-			}
-		};
-
 		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());
 		Image(const Image&);
 		Image(Image&&);

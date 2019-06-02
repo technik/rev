@@ -20,7 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
-#include <graphics/Image.h>
+#include <graphics/backend/gpuTypes.h>
 
 namespace rev::gfx
 {
@@ -33,7 +33,7 @@ namespace rev::gfx
 		struct Info
 		{
 			math::Vec2u size;
-			Image::PixelFormat pixelFormat;
+			PixelFormat pixelFormat;
 			bool stereo = false;
 			unsigned numSamples = 1;
 			bool fullScreen = false;

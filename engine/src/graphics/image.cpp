@@ -61,22 +61,22 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	// Constructors from specific color formats
 	Image::Image(const math::Vec2u& size, math::Vec3u8* data)
-		: Image({ChannelFormat::Byte, 3}, size, data)
+		: Image({ScalarType::uint8, 3}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4u8* data)
-		: Image({ChannelFormat::Byte, 4}, size, data)
+		: Image({ ScalarType::uint8, 4}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec3f* data)
-		: Image({ChannelFormat::Float32, 3}, size, data)
+		: Image({ScalarType::float32, 3}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4f* data)
-		: Image({ChannelFormat::Float32, 4}, size, data)
+		: Image({ ScalarType::float32, 4}, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	Image Image::proceduralXOR(const math::Vec2u& size, size_t nChannels)
 	{
-		Image xor({ChannelFormat::Byte, (uint8_t)nChannels}, size);
+		Image xor({ScalarType::uint8, (uint8_t)nChannels}, size);
 		for(unsigned i = 0; i < size.y(); ++i)
 			for(unsigned j = 0; j < size.x(); ++j)
 			{
@@ -170,21 +170,21 @@ namespace rev::gfx
 		core::File file(&_name[0]); //<-- Hack!
 		if(file.sizeInBytes() > 0)
 		{
-			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
+			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), (int)file.sizeInBytes());
 			int width, height, realNumChannels;
 			uint8_t* imgData;
 			if(!nChannels)
 			{
 				int srcChannels;
-				stbi_info_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &srcChannels);
+				stbi_info_from_memory((const uint8_t*)file.buffer(), (int)file.sizeInBytes(), &width, &height, &srcChannels);
 				if(srcChannels < 3)
 					nChannels = 4;
 			}
 			// Read image data from buffer
 			if(isHDR)
-				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), (int)file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
 			else
-				imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), (int)file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
 
 			// Create the actual image
 			if(imgData)
@@ -192,12 +192,12 @@ namespace rev::gfx
 				math::Vec2u size = { unsigned(width), unsigned(height)};
 				PixelFormat format;
 				format.numChannels = nChannels?nChannels:(unsigned)realNumChannels;
-				format.channel = isHDR ? ChannelFormat::Float32 : ChannelFormat::Byte;
+				format.componentType = isHDR ? ScalarType::float32 : ScalarType::uint8;
 				return Image(format, size, imgData);
 			}
 		}
 
-		return Image(PixelFormat{ChannelFormat::Byte, 0}); // Invalid image
+		return Image(PixelFormat{ ScalarType::uint8, 0}); // Invalid image
 	}
 
 	//----------------------------------------------------------------------------------------------

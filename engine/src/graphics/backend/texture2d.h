@@ -23,19 +23,20 @@
 #include "textureSampler.h"
 #include <math/algebra/vector.h>
 #include "namedResource.h"
-#include <graphics/Image.h>
+#include <graphics/backend/gpuTypes.h>
 
 namespace rev :: gfx
 {
+	class Image;
+
 	struct Texture2d : NamedResource
 	{
 	public:
 
 		struct Descriptor
 		{
-			Image::PixelFormat pixelFormat;
+			PixelFormat pixelFormat;
 			TextureSampler sampler;
-			bool sRGB = false;
 			bool depth = false;
 			math::Vec2u size;
 			

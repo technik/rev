@@ -45,7 +45,7 @@ namespace rev ::gfx
 		uint32_t heapOffset = 0;
 		for (int i = 0; i < 2; ++i)
 		{
-			m_renderTarget[i] = device.createRenderTargetView(*m_rtvHeap, heapOffset, RenderTargetType::Color, *m_backBuffers[i]);
+			m_renderTarget[i] = device.createRenderTargetView(*m_rtvHeap, &heapOffset, RenderTargetType::Color, *m_backBuffers[i]);
 		}
 	}
 

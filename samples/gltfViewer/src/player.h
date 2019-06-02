@@ -75,6 +75,7 @@ namespace rev {
 		gfx::CommandPool* m_copyCommandPool;
 		gfx::DoubleBufferSwapChain* m_swapChain;
 		gfx::GpuBuffer* m_backBuffers[2];
+		gfx::GpuBuffer* m_depthBuffer = nullptr;
 		gfx::Fence* m_frameFence;
 		gfx::CommandPool* m_frameCmdPools[2];
 		gfx::CommandList* m_frameCmdList;

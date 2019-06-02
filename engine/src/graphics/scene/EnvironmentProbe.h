@@ -20,6 +20,7 @@
 #pragma once
 
 #include <graphics/backend/texture2d.h>
+#include <string>
 
 namespace rev::gfx
 {

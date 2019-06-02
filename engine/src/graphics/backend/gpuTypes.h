@@ -21,6 +21,33 @@
 
 namespace rev::gfx
 {
+	enum class ScalarType : uint8_t
+	{
+		int8 = 1,
+		uint8 = 1,
+		int16 = 2,
+		uint16 = 2,
+		int32 = 4,
+		uint32 = 4,
+		float32 = 4,
+	};
+
+	struct PixelFormat
+	{
+		ScalarType componentType;
+		std::uint8_t numChannels;
+		bool sRGB = false;
+
+		uint8_t pixelSize() const {
+			return numChannels * uint8_t(componentType);
+		}
+
+		bool operator==(const PixelFormat& b) const
+		{
+			return componentType == b.componentType && numChannels == b.numChannels;
+		}
+	};
+
 	enum class DescriptorType
 	{
 		RenderTarget,

@@ -51,15 +51,17 @@ namespace rev :: gfx
 
 		// Resources
 		DescriptorHeap* createDescriptorHeap(uint32_t numDescriptors, DescriptorType, bool shaderVisible) override;
-		RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t& offset, RenderTargetType rtType, const GpuBuffer& image) override;
+		RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t* offset, RenderTargetType rtType, const GpuBuffer& image) override;
 
-		GpuBuffer* createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize) override;
+		GpuBuffer* createCommitedResource(BufferType bufferType, size_t bufferSize) override;
+		GpuBuffer* createDepthBuffer(math::Vec2u& size) override;
+		GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) override;
 
 		// Pipelines
 		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
 
 	public: // DirectX 12 specific
-
+		static DXGI_FORMAT dxgiFromPixelFormat(PixelFormat format);
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
 	private:

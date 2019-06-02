@@ -71,9 +71,7 @@ namespace rev :: gfx
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.Width = info.size.x();
 		swapChainDesc.Height = info.size.y();
-		assert(info.pixelFormat.channel == Image::ChannelFormat::Byte);
-		assert(info.pixelFormat.numChannels == 4);
-		swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapChainDesc.Format = dxgiFromPixelFormat(info.pixelFormat);
 		swapChainDesc.Stereo = info.stereo;
 		assert(info.numSamples == 1); // Multisampling not supported in dx12?
 		swapChainDesc.SampleDesc = {1, 0};
@@ -167,7 +165,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GpuBuffer* DeviceDirectX12::createCommitedResource(BufferType bufferType, ResourceFlags flags, size_t bufferSize)
+	GpuBuffer* DeviceDirectX12::createCommitedResource(BufferType bufferType, size_t bufferSize)
 	{
 		// Default resource state
 		D3D12_RESOURCE_STATES defaultState;
@@ -194,18 +192,65 @@ namespace rev :: gfx
 		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 
 		// Resource descriptor
-		D3D12_RESOURCE_FLAGS dx12flags = D3D12_RESOURCE_FLAG_NONE;
-
-		// TODO: Should these flags apply to texture resources only?
-		if (flags & ResourceFlags::IsRenderTarget)
-			dx12flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-		if (flags & ResourceFlags::IsDepthStencil)
-			dx12flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, dx12flags);
+		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_NONE);
 
 		ComPtr<ID3D12Resource> dstResource;
 		m_d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, defaultState, nullptr, IID_PPV_ARGS(&dstResource));
+
+		return new GpuBufferDX12(dstResource);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	GpuBuffer* DeviceDirectX12::createDepthBuffer(math::Vec2u& size)
+	{
+		// Default resource state
+		D3D12_RESOURCE_STATES defaultState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+
+		// Heap properties
+		CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+		// Resource descriptor
+		D3D12_RESOURCE_FLAGS dx12flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+			DXGI_FORMAT_D32_FLOAT,
+			size.x(), size.y(),
+			1, 0, 1, 0,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+		D3D12_CLEAR_VALUE optimizedClearValue = {};
+		optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		optimizedClearValue.DepthStencil = { 0.0f, 0 };
+
+		ComPtr<ID3D12Resource> dstResource;
+		m_d3d12Device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&bufferResourceDesc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&optimizedClearValue,
+			IID_PPV_ARGS(&dstResource));
+
+		return new GpuBufferDX12(dstResource);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	GpuBuffer* DeviceDirectX12::createRenderTargetBuffer(math::Vec2u& size, PixelFormat format)
+	{
+		// Resource descriptor
+		DXGI_FORMAT pixelFormat = dxgiFromPixelFormat(format);
+		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+			dxgiFromPixelFormat(format),
+			size.x(), size.y(), 1, 0, 1, 0,
+			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
+		);
+
+		ComPtr<ID3D12Resource> dstResource;
+		m_d3d12Device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&bufferResourceDesc,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			nullptr, IID_PPV_ARGS(&dstResource));
 
 		return new GpuBufferDX12(dstResource);
 	}
@@ -307,20 +352,68 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	RenderTargetView* DeviceDirectX12::createRenderTargetView(DescriptorHeap& heap, uint32_t& offset, RenderTargetType rtType, const GpuBuffer& image)
+	RenderTargetView* DeviceDirectX12::createRenderTargetView(DescriptorHeap& heap, uint32_t* offset, RenderTargetType rtType, const GpuBuffer& image)
 	{
 		auto dx12Buffer = static_cast<const GpuBufferDX12&>(image).m_dx12Buffer;
 		auto dx12Heap = static_cast<DescriptorHeapDX12&>(heap).m_dx12Heap;
 		
 		auto rtv = new RenderTargetViewDX12();
 		rtv->handle = dx12Heap->GetCPUDescriptorHandleForHeapStart();
-		rtv->handle.ptr += offset;
+		if(offset)
+			rtv->handle.ptr += *offset;
 		m_d3d12Device->CreateRenderTargetView(dx12Buffer.Get(), nullptr, rtv->handle);
 
-		D3D12_DESCRIPTOR_HEAP_TYPE descriptorType = rtType == RenderTargetType::Color ? D3D12_DESCRIPTOR_HEAP_TYPE_RTV : D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		offset+= m_d3d12Device->GetDescriptorHandleIncrementSize(descriptorType);
+		if (offset)
+		{
+			D3D12_DESCRIPTOR_HEAP_TYPE descriptorType = rtType == RenderTargetType::Color ? D3D12_DESCRIPTOR_HEAP_TYPE_RTV : D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+			*offset += m_d3d12Device->GetDescriptorHandleIncrementSize(descriptorType);
+		}
 
 		return rtv;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	DXGI_FORMAT DeviceDirectX12::dxgiFromPixelFormat(PixelFormat format)
+	{
+		switch (format.numChannels)
+		{
+		case 1:
+		{
+			switch (format.componentType)
+			{
+			case ScalarType::float32:
+				return DXGI_FORMAT_R32_FLOAT;
+			}
+			break;
+		}
+		case 3:
+		{
+			switch (format.componentType)
+			{
+			case ScalarType::float32:
+				return DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			break;
+		}
+		case 4:
+		{
+			switch (format.componentType)
+			{
+			case ScalarType::uint8:
+			{
+				if (format.sRGB)
+					return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+				else
+					return DXGI_FORMAT_R8G8B8A8_UNORM;
+			}
+			case ScalarType::float32:
+				return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+			break;
+		}
+		}
+		assert(false && "Unsupported pixel format");
+		return DXGI_FORMAT_R8G8B8A8_UINT;
 	}
 
 	//----------------------------------------------------------------------------------------------

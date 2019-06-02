@@ -105,7 +105,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	auto RenderGraph::pass(const math::Vec2u& size, HWAntiAlias aa) -> Pass
 	{
-		Pass newPass (m_renderPasses.size());
+		Pass newPass ((int)m_renderPasses.size());
 		m_renderPasses.emplace_back();
 		auto& passInfo = m_renderPasses.back();
 		passInfo.m_antiAlias = aa;
@@ -128,7 +128,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeColor(Pass pass, ColorFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
+	auto RenderGraph::writeColor(Pass pass, PixelFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
 	{
 		Attachment afterWrite(m_nextResourceId++);
 		WriteAttachment outAttach { readMode, src, afterWrite };
@@ -139,9 +139,7 @@ namespace rev::gfx {
 			Texture2d::Descriptor desc;
 			desc.depth = false;
 			desc.mipLevels = 1;
-			desc.pixelFormat.numChannels = 4;
-			desc.pixelFormat.channel = (colorFmt == ColorFormat::RGBA32) ? Image::ChannelFormat::Float32 : Image::ChannelFormat::Byte;
-			desc.sRGB = (colorFmt == ColorFormat::sRGBA8);
+			desc.pixelFormat = colorFmt;
 			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
@@ -166,8 +164,7 @@ namespace rev::gfx {
 			desc.depth = true;
 			desc.mipLevels = 1;
 			desc.pixelFormat.numChannels = 1;
-			desc.pixelFormat.channel = Image::ChannelFormat::Float32;
-			desc.sRGB = false;
+			desc.pixelFormat.componentType = ScalarType::float32;
 			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
