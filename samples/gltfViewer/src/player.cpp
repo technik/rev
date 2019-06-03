@@ -138,6 +138,9 @@ namespace rev {
 		m_copyCommandPool = m_gfxDevice->createCommandPool(CommandList::Copy);
 		
 		loadScene(options.scene);
+
+		initRaytracing();
+
 		createCamera();
 
 		return true;
@@ -347,6 +350,17 @@ namespace rev {
 		});
 
 		sceneLoadFence->waitForValue(copyFenceValue);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::initRaytracing()
+	{
+		// Create global root signature
+		Microsoft::WRL::ComPtr<ID3DBlob> blob;
+		Microsoft::WRL::ComPtr<ID3DBlob> error;
+
+		ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
+		ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

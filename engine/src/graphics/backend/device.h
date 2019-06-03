@@ -58,6 +58,7 @@ namespace rev :: gfx
 		virtual GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) = 0;
 		
 		// Pipelines
+		virtual RootSignature* createRootSignature(const RootSignature::Desc&) = 0;
 		virtual Pipeline* createPipeline(const Pipeline::PipielineDesc&) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;

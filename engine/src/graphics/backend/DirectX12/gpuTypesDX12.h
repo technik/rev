@@ -68,5 +68,12 @@ namespace rev::gfx
 	public:
 		D3D12_CPU_DESCRIPTOR_HANDLE handle;
 	};
+
+	//-------------------------------------------------------------------------------------------------
+	class RootSignatureDX12
+	{
+	public:
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dx12RootSignature;
+	};
 }
 

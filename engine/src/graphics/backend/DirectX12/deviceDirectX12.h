@@ -58,6 +58,7 @@ namespace rev :: gfx
 		GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) override;
 
 		// Pipelines
+		RootSignature* createRootSignature(const RootSignature::Desc&) override;
 		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
 
 	public: // DirectX 12 specific

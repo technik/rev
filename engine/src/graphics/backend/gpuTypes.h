@@ -100,6 +100,62 @@ namespace rev::gfx
 	class DescriptorHeap
 	{};
 
+	class RootSignature
+	{
+	public:
+		enum class Visibility : uint8_t
+		{
+			VertexShader = 1 << 0,
+			PixelShader = 1 << 1
+		};
+
+		struct Constant
+		{
+			Visibility visibility;
+			uint8_t byteSize;
+			uint8_t bindingPosition;
+		};
+
+		struct DescriptorTable
+		{
+			enum Type
+			{
+				UnorderedAccessView,
+				ShaderResource,
+			};
+			uint8_t bindingPosition;
+		};
+
+		struct ShaderResourceView
+		{
+			uint8_t bindingPosition;
+		};
+
+		struct Sampler
+		{
+			uint8_t bindingPosition;
+		};
+
+		static constexpr int MAX_CONSTANTS = 32;
+		static constexpr int MAX_DESC_TABLES = 32;
+		static constexpr int MAX_SRV = 32;
+		static constexpr int MAX_SAMPLER = 32;
+
+		static constexpr int MAX_PARAMS = MAX_CONSTANTS + MAX_DESC_TABLES + MAX_SRV + MAX_SAMPLER;
+
+		struct Desc
+		{
+			uint32_t numConstants;
+			Constant constants[MAX_CONSTANTS];
+			uint32_t numDescTables;
+			DescriptorTable descTables[MAX_DESC_TABLES];
+			uint32_t numSRVs;
+			ShaderResourceView srvs[MAX_SRV];
+			uint32_t numSamplers;
+			Sampler samplers[MAX_SAMPLER];
+		};
+	};
+
 	class GpuBuffer
 	{};
 

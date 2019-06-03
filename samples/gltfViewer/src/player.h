@@ -62,6 +62,7 @@ namespace rev {
 		void createSwapChain();
 
 		void loadScene(const std::string& scene);
+		void initRaytracing();
 		void createCamera();
 
 		// Player state
