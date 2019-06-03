@@ -290,6 +290,7 @@ namespace rev :: gfx
 			CD3DX12_PIPELINE_STATE_STREAM_PS PS;
 			CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL DS;
 			CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
+			CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
 			CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
 		} pipelineStateStream;
 
@@ -309,6 +310,11 @@ namespace rev :: gfx
 		depthDesc.StencilEnable = FALSE;
 		pipelineStateStream.DS = CD3DX12_DEPTH_STENCIL_DESC(depthDesc);
 		pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		D3D12_RASTERIZER_DESC rasterizer = {};
+		rasterizer.FillMode = D3D12_FILL_MODE_SOLID;
+		rasterizer.CullMode = D3D12_CULL_MODE_BACK;
+		rasterizer.FrontCounterClockwise = true;
+		pipelineStateStream.Rasterizer = CD3DX12_RASTERIZER_DESC(rasterizer);
 		pipelineStateStream.RTVFormats = rtvFormats;
 
 		D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {

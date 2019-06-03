@@ -111,6 +111,8 @@ namespace rev {
 		using Mat44f = Matrix44<float>;
 
 		//------------------------------------------------------------------------------------------------------------------
+		// Returns a frustum matrix that maps into a screen space of x,t -> [-1,1], z -> [0,1], right handed with +x to the
+		// right, +y up and +z pointing out from the screen.
 		template<typename Number_>
 		inline Matrix44<Number_> frustumMatrix(
 			Number_ yFovRad,
@@ -119,11 +121,18 @@ namespace rev {
 			Number_ f) // Far clip
 		{
 			assert(yFovRad < math::Constants<Number_>::pi);
+			assert(aspectRatio > 0);
 			// Precomputations
 			auto yFocalLength = 1 / std::tan(yFovRad / 2);
 			auto xFocalLength = yFocalLength / aspectRatio;
+#if 0 // Old OpenGL convention
 			auto A = (f+n)/(n-f);
 			auto B = 2*f*n/(n-f);
+#else
+			auto invRange = 1 / (f - n);
+			auto A = -n * invRange;
+			auto B = -A * f;
+#endif
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
 				0, yFocalLength, 0, 0,
