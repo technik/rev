@@ -41,7 +41,7 @@ namespace rev :: gfx
 	class DeviceDirectX12 : public Device
 	{
 	public:
-		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
+		DeviceDirectX12(Microsoft::WRL::ComPtr<ID3D12Device5> d3d12Device, int numQueues, const CommandQueue::Info* commandQueueDescs);
 
 		DoubleBufferSwapChain* createSwapChain(HWND window, int commandQueueIndex, const DoubleBufferSwapChain::Info&) override;
 		CommandPool* createCommandPool(CommandList::Type commandType) override;
@@ -72,7 +72,7 @@ namespace rev :: gfx
 		void createDeviceFactory();
 
 		Microsoft::WRL::ComPtr<IDXGIFactory4> m_dxgiFactory;
-		Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
+		Microsoft::WRL::ComPtr<ID3D12Device5> m_d3d12Device;
 		std::vector<CommandQueueDX12*> m_commandQueues;
 	};
 }

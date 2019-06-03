@@ -30,7 +30,7 @@ namespace rev::gfx {
 	class CommandListDX12 : public CommandList
 	{
 	public:
-		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> dx12CmdList)
+		CommandListDX12(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> dx12CmdList)
 			: m_commandList(dx12CmdList)
 		{}
 
@@ -64,7 +64,7 @@ namespace rev::gfx {
 
 		void uploadBufferContent(const GpuBuffer& dst, const GpuBuffer& stagingBuffer, size_t dataSize, const void* data) override;
 
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> m_commandList;
 	};
 }
 

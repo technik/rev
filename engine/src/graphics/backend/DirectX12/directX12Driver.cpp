@@ -21,6 +21,7 @@
 #include "directX12Driver.h"
 #include "deviceDirectX12.h"
 #include <iostream>
+#include <d3d12.h>
 
 using namespace Microsoft::WRL;
 
@@ -115,8 +116,18 @@ namespace rev :: gfx
 		-> Device*
 	{
 		auto& adapterDX12 = static_cast<const PhysicalDeviceDX12&>(adapter);
-		ComPtr<ID3D12Device2> d3d12Device2;
+		ComPtr<ID3D12Device5> d3d12Device2;
 		D3D12CreateDevice(adapterDX12.m_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&d3d12Device2));
+
+		// Check for RT support
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupportData = {};
+		d3d12Device2->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData));
+		if (featureSupportData.RaytracingTier == D3D12_RAYTRACING_TIER_NOT_SUPPORTED)
+			std::cout << "Raytracing not supported\n";
+		else
+			std::cout << "Raytracing supported!\n";
+
+
 		return new DeviceDirectX12(d3d12Device2, numQueues, commandQueueDescs);
 	}
 

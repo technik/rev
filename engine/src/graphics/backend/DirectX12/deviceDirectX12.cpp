@@ -44,7 +44,7 @@ namespace rev :: gfx
 {
 	//----------------------------------------------------------------------------------------------
 	DeviceDirectX12::DeviceDirectX12(
-		Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device,
+		Microsoft::WRL::ComPtr<ID3D12Device5> d3d12Device,
 		int numQueues,
 		const CommandQueue::Info* commandQueueDescs)
 		: m_d3d12Device(d3d12Device)
@@ -143,7 +143,7 @@ namespace rev :: gfx
 		}
 
 		CommandPoolDX12& dx12Pool = static_cast<CommandPoolDX12&>(cmdPool);
-		ComPtr<ID3D12GraphicsCommandList> commandList;
+		ComPtr<ID3D12GraphicsCommandList4> commandList;
 		ThrowIfFailed(m_d3d12Device->CreateCommandList(0, dxType, dx12Pool.m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
 
 		return new CommandListDX12(commandList);
