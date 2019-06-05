@@ -363,8 +363,8 @@ namespace rev {
 		// Create fliby camera
 		m_camNode = new SceneNode("Flyby cam");
 		m_camNode->addComponent<FlyBy>(2.f, 1.f);
-		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, 9.f };
-		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 100.f);
+		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, -400.f };
+		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 1000.f);
 		m_renderCam = &*camComponent->cam();
 
 		m_camNode->init();
@@ -396,15 +396,20 @@ namespace rev {
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
+
 		// Global uniforms
-		// Compute view projection matrix
 		float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-		math::Mat44f viewProj = m_renderCam->viewProj(aspectRatio).transpose();
-		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), viewProj.data());
+		math::Mat44f projMatrix = m_renderCam->projection(aspectRatio).transpose();
+		math::Mat44f view = m_renderCam->view();
+		
+		// Attributes
 		m_frameCmdList->bindAttribute(0, m_geom->vertices().byteLenght, m_geom->vertices().stride, m_geom->vertices().data, m_geom->vertices().offset);
 		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
+		
 		// Instance Uniforms
-		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), (projMatrix*view).data());
+
 
 		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
 

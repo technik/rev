@@ -5,15 +5,11 @@ struct VertexPosColor
 
 struct InstanceData
 {
-	matrix Model;
-};
-struct GlobalData
-{
-	matrix ViewProjection;
+	matrix World;
+	matrix WorldViewProjection;
 };
 
 ConstantBuffer<InstanceData> gInstanceData : register(b0, space0);
-ConstantBuffer<GlobalData> gGlobalData : register(b4, space0);
 
 struct VertexShaderOutput
 {
@@ -25,8 +21,8 @@ VertexShaderOutput main(VertexPosColor IN)
 {
 	VertexShaderOutput OUT;
 
-	OUT.Position = mul(float4(IN.Position, 1.0f), gInstanceData.Model);
-	//OUT.Position = float4(IN.Position, 1.0f);
+	float4 vertex = float4(IN.Position, 1.0f);
+	OUT.Position = mul(vertex, gInstanceData.WorldViewProjection);
 	OUT.Color = float4(IN.Position*0.5+0.5, 1.0f);
 
 	return OUT;

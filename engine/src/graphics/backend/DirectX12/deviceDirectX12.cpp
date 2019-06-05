@@ -351,7 +351,7 @@ namespace rev :: gfx
 		pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 		D3D12_RASTERIZER_DESC rasterizer = {};
 		rasterizer.FillMode = D3D12_FILL_MODE_SOLID;
-		rasterizer.CullMode = D3D12_CULL_MODE_BACK;
+		rasterizer.CullMode = D3D12_CULL_MODE_NONE;
 		rasterizer.FrontCounterClockwise = true;
 		pipelineStateStream.Rasterizer = CD3DX12_RASTERIZER_DESC(rasterizer);
 		pipelineStateStream.RTVFormats = rtvFormats;
