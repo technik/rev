@@ -21,6 +21,7 @@
 #include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
+#include "gpuTypesDX12.h"
 #include "pipelineDX12.h"
 #include "fenceDX12.h"
 #include "d3dx12.h"
@@ -262,14 +263,33 @@ namespace rev :: gfx
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_ROOT_PARAMETER1 rootParameters[RootSignature::MAX_PARAMS];
-		int vtxParamCount = 0;
-		int pxlParamCount = 0;
+		// Init root constant parameters
+		CD3DX12_ROOT_PARAMETER1 rootParameters[RootSignature::MAX_CONSTANTS];
 
 		for (int i = 0; i < desc.numConstants; ++i)
 		{
-
+			auto& parameter = desc.constants[i];
+			assert(parameter.byteSize % 16 == 0);
+			int numRegisters = parameter.byteSize / 16;
+			rootParameters[i].InitAsConstants(parameter.byteSize / 4, i, 0, D3D12_SHADER_VISIBILITY_ALL);
 		}
+
+		// Init root signature descriptor
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
+		rootSignatureDescription.Init_1_1((UINT)desc.numConstants, rootParameters, 0, nullptr, rootSignatureFlags);
+
+		// Serialize the root signature.
+		ComPtr<ID3DBlob> rootSignatureBlob;
+		ComPtr<ID3DBlob> errorBlob;
+		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDescription,
+			D3D_ROOT_SIGNATURE_VERSION_1_1, &rootSignatureBlob, &errorBlob));
+
+		// Actual creation
+		ComPtr<ID3D12RootSignature> rootSignature;
+		ThrowIfFailed(m_d3d12Device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
+			rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
+
+		return new RootSignatureDX12{ rootSignature };
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -70,9 +70,13 @@ namespace rev::gfx
 	};
 
 	//-------------------------------------------------------------------------------------------------
-	class RootSignatureDX12
+	class RootSignatureDX12 : public RootSignature
 	{
 	public:
+		RootSignatureDX12(Microsoft::WRL::ComPtr<ID3D12RootSignature> dx12Signature)
+			: m_dx12RootSignature(dx12Signature)
+		{}
+
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dx12RootSignature;
 	};
 }
