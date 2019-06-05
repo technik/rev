@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <cassert>
 
 namespace rev::gfx
 {
@@ -103,56 +104,30 @@ namespace rev::gfx
 	class RootSignature
 	{
 	public:
-		enum class Visibility : uint8_t
-		{
-			VertexShader = 1 << 0,
-			PixelShader = 1 << 1
-		};
-
 		struct Constant
 		{
-			Visibility visibility;
 			uint8_t byteSize;
 			uint8_t bindingPosition;
 		};
 
-		struct DescriptorTable
-		{
-			enum Type
-			{
-				UnorderedAccessView,
-				ShaderResource,
-			};
-			uint8_t bindingPosition;
-		};
-
-		struct ShaderResourceView
-		{
-			uint8_t bindingPosition;
-		};
-
-		struct Sampler
-		{
-			uint8_t bindingPosition;
-		};
-
 		static constexpr int MAX_CONSTANTS = 32;
-		static constexpr int MAX_DESC_TABLES = 32;
-		static constexpr int MAX_SRV = 32;
-		static constexpr int MAX_SAMPLER = 32;
-
-		static constexpr int MAX_PARAMS = MAX_CONSTANTS + MAX_DESC_TABLES + MAX_SRV + MAX_SAMPLER;
 
 		struct Desc
 		{
-			uint32_t numConstants;
+			uint32_t numConstants = 0;
 			Constant constants[MAX_CONSTANTS];
-			uint32_t numDescTables;
-			DescriptorTable descTables[MAX_DESC_TABLES];
-			uint32_t numSRVs;
-			ShaderResourceView srvs[MAX_SRV];
-			uint32_t numSamplers;
-			Sampler samplers[MAX_SAMPLER];
+			uint32_t byteSize = 0;
+
+			template<class T>
+			void addParam(uint8_t bindingPosition)
+			{
+				// TODO: Support sizes under 4 bytes, adding padding at the end
+				static_assert(sizeof(T) % 4 == 0);
+				asssert(numConstants < MAX_CONSTANTS);
+				uint32_t registerSlot = byteSize / 4;
+				byteSize += sizeof(T) / 4;
+				constants[numConstants]
+			}
 		};
 	};
 
