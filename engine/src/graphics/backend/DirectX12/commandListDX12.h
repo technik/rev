@@ -52,7 +52,7 @@ namespace rev::gfx {
 
 		void bindRootSignature(const RootSignature*) override;
 		void bindPipeline(const RasterPipeline*) override;
-		void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*, uint32_t offset) override;
+		void bindAttributes(int numAttributes, const VertexAttribute* attributes) override;
 		void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*, uint32_t offset) override;
 		void bindRenderTarget(RenderTargetView* rt, RenderTargetView* depth) override;
 

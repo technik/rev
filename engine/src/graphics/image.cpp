@@ -27,7 +27,7 @@
 namespace rev::gfx
 {
 	//----------------------------------------------------------------------------------------------
-	Image::Image(PixelFormat pxlFormat, const math::Vec2u& size)
+	Image::Image(DataFormat pxlFormat, const math::Vec2u& size)
 		: mSize(size)
 		, mFormat(pxlFormat)
 	{
@@ -53,7 +53,7 @@ namespace rev::gfx
 		, mCapacity(x.mCapacity)
 		, mFormat(x.mFormat)
 	{
-		auto memorySize = mFormat.pixelSize() * mCapacity;
+		auto memorySize = mFormat.byteSize() * mCapacity;
 		mData = x.mData;
 		x.mCapacity = 0;
 	}
@@ -139,10 +139,10 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Image::setPixelFormat(PixelFormat fmt)
+	void Image::setPixelFormat(DataFormat fmt)
 	{
-		if(mCapacity > 0 && fmt.pixelSize() != mFormat.pixelSize())
-			mCapacity = mCapacity * mFormat.pixelSize() / fmt.pixelSize();
+		if(mCapacity > 0 && fmt.byteSize() != mFormat.byteSize())
+			mCapacity = mCapacity * mFormat.byteSize() / fmt.byteSize();
 		mFormat = fmt;
 	}
 
@@ -190,18 +190,18 @@ namespace rev::gfx
 			if(imgData)
 			{
 				math::Vec2u size = { unsigned(width), unsigned(height)};
-				PixelFormat format;
-				format.numChannels = nChannels?nChannels:(unsigned)realNumChannels;
+				DataFormat format;
+				format.components = nChannels?nChannels:(unsigned)realNumChannels;
 				format.componentType = isHDR ? ScalarType::float32 : ScalarType::uint8;
 				return Image(format, size, imgData);
 			}
 		}
 
-		return Image(PixelFormat{ ScalarType::uint8, 0}); // Invalid image
+		return Image(DataFormat{ ScalarType::uint8, 0}); // Invalid image
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(PixelFormat pxlFmt, const math::Vec2u& size, void* data)
+	Image::Image(DataFormat pxlFmt, const math::Vec2u& size, void* data)
 		: mSize(size)
 		, mFormat(pxlFmt)
 		, mData(data)
@@ -210,9 +210,9 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void* Image::allocatePixelData(PixelFormat pxlFormat, size_t numPixels)
+	void* Image::allocatePixelData(DataFormat pxlFormat, size_t numPixels)
 	{
-		auto rawSize = numPixels * pxlFormat.pixelSize();
+		auto rawSize = numPixels * pxlFormat.byteSize();
 		return new uint8_t[rawSize];
 	}
 
@@ -225,6 +225,6 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	size_t Image::rawDataSize() const
 	{
-		return mFormat.pixelSize() * mCapacity;
+		return mFormat.byteSize() * mCapacity;
 	}
 }

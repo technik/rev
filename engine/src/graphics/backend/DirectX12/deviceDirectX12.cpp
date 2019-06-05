@@ -73,7 +73,7 @@ namespace rev :: gfx
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.Width = info.size.x();
 		swapChainDesc.Height = info.size.y();
-		swapChainDesc.Format = dxgiFromPixelFormat(info.pixelFormat);
+		swapChainDesc.Format = dxgiFromDataFormat(info.pixelFormat);
 		swapChainDesc.Stereo = info.stereo;
 		assert(info.numSamples == 1); // Multisampling not supported in dx12?
 		swapChainDesc.SampleDesc = {1, 0};
@@ -232,12 +232,12 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GpuBuffer* DeviceDirectX12::createRenderTargetBuffer(math::Vec2u& size, PixelFormat format)
+	GpuBuffer* DeviceDirectX12::createRenderTargetBuffer(math::Vec2u& size, DataFormat format)
 	{
 		// Resource descriptor
-		DXGI_FORMAT pixelFormat = dxgiFromPixelFormat(format);
+		DXGI_FORMAT pixelFormat = dxgiFromDataFormat(format);
 		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-			dxgiFromPixelFormat(format),
+			dxgiFromDataFormat(format),
 			size.x(), size.y(), 1, 0, 1, 0,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
 		);
@@ -312,12 +312,18 @@ namespace rev :: gfx
 		}
 
 		// Configure input assembler layout
-		D3D12_INPUT_ELEMENT_DESC vtxPosLayout = {};
-		vtxPosLayout.SemanticName = "position";
-		vtxPosLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vtxPosLayout.InputSlot = 0;
-		vtxPosLayout.AlignedByteOffset = 0;// sizeof(rev::math::Vec3f);
-		vtxPosLayout.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+		D3D12_INPUT_ELEMENT_DESC attributes[RasterPipeline::Attribute::MAX_ATTRIBUTES] = {};
+		for (int i = 0; i < desc.numAttributes; ++i)
+		{
+			auto& attribute = attributes[i];
+			auto& descAttr = desc.vtxAttributes[i];
+			attribute.SemanticName = descAttr.name;
+			assert(!descAttr.format.sRGB);
+			attribute.Format = dxgiFromDataFormat(descAttr.format);
+			attribute.InputSlot = (UINT)descAttr.binding;
+			attribute.AlignedByteOffset = 0; // sizeof(rev::math::Vec3f); ?
+			attribute.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA; // TODO: Per instance attributes
+		}
 
 		// Pipeline State Object
 		struct PipelineStateStream
@@ -338,7 +344,7 @@ namespace rev :: gfx
 		rtvFormats.RTFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		pipelineStateStream.pRootSignature = static_cast<RootSignatureDX12*>(desc.signature)->m_signature.Get();
-		pipelineStateStream.InputLayout = { &vtxPosLayout, 1 };
+		pipelineStateStream.InputLayout = { attributes, (UINT)desc.numAttributes };
 		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob);
 		pipelineStateStream.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob);
@@ -423,9 +429,9 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	DXGI_FORMAT DeviceDirectX12::dxgiFromPixelFormat(PixelFormat format)
+	DXGI_FORMAT DeviceDirectX12::dxgiFromDataFormat(DataFormat format)
 	{
-		switch (format.numChannels)
+		switch (format.components)
 		{
 		case 1:
 		{

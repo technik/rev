@@ -54,7 +54,7 @@ namespace rev :: gfx
 		virtual RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t* offset, RenderTargetType rtType, const GpuBuffer& image) = 0;
 		virtual GpuBuffer* createCommitedResource(BufferType bufferType, size_t bufferSize) = 0;
 		virtual GpuBuffer* createDepthBuffer(math::Vec2u& size) = 0;
-		virtual GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) = 0;
+		virtual GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, DataFormat format) = 0;
 		
 		// Pipelines
 		virtual RootSignature* createRootSignature(const RootSignature::Desc&) = 0;

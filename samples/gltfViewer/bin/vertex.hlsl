@@ -1,6 +1,7 @@
-struct VertexPosColor
+struct VertexInput
 {
 	float3 Position : position;
+	float3 Normal : normal;
 };
 
 struct InstanceData
@@ -17,13 +18,14 @@ struct VertexShaderOutput
 	float4 Position : SV_Position;
 };
 
-VertexShaderOutput main(VertexPosColor IN)
+VertexShaderOutput main(VertexInput IN)
 {
 	VertexShaderOutput OUT;
 
 	float4 vertex = float4(IN.Position, 1.0f);
 	OUT.Position = mul(vertex, gInstanceData.WorldViewProjection);
-	OUT.Color = float4(IN.Position*0.5+0.5, 1.0f);
-
+	float4 localNormal = float4(IN.Normal*0.5+0.5, 0.0f);
+	OUT.Color = mul(gInstanceData.World, localNormal);
+	OUT.Color.w = 1.0f;
 	return OUT;
 }

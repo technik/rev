@@ -101,7 +101,7 @@ namespace rev {
 
 		DoubleBufferSwapChain::Info swapChainInfo;
 		swapChainInfo.pixelFormat.componentType = ScalarType::uint8;
-		swapChainInfo.pixelFormat.numChannels = 4;
+		swapChainInfo.pixelFormat.components = 4;
 		swapChainInfo.size = m_windowSize;
 
 		m_swapChain = m_gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
@@ -157,9 +157,10 @@ namespace rev {
 #endif // _WIN32
 
 	namespace {
-		RenderGeom::Attribute readAttribute(const fx::gltf::Accessor& accessor, const fx::gltf::BufferView& bv, GpuBuffer* data)
+		VertexAttribute readAttribute(const fx::gltf::Document& document, const fx::gltf::Accessor& accessor, GpuBuffer* data)
 		{
-			RenderGeom::Attribute attribute;
+			auto& bv = document.bufferViews[accessor.bufferView];
+			VertexAttribute attribute;
 			attribute.count = accessor.count;
 			attribute.offset = accessor.byteOffset + bv.byteOffset;
 			attribute.byteLenght = bv.byteLength - accessor.byteOffset;
@@ -169,27 +170,22 @@ namespace rev {
 			{
 			case fx::gltf::Accessor::ComponentType::UnsignedByte:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u8;
+				attribute.format.componentType = ScalarType::uint8;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::UnsignedShort:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u16;
+				attribute.format.componentType = ScalarType::uint16;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::UnsignedInt:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u32;
+				attribute.format.componentType = ScalarType::uint32;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::Float:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::Float32;
-				break;
-			}
-			case fx::gltf::Accessor::ComponentType::None:
-			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::None;
+				attribute.format.componentType = ScalarType::float32;
 				break;
 			}
 			default:
@@ -202,25 +198,25 @@ namespace rev {
 			switch (accessor.type)
 			{
 			case fx::gltf::Accessor::Type::Scalar:
-				attribute.nComponents = 1;
+				attribute.format.components = 1;
 				break;
 			case fx::gltf::Accessor::Type::Vec2:
-				attribute.nComponents = 2;
+				attribute.format.components = 2;
 				break;
 			case fx::gltf::Accessor::Type::Vec3:
-				attribute.nComponents = 3;
+				attribute.format.components = 3;
 				break;
 			case fx::gltf::Accessor::Type::Vec4:
-				attribute.nComponents = 4;
+				attribute.format.components = 4;
 				break;
 			case fx::gltf::Accessor::Type::Mat2:
-				attribute.nComponents = 4;
+				attribute.format.components = 4;
 				break;
 			case fx::gltf::Accessor::Type::Mat3:
-				attribute.nComponents = 9;
+				attribute.format.components = 9;
 				break;
 			case fx::gltf::Accessor::Type::Mat4:
-				attribute.nComponents = 16;
+				attribute.format.components = 16;
 				break;
 			}
 			// Stride
@@ -287,13 +283,15 @@ namespace rev {
 		// Create Buffer views and attributes for the first mesh available
 		auto& primitive = document.meshes[0].primitives[0];
 		auto& indexAccessor = document.accessors[primitive.indices];
-		auto& indexBv = document.bufferViews[indexAccessor.bufferView];
-		RenderGeom::Attribute indexAttribute = readAttribute(indexAccessor, indexBv, m_sceneGpuBuffer);
+		VertexAttribute indexAttribute = readAttribute(document, indexAccessor, m_sceneGpuBuffer);
 		auto& positionAccessor = document.accessors[primitive.attributes.at("POSITION")];
-		auto& positionBv = document.bufferViews[positionAccessor.bufferView];
-		RenderGeom::Attribute positionAttribute = readAttribute(positionAccessor, positionBv, m_sceneGpuBuffer);
+		auto& normalAccessor = document.accessors[primitive.attributes.at("NORMAL")];
+		VertexAttribute vtxAttributes[2];
+		vtxAttributes[0] = readAttribute(document, positionAccessor, m_sceneGpuBuffer);
+		vtxAttributes[1] = readAttribute(document, normalAccessor, m_sceneGpuBuffer);
 
-		m_geom = new RenderGeom(indexAttribute, positionAttribute, nullptr, nullptr, nullptr, nullptr, nullptr);
+		RenderGeom::VtxFormat vtxFormat(RenderGeom::VtxFormat::Storage::Float32, RenderGeom::VtxFormat::Storage::Float32);
+		m_geom = new RenderGeom(vtxFormat, indexAttribute, vtxAttributes, 2);
 
 		// --- Shader work ---
 		RootSignature::Desc rootSignatureDesc;
@@ -301,17 +299,26 @@ namespace rev {
 		rootSignatureDesc.addParam<math::Mat44f>(4); // WorldViewProj
 		m_rasterSignature = m_gfxDevice->createRootSignature(rootSignatureDesc);
 
-		RasterPipeline::Attribute vtxPos;
-		vtxPos.binding = 0;
-		vtxPos.componentType = ScalarType::float32;
-		vtxPos.numComponents = 3;
-		vtxPos.offset = 0;
-		vtxPos.stride = 3 * sizeof(float);
+		RasterPipeline::Attribute attributes[2];
+		// Position
+		attributes[0].binding = 0;
+		attributes[0].format.componentType = ScalarType::float32;
+		attributes[0].format.components = 3;
+		attributes[0].offset = 0;
+		attributes[0].stride = 3 * sizeof(float);
+		attributes[0].name = "position";
+		// Normal
+		attributes[1].binding = 0;
+		attributes[1].format.componentType = ScalarType::float32;
+		attributes[1].format.components = 3;
+		attributes[1].offset = 0;
+		attributes[1].stride = 3 * sizeof(float);
+		attributes[1].name = "normal";
 
 		RasterPipeline::Desc shaderDesc;
 		shaderDesc.signature = m_rasterSignature;
-		shaderDesc.numAttributes = 1;
-		shaderDesc.vtxAttributes = &vtxPos;
+		shaderDesc.numAttributes = 2;
+		shaderDesc.vtxAttributes = attributes;
 		auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 		vtxCode->collapse(shaderDesc.vtxCode);
 		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
@@ -403,7 +410,7 @@ namespace rev {
 		math::Mat44f view = m_renderCam->view();
 		
 		// Attributes
-		m_frameCmdList->bindAttribute(0, m_geom->vertices().byteLenght, m_geom->vertices().stride, m_geom->vertices().data, m_geom->vertices().offset);
+		m_frameCmdList->bindAttributes(m_geom->numAttributes(), m_geom->attributes());
 		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
 		
 		// Instance Uniforms

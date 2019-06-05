@@ -92,16 +92,21 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer* attrBuffer, uint32_t offset)
+	void CommandListDX12::bindAttributes(int numAttributes, const VertexAttribute* attributes)
 	{
-		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
+		constexpr size_t MAX_ATTR = 8;
+		assert(numAttributes < MAX_ATTR);
+		D3D12_VERTEX_BUFFER_VIEW attrDesc[MAX_ATTR];
 
-		D3D12_VERTEX_BUFFER_VIEW attrDesc;
-		attrDesc.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + offset;
-		attrDesc.SizeInBytes = sizeInBytes;
-		attrDesc.StrideInBytes = stride;
+		for (int i = 0; i < numAttributes; ++i)
+		{
+			auto dx12buffer = static_cast<GpuBufferDX12*>(attributes[i].data);
+			attrDesc[i].BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + attributes[i].offset;
+			attrDesc[i].SizeInBytes = attributes[i].byteLenght;
+			attrDesc[i].StrideInBytes = attributes[i].stride;
+		}
 
-		m_commandList->IASetVertexBuffers(binding, 1, &attrDesc);
+		m_commandList->IASetVertexBuffers(0, numAttributes, attrDesc);
 	}
 
 	//----------------------------------------------------------------------------------------------

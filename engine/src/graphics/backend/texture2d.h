@@ -35,7 +35,7 @@ namespace rev :: gfx
 
 		struct Descriptor
 		{
-			PixelFormat pixelFormat;
+			DataFormat pixelFormat;
 			TextureSampler sampler;
 			bool depth = false;
 			math::Vec2u size;

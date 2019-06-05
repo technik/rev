@@ -23,6 +23,7 @@
 #include <math/algebra/vector.h>
 #include <math/geometry/aabb.h>
 #include <math/geometry/types.h>
+#include "../backend/gpuTypes.h"
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -41,7 +42,7 @@ namespace rev::gfx {
 			};
 
 			VtxFormat() = default;
-			VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights);
+			VtxFormat(Storage pos, Storage nrm, Storage tan = Storage::None, Storage uv = Storage::None, Storage weights = Storage::None);
 
 			Storage position() const	{ return m_pos; }
 			Storage normal() const		{ return m_normal; }
@@ -64,37 +65,22 @@ namespace rev::gfx {
 			uint32_t byteLength;
 		};
 
-		// Resolved buffer accessor
-		struct Attribute
-		{
-			uint32_t elementSize() const { return nComponents*(uint8_t)componentType; }
-			GpuBuffer* data;
-			math::AABB bounds;
-			uint32_t offset;
-			uint32_t stride;
-			uint32_t count;
-			uint32_t byteLenght;
-			VtxFormat::Storage componentType;
-			uint8_t nComponents;
-			bool normalized;
-		};
-
 	public:
 		RenderGeom() = default;
 
+		// Attribute 0 must be vertex positions, and it will be used to fill the bbox
 		RenderGeom(
-			const Attribute& indices,
-			const Attribute& position,
-			const Attribute* normal,
-			const Attribute* tangent,
-			const Attribute* uv0,
-			const Attribute* weights,
-			const Attribute* joints);
+			const VtxFormat& format,
+			const VertexAttribute& indices,
+			const VertexAttribute* vtxAttributes,
+			uint32_t numAttr);
 
 		//static RenderGeom quad(const math::Vec2f& size);
 		//GLuint getVao() const { return m_vao; }
 		auto& indices() const { return m_indices; }
-		auto& vertices() const { return m_vertices; }
+		uint32_t numAttributes() const { return m_numAttr; }
+		const VertexAttribute* attributes() const { return m_vtxAttributes; }
+
 		const math::AABB& bbox() const { return m_bbox; }
 		VtxFormat vertexFormat() const { return m_vtxFormat; }
 
@@ -102,8 +88,9 @@ namespace rev::gfx {
 		VtxFormat m_vtxFormat;
 		math::AABB m_bbox;
 
-		Attribute m_vertices;
-		Attribute m_indices;
+		VertexAttribute m_vtxAttributes[4];
+		uint32_t m_numAttr = 0;
+		VertexAttribute m_indices;
 	};
 
 }

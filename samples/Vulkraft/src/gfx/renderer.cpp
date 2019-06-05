@@ -180,7 +180,7 @@ namespace vkft::gfx
 		bufferDesc.depth = false;
 		bufferDesc.mipLevels = 1;
 		bufferDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		bufferDesc.pixelFormat.numChannels = 4;
+		bufferDesc.pixelFormat.components = 4;
 		bufferDesc.providedImages = 0;
 		bufferDesc.sampler = m_rtBufferSampler;
 		bufferDesc.size = newSize;
@@ -211,7 +211,7 @@ namespace vkft::gfx
 		texDescriptor.depth = false;
 		texDescriptor.mipLevels = 0;
 		texDescriptor.pixelFormat.channel = Image::ChannelFormat::Byte;
-		texDescriptor.pixelFormat.numChannels = 4;
+		texDescriptor.pixelFormat.components = 4;
 		texDescriptor.providedImages = 1;
 		texDescriptor.size = Vec2u(256,256);
 		texDescriptor.sRGB = true;
@@ -238,7 +238,7 @@ namespace vkft::gfx
 		m_noiseDesc.depth = false;
 		m_noiseDesc.mipLevels = 1;
 		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
-		m_noiseDesc.pixelFormat.numChannels = 4;
+		m_noiseDesc.pixelFormat.components = 4;
 		m_noiseDesc.providedImages = 1;
 		m_noiseDesc.size = Vec2u(64,64);
 		m_noiseDesc.sRGB = false;

@@ -20,6 +20,7 @@
 #pragma once
 #include <cassert>
 #include <vector>
+#include <math/geometry/aabb.h>
 
 namespace rev::gfx
 {
@@ -34,19 +35,19 @@ namespace rev::gfx
 		float32 = 4,
 	};
 
-	struct PixelFormat
+	struct DataFormat
 	{
 		ScalarType componentType;
-		std::uint8_t numChannels;
+		std::uint8_t components;
 		bool sRGB = false;
 
-		uint8_t pixelSize() const {
-			return numChannels * uint8_t(componentType);
+		uint8_t byteSize() const {
+			return components * uint8_t(componentType);
 		}
 
-		bool operator==(const PixelFormat& b) const
+		bool operator==(const DataFormat& b) const
 		{
-			return componentType == b.componentType && numChannels == b.numChannels;
+			return componentType == b.componentType && components == b.components;
 		}
 	};
 
@@ -135,6 +136,20 @@ namespace rev::gfx
 	class GpuBuffer
 	{};
 
+	// Resolved buffer accessor
+	struct VertexAttribute
+	{
+		uint32_t elementSize() const { return format.byteSize(); }
+		GpuBuffer* data;
+		math::AABB bounds;
+		uint32_t offset;
+		uint32_t stride;
+		uint32_t count;
+		uint32_t byteLenght;
+		DataFormat format;
+		bool normalized;
+	};
+
 	enum class RenderTargetType
 	{
 		Depth,
@@ -167,10 +182,12 @@ namespace rev::gfx
 			// Source buffer
 			size_t binding; // Location (in shader)
 			size_t offset = 0;
-			ScalarType componentType = ScalarType::float32;
-			size_t numComponents = 1;
+			DataFormat format;
 			size_t stride = 0;
 			bool normalized = false;
+			const char* name = nullptr;
+
+			static constexpr uint32_t MAX_ATTRIBUTES = 32;
 		};
 
 		struct Desc

@@ -31,7 +31,7 @@ namespace rev::gfx {
 	class Image
 	{
 	public:
-		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());
+		Image(DataFormat, const math::Vec2u& size = math::Vec2u::zero());
 		Image(const Image&);
 		Image(Image&&);
 
@@ -50,10 +50,10 @@ namespace rev::gfx {
 		void		clear(); ///< Clears the size, but doesn't free the storage buffer, so capacity remains intact
 		void		erase(); ///< Erases all data, and restores both size and capacity to 0
 		void		resize(const math::Vec2u& size); ///< Resizing invalidates the original contents
-		void		setPixelFormat(PixelFormat);
+		void		setPixelFormat(DataFormat);
 
 		// Accessors
-		PixelFormat format()	const	{ return mFormat; }
+		DataFormat format()	const	{ return mFormat; }
 		auto&		size()		const	{ return mSize; }
 		size_t		area()		const	{ return size().x() * size().y(); }
 		template<typename T = void*>
@@ -73,15 +73,15 @@ namespace rev::gfx {
 
 	private:
 		// Base constructor from size and data
-		Image(PixelFormat, const math::Vec2u& size, void* rawData);
-		static void* allocatePixelData(PixelFormat pxlFormat, size_t numPixels);
+		Image(DataFormat, const math::Vec2u& size, void* rawData);
+		static void* allocatePixelData(DataFormat pxlFormat, size_t numPixels);
 		size_t indexFromPos(const math::Vec2u&) const;
 		size_t rawDataSize() const; ///< Size in number of bytes of the allocated storage buffer
 
 	private:
 		math::Vec2u mSize;
 		size_t		mCapacity;
-		PixelFormat mFormat;
+		DataFormat mFormat;
 		void*		mData = nullptr;
 	};
 

@@ -33,7 +33,7 @@ namespace rev::gfx
 		struct Info
 		{
 			math::Vec2u size;
-			PixelFormat pixelFormat;
+			DataFormat pixelFormat;
 			bool stereo = false;
 			unsigned numSamples = 1;
 			bool fullScreen = false;
