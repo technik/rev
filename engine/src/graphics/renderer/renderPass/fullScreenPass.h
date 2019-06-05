@@ -45,7 +45,7 @@ namespace rev::gfx {
 		ShaderCodeFragment* m_baseCode = nullptr;
 		ShaderCodeFragment* m_passCode = nullptr;
 		ShaderCodeFragment* m_completeCode;
-		Pipeline m_pipeline;
+		RasterPipeline m_pipeline;
 
 		using ShaderListener = ShaderCodeFragment::ReloadListener;
 		std::vector<std::shared_ptr<ShaderListener>> m_shaderListeners;

@@ -25,9 +25,10 @@ namespace rev {
 		class DoubleBufferSwapChain;
 		class Fence;
 		class GpuBuffer;
-		class Pipeline;
+		class RasterPipeline;
 		class RenderGeom;
 		class RenderTargetView;
+		class RootSignature;
 	}
 
 	class Player {
@@ -82,7 +83,8 @@ namespace rev {
 		gfx::Fence* m_frameFence;
 		gfx::CommandPool* m_frameCmdPools[2];
 		gfx::CommandList* m_frameCmdList;
-		gfx::Pipeline* m_gBufferShader;
+		gfx::RootSignature* m_rasterSignature;
+		gfx::RasterPipeline* m_gBufferShader;
 
 		gfx::GpuBuffer* m_sceneGpuBuffer;
 		gfx::RenderGeom* m_geom;

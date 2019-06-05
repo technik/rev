@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <cassert>
+#include <vector>
 
 namespace rev::gfx
 {
@@ -116,17 +117,17 @@ namespace rev::gfx
 		{
 			uint32_t numConstants = 0;
 			Constant constants[MAX_CONSTANTS];
-			uint32_t byteSize = 0;
 
 			template<class T>
 			void addParam(uint8_t bindingPosition)
 			{
 				// TODO: Support sizes under 4 bytes, adding padding at the end
-				static_assert(sizeof(T) % 4 == 0);
-				asssert(numConstants < MAX_CONSTANTS);
-				uint32_t registerSlot = byteSize / 4;
-				byteSize += sizeof(T) / 4;
-				constants[numConstants]
+				static_assert(sizeof(T) % 16 == 0);
+				assert(numConstants < MAX_CONSTANTS);
+
+				auto& constant = constants[numConstants++];
+				constant.bindingPosition = bindingPosition;
+				constant.byteSize = sizeof(T);
 			}
 		};
 	};
@@ -156,6 +157,37 @@ namespace rev::gfx
 		None = 0,
 		IsRenderTarget = 1,
 		IsDepthStencil = 2,
+	};
+
+	class RasterPipeline
+	{
+	public:
+		struct Attribute
+		{
+			// Source buffer
+			size_t binding; // Location (in shader)
+			size_t offset = 0;
+			ScalarType componentType = ScalarType::float32;
+			size_t numComponents = 1;
+			size_t stride = 0;
+			bool normalized = false;
+		};
+
+		struct Desc
+		{
+			RootSignature* signature;
+
+			// Vtx stage
+			int numAttributes;
+			Attribute* vtxAttributes; // TODO: This can be reused later for instance data
+			std::vector<std::string> vtxCode;
+
+			// Pxl stage
+			std::vector<std::string> pxlCode;
+			RasterOptions raster;
+
+			// TODO: Define render target layout
+		};
 	};
 
 	class CommandPool

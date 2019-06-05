@@ -18,7 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
-#include "pipelineDX12.h"
 #include "d3dx12.h"
 
 namespace rev::gfx {
@@ -79,11 +78,17 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindPipeline(const Pipeline* pipeline)
+	void CommandListDX12::bindRootSignature(const RootSignature* rootSignature)
+	{
+		auto dx12Signature = static_cast<const RootSignatureDX12*>(rootSignature);
+		m_commandList->SetGraphicsRootSignature(dx12Signature->m_signature.Get());
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindPipeline(const RasterPipeline* pipeline)
 	{
 		auto dx12Pipeline = static_cast<const PipelineDX12*>(pipeline);
 		m_commandList->SetPipelineState(dx12Pipeline->m_pipelineState.Get());
-		m_commandList->SetGraphicsRootSignature(dx12Pipeline->m_rootSignature.Get());
 	}
 
 	//----------------------------------------------------------------------------------------------

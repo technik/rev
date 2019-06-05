@@ -17,15 +17,16 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include <d3dcompiler.h>
+#include "d3dx12.h"
+
 #include "commandListDX12.h"
 #include "commandQueueDX12.h"
 #include "deviceDirectX12.h"
 #include "doubleBufferSwapChainDX12.h"
-#include "gpuTypesDX12.h"
-#include "pipelineDX12.h"
 #include "fenceDX12.h"
-#include "d3dx12.h"
-#include <d3dcompiler.h>
+#include "gpuTypesDX12.h"
+
 #include <fstream>
 #include <string>
 
@@ -266,7 +267,7 @@ namespace rev :: gfx
 		// Init root constant parameters
 		CD3DX12_ROOT_PARAMETER1 rootParameters[RootSignature::MAX_CONSTANTS];
 
-		for (int i = 0; i < desc.numConstants; ++i)
+		for (uint32_t i = 0; i < desc.numConstants; ++i)
 		{
 			auto& parameter = desc.constants[i];
 			assert(parameter.byteSize % 16 == 0);
@@ -291,67 +292,10 @@ namespace rev :: gfx
 
 		return new RootSignatureDX12{ rootSignature };
 	}
-
-	//----------------------------------------------------------------------------------------------
-	ComPtr<ID3D12RootSignature> DeviceDirectX12::createRootSignature(const Pipeline::PipielineDesc& desc)
-	{
-		D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
-		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
-		if (FAILED(m_d3d12Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
-		{
-			featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-		}
-
-		// Allow input layout and deny unnecessary access to certain pipeline stages.
-		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
-
-		std::vector<CD3DX12_ROOT_PARAMETER1> rootParameters;
-		rootParameters.resize(desc.vtxUniforms.numUniforms + desc.pxlUniforms.numUniforms);
-		int paramNdx = 0;
-		// Shader space 0 is for vertex shader, and shader space 1 is for pixel shaders
-		int shaderRegister = 0;
-		for (uint32_t i = 0; i < desc.vtxUniforms.numUniforms; ++i)
-		{
-			auto& parameter = desc.vtxUniforms.uniform[i];
-			assert(parameter.byteSize() % 16 == 0);
-			int numRegisters = parameter.byteSize() / 16;
-			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize() / 4, shaderRegister, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-			shaderRegister += numRegisters;
-		}
-		shaderRegister = 0;
-		for (uint32_t i = 0; i < desc.pxlUniforms.numUniforms; ++i)
-		{
-			auto& parameter = desc.pxlUniforms.uniform[i];
-			assert(parameter.byteSize() % 16 == 0);
-			int numRegisters = parameter.byteSize() / 16;
-			rootParameters[paramNdx++].InitAsConstants(parameter.byteSize() / 4, shaderRegister, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-			shaderRegister += numRegisters;
-		}
-
-		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
-		rootSignatureDescription.Init_1_1((UINT)rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
-
-		// Serialize the root signature.
-		ComPtr<ID3DBlob> rootSignatureBlob;
-		ComPtr<ID3DBlob> errorBlob;
-		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDescription,
-			featureData.HighestVersion, &rootSignatureBlob, &errorBlob));
-		// Create the root signature.
-		ComPtr<ID3D12RootSignature> rootSignature;
-		ThrowIfFailed(m_d3d12Device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
-			rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
-
-		return rootSignature;
-	}
 	
 	//----------------------------------------------------------------------------------------------
 	// TODO: Maybe stuff all this code into a PipelineDX12 class
-	auto DeviceDirectX12::createPipeline(const Pipeline::PipielineDesc& desc) -> Pipeline*
+	auto DeviceDirectX12::createPipeline(const RasterPipeline::Desc& desc) -> RasterPipeline*
 	{
 		// Build the shader modules first, because that can fail
 		// TODO: Create shaders from code
@@ -367,16 +311,13 @@ namespace rev :: gfx
 			return nullptr;
 		}
 
-		// Configure input layout
+		// Configure input assembler layout
 		D3D12_INPUT_ELEMENT_DESC vtxPosLayout = {};
 		vtxPosLayout.SemanticName = "position";
 		vtxPosLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vtxPosLayout.InputSlot = 0;
 		vtxPosLayout.AlignedByteOffset = 0;// sizeof(rev::math::Vec3f);
 		vtxPosLayout.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-
-		// Create a root signature.
-		ComPtr<ID3D12RootSignature> rootSignature = createRootSignature(desc);
 
 		// Pipeline State Object
 		struct PipelineStateStream
@@ -396,7 +337,7 @@ namespace rev :: gfx
 		rtvFormats.NumRenderTargets = 1;
 		rtvFormats.RTFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		pipelineStateStream.pRootSignature = rootSignature.Get();
+		pipelineStateStream.pRootSignature = static_cast<RootSignatureDX12*>(desc.signature)->m_signature.Get();
 		pipelineStateStream.InputLayout = { &vtxPosLayout, 1 };
 		pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		pipelineStateStream.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob);
@@ -423,7 +364,6 @@ namespace rev :: gfx
 
 		PipelineDX12* pipeline = new PipelineDX12();
 		pipeline->m_pipelineState = pipelineState;
-		pipeline->m_rootSignature = rootSignature;
 
 		return pipeline;
 	}

@@ -27,7 +27,6 @@
 #include "namedResource.h"
 #include "texture2d.h"
 #include "textureSampler.h"
-#include "pipeline.h"
 #include "../shaders/computeShader.h"
 #include "Windows/windowsPlatform.h"
 
@@ -59,7 +58,7 @@ namespace rev :: gfx
 		
 		// Pipelines
 		virtual RootSignature* createRootSignature(const RootSignature::Desc&) = 0;
-		virtual Pipeline* createPipeline(const Pipeline::PipielineDesc&) = 0;
+		virtual RasterPipeline* createPipeline(const RasterPipeline::Desc&) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

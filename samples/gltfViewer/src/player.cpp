@@ -296,28 +296,22 @@ namespace rev {
 		m_geom = new RenderGeom(indexAttribute, positionAttribute, nullptr, nullptr, nullptr, nullptr, nullptr);
 
 		// --- Shader work ---
-		Pipeline::Attribute vtxPos;
+		RootSignature::Desc rootSignatureDesc;
+		rootSignatureDesc.addParam<math::Mat44f>(0); // World
+		rootSignatureDesc.addParam<math::Mat44f>(4); // WorldViewProj
+		m_rasterSignature = m_gfxDevice->createRootSignature(rootSignatureDesc);
+
+		RasterPipeline::Attribute vtxPos;
 		vtxPos.binding = 0;
-		vtxPos.componentType = Pipeline::DataType::Float;
+		vtxPos.componentType = ScalarType::float32;
 		vtxPos.numComponents = 3;
 		vtxPos.offset = 0;
 		vtxPos.stride = 3 * sizeof(float);
 
-		Pipeline::Uniform vtxUniforms[2];
-		// World matrix
-		vtxUniforms[0].componentType = Pipeline::Float;
-		vtxUniforms[0].numComponents = 16;
-		vtxUniforms[0].count = 0;
-		// View-Projection matrix
-		vtxUniforms[1].componentType = Pipeline::Float;
-		vtxUniforms[1].numComponents = 16;
-		vtxUniforms[1].count = 0;
-
-		Pipeline::PipielineDesc shaderDesc;
+		RasterPipeline::Desc shaderDesc;
+		shaderDesc.signature = m_rasterSignature;
 		shaderDesc.numAttributes = 1;
 		shaderDesc.vtxAttributes = &vtxPos;
-		shaderDesc.vtxUniforms.numUniforms = 2;
-		shaderDesc.vtxUniforms.uniform = vtxUniforms;
 		auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 		vtxCode->collapse(shaderDesc.vtxCode);
 		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
@@ -359,8 +353,8 @@ namespace rev {
 		Microsoft::WRL::ComPtr<ID3DBlob> blob;
 		Microsoft::WRL::ComPtr<ID3DBlob> error;
 
-		ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
-		ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
+		//ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
+		//ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -397,6 +391,7 @@ namespace rev {
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
 		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
+		m_frameCmdList->bindRootSignature(m_rasterSignature);
 		m_frameCmdList->bindPipeline(m_gBufferShader);
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);

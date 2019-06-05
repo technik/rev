@@ -59,7 +59,7 @@ namespace rev :: gfx
 
 		// Pipelines
 		RootSignature* createRootSignature(const RootSignature::Desc&) override;
-		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
+		RasterPipeline* createPipeline(const RasterPipeline::Desc&) override;
 
 	public: // DirectX 12 specific
 		static DXGI_FORMAT dxgiFromPixelFormat(PixelFormat format);
@@ -67,7 +67,6 @@ namespace rev :: gfx
 
 	private:
 		CommandQueueDX12* createCommandQueue(const CommandQueue::Info& queueInfo);
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> createRootSignature(const Pipeline::PipielineDesc& desc);
 		bool compileShaderCode(const std::vector<std::string>& code, ID3DBlob*& shaderModuleBlob, const char* target);
 		void enableDebugInfo();
 		void createDeviceFactory();
