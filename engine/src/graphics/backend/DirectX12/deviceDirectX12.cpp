@@ -274,7 +274,7 @@ namespace rev :: gfx
 			assert(parameter.byteSize % 16 == 0);
 			rootParameters[i].InitAsConstants(parameter.byteSize / 4, registerSlot, 0, D3D12_SHADER_VISIBILITY_ALL);
 			int numRegisters = parameter.byteSize / 16;
-			registerSlot += numRegisters;
+			registerSlot += 1;// numRegisters;
 		}
 
 		// Init root signature descriptor
