@@ -85,7 +85,7 @@ namespace rev::gfx {
 		void readColor(Pass, int bindingLocation, Attachment);
 		void readDepth(Pass, int bindingLocation, Attachment);
 		// By default, write to a new resource
-		Attachment writeColor(Pass, PixelFormat, int bindingLocation, ReadMode, Attachment = Attachment());
+		Attachment writeColor(Pass, DataFormat, int bindingLocation, ReadMode, Attachment = Attachment());
 		Attachment writeDepth(Pass, DepthFormat, ReadMode, Attachment = Attachment());
 
 		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;

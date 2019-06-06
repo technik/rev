@@ -53,14 +53,14 @@ namespace rev::gfx {
 
 	private:
 		Device& mDevice;
-		Pipeline getPipeline(const Instance&);
+		RasterPipeline getPipeline(const Instance&);
 
 		ShaderCodeFragment* mPassCommonCode; // Effect containing the pass' common code
-		Pipeline::PipielineDesc m_commonPipelineDesc; // Config common to all shadow pipelines
+		RasterPipeline::Desc m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		using PipelineSrc = std::pair<RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
-		std::map<PipelineSrc, Pipeline> mPipelines;
+		std::map<PipelineSrc, RasterPipeline> mPipelines;
 		std::vector<std::shared_ptr<ShaderCodeFragment::ReloadListener>> m_shaderListeners;
 	};
 

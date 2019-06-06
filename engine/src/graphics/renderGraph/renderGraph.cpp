@@ -128,7 +128,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeColor(Pass pass, PixelFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
+	auto RenderGraph::writeColor(Pass pass, DataFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
 	{
 		Attachment afterWrite(m_nextResourceId++);
 		WriteAttachment outAttach { readMode, src, afterWrite };
@@ -163,7 +163,7 @@ namespace rev::gfx {
 			Texture2d::Descriptor desc;
 			desc.depth = true;
 			desc.mipLevels = 1;
-			desc.pixelFormat.numChannels = 1;
+			desc.pixelFormat.components = 1;
 			desc.pixelFormat.componentType = ScalarType::float32;
 			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;

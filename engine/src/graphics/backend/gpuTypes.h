@@ -18,6 +18,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
+#include <cassert>
+#include <vector>
+#include <math/geometry/aabb.h>
 
 namespace rev::gfx
 {
@@ -32,19 +35,19 @@ namespace rev::gfx
 		float32 = 4,
 	};
 
-	struct PixelFormat
+	struct DataFormat
 	{
 		ScalarType componentType;
-		std::uint8_t numChannels;
+		std::uint8_t components;
 		bool sRGB = false;
 
-		uint8_t pixelSize() const {
-			return numChannels * uint8_t(componentType);
+		uint8_t byteSize() const {
+			return components * uint8_t(componentType);
 		}
 
-		bool operator==(const PixelFormat& b) const
+		bool operator==(const DataFormat& b) const
 		{
-			return componentType == b.componentType && numChannels == b.numChannels;
+			return componentType == b.componentType && components == b.components;
 		}
 	};
 
@@ -103,61 +106,49 @@ namespace rev::gfx
 	class RootSignature
 	{
 	public:
-		enum class Visibility : uint8_t
-		{
-			VertexShader = 1 << 0,
-			PixelShader = 1 << 1
-		};
-
 		struct Constant
 		{
-			Visibility visibility;
 			uint8_t byteSize;
 			uint8_t bindingPosition;
 		};
 
-		struct DescriptorTable
-		{
-			enum Type
-			{
-				UnorderedAccessView,
-				ShaderResource,
-			};
-			uint8_t bindingPosition;
-		};
-
-		struct ShaderResourceView
-		{
-			uint8_t bindingPosition;
-		};
-
-		struct Sampler
-		{
-			uint8_t bindingPosition;
-		};
-
 		static constexpr int MAX_CONSTANTS = 32;
-		static constexpr int MAX_DESC_TABLES = 32;
-		static constexpr int MAX_SRV = 32;
-		static constexpr int MAX_SAMPLER = 32;
-
-		static constexpr int MAX_PARAMS = MAX_CONSTANTS + MAX_DESC_TABLES + MAX_SRV + MAX_SAMPLER;
 
 		struct Desc
 		{
-			uint32_t numConstants;
+			uint32_t numConstants = 0;
 			Constant constants[MAX_CONSTANTS];
-			uint32_t numDescTables;
-			DescriptorTable descTables[MAX_DESC_TABLES];
-			uint32_t numSRVs;
-			ShaderResourceView srvs[MAX_SRV];
-			uint32_t numSamplers;
-			Sampler samplers[MAX_SAMPLER];
+
+			template<class T>
+			void addParam(uint8_t bindingPosition)
+			{
+				// TODO: Support sizes under 4 bytes, adding padding at the end
+				static_assert(sizeof(T) % 16 == 0);
+				assert(numConstants < MAX_CONSTANTS);
+
+				auto& constant = constants[numConstants++];
+				constant.bindingPosition = bindingPosition;
+				constant.byteSize = sizeof(T);
+			}
 		};
 	};
 
 	class GpuBuffer
 	{};
+
+	// Resolved buffer accessor
+	struct VertexAttribute
+	{
+		uint32_t elementSize() const { return format.byteSize(); }
+		GpuBuffer* data;
+		math::AABB bounds;
+		uint32_t offset;
+		uint32_t stride;
+		uint32_t count;
+		uint32_t byteLenght;
+		DataFormat format;
+		bool normalized;
+	};
 
 	enum class RenderTargetType
 	{
@@ -181,6 +172,39 @@ namespace rev::gfx
 		None = 0,
 		IsRenderTarget = 1,
 		IsDepthStencil = 2,
+	};
+
+	class RasterPipeline
+	{
+	public:
+		struct Attribute
+		{
+			// Source buffer
+			size_t binding; // Location (in shader)
+			size_t offset = 0;
+			DataFormat format;
+			size_t stride = 0;
+			bool normalized = false;
+			const char* name = nullptr;
+
+			static constexpr uint32_t MAX_ATTRIBUTES = 32;
+		};
+
+		struct Desc
+		{
+			RootSignature* signature;
+
+			// Vtx stage
+			int numAttributes;
+			Attribute* vtxAttributes; // TODO: This can be reused later for instance data
+			std::vector<std::string> vtxCode;
+
+			// Pxl stage
+			std::vector<std::string> pxlCode;
+			RasterOptions raster;
+
+			// TODO: Define render target layout
+		};
 	};
 
 	class CommandPool

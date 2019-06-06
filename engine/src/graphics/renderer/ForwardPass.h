@@ -70,7 +70,7 @@ namespace rev::gfx {
 		std::unique_ptr<Material>	mErrorMaterial;
 
 		using ShaderOptions = std::pair<uint32_t,std::string>;
-		using PipelineSet = std::map<ShaderOptions, gfx::Pipeline>;
+		using PipelineSet = std::map<ShaderOptions, gfx::RasterPipeline>;
 		using EffectSelector = std::pair<uint32_t, const Effect*>;
 		std::map<EffectSelector, PipelineSet>	mPipelines;
 
@@ -81,10 +81,10 @@ namespace rev::gfx {
 			return ((mirror?1:0)<<2) | ((environment?1:0)<<1) | (shadows?1:0);
 		}
 
-		gfx::Pipeline getPipeline(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
+		gfx::RasterPipeline getPipeline(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
 		std::string mForwardShaderCommonCode;
-		gfx::Pipeline::PipielineDesc m_commonPipelineDesc; // Config common to all shadow pipelines
+		gfx::RasterPipeline::Desc m_commonPipelineDesc; // Config common to all shadow pipelines
 
 		// Internal rendering structures
 		struct MeshInfo

@@ -101,7 +101,7 @@ namespace rev {
 
 		DoubleBufferSwapChain::Info swapChainInfo;
 		swapChainInfo.pixelFormat.componentType = ScalarType::uint8;
-		swapChainInfo.pixelFormat.numChannels = 4;
+		swapChainInfo.pixelFormat.components = 4;
 		swapChainInfo.size = m_windowSize;
 
 		m_swapChain = m_gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
@@ -157,9 +157,10 @@ namespace rev {
 #endif // _WIN32
 
 	namespace {
-		RenderGeom::Attribute readAttribute(const fx::gltf::Accessor& accessor, const fx::gltf::BufferView& bv, GpuBuffer* data)
+		VertexAttribute readAttribute(const fx::gltf::Document& document, const fx::gltf::Accessor& accessor, GpuBuffer* data)
 		{
-			RenderGeom::Attribute attribute;
+			auto& bv = document.bufferViews[accessor.bufferView];
+			VertexAttribute attribute;
 			attribute.count = accessor.count;
 			attribute.offset = accessor.byteOffset + bv.byteOffset;
 			attribute.byteLenght = bv.byteLength - accessor.byteOffset;
@@ -169,27 +170,22 @@ namespace rev {
 			{
 			case fx::gltf::Accessor::ComponentType::UnsignedByte:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u8;
+				attribute.format.componentType = ScalarType::uint8;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::UnsignedShort:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u16;
+				attribute.format.componentType = ScalarType::uint16;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::UnsignedInt:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::u32;
+				attribute.format.componentType = ScalarType::uint32;
 				break;
 			}
 			case fx::gltf::Accessor::ComponentType::Float:
 			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::Float32;
-				break;
-			}
-			case fx::gltf::Accessor::ComponentType::None:
-			{
-				attribute.componentType = RenderGeom::VtxFormat::Storage::None;
+				attribute.format.componentType = ScalarType::float32;
 				break;
 			}
 			default:
@@ -202,25 +198,25 @@ namespace rev {
 			switch (accessor.type)
 			{
 			case fx::gltf::Accessor::Type::Scalar:
-				attribute.nComponents = 1;
+				attribute.format.components = 1;
 				break;
 			case fx::gltf::Accessor::Type::Vec2:
-				attribute.nComponents = 2;
+				attribute.format.components = 2;
 				break;
 			case fx::gltf::Accessor::Type::Vec3:
-				attribute.nComponents = 3;
+				attribute.format.components = 3;
 				break;
 			case fx::gltf::Accessor::Type::Vec4:
-				attribute.nComponents = 4;
+				attribute.format.components = 4;
 				break;
 			case fx::gltf::Accessor::Type::Mat2:
-				attribute.nComponents = 4;
+				attribute.format.components = 4;
 				break;
 			case fx::gltf::Accessor::Type::Mat3:
-				attribute.nComponents = 9;
+				attribute.format.components = 9;
 				break;
 			case fx::gltf::Accessor::Type::Mat4:
-				attribute.nComponents = 16;
+				attribute.format.components = 16;
 				break;
 			}
 			// Stride
@@ -287,37 +283,42 @@ namespace rev {
 		// Create Buffer views and attributes for the first mesh available
 		auto& primitive = document.meshes[0].primitives[0];
 		auto& indexAccessor = document.accessors[primitive.indices];
-		auto& indexBv = document.bufferViews[indexAccessor.bufferView];
-		RenderGeom::Attribute indexAttribute = readAttribute(indexAccessor, indexBv, m_sceneGpuBuffer);
+		VertexAttribute indexAttribute = readAttribute(document, indexAccessor, m_sceneGpuBuffer);
 		auto& positionAccessor = document.accessors[primitive.attributes.at("POSITION")];
-		auto& positionBv = document.bufferViews[positionAccessor.bufferView];
-		RenderGeom::Attribute positionAttribute = readAttribute(positionAccessor, positionBv, m_sceneGpuBuffer);
+		auto& normalAccessor = document.accessors[primitive.attributes.at("NORMAL")];
+		VertexAttribute vtxAttributes[2];
+		vtxAttributes[0] = readAttribute(document, positionAccessor, m_sceneGpuBuffer);
+		vtxAttributes[1] = readAttribute(document, normalAccessor, m_sceneGpuBuffer);
 
-		m_geom = new RenderGeom(indexAttribute, positionAttribute, nullptr, nullptr, nullptr, nullptr, nullptr);
+		RenderGeom::VtxFormat vtxFormat(RenderGeom::VtxFormat::Storage::Float32, RenderGeom::VtxFormat::Storage::Float32);
+		m_geom = new RenderGeom(vtxFormat, indexAttribute, vtxAttributes, 2);
 
 		// --- Shader work ---
-		Pipeline::Attribute vtxPos;
-		vtxPos.binding = 0;
-		vtxPos.componentType = Pipeline::DataType::Float;
-		vtxPos.numComponents = 3;
-		vtxPos.offset = 0;
-		vtxPos.stride = 3 * sizeof(float);
+		RootSignature::Desc rootSignatureDesc;
+		rootSignatureDesc.addParam<math::Mat44f>(0); // World
+		rootSignatureDesc.addParam<math::Mat44f>(4); // WorldViewProj
+		m_rasterSignature = m_gfxDevice->createRootSignature(rootSignatureDesc);
 
-		Pipeline::Uniform vtxUniforms[2];
-		// World matrix
-		vtxUniforms[0].componentType = Pipeline::Float;
-		vtxUniforms[0].numComponents = 16;
-		vtxUniforms[0].count = 0;
-		// View-Projection matrix
-		vtxUniforms[1].componentType = Pipeline::Float;
-		vtxUniforms[1].numComponents = 16;
-		vtxUniforms[1].count = 0;
+		RasterPipeline::Attribute attributes[2];
+		// Position
+		attributes[0].binding = 0;
+		attributes[0].format.componentType = ScalarType::float32;
+		attributes[0].format.components = 3;
+		attributes[0].offset = 0;
+		attributes[0].stride = 3 * sizeof(float);
+		attributes[0].name = "position";
+		// Normal
+		attributes[1].binding = 0;
+		attributes[1].format.componentType = ScalarType::float32;
+		attributes[1].format.components = 3;
+		attributes[1].offset = 0;
+		attributes[1].stride = 3 * sizeof(float);
+		attributes[1].name = "normal";
 
-		Pipeline::PipielineDesc shaderDesc;
-		shaderDesc.numAttributes = 1;
-		shaderDesc.vtxAttributes = &vtxPos;
-		shaderDesc.vtxUniforms.numUniforms = 2;
-		shaderDesc.vtxUniforms.uniform = vtxUniforms;
+		RasterPipeline::Desc shaderDesc;
+		shaderDesc.signature = m_rasterSignature;
+		shaderDesc.numAttributes = 2;
+		shaderDesc.vtxAttributes = attributes;
 		auto vtxCode = ShaderCodeFragment::loadFromFile("vertex.hlsl");
 		vtxCode->collapse(shaderDesc.vtxCode);
 		auto pxlCode = ShaderCodeFragment::loadFromFile("fragment.hlsl");
@@ -359,8 +360,8 @@ namespace rev {
 		Microsoft::WRL::ComPtr<ID3DBlob> blob;
 		Microsoft::WRL::ComPtr<ID3DBlob> error;
 
-		ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
-		ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
+		//ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
+		//ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -369,8 +370,8 @@ namespace rev {
 		// Create fliby camera
 		m_camNode = new SceneNode("Flyby cam");
 		m_camNode->addComponent<FlyBy>(2.f, 1.f);
-		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, 9.f };
-		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 100.f);
+		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, -400.f };
+		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 1000.f);
 		m_renderCam = &*camComponent->cam();
 
 		m_camNode->init();
@@ -397,19 +398,25 @@ namespace rev {
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
 		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
+		m_frameCmdList->bindRootSignature(m_rasterSignature);
 		m_frameCmdList->bindPipeline(m_gBufferShader);
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
+
 		// Global uniforms
-		// Compute view projection matrix
 		float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-		math::Mat44f viewProj = m_renderCam->viewProj(aspectRatio).transpose();
-		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), viewProj.data());
-		m_frameCmdList->bindAttribute(0, m_geom->vertices().byteLenght, m_geom->vertices().stride, m_geom->vertices().data, m_geom->vertices().offset);
+		math::Mat44f projMatrix = m_renderCam->projection(aspectRatio).transpose();
+		math::Mat44f view = m_renderCam->view();
+		
+		// Attributes
+		m_frameCmdList->bindAttributes(m_geom->numAttributes(), m_geom->attributes());
 		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
+		
 		// Instance Uniforms
-		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), math::Mat44f::identity().data());
+		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), (projMatrix*view).data());
+
 
 		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
 

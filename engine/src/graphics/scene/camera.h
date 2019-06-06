@@ -48,7 +48,6 @@ namespace rev::gfx {
 		math::Mat44f projection(float _aspectRatio) const
 		{
 			assert(mNear != 0 && mFar > mNear);
-			//auto projectionMatrix = math::orthographicMatrix({4.f, 2.f}, mNear, mFar);//(mFov, _aspectRatio, mNear, mFar);
 			return math::frustumMatrix(mFov, _aspectRatio, mNear, mFar);
 		}
 

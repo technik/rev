@@ -27,7 +27,6 @@
 #include "namedResource.h"
 #include "texture2d.h"
 #include "textureSampler.h"
-#include "pipeline.h"
 #include "../shaders/computeShader.h"
 #include "Windows/windowsPlatform.h"
 
@@ -55,11 +54,11 @@ namespace rev :: gfx
 		virtual RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t* offset, RenderTargetType rtType, const GpuBuffer& image) = 0;
 		virtual GpuBuffer* createCommitedResource(BufferType bufferType, size_t bufferSize) = 0;
 		virtual GpuBuffer* createDepthBuffer(math::Vec2u& size) = 0;
-		virtual GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) = 0;
+		virtual GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, DataFormat format) = 0;
 		
 		// Pipelines
 		virtual RootSignature* createRootSignature(const RootSignature::Desc&) = 0;
-		virtual Pipeline* createPipeline(const Pipeline::PipielineDesc&) = 0;
+		virtual RasterPipeline* createPipeline(const RasterPipeline::Desc&) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

@@ -18,7 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "commandListDX12.h"
-#include "pipelineDX12.h"
 #include "d3dx12.h"
 
 namespace rev::gfx {
@@ -79,24 +78,35 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindPipeline(const Pipeline* pipeline)
+	void CommandListDX12::bindRootSignature(const RootSignature* rootSignature)
 	{
-		auto dx12Pipeline = static_cast<const PipelineDX12*>(pipeline);
-		m_commandList->SetPipelineState(dx12Pipeline->m_pipelineState.Get());
-		m_commandList->SetGraphicsRootSignature(dx12Pipeline->m_rootSignature.Get());
+		auto dx12Signature = static_cast<const RootSignatureDX12*>(rootSignature);
+		m_commandList->SetGraphicsRootSignature(dx12Signature->m_signature.Get());
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void CommandListDX12::bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer* attrBuffer, uint32_t offset)
+	void CommandListDX12::bindPipeline(const RasterPipeline* pipeline)
 	{
-		auto dx12buffer = static_cast<GpuBufferDX12*>(attrBuffer);
+		auto dx12Pipeline = static_cast<const PipelineDX12*>(pipeline);
+		m_commandList->SetPipelineState(dx12Pipeline->m_pipelineState.Get());
+	}
 
-		D3D12_VERTEX_BUFFER_VIEW attrDesc;
-		attrDesc.BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + offset;
-		attrDesc.SizeInBytes = sizeInBytes;
-		attrDesc.StrideInBytes = stride;
+	//----------------------------------------------------------------------------------------------
+	void CommandListDX12::bindAttributes(int numAttributes, const VertexAttribute* attributes)
+	{
+		constexpr size_t MAX_ATTR = 8;
+		assert(numAttributes < MAX_ATTR);
+		D3D12_VERTEX_BUFFER_VIEW attrDesc[MAX_ATTR];
 
-		m_commandList->IASetVertexBuffers(binding, 1, &attrDesc);
+		for (int i = 0; i < numAttributes; ++i)
+		{
+			auto dx12buffer = static_cast<GpuBufferDX12*>(attributes[i].data);
+			attrDesc[i].BufferLocation = dx12buffer->m_dx12Buffer->GetGPUVirtualAddress() + attributes[i].offset;
+			attrDesc[i].SizeInBytes = attributes[i].byteLenght;
+			attrDesc[i].StrideInBytes = attributes[i].stride;
+		}
+
+		m_commandList->IASetVertexBuffers(0, numAttributes, attrDesc);
 	}
 
 	//----------------------------------------------------------------------------------------------

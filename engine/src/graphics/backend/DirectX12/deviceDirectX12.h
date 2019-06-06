@@ -55,19 +55,18 @@ namespace rev :: gfx
 
 		GpuBuffer* createCommitedResource(BufferType bufferType, size_t bufferSize) override;
 		GpuBuffer* createDepthBuffer(math::Vec2u& size) override;
-		GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, PixelFormat format) override;
+		GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, DataFormat format) override;
 
 		// Pipelines
 		RootSignature* createRootSignature(const RootSignature::Desc&) override;
-		Pipeline* createPipeline(const Pipeline::PipielineDesc&) override;
+		RasterPipeline* createPipeline(const RasterPipeline::Desc&) override;
 
 	public: // DirectX 12 specific
-		static DXGI_FORMAT dxgiFromPixelFormat(PixelFormat format);
+		static DXGI_FORMAT dxgiFromDataFormat(DataFormat format);
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
 	private:
 		CommandQueueDX12* createCommandQueue(const CommandQueue::Info& queueInfo);
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> createRootSignature(const Pipeline::PipielineDesc& desc);
 		bool compileShaderCode(const std::vector<std::string>& code, ID3DBlob*& shaderModuleBlob, const char* target);
 		void enableDebugInfo();
 		void createDeviceFactory();

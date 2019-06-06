@@ -45,25 +45,20 @@ namespace rev::gfx
 
 	//----------------------------------------------------------------------------------------------
 	RenderGeom::RenderGeom(
-		const Attribute& indices,
-		const Attribute& position,
-		const Attribute* normal,
-		const Attribute* tangent,
-		const Attribute* uv0,
-		const Attribute* weights,
-		const Attribute* joints)
-		: m_indices(indices)
-		, m_vertices(position)
+		const VtxFormat& format,
+		const VertexAttribute& indices,
+		const VertexAttribute* vtxAttributes,
+		uint32_t numAttr)
+		: m_vtxFormat(format)
+		, m_indices(indices)
+		, m_numAttr(numAttr)
 	{
-		m_vtxFormat = VtxFormat(
-			VtxFormat::Storage::Float32,
-			normal?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			tangent?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			uv0?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			(weights&&joints)?VtxFormat::Storage::Float32 : VtxFormat::Storage::None
-		);
-
-		m_bbox = position.bounds;
+		assert(numAttr > 0 && "At least vertex positions must be supplied");
+		m_bbox = vtxAttributes[0].bounds;
+		for (int i = 0; i < numAttr; ++i)
+		{
+			m_vtxAttributes[i] = vtxAttributes[i];
+		}
 	}
 	
 	//----------------------------------------------------------------------------------------------

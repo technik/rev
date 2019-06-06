@@ -26,8 +26,10 @@ namespace rev::gfx {
 	class CommandPool;
 	class Fence;
 	class GpuBuffer;
-	class Pipeline;
+	class RasterPipeline;
 	class RenderTargetView;
+	class RootSignature;
+	struct VertexAttribute;
 
 	class CommandList
 	{
@@ -70,8 +72,9 @@ namespace rev::gfx {
 		virtual void clearRenderTarget(RenderTargetView* rt, math::Vec4f color) = 0;
 		virtual void clearDepth(RenderTargetView* depthBufferView, float depth) = 0;
 
-		virtual void bindPipeline(const Pipeline*) = 0;
-		virtual void bindAttribute(int binding, int sizeInBytes, int stride, GpuBuffer*, uint32_t offset = 0) = 0;
+		virtual void bindRootSignature(const RootSignature*) = 0;
+		virtual void bindPipeline(const RasterPipeline*) = 0;
+		virtual void bindAttributes(int numAttributes, const VertexAttribute* attributes) = 0;
 		virtual void bindIndexBuffer(int sizeInBytes, NdxBufferFormat, GpuBuffer*, uint32_t offset = 0) = 0;
 		virtual void bindRenderTarget(RenderTargetView* color, RenderTargetView* depth) = 0;
 
