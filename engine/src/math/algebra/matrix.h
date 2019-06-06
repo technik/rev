@@ -129,11 +129,12 @@ namespace rev {
 			auto A = (f+n)/(n-f);
 			auto B = 2*f*n/(n-f);
 #else
-			/*auto invRange = 1 / (f - n);
-			auto A = -n * invRange;
+			/*
+			auto invRange = 1 / (f - n);
+			auto A = n * invRange;
 			auto B = -A * f;*/
-			auto A = 0.f;
-			auto B = n;
+			Number_ A = 0;
+			Number_ B = n;
 #endif
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
