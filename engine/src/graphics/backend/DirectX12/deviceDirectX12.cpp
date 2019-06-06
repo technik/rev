@@ -267,12 +267,14 @@ namespace rev :: gfx
 		// Init root constant parameters
 		CD3DX12_ROOT_PARAMETER1 rootParameters[RootSignature::MAX_CONSTANTS];
 
+		int registerSlot = 0;
 		for (uint32_t i = 0; i < desc.numConstants; ++i)
 		{
 			auto& parameter = desc.constants[i];
 			assert(parameter.byteSize % 16 == 0);
+			rootParameters[i].InitAsConstants(parameter.byteSize / 4, registerSlot, 0, D3D12_SHADER_VISIBILITY_ALL);
 			int numRegisters = parameter.byteSize / 16;
-			rootParameters[i].InitAsConstants(parameter.byteSize / 4, i, 0, D3D12_SHADER_VISIBILITY_ALL);
+			registerSlot += numRegisters;
 		}
 
 		// Init root signature descriptor

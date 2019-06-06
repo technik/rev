@@ -370,8 +370,8 @@ namespace rev {
 		// Create fliby camera
 		m_camNode = new SceneNode("Flyby cam");
 		m_camNode->addComponent<FlyBy>(2.f, 1.f);
-		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, -400.f };
-		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 1000.f);
+		m_camNode->addComponent<Transform>()->xForm.position() = math::Vec3f{ 0.0f, 0.f, 5.f };
+		auto camComponent = m_camNode->addComponent<game::Camera>(math::radians(45.f), 0.01f, 10.f);
 		m_renderCam = &*camComponent->cam();
 
 		m_camNode->init();
@@ -395,7 +395,7 @@ namespace rev {
 		cmdPool->reset();
 		m_frameCmdList->reset(*cmdPool);
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
-		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.f, 1.f, 0.f, 1.f));
+		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.1f, 0.1f, 0.1f, 1.f));
 		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
 		m_frameCmdList->bindRootSignature(m_rasterSignature);
@@ -406,16 +406,17 @@ namespace rev {
 
 		// Global uniforms
 		float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-		math::Mat44f projMatrix = m_renderCam->projection(aspectRatio).transpose();
+		math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
 		math::Mat44f view = m_renderCam->view();
+		math::Mat44f worldViewProj = (projMatrix * view);
 		
 		// Attributes
 		m_frameCmdList->bindAttributes(m_geom->numAttributes(), m_geom->attributes());
 		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
 		
 		// Instance Uniforms
-		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), math::Mat44f::identity().data());
-		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), (projMatrix*view).data());
+		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
+		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
 
 
 		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
