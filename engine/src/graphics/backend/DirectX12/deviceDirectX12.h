@@ -37,6 +37,7 @@
 namespace rev :: gfx
 {
 	class RenderTargetViewDX12;
+    class RTTopLevelDX12;
 
 	class DeviceDirectX12 : public Device
 	{
@@ -60,6 +61,9 @@ namespace rev :: gfx
 		// Pipelines
 		RootSignature* createRootSignature(const RootSignature::Desc&) override;
 		RasterPipeline* createPipeline(const RasterPipeline::Desc&) override;
+
+        // Raytracing
+        RTBottomLevelAS* createBottomLevelAS(const RenderGeom*) override;
 
 	public: // DirectX 12 specific
 		static DXGI_FORMAT dxgiFromDataFormat(DataFormat format);

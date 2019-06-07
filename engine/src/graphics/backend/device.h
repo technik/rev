@@ -32,10 +32,11 @@
 
 namespace rev :: gfx
 {
-	class RenderPass;
+    class RenderGeom;
 	class CommandQueue;
 	class CommandPool;
 	class GpuBuffer;
+    class RTBottomLevelAS;
 
 	class Device
 	{
@@ -59,6 +60,9 @@ namespace rev :: gfx
 		// Pipelines
 		virtual RootSignature* createRootSignature(const RootSignature::Desc&) = 0;
 		virtual RasterPipeline* createPipeline(const RasterPipeline::Desc&) = 0;
+
+        // Ray tracing
+        virtual RTBottomLevelAS* createBottomLevelAS(const RenderGeom*) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

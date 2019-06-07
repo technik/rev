@@ -26,6 +26,7 @@
 #include "doubleBufferSwapChainDX12.h"
 #include "fenceDX12.h"
 #include "gpuTypesDX12.h"
+#include "../../scene/renderGeom.h"
 
 #include <fstream>
 #include <string>
@@ -375,6 +376,55 @@ namespace rev :: gfx
 
 		return pipeline;
 	}
+
+    //----------------------------------------------------------------------------------------------
+    RTBottomLevelAS* DeviceDirectX12::createBottomLevelAS(const RenderGeom* primitive)
+    {
+        D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
+        descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+        auto& geomVtx = primitive->attributes()[0];
+        auto vtxData = static_cast<const GpuBufferDX12*>(geomVtx.data)->m_dx12Buffer;
+        descriptor.Triangles.VertexBuffer.StartAddress =
+            vtxData->GetGPUVirtualAddress() + geomVtx.offset;
+        descriptor.Triangles.VertexBuffer.StrideInBytes = geomVtx.stride;
+        descriptor.Triangles.VertexCount = geomVtx.count;
+        descriptor.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+
+        auto& indices = primitive->indices();
+        auto ndxData = static_cast<const GpuBufferDX12*>(indices.data)->m_dx12Buffer;
+        descriptor.Triangles.IndexBuffer = ndxData->GetGPUVirtualAddress() + indices.offset;
+        assert(indices.elementSize() > 1);
+        descriptor.Triangles.IndexFormat = indices.elementSize() == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+        descriptor.Triangles.IndexCount = indices.count;
+        descriptor.Triangles.Transform3x4 = 0;
+        descriptor.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+
+        // Describe the work being requested, in this case the construction of a
+        // bottom-level hierarchy, with the given vertex buffers
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc;
+        prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+        prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+        prebuildDesc.NumDescs = 1;
+        prebuildDesc.pGeometryDescs = &descriptor;
+        prebuildDesc.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+
+        // This structure is used to hold the sizes of the required scratch memory and resulting AS
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
+
+        // Building the acceleration structure (AS) requires some scratch space, as well as space to store
+        // the resulting structure This function computes a conservative estimate of the memory
+        // requirements for both, based on the geometry size.
+        m_d3d12Device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
+
+        // Allocate temporary memory
+        // Buffer sizes need to be 256-byte-aligned
+        UINT64 scratchSize = info.ScratchDataSizeInBytes;
+        scratchSize += D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - scratchSize % D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+        UINT64 resultSize = info.ResultDataMaxSizeInBytes;
+        resultSize += D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - resultSize % D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+
+        return nullptr;
+    }
 
 	//----------------------------------------------------------------------------------------------
 	DescriptorHeap* DeviceDirectX12::createDescriptorHeap(uint32_t numDescriptors, DescriptorType type, bool shaderVisible)

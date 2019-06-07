@@ -356,12 +356,9 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::initRaytracing()
 	{
-		// Create global root signature
-		Microsoft::WRL::ComPtr<ID3DBlob> blob;
-		Microsoft::WRL::ComPtr<ID3DBlob> error;
-
-		//ThrowIfFailed(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error), error ? static_cast<wchar_t*>(error->GetBufferPointer()) : nullptr);
-		//ThrowIfFailed(device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&(*rootSig))));		
+		// Create the DX12 descriptor representing the input data, assumed to be
+		// opaque triangles, with 3xf32 vertex coordinates and 32-bit indices
+        auto rtGeom = m_gfxDevice->createBottomLevelAS(m_geom);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
