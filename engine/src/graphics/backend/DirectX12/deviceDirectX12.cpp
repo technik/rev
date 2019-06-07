@@ -324,7 +324,7 @@ namespace rev :: gfx
 			assert(!descAttr.format.sRGB);
 			attribute.Format = dxgiFromDataFormat(descAttr.format);
 			attribute.InputSlot = (UINT)descAttr.binding;
-			attribute.AlignedByteOffset = 0; // sizeof(rev::math::Vec3f); ?
+            attribute.AlignedByteOffset = descAttr.stride;
 			attribute.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA; // TODO: Per instance attributes
 		}
 
@@ -401,7 +401,7 @@ namespace rev :: gfx
 
         // Describe the work being requested, in this case the construction of a
         // bottom-level hierarchy, with the given vertex buffers
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc;
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc{};
         prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
         prebuildDesc.NumDescs = 1;

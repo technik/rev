@@ -304,15 +304,15 @@ namespace rev {
 		attributes[0].binding = 0;
 		attributes[0].format.componentType = ScalarType::float32;
 		attributes[0].format.components = 3;
-		attributes[0].offset = 0;
-		attributes[0].stride = 3 * sizeof(float);
+		attributes[0].offset = vtxAttributes[0].offset;
+		attributes[0].stride = vtxAttributes[0].stride;
 		attributes[0].name = "position";
 		// Normal
 		attributes[1].binding = 0;
 		attributes[1].format.componentType = ScalarType::float32;
 		attributes[1].format.components = 3;
-		attributes[1].offset = 0;
-		attributes[1].stride = 3 * sizeof(float);
+		attributes[1].offset = vtxAttributes[1].offset;
+		attributes[1].stride = vtxAttributes[1].stride;
 		attributes[1].name = "normal";
 
 		RasterPipeline::Desc shaderDesc;
@@ -409,7 +409,7 @@ namespace rev {
 		
 		// Attributes
 		m_frameCmdList->bindAttributes(m_geom->numAttributes(), m_geom->attributes());
-		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data);
+		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
 		
 		// Instance Uniforms
 		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
