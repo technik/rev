@@ -36,7 +36,6 @@ namespace rev :: gfx
 	class CommandQueue;
 	class CommandPool;
 	class GpuBuffer;
-    class RTBottomLevelAS;
 
 	class Device
 	{
@@ -62,7 +61,7 @@ namespace rev :: gfx
 		virtual RasterPipeline* createPipeline(const RasterPipeline::Desc&) = 0;
 
         // Ray tracing
-        virtual RTBottomLevelAS* createBottomLevelAS(const RenderGeom*) = 0;
+        virtual RTBottomLevelAS* createBottomLevelAS(const RenderGeom*, CommandList&) = 0;
 
 		/*virtual RenderQueue& renderQueue() = 0;
 

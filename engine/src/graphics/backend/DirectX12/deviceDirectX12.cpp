@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <d3dcompiler.h>
 #include "d3dx12.h"
+//#include "../../../../../samples/gltfViewer/src/DXRHelper.h"
 
 #include "commandListDX12.h"
 #include "commandQueueDX12.h"
@@ -206,9 +207,6 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	GpuBuffer* DeviceDirectX12::createDepthBuffer(math::Vec2u& size)
 	{
-		// Default resource state
-		D3D12_RESOURCE_STATES defaultState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-
 		// Resource descriptor
 		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 			DXGI_FORMAT_D32_FLOAT,
@@ -377,8 +375,43 @@ namespace rev :: gfx
 		return pipeline;
 	}
 
+	// Specifies a heap used for uploading. This heap type has CPU access optimized
+// for uploading to the GPU.
+	static const D3D12_HEAP_PROPERTIES kUploadHeapProps = {
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 };
+
+	// Specifies the default heap. This heap type experiences the most bandwidth for
+	// the GPU, but cannot provide CPU access.
+	static const D3D12_HEAP_PROPERTIES kDefaultHeapProps = {
+		D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0 };
+	//--------------------------------------------------------------------------------------------------
+	//
+	//
+	inline ID3D12Resource* CreateBuffer(ID3D12Device* m_device, uint64_t size,
+		D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES initState,
+		const D3D12_HEAP_PROPERTIES& heapProps)
+	{
+		D3D12_RESOURCE_DESC bufDesc = {};
+		bufDesc.Alignment = 0;
+		bufDesc.DepthOrArraySize = 1;
+		bufDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufDesc.Flags = flags;
+		bufDesc.Format = DXGI_FORMAT_UNKNOWN;
+		bufDesc.Height = 1;
+		bufDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		bufDesc.MipLevels = 1;
+		bufDesc.SampleDesc.Count = 1;
+		bufDesc.SampleDesc.Quality = 0;
+		bufDesc.Width = size;
+
+		ID3D12Resource* pBuffer;
+		ThrowIfFailed(m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &bufDesc,
+			initState, nullptr, IID_PPV_ARGS(&pBuffer)));
+		return pBuffer;
+	}
+
     //----------------------------------------------------------------------------------------------
-    RTBottomLevelAS* DeviceDirectX12::createBottomLevelAS(const RenderGeom* primitive)
+    RTBottomLevelAS* DeviceDirectX12::createBottomLevelAS(const RenderGeom* primitive, CommandList& cmdList)
     {
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
         descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
@@ -423,7 +456,44 @@ namespace rev :: gfx
         UINT64 resultSize = info.ResultDataMaxSizeInBytes;
         resultSize += D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - resultSize % D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
 
-        return nullptr;
+		// Resource descriptor
+		auto scratchBuffer = CreateBuffer(m_d3d12Device.Get(), scratchSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_COMMON, kDefaultHeapProps);
+		auto blasBuffer = CreateBuffer(
+			m_d3d12Device.Get(), resultSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, kDefaultHeapProps);
+
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+		
+
+		// Sanity checks
+		if (resultSize == 0 || scratchSize == 0)
+		{
+			throw std::logic_error("Invalid scratch and result buffer sizes - ComputeASBufferSizes needs "
+				"to be called before Build");
+			return nullptr;
+		}
+		// Create a descriptor of the requested builder work, to generate a
+		// bottom-level AS from the input parameters
+		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+		buildDesc.DestAccelerationStructureData = blasBuffer->GetGPUVirtualAddress();
+		buildDesc.Inputs = prebuildDesc;
+		buildDesc.ScratchAccelerationStructureData = scratchBuffer->GetGPUVirtualAddress();
+
+		// Build the AS
+		auto cmdListDx12 = reinterpret_cast<CommandListDX12&>(cmdList).m_commandList;
+		cmdListDx12->BuildRaytracingAccelerationStructure(&buildDesc, 0, NULL);
+
+		// Wait for the builder to complete by setting a barrier on the resulting buffer. This is
+		// particularly important as the construction of the top-level hierarchy may be called right
+		// afterwards, before executing the command list.
+		D3D12_RESOURCE_BARRIER uavBarrier;
+		uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+		uavBarrier.UAV.pResource = blasBuffer;
+		uavBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
+		auto result = new RTBottomLevelASDX12();
+		result->m_dx12Buffer = blasBuffer;
     }
 
 	//----------------------------------------------------------------------------------------------

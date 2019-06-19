@@ -220,4 +220,8 @@ namespace rev::gfx
 
 		virtual void reset() = 0;
 	};
+
+
+	class RTBottomLevelAS
+	{};
 }

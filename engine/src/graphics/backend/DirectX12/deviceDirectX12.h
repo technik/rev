@@ -63,13 +63,14 @@ namespace rev :: gfx
 		RasterPipeline* createPipeline(const RasterPipeline::Desc&) override;
 
         // Raytracing
-        RTBottomLevelAS* createBottomLevelAS(const RenderGeom*) override;
+        RTBottomLevelAS* createBottomLevelAS(const RenderGeom*, CommandList&) override;
 
 	public: // DirectX 12 specific
 		static DXGI_FORMAT dxgiFromDataFormat(DataFormat format);
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
 	private:
+		GpuBufferDX12* createUABuffer(BufferType bufferType, size_t bufferSize);
 		CommandQueueDX12* createCommandQueue(const CommandQueue::Info& queueInfo);
 		bool compileShaderCode(const std::vector<std::string>& code, ID3DBlob*& shaderModuleBlob, const char* target);
 		void enableDebugInfo();

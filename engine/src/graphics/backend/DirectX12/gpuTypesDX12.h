@@ -63,6 +63,12 @@ namespace rev::gfx
 	};
 
 	//-------------------------------------------------------------------------------------------------
+	struct RTBottomLevelASDX12 : public RTBottomLevelAS
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_dx12Buffer;
+	};
+
+	//-------------------------------------------------------------------------------------------------
 	class RenderTargetViewDX12 : public RenderTargetView
 	{
 	public:
