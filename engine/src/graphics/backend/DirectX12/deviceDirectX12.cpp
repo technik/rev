@@ -322,7 +322,7 @@ namespace rev :: gfx
 			assert(!descAttr.format.sRGB);
 			attribute.Format = dxgiFromDataFormat(descAttr.format);
 			attribute.InputSlot = (UINT)descAttr.binding;
-            attribute.AlignedByteOffset = descAttr.stride;
+            attribute.AlignedByteOffset = 0;
 			attribute.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA; // TODO: Per instance attributes
 		}
 
