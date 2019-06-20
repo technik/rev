@@ -417,7 +417,7 @@ namespace rev {
 		graph.passCallback("G-Pass", 
 			[&]() {
 				gBuffer = pass.create(Vec4f::zero());
-                pass.clear(depthBuffer);
+				pass.clear(depthBuffer);
 				pass.write(depthBuffer);
 			},
 			[](CommandList& cmdList) {
@@ -434,7 +434,7 @@ namespace rev {
 		// Color passes
 		auto colorBuffer = graph.addRT(3, f32);
 		// Background pass
-        graph.clearPass(colorBuffer, Vec4f::zero());
+		graph.clearPass(colorBuffer, Vec4f::zero());
 		graph.addFilterPass(2, { m_depthBuffer, m_gBuffer }, colorBuffer, "background.hlsl"); // Here, color buffer is taken by reference, and modified because the pass writes to it, true at the end forces a clear
 		// IBL Pass
 		graph.addFilterPass(3, { m_depthBuffer, m_gBuffer, aoBuffer }, colorBuffer, "IBL.hlsl");
@@ -457,7 +457,7 @@ namespace rev {
 		//*/
 
 		// Concept code to replace the simple G-Buffer pass below
-		/*
+		//*
 		RenderGraph graph;
 		graph.addPass("G-Pass",
 			[&](RenderGraph::Pass& pass)

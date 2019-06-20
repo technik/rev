@@ -27,48 +27,60 @@
 
 namespace rev::gfx {
 
-    class CommandList;
-    class GpuBuffer;
-    class RenderTargetView;
+	class CommandList;
+	class GpuBuffer;
+	class RenderTargetView;
 
 	class RenderGraph
 	{
 	public:
+		static constexpr unsigned MaxBuffers = 32;
 
-        // Render resources
-        struct DepthRT
-        {};
+		// Render resources
+		struct DepthRT
+		{
+			uint32_t id;
+		};
 
-        struct ColorRT
-        {};
+		struct ColorRT
+		{
+			uint32_t id;
+		};
 
-        struct Pass
-        {
-            void clear(DepthRT&, float clearValue);
-            void write(DepthRT&);
-            void read(DepthRT);
+		class Pass
+		{
+		public:
+			void clear(DepthRT&, float clearValue);
+			void write(DepthRT&);
+			void read(DepthRT);
 
-            void clear(ColorRT&, const math::Vec4f& clearValue);
-            void write(uint32_t bindSlot, ColorRT&);
-        };
+			void clear(ColorRT&, const math::Vec4f& clearValue);
+			void write(uint32_t bindSlot, ColorRT&);
 
-        using PassExecutionCb = std::function<void(CommandList&)>;
-        using PassConstructionCb = std::function<void(Pass&)>;
+		private:
+		};
 
-        // Resources
-        DepthRT createDepthRT(const math::Vec2u& size);
-        ColorRT importRT(const GpuBuffer& buffer, const RenderTargetView& rt, CommandList::ResourceState defaultState);
+		using PassExecutionCb = std::function<void(CommandList&)>;
+		using PassConstructionCb = std::function<void(Pass&)>;
 
-        // Render passes
-        Pass& addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
+		// Resources
+		DepthRT createDepthRT(const math::Vec2u& size);
+		ColorRT importRT(const GpuBuffer& buffer, const RenderTargetView& rt, CommandList::ResourceState defaultState);
 
-        // RenderGraph lifetime
-        void reset();
-        void compile();
-        void record(); // Optionally submit command lists on the fly as they are recorded
+		// Render passes
+		void addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
 
-        // Imgui based debug interface
-        void drawGraph();
+		// RenderGraph lifetime
+		void reset();
+		void compile();
+		void record(); // Optionally submit command lists on the fly as they are recorded
+
+		// Imgui based debug interface
+		void drawGraph();
+
+	private:
+		GpuBuffer* m_gpuBuffers[MaxBuffers];
+		RenderTargetView* m_renderTargets[MaxBuffers];
 	};
 
 }
