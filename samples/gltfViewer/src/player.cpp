@@ -459,38 +459,39 @@ namespace rev {
 		// Concept code to replace the simple G-Buffer pass below
 		/*
 		RenderGraph graph;
-        graph.addLambdaPass("G-Pass",
-            [&](RenderGraph& pass)
-            {
-                auto z = graph.createDT(m_windowSize, 0.f);
-                pass.clear(z);
-                pass.write(z);
+		graph.addPass("G-Pass",
+			[&](RenderGraph::Pass& pass)
+			{
+				auto z = graph.createDepthRT(m_windowSize);
+				pass.clear(z, 0.f);
+				pass.write(z);
 
-                auto backBuffer = m_backBuffers[m_backBufferIndex];
-                auto gBuffer = graph.importRT(backBuffer, ResourceState::RT);
-                pass.clear(gBuffer);
-                pass.write(0, gBuffer); // 0 is the binding spot
-            },
-            [this](CommandList& cmdList){
-                cmdList.bindRootSignature(m_rasterSignature);
-                cmdList.bindPipeline(m_gBufferShader);
+				auto backBuffer = m_backBuffers[m_backBufferIndex];
+                auto backBufferRT = m_swapChain->renderTarget(m_backBufferIndex);
+				auto gBuffer = graph.importRT(*backBuffer, *backBufferRT, CommandList::ResourceState::Present);
+				pass.clear(gBuffer, math::Vec4f::zero());
+				pass.write(0, gBuffer); // 0 is the binding spot
+			},
+			[this](CommandList& cmdList){
+				cmdList.bindRootSignature(m_rasterSignature);
+				cmdList.bindPipeline(m_gBufferShader);
 
-                // Global uniforms
-                float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-                math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
-                math::Mat44f view = m_renderCam->view();
-                math::Mat44f worldViewProj = (projMatrix * view);
+				// Global uniforms
+				float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
+				math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
+				math::Mat44f view = m_renderCam->view();
+				math::Mat44f worldViewProj = (projMatrix * view);
 
-                // Attributes
-                cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
-                cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
+				// Attributes
+				cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
+				cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
 
-                // Instance Uniforms
-                cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
-                cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+				// Instance Uniforms
+				cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
+				cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
 
-                cmdList.drawIndexed(0, m_geom->indices().count, 0);
-            });
+				cmdList.drawIndexed(0, m_geom->indices().count, 0);
+			});
 		//*/
 
 

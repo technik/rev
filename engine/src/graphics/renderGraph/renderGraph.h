@@ -19,18 +19,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <functional>
+#include <string_view>
+
+#include <graphics/backend/commandList.h>
+#include <math/algebra/vector.h>
+
 namespace rev::gfx {
+
+    class CommandList;
+    class GpuBuffer;
+    class RenderTargetView;
 
 	class RenderGraph
 	{
 	public:
+
+        // Render resources
+        struct DepthRT
+        {};
+
+        struct ColorRT
+        {};
+
+        struct Pass
+        {
+            void clear(DepthRT&, float clearValue);
+            void write(DepthRT&);
+            void read(DepthRT);
+
+            void clear(ColorRT&, const math::Vec4f& clearValue);
+            void write(uint32_t bindSlot, ColorRT&);
+        };
+
+        using PassExecutionCb = std::function<void(CommandList&)>;
+        using PassConstructionCb = std::function<void(Pass&)>;
+
+        // Resources
+        DepthRT createDepthRT(const math::Vec2u& size);
+        ColorRT importRT(const GpuBuffer& buffer, const RenderTargetView& rt, CommandList::ResourceState defaultState);
+
+        // Render passes
+        Pass& addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
+
+        // RenderGraph lifetime
         void reset();
-
-        void addLambdaPass();
-        void addSubgraph();
-
         void compile();
         void record(); // Optionally submit command lists on the fly as they are recorded
+
+        // Imgui based debug interface
+        void drawGraph();
 	};
 
 }
