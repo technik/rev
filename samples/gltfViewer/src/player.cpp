@@ -126,6 +126,14 @@ namespace rev {
 		auto depth_heap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::DepthStencil);
 		m_depthBV = m_gfxDevice->createRenderTargetView(*depth_heap, nullptr, RenderTargetType::Depth, *m_depthBuffer);
 
+        // Create G-Buffer
+        DataFormat gBufferFormat;
+        gBufferFormat.components = 4;
+        gBufferFormat.componentType = ScalarType::float32;
+        m_gBuffer = m_gfxDevice->createRenderTargetBuffer(m_windowSize, gBufferFormat);
+        auto rtHeap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::RenderTarget);
+        m_gBV = m_gfxDevice->createRenderTargetView(*rtHeap, nullptr, RenderTargetType::Color, *m_gBuffer);
+
 		// Create two command pools, for alternate frames
 		int backBufferIndex = 0;
 		m_frameCmdPools[0] = m_gfxDevice->createCommandPool(CommandList::Graphics);
@@ -139,7 +147,7 @@ namespace rev {
 		
 		loadScene(options.scene);
 
-		initRaytracing();
+		//initRaytracing();
 
 		createCamera();
 
@@ -402,6 +410,7 @@ namespace rev {
 		cmdPool->reset();
 		m_frameCmdList->reset(*cmdPool);
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
+        m_frameCmdList->clearRenderTarget(m_gBV, Vec4f(0.0f, 0.0f, 0.0f, 0.f));
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.1f, 0.1f, 0.1f, 1.f));
 		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
@@ -424,7 +433,6 @@ namespace rev {
 		// Instance Uniforms
 		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
 		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
-
 
 		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
 
