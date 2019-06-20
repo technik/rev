@@ -23,6 +23,8 @@
 #include <math/algebra/matrix.h>
 #include <iostream>
 
+#include <graphics/renderGraph/renderGraph.h>
+
 using namespace rev::math;
 using namespace rev::gfx;
 using namespace rev::game;
@@ -403,6 +405,96 @@ namespace rev {
 		
 		// Render scene
 		auto& graphicsQueue = m_gfxDevice->commandQueue(0);
+
+
+		// Concept code for how the render graph API would be used
+		/*
+		RenderGraph graph;
+		// GBuffer pass
+		int gBuffer; // Actually a rendergraph::RT resource, so it's type safe
+		auto depthBuffer = graph.addDB(f32);
+
+		graph.passCallback("G-Pass", 
+			[&]() {
+				gBuffer = pass.create(Vec4f::zero());
+                pass.clear(depthBuffer);
+				pass.write(depthBuffer);
+			},
+			[](CommandList& cmdList) {
+				cmdList.bindRootSignature();
+				cmdList.bindPipeline();
+
+				cmdList.bindAttributes();
+				cmdList.drawIndexed();
+		});
+
+		// AO Pass
+		auto aoBuffer = graph.addFilterPass(2, { depthBuffer, gBuffer }, "AO.hlsl");
+
+		// Color passes
+		auto colorBuffer = graph.addRT(3, f32);
+		// Background pass
+        graph.clearPass(colorBuffer, Vec4f::zero());
+		graph.addFilterPass(2, { m_depthBuffer, m_gBuffer }, colorBuffer, "background.hlsl"); // Here, color buffer is taken by reference, and modified because the pass writes to it, true at the end forces a clear
+		// IBL Pass
+		graph.addFilterPass(3, { m_depthBuffer, m_gBuffer, aoBuffer }, colorBuffer, "IBL.hlsl");
+		// Transparent forward pass
+		graph.passCallback("Transparent forward", 
+			[&]() {
+				pass.read(depthBuffer);
+				pass.write(colorBuffer)
+			},
+			[](CommandList& cmdList) {
+				cmdList.bindRootSignature();
+				cmdList.bindPipeline();
+
+				cmdList.bindAttributes();
+				cmdList.drawIndexed();
+		});
+		// HDR Pass
+		auto backBuffer = graph.importRT(m_backBufferIndex, ResourceState::RT);
+		graph.addFilterPass(colorBuffer, backBuffer, "hdr.hlsl");
+		//*/
+
+		// Concept code to replace the simple G-Buffer pass below
+		/*
+		RenderGraph graph;
+        graph.addLambdaPass("G-Pass",
+            [&](RenderGraph& pass)
+            {
+                auto z = graph.createDT(m_windowSize, 0.f);
+                pass.clear(z);
+                pass.write(z);
+
+                auto backBuffer = m_backBuffers[m_backBufferIndex];
+                auto gBuffer = graph.importRT(backBuffer, ResourceState::RT);
+                pass.clear(gBuffer);
+                pass.write(0, gBuffer); // 0 is the binding spot
+            },
+            [this](CommandList& cmdList){
+                cmdList.bindRootSignature(m_rasterSignature);
+                cmdList.bindPipeline(m_gBufferShader);
+
+                // Global uniforms
+                float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
+                math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
+                math::Mat44f view = m_renderCam->view();
+                math::Mat44f worldViewProj = (projMatrix * view);
+
+                // Attributes
+                cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
+                cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
+
+                // Instance Uniforms
+                cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
+                cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+
+                cmdList.drawIndexed(0, m_geom->indices().count, 0);
+            });
+		//*/
+
+
+
 
 		// Render
 		CommandPool* cmdPool = m_frameCmdPools[m_backBufferIndex];
