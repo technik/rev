@@ -19,110 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "../backend/namedResource.h"
-#include <functional>
-#include <graphics/backend/frameBuffer.h>
-#include <graphics/backend/texture2d.h>
-#include <map>
-#include <math/algebra/vector.h>
-
 namespace rev::gfx {
-
-	class CommandBuffer;
-	class Device;
 
 	class RenderGraph
 	{
 	public:
-		RenderGraph(Device&);
-		// Graph lifetime
-		void reset();
-		void compile();
-		// Record graph execution into a command buffer for deferred submision
-		void recordExecution(CommandBuffer& dst);
-		void run(); // Execute graph on the fly, submitting command buffers as they are ready
-		void clearResources(); // Free allocated memory resources
+        void reset();
 
-		// Resources
-		enum class DepthFormat
-		{
-			f24,
-			f32
-		};
+        void addLambdaPass();
+        void addSubgraph();
 
-		struct Attachment : NamedResource {
-			Attachment() = default;
-			Attachment(int id) : NamedResource(id) {}
-		};
-
-		// Graph building
-		enum class ReadMode
-		{
-			clear,
-			keep,
-			discard
-		};
-
-		enum HWAntiAlias
-		{
-			none,
-			msaa2x,
-			msaa4x,
-			msaa8x
-		};
-
-		struct FrameBufferOptions
-		{
-			math::Vec2u size;
-		};
-
-		struct Pass : NamedResource {
-			Pass() = default;
-			Pass(int id) : NamedResource(id) {}
-		};
-
-		Pass pass(const math::Vec2u& size, HWAntiAlias);
-		void readColor(Pass, int bindingLocation, Attachment);
-		void readDepth(Pass, int bindingLocation, Attachment);
-		// By default, write to a new resource
-		Attachment writeColor(Pass, DataFormat, int bindingLocation, ReadMode, Attachment = Attachment());
-		Attachment writeDepth(Pass, DepthFormat, ReadMode, Attachment = Attachment());
-
-		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;
-		template<class PassExec>
-		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
-
-		// Resource access during execution
-		Texture2d getTexture(Attachment) const;
-
-	private:
-		Device& m_device;
-		int m_nextResourceId = 0;
-
-		struct WriteAttachment
-		{
-			ReadMode m_readMode;
-			Attachment m_beforeWrite;
-			Attachment m_afterWrite;
-		};
-
-		struct RenderPassInfo
-		{
-			std::map<int, Attachment> m_colorInputs;
-			std::map<int, Attachment> m_depthInputs;
-			std::map<int, WriteAttachment> m_colorOutputs;
-			WriteAttachment m_depthOutput;
-
-			math::Vec2u m_targetSize;
-			PassExecution m_execution;
-			HWAntiAlias m_antiAlias;
-
-			FrameBuffer m_targetFB;
-		};
-
-		std::vector<RenderPassInfo> m_renderPasses;
-		std::map<int32_t,Texture2d> m_resolvedTextures;
-		TextureSampler m_linearSampler;
+        void compile();
+        void record(); // Optionally submit command lists on the fly as they are recorded
 	};
 
 }
