@@ -457,10 +457,10 @@ namespace rev {
 		//*/
 
 		// Concept code to replace the simple G-Buffer pass below
-		//*
+		/*
 		RenderGraph graph;
 		graph.addPass("G-Pass",
-			[&](RenderGraph::Pass& pass)
+			[&](RenderGraph::PassBuilder& pass)
 			{
 				auto z = graph.createDepthRT(m_windowSize);
 				pass.clear(z, 0.f);

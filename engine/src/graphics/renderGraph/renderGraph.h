@@ -20,6 +20,7 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <string_view>
 
 #include <graphics/backend/commandList.h>
@@ -35,6 +36,9 @@ namespace rev::gfx {
 	{
 	public:
 		static constexpr unsigned MaxBuffers = 32;
+		static constexpr unsigned MaxPasses = 32;
+
+		~RenderGraph() { reset(); }
 
 		// Render resources
 		struct DepthRT
@@ -47,21 +51,19 @@ namespace rev::gfx {
 			uint32_t id;
 		};
 
-		class Pass
+		class PassBuilder
 		{
 		public:
-			void clear(DepthRT&, float clearValue);
-			void write(DepthRT&);
-			void read(DepthRT);
+			virtual void clear(DepthRT&, float clearValue) = 0;
+			virtual void write(DepthRT&) = 0;
+			virtual void read(DepthRT) = 0;
 
-			void clear(ColorRT&, const math::Vec4f& clearValue);
-			void write(uint32_t bindSlot, ColorRT&);
-
-		private:
+			virtual void clear(ColorRT&, const math::Vec4f& clearValue) = 0;
+			virtual void write(uint32_t bindSlot, ColorRT&) = 0;
 		};
 
+		using PassConstructionCb = std::function<void(PassBuilder&)>;
 		using PassExecutionCb = std::function<void(CommandList&)>;
-		using PassConstructionCb = std::function<void(Pass&)>;
 
 		// Resources
 		DepthRT createDepthRT(const math::Vec2u& size);
@@ -79,8 +81,41 @@ namespace rev::gfx {
 		void drawGraph();
 
 	private:
-		GpuBuffer* m_gpuBuffers[MaxBuffers];
-		RenderTargetView* m_renderTargets[MaxBuffers];
+		GpuBuffer* m_gpuBuffers[MaxBuffers] = {};
+		RenderTargetView* m_renderTargets[MaxBuffers] = {};
+		uint32_t m_numBuffers;
+
+		struct PassDesc
+		{
+			std::string name;
+			PassConstructionCb constructionCb;
+			PassExecutionCb executionCb;
+
+			// TODO: Break this struct into two: desc + built
+			bool clearZ = false;
+			bool clearColor = false;
+			float zValue = 0.f;
+			math::Vec4f color;
+
+			uint32_t colorAttach = uint32_t(-1);
+			uint32_t depthAttach = uint32_t(-1);
+		};
+
+		class PassBuilderImpl : public PassBuilder
+		{
+		public:
+			void clear(DepthRT&, float clearValue) override;
+			void write(DepthRT&) override;
+			void read(DepthRT) override;
+
+			void clear(ColorRT&, const math::Vec4f& clearValue) override;
+			void write(uint32_t bindSlot, ColorRT&) override;
+
+			PassDesc* currentPass = nullptr;
+		};
+
+		PassDesc m_passes[MaxPasses];
+		uint32_t m_numPasses;
 	};
 
 }

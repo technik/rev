@@ -18,3 +18,34 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "renderGraph.h"
+
+namespace rev::gfx {
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::addPass(std::string_view passName, const PassConstructionCb& constructCb, const PassExecutionCb& execCb)
+	{
+		m_passes[m_numPasses++] = { std::string(passName), constructCb, execCb };
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::compile()
+	{
+		PassBuilderImpl builder;
+		for(int i = 0; i < m_numPasses; ++i)
+		{ 
+			auto& pass = m_passes[i];
+			builder.currentPass = &m_passes[i];
+			pass.constructionCb(builder);
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::record()
+	{
+		for (int i = 0; i < m_numPasses; ++i)
+		{
+			auto& pass = m_passes[i];
+			//pass.executionCb(builder);
+		}
+	}
+}
