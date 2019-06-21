@@ -174,8 +174,6 @@ namespace rev {
 			});
 		//*/
 
-		graph.compile(*m_gfxDevice);
-
 		// Create command list for copying data
 		m_copyCommandPool = m_gfxDevice->createCommandPool(CommandList::Copy);
 		
@@ -499,6 +497,7 @@ namespace rev {
 		//m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		//m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
 
+		graph.compile(*m_gfxDevice);
 		graph.record(*m_frameCmdList);
 
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);

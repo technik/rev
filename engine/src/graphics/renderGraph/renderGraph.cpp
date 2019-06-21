@@ -74,6 +74,8 @@ namespace rev::gfx {
 	{
 		m_gfxDevice = &gfxDevice;
 
+		m_numBuffers = 0;
+
 		PassBuilderImpl builder;
 		for(unsigned i = 0; i < m_numPasses; ++i)
 		{ 
