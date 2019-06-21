@@ -67,7 +67,7 @@ namespace rev::gfx {
 
 		// Resources
 		DepthRT createDepthRT(const math::Vec2u& size);
-		ColorRT importRT(const GpuBuffer& buffer, const RenderTargetView& rt, CommandList::ResourceState defaultState);
+		ColorRT importRT(GpuBuffer& buffer, RenderTargetView& rt, CommandList::ResourceState defaultState);
 
 		// Render passes
 		void addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
@@ -75,15 +75,15 @@ namespace rev::gfx {
 		// RenderGraph lifetime
 		void reset();
 		void compile();
-		void record(); // Optionally submit command lists on the fly as they are recorded
+		void record(CommandList& cmdList); // Optionally submit command lists on the fly as they are recorded?
 
 		// Imgui based debug interface
-		void drawGraph();
+		void drawGraph() {}
 
 	private:
 		GpuBuffer* m_gpuBuffers[MaxBuffers] = {};
 		RenderTargetView* m_renderTargets[MaxBuffers] = {};
-		uint32_t m_numBuffers;
+		uint32_t m_numBuffers = 0;
 
 		struct PassDesc
 		{
@@ -104,18 +104,18 @@ namespace rev::gfx {
 		class PassBuilderImpl : public PassBuilder
 		{
 		public:
-			void clear(DepthRT&, float clearValue) override;
-			void write(DepthRT&) override;
-			void read(DepthRT) override;
+			void clear(DepthRT&, float clearValue) override {}
+			void write(DepthRT&) override {}
+			void read(DepthRT) override {}
 
-			void clear(ColorRT&, const math::Vec4f& clearValue) override;
-			void write(uint32_t bindSlot, ColorRT&) override;
+			void clear(ColorRT&, const math::Vec4f& clearValue) override {}
+			void write(uint32_t bindSlot, ColorRT&) override {}
 
 			PassDesc* currentPass = nullptr;
 		};
 
 		PassDesc m_passes[MaxPasses];
-		uint32_t m_numPasses;
+		uint32_t m_numPasses = 0;
 	};
 
 }

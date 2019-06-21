@@ -144,6 +144,43 @@ namespace rev {
 		m_frameCmdList->close(); // Close immediately so that we can immediately reset it at the beginning of the first frame
 		m_frameFence = m_gfxDevice->createFence();
 
+		// Concept code to replace the simple G-Buffer pass below
+		//*
+		graph.addPass("G-Pass",
+			[this](RenderGraph::PassBuilder& pass)
+			{
+				auto z = graph.createDepthRT(m_windowSize);
+				pass.clear(z, 0.f);
+				pass.write(z);
+
+				auto backBuffer = m_backBuffers[m_backBufferIndex];
+				auto backBufferRT = m_swapChain->renderTarget(m_backBufferIndex);
+				auto gBuffer = graph.importRT(*backBuffer, *backBufferRT, CommandList::ResourceState::Present);
+				pass.clear(gBuffer, math::Vec4f::zero());
+				pass.write(0, gBuffer); // 0 is the binding spot
+			},
+			[this](CommandList& cmdList){
+				cmdList.bindRootSignature(m_rasterSignature);
+				cmdList.bindPipeline(m_gBufferShader);
+
+				// Global uniforms
+				float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
+				math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
+				math::Mat44f view = m_renderCam->view();
+				math::Mat44f worldViewProj = (projMatrix * view);
+
+				// Attributes
+				cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
+				cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
+
+				// Instance Uniforms
+				cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
+				cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+
+				cmdList.drawIndexed(0, m_geom->indices().count, 0);
+			});
+		//*/
+
 		// Create command list for copying data
 		m_copyCommandPool = m_gfxDevice->createCommandPool(CommandList::Copy);
 		
@@ -456,47 +493,6 @@ namespace rev {
 		graph.addFilterPass(colorBuffer, backBuffer, "hdr.hlsl");
 		//*/
 
-		// Concept code to replace the simple G-Buffer pass below
-		/*
-		RenderGraph graph;
-		graph.addPass("G-Pass",
-			[&](RenderGraph::PassBuilder& pass)
-			{
-				auto z = graph.createDepthRT(m_windowSize);
-				pass.clear(z, 0.f);
-				pass.write(z);
-
-				auto backBuffer = m_backBuffers[m_backBufferIndex];
-                auto backBufferRT = m_swapChain->renderTarget(m_backBufferIndex);
-				auto gBuffer = graph.importRT(*backBuffer, *backBufferRT, CommandList::ResourceState::Present);
-				pass.clear(gBuffer, math::Vec4f::zero());
-				pass.write(0, gBuffer); // 0 is the binding spot
-			},
-			[this](CommandList& cmdList){
-				cmdList.bindRootSignature(m_rasterSignature);
-				cmdList.bindPipeline(m_gBufferShader);
-
-				// Global uniforms
-				float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-				math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
-				math::Mat44f view = m_renderCam->view();
-				math::Mat44f worldViewProj = (projMatrix * view);
-
-				// Attributes
-				cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
-				cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
-
-				// Instance Uniforms
-				cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
-				cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
-
-				cmdList.drawIndexed(0, m_geom->indices().count, 0);
-			});
-		//*/
-
-
-
-
 		// Render
 		CommandPool* cmdPool = m_frameCmdPools[m_backBufferIndex];
 		GpuBuffer* backBuffer = m_backBuffers[m_backBufferIndex];
@@ -507,27 +503,11 @@ namespace rev {
 		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.1f, 0.1f, 0.1f, 1.f));
 		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
-		m_frameCmdList->bindRootSignature(m_rasterSignature);
-		m_frameCmdList->bindPipeline(m_gBufferShader);
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
 		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
 
-		// Global uniforms
-		float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
-		math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
-		math::Mat44f view = m_renderCam->view();
-		math::Mat44f worldViewProj = (projMatrix * view);
-		
-		// Attributes
-		m_frameCmdList->bindAttributes(m_geom->numAttributes(), m_geom->attributes());
-		m_frameCmdList->bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
-		
-		// Instance Uniforms
-		m_frameCmdList->setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
-		m_frameCmdList->setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
-
-		m_frameCmdList->drawIndexed(0, m_geom->indices().count, 0);
+		graph.record(*m_frameCmdList);
 
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::RenderTarget, CommandList::ResourceState::Present);
 		m_frameCmdList->close();

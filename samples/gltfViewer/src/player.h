@@ -5,6 +5,7 @@
 
 #include <math/numericTraits.h>
 #include <math/algebra/vector.h>
+#include <graphics/renderGraph/renderGraph.h>
 
 #include <string>
 
@@ -74,6 +75,8 @@ namespace rev {
 		gfx::Camera* m_renderCam;
 
 		// Render resources
+		gfx::RenderGraph graph;
+
 		gfx::Device* m_gfxDevice;
 		gfx::CommandPool* m_copyCommandPool;
 		gfx::DoubleBufferSwapChain* m_swapChain;

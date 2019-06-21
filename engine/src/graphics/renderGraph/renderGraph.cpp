@@ -28,10 +28,32 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+	auto RenderGraph::createDepthRT(const math::Vec2u& size) -> DepthRT
+	{
+		DepthRT rt{ m_numBuffers++ };
+		return rt;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	auto RenderGraph::importRT(GpuBuffer& buffer, RenderTargetView& rtv, CommandList::ResourceState defaultState) -> ColorRT
+	{
+		m_gpuBuffers[m_numBuffers] = &buffer;
+		m_renderTargets[m_numBuffers] = &rtv;
+		ColorRT resource{ m_numBuffers++ };
+		return resource;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::reset()
+	{
+		assert(false && "Not implemented. Should destroy resources here");
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	void RenderGraph::compile()
 	{
 		PassBuilderImpl builder;
-		for(int i = 0; i < m_numPasses; ++i)
+		for(unsigned i = 0; i < m_numPasses; ++i)
 		{ 
 			auto& pass = m_passes[i];
 			builder.currentPass = &m_passes[i];
@@ -40,12 +62,12 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderGraph::record()
+	void RenderGraph::record(CommandList& cmdList)
 	{
-		for (int i = 0; i < m_numPasses; ++i)
+		for (unsigned i = 0; i < m_numPasses; ++i)
 		{
 			auto& pass = m_passes[i];
-			//pass.executionCb(builder);
+			pass.executionCb(cmdList);
 		}
 	}
 }
