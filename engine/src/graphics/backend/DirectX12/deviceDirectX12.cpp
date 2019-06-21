@@ -205,7 +205,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GpuBuffer* DeviceDirectX12::createDepthBuffer(math::Vec2u& size)
+	GpuBuffer* DeviceDirectX12::createDepthBuffer(const math::Vec2u& size)
 	{
 		// Resource descriptor
 		CD3DX12_RESOURCE_DESC bufferResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
@@ -231,7 +231,7 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GpuBuffer* DeviceDirectX12::createRenderTargetBuffer(math::Vec2u& size, DataFormat format)
+	GpuBuffer* DeviceDirectX12::createRenderTargetBuffer(const math::Vec2u& size, DataFormat format)
 	{
 		// Resource descriptor
 		DXGI_FORMAT pixelFormat = dxgiFromDataFormat(format);

@@ -122,21 +122,13 @@ namespace rev {
 		m_windowSize = options.windowSize;
 		initGraphicsDevice();
 		createSwapChain();
-
+		
 		// Create depth buffer
 		m_depthBuffer = m_gfxDevice->createDepthBuffer(m_windowSize);
 		auto depth_heap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::DepthStencil);
 		m_depthBV = m_gfxDevice->createRenderTargetView(*depth_heap, nullptr, RenderTargetType::Depth, *m_depthBuffer);
 
-        // Create G-Buffer
-        DataFormat gBufferFormat;
-        gBufferFormat.components = 4;
-        gBufferFormat.componentType = ScalarType::float32;
-        m_gBuffer = m_gfxDevice->createRenderTargetBuffer(m_windowSize, gBufferFormat);
-        auto rtHeap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::RenderTarget);
-        m_gBV = m_gfxDevice->createRenderTargetView(*rtHeap, nullptr, RenderTargetType::Color, *m_gBuffer);
-
-		// Create two command pools, for alternate frames
+        // Create two command pools, for alternate frames
 		int backBufferIndex = 0;
 		m_frameCmdPools[0] = m_gfxDevice->createCommandPool(CommandList::Graphics);
 		m_frameCmdPools[1] = m_gfxDevice->createCommandPool(CommandList::Graphics);
@@ -149,7 +141,8 @@ namespace rev {
 		graph.addPass("G-Pass",
 			[this](RenderGraph::PassBuilder& pass)
 			{
-				auto z = graph.createDepthRT(m_windowSize);
+				//auto z = graph.createDepthRT(m_windowSize);
+				auto z = graph.importDepthRT(m_windowSize, *m_depthBuffer, *m_depthBV, CommandList::ResourceState::RenderTarget);
 				pass.clear(z, 0.f);
 				pass.write(z);
 
@@ -180,6 +173,8 @@ namespace rev {
 				cmdList.drawIndexed(0, m_geom->indices().count, 0);
 			});
 		//*/
+
+		graph.compile(*m_gfxDevice);
 
 		// Create command list for copying data
 		m_copyCommandPool = m_gfxDevice->createCommandPool(CommandList::Copy);
@@ -500,9 +495,9 @@ namespace rev {
 		m_frameCmdList->reset(*cmdPool);
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
 
-		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
-		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
-		m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
+		//m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
+		//m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);
+		//m_frameCmdList->setScissor(Vec2u::zero(), m_windowSize);
 
 		graph.record(*m_frameCmdList);
 

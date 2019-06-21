@@ -18,6 +18,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "renderGraph.h"
+#include "../backend/gpuTypes.h"
+#include "../backend/device.h"
 
 namespace rev::gfx {
 
@@ -30,9 +32,13 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	auto RenderGraph::createDepthRT(const math::Vec2u& size) -> DepthRT
 	{
-		assert(false && "Not implemented");
-		DepthRT rt{ m_numBuffers++ };
-		return rt;
+		auto& resource = m_gpuBuffers[m_numBuffers];
+		resource.gpuBuffer = m_gfxDevice->createDepthBuffer(size);
+		auto depth_heap = m_gfxDevice->createDescriptorHeap(1, DescriptorType::DepthStencil);
+		resource.rtv = m_gfxDevice->createRenderTargetView(*depth_heap, nullptr, RenderTargetType::Depth, *resource.gpuBuffer);
+
+		DepthRT resourceId{ m_numBuffers++ };
+		return resourceId;
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -47,14 +53,27 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+	auto RenderGraph::importDepthRT(const math::Vec2u& size, GpuBuffer& buffer, RenderTargetView& rtv, CommandList::ResourceState defaultState) -> DepthRT
+	{
+		auto& resource = m_gpuBuffers[m_numBuffers];
+		resource.size = size;
+		resource.gpuBuffer = &buffer;
+		resource.rtv = &rtv;
+		DepthRT resourceId{ m_numBuffers++ };
+		return resourceId;
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	void RenderGraph::reset()
 	{
 		assert(false && "Not implemented. Should destroy resources here");
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderGraph::compile()
+	void RenderGraph::compile(Device& gfxDevice)
 	{
+		m_gfxDevice = &gfxDevice;
+
 		PassBuilderImpl builder;
 		for(unsigned i = 0; i < m_numPasses; ++i)
 		{ 
@@ -64,11 +83,16 @@ namespace rev::gfx {
 			builder.currentPass = &m_passes[i];
 			pass.constructionCb(builder);
 		}
+
+		m_gfxDevice = nullptr;
 	}
 
 	//--------------------------------------------------------------------------------------------------
 	void RenderGraph::record(CommandList& cmdList)
 	{
+		GpuBufferResource* boundDepth = nullptr;
+		GpuBufferResource* boundColor = nullptr;
+
 		for (unsigned i = 0; i < m_numPasses; ++i)
 		{
 			auto& pass = m_passes[i];
@@ -84,7 +108,43 @@ namespace rev::gfx {
 				cmdList.clearRenderTarget(colorAttach.rtv, pass.color);
 			}
 			// Need binding?
+			if (&colorAttach != boundColor || depthAttach != boundDepth)
+			{
+				boundColor = &colorAttach;
+				boundDepth = depthAttach;
+
+				cmdList.bindRenderTarget(colorAttach.rtv, depthAttach? depthAttach->rtv : nullptr);
+				cmdList.setViewport(math::Vec2u::zero(), colorAttach.size);
+				cmdList.setScissor(math::Vec2u::zero(), colorAttach.size);
+			}
+			// Run pass execution code
 			pass.executionCb(cmdList);
 		}
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::PassBuilderImpl::clear(DepthRT&, float clearValue)
+	{
+		currentPass->clearZ = true;
+		currentPass->zValue = clearValue;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::PassBuilderImpl::write(DepthRT& rt)
+	{
+		currentPass->depthAttach = rt.id;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::PassBuilderImpl::clear(ColorRT&, const math::Vec4f& clearValue)
+	{
+		currentPass->clearColor = true;
+		currentPass->color = clearValue;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderGraph::PassBuilderImpl::write(uint32_t, ColorRT& rt)
+	{
+		currentPass->colorAttach = rt.id;
 	}
 }

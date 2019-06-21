@@ -29,6 +29,7 @@
 namespace rev::gfx {
 
 	class CommandList;
+	class Device;
 	class GpuBuffer;
 	class RenderTargetView;
 
@@ -68,19 +69,21 @@ namespace rev::gfx {
 		// Resources
 		DepthRT createDepthRT(const math::Vec2u& size);
 		ColorRT importRT(const math::Vec2u& size, GpuBuffer& buffer, RenderTargetView& rt, CommandList::ResourceState defaultState);
+		DepthRT importDepthRT(const math::Vec2u& size, GpuBuffer& buffer, RenderTargetView& rt, CommandList::ResourceState defaultState);
 
 		// Render passes
 		void addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
 
 		// RenderGraph lifetime
 		void reset();
-		void compile();
+		void compile(Device& gfxDevice);
 		void record(CommandList& cmdList); // Optionally submit command lists on the fly as they are recorded?
 
 		// Imgui based debug interface
 		void drawGraph() {}
 
 	private:
+		Device* m_gfxDevice = nullptr;
 
 		struct GpuBufferResource
 		{
@@ -111,12 +114,12 @@ namespace rev::gfx {
 		class PassBuilderImpl : public PassBuilder
 		{
 		public:
-			void clear(DepthRT&, float clearValue) override {}
-			void write(DepthRT&) override {}
+			void clear(DepthRT&, float clearValue) override;
+			void write(DepthRT&) override;
 			void read(DepthRT) override {}
 
-			void clear(ColorRT&, const math::Vec4f& clearValue) override {}
-			void write(uint32_t bindSlot, ColorRT&) override {}
+			void clear(ColorRT&, const math::Vec4f& clearValue) override;
+			void write(uint32_t bindSlot, ColorRT&) override;
 
 			PassDesc* currentPass = nullptr;
 		};

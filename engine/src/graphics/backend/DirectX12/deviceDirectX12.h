@@ -55,8 +55,8 @@ namespace rev :: gfx
 		RenderTargetView* createRenderTargetView(DescriptorHeap& heap, uint32_t* offset, RenderTargetType rtType, const GpuBuffer& image) override;
 
 		GpuBuffer* createCommitedResource(BufferType bufferType, size_t bufferSize) override;
-		GpuBuffer* createDepthBuffer(math::Vec2u& size) override;
-		GpuBuffer* createRenderTargetBuffer(math::Vec2u& size, DataFormat format) override;
+		GpuBuffer* createDepthBuffer(const math::Vec2u& size) override;
+		GpuBuffer* createRenderTargetBuffer(const math::Vec2u& size, DataFormat format) override;
 
 		// Pipelines
 		RootSignature* createRootSignature(const RootSignature::Desc&) override;
