@@ -155,7 +155,7 @@ namespace rev {
 
 				auto backBuffer = m_backBuffers[m_backBufferIndex];
 				auto backBufferRT = m_swapChain->renderTarget(m_backBufferIndex);
-				auto gBuffer = graph.importRT(*backBuffer, *backBufferRT, CommandList::ResourceState::Present);
+				auto gBuffer = graph.importRT(m_windowSize, *backBuffer, *backBufferRT, CommandList::ResourceState::Present);
 				pass.clear(gBuffer, math::Vec4f::zero());
 				pass.write(0, gBuffer); // 0 is the binding spot
 			},
@@ -499,9 +499,6 @@ namespace rev {
 		cmdPool->reset();
 		m_frameCmdList->reset(*cmdPool);
 		m_frameCmdList->resourceBarrier(m_backBuffers[m_backBufferIndex], CommandList::Barrier::Transition, CommandList::ResourceState::Present, CommandList::ResourceState::RenderTarget);
-        m_frameCmdList->clearRenderTarget(m_gBV, Vec4f(0.0f, 0.0f, 0.0f, 0.f));
-		m_frameCmdList->clearRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), Vec4f(0.1f, 0.1f, 0.1f, 1.f));
-		m_frameCmdList->clearDepth(m_depthBV, 0.f);
 
 		m_frameCmdList->bindRenderTarget(m_swapChain->renderTarget(m_backBufferIndex), m_depthBV);
 		m_frameCmdList->setViewport(Vec2u::zero(), m_windowSize);

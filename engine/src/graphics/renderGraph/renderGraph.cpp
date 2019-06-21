@@ -30,17 +30,20 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	auto RenderGraph::createDepthRT(const math::Vec2u& size) -> DepthRT
 	{
+		assert(false && "Not implemented");
 		DepthRT rt{ m_numBuffers++ };
 		return rt;
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	auto RenderGraph::importRT(GpuBuffer& buffer, RenderTargetView& rtv, CommandList::ResourceState defaultState) -> ColorRT
+	auto RenderGraph::importRT(const math::Vec2u& size, GpuBuffer& buffer, RenderTargetView& rtv, CommandList::ResourceState defaultState) -> ColorRT
 	{
-		m_gpuBuffers[m_numBuffers] = &buffer;
-		m_renderTargets[m_numBuffers] = &rtv;
-		ColorRT resource{ m_numBuffers++ };
-		return resource;
+		auto& resource = m_gpuBuffers[m_numBuffers];
+		resource.size = size;
+		resource.gpuBuffer = &buffer;
+		resource.rtv = &rtv;
+		ColorRT resourceId{ m_numBuffers++ };
+		return resourceId;
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -56,6 +59,8 @@ namespace rev::gfx {
 		for(unsigned i = 0; i < m_numPasses; ++i)
 		{ 
 			auto& pass = m_passes[i];
+			pass.clearZ = false;
+			pass.clearColor = false;
 			builder.currentPass = &m_passes[i];
 			pass.constructionCb(builder);
 		}
@@ -67,6 +72,18 @@ namespace rev::gfx {
 		for (unsigned i = 0; i < m_numPasses; ++i)
 		{
 			auto& pass = m_passes[i];
+			auto& colorAttach = m_gpuBuffers[pass.colorAttach];
+			auto* depthAttach = pass.depthAttach == uint32_t(-1) ? nullptr : &m_gpuBuffers[pass.depthAttach];
+			// Need clear?
+			if(depthAttach && pass.clearZ)
+			{ 
+				cmdList.clearDepth(depthAttach->rtv, pass.zValue);
+			}
+			if(pass.clearColor)
+			{
+				cmdList.clearRenderTarget(colorAttach.rtv, pass.color);
+			}
+			// Need binding?
 			pass.executionCb(cmdList);
 		}
 	}

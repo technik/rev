@@ -67,7 +67,7 @@ namespace rev::gfx {
 
 		// Resources
 		DepthRT createDepthRT(const math::Vec2u& size);
-		ColorRT importRT(GpuBuffer& buffer, RenderTargetView& rt, CommandList::ResourceState defaultState);
+		ColorRT importRT(const math::Vec2u& size, GpuBuffer& buffer, RenderTargetView& rt, CommandList::ResourceState defaultState);
 
 		// Render passes
 		void addPass(std::string_view passName, const PassConstructionCb&, const PassExecutionCb&);
@@ -81,8 +81,15 @@ namespace rev::gfx {
 		void drawGraph() {}
 
 	private:
-		GpuBuffer* m_gpuBuffers[MaxBuffers] = {};
-		RenderTargetView* m_renderTargets[MaxBuffers] = {};
+
+		struct GpuBufferResource
+		{
+			GpuBuffer* gpuBuffer;
+			RenderTargetView* rtv;
+			math::Vec2u size;
+		};
+
+		GpuBufferResource m_gpuBuffers[MaxBuffers] = {};
 		uint32_t m_numBuffers = 0;
 
 		struct PassDesc
