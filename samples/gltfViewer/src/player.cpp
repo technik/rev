@@ -179,8 +179,6 @@ namespace rev {
 		
 		loadScene(options.scene);
 
-		//initRaytracing();
-
 		createCamera();
 
 		return true;
@@ -391,24 +389,6 @@ namespace rev {
 		});
 
 		sceneLoadFence->waitForValue(copyFenceValue);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::initRaytracing()
-	{
-		// Create the DX12 descriptor representing the input data, assumed to be
-		// opaque triangles, with 3xf32 vertex coordinates and 32-bit indices
-		auto cmdPool = m_frameCmdPools[0];
-		cmdPool->reset();
-		m_frameCmdList->reset(*cmdPool);
-        auto rtGeom = m_gfxDevice->createBottomLevelAS(m_geom, *m_frameCmdList);
-		m_frameCmdList->close();
-
-		auto& graphicsQueue = m_gfxDevice->commandQueue(0);
-		graphicsQueue.executeCommandList(*m_frameCmdList);
-
-		auto loaded = graphicsQueue.signalFence(*m_frameFence);
-		m_frameFence->waitForValue(loaded);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

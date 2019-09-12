@@ -64,7 +64,6 @@ namespace rev {
 		void createSwapChain();
 
 		void loadScene(const std::string& scene);
-		void initRaytracing();
 		void createCamera();
 
 		// Player state
@@ -91,13 +90,13 @@ namespace rev {
 
 		gfx::GpuBuffer* m_sceneGpuBuffer;
 		gfx::RenderGeom* m_geom;
+
 	private:
 
 		enum class RenderPath
 		{
 			Forward,
-			Deferred,
-			Raytracing
+			Deferred
 		} m_renderPath = RenderPath::Deferred;
 
 		struct ViewerState
