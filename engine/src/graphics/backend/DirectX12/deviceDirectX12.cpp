@@ -494,6 +494,9 @@ namespace rev :: gfx
 
 		auto result = new RTBottomLevelASDX12();
 		result->m_dx12Buffer = blasBuffer;
+
+		assert(false && "not implemented");
+		return nullptr;
     }
 
 	//----------------------------------------------------------------------------------------------
