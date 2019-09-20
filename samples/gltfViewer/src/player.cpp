@@ -18,6 +18,7 @@
 #include <graphics/backend/DirectX12/directX12Driver.h>
 #include <graphics/backend/doubleBufferSwapChain.h>
 #include <graphics/scene/renderGeom.h>
+#include <graphics/scene/renderMesh.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
@@ -160,17 +161,25 @@ namespace rev {
 				float aspectRatio = float(m_windowSize.x()) / m_windowSize.y();
 				math::Mat44f projMatrix = m_renderCam->projection(aspectRatio);
 				math::Mat44f view = m_renderCam->view();
-				math::Mat44f worldViewProj = (projMatrix * view);
+				math::Mat44f viewProj = (projMatrix * view);
 
 				// Attributes
-				cmdList.bindAttributes(m_geom->numAttributes(), m_geom->attributes());
-				cmdList.bindIndexBuffer(m_geom->indices().byteLenght, CommandList::NdxBufferFormat::U16, m_geom->indices().data, m_geom->indices().offset);
+				for (auto& mesh : m_geom)
+				{
+					math::Mat44f worldViewProj = viewProj;
 
-				// Instance Uniforms
-				cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
-				cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
+					// Instance Uniforms
+					cmdList.setConstants(0, sizeof(math::Mat44f), worldViewProj.data());
+					cmdList.setConstants(1, sizeof(math::Mat44f), math::Mat44f::identity().data());
 
-				cmdList.drawIndexed(0, m_geom->indices().count, 0);
+					for (auto& [primitive, material] : mesh->mPrimitives)
+					{
+						cmdList.bindAttributes(primitive->numAttributes(), primitive->attributes());
+						cmdList.bindIndexBuffer(primitive->indices().byteLenght, CommandList::NdxBufferFormat::U16, primitive->indices().data, primitive->indices().offset);
+
+						cmdList.drawIndexed(0, primitive->indices().count, 0);
+					}
+				}
 			});
 		//*/
 
@@ -318,18 +327,34 @@ namespace rev {
 		Fence* sceneLoadFence = m_gfxDevice->createFence();
 		auto copyFenceValue = copyQueue.signalFence(*sceneLoadFence);
 
-		// Create Buffer views and attributes for the first mesh available
-		auto& primitive = document.meshes[0].primitives[0];
-		auto& indexAccessor = document.accessors[primitive.indices];
-		VertexAttribute indexAttribute = readAttribute(document, indexAccessor, m_sceneGpuBuffer);
-		auto& positionAccessor = document.accessors[primitive.attributes.at("POSITION")];
-		auto& normalAccessor = document.accessors[primitive.attributes.at("NORMAL")];
-		VertexAttribute vtxAttributes[2];
-		vtxAttributes[0] = readAttribute(document, positionAccessor, m_sceneGpuBuffer);
-		vtxAttributes[1] = readAttribute(document, normalAccessor, m_sceneGpuBuffer);
-
+		// Geometry vertex format
 		RenderGeom::VtxFormat vtxFormat(RenderGeom::VtxFormat::Storage::Float32, RenderGeom::VtxFormat::Storage::Float32);
-		m_geom = new RenderGeom(vtxFormat, indexAttribute, vtxAttributes, 2);
+
+		// Load meshes
+		m_geom.reserve(document.meshes.size());
+		for (auto& mesh : document.meshes)
+		{
+			auto dstMesh = std::make_shared<gfx::RenderMesh>();
+
+			dstMesh->mPrimitives.reserve(mesh.primitives.size());
+
+			for(auto& primitive : mesh.primitives)
+			{
+				auto& indexAccessor = document.accessors[primitive.indices];
+				auto& positionAccessor = document.accessors[primitive.attributes.at("POSITION")];
+				auto& normalAccessor = document.accessors[primitive.attributes.at("NORMAL")];
+
+				VertexAttribute indexAttribute = readAttribute(document, indexAccessor, m_sceneGpuBuffer);
+				VertexAttribute vtxAttributes[2];
+				vtxAttributes[0] = readAttribute(document, positionAccessor, m_sceneGpuBuffer);
+				vtxAttributes[1] = readAttribute(document, normalAccessor, m_sceneGpuBuffer);
+				
+				dstMesh->mPrimitives.emplace_back(new RenderGeom(vtxFormat, indexAttribute, vtxAttributes, 2));
+			}
+
+			dstMesh->updateBBox();
+			m_geom.push_back(dstMesh);
+		}
 
 		// --- Shader work ---
 		RootSignature::Desc rootSignatureDesc;

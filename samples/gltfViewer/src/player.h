@@ -27,7 +27,7 @@ namespace rev {
 		class Fence;
 		class GpuBuffer;
 		class RasterPipeline;
-		class RenderGeom;
+		class RenderMesh;
 		class RenderTargetView;
 		class RootSignature;
 	}
@@ -89,7 +89,7 @@ namespace rev {
 		gfx::RasterPipeline* m_gBufferShader;
 
 		gfx::GpuBuffer* m_sceneGpuBuffer;
-		gfx::RenderGeom* m_geom;
+		std::vector<std::shared_ptr<gfx::RenderMesh>> m_geom;
 
 	private:
 
