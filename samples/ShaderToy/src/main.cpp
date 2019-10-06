@@ -28,6 +28,8 @@ public:
 		//
 	}
 
+	std::string name() override { return "ShaderToy"; }
+
 	bool init(const CmdLineParser& arguments) override
 	{
 		m_timeVector = Vec4f::zero();

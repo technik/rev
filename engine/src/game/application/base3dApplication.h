@@ -40,6 +40,7 @@ namespace rev::game {
 
 	public:
 		virtual ~Base3dApplication();
+		virtual std::string name() { return "rev application"; }
 
 		void run(int argc, const char** argv);
 

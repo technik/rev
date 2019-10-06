@@ -29,6 +29,9 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 
+#include <input/pointingInput.h>
+#include <input/keyboard/keyboardInput.h>
+
 using namespace rev::gfx;
 using namespace rev::math;
 
@@ -77,6 +80,10 @@ namespace rev::game {
 		core::OSHandler::startUp();
 		core::Time::init();
 		core::FileSystem::init();
+
+		// Init input systems
+		rev::input::KeyboardInput::init();
+		rev::input::PointingInput::init();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -97,8 +104,10 @@ namespace rev::game {
 				return true;
 			}
 
-			//if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
-			//	return true;
+			if (rev::input::PointingInput::get()->processMessage(_msg))
+				return true;
+			if (rev::input::KeyboardInput::get()->processWin32Message(_msg))
+				return true;
 			return false;
 		};
 	}
@@ -108,7 +117,7 @@ namespace rev::game {
 	{
 		Vec2u windowStart = { 100, 150 };
 		Vec2u windowSize = { 200, 200 };
-		auto wnd = createWindow(windowStart, windowSize, "Application", true);
+		auto wnd = createWindow(windowStart, windowSize, this->name().c_str(), true);
 		auto openglDevice = std::make_unique<DeviceOpenGLWindows>(wnd, true);
 		if (!openglDevice)
 		{
