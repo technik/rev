@@ -102,6 +102,10 @@ private:
 	// Command buffer with changing uniforms
 	CommandBuffer::UniformBucket m_timeUniform;
 	CommandBuffer m_fsCommandBuffer;
+
+	rev::gfx::ShaderCodeFragment* m_rasterCode = nullptr;
+	using ShaderReloadListener = std::shared_ptr<rev::gfx::ShaderCodeFragment::ReloadListener>;
+	ShaderReloadListener m_rasterReloadListener;
 };
 
 //--------------------------------------------------------------------------------------------------------------

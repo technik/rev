@@ -63,7 +63,6 @@ namespace rev::game {
 	private:
 		void initEngineCore();
 		bool initGraphics();
-		bool initGraphicsDevice();
 
 	private:
 		std::unique_ptr<gfx::Device> m_gfxDevice;

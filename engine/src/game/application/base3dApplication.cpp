@@ -61,7 +61,9 @@ namespace rev::game {
 		const float fixedDt = 1.f / 60;
 		for (;;)
 		{
-			core::OSHandler::get()->update();
+			if (!core::OSHandler::get()->update())
+				break;
+			
 			core::Time::get()->update();
 			auto frameTime = core::Time::get()->frameTime();
 			frameTime = std::min(frameTime, 1.f); // Clamp time to at most 1 second
@@ -90,26 +92,8 @@ namespace rev::game {
 		// Init input systems
 		rev::input::KeyboardInput::init();
 		rev::input::PointingInput::init();
-	}
 
-	//------------------------------------------------------------------------------------------------
-	bool Base3dApplication::initGraphics()
-	{
-		return initGraphicsDevice();
-
-		// Hook up window resizing callback
 		*core::OSHandler::get() += [&](MSG _msg) {
-			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
-			{
-				// Get new rectangle size without borders
-				RECT clientSurface;
-				GetClientRect(_msg.hwnd, &clientSurface);
-				m_windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
-				
-				onResize();
-				return true;
-			}
-
 			if (rev::input::PointingInput::get()->processMessage(_msg))
 				return true;
 			if (rev::input::KeyboardInput::get()->processWin32Message(_msg))
@@ -119,7 +103,7 @@ namespace rev::game {
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Base3dApplication::initGraphicsDevice()
+	bool Base3dApplication::initGraphics()
 	{
 		Vec2u windowStart = { 100, 150 };
 		Vec2u windowSize = { 200, 200 };
@@ -134,6 +118,20 @@ namespace rev::game {
 		m_backBuffer = openglDevice->defaultFrameBuffer();
 		m_gfxDevice = std::move(openglDevice);
 
-		return true;
+		// Hook up window resizing callback
+		*core::OSHandler::get() += [&](MSG _msg) {
+			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
+			{
+				// Get new rectangle size without borders
+				RECT clientSurface;
+				GetClientRect(_msg.hwnd, &clientSurface);
+				m_windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
+				
+				onResize();
+				return true;
+			}
+
+			return false;
+		};
 	}
 }
