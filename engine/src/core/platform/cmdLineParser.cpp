@@ -26,7 +26,15 @@ namespace rev::core
 	//----------------------------------------------------------------------------------------------
 	void CmdLineParser::addFlag(std::string_view _tag, const FlagDelegate& _delegate)
 	{
-		m_flags.insert(pair<string,FlagDelegate>(_tag,_delegate));
+		m_flags.insert(pair<string,FlagDelegate>(std::string("--") + _tag.data(),_delegate));
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void CmdLineParser::addFlag(std::string_view _tag, bool& dst)
+	{
+		addFlag(_tag, [&]() {
+			dst = true;
+			});
 	}
 
 	//----------------------------------------------------------------------------------------------
