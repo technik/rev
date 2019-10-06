@@ -58,15 +58,21 @@ namespace rev::game {
 		init(arguments);
 		// main loop
 		// TODO: Think of simulation loop and deal with variable render times and fixed simulation time
-		float dt = 1 / 60.f;
+		const float fixedDt = 1.f / 60;
 		for (;;)
 		{
 			core::OSHandler::get()->update();
 			core::Time::get()->update();
-			auto dt = core::Time::get()->frameTime();
-			//	updateLogic
-			if (!updateLogic(dt))
-				return;
+			auto frameTime = core::Time::get()->frameTime();
+			frameTime = std::min(frameTime, 1.f); // Clamp time to at most 1 second
+			m_accumTime += frameTime;
+			while (m_accumTime > fixedDt)
+			{
+				m_accumTime -= fixedDt;
+				//	updateLogic
+				if (!updateLogic(fixedDt))
+					return;
+			}
 			//	render
 			render();
 		}

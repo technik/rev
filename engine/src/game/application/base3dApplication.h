@@ -69,6 +69,7 @@ namespace rev::game {
 		std::unique_ptr<gfx::Device> m_gfxDevice;
 		gfx::FrameBuffer m_backBuffer;
 
+		float m_accumTime = 0;
 		math::Vec2u m_windowSize = { 640, 480 };
 	};
 

@@ -52,7 +52,7 @@ layout(location = 1) uniform vec4 Window;
 
 vec3 shade () {	
 	vec2 uv = gl_FragCoord.xy / Window.xy;
-	return vec3(uv.x,uv.y,sin(t.y));
+	return vec3(uv.x,uv.y,t.w);
 }
 
 #endif
@@ -67,6 +67,7 @@ vec3 shade () {
 		float T = m_timeVector.y();
 		// Update time
 		t += dt;
+		T += dt;
 		if (t > 1)
 		{
 			t -= 1.f;
