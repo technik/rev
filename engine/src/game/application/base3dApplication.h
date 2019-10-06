@@ -70,6 +70,7 @@ namespace rev::game {
 
 		float m_accumTime = 0;
 		math::Vec2u m_windowSize = { 640, 480 };
+		bool m_fullScreen = false;
 	};
 
 }

@@ -90,30 +90,47 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible)
+	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool _visible, bool fullScreen)
 	{
 		if (!registerClass())
 			return NULL;
 
-		// Create a windown through the windows API
-		HWND nativeHandle = CreateWindow("RevWindowClass",	// Class name, registered by the video driver
-			_windowName,
-			WS_OVERLAPPEDWINDOW | WS_POPUP | (_visible? WS_VISIBLE : WS_DISABLED),	// Creation options
-			_pos.x(),						// X Position
-			_pos.y(),						// Y Position
-			int(_size.x()),				// Width
-			int(_size.y()),				// Height
-			0, 0, 0, 0);				// Windows specific parameters that we don't need
+		math::Vec2u windowSize = _size;
+		math::Vec2u windowPos = _pos;
+		DWORD windowStyle = WS_POPUP | (_visible ? WS_VISIBLE : WS_DISABLED);
+		DWORD windowStyleEx = 0;
+		if (fullScreen)
+		{
+			windowStyle |= WS_OVERLAPPEDWINDOW;
+			windowStyleEx = WS_EX_APPWINDOW;
+			windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
+			windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
+			windowPos = math::Vec2u::zero();
+		}
 
-										// Resize client area
-		RECT rcClient;
-		POINT ptDiff;
-		GetClientRect(nativeHandle, &rcClient);
-		ptDiff.x = _size.x() - rcClient.right;
-		ptDiff.y = _size.y() - rcClient.bottom;
-		MoveWindow(nativeHandle, _pos.x(), _pos.y(), _size.x() + ptDiff.x, _size.y() + ptDiff.y, TRUE);
-		// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
-		// Or see: https://www.3dgep.com/learning-directx12-1/
+		// Create a windown through the windows API
+		HWND nativeHandle = CreateWindowEx(
+			windowStyleEx,
+			"RevWindowClass",	// Class name, registered by the video driver
+			_windowName,
+			windowStyle,		// Creation options
+			windowPos.x(),		// X Position
+			windowPos.y(),		// Y Position
+			int(windowSize.x()),// Width
+			int(windowSize.y()),// Height
+			0, 0, 0, 0);		// Windows specific parameters that we don't need
+
+		// Resize client area
+		{
+			RECT rcClient;
+			POINT ptDiff;
+			GetClientRect(nativeHandle, &rcClient);
+			ptDiff.x = windowSize.x() - rcClient.right;
+			ptDiff.y = windowSize.y() - rcClient.bottom;
+			MoveWindow(nativeHandle, windowPos.x(), windowPos.y(), windowSize.x() + ptDiff.x, windowSize.y() + ptDiff.y, TRUE);
+			// Note: Maybe we could do this using SM_CYCAPTION and SM_CYBORDER instead of resizing a window.
+			// Or see: https://www.3dgep.com/learning-directx12-1/
+		}
 
 		return nativeHandle;
 	}

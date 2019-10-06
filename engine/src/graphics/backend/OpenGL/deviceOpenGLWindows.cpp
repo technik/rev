@@ -169,7 +169,7 @@ namespace rev :: gfx
 
 		// If no target window was provided, create an invisible one
 		if(!targetWindow)
-			targetWindow = createWindow({0,0}, {0,0}, "", false);
+			targetWindow = createWindow({0,0}, {0,0}, "", false, false);
 
 		//checkSupportedExtensions();
 

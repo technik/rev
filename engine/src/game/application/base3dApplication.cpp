@@ -48,6 +48,7 @@ namespace rev::game {
 	{
 		// Parse command line
 		core::CmdLineParser arguments;
+		arguments.addFlag("fullscreen", m_fullScreen);
 		getCommandLineOptions(arguments);
 		arguments.parse(argc, argv);
 		// Init engine
@@ -106,8 +107,12 @@ namespace rev::game {
 	bool Base3dApplication::initGraphics()
 	{
 		Vec2u windowStart = { 100, 150 };
-		Vec2u windowSize = { 200, 200 };
-		auto wnd = createWindow(windowStart, windowSize, this->name().c_str(), true);
+		if (m_fullScreen)
+		{
+			m_windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
+			m_windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
+		}
+		auto wnd = createWindow(windowStart, m_windowSize, this->name().c_str(), true, m_fullScreen);
 		auto openglDevice = std::make_unique<DeviceOpenGLWindows>(wnd, true);
 		if (!openglDevice)
 		{
