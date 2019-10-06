@@ -20,6 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
+#include <graphics/backend/renderPass.h>
 #include <memory>
 
 namespace rev::core {
@@ -28,8 +29,6 @@ namespace rev::core {
 
 namespace rev::gfx {
 	class Device;
-	class DoubleBufferSwapChain;
-	class GpuBuffer;
 }
 
 namespace rev::game {
@@ -43,6 +42,11 @@ namespace rev::game {
 		virtual ~Base3dApplication();
 
 		void run(int argc, const char** argv);
+
+	protected:
+		gfx::Device& gfxDevice() { return *m_gfxDevice; }
+		const math::Vec2u& windowSize() const { return m_windowSize; }
+		gfx::FrameBuffer backBuffer() const { return m_backBuffer; }
 
 	private: // Extension interface
 		// Life cycle
@@ -59,12 +63,10 @@ namespace rev::game {
 		void initEngineCore();
 		bool initGraphics();
 		bool initGraphicsDevice();
-		void createSwapChain();
 
 	private:
 		std::unique_ptr<gfx::Device> m_gfxDevice;
-		std::unique_ptr<gfx::DoubleBufferSwapChain> m_swapChain;
-		gfx::GpuBuffer* m_backBuffers[2];
+		gfx::FrameBuffer m_backBuffer;
 
 		math::Vec2u m_windowSize = { 640, 480 };
 	};

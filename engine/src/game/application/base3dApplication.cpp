@@ -23,13 +23,14 @@
 
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/fileSystem.h>
+#include <core/platform/osHandler.h>
 #include <core/time/time.h>
 
 #include <graphics/backend/device.h>
-#include <graphics/backend/DirectX12/directX12Driver.h>
-#include <graphics/backend/doubleBufferSwapChain.h>
+#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 
 using namespace rev::gfx;
+using namespace rev::math;
 
 namespace rev::game {
 
@@ -57,6 +58,7 @@ namespace rev::game {
 		float dt = 1 / 60.f;
 		for (;;)
 		{
+			core::OSHandler::get()->update();
 			core::Time::get()->update();
 			auto dt = core::Time::get()->frameTime();
 			//	updateLogic
@@ -66,89 +68,57 @@ namespace rev::game {
 			render();
 		}
 		end();
+		core::FileSystem::end();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void Base3dApplication::initEngineCore()
 	{
+		core::OSHandler::startUp();
 		core::Time::init();
-		rev::core::FileSystem::init();
+		core::FileSystem::init();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics()
 	{
-		if (!initGraphicsDevice())
-			return false;
+		return initGraphicsDevice();
 
-		createSwapChain();
-		return true;
+		// Hook up window resizing callback
+		*core::OSHandler::get() += [&](MSG _msg) {
+			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
+			{
+				// Get new rectangle size without borders
+				RECT clientSurface;
+				GetClientRect(_msg.hwnd, &clientSurface);
+				m_windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
+				
+				onResize();
+				return true;
+			}
+
+			//if(rev::input::KeyboardInput::get()->processWin32Message(_msg))
+			//	return true;
+			return false;
+		};
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphicsDevice()
 	{
-		DirectX12Driver gfxDriver;
-		constexpr int MAX_GRAPHICS_CARDS = 5;
-		GraphicsDriver::PhysicalDeviceInfo physicalDevices[MAX_GRAPHICS_CARDS];
-		int numGfxCards = gfxDriver.enumeratePhysicalDevices(physicalDevices, MAX_GRAPHICS_CARDS);
-
-		size_t maxVideoMemory = 0;
-		int bestDevice = -1;
-		for (int i = 0; i < numGfxCards; ++i)
-		{
-			if (physicalDevices[i].dedicatedVideoMemory > maxVideoMemory)
-			{
-				bestDevice = i;
-				maxVideoMemory = physicalDevices[i].dedicatedVideoMemory;
-			}
-		}
-
-		if (bestDevice < 0)
-		{
-			std::cout << "Unable to find a suitable graphics card\n";
-			return false;
-		}
-
-		GraphicsDriver::PhysicalDevice* gfxCard = gfxDriver.createPhysicalDevice(bestDevice);
-
-		// Create one command queue of each type, all with the same prioriry
-		CommandQueue::Info commandQueues[3];
-		commandQueues[0].type = CommandQueue::Graphics;
-		commandQueues[0].priority = CommandQueue::Normal;
-		commandQueues[1].type = CommandQueue::Compute;
-		commandQueues[1].priority = CommandQueue::Normal;
-		commandQueues[2].type = CommandQueue::Copy;
-		commandQueues[2].priority = CommandQueue::Normal;
-
-		m_gfxDevice = gfxDriver.createDevice(*gfxCard, 3, commandQueues);
-		if (!m_gfxDevice)
+		Vec2u windowStart = { 100, 150 };
+		Vec2u windowSize = { 200, 200 };
+		auto wnd = createWindow(windowStart, windowSize, "Application", true);
+		auto openglDevice = std::make_unique<DeviceOpenGLWindows>(wnd, true);
+		if (!openglDevice)
 		{
 			std::cout << "Unable to create graphics device\n";
 			return false;
 		}
 
+		m_backBuffer = openglDevice->defaultFrameBuffer();
+		m_gfxDevice = std::move(openglDevice);
+
 		return true;
-	}
-
-	void Base3dApplication::createSwapChain()
-	{
-		auto nativeWindow = rev::gfx::createWindow(
-			{ 80, 80 },
-			m_windowSize,
-			"Rev Player",
-			true,
-			true // Visible
-		);
-
-		DoubleBufferSwapChain::Info swapChainInfo;
-		swapChainInfo.pixelFormat.componentType = ScalarType::uint8;
-		swapChainInfo.pixelFormat.components = 4;
-		swapChainInfo.size = m_windowSize;
-
-		m_swapChain = m_gfxDevice->createSwapChain(nativeWindow, 0, swapChainInfo);
-
-		m_backBuffers[0] = m_swapChain->backBuffer(0);
-		m_backBuffers[1] = m_swapChain->backBuffer(1);
 	}
 }
