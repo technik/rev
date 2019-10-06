@@ -44,19 +44,13 @@ public:
 		m_fullScreenPass = gfxDevice().createRenderPass(fullScreenDesc);
 
 		// Actual shader code
-		m_fullScreenFilter = std::make_unique<FullScreenPass>(gfxDevice(), new ShaderCodeFragment(R"(
-#ifdef PXL_SHADER
-
-layout(location = 0) uniform vec4 t;
-layout(location = 1) uniform vec4 Window;
-
-vec3 shade () {	
-	vec2 uv = gl_FragCoord.xy / Window.xy;
-	return vec3(uv.x,uv.y,t.w);
-}
-
-#endif
-)"));
+		// Create the full screen pass to draw the result
+		m_rasterCode = ShaderCodeFragment::loadFromFile("shaderToy.fx");
+		m_fullScreenFilter = std::make_unique<FullScreenPass>(gfxDevice(), m_rasterCode);
+		m_rasterReloadListener = m_rasterCode->onReload([this](ShaderCodeFragment& fragment)
+		{
+			m_fullScreenFilter->setPassCode(&fragment);
+		});
 
 		return true;
 	}
