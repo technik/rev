@@ -55,7 +55,7 @@ namespace rev::game {
 		if (!initGraphics())
 			return;
 		// Init application
-		init(arguments);
+		init();
 		// main loop
 		// TODO: Think of simulation loop and deal with variable render times and fixed simulation time
 		const float fixedDt = 1.f / 60;
@@ -133,5 +133,7 @@ namespace rev::game {
 
 			return false;
 		};
+
+		return true;
 	}
 }

@@ -52,7 +52,7 @@ namespace rev::game {
 	private: // Extension interface
 		// Life cycle
 		virtual void getCommandLineOptions(core::CmdLineParser&) {}
-		virtual bool init(const core::CmdLineParser& arguments) { return true; }
+		virtual bool init() { return true; }
 		virtual void end() {}
 		// Main loop
 		virtual bool updateLogic(float dt) = 0;

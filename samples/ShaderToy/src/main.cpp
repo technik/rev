@@ -12,6 +12,8 @@
 #include <graphics/renderGraph/renderGraph.h>
 #include <game/application/base3dApplication.h>
 
+#include <core/platform/cmdLineParser.h>
+
 #include <string>
 #include <vector>
 
@@ -23,14 +25,14 @@ using namespace rev::math;
 class ShaderToy : public rev::game::Base3dApplication
 {
 public:
-	void getCommandLineOptions(CmdLineParser&) override
+	void getCommandLineOptions(CmdLineParser& options) override
 	{
-		//
+		options.addOption("shader", &m_shaderFileName);
 	}
 
 	std::string name() override { return "ShaderToy"; }
 
-	bool init(const CmdLineParser& arguments) override
+	bool init() override
 	{
 		m_timeVector = Vec4f::zero();
 		auto& renderuQueue = gfxDevice().renderQueue();
@@ -45,7 +47,7 @@ public:
 
 		// Actual shader code
 		// Create the full screen pass to draw the result
-		m_rasterCode = ShaderCodeFragment::loadFromFile("shaderToy.fx");
+		m_rasterCode = ShaderCodeFragment::loadFromFile(m_shaderFileName);
 		m_fullScreenFilter = std::make_unique<FullScreenPass>(gfxDevice(), m_rasterCode);
 		m_rasterReloadListener = m_rasterCode->onReload([this](ShaderCodeFragment& fragment)
 		{
@@ -90,6 +92,8 @@ public:
 	}
 
 private:
+	std::string m_shaderFileName = "shaderToy.fx";
+
 	Vec4f m_timeVector;
 	RenderPass* m_fullScreenPass;
 	std::unique_ptr<FullScreenPass> m_fullScreenFilter;
