@@ -32,7 +32,7 @@ namespace rev::core
 	//----------------------------------------------------------------------------------------------
 	void CmdLineParser::addSimpleArgument(std::string_view _tag, const SimpleDelegate& _delegate)
 	{
-		m_simpleArguments.insert(pair<string, SimpleDelegate>(_tag, _delegate));
+		m_simpleArguments.insert(pair<string, SimpleDelegate>(std::string("--")+_tag.data(), _delegate));
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -43,11 +43,10 @@ namespace rev::core
 			const char* arg = _argv[i];
 			if (arg[0] != '-')
 				continue;
-			const char* tag = &arg[1];
 			// Run simple arguments
 			if (i < _argc - 1)
 			{
-				auto iter = m_simpleArguments.find(tag);
+				auto iter = m_simpleArguments.find(arg);
 				if (iter != m_simpleArguments.end())
 				{
 					const char* nextArg = _argv[++i];
@@ -56,7 +55,7 @@ namespace rev::core
 				}
 			}
 			// Run flags
-			auto iter = m_flags.find(tag);
+			auto iter = m_flags.find(arg);
 			if (iter != m_flags.end())
 			{
 				iter->second();
