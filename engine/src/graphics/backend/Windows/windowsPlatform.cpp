@@ -101,11 +101,14 @@ namespace rev :: gfx
 		DWORD windowStyleEx = 0;
 		if (fullScreen)
 		{
-			windowStyle |= WS_OVERLAPPEDWINDOW;
 			windowStyleEx = WS_EX_APPWINDOW;
 			windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
 			windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
 			windowPos = math::Vec2u::zero();
+		}
+		else
+		{
+			windowStyle |= WS_OVERLAPPEDWINDOW;
 		}
 
 		// Create a windown through the windows API
