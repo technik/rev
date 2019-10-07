@@ -106,6 +106,8 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics()
 	{
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+
 		Vec2u windowStart = { 100, 150 };
 		if (m_fullScreen)
 		{
@@ -132,6 +134,23 @@ namespace rev::game {
 				GetClientRect(_msg.hwnd, &clientSurface);
 				m_windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
 				
+				onResize();
+				return true;
+			}
+			if (_msg.message == WM_DPICHANGED)
+			{
+				const RECT* recommendedSurface = reinterpret_cast<const RECT*>(_msg.lParam);
+				m_windowSize = Vec2u(
+					recommendedSurface->right - recommendedSurface->left,
+					recommendedSurface->bottom - recommendedSurface->top);
+				SetWindowPos(wnd,
+					NULL,
+					recommendedSurface->left,
+					recommendedSurface->top,
+					m_windowSize.x(),
+					m_windowSize.y(),
+					SWP_NOZORDER | SWP_NOACTIVATE);
+
 				onResize();
 				return true;
 			}
