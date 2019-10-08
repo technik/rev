@@ -112,7 +112,8 @@ int main(int _argc, const char** _argv) {
 		{80, 80},
 		windowSize,
 		params.scene.empty()?"Rev Player":params.scene.c_str(),
-		true // Visible
+		true, // Visible
+		false
 	);
 	auto gfxDevice = rev::gfx::DeviceOpenGLWindows(nativeWindow, true);
 

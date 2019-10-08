@@ -55,7 +55,7 @@ int main(int _argc, const char** _argv) {
 	// Create the application window
 	Vec2u windowStart = {100, 150};
 	Vec2u windowSize = { 400, 300 };
-	auto wnd = createWindow(windowStart, windowSize, "Vulkraft", true);
+	auto wnd = createWindow(windowStart, windowSize, "Vulkraft", true, false);
 
 	// Init graphics
 	auto gfxDevice = DeviceOpenGLWindows(wnd, true);
