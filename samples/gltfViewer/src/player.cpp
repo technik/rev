@@ -6,6 +6,7 @@
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
+#include <core/platform/cmdLineParser.h>
 #include <core/time/time.h>
 #include <core/tools/log.h>
 #include <game/scene/camera.h>
@@ -28,13 +29,26 @@ using namespace rev::gfx;
 using namespace rev::game;
 
 namespace rev {
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::CommandLineOptions::registerOptions(core::CmdLineParser& args)
+	{
+		args.addOption("env", &environment);
+		args.addOption("scene", &scene);
+		args.addOption("w", &size.x());
+		args.addOption("h", &size.y());
+		args.addOption("fov", &fov);
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg)
+	void Player::getCommandLineOptions(core::CmdLineParser& args)
 	{
-		core::Time::init();
-				
-		loadScene(scene);
+		m_options.registerOptions(args);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	bool Player::init()
+	{
+		loadScene(m_options.scene);
 
 		// Default scene light
 		{
@@ -49,9 +63,9 @@ namespace rev {
 		}
 
 		// Load sky
-		if(!bg.empty())
+		if(!m_options.environment.empty())
 		{
-			auto probe = std::make_shared<EnvironmentProbe>(m_gfx, bg);
+			auto probe = std::make_shared<EnvironmentProbe>(gfxDevice(), m_options.environment);
 			if(probe->numLevels())
 				mGraphicsScene.setEnvironment(probe);
 		}
@@ -61,21 +75,21 @@ namespace rev {
 		createFloor();
 		mGameScene.root()->init();
 
-		mForwardRenderer.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
-		mDeferred.init(m_gfx, windowSize, m_gfx.defaultFrameBuffer());
-		onWindowResize(windowSize); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
-		gui::init(windowSize);
+		mForwardRenderer.init(gfxDevice(), windowSize(), backBuffer());
+		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
+		onResize(); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
+		gui::init(windowSize());
 
 		return true;
 	}
 
 #ifdef _WIN32
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::onWindowResize(const math::Vec2u& _newSize)
+	void Player::onResize()
 	{
-		m_windowSize = _newSize;
-		mForwardRenderer.onResizeTarget(_newSize);
-		mDeferred.onResizeTarget(_newSize);
+		m_windowSize = windowSize();
+		mForwardRenderer.onResizeTarget(m_windowSize);
+		mDeferred.onResizeTarget(m_windowSize);
 	}
 #endif // _WIN32
 
@@ -88,7 +102,7 @@ namespace rev {
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(m_gfx, *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+		loadGLTFScene(gfxDevice(), *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -152,8 +166,8 @@ namespace rev {
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = m_gfx.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(m_gfx, sampler, "shaders/ibl_brdf.hdr", false, 1);
+		auto sampler = gfxDevice().createTextureSampler(samplerDesc);
+		auto envBRDF = load2dTextureFromFile(gfxDevice(), sampler, "shaders/ibl_brdf.hdr", false, 1);
 		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Create mesh renderer component
@@ -167,14 +181,16 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::update()
+	bool Player::updateLogic(float dt)
 	{
-		core::Time::get()->update();
-		auto dt = core::Time::get()->frameTime();
-
-		updateUI(dt);
 		mGameScene.root()->update(dt);
+		return true;
+	}
 
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::render()
+	{
+		updateUI(1/60.f);
 		// Render scene
 		switch(m_renderPath)
 		{
@@ -193,8 +209,7 @@ namespace rev {
 		ImGui::Render();
 
 		// Present to screen
-		m_gfx.renderQueue().present();
-		return true;
+		gfxDevice().renderQueue().present();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <game/scene/scene.h>
+#include <game/application/base3dApplication.h>
 #include <graphics/backend/OpenGL/deviceOpenGL.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/renderer/deferred/DeferredRenderer.h>
@@ -19,16 +20,36 @@ namespace rev {
 		class Orbit;
 	}
 
-	class Player {
+	class Player : public game::Base3dApplication
+	{
 	public:
-		Player(gfx::DeviceOpenGL& device)
-			: m_gfx(device)
-		{}
+		virtual std::string name() { return "gltf viewer"; }
 
+		Player() = default;
 		Player(const Player&) = delete;
 		Player& operator=(const Player&) = delete;
 
-		bool init(const math::Vec2u& windowSize, const std::string& scene, const std::string& bg);
+	private:
+
+		struct CommandLineOptions
+		{
+			std::string scene;
+			std::string environment;
+			math::Vec2u size = { 640, 480 };
+			float fov = 45.f;
+
+			void registerOptions(core::CmdLineParser&);
+		} m_options;
+
+		// Extension interface
+		// Life cycle
+		void getCommandLineOptions(core::CmdLineParser&) override;
+		bool init() override;
+		// Main loop
+		bool updateLogic(float dt) override;
+		void render() override;
+		// Events
+		void onResize() override;
 
 #ifdef _WIN32
 		void onWindowResize(const math::Vec2u& _newSize);
@@ -60,7 +81,6 @@ namespace rev {
 		// Renderer
 		gfx::ForwardRenderer				mForwardRenderer;
 		gfx::DeferredRenderer				mDeferred;
-		gfx::DeviceOpenGL&					m_gfx;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
 		std::shared_ptr<game::SceneNode>	m_gltfRoot;
