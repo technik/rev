@@ -412,6 +412,7 @@ namespace rev { namespace game {
 	auto loadBufferViews(const gltf::Document& _document, const vector<core::File*>& buffers)
 	{
 		vector<std::shared_ptr<gfx::RenderGeom::BufferView>> bvs;
+		bvs.reserve(_document.bufferViews.size());
 
 		for(auto& bv : _document.bufferViews)
 		{

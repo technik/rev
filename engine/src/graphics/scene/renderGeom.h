@@ -65,7 +65,7 @@ namespace rev::gfx {
 		struct Attribute
 		{
 			template<class T> auto& get(size_t i) const {
-				auto rawData = (void*)((int)bufferView->data + (int)offset);
+				auto rawData = (void*)((size_t)bufferView->data + (int)offset);
 				auto formattedData = reinterpret_cast<const T*>(rawData);
 				return formattedData[i];
 			}
