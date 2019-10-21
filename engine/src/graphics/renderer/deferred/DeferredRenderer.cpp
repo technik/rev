@@ -146,6 +146,7 @@ namespace rev::gfx {
 		m_gPass->render(geometry, renderList, frameCommands);
 		
 		// Light-pass
+		frameCommands.beginPass(*m_lPass);
 		if(auto env = scene.environment())
 		{
 			CommandBuffer::UniformBucket envUniforms;
@@ -165,7 +166,6 @@ namespace rev::gfx {
 			envUniforms.addParam(9, m_specularTexture);
 			envUniforms.addParam(10, m_albedoTexture);
 			
-			frameCommands.beginPass(*m_lPass);
 			m_lightingPass->render(envUniforms, frameCommands);
 
 			// Background
