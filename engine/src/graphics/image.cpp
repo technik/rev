@@ -37,17 +37,6 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	/*Image::Image(const Image& src)
-		: mSize(src.mSize)
-		, mCapacity(src.area())
-		, mFormat(src.mFormat)
-	{
-		auto memorySize = rawDataSize();
-		mData = new uint8_t[memorySize];
-		memcpy(mData, src.mData, memorySize);
-	}*/
-
-	//----------------------------------------------------------------------------------------------
 	Image::Image(Image&& x)
 		: mSize(x.mSize)
 		, mCapacity(x.mCapacity)
@@ -85,19 +74,6 @@ namespace rev::gfx
 		if(mCapacity)
 			delete[] mData;
 	}
-
-	//----------------------------------------------------------------------------------------------
-	/*Image& Image::operator=(const Image& x)
-	{
-		delete[] mData;
-		mSize = x.size();
-		mCapacity = area();
-		mFormat = x.format();
-		mData = allocatePixelData(mFormat, mCapacity);
-		assert(x.mCapacity >= x.area());
-		memcpy(mData, x.mData, mCapacity);
-		return *this;
-	}*/
 
 	//----------------------------------------------------------------------------------------------
 	Image& Image::operator=(Image&& x)
