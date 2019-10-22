@@ -185,12 +185,14 @@ namespace rev :: gfx
 		}
 		else
 		{
-			if(fbState == GL_FRAMEBUFFER_UNDEFINED)
+			if (fbState == GL_FRAMEBUFFER_UNDEFINED)
 				cout << "Framebuffer undefined\n";
-			else if(fbState == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+			else if (fbState == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
 				cout << "Framebuffer incomplete attachment\n";
-			else if(fbState == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+			else if (fbState == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
 				cout << "Missing framebuffer attachment\n";
+			else if (fbState == GL_FRAMEBUFFER_UNSUPPORTED)
+				cout << "Unsupported framebuffer format\n";
 			else
 				cout << "Incomplete framebuffer, other reasons\n";
 			assert( false );

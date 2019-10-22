@@ -65,6 +65,8 @@ namespace rev :: gfx
 		assert(m_desc.target.isValid());
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id());
 		glDrawBuffers(m_colorAttachs.size(), m_colorAttachs.data());
+		if(m_desc.sRGB)
+			glEnable(GL_FRAMEBUFFER_SRGB);
 
 		// Config viewport
 		glViewport(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());

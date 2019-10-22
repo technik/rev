@@ -75,8 +75,6 @@ namespace rev :: gfx
 		{
 			intPFAttributes.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB);
 			intPFAttributes.push_back(GL_TRUE);
-			intPFAttributes.push_back(WGL_COLORSPACE_EXT);
-			intPFAttributes.push_back(WGL_COLORSPACE_SRGB_EXT);
 		};
 		intPFAttributes.push_back(0);
 
@@ -166,12 +164,11 @@ namespace rev :: gfx
 			m_windowHandle = 0;
 			return;
 		}
+		checkSupportedExtensions();
 
 		// If no target window was provided, create an invisible one
 		if(!targetWindow)
 			targetWindow = createWindow({0,0}, {0,0}, "", false, false);
-
-		//checkSupportedExtensions();
 
 		// Try to create context with attributes
 		m_deviceContext = GetDC(targetWindow); // Device contex

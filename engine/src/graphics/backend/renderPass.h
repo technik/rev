@@ -42,6 +42,7 @@ namespace rev :: gfx
 			};
 
 			int numColorAttachs = 1;
+			bool sRGB = false;
 			FrameBuffer target;
 			math::Vec4f clearColor;
 			float clearDepth;

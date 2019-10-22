@@ -241,6 +241,7 @@ namespace rev::gfx {
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = target;
 		passDesc.numColorAttachs = 1;
+		passDesc.sRGB = true;
 		passDesc.viewportSize = m_viewportSize;
 		m_lPass = m_device->createRenderPass(passDesc);
 		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
