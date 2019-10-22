@@ -487,7 +487,10 @@ namespace rev { namespace game {
 			//if(gltfSampler.wrapS == gltf::Sampler::WrappingMode::Repeat
 		}
 		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB);
-
+		if (!texture.isValid())
+		{
+			cout << "Unable to load texture " << imageDesc.uri << "\n";
+		}
 		return texture;
 	}
 
