@@ -27,7 +27,7 @@ vec3 shade () {
 	vec3 wsViewDir = (invView * vec4(vsPixelPos.xyz, 0.0)).xyz;
 	vec3 color = textureLod(hdrSkyTexture, sampleSpherical(normalize(wsViewDir)), 0.0).xyz;
 	
-	return pow(pow(2, uEV) * color, vec3(0.4545));
+	return pow(2, uEV) * color;
 }
 
 #endif

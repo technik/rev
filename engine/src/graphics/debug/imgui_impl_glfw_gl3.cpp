@@ -188,7 +188,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
         "out vec4 Out_Color;\n"
         "void main()\n"
         "{\n"
-        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
+        "	Out_Color = pow(Frag_Color * texture( Texture, Frag_UV.st), vec4(2.2,2.2,2.2,1.0));\n"
         "}\n"
 		"#endif // PXL_SHADER\n"
 		"\n";
