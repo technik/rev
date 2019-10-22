@@ -50,13 +50,13 @@ namespace rev::gfx {
 		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
 
 		Texture2d::Descriptor ibl_desc;
-		ibl_desc.providedImages = 1;
 		ibl_desc.mipLevels = 1;
 		ibl_desc.sRGB = false;
-		ibl_desc.pixelFormat = iblImg.format();
-		ibl_desc.srcImages = &iblImg;
-		ibl_desc.size = iblImg.size();
+		ibl_desc.pixelFormat = iblImg->format();
+		ibl_desc.size = iblImg->size();
 		ibl_desc.sampler = device.createTextureSampler(samplerDesc);
+		ibl_desc.srcImages.emplace_back(std::move(iblImg));
+
 		m_brdfIbl = device.createTexture2d(ibl_desc);
 	}
 
@@ -159,7 +159,7 @@ namespace rev::gfx {
 
 			envUniforms.addParam(4, env->texture());
 			envUniforms.addParam(5, m_brdfIbl);
-			envUniforms.addParam(6, env->numLevels());
+			envUniforms.addParam(6, (float)env->numLevels());
 
 			envUniforms.addParam(7, m_gBufferTexture);
 			envUniforms.addParam(8, m_depthTexture);

@@ -33,7 +33,7 @@ namespace rev :: gfx
 	{
 		m_textureSamplers.push_back(desc);
 		TextureSampler sampler;
-		sampler.id = m_textureSamplers.size()-1;
+		sampler.id = int32_t(m_textureSamplers.size()-1);
 		return sampler;
 	}
 
@@ -51,11 +51,9 @@ namespace rev :: gfx
 	Texture2d DeviceOpenGL::createTexture2d(const Texture2d::Descriptor& descriptor)
 	{
 		// Validate input data
-		assert((descriptor.srcImages && descriptor.providedImages)
-			|| (!descriptor.srcImages && !descriptor.providedImages));
-		assert(descriptor.providedImages <= descriptor.mipLevels
+		assert(descriptor.srcImages.size() <= descriptor.mipLevels
 			|| descriptor.mipLevels == 0);
-		assert(descriptor.mipLevels > 0 || descriptor.providedImages > 0);
+		assert(descriptor.mipLevels > 0 || descriptor.srcImages.size() > 0);
 		Texture2d texture;
 		// Validate input data
 		// Generate opengl object
@@ -74,10 +72,10 @@ namespace rev :: gfx
 		math::Vec2u mipSize = descriptor.size;
 		// Gather image format from mip 0
 		GLenum imageFormat = GL_RGBA;
-		if(descriptor.srcImages)
+		if(!descriptor.srcImages.empty())
 		{
 			auto& mip0 = descriptor.srcImages[0];
-			switch(mip0.format().numChannels)
+			switch(mip0->format().numChannels)
 			{
 				case 1:
 					imageFormat = GL_R;
@@ -104,25 +102,25 @@ namespace rev :: gfx
 		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
 		GLenum internalFormat = getInternalFormat(descriptor);
 		// Submit provided images to the device
-		for(size_t i = 0; i < descriptor.providedImages; ++i)
+		for(size_t i = 0; i < descriptor.srcImages.size(); ++i)
 		{
 			auto& image = descriptor.srcImages[i];
-			GLenum srcChannelType = image.format().channel == Image::ChannelFormat::Float32 ? GL_FLOAT : GL_UNSIGNED_BYTE;
-			assert(image.format() == descriptor.srcImages[0].format());
-			assert(image.size() == mipSize);
+			GLenum srcChannelType = image->format().channel == Image::ChannelFormat::Float32 ? GL_FLOAT : GL_UNSIGNED_BYTE;
+			assert(image->format() == descriptor.srcImages[0]->format());
+			assert(image->size() == mipSize);
 			glTexImage2D(GL_TEXTURE_2D, i,
 				internalFormat,
 				(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
 				imageFormat,
 				srcChannelType,
-				descriptor.srcImages[i].data<void>());
+				descriptor.srcImages[i]->data<void>());
 			mipSize = {
 				std::max(mipSize.x()/2, 1u),
 				std::max(mipSize.y()/2, 1u)
 			};
 		}
 		// Allocate empty images to complete the mip chain
-		for(size_t i = descriptor.providedImages; i < descriptor.mipLevels; ++i)
+		for(size_t i = descriptor.srcImages.size(); i < descriptor.mipLevels; ++i)
 		{
 			glTexImage2D(GL_TEXTURE_2D, i,
 				internalFormat,
@@ -135,7 +133,7 @@ namespace rev :: gfx
 		if(descriptor.mipLevels != 0)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
 		// Generate mipmaps when needed
-		if((descriptor.providedImages && (descriptor.providedImages < descriptor.mipLevels))
+		if((descriptor.srcImages.size() && (descriptor.srcImages.size() < descriptor.mipLevels))
 			|| descriptor.mipLevels == 0)
 			glGenerateMipmap(GL_TEXTURE_2D);
 		return Texture2d(textureName);

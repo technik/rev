@@ -42,18 +42,18 @@ namespace rev::gfx
 		// Load all images
 		m_numLevels = probeDesc.size();
 		
-		std::vector<Image> mipImages;
+		std::vector<std::shared_ptr<Image>> mipImages;
 		for(size_t i = 0; i < m_numLevels; ++i)
 		{
 			auto& desc = probeDesc[i];
 			auto image = Image::load(folder + std::string(desc["name"]), 4);
-			if(!image.data<>())
+			if(!image->data<>())
 			{
 				std::cout << "EnvironmentProbe error: unable to load image " << folder << std::string(desc["name"]);
 				m_numLevels = 0;
 				return;
 			}
-			mipImages.push_back(image);
+			mipImages.push_back(std::move(image));
 		}
 
 		// Create a new texture with all the levels
@@ -65,11 +65,10 @@ namespace rev::gfx
 
 		Texture2d::Descriptor descriptor;
 		descriptor.sampler = sampler;
-		descriptor.pixelFormat = mipImages[0].format();
+		descriptor.pixelFormat = mipImages[0]->format();
 		descriptor.mipLevels = mipImages.size();
-		descriptor.providedImages = mipImages.size();
-		descriptor.srcImages = mipImages.data();
-		descriptor.size = mipImages[0].size();
+		descriptor.srcImages = mipImages;
+		descriptor.size = mipImages[0]->size();
 		descriptor.sRGB = true;
 		m_texture = device.createTexture2d(descriptor);
 	}

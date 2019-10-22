@@ -1,0 +1,6 @@
+// Start
+memory footprint 434 mb
+
+// memcpy and stbi free
+454mb
+

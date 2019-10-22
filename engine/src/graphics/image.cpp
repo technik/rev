@@ -37,7 +37,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(const Image& src)
+	/*Image::Image(const Image& src)
 		: mSize(src.mSize)
 		, mCapacity(src.area())
 		, mFormat(src.mFormat)
@@ -45,7 +45,7 @@ namespace rev::gfx
 		auto memorySize = rawDataSize();
 		mData = new uint8_t[memorySize];
 		memcpy(mData, src.mData, memorySize);
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(Image&& x)
@@ -87,7 +87,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image& Image::operator=(const Image& x)
+	/*Image& Image::operator=(const Image& x)
 	{
 		delete[] mData;
 		mSize = x.size();
@@ -97,7 +97,7 @@ namespace rev::gfx
 		assert(x.mCapacity >= x.area());
 		memcpy(mData, x.mData, mCapacity);
 		return *this;
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
 	Image& Image::operator=(Image&& x)
@@ -165,7 +165,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image Image::load(std::string_view _name, unsigned nChannels)
+	std::unique_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
 	{
 		core::File file(&_name[0]); //<-- Hack!
 		if(file.sizeInBytes() > 0)
@@ -193,11 +193,15 @@ namespace rev::gfx
 				PixelFormat format;
 				format.numChannels = nChannels?nChannels:(unsigned)realNumChannels;
 				format.channel = isHDR ? ChannelFormat::Float32 : ChannelFormat::Byte;
-				return Image(format, size, imgData);
+				auto result = std::make_unique<Image>(format, size);
+				memcpy(result->data<void>(), imgData, result->area() * format.pixelSize());
+
+				stbi_image_free(imgData);
+				return result;
 			}
 		}
 
-		return Image(PixelFormat{ChannelFormat::Byte, 0}); // Invalid image
+		return std::make_unique<Image>(PixelFormat{ChannelFormat::Byte, 0}); // Invalid image
 	}
 
 	//----------------------------------------------------------------------------------------------

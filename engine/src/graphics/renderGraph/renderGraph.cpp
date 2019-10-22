@@ -142,7 +142,6 @@ namespace rev::gfx {
 			desc.pixelFormat.numChannels = 4;
 			desc.pixelFormat.channel = (colorFmt == ColorFormat::RGBA32) ? Image::ChannelFormat::Float32 : Image::ChannelFormat::Byte;
 			desc.sRGB = (colorFmt == ColorFormat::sRGBA8);
-			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
 			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
@@ -168,7 +167,6 @@ namespace rev::gfx {
 			desc.pixelFormat.numChannels = 1;
 			desc.pixelFormat.channel = Image::ChannelFormat::Float32;
 			desc.sRGB = false;
-			desc.providedImages = 0;
 			desc.size = m_renderPasses[pass.id()].m_targetSize;
 			desc.sampler = m_linearSampler;
 			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));

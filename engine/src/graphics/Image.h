@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <string_view>
+#include <memory>
 #include <math/algebra/vector.h>
 
 namespace rev::gfx {
@@ -53,7 +54,7 @@ namespace rev::gfx {
 		};
 
 		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());
-		Image(const Image&);
+		Image(const Image&) = delete;
 		Image(Image&&);
 
 		// Constructors from specific color formats
@@ -64,7 +65,7 @@ namespace rev::gfx {
 
 		~Image();
 
-		Image& operator=(const Image&);
+		Image& operator=(const Image&) = delete;
 		Image& operator=(Image&&);
 
 		// Modifiers
@@ -90,7 +91,7 @@ namespace rev::gfx {
 		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
 
 		// Note: nChannels = 0 sets automatic number of channels
-		static Image load(std::string_view _name, unsigned nChannels);
+		static std::unique_ptr<Image> load(std::string_view _name, unsigned nChannels);
 
 	private:
 		// Base constructor from size and data

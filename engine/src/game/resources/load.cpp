@@ -28,17 +28,16 @@ namespace rev::game
 	{
 		// Load image from file
 		auto image = gfx::Image::load(fileName, 0);
-		if(!image.data())
+		if(!image->data())
 			return gfx::Texture2d();
 
 		// Fill out descriptor
 		gfx::Texture2d::Descriptor descriptor;
-		descriptor.pixelFormat = image.format();
+		descriptor.pixelFormat = image->format();
 		descriptor.sampler = sampler;
 		descriptor.sRGB = sRGB;
-		descriptor.size = image.size();
-		descriptor.srcImages = &image;
-		descriptor.providedImages = 1;
+		descriptor.size = image->size();
+		descriptor.srcImages.emplace_back(std::move(image));
 		descriptor.mipLevels = nMips;
 
 		// Create texture in device

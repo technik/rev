@@ -476,8 +476,7 @@ void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Imag
 	latLongDesc.pixelFormat.channel = rev::gfx::Image::ChannelFormat::Float32;
 	latLongDesc.pixelFormat.numChannels = 4;
 	// Info specific for this image
-	latLongDesc.srcImages = srcImg;
-	latLongDesc.providedImages = 1;
+	latLongDesc.srcImages.emplace_back(std::move(srcImg));
 	latLongDesc.mipLevels = 1;
 	latLongDesc.size = srcImg->size();
 	// Allocate and init the texture

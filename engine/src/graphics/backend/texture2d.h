@@ -20,6 +20,8 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
+#include <vector>
 #include "textureSampler.h"
 #include <math/algebra/vector.h>
 #include "namedResource.h"
@@ -46,8 +48,7 @@ namespace rev :: gfx
 			/// Array of images to be used for mipmaps, or null if images will be initialized by the gpu
 			/// If not null, the array must contain exactly "providedImages" images. Mip levels will be generated
 			/// Automatically for the range [providedImages, mipLevels-1].
-			Image* srcImages = nullptr;
-			size_t providedImages = 0;
+			std::vector<std::shared_ptr<Image>> srcImages;
 		};
 
 		Texture2d() = default;
