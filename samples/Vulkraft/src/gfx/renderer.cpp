@@ -181,7 +181,6 @@ namespace vkft::gfx
 		bufferDesc.mipLevels = 1;
 		bufferDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
 		bufferDesc.pixelFormat.numChannels = 4;
-		bufferDesc.providedImages = 0;
 		bufferDesc.sampler = m_rtBufferSampler;
 		bufferDesc.size = newSize;
 		bufferDesc.sRGB = false;
@@ -212,14 +211,13 @@ namespace vkft::gfx
 		texDescriptor.mipLevels = 0;
 		texDescriptor.pixelFormat.channel = Image::ChannelFormat::Byte;
 		texDescriptor.pixelFormat.numChannels = 4;
-		texDescriptor.providedImages = 1;
 		texDescriptor.size = Vec2u(256,256);
 		texDescriptor.sRGB = true;
 
 		auto image = Image::load("minecraft.jpg", 0);
-		if(image.data())
+		if(image)
 		{
-			texDescriptor.srcImages = &image;
+			texDescriptor.srcImages.push_back(std::move(image));
 			m_texturePack = mGfxDevice.createTexture2d(texDescriptor);
 		}
 	}
@@ -239,7 +237,6 @@ namespace vkft::gfx
 		m_noiseDesc.mipLevels = 1;
 		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
 		m_noiseDesc.pixelFormat.numChannels = 4;
-		m_noiseDesc.providedImages = 1;
 		m_noiseDesc.size = Vec2u(64,64);
 		m_noiseDesc.sRGB = false;
 
@@ -256,18 +253,16 @@ namespace vkft::gfx
 				noise[i].z() = noiseDistrib(m_rng);
 				noise[i].w() = noiseDistrib(m_rng);
 			}
-			auto image = new rev::gfx::Image(m_noiseDesc.size, noise);
-			m_noiseDesc.srcImages = image;
+			m_noiseDesc.srcImages.emplace_back(new rev::gfx::Image(m_noiseDesc.size, noise));
 			m_blueNoise[i] = mGfxDevice.createTexture2d(m_noiseDesc);
-			delete image;
 #else
 			// Load image from file
 			std::stringstream imageName;
 			imageName << "../assets/blueNoise/LDR_RGBA_" << i << ".png";
 			auto image = Image::load(imageName.str(), 0);
-			if(image.data())
+			if(image)
 			{
-				m_noiseDesc.srcImages = &image;
+				m_noiseDesc.srcImages.push_back(std::move(image));
 				m_blueNoise[i] = mGfxDevice.createTexture2d(m_noiseDesc);
 			}
 #endif

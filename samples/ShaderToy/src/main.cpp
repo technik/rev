@@ -72,7 +72,7 @@ public:
 		return true;
 	}
 
-	void render() override
+	void render(float) override
 	{
 		m_timeUniform.clear();
 		m_timeUniform.vec4s.push_back({ 0, m_timeVector });
