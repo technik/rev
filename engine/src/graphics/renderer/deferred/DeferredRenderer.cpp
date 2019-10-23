@@ -39,6 +39,8 @@ namespace rev::gfx {
 		m_targetFb = target;
 		m_device = &device;
 		m_viewportSize = size;
+		const unsigned shadowBufferSize = 1024;
+		m_shadowSize = Vec2u(shadowBufferSize, shadowBufferSize);
 		createBuffers();
 		createRenderPasses(target);
 
@@ -141,6 +143,14 @@ namespace rev::gfx {
 
 		// Record passes
 		CommandBuffer frameCommands;
+
+		// Shadows
+		if (!scene.lights().empty() && scene.lights()[0]->castShadows)
+		{
+			auto& light = *scene.lights()[0];
+			m_shadowPass->render(m_visible, m_visible, eye, light, frameCommands);
+		}
+
 		// G-pass
 		frameCommands.beginPass(*m_gBufferPass);
 		m_gPass->render(geometry, renderList, frameCommands);
@@ -212,11 +222,13 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::createBuffers()
 	{
-		// Skip it for now
 		m_gBufferTexture = createGBufferTexture(*m_device, m_viewportSize);
 		m_depthTexture = createDepthTexture(*m_device, m_viewportSize);
 		createPBRTextures(*m_device, m_viewportSize);
 		mGBuffer = createGBuffer(*m_device, m_depthTexture, m_gBufferTexture);
+
+		m_shadowTexture = ShadowMapPass::createShadowMapTexture(*m_device, m_shadowSize);
+		m_shadowBuffer = ShadowMapPass::createShadowBuffer(*m_device, m_shadowTexture);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -235,6 +247,9 @@ namespace rev::gfx {
 
 		m_gBufferPass = m_device->createRenderPass(passDesc);
 		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
+
+		// Shadow pass
+		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowBuffer, m_shadowSize);
 
 		// Lighting pass
 		passDesc.clearDepth = 1;

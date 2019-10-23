@@ -58,7 +58,6 @@ namespace rev {
 			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
 			m_envLight->worldMatrix = lightXform;
 			m_envLight->color = 4*Vec3f::ones();
-			m_envLight->castShadows = true;
 			mGraphicsScene.addLight(m_envLight);
 		}
 

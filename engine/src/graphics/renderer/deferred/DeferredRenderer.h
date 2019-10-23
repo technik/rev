@@ -23,6 +23,7 @@
 #include <graphics/renderer/RenderItem.h>
 #include <graphics/renderer/renderPass/geometryPass.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
+#include <graphics/renderer/ShadowMapPass.h>
 #include <vector>
 
 namespace rev::gfx {
@@ -61,6 +62,7 @@ namespace rev::gfx {
 	private:
 		Device*		m_device = nullptr;
 		math::Vec2u m_viewportSize;
+		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
 
 		// Geometry arrays
@@ -74,10 +76,13 @@ namespace rev::gfx {
 		gfx::Texture2d			m_gBufferTexture;
 		gfx::Texture2d			m_albedoTexture;
 		gfx::Texture2d			m_specularTexture;
+		gfx::Texture2d			m_shadowTexture;
 		FrameBuffer				mGBuffer;
+		FrameBuffer				m_shadowBuffer;
 		RenderPass*				m_gBufferPass = nullptr;
 		GeometryPass*			m_gPass = nullptr;
-		std::unique_ptr<FullScreenPass>		m_bgPass;
+		std::unique_ptr<FullScreenPass>	m_bgPass;
+		std::unique_ptr<ShadowMapPass>	m_shadowPass;
 
 		// Shadow pass
 		// SSAO pass
