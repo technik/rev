@@ -67,6 +67,8 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void Material::addTexture(const string& name, gfx::Texture2d t, BindingFlags flags)
 	{
+		if (!t.isValid())
+			return;
 		auto prop = mEffect->property(name);
 		if(prop)
 		{
