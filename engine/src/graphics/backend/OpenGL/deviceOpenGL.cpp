@@ -418,9 +418,9 @@ namespace rev :: gfx
 				case 2:
 					return GL_RG;
 				case 3:
-					return desc.sRGB ? GL_SRGB : GL_RGB8;
+					return desc.sRGB ? GL_SRGB8 : GL_RGB8;
 				case 4:
-					return desc.sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+					return desc.sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 				default:
 					assert(!"Images must have [1,4] channels");
 			}
