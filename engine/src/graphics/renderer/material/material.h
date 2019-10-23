@@ -31,27 +31,46 @@ namespace rev::gfx {
 	class Material
 	{
 	public:
+		// A material parameter will only be bound in when it shares
+		// binding flags with those passed to the bindParams method
+		enum BindingFlags
+		{
+			None = 0,
+			Normals = 1<<0,
+			PBR = 1<<1,
+			Emissive = 1<<2,
+			Opacity = 1<<3,
+			All = 0xff
+		};
+
 		Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect);
 
 		// New params can only be added to the material before calling init
-		void addParam(const std::string& name,float f);
-		void addParam(const std::string& name, const math::Vec3f& v);
-		void addParam(const std::string& name, const math::Vec4f& v);
-		void addTexture(const std::string& name, gfx::Texture2d t);
+		void addParam(const std::string& name,float f, BindingFlags);
+		void addParam(const std::string& name, const math::Vec3f& v, BindingFlags);
+		void addParam(const std::string& name, const math::Vec4f& v, BindingFlags);
+		void addTexture(const std::string& name, gfx::Texture2d t, BindingFlags);
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(gfx::CommandBuffer::UniformBucket& renderer) const;
+		void bindParams(gfx::CommandBuffer::UniformBucket& renderer, BindingFlags) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;
 		std::string mShaderOptionsCode;
 
-		std::vector<std::pair<GLint,float>>			mFloatParams;
-		std::vector<std::pair<GLint,math::Vec3f>>	mVec3fParams;
-		std::vector<std::pair<GLint,math::Vec4f>>	mVec4fParams;
-		std::vector<std::pair<GLint,gfx::Texture2d>>	mTextureParams;
+		template<class T> struct Param
+		{
+			GLint location;
+			T value;
+			BindingFlags flags;
+		};
+
+		std::vector<Param<float>>		mFloatParams;
+		std::vector<Param<math::Vec3f>>	mVec3fParams;
+		std::vector<Param<math::Vec4f>>	mVec4fParams;
+		std::vector<Param<Texture2d>>	mTextureParams;
 	};
 
 }

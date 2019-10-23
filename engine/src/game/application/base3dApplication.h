@@ -56,7 +56,7 @@ namespace rev::game {
 		virtual void end() {}
 		// Main loop
 		virtual bool updateLogic(float dt) = 0;
-		virtual void render() = 0;
+		virtual void render(float dt) = 0;
 		// Events
 		virtual void onResize() {}
 

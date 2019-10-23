@@ -543,35 +543,35 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false));
+					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false), Material::BindingFlags::PBR);
 				}
 				// Base color factor
 				{
 					auto& colorDesc = pbrDesc.baseColorFactor;
 					auto& color = reinterpret_cast<const math::Vec4f&>(colorDesc);
 					if(color != Vec4f::ones())
-						mat->addParam("uBaseColor", color);
+						mat->addParam("uBaseColor", color, Material::BindingFlags::PBR);
 				}
 				// Metallic-roughness
 				if(!pbrDesc.metallicRoughnessTexture.empty())
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false));
+					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false), Material::BindingFlags::PBR);
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
-					mat->addParam("uRoughness", pbrDesc.roughnessFactor);
+					mat->addParam("uRoughness", pbrDesc.roughnessFactor, Material::BindingFlags::PBR);
 				if(pbrDesc.metallicFactor != 1.f)
-					mat->addParam("uMetallic", pbrDesc.metallicFactor);
+					mat->addParam("uMetallic", pbrDesc.metallicFactor, Material::BindingFlags::PBR);
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false));
+				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false), Material::BindingFlags::None);
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false));
+				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false), Material::BindingFlags::Normals);
 			}
-			mat->addTexture("uEnvBRDF", envBRDF);
+			//mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);
 		}
 
@@ -676,13 +676,6 @@ namespace rev { namespace game {
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
-
-		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
-		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
 
 		// Load buffers
 		vector<core::File*> buffers;

@@ -677,8 +677,6 @@ void main (void) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, srcCubeMap);
 	glUniform1i(0, 0);
-	latLongDesc.srcImages = nullptr;
-	latLongDesc.providedImages = 0;
 
 	size_t nRadianceMips = 4;
 	size_t radianceSize = 16;
@@ -942,13 +940,13 @@ int main(int _argc, const char** _argv) {
 	auto srcImg = rev::gfx::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
-	if(!srcImg.data<void*>())
+	if(!srcImg)
 	{
 		cout << "Error: Unable to load input image\n";
 		return -1;
 	}
 
-	generateProbeFromImage(params, device, &srcImg);
+	generateProbeFromImage(params, device, srcImg.get());
 
 	return 0;
 }

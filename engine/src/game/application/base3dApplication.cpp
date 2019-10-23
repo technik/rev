@@ -77,7 +77,7 @@ namespace rev::game {
 					return;
 			}
 			//	render
-			render();
+			render(frameTime);
 		}
 		end();
 		core::FileSystem::end();

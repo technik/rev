@@ -32,60 +32,72 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, float f)
+	void Material::addParam(const string& name, float f, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
-			mFloatParams.emplace_back(prop->location, f);
+			mFloatParams.push_back({ prop->location, f, flags });
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, const Vec3f& v)
+	void Material::addParam(const string& name, const Vec3f& v, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
-			mVec3fParams.emplace_back(prop->location, v);
+			mVec3fParams.push_back({ prop->location, v, flags });
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, const Vec4f& v)
+	void Material::addParam(const string& name, const Vec4f& v, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
-			mVec4fParams.emplace_back(prop->location, v);
+			mVec4fParams.push_back({prop->location, v, flags});
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addTexture(const string& name, gfx::Texture2d t)
+	void Material::addTexture(const string& name, gfx::Texture2d t, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
-			mTextureParams.emplace_back(prop->location, t);
+			mTextureParams.push_back({ prop->location, t, flags });
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::bindParams(gfx::CommandBuffer::UniformBucket& renderer) const
+	void Material::bindParams(gfx::CommandBuffer::UniformBucket& renderer, BindingFlags flags) const
 	{
-		for(const auto& v : mFloatParams)
-			renderer.addParam(v.first, v.second);
+		for (const auto& v : mFloatParams)
+		{
+			if(v.flags & flags)
+				renderer.addParam(v.location, v.value);
+		}
 		for(const auto& v : mVec3fParams)
-			renderer.addParam(v.first, v.second);
+		{
+			if (v.flags & flags)
+				renderer.addParam(v.location, v.value);
+		}
 		for(const auto& v : mVec4fParams)
-			renderer.addParam(v.first, v.second);
+		{
+			if (v.flags & flags)
+				renderer.addParam(v.location, v.value);
+		}
 		for(const auto& t : mTextureParams)
-			renderer.addParam(t.first, t.second);
+		{
+			if (t.flags & flags)
+				renderer.addParam(t.location, t.value);
+		}
 	}
 
 }

@@ -163,13 +163,6 @@ namespace rev {
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
 
-		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = gfxDevice().createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice(), sampler, "shaders/ibl_brdf.hdr", false, 1);
-		defaultMaterial->addTexture("uEnvBRDF", envBRDF);
-
 		// Create mesh renderer component
 		auto renderable = std::make_shared<gfx::RenderMesh>();
 		renderable->mPrimitives.push_back({floorMesh, defaultMaterial});
@@ -188,9 +181,9 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::render()
+	void Player::render(float dt)
 	{
-		updateUI(1/60.f);
+		updateUI(dt);
 		// Render scene
 		switch(m_renderPath)
 		{

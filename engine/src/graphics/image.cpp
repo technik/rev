@@ -177,7 +177,7 @@ namespace rev::gfx
 			}
 		}
 
-		return std::make_unique<Image>(PixelFormat{ChannelFormat::Byte, 0}); // Invalid image
+		return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------

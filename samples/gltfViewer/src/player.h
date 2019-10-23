@@ -47,16 +47,11 @@ namespace rev {
 		bool init() override;
 		// Main loop
 		bool updateLogic(float dt) override;
-		void render() override;
+		void render(float dt) override;
 		// Events
 		void onResize() override;
 
-#ifdef _WIN32
-		void onWindowResize(const math::Vec2u& _newSize);
-#endif // _WIN32
-
 		// Common components
-		bool update();
 		void updateUI(float dt);
 
 	private:

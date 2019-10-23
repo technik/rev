@@ -131,7 +131,7 @@ namespace rev::gfx {
 			{
 				lastMaterial = &mesh.material;
 				lastGeom = &mesh.geom;
-				mesh.material.bindParams(instance.uniforms);
+				mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals|Material::BindingFlags::PBR));
 				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
 				instance.geometryIndex++;
 				geometry.push_back(&mesh.geom);
