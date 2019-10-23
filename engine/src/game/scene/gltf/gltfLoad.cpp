@@ -505,13 +505,9 @@ namespace rev { namespace game {
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
-		gfx::TextureSampler::Descriptor samplerDesc;
-		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Clamp;
-		auto sampler = gfxDevice.createTextureSampler(samplerDesc);
-		auto envBRDF = load2dTextureFromFile(gfxDevice, sampler, "shaders/ibl_brdf.hdr", false, 1);
 
 		// Create default texture sampler
+		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Repeat;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
 		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
@@ -543,7 +539,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, false), Material::BindingFlags::PBR);
+					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true), Material::BindingFlags::PBR);
 				}
 				// Base color factor
 				{
