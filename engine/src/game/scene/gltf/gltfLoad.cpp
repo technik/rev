@@ -471,7 +471,8 @@ namespace rev { namespace game {
 		std::vector<gfx::Texture2d>& textures,
 		gfx::TextureSampler defaultSampler,
 		int32_t index,
-		bool sRGB)
+		bool sRGB,
+		int nChannels = 0)
 	{
 		auto& texture = textures[index];
 		if(texture.isValid()) // Already allocated, reuse
@@ -486,7 +487,7 @@ namespace rev { namespace game {
 			//auto gltfSampler = document.samplers[textGltfDesc.sampler];
 			//if(gltfSampler.wrapS == gltf::Sampler::WrappingMode::Repeat
 		}
-		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB);
+		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB, nChannels);
 		if (!texture.isValid())
 		{
 			cout << "Unable to load texture " << imageDesc.uri << "\n";
@@ -553,7 +554,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false), Material::BindingFlags::PBR);
+					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3), Material::BindingFlags::PBR);
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
 					mat->addParam("uRoughness", pbrDesc.roughnessFactor, Material::BindingFlags::PBR);
@@ -561,11 +562,11 @@ namespace rev { namespace game {
 					mat->addParam("uMetallic", pbrDesc.metallicFactor, Material::BindingFlags::PBR);
 			}
 			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false), Material::BindingFlags::None);
+				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false, 3), Material::BindingFlags::None);
 			if(!matDesc.normalTexture.empty())
 			{
 				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false), Material::BindingFlags::Normals);
+				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false, 3), Material::BindingFlags::Normals);
 			}
 			//mat->addTexture("uEnvBRDF", envBRDF);
 			materials.push_back(mat);

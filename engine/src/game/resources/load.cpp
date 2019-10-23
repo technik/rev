@@ -24,10 +24,10 @@
 
 namespace rev::game
 {
-	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nMips)
+	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nChannels, int nMips)
 	{
 		// Load image from file
-		auto image = gfx::Image::load(fileName, 0);
+		auto image = gfx::Image::load(fileName, nChannels);
 		if(!image->data())
 			return gfx::Texture2d();
 
