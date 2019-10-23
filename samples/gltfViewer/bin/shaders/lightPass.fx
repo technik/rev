@@ -16,6 +16,10 @@ layout(location = 8) uniform sampler2D uDepthMap;
 layout(location = 9) uniform sampler2D uSpecularMap;
 layout(location = 10) uniform sampler2D uAlbedoMap;
 
+#define sampler2D_uShadowMap
+layout(location = 11) uniform sampler2D uShadowMap;
+layout(location = 12) uniform mat4 uShadowProj;
+
 #define sampler2D_uEnvironment
 
 #include "ibl.fx"
@@ -46,7 +50,12 @@ vec3 shade () {
 	vec3 F0 = f0_roughness.xyz;
 	float r = f0_roughness.a;
 	float occlusion = 1.0;
+#ifdef sampler2D_uShadowMap
+	vec4 shadowPos = uShadowProj * wsPos;
+	float shadow = textureLod(uShadowMap, shadowPos.xy, 0.0).x;
+#else
 	float shadow = 1.0;
+#endif
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
 	
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);

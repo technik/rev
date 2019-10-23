@@ -145,7 +145,8 @@ namespace rev::gfx {
 		CommandBuffer frameCommands;
 
 		// Shadows
-		if (!scene.lights().empty() && scene.lights()[0]->castShadows)
+		const bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
+		if (useShadows)
 		{
 			auto& light = *scene.lights()[0];
 			m_shadowPass->render(m_visible, m_visible, eye, light, frameCommands);
@@ -175,6 +176,13 @@ namespace rev::gfx {
 			envUniforms.addParam(8, m_depthTexture);
 			envUniforms.addParam(9, m_specularTexture);
 			envUniforms.addParam(10, m_albedoTexture);
+
+			if (useShadows)
+			{
+				math::Mat44f shadowProj = m_shadowPass->shadowProj();
+				envUniforms.addParam(11, m_shadowTexture);
+				envUniforms.addParam(12, shadowProj);
+			}
 			
 			m_lightingPass->render(envUniforms, frameCommands);
 
