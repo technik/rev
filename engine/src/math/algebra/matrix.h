@@ -140,7 +140,7 @@ namespace rev {
 			return Matrix44<Number_>({
 				2 / _size.x(), 0,                0,             0,
 				0,             2 / _size.y(),	 0,				0,
-				0,             0,		 2 / (_near-_far),      (_near+_far)/(_near-_far),
+				0,             0,		 2 / (_far-_near),      (_near+_far)/(_near-_far),
 				0,             0,                0,             1
 				});
 		}

@@ -107,7 +107,7 @@ namespace rev::gfx {
 			castersBBox.add(bbox);
 		}
 
-		auto world = light.worldMatrix; // So that light's +y axis (forward), maps to the -Z in camera
+		auto world = light.worldMatrix;
 		adjustViewMatrix(world, castersBBox);// Adjust view matrix
 
 		// Render
@@ -123,14 +123,14 @@ namespace rev::gfx {
 		shadowWorldXForm.position() = shadowCenter;
 		auto shadowView = shadowWorldXForm.orthoNormalInverse();
 
-		auto lightSpaceCastersBBox = castersBBox.transform(shadowWorldXForm);
+		auto lightSpaceCastersBBox = shadowView * castersBBox;
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(2,3) = -mBias;
 
 		auto orthoSize = lightSpaceCastersBBox.size();
 		auto castersMin = -orthoSize.z()/2;
 		auto castersMax = orthoSize.z()/2;
-		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
+		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax+0.1f);
 
 		mShadowProj = proj * biasMatrix * shadowView.matrix();
 		mUnbiasedShadowProj = proj * shadowView.matrix();

@@ -55,7 +55,7 @@ namespace rev {
 			m_envLight = std::make_shared<gfx::DirectionalLight>();
 			m_envLight->castShadows = true;
 			AffineTransform lightXform = AffineTransform::identity();
-			lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
+			//lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
 			m_envLight->worldMatrix = lightXform;
 			m_envLight->color = 4*Vec3f::ones();
 			mGraphicsScene.addLight(m_envLight);
