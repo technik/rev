@@ -119,7 +119,7 @@ namespace rev::gfx {
 	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& wsLight, const math::AABB& castersBBox)
 	{
 		auto shadowWorldXForm = wsLight;
-		auto shadowCenter = castersBBox.origin();
+		auto shadowCenter = castersBBox.center();
 		shadowWorldXForm.position() = shadowCenter;
 		auto shadowView = shadowWorldXForm.orthoNormalInverse();
 

@@ -94,7 +94,7 @@ namespace rev::math
 		const Vector& min() const { return mMin; }
 		const Vector& max() const { return mMax; }
 		Vector size() const { return mMax - mMin; }
-		Vector origin() const { return 0.5f*(mMin + mMax); }
+		Vector center() const { return 0.5f*(mMin + mMax); }
 
 		bool contains(const Vector& _point) const {
 			return (math::min(_point, mMin) == mMin) && (math::max(_point, mMax) == mMax);
@@ -120,7 +120,7 @@ namespace rev::math
 
 	inline AABB operator*(const AffineTransform& xform, const AABB& aabb)
 	{
-		auto center = aabb.origin();
+		auto center = aabb.center();
 		auto halfSize = aabb.max() - center;
 		auto rotSize = xform.rotateDirection(halfSize);
 		halfSize = math::abs(rotSize);

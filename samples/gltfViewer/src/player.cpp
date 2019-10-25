@@ -121,7 +121,7 @@ namespace rev {
 
 		// Re-center scene
 		auto xForm = m_gltfRoot->component<Transform>();
-		xForm->xForm.position() = -m_globalBBox.origin();
+		xForm->xForm.position() = -m_globalBBox.center();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ namespace rev {
 		auto sceneSize = m_globalBBox.size();
 		auto floorXForm = floorNode->addComponent<Transform>();
 		floorXForm->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
-		floorXForm->xForm.position() = m_globalBBox.origin();
+		floorXForm->xForm.position() = m_globalBBox.center();
 		floorXForm->xForm.position().y() = m_globalBBox.min().y();
 
 		const float floorScale = 4.f;
