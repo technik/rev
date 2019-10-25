@@ -130,7 +130,7 @@ namespace rev::gfx {
 		auto orthoSize = lightSpaceCastersBBox.size();
 		auto castersMin = -orthoSize.z()/2;
 		auto castersMax = orthoSize.z()/2;
-		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax+0.1f);
+		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
 
 		mShadowProj = proj * biasMatrix * shadowView.matrix();
 		mUnbiasedShadowProj = proj * shadowView.matrix();

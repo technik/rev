@@ -61,8 +61,8 @@ vec3 shade () {
 	
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);
 	vec3 toneMapped = color*uEV / (1+uEV*color);
-	return vec3(shadow);
-	//return toneMapped;
+	//return vec3(shadow);
+	return toneMapped;
 }
 
 #endif
