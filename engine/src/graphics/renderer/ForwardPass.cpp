@@ -200,7 +200,7 @@ namespace rev::gfx {
 		for(auto& renderable : renderables)
 		{
 			// Matrices
-			Mat44f world = renderable.world.matrix();
+			Mat44f world = renderable.world;
 			bool mirroredGeometry = affineTransformDeterminant(world) < 0.f;
 			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), env, useShadows, mirroredGeometry);
 			if(!pipeline.isValid())

@@ -16,18 +16,15 @@ namespace rev::gfx {
 	class RenderObj
 	{
 	public:
-		RenderObj()
-			: transform(math::AffineTransform::identity())
-		{}
+		RenderObj() = default;
 
 		RenderObj(const std::shared_ptr<const RenderMesh>& _mesh)
-			: RenderObj()
+			: mesh(_mesh)
 		{
-			mesh = _mesh;
 		}
 
 		bool visible = true;
-		math::AffineTransform	transform;
+		math::Mat44f transform;
 		std::shared_ptr<const RenderMesh> mesh;
 		std::shared_ptr<const SkinInstance> skin;
 	};

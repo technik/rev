@@ -69,7 +69,8 @@ namespace rev::gfx {
 		// --- Cull stuff
 		// Cull visible objects renderQ -> visible
 		cull(m_renderQueue, m_visible, [&](const RenderItem& item) -> bool {
-			return dot(item.world.position() - eye.position(), eye.viewDir()) > 0;
+			math::Vec3f worldPos = item.world.block<3, 1>(0, 3);
+			return dot(worldPos - eye.position(), eye.viewDir()) > 0;
 		});
 
 		// TODO: Cull shadow casters renderQ -> casters
@@ -132,7 +133,7 @@ namespace rev::gfx {
 	{
 		if(ImGui::Begin("Debug Fwd Renderer"))
 		{
-			ImGui::Image((void*)m_shadowsTexture.id(), {256, 256});
+			ImGui::Image(reinterpret_cast<void*>((ptrdiff_t)m_shadowsTexture.id()), {256, 256});
 		}
 		ImGui::End();
 	}

@@ -133,7 +133,7 @@ namespace rev::gfx {
 			instance.raster = m_rasterOptions.mask();
 			// Uniforms
 			instance.uniforms.clear();
-			Mat44f wvp = viewProj * mesh.world.matrix();
+			Mat44f wvp = viewProj * mesh.world;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
 			if(lastGeom != &mesh.geom)

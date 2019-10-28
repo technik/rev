@@ -124,7 +124,7 @@ namespace rev::gfx {
 			instance.raster = m_rasterOptions.mask();
 			// Uniforms
 			instance.uniforms.clear();
-			Mat44f world = mesh.world.matrix();
+			Mat44f world = mesh.world;
 			Mat44f wvp = viewProj * world;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			instance.uniforms.mat4s.push_back({1, world});

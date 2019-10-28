@@ -118,13 +118,13 @@ namespace rev::math
 		Vector mMax;
 	};
 
-	inline AABB operator*(const AffineTransform& xform, const AABB& aabb)
+	inline AABB operator*(const Mat44f& xform, const AABB& aabb)
 	{
-		auto center = aabb.center();
-		auto halfSize = aabb.max() - center;
-		auto rotSize = xform.rotateDirection(halfSize);
+		Vec4f center = Vec4f(aabb.center(), 1.f);
+		Vec4f halfSize = Vec4f(aabb.max(), 1.f) - center;
+		Vec4f rotSize = xform * halfSize;
 		halfSize = math::abs(rotSize);
-		center = xform.transformPosition(center);
-		return AABB(center - halfSize, center + halfSize);
+		center = xform * center;
+		return AABB(Vec3f(center - halfSize), Vec3f(center + halfSize));
 	}
 }

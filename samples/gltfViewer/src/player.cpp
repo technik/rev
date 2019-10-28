@@ -114,7 +114,7 @@ namespace rev {
 			{
 				auto localbbox = renderer->renderObj().mesh->m_bbox;
 				auto transform = node.component<Transform>();
-				auto wsBbox = transform->absoluteXForm() * localbbox;
+				auto wsBbox = transform->absoluteXForm().matrix() * localbbox;
 				m_globalBBox.add(wsBbox);
 			}
 		});

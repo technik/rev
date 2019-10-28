@@ -48,6 +48,16 @@ namespace rev {
 			{
 			}
 
+			template<class OtherT>
+			Vector(const VectorExpr<T, n - 1, OtherT>& x, float f)
+			{
+				for (size_t i = 0; i < n - 1; ++i)
+				{
+					m[i] = x[i];
+				}
+				m[n - 1] = f;
+			}
+
 			Vector(T _x, T _y)
 				: Base{ _x, _y }
 			{

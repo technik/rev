@@ -25,7 +25,7 @@ namespace rev { namespace game {
 
 	//------------------------------------------------------------------------------------------------------------------
 	void MeshRenderer::update(float _dt) {
-		mRenderable->transform = mSrcTransform->absoluteXForm();
+		mRenderable->transform = mSrcTransform->absoluteXForm().matrix();
 	}
 
 }}	// namespace rev::game

@@ -121,7 +121,7 @@ namespace rev::gfx {
 		auto shadowWorldXForm = wsLight;
 		auto shadowCenter = castersBBox.center();
 		shadowWorldXForm.position() = shadowCenter;
-		auto shadowView = shadowWorldXForm.orthoNormalInverse();
+		auto shadowView = shadowWorldXForm.orthoNormalInverse().matrix();
 
 		auto lightSpaceCastersBBox = shadowView * castersBBox;
 		Mat44f biasMatrix = Mat44f::identity();
@@ -132,8 +132,8 @@ namespace rev::gfx {
 		auto castersMax = orthoSize.z()/2;
 		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
 
-		mShadowProj = proj * biasMatrix * shadowView.matrix();
-		mUnbiasedShadowProj = proj * shadowView.matrix();
+		mShadowProj = proj * biasMatrix * shadowView;
+		mUnbiasedShadowProj = proj * shadowView;
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace rev::gfx {
 			instance.raster = m_rasterOptions.mask();
 			// Uniforms
 			instance.uniforms.clear();
-			Mat44f wvp = mShadowProj* mesh.world.matrix();
+			Mat44f wvp = mShadowProj* mesh.world;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
 			if(lastGeom != &mesh.geom)

@@ -27,7 +27,7 @@ namespace rev::gfx {
 
 	struct RenderItem
 	{
-		math::AffineTransform world;
+		math::Mat44f world;
 		const RenderGeom& geom;
 		const Material& material;
 	};
