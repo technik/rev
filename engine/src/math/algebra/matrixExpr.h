@@ -1,8 +1,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
-#include <cstddef>
 #pragma once
+#include <cstddef>
+#include <functional>
 
 namespace rev::math {
 
@@ -67,4 +68,42 @@ namespace rev::math {
 			return block<0, j, m, 1>();
 		}
 	};
+
+	template<class T, size_t m, size_t n, class A, class B, class Op>
+	struct MatrixBinaryOp : MatrixExpr<T, m, n, MatrixAdd<T, m, n, A, B>>
+	{
+		const MatrixExpr<T, m, n, A>& a;
+		const MatrixExpr<T, m, n, B>& b;
+
+		MatrixAdd(const MatrixExpr<T, m, n, A>& _a, const MatrixExpr<T, m, n, B>& _b)
+			:a(_a), b(_b)
+		{}
+
+		// Generic component accessor.
+		T operator()(size_t i, size_t j) const
+		{
+			Op op;
+			return op(a(i, j), b(i, j));
+		}
+
+		// Component accessor for when you know the component index at compile time.
+		template<size_t i, size_t j>
+		T  coefficient() const
+		{
+			Op op;
+			return op(a.template coefficient<i, j>(), b.template coefficient<i, j>());
+		}
+	};
+
+	template<class T, size_t m, size_t n, class A, class B>
+	MatrixBinaryOp<T, m, n, A, B, std::plus<T>> operator+(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
+	{
+		return MatrixBinaryOp<T, m, n, A, B, std::plus<T>>(a, b);
+	}
+
+	template<class T, size_t m, size_t n, class A, class B>
+	MatrixBinaryOp<T, m, n, A, B, std::minus<T>> operator-(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
+	{
+		return MatrixBinaryOp<T, m, n, A, B, std::minus<T>>(a, b);
+	}
 }
