@@ -3,10 +3,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <algorithm>
-#include <cassert>
-#include "matrixBase.h"
-
 namespace rev::math {
 
 	template<typename T, size_t n, class Derived>
