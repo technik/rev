@@ -110,14 +110,14 @@ namespace rev {
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<typename Number_>
-		inline Matrix44<Number_> orthographicMatrix(
-			const Vector<Number_,2>& _size,
-			Number_ _near, Number_ _far)
+		template<typename T, class Expr>
+		inline Matrix44<T> orthographicMatrix(
+			const MatrixExpr<T,2,1,Expr>& _size,
+			T _near, T _far)
 		{
-			return Matrix44<Number_>({
-				2 / _size.x(), 0,                0,             0,
-				0,             2 / _size.y(),	 0,				0,
+			return Matrix44<T>({
+				2 / _size[0,0], 0,                0,             0,
+				0,             2 / _size[1,0],	 0,				0,
 				0,             0,		 2 / (_far-_near),      (_near+_far)/(_near-_far),
 				0,             0,                0,             1
 				});
