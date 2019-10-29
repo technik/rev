@@ -8,7 +8,7 @@
 namespace rev::math {
 
 	template<typename T, size_t n, class Derived>
-	struct VectorExpr
+	struct VectorExpr : MatrixExpr<T,n,1, VectorExpr<T,n,Derived>>
 	{
 		// Generic component accessor.
 		T operator[](size_t i) const { return static_cast<const Derived&>(*this)[i]; }
