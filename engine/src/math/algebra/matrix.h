@@ -42,7 +42,7 @@ namespace rev {
 						(*this)(i, j) = _x(i, j);
 			}
 
-			Matrix& operator(const Matrix&) = default;
+			Matrix& operator=(const Matrix&) = default;
 
 			template<class Other>
 			Matrix& operator=(const MatrixExpr<T, m, n, Other>& x)
@@ -61,23 +61,6 @@ namespace rev {
 			// Generic component accessor.
 			T operator()(size_t i, size_t j) const { return data[i][j]; }
 			T& operator()(size_t i, size_t j) { return data[i][j]; }
-
-			// Component accessor for when you know the component index at compile time.
-			template<size_t i, size_t j>
-			T  coefficient() const
-			{
-				static_assert(i < m);
-				static_assert(j < n);
-				return data[i][j];;
-			}
-
-			template<size_t i, size_t j>
-			T& coefficient()
-			{
-				static_assert(i < m);
-				static_assert(j < n);
-				return data[i][j];;
-			}
 
 		private:
 			T data[m][n];

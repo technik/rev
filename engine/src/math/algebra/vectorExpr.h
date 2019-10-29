@@ -33,14 +33,6 @@ namespace rev::math {
 		T operator()(size_t i, size_t) const {
 			return (*this)[i];
 		}
-
-		// Component accessor for when you know the component index at compile time.
-		template<size_t i, size_t j>
-		T  coefficient() const
-		{
-			static_assert(j == 0);
-			return derived.template getComponent<i>();
-		}
 	};
 
 }

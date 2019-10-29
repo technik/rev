@@ -26,27 +26,27 @@ namespace rev { namespace math {
 		}
 
 		Vec3f		transformPosition	(const Vec3f& v) const {
-			return mMatrix.block<3,3,0,0>()*v + mMatrix.block<3,1>(0,3);
+			return mMatrix.block<3,3,0,0>()*v + mMatrix.block<3,1,0,3>();
 		}
-		Vec3f		rotateDirection		(const Vec3f& v) const { return mMatrix.block<3,3>(0,0)*v; }
+		Vec3f		rotateDirection		(const Vec3f& v) const { return mMatrix.block<3,3,0,0>()*v; }
 
 		AffineTransform orthoNormalInverse() const {
 			AffineTransform x = AffineTransform::identity();
-			x.mMatrix.block<3,3>(0,0) = mMatrix.block<3,3>(0,0).transpose();
-			x.mMatrix.block<3,1>(0,3) = - x.mMatrix.block<3,3>(0,0) * mMatrix.block<3,1>(0,3);
+			x.mMatrix.block<3,3,0,0>() = mMatrix.block<3,3,0,0>().transpose();
+			x.mMatrix.block<3,1,0,3>() = - x.mMatrix.block<3,3,0,0>() * mMatrix.block<3,1,0,3>();
 			return x;
 		}
 
-		auto&		position	() 			{ return reinterpret_cast<Vec3f&>(mMatrix.block<3,1>(0,3)); }
-		const auto& position	() const	{ return reinterpret_cast<const Vec3f&>(mMatrix.block<3,1>(0,3)); }
+		auto		position	() 			{ return mMatrix.block<3,1,0,3>(); }
+		const auto	position	() const	{ return mMatrix.block<3,1,0,3>(); }
 
-		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3>(0,0) = Mat33f(_q); }
-		auto		rotation	()	const	{ return Quatf(mMatrix.block<3,3>(0,0)); }
-		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3>(0,0); }
+		void		setRotation	(const Quatf& _q)	{ mMatrix.block<3,3,0,0>() = Mat33f(_q); }
+		auto		rotation	()	const	{ return Quatf(mMatrix.block<3,3,0,0>()); }
+		const auto& rotationMtx	()	const	{ return mMatrix.block<3,3,0,0>(); }
 
 		void rotate		(const Quatf& _q) { 
 			Mat33f rot = (Mat33f)_q;
-			mMatrix.block<3,3>(0,0) = rot * mMatrix.block<3,3>(0,0);
+			mMatrix.block<3,3,0,0>() = rot * mMatrix.block<3,3,0,0>();
 		}
 
 		const	Mat44f& matrix() const	{ return mMatrix; }

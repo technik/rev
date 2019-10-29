@@ -13,18 +13,9 @@ namespace rev::math {
 		// Generic component accessor.
 		T operator()(size_t i, size_t j) const { return static_cast<const Derived&>(*this)(i, j); }
 
-		// Component accessor for when you know the component index at compile time.
-		template<size_t i, size_t j>
-		T  coefficient() const
-		{
-			static_assert(i < m);
-			static_assert(j < n);
-			auto& derived = static_cast<const Derived&>(*this);
-			return derived.template coefficient<i, j>();
-		}
-
-		template<size_t i0, size_t j0, size_t rows, size_t cols>
-		class Block : MatrixExpr<T, rows, cols, Block<i0, j0, rows, cols>>
+		// Block access
+		template<size_t rows, size_t cols, size_t i0, size_t j0>
+		struct Block : MatrixExpr<T, rows, cols, Block<rows, cols, i0, j0>>
 		{
 		private:
 			MatrixExpr<T, m, n, Derived>& parentExpr() const
@@ -37,19 +28,10 @@ namespace rev::math {
 			T operator()(size_t i, size_t j) const {
 				return parentExpr()(i0 + i, j0 + j);
 			}
-
-			// Component accessor for when you know the component index at compile time.
-			template<size_t i, size_t j>
-			T  coefficient() const
-			{
-				static_assert(i < rows);
-				static_assert(j < cols);
-				return parentExpr().template coefficient<i0 + i, j0 + j>();
-			}
 		};
 
-		template<size_t i0, size_t j0, size_t rows, size_t cols>
-		const Block<i0, j0, rows, cols>& block() const
+		template<size_t rows, size_t cols, size_t i0, size_t j0>
+		const Block<rows, cols, i0, j0>& block() const
 		{
 			static_assert(i0 + rows <= m);
 			static_assert(j0 + cols <= n);
@@ -57,15 +39,29 @@ namespace rev::math {
 		}
 
 		template<size_t i>
-		const Block<i, 0, 1, n>& row() const
+		auto& row() const
 		{
-			return block<i, 0, 1, n>();
+			return block<1, n, i, 0>();
 		}
 
 		template<size_t j>
-		const Block<0, j, m, 1>& col() const
+		auto& col() const
 		{
-			return block<0, j, m, 1>();
+			return block<m, 1, 0, j>();
+		}
+
+		// Transpose
+		struct Transpose : MatrixExpr<T, n, m, Transpose>
+		{
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const {
+				return (*reinterpret_cast<const MatrixExpr<T, m, n, Derived>*>(this))(j,i);
+			}
+		};
+
+		const Transpose& transpose() const
+		{
+			return *reinterpret_cast<const Transpose*>(this);
 		}
 	};
 
@@ -84,14 +80,6 @@ namespace rev::math {
 		{
 			Op op;
 			return op(a(i, j), b(i, j));
-		}
-
-		// Component accessor for when you know the component index at compile time.
-		template<size_t i, size_t j>
-		T  coefficient() const
-		{
-			Op op;
-			return op(a.template coefficient<i, j>(), b.template coefficient<i, j>());
 		}
 	};
 
@@ -121,7 +109,7 @@ namespace rev::math {
 
 	//------------------------------------------------------------------------------------------------------------------
 	template<class T, size_t m, size_t k, size_t n, class A, class B>
-	struct MatrixProduct
+	struct MatrixProduct : MatrixExpr<T,m,n,MatrixProduct<T,m,k,n,A,B>>
 	{
 		const MatrixExpr<T, m, k, A>& a;
 		const MatrixExpr<T, k, n, B>& b;
@@ -136,16 +124,6 @@ namespace rev::math {
 			T accum = a(i, 0) * b(0, j);
 			for (size_t l = 1; l < k ++l)
 				accum += a(i, l) * b(l, j);
-			return accum;
-		}
-
-		// Component accessor for when you know the component index at compile time.
-		template<size_t i, size_t j>
-		T  coefficient() const
-		{
-			T accum = a.template coefficient<i, 0>() * b.template coefficient<0, j>();
-			for (size_t l = 1; l < k ++l)
-				accum += a.template coefficient<i, l>() * b.template coefficient<l, j>();
 			return accum;
 		}
 	};
