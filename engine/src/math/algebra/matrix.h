@@ -19,31 +19,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // Generic matrix
 #pragma once
+#include "matrixExpr.h"
+#include "matrixView.h"
 
 namespace rev {
 	namespace math {
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<class T, size_t rows_, size_t cols_>
+		template<class T, size_t m, size_t n>
 		struct Matrix
-			: MatrixExpr < T, rows_, cols_, Matrix<T, rows_, cols_>>
-			, MatrixView < T, rows_, cols_, Matrix<T, rows_, cols_>>
+			: MatrixExpr < T, m, n, Matrix<T, m, n>>
+			, MatrixView < T, m, n, Matrix<T, m, n>>
 		{
 			// Basic construction
 			Matrix() = default;
 			Matrix(const Matrix&) = default;
-			Matrix(std::initializer_list<T_> _l) 
-				: Base(_l)
-			{}
-			template<typename Other_>
-			Matrix(const Other_& _x)
-				: Base(_x)
-			{}
+			template<typename Other>
+			Matrix(const MatrixView<T,m,n,Other>& _x)
+			{
+				for (size_t i = 0; i < m; ++i)
+					for (size_t j = 0; j < n; ++j)
+						(*this)(i, j) = _x(i, j);
+			}
 
 			// Smarter construction
-			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
-			static Matrix zero()		{ Matrix m; m.setZero(); return m; }
-			static Matrix ones()		{ Matrix m; m.setOnes(); return m; }
+			static Matrix identity()	{ Matrix res; res.setIdentity(); return res; }
+			static Matrix zero()		{ Matrix res; res.setZero(); return res; }
+			static Matrix ones()		{ Matrix res; res.setOnes(); return res; }
+
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const { return data[i][j]; }
+			T& operator()(size_t i, size_t j) { return data[i][j]; }
+
+			// Component accessor for when you know the component index at compile time.
+			template<size_t i, size_t j>
+			T  coefficient() const
+			{
+				static_assert(i < m);
+				static_assert(j < n);
+				return data[i][j];;
+			}
+
+			template<size_t i, size_t j>
+			T& coefficient()
+			{
+				static_assert(i < m);
+				static_assert(j < n);
+				return data[i][j];;
+			}
 
 		private:
 			T data[m][n];
