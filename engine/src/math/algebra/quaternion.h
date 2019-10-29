@@ -28,7 +28,7 @@ namespace rev { namespace math {
 			m({_x, _y, _z, _w})
 		{}
 		template<typename S_>
-		UnitQuaternion	(const MatrixBase<3,3,S_>& _matrix);
+		UnitQuaternion	(const MatrixExpr<T, 3, 3, S_>& _matrix);
 		static UnitQuaternion	identity();
 
 		// Accessors
@@ -106,7 +106,7 @@ namespace rev { namespace math {
 	//------------------------------------------------------------------------------------------------------------------
 	template<class N_>
 	template<typename S_>
-	inline UnitQuaternion<N_>::UnitQuaternion(const MatrixBase<3,3,S_> & _m)
+	inline UnitQuaternion<N_>::UnitQuaternion(const MatrixExpr<N_,3,3,S_>& _m)
 	{
 		//static_assert(typename S_::Element == N_, "Inconsistent number type Quaternion-Matrix");
 		N_ tr = _m(0,0) + _m(1,1) + _m(2,2);

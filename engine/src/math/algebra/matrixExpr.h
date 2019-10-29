@@ -75,7 +75,7 @@ namespace rev::math {
 		const MatrixExpr<T, m, n, A>& a;
 		const MatrixExpr<T, m, n, B>& b;
 
-		MatrixAdd(const MatrixExpr<T, m, n, A>& _a, const MatrixExpr<T, m, n, B>& _b)
+		CWiseMatrixBinaryOp(const MatrixExpr<T, m, n, A>& _a, const MatrixExpr<T, m, n, B>& _b)
 			:a(_a), b(_b)
 		{}
 
@@ -126,7 +126,7 @@ namespace rev::math {
 		const MatrixExpr<T, m, k, A>& a;
 		const MatrixExpr<T, k, n, B>& b;
 
-		MatrixAdd(const MatrixExpr<T, m, k, A>& _a, const MatrixExpr<T, k, n, B>& _b)
+		MatrixProduct(const MatrixExpr<T, m, k, A>& _a, const MatrixExpr<T, k, n, B>& _b)
 			:a(_a), b(_b)
 		{}
 
