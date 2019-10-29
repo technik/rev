@@ -15,7 +15,7 @@ namespace rev::math {
 
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
-		struct Block : MatrixExpr<T, rows, cols, Block<rows, cols, i0, j0>>
+		struct BlockExpr : MatrixExpr<T, rows, cols, BlockExpr<rows, cols, i0, j0>>
 		{
 		private:
 			MatrixExpr<T, m, n, Derived>& parentExpr() const
@@ -31,11 +31,11 @@ namespace rev::math {
 		};
 
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
-		const Block<rows, cols, i0, j0>& block() const
+		const auto& block() const
 		{
 			static_assert(i0 + rows <= m);
 			static_assert(j0 + cols <= n);
-			return *reinterpret_cast<const Block<i0, j0, rows, cols>*>(this);
+			return *reinterpret_cast<const BlockExpr<rows, cols, i0, j0>*>(this);
 		}
 
 		template<size_t i>

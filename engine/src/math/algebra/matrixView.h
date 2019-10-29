@@ -3,23 +3,27 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 #include <cstddef>
+#include "matrixExpr.h"
 
 namespace rev::math {
 
 	template<typename T, size_t m, size_t n, class Derived>
-	struct MatrixView
+	struct MatrixView : MatrixExpr<T,m,n,Derived>
 	{
 		// Generic component accessor.
 		T& operator()(size_t i, size_t j) { return static_cast<Derived&>(*this)(i, j); }
 
-		// Component accessor for when you know the component index at compile time.
-		template<size_t i, size_t j>
-		T& coefficient()
+		using MatrixExpr<T, m, n, Derived>::block;
+		using MatrixExpr<T, m, n, Derived>::row;
+		using MatrixExpr<T, m, n, Derived>::col;
+
+		template<class Other>
+		MatrixView& operator=(const MatrixExpr<T, m, n, Other>& x)
 		{
-			static_assert(i < m);
-			static_assert(j < n);
-			auto& derived = static_cast<Derived&>(*this);
-			return derived.template coefficient<i, j>();
+			for (size_t i = 0; i < m; ++i)
+				for (size_t j = 0; j < n; ++j)
+					(*this)(i, j) = x(i, j);
+			return *this;
 		}
 
 		void setIdentity()
@@ -43,8 +47,8 @@ namespace rev::math {
 					(*this)(i, j) = 1;
 		}
 
-		template<size_t i0, size_t j0, size_t rows, size_t cols>
-		class Block : MatrixView<T, rows, cols, Block<i0, j0, rows, cols>>
+		template<size_t rows, size_t cols, size_t i0, size_t j0>
+		struct BlockView : MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>
 		{
 		private:
 			MatrixView<T, m, n, Derived>& parentExpr() const
@@ -53,39 +57,31 @@ namespace rev::math {
 			}
 
 		public:
+			using MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator=;
 			// Generic component accessor.
 			T& operator()(size_t i, size_t j) {
 				return parentExpr()(i0 + i, j0 + j);
 			}
-
-			// Component accessor for when you know the component index at compile time.
-			template<size_t i, size_t j>
-			T& coefficient()
-			{
-				static_assert(i < rows);
-				static_assert(j < cols);
-				return parentExpr().template coefficient<i0 + i, j0 + j>();
-			}
 		};
 
-		template<size_t i0, size_t j0, size_t rows, size_t cols>
-		Block<i0, j0, rows, cols>& block()
+		template<size_t rows, size_t cols, size_t i0, size_t j0>
+		auto& block()
 		{
 			static_assert(i0 + rows <= m);
 			static_assert(j0 + cols <= n);
-			return *reinterpret_cast<const Block<i0, j0, rows, cols>*>(this);
+			return *reinterpret_cast<BlockView<rows, cols, i0, j0>*>(this);
 		}
 
 		template<size_t i>
-		Block<i, 0, 1, n>& row()
+		auto& row()
 		{
-			return block<i, 0, 1, n>();
+			return block<1, n, i, 0>();
 		}
 
 		template<size_t j>
-		Block<0, j, m, 1>& col()
+		auto& col()
 		{
-			return block<0, j, m, 1>();
+			return block<m, 1, 0, j>();
 		}
 	};
 }

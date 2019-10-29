@@ -19,7 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // Generic matrix
 #pragma once
-#include "matrixExpr.h"
 #include "matrixView.h"
 
 namespace rev {
@@ -27,9 +26,7 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<class T, size_t m, size_t n>
-		struct Matrix
-			: MatrixExpr < T, m, n, Matrix<T, m, n>>
-			, MatrixView < T, m, n, Matrix<T, m, n>>
+		struct Matrix : MatrixView < T, m, n, Matrix<T, m, n>>
 		{
 			// Basic construction
 			Matrix() = default;
@@ -43,15 +40,7 @@ namespace rev {
 			}
 
 			Matrix& operator=(const Matrix&) = default;
-
-			template<class Other>
-			Matrix& operator=(const MatrixExpr<T, m, n, Other>& x)
-			{
-				for (size_t i = 0; i < m; ++i)
-					for (size_t j = 0; j < n; ++j)
-						(*this)(i, j) = x(i, j);
-				return *this;
-			}
+			using MatrixView<T, m, n, Matrix<T, m, n>>::operator=;
 
 			// Smarter construction
 			static Matrix identity()	{ Matrix res; res.setIdentity(); return res; }
