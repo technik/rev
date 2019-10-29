@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include "matrixBase.h"
 #include "vectorExpr.h"
 
 namespace rev {
@@ -14,38 +13,15 @@ namespace rev {
 
 		template<typename T, size_t n>
 		struct Vector : VectorExpr<T, n, Vector<T,n>>
-			, public MatrixBase
-			<
-				n,1 ,
-				MatrixDenseStorage
-				<
-					T, n, 1,
-					true,
-					Vector<T, n>
-				>
-			>
 		{
-			using Base = MatrixBase<
-				n, 1,
-				MatrixDenseStorage
-				<
-					T, n, 1,
-					true,
-					Vector<T, n>
-				>
-			>;
 			// Basic construction
 			Vector() = default;
 			Vector(const Vector&) = default;
-			Vector(std::initializer_list<T> _l)
-				: Base(_l)
+			template<class Other>
+			Vector(const MatrixExpr<T,n,1,Other>& x)
 			{
-			}
-
-			template<typename Other_>
-			Vector(const Other_& _x)
-				: Base(_x)
-			{
+				for (size_t i = 0; i < n ++i)
+					m[i] = x(i,0);
 			}
 
 			template<class OtherT>
@@ -59,19 +35,19 @@ namespace rev {
 			}
 
 			Vector(T _x, T _y)
-				: Base{ _x, _y }
+				: m{ _x, _y }
 			{
 				static_assert(n >= 2, "Vector is not big enough");
 			}
 
 			Vector(T _x, T _y, T _z)
-				: Base{ _x, _y, _z }
+				: m{ _x, _y, _z }
 			{
 				static_assert(n >= 3, "Vector is not big enough");
 			}
 
 			Vector(T _x, T _y, T _z, T _w)
-				: Base{ _x, _y, _z, _w }
+				: m{ _x, _y, _z, _w }
 			{
 				static_assert(n >= 4, "Vector is not big enough");
 			}
@@ -79,6 +55,18 @@ namespace rev {
 			// Smarter construction
 			static Vector zero()        { Vector m; m.setZero(); return m; }
 			static Vector ones()        { Vector m; m.setOnes(); return m; }
+
+			void setZero()
+			{
+				for (size_t i = 0; i < n ++i)
+					m[i] = T(0);
+			}
+
+			void setOnes()
+			{
+				for (size_t i = 0; i < n ++i)
+					m[i] = T(1);
+			}
 
             T&	operator[]	(size_t i)       { return m[i]; }
             T	operator[] 	(size_t i) const { return m[i]; }
@@ -106,6 +94,9 @@ namespace rev {
                 static_assert(i < n);
                 return m[i];
             }
+
+		private:
+			float m[n];
 		};
 
 		template<typename T, size_t n, class Derived>

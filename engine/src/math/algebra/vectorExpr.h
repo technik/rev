@@ -2,6 +2,8 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
+#include <cstddef>
+#include "matrixExpr.h"
 
 namespace rev::math {
 
@@ -25,6 +27,20 @@ namespace rev::math {
 		T	y()	const { return getComponent<1>(); }
 		T	z()	const { return getComponent<2>(); }
 		T	w()	const { return getComponent<3>(); }
+
+
+		// Matrix expression interface
+		T operator()(size_t i, size_t) const {
+			return (*this)[i];
+		}
+
+		// Component accessor for when you know the component index at compile time.
+		template<size_t i, size_t j>
+		T  coefficient() const
+		{
+			static_assert(j == 0);
+			return derived.template getComponent<i>();
+		}
 	};
 
 }
