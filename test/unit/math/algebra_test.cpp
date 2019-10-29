@@ -51,8 +51,6 @@ void testVector() {
 //----------------------------------------------------------------------------------------------------------------------
 // Test basic matrix operations
 void testMatrix() {
-	static_assert(Mat44f::cols == 4, "Error: Matrix has wrong number of columns");
-	static_assert(Mat44f::rows == 4, "Error: Matrix has wrong number of rows");
 	auto ones = Mat44f::ones();
 	auto iden = Mat44f::identity();
 	auto zero = Mat44f::zero();

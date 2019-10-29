@@ -33,7 +33,7 @@ namespace rev { namespace math {
 		AffineTransform orthoNormalInverse() const {
 			AffineTransform x = AffineTransform::identity();
 			x.mMatrix.block<3,3,0,0>() = mMatrix.block<3,3,0,0>().transpose();
-			x.mMatrix.block<3,1,0,3>() = - x.mMatrix.block<3,3,0,0>() * mMatrix.block<3,1,0,3>();
+			x.mMatrix.block<3,1,0,3>() = -x.mMatrix.block<3,3,0,0>() * mMatrix.block<3,1,0,3>();
 			return x;
 		}
 

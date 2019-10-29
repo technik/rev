@@ -13,6 +13,16 @@ namespace rev::math {
 		// Generic component accessor.
 		T operator()(size_t i, size_t j) const { return static_cast<const Derived&>(*this)(i, j); }
 
+		template<class Other>
+		bool operator==(const MatrixExpr<T, m, n, Other>& x)
+		{
+			for (size_t i = 0; i < m; ++i)
+				for (size_t j = 0; j < n; ++j)
+					if (x(i, j) != (*this)(i, j))
+						return false;
+			return true;
+		}
+
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
 		struct BlockExpr : MatrixExpr<T, rows, cols, BlockExpr<rows, cols, i0, j0>>
@@ -63,7 +73,25 @@ namespace rev::math {
 		{
 			return *reinterpret_cast<const Transpose*>(this);
 		}
+
+		template<class Op>
+		struct CWiseUnaryExpr : MatrixExpr<T, m, n, CWiseUnaryExpr<Op>>
+		{
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const
+			{
+				auto parent = reinterpret_cast<const MatrixExpr*>(this);
+				Op op;
+				return op((*parent)(i,j));
+			}
+		};
 	};
+
+	template<class T, size_t m, size_t n, class Derived>
+	auto operator-(const MatrixExpr<T,m,n,Derived>& x)
+	{
+		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::CWiseUnaryExpr<std::negate>&>(x);
+	}
 
 	template<class T, size_t m, size_t n, class A, class B, class Op>
 	struct CWiseMatrixBinaryOp : MatrixExpr<T, m, n, CWiseMatrixBinaryOp<T, m, n, A, B, Op>>
