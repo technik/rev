@@ -20,43 +20,15 @@
 // Generic matrix
 #pragma once
 
-#include "matrixBase.h"
-#include "vector.h"
-
 namespace rev {
 	namespace math {
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<class T_, size_t rows_, size_t cols_, bool col_major_ = true>
+		template<class T, size_t rows_, size_t cols_>
 		struct Matrix
-			: public MatrixBase
-			<
-				rows_,
-				cols_,
-				MatrixDenseStorage
-				<
-					T_,
-					rows_,
-					cols_,
-					col_major_,
-					Matrix<T_, rows_, cols_, col_major_>
-				>
-			>
+			: MatrixExpr < T, rows_, cols_, Matrix<T, rows_, cols_>>
+			, MatrixView < T, rows_, cols_, Matrix<T, rows_, cols_>>
 		{
-			using Base = MatrixBase<
-				rows_,
-				cols_,
-				MatrixDenseStorage
-				<
-					T_,
-					rows_,
-					cols_,
-					col_major_,
-					Matrix
-				>
-			>;
-			using Derived = Matrix;
-
 			// Basic construction
 			Matrix() = default;
 			Matrix(const Matrix&) = default;
@@ -72,6 +44,9 @@ namespace rev {
 			static Matrix identity()	{ Matrix m; m.setIdentity(); return m; }
 			static Matrix zero()		{ Matrix m; m.setZero(); return m; }
 			static Matrix ones()		{ Matrix m; m.setOnes(); return m; }
+
+		private:
+			T data[m][n];
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
