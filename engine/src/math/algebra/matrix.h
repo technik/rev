@@ -50,26 +50,6 @@ namespace rev {
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
-		template<size_t m_, size_t n_, size_t l_, typename S1_, typename S2_>
-		auto operator*(
-			const MatrixBase<m_,n_,S1_>& _a,
-			const MatrixBase<n_,l_,S2_>& _b
-			) -> Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>
-		{
-			using Result = Matrix<typename S1_::Element,m_,l_,S1_::is_col_major>;
-			Result result;
-			for(auto i = 0; i < m_; ++i) { // for each row in _a
-				for(auto k = 0; k < l_; ++k) { // for each column in _b
-					result(i,k) = typename Result::Element(0);
-					for(auto j = 0; j < n_; ++j) { // for each element in this row/col
-						result(i,k) += _a(i,j) * _b(j,k);
-					}
-				}
-			}
-			return result;
-		}
-
-		//------------------------------------------------------------------------------------------------------------------
 		// Useful aliases
 		template<typename T_>
 		using Matrix22 = Matrix<T_,2,2>;

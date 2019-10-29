@@ -106,4 +106,41 @@ namespace rev::math {
 	{
 		return MatrixBinaryOp<T, m, n, A, B, std::minus<T>>(a, b);
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	template<class T, size_t m, size_t k, size_t n, class A, class B>
+	struct MatrixProduct
+	{
+		const MatrixExpr<T, m, k, A>& a;
+		const MatrixExpr<T, k, n, B>& b;
+
+		MatrixAdd(const MatrixExpr<T, m, k, A>& _a, const MatrixExpr<T, k, n, B>& _b)
+			:a(_a), b(_b)
+		{}
+
+		// Generic component accessor.
+		T operator()(size_t i, size_t j) const
+		{
+			T accum = a(i, 0) * b(0, j);
+			for (size_t l = 1; l < k ++l)
+				accum += a(i, l) * b(l, j);
+			return accum;
+		}
+
+		// Component accessor for when you know the component index at compile time.
+		template<size_t i, size_t j>
+		T  coefficient() const
+		{
+			T accum = a.template coefficient<i, 0>() * b.template coefficient<0, j>();
+			for (size_t l = 1; l < k ++l)
+				accum += a.template coefficient<i, l>() * b.template coefficient<l, j>();
+			return accum;
+		}
+	};
+
+	template<class T, size_t m, size_t k, size_t n, class A, class B>
+	MatrixProduct<T, m, k, n, A, B> operator*(const MatrixExpr<T, m, k, A>& a, const MatrixExpr<T, k, n, B>& b)
+	{
+		return MatrixProduct<T, m, k, n, A, B>(a, b);
+	}
 }
