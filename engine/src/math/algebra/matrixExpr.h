@@ -85,12 +85,40 @@ namespace rev::math {
 				return op((*parent)(i,j));
 			}
 		};
+
+		struct ProductByScalarExpr : MatrixExpr<T, m, n, ProductByScalarExpr>
+		{
+			const MatrixExpr<T, m, n, Derived>& x;
+			T k;
+			ProductByScalarExpr(const MatrixExpr<T, m, n, Derived>& _x, T _k)
+				:x(_x), k(_k)
+			{}
+
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const
+			{
+				Op op;
+				return x(i, j) * k;
+			}
+		};
 	};
 
 	template<class T, size_t m, size_t n, class Derived>
 	auto operator-(const MatrixExpr<T,m,n,Derived>& x)
 	{
-		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::CWiseUnaryExpr<std::negate>&>(x);
+		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::CWiseUnaryExpr<std::negate<T>>&>(x);
+	}
+
+	template<class T, size_t m, size_t n, class Derived>
+	auto operator*(const MatrixExpr<T, m, n, Derived>& x, T k)
+	{
+		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, k);
+	}
+
+	template<class T, size_t m, size_t n, class Derived>
+	auto operator*(T k, const MatrixExpr<T, m, n, Derived>& x)
+	{
+		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, k);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B, class Op>
