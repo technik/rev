@@ -42,6 +42,17 @@ namespace rev {
 						(*this)(i, j) = _x(i, j);
 			}
 
+			Matrix& operator(const Matrix&) = default;
+
+			template<class Other>
+			Matrix& operator=(const MatrixExpr<T, m, n, Other>& x)
+			{
+				for (size_t i = 0; i < m; ++i)
+					for (size_t j = 0; j < n; ++j)
+						(*this)(i, j) = x(i, j);
+				return *this;
+			}
+
 			// Smarter construction
 			static Matrix identity()	{ Matrix res; res.setIdentity(); return res; }
 			static Matrix zero()		{ Matrix res; res.setZero(); return res; }

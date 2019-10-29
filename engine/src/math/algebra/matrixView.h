@@ -22,6 +22,27 @@ namespace rev::math {
 			return derived.template coefficient<i, j>();
 		}
 
+		void setIdentity()
+		{
+			for (size_t i = 0; i < m; ++i)
+				for (size_t j = 0; j < n; ++j)
+					(*this)(i, j) = (i == j) ? 1 : 0;
+		}
+
+		void setZero()
+		{
+			for (size_t i = 0; i < m; ++i)
+				for (size_t j = 0; j < n; ++j)
+					(*this)(i, j) = 0;
+		}
+
+		void setOnes()
+		{
+			for (size_t i = 0; i < m; ++i)
+				for (size_t j = 0; j < n; ++j)
+					(*this)(i, j) = 1;
+		}
+
 		template<size_t i0, size_t j0, size_t rows, size_t cols>
 		class Block : MatrixView<T, rows, cols, Block<i0, j0, rows, cols>>
 		{

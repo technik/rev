@@ -26,7 +26,7 @@ namespace rev { namespace math {
 		}
 
 		Vec3f		transformPosition	(const Vec3f& v) const {
-			return mMatrix.block<3,3>(0,0)*v + mMatrix.block<3,1>(0,3);
+			return mMatrix.block<3,3,0,0>()*v + mMatrix.block<3,1>(0,3);
 		}
 		Vec3f		rotateDirection		(const Vec3f& v) const { return mMatrix.block<3,3>(0,0)*v; }
 
