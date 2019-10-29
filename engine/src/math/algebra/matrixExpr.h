@@ -70,7 +70,7 @@ namespace rev::math {
 	};
 
 	template<class T, size_t m, size_t n, class A, class B, class Op>
-	struct MatrixBinaryOp : MatrixExpr<T, m, n, MatrixAdd<T, m, n, A, B>>
+	struct MatrixBinaryOp : MatrixExpr<T, m, n, MatrixBinaryOp<T, m, n, A, B, Op>>
 	{
 		const MatrixExpr<T, m, n, A>& a;
 		const MatrixExpr<T, m, n, B>& b;
