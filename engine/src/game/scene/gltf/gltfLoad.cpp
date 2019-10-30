@@ -74,7 +74,7 @@ namespace rev { namespace game {
 		{
 			useTransform = true;
 			Quatf rot = *reinterpret_cast<const Quatf*>(_nodeDesc.rotation.data());
-			nodeTransform->xForm.matrix().block<3,3>(0,0) = (Mat33f)rot;
+			nodeTransform->xForm.matrix().block<3,3,0,0>() = (Mat33f)rot;
 		}
 		if(!_nodeDesc.translation.empty())
 		{
@@ -88,7 +88,7 @@ namespace rev { namespace game {
 			Mat33f scale = Mat33f::identity();
 			for(size_t i = 0; i < 3; ++i)
 				scale(i,i) = _nodeDesc.scale[i];
-			nodeTransform->xForm.matrix().block<3,3>(0,0) = nodeTransform->xForm.matrix().block<3,3>(0,0) * scale;
+			nodeTransform->xForm.matrix().block<3,3,0,0>() = nodeTransform->xForm.matrix().block<3,3,0,0>() * scale;
 		}
 		if(useTransform)
 			return std::move(nodeTransform);
@@ -195,8 +195,8 @@ namespace rev { namespace game {
 				_gfxWorld.addCamera(camComponent->cam());
 				// Camera correction matrix
 				auto correction = Mat44f::identity();
-				correction.block<3,1>(0,1) = Vec3f(0.f,0.f,1.f);
-				correction.block<3,1>(0,2) = Vec3f(0.f,-1.f,0.f);
+				correction.block<3,1,0,1>() = Vec3f(0.f,0.f,1.f);
+				correction.block<3,1,0,2>() = Vec3f(0.f,-1.f,0.f);
 				node->addComponent<FlyBy>(1.f, -0.4f);
 
 			}

@@ -83,6 +83,9 @@ namespace rev {
                 return m[i];
             }
 
+			T* data() { return m; }
+			const T* data() const { return m; }
+
 		private:
 			T m[n];
 		};
@@ -150,22 +153,22 @@ namespace rev {
 		}
 
         //--------------------------------------------------------------------------------------------------------------
-        template<class T, size_t n>
-        T squaredNorm(const Vector<T, n>& a)
+		template<class T, size_t n, class Derived>
+        T squaredNorm(const VectorExpr<T, n, Derived>& a)
         {
             return dot(a, a);
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        template<class T, size_t n>
-        T norm(const Vector<T, n>& a)
+		template<class T, size_t n, class Derived>
+        T norm(const VectorExpr<T, n, Derived>& a)
         {
             return std::sqrt(squaredNorm(a));
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        template<class T, size_t n>
-        Vector<T,n> normalize(const Vector<T,n>& a)
+        template<class T, size_t n, class Derived>
+        Vector<T,n> normalize(const VectorExpr<T,n,Derived>& a)
         {
             return a * (1 / norm(a));
         }

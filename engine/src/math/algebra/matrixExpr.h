@@ -29,6 +29,12 @@ namespace rev::math {
 						return false;
 			return true;
 		}
+
+		template<class Other>
+		bool operator!=(const MatrixExpr<T, m, n, Other>& x) const
+		{
+			return !(*this == x);
+		}
 		
 		// Vector component accessor
 		T operator[](size_t i) const

@@ -69,7 +69,7 @@ namespace rev::gfx {
 		// --- Cull stuff
 		// Cull visible objects renderQ -> visible
 		cull(m_renderQueue, m_visible, [&](const RenderItem& item) -> bool {
-			math::Vec3f worldPos = item.world.block<3, 1>(0, 3);
+			math::Vec3f worldPos = item.world.block<3, 1, 0, 3>();
 			return dot(worldPos - eye.position(), eye.viewDir()) > 0;
 		});
 
@@ -90,7 +90,7 @@ namespace rev::gfx {
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);
-			math::Vec3f lightDir = shadowProj.block<3,1>(0,2);
+			math::Vec3f lightDir = shadowProj.block<3,1,0,2>();
 			sharedUniforms.addParam(6, lightDir);
 		}
 		m_device->renderQueue().submitCommandBuffer(frameCommands);

@@ -54,7 +54,7 @@ namespace rev {
 				mVertices[6] = Vec3f(-maxVert.x(), maxVert.y(), -maxVert.z());
 				mVertices[7] = Vec3f(maxVert.x(), maxVert.y(), -maxVert.z());
 
-				mProjection = orthographicMatrix({size.x(), size.y()}, mNear, mFar);
+				mProjection = orthographicMatrix(size.xy(), mNear, mFar);
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }

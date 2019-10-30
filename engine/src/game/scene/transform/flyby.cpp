@@ -33,7 +33,7 @@ namespace rev {
 				mult *= 0.5f;
 			// Translation
 			const float deltaV = 1.f * mult;
-			auto velocity = Vec3f::zero();
+			Vec3f velocity = Vec3f::zero();
 			if (input->held('D'))			velocity.x() += deltaV;
 			if (input->held('A'))			velocity.x() -= deltaV;
 			if (input->held('W'))			velocity.z() -= deltaV;

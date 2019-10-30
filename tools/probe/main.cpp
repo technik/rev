@@ -595,7 +595,7 @@ void main (void) {
 
 		// Bind uniforms
 		Mat44f view = Mat44f::identity();
-		view.block<3,3>(0,0) = Mat33f(rotations[i]);
+		view.block<3,3,0,0>() = Mat33f(rotations[i]);
 		auto viewProj = proj * view;
 		glUniformMatrix4fv(0, 1, !Mat44f::is_col_major, reinterpret_cast<const float*>(&viewProj));
 		glUniform1i(1, 0); // Texture stage 0 into uniform 1

@@ -57,7 +57,7 @@ namespace rev {
 			AffineTransform lightXform = AffineTransform::identity();
 			//lightXform.setRotation(Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), Constants<float>::halfPi*0.4));
 			m_envLight->worldMatrix = lightXform;
-			m_envLight->color = 4*Vec3f::ones();
+			m_envLight->color = 4.f*Vec3f::ones();
 			mGraphicsScene.addLight(m_envLight);
 		}
 
