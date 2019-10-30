@@ -69,14 +69,8 @@ void testMatrix() {
 	assert(four == (4.f * ones));
 	a = four * iden;
 	assert(four == a);
-	a = iden.cwiseMax(-iden);
+	a = max(iden, -iden);
 	assert(a == iden);
-
-	Mat22f b = {
-		0.f, 1.f,
-		2.f, 3.f
-	};
-	assert(b(1,0) == 2.f);
 
 	{
 		Vec3f t;

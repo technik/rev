@@ -4,6 +4,7 @@
 #pragma once
 #include <cstddef>
 #include <functional>
+#include "../linear.h"
 
 namespace rev::math {
 
@@ -47,10 +48,10 @@ namespace rev::math {
 		}
 
 		// Named accessors
-		T	x()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<0>(); }
-		T	y()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<1>(); }
-		T	z()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<2>(); }
-		T	w()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<3>(); }
+		T	x()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(0,0); }
+		T	y()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(1,0); }
+		T	z()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(2,0); }
+		T	w()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(3,0); }
 
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
@@ -99,8 +100,8 @@ namespace rev::math {
 			}
 		};
 
-		static auto zero() { return LiteralExpr<0>; }
-		static auto ones() { return LiteralExpr<1>; }
+		static auto zero() { return LiteralExpr<0>(); }
+		static auto ones() { return LiteralExpr<1>(); }
 
 		// Transpose
 		struct Transpose : MatrixExpr<T, n, m, Transpose>

@@ -29,7 +29,7 @@ namespace rev {
 			}
 
 			template<class OtherT>
-			Vector(const VectorExpr<OtherT>& x, float f)
+			Vector(const MatrixExpr<T, n-1, 1, OtherT>& x, float f)
 			{
 				for (size_t i = 0; i < n - 1; ++i)
 				{

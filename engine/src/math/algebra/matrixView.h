@@ -31,10 +31,10 @@ namespace rev::math {
 		}
 
 		// Named accessors
-		T& x() { static_assert(n == 1, "Expression is not a vector"); return getComponent<0>(); }
-		T& y() { static_assert(n == 1, "Expression is not a vector"); return getComponent<1>(); }
-		T& z() { static_assert(n == 1, "Expression is not a vector"); return getComponent<2>(); }
-		T& w() { static_assert(n == 1, "Expression is not a vector"); return getComponent<3>(); }
+		T& x() { static_assert(n == 1, "Expression is not a vector"); return (*this)(0,0); }
+		T& y() { static_assert(n == 1, "Expression is not a vector"); return (*this)(1,0); }
+		T& z() { static_assert(n == 1, "Expression is not a vector"); return (*this)(2,0); }
+		T& w() { static_assert(n == 1, "Expression is not a vector"); return (*this)(3,0); }
 
 		// Prevent method hiding
 		using MatrixExpr<T, m, n, Derived>::x;
