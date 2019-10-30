@@ -56,6 +56,13 @@ namespace rev {
 				static_assert(n >= 4, "Vector is not big enough");
 			}
 
+			Vector(std::initializer_list<T> _l)
+			{
+				auto x = _l.begin();
+				for (size_t i = 0; i < n; ++i)
+					m[i] = *x++;
+			}
+
             T&	operator[]	(size_t i)       { return m[i]; }
             T	operator[] 	(size_t i) const { return m[i]; }
 			T&	operator()(size_t i, size_t)		{ return m[i]; }

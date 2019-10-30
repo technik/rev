@@ -39,6 +39,14 @@ namespace rev {
 						(*this)(i, j) = _x(i, j);
 			}
 
+			Matrix(std::initializer_list<T> _l)
+			{
+				auto x = _l.begin();
+				for (size_t i = 0; i < m; ++i)
+					for (size_t j = 0; j < n; ++j)
+						(*this)(i, j) = *x++;
+			}
+
 			Matrix& operator=(const Matrix&) = default;
 			using MatrixView<T, m, n, Matrix<T, m, n>>::operator=;
 
