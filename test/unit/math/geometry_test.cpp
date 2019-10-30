@@ -22,15 +22,15 @@ void testAABBTransform()
 		auto identity = Mat44f::identity();
 		auto result = identity * aabb;
 		assert(result.center() == Vec3f::zero());
-		assert(result.size() == 2*Vec3f::ones());
+		assert(result.size() == 2.f*Vec3f::ones());
 	}
 	{
 		auto translation = AffineTransform::identity();
-		translation.position() = 3 * Vec3f::ones();
+		translation.position() = 3.f * Vec3f::ones();
 		auto result = translation.matrix() * aabb;
-		assert(result.center() == 3 * Vec3f::ones());
-		assert(result.min() == 2 * Vec3f::ones());
-		assert(result.max() == 4 * Vec3f::ones());
+		assert(result.center() == 3.f * Vec3f::ones());
+		assert(result.min() == 2.f * Vec3f::ones());
+		assert(result.max() == 4.f * Vec3f::ones());
 	}
 
 	Vec3f longBoxHalfSize(1.f, 2.f, 5.f);
