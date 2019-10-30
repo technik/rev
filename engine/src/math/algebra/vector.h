@@ -84,7 +84,7 @@ namespace rev {
             }
 
 		private:
-			float m[n];
+			T m[n];
 		};
 
 		template<class T, size_t n, class Derived>

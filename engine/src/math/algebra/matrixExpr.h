@@ -21,7 +21,7 @@ namespace rev::math {
 		}
 
 		template<class Other>
-		bool operator==(const MatrixExpr<T, m, n, Other>& x)
+		bool operator==(const MatrixExpr<T, m, n, Other>& x) const
 		{
 			for (size_t i = 0; i < m; ++i)
 				for (size_t j = 0; j < n; ++j)
@@ -52,18 +52,6 @@ namespace rev::math {
 		T	y()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(1,0); }
 		T	z()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(2,0); }
 		T	w()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(3,0); }
-
-		auto& xy() const
-		{
-			static_assert(n == 1 && m >= 2);
-			return reinterpret_cast<const MatrixExpr<T, 2, 1, MatrixExpr<T, m, 1, Derived>>&>(*this);
-		}
-
-		auto& xyz() const
-		{
-			static_assert(n == 1 && m >= 3);
-			return reinterpret_cast<const MatrixExpr<T, 3, 1, MatrixExpr<T, m, 1, Derived>>&>(*this);
-		}
 
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
@@ -100,6 +88,18 @@ namespace rev::math {
 		auto& col() const
 		{
 			return block<m, 1, 0, j>();
+		}
+
+		auto& xy() const
+		{
+			static_assert(n == 1 && m >= 2);
+			return block<2,1,0,0>();
+		}
+
+		auto& xyz() const
+		{
+			static_assert(n == 1 && m >= 3);
+			return block<3,1,0,0>();
 		}
 
 		// Constant matrix expression

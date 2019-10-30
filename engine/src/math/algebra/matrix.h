@@ -32,7 +32,7 @@ namespace rev {
 			Matrix() = default;
 			Matrix(const Matrix&) = default;
 			template<typename Other>
-			Matrix(const MatrixView<T,m,n,Other>& _x)
+			Matrix(const MatrixExpr<T,m,n,Other>& _x)
 			{
 				for (size_t i = 0; i < m; ++i)
 					for (size_t j = 0; j < n; ++j)
