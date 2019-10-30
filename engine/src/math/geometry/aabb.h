@@ -32,7 +32,8 @@ namespace rev::math
 
 		// Constructors
 		AABB() = default;
-		AABB(const Vector& _min, const Vector& _max)
+		template<class A, class B>
+		AABB(const VectorExpr<float,3,A>& _min, const VectorExpr<float, 3, B>& _max)
 			: mMin(_min), mMax(_max)
 		{ }
 
@@ -125,6 +126,6 @@ namespace rev::math
 		Vec4f rotSize = xform * halfSize;
 		halfSize = math::abs(rotSize);
 		center = xform * center;
-		return AABB(Vec3f(center - halfSize), Vec3f(center + halfSize));
+		return AABB((center - halfSize).xyz(), (center + halfSize).xyz());
 	}
 }

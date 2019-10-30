@@ -171,11 +171,11 @@ void testComposedTransforms()
 	Vec4f y2 = { 0.f, 2.f, 0.f, 1.f};
 	Vec4f z2 = { 0.f, 0.f, 2.f, 1.f};
 	Mat34f mA = Mat34f::identity();
-	mA.block<3,3>(0,0) = (Mat33f)Quatf({0.f,0.f,1.f},HalfPi);
-	mA.col(3) = {1.f,0.f,0.f};
+	mA.block<3,3,0,0>() = (Mat33f)Quatf({0.f,0.f,1.f},HalfPi);
+	mA.col<3>() = {1.f,0.f,0.f};
 	Mat34f mB = Mat34f::identity();
-	mB.block<3,3>(0,0) = (Mat33f)Quatf({1.f,0.f,0.f},HalfPi);
-	mB.col(3) = {1.f,0.f,0.f};
+	mB.block<3,3,0,0>() = (Mat33f)Quatf({1.f,0.f,0.f},HalfPi);
+	mB.col<3>() = {1.f,0.f,0.f};
 	// A transform
 	assert(approx(mA*i, Vec3f(0.f,1.f,0.f)));
 	assert(approx(mA*j, Vec3f(-1.f,0.f,0.f)));

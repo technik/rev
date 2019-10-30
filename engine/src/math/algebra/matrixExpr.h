@@ -53,6 +53,18 @@ namespace rev::math {
 		T	z()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(2,0); }
 		T	w()	const { static_assert(n == 1, "Expression is not a vector"); return (*this)(3,0); }
 
+		auto& xy() const
+		{
+			static_assert(n == 1 && m >= 2);
+			return reinterpret_cast<const MatrixExpr<T, 2, 1, MatrixExpr<T, m, 1, Derived>>&>(*this);
+		}
+
+		auto& xyz() const
+		{
+			static_assert(n == 1 && m >= 3);
+			return reinterpret_cast<const MatrixExpr<T, 3, 1, MatrixExpr<T, m, 1, Derived>>&>(*this);
+		}
+
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
 		struct BlockExpr : MatrixExpr<T, rows, cols, BlockExpr<rows, cols, i0, j0>>
@@ -149,18 +161,19 @@ namespace rev::math {
 
 		struct ProductByScalarExpr : MatrixExpr<T, m, n, ProductByScalarExpr>
 		{
-			const MatrixExpr<T, m, n, Derived>& x;
 			T k;
 			ProductByScalarExpr(const MatrixExpr<T, m, n, Derived>& _x, T _k)
-				:x(_x), k(_k)
+				:ref(_x), k(_k)
 			{}
 
 			// Generic component accessor.
 			T operator()(size_t i, size_t j) const
 			{
 				Op op;
-				return x(i, j) * k;
+				return ref(i, j) * k;
 			}
+		private:
+			const MatrixExpr<T, m, n, Derived>& ref;
 		};
 
 		template<class Other>
