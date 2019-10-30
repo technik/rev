@@ -17,7 +17,7 @@ namespace rev::math {
 		// Generic component accessor.
 		T operator()(size_t i, size_t j) const
 		{
-			return (static_cast<const Derived&>(*this))(i, j);
+			return static_cast<const Derived&>(*this)(i, j);
 		}
 
 		template<class Other>
@@ -189,7 +189,7 @@ namespace rev::math {
 	};
 
 	template<class T, size_t m, size_t n, class Derived>
-	auto operator-(const MatrixExpr<T,m,n,Derived>& x)
+	auto& operator-(const MatrixExpr<T,m,n,Derived>& x)
 	{
 		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::CWiseUnaryExpr<std::negate<T>>&>(x);
 	}

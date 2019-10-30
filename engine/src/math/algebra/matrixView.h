@@ -45,6 +45,7 @@ namespace rev::math {
 		using MatrixExpr<T, m, n, Derived>::block;
 		using MatrixExpr<T, m, n, Derived>::row;
 		using MatrixExpr<T, m, n, Derived>::col;
+		using MatrixExpr<T, m, n, Derived>::operator();
 
 		template<class Other>
 		MatrixView& operator=(const MatrixExpr<T, m, n, Other>& x)
@@ -77,22 +78,31 @@ namespace rev::math {
 		}
 
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
-		struct BlockView : MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>
+		struct BlockView
+			: MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>
 		{
 		private:
-			MatrixView<T, m, n, Derived>& parentExpr()
+			MatrixView<T, m, n, Derived>& parentView()
 			{
 				return *reinterpret_cast<MatrixView<T, m, n, Derived>*>(this);
+			}
+
+			auto& parentExpr() const
+			{
+				return *reinterpret_cast<const MatrixView<T, m, n, Derived>*>(this);
 			}
 
 		public:
 			// Generic component accessor.
 			T& operator()(size_t i, size_t j) {
+				return parentView()(i0 + i, j0 + j);
+			}
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const {
 				return parentExpr()(i0 + i, j0 + j);
 			}
 
 			using MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator=;
-			using MatrixExpr<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator();
 		};
 
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
