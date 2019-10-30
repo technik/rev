@@ -43,7 +43,7 @@ namespace rev { namespace math {
 		{
 			auto half_sin = sin(_radians/2); // Using sine(theta/2) instead of cosine preserves the sign.
 			UnitQuaternion q;
-			m.block<3,1>(0,0) = axis*half_sin;
+			m.block<3,1,0,0>() = axis*half_sin;
 			w() = std::sqrt(1-half_sin*half_sin);
 		}
 

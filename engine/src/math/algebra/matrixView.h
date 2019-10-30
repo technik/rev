@@ -59,7 +59,7 @@ namespace rev::math {
 		{
 			for (size_t i = 0; i < m; ++i)
 				for (size_t j = 0; j < n; ++j)
-					(*this)(i, j) = (i == j) ? 1 : 0;
+					(*this)(i, j) = T((i == j) ? 1 : 0);
 		}
 
 		void setZero()
@@ -80,17 +80,19 @@ namespace rev::math {
 		struct BlockView : MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>
 		{
 		private:
-			MatrixView<T, m, n, Derived>& parentExpr() const
+			MatrixView<T, m, n, Derived>& parentExpr()
 			{
 				return *reinterpret_cast<MatrixView<T, m, n, Derived>*>(this);
 			}
 
 		public:
-			using MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator=;
 			// Generic component accessor.
 			T& operator()(size_t i, size_t j) {
 				return parentExpr()(i0 + i, j0 + j);
 			}
+
+			using MatrixView<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator=;
+			using MatrixExpr<T, rows, cols, BlockView<rows, cols, i0, j0>>::operator();
 		};
 
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
@@ -98,7 +100,7 @@ namespace rev::math {
 		{
 			static_assert(i0 + rows <= m);
 			static_assert(j0 + cols <= n);
-			return *reinterpret_cast<BlockView<rows, cols, i0, j0>*>(this);
+			return reinterpret_cast<BlockView<rows, cols, i0, j0>&>(*this);
 		}
 
 		template<size_t i>

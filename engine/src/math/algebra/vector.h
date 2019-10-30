@@ -24,7 +24,7 @@ namespace rev {
 			template<class Other>
 			Vector(const VectorExpr<Other>& x)
 			{
-				for (size_t i = 0; i < n ++i)
+				for (size_t i = 0; i < n; ++i)
 					m[i] = x(i,0);
 			}
 

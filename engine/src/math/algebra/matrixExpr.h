@@ -17,7 +17,7 @@ namespace rev::math {
 		// Generic component accessor.
 		T operator()(size_t i, size_t j) const
 		{
-			return static_cast<const Derived&>(*this)(i, j);
+			return (static_cast<const Derived&>(*this))(i, j);
 		}
 
 		template<class Other>
@@ -70,9 +70,9 @@ namespace rev::math {
 		struct BlockExpr : MatrixExpr<T, rows, cols, BlockExpr<rows, cols, i0, j0>>
 		{
 		private:
-			MatrixExpr<T, m, n, Derived>& parentExpr() const
+			auto& parentExpr() const
 			{
-				return *reinterpret_cast<const MatrixExpr<T, m, n, Derived>*>(this);
+				return reinterpret_cast<const MatrixExpr<T, m, n, Derived>&>(*this);
 			}
 
 		public:
@@ -169,7 +169,6 @@ namespace rev::math {
 			// Generic component accessor.
 			T operator()(size_t i, size_t j) const
 			{
-				Op op;
 				return ref(i, j) * k;
 			}
 		private:
@@ -246,7 +245,7 @@ namespace rev::math {
 		T operator()(size_t i, size_t j) const
 		{
 			T accum = a(i, 0) * b(0, j);
-			for (size_t l = 1; l < k ++l)
+			for (size_t l = 1; l < k; ++l)
 				accum += a(i, l) * b(l, j);
 			return accum;
 		}
