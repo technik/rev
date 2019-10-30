@@ -14,7 +14,10 @@ namespace rev::math {
 	struct MatrixExpr
 	{
 		// Generic component accessor.
-		T operator()(size_t i, size_t j) const { return static_cast<const Derived&>(*this)(i, j); }
+		T operator()(size_t i, size_t j) const
+		{
+			return static_cast<const Derived&>(*this)(i, j);
+		}
 
 		template<class Other>
 		bool operator==(const MatrixExpr<T, m, n, Other>& x)
@@ -25,6 +28,29 @@ namespace rev::math {
 						return false;
 			return true;
 		}
+		
+		// Vector component accessor
+		T operator[](size_t i) const
+		{
+			static_assert(n == 1);
+			return static_cast<const Derived&>(*this)[i];
+		}
+
+		// Component accessor for when you know the component index at compile time.
+		template<size_t i>
+		T  getComponent() const
+		{
+			static_assert(n == 1);
+			static_assert(i < m);
+			auto& derived = static_cast<const Derived&>(*this);
+			return derived.template getComponent<i>();
+		}
+
+		// Named accessors
+		T	x()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<0>(); }
+		T	y()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<1>(); }
+		T	z()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<2>(); }
+		T	w()	const { static_assert(n == 1, "Expression is not a vector"); return getComponent<3>(); }
 
 		// Block access
 		template<size_t rows, size_t cols, size_t i0, size_t j0>
@@ -62,6 +88,19 @@ namespace rev::math {
 		{
 			return block<m, 1, 0, j>();
 		}
+
+		// Constant matrix expression
+		template<int value>
+		struct LiteralExpr : MatrixExpr<T, m, n, LiteralExpr<value>>
+		{
+			// Generic component accessor.
+			T operator()(size_t, size_t) const {
+				return T(value);
+			}
+		};
+
+		static auto zero() { return LiteralExpr<0>; }
+		static auto ones() { return LiteralExpr<1>; }
 
 		// Transpose
 		struct Transpose : MatrixExpr<T, n, m, Transpose>
@@ -146,6 +185,12 @@ namespace rev::math {
 	auto operator*(T k, const MatrixExpr<T, m, n, Derived>& x)
 	{
 		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, k);
+	}
+
+	template<class T, size_t m, size_t n, class Derived>
+	auto operator/(const MatrixExpr<T, m, n, Derived>& x, T k)
+	{
+		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, 1/k);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>

@@ -13,6 +13,35 @@ namespace rev::math {
 		// Generic component accessor.
 		T& operator()(size_t i, size_t j) { return static_cast<Derived&>(*this)(i, j); }
 
+		// Vector component accessor
+		T& operator[](size_t i)
+		{
+			static_assert(n == 1);
+			return static_cast<Derived&>(*this)(i,0);
+		}
+
+		// Component accessor for when you know the component index at compile time.
+		template<size_t i>
+		T& getComponent() const
+		{
+			static_assert(n == 1);
+			static_assert(i < m);
+			auto& derived = static_cast<const Derived&>(*this);
+			return derived.template getComponent<i>();
+		}
+
+		// Named accessors
+		T& x() { static_assert(n == 1, "Expression is not a vector"); return getComponent<0>(); }
+		T& y() { static_assert(n == 1, "Expression is not a vector"); return getComponent<1>(); }
+		T& z() { static_assert(n == 1, "Expression is not a vector"); return getComponent<2>(); }
+		T& w() { static_assert(n == 1, "Expression is not a vector"); return getComponent<3>(); }
+
+		// Prevent method hiding
+		using MatrixExpr<T, m, n, Derived>::x;
+		using MatrixExpr<T, m, n, Derived>::y;
+		using MatrixExpr<T, m, n, Derived>::z;
+		using MatrixExpr<T, m, n, Derived>::w;
+		using MatrixExpr<T, m, n, Derived>::getComponent;
 		using MatrixExpr<T, m, n, Derived>::block;
 		using MatrixExpr<T, m, n, Derived>::row;
 		using MatrixExpr<T, m, n, Derived>::col;

@@ -6,26 +6,30 @@
 
 #include <algorithm>
 #include <cassert>
-#include "vectorExpr.h"
+#include "matrixView.h"
 
 namespace rev {
 	namespace math {
 
 		template<typename T, size_t n>
-		struct Vector : VectorExpr<T, n, Vector<T,n>>
+		struct Vector : MatrixView<T, n, 1, Vector<T,n>>
 		{
+			template<class Derived>
+			using VectorExpr = MatrixExpr<T, n, 1, Derived>;
+
 			// Basic construction
 			Vector() = default;
 			Vector(const Vector&) = default;
+
 			template<class Other>
-			Vector(const MatrixExpr<T,n,1,Other>& x)
+			Vector(const VectorExpr<Other>& x)
 			{
 				for (size_t i = 0; i < n ++i)
 					m[i] = x(i,0);
 			}
 
 			template<class OtherT>
-			Vector(const VectorExpr<T, n - 1, OtherT>& x, float f)
+			Vector(const VectorExpr<OtherT>& x, float f)
 			{
 				for (size_t i = 0; i < n - 1; ++i)
 				{
@@ -52,34 +56,10 @@ namespace rev {
 				static_assert(n >= 4, "Vector is not big enough");
 			}
 
-			// Smarter construction
-			static Vector zero()        { Vector m; m.setZero(); return m; }
-			static Vector ones()        { Vector m; m.setOnes(); return m; }
-
-			void setZero()
-			{
-				for (size_t i = 0; i < n ++i)
-					m[i] = T(0);
-			}
-
-			void setOnes()
-			{
-				for (size_t i = 0; i < n ++i)
-					m[i] = T(1);
-			}
-
             T&	operator[]	(size_t i)       { return m[i]; }
             T	operator[] 	(size_t i) const { return m[i]; }
-
-            using VectorExpr<T, n, Vector<T, n>>::x;
-            using VectorExpr<T, n, Vector<T, n>>::y;
-            using VectorExpr<T, n, Vector<T, n>>::z;
-            using VectorExpr<T, n, Vector<T, n>>::w;
-
-			T&	x()         { return m[0]; }
-			T&	y()         { return m[1]; }
-			T&	z()         { return m[2]; }
-			T&	w()         { return m[3]; }
+			T&	operator()(size_t i, size_t)		{ return m[i]; }
+			T	operator()(size_t i, size_t) const	{ return m[i]; }
 
             // Compile time accessors
             template<size_t i>
@@ -88,6 +68,7 @@ namespace rev {
                 static_assert(i < n);
                 return m[i];
             }
+
             template<size_t i>
             T  getComponent() const
             {
@@ -99,14 +80,8 @@ namespace rev {
 			float m[n];
 		};
 
-		template<typename T, size_t n, class Derived>
-		Vector<T,n> operator/(const VectorExpr<T,n,Derived> v, T k)
-		{
-			Vector<T,n> result;
-			for(size_t i = 0; i < n; ++i)
-				result[i] =  v[i] / k;
-			return result;
-		}
+		template<class T, size_t n, class Derived>
+		using VectorExpr = MatrixExpr<T, n, 1, Derived>;
 
 		template<typename T_>
 		using Vector2 = Vector<T_,2>;
