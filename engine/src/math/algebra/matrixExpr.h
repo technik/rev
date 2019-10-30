@@ -89,6 +89,24 @@ namespace rev::math {
 			}
 		};
 
+		template<class Other, class Op>
+		struct CWiseMatrixBinaryOp : MatrixExpr<T, m, n, CWiseMatrixBinaryOp<Other, Op>>
+		{
+			const MatrixExpr<T, m, n, Derived>& a;
+			const MatrixExpr<T, m, n, Other>& b;
+
+			CWiseMatrixBinaryOp(const MatrixExpr<T, m, n, Derived>& _a, const MatrixExpr<T, m, n, Other>& _b)
+				:a(_a), b(_b)
+			{}
+
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const
+			{
+				Op op;
+				return op(a(i, j), b(i, j));
+			}
+		};
+
 		struct ProductByScalarExpr : MatrixExpr<T, m, n, ProductByScalarExpr>
 		{
 			const MatrixExpr<T, m, n, Derived>& x;
@@ -106,7 +124,10 @@ namespace rev::math {
 		};
 
 		template<class Other>
-		CWiseMatrixBinaryOp<T, m, n, Derived, Other, std::multiplies<T>> cwiseProduct(const MatrixExpr < T, m, n, Other&) const;
+		auto cwiseProduct(const MatrixExpr < T, m, n, Other>&) const
+		{
+			return CWiseMatrixBinaryOp<Other, std::multiplies<T>>(*this, x);
+		}
 	};
 
 	template<class T, size_t m, size_t n, class Derived>
@@ -125,31 +146,6 @@ namespace rev::math {
 	auto operator*(T k, const MatrixExpr<T, m, n, Derived>& x)
 	{
 		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, k);
-	}
-
-	template<class T, size_t m, size_t n, class A, class B, class Op>
-	struct CWiseMatrixBinaryOp : MatrixExpr<T, m, n, CWiseMatrixBinaryOp<T, m, n, A, B, Op>>
-	{
-		const MatrixExpr<T, m, n, A>& a;
-		const MatrixExpr<T, m, n, B>& b;
-
-		CWiseMatrixBinaryOp(const MatrixExpr<T, m, n, A>& _a, const MatrixExpr<T, m, n, B>& _b)
-			:a(_a), b(_b)
-		{}
-
-		// Generic component accessor.
-		T operator()(size_t i, size_t j) const
-		{
-			Op op;
-			return op(a(i, j), b(i, j));
-		}
-	};
-
-	template<class T, size_t m, size_t n, class Derived>
-	template<class Other>
-	CWiseMatrixBinaryOp<T, m, n, Derived, Other, std::multiplies<T>> MatrixExpr<T, m, n, Derived>::cwiseProduct(const MatrixExpr < T, m, n, Other>& x) const
-	{
-		return CWiseMatrixBinaryOp<T, m, n, Derived, Other, std::multiplies<T>>(*this, x);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>
