@@ -48,7 +48,7 @@ namespace rev::math
 		}
 
 		float area() const {
-			auto h = mMax-mMin;
+			Vec3f h = mMax-mMin;
 			return 2.f*(h.x()*h.y()+h.x()*h.z()+h.y()*h.z());
 		}
 
@@ -107,8 +107,8 @@ namespace rev::math
 			Vector t1 = (mMin -_r.o).cwiseProduct(_r.n);
 			Vector t2 = (mMax -_r.o).cwiseProduct(_r.n);
 			// Swapping the order of comparison is important because of NaN behavior
-			auto tEnter = math::min(t1,t2);
-			auto tLeave = math::max(t2,t1);
+			Vector tEnter = math::min(t1,t2);
+			Vector tLeave = math::max(t2,t1);
 			_maxEnter = math::max(tEnter.x(), math::max(tEnter.y(), math::max(tEnter.z(), 0.f)));
 			auto minLeave = math::min(tLeave.x(), math::min(tLeave.y(), math::min(tLeave.z(), _tmax)));
 			return minLeave >= _maxEnter;

@@ -36,4 +36,14 @@ namespace rev::math
 	{
 		return a<b?a:b; // Same NaN behavior as simd
 	}
+
+	template<class T> struct minOp
+	{
+		T operator()(T a, T b) const { return a < b ? a : b } // Same NaN behavior as simd
+	};
+
+	template<class T> struct maxOp
+	{
+		T operator()(T a, T b) const { a > b ? a : b; } // Same NaN behavior as simd
+	};
 }
