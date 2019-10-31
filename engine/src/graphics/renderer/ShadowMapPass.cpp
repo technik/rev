@@ -112,6 +112,7 @@ namespace rev::gfx {
 		}
 
 		// Re-center the view transform around the casters' AABB
+		auto shadowWorld = light.worldMatrix;
 		shadowView.col<3>() = shadowView.col<3>() - Vec4f(castersBBox.center(), 0.f);
 
 		adjustViewMatrix(shadowView, castersBBox);// Adjust view matrix
