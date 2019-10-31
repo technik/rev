@@ -99,16 +99,22 @@ namespace rev::gfx {
 		CommandBuffer& dst)
 	{
 		// Accumulate all casters into a single shadow space bounding box
-		AABB castersBBox; castersBBox.clear();
+		// Do this accumulation in view space to minimize the size of this bbox.
+		// If we rotated the bbox first into world space, and then again into view space,
+		// the result would be bigger.
+		AABB castersBBox; castersBBox.clear(); // In view space
+		Mat44f shadowView = light.worldMatrix.orthoNormalInverse().matrix();
 		for(auto& obj : shadowCasters)
 		{
 			// Object's bounding box in shadow space
-			auto bbox = obj.world * obj.geom.bbox();
+			auto bbox = (shadowView*obj.world) * obj.geom.bbox();
 			castersBBox.add(bbox);
 		}
 
-		auto world = light.worldMatrix;
-		adjustViewMatrix(world, castersBBox);// Adjust view matrix
+		// Re-center the view transform around the casters' AABB
+		shadowView.col<3>() = shadowView.col<3>() - Vec4f(castersBBox.center(), 0.f);
+
+		adjustViewMatrix(shadowView, castersBBox);// Adjust view matrix
 
 		// Render
 		dst.beginPass(*m_pass);
@@ -116,21 +122,15 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void ShadowMapPass::adjustViewMatrix(const math::AffineTransform& wsLight, const math::AABB& castersBBox)
+	void ShadowMapPass::adjustViewMatrix(const math::Mat44f& shadowView, const math::AABB& castersBBox)
 	{
-		auto shadowWorldXForm = wsLight;
-		auto shadowCenter = castersBBox.center();
-		shadowWorldXForm.position() = shadowCenter;
-		auto shadowView = shadowWorldXForm.orthoNormalInverse().matrix();
-
-		auto lightSpaceCastersBBox = shadowView * castersBBox;
 		Mat44f biasMatrix = Mat44f::identity();
 		biasMatrix(2,3) = -mBias;
 
-		auto orthoSize = lightSpaceCastersBBox.size();
+		auto orthoSize = castersBBox.size();
 		auto castersMin = -orthoSize.z()/2;
 		auto castersMax = orthoSize.z()/2;
-		auto proj = math::orthographicMatrix(math::Vec2f(orthoSize.x(),orthoSize.y()), castersMin, castersMax);
+		auto proj = math::orthographicMatrix(orthoSize.xy(), castersMin, castersMax);
 
 		mShadowProj = proj * biasMatrix * shadowView;
 		mUnbiasedShadowProj = proj * shadowView;

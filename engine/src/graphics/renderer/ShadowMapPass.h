@@ -57,7 +57,7 @@ namespace rev::gfx {
 
 	private:
 
-		void adjustViewMatrix(const math::AffineTransform& shadowView, const math::AABB& castersBBox);
+		void adjustViewMatrix(const math::Mat44f& shadowView, const math::AABB& castersBBox);
 		void renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst);
 
 	private:
