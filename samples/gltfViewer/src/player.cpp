@@ -125,9 +125,9 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::createCamera() {
-		
-		// Create fliby camera
+	void Player::createCamera()
+	{	
+		// Create flyby camera
 		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
@@ -237,12 +237,12 @@ namespace rev {
 		ImGui::End();
 		mForwardRenderer.drawDebugUI();
 		
-		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
-		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
+		//auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
+		//auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
 
-		AffineTransform lightXform = AffineTransform::identity();
-		lightXform.setRotation(rotation * elevation);
-		m_envLight->worldMatrix = lightXform;
+		//AffineTransform lightXform = AffineTransform::identity();
+		//lightXform.setRotation(rotation * elevation);
+		//m_envLight->worldMatrix = lightXform;
 
 		gui::finishFrame(dt);
 	}

@@ -121,11 +121,27 @@ namespace rev::math
 
 	inline AABB operator*(const Mat44f& xform, const AABB& aabb)
 	{
-		Vec4f center = Vec4f(aabb.center(), 1.f);
-		Vec4f halfSize = Vec4f(aabb.max(), 1.f) - center;
-		Vec4f rotSize = xform * halfSize;
-		halfSize = math::abs(rotSize);
-		center = xform * center;
-		return AABB((center - halfSize).xyz(), (center + halfSize).xyz());
+		// Initialize an empty AABB
+		Vec4f tmin = Vec4f(aabb.min(), 1.f);
+		Vec4f tmax = Vec4f(aabb.max(), 1.f);
+		// Compute individual products
+		Vec4f xa = xform.col<0>()*tmin.x();
+		Vec4f xb = xform.col<0>()*tmax.x();
+		Vec4f ya = xform.col<1>()*tmin.y();
+		Vec4f yb = xform.col<1>()*tmax.y();
+		Vec4f za = xform.col<2>()*tmin.z();
+		Vec4f zb = xform.col<2>()*tmax.z();
+		
+		Vec4f xmin = min(xa, xb);
+		Vec4f xmax = max(xa, xb);
+		Vec4f ymin = min(ya, yb);
+		Vec4f ymax = max(ya, yb);
+		Vec4f zmin = min(za, zb);
+		Vec4f zmax = max(za, zb);
+
+		Vec3f transformedMin = (xmin + ymin + zmin + xform.col<3>()).block<3,1,0,0>();
+		Vec3f transformedMax = (xmax + ymax + zmax + xform.col<3>()).block<3,1,0,0>();
+
+		return AABB(transformedMin, transformedMax);
 	}
 }

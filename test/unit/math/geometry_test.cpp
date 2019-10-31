@@ -32,6 +32,19 @@ void testAABBTransform()
 		assert(result.min() == 2.f * Vec3f::ones());
 		assert(result.max() == 4.f * Vec3f::ones());
 	}
+	{
+		const float sqrt05 = sqrt(0.5f);
+		Mat44f rotation = {
+			sqrt05, -sqrt05, 0.f, 0.f,
+			sqrt05, sqrt05, 0.f, 0.f,
+			0.f, 0.f, 1.f, 0.f,
+			0.f, 0.f, 0.f, 1.f
+		};
+		auto result = rotation * aabb;
+		const float sqrt2 = sqrt(2.f);
+		assert(result.min() == Vec3f(-sqrt2, -sqrt2, -1.f));
+		assert(result.max() == Vec3f(sqrt2, sqrt2, 1.f));
+	}
 
 	Vec3f longBoxHalfSize(1.f, 2.f, 5.f);
 	auto longBox = AABB(-longBoxHalfSize, longBoxHalfSize);
