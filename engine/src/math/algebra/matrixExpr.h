@@ -40,7 +40,7 @@ namespace rev::math {
 		T operator[](size_t i) const
 		{
 			static_assert(n == 1);
-			return static_cast<const Derived&>(*this)[i];
+			return static_cast<const Derived&>(*this)(i,0);
 		}
 
 		// Component accessor for when you know the component index at compile time.
