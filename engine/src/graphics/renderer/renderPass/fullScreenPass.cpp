@@ -35,7 +35,7 @@ namespace rev::gfx {
 
 	void main ( void )
 	{
-		gl_Position = vec4(vertex.xy, 1.0, 1.0);
+		gl_Position = vec4(vertex.xy, -1.0, 1.0);
 	}
 #endif
 
@@ -100,7 +100,7 @@ void main (void) {
 		Pipeline::Descriptor pipelineDesc;
 		pipelineDesc.vtxShader = vtxShader;
 		pipelineDesc.pxlShader = pxlShader;
-		pipelineDesc.raster.depthTest = Pipeline::DepthTest::Lequal;
+		pipelineDesc.raster.depthTest = Pipeline::DepthTest::Gequal;
 		m_pipeline = m_device.createPipeline(pipelineDesc);
 	}
 

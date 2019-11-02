@@ -237,12 +237,12 @@ namespace rev {
 		ImGui::End();
 		mForwardRenderer.drawDebugUI();
 		
-		//auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
-		//auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
+		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
+		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);
 
-		//AffineTransform lightXform = AffineTransform::identity();
-		//lightXform.setRotation(rotation * elevation);
-		//m_envLight->worldMatrix = lightXform;
+		AffineTransform lightXform = AffineTransform::identity();
+		lightXform.setRotation(rotation * elevation);
+		m_envLight->worldMatrix = lightXform;
 
 		gui::finishFrame(dt);
 	}

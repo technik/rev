@@ -243,11 +243,11 @@ namespace rev::gfx {
 	void DeferredRenderer::createRenderPasses(gfx::FrameBuffer target)
 	{
 		m_rasterOptions.cullBack = true;
-		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
+		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 
 		// G-Buffer pass
 		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 1;
+		passDesc.clearDepth = 0;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
 		passDesc.target = mGBuffer;
 		passDesc.numColorAttachs = 3;
@@ -260,7 +260,7 @@ namespace rev::gfx {
 		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowBuffer, m_shadowSize);
 
 		// Lighting pass
-		passDesc.clearDepth = 1;
+		passDesc.clearDepth = 0;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = target;
 		passDesc.numColorAttachs = 1;

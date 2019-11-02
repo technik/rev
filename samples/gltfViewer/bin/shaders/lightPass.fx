@@ -35,11 +35,11 @@ vec3 shade () {
 	vec3 wsNormal = compressedNormal;
 
 	gl_FragDepth = texture(uDepthMap, uv).x;
-	float zClipDepth = gl_FragDepth*2-1;
-	float wClip = proj[3][2] / (zClipDepth - proj[2][2]/proj[2][3]);
-	vec2 xyClip = uv*2-1;
-	vec3 csPos = vec3(xyClip.x, xyClip.y, zClipDepth);
-	vec4 vsPos = (inverse(proj) * vec4(csPos, 1))*wClip;
+    float bufferDepth = gl_FragDepth*2-1;
+    float B = proj[3][2];
+    float zView = -B / (bufferDepth+1);
+	vec3 csPos = vec3(uv*2-1, bufferDepth)*-zView;
+	vec4 vsPos = inverse(proj) * vec4(csPos, -zView);
 	vec4 wsPos = invView * vsPos;
 	vec4 wsEyePos = invView * vec4(vec3(0.0), 1.0);
 
@@ -53,8 +53,8 @@ vec3 shade () {
 #ifdef sampler2D_uShadowMap
 	vec4 shadowPos = uShadowProj * wsPos;
 	float shadowDepth = textureLod(uShadowMap, shadowPos.xy*0.5+0.5, 0.0).x;
-    float surfaceDepth = shadowPos.z;
-    float shadow = (shadowDepth < surfaceDepth) ? 0.0 : 1.0;
+    float surfaceDepth = shadowPos.z*0.5+0.5;
+    float shadow = (shadowDepth > surfaceDepth) ? 0.0 : 1.0;
 #else
 	float shadow = 1.0;
 #endif
@@ -62,10 +62,6 @@ vec3 shade () {
 	
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, r, occlusion, shadow, ndv);
 	vec3 toneMapped = color*uEV / (1+uEV*color);
-	//return vec3(textureLod(uShadowMap, uv, 0.0).x);
-	//return vec3(shadowDepth);
-	//return vec3(surfaceDepth*0.5+0.5);
-	//return vec3(shadowPos.z+0.5+0.5, shadowDepth, shadow);
 	return toneMapped;
 }
 

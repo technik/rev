@@ -100,12 +100,11 @@ namespace rev {
 			// Precomputations
 			auto yFocalLength = 1 / std::tan(yFovRad / 2);
 			auto xFocalLength = yFocalLength / aspectRatio;
-			auto A = (f+n)/(n-f);
-			auto B = 2*f*n/(n-f);
+			auto B = 2*n;
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
 				0, yFocalLength, 0, 0,
-				0, 0,			 A, B,
+				0, 0,			 1, B,
 				0, 0,			-1, 0
 			});
 		}
@@ -116,10 +115,11 @@ namespace rev {
 			const MatrixExpr<T,2,1,Expr>& _size,
 			T _near, T _far)
 		{
+			T invRange = 1 / (_near - _far);
 			return Matrix44<T>({
-				2 / _size[0,0], 0,                0,             0,
-				0,             2 / _size[1,0],	 0,				0,
-				0,             0,		 2 / (_far-_near),      (_near+_far)/(_near-_far),
+				2 / _size(0,0), 0,                0,             0,
+				0,             2 / _size(1,0),	 0,				0,
+				0,             0,		 -2 * invRange,      (_near+_far) * invRange,
 				0,             0,                0,             1
 				});
 		}

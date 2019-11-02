@@ -47,7 +47,7 @@ namespace rev::gfx {
 		assert(target.isValid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 1;
+		passDesc.clearDepth = 0;
 		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
 		passDesc.target = target;
 		passDesc.viewportSize = _size;
@@ -55,7 +55,7 @@ namespace rev::gfx {
 
 		// Pipeline config
 		m_rasterOptions.cullFront = true;
-		m_rasterOptions.depthTest = Pipeline::DepthTest::Lequal;
+		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 	}
 
 	//----------------------------------------------------------------------------------------------

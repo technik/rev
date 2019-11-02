@@ -33,7 +33,8 @@ namespace rev { namespace math {
 		AffineTransform orthoNormalInverse() const {
 			AffineTransform x = AffineTransform::identity();
 			x.mMatrix.block<3,3,0,0>() = mMatrix.block<3,3,0,0>().transpose();
-			x.mMatrix.block<3,1,0,3>() = -x.mMatrix.block<3,3,0,0>() * mMatrix.block<3,1,0,3>();
+			Vec3f invPos = x.mMatrix.block<3, 3, 0, 0>() * -mMatrix.block<3, 1, 0, 3>();
+			x.mMatrix.block<3, 1, 0, 3>() = invPos;
 			return x;
 		}
 
@@ -46,7 +47,7 @@ namespace rev { namespace math {
 
 		void rotate		(const Quatf& _q) { 
 			Mat33f rot = (Mat33f)_q;
-			mMatrix.block<3,3,0,0>() = rot * mMatrix.block<3,3,0,0>();
+			mMatrix.block<3,3,0,0>() = Mat33f(rot * mMatrix.block<3,3,0,0>());
 		}
 
 		const	Mat44f& matrix() const	{ return mMatrix; }
