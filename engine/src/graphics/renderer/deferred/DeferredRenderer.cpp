@@ -99,9 +99,14 @@ namespace rev::gfx {
 
 		// --- Cull stuff
 		// Cull visible objects renderQ -> visible
-		//cull(m_renderQueue, m_visible, [&](const RenderItem& item) -> bool {
-		//	return dot(item.world.position() - eye.position(), eye.viewDir()) > 0;
-		//});
+		m_visible.clear();
+		Mat44f view = eye.view();
+		for (auto& renderItem : m_renderQueue)
+		{
+			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
+			if (viewSpaceBB.min().z() < 0)
+				m_visible.push_back(renderItem);
+		}
 
 		auto worldMatrix = Mat44f::identity();
 		GeometryPass::Instance instance;
@@ -149,7 +154,7 @@ namespace rev::gfx {
 		if (useShadows)
 		{
 			auto& light = *scene.lights()[0];
-			m_shadowPass->render(m_visible, m_visible, eye, light, frameCommands);
+			m_shadowPass->render(m_renderQueue, m_visible, eye, light, frameCommands);
 		}
 
 		// G-pass
@@ -288,7 +293,7 @@ namespace rev::gfx {
 	//------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene)
 	{
-		m_visible.clear();
+		m_renderQueue.clear();
 		for(auto obj : scene.renderables())
 		{			
 			if(!obj->visible)
@@ -296,7 +301,7 @@ namespace rev::gfx {
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);
-				m_visible.push_back({obj->transform, *mesh.first, *mesh.second});
+				m_renderQueue.push_back({obj->transform, *mesh.first, *mesh.second});
 			}
 		}
 	}
