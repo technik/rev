@@ -56,6 +56,7 @@ vec3 shade () {
     float surfaceDepth = shadowPos.z*0.5+0.5;
     float shadow = (shadowDepth > surfaceDepth) ? 1.0 : 0.0;
     vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
+    lightDir = normalize(lightDir);
     shadow = 1-shadow*max(0.0,dot(wsNormal, -lightDir));
 #else
 	float shadow = 1.0;
