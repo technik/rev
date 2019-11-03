@@ -90,6 +90,25 @@ namespace rev {
 		using Mat44f = Matrix44<float>;
 
 		//------------------------------------------------------------------------------------------------------------------
+		// Product specialization for matrices
+		template<class T, size_t m, size_t l, size_t n>
+		Matrix<T, m, n> operator*(const Matrix<T, m, l>& a, const Matrix<T, l, n>& b)
+		{
+			Matrix<T, m, n> result;
+			for (int i = 0; i < m; ++i)
+			{
+				for (int j = 0; j < n; ++j)
+				{
+					result(i, j) = a(i, 0) * b(0, j);
+					for (int k = 1; k < l; ++k)
+						result(i, j) += a(i, k) * b(k, j);
+				}
+			}
+
+			return result;
+		}
+
+		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> frustumMatrix(
 			Number_ yFovRad,
