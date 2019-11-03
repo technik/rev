@@ -38,6 +38,7 @@ vec3 ibl(
   vec3 normal,
   vec3 eye,
   vec3 albedo,
+  vec3 lightDir,
   float roughness,
   float occlusion,
   float shadow,
@@ -68,9 +69,13 @@ vec3 ibl(
 	vec3 Edss = 1 - (FssEss + Fms * Ems);
 	vec3 kD = albedo * Edss;
 
+    // Shadow contributions
+    float sdwD = max(0.0, -dot(lightDir,normal));
+    float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
-    //return vec3(shadow);
-	return FssEss * radiance + shadow*(Fms*Ems+kD) * irradiance;
+    //return vec3((shadow-1)*sdwS + 1);
+    //return vec3(sdwS*(shadow-1)+1);
+	return (sdwS*(shadow-1)+1)*FssEss * radiance + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance;
 }
 #endif // sampler2D_uEnvironment
 
