@@ -69,6 +69,7 @@ vec3 ibl(
 	vec3 kD = albedo * Edss;
 
 	// Composition
+    //return vec3(shadow);
 	return FssEss * radiance + shadow*(Fms*Ems+kD) * irradiance;
 }
 #endif // sampler2D_uEnvironment
