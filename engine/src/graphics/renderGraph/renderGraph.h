@@ -34,16 +34,7 @@ namespace rev::gfx {
 	class RenderGraph
 	{
 	public:
-		RenderGraph(Device&);
-		// Graph lifetime
-		void reset();
-		void compile();
-		// Record graph execution into a command buffer for deferred submision
-		void recordExecution(CommandBuffer& dst);
-		void run(); // Execute graph on the fly, submitting command buffers as they are ready
-		void clearResources(); // Free allocated memory resources
 
-		// Resources
 		enum class ColorFormat
 		{
 			RGBA8,
@@ -57,17 +48,9 @@ namespace rev::gfx {
 			f32
 		};
 
-		struct Attachment : NamedResource {
-			Attachment() = default;
-			Attachment(int id) : NamedResource(id) {}
-		};
-
-		// Graph building
-		enum class ReadMode
-		{
-			clear,
-			keep,
-			discard
+		struct BufferResource : NamedResource {
+			BufferResource() = default;
+			BufferResource(int id) : NamedResource(id) {}
 		};
 
 		enum HWAntiAlias
@@ -78,58 +61,33 @@ namespace rev::gfx {
 			msaa8x
 		};
 
-		struct FrameBufferOptions
+	public:
+
+		RenderGraph(Device&);
+		// Graph lifetime
+		void clear();
+		void build();
+		// Record graph execution into a command buffer for deferred submision
+		void evaluate(CommandBuffer& dst);
+		void run(); // Execute graph on the fly, submitting command buffers as they are ready
+		void clearResources(); // Free allocated memory resources
+
+		// Pass building interface
+		struct PassBuilder
 		{
-			math::Vec2u size;
+			virtual BufferResource write(FrameBuffer) = 0; // Import external frame buffer into the graph
+			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
+			virtual BufferResource write(DepthFormat) = 0;
+			virtual BufferResource write(ColorFormat) = 0;
+			virtual BufferResource write(BufferResource) = 0;
+			virtual void read(BufferResource, int bindingPos) = 0;
+			virtual void modify(BufferResource) = 0;
 		};
 
-		struct Pass : NamedResource {
-			Pass() = default;
-			Pass(int id) : NamedResource(id) {}
-		};
+		using PassDefinition = std::function<void(PassBuilder&)>;
+		using PassEvaluator = std::function<void(CommandBuffer& dst)>;
 
-		Pass pass(const math::Vec2u& size, HWAntiAlias);
-		void readColor(Pass, int bindingLocation, Attachment);
-		void readDepth(Pass, int bindingLocation, Attachment);
-		// By default, write to a new resource
-		Attachment writeColor(Pass, ColorFormat, int bindingLocation, ReadMode, Attachment = Attachment());
-		Attachment writeDepth(Pass, DepthFormat, ReadMode, Attachment = Attachment());
-
-		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;
-		template<class PassExec>
-		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
-
-		// Resource access during execution
-		Texture2d getTexture(Attachment) const;
-
-	private:
-		Device& m_device;
-		int m_nextResourceId = 0;
-
-		struct WriteAttachment
-		{
-			ReadMode m_readMode;
-			Attachment m_beforeWrite;
-			Attachment m_afterWrite;
-		};
-
-		struct RenderPassInfo
-		{
-			std::map<int, Attachment> m_colorInputs;
-			std::map<int, Attachment> m_depthInputs;
-			std::map<int, WriteAttachment> m_colorOutputs;
-			WriteAttachment m_depthOutput;
-
-			math::Vec2u m_targetSize;
-			PassExecution m_execution;
-			HWAntiAlias m_antiAlias;
-
-			FrameBuffer m_targetFB;
-		};
-
-		std::vector<RenderPassInfo> m_renderPasses;
-		std::map<int32_t,Texture2d> m_resolvedTextures;
-		TextureSampler m_linearSampler;
+		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
 	};
 
 }
