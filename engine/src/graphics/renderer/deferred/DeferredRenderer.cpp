@@ -95,6 +95,58 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
 	{
+		/*
+		Proof of concept code for a renderGraph being used to make a deferred render
+
+		defineGraph()
+		{
+			graph.addPass(viewportSize, [](Pass& depth){ // Pass definition
+				depth = pass.write(d32)
+			},[](CommandBuffer& commands){ // Pass evaluation
+				commands.clear(depth, 0)
+				commands.draw(geom)
+			});
+
+			// Z Prepass
+			ZPrepass = graph.newPass(viewportSize)
+			depth = ZPrepass.write(d32)
+
+			// G-buffer pass
+			GPass = graph.newPass(viewportSize)
+			depth = GPass.readAndWrite(depth) // Overrides depth with a new depth value for later pases
+			normals = GPass.write(rgb8) // Write implies the earlier state doesn't mater. Whether to clear or not, is up to the pass evaluation phase
+			motion = GPass.write(rgb8)
+			pbr = GPass.wWrite(rgba8)
+
+			// AO
+			AOSamplePass = graph.newPass(viewportSize/2)
+			AOSamplePass.read(depth)
+			aoSamples = AOSamplePass.write(rgb8)
+
+			// Light pass
+			LightPass = graph.newPass(viewportSize)
+			LightPass.read(depth)
+			LightPass.read(normals)
+			LightPass.read(pbr)
+			light = LightPass.write(rgb32) // No need to clear, we'll cover the whole thing!
+
+			// Shadow maps & light passes
+			for(l : lights)
+				ShadowPass[l] = graph.newPass(shadowSize)
+				shadowMap[j] = ShadowPass[j].write(depth)
+				LightPass.read(shadowMap)
+				light = LightPass.readAndWrite(light)
+
+			// Transparent, write after the last light
+			transparent = graph.readAndWrite(light)
+
+			// Bloom and tonemapping
+			PostProcessPass = graph.newPass()
+			PostProcessPass.read(light)
+			PostProcessPass.write(importedRGBColor)
+		}
+
+		*/
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 
 		// --- Cull stuff
