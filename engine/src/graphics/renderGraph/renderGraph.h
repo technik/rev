@@ -53,7 +53,7 @@ namespace rev::gfx {
 			BufferResource(int id) : NamedResource(id) {}
 		};
 
-		enum HWAntiAlias
+		enum class HWAntiAlias
 		{
 			none,
 			msaa2x,
@@ -62,7 +62,7 @@ namespace rev::gfx {
 		};
 
 		// Pass building interface
-		struct PassBuilder
+		struct IPassBuilder
 		{
 			virtual BufferResource write(FrameBuffer) = 0; // Import external frame buffer into the graph
 			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
@@ -73,30 +73,62 @@ namespace rev::gfx {
 			virtual void modify(BufferResource) = 0;
 		};
 
-		using PassDefinition = std::function<void(PassBuilder&)>;
-		using PassEvaluator = std::function<void(CommandBuffer& dst)>;
+		using PassDefinition = std::function<void(IPassBuilder&)>;
+		using PassEvaluator = std::function<void(const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)>;
 
 	public:
 
 		RenderGraph(Device&);
+
 		// Graph lifetime
-		void reset();
+		void reset(); // Does not clear allocated GPU resources.
 		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
 		void build();
 
 		// Record graph execution into a command buffer for deferred submision
 		void evaluate(CommandBuffer& dst);
 
-		// Free allocated memory resources. Must not be called on a built graph
+		// Free allocated memory resources, like textures and frame buffers. Must not be called on a built graph
 		void clearResources();
 
 	private:
 		Device& m_gfxDevice;
 
-		struct RenderPassInfo
+		struct RenderPassDescriptor
 		{
-			math::Vec2u targetSize;
+			PassDefinition definition;
+			PassEvaluator evaluator;
+			math::Vec2u targetSize; // Size of all attachments written to during the pass
+			HWAntiAlias antiAliasing;
 		};
+
+		// Keeps track of pass info during the construction build phase of the graph
+		struct PassBuilder : IPassBuilder
+		{
+			BufferResource write(FrameBuffer) override; // Import external frame buffer into the graph
+			BufferResource write(DepthFormat) override;
+			BufferResource write(ColorFormat) override;
+			BufferResource write(BufferResource) override;
+			void read(BufferResource, int bindingPos) override;
+			void modify(BufferResource) override;
+
+			std::vector<std::pair<size_t, int>>& m_buffersState;
+			math::Vec2u targetSize; // Size of all attachments written to during the pass
+		};
+
+		// Passes
+		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks
+		// Buffer resource indices returned to the user are actually indices into this vector.
+		// Each entry contains an index into the buffer attachments array, and a counter that represents the number of write
+		// subpasses that buffer has gone through until this point
+		std::vector<std::pair<size_t, int>> m_buffersState;
+		std::vector<RenderPassDescriptor> m_passDescriptors;
+
+		// Resources
+		std::vector<FrameBuffer> m_buffers;
+		std::vector<Texture2d> m_textures;
+		std::vector<FrameBuffer::Attachment> m_bufferAttachments;
+		std::vector<FrameBuffer::Descriptor> m_bufferDescriptors;
 	};
 
 }

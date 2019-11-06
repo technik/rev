@@ -23,20 +23,86 @@
 
 namespace rev::gfx {
 
+	//--------------------------------------------------------------------------
 	RenderGraph::RenderGraph(Device& gfxDevice)
 		: m_gfxDevice(gfxDevice)
 	{}
 
+	//--------------------------------------------------------------------------
 	void RenderGraph::reset()
 	{
+		m_passDescriptors.clear();
 	}
 
-	void RenderGraph::addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias)
+	//--------------------------------------------------------------------------
+	void RenderGraph::addPass(
+		const math::Vec2u& size,
+		PassDefinition passDefinition,
+		PassEvaluator passEvaluator,
+		HWAntiAlias targetAntiAliasing)
 	{
 	}
 
+	//--------------------------------------------------------------------------
 	void RenderGraph::build()
 	{
+		m_buffersState.clear();
+		// For each pass stored
+		for (const auto& desc : m_passDescriptors)
+		{
+			PassBuilder builder { m_buffersState };
+			builder.targetSize = desc.targetSize;
+			desc.definition(builder);
+			// Allocate any new buffers needed by the builder?
+		}
 	}
 
+	//--------------------------------------------------------------------------
+	void RenderGraph::evaluate(CommandBuffer& dst)
+	{
+		// For each pass in compiled passes
+		// Bind targets
+		// Expose read buffers as an input structure to the pass evaluator
+		// Call the evaluator
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::clearResources()
+	{
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target)
+	{
+		
+		return BufferResource(0);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(DepthFormat target)
+	{
+		return BufferResource(0);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(ColorFormat target)
+	{
+		return BufferResource(0);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(RenderGraph::BufferResource target)
+	{
+		return BufferResource(0);
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::PassBuilder::read(RenderGraph::BufferResource target, int bindingPos)
+	{
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::PassBuilder::modify(RenderGraph::BufferResource target)
+	{
+	}
 }
