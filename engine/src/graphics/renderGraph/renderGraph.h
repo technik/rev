@@ -61,17 +61,6 @@ namespace rev::gfx {
 			msaa8x
 		};
 
-	public:
-
-		RenderGraph(Device&);
-		// Graph lifetime
-		void clear();
-		void build();
-		// Record graph execution into a command buffer for deferred submision
-		void evaluate(CommandBuffer& dst);
-		void run(); // Execute graph on the fly, submitting command buffers as they are ready
-		void clearResources(); // Free allocated memory resources
-
 		// Pass building interface
 		struct PassBuilder
 		{
@@ -87,7 +76,27 @@ namespace rev::gfx {
 		using PassDefinition = std::function<void(PassBuilder&)>;
 		using PassEvaluator = std::function<void(CommandBuffer& dst)>;
 
+	public:
+
+		RenderGraph(Device&);
+		// Graph lifetime
+		void reset();
 		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
+		void build();
+
+		// Record graph execution into a command buffer for deferred submision
+		void evaluate(CommandBuffer& dst);
+
+		// Free allocated memory resources. Must not be called on a built graph
+		void clearResources();
+
+	private:
+		Device& m_gfxDevice;
+
+		struct RenderPassInfo
+		{
+			math::Vec2u targetSize;
+		};
 	};
 
 }
