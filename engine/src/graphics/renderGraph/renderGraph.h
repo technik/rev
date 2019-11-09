@@ -64,6 +64,7 @@ namespace rev::gfx {
 		// Pass building interface
 		struct IPassBuilder
 		{
+			virtual ~IPassBuilder() {}
 			virtual BufferResource write(FrameBuffer) = 0; // Import external frame buffer into the graph
 			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
 			virtual BufferResource write(DepthFormat) = 0;
@@ -105,6 +106,8 @@ namespace rev::gfx {
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
+			PassBuilder(std::vector<std::pair<size_t, int>>& bufferState) : m_buffersState(bufferState) {}
+
 			BufferResource write(FrameBuffer) override; // Import external frame buffer into the graph
 			BufferResource write(DepthFormat) override;
 			BufferResource write(ColorFormat) override;

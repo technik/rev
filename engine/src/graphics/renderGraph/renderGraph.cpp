@@ -53,6 +53,7 @@ namespace rev::gfx {
 			PassBuilder builder { m_buffersState };
 			builder.targetSize = desc.targetSize;
 			desc.definition(builder);
+
 			// Allocate any new buffers needed by the builder?
 		}
 	}
