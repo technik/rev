@@ -24,6 +24,7 @@
 #include <graphics/renderer/renderPass/geometryPass.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
 #include <graphics/renderer/ShadowMapPass.h>
+#include <graphics/renderGraph/renderGraph.h>
 #include <vector>
 
 namespace rev::gfx {
@@ -61,6 +62,10 @@ namespace rev::gfx {
 
 	private:
 		Device*		m_device = nullptr;
+
+		// Render state
+		RenderGraph m_frameGraph;
+
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;

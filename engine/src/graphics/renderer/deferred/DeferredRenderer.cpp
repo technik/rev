@@ -95,40 +95,70 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
 	{
+		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
+		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
+		m_frameGraph.reset();
+
+		// G-Buffer pass
+		RenderGraph::BufferResource depth, normals, pbr; // G-Pass outputs
+		m_frameGraph.addPass(
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+			depth = pass.write(RenderGraph::DepthFormat::f32);
+			normals = pass.write(RenderGraph::ColorFormat::RGBA8);
+			pbr = pass.write(RenderGraph::ColorFormat::sRGBA8);
+			},
+			// Pass evaluation
+			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				// TODO: Actuall draw culled solid geometry here
+			});
+
+		// Environment light pass
+		RenderGraph::BufferResource hdr;
+		m_frameGraph.addPass(
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+			hdr = pass.write(RenderGraph::ColorFormat::RGBA32);
+			pass.read(depth, 0);
+			pass.read(normals, 1);
+			pass.read(pbr, 2);
+			// TODO: Shadows enabled? read them!
+			},
+			// Pass evaluation
+			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				// TODO: Actually use the shadows if needed
+				// Then draw full screen pass
+			});
+
+		// Final pass, tonemapping to LDR into the final frame buffer
+		m_frameGraph.addPass(
+			m_viewportSize,
+			// Pass definition
+			[hdr, this](RenderGraph::IPassBuilder& pass)
+			{
+				pass.read(hdr, 0);
+				pass.write(m_targetFb);
+			},
+			// Pass evaluation
+			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				// TODO: Actual full screen pass
+			});
+
+		m_frameGraph.build();
 		/*
 		Proof of concept code for a renderGraph being used to make a deferred render
 
 		defineGraph()
 		{
-			graph.addPass(viewportSize, [](Pass& depth){ // Pass definition
-				depth = pass.write(d32)
-			},[](CommandBuffer& commands){ // Pass evaluation
-				commands.clear(depth, 0)
-				commands.draw(geom)
-			});
-
-			// Z Prepass
-			ZPrepass = graph.newPass(viewportSize)
-			depth = ZPrepass.write(d32)
-
-			// G-buffer pass
-			GPass = graph.newPass(viewportSize)
-			depth = GPass.readAndWrite(depth) // Overrides depth with a new depth value for later pases
-			normals = GPass.write(rgb8) // Write implies the earlier state doesn't mater. Whether to clear or not, is up to the pass evaluation phase
-			motion = GPass.write(rgb8)
-			pbr = GPass.wWrite(rgba8)
-
 			// AO
 			AOSamplePass = graph.newPass(viewportSize/2)
 			AOSamplePass.read(depth)
 			aoSamples = AOSamplePass.write(rgb8)
-
-			// Light pass
-			LightPass = graph.newPass(viewportSize)
-			LightPass.read(depth)
-			LightPass.read(normals)
-			LightPass.read(pbr)
-			light = LightPass.write(rgb32) // No need to clear, we'll cover the whole thing!
 
 			// Shadow maps & light passes
 			for(l : lights)
@@ -139,11 +169,6 @@ namespace rev::gfx {
 
 			// Transparent, write after the last light
 			transparent = graph.readAndWrite(light)
-
-			// Bloom and tonemapping
-			PostProcessPass = graph.newPass()
-			PostProcessPass.read(light)
-			PostProcessPass.write(importedRGBColor)
 		}
 
 		*/
