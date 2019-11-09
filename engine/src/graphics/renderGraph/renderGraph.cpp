@@ -173,32 +173,39 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------
 	void RenderGraph::clearResources()
 	{
-		m_buffers.clear();
+		m_physicalBuffers.clear();
 	}
 
 	//--------------------------------------------------------------------------
-	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target)
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target, RenderGraph::BufferFormat targetFormat)
 	{
-		
-		return BufferResource(0);
-	}
+		VirtualBuffer virtualTarget;
+		virtualTarget.size = targetSize;
+		virtualTarget.format = targetFormat;
+		auto prevEntry = std::find(m_buffers.begin(), m_buffers.end(), target);
+		if (prevEntry == m_buffers.end())
+		{
+			virtualTarget.physicslBuffer = m_buffers.size();
+			m_buffers.push_back(target);
+		}
+		else
+		{
+			virtualTarget.physicslBuffer = prevEntry - m_buffers.begin();
+		}
 
-	//--------------------------------------------------------------------------
-	RenderGraph::BufferResource RenderGraph::PassBuilder::write(DepthFormat target)
-	{
-		return BufferResource(0);
-	}
+		// TODO: Store virtual buffer
+		// TODO: Create a buffer state with the first write of the new virtual buffer
+		// TODO: Register this into the outputs of this pass
 
-	//--------------------------------------------------------------------------
-	RenderGraph::BufferResource RenderGraph::PassBuilder::write(ColorFormat target)
-	{
-		return BufferResource(0);
+		return BufferResource(m_buffersState.size() - 1);
 	}
 
 	//--------------------------------------------------------------------------
 	RenderGraph::BufferResource RenderGraph::PassBuilder::write(RenderGraph::BufferResource target)
 	{
-		return BufferResource(0);
+		// TODO: Everything but the return value
+
+		return BufferResource(m_buffersState.size() - 1);
 	}
 
 	//--------------------------------------------------------------------------

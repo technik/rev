@@ -25,6 +25,7 @@
 #include <graphics/backend/texture2d.h>
 #include <map>
 #include <math/algebra/vector.h>
+#include <optional>
 
 namespace rev::gfx {
 
@@ -35,17 +36,13 @@ namespace rev::gfx {
 	{
 	public:
 
-		enum class ColorFormat
+		enum class BufferFormat
 		{
 			RGBA8,
 			sRGBA8,
-			RGBA32
-		};
-
-		enum class DepthFormat
-		{
-			f24,
-			f32
+			RGBA32,
+			depth24,
+			depth32
 		};
 
 		struct BufferResource : NamedResource {
@@ -65,10 +62,9 @@ namespace rev::gfx {
 		struct IPassBuilder
 		{
 			virtual ~IPassBuilder() {}
-			virtual BufferResource write(FrameBuffer) = 0; // Import external frame buffer into the graph
+			virtual BufferResource write(FrameBuffer externalTarget, BufferFormat format) = 0; // Import external frame buffer into the graph
 			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
-			virtual BufferResource write(DepthFormat) = 0;
-			virtual BufferResource write(ColorFormat) = 0;
+			virtual BufferResource write(BufferFormat) = 0;
 			virtual BufferResource write(BufferResource) = 0;
 			virtual void read(BufferResource, int bindingPos) = 0;
 			virtual void modify(BufferResource) = 0;
@@ -100,19 +96,23 @@ namespace rev::gfx {
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(std::vector<std::pair<size_t, int>>& bufferState)
+			PassBuilder(
+				std::vector<std::pair<size_t, int>>& bufferState,
+				std::vector<FrameBuffer>& buffers
+			)
 				: m_buffersState(bufferState)
+				, m_buffers(buffers)
 			{}
 
-			BufferResource write(FrameBuffer) override; // Import external frame buffer into the graph
-			BufferResource write(DepthFormat) override;
-			BufferResource write(ColorFormat) override;
+			BufferResource write(FrameBuffer externalTarget, BufferFormat format) override; // Import external frame buffer into the graph
+			BufferResource write(BufferFormat) override;
 			BufferResource write(BufferResource) override;
 			void read(BufferResource, int bindingPos) override;
 			void modify(BufferResource) override;
 
-			// Reference to the rendergraph´s buffer state
+			// References to the rendergraph´s buffer state
 			std::vector<std::pair<size_t, int>>& m_buffersState;
+			std::vector<FrameBuffer>& m_buffers;
 
 			// Dependencies
 			std::vector<size_t> m_inputs; // Indices into m_bufferState
@@ -131,13 +131,20 @@ namespace rev::gfx {
 		// Passes
 		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks)
 		// Buffer resource handles returned to the user are actually indices into this vector.
-		// Each entry contains an index into the buffer attachments array, and a counter that represents the number of write
+		// Each entry contains an index into the virtual buffers array, and a counter that represents the number of write
 		// subpasses that buffer has gone through until this point
 		std::vector<std::pair<size_t, int>> m_buffersState;
 		std::vector<PassBuilder> m_passDescriptors;
 
+		struct VirtualBuffer
+		{
+			BufferFormat format;
+			math::Vec2u size; // Texture size of all attachments written to during the pass
+			std::optional<size_t> physicslBuffer;
+		};
+
 		// Resources
-		std::vector<FrameBuffer> m_buffers;
+		std::vector<FrameBuffer> m_physicalBuffers;
 		std::vector<Texture2d> m_textures;
 		std::vector<FrameBuffer::Attachment> m_bufferAttachments;
 		std::vector<FrameBuffer::Descriptor> m_bufferDescriptors;

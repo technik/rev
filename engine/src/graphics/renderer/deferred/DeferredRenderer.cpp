@@ -105,9 +105,9 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			depth = pass.write(RenderGraph::DepthFormat::f32);
-			normals = pass.write(RenderGraph::ColorFormat::RGBA8);
-			pbr = pass.write(RenderGraph::ColorFormat::sRGBA8);
+			depth = pass.write(RenderGraph::BufferFormat::depth32);
+			normals = pass.write(RenderGraph::BufferFormat::RGBA8);
+			pbr = pass.write(RenderGraph::BufferFormat::sRGBA8);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
@@ -121,7 +121,7 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			hdr = pass.write(RenderGraph::ColorFormat::RGBA32);
+			hdr = pass.write(RenderGraph::BufferFormat::RGBA32);
 			pass.read(depth, 0);
 			pass.read(normals, 1);
 			pass.read(pbr, 2);
