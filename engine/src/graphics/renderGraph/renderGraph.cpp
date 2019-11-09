@@ -21,6 +21,8 @@
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 
+#include <numeric>
+
 namespace rev::gfx {
 
 	//--------------------------------------------------------------------------
@@ -32,6 +34,8 @@ namespace rev::gfx {
 	void RenderGraph::reset()
 	{
 		m_passDescriptors.clear();
+		m_buffersState.clear();
+		m_sortedPasses.clear();
 	}
 
 	//--------------------------------------------------------------------------
@@ -41,35 +45,135 @@ namespace rev::gfx {
 		PassEvaluator passEvaluator,
 		HWAntiAlias targetAntiAliasing)
 	{
+		// Add a new pass
+		m_passDescriptors.emplace_back(m_buffersState);
+		auto& newPass = m_passDescriptors.back();
+		newPass.targetSize = size;
+		newPass.definition = passDefinition;
+		newPass.evaluator = passEvaluator;
+		newPass.antiAliasing = targetAntiAliasing;
 	}
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::build()
 	{
-		m_buffersState.clear();
+		assert(m_buffersState.empty());
+
 		// For each pass stored
 		for (const auto& desc : m_passDescriptors)
 		{
 			PassBuilder builder { m_buffersState };
 			builder.targetSize = desc.targetSize;
 			desc.definition(builder);
-
-			// Allocate any new buffers needed by the builder?
 		}
+
+		// Sort passes based on their dependencies
+		m_sortedPasses.reserve(m_passDescriptors.size());
+
+		// Temporary storage for non-sorted passes
+		std::vector<size_t> unsortedPasses(m_passDescriptors.size());
+		std::iota(unsortedPasses.begin(), unsortedPasses.end(), 0);
+		while (!unsortedPasses.empty())
+		{
+			const auto initialNumberOfPasses = unsortedPasses.size(); // Keep this so we can verify that the number of unsorted passes always decreases
+
+			for (size_t i= 0; i< unsortedPasses.size(); ++i)
+			{
+				auto targetPassNdx = unsortedPasses[i];
+
+				// Skip passes with unsatisfied dependencies
+				bool unsatisfiedDependency = false;
+				auto& pass = m_passDescriptors[targetPassNdx];
+
+				for (auto dependency : pass.m_inputs)
+				{
+					bool satisfied = false;
+					for (auto prevPassNdx : m_sortedPasses)
+					{
+						auto& prevPass = m_passDescriptors[prevPassNdx];
+						if (std::find(prevPass.m_outputs.begin(), prevPass.m_outputs.end(), dependency) != prevPass.m_outputs.end())
+						{
+							satisfied = true;
+							break;
+						}
+					}
+					// A single unsatisfied dependency is enough to push the pass to later evaluation
+					if (!satisfied)
+					{
+						unsatisfiedDependency = true;
+						break;
+					}
+				}
+				if (unsatisfiedDependency)
+					continue;
+
+				// Skip passes that would overwrite a target that will still be needed by a non sorted pass
+				bool prematureWrite = false;
+				for (auto output : pass.m_outputs)
+				{
+					auto& outputBufferState = m_buffersState[output];
+					auto outputBuffer = outputBufferState.first;
+					auto outputWriteCounter = outputBufferState.second;
+
+					for (auto laterPassNdx : unsortedPasses)
+					{
+						if (laterPassNdx == targetPassNdx)
+							continue; // Do not test against self
+
+						auto& laterPass = m_passDescriptors[laterPassNdx];
+						for (auto laterInput : laterPass.m_inputs)
+						{
+							auto& laterPassDependency = m_buffersState[laterInput];
+							if (laterPassDependency.first == outputBuffer && laterPassDependency.second < outputWriteCounter)
+							{
+								prematureWrite = true;
+								break;
+							}
+						}
+						if (prematureWrite == true)
+							break;
+					}
+					if (prematureWrite)
+						break;
+				}
+				if (prematureWrite)
+					continue;
+
+				// Pass sorted
+				m_sortedPasses.push_back(targetPassNdx);
+
+				// In place removal from unsorted passes
+				unsortedPasses[i] = unsortedPasses.back();
+				unsortedPasses.resize(unsortedPasses.size() - 1);
+				--i;
+			}
+
+			const auto finalNumberOfPasses = unsortedPasses.size(); // Keep this so we can verify that the number of unsorted passes always decreases
+			assert(finalNumberOfPasses < initialNumberOfPasses);
+		}
+
+		// Allocate required buffers
+		// Resolve input textures
 	}
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::evaluate(CommandBuffer& dst)
 	{
 		// For each pass in compiled passes
-		// Bind targets
-		// Expose read buffers as an input structure to the pass evaluator
-		// Call the evaluator
+		for (auto passNdx : m_sortedPasses)
+		{
+			auto& pass = m_passDescriptors[passNdx];
+			// Bind target frame buffer
+			dst.bindFrameBuffer(pass.m_targetFrameBuffer);
+			// Call the evaluator
+			pass.evaluator(pass.m_boundInputs, pass.m_inputs.size(), dst);
+		}
 	}
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::clearResources()
 	{
+		m_buffers.clear();
 	}
 
 	//--------------------------------------------------------------------------

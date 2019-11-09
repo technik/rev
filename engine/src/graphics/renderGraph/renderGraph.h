@@ -72,6 +72,8 @@ namespace rev::gfx {
 			virtual BufferResource write(BufferResource) = 0;
 			virtual void read(BufferResource, int bindingPos) = 0;
 			virtual void modify(BufferResource) = 0;
+
+			static constexpr size_t cMaxInputs = 4;
 		};
 
 		using PassDefinition = std::function<void(IPassBuilder&)>;
@@ -95,18 +97,12 @@ namespace rev::gfx {
 	private:
 		Device& m_gfxDevice;
 
-		struct RenderPassDescriptor
-		{
-			PassDefinition definition;
-			PassEvaluator evaluator;
-			math::Vec2u targetSize; // Size of all attachments written to during the pass
-			HWAntiAlias antiAliasing;
-		};
-
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(std::vector<std::pair<size_t, int>>& bufferState) : m_buffersState(bufferState) {}
+			PassBuilder(std::vector<std::pair<size_t, int>>& bufferState)
+				: m_buffersState(bufferState)
+			{}
 
 			BufferResource write(FrameBuffer) override; // Import external frame buffer into the graph
 			BufferResource write(DepthFormat) override;
@@ -115,23 +111,38 @@ namespace rev::gfx {
 			void read(BufferResource, int bindingPos) override;
 			void modify(BufferResource) override;
 
+			// Reference to the rendergraph´s buffer state
 			std::vector<std::pair<size_t, int>>& m_buffersState;
-			math::Vec2u targetSize; // Size of all attachments written to during the pass
+
+			// Dependencies
+			std::vector<size_t> m_inputs; // Indices into m_bufferState
+			std::vector<size_t> m_outputs; // Indices into m_bufferState
+
+			// Compiled state
+			math::Vec2u targetSize; // Texture size of all attachments written to during the pass
+			PassDefinition definition;
+			PassEvaluator evaluator;
+			HWAntiAlias antiAliasing;
+
+			Texture2d m_boundInputs[cMaxInputs];
+			FrameBuffer m_targetFrameBuffer;
 		};
 
 		// Passes
-		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks
-		// Buffer resource indices returned to the user are actually indices into this vector.
+		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks)
+		// Buffer resource handles returned to the user are actually indices into this vector.
 		// Each entry contains an index into the buffer attachments array, and a counter that represents the number of write
 		// subpasses that buffer has gone through until this point
 		std::vector<std::pair<size_t, int>> m_buffersState;
-		std::vector<RenderPassDescriptor> m_passDescriptors;
+		std::vector<PassBuilder> m_passDescriptors;
 
 		// Resources
 		std::vector<FrameBuffer> m_buffers;
 		std::vector<Texture2d> m_textures;
 		std::vector<FrameBuffer::Attachment> m_bufferAttachments;
 		std::vector<FrameBuffer::Descriptor> m_bufferDescriptors;
+
+		std::vector<size_t> m_sortedPasses;
 	};
 
 }
