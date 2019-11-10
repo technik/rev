@@ -152,10 +152,43 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------
-	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target, BufferFormat targetFormat)
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target)
 	{
-		//
-		return BufferResource(-1);
+		assert(target.isValid());
+
+		// Register target into a virtual frame buffer
+		auto stateNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.externalFramebuffer = target;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+
+		// Taking a valid resource as an argument means some other pass already wrote to this target.
+		// The new state just needs to reflect that by increasing the write counter
+		auto resultingState = m_bufferLifetime[stateNdx];
+		assert(resultingState.writeCounter > 0);
+		resultingState.writeCounter++;
+
+		return registerOutput(resultingState);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(BufferFormat targetFormat)
+	{
+		// Register a new virtual frame buffer with the requested format
+		auto stateNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.bufferDescriptor.format = targetFormat;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+
+		// Taking a valid resource as an argument means some other pass already wrote to this target.
+		// The new state just needs to reflect that by increasing the write counter
+		auto resultingState = m_bufferLifetime[stateNdx];
+		assert(resultingState.writeCounter > 0);
+		resultingState.writeCounter++;
+
+		return registerOutput(resultingState);
 	}
 
 	//--------------------------------------------------------------------------
@@ -169,9 +202,8 @@ namespace rev::gfx {
 		auto resultingState = m_bufferLifetime[stateNdx];
 		assert(resultingState.writeCounter > 0);
 		resultingState.writeCounter++;
-		m_bufferLifetime.push_back(resultingState);
 
-		return BufferResource(m_bufferLifetime.size() - 1);
+		return registerOutput(resultingState);
 	}
 
 	//--------------------------------------------------------------------------
@@ -182,5 +214,15 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------
 	void RenderGraph::PassBuilder::modify(RenderGraph::BufferResource target)
 	{
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::registerOutput(PassState newOutputState)
+	{
+		auto newOutputStateNdx = m_bufferLifetime.size();
+		m_bufferLifetime.push_back(newOutputState);
+
+		m_outputs.push_back(newOutputStateNdx);
+		return newOutputStateNdx;
 	}
 }

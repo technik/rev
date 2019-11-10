@@ -47,7 +47,7 @@ namespace rev::gfx {
 		struct IPassBuilder
 		{
 			virtual ~IPassBuilder() {}
-			virtual BufferResource write(FrameBuffer externalTarget, BufferFormat format) = 0; // Import external frame buffer into the graph
+			virtual BufferResource write(FrameBuffer externalTarget) = 0; // Import external frame buffer into the graph
 			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
 			virtual BufferResource write(BufferFormat) = 0;
 			virtual BufferResource write(BufferResource) = 0;
@@ -87,14 +87,22 @@ namespace rev::gfx {
 			unsigned writeCounter; // Increased everytime a pass writes to this buffer
 		};
 
+		struct VirtualResource
+		{
+			FrameBuffer externalFramebuffer; // Optional imported frame buffer
+			Texture2d externalTexture; // Optional imported texture
+			BufferDesc bufferDescriptor; // Descriptor for non-imported targets
+		};
+
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(std::vector<PassState>& bufferLifetime)
+			PassBuilder(std::vector<PassState>& bufferLifetime, std::vector<VirtualResource>& virtualResources)
 				: m_bufferLifetime(bufferLifetime)
+				, m_virtualResources(virtualResources)
 			{}
 
-			BufferResource write(FrameBuffer externalTarget, BufferFormat format) override; // Import external frame buffer into the graph
+			BufferResource write(FrameBuffer externalTarget) override; // Import external frame buffer into the graph
 			BufferResource write(BufferFormat) override;
 			BufferResource write(BufferResource) override;
 			void read(BufferResource, int bindingPos) override;
@@ -102,6 +110,7 @@ namespace rev::gfx {
 
 			// References to the rendergraph´s buffer state
 			std::vector<PassState>& m_bufferLifetime;
+			std::vector<VirtualResource>& m_virtualResources;
 
 			// Dependencies
 			std::vector<size_t> m_inputs; // Indices into m_bufferLifetime
@@ -112,13 +121,9 @@ namespace rev::gfx {
 			HWAntiAlias antiAliasing;
 			PassDefinition definition;
 			PassEvaluator evaluator;
-		};
 
-		struct VirtualResource
-		{
-			FrameBuffer framebuffer;
-			FrameBuffer::Attachment attachment;
-			Texture2d texture;
+		private:
+			BufferResource registerOutput(PassState);
 		};
 
 		// Passes
@@ -132,6 +137,10 @@ namespace rev::gfx {
 		// Internal state
 		// Indices into m_passDescriptors, sorted such that dependencies are satisfied.
 		std::vector<size_t> m_sortedPasses;
+
+		// Resources
+		std::vector<VirtualResource> m_virtualResources;
 	};
 
 }
+ 
