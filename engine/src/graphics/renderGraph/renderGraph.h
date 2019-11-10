@@ -52,7 +52,6 @@ namespace rev::gfx {
 			virtual BufferResource write(BufferFormat) = 0;
 			virtual BufferResource write(BufferResource) = 0;
 			virtual void read(BufferResource, int bindingPos) = 0;
-			virtual void modify(BufferResource) = 0;
 
 			static constexpr size_t cMaxInputs = 4;
 		};
@@ -106,7 +105,6 @@ namespace rev::gfx {
 			BufferResource write(BufferFormat) override;
 			BufferResource write(BufferResource) override;
 			void read(BufferResource, int bindingPos) override;
-			void modify(BufferResource) override;
 
 			// References to the rendergraph´s buffer state
 			std::vector<PassState>& m_bufferLifetime;

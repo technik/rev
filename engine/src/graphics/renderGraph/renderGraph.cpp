@@ -46,7 +46,7 @@ namespace rev::gfx {
 		HWAntiAlias targetAntiAliasing)
 	{
 		// Add a new pass
-		m_passDescriptors.emplace_back(m_bufferLifetime);
+		m_passDescriptors.emplace_back(m_bufferLifetime, m_virtualResources);
 		auto& newPass = m_passDescriptors.back();
 		newPass.targetSize = size;
 		newPass.definition = passDefinition;
@@ -209,11 +209,8 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------
 	void RenderGraph::PassBuilder::read(RenderGraph::BufferResource target, int bindingPos)
 	{
-	}
-
-	//--------------------------------------------------------------------------
-	void RenderGraph::PassBuilder::modify(RenderGraph::BufferResource target)
-	{
+		assert(target.isValid());
+		m_inputs.push_back(target.id());
 	}
 
 	//--------------------------------------------------------------------------
@@ -223,6 +220,6 @@ namespace rev::gfx {
 		m_bufferLifetime.push_back(newOutputState);
 
 		m_outputs.push_back(newOutputStateNdx);
-		return newOutputStateNdx;
+		return BufferResource((int)newOutputStateNdx);
 	}
 }
