@@ -140,48 +140,38 @@ namespace rev::gfx {
 		{
 			auto& pass = m_passDescriptors[passNdx];
 			// Bind target frame buffer
-			dst.bindFrameBuffer(pass.m_targetFrameBuffer);
+			//dst.bindFrameBuffer(pass.m_targetFrameBuffer);
 			// Call the evaluator
-			pass.evaluator(pass.m_boundInputs, pass.m_inputs.size(), dst);
+			//pass.evaluator(pass.m_boundInputs, pass.m_inputs.size(), dst);
 		}
 	}
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::clearResources()
 	{
-		m_physicalBuffers.clear();
 	}
 
 	//--------------------------------------------------------------------------
 	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target, BufferFormat targetFormat)
 	{
-		VirtualBuffer virtualTarget;
-		virtualTarget.size = targetSize;
-		virtualTarget.format = targetFormat;
-		auto prevEntry = std::find(m_buffers.begin(), m_buffers.end(), target);
-		if (prevEntry == m_buffers.end())
-		{
-			virtualTarget.physicslBuffer = m_buffers.size();
-			m_buffers.push_back(target);
-		}
-		else
-		{
-			virtualTarget.physicslBuffer = prevEntry - m_buffers.begin();
-		}
-
-		// TODO: Store virtual buffer
-		// TODO: Create a buffer state with the first write of the new virtual buffer
-		// TODO: Register this into the outputs of this pass
-
-		return BufferResource(m_buffersState.size() - 1);
+		//
+		return BufferResource(-1);
 	}
 
 	//--------------------------------------------------------------------------
 	RenderGraph::BufferResource RenderGraph::PassBuilder::write(RenderGraph::BufferResource target)
 	{
-		// TODO: Everything but the return value
+		assert(target.isValid());
+		size_t stateNdx = target.id();
 
-		return BufferResource(m_buffersState.size() - 1);
+		// Taking a valid resource as an argument means some other pass already wrote to this target.
+		// The new state just needs to reflect that by increasing the write counter
+		auto resultingState = m_bufferLifetime[stateNdx];
+		assert(resultingState.writeCounter > 0);
+		resultingState.writeCounter++;
+		m_bufferLifetime.push_back(resultingState);
+
+		return BufferResource(m_bufferLifetime.size() - 1);
 	}
 
 	//--------------------------------------------------------------------------

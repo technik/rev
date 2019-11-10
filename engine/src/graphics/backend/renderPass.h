@@ -20,7 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
-#include "frameBuffer.h"
+#include <graphics/backend/gpuTypes.h>
 #include "namedResource.h"
 
 namespace rev :: gfx

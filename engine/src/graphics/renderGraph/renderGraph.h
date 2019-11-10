@@ -81,10 +81,16 @@ namespace rev::gfx {
 	private:
 		Device& m_gfxDevice;
 
+		struct PassState
+		{
+			size_t virtualBufferNdx;
+			unsigned writeCounter; // Increased everytime a pass writes to this buffer
+		};
+
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(std::vector<std::pair<size_t, int>>& bufferLifetime)
+			PassBuilder(std::vector<PassState>& bufferLifetime)
 				: m_bufferLifetime(bufferLifetime)
 			{}
 
@@ -95,7 +101,7 @@ namespace rev::gfx {
 			void modify(BufferResource) override;
 
 			// References to the rendergraph´s buffer state
-			std::vector<std::pair<size_t, int>>& m_bufferLifetime;
+			std::vector<PassState>& m_bufferLifetime;
 
 			// Dependencies
 			std::vector<size_t> m_inputs; // Indices into m_bufferLifetime
@@ -108,10 +114,11 @@ namespace rev::gfx {
 			PassEvaluator evaluator;
 		};
 
-		struct PassState
+		struct VirtualResource
 		{
-			size_t virtualBufferNdx;
-			int writeCounter; // Increased everytime a pass writes to this buffer
+			FrameBuffer framebuffer;
+			FrameBuffer::Attachment attachment;
+			Texture2d texture;
 		};
 
 		// Passes

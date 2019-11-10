@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "frameBuffer.h"
+#include <graphics/backend/gpuTypes.h>
 #include "renderQueue.h"
 #include "namedResource.h"
 #include "texture2d.h"
