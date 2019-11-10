@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2019 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,12 +20,14 @@
 #pragma once
 
 #include "../backend/namedResource.h"
-#include <functional>
+#include "types.h"
+
 #include <graphics/backend/frameBuffer.h>
 #include <graphics/backend/texture2d.h>
-#include <map>
 #include <math/algebra/vector.h>
-#include <optional>
+
+#include <functional>
+#include <map>
 
 namespace rev::gfx {
 
@@ -36,26 +38,9 @@ namespace rev::gfx {
 	{
 	public:
 
-		enum class BufferFormat
-		{
-			RGBA8,
-			sRGBA8,
-			RGBA32,
-			depth24,
-			depth32
-		};
-
 		struct BufferResource : NamedResource {
 			BufferResource() = default;
 			BufferResource(int id) : NamedResource(id) {}
-		};
-
-		enum class HWAntiAlias
-		{
-			none,
-			msaa2x,
-			msaa4x,
-			msaa8x
 		};
 
 		// Pass building interface
@@ -135,13 +120,6 @@ namespace rev::gfx {
 		// subpasses that buffer has gone through until this point
 		std::vector<std::pair<size_t, int>> m_buffersState;
 		std::vector<PassBuilder> m_passDescriptors;
-
-		struct VirtualBuffer
-		{
-			BufferFormat format;
-			math::Vec2u size; // Texture size of all attachments written to during the pass
-			std::optional<size_t> physicslBuffer;
-		};
 
 		// Resources
 		std::vector<FrameBuffer> m_physicalBuffers;

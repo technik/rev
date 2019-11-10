@@ -46,7 +46,7 @@ namespace rev::gfx {
 		HWAntiAlias targetAntiAliasing)
 	{
 		// Add a new pass
-		m_passDescriptors.emplace_back(m_buffersState);
+		m_passDescriptors.emplace_back(m_buffersState, m_physicalBuffers);
 		auto& newPass = m_passDescriptors.back();
 		newPass.targetSize = size;
 		newPass.definition = passDefinition;
@@ -62,7 +62,7 @@ namespace rev::gfx {
 		// For each pass stored
 		for (const auto& desc : m_passDescriptors)
 		{
-			PassBuilder builder { m_buffersState };
+			PassBuilder builder { m_buffersState, m_physicalBuffers };
 			builder.targetSize = desc.targetSize;
 			desc.definition(builder);
 		}
@@ -177,7 +177,7 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------
-	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target, RenderGraph::BufferFormat targetFormat)
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target, BufferFormat targetFormat)
 	{
 		VirtualBuffer virtualTarget;
 		virtualTarget.size = targetSize;
