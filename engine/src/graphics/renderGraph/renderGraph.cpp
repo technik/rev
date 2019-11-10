@@ -34,7 +34,7 @@ namespace rev::gfx {
 	void RenderGraph::reset()
 	{
 		m_passDescriptors.clear();
-		m_buffersState.clear();
+		m_bufferLifetime.clear();
 		m_sortedPasses.clear();
 	}
 
@@ -46,7 +46,7 @@ namespace rev::gfx {
 		HWAntiAlias targetAntiAliasing)
 	{
 		// Add a new pass
-		m_passDescriptors.emplace_back(m_buffersState, m_physicalBuffers);
+		m_passDescriptors.emplace_back(m_bufferLifetime);
 		auto& newPass = m_passDescriptors.back();
 		newPass.targetSize = size;
 		newPass.definition = passDefinition;
@@ -57,103 +57,79 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------
 	void RenderGraph::build()
 	{
-		assert(m_buffersState.empty());
+		assert(m_bufferLifetime.empty());
 
-		// For each pass stored
-		for (const auto& desc : m_passDescriptors)
+		// For each pass stored, define graph dependencies by running the pass definition delegate
+		for (auto& desc : m_passDescriptors)
 		{
-			PassBuilder builder { m_buffersState, m_physicalBuffers };
-			builder.targetSize = desc.targetSize;
-			desc.definition(builder);
+			desc.definition(desc);
 		}
 
 		// Sort passes based on their dependencies
+		sortPasses();
+
+		// Associate passes with resources
+		// Resolve input textures?
+	}
+
+	//--------------------------------------------------------------------------
+	// Sort passes based on their dependencies
+	void RenderGraph::sortPasses()
+	{
 		m_sortedPasses.reserve(m_passDescriptors.size());
-
-		// Temporary storage for non-sorted passes
-		std::vector<size_t> unsortedPasses(m_passDescriptors.size());
-		std::iota(unsortedPasses.begin(), unsortedPasses.end(), 0);
-		while (!unsortedPasses.empty())
+		std::iota(m_sortedPasses.begin(), m_sortedPasses.end(), 0);
+		// In place sort
+		for (size_t i = 0; i < m_sortedPasses.size(); ++i)
 		{
-			const auto initialNumberOfPasses = unsortedPasses.size(); // Keep this so we can verify that the number of unsorted passes always decreases
+			auto currentPassNdx = m_sortedPasses[i];
+			const auto& currentPass = m_passDescriptors[currentPassNdx];
 
-			for (size_t i= 0; i< unsortedPasses.size(); ++i)
+			for (size_t j = i + 1; j < m_sortedPasses.size(); ++i)
 			{
-				auto targetPassNdx = unsortedPasses[i];
-
-				// Skip passes with unsatisfied dependencies
 				bool unsatisfiedDependency = false;
-				auto& pass = m_passDescriptors[targetPassNdx];
 
-				for (auto dependency : pass.m_inputs)
+				const auto& laterPass = m_passDescriptors[j];
+				// Check no later pass writes to my input dependencies
+				for (auto input : currentPass.m_inputs)
 				{
-					bool satisfied = false;
-					for (auto prevPassNdx : m_sortedPasses)
-					{
-						auto& prevPass = m_passDescriptors[prevPassNdx];
-						if (std::find(prevPass.m_outputs.begin(), prevPass.m_outputs.end(), dependency) != prevPass.m_outputs.end())
-						{
-							satisfied = true;
-							break;
-						}
-					}
-					// A single unsatisfied dependency is enough to push the pass to later evaluation
-					if (!satisfied)
+					if (std::find(laterPass.m_outputs.begin(), laterPass.m_outputs.end(), input) != laterPass.m_outputs.end())
 					{
 						unsatisfiedDependency = true;
 						break;
 					}
 				}
-				if (unsatisfiedDependency)
-					continue;
 
-				// Skip passes that would overwrite a target that will still be needed by a non sorted pass
-				bool prematureWrite = false;
-				for (auto output : pass.m_outputs)
+				// Check this pass doesn't overwrite other pass's inputs before that pass can read it
+				for (auto output : currentPass.m_outputs)
 				{
-					auto& outputBufferState = m_buffersState[output];
-					auto outputBuffer = outputBufferState.first;
-					auto outputWriteCounter = outputBufferState.second;
+					const PassState& bufferAfterWrite = m_bufferLifetime[output];
 
-					for (auto laterPassNdx : unsortedPasses)
+					for (auto laterInput : laterPass.m_inputs)
 					{
-						if (laterPassNdx == targetPassNdx)
-							continue; // Do not test against self
-
-						auto& laterPass = m_passDescriptors[laterPassNdx];
-						for (auto laterInput : laterPass.m_inputs)
+						const auto& laterDependency = m_bufferLifetime[laterInput];
+						if (laterDependency.virtualBufferNdx == bufferAfterWrite.virtualBufferNdx
+							&& bufferAfterWrite.writeCounter > laterDependency.writeCounter) // This write can't happen yet
 						{
-							auto& laterPassDependency = m_buffersState[laterInput];
-							if (laterPassDependency.first == outputBuffer && laterPassDependency.second < outputWriteCounter)
-							{
-								prematureWrite = true;
-								break;
-							}
-						}
-						if (prematureWrite == true)
+							unsatisfiedDependency = true;
 							break;
+						}
 					}
-					if (prematureWrite)
+
+					if (unsatisfiedDependency)
+					{
 						break;
+					}
 				}
-				if (prematureWrite)
-					continue;
 
-				// Pass sorted
-				m_sortedPasses.push_back(targetPassNdx);
-
-				// In place removal from unsorted passes
-				unsortedPasses[i] = unsortedPasses.back();
-				unsortedPasses.resize(unsortedPasses.size() - 1);
-				--i;
+				// Reorder passes with unsatisfied dependencies
+				if (unsatisfiedDependency)
+				{
+					std::swap(m_sortedPasses[i], m_sortedPasses[j]);
+					--i; // Retry with the new order
+					break;
+				}
 			}
-
-			const auto finalNumberOfPasses = unsortedPasses.size(); // Keep this so we can verify that the number of unsorted passes always decreases
-			assert(finalNumberOfPasses < initialNumberOfPasses);
 		}
-
-		// Allocate required buffers
-		// Resolve input textures
 	}
 
 	//--------------------------------------------------------------------------

@@ -19,8 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+// rev::math
 #include <math/algebra/vector.h>
 
+// Std library
 #include <optional>
 
 namespace rev::gfx {
@@ -42,11 +44,11 @@ namespace rev::gfx {
 		msaa8x
 	};
 
-	struct VirtualBuffer
+	struct BufferDesc
 	{
+		math::Vec2u size;
 		BufferFormat format;
-		math::Vec2u size; // Texture size of all attachments written to during the pass
-		std::optional<size_t> physicslBuffer;
+		HWAntiAlias antiAlias;
 	};
 
 }

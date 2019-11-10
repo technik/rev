@@ -22,7 +22,7 @@
 #include "../backend/namedResource.h"
 #include "types.h"
 
-#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/texture2d.h>
 #include <math/algebra/vector.h>
 
@@ -76,17 +76,16 @@ namespace rev::gfx {
 		void clearResources();
 
 	private:
+		void sortPasses(); // Sort passes based on their dependencies
+
+	private:
 		Device& m_gfxDevice;
 
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(
-				std::vector<std::pair<size_t, int>>& bufferState,
-				std::vector<FrameBuffer>& buffers
-			)
-				: m_buffersState(bufferState)
-				, m_buffers(buffers)
+			PassBuilder(std::vector<std::pair<size_t, int>>& bufferLifetime)
+				: m_bufferLifetime(bufferLifetime)
 			{}
 
 			BufferResource write(FrameBuffer externalTarget, BufferFormat format) override; // Import external frame buffer into the graph
@@ -96,37 +95,35 @@ namespace rev::gfx {
 			void modify(BufferResource) override;
 
 			// References to the rendergraph´s buffer state
-			std::vector<std::pair<size_t, int>>& m_buffersState;
-			std::vector<FrameBuffer>& m_buffers;
+			std::vector<std::pair<size_t, int>>& m_bufferLifetime;
 
 			// Dependencies
-			std::vector<size_t> m_inputs; // Indices into m_bufferState
-			std::vector<size_t> m_outputs; // Indices into m_bufferState
+			std::vector<size_t> m_inputs; // Indices into m_bufferLifetime
+			std::vector<size_t> m_outputs; // Indices into m_bufferLifetime
 
-			// Compiled state
+			// Pass description
 			math::Vec2u targetSize; // Texture size of all attachments written to during the pass
+			HWAntiAlias antiAliasing;
 			PassDefinition definition;
 			PassEvaluator evaluator;
-			HWAntiAlias antiAliasing;
+		};
 
-			Texture2d m_boundInputs[cMaxInputs];
-			FrameBuffer m_targetFrameBuffer;
+		struct PassState
+		{
+			size_t virtualBufferNdx;
+			int writeCounter; // Increased everytime a pass writes to this buffer
 		};
 
 		// Passes
+		std::vector<PassBuilder> m_passDescriptors;
 		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks)
 		// Buffer resource handles returned to the user are actually indices into this vector.
 		// Each entry contains an index into the virtual buffers array, and a counter that represents the number of write
-		// subpasses that buffer has gone through until this point
-		std::vector<std::pair<size_t, int>> m_buffersState;
-		std::vector<PassBuilder> m_passDescriptors;
+		// subpasses that buffer has gone through until this point.
+		std::vector<PassState> m_bufferLifetime;
 
-		// Resources
-		std::vector<FrameBuffer> m_physicalBuffers;
-		std::vector<Texture2d> m_textures;
-		std::vector<FrameBuffer::Attachment> m_bufferAttachments;
-		std::vector<FrameBuffer::Descriptor> m_bufferDescriptors;
-
+		// Internal state
+		// Indices into m_passDescriptors, sorted such that dependencies are satisfied.
 		std::vector<size_t> m_sortedPasses;
 	};
 
