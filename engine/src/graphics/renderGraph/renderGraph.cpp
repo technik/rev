@@ -76,7 +76,7 @@ namespace rev::gfx {
 	// Sort passes based on their dependencies
 	void RenderGraph::sortPasses()
 	{
-		m_sortedPasses.reserve(m_passDescriptors.size());
+		m_sortedPasses.resize(m_passDescriptors.size());
 		std::iota(m_sortedPasses.begin(), m_sortedPasses.end(), 0);
 		// In place sort
 		for (size_t i = 0; i < m_sortedPasses.size(); ++i)
@@ -84,7 +84,7 @@ namespace rev::gfx {
 			auto currentPassNdx = m_sortedPasses[i];
 			const auto& currentPass = m_passDescriptors[currentPassNdx];
 
-			for (size_t j = i + 1; j < m_sortedPasses.size(); ++i)
+			for (size_t j = i + 1; j < m_sortedPasses.size(); ++j)
 			{
 				bool unsatisfiedDependency = false;
 
@@ -157,38 +157,36 @@ namespace rev::gfx {
 		assert(target.isValid());
 
 		// Register target into a virtual frame buffer
-		auto stateNdx = m_virtualResources.size();
+		auto bufferNdx = m_virtualResources.size();
 		VirtualResource virtualTarget;
 		virtualTarget.externalFramebuffer = target;
 		virtualTarget.bufferDescriptor.size = targetSize;
 		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
 
-		// Taking a valid resource as an argument means some other pass already wrote to this target.
-		// The new state just needs to reflect that by increasing the write counter
-		auto resultingState = m_bufferLifetime[stateNdx];
-		assert(resultingState.writeCounter > 0);
-		resultingState.writeCounter++;
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
 
-		return registerOutput(resultingState);
+		return registerOutput(outputAfterWrite);
 	}
 
 	//--------------------------------------------------------------------------
 	RenderGraph::BufferResource RenderGraph::PassBuilder::write(BufferFormat targetFormat)
 	{
 		// Register a new virtual frame buffer with the requested format
-		auto stateNdx = m_virtualResources.size();
+		auto bufferNdx = m_virtualResources.size();
 		VirtualResource virtualTarget;
 		virtualTarget.bufferDescriptor.format = targetFormat;
 		virtualTarget.bufferDescriptor.size = targetSize;
 		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
 
-		// Taking a valid resource as an argument means some other pass already wrote to this target.
-		// The new state just needs to reflect that by increasing the write counter
-		auto resultingState = m_bufferLifetime[stateNdx];
-		assert(resultingState.writeCounter > 0);
-		resultingState.writeCounter++;
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
 
-		return registerOutput(resultingState);
+		return registerOutput(outputAfterWrite);
 	}
 
 	//--------------------------------------------------------------------------

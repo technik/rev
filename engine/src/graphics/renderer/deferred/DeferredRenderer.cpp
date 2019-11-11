@@ -97,17 +97,17 @@ namespace rev::gfx {
 	{
 		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
 		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
-		m_frameGraph.reset();
+		RenderGraph frameGraph(*m_device);
 
 		// G-Buffer pass
 		RenderGraph::BufferResource depth, normals, pbr; // G-Pass outputs
-		m_frameGraph.addPass(
+		frameGraph.addPass(
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			depth = pass.write(RenderGraph::BufferFormat::depth32);
-			normals = pass.write(RenderGraph::BufferFormat::RGBA8);
-			pbr = pass.write(RenderGraph::BufferFormat::sRGBA8);
+			depth = pass.write(BufferFormat::depth32);
+			normals = pass.write(BufferFormat::RGBA8);
+			pbr = pass.write(BufferFormat::sRGBA8);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
@@ -117,11 +117,11 @@ namespace rev::gfx {
 
 		// Environment light pass
 		RenderGraph::BufferResource hdr;
-		m_frameGraph.addPass(
+		frameGraph.addPass(
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			hdr = pass.write(RenderGraph::BufferFormat::RGBA32);
+			hdr = pass.write(BufferFormat::RGBA32);
 			pass.read(depth, 0);
 			pass.read(normals, 1);
 			pass.read(pbr, 2);
@@ -135,10 +135,10 @@ namespace rev::gfx {
 			});
 
 		// Final pass, tonemapping to LDR into the final frame buffer
-		m_frameGraph.addPass(
+		frameGraph.addPass(
 			m_viewportSize,
 			// Pass definition
-			[hdr, this](RenderGraph::IPassBuilder& pass)
+			[&hdr, this](RenderGraph::IPassBuilder& pass)
 			{
 				pass.read(hdr, 0);
 				pass.write(m_targetFb);
@@ -149,7 +149,7 @@ namespace rev::gfx {
 				// TODO: Actual full screen pass
 			});
 
-		m_frameGraph.build();
+		frameGraph.build();
 		/*
 		Proof of concept code for a renderGraph being used to make a deferred render
 

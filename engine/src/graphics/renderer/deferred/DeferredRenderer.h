@@ -64,8 +64,6 @@ namespace rev::gfx {
 		Device*		m_device = nullptr;
 
 		// Render state
-		RenderGraph m_frameGraph;
-
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
