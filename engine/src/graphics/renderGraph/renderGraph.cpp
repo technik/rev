@@ -17,6 +17,7 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "frameBufferCache.h"
 #include "renderGraph.h"
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
@@ -55,7 +56,7 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------
-	void RenderGraph::build()
+	void RenderGraph::build(FrameBufferCache& bufferCache)
 	{
 		assert(m_bufferLifetime.empty());
 
@@ -69,6 +70,49 @@ namespace rev::gfx {
 		sortPasses();
 
 		// Associate passes with resources
+		for (auto passNdx : m_sortedPasses)
+		{
+			FrameBuffer passFramebuffer;
+			auto& pass = m_passDescriptors[passNdx];
+			// Gather all virtual resources associated
+			Texture2d targetTextures[cMaxOutputs];
+			int i = 0;
+			for (auto outputStateNdx : pass.m_outputs)
+			{
+				auto targetResourceNdx = m_bufferLifetime[outputStateNdx].virtualBufferNdx;
+				auto& virtualBuffer = m_virtualResources[targetResourceNdx];
+				if (virtualBuffer.externalFramebuffer.isValid())
+				{
+					passFramebuffer = virtualBuffer.externalFramebuffer;
+					break;
+				}
+
+				if (virtualBuffer.externalTexture.isValid())
+				{
+					targetTextures[i++] = virtualBuffer.externalTexture;
+				}
+				else
+				{
+					targetTextures[i++] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+				}
+				m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
+			}
+
+			// Agregate target textures into a framebuffer descriptor
+			FrameBuffer::Attachment attachments[cMaxOutputs];
+			for (int j = 0; j < i; ++j)
+			{
+				attachments[j].mipLevel = 0;
+				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
+				auto bufferFormat = m_virtualResources[pass.m_outputs[j]].bufferDescriptor.format;
+				attachments[j].target = (bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32) ?
+					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
+				attachments[j].texture = targetTextures[j];
+			}
+			FrameBuffer::Descriptor descriptor;
+			descriptor.numAttachments = i;
+			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
+		}
 		// Resolve input textures?
 	}
 

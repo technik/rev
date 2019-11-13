@@ -33,6 +33,7 @@ namespace rev::gfx {
 
 	class CommandBuffer;
 	class Device;
+	class FrameBufferCache;
 
 	class RenderGraph
 	{
@@ -66,7 +67,7 @@ namespace rev::gfx {
 		// Graph lifetime
 		void reset(); // Does not clear allocated GPU resources.
 		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
-		void build();
+		void build(FrameBufferCache&);
 
 		// Record graph execution into a command buffer for deferred submision
 		void evaluate(CommandBuffer& dst);
@@ -124,6 +125,8 @@ namespace rev::gfx {
 			BufferResource registerOutput(PassState);
 		};
 
+		static constexpr size_t cMaxOutputs = 8; // Max number of outputs in a single pass. Including a possible depth buffer.
+
 		// Passes
 		std::vector<PassBuilder> m_passDescriptors;
 		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks)
@@ -138,13 +141,8 @@ namespace rev::gfx {
 
 		// Resources
 		std::vector<VirtualResource> m_virtualResources;
-		std::vector<FrameBuffer> m_frameBuffers;
-		std::vector<FrameBuffer::Attachment> m_fbAttachments;
-		std::map<size_t, size_t> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
-		// Mapping from a set of framebuffer attachment indices to frame buffer indices.
-		// The keys are actually a composition of 8-bit indices following the pattern (clr6,clr5,clr4,clr3,clr2,clr1,clr0,depth).
-		// For each individual subkey, 255 means no attachment.
-		std::map<uint64_t, size_t> m_attachmentMap;
+		std::vector<Texture2d> m_bufferTextures;
+		std::map<size_t, Texture2d> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
 	};
 
 }

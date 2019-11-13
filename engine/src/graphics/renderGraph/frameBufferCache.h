@@ -24,16 +24,18 @@
 
 namespace rev::gfx {
 
-	class FrameBufferCache()
+	class FrameBufferCache
 	{
 	public:
 		// May allocate resources in the gpu, or reuse previously allocated buffers that match the
 		// requested format
-		FrameBuffer requestBuffer(BufferDesc requisites);
+		FrameBuffer requestFrameBuffer(FrameBuffer::Descriptor requisites);
+		Texture2d requestTargetTexture(BufferDesc requisites);
 
 		// Leaves the frame buffer free for later requests to use,
 		// but it doesn't free the actual gpu resources
 		void freeBuffer(FrameBuffer);
+		void freeTexture(Texture2d);
 
 		// Deallocates gpu resources
 		void freeResources();
