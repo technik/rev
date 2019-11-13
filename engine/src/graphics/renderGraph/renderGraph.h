@@ -138,6 +138,13 @@ namespace rev::gfx {
 
 		// Resources
 		std::vector<VirtualResource> m_virtualResources;
+		std::vector<FrameBuffer> m_frameBuffers;
+		std::vector<FrameBuffer::Attachment> m_fbAttachments;
+		std::map<size_t, size_t> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
+		// Mapping from a set of framebuffer attachment indices to frame buffer indices.
+		// The keys are actually a composition of 8-bit indices following the pattern (clr6,clr5,clr4,clr3,clr2,clr1,clr0,depth).
+		// For each individual subkey, 255 means no attachment.
+		std::map<uint64_t, size_t> m_attachmentMap;
 	};
 
 }
