@@ -60,8 +60,17 @@ namespace rev::gfx {
 		};
 
 		struct Descriptor {
+			static constexpr size_t cMaxAttachments = 8;
 			size_t numAttachments;
-			Attachment* attachments;
+			Attachment attachments[cMaxAttachments];
+
+			Descriptor() = default;
+			Descriptor(size_t n, Attachment* value)
+				: numAttachments(n)
+			{
+				for (size_t i = 0; i < n; ++i)
+					attachments[i] = value[i];
+			}
 
 			bool operator==(const Descriptor& other) const
 			{

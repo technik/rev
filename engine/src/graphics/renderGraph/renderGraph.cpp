@@ -97,6 +97,8 @@ namespace rev::gfx {
 				}
 				m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
 			}
+			if (passFramebuffer.isValid())
+				continue;
 
 			// Agregate target textures into a framebuffer descriptor
 			FrameBuffer::Attachment attachments[cMaxOutputs];
@@ -109,8 +111,7 @@ namespace rev::gfx {
 					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
 				attachments[j].texture = targetTextures[j];
 			}
-			FrameBuffer::Descriptor descriptor;
-			descriptor.numAttachments = i;
+			FrameBuffer::Descriptor descriptor(i, attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 		}
 

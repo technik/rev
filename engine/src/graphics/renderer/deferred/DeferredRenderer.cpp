@@ -455,9 +455,7 @@ namespace rev::gfx {
 		attachments[2].texture = m_albedoTexture;
 		attachments[3].target = gfx::FrameBuffer::Attachment::Target::Color;
 		attachments[3].texture = m_specularTexture;
-		gfx::FrameBuffer::Descriptor gBufferDesc;
-		gBufferDesc.numAttachments = 4;
-		gBufferDesc.attachments = attachments;
+		gfx::FrameBuffer::Descriptor gBufferDesc(4, attachments);
 		return device.createFrameBuffer(gBufferDesc);
 	}
 

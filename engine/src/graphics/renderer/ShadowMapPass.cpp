@@ -84,9 +84,7 @@ namespace rev::gfx {
 		depthAttachment.target = FrameBuffer::Attachment::Target::Depth;
 		depthAttachment.imageType = FrameBuffer::Attachment::ImageType::Texture;
 		depthAttachment.texture = texture;
-		FrameBuffer::Descriptor shadowBufferDesc;
-		shadowBufferDesc.numAttachments = 1;
-		shadowBufferDesc.attachments = &depthAttachment;
+		FrameBuffer::Descriptor shadowBufferDesc(1, &depthAttachment);
 		return device.createFrameBuffer(shadowBufferDesc);
 	}
 
