@@ -49,6 +49,13 @@ namespace rev::gfx {
 		math::Vec2u size;
 		BufferFormat format;
 		HWAntiAlias antiAlias;
+
+		bool operator==(const BufferDesc& other) const
+		{
+			return size == other.size
+				&& format == other.format
+				&& antiAlias == other.antiAlias;
+		}
 	};
 
 }

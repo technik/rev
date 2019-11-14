@@ -21,12 +21,16 @@
 
 #include <graphics/backend/gpuTypes.h>
 #include <graphics/renderGraph/types.h>
+#include <vector>
 
 namespace rev::gfx {
+
+	class Device;
 
 	class FrameBufferCache
 	{
 	public:
+		FrameBufferCache(Device&);
 		// May allocate resources in the gpu, or reuse previously allocated buffers that match the
 		// requested format
 		FrameBuffer requestFrameBuffer(FrameBuffer::Descriptor requisites);
@@ -36,8 +40,29 @@ namespace rev::gfx {
 		// but it doesn't free the actual gpu resources
 		void freeBuffer(FrameBuffer);
 		void freeTexture(Texture2d);
+		void freeResources(); // Free all locked resrouces at once
 
 		// Deallocates gpu resources
-		void freeResources();
-	}
+		void deallocateResources();
+
+	private:
+		struct TextureResource
+		{
+			BufferDesc desc;
+			Texture2d handle;
+			bool locked;
+		};
+
+		struct FBResource
+		{
+			FrameBuffer::Descriptor desc;
+			FrameBuffer handle;
+			bool locked;
+		};
+
+		Device& m_device;
+		TextureSampler m_bufferSampler;
+		std::vector<TextureResource> m_textures;
+		std::vector<FBResource> m_frameBuffers;
+	};
 }

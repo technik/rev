@@ -20,6 +20,7 @@
 
 #include "DeferredRenderer.h"
 #include <graphics/backend/renderPass.h>
+#include <graphics/renderGraph/frameBufferCache.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
@@ -38,6 +39,7 @@ namespace rev::gfx {
 	{
 		m_targetFb = target;
 		m_device = &device;
+		m_fbCache = std::make_unique<FrameBufferCache>(device);
 		m_viewportSize = size;
 		const unsigned shadowBufferSize = 1024;
 		m_shadowSize = Vec2u(shadowBufferSize, shadowBufferSize);
@@ -149,7 +151,7 @@ namespace rev::gfx {
 				// TODO: Actual full screen pass
 			});
 
-		frameGraph.build();
+		frameGraph.build(*m_fbCache);
 		/*
 		Proof of concept code for a renderGraph being used to make a deferred render
 

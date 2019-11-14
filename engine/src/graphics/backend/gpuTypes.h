@@ -49,11 +49,33 @@ namespace rev::gfx {
 
 			// Info for render buffer attachments
 			// TODO
+
+			bool operator==(const Attachment& other) const
+			{
+				return imageType == other.imageType
+					&& target == other.target
+					&& texture == other.texture
+					&& mipLevel == other.mipLevel;
+			}
 		};
 
 		struct Descriptor {
 			size_t numAttachments;
 			Attachment* attachments;
+
+			bool operator==(const Descriptor& other) const
+			{
+				if (numAttachments != other.numAttachments)
+					return false;
+				for (size_t i = 0; i < numAttachments; ++i)
+				{
+					if (!(attachments[i] == other.attachments[i]))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
 		};
 
 		FrameBuffer(int32_t id) : NamedResource(id) {}

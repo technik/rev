@@ -53,5 +53,10 @@ namespace rev :: gfx
 
 		Texture2d() = default;
 		Texture2d(int32_t id) : NamedResource(id) {}
+
+		bool operator==(const Texture2d& other) const
+		{
+			return m_id == other.m_id;
+		}
 	};
 }

@@ -25,6 +25,7 @@
 #include <graphics/renderer/renderPass/fullScreenPass.h>
 #include <graphics/renderer/ShadowMapPass.h>
 #include <graphics/renderGraph/renderGraph.h>
+#include <graphics/renderGraph/frameBufferCache.h>
 #include <vector>
 
 namespace rev::gfx {
@@ -67,6 +68,7 @@ namespace rev::gfx {
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
+		std::unique_ptr<FrameBufferCache> m_fbCache;
 
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;

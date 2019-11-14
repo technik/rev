@@ -113,7 +113,9 @@ namespace rev::gfx {
 			descriptor.numAttachments = i;
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 		}
+
 		// Resolve input textures?
+		bufferCache.freeResources();
 	}
 
 	//--------------------------------------------------------------------------
