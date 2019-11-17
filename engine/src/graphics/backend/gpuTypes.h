@@ -25,6 +25,14 @@
 
 namespace rev::gfx {
 
+	enum class Clear : size_t
+	{
+		None = 0,
+		Color = 1,
+		Depth = 2,
+		All = (Color | Depth)
+	};
+
 	struct FrameBuffer : NamedResource
 	{
 	public:
@@ -63,6 +71,7 @@ namespace rev::gfx {
 			static constexpr size_t cMaxAttachments = 8;
 			size_t numAttachments;
 			Attachment attachments[cMaxAttachments];
+			bool sRGB = false;
 
 			Descriptor() = default;
 			Descriptor(size_t n, Attachment* value)

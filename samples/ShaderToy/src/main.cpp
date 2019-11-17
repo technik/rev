@@ -5,6 +5,7 @@
 // Little shadertoy implementation
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/backend/renderPass.h>
 #include <graphics/backend/Windows/windowsPlatform.h>
@@ -40,7 +41,7 @@ public:
 		RenderPass::Descriptor fullScreenDesc;
 		float grey = 0.5f;
 		fullScreenDesc.clearColor = { grey,grey,grey, 1.f };
-		fullScreenDesc.clearFlags = RenderPass::Descriptor::Clear::Color;
+		fullScreenDesc.clearFlags = Clear::Color;
 		fullScreenDesc.target = backBuffer();
 		fullScreenDesc.viewportSize = windowSize();
 		m_fullScreenPass = gfxDevice().createRenderPass(fullScreenDesc);

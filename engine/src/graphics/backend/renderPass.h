@@ -33,14 +33,6 @@ namespace rev :: gfx
 
 		struct Descriptor
 		{
-			enum class Clear : size_t
-			{
-				None = 0,
-				Color = 1,
-				Depth = 2,
-				All = (Color|Depth)
-			};
-
 			int numColorAttachs = 1;
 			bool sRGB = false;
 			FrameBuffer target;

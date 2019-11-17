@@ -144,7 +144,6 @@ namespace rev::gfx {
 
 		// Resources
 		std::vector<VirtualResource> m_virtualResources;
-		std::vector<Texture2d> m_bufferTextures;
 		std::map<size_t, Texture2d> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
 	};
 

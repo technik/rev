@@ -60,7 +60,7 @@ namespace rev::gfx {
 	{
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 1;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.clearFlags = Clear::Depth;
 		passDesc.target = m_frameBuffer;
 		passDesc.viewportSize = _size;
 		m_pass = m_device.createRenderPass(passDesc);

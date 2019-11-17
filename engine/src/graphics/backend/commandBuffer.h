@@ -75,6 +75,9 @@ namespace rev :: gfx
 			enum Opcode {
 				BeginPass,
 				BindFrameBuffer,
+				ClearDepth,
+				ClearColor,
+				Clear,
 				SetViewport,
 				SetScissor,
 				SetPipeline,
@@ -103,6 +106,7 @@ namespace rev :: gfx
 			U32
 		};
 
+		// Deprecated?
 		void beginPass(RenderPass& pass)
 		{
 			assert(pass.isValid());
@@ -112,6 +116,23 @@ namespace rev :: gfx
 		{
 			assert(fb.isValid());
 			m_commands.push_back({ Command::BindFrameBuffer, fb.id() });
+		}
+
+		void clearDepth(float d)
+		{
+			m_commands.push_back({ Command::ClearDepth, (int32_t)m_clearDepths.size() });
+			m_clearDepths.push_back(d);
+		}
+
+		void clearColor(const math::Vec4f& color)
+		{
+			m_commands.push_back({ Command::ClearColor, (int32_t)m_clearColors.size() });
+			m_clearColors.push_back(color);
+		}
+
+		void clear(Clear flags)
+		{
+			m_commands.push_back({ Command::Clear, (int32_t)flags });
 		}
 
 		void setViewport(const math::Vec2u& start, const math::Vec2u& size)
@@ -195,9 +216,13 @@ namespace rev :: gfx
 		const DrawPayload& getDraw(size_t i) const { return m_draws[i]; }
 		const WindowRect& getRect(size_t i) const { return m_rect[i]; }
 		const ComputePayload& getCompute(size_t i) const { return m_computes[i]; }
+		float getFloat(size_t i) const { return m_clearDepths[i]; }
+		auto& getColor(size_t i) const { return m_clearColors[i]; }
 
 	private:
 
+		std::vector<math::Vec4f> m_clearColors;
+		std::vector<float> m_clearDepths;
 		std::vector<Command> m_commands;
 		std::vector<UniformBucket> m_uniforms;
 		std::vector<DrawPayload> m_draws;

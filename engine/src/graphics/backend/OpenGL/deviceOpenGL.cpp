@@ -158,15 +158,20 @@ namespace rev :: gfx
 		// Use descriptor info to bind resources
 		glBindFramebuffer(GL_FRAMEBUFFER, fbId);
 
-		int nColorAttachs = 0;
+		FrameBufferInfo fbInfo;
+		fbInfo.sRGB = desc.sRGB;
+		fbInfo.numColorAttachs = 0;
 		for(size_t i = 0; i < desc.numAttachments; ++i)
 		{
 			auto& attachment = desc.attachments[i];
-
 			// Color vs depth attachment
 			GLenum attachTarget = GL_DEPTH_ATTACHMENT;
-			if(attachment.target == FrameBuffer::Attachment::Color)
-				attachTarget = GL_COLOR_ATTACHMENT0 + nColorAttachs++;
+			if (attachment.target == FrameBuffer::Attachment::Color)
+			{
+				attachTarget = GL_COLOR_ATTACHMENT0 + fbInfo.numColorAttachs;
+				fbInfo.colorAttachments[fbInfo.numColorAttachs] = attachTarget;
+				fbInfo.numColorAttachs++;
+			}
 
 			// Bind attachment to an attachment point
 			if(attachment.imageType == FrameBuffer::Attachment::Texture)
@@ -179,7 +184,10 @@ namespace rev :: gfx
 		auto fbState = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if(fbState == GL_FRAMEBUFFER_COMPLETE)
 		{
-			newFb = FrameBuffer(fbId);
+			// allocate a new frame buffer
+			newFb = FrameBuffer((int32_t)m_frameBuffers.size());
+			fbInfo.frameBufferGLname = fbId;
+			m_frameBuffers.push_back(fbInfo);
 		}
 		else
 		{
@@ -203,15 +211,35 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void DeviceOpenGL::bindPass(int32_t pass, RenderQueue& queue)
+	void DeviceOpenGL::destroyFrameBuffer(FrameBuffer fb)
 	{
-		m_passes[pass]->bindTo(static_cast<RenderQueueOpenGL&>(queue));
+		assert(fb.isValid());
+		auto& fbInfo = m_frameBuffers[fb.id()];
+		assert(fbInfo.isValid);
+		fbInfo.isValid = false;
+		while(!m_frameBuffers.back().isValid)
+			m_frameBuffers.pop_back();
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void DeviceOpenGL::bindFrameBuffer(int32_t fb)
+	void DeviceOpenGL::bindFrameBuffer(FrameBuffer fb)
 	{
-		//
+		// Locate frame buffer information
+		assert(fb.isValid());
+		auto& fbInfo = m_frameBuffers[fb.id()];
+		assert(fbInfo.isValid);
+
+		// Bind the frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, fbInfo.frameBufferGLname);
+		glDrawBuffers(fbInfo.numColorAttachs, fbInfo.colorAttachments);
+		if (fbInfo.sRGB)
+			glEnable(GL_FRAMEBUFFER_SRGB);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::bindPass(int32_t pass, RenderQueue& queue)
+	{
+		m_passes[pass]->bindTo(static_cast<RenderQueueOpenGL&>(queue));
 	}
 
 	//----------------------------------------------------------------------------------------------

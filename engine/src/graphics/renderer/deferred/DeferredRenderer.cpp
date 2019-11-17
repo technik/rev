@@ -97,6 +97,55 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
 	{
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		// --- Cull stuff
+		// Cull visible objects renderQ -> visible
+		m_visible.clear();
+		Mat44f view = eye.view();
+		for (auto& renderItem : m_renderQueue)
+		{
+			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
+			if (viewSpaceBB.min().z() < 0)
+				m_visible.push_back(renderItem);
+		}
+
+		auto worldMatrix = Mat44f::identity();
+		GeometryPass::Instance instance;
+		instance.geometryIndex = uint32_t(-1);
+		instance.instanceCode = nullptr;
+
+		std::vector<GeometryPass::Instance> renderList;
+		std::vector<const RenderGeom*> geometry;
+		const RenderGeom* lastGeom = nullptr;
+		const Material* lastMaterial = nullptr;
+
+		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
+		auto viewProj = eye.viewProj(aspectRatio);
+		for (auto& mesh : m_visible)
+		{
+			// Raster options
+			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
+			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
+			instance.raster = m_rasterOptions.mask();
+			// Uniforms
+			instance.uniforms.clear();
+			Mat44f world = mesh.world;
+			Mat44f wvp = viewProj * world;
+			instance.uniforms.mat4s.push_back({ 0, wvp });
+			instance.uniforms.mat4s.push_back({ 1, world });
+			// Geometry
+			if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
+			{
+				lastMaterial = &mesh.material;
+				lastGeom = &mesh.geom;
+				mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
+				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
+				instance.geometryIndex++;
+				geometry.push_back(&mesh.geom);
+			}
+			renderList.push_back(instance);
+		}
+
 		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
 		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
 		RenderGraph frameGraph(*m_device);
@@ -114,7 +163,9 @@ namespace rev::gfx {
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				// TODO: Actuall draw culled solid geometry here
+				// Clear depth
+				dst.clearDepth(0.f);
+				m_gPass->render(geometry, renderList, dst);
 			});
 
 		// Environment light pass
@@ -132,7 +183,8 @@ namespace rev::gfx {
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				// TODO: Actually use the shadows if needed
+				dst.clearColor(Vec4f::zero());
+				// TODO: Actually use shadows if needed
 				// Then draw full screen pass
 			});
 
@@ -174,57 +226,6 @@ namespace rev::gfx {
 		}
 
 		*/
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
-
-		// --- Cull stuff
-		// Cull visible objects renderQ -> visible
-		m_visible.clear();
-		Mat44f view = eye.view();
-		for (auto& renderItem : m_renderQueue)
-		{
-			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
-			if (viewSpaceBB.min().z() < 0)
-				m_visible.push_back(renderItem);
-		}
-
-		auto worldMatrix = Mat44f::identity();
-		GeometryPass::Instance instance;
-		instance.geometryIndex = uint32_t(-1);
-		instance.instanceCode = nullptr;
-
-		std::vector<GeometryPass::Instance> renderList;
-		std::vector<const RenderGeom*> geometry;
-		const RenderGeom* lastGeom = nullptr;
-		const Material* lastMaterial = nullptr;
-
-		float aspectRatio = float(m_viewportSize.x())/m_viewportSize.y();
-		auto viewProj = eye.viewProj(aspectRatio);
-
-		for(auto& mesh : m_visible)
-		{
-			// Raster options
-			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-			instance.raster = m_rasterOptions.mask();
-			// Uniforms
-			instance.uniforms.clear();
-			Mat44f world = mesh.world;
-			Mat44f wvp = viewProj * world;
-			instance.uniforms.mat4s.push_back({0, wvp});
-			instance.uniforms.mat4s.push_back({1, world});
-			// Geometry
-			if((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
-			{
-				lastMaterial = &mesh.material;
-				lastGeom = &mesh.geom;
-				mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals|Material::BindingFlags::PBR));
-				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
-				instance.geometryIndex++;
-				geometry.push_back(&mesh.geom);
-			}
-			renderList.push_back(instance);
-		}
-
 		// Record passes
 		CommandBuffer frameCommands;
 
@@ -237,8 +238,7 @@ namespace rev::gfx {
 		}
 
 		// G-pass
-		frameCommands.beginPass(*m_gBufferPass);
-		m_gPass->render(geometry, renderList, frameCommands);
+		frameGraph.evaluate(frameCommands);
 		
 		// Light-pass
 		frameCommands.beginPass(*m_lPass);
@@ -332,7 +332,7 @@ namespace rev::gfx {
 		// G-Buffer pass
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 0;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::All;
+		passDesc.clearFlags = Clear::All;
 		passDesc.target = mGBuffer;
 		passDesc.numColorAttachs = 3;
 		passDesc.viewportSize = m_viewportSize;
@@ -345,7 +345,7 @@ namespace rev::gfx {
 
 		// Lighting pass
 		passDesc.clearDepth = 0;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.clearFlags = Clear::Depth;
 		passDesc.target = target;
 		passDesc.numColorAttachs = 1;
 		passDesc.sRGB = true;
@@ -354,7 +354,7 @@ namespace rev::gfx {
 		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
 
 		// Background pass
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
+		passDesc.clearFlags = Clear::None;
 		passDesc.target = target;
 		passDesc.viewportSize = m_viewportSize;
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));

@@ -73,19 +73,19 @@ namespace rev :: gfx
 		glScissor(m_desc.viewportStart.x(), m_desc.viewportStart.y(), m_desc.viewportSize.x(), m_desc.viewportSize.y());
 
 		// Clear
-		if ((int)m_desc.clearFlags & (int)Descriptor::Clear::Color)
+		if ((int)m_desc.clearFlags & (int)Clear::Color)
 		{
 			glClearColor(m_desc.clearColor.x(), m_desc.clearColor.y(), m_desc.clearColor.z(), m_desc.clearColor.w());
 		}
-		if ((int)m_desc.clearFlags & (int)Descriptor::Clear::Depth)
+		if ((int)m_desc.clearFlags & (int)Clear::Depth)
 		{
 			glClearDepthf(m_desc.clearDepth);
 		}
 		if ((int)m_desc.clearFlags)
 		{
 			glClear(
-				((int)Descriptor::Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
-				| ((int)Descriptor::Clear::Depth ? GL_DEPTH_BUFFER_BIT : 0));
+				((int)Clear::Color ? GL_COLOR_BUFFER_BIT : 0)
+				| ((int)Clear::Depth ? GL_DEPTH_BUFFER_BIT : 0));
 		}
 	}
 

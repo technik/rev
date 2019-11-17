@@ -192,13 +192,15 @@ namespace rev::gfx {
 			auto& pass = m_passDescriptors[passNdx];
 			// Bind target frame buffer
 			dst.bindFrameBuffer(pass.m_cachedFb);
+			dst.setViewport(math::Vec2u::zero(), pass.targetSize);
+			dst.setScissor(math::Vec2u::zero(), pass.targetSize);
+			// Clear?
 			// Collapse input textures into a local array of physical textures
 			Texture2d passInputs[PassBuilder::cMaxInputs];
 			for (size_t i = 0; i < pass.m_inputs.size(); ++i)
 			{
-				auto& bufferState = m_bufferLifetime[passInputs[i].id()];
-				auto physicalNdx = m_virtualToPhysical[bufferState.virtualBufferNdx].id();
-				passInputs[i] = m_bufferTextures[physicalNdx];
+				auto& bufferState = m_bufferLifetime[pass.m_inputs[i]];
+				passInputs[i] = m_virtualToPhysical[bufferState.virtualBufferNdx].id();
 			}
 			// Call the evaluator
 			pass.evaluator(passInputs, pass.m_inputs.size(), dst);

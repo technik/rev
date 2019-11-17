@@ -49,7 +49,10 @@ namespace rev :: gfx
 		virtual void destroyTexture2d(Texture2d) = 0;
 
 		// Frame buffers
+		static constexpr size_t cMaxFBAttachments = 8;
 		virtual FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) = 0;
+		virtual void destroyFrameBuffer(FrameBuffer) = 0;
+		virtual void bindFrameBuffer(FrameBuffer) = 0;
 
 		// Render passes
 		virtual void bindPass(int32_t pass, RenderQueue& queue) = 0;

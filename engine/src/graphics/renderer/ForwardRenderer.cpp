@@ -160,7 +160,7 @@ namespace rev::gfx {
 		assert(m_targetBuffer.isValid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
+		passDesc.clearFlags = Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
 		m_bgPass = std::make_unique<FullScreenPass>(device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
