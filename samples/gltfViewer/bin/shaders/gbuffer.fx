@@ -81,7 +81,7 @@ void main ( void )
 // Pixel outputs
 layout(location = 0) out lowp vec4 outWsNormal;
 layout(location = 1) out lowp vec4 outAlbedo;
-layout(location = 2) out lowp vec4 outSpecular;
+layout(location = 2) out lowp vec4 outPBR;
 
 //------------------------------------------------------------------------------
 vec3 computeWsNormal()
@@ -99,10 +99,10 @@ vec3 computeWsNormal()
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	outWsNormal = vec4(computeWsNormal(), 0.0);
+	outWsNormal = vec4(computeWsNormal()*0.5+0.5, 0.0);
 
 	PBRParams pbr = getPBRParams();
-	outSpecular = pbr.specular_r;
+	outPBR = pbr.specular_r;
 
 	outAlbedo = pbr.albedo;
 }

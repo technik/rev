@@ -131,10 +131,10 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-				depth = pass.write(BufferFormat::depth32);
 				normals = pass.write(BufferFormat::RGBA8);
-				pbr = pass.write(BufferFormat::RGBA8);
 				albedo = pass.write(BufferFormat::sRGBA8);
+				pbr = pass.write(BufferFormat::RGBA8);
+				depth = pass.write(BufferFormat::depth32);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
@@ -199,10 +199,10 @@ namespace rev::gfx {
 			//hdr = pass.write(BufferFormat::RGBA32);
 				pass.write(m_targetFb); // Should write to hdr
 
-				pass.read(depth, 0);
-				pass.read(normals, 1);
+				pass.read(normals, 0);
+				pass.read(albedo, 1);
 				pass.read(pbr, 2);
-				pass.read(albedo, 3);
+				pass.read(depth, 3);
 				// TODO: Shadows enabled? read them!
 				if (useShadows)
 					pass.read(shadows, 4);
@@ -229,10 +229,10 @@ namespace rev::gfx {
 					envUniforms.addParam(5, m_brdfIbl);
 					envUniforms.addParam(6, (float)env->numLevels());
 
-					envUniforms.addParam(7, inputTextures[1]);
-					envUniforms.addParam(8, inputTextures[0]);
+					envUniforms.addParam(7, inputTextures[0]);
+					envUniforms.addParam(8, inputTextures[3]);
 					envUniforms.addParam(9, inputTextures[2]);
-					envUniforms.addParam(10, inputTextures[3]);
+					envUniforms.addParam(10, inputTextures[1]);
 
 					if (useShadows)
 					{
