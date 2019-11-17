@@ -121,6 +121,9 @@ namespace rev::gfx {
 			PassDefinition definition;
 			PassEvaluator evaluator;
 
+			// Cached state
+			FrameBuffer m_cachedFb;
+
 		private:
 			BufferResource registerOutput(PassState);
 		};

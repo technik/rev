@@ -98,7 +98,10 @@ namespace rev::gfx {
 				m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
 			}
 			if (passFramebuffer.isValid())
+			{
+				pass.m_cachedFb = passFramebuffer;
 				continue;
+			}
 
 			// Agregate target textures into a framebuffer descriptor
 			FrameBuffer::Attachment attachments[cMaxOutputs];
@@ -113,6 +116,7 @@ namespace rev::gfx {
 			}
 			FrameBuffer::Descriptor descriptor(i, attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
+			pass.m_cachedFb = passFramebuffer;
 		}
 
 		// Resolve input textures?
@@ -187,9 +191,17 @@ namespace rev::gfx {
 		{
 			auto& pass = m_passDescriptors[passNdx];
 			// Bind target frame buffer
-			//dst.bindFrameBuffer(pass.m_targetFrameBuffer);
+			dst.bindFrameBuffer(pass.m_cachedFb);
+			// Collapse input textures into a local array of physical textures
+			Texture2d passInputs[PassBuilder::cMaxInputs];
+			for (size_t i = 0; i < pass.m_inputs.size(); ++i)
+			{
+				auto& bufferState = m_bufferLifetime[passInputs[i].id()];
+				auto physicalNdx = m_virtualToPhysical[bufferState.virtualBufferNdx].id();
+				passInputs[i] = m_bufferTextures[physicalNdx];
+			}
 			// Call the evaluator
-			//pass.evaluator(pass.m_boundInputs, pass.m_inputs.size(), dst);
+			pass.evaluator(passInputs, pass.m_inputs.size(), dst);
 		}
 	}
 
