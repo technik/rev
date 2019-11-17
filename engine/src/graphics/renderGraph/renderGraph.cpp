@@ -17,162 +17,268 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "frameBufferCache.h"
 #include "renderGraph.h"
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
 
+#include <numeric>
+
 namespace rev::gfx {
 
-	//----------------------------------------------------------------------------------------------
-	RenderGraph::RenderGraph(Device& device)
-		: m_device(device)
-	{
-		TextureSampler::Descriptor desc;
-		desc.filter = TextureSampler::MinFilter::Linear;
-		desc.wrapS = TextureSampler::Wrap::Clamp;
-		desc.wrapT = TextureSampler::Wrap::Clamp;
-		m_linearSampler = device.createTextureSampler(desc);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::reset()
-	{
-		m_nextResourceId = 0;
-		m_renderPasses.clear();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::compile()
-	{
-		// TODO. For now, just execute passes linearly as they were recorded
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::recordExecution(CommandBuffer& dst)
-	{
-		for(auto& pass : m_renderPasses)
-		{
-			// Is fb allocated already?
-			if(!pass.m_targetFB.isValid()) {
-				FrameBuffer::Descriptor fbDesc;
-				// Create descriptor attachments
-				std::vector<FrameBuffer::Attachment> targetAtt;
-				bool writesDepth = pass.m_depthOutput.m_afterWrite.isValid();
-				targetAtt.resize(pass.m_colorOutputs.size() + writesDepth ? 1 : 0);
-
-				// Fill in attachments
-				size_t i = 0;
-				for(; i < pass.m_colorOutputs.size(); ++i)
-				{
-					targetAtt[i].imageType = FrameBuffer::Attachment::Texture;
-					targetAtt[i].target = FrameBuffer::Attachment::Color;
-					auto attachAlias = pass.m_colorOutputs.at((int)i).m_afterWrite;
-					targetAtt[i].texture = m_resolvedTextures.at(attachAlias.id());
-				}
-				if(writesDepth)
-				{
-					targetAtt[i].imageType = FrameBuffer::Attachment::Texture;
-					targetAtt[i].target = FrameBuffer::Attachment::Depth;
-					auto attachAlias = pass.m_depthOutput.m_afterWrite;
-					targetAtt[i].texture = m_resolvedTextures.at(attachAlias.id());
-				}
-
-				fbDesc.attachments = targetAtt.data();
-				fbDesc.numAttachments = targetAtt.size();
-
-				pass.m_targetFB = m_device.createFrameBuffer(fbDesc);
-			}
-			// Bind pass resources
-			dst.bindFrameBuffer(pass.m_targetFB);
-			dst.setViewport(math::Vec2u::zero(), pass.m_targetSize); // viewport
-			dst.setScissor(math::Vec2u::zero(), pass.m_targetSize); // clear
-			pass.m_execution(*this, dst); // Record pass commands
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::run()
-	{
-		CommandBuffer frameCommands;
-		recordExecution(frameCommands);
-		m_device.renderQueue().submitCommandBuffer(frameCommands);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::clearResources()
+	//--------------------------------------------------------------------------
+	RenderGraph::RenderGraph(Device& gfxDevice)
+		: m_gfxDevice(gfxDevice)
 	{}
 
-	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::pass(const math::Vec2u& size, HWAntiAlias aa) -> Pass
+	//--------------------------------------------------------------------------
+	void RenderGraph::reset()
 	{
-		Pass newPass (m_renderPasses.size());
-		m_renderPasses.emplace_back();
-		auto& passInfo = m_renderPasses.back();
-		passInfo.m_antiAlias = aa;
-		passInfo.m_targetSize = size;
-		return newPass;
+		m_passDescriptors.clear();
+		m_bufferLifetime.clear();
+		m_sortedPasses.clear();
 	}
 
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::readColor(Pass pass, int bindingLocation, Attachment src)
+	//--------------------------------------------------------------------------
+	void RenderGraph::addPass(
+		const math::Vec2u& size,
+		PassDefinition passDefinition,
+		PassEvaluator passEvaluator,
+		HWAntiAlias targetAntiAliasing)
 	{
-		assert(src.isValid());
-		m_renderPasses[pass.id()].m_colorInputs.emplace(bindingLocation, src);
+		// Add a new pass
+		m_passDescriptors.emplace_back(m_bufferLifetime, m_virtualResources);
+		auto& newPass = m_passDescriptors.back();
+		newPass.targetSize = size;
+		newPass.definition = passDefinition;
+		newPass.evaluator = passEvaluator;
+		newPass.antiAliasing = targetAntiAliasing;
 	}
 
-	//----------------------------------------------------------------------------------------------
-	void RenderGraph::readDepth(Pass pass, int bindingLocation, Attachment src)
+	//--------------------------------------------------------------------------
+	void RenderGraph::build(FrameBufferCache& bufferCache)
 	{
-		assert(src.isValid());
-		m_renderPasses[pass.id()].m_depthInputs.emplace(bindingLocation, src);
-	}
+		assert(m_bufferLifetime.empty());
 
-	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeColor(Pass pass, ColorFormat colorFmt, int bindingLocation, ReadMode readMode, Attachment src) -> Attachment
-	{
-		Attachment afterWrite(m_nextResourceId++);
-		WriteAttachment outAttach { readMode, src, afterWrite };
-		if(src.isValid()) // Resolve new attachment to previous texture
-			m_resolvedTextures.emplace(afterWrite.id(), m_resolvedTextures.at(src.id()));
-		else // Create a new texture for the attachment
+		// For each pass stored, define graph dependencies by running the pass definition delegate
+		for (auto& desc : m_passDescriptors)
 		{
-			Texture2d::Descriptor desc;
-			desc.depth = false;
-			desc.mipLevels = 1;
-			desc.pixelFormat.numChannels = 4;
-			desc.pixelFormat.channel = (colorFmt == ColorFormat::RGBA32) ? Image::ChannelFormat::Float32 : Image::ChannelFormat::Byte;
-			desc.sRGB = (colorFmt == ColorFormat::sRGBA8);
-			desc.size = m_renderPasses[pass.id()].m_targetSize;
-			desc.sampler = m_linearSampler;
-			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+			desc.definition(desc);
 		}
-		m_renderPasses[pass.id()].m_colorOutputs.emplace(bindingLocation, outAttach );
-		return afterWrite;
-	}
 
-	//----------------------------------------------------------------------------------------------
-	auto RenderGraph::writeDepth(Pass pass, DepthFormat, ReadMode readMode, Attachment src) -> Attachment
-	{
-		Attachment afterWrite(m_nextResourceId++);
-		WriteAttachment outAttach { readMode, src, afterWrite };
-		auto& renderPass = m_renderPasses[pass.id()];
-		assert(!renderPass.m_depthOutput.m_afterWrite.isValid()); // We can only write to one depth attachment per pass
-		if(src.isValid()) // Resolve new attachment to previous texture
-			m_resolvedTextures.emplace(afterWrite.id(), m_resolvedTextures.at(src.id()));
-		else // Create a new texture for the attachment
+		// Sort passes based on their dependencies
+		sortPasses();
+
+		// Associate passes with resources
+		for (auto passNdx : m_sortedPasses)
 		{
-			Texture2d::Descriptor desc;
-			desc.depth = true;
-			desc.mipLevels = 1;
-			desc.pixelFormat.numChannels = 1;
-			desc.pixelFormat.channel = Image::ChannelFormat::Float32;
-			desc.sRGB = false;
-			desc.size = m_renderPasses[pass.id()].m_targetSize;
-			desc.sampler = m_linearSampler;
-			m_resolvedTextures.emplace(afterWrite.id(), m_device.createTexture2d(desc));
+			FrameBuffer passFramebuffer;
+			auto& pass = m_passDescriptors[passNdx];
+			// Gather all virtual resources associated
+			Texture2d targetTextures[cMaxOutputs];
+			int i = 0;
+			for (auto outputStateNdx : pass.m_outputs)
+			{
+				auto targetResourceNdx = m_bufferLifetime[outputStateNdx].virtualBufferNdx;
+				auto& virtualBuffer = m_virtualResources[targetResourceNdx];
+				if (virtualBuffer.externalFramebuffer.isValid())
+				{
+					passFramebuffer = virtualBuffer.externalFramebuffer;
+					break;
+				}
+
+				if (virtualBuffer.externalTexture.isValid())
+				{
+					targetTextures[i] = virtualBuffer.externalTexture;
+				}
+				else
+				{
+					targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+				}
+				m_virtualToPhysical[targetResourceNdx] = targetTextures[i++];
+			}
+			if (passFramebuffer.isValid())
+			{
+				pass.m_cachedFb = passFramebuffer;
+				continue;
+			}
+
+			// Agregate target textures into a framebuffer descriptor
+			FrameBuffer::Attachment attachments[cMaxOutputs];
+			for (int j = 0; j < i; ++j)
+			{
+				attachments[j].mipLevel = 0;
+				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
+				auto bufferFormat = m_virtualResources[pass.m_outputs[j]].bufferDescriptor.format;
+				attachments[j].target = (bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32) ?
+					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
+				attachments[j].texture = targetTextures[j];
+			}
+			FrameBuffer::Descriptor descriptor(i, attachments);
+			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
+			pass.m_cachedFb = passFramebuffer;
 		}
-		m_renderPasses[pass.id()].m_depthOutput = outAttach;
-		return afterWrite;
+
+		// Resolve input textures?
+		bufferCache.freeResources();
 	}
 
+	//--------------------------------------------------------------------------
+	// Sort passes based on their dependencies
+	void RenderGraph::sortPasses()
+	{
+		m_sortedPasses.resize(m_passDescriptors.size());
+		std::iota(m_sortedPasses.begin(), m_sortedPasses.end(), 0);
+		// In place sort
+		for (size_t i = 0; i < m_sortedPasses.size(); ++i)
+		{
+			auto currentPassNdx = m_sortedPasses[i];
+			const auto& currentPass = m_passDescriptors[currentPassNdx];
+
+			for (size_t j = i + 1; j < m_sortedPasses.size(); ++j)
+			{
+				bool unsatisfiedDependency = false;
+
+				const auto& laterPass = m_passDescriptors[j];
+				// Check no later pass writes to my input dependencies
+				for (auto input : currentPass.m_inputs)
+				{
+					if (std::find(laterPass.m_outputs.begin(), laterPass.m_outputs.end(), input) != laterPass.m_outputs.end())
+					{
+						unsatisfiedDependency = true;
+						break;
+					}
+				}
+
+				// Check this pass doesn't overwrite other pass's inputs before that pass can read it
+				for (auto output : currentPass.m_outputs)
+				{
+					const PassState& bufferAfterWrite = m_bufferLifetime[output];
+
+					for (auto laterInput : laterPass.m_inputs)
+					{
+						const auto& laterDependency = m_bufferLifetime[laterInput];
+						if (laterDependency.virtualBufferNdx == bufferAfterWrite.virtualBufferNdx
+							&& bufferAfterWrite.writeCounter > laterDependency.writeCounter) // This write can't happen yet
+						{
+							unsatisfiedDependency = true;
+							break;
+						}
+					}
+
+					if (unsatisfiedDependency)
+					{
+						break;
+					}
+				}
+
+				// Reorder passes with unsatisfied dependencies
+				if (unsatisfiedDependency)
+				{
+					std::swap(m_sortedPasses[i], m_sortedPasses[j]);
+					--i; // Retry with the new order
+					break;
+				}
+			}
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::evaluate(CommandBuffer& dst)
+	{
+		// For each pass in compiled passes
+		for (auto passNdx : m_sortedPasses)
+		{
+			auto& pass = m_passDescriptors[passNdx];
+			// Bind target frame buffer
+			dst.bindFrameBuffer(pass.m_cachedFb);
+			dst.setViewport(math::Vec2u::zero(), pass.targetSize);
+			dst.setScissor(math::Vec2u::zero(), pass.targetSize);
+			// Collapse input textures into a local array of physical textures
+			Texture2d passInputs[PassBuilder::cMaxInputs];
+			assert(pass.m_inputs.size() <= IPassBuilder::cMaxInputs);
+			for (size_t i = 0; i < pass.m_inputs.size(); ++i)
+			{
+				auto& bufferState = m_bufferLifetime[pass.m_inputs[i]];
+				passInputs[i] = m_virtualToPhysical[bufferState.virtualBufferNdx].id();
+			}
+			// Call the evaluator
+			pass.evaluator(passInputs, pass.m_inputs.size(), dst);
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::clearResources()
+	{
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(FrameBuffer target)
+	{
+		assert(target.isValid());
+
+		// Register target into a virtual frame buffer
+		auto bufferNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.externalFramebuffer = target;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
+
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
+
+		return registerOutput(outputAfterWrite);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(BufferFormat targetFormat)
+	{
+		// Register a new virtual frame buffer with the requested format
+		auto bufferNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.bufferDescriptor.format = targetFormat;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
+
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
+
+		return registerOutput(outputAfterWrite);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(RenderGraph::BufferResource target)
+	{
+		assert(target.isValid());
+		size_t stateNdx = target.id();
+
+		// Taking a valid resource as an argument means some other pass already wrote to this target.
+		// The new state just needs to reflect that by increasing the write counter
+		auto resultingState = m_bufferLifetime[stateNdx];
+		assert(resultingState.writeCounter > 0);
+		resultingState.writeCounter++;
+
+		return registerOutput(resultingState);
+	}
+
+	//--------------------------------------------------------------------------
+	void RenderGraph::PassBuilder::read(RenderGraph::BufferResource target, int bindingPos)
+	{
+		assert(target.isValid());
+		m_inputs.push_back(target.id());
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::registerOutput(PassState newOutputState)
+	{
+		auto newOutputStateNdx = m_bufferLifetime.size();
+		m_bufferLifetime.push_back(newOutputState);
+
+		m_outputs.push_back(newOutputStateNdx);
+		return BufferResource((int)newOutputStateNdx);
+	}
 }

@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2019 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,46 +18,51 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <cstddef>
-#include <cstdint>
-#include "texture2d.h"
-#include "namedResource.h"
+
+#include <graphics/backend/gpuTypes.h>
+#include <graphics/renderGraph/types.h>
+#include <vector>
 
 namespace rev::gfx {
 
-	struct FrameBuffer : NamedResource
+	class Device;
+
+	class FrameBufferCache
 	{
 	public:
-		struct Attachment
+		FrameBufferCache(Device&);
+		// May allocate resources in the gpu, or reuse previously allocated buffers that match the
+		// requested format
+		FrameBuffer requestFrameBuffer(FrameBuffer::Descriptor requisites);
+		Texture2d requestTargetTexture(BufferDesc requisites);
+
+		// Leaves the frame buffer free for later requests to use,
+		// but it doesn't free the actual gpu resources
+		void freeBuffer(FrameBuffer);
+		void freeTexture(Texture2d);
+		void freeResources(); // Free all locked resrouces at once
+
+		// Deallocates gpu resources
+		void deallocateResources();
+
+	private:
+		struct TextureResource
 		{
-			enum ImageType
-			{
-				Texture,
-				RenderBuffer
-			} imageType = ImageType::Texture;
-
-			enum Target
-			{
-				Color,
-				Depth
-			} target;
-
-			// Info for texture attachments
-			Texture2d texture;
-			size_t mipLevel = 0;
-			// TODO: Layers and cubemap sides
-
-			// Info for render buffer attachments
-			// TODO
+			BufferDesc desc;
+			Texture2d handle;
+			bool locked;
 		};
 
-		struct Descriptor {
-			size_t numAttachments;
-			Attachment* attachments;
+		struct FBResource
+		{
+			FrameBuffer::Descriptor desc;
+			FrameBuffer handle;
+			bool locked;
 		};
 
-		FrameBuffer(int32_t id) : NamedResource(id) {}
-		FrameBuffer() = default;
+		Device& m_device;
+		TextureSampler m_bufferSampler;
+		std::vector<TextureResource> m_textures;
+		std::vector<FBResource> m_frameBuffers;
 	};
-
 }

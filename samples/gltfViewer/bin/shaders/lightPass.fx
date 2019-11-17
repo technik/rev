@@ -32,7 +32,7 @@ vec3 shade () {
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	// Direction from the view point to the pixel, in view space
 	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
-	vec3 wsNormal = compressedNormal;
+	vec3 wsNormal = normalize(compressedNormal*2.0-1.0);
 
 	gl_FragDepth = texture(uDepthMap, uv).x;
     float bufferDepth = gl_FragDepth*2-1;
@@ -61,7 +61,7 @@ vec3 shade () {
 	float shadow = 1.0;
 #endif
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	
+	shadow = 1.0;
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 	vec3 toneMapped = color*uEV / (1+uEV*color);
     return toneMapped;

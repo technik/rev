@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2019 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,36 +19,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+// rev::math
 #include <math/algebra/vector.h>
-#include <graphics/backend/gpuTypes.h>
-#include "namedResource.h"
 
-namespace rev :: gfx
-{
-	class CommandBuffer;
+// Std library
+#include <optional>
 
-	class RenderPass : public NamedResource
+namespace rev::gfx {
+
+	enum class BufferFormat
 	{
-	public:
-
-		struct Descriptor
-		{
-			int numColorAttachs = 1;
-			bool sRGB = false;
-			FrameBuffer target;
-			math::Vec4f clearColor;
-			float clearDepth;
-			Clear clearFlags = Clear::None;
-			math::Vec2u viewportStart = {0u, 0u};
-			math::Vec2u viewportSize = {0u, 0u};
-		};
-
-		virtual void reset() = 0;
-		virtual void setViewport(const math::Vec2u& start, const math::Vec2u& size) = 0;
-		virtual void record(const CommandBuffer&) = 0;
-
-	protected:
-		RenderPass() = default;
-		RenderPass(int32_t id) : NamedResource(id) {}
+		RGBA8,
+		sRGBA8,
+		RGBA32,
+		depth24,
+		depth32
 	};
+
+	enum class HWAntiAlias
+	{
+		none,
+		msaa2x,
+		msaa4x,
+		msaa8x
+	};
+
+	struct BufferDesc
+	{
+		math::Vec2u size;
+		BufferFormat format;
+		HWAntiAlias antiAlias;
+
+		bool operator==(const BufferDesc& other) const
+		{
+			return size == other.size
+				&& format == other.format
+				&& antiAlias == other.antiAlias;
+		}
+	};
+
 }

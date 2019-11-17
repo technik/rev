@@ -46,7 +46,8 @@ namespace rev :: gfx
 
 		// Frame buffers
 		FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) override;
-		void bindFrameBuffer(int32_t fb);
+		virtual void destroyFrameBuffer(FrameBuffer) override;
+		void bindFrameBuffer(FrameBuffer) override;
 		
 		// Render passes
 		void bindPass(int32_t pass, RenderQueue& queue) override;
@@ -102,6 +103,15 @@ namespace rev :: gfx
 			GLuint nativeName;
 		};
 
+		struct FrameBufferInfo
+		{
+			GLuint frameBufferGLname;
+			GLenum colorAttachments[cMaxFBAttachments];
+			int numColorAttachs;
+			bool sRGB = false;
+			bool isValid = true;
+		};
+
 		DeviceOpenGL() = default;
 
 		static GLenum getInternalFormat(const Texture2d::Descriptor&);
@@ -110,6 +120,7 @@ namespace rev :: gfx
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;
 		std::vector<PipelineInfo>	m_pipelines;
 		std::vector<RenderPassOpenGL*>	m_passes;
+		std::vector<FrameBufferInfo> m_frameBuffers;
 
 		void readDeviceLimits();
 	};

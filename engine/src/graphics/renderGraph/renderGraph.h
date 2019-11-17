@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2019 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,116 +20,132 @@
 #pragma once
 
 #include "../backend/namedResource.h"
-#include <functional>
-#include <graphics/backend/frameBuffer.h>
+#include "types.h"
+
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/texture2d.h>
-#include <map>
 #include <math/algebra/vector.h>
+
+#include <functional>
+#include <map>
 
 namespace rev::gfx {
 
 	class CommandBuffer;
 	class Device;
+	class FrameBufferCache;
 
 	class RenderGraph
 	{
 	public:
+
+		struct BufferResource : NamedResource {
+			BufferResource() = default;
+			BufferResource(int id) : NamedResource(id) {}
+		};
+
+		// Pass building interface
+		struct IPassBuilder
+		{
+			virtual ~IPassBuilder() {}
+			virtual BufferResource write(FrameBuffer externalTarget) = 0; // Import external frame buffer into the graph
+			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
+			virtual BufferResource write(BufferFormat) = 0;
+			virtual BufferResource write(BufferResource) = 0;
+			virtual void read(BufferResource, int bindingPos) = 0;
+
+			static constexpr size_t cMaxInputs = 8;
+		};
+
+		using PassDefinition = std::function<void(IPassBuilder&)>;
+		using PassEvaluator = std::function<void(const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)>;
+
+	public:
+
 		RenderGraph(Device&);
+
 		// Graph lifetime
-		void reset();
-		void compile();
+		void reset(); // Does not clear allocated GPU resources.
+		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
+		void build(FrameBufferCache&);
+
 		// Record graph execution into a command buffer for deferred submision
-		void recordExecution(CommandBuffer& dst);
-		void run(); // Execute graph on the fly, submitting command buffers as they are ready
-		void clearResources(); // Free allocated memory resources
+		void evaluate(CommandBuffer& dst);
 
-		// Resources
-		enum class ColorFormat
-		{
-			RGBA8,
-			sRGBA8,
-			RGBA32
-		};
-
-		enum class DepthFormat
-		{
-			f24,
-			f32
-		};
-
-		struct Attachment : NamedResource {
-			Attachment() = default;
-			Attachment(int id) : NamedResource(id) {}
-		};
-
-		// Graph building
-		enum class ReadMode
-		{
-			clear,
-			keep,
-			discard
-		};
-
-		enum HWAntiAlias
-		{
-			none,
-			msaa2x,
-			msaa4x,
-			msaa8x
-		};
-
-		struct FrameBufferOptions
-		{
-			math::Vec2u size;
-		};
-
-		struct Pass : NamedResource {
-			Pass() = default;
-			Pass(int id) : NamedResource(id) {}
-		};
-
-		Pass pass(const math::Vec2u& size, HWAntiAlias);
-		void readColor(Pass, int bindingLocation, Attachment);
-		void readDepth(Pass, int bindingLocation, Attachment);
-		// By default, write to a new resource
-		Attachment writeColor(Pass, ColorFormat, int bindingLocation, ReadMode, Attachment = Attachment());
-		Attachment writeDepth(Pass, DepthFormat, ReadMode, Attachment = Attachment());
-
-		using PassExecution = std::function<void(const RenderGraph& rg, CommandBuffer& dst)>;
-		template<class PassExec>
-		void setExecution(Pass pass, PassExec& exec ) { m_renderPasses[pass.id()].exec = exec; }
-
-		// Resource access during execution
-		Texture2d getTexture(Attachment) const;
+		// Free allocated memory resources, like textures and frame buffers. Must not be called on a built graph
+		void clearResources();
 
 	private:
-		Device& m_device;
-		int m_nextResourceId = 0;
+		void sortPasses(); // Sort passes based on their dependencies
 
-		struct WriteAttachment
+	private:
+		Device& m_gfxDevice;
+
+		struct PassState
 		{
-			ReadMode m_readMode;
-			Attachment m_beforeWrite;
-			Attachment m_afterWrite;
+			size_t virtualBufferNdx;
+			unsigned writeCounter; // Increased everytime a pass writes to this buffer
 		};
 
-		struct RenderPassInfo
+		struct VirtualResource
 		{
-			std::map<int, Attachment> m_colorInputs;
-			std::map<int, Attachment> m_depthInputs;
-			std::map<int, WriteAttachment> m_colorOutputs;
-			WriteAttachment m_depthOutput;
-
-			math::Vec2u m_targetSize;
-			PassExecution m_execution;
-			HWAntiAlias m_antiAlias;
-
-			FrameBuffer m_targetFB;
+			FrameBuffer externalFramebuffer; // Optional imported frame buffer
+			Texture2d externalTexture; // Optional imported texture
+			BufferDesc bufferDescriptor; // Descriptor for non-imported targets
 		};
 
-		std::vector<RenderPassInfo> m_renderPasses;
-		std::map<int32_t,Texture2d> m_resolvedTextures;
-		TextureSampler m_linearSampler;
+		// Keeps track of pass info during the construction build phase of the graph
+		struct PassBuilder : IPassBuilder
+		{
+			PassBuilder(std::vector<PassState>& bufferLifetime, std::vector<VirtualResource>& virtualResources)
+				: m_bufferLifetime(bufferLifetime)
+				, m_virtualResources(virtualResources)
+			{}
+
+			BufferResource write(FrameBuffer externalTarget) override; // Import external frame buffer into the graph
+			BufferResource write(BufferFormat) override;
+			BufferResource write(BufferResource) override;
+			void read(BufferResource, int bindingPos) override;
+
+			// References to the rendergraph´s buffer state
+			std::vector<PassState>& m_bufferLifetime;
+			std::vector<VirtualResource>& m_virtualResources;
+
+			// Dependencies
+			std::vector<size_t> m_inputs; // Indices into m_bufferLifetime
+			std::vector<size_t> m_outputs; // Indices into m_bufferLifetime
+
+			// Pass description
+			math::Vec2u targetSize; // Texture size of all attachments written to during the pass
+			HWAntiAlias antiAliasing;
+			PassDefinition definition;
+			PassEvaluator evaluator;
+
+			// Cached state
+			FrameBuffer m_cachedFb;
+
+		private:
+			BufferResource registerOutput(PassState);
+		};
+
+		static constexpr size_t cMaxOutputs = 8; // Max number of outputs in a single pass. Including a possible depth buffer.
+
+		// Passes
+		std::vector<PassBuilder> m_passDescriptors;
+		// Map of buffers and life cycle counter, used during build phase (and potentially during evaluation for sanity checks)
+		// Buffer resource handles returned to the user are actually indices into this vector.
+		// Each entry contains an index into the virtual buffers array, and a counter that represents the number of write
+		// subpasses that buffer has gone through until this point.
+		std::vector<PassState> m_bufferLifetime;
+
+		// Internal state
+		// Indices into m_passDescriptors, sorted such that dependencies are satisfied.
+		std::vector<size_t> m_sortedPasses;
+
+		// Resources
+		std::vector<VirtualResource> m_virtualResources;
+		std::map<size_t, Texture2d> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
 	};
 
 }
+ 

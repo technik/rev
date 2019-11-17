@@ -82,6 +82,40 @@ namespace rev :: gfx
 				case Command::BindFrameBuffer:
 				{
 					m_device.bindFrameBuffer(cmd.payload);
+					break;
+				}
+				case Command::ClearDepth:
+				{
+					glClearDepth(cmdBuffer.getFloat(cmd.payload));
+					break;
+				}
+				case Command::ClearColor:
+				{
+					auto color = cmdBuffer.getColor(cmd.payload);
+					glClearColor(color.x(), color.y(), color.z(), color.w());
+					break;
+				}
+				case Command::Clear:
+				{
+					auto flags = cmd.payload;
+					if (!flags)
+						continue;
+					auto clearDepth = (flags & (int32_t)Clear::Depth) ? GL_DEPTH_BUFFER_BIT : 0;
+					auto clearColor = (flags & (int32_t)Clear::Color) ? GL_COLOR_BUFFER_BIT : 0;
+					glClear(clearDepth | clearColor);
+					break;
+				}
+				case Command::SetViewport:
+				{
+					auto rect = cmdBuffer.getRect(cmd.payload);
+					glViewport((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					break;
+				}
+				case Command::SetScissor:
+				{
+					auto rect = cmdBuffer.getRect(cmd.payload);
+					glScissor((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					break;
 				}
 				case Command::SetPipeline:
 				{
@@ -141,6 +175,10 @@ namespace rev :: gfx
 						glBindImageTexture(0, payload.targetTexture.id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 					glDispatchCompute(payload.groupSize.x(), payload.groupSize.y(), payload.groupSize.z());
 					break;
+				}
+				default:
+				{
+					assert(false && "Command not implemented");
 				}
 			}
 		}

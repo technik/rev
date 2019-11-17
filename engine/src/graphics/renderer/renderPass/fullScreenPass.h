@@ -20,7 +20,7 @@
 #pragma once
 
 #include <graphics/backend/device.h>
-#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>

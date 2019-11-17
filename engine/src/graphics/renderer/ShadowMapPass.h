@@ -38,10 +38,10 @@ namespace rev::gfx {
 	class ShadowMapPass
 	{
 	public:
-		ShadowMapPass(Device& device, FrameBuffer target, const math::Vec2u& _size);
+		ShadowMapPass(Device& device, const math::Vec2u& _size);
 
-		static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
-		static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
+		//static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
+		//static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
 
 		// view camera is used to adjust projection frustum.
 		// Culling BBox is extended towards the camera before culling actually happens
@@ -61,8 +61,8 @@ namespace rev::gfx {
 		void renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst);
 
 	private:
-		Device&		m_device;
-		RenderPass*	m_pass;
+		//Device&		m_device;
+		//RenderPass*	m_pass;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 

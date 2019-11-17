@@ -43,15 +43,10 @@ namespace rev::gfx {
 
 		// Create the depth texture and framebuffer
 		m_depthTexture = ZPrePass::createDepthMapTexture(device, targetSize);
-		auto depthBuffer = ShadowMapPass::createShadowBuffer(device, m_depthTexture);
-		mZPrePass = std::make_unique<ZPrePass>(device, depthBuffer, targetSize);
 		
 		// Create shadow pass
 		unsigned shadowSize = 4*1024;
 		auto shadowTexSize = math::Vec2u{shadowSize, shadowSize};
-		m_shadowsTexture = ShadowMapPass::createShadowMapTexture(device, shadowTexSize);
-		auto shadowBuffer = ShadowMapPass::createShadowBuffer(device, m_shadowsTexture);
-		mShadowPass = std::make_unique<ShadowMapPass>(device, shadowBuffer, shadowTexSize);
 
 		// Create the geometry forward pass
 		mForwardPass = std::make_unique<ForwardPass>(device, targetSize, target);
@@ -125,7 +120,6 @@ namespace rev::gfx {
 		if(m_depthTexture.isValid())
 			m_device->destroyTexture2d(m_depthTexture);
 		m_depthTexture = ZPrePass::createDepthMapTexture(*m_device, _newSize);
-		mZPrePass->onResizeTarget(_newSize, m_depthTexture);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -160,7 +154,7 @@ namespace rev::gfx {
 		assert(m_targetBuffer.isValid());
 		// Renderpass
 		RenderPass::Descriptor passDesc;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::None;
+		passDesc.clearFlags = Clear::None;
 		passDesc.target = m_targetBuffer;
 		passDesc.viewportSize = targetSize;
 		m_bgPass = std::make_unique<FullScreenPass>(device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));

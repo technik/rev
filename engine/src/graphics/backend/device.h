@@ -18,7 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "frameBuffer.h"
+#include <graphics/backend/gpuTypes.h>
 #include "renderQueue.h"
 #include "namedResource.h"
 #include "texture2d.h"
@@ -49,7 +49,10 @@ namespace rev :: gfx
 		virtual void destroyTexture2d(Texture2d) = 0;
 
 		// Frame buffers
+		static constexpr size_t cMaxFBAttachments = 8;
 		virtual FrameBuffer createFrameBuffer(const FrameBuffer::Descriptor&) = 0;
+		virtual void destroyFrameBuffer(FrameBuffer) = 0;
+		virtual void bindFrameBuffer(FrameBuffer) = 0;
 
 		// Render passes
 		virtual void bindPass(int32_t pass, RenderQueue& queue) = 0;

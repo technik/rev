@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>

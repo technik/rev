@@ -50,7 +50,7 @@ namespace vkft::gfx
 		float grey = 0.5f;
 		fullScreenDesc.clearColor = { grey,grey,grey, 1.f };
 		fullScreenDesc.clearDepth = 1.0;
-		fullScreenDesc.clearFlags = RenderPass::Descriptor::Clear::All;
+		fullScreenDesc.clearFlags = Clear::All;
 		fullScreenDesc.target = mGfxDevice.defaultFrameBuffer();
 		fullScreenDesc.viewportSize = targetSize;
 		m_finalPass = mGfxDevice.createRenderPass(fullScreenDesc);

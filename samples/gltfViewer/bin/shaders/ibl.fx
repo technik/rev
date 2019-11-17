@@ -60,9 +60,7 @@ vec3 ibl(
 	// Multiple scattering
 	float Ess = f_ab.x + f_ab.y;
 	float Ems = 1-Ess;
-	//vec3 Favg = F0 + (1-F0)*0.14959965; // Pi/21
-	//if(normal.x > 0)
-	vec3 Favg = F0 + (1-F0)*0.0476190476; // Pi/21
+	vec3 Favg = F0 + (1-F0)*0.0476190476;
 	vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
 
 	// Dielectrics
@@ -73,8 +71,6 @@ vec3 ibl(
     float sdwD = max(0.0, -dot(lightDir,normal));
     float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
-    //return vec3((shadow-1)*sdwS + 1);
-    //return vec3(sdwS*(shadow-1)+1);
 	return (sdwS*(shadow-1)+1)*FssEss * radiance + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance;
 }
 #endif // sampler2D_uEnvironment

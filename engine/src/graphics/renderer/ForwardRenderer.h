@@ -23,7 +23,7 @@
 #include "ShadowMapPass.h"
 #include <graphics/backend/device.h>
 #include <graphics/backend/texture2d.h>
-#include <graphics/backend/frameBuffer.h>
+#include <graphics/backend/gpuTypes.h>
 #include <graphics/renderer/RenderItem.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
 #include <graphics/renderer/renderPass/zPrePass.h>

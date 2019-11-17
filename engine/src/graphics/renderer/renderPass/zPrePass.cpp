@@ -60,7 +60,7 @@ namespace rev::gfx {
 	{
 		RenderPass::Descriptor passDesc;
 		passDesc.clearDepth = 1;
-		passDesc.clearFlags = RenderPass::Descriptor::Clear::Depth;
+		passDesc.clearFlags = Clear::Depth;
 		passDesc.target = m_frameBuffer;
 		passDesc.viewportSize = _size;
 		m_pass = m_device.createRenderPass(passDesc);
@@ -91,9 +91,7 @@ namespace rev::gfx {
 		gfx::FrameBuffer::Attachment depthAttachment;
 		depthAttachment.target = gfx::FrameBuffer::Attachment::Target::Depth;
 		depthAttachment.texture = texture;
-		gfx::FrameBuffer::Descriptor shadowBufferDesc;
-		shadowBufferDesc.numAttachments = 1;
-		shadowBufferDesc.attachments = &depthAttachment;
+		gfx::FrameBuffer::Descriptor shadowBufferDesc(1, &depthAttachment);
 		return device.createFrameBuffer(shadowBufferDesc);
 	}
 
