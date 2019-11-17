@@ -105,6 +105,18 @@ namespace rev :: gfx
 					glClear(clearDepth | clearColor);
 					break;
 				}
+				case Command::SetViewport:
+				{
+					auto rect = cmdBuffer.getRect(cmd.payload);
+					glViewport((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					break;
+				}
+				case Command::SetScissor:
+				{
+					auto rect = cmdBuffer.getRect(cmd.payload);
+					glScissor((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					break;
+				}
 				case Command::SetPipeline:
 				{
 					m_device.bindPipeline(cmd.payload);
