@@ -74,6 +74,7 @@ Physics getPhysics()
 	vec3 physics = texture(uPhysics, vec2(vTexCoord.x, vTexCoord.y)).xyz;
 	phyParam.roughness *= physics.g;
 	phyParam.metallic *= physics.b;
+	phyParam.ao = physics.r;
 #endif
 	return phyParam;
 }
@@ -89,6 +90,7 @@ PBRParams getPBRParams()
 	params.specular_r = vec4(F0, physics.roughness);
 	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
 	params.albedo.a = 1.0;
+	params.ao = physics.ao;
 
 	return params;
 }

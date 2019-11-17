@@ -221,7 +221,7 @@ namespace rev {
 		}
 		ImGui::End();
 
-		/*if(ImGui::Begin("Render options"))
+		if(ImGui::Begin("Render options"))
 		{
 			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
 			if(m_bgOptions.shadows)
@@ -229,11 +229,11 @@ namespace rev {
 				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
 				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
 
-				gui::slider("Shadow bias", mForwardRenderer.shadowBias(), -0.1f, 0.1f);
+				//gui::slider("Shadow bias", mForwardRenderer.shadowBias(), -0.1f, 0.1f);
 			}
 			m_envLight->castShadows = m_bgOptions.shadows;
 		}
-		ImGui::End();*/
+		ImGui::End();
 		mForwardRenderer.drawDebugUI();
 		
 		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);

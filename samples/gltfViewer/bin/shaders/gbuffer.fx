@@ -105,6 +105,7 @@ void main (void) {
 	outPBR = pbr.specular_r;
 
 	outAlbedo = pbr.albedo;
+	outAlbedo.a = pbr.ao;
 }
 
 #endif // PXL_SHADER

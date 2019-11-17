@@ -46,10 +46,11 @@ vec3 shade () {
 	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
 
 	vec4 f0_roughness = texture(uSpecularMap, uv);
-	vec3 albedo = texture(uAlbedoMap, uv).xyz;
+	vec4 albedo_ao = texture(uAlbedoMap, uv);
+	vec3 albedo = albedo_ao.xyz;
 	vec3 F0 = f0_roughness.xyz;
 	float r = f0_roughness.a;
-	float occlusion = 1.0;
+	float occlusion = albedo_ao.w;
 #ifdef sampler2D_uShadowMap
 	vec4 shadowPos = uShadowProj * wsPos;
 	float shadowDepth = textureLod(uShadowMap, shadowPos.xy*0.5+0.5, 0.0).x;
@@ -61,7 +62,7 @@ vec3 shade () {
 	float shadow = 1.0;
 #endif
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	shadow = 1.0;
+	shadow = 0.5+0.5*shadow;
 	vec3 color = ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 	vec3 toneMapped = color*uEV / (1+uEV*color);
     return toneMapped;

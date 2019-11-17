@@ -68,6 +68,7 @@ struct PBRParams
 {
 	vec4 specular_r; // specular.xyz, ao
 	vec4 albedo; // albedo, alpha
+	float ao;
 };
 
 PBRParams getPBRParams();
