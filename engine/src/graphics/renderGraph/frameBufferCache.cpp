@@ -107,11 +107,11 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void FrameBufferCache::freeResources()
 	{
-		for (auto res : m_textures)
+		for (auto& res : m_textures)
 		{
 			res.locked = false;
 		}
-		for (auto res : m_frameBuffers)
+		for (auto& res : m_frameBuffers)
 		{
 			res.locked = false;
 		}
@@ -120,15 +120,15 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void FrameBufferCache::deallocateResources()
 	{
-		for (auto res : m_textures)
+		for (auto& res : m_textures)
 		{
-			res.locked = false;
 			m_device.destroyTexture2d(res.handle);
 		}
-		for (auto res : m_frameBuffers)
+		m_textures.clear();
+		for (auto& res : m_frameBuffers)
 		{
-			res.locked = false;
 			//m_device.destroyFrameBuffer();
 		}
+		m_frameBuffers.clear();
 	}
 }
