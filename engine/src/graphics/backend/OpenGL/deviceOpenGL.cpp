@@ -185,9 +185,9 @@ namespace rev :: gfx
 		if(fbState == GL_FRAMEBUFFER_COMPLETE)
 		{
 			// allocate a new frame buffer
-			newFb = FrameBuffer((int32_t)m_frameBuffers.size());
 			fbInfo.frameBufferGLname = fbId;
 			m_frameBuffers.push_back(fbInfo);
+			newFb = FrameBuffer((int32_t)m_frameBuffers.size()); // Index +1, because 0 is reserved for the default fb
 		}
 		else
 		{
@@ -214,7 +214,8 @@ namespace rev :: gfx
 	void DeviceOpenGL::destroyFrameBuffer(FrameBuffer fb)
 	{
 		assert(fb.isValid());
-		auto& fbInfo = m_frameBuffers[fb.id()];
+		assert(fb.id() > 0);
+		auto& fbInfo = m_frameBuffers[fb.id()-1];
 		assert(fbInfo.isValid);
 		fbInfo.isValid = false;
 		while(!m_frameBuffers.back().isValid)
@@ -226,10 +227,19 @@ namespace rev :: gfx
 	{
 		// Locate frame buffer information
 		assert(fb.isValid());
-		auto& fbInfo = m_frameBuffers[fb.id()];
-		assert(fbInfo.isValid);
+
+		// Default frame buffer?
+		if (fb.id() == 0)
+		{
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glEnable(GL_FRAMEBUFFER_SRGB);
+			return;
+		}
 
 		// Bind the frame buffer
+		assert(fb.id() > 0);
+		auto& fbInfo = m_frameBuffers[fb.id() - 1];
+		assert(fbInfo.isValid);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbInfo.frameBufferGLname);
 		glDrawBuffers(fbInfo.numColorAttachs, fbInfo.colorAttachments);
 		if (fbInfo.sRGB)

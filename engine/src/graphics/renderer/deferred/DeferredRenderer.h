@@ -46,13 +46,8 @@ namespace rev::gfx {
 		//void drawDebugUI();
 
 	private:
-		void createBuffers();
 		void createRenderPasses(gfx::FrameBuffer target);
 		void collapseSceneRenderables(const RenderScene&);
-		Texture2d createGBufferTexture(Device& device, const math::Vec2u& size);
-		void createPBRTextures(Device& device, const math::Vec2u& size);
-		Texture2d createDepthTexture(Device& device, const math::Vec2u& size);
-		FrameBuffer createGBuffer(Device& device, Texture2d depth, Texture2d normal);
 		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
 		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
 
@@ -77,14 +72,6 @@ namespace rev::gfx {
 		// Geometry pass
 		std::map<std::string, ShaderCodeFragment*> m_materialCode;
 		Pipeline::RasterOptions m_rasterOptions;
-		gfx::Texture2d			m_depthTexture;
-		gfx::Texture2d			m_gBufferTexture;
-		gfx::Texture2d			m_albedoTexture;
-		gfx::Texture2d			m_specularTexture;
-		gfx::Texture2d			m_shadowTexture;
-		FrameBuffer				mGBuffer;
-		FrameBuffer				m_shadowBuffer;
-		RenderPass*				m_gBufferPass = nullptr;
 		GeometryPass*			m_gPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
 		std::unique_ptr<ShadowMapPass>	m_shadowPass;
@@ -93,7 +80,6 @@ namespace rev::gfx {
 		// SSAO pass
 		// Lighting pass
 		Texture2d			m_brdfIbl;
-		RenderPass*			m_lPass = nullptr;
 		FullScreenPass*		m_lightingPass = nullptr;
 
 		// Shadow map(s)

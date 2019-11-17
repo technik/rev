@@ -127,7 +127,7 @@ namespace rev::gfx {
 		m_textures.clear();
 		for (auto& res : m_frameBuffers)
 		{
-			//m_device.destroyFrameBuffer();
+			m_device.destroyFrameBuffer(res.handle);
 		}
 		m_frameBuffers.clear();
 	}

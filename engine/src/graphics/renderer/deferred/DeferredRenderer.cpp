@@ -43,7 +43,6 @@ namespace rev::gfx {
 		m_viewportSize = size;
 		const unsigned shadowBufferSize = 1024;
 		m_shadowSize = Vec2u(shadowBufferSize, shadowBufferSize);
-		createBuffers();
 		createRenderPasses(target);
 
 		// Load ibl texture
@@ -97,8 +96,12 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
 	{
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
+		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
+		RenderGraph frameGraph(*m_device);
+
 		// --- Cull stuff
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		// Cull visible objects renderQ -> visible
 		m_visible.clear();
 		Mat44f view = eye.view();
@@ -121,166 +124,142 @@ namespace rev::gfx {
 
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
-		for (auto& mesh : m_visible)
-		{
-			// Raster options
-			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-			m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-			instance.raster = m_rasterOptions.mask();
-			// Uniforms
-			instance.uniforms.clear();
-			Mat44f world = mesh.world;
-			Mat44f wvp = viewProj * world;
-			instance.uniforms.mat4s.push_back({ 0, wvp });
-			instance.uniforms.mat4s.push_back({ 1, world });
-			// Geometry
-			if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
-			{
-				lastMaterial = &mesh.material;
-				lastGeom = &mesh.geom;
-				mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
-				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
-				instance.geometryIndex++;
-				geometry.push_back(&mesh.geom);
-			}
-			renderList.push_back(instance);
-		}
-
-		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
-		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
-		RenderGraph frameGraph(*m_device);
 
 		// G-Buffer pass
-		RenderGraph::BufferResource depth, normals, pbr; // G-Pass outputs
+		RenderGraph::BufferResource depth, normals, pbr, albedo; // G-Pass outputs
 		frameGraph.addPass(
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			depth = pass.write(BufferFormat::depth32);
-			normals = pass.write(BufferFormat::RGBA8);
-			pbr = pass.write(BufferFormat::sRGBA8);
+				depth = pass.write(BufferFormat::depth32);
+				normals = pass.write(BufferFormat::RGBA8);
+				pbr = pass.write(BufferFormat::RGBA8);
+				albedo = pass.write(BufferFormat::sRGBA8);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
 				// Clear depth
 				dst.clearDepth(0.f);
+				dst.clearColor(Vec4f::zero());
+				dst.clear(Clear::All);
+
+				for (auto& mesh : m_visible)
+				{
+					// Raster options
+					bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
+					m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
+					instance.raster = m_rasterOptions.mask();
+					// Uniforms
+					instance.uniforms.clear();
+					Mat44f world = mesh.world;
+					Mat44f wvp = viewProj * world;
+					instance.uniforms.mat4s.push_back({ 0, wvp });
+					instance.uniforms.mat4s.push_back({ 1, world });
+					// Geometry
+					if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
+					{
+						lastMaterial = &mesh.material;
+						lastGeom = &mesh.geom;
+						mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
+						instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
+						instance.geometryIndex++;
+						geometry.push_back(&mesh.geom);
+					}
+					renderList.push_back(instance);
+				}
+
 				m_gPass->render(geometry, renderList, dst);
 			});
 
+		// Optional shadow pass
+		const bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
+		RenderGraph::BufferResource shadows;
+		if (useShadows)
+		{
+			frameGraph.addPass(
+				m_shadowSize,
+				[&](RenderGraph::IPassBuilder& pass)
+				{
+					shadows = pass.write(BufferFormat::depth32);
+				},
+				[&](const Texture2d*, size_t, CommandBuffer& dst)
+				{
+					auto& light = *scene.lights()[0];
+					m_shadowPass->render(m_renderQueue, m_visible, eye, light, dst);
+				});
+		}
+
 		// Environment light pass
-		RenderGraph::BufferResource hdr;
+		//RenderGraph::BufferResource hdr;
 		frameGraph.addPass(
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-			hdr = pass.write(BufferFormat::RGBA32);
-			pass.read(depth, 0);
-			pass.read(normals, 1);
-			pass.read(pbr, 2);
-			// TODO: Shadows enabled? read them!
+			//hdr = pass.write(BufferFormat::RGBA32);
+				pass.write(m_targetFb); // Should write to hdr
+
+				pass.read(depth, 0);
+				pass.read(normals, 1);
+				pass.read(pbr, 2);
+				pass.read(albedo, 3);
+				// TODO: Shadows enabled? read them!
+				if (useShadows)
+					pass.read(shadows, 4);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
 				dst.clearColor(Vec4f::zero());
-				// TODO: Actually use shadows if needed
-				// Then draw full screen pass
+				dst.clearDepth(0.f);
+				dst.clear(Clear::All);
+
+				// Light-pass
+				if (auto env = scene.environment())
+				{
+					CommandBuffer::UniformBucket envUniforms;
+					auto projection = eye.projection(aspectRatio);
+					Mat44f invView = eye.world().matrix();
+					envUniforms.addParam(0, projection);
+					envUniforms.addParam(1, invView);
+					envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+					envUniforms.addParam(3, 1.f);
+
+					envUniforms.addParam(4, env->texture());
+					envUniforms.addParam(5, m_brdfIbl);
+					envUniforms.addParam(6, (float)env->numLevels());
+
+					envUniforms.addParam(7, inputTextures[1]);
+					envUniforms.addParam(8, inputTextures[0]);
+					envUniforms.addParam(9, inputTextures[2]);
+					envUniforms.addParam(10, inputTextures[3]);
+
+					if (useShadows)
+					{
+						math::Mat44f shadowProj = m_shadowPass->shadowProj();
+						envUniforms.addParam(11, inputTextures[4]);
+						envUniforms.addParam(12, shadowProj);
+					}
+
+					m_lightingPass->render(envUniforms, dst);
+
+					// Background
+					// Uniforms
+					CommandBuffer::UniformBucket bgUniforms;
+					bgUniforms.mat4s.push_back({ 0, invView });
+					bgUniforms.mat4s.push_back({ 1, projection });
+					bgUniforms.vec4s.push_back({ 2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
+					bgUniforms.floats.push_back({ 3, 0.f }); // Neutral exposure
+					bgUniforms.textures.push_back({ 7, env->texture() });
+					// Render
+					m_bgPass->render(bgUniforms, dst);
+				}
 			});
 
-		// Final pass, tonemapping to LDR into the final frame buffer
-		frameGraph.addPass(
-			m_viewportSize,
-			// Pass definition
-			[&hdr, this](RenderGraph::IPassBuilder& pass)
-			{
-				pass.read(hdr, 0);
-				pass.write(m_targetFb);
-			},
-			// Pass evaluation
-			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				// TODO: Actual full screen pass
-			});
-
-		frameGraph.build(*m_fbCache);
-		/*
-		Proof of concept code for a renderGraph being used to make a deferred render
-
-		defineGraph()
-		{
-			// AO
-			AOSamplePass = graph.newPass(viewportSize/2)
-			AOSamplePass.read(depth)
-			aoSamples = AOSamplePass.write(rgb8)
-
-			// Shadow maps & light passes
-			for(l : lights)
-				ShadowPass[l] = graph.newPass(shadowSize)
-				shadowMap[j] = ShadowPass[j].write(depth)
-				LightPass.read(shadowMap)
-				light = LightPass.readAndWrite(light)
-
-			// Transparent, write after the last light
-			transparent = graph.readAndWrite(light)
-		}
-
-		*/
 		// Record passes
+		frameGraph.build(*m_fbCache);
 		CommandBuffer frameCommands;
-
-		// Shadows
-		const bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
-		if (useShadows)
-		{
-			auto& light = *scene.lights()[0];
-			m_shadowPass->render(m_renderQueue, m_visible, eye, light, frameCommands);
-		}
-
-		// G-pass
 		frameGraph.evaluate(frameCommands);
-		
-		// Light-pass
-		frameCommands.beginPass(*m_lPass);
-		if(auto env = scene.environment())
-		{
-			CommandBuffer::UniformBucket envUniforms;
-			auto projection = eye.projection(aspectRatio);
-			Mat44f invView = eye.world().matrix();
-			envUniforms.addParam(0, projection);
-			envUniforms.addParam(1, invView);
-			envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-			envUniforms.addParam(3, 1.f);
-
-			envUniforms.addParam(4, env->texture());
-			envUniforms.addParam(5, m_brdfIbl);
-			envUniforms.addParam(6, (float)env->numLevels());
-
-			envUniforms.addParam(7, m_gBufferTexture);
-			envUniforms.addParam(8, m_depthTexture);
-			envUniforms.addParam(9, m_specularTexture);
-			envUniforms.addParam(10, m_albedoTexture);
-
-			if (useShadows)
-			{
-				math::Mat44f shadowProj = m_shadowPass->shadowProj();
-				envUniforms.addParam(11, m_shadowTexture);
-				envUniforms.addParam(12, shadowProj);
-			}
-			
-			m_lightingPass->render(envUniforms, frameCommands);
-
-			// Background
-			// Uniforms
-			CommandBuffer::UniformBucket bgUniforms;
-			bgUniforms.mat4s.push_back({0, invView });
-			bgUniforms.mat4s.push_back({1, projection });
-			bgUniforms.vec4s.push_back({2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
-			bgUniforms.floats.push_back({3, 0.f }); // Neutral exposure
-			bgUniforms.textures.push_back({7, env->texture()} );
-			// Render
-			m_bgPass->render(bgUniforms, frameCommands);
-		}
 
 		// Submit
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
@@ -290,37 +269,14 @@ namespace rev::gfx {
 	void DeferredRenderer::onResizeTarget(const math::Vec2u& _newSize)
 	{
 		// Skip it for now
+		m_fbCache->deallocateResources();
 		m_viewportSize = _newSize;
-		m_gBufferPass->setViewport({0,0}, _newSize);
-		m_lPass->setViewport({0,0}, _newSize);
-
 		// Recreate internal buffers
-		m_device->destroyTexture2d(m_gBufferTexture);
-		m_device->destroyTexture2d(m_depthTexture);
-		m_device->destroyTexture2d(m_albedoTexture);
-		m_device->destroyTexture2d(m_specularTexture);
-		createBuffers();
 		if(m_gPass)
 			delete m_gPass;
-		if(m_gBufferPass)
-			delete m_gBufferPass;
 		if(m_lightingPass)
 			delete m_lightingPass;
-		if(m_lPass)
-			delete m_lPass;
 		createRenderPasses(m_targetFb);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::createBuffers()
-	{
-		m_gBufferTexture = createGBufferTexture(*m_device, m_viewportSize);
-		m_depthTexture = createDepthTexture(*m_device, m_viewportSize);
-		createPBRTextures(*m_device, m_viewportSize);
-		mGBuffer = createGBuffer(*m_device, m_depthTexture, m_gBufferTexture);
-
-		m_shadowTexture = ShadowMapPass::createShadowMapTexture(*m_device, m_shadowSize);
-		m_shadowBuffer = ShadowMapPass::createShadowBuffer(*m_device, m_shadowTexture);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -329,34 +285,15 @@ namespace rev::gfx {
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 
-		// G-Buffer pass
-		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 0;
-		passDesc.clearFlags = Clear::All;
-		passDesc.target = mGBuffer;
-		passDesc.numColorAttachs = 3;
-		passDesc.viewportSize = m_viewportSize;
-
-		m_gBufferPass = m_device->createRenderPass(passDesc);
 		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
 
 		// Shadow pass
-		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowBuffer, m_shadowSize);
+		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowSize);
 
 		// Lighting pass
-		passDesc.clearDepth = 0;
-		passDesc.clearFlags = Clear::Depth;
-		passDesc.target = target;
-		passDesc.numColorAttachs = 1;
-		passDesc.sRGB = true;
-		passDesc.viewportSize = m_viewportSize;
-		m_lPass = m_device->createRenderPass(passDesc);
 		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
 
 		// Background pass
-		passDesc.clearFlags = Clear::None;
-		passDesc.target = target;
-		passDesc.viewportSize = m_viewportSize;
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
 	}
 
@@ -383,80 +320,6 @@ namespace rev::gfx {
 				m_renderQueue.push_back({obj->transform, *mesh.first, *mesh.second});
 			}
 		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	Texture2d DeferredRenderer::createGBufferTexture(Device& device, const math::Vec2u& size)
-	{
-		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::MinFilter::Linear;
-		auto sampler = device.createTextureSampler(samplerDesc);
-		auto textureDesc = Texture2d::Descriptor();
-		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		textureDesc.pixelFormat.numChannels = 4;
-		textureDesc.depth = false;
-		textureDesc.sampler = sampler;
-		textureDesc.mipLevels = 1;
-		textureDesc.size = size;
-
-		return device.createTexture2d(textureDesc);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::createPBRTextures(Device& device, const math::Vec2u& size)
-	{
-		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::MinFilter::Linear;
-		auto sampler = device.createTextureSampler(samplerDesc);
-		auto textureDesc = Texture2d::Descriptor();
-		textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
-		textureDesc.pixelFormat.numChannels = 4;
-		textureDesc.depth = false;
-		textureDesc.sampler = sampler;
-		textureDesc.mipLevels = 1;
-		textureDesc.size = size;
-
-		m_albedoTexture = device.createTexture2d(textureDesc);
-		m_specularTexture = device.createTexture2d(textureDesc);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	Texture2d DeferredRenderer::createDepthTexture(Device& device, const math::Vec2u& size)
-	{
-		auto samplerDesc = TextureSampler::Descriptor();
-		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
-		samplerDesc.filter = TextureSampler::MinFilter::Linear;
-		auto sampler = device.createTextureSampler(samplerDesc);
-		auto textureDesc = Texture2d::Descriptor();
-		textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		textureDesc.pixelFormat.numChannels = 1;
-		textureDesc.depth = true;
-		textureDesc.sampler = sampler;
-		textureDesc.mipLevels = 1;
-		textureDesc.size = size;
-
-		return device.createTexture2d(textureDesc);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	FrameBuffer DeferredRenderer::createGBuffer(Device& device, Texture2d depth, Texture2d normal)
-	{
-		gfx::FrameBuffer::Attachment attachments[4];
-		attachments[0].target = gfx::FrameBuffer::Attachment::Target::Depth;
-		attachments[0].texture = depth;
-		attachments[1].target = gfx::FrameBuffer::Attachment::Target::Color;
-		attachments[1].texture = normal;
-		attachments[2].target = gfx::FrameBuffer::Attachment::Target::Color;
-		attachments[2].texture = m_albedoTexture;
-		attachments[3].target = gfx::FrameBuffer::Attachment::Target::Color;
-		attachments[3].texture = m_specularTexture;
-		gfx::FrameBuffer::Descriptor gBufferDesc(4, attachments);
-		return device.createFrameBuffer(gBufferDesc);
 	}
 
 } // namespace rev::gfx

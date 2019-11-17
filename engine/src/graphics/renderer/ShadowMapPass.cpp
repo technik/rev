@@ -40,26 +40,16 @@ using namespace std;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	ShadowMapPass::ShadowMapPass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
-		: m_device(device)
-		, m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx"))
+	ShadowMapPass::ShadowMapPass(Device& device, const math::Vec2u& _size)
+		: m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/shadowMap.fx"))
 	{
-		assert(target.isValid());
-		// Renderpass
-		RenderPass::Descriptor passDesc;
-		passDesc.clearDepth = 0;
-		passDesc.clearFlags = Clear::Depth;
-		passDesc.target = target;
-		passDesc.viewportSize = _size;
-		m_pass = device.createRenderPass(passDesc);
-
 		// Pipeline config
 		m_rasterOptions.cullFront = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
+	/*Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
 	{
 		auto shadowSamplerDesc = TextureSampler::Descriptor();
 		shadowSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
@@ -86,7 +76,7 @@ namespace rev::gfx {
 		depthAttachment.texture = texture;
 		FrameBuffer::Descriptor shadowBufferDesc(1, &depthAttachment);
 		return device.createFrameBuffer(shadowBufferDesc);
-	}
+	}*/
 
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::render(
@@ -116,7 +106,7 @@ namespace rev::gfx {
 		adjustViewMatrix(shadowView, castersBBox);// Adjust view matrix
 
 		// Render
-		dst.beginPass(*m_pass);
+		//dst.beginPass(*m_pass);
 		renderMeshes(shadowCasters, dst); // Iterate over renderables
 	}
 

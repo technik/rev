@@ -54,7 +54,7 @@ namespace rev::gfx {
 			virtual BufferResource write(BufferResource) = 0;
 			virtual void read(BufferResource, int bindingPos) = 0;
 
-			static constexpr size_t cMaxInputs = 4;
+			static constexpr size_t cMaxInputs = 8;
 		};
 
 		using PassDefinition = std::function<void(IPassBuilder&)>;

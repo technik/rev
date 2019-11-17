@@ -89,13 +89,13 @@ namespace rev::gfx {
 
 				if (virtualBuffer.externalTexture.isValid())
 				{
-					targetTextures[i++] = virtualBuffer.externalTexture;
+					targetTextures[i] = virtualBuffer.externalTexture;
 				}
 				else
 				{
-					targetTextures[i++] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+					targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
 				}
-				m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
+				m_virtualToPhysical[targetResourceNdx] = targetTextures[i++];
 			}
 			if (passFramebuffer.isValid())
 			{
@@ -194,9 +194,9 @@ namespace rev::gfx {
 			dst.bindFrameBuffer(pass.m_cachedFb);
 			dst.setViewport(math::Vec2u::zero(), pass.targetSize);
 			dst.setScissor(math::Vec2u::zero(), pass.targetSize);
-			// Clear?
 			// Collapse input textures into a local array of physical textures
 			Texture2d passInputs[PassBuilder::cMaxInputs];
+			assert(pass.m_inputs.size() <= IPassBuilder::cMaxInputs);
 			for (size_t i = 0; i < pass.m_inputs.size(); ++i)
 			{
 				auto& bufferState = m_bufferLifetime[pass.m_inputs[i]];

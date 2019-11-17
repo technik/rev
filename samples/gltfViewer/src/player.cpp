@@ -48,6 +48,8 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init()
 	{
+		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
+		mForwardRenderer.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 
 		// Default scene light
@@ -74,9 +76,6 @@ namespace rev {
 		createFloor();
 		mGameScene.root()->init();
 
-		mForwardRenderer.init(gfxDevice(), windowSize(), backBuffer());
-		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
-		onResize(); // Hack: This shouldn't be necessary, but aparently the renderer doesn't initialize properly.
 		gui::init(windowSize());
 
 		return true;
@@ -222,7 +221,7 @@ namespace rev {
 		}
 		ImGui::End();
 
-		if(ImGui::Begin("Render options"))
+		/*if(ImGui::Begin("Render options"))
 		{
 			ImGui::Checkbox("IBL Shadows", &m_bgOptions.shadows);
 			if(m_bgOptions.shadows)
@@ -234,7 +233,7 @@ namespace rev {
 			}
 			m_envLight->castShadows = m_bgOptions.shadows;
 		}
-		ImGui::End();
+		ImGui::End();*/
 		mForwardRenderer.drawDebugUI();
 		
 		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);

@@ -61,6 +61,7 @@ namespace rev :: gfx
 	//----------------------------------------------------------------------------------------------
 	void RenderPassOpenGL::bindTo(RenderQueueOpenGL& renderQueue) const
 	{
+		assert(false && "deprecated");
 		// Bind the frame buffer
 		assert(m_desc.target.isValid());
 		glBindFramebuffer(GL_FRAMEBUFFER, m_desc.target.id());
