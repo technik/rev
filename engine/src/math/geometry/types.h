@@ -10,69 +10,66 @@
 
 namespace rev {
 	namespace math {
+		
+		struct Plane
+		{
+			Vec3f normal;
+			float t;
+		};
+
+		Plane operator*(const Mat44f& m, const Plane& p)
+		{
+			Vec4f origin = Vec4f(p.t * p.normal, 1.f);
+			Vec4f dir = Vec4f(p.normal, 0.f);
+			Vec4f transformedDir = m * dir;
+			Vec4f transformedOrigin = m * origin;
+			Plane result;
+			result.normal = transformedDir.xyz();
+			result.t = dot(transformedDir, transformedOrigin);
+			return result;
+		}
 
 		struct Frustum {
 			Frustum() = default; // Allow empty construction
-			Frustum(float _aspectRatio, float _fov, float _near, float _far) 
+			Frustum(float _aspectRatio, float _yFov, float _near, float _far)
 				:mAspectRatio(_aspectRatio)
-				,mFov(_fov)
+				,mYFov(_yFov)
 				,mNear(_near)
 				,mFar(_far)
 			{
-				mProjection = frustumMatrix(_fov, _aspectRatio, _near, _far);
+				mProjection = frustumMatrix(_yFov, _aspectRatio, _near, _far);
 
-				float tangent = tan(_fov / 2.f);
-				Vec3f minVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_near;
-				Vec3f maxVert = Vec3f(tangent, 1.f, tangent/_aspectRatio)*_far;
-
-				mVertices[0] = minVert;
-				mVertices[1] = Vec3f(-minVert.x(), minVert.y(), minVert.z());
-				mVertices[2] = Vec3f(-minVert.x(), minVert.y(), -minVert.z());
-				mVertices[3] = Vec3f(minVert.x(), minVert.y(), -minVert.z());
-				mVertices[4] = maxVert;
-				mVertices[5] = Vec3f(-maxVert.x(), maxVert.y(), maxVert.z());
-				mVertices[6] = Vec3f(-maxVert.x(), maxVert.y(), -maxVert.z());
-				mVertices[7] = Vec3f(maxVert.x(), maxVert.y(), -maxVert.z());
-			}
-
-			Frustum(const Vec3f& size) // Rectangular
-				: mAspectRatio(size.x()/size.y())
-				, mFov(0.f)
-				, mNear(-0.5f*size.y())
-				, mFar(-0.5f*size.y())
-			{
-				math::Vec3f hSize = size*0.5f;
-				math::Vec3f minVert = math::Vec3f(hSize.x(), -hSize.y(), hSize.z());
-				math::Vec3f maxVert = math::Vec3f(hSize.x(), hSize.y(), hSize.z());
-
-				mVertices[0] = minVert;
-				mVertices[1] = Vec3f(-minVert.x(), minVert.y(), minVert.z());
-				mVertices[2] = Vec3f(-minVert.x(), minVert.y(), -minVert.z());
-				mVertices[3] = Vec3f(minVert.x(), minVert.y(), -minVert.z());
-				mVertices[4] = maxVert;
-				mVertices[5] = Vec3f(-maxVert.x(), maxVert.y(), maxVert.z());
-				mVertices[6] = Vec3f(-maxVert.x(), maxVert.y(), -maxVert.z());
-				mVertices[7] = Vec3f(maxVert.x(), maxVert.y(), -maxVert.z());
-
-				mProjection = orthographicMatrix(size.xy(), mNear, mFar);
+				float yTangent = tan(_yFov / 2.f);
+				float xTangent = yTangent * _aspectRatio;
+				// Normals point outwards
+				mPlanes[0] = { Vec3f(0.f,0.f,1.f), -_near }; // Near plane
+				mPlanes[1] = { Vec3f(0.f,0.f,-1.f), _far }; // Far plane
+				Vec3f topEdgeDir = normalize(Vec3f(0.f, yTangent, -1.f));
+				mPlanes[2] = { cross(Vec3f(1.f,0.f,0.f), topEdgeDir), 0.f }; // Top plane
+				Vec3f bottomEdgeDir = normalize(Vec3f(0.f, -yTangent, -1.f));
+				mPlanes[3] = { cross(Vec3f(-1.f,0.f,0.f), topEdgeDir), 0.f }; // Bottom plane
+				Vec3f rightEdgeDir = normalize(Vec3f(xTangent, 0.f, -1.f));
+				mPlanes[4] = { cross(Vec3f(0.f,-1.f,0.f), rightEdgeDir), 0.f }; // Right plane
+				Vec3f leftEdgeDir = normalize(Vec3f(-xTangent, 0.f, -1.f));
+				mPlanes[5] = { cross(Vec3f(1.f,0.f,0.f), leftEdgeDir), 0.f }; // Left plane
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }
-			float fov			() const { return mFov; }
+			float fov			() const { return mYFov; }
 			float nearPlane		() const { return mNear; }
 			float farPlane		() const { return mFar; }
 			float centroid		() const { return 0.5f*(mNear+mFar); }
+			const Plane& plane(size_t i) const { return mPlanes[i]; }
 
 			const Mat44f& projection() const { return mProjection; }
-			const Vec3f*	vertices() const { return mVertices; }
 
 		private:
 			float mAspectRatio;
-			float mFov;
+			float mYFov;
 			float mNear;
 			float mFar;
-			Vec3f mVertices[8];
 			Mat44f mProjection;
+			Plane mPlanes[6];
 		};
 
 } }	// namespace rev::math
