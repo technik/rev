@@ -105,10 +105,12 @@ namespace rev::gfx {
 		// Cull visible objects renderQ -> visible
 		m_visible.clear();
 		Mat44f view = eye.view();
+		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
+		Frustum viewFrustum = eye.frustum(aspectRatio);
 		for (auto& renderItem : m_renderQueue)
 		{
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
-			if (viewSpaceBB.min().z() < 0)
+			if (math::cull(viewFrustum, viewSpaceBB))
 				m_visible.push_back(renderItem);
 		}
 
@@ -122,7 +124,6 @@ namespace rev::gfx {
 		const RenderGeom* lastGeom = nullptr;
 		const Material* lastMaterial = nullptr;
 
-		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
 
 		// G-Buffer pass
