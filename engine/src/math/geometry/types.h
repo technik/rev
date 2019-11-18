@@ -17,7 +17,7 @@ namespace rev {
 			float t;
 		};
 
-		Plane operator*(const Mat44f& m, const Plane& p)
+		inline Plane operator*(const Mat44f& m, const Plane& p)
 		{
 			Vec4f origin = Vec4f(p.t * p.normal, 1.f);
 			Vec4f dir = Vec4f(p.normal, 0.f);
@@ -47,11 +47,11 @@ namespace rev {
 				Vec3f topEdgeDir = normalize(Vec3f(0.f, yTangent, -1.f));
 				mPlanes[2] = { cross(Vec3f(1.f,0.f,0.f), topEdgeDir), 0.f }; // Top plane
 				Vec3f bottomEdgeDir = normalize(Vec3f(0.f, -yTangent, -1.f));
-				mPlanes[3] = { cross(Vec3f(-1.f,0.f,0.f), topEdgeDir), 0.f }; // Bottom plane
+				mPlanes[3] = { cross(Vec3f(-1.f,0.f,0.f), bottomEdgeDir), 0.f }; // Bottom plane
 				Vec3f rightEdgeDir = normalize(Vec3f(xTangent, 0.f, -1.f));
 				mPlanes[4] = { cross(Vec3f(0.f,-1.f,0.f), rightEdgeDir), 0.f }; // Right plane
 				Vec3f leftEdgeDir = normalize(Vec3f(-xTangent, 0.f, -1.f));
-				mPlanes[5] = { cross(Vec3f(1.f,0.f,0.f), leftEdgeDir), 0.f }; // Left plane
+				mPlanes[5] = { cross(Vec3f(0.f,1.f,0.f), leftEdgeDir), 0.f }; // Left plane
 			}
 
 			float aspectRatio	() const { return mAspectRatio; }
@@ -71,6 +71,36 @@ namespace rev {
 			Mat44f mProjection;
 			Plane mPlanes[6];
 		};
+
+		inline bool cull(const Frustum& frustum, const Mat44f& worldFromFrustum, const AABB& aabb)
+		{
+			for (size_t i = 0; i < 6; ++i)
+			{
+				Plane rotatedPlane = worldFromFrustum * frustum.plane(i);
+				Vec3f v1 = aabb.min().cwiseProduct(rotatedPlane.normal);
+				Vec3f v2 = aabb.max().cwiseProduct(rotatedPlane.normal);
+				Vec3f min = math::min(v1, v2);
+				float tMin = dot(min, rotatedPlane.normal);
+				if (tMin > rotatedPlane.t) // Fully outside
+					return false;
+			}
+			return true;
+		}
+
+		inline bool cull(const Frustum& frustum, const AABB& aabb)
+		{
+			for (size_t i = 0; i < 6; ++i)
+			{
+				auto& plane = frustum.plane(i);
+				Vec3f v1 = aabb.min().cwiseProduct(plane.normal);
+				Vec3f v2 = aabb.max().cwiseProduct(plane.normal);
+				Vec3f min = math::min(v1, v2);
+				float tMin = dot(min, plane.normal);
+				if (tMin > plane.t) // Fully outside
+					return false;
+			}
+			return true;
+		}
 
 } }	// namespace rev::math
 

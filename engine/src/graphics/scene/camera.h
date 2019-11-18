@@ -22,6 +22,7 @@
 #include <math/algebra/matrix.h>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
+#include <math/geometry/types.h>
 #include <cassert>
 
 #ifdef _WIN32
@@ -76,10 +77,10 @@ namespace rev::gfx {
 		auto near() const { return mNear; }
 		auto far() const { return mFar; }
 		auto fov() const { return mFov; }
+		math::Frustum frustum(float aspectRatio) const { return math::Frustum(aspectRatio, mFov, mNear, mFar); }
 
 	private:
 		float mFov, mNear, mFar;
-
 		math::AffineTransform mWorld;
 		math::Mat44f mView;
 	};
