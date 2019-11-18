@@ -6,6 +6,7 @@
 #include <math/algebra/matrix.h>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
+#include <math/geometry/types.h>
 #include <math/numericTraits.h>
 
 using namespace rev::math;
@@ -72,8 +73,23 @@ void testAABBTransform()
 	}
 }
 
+void testFrustumCulling()
+{
+	const float yFov = HalfPi;
+	const float aspectRatio = 1.f;
+	const float nearCap = 1.f;
+	const float farCap = 10.f;
+	Frustum frustum = Frustum(aspectRatio, yFov, nearCap, farCap);
+	AABB fullInside = AABB(Vec3f(-1.f, -1.f, -4.f), Vec3f(1.f, 1.f, -2.f));
+	assert(cull(frustum, fullInside));
+
+	AABB positiveZ = AABB(Vec3f(-1.f, -1.f, 0.f), Vec3f(1.f, 1.f, 2.f));
+	assert(!cull(frustum, positiveZ));
+}
+
 int main()
 {
 	testAABBTransform();
+	testFrustumCulling();
 	return 0;
 }
