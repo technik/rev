@@ -75,16 +75,25 @@ void testAABBTransform()
 
 void testFrustumCulling()
 {
-	const float yFov = HalfPi;
-	const float aspectRatio = 1.f;
-	const float nearCap = 1.f;
-	const float farCap = 10.f;
-	Frustum frustum = Frustum(aspectRatio, yFov, nearCap, farCap);
-	AABB fullInside = AABB(Vec3f(-1.f, -1.f, -4.f), Vec3f(1.f, 1.f, -2.f));
-	assert(cull(frustum, fullInside));
+	// Uniform fov, 90 degrees
+	{
+		const float yFov = HalfPi;
+		const float aspectRatio = 1.f;
+		const float nearCap = 1.f;
+		const float farCap = 10.f;
+		Frustum frustum = Frustum(aspectRatio, yFov, nearCap, farCap);
+		AABB fullInside = AABB(Vec3f(-1.f, -1.f, -4.f), Vec3f(1.f, 1.f, -2.f));
+		assert(cull(frustum, fullInside));
 
-	AABB positiveZ = AABB(Vec3f(-1.f, -1.f, 0.f), Vec3f(1.f, 1.f, 2.f));
-	assert(!cull(frustum, positiveZ));
+		AABB positiveZ = AABB(Vec3f(-1.f, -1.f, 0.f), Vec3f(1.f, 1.f, 2.f));
+		assert(!cull(frustum, positiveZ));
+
+		AABB intersect = AABB(Vec3f{ -2.f, -2.f, -2.f }, Vec3f{ -1.f, -1.f, -1.f });
+		assert(cull(frustum, intersect));
+
+		intersect = AABB(Vec3f{ -2.f, -1.f, -3.f }, Vec3f{ -1.f, 1.f, -1.f });
+		assert(cull(frustum, intersect));
+	}
 }
 
 int main()
