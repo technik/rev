@@ -218,7 +218,7 @@ namespace rev :: gfx
 		auto& fbInfo = m_frameBuffers[fb.id()-1];
 		assert(fbInfo.isValid);
 		fbInfo.isValid = false;
-		while(!m_frameBuffers.back().isValid)
+		while(!m_frameBuffers.empty() && !m_frameBuffers.back().isValid)
 			m_frameBuffers.pop_back();
 	}
 
