@@ -103,13 +103,20 @@ namespace rev::gfx {
 		// --- Cull stuff
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		// Cull visible objects renderQ -> visible
-		m_visible.clear();
+		m_opaqueQueue.clear();
+		m_transparentQueue.clear();
 		Mat44f view = eye.view();
 		for (auto& renderItem : m_renderQueue)
 		{
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
 			if (viewSpaceBB.min().z() < 0)
-				m_visible.push_back(renderItem);
+			{
+				if (renderItem.material.alpha() == Material::Alpha::opaque)
+					m_opaqueQueue.push_back(renderItem);
+				else
+					m_transparentQueue.push_back(renderItem);
+
+			}
 		}
 
 		auto worldMatrix = Mat44f::identity();
@@ -144,7 +151,7 @@ namespace rev::gfx {
 				dst.clearColor(Vec4f::zero());
 				dst.clear(Clear::All);
 
-				for (auto& mesh : m_visible)
+				for (auto& mesh : m_opaqueQueue)
 				{
 					// Raster options
 					bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
@@ -186,7 +193,7 @@ namespace rev::gfx {
 				[&](const Texture2d*, size_t, CommandBuffer& dst)
 				{
 					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_visible, eye, light, dst);
+					m_shadowPass->render(m_renderQueue, m_opaqueQueue, eye, light, dst);
 				});
 		}
 

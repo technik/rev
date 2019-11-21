@@ -26,7 +26,7 @@ using namespace rev::math;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	Material::Material(const shared_ptr<Effect>& _effect, Alpha alpha = Alpha::opaque)
+	Material::Material(const shared_ptr<Effect>& _effect, Alpha alpha)
 		: mEffect(_effect)
 		, mAlpha(alpha)
 	{
@@ -36,6 +36,7 @@ namespace rev::gfx {
 	void Material::addParam(const string& name, float f, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
+		mIsEmissive |= flags & BindingFlags::Emissive;
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
@@ -47,6 +48,7 @@ namespace rev::gfx {
 	void Material::addParam(const string& name, const Vec3f& v, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
+		mIsEmissive |= flags & BindingFlags::Emissive;
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
@@ -58,6 +60,7 @@ namespace rev::gfx {
 	void Material::addParam(const string& name, const Vec4f& v, BindingFlags flags)
 	{
 		auto prop = mEffect->property(name);
+		mIsEmissive |= flags & BindingFlags::Emissive;
 		if(prop)
 		{
 			mShaderOptionsCode += prop->preprocessorDirective();
@@ -68,6 +71,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void Material::addTexture(const string& name, gfx::Texture2d t, BindingFlags flags)
 	{
+		mIsEmissive |= flags & BindingFlags::Emissive;
 		if (!t.isValid())
 			return;
 		auto prop = mEffect->property(name);

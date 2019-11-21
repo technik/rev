@@ -67,7 +67,8 @@ namespace rev::gfx {
 
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
-		std::vector<RenderItem> m_visible;
+		std::vector<RenderItem> m_opaqueQueue;
+		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass
 		std::map<std::string, ShaderCodeFragment*> m_materialCode;

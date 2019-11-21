@@ -53,7 +53,8 @@ namespace rev::gfx {
 		Effect& effect() const { return *mEffect;}
 
 		Material(const std::shared_ptr<Effect>& effect, Alpha = Alpha::opaque);
-		Alpha alpha() const;
+		Alpha alpha() const { return mAlpha; }
+		bool isEmissive() const { return mIsEmissive; }
 
 		// New params can only be added to the material before calling init
 		void addParam(const std::string& name,float f, BindingFlags);
@@ -67,6 +68,7 @@ namespace rev::gfx {
 	private:
 		const std::shared_ptr<Effect> mEffect;
 		Alpha mAlpha = Alpha::opaque;
+		bool mIsEmissive = false;
 		std::string mShaderOptionsCode;
 
 		template<class T> struct Param
