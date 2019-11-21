@@ -26,8 +26,9 @@ using namespace rev::math;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	Material::Material(const shared_ptr<Effect>& _effect)
+	Material::Material(const shared_ptr<Effect>& _effect, Alpha alpha = Alpha::opaque)
 		: mEffect(_effect)
+		, mAlpha(alpha)
 	{
 	}
 

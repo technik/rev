@@ -515,6 +515,16 @@ namespace rev { namespace game {
 		// Load materials
 		for(auto& matDesc : _document.materials)
 		{
+			Material::Alpha alphaMode = Material::Alpha::opaque;
+			if(matDesc.alphaMode == gltf::Material::AlphaMode::Blend)
+			{
+				alphaMode = Material::Alpha::blend;
+			}
+			else if (matDesc.alphaMode == gltf::Material::AlphaMode::Mask)
+			{
+				alphaMode = Material::Alpha::mask;
+			}
+
 			std::shared_ptr<Material> mat;
 			bool specular = false;
 			if(matDesc.extensionsAndExtras.find("extensions") != matDesc.extensionsAndExtras.end())
@@ -524,9 +534,9 @@ namespace rev { namespace game {
 					specular = true;
 			}
 			if(specular)
-				mat = std::make_shared<Material>(_specEffect);
+				mat = std::make_shared<Material>(_specEffect, alphaMode);
 			else
-				mat = std::make_shared<Material>(_pbrEffect);
+				mat = std::make_shared<Material>(_pbrEffect, alphaMode);
 			if(matDesc.name == "carPaint")
 				mat = clearCoat;
 			auto& pbrDesc = matDesc.pbrMetallicRoughness;
