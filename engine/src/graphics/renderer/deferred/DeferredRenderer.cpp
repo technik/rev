@@ -64,36 +64,6 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::string DeferredRenderer::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
-	{
-		// TODO: Create this defines procedurally with more information from the actual rendergeom
-		std::string defines;
-		if(vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_POSITION_FLOAT 0\n";
-		if(vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_NORMAL_FLOAT 1\n";
-		if(vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_TANGENT_FLOAT 2\n";
-		if(vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_UV_FLOAT 3\n";
-		return defines;
-	}
-
-	ShaderCodeFragment* DeferredRenderer::getMaterialCode(RenderGeom::VtxFormat vtxFormat, const Material& material)
-	{
-		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions() + material.effect().code();
-		auto iter = m_materialCode.find(completeCode);
-		if(iter == m_materialCode.end())
-		{
-			iter = m_materialCode.emplace(completeCode, new ShaderCodeFragment(completeCode.c_str())).first;
-			material.effect().onReload([this](const Effect&){
-				m_materialCode.clear();
-			});
-		}
-		return iter->second;
-	}
-
-	//----------------------------------------------------------------------------------------------
 	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
 	{
 		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
@@ -119,16 +89,6 @@ namespace rev::gfx {
 			}
 		}
 
-		auto worldMatrix = Mat44f::identity();
-		GeometryPass::Instance instance;
-		instance.geometryIndex = uint32_t(-1);
-		instance.instanceCode = nullptr;
-
-		std::vector<GeometryPass::Instance> renderList;
-		std::vector<const RenderGeom*> geometry;
-		const RenderGeom* lastGeom = nullptr;
-		const Material* lastMaterial = nullptr;
-
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
 
@@ -151,32 +111,7 @@ namespace rev::gfx {
 				dst.clearColor(Vec4f::zero());
 				dst.clear(Clear::All);
 
-				for (auto& mesh : m_opaqueQueue)
-				{
-					// Raster options
-					bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-					m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-					instance.raster = m_rasterOptions.mask();
-					// Uniforms
-					instance.uniforms.clear();
-					Mat44f world = mesh.world;
-					Mat44f wvp = viewProj * world;
-					instance.uniforms.mat4s.push_back({ 0, wvp });
-					instance.uniforms.mat4s.push_back({ 1, world });
-					// Geometry
-					if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
-					{
-						lastMaterial = &mesh.material;
-						lastGeom = &mesh.geom;
-						mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
-						instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
-						instance.geometryIndex++;
-						geometry.push_back(&mesh.geom);
-					}
-					renderList.push_back(instance);
-				}
-
-				m_gPass->render(geometry, renderList, dst);
+				m_gPass->render(viewProj, m_opaqueQueue, m_rasterOptions, dst);
 			});
 
 		// Optional shadow pass

@@ -48,10 +48,6 @@ namespace rev::gfx {
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
 		void collapseSceneRenderables(const RenderScene&);
-		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
-		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
-
-		using RenderItem = gfx::RenderItem;
 
 		template<class Filter> // Filter must be an operator (RenderItem) -> bool
 		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
@@ -71,7 +67,6 @@ namespace rev::gfx {
 		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass
-		std::map<std::string, ShaderCodeFragment*> m_materialCode;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass*			m_gPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;

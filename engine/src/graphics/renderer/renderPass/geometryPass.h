@@ -23,6 +23,7 @@
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
+#include <graphics/renderer/RenderItem.h>
 #include <string>
 #include <map>
 #include <utility>
@@ -48,11 +49,22 @@ namespace rev::gfx {
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
 		void render(
+			const math::Mat44f& viewProj,
+			const std::vector<RenderItem>& geometry,
+			Pipeline::RasterOptions rasterOptions,
+			CommandBuffer& out);
+
+		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
+		void render(
 			const std::vector<const RenderGeom*>& geometry,
 			const std::vector<Instance>& instances,
 			CommandBuffer& out);
 
 	private:
+
+		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
+		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
+
 		Device& mDevice;
 		Pipeline getPipeline(const Instance&);
 
@@ -61,7 +73,8 @@ namespace rev::gfx {
 
 		using PipelineSrc = std::pair<Pipeline::RasterOptions::Mask, ShaderCodeFragment*>;
 		// Stored pipelines
-		std::map<PipelineSrc, Pipeline> mPipelines;
+		std::map<std::string, ShaderCodeFragment*> m_materialCode;
+		std::map<PipelineSrc, Pipeline> m_pipelines;
 		std::vector<std::shared_ptr<ShaderCodeFragment::ReloadListener>> m_shaderListeners;
 	};
 
