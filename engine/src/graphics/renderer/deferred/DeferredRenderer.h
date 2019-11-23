@@ -56,6 +56,7 @@ namespace rev::gfx {
 		Device*		m_device = nullptr;
 
 		// Render state
+		float m_expositionValue = 0.f;
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
@@ -70,6 +71,7 @@ namespace rev::gfx {
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass*			m_gPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
+		std::unique_ptr<FullScreenPass>	m_hdrPass;
 		std::unique_ptr<ShadowMapPass>	m_shadowPass;
 
 		// Shadow pass

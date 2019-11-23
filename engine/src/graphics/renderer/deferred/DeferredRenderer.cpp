@@ -135,18 +135,18 @@ namespace rev::gfx {
 		}
 
 		// Environment light pass
-		//RenderGraph::BufferResource hdr;
+		RenderGraph::BufferResource hdr;
 		frameGraph.addPass("Light pass",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 			//hdr = pass.write(BufferFormat::RGBA32);
-				pass.write(m_targetFb); // Should write to hdr
+				hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
 
 				pass.read(normals, 0);
 				pass.read(albedo, 1);
 				pass.read(pbr, 2);
-				pass.read(depth, 3);
+				pass.read(depth, 3); // Hack: Doesn´t really write to it. But we need it bound in the fb
 				// TODO: Shadows enabled? read them!
 				if (useShadows)
 					pass.read(shadows, 4);
@@ -155,7 +155,6 @@ namespace rev::gfx {
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
 				dst.clearColor(Vec4f::zero());
-				dst.clearDepth(0.f);
 				dst.clear(Clear::All);
 
 				// Light-pass
@@ -167,7 +166,6 @@ namespace rev::gfx {
 					envUniforms.addParam(0, projection);
 					envUniforms.addParam(1, invView);
 					envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-					envUniforms.addParam(3, 1.f);
 
 					envUniforms.addParam(4, env->texture());
 					envUniforms.addParam(5, m_brdfIbl);
@@ -200,9 +198,29 @@ namespace rev::gfx {
 				}
 			});
 
+		frameGraph.addPass("hdr",
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+				//hdr = pass.write(BufferFormat::RGBA32);
+				pass.read(hdr, 0); // Should write to hdr
+				pass.write(m_targetFb); // Hack: Doesn´t really write to it. But we need it bound in the fb
+			},
+			// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				CommandBuffer::UniformBucket uniforms;
+				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+				uniforms.addParam(3, powf(2.f, m_expositionValue));
+				uniforms.addParam(4, inputTextures[0]);
+
+				m_hdrPass->render(uniforms, dst);
+			});
+
 		// Record passes
 		frameGraph.build(*m_fbCache);
 		CommandBuffer frameCommands;
+
 		frameGraph.evaluate(frameCommands);
 
 		// Submit
@@ -239,6 +257,9 @@ namespace rev::gfx {
 
 		// Background pass
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
+
+		// HDR pass
+		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
