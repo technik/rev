@@ -30,7 +30,7 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, ShaderCodeFragment* code = nullptr);
+		FullScreenPass(gfx::Device&, ShaderCodeFragment* code = nullptr, Pipeline::DepthTest depthTest = Pipeline::DepthTest::Gequal, bool writeDepth = true);
 		~FullScreenPass();
 
 		void setPassCode(ShaderCodeFragment* code);
@@ -46,6 +46,8 @@ namespace rev::gfx {
 		ShaderCodeFragment* m_baseCode = nullptr;
 		ShaderCodeFragment* m_passCode = nullptr;
 		ShaderCodeFragment* m_completeCode;
+
+		Pipeline::Descriptor m_pipelineDesc;
 		Pipeline m_pipeline;
 
 		using ShaderListener = ShaderCodeFragment::ReloadListener;
