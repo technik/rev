@@ -12,6 +12,7 @@ vec3 shade () {
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	vec3 hdrColor = texture(uHDR, uv).xyz;
 	vec3 toneMapped = hdrColor*uEV / (1+uEV*hdrColor);
+	//return hdrColor;
     return toneMapped;
 }
 

@@ -68,17 +68,33 @@ vec3 shade () {
 	vec4 seeds = texelFetch(uNoise, ivec2(gl_FragCoord.xy)%64, 0);
 
 	float w = 0.0;
+	float aoMaxDistance = 20.f;
 	for(int i = 0; i < 4; ++i)
 	{
 		float u = seeds[i]*2-1;
 		float v = sqrt(1-u*u);
 		vec2 samplePos = vec2(u,v);
-		vec2 sampleUV = uv + 3.f * samplePos / Window.xy;
+		vec2 sampleUV = uv + aoMaxDistance * samplePos / Window.xy;
 		float occluderDepth = texture(uDepthMap, sampleUV).x;
 		vec4 occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
 		vec3 sampleFromCenter = (occlPos - wsPos).xyz;
 		float d = dot(sampleFromCenter, wsNormal);
-		if( d > 0.0 && d/abs(vsPos.z) < 0.004)
+		if( d > 0.0 && d/abs(vsPos.z) < 0.02)
+		{
+			vec3 sampleDir = normalize(sampleFromCenter);
+			w += 1-dot(sampleDir, wsNormal);
+		}
+		else
+		{
+			w += 1.0;
+		}
+
+		sampleUV = uv - aoMaxDistance * samplePos / Window.xy;
+		occluderDepth = texture(uDepthMap, sampleUV).x;
+		occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
+		sampleFromCenter = (occlPos - wsPos).xyz;
+		d = dot(sampleFromCenter, wsNormal);
+		if( d > 0.0 && d/abs(vsPos.z) < 0.02)
 		{
 			vec3 sampleDir = normalize(sampleFromCenter);
 			w += 1-dot(sampleDir, wsNormal);
@@ -88,7 +104,7 @@ vec3 shade () {
 			w += 1.0;
 		}
 	}
-	w = w/4;
+	w = w/8;
 
     return vec3(w);
 }

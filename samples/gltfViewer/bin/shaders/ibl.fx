@@ -71,7 +71,7 @@ vec3 ibl(
     float sdwD = max(0.0, -dot(lightDir,normal));
     float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
-	return (sdwS*(shadow-1)+1)*FssEss * radiance + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occlusion;
+	return (sdwS*(shadow-1)+1)*FssEss * radiance*occlusion + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occlusion;
 }
 #endif // sampler2D_uEnvironment
 
