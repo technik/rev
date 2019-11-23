@@ -8,6 +8,9 @@ layout(location = 2) uniform vec4 Window;
 
 layout(location = 7) uniform sampler2D uGBuffer;
 layout(location = 8) uniform sampler2D uDepthMap;
+layout(location = 9) uniform sampler2D uNoise;
+
+const float TwoPi = 6.2831852436065673828125f;
 
 vec4 vsPosFromGBuffer(float depthBufferSample, vec2 uv)
 {
@@ -23,13 +26,32 @@ vec4 wsPosFromGBuffer(float depthBufferSample, vec2 uv)
 	return invView * vsPosFromGBuffer(depthBufferSample, uv);
 }
 
-vec2 samplePos[4] = 
+// Pixar's method for orthonormal basis generation
+void branchlessONB(in vec3 n, out vec3 b1, out vec3 b2)
 {
-	vec2(-1.0, 0.0),
-	vec2(1.0, 0.0),
-	vec2(0.0, -1.0),
-	vec2(0.0, 1.0)
-};
+	float sign = n.z > 0.0 ? 1.0 : -1.0;
+	const float a = -1.0f / (sign + n.z);
+	const float b = n.x * n.y * a;
+	b1 = vec3(1.0f + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	b2 = vec3(b, sign + n.y * n.y * a, -n.y);
+}
+
+vec3 randomUnitVector(in vec2 seed)
+{
+	float theta = TwoPi*seed.x;
+	float z = 2*seed.y-1;
+	float horRad = sqrt(1-z*z);
+	return vec3(
+		cos(theta)*horRad,
+		z,
+		sin(theta)*horRad
+		);
+}
+
+vec3 lambertianDirection(in vec3 normal, in vec2 seed)
+{
+	return normal + 0.985 * randomUnitVector(seed);
+}
 
 //------------------------------------------------------------------------------	
 vec3 shade () {
@@ -43,10 +65,15 @@ vec3 shade () {
 	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
 	vec4 wsPos = invView * vsPos;
 
+	vec4 seeds = texelFetch(uNoise, ivec2(gl_FragCoord.xy)%64, 0);
+
 	float w = 0.0;
 	for(int i = 0; i < 4; ++i)
 	{
-		vec2 sampleUV = uv + 3.f * samplePos[i] / Window.xy;
+		float u = seeds[i]*2-1;
+		float v = sqrt(1-u*u);
+		vec2 samplePos = vec2(u,v);
+		vec2 sampleUV = uv + 3.f * samplePos / Window.xy;
 		float occluderDepth = texture(uDepthMap, sampleUV).x;
 		vec4 occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
 		vec3 sampleFromCenter = (occlPos - wsPos).xyz;

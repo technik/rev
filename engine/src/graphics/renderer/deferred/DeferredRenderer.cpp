@@ -30,6 +30,8 @@
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 
+#include <sstream>
+
 using namespace rev::math;
 
 namespace rev::gfx {
@@ -61,6 +63,10 @@ namespace rev::gfx {
 		ibl_desc.srcImages.emplace_back(std::move(iblImg));
 
 		m_brdfIbl = device.createTexture2d(ibl_desc);
+
+		// Blue noise
+		m_noisePermutations = std::uniform_int_distribution<unsigned>(0, NumBlueNoiseTextures - 1);
+		loadNoiseTextures();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -141,6 +147,8 @@ namespace rev::gfx {
 				// Textures
 				uniforms.addParam(7, inputTextures[0]);
 				uniforms.addParam(8, inputTextures[1]);
+				unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
+				uniforms.addParam(9, m_blueNoise[noiseTextureNdx]);
 
 				m_aoSamplePass->render(uniforms, dst);
 			});
@@ -295,6 +303,56 @@ namespace rev::gfx {
 
 		// HDR pass
 		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::loadNoiseTextures()
+	{
+		// Noise texture sampler
+		TextureSampler::Descriptor noiseSamplerDesc;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
+		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
+
+		rev::gfx::Texture2d::Descriptor m_noiseDesc;
+		m_noiseDesc.sampler = m_device->createTextureSampler(noiseSamplerDesc);
+		m_noiseDesc.depth = false;
+		m_noiseDesc.mipLevels = 1;
+		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+		m_noiseDesc.pixelFormat.numChannels = 4;
+		m_noiseDesc.size = Vec2u(64, 64);
+		m_noiseDesc.sRGB = false;
+
+		std::string imageName = "../data/blueNoise/LDR_RGBA_00.png";
+		auto digitPos = imageName.find("00");
+		for (unsigned i = 0; i < NumBlueNoiseTextures; ++i)
+		{
+#if 0
+			// Create a brand new noise texture
+			Vec4f * noise = new Vec4f[64 * 64];
+			std::uniform_real_distribution<float> noiseDistrib;
+			for (int i = 0; i < 64 * 64; ++i)
+			{
+				noise[i].x() = noiseDistrib(m_rng);
+				noise[i].y() = noiseDistrib(m_rng);
+				noise[i].z() = noiseDistrib(m_rng);
+				noise[i].w() = noiseDistrib(m_rng);
+			}
+			m_noiseDesc.srcImages.emplace_back(new rev::gfx::Image(m_noiseDesc.size, noise));
+			m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
+#else
+			// Load image from file
+			imageName[digitPos] = (i / 10) + '0';
+			imageName[digitPos+1] = (i % 10) + '0';
+			auto image = Image::load(imageName, 0);
+			m_noiseDesc.srcImages.clear();
+			if (image)
+			{
+				m_noiseDesc.srcImages.push_back(std::move(image));
+				m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
+			}
+#endif
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include <graphics/renderer/ShadowMapPass.h>
 #include <graphics/renderGraph/renderGraph.h>
 #include <graphics/renderGraph/frameBufferCache.h>
+#include <random>
 #include <vector>
 
 namespace rev::gfx {
@@ -47,6 +48,7 @@ namespace rev::gfx {
 
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
+		void loadNoiseTextures();
 		void collapseSceneRenderables(const RenderScene&);
 
 		template<class Filter> // Filter must be an operator (RenderItem) -> bool
@@ -61,6 +63,12 @@ namespace rev::gfx {
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
 		std::unique_ptr<FrameBufferCache> m_fbCache;
+
+		// Noise
+		static constexpr unsigned NumBlueNoiseTextures = 64;
+		rev::gfx::Texture2d m_blueNoise[NumBlueNoiseTextures];
+		std::default_random_engine m_rng;
+		std::uniform_int_distribution<unsigned> m_noisePermutations;
 
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
