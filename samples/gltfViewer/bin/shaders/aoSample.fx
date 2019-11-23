@@ -56,16 +56,17 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 //------------------------------------------------------------------------------	
 vec3 shade () {
 	//mat4 invViewProj = inverse(proj);
+	ivec2 pixelPos = ivec2(gl_FragCoord.xy);
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	// Direction from the view point to the pixel, in view space
 	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
 	vec3 wsNormal = normalize(compressedNormal*2.0-1.0);
 
-	float sampleDepth = texture(uDepthMap, uv).x;
+	float sampleDepth = texelFetch(uDepthMap, pixelPos, 0).x;
 	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
 	vec4 wsPos = invView * vsPos;
 
-	vec4 seeds = texelFetch(uNoise, ivec2(gl_FragCoord.xy)%64, 0);
+	vec4 seeds = texelFetch(uNoise, pixelPos%64, 0);
 
 	float w = 0.0;
 	float aoMaxDistance = 20.f;
@@ -75,7 +76,7 @@ vec3 shade () {
 		float v = sqrt(1-u*u);
 		vec2 samplePos = vec2(u,v);
 		vec2 sampleUV = uv + aoMaxDistance * samplePos / Window.xy;
-		float occluderDepth = texture(uDepthMap, sampleUV).x;
+		float occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
 		vec4 occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
 		vec3 sampleFromCenter = (occlPos - wsPos).xyz;
 		float d = dot(sampleFromCenter, wsNormal);
@@ -90,7 +91,7 @@ vec3 shade () {
 		}
 
 		sampleUV = uv - aoMaxDistance * samplePos / Window.xy;
-		occluderDepth = texture(uDepthMap, sampleUV).x;
+		occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
 		occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
 		sampleFromCenter = (occlPos - wsPos).xyz;
 		d = dot(sampleFromCenter, wsNormal);
