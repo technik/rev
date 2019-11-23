@@ -500,6 +500,14 @@ namespace rev :: gfx
 		}
 		else
 		{
+			if(desc.raster.witeDepth)
+			{
+				glDepthMask(GL_TRUE);
+			}
+			else
+			{
+				glDepthMask(GL_FALSE);
+			}
 			glEnable(GL_DEPTH_TEST);
 			switch(desc.raster.depthTest)
 			{
@@ -509,6 +517,12 @@ namespace rev :: gfx
 				case Pipeline::DepthTest::Gequal:
 					glDepthFunc(GL_GEQUAL);
 					break;
+				case Pipeline::DepthTest::Less:
+					glDepthFunc(GL_LESS);
+					break;
+				default:
+					assert(false && "Unsupported depth function");
+					return;
 			}
 		}
 		// Culling

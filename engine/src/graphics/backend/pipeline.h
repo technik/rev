@@ -71,7 +71,8 @@ namespace rev :: gfx
 		enum class DepthTest {
 			None = 0,
 			Lequal = 1,
-			Gequal = 2
+			Gequal = 2,
+			Less = 4,
 		};
 
 		enum class Winding
@@ -86,6 +87,7 @@ namespace rev :: gfx
 			bool cullFront = false;
 			Winding frontFace = Winding::CCW;
 			DepthTest depthTest = DepthTest::None;// Depth test
+			bool witeDepth = true;
 
 			using Mask = uint32_t;
 
@@ -94,7 +96,8 @@ namespace rev :: gfx
 				m |= (cullBack?1:0);
 				m |= (cullFront?1:0)<<1;
 				m |= ((frontFace==Winding::CCW)?1:0)<<2;
-				m |= (int(depthTest))<<3;
+				m |= (witeDepth ? 1 : 0) << 3;
+				m |= (int(depthTest))<<4;
 				return m;
 			}
 
@@ -104,7 +107,8 @@ namespace rev :: gfx
 				r.cullBack = m & 1;
 				r.cullFront = m & (1<<1);
 				r.frontFace = Winding((m>>2) & 1);
-				r.depthTest = DepthTest(m>>3);
+				r.witeDepth = m & (1 << 3);
+				r.depthTest = DepthTest(m>>4);
 				return r;
 			}
 		};
