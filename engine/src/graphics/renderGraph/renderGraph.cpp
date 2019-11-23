@@ -21,6 +21,8 @@
 #include "renderGraph.h"
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
+#include <graphics/debug/debugGUI.h>
+#include <graphics/debug/imgui.h>
 
 #include <numeric>
 
@@ -41,13 +43,14 @@ namespace rev::gfx {
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::addPass(
+		const std::string& name,
 		const math::Vec2u& size,
 		PassDefinition passDefinition,
 		PassEvaluator passEvaluator,
 		HWAntiAlias targetAntiAliasing)
 	{
 		// Add a new pass
-		m_passDescriptors.emplace_back(m_bufferLifetime, m_virtualResources);
+		m_passDescriptors.emplace_back(name, m_bufferLifetime, m_virtualResources);
 		auto& newPass = m_passDescriptors.back();
 		newPass.targetSize = size;
 		newPass.definition = passDefinition;
@@ -68,6 +71,8 @@ namespace rev::gfx {
 
 		// Sort passes based on their dependencies
 		sortPasses();
+
+		bool showDebugInfo = ImGui::Begin("Render Graph");
 
 		// Associate passes with resources
 		for (auto passNdx : m_sortedPasses)
@@ -117,7 +122,20 @@ namespace rev::gfx {
 			FrameBuffer::Descriptor descriptor(i, attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 			pass.m_cachedFb = passFramebuffer;
+
+			// Instrumentation
+			if(ImGui::CollapsingHeader(pass.name.c_str()))
+			{
+				ImVec2 previewSize = ImVec2(pass.targetSize.x() * 0.25f, pass.targetSize.y() * 0.25f);
+				for (int nAttach = 0; nAttach < i; ++nAttach)
+				{
+					ImTextureID texId = (void*)((GLuint)attachments[nAttach].texture.id());
+					ImGui::Image(texId, previewSize);
+				}
+			}
 		}
+
+		ImGui::End();
 
 		// Resolve input textures?
 		bufferCache.freeResources();

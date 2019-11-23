@@ -94,7 +94,7 @@ namespace rev::gfx {
 
 		// G-Buffer pass
 		RenderGraph::BufferResource depth, normals, pbr, albedo; // G-Pass outputs
-		frameGraph.addPass(
+		frameGraph.addPass("G-Buffer",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
@@ -119,7 +119,7 @@ namespace rev::gfx {
 		RenderGraph::BufferResource shadows;
 		if (useShadows)
 		{
-			frameGraph.addPass(
+			frameGraph.addPass("Sky shadow",
 				m_shadowSize,
 				[&](RenderGraph::IPassBuilder& pass)
 				{
@@ -134,7 +134,7 @@ namespace rev::gfx {
 
 		// Environment light pass
 		//RenderGraph::BufferResource hdr;
-		frameGraph.addPass(
+		frameGraph.addPass("Light pass",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
