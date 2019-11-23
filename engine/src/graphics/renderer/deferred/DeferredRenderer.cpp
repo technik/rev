@@ -141,12 +141,13 @@ namespace rev::gfx {
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 			//hdr = pass.write(BufferFormat::RGBA32);
+				pass.write(depth);
 				hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
 
 				pass.read(normals, 0);
 				pass.read(albedo, 1);
 				pass.read(pbr, 2);
-				pass.read(depth, 3); // Hack: Doesn´t really write to it. But we need it bound in the fb
+				pass.read(depth, 3);
 				// TODO: Shadows enabled? read them!
 				if (useShadows)
 					pass.read(shadows, 4);
@@ -155,7 +156,7 @@ namespace rev::gfx {
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
 				dst.clearColor(Vec4f::zero());
-				dst.clear(Clear::All);
+				dst.clear(Clear::Color);
 
 				// Light-pass
 				if (auto env = scene.environment())
@@ -253,10 +254,10 @@ namespace rev::gfx {
 		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowSize);
 
 		// Lighting pass
-		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
+		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"), Pipeline::DepthTest::Less, false);
 
 		// Background pass
-		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
+		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
 
 		// HDR pass
 		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));

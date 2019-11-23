@@ -74,6 +74,8 @@ namespace rev::gfx {
 
 		bool showDebugInfo = ImGui::Begin("Render Graph");
 
+		// Clear previous associations
+		m_virtualToPhysical.clear();
 		// Associate passes with resources
 		for (auto passNdx : m_sortedPasses)
 		{
@@ -81,9 +83,9 @@ namespace rev::gfx {
 			auto& pass = m_passDescriptors[passNdx];
 			// Gather all virtual resources associated
 			Texture2d targetTextures[cMaxOutputs];
-			int i = 0;
-			for (auto outputStateNdx : pass.m_outputs)
+			for (int i = 0; i < pass.m_outputs.size(); ++i)
 			{
+				auto outputStateNdx = pass.m_outputs[i];
 				auto targetResourceNdx = m_bufferLifetime[outputStateNdx].virtualBufferNdx;
 				auto& virtualBuffer = m_virtualResources[targetResourceNdx];
 				if (virtualBuffer.externalFramebuffer.isValid())
@@ -92,15 +94,23 @@ namespace rev::gfx {
 					break;
 				}
 
-				if (virtualBuffer.externalTexture.isValid())
+				auto virtualIter = m_virtualToPhysical.find(targetResourceNdx);
+				if (virtualIter == m_virtualToPhysical.end()) // Resource not previously mapped
 				{
-					targetTextures[i] = virtualBuffer.externalTexture;
+					if (virtualBuffer.externalTexture.isValid())
+					{
+						targetTextures[i] = virtualBuffer.externalTexture;
+					}
+					else
+					{
+						targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+					}
+					m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
 				}
-				else
+				else // Previously mapped resource
 				{
-					targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+					targetTextures[i] = virtualIter->second;
 				}
-				m_virtualToPhysical[targetResourceNdx] = targetTextures[i++];
 			}
 			if (passFramebuffer.isValid())
 			{
@@ -110,16 +120,18 @@ namespace rev::gfx {
 
 			// Agregate target textures into a framebuffer descriptor
 			FrameBuffer::Attachment attachments[cMaxOutputs];
-			for (int j = 0; j < i; ++j)
+			for (int j = 0; j < pass.m_outputs.size(); ++j)
 			{
 				attachments[j].mipLevel = 0;
 				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
-				auto bufferFormat = m_virtualResources[pass.m_outputs[j]].bufferDescriptor.format;
+				auto lifeTimeNdx = pass.m_outputs[j];
+				auto virtualIndex = m_bufferLifetime[lifeTimeNdx].virtualBufferNdx;
+				auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
 				attachments[j].target = (bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32) ?
 					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
 				attachments[j].texture = targetTextures[j];
 			}
-			FrameBuffer::Descriptor descriptor(i, attachments);
+			FrameBuffer::Descriptor descriptor(pass.m_outputs.size(), attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 			pass.m_cachedFb = passFramebuffer;
 
@@ -127,7 +139,7 @@ namespace rev::gfx {
 			if(ImGui::CollapsingHeader(pass.name.c_str()))
 			{
 				ImVec2 previewSize = ImVec2(pass.targetSize.x() * 0.25f, pass.targetSize.y() * 0.25f);
-				for (int nAttach = 0; nAttach < i; ++nAttach)
+				for (int nAttach = 0; nAttach < pass.m_outputs.size(); ++nAttach)
 				{
 					ImTextureID texId = (void*)((GLuint)attachments[nAttach].texture.id());
 					ImGui::Image(texId, previewSize);
