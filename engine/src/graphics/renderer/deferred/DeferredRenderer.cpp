@@ -127,6 +127,8 @@ namespace rev::gfx {
 				},
 				[&](const Texture2d*, size_t, CommandBuffer& dst)
 				{
+					dst.clearDepth(0.f);
+					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
 					m_shadowPass->render(m_renderQueue, m_opaqueQueue, eye, light, dst);
 				});
