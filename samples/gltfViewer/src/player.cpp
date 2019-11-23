@@ -85,9 +85,8 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onResize()
 	{
-		m_windowSize = windowSize();
-		mForwardRenderer.onResizeTarget(m_windowSize);
-		mDeferred.onResizeTarget(m_windowSize);
+		mForwardRenderer.onResizeTarget(windowSize());
+		mDeferred.onResizeTarget(windowSize());
 	}
 #endif // _WIN32
 
@@ -206,7 +205,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateUI(float dt)
 	{
-		gui::startFrame(m_windowSize);
+		gui::startFrame(windowSize());
 
 		if(ImGui::Begin("Player options"))
 		{
