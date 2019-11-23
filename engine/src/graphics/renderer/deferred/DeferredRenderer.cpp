@@ -114,6 +114,37 @@ namespace rev::gfx {
 				m_gPass->render(viewProj, m_opaqueQueue, m_rasterOptions, dst);
 			});
 
+		// AO pass
+		RenderGraph::BufferResource ao; // G-Pass outputs
+		frameGraph.addPass("AO-Sample",
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+				ao = pass.write(BufferFormat::RGBA8);
+				pass.read(normals, 0);
+				pass.read(depth, 1);
+			},
+			// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				// Clear depth
+				dst.clearColor(Vec4f::ones());
+				dst.clear(Clear::Color);
+
+				auto projection = eye.projection(aspectRatio);
+				Mat44f invView = eye.world().matrix();
+
+				CommandBuffer::UniformBucket uniforms;
+				uniforms.addParam(0, projection);
+				uniforms.addParam(1, invView);
+				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+				// Textures
+				uniforms.addParam(7, inputTextures[0]);
+				uniforms.addParam(8, inputTextures[1]);
+
+				m_aoSamplePass->render(uniforms, dst);
+			});
+
 		// Optional shadow pass
 		const bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		RenderGraph::BufferResource shadows;
@@ -141,16 +172,16 @@ namespace rev::gfx {
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 			//hdr = pass.write(BufferFormat::RGBA32);
-				pass.write(depth);
 				hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
 
 				pass.read(normals, 0);
 				pass.read(albedo, 1);
 				pass.read(pbr, 2);
 				pass.read(depth, 3);
+				pass.read(ao, 4);
 				// TODO: Shadows enabled? read them!
 				if (useShadows)
-					pass.read(shadows, 4);
+					pass.read(shadows, 5);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
@@ -176,11 +207,12 @@ namespace rev::gfx {
 					envUniforms.addParam(8, inputTextures[3]);
 					envUniforms.addParam(9, inputTextures[2]);
 					envUniforms.addParam(10, inputTextures[1]);
+					envUniforms.addParam(13, inputTextures[4]);
 
 					if (useShadows)
 					{
 						math::Mat44f shadowProj = m_shadowPass->shadowProj();
-						envUniforms.addParam(11, inputTextures[4]);
+						envUniforms.addParam(11, inputTextures[5]);
 						envUniforms.addParam(12, shadowProj);
 					}
 
@@ -258,6 +290,8 @@ namespace rev::gfx {
 
 		// Background pass
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
+
+		m_aoSamplePass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/aoSample.fx"), Pipeline::DepthTest::Less, false);
 
 		// HDR pass
 		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));

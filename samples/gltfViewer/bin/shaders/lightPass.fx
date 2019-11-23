@@ -14,6 +14,7 @@ layout(location = 7) uniform sampler2D uGBuffer;
 layout(location = 8) uniform sampler2D uDepthMap;
 layout(location = 9) uniform sampler2D uSpecularMap;
 layout(location = 10) uniform sampler2D uAlbedoMap;
+layout(location = 13) uniform sampler2D uAO;
 
 #define sampler2D_uShadowMap
 layout(location = 11) uniform sampler2D uShadowMap;
@@ -31,6 +32,8 @@ vec3 shade () {
 	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
 	vec3 wsNormal = normalize(compressedNormal*2.0-1.0);
 
+	float ssao = texture(uAO, uv).x;
+
 	float fragDepth = texture(uDepthMap, uv).x;
     float bufferDepth = fragDepth*2-1;
     float B = proj[3][2];
@@ -47,7 +50,7 @@ vec3 shade () {
 	vec3 albedo = albedo_ao.xyz;
 	vec3 F0 = f0_roughness.xyz;
 	float r = f0_roughness.a;
-	float occlusion = albedo_ao.w;
+	float occlusion = albedo_ao.w * ssao;
 #ifdef sampler2D_uShadowMap
 	vec4 shadowPos = uShadowProj * wsPos;
 	float shadowDepth = textureLod(uShadowMap, shadowPos.xy*0.5+0.5, 0.0).x;
@@ -59,7 +62,8 @@ vec3 shade () {
 	float shadow = 1.0;
 #endif
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	shadow = 0.2+0.8*shadow;
+	shadow = 0.1*0.9*shadow;
+	//return vec3(ssao);
 	return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }
 

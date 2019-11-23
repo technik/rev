@@ -72,6 +72,7 @@ namespace rev::gfx {
 		GeometryPass*			m_gPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
 		std::unique_ptr<FullScreenPass>	m_hdrPass;
+		std::unique_ptr<FullScreenPass>	m_aoSamplePass;
 		std::unique_ptr<ShadowMapPass>	m_shadowPass;
 
 		// Shadow pass

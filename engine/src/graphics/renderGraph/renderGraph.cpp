@@ -120,7 +120,9 @@ namespace rev::gfx {
 
 			// Agregate target textures into a framebuffer descriptor
 			FrameBuffer::Attachment attachments[cMaxOutputs];
-			for (int j = 0; j < pass.m_outputs.size(); ++j)
+			size_t numAttachs = pass.m_outputs.size();
+			bool hasDepthBuffer = false;
+			for (int j = 0; j < numAttachs; ++j)
 			{
 				attachments[j].mipLevel = 0;
 				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
@@ -129,9 +131,34 @@ namespace rev::gfx {
 				auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
 				attachments[j].target = (bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32) ?
 					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
+				if (attachments[j].target == FrameBuffer::Attachment::Target::Depth)
+				{
+					assert(!hasDepthBuffer && "Only one depth buffer can be attached per pass");
+					hasDepthBuffer = true;
+				}
 				attachments[j].texture = targetTextures[j];
 			}
-			FrameBuffer::Descriptor descriptor(pass.m_outputs.size(), attachments);
+			// Optionally bind a read-only depth buffer
+			if (!hasDepthBuffer)
+			{
+				for (auto& input : pass.m_inputs)
+				{
+					auto virtualIndex = m_bufferLifetime[input].virtualBufferNdx;
+					auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
+					if ((bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32))
+					{
+						attachments[numAttachs].mipLevel = 0;
+						attachments[numAttachs].imageType = FrameBuffer::Attachment::ImageType::Texture;
+						attachments[numAttachs].target = FrameBuffer::Attachment::Target::Depth;
+						assert(m_virtualToPhysical.find(virtualIndex) != m_virtualToPhysical.end() && "Depth must always be written before beind used as read only");
+						attachments[numAttachs].texture = m_virtualToPhysical[virtualIndex];
+
+						++numAttachs;
+						break;
+					}
+				}
+			}
+			FrameBuffer::Descriptor descriptor(numAttachs, attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 			pass.m_cachedFb = passFramebuffer;
 

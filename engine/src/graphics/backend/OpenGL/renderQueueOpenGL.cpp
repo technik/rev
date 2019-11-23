@@ -102,6 +102,8 @@ namespace rev :: gfx
 						continue;
 					auto clearDepth = (flags & (int32_t)Clear::Depth) ? GL_DEPTH_BUFFER_BIT : 0;
 					auto clearColor = (flags & (int32_t)Clear::Color) ? GL_COLOR_BUFFER_BIT : 0;
+					if (clearDepth)
+						glDepthMask(GL_TRUE);
 					glClear(clearDepth | clearColor);
 					break;
 				}
