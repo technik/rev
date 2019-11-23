@@ -62,8 +62,8 @@ vec3 shade () {
 	float shadow = 1.0;
 #endif
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	shadow = 0.1*0.9*shadow;
-	return vec3(ssao);
+	shadow = 0.5*0.5*shadow;
+	//return vec3(ssao);
 	return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }
 

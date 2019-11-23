@@ -53,6 +53,30 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	return normal + 0.985 * randomUnitVector(seed);
 }
 
+vec3 wsMaxHorizon(vec2 uv, in vec3 wsCenter, in vec2 ssDir, in vec3 wsNormal, float depth)
+{
+	const float maxPixelDistance = 20.0;
+	const float sampleDelta = 1.5;
+
+	float bestH = -1.0;
+	vec3 bestSamplePos;
+
+	for(float i = 1; i <= maxPixelDistance; ++i)
+	{
+		float sampleDistance = i * sampleDelta;
+		vec2 sampleUV = uv + sampleDistance * ssDir / Window.xy;
+		float occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
+		vec3 wsSamplePos = wsPosFromGBuffer(occluderDepth, sampleUV).xyz;
+		float h = dot(wsSamplePos-wsCenter, wsNormal) / sampleDistance;
+		if(h/depth < 0.001 && h > bestH)
+		{
+			bestSamplePos = wsSamplePos;
+			bestH = h;
+		}
+	}
+	return bestSamplePos;
+}
+
 //------------------------------------------------------------------------------	
 vec3 shade () {
 	//mat4 invViewProj = inverse(proj);
@@ -64,48 +88,35 @@ vec3 shade () {
 
 	float sampleDepth = texelFetch(uDepthMap, pixelPos, 0).x;
 	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
-	vec4 wsPos = invView * vsPos;
+	vec3 wsPos = (invView * vsPos).xyz;
+	vec3 wsEyePos = (invView * vec4(vec3(0.0), 1.0)).xyz;
+	vec3 wsEyeDir = normalize(wsEyePos-wsPos);
 
 	vec4 seeds = texelFetch(uNoise, pixelPos%64, 0);
 
 	float w = 0.0;
-	float aoMaxDistance = 20.f;
-	for(int i = 0; i < 4; ++i)
+	int nSamples = 1;
+
+	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
+	float sinN = sqrt(1-ndv*ndv);
+	for(int i = 0; i < nSamples; ++i)
 	{
 		float u = seeds[i]*2-1;
-		float v = sqrt(1-u*u);
-		vec2 samplePos = vec2(u,v);
-		vec2 sampleUV = uv + aoMaxDistance * samplePos / Window.xy;
-		float occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
-		vec4 occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
-		vec3 sampleFromCenter = (occlPos - wsPos).xyz;
-		float d = dot(sampleFromCenter, wsNormal);
-		if( d > 0.0 && d/abs(vsPos.z) < 0.02)
-		{
-			vec3 sampleDir = normalize(sampleFromCenter);
-			w += 1-dot(sampleDir, wsNormal);
-		}
-		else
-		{
-			w += 1.0;
-		}
+		float v = sqrt(1.0-u*u);
+		vec2 ssSampleDir = vec2(u,v);
+		vec3 wsH1Pos = wsMaxHorizon(uv, wsPos, ssSampleDir, wsNormal, -vsPos.z);
+		vec3 wsH1Dir = wsH1Pos-wsPos;
+		float cosH1 = max(0.0, dot(normalize(wsH1Dir), wsEyeDir));
+		float h1 = acos(cosH1);
 
-		sampleUV = uv - aoMaxDistance * samplePos / Window.xy;
-		occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
-		occlPos = wsPosFromGBuffer(occluderDepth, sampleUV);
-		sampleFromCenter = (occlPos - wsPos).xyz;
-		d = dot(sampleFromCenter, wsNormal);
-		if( d > 0.0 && d/abs(vsPos.z) < 0.02)
-		{
-			vec3 sampleDir = normalize(sampleFromCenter);
-			w += 1-dot(sampleDir, wsNormal);
-		}
-		else
-		{
-			w += 1.0;
-		}
+		vec3 wsH2Pos = wsMaxHorizon(uv, wsPos, -ssSampleDir, wsNormal, -vsPos.z);
+		vec3 wsH2Dir = wsH2Pos-wsPos;
+		float cosH2 = max(0.0, dot(normalize(wsH2Dir), wsEyeDir));
+		float h2 = acos(cosH2);
+
+		w += 0.25*(2*ndv+2*sinN*(h1+h2)-cos(2*h1-acos(ndv))-cos(2*h2+acos(ndv)));
 	}
-	w = w/8;
+	w = 0.5*w/nSamples; // 4 Directions, 8 samples
 
     return vec3(w);
 }
