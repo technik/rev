@@ -197,7 +197,7 @@ namespace rev::gfx {
 			// Skinning matrix
 			//if(_skin)
 			//	mBackEnd.addParam(30, _skin->appliedPose);
-			renderable.material.bindParams(uniforms, Material::BindingFlags::All);
+			renderable.material.bindParams(uniforms, Material::Flags::Shading | Material::Flags::Normals);
 			// Lighting
 			uniforms.addParam(3, mEV); // Exposure value
 			uniforms.addParam(4, eye.world().position());
