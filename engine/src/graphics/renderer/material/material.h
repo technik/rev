@@ -62,8 +62,8 @@ namespace rev::gfx {
 		{
 			const std::shared_ptr<Effect>& effect;
 			std::vector<Param<float>> floatParams;
-			std::vector<Param<Vec3f>> vec3Params;
-			std::vector<Param<Vec4f>> vec4Params;
+			std::vector<Param<math::Vec3f>> vec3Params;
+			std::vector<Param<math::Vec4f>> vec4Params;
 			std::vector<Param<Texture2d>> textures;
 			Transparency transparency = Transparency::Opaque;
 		};
