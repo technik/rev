@@ -100,4 +100,10 @@ namespace rev::gfx {
 		std::vector<BindingParam<Texture2d>>	mTextureParams;
 	};
 
+	//------------------------------------------------------------------------------------
+	inline static Material::Flags operator|(Material::Flags a, Material::Flags b)
+	{
+		return static_cast<Material::Flags>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
 }
