@@ -26,64 +26,21 @@ using namespace rev::math;
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	Material::Material(const shared_ptr<Effect>& _effect, Alpha alpha)
-		: mEffect(_effect)
-		, mAlpha(alpha)
+	Material::Material(const Descriptor& desc)
+		: mEffect(desc.effect)
 	{
+		// Params
+		mFloatParams = loadParams(desc.floatParams);
+		mVec3fParams = loadParams(desc.vec3Params);
+		mVec4fParams = loadParams(desc.vec4Params);
+		mTextureParams = loadParams(desc.textures);
+
+		// Transparency
+		mTransparency = desc.transparency;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, float f, BindingFlags flags)
-	{
-		auto prop = mEffect->property(name);
-		mIsEmissive |= flags & BindingFlags::Emissive;
-		if(prop)
-		{
-			mShaderOptionsCode += prop->preprocessorDirective();
-			mFloatParams.push_back({ prop->location, f, flags });
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, const Vec3f& v, BindingFlags flags)
-	{
-		auto prop = mEffect->property(name);
-		mIsEmissive |= flags & BindingFlags::Emissive;
-		if(prop)
-		{
-			mShaderOptionsCode += prop->preprocessorDirective();
-			mVec3fParams.push_back({ prop->location, v, flags });
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Material::addParam(const string& name, const Vec4f& v, BindingFlags flags)
-	{
-		auto prop = mEffect->property(name);
-		mIsEmissive |= flags & BindingFlags::Emissive;
-		if(prop)
-		{
-			mShaderOptionsCode += prop->preprocessorDirective();
-			mVec4fParams.push_back({prop->location, v, flags});
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Material::addTexture(const string& name, gfx::Texture2d t, BindingFlags flags)
-	{
-		mIsEmissive |= flags & BindingFlags::Emissive;
-		if (!t.isValid())
-			return;
-		auto prop = mEffect->property(name);
-		if(prop)
-		{
-			mShaderOptionsCode += prop->preprocessorDirective();
-			mTextureParams.push_back({ prop->location, t, flags });
-		}
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Material::bindParams(gfx::CommandBuffer::UniformBucket& renderer, BindingFlags flags) const
+	void Material::bindParams(gfx::CommandBuffer::UniformBucket& renderer, Flags flags) const
 	{
 		for (const auto& v : mFloatParams)
 		{
@@ -107,4 +64,26 @@ namespace rev::gfx {
 		}
 	}
 
+	//----------------------------------------------------------------------------------------------
+	template<class T>
+	auto Material::loadParams(const std::vector<Param<T>>& descParams)->std::vector<BindingParam<T>>
+	{
+		std::vector<BindingParam<T>> loadedParams;
+		loadedParams.reserve(descParams.size());
+
+		for (auto& srcParam : descParams)
+		{
+			BindingParam<T> dstParam;
+			auto effectProperty = mEffect->property(srcParam.name);
+			dstParam.location = effectProperty->location;
+			dstParam.value = srcParam.value;
+			dstParam.flags = srcParam.flags;
+
+			mShaderOptionsCode += effectProperty->preprocessorDirective();
+
+			loadedParams.push_back(dstParam);
+		}
+
+		return loadedParams;
+	}
 }

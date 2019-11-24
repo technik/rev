@@ -33,55 +33,71 @@ namespace rev::gfx {
 	public:
 		// A material parameter will only be bound in when it shares
 		// binding flags with those passed to the bindParams method
-		enum BindingFlags
+		enum Flags
 		{
 			None = 0,
-			Normals = 1<<0,
-			PBR = 1<<1,
-			Emissive = 1<<2,
-			Opacity = 1<<3,
-			All = 0xff
+			Shading = 1<<0,
+			Normals = 1 << 1,
+			Emissive = 1 << 2,
+			AlphaBlend = 1<<3,
+			AlphaMask = 1<<4
 		};
 
-		enum Alpha
+		template<typename T>
+		struct Param
 		{
-			opaque,
-			mask,
-			blend
+			std::string name;
+			T value;
+			Flags flags = None;
 		};
 
-		Effect& effect() const { return *mEffect;}
+		enum Transparency
+		{
+			Opaque,
+			Mask,
+			Blend
+		};
 
-		Material(const std::shared_ptr<Effect>& effect, Alpha = Alpha::opaque);
-		Alpha alpha() const { return mAlpha; }
-		bool isEmissive() const { return mIsEmissive; }
+		struct Descriptor
+		{
+			const std::shared_ptr<Effect>& effect;
+			std::vector<Param<float>> floatParams;
+			std::vector<Param<Vec3f>> vec3Params;
+			std::vector<Param<Vec4f>> vec4Params;
+			std::vector<Param<Texture2d>> textures;
+			Transparency transparency = Transparency::Opaque;
+		};
 
-		// New params can only be added to the material before calling init
-		void addParam(const std::string& name,float f, BindingFlags);
-		void addParam(const std::string& name, const math::Vec3f& v, BindingFlags);
-		void addParam(const std::string& name, const math::Vec4f& v, BindingFlags);
-		void addTexture(const std::string& name, gfx::Texture2d t, BindingFlags);
+		Effect& effect() const { return *mEffect; }
+
+		Material(const Descriptor&);
+		Transparency transparency() const { return mTransparency; }
+		Flags flags() const { return mFlags; }
+		bool isEmissive() const { return mFlags & Flags::Emissive; }
 
 		const std::string& bakedOptions() const { return mShaderOptionsCode; }
-		void bindParams(gfx::CommandBuffer::UniformBucket& renderer, BindingFlags) const;
+		void bindParams(gfx::CommandBuffer::UniformBucket& dst, Flags) const;
 
 	private:
 		const std::shared_ptr<Effect> mEffect;
-		Alpha mAlpha = Alpha::opaque;
-		bool mIsEmissive = false;
+		Transparency mTransparency;
+		Flags mFlags;
 		std::string mShaderOptionsCode;
 
-		template<class T> struct Param
+		template<class T> struct BindingParam
 		{
 			GLint location;
 			T value;
-			BindingFlags flags;
+			Flags flags;
 		};
 
-		std::vector<Param<float>>		mFloatParams;
-		std::vector<Param<math::Vec3f>>	mVec3fParams;
-		std::vector<Param<math::Vec4f>>	mVec4fParams;
-		std::vector<Param<Texture2d>>	mTextureParams;
+		template<class T>
+		std::vector<BindingParam<T>> loadParams(const std::vector<Param<T>>& descParams);
+
+		std::vector<BindingParam<float>>		mFloatParams;
+		std::vector<BindingParam<math::Vec3f>>	mVec3fParams;
+		std::vector<BindingParam<math::Vec4f>>	mVec4fParams;
+		std::vector<BindingParam<Texture2d>>	mTextureParams;
 	};
 
 }
