@@ -21,6 +21,7 @@
 
 #include <graphics/backend/openGL/openGL.h>
 #include <graphics/backend/device.h>
+#include <graphics/types.h>
 #include <math/algebra/vector.h>
 #include <math/geometry/aabb.h>
 #include <math/geometry/types.h>
@@ -32,28 +33,6 @@ namespace rev::gfx {
 
 	class RenderGeom {
 	public:
-		struct VtxFormat {
-			enum class Storage : uint8_t {
-				None = 0,
-				Float32
-			};
-
-			VtxFormat() = default;
-			VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights);
-
-			Storage position() const	{ return m_pos; }
-			Storage normal() const		{ return m_normal; }
-			Storage tangent() const		{ return m_tangent; }
-			Storage uv() const			{ return m_uv; }
-			Storage weights() const		{ return m_weights; }
-
-			uint32_t code() const;
-			static uint32_t invalid() { return 0; }
-
-		private:
-			Storage m_pos, m_normal, m_tangent, m_uv, m_weights;
-		};
-
 		struct BufferView
 		{
 			Buffer vbo;

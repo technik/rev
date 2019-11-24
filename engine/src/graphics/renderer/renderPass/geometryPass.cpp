@@ -163,25 +163,9 @@ namespace rev::gfx {
 		return iter->second;
 	}
 
-	//----------------------------------------------------------------------------------------------
-	std::string GeometryPass::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
+	ShaderCodeFragment* GeometryPass::getMaterialCode(VtxFormat vtxFormat, const Material& material)
 	{
-		// TODO: Create this defines procedurally with more information from the actual rendergeom
-		std::string defines;
-		if (vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_POSITION_FLOAT 0\n";
-		if (vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_NORMAL_FLOAT 1\n";
-		if (vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_TANGENT_FLOAT 2\n";
-		if (vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_UV_FLOAT 3\n";
-		return defines;
-	}
-
-	ShaderCodeFragment* GeometryPass::getMaterialCode(RenderGeom::VtxFormat vtxFormat, const Material& material)
-	{
-		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions() + material.effect().code();
+		auto completeCode = vtxFormat.shaderDefines() + material.bakedOptions() + material.effect().code();
 		auto iter = m_materialCode.find(completeCode);
 		if (iter == m_materialCode.end())
 		{

@@ -88,23 +88,7 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::string ForwardPass::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
-	{
-		// TODO: Create this defines procedurally with more information from the actual rendergeom
-		string defines;
-		if(vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_POSITION_FLOAT 0\n";
-		if(vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_NORMAL_FLOAT 1\n";
-		if(vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_TANGENT_FLOAT 2\n";
-		if(vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_UV_FLOAT 3\n";
-		return defines;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	gfx::Pipeline ForwardPass::getPipeline(const Material& mat, RenderGeom::VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
+	gfx::Pipeline ForwardPass::getPipeline(const Material& mat, VtxFormat vtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror)
 	{
 		// Locate the proper pipeline set
 		auto code = effectCode(mirror, env, shadows);
@@ -128,7 +112,7 @@ namespace rev::gfx {
 		std::string environmentDefines = env ? "#define sampler2D_uEnvironment\n#define sampler2D_uIrradiance\n" : "";
 		std::string shadowDefines = shadows ? "#define sampler2D_uShadowMap\n#define mat4_uMs2Shadow\n" : "";
 		std::string skinningDefines = "";
-		if(vtxFormat.weights() != RenderGeom::VtxFormat::Storage::None)
+		if(vtxFormat.hasWeights())
 		{
 			skinningDefines = "#define HW_SKINNING\n";
 		}
@@ -140,7 +124,7 @@ namespace rev::gfx {
 		{
 			Pipeline::ShaderModule::Descriptor stageDesc;
 			stageDesc.code = {
-				vertexFormatDefines(vtxFormat).c_str(),
+				vtxFormat.shaderDefines().c_str(),
 				environmentDefines.c_str(),
 				shadowDefines.c_str(),
 				skinningDefines.c_str(),

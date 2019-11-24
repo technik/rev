@@ -74,14 +74,12 @@ namespace rev::gfx {
 		using EffectSelector = std::pair<uint32_t, const Effect*>;
 		std::map<EffectSelector, PipelineSet>	mPipelines;
 
-		std::string vertexFormatDefines(RenderGeom::VtxFormat);
-
 		uint32_t effectCode(bool mirror, bool environment, bool shadows)
 		{
 			return ((mirror?1:0)<<2) | ((environment?1:0)<<1) | (shadows?1:0);
 		}
 
-		gfx::Pipeline getPipeline(const Material&, RenderGeom::VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
+		gfx::Pipeline getPipeline(const Material&, VtxFormat, const EnvironmentProbe* env, bool shadows, bool mirror);
 
 		std::string mForwardShaderCommonCode;
 		gfx::Pipeline::Descriptor m_commonPipelineDesc; // Config common to all shadow pipelines

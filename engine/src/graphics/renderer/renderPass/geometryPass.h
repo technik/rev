@@ -62,8 +62,7 @@ namespace rev::gfx {
 
 	private:
 
-		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
-		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
+		ShaderCodeFragment* getMaterialCode(VtxFormat, const Material& material);
 
 		Device& mDevice;
 		Pipeline getPipeline(const Instance&);
