@@ -45,6 +45,7 @@ namespace rev::gfx {
 		const Mat44f& viewProj,
 		const std::vector<RenderItem>& geometry,
 		Pipeline::RasterOptions rasterOptions,
+		Material::Flags bindingFlags,
 		CommandBuffer& out)
 	{
 		auto worldMatrix = Mat44f::identity();
@@ -74,7 +75,7 @@ namespace rev::gfx {
 			{
 				lastMaterial = &mesh.material;
 				lastGeom = &mesh.geom;
-				mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
+				mesh.material.bindParams(instance.uniforms, bindingFlags);
 				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
 				instance.geometryIndex++;
 				geoms.push_back(&mesh.geom);
