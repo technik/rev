@@ -46,6 +46,11 @@ namespace rev::gfx {
 		template<typename T>
 		struct Param
 		{
+			Param() = default;
+			Param(const std::string& _name, T _v, Flags _flags)
+				: name(_name), value(_v), flags(_flags)
+			{}
+
 			std::string name;
 			T value;
 			Flags flags = None;
@@ -60,12 +65,21 @@ namespace rev::gfx {
 
 		struct Descriptor
 		{
-			const std::shared_ptr<Effect>& effect;
+			std::shared_ptr<Effect> effect;
 			std::vector<Param<float>> floatParams;
 			std::vector<Param<math::Vec3f>> vec3Params;
 			std::vector<Param<math::Vec4f>> vec4Params;
 			std::vector<Param<Texture2d>> textures;
 			Transparency transparency = Transparency::Opaque;
+
+			void reset() {
+				effect = nullptr;
+				floatParams.clear();
+				vec3Params.clear();
+				vec4Params.clear();
+				textures.clear();
+				transparency = Transparency::Opaque;
+			}
 		};
 
 		Effect& effect() const { return *mEffect; }

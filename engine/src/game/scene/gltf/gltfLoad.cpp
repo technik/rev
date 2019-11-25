@@ -509,72 +509,81 @@ namespace rev { namespace game {
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
 		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
 
-		auto clearCoatEffect = std::make_shared<Effect>("shaders/clearCoat.fx");
-		auto clearCoat = std::make_shared<Material>(clearCoatEffect);
+		// Create a material descriptor we can reuse for all materials
+		Material::Descriptor matDesc;
 		
 		// Load materials
-		for(auto& matDesc : _document.materials)
+		for(auto& matData : _document.materials)
 		{
-			Material::Alpha alphaMode = Material::Alpha::opaque;
-			if(matDesc.alphaMode == gltf::Material::AlphaMode::Blend)
+			matDesc.reset();
+			if(matData.alphaMode == gltf::Material::AlphaMode::Blend)
 			{
-				alphaMode = Material::Alpha::blend;
+				matDesc.transparency = Material::Transparency::Blend;
 			}
-			else if (matDesc.alphaMode == gltf::Material::AlphaMode::Mask)
+			else if (matData.alphaMode == gltf::Material::AlphaMode::Mask)
 			{
-				alphaMode = Material::Alpha::mask;
+				matDesc.transparency = Material::Transparency::Mask;
 			}
 
-			std::shared_ptr<Material> mat;
 			bool specular = false;
-			if(matDesc.extensionsAndExtras.find("extensions") != matDesc.extensionsAndExtras.end())
+			if(matData.extensionsAndExtras.find("extensions") != matData.extensionsAndExtras.end())
 			{
-				auto& extensions = matDesc.extensionsAndExtras["extensions"];
+				auto& extensions = matData.extensionsAndExtras["extensions"];
 				if(extensions.find("KHR_materials_pbrSpecularGlossiness") != extensions.end())
 					specular = true;
 			}
-			if(specular)
-				mat = std::make_shared<Material>(_specEffect, alphaMode);
+			if (specular)
+				matDesc.effect = _specEffect;
 			else
-				mat = std::make_shared<Material>(_pbrEffect, alphaMode);
-			if(matDesc.name == "carPaint")
-				mat = clearCoat;
-			auto& pbrDesc = matDesc.pbrMetallicRoughness;
+				matDesc.effect = _pbrEffect;
+
+			auto& pbrDesc = matData.pbrMetallicRoughness;
 			if(!pbrDesc.empty())
 			{
 				// Base color
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					mat->addTexture("uBaseColorMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true), Material::BindingFlags::PBR);
+					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true);
+					if(texture.isValid())
+						matDesc.textures.emplace_back("uBaseColorMap", texture, Material::Flags::Shading);
 				}
 				// Base color factor
 				{
 					auto& colorDesc = pbrDesc.baseColorFactor;
 					auto& color = reinterpret_cast<const math::Vec4f&>(colorDesc);
 					if(color != Vec4f::ones())
-						mat->addParam("uBaseColor", color, Material::BindingFlags::PBR);
+						matDesc.vec4Params.emplace_back("uBaseColor", color, Material::Flags::Shading);
 				}
 				// Metallic-roughness
 				if(!pbrDesc.metallicRoughnessTexture.empty())
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					mat->addTexture("uPhysics", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3), Material::BindingFlags::PBR);
+					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3);
+					if(texture.isValid())
+						matDesc.textures.emplace_back("uPhysics", texture, Material::Flags::Shading);
 				}
 				if(pbrDesc.roughnessFactor != 1.f)
-					mat->addParam("uRoughness", pbrDesc.roughnessFactor, Material::BindingFlags::PBR);
+					matDesc.floatParams.emplace_back("uRoughness", pbrDesc.roughnessFactor, Material::Flags::Shading);
 				if(pbrDesc.metallicFactor != 1.f)
-					mat->addParam("uMetallic", pbrDesc.metallicFactor, Material::BindingFlags::PBR);
+					matDesc.floatParams.emplace_back("uMetallic", pbrDesc.metallicFactor, Material::Flags::Shading);
 			}
-			if(!matDesc.emissiveTexture.empty())
-				mat->addTexture("uEmissive", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.emissiveTexture.index, false, 3), Material::BindingFlags::None);
-			if(!matDesc.normalTexture.empty())
+			if (!matData.emissiveTexture.empty())
 			{
-				// TODO: Load normal map in linear space!!
-				mat->addTexture("uNormalMap", getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matDesc.normalTexture.index, false, 3), Material::BindingFlags::Normals);
+				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.emissiveTexture.index, false, 3);
+				if(texture.isValid())
+					matDesc.textures.emplace_back("uEmissive", texture, Material::Flags::Emissive);
 			}
+			if(!matData.normalTexture.empty())
+			{
+				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.normalTexture.index, false, 3);
+				if(texture.isValid())
+					matDesc.textures.emplace_back("uNormalMap", texture, Material::Flags::Normals);
+			}
+
 			//mat->addTexture("uEnvBRDF", envBRDF);
+			auto mat = std::make_shared<Material>(matDesc);
 			materials.push_back(mat);
 		}
 
@@ -678,7 +687,9 @@ namespace rev { namespace game {
 		// Create default material
 		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
 		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
-		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
+		Material::Descriptor defaultMatDesc;
+		defaultMatDesc.effect = pbrEffect;
+		auto defaultMaterial = std::make_shared<Material>(defaultMatDesc);
 
 		// Load buffers
 		vector<core::File*> buffers;

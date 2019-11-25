@@ -35,6 +35,13 @@ namespace rev::gfx {
 		mVec4fParams = loadParams(desc.vec4Params);
 		mTextureParams = loadParams(desc.textures);
 
+#ifdef _DEBUG
+		for (auto& t : mTextureParams)
+		{
+			assert(t.value.isValid());
+		}
+#endif
+
 		// Transparency
 		mTransparency = desc.transparency;
 	}
