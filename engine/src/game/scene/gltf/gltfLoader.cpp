@@ -17,7 +17,8 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "gltfLoad.h"
+#include "gltfLoader.h"
+
 #include "gltf.h"
 #include <core/platform/fileSystem/file.h>
 #include <core/tools/log.h>
@@ -131,12 +132,11 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadNodes(
+	vector<shared_ptr<SceneNode>> GltfLoader::loadNodes(
 		const gltf::Document& _document,
 		const vector<shared_ptr<RenderMesh>>& _meshes,
 		const vector<shared_ptr<SkinInstance>>& _skins,
 		const vector<shared_ptr<Material>>& _materials,
-		shared_ptr<Material> _defaultMaterial,
 		gfx::RenderScene& _gfxWorld)
 	{
 		vector<shared_ptr<SceneNode>> nodes;
@@ -426,12 +426,11 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadMeshes(
+	vector<shared_ptr<RenderMesh>> GltfLoader::loadMeshes(
 		gfx::Device& device,
 		const vector<gfx::RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
-		const vector<shared_ptr<Material>>& _materials,
-		const shared_ptr<Material>& _defaultMaterial)
+		const vector<shared_ptr<Material>>& _materials)
 	{
 
 		// Load the meshes
@@ -443,7 +442,7 @@ namespace rev { namespace game {
 			auto mesh = meshes.back();
 			for(auto& primitive : meshDesc.primitives)
 			{
-				auto material = _defaultMaterial;
+				auto material = defaultMaterial();
 				bool needsTangentSpace = false;
 				if(primitive.material >= 0)
 				{
@@ -492,13 +491,11 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadMaterials(
-		gfx::Device& gfxDevice,
+	std::vector<std::shared_ptr<gfx::Material>> GltfLoader::loadMaterials(
+		Device& gfxDevice,
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
-		const shared_ptr<Effect>& _pbrEffect,
-		const shared_ptr<Effect>& _specEffect,
-		std::vector<gfx::Texture2d>& _textures
+		std::vector<Texture2d>& _textures
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
@@ -533,9 +530,9 @@ namespace rev { namespace game {
 					specular = true;
 			}
 			if (specular)
-				matDesc.effect = _specEffect;
+				matDesc.effect = specularEffect();
 			else
-				matDesc.effect = _pbrEffect;
+				matDesc.effect = metallicRoughnessEffect();
 
 			auto& pbrDesc = matData.pbrMetallicRoughness;
 			if(!pbrDesc.empty())
@@ -669,7 +666,7 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadGLTFScene(
+	void GltfLoader::load(
 		gfx::Device& gfxDevice,
 		SceneNode& _parentNode,
 		const std::string& _filePath,
@@ -684,13 +681,6 @@ namespace rev { namespace game {
 		if(!openAndValidateDocument(_filePath, folder, document))
 			return;
 
-		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
-		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
-		Material::Descriptor defaultMatDesc;
-		defaultMatDesc.effect = pbrEffect;
-		auto defaultMaterial = std::make_shared<Material>(defaultMatDesc);
-
 		// Load buffers
 		vector<core::File*> buffers;
 		for(auto b : document.buffers)
@@ -701,11 +691,11 @@ namespace rev { namespace game {
 		// Load resources
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
-		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
-		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
+		auto materials = loadMaterials(gfxDevice, folder, document, textures);
+		auto meshes = loadMeshes(gfxDevice, attributes, document, materials);
 
 		// Load nodes
-		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);
+		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);
 
 		// Load animations
 		loadAnimations(document, attributes, nodes, animNodes, _animations);
@@ -715,5 +705,30 @@ namespace rev { namespace game {
 		auto& displayScene = document.scenes[sceneIndex];
 		for(auto nodeNdx : displayScene.nodes)
 			_parentNode.addChild(nodes[nodeNdx]);
+	}
+
+	std::shared_ptr<Effect> GltfLoader::metallicRoughnessEffect()
+	{
+		if (!m_metallicRoughnessEffect)
+		{
+			m_metallicRoughnessEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
+		}
+		
+		return m_metallicRoughnessEffect;
+	}
+
+	std::shared_ptr<Effect> GltfLoader::specularEffect()
+	{
+		if (!m_specularEffect)
+		{
+			m_specularEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
+		}
+
+		return m_specularEffect;
+	}
+
+	std::shared_ptr<Material> GltfLoader::defaultMaterial()
+	{
+		return nullptr;
 	}
 }}
