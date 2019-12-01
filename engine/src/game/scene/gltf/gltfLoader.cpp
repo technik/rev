@@ -426,8 +426,11 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
+	GltfLoader::~GltfLoader()
+	{}
+
+	//----------------------------------------------------------------------------------------------
 	vector<shared_ptr<RenderMesh>> GltfLoader::loadMeshes(
-		gfx::Device& device,
 		const vector<gfx::RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
 		const vector<shared_ptr<Material>>& _materials)
@@ -449,7 +452,7 @@ namespace rev { namespace game {
 					material = _materials[primitive.material];
 					needsTangentSpace = !_document.materials[primitive.material].normalTexture.empty();
 				}
-				auto geometry = loadPrimitive(device, _document, attributes, primitive, needsTangentSpace);
+				auto geometry = loadPrimitive(m_gfxDevice, _document, attributes, primitive, needsTangentSpace);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
 			mesh->updateBBox();
@@ -492,7 +495,6 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	std::vector<std::shared_ptr<gfx::Material>> GltfLoader::loadMaterials(
-		Device& gfxDevice,
 		const std::string& _assetsFolder,
 		const gltf::Document& _document,
 		std::vector<Texture2d>& _textures
@@ -504,7 +506,7 @@ namespace rev { namespace game {
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Repeat;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
-		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
+		auto defSampler = m_gfxDevice.createTextureSampler(samplerDesc);
 
 		// Create a material descriptor we can reuse for all materials
 		Material::Descriptor matDesc;
@@ -541,7 +543,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true);
+					auto texture = getTexture(m_gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true);
 					if(texture.isValid())
 						matDesc.textures.emplace_back("uBaseColorMap", texture, Material::Flags::Shading);
 				}
@@ -557,7 +559,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3);
+					auto texture = getTexture(m_gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3);
 					if(texture.isValid())
 						matDesc.textures.emplace_back("uPhysics", texture, Material::Flags::Shading);
 				}
@@ -568,13 +570,13 @@ namespace rev { namespace game {
 			}
 			if (!matData.emissiveTexture.empty())
 			{
-				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.emissiveTexture.index, false, 3);
+				auto texture = getTexture(m_gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.emissiveTexture.index, false, 3);
 				if(texture.isValid())
 					matDesc.textures.emplace_back("uEmissive", texture, Material::Flags::Emissive);
 			}
 			if(!matData.normalTexture.empty())
 			{
-				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.normalTexture.index, false, 3);
+				auto texture = getTexture(m_gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.normalTexture.index, false, 3);
 				if(texture.isValid())
 					matDesc.textures.emplace_back("uNormalMap", texture, Material::Flags::Normals);
 			}
@@ -667,7 +669,6 @@ namespace rev { namespace game {
 
 	//----------------------------------------------------------------------------------------------
 	void GltfLoader::load(
-		gfx::Device& gfxDevice,
 		SceneNode& _parentNode,
 		const std::string& _filePath,
 		gfx::RenderScene& _gfxWorld,
@@ -691,8 +692,8 @@ namespace rev { namespace game {
 		// Load resources
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
-		auto materials = loadMaterials(gfxDevice, folder, document, textures);
-		auto meshes = loadMeshes(gfxDevice, attributes, document, materials);
+		auto materials = loadMaterials(folder, document, textures);
+		auto meshes = loadMeshes(attributes, document, materials);
 
 		// Load nodes
 		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);

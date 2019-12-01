@@ -56,7 +56,6 @@ namespace rev::game {
 		/// filePath must not contain folder, file name and extension
 		/// If parentNode is not nullptr, all the scene nodes will be added as children to it
 		void load(
-			gfx::Device& gfxDevice,
 			SceneNode& parentNode,
 			const std::string& filePath,
 			gfx::RenderScene& _gfxWorld,
@@ -71,14 +70,12 @@ namespace rev::game {
 
 		// Load resources
 		std::vector<std::shared_ptr<gfx::Material>> loadMaterials(
-			gfx::Device& gfxDevice,
 			const std::string& _assetsFolder,
 			const fx::gltf::Document& _document,
 			std::vector<gfx::Texture2d>& _textures
 		);
 
 		std::vector<std::shared_ptr<gfx::RenderMesh>> loadMeshes(
-			gfx::Device& device,
 			const std::vector<gfx::RenderGeom::Attribute>& attributes,
 			const fx::gltf::Document& _document,
 			const std::vector<std::shared_ptr<gfx::Material>>& _materials);

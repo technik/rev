@@ -12,7 +12,7 @@
 #include <game/scene/camera.h>
 #include <game/animation/animator.h>
 #include <game/resources/load.h>
-#include <game/scene/gltf/gltfLoad.h>
+#include <game/scene/gltf/gltfLoader.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
@@ -99,7 +99,8 @@ namespace rev {
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		loadGLTFScene(gfxDevice(), *m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+		GltfLoader gltfLoader(gfxDevice());
+		gltfLoader.load(*m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
