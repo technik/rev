@@ -30,7 +30,12 @@ namespace rev::gfx {
 	class FullScreenPass
 	{
 	public:
-		FullScreenPass(gfx::Device&, ShaderCodeFragment* code = nullptr, Pipeline::DepthTest depthTest = Pipeline::DepthTest::Gequal, bool writeDepth = true);
+		FullScreenPass(
+			gfx::Device&,
+			ShaderCodeFragment* code = nullptr,
+			Pipeline::DepthTest depthTest = Pipeline::DepthTest::Gequal,
+			bool writeDepth = true,
+			Pipeline::BlendMode blend= Pipeline::BlendMode::Write);
 		~FullScreenPass();
 
 		void setPassCode(ShaderCodeFragment* code);

@@ -80,44 +80,109 @@ namespace rev::gfx {
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
+		m_alphaMaskQueue.clear();
 		m_transparentQueue.clear();
+		m_emissiveQueue.clear();
+		
 		Mat44f view = eye.view();
 		for (auto& renderItem : m_renderQueue)
 		{
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
 			if (viewSpaceBB.min().z() < 0)
 			{
-				if (renderItem.material.transparency() == Material::Transparency::Opaque)
-					m_opaqueQueue.push_back(renderItem);
-				else
-					m_transparentQueue.push_back(renderItem);
-
+				switch (renderItem.material.transparency())
+				{
+					case Material::Transparency::Opaque:
+					{
+						if (renderItem.material.isEmissive())
+							m_emissiveQueue.push_back(renderItem);
+						else
+							m_opaqueQueue.push_back(renderItem);
+						break;
+					}
+					case Material::Transparency::Mask:
+					{
+						if (renderItem.material.isEmissive())
+							m_emissiveQueue.push_back(renderItem);
+						else
+							m_alphaMaskQueue.push_back(renderItem);
+						break;
+					}
+					case Material::Transparency::Blend:
+					{
+						m_transparentQueue.push_back(renderItem);
+						break;
+					}
+				}
 			}
 		}
+
+		bool useEmissive = !m_emissiveQueue.empty();
 
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
 
+		// G-Buffer pass with emissive
+		RenderGraph::BufferResource depth, normals, pbr, albedo, hdr; // G-Pass outputs
+		if (useEmissive)
+		{
+			frameGraph.addPass("G-Buffer + emissive",
+				m_viewportSize,
+				// Pass definition
+				[&](RenderGraph::IPassBuilder& pass) {
+					normals = pass.write(BufferFormat::RGBA8);
+					albedo = pass.write(BufferFormat::sRGBA8);
+					pbr = pass.write(BufferFormat::RGBA8);
+					depth = pass.write(BufferFormat::depth32);
+					hdr = pass.write(BufferFormat::RGBA32);
+				},
+				// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				{
+					// Clear depth
+					dst.clearDepth(0.f);
+					dst.clearColor(Vec4f::zero());
+					dst.clear(Clear::All);
+
+					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
+						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
+						dst);
+				});
+		}
+
 		// G-Buffer pass
-		RenderGraph::BufferResource depth, normals, pbr, albedo; // G-Pass outputs
 		frameGraph.addPass("G-Buffer",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-				normals = pass.write(BufferFormat::RGBA8);
-				albedo = pass.write(BufferFormat::sRGBA8);
-				pbr = pass.write(BufferFormat::RGBA8);
-				depth = pass.write(BufferFormat::depth32);
+				if (useEmissive)
+				{
+					normals = pass.write(normals);
+					albedo = pass.write(albedo);
+					pbr = pass.write(pbr);
+					depth = pass.write(depth);
+				}
+				else
+				{
+					normals = pass.write(BufferFormat::RGBA8);
+					albedo = pass.write(BufferFormat::sRGBA8);
+					pbr = pass.write(BufferFormat::RGBA8);
+					depth = pass.write(BufferFormat::depth32);
+				}
 			},
 			// Pass evaluation
-			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				// Clear depth
-				dst.clearDepth(0.f);
-				dst.clearColor(Vec4f::zero());
-				dst.clear(Clear::All);
+				if (!useEmissive)
+				{
+					// Clear depth
+					dst.clearDepth(0.f);
+					dst.clearColor(Vec4f::zero());
+					dst.clear(Clear::All);
+				}
 
-				m_gPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
+				m_gBufferPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
+				m_gBufferMaskedPass->render(viewProj, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
 			});
 
 		// AO pass
@@ -174,13 +239,15 @@ namespace rev::gfx {
 		}
 
 		// Environment light pass
-		RenderGraph::BufferResource hdr;
 		frameGraph.addPass("Light pass",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 			//hdr = pass.write(BufferFormat::RGBA32);
-				hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
+				if (useEmissive)
+					hdr = pass.write(hdr);
+				else
+					hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
 
 				pass.read(normals, 0);
 				pass.read(albedo, 1);
@@ -194,8 +261,11 @@ namespace rev::gfx {
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				dst.clearColor(Vec4f::zero());
-				dst.clear(Clear::Color);
+				if (!useEmissive)
+				{
+					dst.clearColor(Vec4f::zero());
+					dst.clear(Clear::Color);
+				}
 
 				// Light-pass
 				if (auto env = scene.environment())
@@ -274,12 +344,6 @@ namespace rev::gfx {
 		// Skip it for now
 		m_fbCache->deallocateResources();
 		m_viewportSize = _newSize;
-		// Recreate internal buffers
-		if(m_gPass)
-			delete m_gPass;
-		if(m_lightingPass)
-			delete m_lightingPass;
-		createRenderPasses(m_targetFb);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -288,13 +352,16 @@ namespace rev::gfx {
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 
-		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
+		ShaderCodeFragment* gBufferCode = ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx");
+		m_gBufferPass = std::make_unique<GeometryPass>(*m_device, gBufferCode);
+		ShaderCodeFragment* gBufferMaskedCode = new ShaderCodeFragment(new ShaderCodeFragment("#define ALPHA_MASK\n"), gBufferCode);
+		m_gBufferMaskedPass = std::make_unique<GeometryPass>(*m_device, gBufferMaskedCode);
 
 		// Shadow pass
 		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowSize);
 
 		// Lighting pass
-		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"), Pipeline::DepthTest::Less, false);
+		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"), Pipeline::DepthTest::Less, false, Pipeline::BlendMode::Additive);
 
 		// Background pass
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);

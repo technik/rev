@@ -572,7 +572,7 @@ namespace rev { namespace game {
 			{
 				auto texture = getTexture(m_gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.emissiveTexture.index, false, 3);
 				if(texture.isValid())
-					matDesc.textures.emplace_back("uEmissive", texture, Material::Flags::Emissive);
+					matDesc.textures.emplace_back("uEmissiveMap", texture, Material::Flags::Emissive);
 			}
 			if(!matData.normalTexture.empty())
 			{

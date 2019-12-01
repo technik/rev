@@ -73,11 +73,14 @@ namespace rev::gfx {
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
 		std::vector<RenderItem> m_opaqueQueue;
+		std::vector<RenderItem> m_alphaMaskQueue;
+		std::vector<RenderItem> m_emissiveQueue;
 		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass
 		Pipeline::RasterOptions m_rasterOptions;
-		GeometryPass*			m_gPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferMaskedPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
 		std::unique_ptr<FullScreenPass>	m_hdrPass;
 		std::unique_ptr<FullScreenPass>	m_aoSamplePass;

@@ -75,6 +75,12 @@ namespace rev :: gfx
 			Less = 4,
 		};
 
+		enum class BlendMode
+		{
+			Write,
+			Additive
+		};
+
 		enum class Winding
 		{
 			CW,
@@ -87,6 +93,7 @@ namespace rev :: gfx
 			bool cullFront = false;
 			Winding frontFace = Winding::CCW;
 			DepthTest depthTest = DepthTest::None;// Depth test
+			BlendMode blendMode = BlendMode::Write;
 			bool witeDepth = true;
 
 			using Mask = uint32_t;

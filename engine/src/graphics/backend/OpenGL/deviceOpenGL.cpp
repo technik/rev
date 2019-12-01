@@ -493,6 +493,18 @@ namespace rev :: gfx
 
 		// Fixed function
 		auto& desc = pipeline.desc;
+		// Alpha blending
+		if (Pipeline::BlendMode::Write == desc.raster.blendMode)
+		{
+			glDisable(GL_BLEND);
+		}
+		else
+		{
+			// Additive
+			assert(desc.raster.blendMode == Pipeline::BlendMode::Additive);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
 		// Depth tests
 		if(Pipeline::DepthTest::None == desc.raster.depthTest)
 		{

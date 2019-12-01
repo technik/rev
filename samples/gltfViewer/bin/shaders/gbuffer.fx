@@ -82,6 +82,9 @@ void main ( void )
 layout(location = 0) out lowp vec4 outWsNormal;
 layout(location = 1) out lowp vec4 outAlbedo;
 layout(location = 2) out lowp vec4 outPBR;
+#ifdef sampler2D_uEmissiveMap
+layout(location = 3) out lowp vec4 outEmissive;
+#endif
 
 //------------------------------------------------------------------------------
 vec3 computeWsNormal()
@@ -105,7 +108,17 @@ void main (void) {
 	outPBR = pbr.specular_r;
 
 	outAlbedo = pbr.albedo;
+#ifdef ALPHA_MASK
+	if(outAlbedo.a < 0.5)
+	{
+		discard;
+	}
+#endif
 	outAlbedo.a = pbr.ao;
+
+#ifdef sampler2D_uEmissiveMap
+	outEmissive = pbr.emissive;
+#endif
 }
 
 #endif // PXL_SHADER
