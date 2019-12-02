@@ -57,6 +57,10 @@ namespace rev::gfx {
 	private:
 		Device*		m_device = nullptr;
 
+		// Debug utils
+		bool m_lockCulling = false;
+		math::Frustum m_cullingFrustum;
+
 		// Render state
 		float m_expositionValue = 0.f;
 		math::Vec2u m_viewportSize;

@@ -20,6 +20,7 @@
 
 #include "DeferredRenderer.h"
 #include <graphics/backend/renderPass.h>
+#include <graphics/debug/imgui.h>
 #include <graphics/renderGraph/frameBufferCache.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
@@ -76,18 +77,23 @@ namespace rev::gfx {
 		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
 		RenderGraph frameGraph(*m_device);
 
-		// --- Cull stuff
+		ImGui::Begin("Deferred renderer");
+
+		// --- Cull visible renderables
+		ImGui::Text("Renderables: %d", scene.renderables().size());
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		Mat44f view = eye.view();
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 
-		Frustum wsFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
+		ImGui::Checkbox("Lock culling", &m_lockCulling);
+		if(!m_lockCulling)
+			m_cullingFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
 		m_visibleQueue.clear();
 		for (size_t i = 0; i < m_renderQueue.size(); ++i)
 		{
 			auto& renderItem = m_renderQueue[i];
 			AABB worldSpaceBB = renderItem.world * renderItem.geom->bbox();
-			if (math::cull(wsFrustum, worldSpaceBB))
+			if (math::cull(m_cullingFrustum, worldSpaceBB))
 			{
 				m_visibleQueue.push_back(renderItem);
 			}
@@ -340,11 +346,13 @@ namespace rev::gfx {
 				m_hdrPass->render(uniforms, dst);
 			});
 
+
 		// Record passes
 		frameGraph.build(*m_fbCache);
 		CommandBuffer frameCommands;
 
 		frameGraph.evaluate(frameCommands);
+		ImGui::End();
 
 		// Submit
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
