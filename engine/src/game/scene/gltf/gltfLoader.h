@@ -68,6 +68,14 @@ namespace rev::game {
 		std::shared_ptr<gfx::Effect> specularEffect();
 		std::shared_ptr<gfx::Material> defaultMaterial();
 
+		gfx::Texture2d getTexture(
+			const gltf::Document& document,
+			const std::string& assetsFolder,
+			gfx::TextureSampler defaultSampler,
+			int32_t index,
+			bool sRGB,
+			int nChannels = 0);
+
 		// Load resources
 		std::vector<std::shared_ptr<gfx::Material>> loadMaterials(
 			const std::string& _assetsFolder,
@@ -94,6 +102,8 @@ namespace rev::game {
 
 		// Cached resources
 		gfx::Texture2d m_invalidTexture;
+
+		std::vector<gfx::Texture2d> m_textures;
 		std::vector<std::shared_ptr<gfx::Image>> m_loadedImages;
 
 		// Supported effects

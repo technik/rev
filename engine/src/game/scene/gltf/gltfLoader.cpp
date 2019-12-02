@@ -463,17 +463,15 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	gfx::Texture2d getTexture(
-		gfx::Device& device,
-		const std::string& assetsFolder,
+	gfx::Texture2d GltfLoader::getTexture(
 		const gltf::Document& document,
-		std::vector<gfx::Texture2d>& textures,
+		const std::string& assetsFolder,
 		gfx::TextureSampler defaultSampler,
 		int32_t index,
 		bool sRGB,
-		int nChannels = 0)
+		int nChannels)
 	{
-		auto& texture = textures[index];
+		auto& texture = m_textures[index];
 		if(texture.isValid()) // Already allocated, reuse
 			return texture;
 
@@ -691,6 +689,7 @@ namespace rev { namespace game {
 		auto attributes = readAttributes(document, bufferViews); // Load accessors
 
 		// Load resources
+		loadImages(document);
 		auto skins = loadSkins(attributes, document);
 		std::vector<gfx::Texture2d> textures(document.textures.size());
 		auto materials = loadMaterials(folder, document, textures);
