@@ -141,7 +141,7 @@ namespace rev::gfx {
 				{
 					// Clear depth
 					dst.clearDepth(0.f);
-					dst.clearColor(Vec4f::zero());
+					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 					dst.clear(Clear::All);
 
 					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
@@ -177,7 +177,7 @@ namespace rev::gfx {
 				{
 					// Clear depth
 					dst.clearDepth(0.f);
-					dst.clearColor(Vec4f::zero());
+					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 					dst.clear(Clear::All);
 				}
 
@@ -263,7 +263,7 @@ namespace rev::gfx {
 			{
 				if (!useEmissive)
 				{
-					dst.clearColor(Vec4f::zero());
+					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 					dst.clear(Clear::Color);
 				}
 

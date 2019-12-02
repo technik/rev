@@ -94,7 +94,7 @@ PBRParams getPBRParams()
     
 	// Texture
 	#if defined(sampler2D_uEmissiveMap)
-		params.emissive = texture(uEmissiveMap, vTexCoord);
+		params.emissive = 10*texture(uEmissiveMap, vTexCoord);
 	#endif
 
 	return params;

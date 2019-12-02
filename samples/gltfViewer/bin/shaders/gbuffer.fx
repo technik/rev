@@ -102,7 +102,7 @@ vec3 computeWsNormal()
 
 //------------------------------------------------------------------------------	
 void main (void) {
-	outWsNormal = vec4(computeWsNormal()*0.5+0.5, 0.0);
+	outWsNormal = vec4(computeWsNormal()*0.5+0.5, 1.0);
 
 	PBRParams pbr = getPBRParams();
 	outPBR = pbr.specular_r;
