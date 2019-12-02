@@ -37,15 +37,8 @@ namespace rev::core {
 		{}
 
 		template<class TaskData, class Op>
-		bool run(std::vector<TaskData>& taskData, const Op& operation, std::ostream& log)
+		bool run(const std::vector<TaskData>& taskData, Op& operation, std::ostream& log)
 		{
-			// Validate input data
-			if (threadData.size() < mWorkers.size())
-			{
-				log << "Need at least as much thread data as worker threads (" << mWorkers.size() << "), but only " << threadData.size() << " provided\n";
-				return false;
-			}
-
 			// Reset counter and metrics
 			mTaskCounter = 0;
 			for (auto& metric : mMetrics)
@@ -59,11 +52,11 @@ namespace rev::core {
 			for (int i = 0; i < mWorkers.size(); ++i)
 			{
 				mWorkers[i] = std::thread(
-					workerRoutine<TaskData, ThreadData, Op>,
+					workerRoutine<TaskData, Op>,
 					std::ref(mMetrics[i]),
-					std::ref(taskData),
+					std::cref(taskData),
 					&mTaskCounter,
-					std::cref(operation));
+					std::ref(operation));
 
 				if (!mWorkers[i].joinable())
 				{
@@ -78,8 +71,6 @@ namespace rev::core {
 			chrono::duration<double> runningTime = chrono::high_resolution_clock::now() - start;
 			auto seconds = runningTime.count();
 			log << "Running time: " << seconds << " seconds\n";
-
-			logMetrics(seconds);
 
 			return true;
 		}
@@ -99,7 +90,7 @@ namespace rev::core {
 		};
 
 		template<class TaskData, class Op>
-		static void workerRoutine(ThreadMetrics& metrics, std::vector<TaskData>& taskData, AtomicCounter* globalCounter, const Op& operation)
+		static void workerRoutine(ThreadMetrics& metrics, const std::vector<TaskData>& taskData, AtomicCounter* globalCounter, Op& operation)
 		{
 			assert(globalCounter);
 
@@ -111,7 +102,7 @@ namespace rev::core {
 
 				// Run task
 				auto taskStart = std::chrono::high_resolution_clock::now();
-				operation(threadData, task);
+				operation(task, selfCounter);
 				std::chrono::duration<double> taskDuration = std::chrono::high_resolution_clock::now() - taskStart;
 				metrics.runTimes.push_back(taskDuration.count());
 

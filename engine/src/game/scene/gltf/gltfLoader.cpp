@@ -21,6 +21,7 @@
 
 #include "gltf.h"
 #include <core/platform/fileSystem/file.h>
+#include <core/tasks/threadPool.h>
 #include <core/tools/log.h>
 #include <core/string_util.h>
 #include <nlohmann/json.hpp>
@@ -731,5 +732,20 @@ namespace rev { namespace game {
 	std::shared_ptr<Material> GltfLoader::defaultMaterial()
 	{
 		return nullptr;
+	}
+
+	void GltfLoader::loadImages(const gltf::Document& document)
+	{
+		// Allocate pointers to the images
+		m_loadedImages.resize(document.images.size());
+
+		// Load images in parallel
+		core::ThreadPool workers(8);
+		workers.run(document.images,
+			[this](const gltf::Image& imageData, size_t taskId) {
+				// Load image from file
+				m_loadedImages[taskId] = gfx::Image::load(imageData.uri, 0);
+			},
+			std::cout);
 	}
 }}

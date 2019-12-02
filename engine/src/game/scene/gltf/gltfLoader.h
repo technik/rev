@@ -87,11 +87,14 @@ namespace rev::game {
 			const std::vector<std::shared_ptr<gfx::Material>>& _materials,
 			gfx::RenderScene& _gfxWorld);
 
+		void loadImages(const fx::gltf::Document&);
+
 	private:
 		gfx::Device& m_gfxDevice;
 
 		// Cached resources
 		gfx::Texture2d m_invalidTexture;
+		std::vector<std::shared_ptr<gfx::Image>> m_loadedImages;
 
 		// Supported effects
 		std::shared_ptr<gfx::Effect> m_metallicRoughnessEffect;
