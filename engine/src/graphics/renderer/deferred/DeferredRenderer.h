@@ -44,15 +44,10 @@ namespace rev::gfx {
 		void render	(const RenderScene&, const Camera& pov);
 		void onResizeTarget(const math::Vec2u& _newSize);
 
-		//void drawDebugUI();
-
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
 		void loadNoiseTextures();
 		void collapseSceneRenderables(const RenderScene&);
-
-		template<class Filter> // Filter must be an operator (RenderItem) -> bool
-		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
 
 	private:
 		Device*		m_device = nullptr;

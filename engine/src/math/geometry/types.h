@@ -59,6 +59,7 @@ namespace rev {
 			float nearPlane		() const { return mNear; }
 			float farPlane		() const { return mFar; }
 			float centroid		() const { return 0.5f*(mNear+mFar); }
+			const math::Vec3f& viewDir() const { return mPlanes[1].normal; }
 			const Plane& plane(size_t i) const { return mPlanes[i]; }
 
 			const Mat44f& projection() const { return mProjection; }

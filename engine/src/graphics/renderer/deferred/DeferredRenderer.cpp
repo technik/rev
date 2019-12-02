@@ -88,16 +88,6 @@ namespace rev::gfx {
 		ImGui::Checkbox("Lock culling", &m_lockCulling);
 		if(!m_lockCulling)
 			m_cullingFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
-		m_visibleQueue.clear();
-		for (size_t i = 0; i < m_renderQueue.size(); ++i)
-		{
-			auto& renderItem = m_renderQueue[i];
-			AABB worldSpaceBB = renderItem.world * renderItem.geom->bbox();
-			if (math::cull(m_cullingFrustum, worldSpaceBB))
-			{
-				m_visibleQueue.push_back(renderItem);
-			}
-		}
 
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
@@ -364,6 +354,8 @@ namespace rev::gfx {
 		// Skip it for now
 		m_fbCache->deallocateResources();
 		m_viewportSize = _newSize;
+		m_shadowSize.x() = std::min(2048u, _newSize.y() * 4);
+		m_shadowSize.y() - m_shadowSize.x();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -443,28 +435,42 @@ namespace rev::gfx {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	template<class Filter> // Filter must be an operator (RenderItem) -> bool
-	void DeferredRenderer::cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter& filter) // TODO: Cull inplace?
-	{
-		for(auto& item : from)
-			if(filter(item))
-				to.push_back(item);
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene)
 	{
 		m_renderQueue.clear();
+		m_visibleQueue.clear();
+
 		for(auto obj : scene.renderables())
 		{			
 			if(!obj->visible)
 				continue;
+			auto worldMtx = obj->transform;
+
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);
-				m_renderQueue.push_back(RenderItem{obj->transform, &*mesh.first, &*mesh.second});
+				auto renderItem = RenderItem{ worldMtx, &*mesh.first, &*mesh.second };
+				m_renderQueue.push_back(renderItem);
+
+				AABB worldSpaceBB = worldMtx * renderItem.geom->bbox();
+				if (math::cull(m_cullingFrustum, worldSpaceBB))
+				{
+					m_visibleQueue.push_back(renderItem);
+				}
 			}
 		}
+
+		auto viewDir = m_cullingFrustum.viewDir();
+		
+		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
+			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center() + a.world.block<3, 1, 0, 3>();
+			Vec3f bCenter = a.world.block<3,3,0,0>() * b.geom->bbox().center() + b.world.block<3, 1, 0, 3>();
+			float da = dot(aCenter, viewDir);
+			float db = dot(bCenter, viewDir);
+
+			return da < db;
+		});
+
 	}
 
 } // namespace rev::gfx
