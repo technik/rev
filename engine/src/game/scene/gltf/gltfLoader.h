@@ -69,8 +69,7 @@ namespace rev::game {
 		std::shared_ptr<gfx::Material> defaultMaterial();
 
 		gfx::Texture2d getTexture(
-			const gltf::Document& document,
-			const std::string& assetsFolder,
+			const fx::gltf::Document& document,
 			gfx::TextureSampler defaultSampler,
 			int32_t index,
 			bool sRGB,
@@ -78,9 +77,7 @@ namespace rev::game {
 
 		// Load resources
 		std::vector<std::shared_ptr<gfx::Material>> loadMaterials(
-			const std::string& _assetsFolder,
-			const fx::gltf::Document& _document,
-			std::vector<gfx::Texture2d>& _textures
+			const fx::gltf::Document& _document
 		);
 
 		std::vector<std::shared_ptr<gfx::RenderMesh>> loadMeshes(
@@ -99,6 +96,7 @@ namespace rev::game {
 
 	private:
 		gfx::Device& m_gfxDevice;
+		std::string m_assetsFolder;
 
 		// Cached resources
 		gfx::Texture2d m_invalidTexture;

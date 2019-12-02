@@ -35,9 +35,9 @@ namespace rev::game
 		const std::shared_ptr<gfx::Image>& image,
 		gfx::Device& device,
 		gfx::TextureSampler sampler,
-		bool sRGB = true,
-		int nChannels = 0,
-		int nMips = 0)
+		bool sRGB,
+		int nChannels,
+		int nMips)
 	{
 		if (!image)
 			return gfx::Texture2d();
