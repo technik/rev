@@ -80,18 +80,18 @@ namespace rev::gfx {
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		Mat44f view = eye.view();
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
-		/*Frustum viewFrustum = eye.frustum(aspectRatio);
+
+		Frustum wsFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
+		m_visibleQueue.clear();
 		for (size_t i = 0; i < m_renderQueue.size(); ++i)
 		{
 			auto& renderItem = m_renderQueue[i];
-			AABB viewSpaceBB = renderItem.world * renderItem.geom->bbox();
-			if (!math::cull(viewFrustum, eye.world().matrix(), viewSpaceBB))
+			AABB worldSpaceBB = renderItem.world * renderItem.geom->bbox();
+			if (math::cull(wsFrustum, worldSpaceBB))
 			{
-				renderItem = m_renderQueue.back();
-				m_renderQueue.resize(m_renderQueue.size() - 1);
-				--i;
+				m_visibleQueue.push_back(renderItem);
 			}
-		}*/
+		}
 
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
@@ -99,7 +99,7 @@ namespace rev::gfx {
 		m_transparentQueue.clear();
 		m_emissiveQueue.clear();
 		
-		for (auto& renderItem : m_renderQueue)
+		for (auto& renderItem : m_visibleQueue)
 		{
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom->bbox();
 			if (viewSpaceBB.min().z() < 0)
@@ -246,7 +246,7 @@ namespace rev::gfx {
 					dst.clearDepth(0.f);
 					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_opaqueQueue, eye, light, dst);
+					m_shadowPass->render(m_renderQueue, m_visibleQueue, eye, light, dst);
 				});
 		}
 

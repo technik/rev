@@ -70,7 +70,19 @@ namespace rev {
 			float mFar;
 			Mat44f mProjection;
 			Plane mPlanes[6];
+
+			friend inline Frustum operator*(const Mat44f& m, const Frustum& f);
 		};
+
+		inline Frustum operator*(const Mat44f& m, const Frustum& f)
+		{
+			Frustum result = f;
+			for (size_t i = 0; i < 6; ++i)
+			{
+				result.mPlanes[i] = m * f.plane(i);
+			}
+			return result;
+		}
 
 		inline bool cull(const Frustum& frustum, const Mat44f& worldFromFrustum, const AABB& aabb)
 		{

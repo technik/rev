@@ -72,6 +72,7 @@ namespace rev::gfx {
 
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
+		std::vector<RenderItem> m_visibleQueue;
 		std::vector<RenderItem> m_opaqueQueue;
 		std::vector<RenderItem> m_alphaMaskQueue;
 		std::vector<RenderItem> m_emissiveQueue;
