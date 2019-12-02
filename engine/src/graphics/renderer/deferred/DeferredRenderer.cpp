@@ -30,6 +30,8 @@
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 
+#include <sstream>
+
 using namespace rev::math;
 
 namespace rev::gfx {
@@ -61,36 +63,10 @@ namespace rev::gfx {
 		ibl_desc.srcImages.emplace_back(std::move(iblImg));
 
 		m_brdfIbl = device.createTexture2d(ibl_desc);
-	}
 
-	//----------------------------------------------------------------------------------------------
-	std::string DeferredRenderer::vertexFormatDefines(RenderGeom::VtxFormat vertexFormat)
-	{
-		// TODO: Create this defines procedurally with more information from the actual rendergeom
-		std::string defines;
-		if(vertexFormat.position() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_POSITION_FLOAT 0\n";
-		if(vertexFormat.normal() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_NORMAL_FLOAT 1\n";
-		if(vertexFormat.tangent() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_TANGENT_FLOAT 2\n";
-		if(vertexFormat.uv() == RenderGeom::VtxFormat::Storage::Float32)
-			defines += "#define VTX_UV_FLOAT 3\n";
-		return defines;
-	}
-
-	ShaderCodeFragment* DeferredRenderer::getMaterialCode(RenderGeom::VtxFormat vtxFormat, const Material& material)
-	{
-		auto completeCode = vertexFormatDefines(vtxFormat) + material.bakedOptions() + material.effect().code();
-		auto iter = m_materialCode.find(completeCode);
-		if(iter == m_materialCode.end())
-		{
-			iter = m_materialCode.emplace(completeCode, new ShaderCodeFragment(completeCode.c_str())).first;
-			material.effect().onReload([this](const Effect&){
-				m_materialCode.clear();
-			});
-		}
-		return iter->second;
+		// Blue noise
+		m_noisePermutations = std::uniform_int_distribution<unsigned>(0, NumBlueNoiseTextures - 1);
+		loadNoiseTextures();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -103,32 +79,71 @@ namespace rev::gfx {
 		// --- Cull stuff
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		// Cull visible objects renderQ -> visible
-		m_visible.clear();
+		m_opaqueQueue.clear();
+		m_alphaMaskQueue.clear();
+		m_transparentQueue.clear();
+		m_emissiveQueue.clear();
+		
 		Mat44f view = eye.view();
-		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
-		Frustum viewFrustum = eye.frustum(aspectRatio);
 		for (auto& renderItem : m_renderQueue)
 		{
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
-			if (math::cull(viewFrustum, viewSpaceBB))
-				m_visible.push_back(renderItem);
+			if (viewSpaceBB.min().z() < 0)
+			{
+				switch (renderItem.material.transparency())
+				{
+					case Material::Transparency::Opaque:
+					{
+						if (renderItem.material.isEmissive())
+							m_emissiveQueue.push_back(renderItem);
+						else
+							m_opaqueQueue.push_back(renderItem);
+						break;
+					}
+					case Material::Transparency::Mask:
+					{
+						if (renderItem.material.isEmissive())
+							m_emissiveQueue.push_back(renderItem);
+						else
+							m_alphaMaskQueue.push_back(renderItem);
+						break;
+					}
+					case Material::Transparency::Blend:
+					{
+						m_transparentQueue.push_back(renderItem);
+						break;
+					}
+				}
+			}
 		}
 
-		auto worldMatrix = Mat44f::identity();
-		GeometryPass::Instance instance;
-		instance.geometryIndex = uint32_t(-1);
-		instance.instanceCode = nullptr;
+		bool useEmissive = !m_emissiveQueue.empty();
 
-		std::vector<GeometryPass::Instance> renderList;
-		std::vector<const RenderGeom*> geometry;
-		const RenderGeom* lastGeom = nullptr;
-		const Material* lastMaterial = nullptr;
-
+		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
 
+		// G-Buffer pass with emissive
+		RenderGraph::BufferResource depth, normals, pbr, albedo, hdr; // G-Pass outputs
+		if (useEmissive)
+		{
+			frameGraph.addPass("Emissive clear",
+				m_viewportSize,
+				// Pass definition
+				[&](RenderGraph::IPassBuilder& pass) {
+					hdr = pass.write(BufferFormat::RGBA32);
+				},
+				// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				{
+					// Clear depth
+					dst.clearDepth(0.f);
+					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
+					dst.clear(Clear::All);
+				});
+		}
+
 		// G-Buffer pass
-		RenderGraph::BufferResource depth, normals, pbr, albedo; // G-Pass outputs
-		frameGraph.addPass(
+		frameGraph.addPass("G-Buffer",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
@@ -138,39 +153,69 @@ namespace rev::gfx {
 				depth = pass.write(BufferFormat::depth32);
 			},
 			// Pass evaluation
-			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
 				// Clear depth
 				dst.clearDepth(0.f);
-				dst.clearColor(Vec4f::zero());
+				dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 				dst.clear(Clear::All);
 
-				for (auto& mesh : m_visible)
-				{
-					// Raster options
-					bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
-					m_rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
-					instance.raster = m_rasterOptions.mask();
-					// Uniforms
-					instance.uniforms.clear();
-					Mat44f world = mesh.world;
-					Mat44f wvp = viewProj * world;
-					instance.uniforms.mat4s.push_back({ 0, wvp });
-					instance.uniforms.mat4s.push_back({ 1, world });
-					// Geometry
-					if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
-					{
-						lastMaterial = &mesh.material;
-						lastGeom = &mesh.geom;
-						mesh.material.bindParams(instance.uniforms, Material::BindingFlags(Material::BindingFlags::Normals | Material::BindingFlags::PBR));
-						instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
-						instance.geometryIndex++;
-						geometry.push_back(&mesh.geom);
-					}
-					renderList.push_back(instance);
-				}
+				m_gBufferPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
+				m_gBufferMaskedPass->render(viewProj, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
+			});
 
-				m_gPass->render(geometry, renderList, dst);
+		if (useEmissive)
+		{
+			frameGraph.addPass("G-Buffer + emissive",
+				m_viewportSize,
+				// Pass definition
+				[&](RenderGraph::IPassBuilder& pass) {
+					normals = pass.write(normals);
+					albedo = pass.write(albedo);
+					pbr = pass.write(pbr);
+					depth = pass.write(depth);
+					hdr = pass.write(hdr);
+				},
+				// Pass evaluation
+					[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				{
+					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
+						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
+						dst);
+				});
+		}
+
+		// AO pass
+		RenderGraph::BufferResource ao; // G-Pass outputs
+		frameGraph.addPass("AO-Sample",
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+				ao = pass.write(BufferFormat::RGBA8);
+				pass.read(normals, 0);
+				pass.read(depth, 1);
+			},
+			// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				// Clear depth
+				dst.clearColor(Vec4f::ones());
+				dst.clear(Clear::Color);
+
+				auto projection = eye.projection(aspectRatio);
+				Mat44f invView = eye.world().matrix();
+
+				CommandBuffer::UniformBucket uniforms;
+				uniforms.addParam(0, projection);
+				uniforms.addParam(1, invView);
+				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+				// Textures
+				uniforms.addParam(7, inputTextures[0]);
+				uniforms.addParam(8, inputTextures[1]);
+				unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
+				uniforms.addParam(9, m_blueNoise[noiseTextureNdx]);
+
+				m_aoSamplePass->render(uniforms, dst);
 			});
 
 		// Optional shadow pass
@@ -178,7 +223,7 @@ namespace rev::gfx {
 		RenderGraph::BufferResource shadows;
 		if (useShadows)
 		{
-			frameGraph.addPass(
+			frameGraph.addPass("Sky shadow",
 				m_shadowSize,
 				[&](RenderGraph::IPassBuilder& pass)
 				{
@@ -186,34 +231,41 @@ namespace rev::gfx {
 				},
 				[&](const Texture2d*, size_t, CommandBuffer& dst)
 				{
+					dst.clearDepth(0.f);
+					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_visible, eye, light, dst);
+					m_shadowPass->render(m_renderQueue, m_opaqueQueue, eye, light, dst);
 				});
 		}
 
 		// Environment light pass
-		//RenderGraph::BufferResource hdr;
-		frameGraph.addPass(
+		frameGraph.addPass("Light pass",
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 			//hdr = pass.write(BufferFormat::RGBA32);
-				pass.write(m_targetFb); // Should write to hdr
+				if (useEmissive)
+					hdr = pass.write(hdr);
+				else
+					hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
 
 				pass.read(normals, 0);
 				pass.read(albedo, 1);
 				pass.read(pbr, 2);
 				pass.read(depth, 3);
+				pass.read(ao, 4);
 				// TODO: Shadows enabled? read them!
 				if (useShadows)
-					pass.read(shadows, 4);
+					pass.read(shadows, 5);
 			},
 			// Pass evaluation
 			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				dst.clearColor(Vec4f::zero());
-				dst.clearDepth(0.f);
-				dst.clear(Clear::All);
+				if (!useEmissive)
+				{
+					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
+					dst.clear(Clear::Color);
+				}
 
 				// Light-pass
 				if (auto env = scene.environment())
@@ -224,7 +276,6 @@ namespace rev::gfx {
 					envUniforms.addParam(0, projection);
 					envUniforms.addParam(1, invView);
 					envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-					envUniforms.addParam(3, 1.f);
 
 					envUniforms.addParam(4, env->texture());
 					envUniforms.addParam(5, m_brdfIbl);
@@ -234,11 +285,12 @@ namespace rev::gfx {
 					envUniforms.addParam(8, inputTextures[3]);
 					envUniforms.addParam(9, inputTextures[2]);
 					envUniforms.addParam(10, inputTextures[1]);
+					envUniforms.addParam(13, inputTextures[4]);
 
 					if (useShadows)
 					{
 						math::Mat44f shadowProj = m_shadowPass->shadowProj();
-						envUniforms.addParam(11, inputTextures[4]);
+						envUniforms.addParam(11, inputTextures[5]);
 						envUniforms.addParam(12, shadowProj);
 					}
 
@@ -257,9 +309,29 @@ namespace rev::gfx {
 				}
 			});
 
+		frameGraph.addPass("hdr",
+			m_viewportSize,
+			// Pass definition
+			[&](RenderGraph::IPassBuilder& pass) {
+				//hdr = pass.write(BufferFormat::RGBA32);
+				pass.read(hdr, 0); // Should write to hdr
+				pass.write(m_targetFb); // Hack: Doesn´t really write to it. But we need it bound in the fb
+			},
+			// Pass evaluation
+				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				CommandBuffer::UniformBucket uniforms;
+				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+				uniforms.addParam(3, powf(2.f, m_expositionValue));
+				uniforms.addParam(4, inputTextures[0]);
+
+				m_hdrPass->render(uniforms, dst);
+			});
+
 		// Record passes
 		frameGraph.build(*m_fbCache);
 		CommandBuffer frameCommands;
+
 		frameGraph.evaluate(frameCommands);
 
 		// Submit
@@ -272,12 +344,6 @@ namespace rev::gfx {
 		// Skip it for now
 		m_fbCache->deallocateResources();
 		m_viewportSize = _newSize;
-		// Recreate internal buffers
-		if(m_gPass)
-			delete m_gPass;
-		if(m_lightingPass)
-			delete m_lightingPass;
-		createRenderPasses(m_targetFb);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -286,16 +352,74 @@ namespace rev::gfx {
 		m_rasterOptions.cullBack = true;
 		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
 
-		m_gPass = new GeometryPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx"));
+		ShaderCodeFragment* gBufferCode = ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx");
+		m_gBufferPass = std::make_unique<GeometryPass>(*m_device, gBufferCode);
+		ShaderCodeFragment* gBufferMaskedCode = new ShaderCodeFragment(new ShaderCodeFragment("#define ALPHA_MASK\n"), gBufferCode);
+		m_gBufferMaskedPass = std::make_unique<GeometryPass>(*m_device, gBufferMaskedCode);
 
 		// Shadow pass
 		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowSize);
 
 		// Lighting pass
-		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"));
+		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"), Pipeline::DepthTest::Less, false, Pipeline::BlendMode::Additive);
 
 		// Background pass
-		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"));
+		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
+
+		m_aoSamplePass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/aoSample.fx"), Pipeline::DepthTest::Less, false);
+
+		// HDR pass
+		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::loadNoiseTextures()
+	{
+		// Noise texture sampler
+		TextureSampler::Descriptor noiseSamplerDesc;
+		noiseSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
+		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
+		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
+
+		rev::gfx::Texture2d::Descriptor m_noiseDesc;
+		m_noiseDesc.sampler = m_device->createTextureSampler(noiseSamplerDesc);
+		m_noiseDesc.depth = false;
+		m_noiseDesc.mipLevels = 1;
+		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+		m_noiseDesc.pixelFormat.numChannels = 4;
+		m_noiseDesc.size = Vec2u(64, 64);
+		m_noiseDesc.sRGB = false;
+
+		std::string imageName = "../data/blueNoise/LDR_RGBA_00.png";
+		auto digitPos = imageName.find("00");
+		for (unsigned i = 0; i < NumBlueNoiseTextures; ++i)
+		{
+#if 0
+			// Create a brand new noise texture
+			Vec4f * noise = new Vec4f[64 * 64];
+			std::uniform_real_distribution<float> noiseDistrib;
+			for (int i = 0; i < 64 * 64; ++i)
+			{
+				noise[i].x() = noiseDistrib(m_rng);
+				noise[i].y() = noiseDistrib(m_rng);
+				noise[i].z() = noiseDistrib(m_rng);
+				noise[i].w() = noiseDistrib(m_rng);
+			}
+			m_noiseDesc.srcImages.emplace_back(new rev::gfx::Image(m_noiseDesc.size, noise));
+			m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
+#else
+			// Load image from file
+			imageName[digitPos] = (i / 10) + '0';
+			imageName[digitPos+1] = (i % 10) + '0';
+			auto image = Image::load(imageName, 0);
+			m_noiseDesc.srcImages.clear();
+			if (image)
+			{
+				m_noiseDesc.srcImages.push_back(std::move(image));
+				m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
+			}
+#endif
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

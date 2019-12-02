@@ -18,6 +18,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "geometryPass.h"
+#include <math/algebra/matrix.h>
+#include <graphics/renderer/material/material.h>
+
+using namespace rev::math;
 
 namespace rev::gfx {
 
@@ -28,7 +32,7 @@ namespace rev::gfx {
 	{
 		m_shaderListeners.push_back(mPassCommonCode->onReload([this](const ShaderCodeFragment&)
 		{
-			mPipelines.clear();
+			m_pipelines.clear();
 		}));
 
 		// Common pipeline config
@@ -38,8 +42,52 @@ namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	void GeometryPass::render(
-		const std::vector<const RenderGeom*>& geometry,
-		const std::vector<Instance>& instances,
+		const Mat44f& viewProj,
+		const std::vector<RenderItem>& geometry,
+		Pipeline::RasterOptions rasterOptions,
+		Material::Flags bindingFlags,
+		CommandBuffer& out)
+	{
+		auto worldMatrix = Mat44f::identity();
+		GeometryPass::Instance instance;
+		instance.geometryIndex = uint32_t(-1);
+		instance.instanceCode = nullptr;
+
+		std::vector<GeometryPass::Instance> renderList;
+		std::vector<const RenderGeom*> geoms;
+		const RenderGeom* lastGeom = nullptr;
+		const Material* lastMaterial = nullptr;
+
+		for (auto& mesh : geometry)
+		{
+			// Raster options
+			bool mirroredGeometry = affineTransformDeterminant(worldMatrix) < 0.f;
+			rasterOptions.frontFace = mirroredGeometry ? Pipeline::Winding::CW : Pipeline::Winding::CCW;
+			instance.raster = rasterOptions.mask();
+			// Uniforms
+			instance.uniforms.clear();
+			Mat44f world = mesh.world;
+			Mat44f wvp = viewProj * world;
+			instance.uniforms.mat4s.push_back({ 0, wvp });
+			instance.uniforms.mat4s.push_back({ 1, world });
+			// Geometry
+			if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
+			{
+				lastMaterial = &mesh.material;
+				lastGeom = &mesh.geom;
+				mesh.material.bindParams(instance.uniforms, bindingFlags);
+				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
+				instance.geometryIndex++;
+				geoms.push_back(&mesh.geom);
+			}
+			renderList.push_back(instance);
+		}
+		
+		render(geoms, renderList, out);
+	}
+
+	void GeometryPass::render(const std::vector<const RenderGeom*>& geometry,
+		const std::vector<Instance>& renderList,
 		CommandBuffer& out)
 	{
 		// Render state caches
@@ -47,7 +95,7 @@ namespace rev::gfx {
 		ShaderCodeFragment* lastCode = nullptr;
 		Pipeline::RasterOptions::Mask lastMask = 0;
 
-		for (auto& instance : instances)
+		for (auto& instance : renderList)
 		{
 			// Set up graphics pipeline
 			if (lastCode != instance.instanceCode || lastMask != instance.raster)
@@ -87,8 +135,8 @@ namespace rev::gfx {
 	Pipeline GeometryPass::getPipeline(const Instance& instance)
 	{
 		auto key = std::pair(instance.raster, instance.instanceCode);
-		auto iter = mPipelines.find(key);
-		if(iter == mPipelines.end())
+		auto iter = m_pipelines.find(key);
+		if(iter == m_pipelines.end())
 		{
 			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
@@ -111,7 +159,21 @@ namespace rev::gfx {
 				pipeline = mDevice.createPipeline(m_commonPipelineDesc);
 			}
 
-			iter = mPipelines.emplace(key, pipeline).first;
+			iter = m_pipelines.emplace(key, pipeline).first;
+		}
+		return iter->second;
+	}
+
+	ShaderCodeFragment* GeometryPass::getMaterialCode(VtxFormat vtxFormat, const Material& material)
+	{
+		auto completeCode = vtxFormat.shaderDefines() + material.bakedOptions() + material.effect().code();
+		auto iter = m_materialCode.find(completeCode);
+		if (iter == m_materialCode.end())
+		{
+			iter = m_materialCode.emplace(completeCode, new ShaderCodeFragment(completeCode.c_str())).first;
+			material.effect().onReload([this](const Effect&) {
+				m_materialCode.clear();
+				});
 		}
 		return iter->second;
 	}

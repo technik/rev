@@ -21,6 +21,8 @@
 #include "renderGraph.h"
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/backend/device.h>
+#include <graphics/debug/debugGUI.h>
+#include <graphics/debug/imgui.h>
 
 #include <numeric>
 
@@ -41,13 +43,14 @@ namespace rev::gfx {
 
 	//--------------------------------------------------------------------------
 	void RenderGraph::addPass(
+		const std::string& name,
 		const math::Vec2u& size,
 		PassDefinition passDefinition,
 		PassEvaluator passEvaluator,
 		HWAntiAlias targetAntiAliasing)
 	{
 		// Add a new pass
-		m_passDescriptors.emplace_back(m_bufferLifetime, m_virtualResources);
+		m_passDescriptors.emplace_back(name, m_bufferLifetime, m_virtualResources);
 		auto& newPass = m_passDescriptors.back();
 		newPass.targetSize = size;
 		newPass.definition = passDefinition;
@@ -69,6 +72,10 @@ namespace rev::gfx {
 		// Sort passes based on their dependencies
 		sortPasses();
 
+		bool showDebugInfo = ImGui::Begin("Render Graph");
+
+		// Clear previous associations
+		m_virtualToPhysical.clear();
 		// Associate passes with resources
 		for (auto passNdx : m_sortedPasses)
 		{
@@ -76,9 +83,9 @@ namespace rev::gfx {
 			auto& pass = m_passDescriptors[passNdx];
 			// Gather all virtual resources associated
 			Texture2d targetTextures[cMaxOutputs];
-			int i = 0;
-			for (auto outputStateNdx : pass.m_outputs)
+			for (int i = 0; i < pass.m_outputs.size(); ++i)
 			{
+				auto outputStateNdx = pass.m_outputs[i];
 				auto targetResourceNdx = m_bufferLifetime[outputStateNdx].virtualBufferNdx;
 				auto& virtualBuffer = m_virtualResources[targetResourceNdx];
 				if (virtualBuffer.externalFramebuffer.isValid())
@@ -87,15 +94,23 @@ namespace rev::gfx {
 					break;
 				}
 
-				if (virtualBuffer.externalTexture.isValid())
+				auto virtualIter = m_virtualToPhysical.find(targetResourceNdx);
+				if (virtualIter == m_virtualToPhysical.end()) // Resource not previously mapped
 				{
-					targetTextures[i] = virtualBuffer.externalTexture;
+					if (virtualBuffer.externalTexture.isValid())
+					{
+						targetTextures[i] = virtualBuffer.externalTexture;
+					}
+					else
+					{
+						targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+					}
+					m_virtualToPhysical[targetResourceNdx] = targetTextures[i];
 				}
-				else
+				else // Previously mapped resource
 				{
-					targetTextures[i] = bufferCache.requestTargetTexture(virtualBuffer.bufferDescriptor);
+					targetTextures[i] = virtualIter->second;
 				}
-				m_virtualToPhysical[targetResourceNdx] = targetTextures[i++];
 			}
 			if (passFramebuffer.isValid())
 			{
@@ -105,19 +120,61 @@ namespace rev::gfx {
 
 			// Agregate target textures into a framebuffer descriptor
 			FrameBuffer::Attachment attachments[cMaxOutputs];
-			for (int j = 0; j < i; ++j)
+			size_t numAttachs = pass.m_outputs.size();
+			bool hasDepthBuffer = false;
+			for (int j = 0; j < numAttachs; ++j)
 			{
 				attachments[j].mipLevel = 0;
 				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
-				auto bufferFormat = m_virtualResources[pass.m_outputs[j]].bufferDescriptor.format;
+				auto lifeTimeNdx = pass.m_outputs[j];
+				auto virtualIndex = m_bufferLifetime[lifeTimeNdx].virtualBufferNdx;
+				auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
 				attachments[j].target = (bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32) ?
 					FrameBuffer::Attachment::Target::Depth : FrameBuffer::Attachment::Target::Color;
+				if (attachments[j].target == FrameBuffer::Attachment::Target::Depth)
+				{
+					assert(!hasDepthBuffer && "Only one depth buffer can be attached per pass");
+					hasDepthBuffer = true;
+				}
 				attachments[j].texture = targetTextures[j];
 			}
-			FrameBuffer::Descriptor descriptor(i, attachments);
+			// Optionally bind a read-only depth buffer
+			if (!hasDepthBuffer)
+			{
+				for (auto& input : pass.m_inputs)
+				{
+					auto virtualIndex = m_bufferLifetime[input].virtualBufferNdx;
+					auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
+					if ((bufferFormat == BufferFormat::depth24 || bufferFormat == BufferFormat::depth32))
+					{
+						attachments[numAttachs].mipLevel = 0;
+						attachments[numAttachs].imageType = FrameBuffer::Attachment::ImageType::Texture;
+						attachments[numAttachs].target = FrameBuffer::Attachment::Target::Depth;
+						assert(m_virtualToPhysical.find(virtualIndex) != m_virtualToPhysical.end() && "Depth must always be written before beind used as read only");
+						attachments[numAttachs].texture = m_virtualToPhysical[virtualIndex];
+
+						++numAttachs;
+						break;
+					}
+				}
+			}
+			FrameBuffer::Descriptor descriptor(numAttachs, attachments);
 			passFramebuffer = bufferCache.requestFrameBuffer(descriptor);
 			pass.m_cachedFb = passFramebuffer;
+
+			// Instrumentation
+			if(ImGui::CollapsingHeader(pass.name.c_str()))
+			{
+				ImVec2 previewSize = ImVec2(pass.targetSize.x() * 0.25f, pass.targetSize.y() * 0.25f);
+				for (int nAttach = 0; nAttach < pass.m_outputs.size(); ++nAttach)
+				{
+					ImTextureID texId = (void*)((GLuint)attachments[nAttach].texture.id());
+					ImGui::Image(texId, previewSize);
+				}
+			}
 		}
+
+		ImGui::End();
 
 		// Resolve input textures?
 		bufferCache.freeResources();

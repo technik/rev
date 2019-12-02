@@ -218,7 +218,7 @@ namespace rev :: gfx
 		auto& fbInfo = m_frameBuffers[fb.id()-1];
 		assert(fbInfo.isValid);
 		fbInfo.isValid = false;
-		while(!m_frameBuffers.back().isValid)
+		while(!m_frameBuffers.empty() && !m_frameBuffers.back().isValid)
 			m_frameBuffers.pop_back();
 	}
 
@@ -493,6 +493,18 @@ namespace rev :: gfx
 
 		// Fixed function
 		auto& desc = pipeline.desc;
+		// Alpha blending
+		if (Pipeline::BlendMode::Write == desc.raster.blendMode)
+		{
+			glDisable(GL_BLEND);
+		}
+		else
+		{
+			// Additive
+			assert(desc.raster.blendMode == Pipeline::BlendMode::Additive);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
 		// Depth tests
 		if(Pipeline::DepthTest::None == desc.raster.depthTest)
 		{
@@ -500,6 +512,14 @@ namespace rev :: gfx
 		}
 		else
 		{
+			if(desc.raster.witeDepth)
+			{
+				glDepthMask(GL_TRUE);
+			}
+			else
+			{
+				glDepthMask(GL_FALSE);
+			}
 			glEnable(GL_DEPTH_TEST);
 			switch(desc.raster.depthTest)
 			{
@@ -509,6 +529,12 @@ namespace rev :: gfx
 				case Pipeline::DepthTest::Gequal:
 					glDepthFunc(GL_GEQUAL);
 					break;
+				case Pipeline::DepthTest::Less:
+					glDepthFunc(GL_LESS);
+					break;
+				default:
+					assert(false && "Unsupported depth function");
+					return;
 			}
 		}
 		// Culling

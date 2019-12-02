@@ -91,6 +91,11 @@ PBRParams getPBRParams()
 	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
 	params.albedo.a = 1.0;
 	params.ao = physics.ao;
+    
+	// Texture
+	#if defined(sampler2D_uEmissiveMap)
+		params.emissive = texture(uEmissiveMap, vTexCoord);
+	#endif
 
 	return params;
 }

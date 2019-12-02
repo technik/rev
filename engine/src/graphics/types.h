@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2019 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,25 +20,55 @@
 #pragma once
 
 #include <string>
-#include "../sceneNode.h"
-#include <graphics/scene/animation/animation.h>
-#include <graphics/scene/renderScene.h>
-#include <memory>
-#include <vector>
 
-namespace rev::gfx { class Device; }
+namespace rev::gfx {
 
-namespace rev::game {
+	struct VtxFormat {
 
-	/// Load a gltf scene
-	/// Add renderable content to _gfxWorld
-	/// filePath must not contain folder, file name and extension
-	/// If parentNode is not nullptr, all the scene nodes will be added as children to it
-	void loadGLTFScene(
-		gfx::Device& gfxDevice,
-		SceneNode& parentNode,
-		const std::string& filePath,
-		gfx::RenderScene& _gfxWorld,
-		std::vector<std::shared_ptr<SceneNode>>& animNodes,
-		std::vector<std::shared_ptr<gfx::Animation>>& _animations);
+		VtxFormat() = default;
+		VtxFormat(bool pos, bool nrm, bool tan, bool uv, bool weights)
+		{
+			m_code =
+				(pos ? Flags::Position : 0)
+				| (nrm ? Flags::Normal : 0)
+				| (tan ? Flags::Tangent : 0)
+				| (uv ? Flags::UV : 0)
+				| (weights ? Flags::Weights : 0);
+		}
+
+		bool hasPosition() const { return m_code & Flags::Position; }
+		bool hasNormal() const { return m_code & Flags::Normal; }
+		bool hasTangent() const { return m_code & Flags::Tangent; }
+		bool hasUV() const { return m_code & Flags::UV; }
+		bool hasWeights() const { return m_code & Flags::Weights; }
+
+		uint16_t code() const { return m_code; }
+		bool isValid() const { return m_code == 0; }
+
+		std::string shaderDefines() const
+		{
+			std::string defines;
+			if (hasPosition())
+				defines += "#define VTX_POSITION_FLOAT 0\n";
+			if (hasNormal())
+				defines += "#define VTX_NORMAL_FLOAT 1\n";
+			if (hasTangent())
+				defines += "#define VTX_TANGENT_FLOAT 2\n";
+			if (hasUV())
+				defines += "#define VTX_UV_FLOAT 3\n";
+			return defines;
+		}
+
+	private:
+		enum Flags
+		{
+			Position = 1 << 0,
+			Normal = 1 << 1,
+			Tangent = 1 << 2,
+			UV = 1 << 3,
+			Weights = 1 << 4
+		};
+		uint16_t m_code = 0;
+	};
+
 }

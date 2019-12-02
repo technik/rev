@@ -26,6 +26,7 @@
 #include <graphics/renderer/ShadowMapPass.h>
 #include <graphics/renderGraph/renderGraph.h>
 #include <graphics/renderGraph/frameBufferCache.h>
+#include <random>
 #include <vector>
 
 namespace rev::gfx {
@@ -47,11 +48,8 @@ namespace rev::gfx {
 
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
+		void loadNoiseTextures();
 		void collapseSceneRenderables(const RenderScene&);
-		ShaderCodeFragment* getMaterialCode(RenderGeom::VtxFormat, const Material& material);
-		std::string vertexFormatDefines(RenderGeom::VtxFormat vertexFormat);
-
-		using RenderItem = gfx::RenderItem;
 
 		template<class Filter> // Filter must be an operator (RenderItem) -> bool
 		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
@@ -60,20 +58,32 @@ namespace rev::gfx {
 		Device*		m_device = nullptr;
 
 		// Render state
+		float m_expositionValue = 0.f;
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;
 		FrameBuffer m_targetFb;
 		std::unique_ptr<FrameBufferCache> m_fbCache;
 
+		// Noise
+		static constexpr unsigned NumBlueNoiseTextures = 64;
+		rev::gfx::Texture2d m_blueNoise[NumBlueNoiseTextures];
+		std::default_random_engine m_rng;
+		std::uniform_int_distribution<unsigned> m_noisePermutations;
+
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
-		std::vector<RenderItem> m_visible;
+		std::vector<RenderItem> m_opaqueQueue;
+		std::vector<RenderItem> m_alphaMaskQueue;
+		std::vector<RenderItem> m_emissiveQueue;
+		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass
-		std::map<std::string, ShaderCodeFragment*> m_materialCode;
 		Pipeline::RasterOptions m_rasterOptions;
-		GeometryPass*			m_gPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferMaskedPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
+		std::unique_ptr<FullScreenPass>	m_hdrPass;
+		std::unique_ptr<FullScreenPass>	m_aoSamplePass;
 		std::unique_ptr<ShadowMapPass>	m_shadowPass;
 
 		// Shadow pass

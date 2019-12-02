@@ -52,7 +52,7 @@ namespace rev::gfx {
 
 		void bindUniform(GLint pos, const std::vector<math::Mat44f>& matArray)
 		{
-			glUniformMatrix4fv(pos, matArray.size(), !math::Mat44f::is_col_major, matArray[0].data());
+			glUniformMatrix4fv(pos, (GLsizei)matArray.size(), !math::Mat44f::is_col_major, matArray[0].data());
 		}
 
 		// True when errors are found

@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <map>
+#include <string>
 
 namespace rev::gfx {
 
@@ -66,7 +67,7 @@ namespace rev::gfx {
 
 		// Graph lifetime
 		void reset(); // Does not clear allocated GPU resources.
-		void addPass(const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
+		void addPass(const std::string& name, const math::Vec2u& size, PassDefinition, PassEvaluator, HWAntiAlias = HWAntiAlias::none);
 		void build(FrameBufferCache&);
 
 		// Record graph execution into a command buffer for deferred submision
@@ -97,9 +98,10 @@ namespace rev::gfx {
 		// Keeps track of pass info during the construction build phase of the graph
 		struct PassBuilder : IPassBuilder
 		{
-			PassBuilder(std::vector<PassState>& bufferLifetime, std::vector<VirtualResource>& virtualResources)
+			PassBuilder(const std::string& passName, std::vector<PassState>& bufferLifetime, std::vector<VirtualResource>& virtualResources)
 				: m_bufferLifetime(bufferLifetime)
 				, m_virtualResources(virtualResources)
+				, name(passName)
 			{}
 
 			BufferResource write(FrameBuffer externalTarget) override; // Import external frame buffer into the graph
@@ -116,6 +118,7 @@ namespace rev::gfx {
 			std::vector<size_t> m_outputs; // Indices into m_bufferLifetime
 
 			// Pass description
+			std::string name;
 			math::Vec2u targetSize; // Texture size of all attachments written to during the pass
 			HWAntiAlias antiAliasing;
 			PassDefinition definition;

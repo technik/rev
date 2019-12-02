@@ -71,7 +71,18 @@ vec3 ibl(
     float sdwD = max(0.0, -dot(lightDir,normal));
     float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
-	return (sdwS*(shadow-1)+1)*FssEss * radiance + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occlusion;
+	vec3 occDiff = vec3(occlusion);
+	// Remapping for multiple bounces
+	{
+		vec3 a = 2.0404 * albedo - 0.3324;
+		vec3 b = -4.7951 * albedo + 0.6417;
+		vec3 c = 2.7552 * albedo + 0.6903;
+
+		occDiff = max(vec3(occlusion), ((occlusion*a+b)*occlusion+c)*occlusion);
+	}
+
+	return (sdwS*(shadow-1)+1)*FssEss * radiance*occlusion
+	 + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occDiff;
 }
 #endif // sampler2D_uEnvironment
 

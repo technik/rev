@@ -25,26 +25,6 @@
 namespace rev::gfx
 {
 	//----------------------------------------------------------------------------------------------
-	RenderGeom::VtxFormat::VtxFormat(Storage pos, Storage nrm, Storage tan, Storage uv, Storage weights)
-	{
-		m_pos = pos;
-		m_normal = nrm;
-		m_tangent = tan;
-		m_uv = uv;
-		m_weights = weights;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	uint32_t RenderGeom::VtxFormat::code() const
-	{
-		return uint32_t(m_pos) << 24
-			| uint32_t(m_normal) << 16
-			| uint32_t(m_tangent) << 8
-			| uint32_t(m_uv)<<4
-			| uint32_t(m_weights);
-	}
-
-	//----------------------------------------------------------------------------------------------
 	RenderGeom::RenderGeom(
 		const Attribute* indices,
 		const Attribute* position,
@@ -53,19 +33,14 @@ namespace rev::gfx
 		const Attribute* uv0,
 		const Attribute* weights,
 		const Attribute* joints)
+		: m_vtxFormat(true, normal, tangent, uv0, (weights&& joints))
 	{
 		assert(indices);
 		//assert(indices->componentType == GL_UNSIGNED_SHORT || indices->componentType == GL_UNSIGNED_BYTE);
 		m_indices = *indices;
 		assert(position);
 		m_vtxAttributes.emplace_back(0, *position);
-		m_vtxFormat = VtxFormat(
-			VtxFormat::Storage::Float32,
-			normal?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			tangent?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			uv0?VtxFormat::Storage::Float32 : VtxFormat::Storage::None,
-			(weights&&joints)?VtxFormat::Storage::Float32 : VtxFormat::Storage::None
-		);
+
 		if(normal)
 			m_vtxAttributes.emplace_back(1, *normal);
 		if(tangent)
@@ -150,7 +125,7 @@ namespace rev::gfx
 			GL_UNSIGNED_SHORT,
 			1,
 			0,
-			indices.size(),
+			(GLsizei)indices.size(),
 			false,
 			math::AABB()
 		};
@@ -161,7 +136,7 @@ namespace rev::gfx
 			GL_FLOAT,
 			3,
 			0,
-			vertices.size(),
+			(GLsizei)vertices.size(),
 			false,
 			math::AABB()
 		};
@@ -172,7 +147,7 @@ namespace rev::gfx
 			GL_FLOAT,
 			3,
 			0,
-			normals.size(),
+			(GLsizei)normals.size(),
 			false,
 			math::AABB()
 		};

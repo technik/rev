@@ -60,8 +60,6 @@ namespace rev {
 		void createFloor();
 		void updateSceneBBox();
 
-		math::Vec2u m_windowSize;
-
 		// Scene
 		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
