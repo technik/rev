@@ -126,14 +126,10 @@ namespace rev::gfx {
 		RenderGraph::BufferResource depth, normals, pbr, albedo, hdr; // G-Pass outputs
 		if (useEmissive)
 		{
-			frameGraph.addPass("G-Buffer + emissive",
+			frameGraph.addPass("Emissive clear",
 				m_viewportSize,
 				// Pass definition
 				[&](RenderGraph::IPassBuilder& pass) {
-					normals = pass.write(BufferFormat::RGBA8);
-					albedo = pass.write(BufferFormat::sRGBA8);
-					pbr = pass.write(BufferFormat::RGBA8);
-					depth = pass.write(BufferFormat::depth32);
 					hdr = pass.write(BufferFormat::RGBA32);
 				},
 				// Pass evaluation
@@ -143,10 +139,6 @@ namespace rev::gfx {
 					dst.clearDepth(0.f);
 					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 					dst.clear(Clear::All);
-
-					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
-						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
-						dst);
 				});
 		}
 
@@ -155,35 +147,43 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-				if (useEmissive)
-				{
-					normals = pass.write(normals);
-					albedo = pass.write(albedo);
-					pbr = pass.write(pbr);
-					depth = pass.write(depth);
-				}
-				else
-				{
-					normals = pass.write(BufferFormat::RGBA8);
-					albedo = pass.write(BufferFormat::sRGBA8);
-					pbr = pass.write(BufferFormat::RGBA8);
-					depth = pass.write(BufferFormat::depth32);
-				}
+				normals = pass.write(BufferFormat::RGBA8);
+				albedo = pass.write(BufferFormat::sRGBA8);
+				pbr = pass.write(BufferFormat::RGBA8);
+				depth = pass.write(BufferFormat::depth32);
 			},
 			// Pass evaluation
 				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 			{
-				if (!useEmissive)
-				{
-					// Clear depth
-					dst.clearDepth(0.f);
-					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
-					dst.clear(Clear::All);
-				}
+				// Clear depth
+				dst.clearDepth(0.f);
+				dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
+				dst.clear(Clear::All);
 
 				m_gBufferPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
 				m_gBufferMaskedPass->render(viewProj, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
 			});
+
+		if (useEmissive)
+		{
+			frameGraph.addPass("G-Buffer + emissive",
+				m_viewportSize,
+				// Pass definition
+				[&](RenderGraph::IPassBuilder& pass) {
+					normals = pass.write(normals);
+					albedo = pass.write(albedo);
+					pbr = pass.write(pbr);
+					depth = pass.write(depth);
+					hdr = pass.write(hdr);
+				},
+				// Pass evaluation
+					[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+				{
+					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
+						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
+						dst);
+				});
+		}
 
 		// AO pass
 		RenderGraph::BufferResource ao; // G-Pass outputs
