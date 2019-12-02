@@ -134,10 +134,10 @@ namespace rev::gfx {
 			Mat44f wvp = viewProj * mesh.world;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
-			if(lastGeom != &mesh.geom)
+			if(lastGeom != mesh.geom)
 			{
 				instance.geometryIndex++;
-				geometry.push_back(&mesh.geom);
+				geometry.push_back(mesh.geom);
 			}
 			renderList.push_back(instance);
 		}

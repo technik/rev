@@ -78,23 +78,37 @@ namespace rev::gfx {
 
 		// --- Cull stuff
 		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		Mat44f view = eye.view();
+		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
+		/*Frustum viewFrustum = eye.frustum(aspectRatio);
+		for (size_t i = 0; i < m_renderQueue.size(); ++i)
+		{
+			auto& renderItem = m_renderQueue[i];
+			AABB viewSpaceBB = renderItem.world * renderItem.geom->bbox();
+			if (!math::cull(viewFrustum, eye.world().matrix(), viewSpaceBB))
+			{
+				renderItem = m_renderQueue.back();
+				m_renderQueue.resize(m_renderQueue.size() - 1);
+				--i;
+			}
+		}*/
+
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
 		m_alphaMaskQueue.clear();
 		m_transparentQueue.clear();
 		m_emissiveQueue.clear();
 		
-		Mat44f view = eye.view();
 		for (auto& renderItem : m_renderQueue)
 		{
-			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
+			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom->bbox();
 			if (viewSpaceBB.min().z() < 0)
 			{
-				switch (renderItem.material.transparency())
+				switch (renderItem.material->transparency())
 				{
 					case Material::Transparency::Opaque:
 					{
-						if (renderItem.material.isEmissive())
+						if (renderItem.material->isEmissive())
 							m_emissiveQueue.push_back(renderItem);
 						else
 							m_opaqueQueue.push_back(renderItem);
@@ -102,7 +116,7 @@ namespace rev::gfx {
 					}
 					case Material::Transparency::Mask:
 					{
-						if (renderItem.material.isEmissive())
+						if (renderItem.material->isEmissive())
 							m_emissiveQueue.push_back(renderItem);
 						else
 							m_alphaMaskQueue.push_back(renderItem);
@@ -118,8 +132,6 @@ namespace rev::gfx {
 		}
 
 		bool useEmissive = !m_emissiveQueue.empty();
-
-		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 		auto viewProj = eye.viewProj(aspectRatio);
 
 		// G-Buffer pass with emissive
@@ -442,7 +454,7 @@ namespace rev::gfx {
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);
-				m_renderQueue.push_back({obj->transform, *mesh.first, *mesh.second});
+				m_renderQueue.push_back(RenderItem{obj->transform, &*mesh.first, &*mesh.second});
 			}
 		}
 	}
