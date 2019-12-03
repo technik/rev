@@ -68,40 +68,14 @@ namespace rev :: gfx
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLenum)sampler.filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+		// Gather image format
+		GLenum imageFormat = getImageFormat(descriptor);
+		GLenum internalFormat = getInternalFormat(descriptor);
+
+		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
+		// Submit provided images to the device
 		// Allocate images
 		math::Vec2u mipSize = descriptor.size;
-		// Gather image format from mip 0
-		GLenum imageFormat = GL_RGBA;
-		if(!descriptor.srcImages.empty())
-		{
-			auto& mip0 = descriptor.srcImages[0];
-			switch(mip0->format().numChannels)
-			{
-				case 1:
-					imageFormat = GL_R;
-					break;
-				case 2:
-					imageFormat = GL_RG;
-					break;
-				case 3:
-					imageFormat = GL_RGB;
-					break;
-				case 4:
-					imageFormat = GL_RGBA;
-					break;
-				default:
-					assert(false); // Invalid number of channels
-					return texture;
-			}
-		}
-		if(descriptor.depth)
-		{
-			assert(descriptor.pixelFormat.numChannels == 1);
-			imageFormat = GL_DEPTH_COMPONENT;
-		}
-		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
-		GLenum internalFormat = getInternalFormat(descriptor);
-		// Submit provided images to the device
 		for(size_t i = 0; i < descriptor.srcImages.size(); ++i)
 		{
 			auto& image = descriptor.srcImages[i];
@@ -439,6 +413,34 @@ namespace rev :: gfx
 	void DeviceOpenGL::destroyComputeShader(const ComputeShader& shader)
 	{
 		glDeleteProgram(shader.id());
+	}
+
+	//----------------------------------------------------------------------------------------------
+	GLenum DeviceOpenGL::getImageFormat(const Texture2d::Descriptor& descriptor)
+	{
+		if (descriptor.depth)
+		{
+			assert(descriptor.pixelFormat.numChannels == 1);
+			return GL_DEPTH_COMPONENT;
+		}
+		switch (descriptor.pixelFormat.numChannels)
+		{
+		case 1:
+			return GL_R;
+			break;
+		case 2:
+			return GL_RG;
+			break;
+		case 3:
+			return GL_RGB;
+			break;
+		case 4:
+			return GL_RGBA;
+			break;
+		default:
+			assert(false && "Invalid number of channels");
+		}
+		return GL_RGBA;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -114,6 +114,7 @@ namespace rev :: gfx
 
 		DeviceOpenGL() = default;
 
+		static GLenum getImageFormat(const Texture2d::Descriptor& descriptor);
 		static GLenum getInternalFormat(const Texture2d::Descriptor&);
 
 		RenderQueue* m_renderQueue = nullptr;
