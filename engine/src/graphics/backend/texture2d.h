@@ -40,6 +40,10 @@ namespace rev :: gfx
 			bool sRGB = false;
 			bool depth = false;
 			math::Vec2u size;
+
+			/// Number of faces in the texture. Usually 1 for regular textures, 6 for a cubemap.
+			/// Can also be an arbitrary number for array textures.
+			unsigned nFaces = 1;
 			
 			/// Number of mipmap levels to be used in this texture
 			/// 0 means compute automatically
@@ -48,6 +52,8 @@ namespace rev :: gfx
 			/// Array of images to be used for mipmaps, or null if images will be initialized by the gpu
 			/// If not null, the array must contain exactly "providedImages" images. Mip levels will be generated
 			/// Automatically for the range [providedImages, mipLevels-1].
+			/// If both multiple faces and multiple levels are stored, then all faces of the highest level
+			/// are referenced first, then all faces of the second highest, and so on.
 			std::vector<std::shared_ptr<Image>> srcImages;
 		};
 
