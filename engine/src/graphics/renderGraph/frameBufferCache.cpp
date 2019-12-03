@@ -81,6 +81,9 @@ namespace rev::gfx {
 		case BufferFormat::sRGBA8:
 			textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
 			break;
+		default: // Depth formats
+			textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+			break;
 		}
 		textureDesc.pixelFormat.numChannels = textureDesc.depth ? 1 : 4;
 
