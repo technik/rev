@@ -49,9 +49,15 @@ namespace rev::gfx {
 		struct IPassBuilder
 		{
 			virtual ~IPassBuilder() {}
-			virtual BufferResource write(FrameBuffer externalTarget) = 0; // Import external frame buffer into the graph
-			// TODO: virtual BufferResource write(Texture) = 0; // Import external texture to use as an output to the graph. Useful for tool writing
+			// Import external frame buffer into the graph.
+			virtual BufferResource write(FrameBuffer externalTarget) = 0;
+			// Import external texture to use as an output to the graph. Useful for tool writing.
+			virtual BufferResource write(Texture2d) = 0;
+			// Import one side of a cubemap as an output texture.
+			virtual BufferResource write(Texture2d, Texture2d::CubeMapSide) = 0;
+			// Write to a new buffer defined by the given format.
 			virtual BufferResource write(BufferFormat) = 0;
+			// Write to a buffer from a previous pass.
 			virtual BufferResource write(BufferResource) = 0;
 			virtual void read(BufferResource, int bindingPos) = 0;
 
@@ -92,6 +98,7 @@ namespace rev::gfx {
 		{
 			FrameBuffer externalFramebuffer; // Optional imported frame buffer
 			Texture2d externalTexture; // Optional imported texture
+			Texture2d::CubeMapSide cubemapSide = Texture2d::CubeMapSide::None;
 			BufferDesc bufferDescriptor; // Descriptor for non-imported targets
 		};
 
@@ -105,6 +112,8 @@ namespace rev::gfx {
 			{}
 
 			BufferResource write(FrameBuffer externalTarget) override; // Import external frame buffer into the graph
+			BufferResource write(Texture2d externalTexture) override;
+			BufferResource write(Texture2d externalCubemapTexture, Texture2d::CubeMapSide) override;
 			BufferResource write(BufferFormat) override;
 			BufferResource write(BufferResource) override;
 			void read(BufferResource, int bindingPos) override;

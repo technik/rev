@@ -66,6 +66,8 @@ namespace rev :: gfx
 		// Setup sampler options
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, (GLenum)sampler.wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, (GLenum)sampler.wrapT);
+		if(descriptor.nFaces == 6)
+			glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, (GLenum)sampler.wrapT);
 		glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, (GLenum)sampler.filter);
 		glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -164,10 +166,20 @@ namespace rev :: gfx
 			}
 
 			// Bind attachment to an attachment point
-			if(attachment.imageType == FrameBuffer::Attachment::Texture)
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
+			if (attachment.imageType == FrameBuffer::Attachment::Texture)
+			{
+				if(attachment.side == Texture2d::CubeMapSide::None)
+					glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
+				else
+				{
+					auto targetSide = GL_TEXTURE_CUBE_MAP_POSITIVE_X + (GLenum)attachment.side;
+					glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, targetSide, attachment.texture.id(), attachment.mipLevel);
+				}
+			}
 			else
+			{
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.texture.id());
+			}
 		}
 
 		// If configuration was successful, return the new frame buffer

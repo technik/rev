@@ -33,6 +33,17 @@ namespace rev :: gfx
 	{
 	public:
 
+		enum CubeMapSide
+		{
+			X_positive = 0,
+			X_negative = 1,
+			Y_positive = 2,
+			Y_negative = 3,
+			Z_positive = 4,
+			Z_negative = 5,
+			None = -1
+		};
+
 		struct Descriptor
 		{
 			Image::PixelFormat pixelFormat;
