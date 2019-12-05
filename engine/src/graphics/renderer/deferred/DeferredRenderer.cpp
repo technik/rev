@@ -81,13 +81,14 @@ namespace rev::gfx {
 
 		// --- Cull visible renderables
 		ImGui::Text("Renderables: %d", scene.renderables().size());
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
-		Mat44f view = eye.view();
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 
+		// Culling config must happen before actual culling in collapseSceneRenderables
 		ImGui::Checkbox("Lock culling", &m_lockCulling);
 		if(!m_lockCulling)
 			m_cullingFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		Mat44f view = eye.view();
 
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
