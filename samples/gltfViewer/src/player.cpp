@@ -49,7 +49,6 @@ namespace rev {
 	bool Player::init()
 	{
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
-		mForwardRenderer.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 
 		// Default scene light
@@ -85,7 +84,6 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onResize()
 	{
-		mForwardRenderer.onResizeTarget(windowSize());
 		mDeferred.onResizeTarget(windowSize());
 	}
 #endif // _WIN32
@@ -174,19 +172,7 @@ namespace rev {
 	{
 		updateUI(dt);
 		// Render scene
-		switch(m_renderPath)
-		{
-			case RenderPath::Forward:
-			{
-				mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-			case RenderPath::Deferred:
-			{
-				mDeferred.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-		}
+		mDeferred.render(mGraphicsScene, *mFlybyCam);
 		// Render gui
 		ImGui::Render();
 
@@ -218,7 +204,6 @@ namespace rev {
 			ImGui::SliderFloat("Exposure steps:", &mFlybyCam->exposure(), -5.f, 5.f);
 		}
 		ImGui::End();
-		mForwardRenderer.drawDebugUI();
 		
 		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
 		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);

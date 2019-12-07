@@ -75,6 +75,7 @@ namespace rev::gfx {
 		std::vector<RenderItem> m_opaqueQueue;
 		std::vector<RenderItem> m_alphaMaskQueue;
 		std::vector<RenderItem> m_emissiveQueue;
+		std::vector<RenderItem> m_emissiveMaskQueue;
 		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass

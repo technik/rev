@@ -56,13 +56,13 @@ vec3 shade () {
 	float shadowDepth = textureLod(uShadowMap, shadowPos.xy*0.5+0.5, 0.0).x;
     float surfaceDepth = shadowPos.z*0.5+0.5;
     float shadow = (shadowDepth > surfaceDepth) ? 0.0 : 1.0;
-    vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
-    lightDir = normalize(lightDir);
+	shadow = 0.5+0.5*shadow;
 #else
 	float shadow = 1.0;
 #endif
+    vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
+    lightDir = normalize(lightDir);
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	shadow = 0.5+0.5*shadow;
 	//return vec3(ssao);
 	return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }

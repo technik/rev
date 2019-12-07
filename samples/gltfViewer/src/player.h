@@ -70,20 +70,12 @@ namespace rev {
 		game::FlyBy*						m_flyby;
 
 		// Renderer
-		gfx::ForwardRenderer				mForwardRenderer;
 		gfx::DeferredRenderer				mDeferred;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
 		std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
-
-		enum class RenderPath
-		{
-			Forward,
-			Deferred,
-			Raytracing
-		} m_renderPath = RenderPath::Deferred;
 
 		struct ViewerState
 		{

@@ -93,6 +93,7 @@ namespace rev::gfx {
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
 		m_alphaMaskQueue.clear();
+		m_emissiveMaskQueue.clear();
 		m_transparentQueue.clear();
 		m_emissiveQueue.clear();
 		
@@ -114,7 +115,7 @@ namespace rev::gfx {
 					case Material::Transparency::Mask:
 					{
 						if (renderItem.material->isEmissive())
-							m_emissiveQueue.push_back(renderItem);
+							m_emissiveMaskQueue.push_back(renderItem);
 						else
 							m_alphaMaskQueue.push_back(renderItem);
 						break;
@@ -190,6 +191,11 @@ namespace rev::gfx {
 				{
 					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
 						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
+						dst);
+					auto maskedOptions = m_rasterOptions;
+					maskedOptions.alphaMask = true;
+					m_gBufferMaskedPass->render(viewProj, m_emissiveMaskQueue, maskedOptions,
+						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive | Material::Flags::AlphaMask,
 						dst);
 				});
 		}
