@@ -26,7 +26,7 @@ vec3 shade () {
 	//mat4 invViewProj = inverse(proj);
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	vec3 hdrColor = texture(uHDR, uv).xyz;
-	vec3 exposedColor = 0.4*hdrColor*uEV;
+	vec3 exposedColor = hdrColor*uEV;
 	//return hdrColor;
     return ACESFilm(exposedColor);
     //return Reinhard(exposedColor);

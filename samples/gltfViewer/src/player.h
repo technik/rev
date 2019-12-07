@@ -66,10 +66,8 @@ namespace rev {
 		math::AABB							m_globalBBox;
 
 		// Camera options
-		const gfx::Camera*					mFlybyCam = nullptr;
-		const gfx::Camera*					mOrbitCam = nullptr;
+		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
-		game::Orbit*						m_orbit;
 
 		// Renderer
 		gfx::ForwardRenderer				mForwardRenderer;

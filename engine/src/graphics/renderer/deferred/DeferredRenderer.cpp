@@ -331,7 +331,7 @@ namespace rev::gfx {
 			{
 				CommandBuffer::UniformBucket uniforms;
 				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-				uniforms.addParam(3, powf(2.f, m_expositionValue));
+				uniforms.addParam(3, powf(2.f, eye.exposure()));
 				uniforms.addParam(4, inputTextures[0]);
 
 				m_hdrPass->render(uniforms, dst);
@@ -464,12 +464,13 @@ namespace rev::gfx {
 		auto viewDir = m_cullingFrustum.viewDir();
 		
 		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
-			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center() + a.world.block<3, 1, 0, 3>();
-			Vec3f bCenter = a.world.block<3,3,0,0>() * b.geom->bbox().center() + b.world.block<3, 1, 0, 3>();
+			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center();
+			Vec3f bCenter = b.world.block<3,3,0,0>() * b.geom->bbox().center();
 			float da = dot(aCenter, viewDir);
 			float db = dot(bCenter, viewDir);
 
-			return da < db;
+			bool result = da < db;
+			return result;
 		});
 
 	}

@@ -72,6 +72,7 @@ vec3 ibl(
     float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
 	vec3 occDiff = vec3(occlusion);
+    
 	// Remapping for multiple bounces
 	{
 		vec3 a = 2.0404 * albedo - 0.3324;
@@ -81,6 +82,11 @@ vec3 ibl(
 		occDiff = max(vec3(occlusion), ((occlusion*a+b)*occlusion+c)*occlusion);
 	}
 
+    //occlusion = 1.0;
+    //shadow = 1.0;
+    //return vec3(shadow);
+    //return vec3(sdwS*(shadow-1)+1);
+    //return vec3(sdwS*(shadow-1)+1);
 	return (sdwS*(shadow-1)+1)*FssEss * radiance*occlusion
 	 + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occDiff;
 }
