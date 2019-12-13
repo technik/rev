@@ -80,6 +80,7 @@ public:
 		m_timeUniform.vec4s.push_back({ 1, {float(windowSize().x()), float(windowSize().y()), 0.f, 0.f} });
 
 		m_fsCommandBuffer.clear();
+		m_fsCommandBuffer.clearDepth(-1.f); // Infinity
 		m_fsCommandBuffer.beginPass(*m_fullScreenPass);
 		m_fullScreenFilter->render(m_timeUniform, m_fsCommandBuffer);
 
