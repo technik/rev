@@ -82,6 +82,7 @@ namespace rev::gfx {
 		Pipeline::RasterOptions m_rasterOptions;
 		std::unique_ptr<GeometryPass>	m_gBufferPass = nullptr;
 		std::unique_ptr<GeometryPass>	m_gBufferMaskedPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gTransparentPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
 		std::unique_ptr<FullScreenPass>	m_hdrPass;
 		std::unique_ptr<FullScreenPass>	m_aoSamplePass;

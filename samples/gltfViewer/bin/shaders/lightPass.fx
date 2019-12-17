@@ -8,7 +8,6 @@ layout(location = 2) uniform vec4 Window;
 
 layout(location = 4) uniform sampler2D uEnvironment;
 layout(location = 5) uniform sampler2D uEnvBRDF;
-layout(location = 6) uniform float numEnvLevels;
 
 layout(location = 7) uniform sampler2D uGBuffer;
 layout(location = 8) uniform sampler2D uDepthMap;
@@ -63,8 +62,8 @@ vec3 shade () {
     vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
     lightDir = normalize(lightDir);
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	//return vec3(ssao);
-	return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
+    
+    return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }
 
 #endif

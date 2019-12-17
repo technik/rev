@@ -317,11 +317,26 @@ namespace rev::gfx {
 					bgUniforms.mat4s.push_back({ 0, invView });
 					bgUniforms.mat4s.push_back({ 1, projection });
 					bgUniforms.vec4s.push_back({ 2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
-					bgUniforms.floats.push_back({ 3, 0.f }); // Neutral exposure
 					bgUniforms.textures.push_back({ 7, env->texture() });
 					// Render
 					m_bgPass->render(bgUniforms, dst);
 				}
+			});
+
+		// Transparent pass
+		frameGraph.addPass("Transparent",
+			m_viewportSize,
+			[&](RenderGraph::IPassBuilder& pass) {
+				hdr = pass.write(hdr);
+				pass.read(depth, 0);
+			},
+			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				auto maskedOptions = m_rasterOptions;
+				maskedOptions.blendMode = Pipeline::BlendMode::Additive;
+				m_gTransparentPass->render(viewProj, m_transparentQueue, maskedOptions,
+					Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaBlend,
+					dst);
 			});
 
 		frameGraph.addPass("hdr",
@@ -386,6 +401,10 @@ namespace rev::gfx {
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
 
 		m_aoSamplePass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/aoSample.fx"), Pipeline::DepthTest::Less, false);
+
+		// Transparent
+		ShaderCodeFragment* fwdCode = ShaderCodeFragment::loadFromFile("shaders/forward.fx");
+		m_gTransparentPass = std::make_unique<GeometryPass>(*m_device, fwdCode);
 
 		// HDR pass
 		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
