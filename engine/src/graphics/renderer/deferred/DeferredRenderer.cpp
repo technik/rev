@@ -206,7 +206,7 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-				ao = pass.write(BufferFormat::RGBA8);
+				ao = pass.write(BufferFormat::R8);
 				pass.read(normals, 0);
 				pass.read(depth, 1);
 			},

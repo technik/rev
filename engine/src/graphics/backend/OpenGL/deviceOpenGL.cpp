@@ -485,9 +485,9 @@ namespace rev :: gfx
 			switch(desc.pixelFormat.numChannels)
 			{
 				case 1:
-					return GL_R;
+					return GL_R8;
 				case 2:
-					return GL_RG;
+					return GL_RG8;
 				case 3:
 					return desc.sRGB ? GL_SRGB8 : GL_RGB8;
 				case 4:
