@@ -7,11 +7,12 @@
 #include <graphics/backend/device.h>
 #include <graphics/backend/gpuTypes.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
-#include <graphics/backend/renderPass.h>
-#include <graphics/backend/Windows/windowsPlatform.h>
 #include <graphics/renderer/renderPass/fullScreenPass.h>
 #include <graphics/renderGraph/renderGraph.h>
+#include <graphics/renderGraph/frameBufferCache.h>
 #include <game/application/base3dApplication.h>
+#include <graphics/debug/debugGUI.h>
+#include <graphics/debug/imgui.h>
 
 #include <core/platform/cmdLineParser.h>
 
@@ -37,6 +38,8 @@ public:
 	{
 		m_timeVector = Vec4f::zero();
 		auto& renderuQueue = gfxDevice().renderQueue();
+		m_fbCache = std::make_unique<FrameBufferCache>(gfxDevice());
+		m_frameGraph = std::make_unique<RenderGraph>(gfxDevice());
 
 		RenderPass::Descriptor fullScreenDesc;
 		float grey = 0.5f;
@@ -73,23 +76,35 @@ public:
 		return true;
 	}
 
-	void render(float) override
+	void render(float dt) override
 	{
-		m_timeUniform.clear();
-		m_timeUniform.vec4s.push_back({ 0, m_timeVector });
-		m_timeUniform.vec4s.push_back({ 1, {float(windowSize().x()), float(windowSize().y()), 0.f, 0.f} });
+		gui::startFrame(windowSize());
 
+		// Build graph
+		m_frameGraph->reset();
+		m_frameGraph->addPass("Shader pass", windowSize(),
+			[this](RenderGraph::IPassBuilder& pass) {
+				pass.write(backBuffer());
+			},
+			[this](const Texture2d*, size_t, CommandBuffer& dst) {
+				m_timeUniform.clear();
+				m_timeUniform.vec4s.push_back({ 0, m_timeVector });
+				m_timeUniform.vec4s.push_back({ 1, {float(windowSize().x()), float(windowSize().y()), 0.f, 0.f} });
+				
+				m_fullScreenFilter->render(m_timeUniform, dst);
+			});
+
+		m_frameGraph->build(*m_fbCache);
+
+		// Evaluate graph
 		m_fsCommandBuffer.clear();
-		m_fsCommandBuffer.beginPass(*m_fullScreenPass);
-		m_fullScreenFilter->render(m_timeUniform, m_fsCommandBuffer);
+		m_frameGraph->evaluate(m_fsCommandBuffer);
+		gfxDevice().renderQueue().submitCommandBuffer(m_fsCommandBuffer);
 
 		// Finish frame
-		gfxDevice().renderQueue().submitCommandBuffer(m_fsCommandBuffer);
+		gui::finishFrame(dt);
+		ImGui::Render();
 		gfxDevice().renderQueue().present();
-	}
-
-	void onResize() {
-		m_fullScreenPass->setViewport({ 0,0 }, windowSize());
 	}
 
 private:
@@ -97,7 +112,10 @@ private:
 
 	Vec4f m_timeVector;
 	RenderPass* m_fullScreenPass;
+	std::unique_ptr<RenderGraph> m_frameGraph;
+	std::unique_ptr<FrameBufferCache> m_fbCache;
 	std::unique_ptr<FullScreenPass> m_fullScreenFilter;
+
 	// Command buffer with changing uniforms
 	CommandBuffer::UniformBucket m_timeUniform;
 	CommandBuffer m_fsCommandBuffer;
