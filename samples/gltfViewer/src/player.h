@@ -66,26 +66,16 @@ namespace rev {
 		math::AABB							m_globalBBox;
 
 		// Camera options
-		const gfx::Camera*					mFlybyCam = nullptr;
-		const gfx::Camera*					mOrbitCam = nullptr;
+		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
-		game::Orbit*						m_orbit;
 
 		// Renderer
-		gfx::ForwardRenderer				mForwardRenderer;
 		gfx::DeferredRenderer				mDeferred;
 		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
 		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
 		std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
-
-		enum class RenderPath
-		{
-			Forward,
-			Deferred,
-			Raytracing
-		} m_renderPath = RenderPath::Deferred;
 
 		struct ViewerState
 		{

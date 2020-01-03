@@ -81,17 +81,19 @@ namespace rev::gfx {
 
 		// --- Cull visible renderables
 		ImGui::Text("Renderables: %d", scene.renderables().size());
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
-		Mat44f view = eye.view();
 		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
 
+		// Culling config must happen before actual culling in collapseSceneRenderables
 		ImGui::Checkbox("Lock culling", &m_lockCulling);
 		if(!m_lockCulling)
 			m_cullingFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		Mat44f view = eye.view();
 
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
 		m_alphaMaskQueue.clear();
+		m_emissiveMaskQueue.clear();
 		m_transparentQueue.clear();
 		m_emissiveQueue.clear();
 		
@@ -113,7 +115,7 @@ namespace rev::gfx {
 					case Material::Transparency::Mask:
 					{
 						if (renderItem.material->isEmissive())
-							m_emissiveQueue.push_back(renderItem);
+							m_emissiveMaskQueue.push_back(renderItem);
 						else
 							m_alphaMaskQueue.push_back(renderItem);
 						break;
@@ -190,6 +192,11 @@ namespace rev::gfx {
 					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
 						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
 						dst);
+					auto maskedOptions = m_rasterOptions;
+					maskedOptions.alphaMask = true;
+					m_gBufferMaskedPass->render(viewProj, m_emissiveMaskQueue, maskedOptions,
+						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive | Material::Flags::AlphaMask,
+						dst);
 				});
 		}
 
@@ -199,7 +206,7 @@ namespace rev::gfx {
 			m_viewportSize,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
-				ao = pass.write(BufferFormat::RGBA8);
+				ao = pass.write(BufferFormat::R8);
 				pass.read(normals, 0);
 				pass.read(depth, 1);
 			},
@@ -310,11 +317,26 @@ namespace rev::gfx {
 					bgUniforms.mat4s.push_back({ 0, invView });
 					bgUniforms.mat4s.push_back({ 1, projection });
 					bgUniforms.vec4s.push_back({ 2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
-					bgUniforms.floats.push_back({ 3, 0.f }); // Neutral exposure
 					bgUniforms.textures.push_back({ 7, env->texture() });
 					// Render
 					m_bgPass->render(bgUniforms, dst);
 				}
+			});
+
+		// Transparent pass
+		frameGraph.addPass("Transparent",
+			m_viewportSize,
+			[&](RenderGraph::IPassBuilder& pass) {
+				hdr = pass.write(hdr);
+				pass.read(depth, 0);
+			},
+			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
+			{
+				auto maskedOptions = m_rasterOptions;
+				maskedOptions.blendMode = Pipeline::BlendMode::Additive;
+				m_gTransparentPass->render(viewProj, m_transparentQueue, maskedOptions,
+					Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaBlend,
+					dst);
 			});
 
 		frameGraph.addPass("hdr",
@@ -330,7 +352,7 @@ namespace rev::gfx {
 			{
 				CommandBuffer::UniformBucket uniforms;
 				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-				uniforms.addParam(3, powf(2.f, m_expositionValue));
+				uniforms.addParam(3, powf(2.f, eye.exposure()));
 				uniforms.addParam(4, inputTextures[0]);
 
 				m_hdrPass->render(uniforms, dst);
@@ -379,6 +401,10 @@ namespace rev::gfx {
 		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
 
 		m_aoSamplePass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/aoSample.fx"), Pipeline::DepthTest::Less, false);
+
+		// Transparent
+		ShaderCodeFragment* fwdCode = ShaderCodeFragment::loadFromFile("shaders/forward.fx");
+		m_gTransparentPass = std::make_unique<GeometryPass>(*m_device, fwdCode);
 
 		// HDR pass
 		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
@@ -463,12 +489,13 @@ namespace rev::gfx {
 		auto viewDir = m_cullingFrustum.viewDir();
 		
 		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
-			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center() + a.world.block<3, 1, 0, 3>();
-			Vec3f bCenter = a.world.block<3,3,0,0>() * b.geom->bbox().center() + b.world.block<3, 1, 0, 3>();
+			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center();
+			Vec3f bCenter = b.world.block<3,3,0,0>() * b.geom->bbox().center();
 			float da = dot(aCenter, viewDir);
 			float db = dot(bCenter, viewDir);
 
-			return da < db;
+			bool result = da < db;
+			return result;
 		});
 
 	}

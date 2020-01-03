@@ -58,84 +58,76 @@ namespace rev :: gfx
 		// Validate input data
 		// Generate opengl object
 		GLuint textureName;
+		GLenum textureTarget = descriptor.nFaces == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
 		glGenTextures(1, &textureName);
-		glBindTexture(GL_TEXTURE_2D, textureName);
+		glBindTexture(textureTarget, textureName);
 		// Locate sampler
 		auto& sampler = m_textureSamplers[descriptor.sampler.id];
 		// Setup sampler options
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLenum)sampler.wrapS);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLenum)sampler.wrapT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLenum)sampler.filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, (GLenum)sampler.wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, (GLenum)sampler.wrapT);
+		if(descriptor.nFaces == 6)
+			glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, (GLenum)sampler.wrapT);
+		glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, (GLenum)sampler.filter);
+		glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		// Allocate images
-		math::Vec2u mipSize = descriptor.size;
-		// Gather image format from mip 0
-		GLenum imageFormat = GL_RGBA;
-		if(!descriptor.srcImages.empty())
+		// Allocate GPU side storage
+		assert(descriptor.nFaces == 1 || descriptor.nFaces == 6);
+		GLenum internalFormat = getInternalFormat(descriptor);
+		size_t numProvidedMips = descriptor.srcImages.size() / descriptor.nFaces;
+		assert(descriptor.nFaces * numProvidedMips == descriptor.srcImages.size());
+
+		if (numProvidedMips == 0)
 		{
-			auto& mip0 = descriptor.srcImages[0];
-			switch(mip0->format().numChannels)
+			glTexStorage2D(
+				textureTarget,
+				descriptor.mipLevels, internalFormat,
+				(GLsizei)descriptor.size.x(), (GLsizei)descriptor.size.y());
+		}
+		else
+		{
+			// Submit provided images to the device
+			math::Vec2u mipSize = descriptor.size;
+			GLenum imageFormat = getImageFormat(descriptor);
+			GLenum srcChannelType = descriptor.pixelFormat.channel == Image::ChannelFormat::Float32 ? GL_FLOAT : GL_UNSIGNED_BYTE;
+			for (size_t level = 0; level < numProvidedMips; ++level)
 			{
-				case 1:
-					imageFormat = GL_R;
-					break;
-				case 2:
-					imageFormat = GL_RG;
-					break;
-				case 3:
-					imageFormat = GL_RGB;
-					break;
-				case 4:
-					imageFormat = GL_RGBA;
-					break;
-				default:
-					assert(false); // Invalid number of channels
-					return texture;
+				for (size_t face = 0; face < descriptor.nFaces; ++face)
+				{
+					auto& image = descriptor.srcImages[level * descriptor.nFaces + face];
+					assert(image->format() == descriptor.pixelFormat);
+					assert(image->size() == mipSize);
+
+					GLenum faceTarget = GL_TEXTURE_2D;
+					if (descriptor.nFaces == 6)
+						faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+
+					glTexImage2D(faceTarget, level,
+						internalFormat,
+						(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
+						imageFormat,
+						srcChannelType,
+						image->data<void>());
+				}
+				// Compute size of next mip level
+				mipSize = {
+					std::max(mipSize.x() / 2, 1u),
+					std::max(mipSize.y() / 2, 1u)
+				};
 			}
 		}
-		if(descriptor.depth)
-		{
-			assert(descriptor.pixelFormat.numChannels == 1);
-			imageFormat = GL_DEPTH_COMPONENT;
-		}
-		// TODO: Maybe using glTextureStorage2D is simpler and faster for the case where images are not provided
-		GLenum internalFormat = getInternalFormat(descriptor);
-		// Submit provided images to the device
-		for(size_t i = 0; i < descriptor.srcImages.size(); ++i)
-		{
-			auto& image = descriptor.srcImages[i];
-			GLenum srcChannelType = image->format().channel == Image::ChannelFormat::Float32 ? GL_FLOAT : GL_UNSIGNED_BYTE;
-			assert(image->format() == descriptor.srcImages[0]->format());
-			assert(image->size() == mipSize);
-			glTexImage2D(GL_TEXTURE_2D, i,
-				internalFormat,
-				(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
-				imageFormat,
-				srcChannelType,
-				descriptor.srcImages[i]->data<void>());
-			mipSize = {
-				std::max(mipSize.x()/2, 1u),
-				std::max(mipSize.y()/2, 1u)
-			};
-		}
-		// Allocate empty images to complete the mip chain
-		for(size_t i = descriptor.srcImages.size(); i < descriptor.mipLevels; ++i)
-		{
-			glTexImage2D(GL_TEXTURE_2D, i,
-				internalFormat,
-				(GLsizei)mipSize.x(), (GLsizei)mipSize.y(), 0,
-				imageFormat,
-				GL_UNSIGNED_BYTE,
-				nullptr);
-		}
+
 		// Set mip level bounds
 		if(descriptor.mipLevels != 0)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
+			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, descriptor.mipLevels-1);
 		// Generate mipmaps when needed
-		if((descriptor.srcImages.size() && (descriptor.srcImages.size() < descriptor.mipLevels))
+		if ((descriptor.srcImages.size() && (descriptor.srcImages.size() < descriptor.mipLevels * descriptor.nFaces))
 			|| descriptor.mipLevels == 0)
-			glGenerateMipmap(GL_TEXTURE_2D);
+		{
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, numProvidedMips);
+			glGenerateMipmap(textureTarget);
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+		}
 		return Texture2d(textureName);
 	}
 
@@ -174,10 +166,20 @@ namespace rev :: gfx
 			}
 
 			// Bind attachment to an attachment point
-			if(attachment.imageType == FrameBuffer::Attachment::Texture)
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
+			if (attachment.imageType == FrameBuffer::Attachment::Texture)
+			{
+				if(attachment.side == Texture2d::CubeMapSide::None)
+					glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, GL_TEXTURE_2D, attachment.texture.id(), attachment.mipLevel);
+				else
+				{
+					auto targetSide = GL_TEXTURE_CUBE_MAP_POSITIVE_X + (GLenum)attachment.side;
+					glFramebufferTexture2D(GL_FRAMEBUFFER, attachTarget, targetSide, attachment.texture.id(), attachment.mipLevel);
+				}
+			}
 			else
+			{
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachTarget, GL_RENDERBUFFER, attachment.texture.id());
+			}
 		}
 
 		// If configuration was successful, return the new frame buffer
@@ -442,19 +444,50 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	GLenum DeviceOpenGL::getImageFormat(const Texture2d::Descriptor& descriptor)
+	{
+		if (descriptor.depth)
+		{
+			assert(descriptor.pixelFormat.numChannels == 1);
+			return GL_DEPTH_COMPONENT;
+		}
+		switch (descriptor.pixelFormat.numChannels)
+		{
+		case 1:
+			return GL_R;
+			break;
+		case 2:
+			return GL_RG;
+			break;
+		case 3:
+			return GL_RGB;
+			break;
+		case 4:
+			return GL_RGBA;
+			break;
+		default:
+			assert(false && "Invalid number of channels");
+		}
+		return GL_RGBA;
+	}
+
+	//----------------------------------------------------------------------------------------------
 	GLenum DeviceOpenGL::getInternalFormat(const Texture2d::Descriptor& desc)
 	{
-		if(desc.depth)
-			return GL_DEPTH_COMPONENT;
+		if (desc.depth)
+		{
+			assert(desc.pixelFormat.channel == Image::ChannelFormat::Float32);
+			return GL_DEPTH_COMPONENT32F;
+		}
 		// Detect sRGB cases
 		if( desc.pixelFormat.channel == Image::ChannelFormat::Byte)
 		{
 			switch(desc.pixelFormat.numChannels)
 			{
 				case 1:
-					return GL_R;
+					return GL_R8;
 				case 2:
-					return GL_RG;
+					return GL_RG8;
 				case 3:
 					return desc.sRGB ? GL_SRGB8 : GL_RGB8;
 				case 4:

@@ -181,6 +181,22 @@ namespace rev::math {
 			const MatrixExpr<T, m, n, Derived>& ref;
 		};
 
+		struct DivideByScalarExpr : MatrixExpr<T, m, n, DivideByScalarExpr>
+		{
+			T k;
+			DivideByScalarExpr(const MatrixExpr<T, m, n, Derived>& _x, T _k)
+				:ref(_x), k(_k)
+			{}
+
+			// Generic component accessor.
+			T operator()(size_t i, size_t j) const
+			{
+				return ref(i, j) / k;
+			}
+		private:
+			const MatrixExpr<T, m, n, Derived>& ref;
+		};
+
 		template<class Other>
 		auto cwiseProduct(const MatrixExpr < T, m, n, Other>& x) const
 		{
@@ -209,7 +225,7 @@ namespace rev::math {
 	template<class T, size_t m, size_t n, class Derived>
 	auto operator/(const MatrixExpr<T, m, n, Derived>& x, T k)
 	{
-		return MatrixExpr<T, m, n, Derived>::ProductByScalarExpr(x, 1/k);
+		return MatrixExpr<T, m, n, Derived>::DivideByScalarExpr(x, k);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>

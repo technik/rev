@@ -140,6 +140,8 @@ namespace rev::gfx {
 		{
 			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
+			if (Pipeline::RasterOptions::fromMask(instance.raster).alphaMask)
+				stageDesc.code.push_back("#define ALPHA_MASK\n");
 			if(instance.instanceCode)
 				instance.instanceCode->collapse(stageDesc.code);
 			mPassCommonCode->collapse(stageDesc.code);

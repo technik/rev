@@ -20,12 +20,8 @@
 #ifdef PXL_SHADER
 
 out lowp vec4 outColor;
-#ifdef VTX_TANGENT_SPACE
-in vec4 vtxTangent;
-#endif
 in vec3 vtxNormal;
 in vec3 vtxWsEyeDir;
-in vec2 vTexCoord;
 #ifdef sampler2D_uShadowMap
 in vec3 vtxShadowPos;
 #endif
@@ -150,15 +146,7 @@ void main (void) {
 	
 	// ---- Shading ----
 	// Compute actual lighting
-	vec4 pbrColor = uEV * shadeSurface(shadingInputs);
-	//if(pbrColor.b > 1.0)
-	//	pbrColor.rgb = vec3(1.0, 0.0, 0.0);
-	//pbrColor.xyz = pbrColor.xyz / (1.0+pbrColor.xyz);
-	vec3 toneMapped = pow(pbrColor.xyz, vec3(0.4545));
-
-	outColor = vec4(toneMapped, pbrColor.a);
-	//outColor = vec4(shadingInputs.normal, pbrColor.a);
-	//outColor = vec4(vec3(shadingInputs.ao), pbrColor.a);
+	outColor = shadeSurface(shadingInputs);
 }
 
 // rosa vec3(255.0/255.0,22.0/255.0,88.0/255.0)

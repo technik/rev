@@ -91,6 +91,7 @@ namespace rev :: gfx
 		{
 			bool cullBack = false;// Culling
 			bool cullFront = false;
+			bool alphaMask = false;
 			Winding frontFace = Winding::CCW;
 			DepthTest depthTest = DepthTest::None;// Depth test
 			BlendMode blendMode = BlendMode::Write;
@@ -105,6 +106,7 @@ namespace rev :: gfx
 				m |= ((frontFace==Winding::CCW)?1:0)<<2;
 				m |= (witeDepth ? 1 : 0) << 3;
 				m |= (int(depthTest))<<4;
+				m |= (alphaMask ? 1 : 0) << 6;
 				return m;
 			}
 
@@ -115,7 +117,8 @@ namespace rev :: gfx
 				r.cullFront = m & (1<<1);
 				r.frontFace = Winding((m>>2) & 1);
 				r.witeDepth = m & (1 << 3);
-				r.depthTest = DepthTest(m>>4);
+				r.depthTest = DepthTest((m>>4) & 3);
+				r.alphaMask = m & (1 << 6);
 				return r;
 			}
 		};

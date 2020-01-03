@@ -49,7 +49,6 @@ namespace rev {
 	bool Player::init()
 	{
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
-		mForwardRenderer.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 
 		// Default scene light
@@ -85,7 +84,6 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onResize()
 	{
-		mForwardRenderer.onResizeTarget(windowSize());
 		mDeferred.onResizeTarget(windowSize());
 	}
 #endif // _WIN32
@@ -130,18 +128,8 @@ namespace rev {
 		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
-		//cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-		//cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
 		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 100.f);
 		mFlybyCam = &*camComponent->cam();
-		
-		// Create orbit camera
-		cameraNode = mGameScene.root()->createChild("Orbit cam");
-		m_orbit = cameraNode->addComponent<Orbit>(Vec2f{2.f, 1.f});
-		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { -2.5f, 1.f, 3.f };
-		cameraNode->component<Transform>()->xForm.rotate(Quatf({0.f,1.f,0.f}, -0.5f*Constants<float>::halfPi));
-		camComponent = cameraNode->addComponent<game::Camera>(math::Pi/4, 0.01f, 100.f);
-		mOrbitCam = &*camComponent->cam();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -184,19 +172,7 @@ namespace rev {
 	{
 		updateUI(dt);
 		// Render scene
-		switch(m_renderPath)
-		{
-			case RenderPath::Forward:
-			{
-				mForwardRenderer.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-			case RenderPath::Deferred:
-			{
-				mDeferred.render(mGraphicsScene, *mFlybyCam);
-				break;
-			}
-		}
+		mDeferred.render(mGraphicsScene, *mFlybyCam);
 		// Render gui
 		ImGui::Render();
 
@@ -213,12 +189,6 @@ namespace rev {
 		{
 			ImGui::InputFloat("Camera speed", &m_flyby->speed());
 			ImGui::Checkbox("Floor", &m_floorGeom->visible);
-			bool fwdRender = m_renderPath == RenderPath::Forward;
-			ImGui::Checkbox("Forward", &fwdRender);
-			if(fwdRender)
-				m_renderPath = RenderPath::Forward;
-			else
-				m_renderPath = RenderPath::Deferred;
 		}
 		ImGui::End();
 
@@ -229,13 +199,11 @@ namespace rev {
 			{
 				gui::slider("Shadow elevation", m_bgOptions.elevation, 0.f, math::Constants<float>::halfPi);
 				gui::slider("Shadow rotation", m_bgOptions.rotation, 0.f, math::Constants<float>::twoPi);
-
-				//gui::slider("Shadow bias", mForwardRenderer.shadowBias(), -0.1f, 0.1f);
 			}
 			m_envLight->castShadows = m_bgOptions.shadows;
+			ImGui::SliderFloat("Exposure steps:", &mFlybyCam->exposure(), -5.f, 5.f);
 		}
 		ImGui::End();
-		mForwardRenderer.drawDebugUI();
 		
 		auto elevation = Quatf(normalize(Vec3f(1.f, 0.f, 0.f)), -m_bgOptions.elevation);
 		auto rotation = Quatf(normalize(Vec3f(0.f, 1.f, 0.f)), m_bgOptions.rotation);

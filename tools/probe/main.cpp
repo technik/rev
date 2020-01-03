@@ -14,6 +14,7 @@
 #include <nlohmann/json.hpp>
 
 #include <core/platform/osHandler.h>
+#include <core/platform/cmdLineParser.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
 #include <graphics/driver/shader.h>
 #include <graphics/scene/renderGeom.h>
@@ -32,6 +33,7 @@ using Json = nlohmann::json;
 struct Params {
 	std::string in;
 	std::string out;
+	bool generateBRDFLUT = false;
 
 #ifdef _WIN32
 	static constexpr size_t arg0 = 1;
@@ -39,26 +41,19 @@ struct Params {
 	static constexpr size_t arg0 = 0;
 #endif
 
-	bool parseArguments(int _argc, const char** _argv) {
-		for (int i = arg0; i < _argc; ++i) {
-			const char* arg = _argv[i];
-			if (0 == strcmp(arg, "-i")) { // Input file
-				++i;
-				if (i == _argc) {
-					cout << "Error: missing input filename after -i\n";
-					return false;
-				}
-				in = _argv[i];
-			}
-			else if (0 == strcmp(arg, "-o")) { // Output file
-				++i;
-				if (i == _argc) {
-					cout << "Error: missing output filename after -o\n";
-					return false;
-				}
-				out = _argv[i];
-			}
-		} // for
+	bool parseArguments(int _argc, const char** _argv)
+	{
+		rev::core::CmdLineParser parser;
+		parser.addOption("in", &in);
+		parser.addOption("out", &out);
+		parser.addFlag("brdfLut", generateBRDFLUT);
+		parser.parse(_argc, _argv);
+
+		if (in.empty() && !generateBRDFLUT)
+			return false;
+		if (out.empty())
+			out = generateBRDFLUT ? "ibl.hdr" : in;
+
 		return true;
 	}
 };
@@ -459,7 +454,7 @@ void main ( void )
 )";
 
 //----------------------------------------------------------------------------------------------------------------------
-void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Image* srcImg)
+void generateProbeFromImage(const Params& params, Device& device, const std::shared_ptr<rev::gfx::Image>& srcImg)
 {
 	Json probeDesc;
 	probeDesc["mips"] = Json::array();
@@ -476,9 +471,9 @@ void generateProbeFromImage(const Params& params, Device& device, rev::gfx::Imag
 	latLongDesc.pixelFormat.channel = rev::gfx::Image::ChannelFormat::Float32;
 	latLongDesc.pixelFormat.numChannels = 4;
 	// Info specific for this image
-	latLongDesc.srcImages.emplace_back(std::move(srcImg));
-	latLongDesc.mipLevels = 1;
 	latLongDesc.size = srcImg->size();
+	latLongDesc.srcImages.emplace_back(srcImg);
+	latLongDesc.mipLevels = 1;
 	// Allocate and init the texture
 	auto srcLatLong = device.createTexture2d(latLongDesc);
 	//glBindTexture(GL_TEXTURE_2D, 0);
@@ -921,7 +916,7 @@ int main(int _argc, const char** _argv) {
 	rev::core::OSHandler::startUp();
 	rev::gfx::DeviceOpenGLWindows device;
 
-	if(params.in.empty())
+	if(params.generateBRDFLUT)
 	{
 		// Generate brdf LUT
 		if(params.out.empty())
@@ -929,11 +924,6 @@ int main(int _argc, const char** _argv) {
 
 		generateIblLut(params, device);
 		return 0;
-	}
-
-	if(params.out.empty())
-	{
-		params.out = params.in;
 	}
 
 	// Load source data
@@ -946,7 +936,7 @@ int main(int _argc, const char** _argv) {
 		return -1;
 	}
 
-	generateProbeFromImage(params, device, srcImg.get());
+	generateProbeFromImage(params, device, srcImg);
 
 	return 0;
 }
