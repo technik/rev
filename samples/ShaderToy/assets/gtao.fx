@@ -213,18 +213,23 @@ float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
         return 1.0;
     vec3 dx = normalize(occl-origin);
     float ndh = dot(dx,vsNormal);
-    if(ndh <= 0)
+    if(ndh <= 0) // Not an obstacle
         return 1.0;
-    float Snds = dot(vsNormal.xy, ds);
-    if(Snds <= 0.0)
+    float s2 = dot(ds,ds);
+    float s = sqrt(s2);
+    float nds = dot(vsNormal.xy, ds)/s;
+    if(nds <= 0.0)
     {
         return 1-ndh*ndh;
     }
     else
     {
         float ndz = vsNormal.z;
-        float s2 = dot(ds,ds);
-        float sinH = -dx.z*Snds+s2*ndz;
+        float tds = sqrt(1-nds*nds);
+        float tdz = sqrt(1-ndz*ndz);
+        if(nds>0)
+            tdz*=-1;
+        float sinH = (dx.z*tdz+s*tds)/sqrt(s2+dx.z*dx.z);
         return (sinH<0?-1.0:1.0)*(1-ndh*ndh);
     }
 }
@@ -232,7 +237,7 @@ float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
 float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
 {
     float minVis = 1.0;
-    const int nSamples = 64;
+    const int nSamples = 400;
     for(int i = 0; i < nSamples; ++i)
     {
         vec2 x1 = dx*(i+1);
@@ -249,11 +254,8 @@ float sliceGTAO(
     vec3 origin;
     float t = vsPosFromPixel(gl_FragCoord.xy, origin);
     // Same thing with z dir
-    vec2 ds = 5.0*ssSampleDir;
-    //float maxCosH1 = maxCosHorizon(origin,ds, vsNormal);
-    //float maxCosH2 = maxCosHorizon(origin,-ds, vsNormal);
-    //float sin2H1 = maxCosH1;//1-maxCosH1*maxCosH1;
-    //float sin2H2 = maxCosH2;//1-maxCosH2*maxCosH2;
+    vec2 ds = 3*ssSampleDir;
+
     float sin2H1 = minHorizonVis(origin, ds, vsNormal);
     float sin2H2 = minHorizonVis(origin,-ds, vsNormal);
 
@@ -272,16 +274,17 @@ vec3 gtAO()
     vec3 normal;
     float t = trace(r, normal);
     if(t < 0)
-        return vec3(1.0);
+        return vec3(1.0,0,0);
 
     vec4 seeds = texelFetch(BlueNoise, ivec2(gl_FragCoord.xy)%64, 0);
     
     float w = 0.0;
-    const int nSamples = 1;
+    const int nSamples = 8;
     for(int i = 0; i < nSamples; ++i)
     {
         float t = (seeds[i%4]+i)*Pi/nSamples; // Jittered samples
-        vec2 ssSampleDir = upVec2(cos(t)); // Random sample direction
+        //vec2 ssSampleDir = vec2(cos(2*t),sin(2*t));//upVec2(cos(2*t)); // Random sample direction
+        vec2 ssSampleDir = upVec2(cos(2*t)); // Random sample direction
 
         w += sliceGTAO(ssSampleDir, normal);
     }
@@ -316,7 +319,7 @@ vec2 fracNoise(vec2 seed)
 vec3 monteCarloCosVis(in vec2 uvCenter)
 {
     Ray r = rayFromPixel(gl_FragCoord.xy);
-    int nSamples = 32;
+    int nSamples = 16;
     vec2 seed = noise2d(0); // Seed[0:1]
     vec3 color = vec3(0.0);
     for(int i = 0; i < nSamples; ++i)
