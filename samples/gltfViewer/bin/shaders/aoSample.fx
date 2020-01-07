@@ -54,75 +54,82 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	return normal + 0.985 * randomUnitVector(seed);
 }
 
+float depthFromPixel(vec2 pixelPos)
+{
+    return texelFetch(uDepthMap, ivec2(pixelPos), 0).x;
+}
+
+vec4 vsPosFromPixel(vec2 pixelPos)
+{
+    float d = depthFromPixel(pixelPos);
+    return vsPosFromGBuffer(d, pixelPos/Window.xy);
+}
+
+float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
+{
+    vec3 occl = vsPosFromPixel(gl_FragCoord.xy+ds.xy).xyz;
+    vec3 dx = normalize(occl-origin);
+    float ndh = dot(dx,vsNormal);
+    if(ndh <= 0) // Not an obstacle
+        return 1.0;
+    float s2 = dot(ds,ds);
+    float s = sqrt(s2);
+    float nds = dot(vsNormal.xy, ds)/s;
+    if(nds <= 0.0)
+    {
+        return 1-ndh*ndh;
+    }
+    else
+    {
+        float ndz = vsNormal.z;
+        float tds = sqrt(1-nds*nds);
+        float tdz = sqrt(1-ndz*ndz);
+        if(nds>0)
+            tdz*=-1;
+        float sinH = (dx.z*tdz+s*tds)/sqrt(s2+dx.z*dx.z);
+        return (sinH<0?-1.0:1.0)*(1-ndh*ndh);
+    }
+}
+
+float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
+{
+    float minVis = 1.0;
+    const int nSamples = 150;
+    for(int i = 0; i < nSamples; ++i)
+    {
+        vec2 x1 = dx*(i+1);
+        float h = horizon(vsCenter,x1,vsNormal);
+        minVis = min(minVis, h);
+    }
+    return minVis;
+}
+
 float sliceGTAO(
     in vec2 ssSampleDir,
     in vec2 uvCenter,
     in vec3 vsCenter,
     in vec3 vsNormal)
 {
-    // Try to get mostly resolution independent sampling.
-    const float appxTanFov = 1.3; // TODO: Pass this as an uniform
-	const float maxPixelDistance =
-        min(128,-maxWsDistance*Window.y/(vsCenter.z*appxTanFov));
-	const float sampleDelta = max(1.4,maxPixelDistance/10);
-    // Project sample direction over the plane perpendicular to
-    // the normal
-    vec3 vsSampleDir = vec3(ssSampleDir, 0.0);
-    float nds = dot(vsNormal,vsSampleDir);
-    vec3 planarSampleDir = vsSampleDir-vsNormal*nds;
+    vec3 origin = vsPosFromPixel(gl_FragCoord.xy).xyz;
     // Same thing with z dir
-    vec2 pixelCenter = uvCenter*Window.xy;
-    float ndz = vsNormal.z;
-    vec3 planarZDir = vec3(0.0,0.0,1.0)-vsNormal*ndz;
-    float sinSign = sign(dot(planarZDir,planarSampleDir));
-    float maxCosH1 = 0;
-    float maxCosH2 = 0;
-    for(float ssDistance = sampleDelta; ssDistance <= maxPixelDistance; ssDistance += sampleDelta)
-    {
-        vec2 ssSampleDelta = ssDistance*ssSampleDir;
-        vec2 uvDelta = ssSampleDelta / Window.xy;
-        // Sample +dir
-        ivec2 samplePxl1 = ivec2(pixelCenter+ssSampleDelta);
-        ivec2 samplePxl2 = ivec2(pixelCenter-ssSampleDelta);
-        vec2 sampleUV1 = uvCenter+uvDelta;
-        vec2 sampleUV2 = uvCenter-uvDelta;
-        float occluderDepth1 =
-            texelFetch(uDepthMap, samplePxl1, 0).x;
-        float occluderDepth2 =
-            texelFetch(uDepthMap, samplePxl2, 0).x;
-        float vsOccluderZ1 = vsPosFromGBuffer(occluderDepth1, sampleUV1).z;
-        float vsOccluderZ2 = vsPosFromGBuffer(occluderDepth2, sampleUV2).z;
-        float dz1 = vsOccluderZ1-vsCenter.z;
-        float dz2 = vsOccluderZ2-vsCenter.z;
-        float projectedH1 = ndz*dz1+nds*ssDistance;
-        float projectedH2 = ndz*dz2+nds*ssDistance;
-        float ssDistance2 = ssDistance*ssDistance;
-        float d21 = dz1*dz1+ssDistance2;
-        float d22 = dz2*dz2+ssDistance2;
-        float cosH12 = projectedH1*projectedH1/d21;
-        float cosH22 = projectedH2*projectedH2/d22;
-        // TODO: This doesn't work well for h < 0
-        if(cosH12 > maxCosH1)
-        {
-            maxCosH1 = cosH12;
-        }
-        // TODO: This doesn't work well for h < 0
-        if(cosH22 > maxCosH2)
-        {
-            maxCosH2 = cosH22;
-        }
-    }
-    return 0.25*((1-maxCosH1*maxCosH1)+(1-maxCosH2*maxCosH2));
+    vec2 ds = 1.414*ssSampleDir;
+
+    float sin2H1 = minHorizonVis(origin, ds, vsNormal);
+    float sin2H2 = minHorizonVis(origin,-ds, vsNormal);
+
+    return 0.5*(sin2H1+sin2H2); // Already normalized
 }
 
 vec2 upVec2(float u)
 {
-    float x = 2*u-1;
+    float x = sqrt(abs(2*u-1));
+    x = u<0.5?-x:x;
     return vec2(x, sqrt(1-x*x));
 }
 
 //------------------------------------------------------------------------------	
-vec3 shade () {
+vec3 shade ()
+{
 	ivec2 pixelPos = ivec2(gl_FragCoord.xy);
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	// Direction from the view point to the pixel, in view space
@@ -136,7 +143,7 @@ vec3 shade () {
 	vec4 seeds = texelFetch(uNoise, pixelPos%64, 0);
 
 	float w = 0.0;
-	const int nSamples = 4;
+	const int nSamples = 1;
 	
     for(int i = 0; i < nSamples; ++i)
     {
