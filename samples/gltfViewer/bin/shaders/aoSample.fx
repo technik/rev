@@ -11,6 +11,7 @@ layout(location = 8) uniform sampler2D uDepthMap;
 layout(location = 9) uniform sampler2D uNoise;
 
 const float TwoPi = 6.2831852436065673828125f;
+const float maxWsDistance = 10;
 
 vec4 vsPosFromGBuffer(float depthBufferSample, vec2 uv)
 {
@@ -53,72 +54,104 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	return normal + 0.985 * randomUnitVector(seed);
 }
 
-vec3 wsMaxHorizon(vec2 uv, in vec3 wsCenter, in vec2 ssDir, in vec3 wsNormal, float depth)
+float depthFromPixel(vec2 pixelPos)
 {
-	const float maxPixelDistance = 20.0;
-	const float sampleDelta = 1.5;
+    return texelFetch(uDepthMap, ivec2(pixelPos), 0).x;
+}
 
-	float bestH = -1.0;
-	vec3 bestSamplePos;
+vec4 vsPosFromPixel(vec2 pixelPos)
+{
+    float d = depthFromPixel(pixelPos);
+    return vsPosFromGBuffer(d, pixelPos/Window.xy);
+}
 
-	for(float i = 1; i <= maxPixelDistance; ++i)
-	{
-		float sampleDistance = i * sampleDelta;
-		vec2 sampleUV = uv + sampleDistance * ssDir / Window.xy;
-		float occluderDepth = textureLod(uDepthMap, sampleUV, 0).x;
-		vec3 wsSamplePos = wsPosFromGBuffer(occluderDepth, sampleUV).xyz;
-		float h = dot(wsSamplePos-wsCenter, wsNormal) / sampleDistance;
-		if(h/depth < 0.001 && h > bestH)
-		{
-			bestSamplePos = wsSamplePos;
-			bestH = h;
-		}
-	}
-	return bestSamplePos;
+float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
+{
+    vec3 occl = vsPosFromPixel(gl_FragCoord.xy+ds.xy).xyz;
+    vec3 dx = normalize(occl-origin);
+    float ndh = dot(dx,vsNormal);
+    if(ndh <= 0) // Not an obstacle
+        return 1.0;
+    float s2 = dot(ds,ds);
+    float s = sqrt(s2);
+    float nds = dot(vsNormal.xy, ds)/s;
+    if(nds <= 0.0)
+    {
+        return 1-ndh*ndh;
+    }
+    else
+    {
+        float ndz = vsNormal.z;
+        float tds = sqrt(1-nds*nds);
+        float tdz = sqrt(1-ndz*ndz);
+        if(nds>0)
+            tdz*=-1;
+        float sinH = (dx.z*tdz+s*tds)/sqrt(s2+dx.z*dx.z);
+        return (sinH<0?-1.0:1.0)*(1-ndh*ndh);
+    }
+}
+
+float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
+{
+    float minVis = 1.0;
+    const int nSamples = 150;
+    for(int i = 0; i < nSamples; ++i)
+    {
+        vec2 x1 = dx*(i+1);
+        float h = horizon(vsCenter,x1,vsNormal);
+        minVis = min(minVis, h);
+    }
+    return minVis;
+}
+
+float sliceGTAO(
+    in vec2 ssSampleDir,
+    in vec2 uvCenter,
+    in vec3 vsCenter,
+    in vec3 vsNormal)
+{
+    vec3 origin = vsPosFromPixel(gl_FragCoord.xy).xyz;
+    // Same thing with z dir
+    vec2 ds = 1.414*ssSampleDir;
+
+    float sin2H1 = minHorizonVis(origin, ds, vsNormal);
+    float sin2H2 = minHorizonVis(origin,-ds, vsNormal);
+
+    return 0.5*(sin2H1+sin2H2); // Already normalized
+}
+
+vec2 upVec2(float u)
+{
+    float x = sqrt(abs(2*u-1));
+    x = u<0.5?-x:x;
+    return vec2(x, sqrt(1-x*x));
 }
 
 //------------------------------------------------------------------------------	
-vec3 shade () {
-	//mat4 invViewProj = inverse(proj);
+vec3 shade ()
+{
 	ivec2 pixelPos = ivec2(gl_FragCoord.xy);
 	vec2 uv = gl_FragCoord.xy / Window.xy;
 	// Direction from the view point to the pixel, in view space
-	vec3 compressedNormal = textureLod(uGBuffer, uv, 0.0).xyz;
+	vec3 compressedNormal = texelFetch(uGBuffer, pixelPos, 0).xyz;
 	vec3 wsNormal = normalize(compressedNormal*2.0-1.0);
+    vec3 vsNormal = (inverse(invView) * vec4(wsNormal,0.0)).xyz;
 
 	float sampleDepth = texelFetch(uDepthMap, pixelPos, 0).x;
-	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
-	vec3 wsPos = (invView * vsPos).xyz;
-	vec3 wsEyePos = (invView * vec4(vec3(0.0), 1.0)).xyz;
-	vec3 wsEyeDir = normalize(wsEyePos-wsPos);
 
+	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
 	vec4 seeds = texelFetch(uNoise, pixelPos%64, 0);
 
 	float w = 0.0;
-	int nSamples = 1;
+	const int nSamples = 1;
+	
+    for(int i = 0; i < nSamples; ++i)
+    {
+        vec2 ssSampleDir = upVec2(seeds[i%4]); // Random sample direction
+        w += sliceGTAO(ssSampleDir, uv, vsPos.xyz, vsNormal);
+    }
 
-	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	float sinN = sqrt(1-ndv*ndv);
-	for(int i = 0; i < nSamples; ++i)
-	{
-		float u = seeds[i]*2-1;
-		float v = sqrt(1.0-u*u);
-		vec2 ssSampleDir = vec2(u,v);
-		vec3 wsH1Pos = wsMaxHorizon(uv, wsPos, ssSampleDir, wsNormal, -vsPos.z);
-		vec3 wsH1Dir = wsH1Pos-wsPos;
-		float cosH1 = max(0.0, dot(normalize(wsH1Dir), wsEyeDir));
-		float h1 = acos(cosH1);
-
-		vec3 wsH2Pos = wsMaxHorizon(uv, wsPos, -ssSampleDir, wsNormal, -vsPos.z);
-		vec3 wsH2Dir = wsH2Pos-wsPos;
-		float cosH2 = max(0.0, dot(normalize(wsH2Dir), wsEyeDir));
-		float h2 = acos(cosH2);
-
-		w += 0.25*(2*ndv+2*sinN*(h1+h2)-cos(2*h1-acos(ndv))-cos(2*h2+acos(ndv)));
-	}
-	w = 0.5*w/nSamples; // 4 Directions, 8 samples
-
-    return vec3(w);
+    return vec3(w/nSamples);
 }
 
 #endif

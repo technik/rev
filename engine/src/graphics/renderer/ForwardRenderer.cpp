@@ -143,7 +143,7 @@ namespace rev::gfx {
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);
-				m_visible.push_back({obj->transform, *mesh.first, *mesh.second});
+				m_visible.push_back({obj->transform, &*mesh.first, &*mesh.second});
 			}
 		}
 	}

@@ -27,8 +27,19 @@ namespace rev::game
 	gfx::Texture2d load2dTextureFromFile(gfx::Device& device, gfx::TextureSampler sampler, std::string_view fileName, bool sRGB, int nChannels, int nMips)
 	{
 		// Load image from file
-		auto image = gfx::Image::load(fileName, nChannels);
-		if(!image)
+		std::shared_ptr<gfx::Image> image = gfx::Image::load(fileName, nChannels);
+		return create2dTextureFromImage(image, device, sampler, sRGB, nChannels, nMips);
+	}
+
+	gfx::Texture2d create2dTextureFromImage(
+		const std::shared_ptr<gfx::Image>& image,
+		gfx::Device& device,
+		gfx::TextureSampler sampler,
+		bool sRGB,
+		int nChannels,
+		int nMips)
+	{
+		if (!image)
 			return gfx::Texture2d();
 
 		// Fill out descriptor

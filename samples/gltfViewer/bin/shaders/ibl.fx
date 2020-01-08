@@ -1,5 +1,8 @@
 #ifndef IBL_FX
 #define IBL_FX
+
+layout(location = 6) uniform float numEnvLevels;
+
 // IBL
 //---------------------------------------------------------------------------------------
 const vec2 invAtan = vec2(0.159154943, 0.31830988);
@@ -72,6 +75,7 @@ vec3 ibl(
     float sdwS = max(0.0, -dot(lightDir,reflDir));
 	// Composition
 	vec3 occDiff = vec3(occlusion);
+    
 	// Remapping for multiple bounces
 	{
 		vec3 a = 2.0404 * albedo - 0.3324;
@@ -81,8 +85,8 @@ vec3 ibl(
 		occDiff = max(vec3(occlusion), ((occlusion*a+b)*occlusion+c)*occlusion);
 	}
 
-	return (sdwS*(shadow-1)+1)*FssEss * radiance*occlusion
-	 + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance * occDiff;
+    return (sdwS*(shadow-1)+1)*FssEss * radiance
+	 + (sdwD*(shadow-1)+1)*(Fms*Ems+kD) * irradiance*occDiff;
 }
 #endif // sampler2D_uEnvironment
 

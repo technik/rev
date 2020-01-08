@@ -59,6 +59,7 @@ namespace rev {
 			float nearPlane		() const { return mNear; }
 			float farPlane		() const { return mFar; }
 			float centroid		() const { return 0.5f*(mNear+mFar); }
+			const math::Vec3f& viewDir() const { return mPlanes[1].normal; }
 			const Plane& plane(size_t i) const { return mPlanes[i]; }
 
 			const Mat44f& projection() const { return mProjection; }
@@ -70,7 +71,19 @@ namespace rev {
 			float mFar;
 			Mat44f mProjection;
 			Plane mPlanes[6];
+
+			friend inline Frustum operator*(const Mat44f& m, const Frustum& f);
 		};
+
+		inline Frustum operator*(const Mat44f& m, const Frustum& f)
+		{
+			Frustum result = f;
+			for (size_t i = 0; i < 6; ++i)
+			{
+				result.mPlanes[i] = m * f.plane(i);
+			}
+			return result;
+		}
 
 		inline bool cull(const Frustum& frustum, const Mat44f& worldFromFrustum, const AABB& aabb)
 		{
@@ -79,8 +92,8 @@ namespace rev {
 				Plane rotatedPlane = worldFromFrustum * frustum.plane(i);
 				Vec3f v1 = aabb.min().cwiseProduct(rotatedPlane.normal);
 				Vec3f v2 = aabb.max().cwiseProduct(rotatedPlane.normal);
-				Vec3f min = math::min(v1, v2);
-				float tMin = dot(min, rotatedPlane.normal);
+				Vec3f vMin = math::min(v1, v2);
+				float tMin = vMin.x()+ vMin.y()+ vMin.z();
 				if (tMin > rotatedPlane.t) // Fully outside
 					return false;
 			}
@@ -94,8 +107,8 @@ namespace rev {
 				auto& plane = frustum.plane(i);
 				Vec3f v1 = aabb.min().cwiseProduct(plane.normal);
 				Vec3f v2 = aabb.max().cwiseProduct(plane.normal);
-				Vec3f min = math::min(v1, v2);
-				float tMin = dot(min, plane.normal);
+				Vec3f vMin = math::min(v1, v2);
+				float tMin = vMin.x() + vMin.y() + vMin.z();
 				if (tMin > plane.t) // Fully outside
 					return false;
 			}

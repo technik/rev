@@ -26,8 +26,6 @@
 #endif
 
 // Common params for both models
-layout(location = 13) uniform sampler2D uEmissive;
-// TODO: AO Map
 
 #ifdef float_uRoughness
 #endif
@@ -37,6 +35,7 @@ layout(location = 8) uniform sampler2D uEnvBRDF;
 #ifdef VTX_TANGENT_SPACE
 layout(location = 10) uniform sampler2D uNormalMap;
 #endif
+layout(location = 13) uniform sampler2D uEmissiveMap;
 
 #ifdef PXL_SHADER
 // Pixel inputs
@@ -69,6 +68,10 @@ struct PBRParams
 	vec4 specular_r; // specular.xyz, ao
 	vec4 albedo; // albedo, alpha
 	float ao;
+
+#ifdef sampler2D_uEmissiveMap
+	vec4 emissive;
+#endif
 };
 
 PBRParams getPBRParams();

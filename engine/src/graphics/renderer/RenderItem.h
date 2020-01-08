@@ -28,8 +28,8 @@ namespace rev::gfx {
 	struct RenderItem
 	{
 		math::Mat44f world;
-		const RenderGeom& geom;
-		const Material& material;
+		const RenderGeom* geom;
+		const Material* material;
 	};
 
 }

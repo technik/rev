@@ -29,6 +29,7 @@ namespace rev::gfx {
 
 	enum class BufferFormat
 	{
+		R8,
 		RGBA8,
 		sRGBA8,
 		RGBA32,

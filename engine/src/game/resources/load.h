@@ -23,9 +23,17 @@
 
 namespace rev::gfx {
 	class Device;
+	class Image;
 }
 
 namespace rev::game
 {
 	gfx::Texture2d load2dTextureFromFile(gfx::Device&, gfx::TextureSampler, std::string_view fileName, bool sRGB = true, int nChannels = 0, int nMips = 0);
+	gfx::Texture2d create2dTextureFromImage(
+		const std::shared_ptr<gfx::Image>& image,
+		gfx::Device&,
+		gfx::TextureSampler,
+		bool sRGB = true,
+		int nChannels = 0,
+		int nMips = 0);
 }

@@ -83,6 +83,7 @@ namespace rev::gfx {
 			auto& pass = m_passDescriptors[passNdx];
 			// Gather all virtual resources associated
 			Texture2d targetTextures[cMaxOutputs];
+			Texture2d::CubeMapSide targetTextureSide = Texture2d::CubeMapSide::None;
 			for (int i = 0; i < pass.m_outputs.size(); ++i)
 			{
 				auto outputStateNdx = pass.m_outputs[i];
@@ -100,6 +101,7 @@ namespace rev::gfx {
 					if (virtualBuffer.externalTexture.isValid())
 					{
 						targetTextures[i] = virtualBuffer.externalTexture;
+						targetTextureSide = virtualBuffer.cubemapSide;
 					}
 					else
 					{
@@ -126,6 +128,7 @@ namespace rev::gfx {
 			{
 				attachments[j].mipLevel = 0;
 				attachments[j].imageType = FrameBuffer::Attachment::ImageType::Texture;
+				attachments[j].side = targetTextureSide;
 				auto lifeTimeNdx = pass.m_outputs[j];
 				auto virtualIndex = m_bufferLifetime[lifeTimeNdx].virtualBufferNdx;
 				auto bufferFormat = m_virtualResources[virtualIndex].bufferDescriptor.format;
@@ -278,6 +281,47 @@ namespace rev::gfx {
 		auto bufferNdx = m_virtualResources.size();
 		VirtualResource virtualTarget;
 		virtualTarget.externalFramebuffer = target;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
+
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
+
+		return registerOutput(outputAfterWrite);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(Texture2d externalTexture)
+	{
+		assert(externalTexture.isValid());
+
+		// Register target into a virtual frame buffer
+		auto bufferNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.externalTexture = externalTexture;
+		virtualTarget.bufferDescriptor.size = targetSize;
+		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
+		m_virtualResources.push_back(virtualTarget);
+
+		PassState outputAfterWrite;
+		outputAfterWrite.virtualBufferNdx = bufferNdx;
+		outputAfterWrite.writeCounter = 1;
+
+		return registerOutput(outputAfterWrite);
+	}
+
+	//--------------------------------------------------------------------------
+	RenderGraph::BufferResource RenderGraph::PassBuilder::write(Texture2d externalTexture, Texture2d::CubeMapSide targetSide)
+	{
+		assert(externalTexture.isValid());
+
+		// Register target into a virtual frame buffer
+		auto bufferNdx = m_virtualResources.size();
+		VirtualResource virtualTarget;
+		virtualTarget.externalTexture = externalTexture;
+		virtualTarget.cubemapSide = targetSide;
 		virtualTarget.bufferDescriptor.size = targetSize;
 		virtualTarget.bufferDescriptor.antiAlias = antiAliasing;
 		m_virtualResources.push_back(virtualTarget);

@@ -8,7 +8,6 @@ layout(location = 2) uniform vec4 Window;
 
 layout(location = 4) uniform sampler2D uEnvironment;
 layout(location = 5) uniform sampler2D uEnvBRDF;
-layout(location = 6) uniform float numEnvLevels;
 
 layout(location = 7) uniform sampler2D uGBuffer;
 layout(location = 8) uniform sampler2D uDepthMap;
@@ -56,15 +55,15 @@ vec3 shade () {
 	float shadowDepth = textureLod(uShadowMap, shadowPos.xy*0.5+0.5, 0.0).x;
     float surfaceDepth = shadowPos.z*0.5+0.5;
     float shadow = (shadowDepth > surfaceDepth) ? 0.0 : 1.0;
-    vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
-    lightDir = normalize(lightDir);
+	shadow = 0.5+0.5*shadow;
 #else
 	float shadow = 1.0;
 #endif
+    vec3 lightDir = (inverse(uShadowProj)*vec4(0,0,-1,0)).xyz;
+    lightDir = normalize(lightDir);
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
-	shadow = 0.5*0.5*shadow;
-	//return vec3(ssao);
-	return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
+    
+    return vec3(ssao)+0.0001*ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }
 
 #endif

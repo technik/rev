@@ -186,7 +186,7 @@ namespace rev::gfx {
 			// Matrices
 			Mat44f world = renderable.world;
 			bool mirroredGeometry = affineTransformDeterminant(world) < 0.f;
-			auto pipeline = getPipeline(renderable.material, renderable.geom.vertexFormat(), env, useShadows, mirroredGeometry);
+			auto pipeline = getPipeline(*renderable.material, renderable.geom->vertexFormat(), env, useShadows, mirroredGeometry);
 			if(!pipeline.isValid())
 				continue;
 
@@ -197,7 +197,7 @@ namespace rev::gfx {
 			// Skinning matrix
 			//if(_skin)
 			//	mBackEnd.addParam(30, _skin->appliedPose);
-			renderable.material.bindParams(uniforms, Material::Flags::Shading | Material::Flags::Normals);
+			renderable.material->bindParams(uniforms, Material::Flags::Shading | Material::Flags::Normals);
 			// Lighting
 			uniforms.addParam(3, mEV); // Exposure value
 			uniforms.addParam(4, eye.world().position());
@@ -210,13 +210,13 @@ namespace rev::gfx {
 			dst.setPipeline(pipeline);
 			dst.setUniformData(uniforms);
 			dst.setUniformData(sharedUniforms);
-			dst.setVertexData(renderable.geom.getVao());
-			if(renderable.geom.indices().componentType == GL_UNSIGNED_BYTE)
-				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U8, renderable.geom.indices().offset);
-			if(renderable.geom.indices().componentType == GL_UNSIGNED_SHORT)
-				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U16, renderable.geom.indices().offset);
-			if(renderable.geom.indices().componentType == GL_UNSIGNED_INT)
-				dst.drawTriangles(renderable.geom.indices().count, CommandBuffer::IndexType::U32, renderable.geom.indices().offset);
+			dst.setVertexData(renderable.geom->getVao());
+			if(renderable.geom->indices().componentType == GL_UNSIGNED_BYTE)
+				dst.drawTriangles(renderable.geom->indices().count, CommandBuffer::IndexType::U8, renderable.geom->indices().offset);
+			if(renderable.geom->indices().componentType == GL_UNSIGNED_SHORT)
+				dst.drawTriangles(renderable.geom->indices().count, CommandBuffer::IndexType::U16, renderable.geom->indices().offset);
+			if(renderable.geom->indices().componentType == GL_UNSIGNED_INT)
+				dst.drawTriangles(renderable.geom->indices().count, CommandBuffer::IndexType::U32, renderable.geom->indices().offset);
 		}
 	}
 }

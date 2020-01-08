@@ -89,8 +89,13 @@ PBRParams getPBRParams()
 	vec3 F0 = mix(vec3(dielectricF0), baseColor.xyz, physics.metallic);
 	params.specular_r = vec4(F0, physics.roughness);
 	params.albedo.xyz = baseColor.xyz * (1-physics.metallic);
-	params.albedo.a = 1.0;
+	params.albedo.a = baseColor.a;
 	params.ao = physics.ao;
+    
+	// Texture
+	#if defined(sampler2D_uEmissiveMap)
+		params.emissive = texture(uEmissiveMap, vTexCoord);
+	#endif
 
 	return params;
 }

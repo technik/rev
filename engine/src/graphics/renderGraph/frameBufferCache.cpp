@@ -76,13 +76,22 @@ namespace rev::gfx {
 		{
 		case BufferFormat::RGBA32:
 			textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+			textureDesc.pixelFormat.numChannels = 4;
+			break;
+		case BufferFormat::R8:
+			textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+			textureDesc.pixelFormat.numChannels = 1;
 			break;
 		case BufferFormat::RGBA8:
 		case BufferFormat::sRGBA8:
 			textureDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
+			textureDesc.pixelFormat.numChannels = 4;
+			break;
+		default: // Depth formats
+			textureDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
+			textureDesc.pixelFormat.numChannels = 1;
 			break;
 		}
-		textureDesc.pixelFormat.numChannels = textureDesc.depth ? 1 : 4;
 
 		TextureResource newResource;
 		newResource.handle = m_device.createTexture2d(textureDesc);

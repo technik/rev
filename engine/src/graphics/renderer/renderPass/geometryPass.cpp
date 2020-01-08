@@ -71,14 +71,14 @@ namespace rev::gfx {
 			instance.uniforms.mat4s.push_back({ 0, wvp });
 			instance.uniforms.mat4s.push_back({ 1, world });
 			// Geometry
-			if ((lastGeom != &mesh.geom) || (lastMaterial != &mesh.material))
+			if ((lastGeom != mesh.geom) || (lastMaterial != mesh.material))
 			{
-				lastMaterial = &mesh.material;
-				lastGeom = &mesh.geom;
-				mesh.material.bindParams(instance.uniforms, bindingFlags);
-				instance.instanceCode = getMaterialCode(mesh.geom.vertexFormat(), mesh.material);
+				lastMaterial = mesh.material;
+				lastGeom = mesh.geom;
+				mesh.material->bindParams(instance.uniforms, bindingFlags);
+				instance.instanceCode = getMaterialCode(mesh.geom->vertexFormat(), *mesh.material);
 				instance.geometryIndex++;
-				geoms.push_back(&mesh.geom);
+				geoms.push_back(mesh.geom);
 			}
 			renderList.push_back(instance);
 		}
@@ -140,6 +140,8 @@ namespace rev::gfx {
 		{
 			// Extract code
 			Pipeline::ShaderModule::Descriptor stageDesc;
+			if (Pipeline::RasterOptions::fromMask(instance.raster).alphaMask)
+				stageDesc.code.push_back("#define ALPHA_MASK\n");
 			if(instance.instanceCode)
 				instance.instanceCode->collapse(stageDesc.code);
 			mPassCommonCode->collapse(stageDesc.code);

@@ -53,7 +53,8 @@ namespace rev::gfx {
 			// Info for texture attachments
 			Texture2d texture;
 			size_t mipLevel = 0;
-			// TODO: Layers and cubemap sides
+			Texture2d::CubeMapSide side = Texture2d::CubeMapSide::None;
+			// TODO: Layers
 
 			// Info for render buffer attachments
 			// TODO
@@ -63,7 +64,8 @@ namespace rev::gfx {
 				return imageType == other.imageType
 					&& target == other.target
 					&& texture == other.texture
-					&& mipLevel == other.mipLevel;
+					&& mipLevel == other.mipLevel
+					&& side == other.side;
 			}
 		};
 

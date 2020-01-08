@@ -55,8 +55,12 @@ PBRParams getPBRParams()
 
 	params.albedo = uDiffuseColor;
 	params.specular_r = uSpecGloss;
+	params.ao = 1.0;
 
-	// TODO: Maps
+	// Texture
+	#if defined(sampler2D_uEmissiveMap)
+		params.emissive = texture(uEmissiveMap, vTexCoord);
+	#endif
 
 	return params;
 }

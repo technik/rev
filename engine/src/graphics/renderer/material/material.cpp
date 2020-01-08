@@ -28,6 +28,7 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	Material::Material(const Descriptor& desc)
 		: mEffect(desc.effect)
+		, mFlags(Flags::None)
 	{
 		// Params
 		mFloatParams = loadParams(desc.floatParams);
@@ -85,6 +86,7 @@ namespace rev::gfx {
 			dstParam.location = effectProperty->location;
 			dstParam.value = srcParam.value;
 			dstParam.flags = srcParam.flags;
+			mFlags = mFlags | srcParam.flags;
 
 			mShaderOptionsCode += effectProperty->preprocessorDirective();
 

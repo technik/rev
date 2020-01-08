@@ -77,10 +77,13 @@ namespace rev::gfx {
 		auto near() const { return mNear; }
 		auto far() const { return mFar; }
 		auto fov() const { return mFov; }
+		auto exposure() const { return mExposure; }
+		auto& exposure() { return mExposure; }
 		math::Frustum frustum(float aspectRatio) const { return math::Frustum(aspectRatio, mFov, mNear, mFar); }
 
 	private:
 		float mFov, mNear, mFar;
+		float mExposure = 0.f; // In logsteps
 		math::AffineTransform mWorld;
 		math::Mat44f mView;
 	};

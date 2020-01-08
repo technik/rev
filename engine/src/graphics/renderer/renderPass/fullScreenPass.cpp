@@ -22,7 +22,7 @@
 
 namespace rev::gfx {
 
-	FullScreenPass::FullScreenPass(gfx::Device& device, ShaderCodeFragment* code, Pipeline::DepthTest depthTest, bool writeDepth)
+	FullScreenPass::FullScreenPass(gfx::Device& device, ShaderCodeFragment* code, Pipeline::DepthTest depthTest, bool writeDepth, Pipeline::BlendMode blend)
 		: m_device(device)
 	{
 		// Create a full screen quad
@@ -31,6 +31,7 @@ namespace rev::gfx {
 		// Configure pipeline options
 		m_pipelineDesc.raster.witeDepth = writeDepth;
 		m_pipelineDesc.raster.depthTest = depthTest;
+		m_pipelineDesc.raster.blendMode = blend;
 
 		// Common pass code
 		m_baseCode = new ShaderCodeFragment(R"(

@@ -17,9 +17,11 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "gltfLoad.h"
+#include "gltfLoader.h"
+
 #include "gltf.h"
 #include <core/platform/fileSystem/file.h>
+#include <core/tasks/threadPool.h>
 #include <core/tools/log.h>
 #include <core/string_util.h>
 #include <nlohmann/json.hpp>
@@ -131,12 +133,11 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadNodes(
+	vector<shared_ptr<SceneNode>> GltfLoader::loadNodes(
 		const gltf::Document& _document,
 		const vector<shared_ptr<RenderMesh>>& _meshes,
 		const vector<shared_ptr<SkinInstance>>& _skins,
 		const vector<shared_ptr<Material>>& _materials,
-		shared_ptr<Material> _defaultMaterial,
 		gfx::RenderScene& _gfxWorld)
 	{
 		vector<shared_ptr<SceneNode>> nodes;
@@ -426,12 +427,14 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadMeshes(
-		gfx::Device& device,
+	GltfLoader::~GltfLoader()
+	{}
+
+	//----------------------------------------------------------------------------------------------
+	vector<shared_ptr<RenderMesh>> GltfLoader::loadMeshes(
 		const vector<gfx::RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
-		const vector<shared_ptr<Material>>& _materials,
-		const shared_ptr<Material>& _defaultMaterial)
+		const vector<shared_ptr<Material>>& _materials)
 	{
 
 		// Load the meshes
@@ -443,14 +446,14 @@ namespace rev { namespace game {
 			auto mesh = meshes.back();
 			for(auto& primitive : meshDesc.primitives)
 			{
-				auto material = _defaultMaterial;
+				auto material = defaultMaterial();
 				bool needsTangentSpace = false;
 				if(primitive.material >= 0)
 				{
 					material = _materials[primitive.material];
 					needsTangentSpace = !_document.materials[primitive.material].normalTexture.empty();
 				}
-				auto geometry = loadPrimitive(device, _document, attributes, primitive, needsTangentSpace);
+				auto geometry = loadPrimitive(m_gfxDevice, _document, attributes, primitive, needsTangentSpace);
 				mesh->mPrimitives.emplace_back(geometry, material);
 			}
 			mesh->updateBBox();
@@ -460,45 +463,28 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	gfx::Texture2d getTexture(
-		gfx::Device& device,
-		const std::string& assetsFolder,
+	gfx::Texture2d GltfLoader::getTexture(
 		const gltf::Document& document,
-		std::vector<gfx::Texture2d>& textures,
 		gfx::TextureSampler defaultSampler,
 		int32_t index,
 		bool sRGB,
-		int nChannels = 0)
+		int nChannels)
 	{
-		auto& texture = textures[index];
+		auto& texture = m_textures[index];
 		if(texture.isValid()) // Already allocated, reuse
 			return texture;
 
 		// Not previously allocated, do it now
 		auto textGltfDesc = document.textures[index];
-		auto& imageDesc = document.images[textGltfDesc.source];
-		if(textGltfDesc.sampler >= 0)
-		{
-			// TODO: Support custom samplers
-			//auto gltfSampler = document.samplers[textGltfDesc.sampler];
-			//if(gltfSampler.wrapS == gltf::Sampler::WrappingMode::Repeat
-		}
-		texture = game::load2dTextureFromFile(device, defaultSampler, assetsFolder + imageDesc.uri, sRGB, nChannels);
-		if (!texture.isValid())
-		{
-			cout << "Unable to load texture " << imageDesc.uri << "\n";
-		}
+		// TODO: Support custom samplers
+		auto& image = m_loadedImages[textGltfDesc.source];
+		texture = game::create2dTextureFromImage(image, m_gfxDevice, defaultSampler, sRGB, nChannels);
 		return texture;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto loadMaterials(
-		gfx::Device& gfxDevice,
-		const std::string& _assetsFolder,
-		const gltf::Document& _document,
-		const shared_ptr<Effect>& _pbrEffect,
-		const shared_ptr<Effect>& _specEffect,
-		std::vector<gfx::Texture2d>& _textures
+	std::vector<std::shared_ptr<gfx::Material>> GltfLoader::loadMaterials(
+		const gltf::Document& _document
 		)
 	{
 		std::vector<std::shared_ptr<Material>> materials;
@@ -507,7 +493,7 @@ namespace rev { namespace game {
 		gfx::TextureSampler::Descriptor samplerDesc;
 		samplerDesc.wrapS = gfx::TextureSampler::Wrap::Repeat;
 		samplerDesc.wrapT = gfx::TextureSampler::Wrap::Repeat;
-		auto defSampler = gfxDevice.createTextureSampler(samplerDesc);
+		auto defSampler = m_gfxDevice.createTextureSampler(samplerDesc);
 
 		// Create a material descriptor we can reuse for all materials
 		Material::Descriptor matDesc;
@@ -533,9 +519,9 @@ namespace rev { namespace game {
 					specular = true;
 			}
 			if (specular)
-				matDesc.effect = _specEffect;
+				matDesc.effect = specularEffect();
 			else
-				matDesc.effect = _pbrEffect;
+				matDesc.effect = metallicRoughnessEffect();
 
 			auto& pbrDesc = matData.pbrMetallicRoughness;
 			if(!pbrDesc.empty())
@@ -544,7 +530,7 @@ namespace rev { namespace game {
 				if(!pbrDesc.baseColorTexture.empty())
 				{
 					auto albedoNdx = pbrDesc.baseColorTexture.index;
-					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, albedoNdx, true);
+					auto texture = getTexture(_document, defSampler, albedoNdx, true);
 					if(texture.isValid())
 						matDesc.textures.emplace_back("uBaseColorMap", texture, Material::Flags::Shading);
 				}
@@ -560,7 +546,7 @@ namespace rev { namespace game {
 				{
 					// Load map in linear space!!
 					auto ndx = pbrDesc.metallicRoughnessTexture.index;
-					auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, ndx, false, 3);
+					auto texture = getTexture(_document, defSampler, ndx, false, 3);
 					if(texture.isValid())
 						matDesc.textures.emplace_back("uPhysics", texture, Material::Flags::Shading);
 				}
@@ -571,13 +557,13 @@ namespace rev { namespace game {
 			}
 			if (!matData.emissiveTexture.empty())
 			{
-				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.emissiveTexture.index, false, 3);
+				auto texture = getTexture(_document, defSampler, matData.emissiveTexture.index, false, 3);
 				if(texture.isValid())
-					matDesc.textures.emplace_back("uEmissive", texture, Material::Flags::Emissive);
+					matDesc.textures.emplace_back("uEmissiveMap", texture, Material::Flags::Emissive);
 			}
 			if(!matData.normalTexture.empty())
 			{
-				auto texture = getTexture(gfxDevice, _assetsFolder, _document, _textures, defSampler, matData.normalTexture.index, false, 3);
+				auto texture = getTexture(_document, defSampler, matData.normalTexture.index, false, 3);
 				if(texture.isValid())
 					matDesc.textures.emplace_back("uNormalMap", texture, Material::Flags::Normals);
 			}
@@ -669,8 +655,7 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void loadGLTFScene(
-		gfx::Device& gfxDevice,
+	void GltfLoader::load(
 		SceneNode& _parentNode,
 		const std::string& _filePath,
 		gfx::RenderScene& _gfxWorld,
@@ -678,34 +663,29 @@ namespace rev { namespace game {
 		vector<shared_ptr<Animation>>& _animations)
 	{
 		// Open file
-		auto folder = core::getPathFolder(_filePath);
+		m_assetsFolder = core::getPathFolder(_filePath);
+
 		// Load gltf document
 		gltf::Document document;
-		if(!openAndValidateDocument(_filePath, folder, document))
+		if(!openAndValidateDocument(_filePath, m_assetsFolder, document))
 			return;
-
-		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
-		auto specEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
-		Material::Descriptor defaultMatDesc;
-		defaultMatDesc.effect = pbrEffect;
-		auto defaultMaterial = std::make_shared<Material>(defaultMatDesc);
 
 		// Load buffers
 		vector<core::File*> buffers;
 		for(auto b : document.buffers)
-			buffers.push_back(new core::File(folder+b.uri));
+			buffers.push_back(new core::File(m_assetsFolder +b.uri));
 		auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
 		auto attributes = readAttributes(document, bufferViews); // Load accessors
 
 		// Load resources
+		loadImages(document);
+		m_textures.resize(document.textures.size());
 		auto skins = loadSkins(attributes, document);
-		std::vector<gfx::Texture2d> textures(document.textures.size());
-		auto materials = loadMaterials(gfxDevice, folder, document, pbrEffect, specEffect, textures);
-		auto meshes = loadMeshes(gfxDevice, attributes, document, materials, defaultMaterial);
+		auto materials = loadMaterials(document);
+		auto meshes = loadMeshes(attributes, document, materials);
 
 		// Load nodes
-		auto nodes = loadNodes(document, meshes, skins, materials, defaultMaterial, _gfxWorld);
+		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);
 
 		// Load animations
 		loadAnimations(document, attributes, nodes, animNodes, _animations);
@@ -715,5 +695,54 @@ namespace rev { namespace game {
 		auto& displayScene = document.scenes[sceneIndex];
 		for(auto nodeNdx : displayScene.nodes)
 			_parentNode.addChild(nodes[nodeNdx]);
+	}
+
+	std::shared_ptr<Effect> GltfLoader::metallicRoughnessEffect()
+	{
+		if (!m_metallicRoughnessEffect)
+		{
+			m_metallicRoughnessEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
+		}
+		
+		return m_metallicRoughnessEffect;
+	}
+
+	std::shared_ptr<Effect> GltfLoader::specularEffect()
+	{
+		if (!m_specularEffect)
+		{
+			m_specularEffect = std::make_shared<Effect>("shaders/specularSetup.fx");
+		}
+
+		return m_specularEffect;
+	}
+
+	std::shared_ptr<Material> GltfLoader::defaultMaterial()
+	{
+		return nullptr;
+	}
+
+	void GltfLoader::loadImages(const gltf::Document& document)
+	{
+		// Allocate pointers to the images
+		m_loadedImages.resize(document.images.size());
+
+		// Load images in parallel
+		core::ThreadPool workers(8);
+		workers.run(document.images,
+			[this](const gltf::Image& imageDesc, size_t taskId) {
+				// Load image from file
+				m_loadedImages[taskId] = gfx::Image::load(m_assetsFolder + imageDesc.uri, 0);
+			},
+			std::cout);
+
+		// Report not found images
+		for (size_t i = 0; i < document.images.size(); ++i)
+		{
+			if (!m_loadedImages[i])
+			{
+				std::cout << "Unable to load " << document.images[i].uri << "\n";
+			}
+		}
 	}
 }}

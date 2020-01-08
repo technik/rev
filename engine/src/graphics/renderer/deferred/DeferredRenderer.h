@@ -44,18 +44,17 @@ namespace rev::gfx {
 		void render	(const RenderScene&, const Camera& pov);
 		void onResizeTarget(const math::Vec2u& _newSize);
 
-		//void drawDebugUI();
-
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
 		void loadNoiseTextures();
 		void collapseSceneRenderables(const RenderScene&);
 
-		template<class Filter> // Filter must be an operator (RenderItem) -> bool
-		void cull(const std::vector<RenderItem>& from, std::vector<RenderItem>& to, const Filter&); // TODO: Cull inplace?
-
 	private:
 		Device*		m_device = nullptr;
+
+		// Debug utils
+		bool m_lockCulling = false;
+		math::Frustum m_cullingFrustum;
 
 		// Render state
 		float m_expositionValue = 0.f;
@@ -72,12 +71,18 @@ namespace rev::gfx {
 
 		// Geometry arrays
 		std::vector<RenderItem> m_renderQueue;
+		std::vector<RenderItem> m_visibleQueue;
 		std::vector<RenderItem> m_opaqueQueue;
+		std::vector<RenderItem> m_alphaMaskQueue;
+		std::vector<RenderItem> m_emissiveQueue;
+		std::vector<RenderItem> m_emissiveMaskQueue;
 		std::vector<RenderItem> m_transparentQueue;
 
 		// Geometry pass
 		Pipeline::RasterOptions m_rasterOptions;
-		GeometryPass*			m_gPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gBufferMaskedPass = nullptr;
+		std::unique_ptr<GeometryPass>	m_gTransparentPass = nullptr;
 		std::unique_ptr<FullScreenPass>	m_bgPass;
 		std::unique_ptr<FullScreenPass>	m_hdrPass;
 		std::unique_ptr<FullScreenPass>	m_aoSamplePass;
