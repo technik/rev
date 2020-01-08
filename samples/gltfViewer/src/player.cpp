@@ -144,8 +144,8 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::createFloor() {
-
+	void Player::createFloor()
+	{
 		auto floorNode = mGameScene.root()->createChild("floor");
 		auto sceneSize = m_globalBBox.size();
 		auto floorXForm = floorNode->addComponent<Transform>();
@@ -157,8 +157,9 @@ namespace rev {
 		auto floorMesh = std::make_shared<gfx::RenderGeom>(RenderGeom::quad(floorScale * Vec2f(sceneSize.x(), sceneSize.z())));
 
 		// Create default material
-		auto pbrEffect = std::make_shared<Effect>("shaders/metal-rough.fx");
-		auto defaultMaterial = std::make_shared<Material>(pbrEffect);
+		Material::Descriptor pbrMatDescriptor;
+		pbrMatDescriptor.effect = std::make_shared<Effect>("shaders/metal-rough.fx");
+		auto defaultMaterial = std::make_shared<Material>(pbrMatDescriptor);
 
 		// Create mesh renderer component
 		auto renderable = std::make_shared<gfx::RenderMesh>();
