@@ -23,6 +23,7 @@
 #include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
+#include <graphics/renderer/material/material.h>
 #include <graphics/renderer/RenderItem.h>
 #include <string>
 #include <map>
@@ -52,6 +53,7 @@ namespace rev::gfx {
 			const math::Mat44f& viewProj,
 			const std::vector<RenderItem>& geometry,
 			Pipeline::RasterOptions rasterOptions,
+			Material::Flags bindingFlags,
 			CommandBuffer& out);
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.

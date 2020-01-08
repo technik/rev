@@ -87,7 +87,7 @@ namespace rev::gfx {
 			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom.bbox();
 			if (viewSpaceBB.min().z() < 0)
 			{
-				if (renderItem.material.alpha() == Material::Alpha::opaque)
+				if (renderItem.material.transparency() == Material::Transparency::Opaque)
 					m_opaqueQueue.push_back(renderItem);
 				else
 					m_transparentQueue.push_back(renderItem);
@@ -117,7 +117,7 @@ namespace rev::gfx {
 				dst.clearColor(Vec4f::zero());
 				dst.clear(Clear::All);
 
-				m_gPass->render(viewProj, m_opaqueQueue, m_rasterOptions, dst);
+				m_gPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
 			});
 
 		// AO pass
