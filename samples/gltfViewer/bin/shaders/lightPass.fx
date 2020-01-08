@@ -63,7 +63,7 @@ vec3 shade () {
     lightDir = normalize(lightDir);
 	float ndv = max(0.0, dot(wsEyeDir, wsNormal));
     
-    return vec3(ssao)+0.0001*ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
+    return ibl(F0, wsNormal, wsEyeDir, albedo, lightDir, r, occlusion, shadow, ndv);
 }
 
 #endif

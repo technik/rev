@@ -94,7 +94,7 @@ float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
 float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
 {
     float minVis = 1.0;
-    const int nSamples = 150;
+    const int nSamples = 250;
     for(int i = 0; i < nSamples; ++i)
     {
         vec2 x1 = dx*(i+1);
@@ -122,9 +122,10 @@ float sliceGTAO(
 
 vec2 upVec2(float u)
 {
-    float x = sqrt(abs(2*u-1));
+	float cos2 = abs(2*u-1);
+    float x = sqrt(cos2);
     x = u<0.5?-x:x;
-    return vec2(x, sqrt(1-x*x));
+    return vec2(x, sqrt(1-cos2));
 }
 
 //------------------------------------------------------------------------------	
