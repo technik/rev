@@ -479,7 +479,7 @@ namespace rev::gfx {
 				m_renderQueue.push_back(renderItem);
 
 				AABB worldSpaceBB = worldMtx * renderItem.geom->bbox();
-				if (math::cull(m_cullingFrustum, worldSpaceBB))
+				//if (math::cull(m_cullingFrustum, worldSpaceBB))
 				{
 					m_visibleQueue.push_back(renderItem);
 				}
