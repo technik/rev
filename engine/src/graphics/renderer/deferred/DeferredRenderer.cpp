@@ -203,7 +203,7 @@ namespace rev::gfx {
 		// AO pass
 		RenderGraph::BufferResource ao; // G-Pass outputs
 		frameGraph.addPass("AO-Sample",
-			m_viewportSize,
+			m_viewportSize/2u,
 			// Pass definition
 			[&](RenderGraph::IPassBuilder& pass) {
 				ao = pass.write(BufferFormat::R8);
@@ -223,7 +223,10 @@ namespace rev::gfx {
 				CommandBuffer::UniformBucket uniforms;
 				uniforms.addParam(0, projection);
 				uniforms.addParam(1, invView);
-				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
+				uniforms.addParam(2, math::Vec4f(
+					float(m_viewportSize.x()), float(m_viewportSize.y()), // G-buffer size
+					float(m_viewportSize.x()/2), float(m_viewportSize.y()/2) // AO buffer size
+				));
 				// Textures
 				uniforms.addParam(7, inputTextures[0]);
 				uniforms.addParam(8, inputTextures[1]);
