@@ -90,10 +90,10 @@ namespace rev::gfx {
 
 	// Inline implementation
 	inline math::AABB Camera::aabb(float _near, float _far, float _aspectRatio) const {
-		auto zMax = _far * std::tan(mFov/2);
-		auto xMax = _aspectRatio * zMax;
-		auto minP = math::Vec3f(-xMax, _near, -zMax);
-		auto maxP = math::Vec3f(xMax, _far, zMax);
+		auto yMax = _far * std::tan(mFov/2);
+		auto xMax = _aspectRatio * yMax;
+		auto minP = math::Vec3f(-xMax, -yMax, -_far);
+		auto maxP = math::Vec3f(xMax, yMax, -_near);
 		return math::AABB(minP, maxP);
 	}
 
