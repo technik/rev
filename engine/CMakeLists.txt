@@ -68,11 +68,6 @@ endif(MSVC)
 add_library(glew lib/glew/glew.c lib/glew/glewinfo.c lib/glew/visualinfo.c)
 target_compile_definitions(glew PRIVATE -DGLEW_STATIC)
 target_include_directories (glew PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-#find_library(GLEW glew32 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew/x86/)
-#target_link_libraries (rev LINK_PUBLIC ${GLEW})
 
 target_include_directories (revGfx PUBLIC ${OPENGL_INCLUDE_DIR})
 target_link_libraries (revGfx LINK_PUBLIC ${OPENGL_gl_LIBRARY} glew)
-
-#find_library(FREEIMAGE_LIB FreeImage ${CMAKE_CURRENT_SOURCE_DIR}/lib/freeImage/)
-#target_link_libraries (rev LINK_PUBLIC ${OPENGL_gl_LIBRARY} ${FREEIMAGE_LIB} cjson )
