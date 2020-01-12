@@ -65,19 +65,23 @@ vec4 vsPosFromPixel(vec2 pixelPos)
     return vsPosFromGBuffer(d, pixelPos/Window.xy);
 }
 
-float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
+// Distance modulated visibility caused by an occluder
+float horizonVisibility(vec3 origin, vec2 ds, vec3 vsNormal)
 {
     vec3 occl = vsPosFromPixel(gl_FragCoord.xy+ds.xy).xyz;
-    vec3 dx = normalize(occl-origin);
+    vec3 dx = occl-origin;
+    float distance = sqrt(dot(dx,dx));
+    dx = dx/distance;
     float ndh = dot(dx,vsNormal);
     if(ndh <= 0) // Not an obstacle
         return 1.0;
     float s2 = dot(ds,ds);
     float s = sqrt(s2);
     float nds = dot(vsNormal.xy, ds)/s;
+    float visibility;
     if(nds <= 0.0)
     {
-        return 1-ndh*ndh;
+        visibility = 1-ndh*ndh;
     }
     else
     {
@@ -87,18 +91,28 @@ float horizon(vec3 origin, vec2 ds, vec3 vsNormal)
         if(nds>0)
             tdz*=-1;
         float sinH = (dx.z*tdz+s*tds)/sqrt(s2+dx.z*dx.z);
-        return (sinH<0?-1.0:1.0)*(1-ndh*ndh);
+        visibility = (sinH<0?-1.0:1.0)*(1-ndh*ndh);
     }
+    const float minInterpDistance = 0.5;
+    const float maxInterpDistance = 2.0;
+    float interp = max(0,min(1,(distance-minInterpDistance)/maxInterpDistance));
+    return mix(visibility, 1, interp);
 }
 
 float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
 {
+    // Compute screen space max sample radius given
+    // center depth.
+    const float maxWsDistance = 2.0;
+    const float maxSampleTan = -maxWsDistance/vsCenter.z;
+    const float ssSampleDelta = sqrt(2);
     float minVis = 1.0;
-    const int nSamples = 150;
+    float maxSamplePxlDistance = Window.y*maxSampleTan/proj[1][1];
+    int nSamples = min(20, int(maxSamplePxlDistance/ssSampleDelta));
     for(int i = 0; i < nSamples; ++i)
     {
         vec2 x1 = dx*(i+1);
-        float h = horizon(vsCenter,x1,vsNormal);
+        float h = horizonVisibility(vsCenter,x1,vsNormal);
         minVis = min(minVis, h);
     }
     return minVis;
@@ -111,8 +125,8 @@ float sliceGTAO(
     in vec3 vsNormal)
 {
     vec3 origin = vsPosFromPixel(gl_FragCoord.xy).xyz;
-    // Same thing with z dir
-    vec2 ds = 1.414*ssSampleDir;
+    // Sqrt(2) so that we never sample the same pixel twice
+    vec2 ds = sqrt(2)*ssSampleDir;
 
     float sin2H1 = minHorizonVis(origin, ds, vsNormal);
     float sin2H2 = minHorizonVis(origin,-ds, vsNormal);
