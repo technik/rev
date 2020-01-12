@@ -4,6 +4,7 @@
 // Global state
 layout(location = 0) uniform mat4 proj;
 layout(location = 1) uniform mat4 invView;
+// xy is gbuffer size, zw is ao buffer size
 layout(location = 2) uniform vec4 Window;
 
 layout(location = 7) uniform sampler2D uGBuffer;
@@ -54,21 +55,21 @@ vec3 lambertianDirection(in vec3 normal, in vec2 seed)
 	return normal + 0.985 * randomUnitVector(seed);
 }
 
-float depthFromPixel(vec2 pixelPos)
+float depthFromPixel(vec2 gbPixelPos)
 {
-    return texelFetch(uDepthMap, ivec2(pixelPos), 0).x;
+    return texelFetch(uDepthMap, ivec2(gbPixelPos+0.5), 0).x;
 }
 
-vec4 vsPosFromPixel(vec2 pixelPos)
+vec4 vsPosFromPixel(vec2 gbPixelPos)
 {
-    float d = depthFromPixel(pixelPos);
-    return vsPosFromGBuffer(d, pixelPos/Window.xy);
+    float d = depthFromPixel(gbPixelPos);
+    return vsPosFromGBuffer(d, gbPixelPos/Window.xy);
 }
 
 // Distance modulated visibility caused by an occluder
 float horizonVisibility(vec3 origin, vec2 ds, vec3 vsNormal)
 {
-    vec3 occl = vsPosFromPixel(gl_FragCoord.xy+ds.xy).xyz;
+    vec3 occl = vsPosFromPixel(2*(gl_FragCoord.xy+ds.xy)).xyz;
     vec3 dx = occl-origin;
     float distance = sqrt(dot(dx,dx));
     dx = dx/distance;
@@ -107,7 +108,7 @@ float minHorizonVis(vec3 vsCenter, vec2 dx, vec3 vsNormal)
     const float maxSampleTan = -maxWsDistance/vsCenter.z;
     const float ssSampleDelta = sqrt(2);
     float minVis = 1.0;
-    float maxSamplePxlDistance = Window.y*maxSampleTan/proj[1][1];
+    float maxSamplePxlDistance = Window.w*maxSampleTan/proj[1][1];
     int nSamples = min(20, int(maxSamplePxlDistance/ssSampleDelta));
     for(int i = 0; i < nSamples; ++i)
     {
@@ -124,7 +125,7 @@ float sliceGTAO(
     in vec3 vsCenter,
     in vec3 vsNormal)
 {
-    vec3 origin = vsPosFromPixel(gl_FragCoord.xy).xyz;
+    vec3 origin = vsPosFromPixel(2*gl_FragCoord.xy).xyz;
     // Sqrt(2) so that we never sample the same pixel twice
     vec2 ds = sqrt(2)*ssSampleDir;
 
@@ -144,17 +145,18 @@ vec2 upVec2(float u)
 //------------------------------------------------------------------------------	
 vec3 shade ()
 {
-	ivec2 pixelPos = ivec2(gl_FragCoord.xy);
-	vec2 uv = gl_FragCoord.xy / Window.xy;
+	ivec2 aoPixelPos = ivec2(gl_FragCoord.xy);
+    ivec2 gbPixelPos = 2*aoPixelPos;
+	vec2 uv = gl_FragCoord.xy / Window.zw;
 	// Direction from the view point to the pixel, in view space
-	vec3 compressedNormal = texelFetch(uGBuffer, pixelPos, 0).xyz;
+	vec3 compressedNormal = texelFetch(uGBuffer, gbPixelPos, 0).xyz;
 	vec3 wsNormal = normalize(compressedNormal*2.0-1.0);
     vec3 vsNormal = (inverse(invView) * vec4(wsNormal,0.0)).xyz;
 
-	float sampleDepth = texelFetch(uDepthMap, pixelPos, 0).x;
+	float sampleDepth = texelFetch(uDepthMap, gbPixelPos, 0).x;
 
 	vec4 vsPos = vsPosFromGBuffer(sampleDepth, uv);
-	vec4 seeds = texelFetch(uNoise, pixelPos%64, 0);
+	vec4 seeds = texelFetch(uNoise, aoPixelPos%64, 0);
 
 	float w = 0.0;
 	const int nSamples = 1;
