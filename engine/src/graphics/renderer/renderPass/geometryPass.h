@@ -50,7 +50,8 @@ namespace rev::gfx {
 
 		// Processes the suplied geometry and uniforms, and stores the generated commands into out.
 		void render(
-			const math::Mat44f& viewProj,
+			const math::Mat44f& view,
+			const math::Mat44f& proj,
 			const std::vector<RenderItem>& geometry,
 			Pipeline::RasterOptions rasterOptions,
 			Material::Flags bindingFlags,

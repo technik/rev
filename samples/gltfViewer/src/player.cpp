@@ -128,7 +128,7 @@ namespace rev {
 		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
-		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 100.f);
+		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 5000.f);
 		mFlybyCam = &*camComponent->cam();
 	}
 

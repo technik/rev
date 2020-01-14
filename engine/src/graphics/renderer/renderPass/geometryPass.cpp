@@ -42,7 +42,8 @@ namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
 	void GeometryPass::render(
-		const Mat44f& viewProj,
+		const Mat44f& view,
+		const Mat44f& proj,
 		const std::vector<RenderItem>& geometry,
 		Pipeline::RasterOptions rasterOptions,
 		Material::Flags bindingFlags,
@@ -67,7 +68,7 @@ namespace rev::gfx {
 			// Uniforms
 			instance.uniforms.clear();
 			Mat44f world = mesh.world;
-			Mat44f wvp = viewProj * world;
+			Mat44f wvp = proj * (view * world); // world/view multiplied first for improved precision
 			instance.uniforms.mat4s.push_back({ 0, wvp });
 			instance.uniforms.mat4s.push_back({ 1, world });
 			// Geometry
