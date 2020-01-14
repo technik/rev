@@ -130,7 +130,8 @@ namespace rev::gfx {
 		}
 
 		bool useEmissive = !m_emissiveQueue.empty();
-		auto viewProj = eye.viewProj(aspectRatio);
+		auto viewMtx = eye.view();
+		auto projMtx = eye.projection(aspectRatio);
 
 		// G-Buffer pass with emissive
 		RenderGraph::BufferResource depth, normals, pbr, albedo, hdr; // G-Pass outputs
@@ -170,8 +171,8 @@ namespace rev::gfx {
 				dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
 				dst.clear(Clear::All);
 
-				m_gBufferPass->render(viewProj, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
-				m_gBufferMaskedPass->render(viewProj, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
+				m_gBufferPass->render(viewMtx, projMtx, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
+				m_gBufferMaskedPass->render(viewMtx, projMtx, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
 			});
 
 		if (useEmissive)
@@ -189,12 +190,12 @@ namespace rev::gfx {
 				// Pass evaluation
 					[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
 				{
-					m_gBufferPass->render(viewProj, m_emissiveQueue, m_rasterOptions,
+					m_gBufferPass->render(viewMtx, projMtx, m_emissiveQueue, m_rasterOptions,
 						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
 						dst);
 					auto maskedOptions = m_rasterOptions;
 					maskedOptions.alphaMask = true;
-					m_gBufferMaskedPass->render(viewProj, m_emissiveMaskQueue, maskedOptions,
+					m_gBufferMaskedPass->render(viewMtx, projMtx, m_emissiveMaskQueue, maskedOptions,
 						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive | Material::Flags::AlphaMask,
 						dst);
 				});
@@ -337,7 +338,7 @@ namespace rev::gfx {
 			{
 				auto maskedOptions = m_rasterOptions;
 				maskedOptions.blendMode = Pipeline::BlendMode::Additive;
-				m_gTransparentPass->render(viewProj, m_transparentQueue, maskedOptions,
+				m_gTransparentPass->render(viewMtx, projMtx, m_transparentQueue, maskedOptions,
 					Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaBlend,
 					dst);
 			});
@@ -482,7 +483,7 @@ namespace rev::gfx {
 				m_renderQueue.push_back(renderItem);
 
 				AABB worldSpaceBB = worldMtx * renderItem.geom->bbox();
-				//if (math::cull(m_cullingFrustum, worldSpaceBB))
+				if (math::cull(m_cullingFrustum, worldSpaceBB))
 				{
 					m_visibleQueue.push_back(renderItem);
 				}

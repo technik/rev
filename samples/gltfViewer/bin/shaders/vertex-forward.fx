@@ -93,8 +93,8 @@ void main ( void )
 #endif
 	vtxWsEyeDir = uWsViewPos - wsPos;
 
-#ifdef HW_SKINNING
 	vec4 vtx4 = vec4(vertex, 1.0);
+#ifdef HW_SKINNING
 	// vec4 skinnedVtx0 = weights.x * joints[jointIndices.x] * vtx4;
 	// vec4 skinnedVtx1 = weights.y * joints[jointIndices.y] * vtx4;
 	// vec4 skinnedVtx2 = weights.z * joints[jointIndices.z] * vtx4;
@@ -108,8 +108,8 @@ void main ( void )
 	//gl_Position = uWorldViewProjection * vec4(skinnedVtx.xyz, 1.0);
 	gl_Position = uWorldViewProjection * skinnedVtx;
 #else
-	gl_Position = uWorldViewProjection * vec4(vertex, 1.0);
-	vtxWorldPos = (uWorld * vec4(vertex, 1.0)).xyz;
+	gl_Position = uWorldViewProjection * vtx4;
+	vtxWorldPos = (uWorld * vtx4).xyz;
 #endif
 }
 #endif // VTX_SHADER
