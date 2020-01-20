@@ -7,6 +7,7 @@
 
 #include <math/algebra/matrix.h>
 #include <math/algebra/vector.h>
+#include <math/geometry/aabb.h>
 
 namespace rev {
 	namespace math {
@@ -39,8 +40,20 @@ namespace rev {
 			{
 				mProjection = frustumMatrix(_yFov, _aspectRatio, _near, _far);
 
+				// fov tangents
 				float yTangent = tan(_yFov / 2.f);
 				float xTangent = yTangent * _aspectRatio;
+
+				// Vertices
+				mVertices[0] = _near * Vec3f(-xTangent, -yTangent, 1.f);
+				mVertices[1] = _near * Vec3f(-xTangent, yTangent, 1.f);
+				mVertices[2] = _near * Vec3f(xTangent, -yTangent, 1.f);
+				mVertices[3] = _near * Vec3f(xTangent, yTangent, 1.f);
+				mVertices[4] = _far * Vec3f(-xTangent, -yTangent, 1.f);
+				mVertices[5] = _far * Vec3f(-xTangent, yTangent, 1.f);
+				mVertices[6] = _far * Vec3f(xTangent, -yTangent, 1.f);
+				mVertices[7] = _far * Vec3f(xTangent, yTangent, 1.f);
+
 				// Normals point outwards
 				mPlanes[0] = { Vec3f(0.f,0.f,1.f), -_near }; // Near plane
 				mPlanes[1] = { Vec3f(0.f,0.f,-1.f), _far }; // Far plane
@@ -61,8 +74,10 @@ namespace rev {
 			float centroid		() const { return 0.5f*(mNear+mFar); }
 			const math::Vec3f& viewDir() const { return mPlanes[1].normal; }
 			const Plane& plane(size_t i) const { return mPlanes[i]; }
+			const Vec3f& vertex(size_t i) const { return mVertices[i]; }
 
 			const Mat44f& projection() const { return mProjection; }
+			AABB boundingBox() const;
 
 		private:
 			float mAspectRatio;
@@ -71,6 +86,7 @@ namespace rev {
 			float mFar;
 			Mat44f mProjection;
 			Plane mPlanes[6];
+			Vec3f mVertices[8];
 
 			friend inline Frustum operator*(const Mat44f& m, const Frustum& f);
 		};
@@ -81,6 +97,11 @@ namespace rev {
 			for (size_t i = 0; i < 6; ++i)
 			{
 				result.mPlanes[i] = m * f.plane(i);
+			}
+
+			for (size_t i = 0; i < 8; ++i)
+			{
+				result.mVertices[i] = (m * Vec4f(f.mVertices[i], 1.f)).xyz();
 			}
 			return result;
 		}
@@ -112,7 +133,17 @@ namespace rev {
 				if (tMin > plane.t) // Fully outside
 					return false;
 			}
-			return true;
+			return frustum.boundingBox().intersect(aabb);
+		}
+
+		inline AABB Frustum::boundingBox() const
+		{
+			AABB bbox;
+			for (const auto& v : mVertices)
+			{
+				bbox.add(v);
+			}
+			return bbox;
 		}
 
 } }	// namespace rev::math

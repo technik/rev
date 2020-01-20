@@ -114,6 +114,15 @@ namespace rev::math
 			auto minLeave = math::min(tLeave.x(), math::min(tLeave.y(), math::min(tLeave.z(), _tmax)));
 			return minLeave >= _maxEnter;
 		}
+
+		bool intersect(const AABB& other) const
+		{
+			return !(
+				other.mMax.x() < mMin.x() || mMax.x() < other.mMin.x() ||
+				other.mMax.y() < mMin.y() || mMax.y() < other.mMin.y() ||
+				other.mMax.z() < mMin.z() || mMax.z() < other.mMin.z()
+				);
+		}
 	private:
 		Vector mMin;
 		Vector mMax;
