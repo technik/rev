@@ -45,14 +45,14 @@ namespace rev {
 				float xTangent = yTangent * _aspectRatio;
 
 				// Vertices
-				mVertices[0] = _near * Vec3f(-xTangent, -yTangent, 1.f);
-				mVertices[1] = _near * Vec3f(-xTangent, yTangent, 1.f);
-				mVertices[2] = _near * Vec3f(xTangent, -yTangent, 1.f);
-				mVertices[3] = _near * Vec3f(xTangent, yTangent, 1.f);
-				mVertices[4] = _far * Vec3f(-xTangent, -yTangent, 1.f);
-				mVertices[5] = _far * Vec3f(-xTangent, yTangent, 1.f);
-				mVertices[6] = _far * Vec3f(xTangent, -yTangent, 1.f);
-				mVertices[7] = _far * Vec3f(xTangent, yTangent, 1.f);
+				mVertices[0] = _near * Vec3f(-xTangent, -yTangent, -1.f);
+				mVertices[1] = _near * Vec3f(-xTangent, yTangent, -1.f);
+				mVertices[2] = _near * Vec3f(xTangent, -yTangent, -1.f);
+				mVertices[3] = _near * Vec3f(xTangent, yTangent, -1.f);
+				mVertices[4] = _far * Vec3f(-xTangent, -yTangent, -1.f);
+				mVertices[5] = _far * Vec3f(-xTangent, yTangent, -1.f);
+				mVertices[6] = _far * Vec3f(xTangent, -yTangent, -1.f);
+				mVertices[7] = _far * Vec3f(xTangent, yTangent, -1.f);
 
 				// Normals point outwards
 				mPlanes[0] = { Vec3f(0.f,0.f,1.f), -_near }; // Near plane
@@ -69,8 +69,8 @@ namespace rev {
 
 			float aspectRatio	() const { return mAspectRatio; }
 			float fov			() const { return mYFov; }
-			float nearPlane		() const { return mNear; }
-			float farPlane		() const { return mFar; }
+			float nearDistance	() const { return mNear; }
+			float farDistance	() const { return mFar; }
 			float centroid		() const { return 0.5f*(mNear+mFar); }
 			const math::Vec3f& viewDir() const { return mPlanes[1].normal; }
 			const Plane& plane(size_t i) const { return mPlanes[i]; }
@@ -106,22 +106,7 @@ namespace rev {
 			return result;
 		}
 
-		inline bool cull(const Frustum& frustum, const Mat44f& worldFromFrustum, const AABB& aabb)
-		{
-			for (size_t i = 0; i < 6; ++i)
-			{
-				Plane rotatedPlane = worldFromFrustum * frustum.plane(i);
-				Vec3f v1 = aabb.min().cwiseProduct(rotatedPlane.normal);
-				Vec3f v2 = aabb.max().cwiseProduct(rotatedPlane.normal);
-				Vec3f vMin = math::min(v1, v2);
-				float tMin = vMin.x()+ vMin.y()+ vMin.z();
-				if (tMin > rotatedPlane.t) // Fully outside
-					return false;
-			}
-			return true;
-		}
-
-		inline bool cull(const Frustum& frustum, const AABB& aabb)
+		inline bool intersect(const Frustum& frustum, const AABB& aabb)
 		{
 			for (size_t i = 0; i < 6; ++i)
 			{

@@ -82,10 +82,10 @@ void testFrustumCulling()
 		const float farCap = 10.f;
 		Frustum frustum = Frustum(aspectRatio, yFov, nearCap, farCap);
 		AABB fullInside = AABB(Vec3f(-1.f, -1.f, -4.f), Vec3f(1.f, 1.f, -2.f));
-		assert(cull(frustum, fullInside));
+		assert(intersect(frustum, fullInside));
 
 		AABB positiveZ = AABB(Vec3f(-1.f, -1.f, 0.f), Vec3f(1.f, 1.f, 2.f));
-		assert(!cull(frustum, positiveZ));
+		assert(!intersect(frustum, positiveZ));
 	}
 	{
 		const float yFov = atan(0.5f)*2;
@@ -94,13 +94,13 @@ void testFrustumCulling()
 		const float farCap = 10.f;
 		Frustum frustum = Frustum(aspectRatio, yFov, nearCap, farCap);
 		AABB fullInside = AABB(Vec3f(-2.f, -2.f, -7.f), Vec3f(2.f, 2.f, -5.f));
-		assert(cull(frustum, fullInside));
+		assert(intersect(frustum, fullInside));
 
 		AABB positiveZ = AABB(Vec3f(-1.f, -1.f, 0.f), Vec3f(1.f, 1.f, 2.f));
-		assert(!cull(frustum, positiveZ));
+		assert(!intersect(frustum, positiveZ));
 
 		AABB crossRightPlane = AABB(Vec3f(-4.f, -3.f, -7.f), Vec3f(-3.f, 3.f, -5.f));
-		assert(cull(frustum, crossRightPlane));
+		assert(intersect(frustum, crossRightPlane));
 	}
 }
 
