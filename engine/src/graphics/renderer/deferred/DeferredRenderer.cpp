@@ -85,10 +85,13 @@ namespace rev::gfx {
 
 		// Culling config must happen before actual culling in collapseSceneRenderables
 		ImGui::Checkbox("Lock culling", &m_lockCulling);
-		if(!m_lockCulling)
-			m_cullingFrustum = eye.world().matrix() * eye.frustum(aspectRatio);
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		Mat44f view = eye.view();
+		if (!m_lockCulling)
+		{
+			m_cullingFrustum = eye.frustum(aspectRatio);
+			m_cullingViewMtx = view;
+		}
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 
 		// Cull visible objects renderQ -> visible
 		m_opaqueQueue.clear();
@@ -470,27 +473,28 @@ namespace rev::gfx {
 		m_renderQueue.clear();
 		m_visibleQueue.clear();
 
+		// Cull renderables in view space for maximun compactness
 		for(auto obj : scene.renderables())
 		{			
 			if(!obj->visible)
 				continue;
-			auto worldMtx = obj->transform;
+			auto viewFromObj = m_cullingViewMtx * obj->transform;
 
 			for(auto mesh : obj->mesh->mPrimitives)
 			{
 				assert(mesh.first && mesh.second);
-				auto renderItem = RenderItem{ worldMtx, &*mesh.first, &*mesh.second };
+				auto renderItem = RenderItem{ obj->transform, &*mesh.first, &*mesh.second };
 				m_renderQueue.push_back(renderItem);
 
-				AABB worldSpaceBB = worldMtx * renderItem.geom->bbox();
-				if (math::intersect(m_cullingFrustum, worldSpaceBB))
+				AABB viewSpaceBB = viewFromObj * renderItem.geom->bbox();
+				if (math::intersect(m_cullingFrustum, viewSpaceBB))
 				{
 					m_visibleQueue.push_back(renderItem);
 				}
 			}
 		}
 
-		auto viewDir = m_cullingFrustum.viewDir();
+		Vec3f viewDir = -m_cullingViewMtx.transpose().col<2>().xyz();
 		
 		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
 			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center();

@@ -55,6 +55,7 @@ namespace rev::gfx {
 		// Debug utils
 		bool m_lockCulling = false;
 		math::Frustum m_cullingFrustum;
+		math::Mat44f m_cullingViewMtx;
 
 		// Render state
 		float m_expositionValue = 0.f;
