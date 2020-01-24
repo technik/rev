@@ -48,16 +48,18 @@ namespace rev::gfx {
 		void createRenderPasses(gfx::FrameBuffer target);
 		void loadNoiseTextures();
 		void collapseSceneRenderables(const RenderScene&);
+		void sortVisibleQueue();
 
 	private:
 		Device*		m_device = nullptr;
 
 		// Debug utils
 		bool m_lockCulling = false;
-		math::Frustum m_cullingFrustum;
-		math::Mat44f m_cullingViewMtx;
 
 		// Render state
+		math::Frustum m_cullingFrustum;
+		math::Mat44f m_cullingViewMtx;
+		math::AABB m_visibleVolume;
 		float m_expositionValue = 0.f;
 		math::Vec2u m_viewportSize;
 		math::Vec2u m_shadowSize;

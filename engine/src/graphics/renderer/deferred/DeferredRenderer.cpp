@@ -91,9 +91,12 @@ namespace rev::gfx {
 			m_cullingFrustum = eye.frustum(aspectRatio);
 			m_cullingViewMtx = view;
 		}
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 
 		// Cull visible objects renderQ -> visible
+		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		sortVisibleQueue();
+
+		// Classify visible objects into separate render queues
 		m_opaqueQueue.clear();
 		m_alphaMaskQueue.clear();
 		m_emissiveMaskQueue.clear();
@@ -472,6 +475,9 @@ namespace rev::gfx {
 	{
 		m_renderQueue.clear();
 		m_visibleQueue.clear();
+		// Keep visible volume AABB
+		float minShadowDistance;
+		m_visibleVolume.clear();
 
 		// Cull renderables in view space for maximun compactness
 		for(auto obj : scene.renderables())
@@ -490,22 +496,27 @@ namespace rev::gfx {
 				if (math::intersect(m_cullingFrustum, viewSpaceBB))
 				{
 					m_visibleQueue.push_back(renderItem);
+					m_visibleVolume.add(viewSpaceBB);
 				}
 			}
 		}
 
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::sortVisibleQueue()
+	{
 		Vec3f viewDir = -m_cullingViewMtx.transpose().col<2>().xyz();
-		
+
 		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
-			Vec3f aCenter = a.world.block<3,3,0,0>() * a.geom->bbox().center();
-			Vec3f bCenter = b.world.block<3,3,0,0>() * b.geom->bbox().center();
+			Vec3f aCenter = a.world.block<3, 3, 0, 0>() * a.geom->bbox().center();
+			Vec3f bCenter = b.world.block<3, 3, 0, 0>() * b.geom->bbox().center();
 			float da = dot(aCenter, viewDir);
 			float db = dot(bCenter, viewDir);
 
 			bool result = da < db;
 			return result;
 		});
-
 	}
 
 } // namespace rev::gfx
