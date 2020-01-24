@@ -47,7 +47,7 @@ namespace rev::gfx {
 		// Culling BBox is extended towards the camera before culling actually happens
 		void render(
 			const std::vector<RenderItem>& shadowCasters,
-			const std::vector<RenderItem>& shadowReceivers,
+			const math::AABB& shadowReceiversViewSpaceBBox,
 			const Camera& view,
 			const Light& light,
 			CommandBuffer& dst);
@@ -65,6 +65,7 @@ namespace rev::gfx {
 		//RenderPass*	m_pass;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
+		std::vector<RenderItem> m_visibleCasters;
 
 		math::Mat44f		mShadowProj;
 		math::Mat44f		mUnbiasedShadowProj;

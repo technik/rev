@@ -81,22 +81,42 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::render(
 		const std::vector<gfx::RenderItem>& shadowCasters,
-		const std::vector<gfx::RenderItem>&,// shadowReceivers,
+		const math::AABB& shadowReceiversViewSpaceBBox,
 		const Camera& view,
 		const Light& light,
 		CommandBuffer& dst)
 	{
+		// Make a copy of the shadowReceivers BBox that we can adapt to cull shadow casters
+		AABB viewSpaceAABB;
+		viewSpaceAABB.add(shadowReceiversViewSpaceBBox.max());
+		// Optional: limit draw distance
+		Vec3f viewSpaceMin = shadowReceiversViewSpaceBBox.min();
+		//viewSpaceMin.z() = max(viewSpaceMin.z(), -maxShadowDrawDistance);
+		viewSpaceAABB.add(viewSpaceMin);
+		// Transform receiver volume into shadow space
+		Mat44f shadowView = light.worldMatrix.orthoNormalInverse().matrix();
+		AABB shadowSpaceRecVolume = (shadowView * view.world().matrix()) * viewSpaceAABB;
+		// Expand the AABB to infinity in the shadow direction
+		Vec3f shadowMax = shadowSpaceRecVolume.max();
+		shadowMax.z() = std::numeric_limits<float>::max();
+		shadowSpaceRecVolume.add(shadowMax);
+
 		// Accumulate all casters into a single shadow space bounding box
 		// Do this accumulation in view space to minimize the size of this bbox.
 		// If we rotated the bbox first into world space, and then again into view space,
 		// the result would be bigger.
+		m_visibleCasters.clear();
 		AABB castersBBox; castersBBox.clear(); // In view space
-		Mat44f shadowView = light.worldMatrix.orthoNormalInverse().matrix();
 		for(auto& obj : shadowCasters)
 		{
 			// Object's bounding box in shadow space
 			auto bbox = (shadowView*obj.world) * obj.geom->bbox();
-			castersBBox.add(bbox);
+			// We only care about casters that intersect the volume of visible receivers
+			if(shadowSpaceRecVolume.intersect(bbox))
+			{
+				castersBBox.add(bbox);
+				m_visibleCasters.push_back(obj);
+			}
 		}
 
 		// Re-center the view transform around the casters' AABB
@@ -107,7 +127,7 @@ namespace rev::gfx {
 
 		// Render
 		//dst.beginPass(*m_pass);
-		renderMeshes(shadowCasters, dst); // Iterate over renderables
+		renderMeshes(m_visibleCasters, dst); // Iterate over renderables
 	}
 
 	//----------------------------------------------------------------------------------------------

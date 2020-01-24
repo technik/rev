@@ -93,7 +93,7 @@ namespace rev::gfx {
 		}
 
 		// Cull visible objects renderQ -> visible
-		collapseSceneRenderables(scene);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		collapseSceneRenderables(scene, eye);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
 		sortVisibleQueue();
 
 		// Classify visible objects into separate render queues
@@ -259,7 +259,7 @@ namespace rev::gfx {
 					dst.clearDepth(0.f);
 					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_visibleQueue, eye, light, dst);
+					m_shadowPass->render(m_renderQueue, m_visibleVolume, eye, light, dst);
 				});
 		}
 
@@ -374,10 +374,11 @@ namespace rev::gfx {
 		CommandBuffer frameCommands;
 
 		frameGraph.evaluate(frameCommands);
-		ImGui::End();
-
 		// Submit
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
+		m_device->renderQueue().drawPerformanceCounters();
+
+		ImGui::End();
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -471,7 +472,7 @@ namespace rev::gfx {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene)
+	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene, const Camera& eye)
 	{
 		m_renderQueue.clear();
 		m_visibleQueue.clear();
@@ -501,6 +502,8 @@ namespace rev::gfx {
 			}
 		}
 
+		// Clamp visible volume to the view frustum visibility range
+		m_visibleVolume = m_visibleVolume.intersection(m_cullingFrustum.boundingBox());
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------

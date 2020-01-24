@@ -47,7 +47,7 @@ namespace rev::gfx {
 	private:
 		void createRenderPasses(gfx::FrameBuffer target);
 		void loadNoiseTextures();
-		void collapseSceneRenderables(const RenderScene&);
+		void collapseSceneRenderables(const RenderScene&, const Camera& eye);
 		void sortVisibleQueue();
 
 	private:

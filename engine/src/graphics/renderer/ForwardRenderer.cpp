@@ -81,7 +81,9 @@ namespace rev::gfx {
 		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		if(useShadows)
 		{
-			mShadowPass->render(m_visible, m_visible, eye, *scene.lights()[0], frameCommands);
+			// TODO: Fix visible receiver's AABB
+			math::AABB visibleReceiversVolume;
+			mShadowPass->render(m_visible, visibleReceiversVolume, eye, *scene.lights()[0], frameCommands);
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);
