@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <utility>
+
 #include <math/algebra/vector.h>
 #include <math/algebra/affineTransform.h>
 #include <math/linear.h>
@@ -97,6 +99,8 @@ namespace rev::math
 		Vector size() const { return mMax - mMin; }
 		Vector center() const { return 0.5f*(mMin + mMax); }
 
+		std::pair<float, float> rangeAlongDir(const Vec3f& dir) const;
+
 		bool contains(const Vector& _point) const {
 			return (math::min(_point, mMin) == mMin) && (math::max(_point, mMax) == mMax);
 		}
@@ -152,5 +156,18 @@ namespace rev::math
 		Vec3f transformedMax = (xmax + ymax + zmax + xform.col<3>()).block<3,1,0,0>();
 
 		return AABB(transformedMin, transformedMax);
+	}
+
+	//---------------------------------------------------------------------------------
+	inline std::pair<float, float> AABB::rangeAlongDir(const Vec3f& dir) const
+	{
+		std::pair<float, float> range;
+		Vec3f cornerMin = dir.cwiseProduct(mMin);
+		Vec3f cornerMax = dir.cwiseProduct(mMax);
+		Vec3f rangeMin = math::min(cornerMin, cornerMax);
+		Vec3f rangeMax = math::max(cornerMin, cornerMax);
+		range.first = rangeMin.x() + rangeMin.y() + rangeMin.z();
+		range.second = rangeMax.x() + rangeMax.y() + rangeMax.z();
+		return range;
 	}
 }
