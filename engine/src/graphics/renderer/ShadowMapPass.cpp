@@ -86,13 +86,10 @@ namespace rev::gfx {
 		const Light& light,
 		CommandBuffer& dst)
 	{
-		// Make a copy of the shadowReceivers BBox that we can adapt to cull shadow casters
-		AABB viewSpaceAABB;
-		viewSpaceAABB.add(shadowReceiversViewSpaceBBox.max());
-		// Optional: limit draw distance
-		Vec3f viewSpaceMin = shadowReceiversViewSpaceBBox.min();
-		//viewSpaceMin.z() = max(viewSpaceMin.z(), -maxShadowDrawDistance);
-		viewSpaceAABB.add(viewSpaceMin);
+		// Limit shadow draw distance
+		Frustum vsShadowedVisibleVolume = Frustum(2.f, view.fov(), view.near(), mMaxShadowDistance);
+		AABB viewSpaceAABB = vsShadowedVisibleVolume.boundingBox().intersection(shadowReceiversViewSpaceBBox);
+
 		// Transform receiver volume into shadow space
 		Mat44f shadowView = light.worldMatrix.orthoNormalInverse().matrix();
 		AABB shadowSpaceRecVolume = (shadowView * view.world().matrix()) * viewSpaceAABB;
@@ -118,6 +115,7 @@ namespace rev::gfx {
 				m_visibleCasters.push_back(obj);
 			}
 		}
+		castersBBox = castersBBox.intersection(shadowSpaceRecVolume);
 
 		// Re-center the view transform around the casters' AABB
 		auto shadowWorld = light.worldMatrix;
