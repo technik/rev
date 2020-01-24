@@ -82,6 +82,12 @@ namespace rev::math
 				|| mMax.z() < mMin.z();
 		}
 
+		void clampZRange(float minZ, float maxZ)
+		{
+			mMin.z() = math::max(minZ, mMin.z());
+			mMax.z() = math::min(maxZ, mMax.z());
+		}
+
 		void add(const Vector& v)
 		{
 			mMin = math::min(mMin, v);
@@ -103,6 +109,14 @@ namespace rev::math
 
 		bool contains(const Vector& _point) const {
 			return (math::min(_point, mMin) == mMin) && (math::max(_point, mMax) == mMax);
+		}
+
+		AABB intersection(const AABB& other) const
+		{
+			AABB result;
+			result.mMin = math::max(mMin, other.mMin);
+			result.mMax = math::min(mMax, other.mMax);
+			return result;
 		}
 
 		// Intersection and distance
