@@ -28,7 +28,7 @@ namespace rev :: gfx
 	class RenderQueue
 	{
 	public:
-
+		virtual void drawPerformanceCounters() const = 0;
 		virtual void present() = 0;
 
 		// TODO: Move this into a command buffer?

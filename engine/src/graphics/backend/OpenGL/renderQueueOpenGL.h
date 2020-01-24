@@ -33,7 +33,7 @@ namespace rev :: gfx
 	public:
 		RenderQueueOpenGL(DeviceOpenGL&);
 
-		virtual void present() = 0;
+		virtual void present();
 
 		void submitPass(const RenderPass& pass) override {
 			auto& passGL = static_cast<const RenderPassOpenGL&>(pass);
@@ -41,12 +41,22 @@ namespace rev :: gfx
 		}
 
 		void submitCommandBuffer(const CommandBuffer&) override;
+		void drawPerformanceCounters() const override;
 
 	private:
 		void setUniforms(const CommandBuffer::UniformBucket& bucket);
+		void resetPerformanceCounters();
 
 		DeviceOpenGL& m_device;
 		std::map<int,int> m_textureSlots;
+
+		// Performance counters
+		size_t m_numTriangles = 0;
+		size_t m_numUniforms = 0;
+		size_t m_numTextures = 0;
+		size_t m_numBackendCalls = 0;
+		size_t m_numDraws = 0;
+		size_t m_numPipelineChanges = 0;
 	};
 }
 

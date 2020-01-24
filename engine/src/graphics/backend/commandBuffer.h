@@ -49,6 +49,16 @@ namespace rev :: gfx
 				computeOut.clear();
 			}
 
+			size_t size() const {
+				return floats.size()
+					+ vec3s.size()
+					+ vec4s.size()
+					+ mat4s.size()
+					+ mat4vs.size()
+					+ textures.size()
+					+ computeOut.size();
+			}
+
 			template<class T> using ParamList = std::vector<std::pair<int,T>>;
 
 			ParamList<float> floats;

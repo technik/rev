@@ -20,6 +20,7 @@
 #include "renderQueueOpenGL.h"
 #include "../commandBuffer.h"
 #include "deviceOpenGL.h"
+#include "graphics/debug/imgui.h"
 
 namespace rev :: gfx
 {
@@ -27,6 +28,12 @@ namespace rev :: gfx
 
 	void RenderQueueOpenGL::setUniforms(const CommandBuffer::UniformBucket& bucket)
 	{
+		// Update performance counters
+		m_numUniforms += bucket.size();
+		m_numBackendCalls+= bucket.size();
+		m_numTextures += bucket.textures.size();
+
+		// Bind uniforms per type
 		for(auto& entry : bucket.floats)
 			glUniform1f(entry.first, entry.second);
 		for(auto& entry : bucket.vec3s)
@@ -51,6 +58,7 @@ namespace rev :: gfx
 			glActiveTexture(GL_TEXTURE0 + texStage);
 			glBindTexture(GL_TEXTURE_2D, tex.second.id());
 			glUniform1i(tex.first, texStage);
+			m_numBackendCalls+=2; // Two more backend calls than other uniforms
 			++texStage;
 		}
 
@@ -68,6 +76,12 @@ namespace rev :: gfx
 	{}
 
 	//----------------------------------------------------------------------------------------------
+	void RenderQueueOpenGL::present()
+	{
+		resetPerformanceCounters();
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void RenderQueueOpenGL::submitCommandBuffer(const CommandBuffer& cmdBuffer)
 	{
 		for(auto& cmd : cmdBuffer.commands())
@@ -77,22 +91,26 @@ namespace rev :: gfx
 				case Command::BeginPass:
 				{
 					m_device.bindPass(cmd.payload, *this);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::BindFrameBuffer:
 				{
 					m_device.bindFrameBuffer(cmd.payload);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::ClearDepth:
 				{
 					glClearDepth(cmdBuffer.getFloat(cmd.payload));
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::ClearColor:
 				{
 					auto color = cmdBuffer.getColor(cmd.payload);
 					glClearColor(color.x(), color.y(), color.z(), color.w());
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::Clear:
@@ -103,25 +121,33 @@ namespace rev :: gfx
 					auto clearDepth = (flags & (int32_t)Clear::Depth) ? GL_DEPTH_BUFFER_BIT : 0;
 					auto clearColor = (flags & (int32_t)Clear::Color) ? GL_COLOR_BUFFER_BIT : 0;
 					if (clearDepth)
+					{
 						glDepthMask(GL_TRUE);
+						m_numBackendCalls++;
+					}
 					glClear(clearDepth | clearColor);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::SetViewport:
 				{
 					auto rect = cmdBuffer.getRect(cmd.payload);
 					glViewport((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::SetScissor:
 				{
 					auto rect = cmdBuffer.getRect(cmd.payload);
 					glScissor((GLint)rect.pos.x(), (GLint)rect.pos.y(), (GLsizei)rect.size.x(), (GLsizei)rect.size.y());
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::SetPipeline:
 				{
 					m_device.bindPipeline(cmd.payload);
+					m_numBackendCalls++;
+					m_numPipelineChanges++;
 					break;
 				}
 				case Command::SetUniform:
@@ -133,6 +159,7 @@ namespace rev :: gfx
 				{
 					auto vao = cmd.payload;
 					glBindVertexArray(vao);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::DrawTriangles:
@@ -145,6 +172,9 @@ namespace rev :: gfx
 						indexType = GL_UNSIGNED_INT;
 
 					glDrawElements(GL_TRIANGLES, drawInfo.nIndices, indexType, drawInfo.offset);
+					m_numTriangles += drawInfo.nIndices / 3;
+					m_numBackendCalls++;
+					m_numDraws++;
 					break;
 				}
 				case Command::DrawLines:
@@ -157,16 +187,20 @@ namespace rev :: gfx
 						indexType = GL_UNSIGNED_INT;
 
 					glDrawElements(GL_LINES, drawInfo.nIndices, indexType, drawInfo.offset);
+					m_numBackendCalls++;
+					m_numDraws++;
 					break;
 				}
 				case Command::MemoryBarrier:
 				{
 					glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::SetComputeProgram:
 				{
 					glUseProgram(cmd.payload);
+					m_numBackendCalls++;
 					break;
 				}
 				case Command::DispatchCompute:
@@ -184,5 +218,27 @@ namespace rev :: gfx
 				}
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void RenderQueueOpenGL::drawPerformanceCounters() const
+	{
+		ImGui::Text("Triangles: %d", m_numTriangles);
+		ImGui::Text("Uniforms: %d", m_numUniforms);
+		ImGui::Text("Textures: %d", m_numTextures);
+		ImGui::Text("GL calls: %d", m_numBackendCalls);
+		ImGui::Text("Draws: %d", m_numDraws);
+		ImGui::Text("Pipelines: %d", m_numPipelineChanges);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void RenderQueueOpenGL::resetPerformanceCounters()
+	{
+		m_numTriangles = 0;
+		m_numUniforms = 0;
+		m_numTextures = 0;
+		m_numBackendCalls = 0;
+		m_numDraws = 0;
+		m_numPipelineChanges = 0;
 	}
 }

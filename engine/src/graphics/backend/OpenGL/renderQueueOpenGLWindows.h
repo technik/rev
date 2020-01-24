@@ -37,6 +37,7 @@ namespace rev :: gfx
 
 		void present() override {
 			SwapBuffers(m_drawContext);
+			RenderQueueOpenGL::present();
 		}
 
 	private:
