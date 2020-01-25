@@ -603,6 +603,13 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::deallocateBuffer(Buffer buffer)
+	{
+		GLuint handle = buffer.id();
+		glDeleteBuffers(1, &handle);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void* DeviceOpenGL::mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length)
 	{
 		GLenum glTarget = toGL(usage);
