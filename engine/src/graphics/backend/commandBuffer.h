@@ -35,6 +35,24 @@ namespace rev :: gfx
 	{
 	public:
 
+		struct Metrics
+		{
+			size_t numCommands = 0;
+			size_t numTriangles = 0;
+			size_t numUniforms = 0;
+			size_t numUniformBuckets = 0;
+			size_t numVAO = 0;
+			size_t numIndexBuffers = 0;
+			size_t numDraws = 0;
+			size_t numDispatchs = 0;
+			size_t numPipelineChanges = 0;
+
+			void clear()
+			{
+				*this = Metrics();
+			}
+		};
+
 		// Uniforms
 		struct UniformBucket
 		{
@@ -161,22 +179,34 @@ namespace rev :: gfx
 		{
 			assert(pipeline.isValid());
 			m_commands.push_back({Command::SetPipeline, pipeline.id});
+			m_metrics.numPipelineChanges++;
 		}
+
 		void setUniformData(const UniformBucket& uniformBucket)
 		{
 			m_commands.push_back({Command::SetUniform, (int32_t)m_uniforms.size() });
 			m_uniforms.push_back(uniformBucket);
+			m_metrics.numUniforms += uniformBucket.size();
 		}
+
 		void setVertexData(const unsigned& vao)
 		{
 			m_commands.push_back({Command::SetVtxData, (int32_t)vao});
+			m_metrics.numVAO++;
 		}
+
 		void drawTriangles(int numIndices, IndexType indexType, void* offset)
 		{
 			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
 			m_draws.push_back({numIndices, indexType, offset});
 		}
-		void drawLines(int nVertices, IndexType);
+
+		void drawLines(int nVertices, IndexType indexType)
+		{
+			assert(false && "Not implemented, will always draw 0 lines");
+			m_commands.push_back({ Command::DrawLines, (int32_t)m_draws.size() });
+			m_draws.push_back({ 0, indexType, 0 });
+		}
 
 		void memoryBarrier(MemoryBarrier barrier)
 		{
@@ -197,6 +227,7 @@ namespace rev :: gfx
 
 		// Command buffer lifetime
 		void clear() {
+			m_metrics.clear();
 			m_commands.clear();
 			m_uniforms.clear();
 			m_draws.clear();
@@ -229,7 +260,17 @@ namespace rev :: gfx
 		float getFloat(size_t i) const { return m_clearDepths[i]; }
 		auto& getColor(size_t i) const { return m_clearColors[i]; }
 
+		Metrics metrics() const
+		{
+			Metrics completeMetrics = m_metrics;
+			completeMetrics.numCommands = m_commands.size();
+			completeMetrics.numDraws = m_draws.size();
+			completeMetrics.numDispatchs = m_computes.size();
+			completeMetrics.numUniformBuckets = m_uniforms.size();
+		}
+
 	private:
+		Metrics m_metrics;
 
 		std::vector<math::Vec4f> m_clearColors;
 		std::vector<float> m_clearDepths;
