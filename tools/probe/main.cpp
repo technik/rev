@@ -927,7 +927,7 @@ int main(int _argc, const char** _argv) {
 	}
 
 	// Load source data
-	auto srcImg = rev::gfx::Image::load(params.in, 3);
+	std::shared_ptr<rev::gfx::Image> srcImg = rev::gfx::Image::load(params.in, 3);
 	//auto srcImg = Image::constantImage(360, 180, 0.5f); // Energy conservation test
 
 	if(!srcImg)
