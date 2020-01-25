@@ -654,6 +654,8 @@ namespace rev :: gfx
 		case BufferUpdateFrequency::Streamming:
 			return GL_STREAM_DRAW;
 		}
+		assert(false && "Unsuported update frequency");
+		return GL_STATIC_DRAW;
 	}
 
 	GLenum DeviceOpenGL::toGL(BufferUsageTarget usage)
@@ -669,5 +671,7 @@ namespace rev :: gfx
 		case BufferUsageTarget::ShaderStorage:
 			return GL_SHADER_STORAGE_BUFFER;
 		}
+		assert(false && "Unsuported buffer target");
+		return GL_SHADER_STORAGE_BUFFER;
 	}
 }
