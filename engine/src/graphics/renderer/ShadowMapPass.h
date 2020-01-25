@@ -61,7 +61,7 @@ namespace rev::gfx {
 		void renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst);
 
 	private:
-		//Device&		m_device;
+		Device&		m_device;
 		//RenderPass*	m_pass;
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
@@ -71,6 +71,10 @@ namespace rev::gfx {
 		math::Mat44f		mUnbiasedShadowProj;
 		float mMaxShadowDistance = 100.f;
 		float mBias = 0.001f;
+
+		// GPU data
+		size_t m_gpuMatrixCapacity = 0;
+		Buffer m_gpuMatrixBuffer;
 	};
 
 }

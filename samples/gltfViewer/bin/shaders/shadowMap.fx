@@ -1,12 +1,17 @@
 #ifdef VTX_SHADER
 layout(location = 0) in vec3 vertex;
+
+/*layout(std140, binding = 0) uniform world2ShadowProj
+{
+	mat4 matrix;
+}*/
+
 layout(location = 0) uniform mat4 world2ShadowProj;
 
 //------------------------------------------------------------------------------
 void main ( void )
 {
 	gl_Position = world2ShadowProj * vec4(vertex, 1.0);
-	//gl_Position = vec4(vertex.xy, 0.5, 1.0);
 }
 #endif
 
