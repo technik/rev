@@ -68,6 +68,8 @@ namespace rev :: gfx
 
 		// Buffers
 		Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) override;
+		void* mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length) override;
+		void unmapBuffer(Buffer buffer, BufferUsageTarget usage) override;
 
 	protected:
 
@@ -90,6 +92,8 @@ namespace rev :: gfx
 
 		static GLenum getImageFormat(const Texture2d::Descriptor& descriptor);
 		static GLenum getInternalFormat(const Texture2d::Descriptor&);
+		static GLenum toGL(BufferUpdateFrequency);
+		static GLenum toGL(BufferUsageTarget);
 
 		RenderQueue* m_renderQueue = nullptr;
 		std::vector<TextureSampler::Descriptor> m_textureSamplers;

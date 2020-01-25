@@ -594,41 +594,31 @@ namespace rev :: gfx
 	auto DeviceOpenGL::allocateBuffer(size_t byteSize, BufferUpdateFrequency freq, BufferUsageTarget usage, const void* data) -> Buffer
 	{
 		GLuint glBufferHandle;
-		GLenum glTarget, glFrequency;
-		switch (freq)
-		{
-		case BufferUpdateFrequency::Static:
-			glFrequency = GL_STATIC_DRAW;
-			break;
-		case BufferUpdateFrequency::Dynamic:
-			glFrequency = GL_DYNAMIC_DRAW;
-			break;
-		case BufferUpdateFrequency::Streamming:
-			glFrequency = GL_STREAM_DRAW;
-			break;
-		}
-
-		switch (usage)
-		{
-		case BufferUsageTarget::Vertex:
-			glTarget = GL_ARRAY_BUFFER;
-			break;
-		case BufferUsageTarget::Index:
-			glTarget = GL_ELEMENT_ARRAY_BUFFER;
-			break;
-		case BufferUsageTarget::Uniform:
-			glTarget = GL_UNIFORM_BUFFER;
-			break;
-		case BufferUsageTarget::ShaderStorage:
-			glTarget = GL_SHADER_STORAGE_BUFFER;
-			break;
-		}
-
+		GLenum glTarget = toGL(usage);
 		glGenBuffers(1, &glBufferHandle);
 		glBindBuffer(glTarget, glBufferHandle);
-		glBufferData(glTarget, byteSize, data, glFrequency);
+		glBufferData(glTarget, byteSize, data, toGL(freq));
 		glBindBuffer(glTarget, 0);
 		return Buffer(glBufferHandle);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void* DeviceOpenGL::mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length)
+	{
+		GLenum glTarget = toGL(usage);
+		glBindBuffer(glTarget, buffer.id());
+		void* clientSideMemory = glMapBufferRange(glTarget, (GLintptr)offset, (GLsizeiptr)length, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT);
+		glBindBuffer(glTarget, 0);
+		return clientSideMemory;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::unmapBuffer(Buffer buffer, BufferUsageTarget usage)
+	{
+		GLenum glTarget = toGL(usage);
+		glBindBuffer(glTarget, buffer.id());
+		glUnmapBuffer(glTarget);
+		glBindBuffer(glTarget, 0);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -651,5 +641,33 @@ namespace rev :: gfx
 		m_deviceLimits.computeWorkGroupSize.z() = groupCount[2];
 
 		glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &m_deviceLimits.computeWorkGruopTotalInvokes);
+	}
+
+	GLenum DeviceOpenGL::toGL(BufferUpdateFrequency freq)
+	{
+		switch (freq)
+		{
+		case BufferUpdateFrequency::Static:
+			return GL_STATIC_DRAW;
+		case BufferUpdateFrequency::Dynamic:
+			return GL_DYNAMIC_DRAW;
+		case BufferUpdateFrequency::Streamming:
+			return GL_STREAM_DRAW;
+		}
+	}
+
+	GLenum DeviceOpenGL::toGL(BufferUsageTarget usage)
+	{
+		switch (usage)
+		{
+		case BufferUsageTarget::Vertex:
+			return GL_ARRAY_BUFFER;
+		case BufferUsageTarget::Index:
+			return GL_ELEMENT_ARRAY_BUFFER;
+		case BufferUsageTarget::Uniform:
+			return GL_UNIFORM_BUFFER;
+		case BufferUsageTarget::ShaderStorage:
+			return GL_SHADER_STORAGE_BUFFER;
+		}
 	}
 }
