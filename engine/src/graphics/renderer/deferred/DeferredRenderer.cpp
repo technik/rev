@@ -256,10 +256,17 @@ namespace rev::gfx {
 				},
 				[&](const Texture2d*, size_t, CommandBuffer& dst)
 				{
+					auto prevMetrics = dst.metrics();
 					dst.clearDepth(0.f);
 					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
 					m_shadowPass->render(m_renderQueue, m_visibleVolume, eye, light, dst);
+					
+					// Debug metrics
+					if (ImGui::CollapsingHeader("Shadow pass metrics:"))
+					{
+						(dst.metrics() - prevMetrics).draw();
+					}
 				});
 		}
 
@@ -376,6 +383,9 @@ namespace rev::gfx {
 		frameGraph.evaluate(frameCommands);
 		// Submit
 		m_device->renderQueue().submitCommandBuffer(frameCommands);
+
+		ImGui::Separator();
+		ImGui::Text("Global performance counters");
 		m_device->renderQueue().drawPerformanceCounters();
 
 		ImGui::End();

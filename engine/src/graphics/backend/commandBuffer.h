@@ -28,6 +28,7 @@
 #include "pipeline.h"
 #include "device.h"
 #include "../shaders/computeShader.h"
+#include <graphics/debug/imgui.h>
 
 namespace rev :: gfx
 {
@@ -42,7 +43,6 @@ namespace rev :: gfx
 			size_t numUniforms = 0;
 			size_t numUniformBuckets = 0;
 			size_t numVAO = 0;
-			size_t numIndexBuffers = 0;
 			size_t numDraws = 0;
 			size_t numDispatchs = 0;
 			size_t numPipelineChanges = 0;
@@ -50,6 +50,32 @@ namespace rev :: gfx
 			void clear()
 			{
 				*this = Metrics();
+			}
+
+			void draw() const
+			{
+				ImGui::Text("Commands: %d", numCommands);
+				ImGui::Text("Triangles: %d", numTriangles);
+				ImGui::Text("Uniforms: %d", numUniforms);
+				ImGui::Text("Uniform Buckets: %d", numUniformBuckets);
+				ImGui::Text("VAOs: %d", numVAO);
+				ImGui::Text("Draws: %d", numDraws);
+				ImGui::Text("Dispatchs: %d", numDispatchs);
+				ImGui::Text("Pipelines: %d", numPipelineChanges);
+			}
+
+			Metrics operator-(const Metrics& other) const
+			{
+				Metrics res = *this;
+				res.numCommands -= other.numCommands;
+				res.numTriangles -=other.numTriangles;
+				res.numUniforms -=other.numUniforms;
+				res.numUniformBuckets -=other.numUniformBuckets;
+				res.numVAO -=other.numVAO;
+				res.numDraws -=other.numDraws;
+				res.numDispatchs -=other.numDispatchs;
+				res.numPipelineChanges -=other.numPipelineChanges;
+				return res;
 			}
 		};
 
@@ -199,6 +225,7 @@ namespace rev :: gfx
 		{
 			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
 			m_draws.push_back({numIndices, indexType, offset});
+			m_metrics.numTriangles += numIndices / 3;
 		}
 
 		void drawLines(int nVertices, IndexType indexType)
@@ -267,6 +294,7 @@ namespace rev :: gfx
 			completeMetrics.numDraws = m_draws.size();
 			completeMetrics.numDispatchs = m_computes.size();
 			completeMetrics.numUniformBuckets = m_uniforms.size();
+			return completeMetrics;
 		}
 
 	private:
