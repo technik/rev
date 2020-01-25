@@ -69,6 +69,7 @@ namespace rev::gfx {
 
 		math::Mat44f		mShadowProj;
 		math::Mat44f		mUnbiasedShadowProj;
+		float mMaxShadowDistance = 100.f;
 		float mBias = 0.001f;
 	};
 

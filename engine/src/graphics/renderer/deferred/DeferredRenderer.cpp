@@ -94,6 +94,7 @@ namespace rev::gfx {
 
 		// Cull visible objects renderQ -> visible
 		collapseSceneRenderables(scene, eye);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
+		ImGui::Text("Visible: %d", m_visibleQueue.size());
 		sortVisibleQueue();
 
 		// Classify visible objects into separate render queues

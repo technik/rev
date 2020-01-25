@@ -33,7 +33,11 @@ namespace rev::math
 		using Vector = Vec3f;
 
 		// Constructors
-		AABB() = default;
+		AABB()
+			: mMin(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity())
+			, mMax(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity())
+		{}
+
 		template<class A, class B>
 		AABB(const VectorExpr<float,3,A>& _min, const VectorExpr<float, 3, B>& _max)
 			: mMin(_min), mMax(_max)
