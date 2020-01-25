@@ -591,6 +591,47 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	auto DeviceOpenGL::allocateBuffer(size_t byteSize, BufferUpdateFrequency freq, BufferUsageTarget usage, const void* data) -> Buffer
+	{
+		GLuint glBufferHandle;
+		GLenum glTarget, glFrequency;
+		switch (freq)
+		{
+		case BufferUpdateFrequency::Static:
+			glFrequency = GL_STATIC_DRAW;
+			break;
+		case BufferUpdateFrequency::Dynamic:
+			glFrequency = GL_DYNAMIC_DRAW;
+			break;
+		case BufferUpdateFrequency::Streamming:
+			glFrequency = GL_STREAM_DRAW;
+			break;
+		}
+
+		switch (usage)
+		{
+		case BufferUsageTarget::Vertex:
+			glTarget = GL_ARRAY_BUFFER;
+			break;
+		case BufferUsageTarget::Index:
+			glTarget = GL_ELEMENT_ARRAY_BUFFER;
+			break;
+		case BufferUsageTarget::Uniform:
+			glTarget = GL_UNIFORM_BUFFER;
+			break;
+		case BufferUsageTarget::ShaderStorage:
+			glTarget = GL_SHADER_STORAGE_BUFFER;
+			break;
+		}
+
+		glGenBuffers(1, &glBufferHandle);
+		glBindBuffer(glTarget, glBufferHandle);
+		glBufferData(glTarget, byteSize, data, glFrequency);
+		glBindBuffer(glTarget, 0);
+		return Buffer(glBufferHandle);
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void DeviceOpenGL::readDeviceLimits()
 	{
 		// Read compute shader limits

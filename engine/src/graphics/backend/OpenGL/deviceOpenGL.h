@@ -67,35 +67,9 @@ namespace rev :: gfx
 		void bindPipeline(int32_t pipelineId);
 
 		// Buffers
-		Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) override
-		{
-			Buffer buffer = allocateStaticBuffer(GL_ARRAY_BUFFER, byteSize, data);
-			return buffer;
-		}
-
-		Buffer allocateIndexBuffer(size_t byteSize, const void* data) override
-		{
-			Buffer buffer = allocateStaticBuffer(GL_ELEMENT_ARRAY_BUFFER, byteSize, data);
-			return buffer;
-		}
-
-		Buffer allocateStorageBuffer(size_t byteSize, const void* data) override
-		{
-			Buffer buffer = allocateStaticBuffer(GL_SHADER_STORAGE_BUFFER, byteSize, data);
-			return buffer;
-		}
+		Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) override;
 
 	protected:
-
-		GLuint allocateStaticBuffer(GLenum target, size_t byteSize, const void* data)
-		{
-			GLuint vbo;
-			glGenBuffers(1,&vbo);
-			glBindBuffer(target, vbo);
-			glBufferData(target, byteSize, data, GL_STATIC_DRAW);
-			glBindBuffer(target, 0);
-			return vbo;
-		}
 
 		struct PipelineInfo
 		{

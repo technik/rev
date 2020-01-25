@@ -102,7 +102,11 @@ namespace vkft
 		}
 
 		// Send tree to the gpu
-		m_gpuBuffer = m_gpu.allocateStorageBuffer(sizeof(int32_t)*nodes.size(), nodes.data());
+		m_gpuBuffer = m_gpu.allocateBuffer(
+			sizeof(int32_t)*nodes.size(),
+			rev::gfx::Device::BufferUpdateFrequency::Static,
+			rev::gfx::Device::BufferUsageTarget::ShaderStorage,
+			nodes.data());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -261,8 +261,14 @@ namespace rev { namespace game {
 			auto& attribute = _attributes[posIt->second];
 			auto& bv = *attribute.bufferView;
 		
-			if(!bv.vbo.isValid())
-				bv.vbo = device.allocateStaticVtxBuffer(bv.byteLength, bv.data);
+			if (!bv.vbo.isValid())
+			{
+				bv.vbo = device.allocateBuffer(
+					bv.byteLength,
+					Device::BufferUpdateFrequency::Static,
+					Device::BufferUsageTarget::Vertex,
+					bv.data);
+			}
 
 			return &attribute;
 		}
@@ -357,7 +363,11 @@ namespace rev { namespace game {
 		}
 
 		// TODO: Allocate buffer in graphics driver
-		tanBv.vbo = device.allocateStaticVtxBuffer(tanBv.byteLength, tanBv.data);
+		tanBv.vbo = device.allocateBuffer(
+			tanBv.byteLength,
+			Device::BufferUpdateFrequency::Static,
+			Device::BufferUsageTarget::Vertex,
+			tanBv.data);
 		delete[] reinterpret_cast<const Vec4f*>(tanBv.data);
 		delete[] indexData;
 		tanBv.data = nullptr;
@@ -381,7 +391,11 @@ namespace rev { namespace game {
 		if(!indices->bufferView->vbo.isValid())
 		{
 			auto& bv = *indices->bufferView;
-			indices->bufferView->vbo = device.allocateIndexBuffer(bv.byteLength, bv.data);
+			indices->bufferView->vbo = device.allocateBuffer(
+				bv.byteLength,
+				Device::BufferUpdateFrequency::Static,
+				Device::BufferUsageTarget::Index,
+				bv.data);
 		}
 
 		// Read primitive attributes

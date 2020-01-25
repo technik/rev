@@ -68,9 +68,22 @@ namespace rev :: gfx
 		virtual void destroyComputeShader(const ComputeShader& shader) = 0;
 
 		// Buffers
-		virtual Buffer allocateStaticVtxBuffer(size_t byteSize, const void* data) = 0;
-		virtual Buffer allocateIndexBuffer(size_t byteSize, const void* data) = 0;
-		virtual Buffer allocateStorageBuffer(size_t byteSize, const void* data) = 0;
+		enum class BufferUpdateFrequency
+		{
+			Static,
+			Dynamic,
+			Streamming
+		};
+
+		enum class BufferUsageTarget
+		{
+			Vertex,
+			Index,
+			Uniform,
+			ShaderStorage
+		};
+
+		virtual Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) = 0;
 
 		// Retrieve device info
 		struct Limits
