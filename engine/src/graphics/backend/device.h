@@ -83,6 +83,15 @@ namespace rev :: gfx
 			ShaderStorage
 		};
 
+		// Type safe buffer allocation
+		template<class T>
+		Buffer allocateTypedBuffer(size_t count, BufferUpdateFrequency freq, BufferUsageTarget target, const T* data = nullptr)
+		{
+			return allocateBuffer(
+				count * sizeof(T),
+				freq, target,
+				data);
+		}
 		virtual Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) = 0;
 		virtual void deallocateBuffer(Buffer) = 0;
 		virtual void* mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length) = 0;
