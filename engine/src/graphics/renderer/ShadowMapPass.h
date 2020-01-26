@@ -76,9 +76,13 @@ namespace rev::gfx {
 		float mMaxShadowDistance = 100.f;
 		float mBias = 0.001f;
 
+		// Draw batches
+		std::vector<CommandBuffer::BatchCommand> m_batches;
+
 		// GPU data
 		size_t m_gpuMatrixCapacity = 0;
 		Buffer m_gpuMatrixBuffer;
+		Buffer m_gpuBatchCommands;
 	};
 
 }

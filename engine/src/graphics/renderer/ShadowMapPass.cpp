@@ -155,6 +155,24 @@ namespace rev::gfx {
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
 
+		// Build batched command lists
+		/*m_batches.clear();
+		for (size_t baseInstance = 0; baseInstance < renderables.size();)
+		{
+			m_batches.resize(m_batches.size());
+			CommandBuffer::BatchCommand& batch = m_batches.back();
+			lastGeom = renderables[baseInstance].geom;
+			batch.baseInstance = baseInstance;
+			batch.firstIndex = (uint32_t)lastGeom->indices().offset;
+			batch.count = lastGeom->indices().count;
+			for (size_t instance = baseInstance; renderables[instance].geom == lastGeom; instance++)
+			{
+				batch.instanceCount++;
+			}
+			baseInstance += batch.instanceCount;
+		}*/
+		// TODO: Resubmit data
+
 		size_t baseInstance = 0;
 		for(auto& mesh : renderables)
 		{

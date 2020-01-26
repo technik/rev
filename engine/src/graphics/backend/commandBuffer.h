@@ -125,11 +125,11 @@ namespace rev :: gfx
 
 		struct BatchCommand
 		{
-			uint32_t count;
-			uint32_t instanceCount;
-			uint32_t firstIndex;
-			uint32_t baseVertex;
-			uint32_t baseInstance;
+			uint32_t count = 0;
+			uint32_t instanceCount = 0;
+			uint32_t firstIndex = 0;
+			uint32_t baseVertex = 0;
+			uint32_t baseInstance = 0;
 		};
 
 		// Commands
