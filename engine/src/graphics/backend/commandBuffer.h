@@ -141,7 +141,8 @@ namespace rev :: gfx
 				DrawLines,
 				MemoryBarrier,
 				DispatchCompute,
-				SetComputeProgram
+				SetComputeProgram,
+				StreamWrite,
 			};
 
 			Opcode command;

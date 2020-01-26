@@ -135,8 +135,14 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst)
 	{
-		// Reserve CPU and GPU memory
+		// Reserve GPU memory
 		reserveMatrixBuffer(renderables.size());
+		// Map GPU buffer to memory
+		Mat44f* mappedMatrixBuffer = m_device.mapTypedBuffer<Mat44f>(
+			m_gpuMatrixBuffer,
+			Device::BufferUsageTarget::ShaderStorage,
+			0,
+			renderables.size());
 
 		// Init reusable data
 		auto worldMatrix = Mat44f::identity();
@@ -149,7 +155,7 @@ namespace rev::gfx {
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
 
-		float baseInstance = 0;
+		size_t baseInstance = 0;
 		for(auto& mesh : renderables)
 		{
 			// Raster options
@@ -160,9 +166,7 @@ namespace rev::gfx {
 			instance.uniforms.clear();
 			instance.uniforms.addParam(1, float(baseInstance++));
 			Mat44f wvp = mShadowProj* mesh.world;
-			m_hostMatrixBuffer.push_back(wvp.transpose());
-			//gpuMatrixData[uniformIndex++] = wvp;
-			instance.uniforms.mat4s.push_back({0, wvp});
+			mappedMatrixBuffer[baseInstance] = wvp.transpose();
 			// Geometry
 			if(lastGeom != mesh.geom)
 			{
@@ -172,16 +176,17 @@ namespace rev::gfx {
 			renderList.push_back(instance);
 		}
 
+		m_device.unmapBuffer(m_gpuMatrixBuffer, Device::BufferUsageTarget::ShaderStorage);
+
 		// Record commands
+		dst.setUniformData(m_passWideSSBOs); // Bind SSBO for the whole pass
+		dst.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
 		m_geomPass.render(geometry, renderList, dst);
 	}
-	//----------------------------------------------------------------------------------------------
 
+	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::reserveMatrixBuffer(size_t numObjects)
 	{
-		// Reserve CPU memory
-		m_hostMatrixBuffer.reserve(numObjects);
-
 		// Reserve GPU memory
 		if (m_gpuMatrixCapacity < numObjects)
 		{
@@ -194,6 +199,10 @@ namespace rev::gfx {
 				numObjects,
 				Device::BufferUpdateFrequency::Streamming,
 				Device::BufferUsageTarget::ShaderStorage);
+
+			// Recreate pass wide SSBO uniform bucket
+			m_passWideSSBOs.clear();
+			m_passWideSSBOs.addParam(0, m_gpuMatrixBuffer);
 		}
 	}
 

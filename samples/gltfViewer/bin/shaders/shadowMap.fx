@@ -4,15 +4,16 @@ layout(location = 0) in vec3 vertex;
 layout(std140, binding = 0) buffer world2ShadowProjSSBO
 {
 	mat4 matrixSSBO[];
-}
+};
 
-layout(location = 0) uniform mat4 world2ShadowProj;
+//layout(location = 0) uniform mat4 world2ShadowProj;
 layout(location = 1) uniform float uBaseInstance;
 
 //------------------------------------------------------------------------------
 void main ( void )
 {
-	gl_Position = world2ShadowProj * vec4(vertex, 1.0);
+	int instanceId = int(uBaseInstance);
+	gl_Position = matrixSSBO[instanceId] * vec4(vertex, 1.0);
 }
 #endif
 

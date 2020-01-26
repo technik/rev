@@ -69,6 +69,7 @@ namespace rev::gfx {
 		Pipeline::RasterOptions m_rasterOptions;
 		GeometryPass m_geomPass;
 		std::vector<RenderItem> m_visibleCasters;
+		CommandBuffer::UniformBucket m_passWideSSBOs;
 
 		math::Mat44f		mShadowProj;
 		math::Mat44f		mUnbiasedShadowProj;
@@ -76,7 +77,6 @@ namespace rev::gfx {
 		float mBias = 0.001f;
 
 		// GPU data
-		std::vector<math::Mat44f> m_hostMatrixBuffer;
 		size_t m_gpuMatrixCapacity = 0;
 		Buffer m_gpuMatrixBuffer;
 	};

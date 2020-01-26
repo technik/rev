@@ -94,6 +94,11 @@ namespace rev :: gfx
 		}
 		virtual Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) = 0;
 		virtual void deallocateBuffer(Buffer) = 0;
+		template<class T>
+		T* mapTypedBuffer(Buffer gpuBuffer, BufferUsageTarget usage, size_t byteOffset, size_t count)
+		{
+			return (T*)mapBuffer(gpuBuffer, usage, byteOffset, count * sizeof(T));
+		}
 		virtual void* mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length) = 0;
 		virtual void unmapBuffer(Buffer buffer, BufferUsageTarget usage) = 0;
 
