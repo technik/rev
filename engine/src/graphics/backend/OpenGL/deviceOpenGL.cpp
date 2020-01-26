@@ -610,6 +610,21 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
+	void DeviceOpenGL::resubmitBufferData(
+		Buffer handle,
+		size_t byteSize,
+		BufferUpdateFrequency freq,
+		BufferUsageTarget usage,
+		const void* data)
+	{
+		GLenum glTarget = toGL(usage);
+		glBindBuffer(glTarget, handle.id());
+		glBufferData(glTarget, byteSize, nullptr, toGL(freq)); // Invalidate previous content
+		glBufferData(glTarget, byteSize, data, toGL(freq)); // Submit new data
+		glBindBuffer(glTarget, 0); // Unbind
+	}
+
+	//----------------------------------------------------------------------------------------------
 	void* DeviceOpenGL::mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length)
 	{
 		GLenum glTarget = toGL(usage);

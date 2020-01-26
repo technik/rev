@@ -123,6 +123,15 @@ namespace rev :: gfx
 			size_t addComputeOutput(int pos, Texture2d x) { computeOut.push_back({pos, x}); return computeOut.size() -1; }
 		};
 
+		struct BatchCommand
+		{
+			uint32_t count;
+			uint32_t instanceCount;
+			uint32_t firstIndex;
+			uint32_t baseVertex;
+			uint32_t baseInstance;
+		};
+
 		// Commands
 		struct Command
 		{
@@ -137,6 +146,7 @@ namespace rev :: gfx
 				SetPipeline,
 				SetUniform,
 				SetVtxData,
+				DrawBatches,
 				DrawTriangles,
 				DrawLines,
 				MemoryBarrier,
@@ -222,6 +232,13 @@ namespace rev :: gfx
 			m_metrics.numVAO++;
 		}
 
+		void drawTrianglesBatch(uint32_t numBatches, IndexType indexType, Buffer commandBuffer)
+		{
+			m_commands.push_back({ Command::DrawBatches, (int32_t)m_draws.size() });
+			m_batches.push_back({ numBatches, indexType, commandBuffer });
+			m_metrics.numDraws++;
+		}
+
 		void drawTriangles(int numIndices, IndexType indexType, void* offset)
 		{
 			m_commands.push_back({Command::DrawTriangles, (int32_t)m_draws.size() });
@@ -274,6 +291,13 @@ namespace rev :: gfx
 			math::Vec3i groupSize;
 		};
 
+		struct BatchPayload
+		{
+			uint32_t numBatches;
+			IndexType indexType;
+			Buffer batchBuffer;
+		};
+
 		struct WindowRect
 		{
 			math::Vec2u pos, size;
@@ -287,6 +311,7 @@ namespace rev :: gfx
 		const ComputePayload& getCompute(size_t i) const { return m_computes[i]; }
 		float getFloat(size_t i) const { return m_clearDepths[i]; }
 		auto& getColor(size_t i) const { return m_clearColors[i]; }
+		auto& getBatch(size_t i) const { return m_batches[i]; }
 
 		Metrics metrics() const
 		{
@@ -308,5 +333,6 @@ namespace rev :: gfx
 		std::vector<DrawPayload> m_draws;
 		std::vector<WindowRect> m_rect;
 		std::vector<ComputePayload> m_computes;
+		std::vector<BatchPayload> m_batches;
 	};
 }

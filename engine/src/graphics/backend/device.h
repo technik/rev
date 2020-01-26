@@ -92,6 +92,12 @@ namespace rev :: gfx
 				freq, target,
 				data);
 		}
+		template<class T>
+		void resubmitTypedBufferData(Buffer handle, size_t count, BufferUpdateFrequency freq, BufferUsageTarget target, const T* data)
+		{
+			resubmitBufferData(handle, count * sizeof(T), freq, target, data);
+		}
+		virtual void resubmitBufferData(Buffer handle, size_t byteSize, BufferUpdateFrequency freq, BufferUsageTarget target, const void* data) = 0;
 		virtual Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) = 0;
 		virtual void deallocateBuffer(Buffer) = 0;
 		template<class T>

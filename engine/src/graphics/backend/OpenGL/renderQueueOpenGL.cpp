@@ -177,6 +177,20 @@ namespace rev :: gfx
 					m_numDraws++;
 					break;
 				}
+				case Command::DrawBatches:
+				{
+					auto& batchInfo = cmdBuffer.getBatch(cmd.payload);
+					GLenum indexType = GL_UNSIGNED_SHORT;
+					if (batchInfo.indexType == CommandBuffer::IndexType::U8)
+						indexType = GL_UNSIGNED_BYTE;
+					if (batchInfo.indexType == CommandBuffer::IndexType::U32)
+						indexType = GL_UNSIGNED_INT;
+					glBindBuffer(GL_DRAW_INDIRECT_BUFFER, batchInfo.batchBuffer.id());
+					glMultiDrawElementsIndirect(GL_TRIANGLES, indexType, 0, batchInfo.numBatches, 0);
+					m_numBackendCalls+=2;
+					m_numDraws++;
+					break;
+				}
 				case Command::DrawLines:
 				{
 					auto& drawInfo = cmdBuffer.getDraw(cmd.payload);

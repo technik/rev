@@ -69,6 +69,7 @@ namespace rev :: gfx
 		// Buffers
 		Buffer allocateBuffer(size_t byteSize, BufferUpdateFrequency, BufferUsageTarget, const void* data = nullptr) override;
 		void deallocateBuffer(Buffer) override;
+		void resubmitBufferData(Buffer handle, size_t byteSize, BufferUpdateFrequency freq, BufferUsageTarget target, const void* data) override;
 		void* mapBuffer(Buffer buffer, BufferUsageTarget usage, size_t offset, size_t length) override;
 		void unmapBuffer(Buffer buffer, BufferUsageTarget usage) override;
 
