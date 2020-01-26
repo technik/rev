@@ -78,12 +78,13 @@ namespace rev::gfx {
 		CommandBuffer::UniformBucket sharedUniforms;
 		sharedUniforms.addParam(29, m_depthTexture);
 		// Render shadows (casters, receivers)
+		auto aspectRatio = float(m_targetSize.x()) / m_targetSize.y();
 		bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
 		if(useShadows)
 		{
 			// TODO: Fix visible receiver's AABB
 			math::AABB visibleReceiversVolume;
-			mShadowPass->render(m_visible, visibleReceiversVolume, eye, *scene.lights()[0], frameCommands);
+			mShadowPass->render(m_visible, visibleReceiversVolume, aspectRatio, eye, *scene.lights()[0], frameCommands);
 			math::Mat44f shadowProj = mShadowPass->shadowProj();
 			sharedUniforms.addParam(2, shadowProj);
 			sharedUniforms.addParam(9, m_shadowsTexture);
@@ -100,7 +101,6 @@ namespace rev::gfx {
 		if(env)
 		{
 			// Uniforms
-			auto aspectRatio = float(m_targetSize.x())/m_targetSize.y();
 			CommandBuffer::UniformBucket bgUniforms;
 			bgUniforms.mat4s.push_back({0, eye.viewProj(aspectRatio) });
 			bgUniforms.vec4s.push_back({1, math::Vec4f(float(m_targetSize.x()), float(m_targetSize.y()), 0.f, 0.f) });

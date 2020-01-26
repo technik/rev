@@ -261,7 +261,7 @@ namespace rev::gfx {
 					dst.clearDepth(0.f);
 					dst.clear(Clear::Depth);
 					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_visibleVolume, eye, light, dst);
+					m_shadowPass->render(m_renderQueue, m_visibleVolume, aspectRatio, eye, light, dst);
 					
 					// Debug metrics
 					if (ImGui::CollapsingHeader("Shadow pass metrics:"))
@@ -398,8 +398,8 @@ namespace rev::gfx {
 		// Skip it for now
 		m_fbCache->deallocateResources();
 		m_viewportSize = _newSize;
-		m_shadowSize.x() = std::min(2048u, _newSize.y() * 4);
-		m_shadowSize.y() - m_shadowSize.x();
+		m_shadowSize.x() = std::min(2048u, _newSize.y() * 2);
+		m_shadowSize.y() = m_shadowSize.x();
 	}
 
 	//----------------------------------------------------------------------------------------------

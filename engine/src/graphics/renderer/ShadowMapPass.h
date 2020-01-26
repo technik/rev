@@ -39,6 +39,7 @@ namespace rev::gfx {
 	{
 	public:
 		ShadowMapPass(Device& device, const math::Vec2u& _size);
+		~ShadowMapPass();
 
 		//static Texture2d createShadowMapTexture(Device& device, const math::Vec2u& size);
 		//static FrameBuffer createShadowBuffer(Device& device, Texture2d texture);
@@ -48,6 +49,7 @@ namespace rev::gfx {
 		void render(
 			const std::vector<RenderItem>& shadowCasters,
 			const math::AABB& shadowReceiversViewSpaceBBox,
+			float aspectRatio,
 			const Camera& view,
 			const Light& light,
 			CommandBuffer& dst);
@@ -59,6 +61,7 @@ namespace rev::gfx {
 
 		void adjustViewMatrix(const math::Mat44f& shadowView, const math::AABB& castersBBox);
 		void renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst);
+		void reserveMatrixBuffer(size_t numObjects);
 
 	private:
 		Device&		m_device;
@@ -73,6 +76,7 @@ namespace rev::gfx {
 		float mBias = 0.001f;
 
 		// GPU data
+		std::vector<math::Mat44f> m_hostMatrixBuffer;
 		size_t m_gpuMatrixCapacity = 0;
 		Buffer m_gpuMatrixBuffer;
 	};

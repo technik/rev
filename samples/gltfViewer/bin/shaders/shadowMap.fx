@@ -1,12 +1,13 @@
 #ifdef VTX_SHADER
 layout(location = 0) in vec3 vertex;
 
-/*layout(std140, binding = 0) uniform world2ShadowProj
+layout(std140, binding = 0) buffer world2ShadowProjSSBO
 {
-	mat4 matrix;
-}*/
+	mat4 matrixSSBO[];
+}
 
 layout(location = 0) uniform mat4 world2ShadowProj;
+layout(location = 1) uniform float uBaseInstance;
 
 //------------------------------------------------------------------------------
 void main ( void )

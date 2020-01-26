@@ -50,45 +50,25 @@ namespace rev::gfx {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	/*Texture2d ShadowMapPass::createShadowMapTexture(Device& device, const math::Vec2u& size)
+	ShadowMapPass::~ShadowMapPass()
 	{
-		auto shadowSamplerDesc = TextureSampler::Descriptor();
-		shadowSamplerDesc.wrapS = TextureSampler::Wrap::Clamp;
-		shadowSamplerDesc.wrapT = TextureSampler::Wrap::Clamp;
-		shadowSamplerDesc.filter = TextureSampler::MinFilter::Linear;
-		auto shadowSampler = device.createTextureSampler(shadowSamplerDesc);
-		auto shadowDesc = Texture2d::Descriptor();
-		shadowDesc.pixelFormat.channel = Image::ChannelFormat::Float32;
-		shadowDesc.pixelFormat.numChannels = 1;
-		shadowDesc.depth = true;
-		shadowDesc.sampler = shadowSampler;
-		shadowDesc.mipLevels = 1;
-		shadowDesc.size = size;
-
-		return device.createTexture2d(shadowDesc);
+		if (m_gpuMatrixBuffer.isValid())
+		{
+			m_device.deallocateBuffer(m_gpuMatrixBuffer);
+		}
 	}
-
-	//----------------------------------------------------------------------------------------------
-	FrameBuffer ShadowMapPass::createShadowBuffer(Device& device, Texture2d texture)
-	{
-		FrameBuffer::Attachment depthAttachment;
-		depthAttachment.target = FrameBuffer::Attachment::Target::Depth;
-		depthAttachment.imageType = FrameBuffer::Attachment::ImageType::Texture;
-		depthAttachment.texture = texture;
-		FrameBuffer::Descriptor shadowBufferDesc(1, &depthAttachment);
-		return device.createFrameBuffer(shadowBufferDesc);
-	}*/
 
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::render(
 		const std::vector<gfx::RenderItem>& shadowCasters,
 		const math::AABB& shadowReceiversViewSpaceBBox,
+		float aspectRatio,
 		const Camera& view,
 		const Light& light,
 		CommandBuffer& dst)
 	{
 		// Limit shadow draw distance
-		Frustum vsShadowedVisibleVolume = Frustum(2.f, view.fov(), view.near(), mMaxShadowDistance);
+		Frustum vsShadowedVisibleVolume = Frustum(aspectRatio, view.fov(), view.near(), mMaxShadowDistance);
 		AABB viewSpaceAABB = vsShadowedVisibleVolume.boundingBox().intersection(shadowReceiversViewSpaceBBox);
 
 		// Transform receiver volume into shadow space
@@ -155,8 +135,11 @@ namespace rev::gfx {
 	//----------------------------------------------------------------------------------------------
 	void ShadowMapPass::renderMeshes(const std::vector<gfx::RenderItem>& renderables, CommandBuffer& dst)
 	{
-		auto worldMatrix = Mat44f::identity();
+		// Reserve CPU and GPU memory
+		reserveMatrixBuffer(renderables.size());
 
+		// Init reusable data
+		auto worldMatrix = Mat44f::identity();
 		GeometryPass::Instance instance;
 		instance.geometryIndex = uint32_t(-1);
 		instance.instanceCode = nullptr;
@@ -166,6 +149,7 @@ namespace rev::gfx {
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
 
+		float baseInstance = 0;
 		for(auto& mesh : renderables)
 		{
 			// Raster options
@@ -174,7 +158,9 @@ namespace rev::gfx {
 			instance.raster = m_rasterOptions.mask();
 			// Uniforms
 			instance.uniforms.clear();
+			instance.uniforms.addParam(1, float(baseInstance++));
 			Mat44f wvp = mShadowProj* mesh.world;
+			m_hostMatrixBuffer.push_back(wvp.transpose());
 			//gpuMatrixData[uniformIndex++] = wvp;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
@@ -188,6 +174,27 @@ namespace rev::gfx {
 
 		// Record commands
 		m_geomPass.render(geometry, renderList, dst);
+	}
+	//----------------------------------------------------------------------------------------------
+
+	void ShadowMapPass::reserveMatrixBuffer(size_t numObjects)
+	{
+		// Reserve CPU memory
+		m_hostMatrixBuffer.reserve(numObjects);
+
+		// Reserve GPU memory
+		if (m_gpuMatrixCapacity < numObjects)
+		{
+			if (m_gpuMatrixBuffer.isValid())
+			{
+				m_device.deallocateBuffer(m_gpuMatrixBuffer);
+			}
+			m_gpuMatrixCapacity = numObjects;
+			m_gpuMatrixBuffer = m_device.allocateTypedBuffer<Mat44f>(
+				numObjects,
+				Device::BufferUpdateFrequency::Streamming,
+				Device::BufferUsageTarget::ShaderStorage);
+		}
 	}
 
 }
