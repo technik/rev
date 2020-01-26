@@ -126,7 +126,14 @@ namespace rev::gfx {
 		adjustViewMatrix(shadowView, castersBBox);// Adjust view matrix
 
 		// Render
-		//dst.beginPass(*m_pass);
+		std::sort(m_visibleCasters.begin(), m_visibleCasters.end(), [](const gfx::RenderItem& a, const gfx::RenderItem& b){
+			if (a.material->AlphaMask == b.material->AlphaMask)
+			{
+				a.geom < b.geom;
+			}
+			else return a.material < b.material;
+			});
+		// Sort meshes to reduce API calls
 		renderMeshes(m_visibleCasters, dst); // Iterate over renderables
 	}
 
@@ -159,23 +166,6 @@ namespace rev::gfx {
 		std::vector<const RenderGeom*> geometry;
 		const RenderGeom* lastGeom = nullptr;
 
-		// Reserve GPU space for the matrix buffer
-		if (m_gpuMatrixCapacity < renderables.size())
-		{
-			if (m_gpuMatrixBuffer.isValid())
-				m_device.deallocateBuffer(m_gpuMatrixBuffer);
-
-			m_gpuMatrixCapacity = renderables.size();
-			m_gpuMatrixBuffer = m_device.allocateBuffer(
-				m_gpuMatrixCapacity * sizeof(Mat44f),
-				Device::BufferUpdateFrequency::Streamming,
-				Device::BufferUsageTarget::Uniform);
-		}
-
-		// Map gpu buffer
-		auto gpuMatrixData = reinterpret_cast<Mat44f*>(m_device.mapBuffer(m_gpuMatrixBuffer, Device::BufferUsageTarget::Uniform, 0, m_gpuMatrixCapacity));
-		size_t uniformIndex = 0;
-
 		for(auto& mesh : renderables)
 		{
 			// Raster options
@@ -185,7 +175,7 @@ namespace rev::gfx {
 			// Uniforms
 			instance.uniforms.clear();
 			Mat44f wvp = mShadowProj* mesh.world;
-			gpuMatrixData[uniformIndex++] = wvp;
+			//gpuMatrixData[uniformIndex++] = wvp;
 			instance.uniforms.mat4s.push_back({0, wvp});
 			// Geometry
 			if(lastGeom != mesh.geom)
@@ -195,8 +185,6 @@ namespace rev::gfx {
 			}
 			renderList.push_back(instance);
 		}
-
-		m_device.unmapBuffer(m_gpuMatrixBuffer, Device::BufferUsageTarget::Uniform);
 
 		// Record commands
 		m_geomPass.render(geometry, renderList, dst);
