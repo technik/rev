@@ -59,7 +59,6 @@ int main(int _argc, const char** _argv) {
 
 	// Init graphics
 	auto gfxDevice = DeviceOpenGLWindows(wnd, true);
-	auto& renderQueue = gfxDevice.renderQueue();
 
 	// Init renderer
 	vkft::gfx::Renderer renderer(gfxDevice, windowSize);

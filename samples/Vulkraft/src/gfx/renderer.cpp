@@ -86,6 +86,8 @@ namespace vkft::gfx
         //   that can be done on deferred.
         // - Indirect lighting would use raytraced geometry and discard things like normal mapping. Also simplified
         //   shading, and probably increased roughness. Could even use environment probes for terciary lighting
+		// - An alternative approach could be switching between ray tracing and cone tracing for secondary light depending
+		//   on "width" of the secondary brdf lobe.
         // - For supporting many lights, do as clustered forward and precompute a list of affecting lights per cluster
         // - Can that list work for both direct and indirect lighting?
 		
