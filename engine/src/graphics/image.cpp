@@ -144,23 +144,23 @@ namespace rev::gfx
 	std::unique_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
 	{
 		core::File file(&_name[0]); //<-- Hack!
-		if(file.sizeInBytes() > 0)
+		if(file.size() > 0)
 		{
-			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.sizeInBytes());
+			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.size());
 			int width, height, realNumChannels;
 			uint8_t* imgData;
 			if(!nChannels)
 			{
 				int srcChannels;
-				stbi_info_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &srcChannels);
+				stbi_info_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &srcChannels);
 				if(srcChannels < 3)
 					nChannels = 4;
 			}
 			// Read image data from buffer
 			if(isHDR)
-				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &realNumChannels, nChannels);
 			else
-				imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.sizeInBytes(), &width, &height, &realNumChannels, nChannels);
+				imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &realNumChannels, nChannels);
 
 			// Create the actual image
 			if(imgData)

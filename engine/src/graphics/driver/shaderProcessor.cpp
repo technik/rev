@@ -49,14 +49,14 @@ namespace rev::gfx
 	{
 		// load code from the entry file
 		core::File baseFile(fileName);
-		if(!baseFile.sizeInBytes())
+		if(!baseFile.size())
 			return false;
 
 		// Init parsing context
 		Context context;
 		context.m_fileStack.emplace_back(fileName);
 		context.m_includePathStack.push_back(core::getPathFolder(fileName));
-		context.m_pendingCode.emplace_back(0, baseFile.bufferAsText());
+		context.m_pendingCode.emplace_back(0, baseFile.buffer<char>());
 
 		// Add first dependency
 		metadata.dependencies.emplace_back(fileName);
@@ -160,14 +160,14 @@ namespace rev::gfx
 		if(followIncludes)
 		{
 			core::File includedFile(fullPath);
-			if(includedFile.sizeInBytes() == 0)
+			if(includedFile.size() == 0)
 			{
 				cout << "Error: unable to find include file " << fullPath << " while parsing shader file " << context.m_fileStack.back() << "\n";
 				return false;
 			}
 			context.m_includePathStack.push_back(core::getPathFolder(fullPath));
 			context.m_fileStack.emplace_back(fullPath);
-			context.m_pendingCode.emplace_back(0, includedFile.bufferAsText());
+			context.m_pendingCode.emplace_back(0, includedFile.buffer<char>());
 		}
 
 		return true;

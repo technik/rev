@@ -595,12 +595,12 @@ namespace rev { namespace game {
 	{
 		// Open file
 		core::File sceneFile(fullPath);
-		if(!sceneFile.sizeInBytes()) {
+		if(!sceneFile.size()) {
 			core::Log::error("Unable to find scene asset");
 			return false;
 		}
 		// Load gltf document
-		auto jsonText = sceneFile.bufferAsText();
+		auto jsonText = sceneFile.buffer<char>();
 		document = gltf::detail::Create(
 			Json::parse(jsonText, nullptr, false),
 			{ folder, {}});

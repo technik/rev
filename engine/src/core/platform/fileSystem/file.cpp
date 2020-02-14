@@ -16,13 +16,6 @@ using namespace std;
 
 namespace rev { namespace core {
 
-	// Static data definitions
-#ifdef ANDROID
-	AAssetManager* File::sAssetMgr = nullptr;
-#endif // ANDROID
-	template<>
-	NamedResource<File>::Mgr* NamedResource<File>::sInstance = nullptr;
-
 #ifdef ANDROID
 	//--------------------------------------------------------------------------------------------------------------
 	void File::setAssetMgr(AAssetManager* _mgr) {
@@ -71,7 +64,7 @@ namespace rev { namespace core {
 
 			srcFile.close();
 
-			mBufferAdapter.set(bufferAsText(), &bufferAsText()[mSize]);
+			mBufferAdapter.set(buffer<char>(), &buffer<char>()[mSize]);
 		}
 #endif
 	}
@@ -79,6 +72,6 @@ namespace rev { namespace core {
 	//--------------------------------------------------------------------------------------------------------------
 	File::~File() {
 		if (mBuffer)
-			delete[] static_cast<const char*>(mBuffer); // Static cast prevents undefined behavior deleting void*
+			delete[] buffer<const char>(); // Cast prevents undefined behavior deleting void*
 	}
 }}

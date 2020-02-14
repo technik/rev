@@ -1,16 +1,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Revolution Engine
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
-// 2014/April/13
+// 2020
 //----------------------------------------------------------------------------------------------------------------------
-// Simple file
-#ifndef _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
-#define _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
-
-#include <core/resources/namedResourceMgr.h>
-#ifdef ANDROID
-#include <android/asset_manager.h>
-#endif // ANDROID
+#pragma once
 
 #include <streambuf>
 #include <iostream>
@@ -19,16 +12,17 @@
 namespace rev {
 	namespace core {
 		
-		class File : public NamedResource<File>
+		class File
 		{
 		public:
 			File(const std::string& _path);
 			~File();
 
-			const void *	buffer		() const;
-			const char *	bufferAsText() const;
-			char *			bufferAsText();
-			size_t			sizeInBytes	() const;
+			template<class T = void>
+			const T *	buffer		() const;
+			template<class T = void>
+			T *			buffer		();
+			size_t		size		() const;
 
 			std::istream&	asStream() {				
 				return mStream;
@@ -61,11 +55,10 @@ namespace rev {
 		//------------------------------------------------------------------------------------------------------------------
 		// Inline implementation
 		//------------------------------------------------------------------------------------------------------------------
-		inline const void * File::buffer		() const { return mBuffer; }
-		inline const char * File::bufferAsText	() const { return reinterpret_cast<const char*>(mBuffer); }
-		inline		 char * File::bufferAsText	()		 { return reinterpret_cast<char*>(mBuffer); }
-		inline size_t		File::sizeInBytes	() const { return mSize; }
+		template<class T>
+		inline T*		File::buffer () { return reinterpret_cast<T*>(mBuffer); }
+		template<class T>
+		inline const T*	File::buffer () const { return reinterpret_cast<const T*>(mBuffer); }
+		inline size_t	File::size() const { return mSize; }
 	}
 }
-
-#endif // _REV_CORE_PLATFORM_FILESYSTEM_FILE_H_
