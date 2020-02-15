@@ -50,6 +50,7 @@ namespace vkft::gfx
 		rev::gfx::Texture2d m_indirectLightTAABuffer[2];
         rev::gfx::Texture2d m_indirectLightTexture;
         rev::gfx::Texture2d m_raytracingTexture;
+		rev::gfx::Texture2d m_pingPongTexture; // Used as a reusable target buffer for filtering
 		int m_taaIndex = 0;
 
         // Compute programs

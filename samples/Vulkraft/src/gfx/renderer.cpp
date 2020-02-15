@@ -197,6 +197,7 @@ namespace vkft::gfx
 		m_indirectLightTAABuffer[1] = mGfxDevice.createTexture2d(bufferDesc);
         m_indirectLightTexture = mGfxDevice.createTexture2d(bufferDesc);
 		m_raytracingTexture = mGfxDevice.createTexture2d(bufferDesc);
+		m_pingPongTexture = mGfxDevice.createTexture2d(bufferDesc);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -128,8 +128,8 @@ void main() {
 	vec4 ro = uCamWorld * vec4(0,0,0,1.0);
 
 	vec4 directBuffer = texelFetch(uDirectLight, pixel_coords, 0);
-	float visibility = directBuffer.w < 0.0 ? 1.0 : 0.0;
-	float sunVisibility = directBuffer.z < 0.0 ? 1.0 : 0.0;
+	float visibility = directBuffer.w;
+	float sunVisibility = directBuffer.z;
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
 
 	// Temporal denoising
@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(1.0, taa.y+windowSize*windowSize);
+		taa.y = min(4.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -167,13 +167,13 @@ void main() {
 				localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
 				kernelWeight += localWeight;
 				vec4 direct = texelFetch(uDirectLight, pixel_coords+ivec2(i,j), 0);
-				if(direct.w < 0.0)
+				if(direct.w > 0.0)
 				{
-					visibility += localWeight;
+					visibility += localWeight * direct.w;
 				}
-				if(direct.z < 0.0)
+				if(direct.z > 0.0)
 				{
-					sunVisibility += localWeight;
+					sunVisibility += localWeight * direct.z;
 				}
 				secondLight += localWeight*texelFetch(uIndirectLight, pixel_coords+ivec2(i,j), 0).xyz;
 			}
@@ -203,6 +203,7 @@ void main() {
 	//else
 	//	pixel.xyz = vec3(1.0,0.0,0.0);
 	pixel.w = 1;
+	//pixel.xyz = vec3(secondLight);
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
