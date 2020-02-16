@@ -80,31 +80,33 @@ Triangle model[NUM_TRIS] =
 	}}
 };
 
-float hitTriangle(int ndx, in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
+float hitTriangle(int ndx, in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hitPoint, float tMax)
 {
 	Triangle tri = model[ndx];
-	vec3 h0 = tri.v[0] - ro;
-	vec3 h1 = tri.v[1] - ro;
-	vec3 h2 = tri.v[2] - ro;
+	vec3 A = tri.v[0];
+	vec3 AB = tri.v[1]-A;
+	vec3 AC = tri.v[2]-A;
 
-	vec3 a0 = cross(h0,h1);
-	vec3 a1 = cross(h1,h2);
-	vec3 a2 = cross(h2,h0);
+	vec3 pvec = cross(rd,AC);
+	float det = dot(pvec, AB);
 
-	if((dot(a0,rd) < 0) && (dot(a1,rd) < 0) && (dot(a2,rd) < 0))
-	{
-		vec3 e0 = tri.v[1] - tri.v[0];
-		vec3 e1 = tri.v[2] - tri.v[1];
-		normal = cross(e0,e1);
-		float t = dot(normal, h0)/dot(rd, normal);
+	const float kEpsilon = 1e-5;
+	if((det) < kEpsilon) return -1.0;
 
-		if( t >= 0 && t < tMax)
-		{
-			return t;
-		}
-	}
+	float invDet = 1 / det;
+	vec3 tvec = ro - A;
+	float u = dot(tvec,pvec) * invDet;
+	if(u < 0 || u > 1) return -1;
 
-	return -1.0;
+	vec3 qvec = cross(tvec, AB);
+	float v = dot(rd,qvec) * invDet;
+	if(v < 0 || u+v > 1) return -1;
+
+	float t = dot(AC,qvec) * invDet;
+
+	normal = normalize(cross(AB,AC));
+	hitPoint = A + u*AB + v*AC;
+	return t > tMax ? -1.0 : t;
 }
 
 vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
@@ -185,7 +187,7 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
-vec3 sunDir = normalize(vec3(-1.0,4.0,2.0));
+vec3 sunDir = normalize(vec3(-1.0,4.0,10.0));
 vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
 vec3 skyColor(vec3 dir)
 {
@@ -356,9 +358,9 @@ float hitOctree(in ImplicitRay ir, out vec3 normal, float tMax)
 }
 
 
-float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
+float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hitPoint, float tMax)
 {
-	float t = -1.0;
+	float t = -1;//tMax;
 	// Convert ray to its implicit representation
 
 	// Hit ground plane
@@ -367,18 +369,21 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 		normal = vec3(0.0,1.0,0.0);
 		t = -ro.y / rd.y;
 		tMax = t;
+		hitPoint = ro + t*rd;
 	}
 
 	// Hit triangle model
 	for(int i = 0; i < NUM_TRIS; ++i)
 	{
 		vec3 tNormal;
-		float tTri = hitTriangle(i, ro, rd, tNormal, tMax);
+		vec3 tempHitPoint;
+		float tTri = hitTriangle(i, ro, rd, tNormal, tempHitPoint, tMax);
 		if(tTri > 0)
 		{
 			t = tTri;
 			tMax = tTri;
 			normal = tNormal;
+			hitPoint = tempHitPoint;
 		}
 	}
 	
@@ -395,7 +400,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, float tMax)
 			tMax = tOctree;
 		}
 	}*/
-	return t;
+	return t;//  tMax ? -1.0 : t;
 }
 
 float hit_any(in vec3 ro, in vec3 rd, float tMax)
@@ -410,7 +415,8 @@ float hit_any(in vec3 ro, in vec3 rd, float tMax)
 	for(int i = 0; i < NUM_TRIS; ++i)
 	{
 		vec3 tNormal;
-		float tTri = hitTriangle(i, ro, rd, tNormal, tMax);
+		vec3 hitPoint;
+		float tTri = hitTriangle(i, ro, rd, tNormal, hitPoint, tMax);
 		if(tTri > 0)
 		{
 			return tTri;

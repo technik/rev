@@ -133,7 +133,7 @@ void main() {
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
 
 	// Temporal denoising
-	int windowSize = 9;
+	int windowSize = 3;
 	vec4 taa = vec4(0);
 	vec4 indirectTaa = vec4(0);
 	float taaWeight = 0.0;
@@ -141,7 +141,7 @@ void main() {
 	{
 		windowSize = 1;
 		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(4.0, taa.y+windowSize*windowSize);
+		taa.y = min(1.0, taa.y+windowSize*windowSize);
 	}
 	else
 	{
@@ -189,7 +189,7 @@ void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothLight = visibility * 0.1*irradiance(gBuffer.xyz) + 0.50 * sunVisibility;
+	vec3 smoothLight = visibility * irradiance(gBuffer.xyz) + sunVisibility * sunLight;
 	vec4 localPoint = ro+rd*gBuffer.w-gBuffer*0.1;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	pixel.xyz = albedo*(smoothLight+secondLight.xyz);
