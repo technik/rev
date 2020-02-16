@@ -129,70 +129,21 @@ void main() {
 
 	vec4 directBuffer = texelFetch(uDirectLight, pixel_coords, 0);
 	float visibility = directBuffer.w;
-	float sunVisibility = directBuffer.z;
+	float sunVisibility = directBuffer.x;
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
-
-	// Temporal denoising
-	int windowSize = 3;
-	vec4 taa = vec4(0);
-	vec4 indirectTaa = vec4(0);
-	float taaWeight = 0.0;
-	if(reuseTaa(gBuffer.w, taa, indirectTaa))
-	{
-		windowSize = 1;
-		taaWeight = taa.y / (taa.y + windowSize*windowSize);
-		taa.y = min(1.0, taa.y+windowSize*windowSize);
-	}
-	else
-	{
-		taa.y = windowSize*windowSize;
-		indirectTaa = vec4(0.0);
-	}
-	taa.w = gBuffer.w;
-
-	const int minTap = -windowSize/2;
-	const int maxTap = windowSize/2;
-
-	float kernelWeight = 1.0;
-	for(int i = minTap; i <= maxTap; ++i)
-	{
-		for(int j = minTap; j <= maxTap; ++j)
-		{
-			vec2 uvs = vec2(pixel_coords.x+i, pixel_coords.y+j) * (1/uWindow.xy);
-			vec4 pointGBuffer = texelFetch(uGBuffer, pixel_coords+ivec2(i,j), 0);
-			if(pointGBuffer.w > 0.0)
-			{
-				float localWeight = max(0.0, dot(pointGBuffer.xyz, gBuffer.xyz));
-				localWeight *= sqrt(0.5)*windowSize-sqrt(float(i*i+j*j));
-				localWeight *= max(0.0,0.2-abs(pointGBuffer.w-gBuffer.w));
-				kernelWeight += localWeight;
-				vec4 direct = texelFetch(uDirectLight, pixel_coords+ivec2(i,j), 0);
-				if(direct.w > 0.0)
-				{
-					visibility += localWeight * direct.w;
-				}
-				if(direct.z > 0.0)
-				{
-					sunVisibility += localWeight * direct.z;
-				}
-				secondLight += localWeight*texelFetch(uIndirectLight, pixel_coords+ivec2(i,j), 0).xyz;
-			}
-		}
-	}
-	
-	visibility = mix(visibility/kernelWeight, max(0.0,taa.x), taaWeight);
-	sunVisibility = mix(sunVisibility/kernelWeight, max(0.0,taa.z), taaWeight);
-	secondLight = mix(secondLight/kernelWeight, indirectTaa.xyz, taaWeight);
-	taa.x = visibility;
-	taa.z = sunVisibility;
 
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothLight = visibility * irradiance(gBuffer.xyz) + sunVisibility * sunLight;
-	vec4 localPoint = ro+rd*gBuffer.w-gBuffer*0.1;
+	vec3 smoothSkyLight = visibility * irradiance(gBuffer.xyz);
+	vec4 localPoint = ro+rd*gBuffer.w;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
-	pixel.xyz = albedo*(smoothLight+secondLight.xyz);
+	// Sun GGX
+	vec3 eye = -rd.xyz;
+	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
+	vec3 sunContrib = sunVisibility * sunBrdf;
+	
+	pixel.xyz = sunContrib+secondLight.xyz + albedo*smoothSkyLight;
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
@@ -207,6 +158,5 @@ void main() {
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
-	imageStore(direct_taa, pixel_coords, taa);
 	imageStore(indirect_taa, pixel_coords, vec4(secondLight,0.0));
 }

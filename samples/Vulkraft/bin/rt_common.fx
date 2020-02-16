@@ -188,10 +188,42 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 }
 
 vec3 sunDir = normalize(vec3(-1.0,4.0,10.0));
-vec3 sunLight = 2.0*vec3(1.0,1.0,0.8);
+vec3 sunLight = 1.0*vec3(1.0,1.0,0.8);
+float roughness = 0.25;
 vec3 skyColor(vec3 dir)
 {
-	return 2*mix(1*vec3(0.1, 0.4, 0.80), 2*vec3(0.3,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
+	return mix(vec3(0.1, 0.35, 0.90), vec3(0.2,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
+}
+
+float G1V(float ndv, float k)
+{
+	return 1.0/(ndv*(1-k)+k);
+}
+
+float directionalSpecBRDF(vec3 normal, vec3 eye)
+{
+	vec3 h = normalize(eye+sunDir);
+	float hdl = max(0.0,dot(h,sunDir));
+	float ndv = max(0.0,dot(normal,eye));
+	float ndl = max(0.0,dot(normal,sunDir));
+	float ndh = max(0.0,dot(normal,h));
+	float f0 = 0.04; // Dielectric
+	float f = f0+(1-f0)*pow(1-ndh,5.0);
+	float alpha = roughness*roughness;
+	float a2 = alpha*alpha;
+	float den = ndh*ndh*(a2-1)+1;
+	float D = a2/(den*den);
+	float k = alpha*0.5;
+	float vis = G1V(ndl,k)*G1V(ndv,k);
+	return D * f * vis;
+}
+
+vec3 sunDirect(vec3 albedo, vec3 normal, vec3 eye)
+{
+	float specBrdf = directionalSpecBRDF(normal,eye);
+	vec3 kD = albedo;// * (1-specBrdf);
+	float ndl = max(0.0,dot(normal,sunDir));
+	return ndl * (kD + specBrdf) * sunLight * (1/ 3.1415927);
 }
 
 struct Node

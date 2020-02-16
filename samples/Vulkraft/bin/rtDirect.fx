@@ -8,9 +8,16 @@ layout(location = 12) uniform sampler2D uNoise;
 layout(rgba32f, binding = 0) writeonly uniform image2D direct_out;
 layout(rgba32f, binding = 1) writeonly uniform image2D indirect_out;
 
-//
-vec3 sampleDirectLight(vec3 point, vec3 normal, vec4 noise, float tMax)
+vec3 GGXLight(float ndl, float albedo, vec3 lightDir, vec3 normal, vec3 eye)
 {
+	vec3 H = normalize(eye+lightDir);
+	return vec3(ndl);
+}
+
+//
+vec3 sampleDirectLight(vec3 eye, vec3 point, vec3 normal, vec4 noise, float t, float tMax)
+{
+	vec3 albedo = fetchAlbedo(point, normal, t, 1);
 	vec3 light = vec3(0);
 	// Sample sky light
 	vec3 rd = lambertianDirection(normal, noise.zw);
@@ -18,7 +25,9 @@ vec3 sampleDirectLight(vec3 point, vec3 normal, vec4 noise, float tMax)
 	vec3 hitPoint;
 	float tSky = hit(point, rd, hitNormal, hitPoint, tMax);
 	if(tSky < 0)
-		light += skyColor(rd);
+	{
+		light += skyColor(rd) * albedo;
+	}
 	
 	// Sample sun light
 	vec3 sunSampleDir = normalize(mix(rd,sunDir,0.95));
@@ -27,7 +36,9 @@ vec3 sampleDirectLight(vec3 point, vec3 normal, vec4 noise, float tMax)
 	{
 		float tSun = hit(point, mix(point,sunDir,0.95), hitNormal, hitPoint, tMax);
 		if(tSun < 0)
-			light += sunLight * sunCosine;
+		{
+			light += albedo * sunCosine * sunLight;//sunDirect(albedo, hitNormal, eye);
+		}
 	}
 
 	return light;
@@ -43,14 +54,17 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 
 	// Sun direct
 	vec3 sampleSunDir = normalize(mix(rd,sunDir,0.95));
-	float sunContrib = 0.0;
+	float sunVisibility = 0.0;
 	float sunDot = max(0.0,dot(normal,sampleSunDir));
 	if(sunDot > 0)
 	{	
 		vec3 bouncePoint;
 		vec3 bounceNormal;
 		if(hit(ro, sampleSunDir, bounceNormal, bouncePoint, tMax) < 0)
-			sunContrib = sunDot;
+		{
+			// GGX specular model
+			sunVisibility = 1.0;
+		}
 	}
 	
 	// Sky direct/ regular indirect
@@ -61,12 +75,8 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 	float skyContrib = 0;
 	if(t > 0.0) // Hit geometry. No direct sky contribution, but we have indirect diffuse.
 	{
-		vec3 secondaryAlbedo = fetchAlbedo(bouncePoint, bounceNormal, t, 1);
 		// Scatter reflected light
-		vec3 indirectLight = sampleDirectLight(bouncePoint, bounceNormal, noise, tMax);
-		// Compute direct contribution
-		bouncePoint += 1e-5*bounceNormal;
-		indirect.xyz = secondaryAlbedo * indirectLight;
+		indirect.xyz = sampleDirectLight(-rd, bouncePoint, bounceNormal, noise, t, tMax);
 	}
 	else
 	{
@@ -75,7 +85,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 		skyContrib = 1.0;
 	}
 	// Direct visibilities
-	direct = vec4(0.0,0.0,sunContrib,skyContrib);
+	direct = vec4(sunVisibility,0.0,0.0,skyContrib);
 
 }
 
