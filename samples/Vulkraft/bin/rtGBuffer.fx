@@ -15,7 +15,8 @@ void main() {
 
 	float tMax = 1000.0;
 	vec3 normal = vec3(0.0, 0.0, -1.0);
-	float t = hit(ro, rd, normal, tMax);
+	vec3 hitPoint;
+	float t = hit(ro, rd, normal, hitPoint, tMax);
 	//vec4 gBufferPixel = vec4(vec3(rd.y), 1.0);
 	vec4 gBufferPixel = vec4(normal,t);
 
