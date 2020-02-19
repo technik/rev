@@ -1,3 +1,7 @@
+// Local work group
+layout(local_size_x = 1, local_size_y = 1) in;
+
+// Inputs
 layout(location = 1) uniform vec4 uWindow;
 layout(location = 2) uniform float uStep;
 layout(location = 10) uniform sampler2D uInput;
@@ -24,7 +28,7 @@ void main() {
 	vec4 leftNormal = texelFetch(uGBuffer, left_coords, 0);
 	if(leftNormal.w > 0)
 	{
-		float lweight = max(0.0, dot(leftNormal.xyz,normal.xyz));
+		float lweight = 0.71*max(0.0, dot(leftNormal.xyz,normal.xyz));
 		value += texelFetch(uInput, left_coords, 0) * lweight;
 		weight += lweight;
 	}
@@ -32,7 +36,7 @@ void main() {
 	vec4 rightNormal = texelFetch(uGBuffer, right_coords, 0);
 	if(rightNormal.w > 0)
 	{
-		float rweight = max(0.0, dot(rightNormal.xyz,normal.xyz));
+		float rweight = 0.71*max(0.0, dot(rightNormal.xyz,normal.xyz));
 		value += texelFetch(uInput, right_coords, 0) * rweight;
 		weight += rweight;
 	}

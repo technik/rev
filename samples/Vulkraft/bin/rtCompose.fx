@@ -135,7 +135,7 @@ void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothSkyLight = visibility * irradiance(gBuffer.xyz);
+	vec3 smoothSkyLight = vec3(visibility);// * irradiance(gBuffer.xyz);
 	vec4 localPoint = ro+rd*gBuffer.w;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	// Sun GGX
@@ -144,7 +144,7 @@ void main() {
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
 	pixel.xyz = sunContrib+secondLight.xyz + albedo*smoothSkyLight;
-	//pixel.xyz = smoothSkyLight;
+	pixel.xyz = smoothSkyLight;
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);

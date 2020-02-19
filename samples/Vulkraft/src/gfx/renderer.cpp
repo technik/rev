@@ -149,7 +149,26 @@ namespace vkft::gfx
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
 		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
-		// All following 3 at once:
+		passUniforms.clear();
+		passUniforms.addParam(1, uWindow);
+		passUniforms.addParam(2, 3.f);
+		passUniforms.addParam(10, m_directLightTexture);
+		passUniforms.addParam(11, m_gBufferTexture);
+		commands.setComputeProgram(m_mixHorCompute);
+		commands.setUniformData(passUniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+
+		passUniforms.clear();
+		passUniforms.addParam(1, uWindow);
+		passUniforms.addParam(2, 3.f);
+		passUniforms.addParam(10, m_pingPongTexture);
+		passUniforms.addParam(11, m_gBufferTexture);
+		commands.setComputeProgram(m_mixVerCompute);
+		commands.setUniformData(passUniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+
 		// Denoise indirect light
 		// Compose image
 		passUniforms.clear();
