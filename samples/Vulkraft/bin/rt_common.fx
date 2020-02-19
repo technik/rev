@@ -1,3 +1,7 @@
+// Common raytracing
+#include "math.fx"
+#include "pbr.fx"
+
 // Local work group
 layout(local_size_x = 1, local_size_y = 1) in;
 
@@ -13,28 +17,8 @@ layout(std430, binding = 7) buffer VoxelOctree
 	int descriptor[];
 } sbVoxelOctree;
 
-const float HalfPi = 1.57079637050628662109375f;
-const float TwoPi = 6.2831852436065673828125f;
-
-struct Box
-{
-	vec3 min;
-	vec3 max;
-};
-
-struct ImplicitRay
-{
-	vec3 o;
-	vec3 n;
-	vec3 d;
-};
-
 const int NUM_TRIS = 8;
 
-struct Triangle
-{
-	vec3 v[3];
-};
 
 Triangle model[NUM_TRIS] = 
 {
@@ -122,38 +106,6 @@ vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
 	return -wsEyeDir;
 }
 
-#ifdef GBUFFER
-vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
-{
-	//return vec3(0.5);
-	// Choose material
-	ivec2 tileOffset = ivec2(0,0);
-	//if(worldPos.y > 0.01)
-	//	tileOffset = ivec2(2,4);
-	//if(worldPos.y > 1.99)
-	//	tileOffset = ivec2(4,0);
-	// Compute uvs
-	vec2 texUV;
-	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
-	{
-		texUV = fract(worldPos.xz);
-	}
-	else
-	{
-		vec3 bitan = vec3(0.0,-1.0,0.0);
-		vec3 tan = cross(bitan, worldNormal);
-		float u = dot(worldPos.xyz,tan);
-		float v = dot(worldPos.xyz,bitan);
-		texUV = fract(vec2(u, v));
-	}
-	int texLOD = max(0,min(4,lodBias + int(log2(t/7))));
-	int sampleScale = (16>>texLOD);
-	texUV = (texUV+tileOffset)*sampleScale;
-
-	return texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
-}
-#endif
-
 float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 {
 	vec3 t1 = (b.min - r.o) * r.n;
@@ -187,6 +139,38 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 	}
 }
 
+#ifdef GBUFFER
+vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
+{
+	//return vec3(0.5);
+	// Choose material
+	ivec2 tileOffset = ivec2(0,0);
+	//if(worldPos.y > 0.01)
+	//	tileOffset = ivec2(2,4);
+	//if(worldPos.y > 1.99)
+	//	tileOffset = ivec2(4,0);
+	// Compute uvs
+	vec2 texUV;
+	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
+	{
+		texUV = fract(worldPos.xz);
+	}
+	else
+	{
+		vec3 bitan = vec3(0.0,-1.0,0.0);
+		vec3 tan = cross(bitan, worldNormal);
+		float u = dot(worldPos.xyz,tan);
+		float v = dot(worldPos.xyz,bitan);
+		texUV = fract(vec2(u, v));
+	}
+	int texLOD = max(0,min(4,lodBias + int(log2(t/7))));
+	int sampleScale = (16>>texLOD);
+	texUV = (texUV+tileOffset)*sampleScale;
+
+	return texelFetch(uTexturePack, ivec2(texUV.x,texUV.y), texLOD).xyz;
+}
+#endif
+
 vec3 sunDir = normalize(vec3(-1.0,4.0,10.0));
 vec3 sunLight = 1.0*vec3(1.0,1.0,0.8);
 float roughness = 0.25;
@@ -195,35 +179,12 @@ vec3 skyColor(vec3 dir)
 	return mix(vec3(0.1, 0.35, 0.90), vec3(0.2,0.7,1.0), max(0.0,dot(normalize(dir),sunDir)));
 }
 
-float G1V(float ndv, float k)
-{
-	return 1.0/(ndv*(1-k)+k);
-}
-
-float directionalSpecBRDF(vec3 normal, vec3 eye)
-{
-	vec3 h = normalize(eye+sunDir);
-	float hdl = max(0.0,dot(h,sunDir));
-	float ndv = max(0.0,dot(normal,eye));
-	float ndl = max(0.0,dot(normal,sunDir));
-	float ndh = max(0.0,dot(normal,h));
-	float f0 = 0.04; // Dielectric
-	float f = f0+(1-f0)*pow(1-ndh,5.0);
-	float alpha = roughness*roughness;
-	float a2 = alpha*alpha;
-	float den = ndh*ndh*(a2-1)+1;
-	float D = a2/(den*den);
-	float k = alpha*0.5;
-	float vis = G1V(ndl,k)*G1V(ndv,k);
-	return D * f * vis;
-}
-
 vec3 sunDirect(vec3 albedo, vec3 normal, vec3 eye)
 {
-	float specBrdf = directionalSpecBRDF(normal,eye);
-	vec3 kD = albedo;// * (1-specBrdf);
+	float brdf = directionalSpecBRDF(normal, eye, sunDir, roughness);
+	vec3 kD = albedo * (1-brdf);
 	float ndl = max(0.0,dot(normal,sunDir));
-	return ndl * (kD + specBrdf) * sunLight * (1/ 3.1415927);
+	return (ndl *kD + brdf) * sunLight;// * (1/ 3.1415927);
 }
 
 struct Node

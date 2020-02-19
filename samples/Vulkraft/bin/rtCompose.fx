@@ -144,6 +144,7 @@ void main() {
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
 	pixel.xyz = sunContrib+secondLight.xyz + albedo*smoothSkyLight;
+	//pixel.xyz = smoothSkyLight;
 
 	//pixel.xyz = indirectTaa.xyz;
 	//pixel.xyz = vec3(smoothLight);
