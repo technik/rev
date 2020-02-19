@@ -35,11 +35,11 @@ float specBRDF(float roughness, float ndh, float ndv, float ndl)
 float directionalSpecBRDF(vec3 normal, vec3 eye, vec3 light, float roughness)
 {
 	vec3 h = normalize(eye+light);
-	float ndv = max(0.0,dot(normal,eye));
-	float ndl = max(0.0,dot(normal,light));
 	float ndh = max(0.0,dot(normal,h));
+	float hdv = max(0.0,dot(h,eye));
+	float hdl = max(0.0,dot(h,light));
 	
 	float f0 = 0.04; // Dielectric
-	float f = f0+(1-f0)*pow(1-ndh,5.0);
-	return f * specBRDF(roughness, ndh, ndv, ndl);
+	float f = f0+(1-f0)*pow(1-hdv,5.0);
+	return f * specBRDF(roughness, ndh, hdv, hdl);
 }

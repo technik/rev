@@ -10,13 +10,40 @@ layout(location = 11) uniform sampler2D uGBuffer;
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D outBuffer;
 
+float depthWeight(float depth0, float depth1)
+{
+	float depthError = abs(depth1-depth0);
+	const float maxRelativeError = 1;
+	return max(0.0, 1-depthError/maxRelativeError);
+}
+
+void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, inout vec4 value)
+{
+	vec4 sampleGBuffer = texelFetch(uGBuffer, sampleCoords, 0);
+	float sampleDepth = sampleGBuffer.w;
+	if(sampleDepth < 0)
+		return;
+	float centerDepth = gBufferCenter.w;
+	const float minNormalDot = 0.5;
+	float normalWeight = max(0.0, dot(sampleGBuffer.xyz,gBufferCenter.xyz)-minNormalDot);
+	float distanceWeight = depthWeight(centerDepth, sampleDepth);
+
+	float sampleWeight = 0.7 * normalWeight *distanceWeight;
+	if(sampleWeight > 0)
+	{
+		weight += sampleWeight;
+		value += sampleWeight * texelFetch(uInput, sampleCoords, 0);
+	}
+}
+
 void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 up_coords = ivec2(pixel_coords.x, max(0,pixel_coords.y-uStep));
 	ivec2 down_coords = ivec2(pixel_coords.x, min(uWindow.y-1,pixel_coords.y+uStep));
 
 	vec4 normal = texelFetch(uGBuffer, pixel_coords, 0);
-	if(normal.w < 0)
+	float depth = normal.w;
+	if(depth < 0)
 	{
 		imageStore(outBuffer, pixel_coords, vec4(0));
 		return;
@@ -25,21 +52,8 @@ void main() {
 	vec4 value = texelFetch(uInput, pixel_coords, 0);
 	float weight = 1.0;
 
-	vec4 upNormal = texelFetch(uGBuffer, up_coords, 0);
-	if(upNormal.w > 0)
-	{
-		float uweight = 0.71*max(0.0, dot(upNormal.xyz,normal.xyz));
-		value += texelFetch(uInput, up_coords, 0) * uweight;
-		weight += uweight;
-	}
-
-	vec4 downNormal = texelFetch(uGBuffer, down_coords, 0);
-	if(downNormal.w > 0)
-	{
-		float dweight = 0.71*max(0.0, dot(downNormal.xyz,normal.xyz));
-		value += texelFetch(uInput, down_coords, 0) * dweight;
-		weight += dweight;
-	}
+	boxAccum(up_coords, normal, weight, value);
+	boxAccum(down_coords, normal, weight, value);
 
 	// output to a specific pixel in the image
 	imageStore(outBuffer, pixel_coords, value / weight);

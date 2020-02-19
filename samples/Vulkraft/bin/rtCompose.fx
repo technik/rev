@@ -128,14 +128,14 @@ void main() {
 	vec4 ro = uCamWorld * vec4(0,0,0,1.0);
 
 	vec4 directBuffer = texelFetch(uDirectLight, pixel_coords, 0);
-	float visibility = directBuffer.w;
+	float skyVisibility = directBuffer.w;
 	float sunVisibility = directBuffer.x;
 	vec3 secondLight = texelFetch(uIndirectLight, pixel_coords, 0).xyz;
 
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothSkyLight = vec3(visibility);// * irradiance(gBuffer.xyz);
+	vec3 smoothSkyLight = vec3(skyVisibility) * irradiance(gBuffer.xyz);
 	vec4 localPoint = ro+rd*gBuffer.w;
 	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
 	// Sun GGX
@@ -143,19 +143,9 @@ void main() {
 	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
-	pixel.xyz = sunContrib+secondLight.xyz + albedo*smoothSkyLight;
-	pixel.xyz = smoothSkyLight;
-
-	//pixel.xyz = indirectTaa.xyz;
-	//pixel.xyz = vec3(smoothLight);
-	//pixel.xyz = vec3(gBuffer)*0.5+0.5;
-	//pixel.xyz = vec3(gBuffer.w*0.1);
-	//if(reuseTaa(gBuffer.w))
-	//	pixel.xyz = vec3(0.0,1.0,0.0);
-	//else
-	//	pixel.xyz = vec3(1.0,0.0,0.0);
+	//pixel.xyz = sunContrib + albedo*smoothSkyLight;
+	pixel.xyz = sunContrib+albedo*smoothSkyLight + secondLight.xyz;
 	pixel.w = 1;
-	//pixel.xyz = vec3(secondLight);
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);

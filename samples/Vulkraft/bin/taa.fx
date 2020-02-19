@@ -1,6 +1,7 @@
 // Local work group
 layout(local_size_x = 1, local_size_y = 1) in;
 
+#include "math.fx"
 // Inputs
 layout(location = 1) uniform vec4 uWindow;
 layout(location = 2) uniform mat4 uPastViewProj;

@@ -6,10 +6,12 @@ layout(location = 1) uniform sampler2D uRayTracedBuffer;;
 
 //------------------------------------------------------------------------------	
 vec3 shade () {
+	// TODO: Post processing? bloom? DOF?
 	vec2 uv = gl_FragCoord.xy / uWindow.xy;
 	vec4 tBuffer = texture(uRayTracedBuffer, uv);
 	vec3 color = tBuffer.xyz;
 
+	// Filmi tone mapping? Exposure?
 	color = color / (1+color);
 
 	return pow(color, vec3(0.4545));

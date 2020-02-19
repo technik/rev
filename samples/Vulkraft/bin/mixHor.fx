@@ -10,6 +10,32 @@ layout(location = 11) uniform sampler2D uGBuffer;
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D outBuffer;
 
+float depthWeight(float depth0, float depth1)
+{
+	float depthError = abs(depth1-depth0);
+	const float maxRelativeError = 1;
+	return max(0.0, 1-depthError/maxRelativeError);
+}
+
+void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, inout vec4 value)
+{
+	vec4 sampleGBuffer = texelFetch(uGBuffer, sampleCoords, 0);
+	float sampleDepth = sampleGBuffer.w;
+	if(sampleDepth < 0)
+		return;
+	float centerDepth = gBufferCenter.w;
+	const float minNormalDot = 0.5;
+	float normalWeight = max(0.0, dot(sampleGBuffer.xyz,gBufferCenter.xyz)-minNormalDot);
+	float distanceWeight = depthWeight(centerDepth, sampleDepth);
+
+	float sampleWeight = 0.7 * normalWeight *distanceWeight;
+	if(sampleWeight > 0)
+	{
+		weight += sampleWeight;
+		value += sampleWeight * texelFetch(uInput, sampleCoords, 0);
+	}
+}
+
 void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 left_coords = ivec2(max(0,pixel_coords.x-uStep), pixel_coords.y);
@@ -25,21 +51,8 @@ void main() {
 	vec4 value = texelFetch(uInput, pixel_coords, 0);
 	float weight = 1.0;
 
-	vec4 leftNormal = texelFetch(uGBuffer, left_coords, 0);
-	if(leftNormal.w > 0)
-	{
-		float lweight = 0.71*max(0.0, dot(leftNormal.xyz,normal.xyz));
-		value += texelFetch(uInput, left_coords, 0) * lweight;
-		weight += lweight;
-	}
-
-	vec4 rightNormal = texelFetch(uGBuffer, right_coords, 0);
-	if(rightNormal.w > 0)
-	{
-		float rweight = 0.71*max(0.0, dot(rightNormal.xyz,normal.xyz));
-		value += texelFetch(uInput, right_coords, 0) * rweight;
-		weight += rweight;
-	}
+	boxAccum(left_coords, normal, weight, value);
+	boxAccum(right_coords, normal, weight, value);
 
 	// output to a specific pixel in the image
 	imageStore(outBuffer, pixel_coords, value / weight);
