@@ -58,6 +58,8 @@ namespace vkft::gfx
         rev::gfx::ComputeShader m_gBufferCompute;
         rev::gfx::ComputeShader m_directLightCompute;
         rev::gfx::ComputeShader m_composeCompute;
+        rev::gfx::ComputeShader m_mixHorCompute;
+        rev::gfx::ComputeShader m_mixVerCompute;
 
 		rev::gfx::TextureSampler m_rtBufferSampler;
 

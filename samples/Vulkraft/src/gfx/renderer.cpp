@@ -64,7 +64,9 @@ namespace vkft::gfx
 		// Create compute shader
         loadShaderAndSetListener("rtGBuffer.fx", m_gBufferCompute);
         loadShaderAndSetListener("rtDirect.fx", m_directLightCompute);
-        loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
+		loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
+		loadShaderAndSetListener("mixHor.fx", m_mixHorCompute);
+		loadShaderAndSetListener("mixVer.fx", m_mixVerCompute);
 
 		m_taaView = Mat44f::identity();
 	}
@@ -126,8 +128,28 @@ namespace vkft::gfx
         commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
-		// All following 3 at once:
 		// Denoise direct light
+		passUniforms.clear();
+		passUniforms.addParam(1, uWindow);
+		passUniforms.addParam(2, 1.f);
+		passUniforms.addParam(10, m_directLightTexture);
+		passUniforms.addParam(11, m_gBufferTexture);
+		commands.setComputeProgram(m_mixHorCompute);
+		commands.setUniformData(passUniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+
+		passUniforms.clear();
+		passUniforms.addParam(1, uWindow);
+		passUniforms.addParam(2, 1.f);
+		passUniforms.addParam(10, m_pingPongTexture);
+		passUniforms.addParam(11, m_gBufferTexture);
+		commands.setComputeProgram(m_mixVerCompute);
+		commands.setUniformData(passUniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+
+		// All following 3 at once:
 		// Denoise indirect light
 		// Compose image
 		passUniforms.clear();
