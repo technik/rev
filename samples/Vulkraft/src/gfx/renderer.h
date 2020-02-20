@@ -36,6 +36,13 @@ namespace vkft::gfx
 		void loadTexturePack();
         void loadShaderAndSetListener(const std::string& shaderFile, rev::gfx::ComputeShader& dst);
 
+		// Filtering stages
+		void Renderer::BoxFilter(
+			rev::gfx::Texture2d texture,
+			rev::math::Vec4f textureSize,
+			unsigned iterations,
+			rev::gfx::CommandBuffer& commands);
+
 	private:
         // Noise
 		static constexpr unsigned NumBlueNoiseTextures = 64;

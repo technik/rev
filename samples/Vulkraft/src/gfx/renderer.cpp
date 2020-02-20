@@ -71,6 +71,38 @@ namespace vkft::gfx
 		m_taaView = Mat44f::identity();
 	}
 
+	void Renderer::BoxFilter(
+		Texture2d texture,
+		Vec4f textureSize,
+		unsigned iterations,
+		CommandBuffer& commands)
+	{
+		CommandBuffer::UniformBucket passUniforms;
+		for (int i = 0; i < iterations; ++i)
+		{
+			int step = 2 * i + 1;
+			passUniforms.clear();
+			passUniforms.addParam(1, textureSize);
+			passUniforms.addParam(2, float(step));
+			passUniforms.addParam(10, texture);
+			passUniforms.addParam(11, m_gBufferTexture);
+			commands.setComputeProgram(m_mixHorCompute);
+			commands.setUniformData(passUniforms);
+			commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+			commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+
+			passUniforms.clear();
+			passUniforms.addParam(1, textureSize);
+			passUniforms.addParam(2, float(step));
+			passUniforms.addParam(10, m_pingPongTexture);
+			passUniforms.addParam(11, texture);
+			commands.setComputeProgram(m_mixVerCompute);
+			commands.setUniformData(passUniforms);
+			commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+			commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera)
 	{
@@ -129,45 +161,8 @@ namespace vkft::gfx
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
 		// Denoise direct light
-		passUniforms.clear();
-		passUniforms.addParam(1, uWindow);
-		passUniforms.addParam(2, 1.f);
-		passUniforms.addParam(10, m_directLightTexture);
-		passUniforms.addParam(11, m_gBufferTexture);
-		commands.setComputeProgram(m_mixHorCompute);
-		commands.setUniformData(passUniforms);
-		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
-
-		passUniforms.clear();
-		passUniforms.addParam(1, uWindow);
-		passUniforms.addParam(2, 1.f);
-		passUniforms.addParam(10, m_pingPongTexture);
-		passUniforms.addParam(11, m_gBufferTexture);
-		commands.setComputeProgram(m_mixVerCompute);
-		commands.setUniformData(passUniforms);
-		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
-
-		passUniforms.clear();
-		passUniforms.addParam(1, uWindow);
-		passUniforms.addParam(2, 3.f);
-		passUniforms.addParam(10, m_directLightTexture);
-		passUniforms.addParam(11, m_gBufferTexture);
-		commands.setComputeProgram(m_mixHorCompute);
-		commands.setUniformData(passUniforms);
-		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
-
-		passUniforms.clear();
-		passUniforms.addParam(1, uWindow);
-		passUniforms.addParam(2, 3.f);
-		passUniforms.addParam(10, m_pingPongTexture);
-		passUniforms.addParam(11, m_gBufferTexture);
-		commands.setComputeProgram(m_mixVerCompute);
-		commands.setUniformData(passUniforms);
-		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+		BoxFilter(m_directLightTexture, uWindow, 2, commands);
+		//BoxFilter(m_indirectLightTexture, uWindow, 3, commands);
 
 		// Denoise indirect light
 		// Compose image
