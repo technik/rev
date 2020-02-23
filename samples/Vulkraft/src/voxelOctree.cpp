@@ -5,6 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include "voxelOctree.h"
 #include <list>
+#include "math/noise.h"
 
 namespace vkft
 {
@@ -125,7 +126,7 @@ namespace vkft
 					int index = rowOffset + k;
 					float x = float(i)/(sideSize-1);
 					float z = float(k)/(sideSize-1);
-					float h = (sideSize-1)*(sin(10*x)*0.025+0.5 + sin(16*z)*0.01);
+					float h = (rev::math::SNoise::simplex(x*2+0.5, z*2 + 0.5) * 0.1 + rev::math::SNoise::simplex(x/2, z/2) * 0.4 + 0.4 )* (sideSize - 1);
 					dst.voxels[index] = j <= h? 1 : 0;
 				}
 			}
