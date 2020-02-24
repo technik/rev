@@ -17,7 +17,7 @@ vec3 GGXLight(float ndl, float albedo, vec3 lightDir, vec3 normal, vec3 eye)
 //
 vec3 sampleDirectLight(vec3 eye, vec3 point, vec3 normal, vec4 noise, float t, float tMax)
 {
-	vec3 albedo = fetchAlbedo(point, normal, t, 1);
+	vec3 albedo = fetchAlbedo(point, normal, t, 2);
 	vec3 light = vec3(0);
 	// Sample sky light
 	vec3 rd = lambertianDirection(normal, noise.zw);
@@ -26,7 +26,7 @@ vec3 sampleDirectLight(vec3 eye, vec3 point, vec3 normal, vec4 noise, float t, f
 	float tSky = hit(point, rd, hitNormal, hitPoint, tMax);
 	if(tSky < 0)
 	{
-		light += skyColor(rd) * albedo;
+		light += skyColor(normal) * albedo;
 	}
 	
 	// Sample sun light
@@ -34,14 +34,16 @@ vec3 sampleDirectLight(vec3 eye, vec3 point, vec3 normal, vec4 noise, float t, f
 	float sunCosine = max(0.0,dot(normal,sunSampleDir));
 	if(sunCosine > 0)
 	{
-		float tSun = hit(point, mix(point,sunDir,0.95), hitNormal, hitPoint, tMax);
+		//float tSun = hit(point, mix(point,sunDir,0.95), hitNormal, hitPoint, tMax);
+		float tSun = hit_any(point, mix(point,sunDir,0.95), tMax);
 		if(tSun < 0)
 		{
-			light += sunDirect(albedo, hitNormal, eye);
+			light += sunCosine*albedo*sunLight;
+			//light += sunDirect(albedo, normal, eye);
 		}
 	}
 
-	return light;
+	return light/3.1415927;
 }
 
 void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)

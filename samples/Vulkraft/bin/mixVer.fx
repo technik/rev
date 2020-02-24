@@ -1,5 +1,5 @@
 // Local work group
-layout(local_size_x = 1, local_size_y = 1) in;
+layout(local_size_x = 1, local_size_y = 8) in;
 
 // Inputs
 layout(location = 1) uniform vec4 uWindow;
@@ -28,7 +28,7 @@ void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, 
 	float normalWeight = max(0.0, dot(sampleGBuffer.xyz,gBufferCenter.xyz)-minNormalDot);
 	float distanceWeight = depthWeight(centerDepth, sampleDepth);
 
-	float sampleWeight = 0.57 * normalWeight *distanceWeight;
+	float sampleWeight = 0.7 * normalWeight *distanceWeight;
 	if(sampleWeight > 0)
 	{
 		weight += sampleWeight;

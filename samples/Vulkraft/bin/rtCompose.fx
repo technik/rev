@@ -83,7 +83,7 @@ void main() {
 	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
-	pixel.xyz = sunContrib+albedo*smoothSkyLight + secondLight.xyz;
+	pixel.xyz = sunContrib+albedo*(smoothSkyLight + secondLight.xyz);
 	//pixel.xyz = secondLight.xyz;
 	pixel.w = 1;
 

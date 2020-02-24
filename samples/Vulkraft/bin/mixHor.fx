@@ -1,5 +1,5 @@
 // Local work group
-layout(local_size_x = 1, local_size_y = 1) in;
+layout(local_size_x = 8, local_size_y = 1) in;
 
 // Inputs
 layout(location = 1) uniform vec4 uWindow;
@@ -28,7 +28,7 @@ void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, 
 	float normalWeight = max(0.0, dot(sampleGBuffer.xyz,gBufferCenter.xyz)-minNormalDot);
 	float distanceWeight = depthWeight(centerDepth, sampleDepth);
 
-	float sampleWeight = 0.57 * normalWeight *distanceWeight;
+	float sampleWeight = 0.7 * normalWeight *distanceWeight;
 	if(sampleWeight > 0)
 	{
 		weight += sampleWeight;
@@ -53,6 +53,11 @@ void main() {
 
 	boxAccum(left_coords, normal, weight, value);
 	boxAccum(right_coords, normal, weight, value);
+
+	//left_coords = ivec2(max(0,pixel_coords.x-2*uStep), pixel_coords.y);
+	//right_coords = ivec2(min(uWindow.x-1,pixel_coords.x+2*uStep), pixel_coords.y);
+	//boxAccum(left_coords, normal, weight, value);
+	//boxAccum(right_coords, normal, weight, value);
 
 	// output to a specific pixel in the image
 	imageStore(outBuffer, pixel_coords, value / weight);

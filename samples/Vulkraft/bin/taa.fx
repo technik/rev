@@ -1,5 +1,5 @@
 // Local work group
-layout(local_size_x = 1, local_size_y = 1) in;
+layout(local_size_x = 4, local_size_y = 4) in;
 
 #include "math.fx"
 // Inputs
@@ -31,7 +31,7 @@ void main() {
 			{
 				vec4 history = texelFetch(uPastFrame, pixel_coords, 0);
 				// Accumulate, store and out
-				vec4 smoothVal = mix(history, value, 0.125);
+				vec4 smoothVal = mix(history, value, 0.0625);
 				imageStore(outBuffer, pixel_coords, smoothVal);
 				return;
 			}
