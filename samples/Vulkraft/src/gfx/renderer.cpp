@@ -73,7 +73,7 @@ namespace vkft::gfx
 
 	void Renderer::BoxFilter(
 		Texture2d texture,
-		Vec4f textureSize,
+		const Vec4f& textureSize,
 		unsigned iterations,
 		CommandBuffer& commands)
 	{
@@ -102,6 +102,15 @@ namespace vkft::gfx
 			commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 		}
 	}
+
+	void Renderer::TaaFilter(
+		const Vec4f& textureSize,
+		float taaConfidence,
+		Texture2D gBuffer,
+		Texture2D pastFrame,
+		Texture2D thisFrame
+		)
+	{}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera)
@@ -161,8 +170,8 @@ namespace vkft::gfx
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
 		// Denoise direct light
-		BoxFilter(m_directLightTexture, uWindow, 2, commands);
-		//BoxFilter(m_indirectLightTexture, uWindow, 3, commands);
+		//BoxFilter(m_directLightTexture, uWindow, 2, commands);
+		BoxFilter(m_indirectLightTexture, uWindow, 4, commands);
 
 		// Denoise indirect light
 		// Compose image

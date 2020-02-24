@@ -357,16 +357,16 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hitPoint, float tMax
 	// Convert ray to its implicit representation
 
 	// Hit ground plane
-	if(rd.y < 0.0)
+	/*if(rd.y < 0.0)
 	{
 		normal = vec3(0.0,1.0,0.0);
 		t = -ro.y / rd.y;
 		tMax = t;
 		hitPoint = ro + t*rd;
-	}
+	}*/
 
 	// Hit triangle model
-	for(int i = 0; i < NUM_TRIS; ++i)
+	/*for(int i = 0; i < NUM_TRIS; ++i)
 	{
 		vec3 tNormal;
 		vec3 tempHitPoint;
@@ -378,9 +378,9 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hitPoint, float tMax
 			normal = tNormal;
 			hitPoint = tempHitPoint;
 		}
-	}
+	}*/
 	
-	/*ImplicitRay ir;
+	ImplicitRay ir;
 	toImplicit(ro,rd,ir);
 	// Hit octree
 	{
@@ -392,7 +392,7 @@ float hit(in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hitPoint, float tMax
 			t = tOctree;
 			tMax = tOctree;
 		}
-	}*/
+	}
 	return t;//  tMax ? -1.0 : t;
 }
 

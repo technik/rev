@@ -54,7 +54,7 @@ int main(int _argc, const char** _argv) {
 
 	// Create the application window
 	Vec2u windowStart = {100, 150};
-	Vec2u windowSize = { 400, 300 };
+	Vec2u windowSize = { 720, 480 };
 	auto wnd = createWindow(windowStart, windowSize, "Vulkraft", true);
 
 	// Init graphics

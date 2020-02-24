@@ -17,7 +17,7 @@ layout(rgba32f, binding = 0) writeonly uniform image2D outBuffer;
 void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	// Fetch pixel.
-	vec4 value = texelFetch(uInput, pixel_coords, 0);
+	vec4 value = texelFetch(uThisFrame, pixel_coords, 0);
 	// No reusable data?
 	if(uTaaConfidence > 0) // Reusable data available
 	{
@@ -29,9 +29,11 @@ void main() {
 			// Fetch old GBuffer
 			// if valid
 			{
+				vec4 history = texelFetch(uPastFrame, pixel_coords, 0);
 				// Accumulate, store and out
-				float smoothVal = mix(history, value, 0.5);
+				vec4 smoothVal = mix(history, value, 0.5);
 				imageStore(outBuffer, pixel_coords, value);
+				return;
 			}
 		}
 	}

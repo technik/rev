@@ -60,7 +60,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 	{	
 		vec3 bouncePoint;
 		vec3 bounceNormal;
-		if(hit(ro, sampleSunDir, bounceNormal, bouncePoint, tMax) < 0)
+		if(hit(ro+0.01*normal, sampleSunDir, bounceNormal, bouncePoint, tMax) < 0)
 		{
 			// GGX specular model
 			sunVisibility = 1.0;
@@ -70,9 +70,10 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 	// Sky direct/ regular indirect
 	vec3 bouncePoint;
 	vec3 bounceNormal;
-	float t = hit(ro, rd, bounceNormal, bouncePoint, min(tMax,1e5));
+	float t = hit(ro+0.01*normal, rd, bounceNormal, bouncePoint, min(tMax,1e5));
 	float diffuseCos = dot(rd, normal);
 	float skyContrib = 0;
+	indirect.w = 1.0;
 	if(t > 0.0) // Hit geometry. No direct sky contribution, but we have indirect diffuse.
 	{
 		// Scatter reflected light
@@ -92,6 +93,7 @@ void color(vec3 ro, vec3 normal, vec4 noise, out vec4 direct, out vec4 indirect)
 void main() {
 	// base pixel colour for image
 	vec4 direct = vec4(vec3(0.0),-1.0);
+	vec4 indirect = vec4(vec3(0.0),-1.0);
 	// get index in global work group i.e x,y position
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	//
@@ -100,18 +102,23 @@ void main() {
 	vec3 ro = (uCamWorld * vec4(0,0,0,1.0)).xyz;
 	vec3 rd = worldSpaceRay(uCamWorld, 2*pixelUVs-1);
 	vec4 gBufferData = texelFetch(uGBuffer, pixel_coords, 0);
-	if(gBufferData.w < 0.0)
-		return;
-	vec3 normal = gBufferData.xyz;
-	vec3 surfacePoint = ro + gBufferData.w * rd + 1e-5 * normal;
+	if(gBufferData.w > 0.0)
+	{
+		vec3 normal = gBufferData.xyz;
+		vec3 surfacePoint = ro + gBufferData.w * rd + 1e-5 * normal;
 
-	// Scatter reflected light
-	ivec2 noise_coord = ivec2(pixel_coords.x+uNoiseOffset.x,pixel_coords.y+uNoiseOffset.y);
-	vec4 noise = texelFetch(uNoise, noise_coord%64, 0);
-	vec4 indirect;
-	color(surfacePoint, normal, noise, direct, indirect);
+		// Scatter reflected light
+		ivec2 noise_coord = ivec2(pixel_coords.x+uNoiseOffset.x,pixel_coords.y+uNoiseOffset.y);
+		vec4 noise = texelFetch(uNoise, noise_coord%64, 0);
+		color(surfacePoint, normal, noise, direct, indirect);
 
-	// output to a specific pixel in the image
-	imageStore(direct_out, pixel_coords, direct);
-	imageStore(indirect_out, pixel_coords, indirect);
+		// output to a specific pixel in the image
+		imageStore(direct_out, pixel_coords, direct);
+		imageStore(indirect_out, pixel_coords, indirect);
+	}
+	else
+	{
+		imageStore(direct_out, pixel_coords, direct);
+		imageStore(indirect_out, pixel_coords, indirect);	
+	}
 }
