@@ -4,14 +4,10 @@ layout(location = 11) uniform sampler2D uGBuffer;
 
 layout(location = 12) uniform sampler2D uDirectLight;
 layout(location = 13) uniform sampler2D uIndirectLight;
-layout(location = 14) uniform sampler2D uDirectTaaSrc;
-layout(location = 15) uniform sampler2D uIndirectTaaSrc;
 layout(location = 16) uniform mat4 uOldView;
 
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D img_output;
-layout(rgba32f, binding = 1) writeonly uniform image2D direct_taa;
-layout(rgba32f, binding = 2) writeonly uniform image2D indirect_taa;
 
 vec2 ssFromWorldPos(mat4 view, vec3 worldPos)
 {
@@ -51,60 +47,6 @@ ivec2 pixelFromUV(vec2 uv)
 	return ivec2(uv*uWindow.xy);
 }
 
-bool reuseTaa(float curT, out vec4 taa, out vec4 indirectTaa)
-{
-	//return false;
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
-	
-	vec2 oldSS = ssFromWorldPos(uOldView, curPos);
-
-	if(oldSS.x <= -1 || oldSS.y <= -1 || oldSS.x >= 1.0 || oldSS.y >= 1.0)
-		return false;
-
-	ivec2 oldPxl = pixelFromUV(oldSS*0.5+0.5);
-	taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
-	float lastT = taa.w;
-	if(lastT < 0.0)
-		return false;
-	indirectTaa = texelFetch(uIndirectTaaSrc, oldPxl, 0);
-	vec3 oldPos = worldPosFromPixel(uOldView, oldPxl, lastT);
-	vec3 distance = oldPos-curPos;
-	float error = sqrt(dot(distance, distance))/curT;
-	return error < 0.009;
-}
-
-vec3 ssReprojError(float curT)
-{
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
-	vec2 reconstUV = uvFromWorldPos(uViewMtx, curPos);
-	pixelFromUV(reconstUV);
-	//return vec3((reconstUV*uWindow.xy-0.5)-pixel_coords, 0.0);
-	return vec3(pixelFromUV(reconstUV)-pixel_coords, 0.0);
-}
-
-vec3 reprojError(float curT)
-{
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec3 curPos = worldPosFromPixel(uViewMtx, pixel_coords, curT);
-	
-	vec2 oldSS = ssFromWorldPos(uOldView, curPos);
-
-	if(oldSS.x <= -1 || oldSS.y <= -1 || oldSS.x >= 1.0 || oldSS.y >= 1.0)
-		return vec3(0);
-	ivec2 oldPxl = pixelFromUV(oldSS*0.5+0.5);
-	vec4 taa = texelFetch(uDirectTaaSrc, oldPxl, 0);
-	float lastT = taa.w;
-	if(lastT < 0.0)
-		return vec3(0);
-
-	//vec3 oldPos = worldPosFromSS(uOldView, oldSS, lastT);
-	vec3 oldPos = worldPosFromPixel(uOldView, oldPxl, lastT);
-	vec3 distance = oldPos-curPos;
-	return vec3(abs(distance)/(curT*0.1));
-}
-
 vec3 irradiance(in vec3 dir)
 {
 	return skyColor(normalize(dir + vec3(0.0,1.0,0.0)));
@@ -119,8 +61,6 @@ void main() {
 	if(gBuffer.w < 0.0)
 	{
 		imageStore(img_output, pixel_coords, vec4(skyColor(rd.xyz),1.0));
-		imageStore(direct_taa, pixel_coords, vec4(vec3(0.0),-1));
-		imageStore(indirect_taa, pixel_coords, vec4(vec3(0.0),-1));
 		return;
 	}
 	//
@@ -143,11 +83,10 @@ void main() {
 	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
-	//pixel.xyz = sunContrib + albedo*smoothSkyLight;
 	pixel.xyz = sunContrib+albedo*smoothSkyLight + secondLight.xyz;
+	//pixel.xyz = secondLight.xyz;
 	pixel.w = 1;
 
 	// output to a specific pixel in the image
 	imageStore(img_output, pixel_coords, pixel);
-	imageStore(indirect_taa, pixel_coords, vec4(secondLight,0.0));
 }

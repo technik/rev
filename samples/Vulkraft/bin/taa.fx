@@ -31,8 +31,8 @@ void main() {
 			{
 				vec4 history = texelFetch(uPastFrame, pixel_coords, 0);
 				// Accumulate, store and out
-				vec4 smoothVal = mix(history, value, 0.5);
-				imageStore(outBuffer, pixel_coords, value);
+				vec4 smoothVal = mix(history, value, 0.125);
+				imageStore(outBuffer, pixel_coords, smoothVal);
 				return;
 			}
 		}

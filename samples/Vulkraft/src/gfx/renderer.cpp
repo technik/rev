@@ -67,6 +67,7 @@ namespace vkft::gfx
 		loadShaderAndSetListener("rtCompose.fx", m_composeCompute);
 		loadShaderAndSetListener("mixHor.fx", m_mixHorCompute);
 		loadShaderAndSetListener("mixVer.fx", m_mixVerCompute);
+		loadShaderAndSetListener("taa.fx", m_taaCompute);
 
 		m_taaView = Mat44f::identity();
 	}
@@ -95,22 +96,36 @@ namespace vkft::gfx
 			passUniforms.addParam(1, textureSize);
 			passUniforms.addParam(2, float(step));
 			passUniforms.addParam(10, m_pingPongTexture);
-			passUniforms.addParam(11, texture);
+			passUniforms.addParam(11, m_gBufferTexture);
 			commands.setComputeProgram(m_mixVerCompute);
 			commands.setUniformData(passUniforms);
 			commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-			commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+			commands.dispatchCompute(texture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 		}
 	}
 
 	void Renderer::TaaFilter(
 		const Vec4f& textureSize,
 		float taaConfidence,
-		Texture2D gBuffer,
-		Texture2D pastFrame,
-		Texture2D thisFrame
+		Texture2d gBuffer,
+		Texture2d pastFrame,
+		Texture2d thisFrame,
+		Texture2d target,
+		CommandBuffer& commands
 		)
-	{}
+	{
+		CommandBuffer::UniformBucket passUniforms;
+
+		passUniforms.addParam(1, textureSize);
+		passUniforms.addParam(4, taaConfidence);
+		passUniforms.addParam(10, gBuffer);
+		passUniforms.addParam(11, pastFrame);
+		passUniforms.addParam(12, thisFrame);
+		commands.setComputeProgram(m_taaCompute);
+		commands.setUniformData(passUniforms);
+		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
+		commands.dispatchCompute(target, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera)
@@ -158,6 +173,8 @@ namespace vkft::gfx
 		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
 
 		// Dispatch light contributions
+		auto lastFrameNdx = m_taaIndex;
+		auto thisFrameNdx = m_taaIndex^1;
         passUniforms.clear();
         passUniforms.addParam(11, m_gBufferTexture); // So we can read from the g-buffer
 		passUniforms.addComputeOutput(1, m_indirectLightTexture);
@@ -170,20 +187,25 @@ namespace vkft::gfx
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
 		// Denoise direct light
-		//BoxFilter(m_directLightTexture, uWindow, 2, commands);
-		BoxFilter(m_indirectLightTexture, uWindow, 4, commands);
+		BoxFilter(m_directLightTexture, uWindow, 2, commands);
+		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
+			m_directLightTAABuffer[lastFrameNdx], m_directLightTexture,
+			m_directLightTAABuffer[thisFrameNdx], commands);
 
 		// Denoise indirect light
+		BoxFilter(m_indirectLightTexture, uWindow, 2, commands);
+		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
+			m_indirectLightTAABuffer[lastFrameNdx], m_indirectLightTexture,
+			m_indirectLightTAABuffer[thisFrameNdx], commands);
+
 		// Compose image
 		passUniforms.clear();
-		passUniforms.addComputeOutput(1, m_directLightTAABuffer[m_taaIndex]);
-		passUniforms.addComputeOutput(2, m_indirectLightTAABuffer[m_taaIndex]);
-		m_taaIndex^=1;
         passUniforms.addParam(11, m_gBufferTexture);
-        passUniforms.addParam(12, m_directLightTexture);
-		passUniforms.addParam(13, m_indirectLightTexture);
-		passUniforms.addParam(14, m_directLightTAABuffer[m_taaIndex]);
-		passUniforms.addParam(15, m_indirectLightTAABuffer[m_taaIndex]);
+        passUniforms.addParam(12, m_directLightTAABuffer[thisFrameNdx]);
+		if(m_taaConfidence > 0)
+			passUniforms.addParam(13, m_indirectLightTAABuffer[thisFrameNdx]);
+		else
+			passUniforms.addParam(13, m_indirectLightTexture);
 		passUniforms.addParam(16, m_taaView);
 		m_taaView = view;
 		commands.setComputeProgram(m_composeCompute);
@@ -203,11 +225,15 @@ namespace vkft::gfx
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
 		mGfxDevice.renderQueue().present();
+
+		m_taaIndex ^= 1;
+		m_taaConfidence = 1.f;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::onResizeTarget(const rev::math::Vec2u& newSize)
 	{
+		m_taaConfidence = 0.f;
 		m_targetSize = newSize;
 		mTargetFov = float(newSize.x()) / newSize.y();
 		if(m_finalPass)

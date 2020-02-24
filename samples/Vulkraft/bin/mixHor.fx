@@ -28,7 +28,7 @@ void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, 
 	float normalWeight = max(0.0, dot(sampleGBuffer.xyz,gBufferCenter.xyz)-minNormalDot);
 	float distanceWeight = depthWeight(centerDepth, sampleDepth);
 
-	float sampleWeight = 0.7 * normalWeight *distanceWeight;
+	float sampleWeight = 0.57 * normalWeight *distanceWeight;
 	if(sampleWeight > 0)
 	{
 		weight += sampleWeight;

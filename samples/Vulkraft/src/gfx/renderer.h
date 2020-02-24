@@ -39,8 +39,17 @@ namespace vkft::gfx
 		// Filtering stages
 		void Renderer::BoxFilter(
 			rev::gfx::Texture2d texture,
-			rev::math::Vec4f textureSize,
+			const rev::math::Vec4f& textureSize,
 			unsigned iterations,
+			rev::gfx::CommandBuffer& commands);
+
+		void Renderer::TaaFilter(
+			const rev::math::Vec4f& textureSize,
+			float taaConfidence,
+			rev::gfx::Texture2d gBuffer,
+			rev::gfx::Texture2d pastFrame,
+			rev::gfx::Texture2d thisFrame,
+			rev::gfx::Texture2d target,
 			rev::gfx::CommandBuffer& commands);
 
 	private:
@@ -59,6 +68,7 @@ namespace vkft::gfx
         rev::gfx::Texture2d m_raytracingTexture;
 		rev::gfx::Texture2d m_pingPongTexture; // Used as a reusable target buffer for filtering
 		int m_taaIndex = 0;
+		float m_taaConfidence = 0.f;
 
         // Compute programs
         std::vector<rev::gfx::ShaderCodeFragment*> m_computeCode; // Code fragments for all compute programs
@@ -66,7 +76,8 @@ namespace vkft::gfx
         rev::gfx::ComputeShader m_directLightCompute;
         rev::gfx::ComputeShader m_composeCompute;
         rev::gfx::ComputeShader m_mixHorCompute;
-        rev::gfx::ComputeShader m_mixVerCompute;
+		rev::gfx::ComputeShader m_mixVerCompute;
+		rev::gfx::ComputeShader m_taaCompute;
 
 		rev::gfx::TextureSampler m_rtBufferSampler;
 
