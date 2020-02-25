@@ -17,6 +17,7 @@
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
 
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -93,13 +94,19 @@ int main(int _argc, const char** _argv) {
 	vkft::VoxelOctree voxelMap(gfxDevice, rawGrid);
 
 	// Main loop
+	auto t0 = std::chrono::high_resolution_clock::now();
 	float t = 0;
 	for(;;)
 	{
 		if(!rev::core::OSHandler::get()->update())
 			break;
 
-		camNode->update(1.f/60);
+		// Compute frame time
+		auto t1 = std::chrono::high_resolution_clock::now();
+		float dt = std::chrono::duration<float>(t1-t0).count();
+		t0 = t1;
+
+		camNode->update(dt);
 		// Modify the uniform command
 		//Vec3f color = Vec3f(t,t,t);
 		//timeUniform.vec3s.push_back({0, color});
@@ -107,10 +114,10 @@ int main(int _argc, const char** _argv) {
 		//uniformCmd.setUniformData(timeUniform);
 
 		// Send pass to the GPU
-		renderer.render(voxelMap, *playerCam);
+		renderer.render(voxelMap, *playerCam, dt);
 
 		// Update time
-		t += 1.f/60;
+		t += dt;
 		if(t > 1) t -= 1.f;
 	}
 

@@ -12,6 +12,8 @@
 #include <graphics/backend/texture2d.h>
 #include <graphics/scene/camera.h>
 #include <graphics/Image.h>
+#include <graphics/debug/imgui.h>
+#include <graphics/debug/debugGUI.h>
 
 #include <string>
 #include <sstream>
@@ -70,6 +72,8 @@ namespace vkft::gfx
 		loadShaderAndSetListener("taa.fx", m_taaCompute);
 
 		m_taaView = Mat44f::identity();
+
+		gui::init(targetSize);
 	}
 
 	void Renderer::BoxFilter(
@@ -128,7 +132,7 @@ namespace vkft::gfx
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera)
+	void Renderer::render(const vkft::VoxelOctree& worldMap, const rev::gfx::Camera& camera, float dt)
 	{
 		CommandBuffer commands;
         CommandBuffer::UniformBucket passUniforms;
@@ -138,6 +142,7 @@ namespace vkft::gfx
 		|| !m_directLightCompute.isValid())
 			return;
 
+		gui::startFrame(m_targetSize);
         // Optimization ideas:
         // - Run a broad phase conservative g-buffer to reduce distance traversed by primary rays
         // - Or just rasterize the g-buffer. Which also allows you to take advantage of normal mapping and all things
@@ -224,6 +229,9 @@ namespace vkft::gfx
 
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
+
+		gui::finishFrame(dt);
+		ImGui::Render();
 		mGfxDevice.renderQueue().present();
 
 		m_taaIndex ^= 1;
