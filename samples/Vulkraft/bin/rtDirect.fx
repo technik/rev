@@ -38,8 +38,8 @@ vec3 sampleDirectLight(vec3 eye, vec3 point, vec3 normal, vec4 noise, float t, f
 		float tSun = hit_any(point, mix(point,sunDir,0.95), tMax);
 		if(tSun < 0)
 		{
-			light += sunCosine*albedo*sunLight;
-			//light += sunDirect(albedo, normal, eye);
+			//light += sunCosine*albedo*sunLight;
+			light += sunDirect(albedo, normal, eye);
 		}
 	}
 
