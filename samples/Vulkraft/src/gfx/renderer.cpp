@@ -203,6 +203,7 @@ namespace vkft::gfx
 		// Denoise indirect light
 		ImGui::SliderInt("Indirect Box Filter iterations", &m_indirectBoxIterations, 0, 10);
 		BoxFilter(m_indirectLightTexture, uWindow, m_indirectBoxIterations, commands);
+
 		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
 			m_indirectLightTAABuffer[lastFrameNdx], m_indirectLightTexture,
 			m_indirectLightTAABuffer[thisFrameNdx], commands);

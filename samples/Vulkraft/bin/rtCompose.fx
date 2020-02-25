@@ -76,8 +76,11 @@ void main() {
 	vec4 pixel = vec4(0.0);
 
 	vec3 smoothSkyLight = vec3(skyVisibility) * irradiance(gBuffer.xyz);
-	vec4 localPoint = ro+rd*gBuffer.w;
-	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
+
+	float depth = gBuffer.w;
+	float z = zFromDepthBuffer(uProj, depth);
+	vec4 localPoint = ro+rd*z/rd.z;
+	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, z, 0);
 	// Sun GGX
 	vec3 eye = -rd.xyz;
 	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
