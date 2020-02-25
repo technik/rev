@@ -10,13 +10,9 @@ layout(location = 11) uniform sampler2D uGBuffer;
 // Output texture
 layout(rgba32f, binding = 0) writeonly uniform image2D outBuffer;
 
-#include "math.fx"
-
 float depthWeight(float depth0, float depth1)
 {
-	float z0 = zFromDepthBuffer(uProj, depth0);
-	float z1 = zFromDepthBuffer(uProj, depth1);
-	float depthError = abs(z1-z0);
+	float depthError = abs(depth1-depth0);
 	const float maxRelativeError = 1;
 	return max(0.0, 1-depthError/maxRelativeError);
 }

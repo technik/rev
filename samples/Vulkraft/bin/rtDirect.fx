@@ -107,9 +107,7 @@ void main() {
 	if(gBufferData.w > 0.0)
 	{
 		vec3 normal = gBufferData.xyz;
-		float depth = gBufferData.w;
-		float z = zFromDepthBuffer(uProj, depth);
-		vec3 surfacePoint = ro + rd*z/rd.z + 1e-5 * normal;
+		vec3 surfacePoint = ro + gBufferData.w * rd + 1e-5 * normal;
 
 		// Scatter reflected light
 		ivec2 noise_coord = ivec2(pixel_coords.x+uNoiseOffset.x,pixel_coords.y+uNoiseOffset.y);

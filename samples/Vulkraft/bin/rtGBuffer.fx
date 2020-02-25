@@ -17,10 +17,8 @@ void main() {
 	vec3 normal = vec3(0.0, 0.0, -1.0);
 	vec3 hitPoint;
 	float t = hit(ro, rd, normal, hitPoint, tMax);
-	float z = (uViewMtx * vec4(hitPoint, 1.0)).z;
-	float depth = depthBufferFromZ(uProj, z);
 	//vec4 gBufferPixel = vec4(vec3(rd.y), 1.0);
-	vec4 gBufferPixel = vec4(normal,t>0?depth:-1);
+	vec4 gBufferPixel = vec4(normal,t);
 
 	// output to a specific pixel in the image
 	imageStore(gBufferOut, pixel_coords, gBufferPixel);
