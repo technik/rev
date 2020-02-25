@@ -94,5 +94,7 @@ namespace vkft::gfx
 		rev::math::Mat44f m_taaView;
 		rev::math::Vec2u m_targetSize;
 		rev::gfx::Texture2d m_texturePack;
+		int m_indirectBoxIterations = 2;
+		int m_directBoxIterations = 2;
 	};
 }

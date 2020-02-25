@@ -143,6 +143,7 @@ namespace vkft::gfx
 			return;
 
 		gui::startFrame(m_targetSize);
+		ImGui::Begin("Render options");
         // Optimization ideas:
         // - Run a broad phase conservative g-buffer to reduce distance traversed by primary rays
         // - Or just rasterize the g-buffer. Which also allows you to take advantage of normal mapping and all things
@@ -192,13 +193,15 @@ namespace vkft::gfx
         commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
 
 		// Denoise direct light
-		BoxFilter(m_directLightTexture, uWindow, 2, commands);
+		ImGui::SliderInt("Direct Box Filter iterations", &m_directBoxIterations, 0, 10);
+		BoxFilter(m_directLightTexture, uWindow, m_directBoxIterations, commands);
 		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
 			m_directLightTAABuffer[lastFrameNdx], m_directLightTexture,
 			m_directLightTAABuffer[thisFrameNdx], commands);
 
 		// Denoise indirect light
-		BoxFilter(m_indirectLightTexture, uWindow, 2, commands);
+		ImGui::SliderInt("Indirect Box Filter iterations", &m_indirectBoxIterations, 0, 10);
+		BoxFilter(m_indirectLightTexture, uWindow, m_indirectBoxIterations, commands);
 		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
 			m_indirectLightTAABuffer[lastFrameNdx], m_indirectLightTexture,
 			m_indirectLightTAABuffer[thisFrameNdx], commands);
@@ -230,6 +233,7 @@ namespace vkft::gfx
 		// Submit
 		mGfxDevice.renderQueue().submitCommandBuffer(commands);
 
+		ImGui::End();
 		gui::finishFrame(dt);
 		ImGui::Render();
 		mGfxDevice.renderQueue().present();
