@@ -1,5 +1,5 @@
 // Local work group
-layout(local_size_x = 1, local_size_y = 8) in;
+layout(local_size_x = 1, local_size_y = 32) in;
 
 // Inputs
 layout(location = 1) uniform vec4 uWindow;
@@ -38,6 +38,9 @@ void boxAccum(in ivec2 sampleCoords, in vec4 gBufferCenter, inout float weight, 
 
 void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	if(pixel_coords.y >= uWindow.y)
+		return;
+
 	ivec2 up_coords = ivec2(pixel_coords.x, max(0,pixel_coords.y-uStep));
 	ivec2 down_coords = ivec2(pixel_coords.x, min(uWindow.y-1,pixel_coords.y+uStep));
 

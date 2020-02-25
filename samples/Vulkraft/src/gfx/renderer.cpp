@@ -85,26 +85,26 @@ namespace vkft::gfx
 		CommandBuffer::UniformBucket passUniforms;
 		for (int i = 0; i < iterations; ++i)
 		{
-			int step = 2 * i + 1;
+			float step = float(2 * i + 1);
 			passUniforms.clear();
 			passUniforms.addParam(1, textureSize);
-			passUniforms.addParam(2, float(step));
+			passUniforms.addParam(2, Vec4f(step, 0.f, 0.f, 0.f));
 			passUniforms.addParam(10, texture);
 			passUniforms.addParam(11, m_gBufferTexture);
 			commands.setComputeProgram(m_mixHorCompute);
 			commands.setUniformData(passUniforms);
 			commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-			commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+			commands.dispatchCompute(m_pingPongTexture, Vec3i{ (int)m_targetSize.x()/32+1, (int)m_targetSize.y(), 1 });
 
 			passUniforms.clear();
 			passUniforms.addParam(1, textureSize);
-			passUniforms.addParam(2, float(step));
+			passUniforms.addParam(2, step);
 			passUniforms.addParam(10, m_pingPongTexture);
 			passUniforms.addParam(11, m_gBufferTexture);
 			commands.setComputeProgram(m_mixVerCompute);
 			commands.setUniformData(passUniforms);
 			commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-			commands.dispatchCompute(texture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+			commands.dispatchCompute(texture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y() /32+1, 1 });
 		}
 	}
 
@@ -128,7 +128,7 @@ namespace vkft::gfx
 		commands.setComputeProgram(m_taaCompute);
 		commands.setUniformData(passUniforms);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(target, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+		commands.dispatchCompute(target, Vec3i{ (int)m_targetSize.x() / 4 + 1, (int)m_targetSize.y() / 4 + 1, 1 });
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -174,9 +174,10 @@ namespace vkft::gfx
 		commonUniforms.addParam(7, worldMap.gpuBuffer());
 
 		// Dispatch gBuffer shader
+		auto raytracingDispatchGroupSize = Vec3i{ (int)m_targetSize.x() / 8 + 1, (int)m_targetSize.y() / 4 + 1, 1 };
 		commands.setComputeProgram(m_gBufferCompute);
         commands.setUniformData(commonUniforms);
-		commands.dispatchCompute(m_gBufferTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+		commands.dispatchCompute(m_gBufferTexture, raytracingDispatchGroupSize);
 
 		// Dispatch light contributions
 		auto lastFrameNdx = m_taaIndex;
@@ -190,7 +191,7 @@ namespace vkft::gfx
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
         commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
-        commands.dispatchCompute(m_directLightTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1 });
+        commands.dispatchCompute(m_directLightTexture, raytracingDispatchGroupSize);
 
 		// Denoise direct light
 		ImGui::SliderInt("Direct Box Filter iterations", &m_directBoxIterations, 0, 10);
@@ -220,7 +221,7 @@ namespace vkft::gfx
         commands.setUniformData(commonUniforms);
         commands.setUniformData(passUniforms);
 		commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess);
-		commands.dispatchCompute(m_raytracingTexture, Vec3i{ (int)m_targetSize.x(), (int)m_targetSize.y(), 1});
+		commands.dispatchCompute(m_raytracingTexture, raytracingDispatchGroupSize);
 
 		// Render full screen texture
         passUniforms.clear();
