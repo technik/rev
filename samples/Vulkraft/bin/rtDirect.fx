@@ -101,13 +101,16 @@ void main() {
 	//
 	// Compute uvs
 	vec2 pixelUVs = vec2(pixel_coords.x, pixel_coords.y) * (1/uWindow.xy);
-	vec3 ro = (uCamWorld * vec4(0,0,0,1.0)).xyz;
-	vec3 rd = worldSpaceRay(uCamWorld, 2*pixelUVs-1);
+	vec3 ro = uCamWorld[3].xyz;
+	vec4 vsRd = viewSpaceRay(2*pixelUVs-1);
+	vec3 rd = (uCamWorld * vsRd).xyz;
 	vec4 gBufferData = texelFetch(uGBuffer, pixel_coords, 0);
-	if(gBufferData.w > 0.0)
+	float d = gBufferData.w;
+	if(d > 0.0)
 	{
+		float t = -d / vsRd.z;
 		vec3 normal = gBufferData.xyz;
-		vec3 surfacePoint = ro + gBufferData.w * rd + 1e-5 * normal;
+		vec3 surfacePoint = ro + (uCamWorld * vsRd * t).xyz;
 
 		// Scatter reflected light
 		ivec2 noise_coord = ivec2(pixel_coords.x+uNoiseOffset.x,pixel_coords.y+uNoiseOffset.y);

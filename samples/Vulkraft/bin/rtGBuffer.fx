@@ -11,14 +11,16 @@ void main() {
 	// Compute uvs
 	vec2 uvs = 2*vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y) / uWindow.xy-1;
 	vec3 ro = -(transpose(uViewMtx) * uViewMtx[3]).xyz;
-	vec3 rd = worldSpaceRay(uCamWorld, uvs);
+	vec4 vsRd = viewSpaceRay(uvs);
+	vec3 rd = (uCamWorld * vsRd).xyz;
 
 	float tMax = 1000.0;
 	vec3 normal = vec3(0.0, 0.0, -1.0);
 	vec3 hitPoint;
 	float t = hit(ro, rd, normal, hitPoint, tMax);
 	//vec4 gBufferPixel = vec4(vec3(rd.y), 1.0);
-	vec4 gBufferPixel = vec4(normal,t);
+	float d = -t*vsRd.z;
+	vec4 gBufferPixel = vec4(normal,d);
 
 	// output to a specific pixel in the image
 	imageStore(gBufferOut, pixel_coords, gBufferPixel);

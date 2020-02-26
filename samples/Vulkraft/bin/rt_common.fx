@@ -93,17 +93,18 @@ float hitTriangle(int ndx, in vec3 ro, in vec3 rd, out vec3 normal, out vec3 hit
 	return t > tMax ? -1.0 : t;
 }
 
-vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
+vec4 viewSpaceRay(vec2 clipSpacePos)
 {
 	float zClipDepth = 0.0;
 	float wClip = uProj[3][2] / (zClipDepth - uProj[2][2]/uProj[2][3]);
-	vec3 csPos = vec3(clipSpacePos.x, clipSpacePos.y, zClipDepth);
-	vec4 vsPos = (inverse(uProj) * vec4(csPos, 1))*wClip;
-	vec4 wsPos = camWorld * vsPos;
-	vec4 wsEyePos = camWorld * vec4(vec3(0.0), 1.0);
+	vec3 csPos = vec3(clipSpacePos.x, clipSpacePos.y, zClipDepth)*wClip;
+	vec4 vsPos = inverse(uProj) * (vec4(csPos, wClip));
+	return vec4(normalize(vsPos.xyz), .0);
+}
 
-	vec3 wsEyeDir = normalize(wsEyePos.xyz-wsPos.xyz);
-	return -wsEyeDir;
+vec3 worldSpaceRay(mat4 camWorld, vec2 clipSpacePos)
+{
+	return normalize((camWorld * viewSpaceRay(clipSpacePos)).xyz);
 }
 
 float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)

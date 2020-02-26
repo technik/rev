@@ -57,12 +57,17 @@ void main() {
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 gBuffer = texelFetch(uGBuffer, pixel_coords, 0);
 	vec2 pixelUVs = vec2(pixel_coords.x+0.5, pixel_coords.y+0.5) * (1/uWindow.xy);
-	vec4 rd = vec4(worldSpaceRay(uCamWorld,2*pixelUVs-1), 0.0);
-	if(gBuffer.w < 0.0)
+	
+	vec4 vsRd = viewSpaceRay(2*pixelUVs-1);
+	vec4 rd = uCamWorld * vsRd;
+	
+	float d = gBuffer.w;
+	if(d < 0.0)
 	{
 		imageStore(img_output, pixel_coords, vec4(skyColor(rd.xyz),1.0));
 		return;
 	}
+	float t = -d/vsRd.z;
 	//
 	vec3 worldNormal = gBuffer.xyz;
 	vec4 ro = uCamWorld * vec4(0,0,0,1.0);
@@ -75,16 +80,16 @@ void main() {
 	// base pixel colour for image
 	vec4 pixel = vec4(0.0);
 
-	vec3 smoothSkyLight = vec3(skyVisibility) * irradiance(gBuffer.xyz);
-	vec4 localPoint = ro+rd*gBuffer.w;
-	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, gBuffer.w, 0);
+	vec3 smoothSkyLight = vec3(skyVisibility) * irradiance(worldNormal);
+	vec4 localPoint = ro+rd*t;
+	vec3 albedo = fetchAlbedo(localPoint.xyz, worldNormal, t, 0);
 	// Sun GGX
 	vec3 eye = -rd.xyz;
 	vec3 sunBrdf = sunDirect(albedo, worldNormal, eye);
 	vec3 sunContrib = sunVisibility * sunBrdf;
 	
 	pixel.xyz = sunContrib+albedo*(smoothSkyLight + secondLight.xyz);
-	//pixel.xyz = secondLight.xyz;
+	//pixel.xyz = smoothSkyLight.xyz;
 	pixel.w = 1;
 
 	// output to a specific pixel in the image

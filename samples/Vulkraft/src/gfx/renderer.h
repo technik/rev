@@ -45,6 +45,8 @@ namespace vkft::gfx
 
 		void Renderer::TaaFilter(
 			const rev::math::Vec4f& textureSize,
+			const rev::math::Mat44f& pastViewProj,
+			const rev::math::Mat44f& thisViewProj,
 			float taaConfidence,
 			rev::gfx::Texture2d gBuffer,
 			rev::gfx::Texture2d pastFrame,
@@ -92,6 +94,7 @@ namespace vkft::gfx
 		// Render parameters
 		float mTargetFov;
 		rev::math::Mat44f m_taaView;
+		rev::math::Mat44f m_pastViewProj;
 		rev::math::Vec2u m_targetSize;
 		rev::gfx::Texture2d m_texturePack;
 		int m_indirectBoxIterations = 2;

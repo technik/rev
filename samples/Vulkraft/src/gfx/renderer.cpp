@@ -110,6 +110,8 @@ namespace vkft::gfx
 
 	void Renderer::TaaFilter(
 		const Vec4f& textureSize,
+		const Mat44f& pastViewProj,
+		const Mat44f& thisViewProj,
 		float taaConfidence,
 		Texture2d gBuffer,
 		Texture2d pastFrame,
@@ -121,6 +123,8 @@ namespace vkft::gfx
 		CommandBuffer::UniformBucket passUniforms;
 
 		passUniforms.addParam(1, textureSize);
+		passUniforms.addParam(2, pastViewProj);
+		passUniforms.addParam(3, thisViewProj);
 		passUniforms.addParam(4, taaConfidence);
 		passUniforms.addParam(10, gBuffer);
 		passUniforms.addParam(11, pastFrame);
@@ -193,17 +197,22 @@ namespace vkft::gfx
         commands.memoryBarrier(CommandBuffer::MemoryBarrier::ImageAccess); // Wait for G-Buffer to be ready
         commands.dispatchCompute(m_directLightTexture, raytracingDispatchGroupSize);
 
+
+		Mat44f viewProj = view * proj;
+
 		// Denoise direct light
 		ImGui::SliderInt("Direct Box Filter iterations", &m_directBoxIterations, 0, 10);
 		BoxFilter(m_directLightTexture, uWindow, m_directBoxIterations, commands);
-		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
+		TaaFilter(uWindow, viewProj, m_pastViewProj,
+			m_taaConfidence, m_gBufferTexture,
 			m_directLightTAABuffer[lastFrameNdx], m_directLightTexture,
 			m_directLightTAABuffer[thisFrameNdx], commands);
 
 		// Denoise indirect light
 		ImGui::SliderInt("Indirect Box Filter iterations", &m_indirectBoxIterations, 0, 10);
 		BoxFilter(m_indirectLightTexture, uWindow, m_indirectBoxIterations, commands);
-		TaaFilter(uWindow, m_taaConfidence, m_gBufferTexture,
+		TaaFilter(uWindow, viewProj, m_pastViewProj,
+			m_taaConfidence, m_gBufferTexture,
 			m_indirectLightTAABuffer[lastFrameNdx], m_indirectLightTexture,
 			m_indirectLightTAABuffer[thisFrameNdx], commands);
 
@@ -241,6 +250,7 @@ namespace vkft::gfx
 
 		m_taaIndex ^= 1;
 		m_taaConfidence = 1.f;
+		m_pastViewProj = viewProj;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
