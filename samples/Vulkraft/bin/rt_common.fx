@@ -146,8 +146,8 @@ vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 	//return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
-	//if(worldPos.y > 0.01)
-	//	tileOffset = ivec2(2,4);
+	if(abs(worldNormal.y) < 0.01)
+		tileOffset = ivec2(3,0);
 	//if(worldPos.y > 1.99)
 	//	tileOffset = ivec2(4,0);
 	// Compute uvs
