@@ -143,17 +143,13 @@ float hitBox(in Box b, in ImplicitRay r, out vec3 normal, float tMax)
 #ifdef GBUFFER
 vec3 fetchAlbedo(vec3 worldPos, vec3 worldNormal, float t, int lodBias)
 {
-	//return vec3(0.5);
 	// Choose material
 	ivec2 tileOffset = ivec2(0,0);
-	if(abs(worldNormal.y) < 0.01)
-		tileOffset = ivec2(3,0);
-	//if(worldPos.y > 1.99)
-	//	tileOffset = ivec2(4,0);
-	// Compute uvs
 	vec2 texUV;
-	if(worldNormal.y > 0.5 || worldNormal.y < -0.5)
+	// Compute uvs
+	if(abs(worldNormal.y) < 0.5)
 	{
+		tileOffset = ivec2(3,0);
 		texUV = fract(worldPos.xz);
 	}
 	else
