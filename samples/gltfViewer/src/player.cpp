@@ -90,6 +90,17 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
+		// TODO:
+		// Preload metadata and scene definition
+		// Allocate memory in the renderer for meshes (and maybe textures)
+		// Load scene (meshes, mats, etc)
+		// Update scene representation in GUI
+		// Optimize/Convert buffers to runtime formats
+		// Instantiate nodes with render components
+		// Load animations, if any
+		// Load lights
+		// Load cameras
+
 		m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
 		m_gltfRoot->addComponent<Transform>();
 		mGameScene.root()->addChild(m_gltfRoot);
@@ -162,6 +173,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::updateLogic(TimeDelta dt)
 	{
+		// TODO: Play animations
 		mGameScene.root()->update(dt.count());
 		return true;
 	}
@@ -169,6 +181,11 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
+		// TODO:
+		// Obtain swapchain image
+		// Build render graph
+		// Grab screen capture / record video frame
+
 		updateUI(dt.count());
 		// Render scene
 		mDeferred.render(mGraphicsScene, *mFlybyCam);

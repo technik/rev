@@ -65,14 +65,14 @@ namespace rev {
 					auto fullPath = path / filename;
 					if (std::filesystem::exists(fullPath))
 					{
-						return new File(filename.generic_u8string().c_str());
+						return new File(filename.string());
 					}
 				}
 			}
 			// Finally, try just the unmodified path (either absolute or relative)
 			if (std::filesystem::exists(filename))
 			{
-				return new File(filename.generic_u8string().c_str());
+				return new File(filename.string());
 			}
 			return nullptr;
 		}
