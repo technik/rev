@@ -20,11 +20,11 @@
 #include "base3dApplication.h"
 
 #include <iostream>
+#include <chrono>
 
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
-#include <core/time/time.h>
 
 #include <graphics/backend/device.h>
 #include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
@@ -46,6 +46,7 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	void Base3dApplication::run(int argc, const char** argv)
 	{
+		std::chrono::high_resolution_clock::time_point lastTime = m_appTime.now();
 		// Parse command line
 		core::CmdLineParser arguments;
 		arguments.addFlag("fullscreen", m_fullScreen);
@@ -57,27 +58,33 @@ namespace rev::game {
 			return;
 		// Init application
 		init();
+
 		// main loop
-		// TODO: Think of simulation loop and deal with variable render times and fixed simulation time
-		const float fixedDt = 1.f / 60;
+		const int kMaxIter = 4;
+		const TimeDelta fixedDt = TimeDelta(1.f / 60);
+		const TimeDelta maxCarryOverTime = TimeDelta(0.5f);
+		std::chrono::duration<float> accumTime = fixedDt; // Start with a regular frame
 		for (;;)
 		{
 			if (!core::OSHandler::get()->update())
 				break;
 			
-			core::Time::get()->update();
-			auto frameTime = core::Time::get()->frameTime();
-			frameTime = std::min(frameTime, 1.f); // Clamp time to at most 1 second
-			m_accumTime += frameTime;
-			while (m_accumTime > fixedDt)
+			// Fixed time simulation loop and render
+			for(int i = 0; i < kMaxIter &&  accumTime >= fixedDt; ++i)
 			{
-				m_accumTime -= fixedDt;
+				accumTime -= fixedDt;
 				//	updateLogic
 				if (!updateLogic(fixedDt))
 					return;
 			}
 			//	render
-			render(frameTime);
+			render(fixedDt);
+
+			// Prepare next frame's time
+			auto t = m_appTime.now();
+			accumTime += t - lastTime; // Accumulate this frame's duration plus left over time from this frame
+			accumTime = std::min(maxCarryOverTime, accumTime); // Clamp max carry over
+			lastTime = t;
 		}
 		end();
 		core::FileSystem::end();
@@ -87,7 +94,6 @@ namespace rev::game {
 	void Base3dApplication::initEngineCore()
 	{
 		core::OSHandler::startUp();
-		core::Time::init();
 		core::FileSystem::init();
 
 		// Init input systems

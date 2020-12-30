@@ -21,6 +21,7 @@
 
 #include <math/algebra/vector.h>
 #include <graphics/backend/renderPass.h>
+#include <chrono>
 #include <memory>
 
 namespace rev::core {
@@ -37,6 +38,7 @@ namespace rev::game {
 	{
 	protected:
 		Base3dApplication() = default;
+		using TimeDelta = std::chrono::duration<float>;
 
 	public:
 		virtual ~Base3dApplication();
@@ -55,8 +57,8 @@ namespace rev::game {
 		virtual bool init() { return true; }
 		virtual void end() {}
 		// Main loop
-		virtual bool updateLogic(float dt) = 0;
-		virtual void render(float dt) = 0;
+		virtual bool updateLogic(TimeDelta logicDt) = 0;
+		virtual void render(TimeDelta renderDt) = 0;
 		// Events
 		virtual void onResize() {}
 
@@ -68,7 +70,8 @@ namespace rev::game {
 		std::unique_ptr<gfx::Device> m_gfxDevice;
 		gfx::FrameBuffer m_backBuffer;
 
-		float m_accumTime = 0;
+		std::chrono::high_resolution_clock m_appTime;
+
 		math::Vec2u m_windowSize = { 640, 480 };
 		bool m_fullScreen = false;
 	};

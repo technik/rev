@@ -7,7 +7,6 @@
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/cmdLineParser.h>
-#include <core/time/time.h>
 #include <core/tools/log.h>
 #include <game/scene/camera.h>
 #include <game/animation/animator.h>
@@ -161,16 +160,16 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::updateLogic(float dt)
+	bool Player::updateLogic(TimeDelta dt)
 	{
-		mGameScene.root()->update(dt);
+		mGameScene.root()->update(dt.count());
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::render(float dt)
+	void Player::render(TimeDelta dt)
 	{
-		updateUI(dt);
+		updateUI(dt.count());
 		// Render scene
 		mDeferred.render(mGraphicsScene, *mFlybyCam);
 		// Render gui

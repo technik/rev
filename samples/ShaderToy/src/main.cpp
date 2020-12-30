@@ -116,13 +116,13 @@ public:
 		}
 	}
 
-	bool updateLogic(float dt) override
+	bool updateLogic(TimeDelta dt) override
 	{
 		float t = m_timeVector.x();
 		float T = m_timeVector.y();
 		// Update time
-		t += dt;
-		T += dt;
+		t += dt.count();
+		T += dt.count();
 		if (t > 1)
 		{
 			t -= 1.f;
@@ -131,7 +131,7 @@ public:
 		return true;
 	}
 
-	void render(float dt) override
+	void render(TimeDelta dt) override
 	{
 		gui::startFrame(windowSize());
 
@@ -159,7 +159,7 @@ public:
 		gfxDevice().renderQueue().submitCommandBuffer(m_fsCommandBuffer);
 
 		// Finish frame
-		gui::finishFrame(dt);
+		gui::finishFrame(dt.count());
 		ImGui::Render();
 		gfxDevice().renderQueue().present();
 	}

@@ -46,8 +46,8 @@ namespace rev {
 		void getCommandLineOptions(core::CmdLineParser&) override;
 		bool init() override;
 		// Main loop
-		bool updateLogic(float dt) override;
-		void render(float dt) override;
+		bool updateLogic(TimeDelta logicDt) override;
+		void render(TimeDelta renderDt) override;
 		// Events
 		void onResize() override;
 
