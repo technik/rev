@@ -132,10 +132,10 @@ namespace rev {
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        template<class T, size_t n>
-        Vector<T, n> cross(const Vector<T, n>& a, const Vector<T, n>& b)
+        template<class T>
+        Vector<T, 3> cross(const Vector<T, 3>& a, const Vector<T, 3>& b)
         {
-            Vector<T, n> result;
+            Vector<T, 3> result;
             result.x() = a.y()*b.z() - a.z()*b.y();
             result.y() = a.z()*b.x() - a.x()*b.z();
             result.z() = a.x()*b.y() - a.y()*b.x();

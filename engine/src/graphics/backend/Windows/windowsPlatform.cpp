@@ -73,9 +73,9 @@ namespace rev :: gfx
 		}
 	}
 	//----------------------------------------------------------------------------------------------
-	HWND createDummyWindow(bool useCursor)
+	HWND createDummyWindow()
 	{
-		if(!registerClass(useCursor))
+		if(!registerClass(false))
 			return NULL;
 
 		// Create a windown through the windows API
@@ -90,7 +90,10 @@ namespace rev :: gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool useCursor, bool _visible)
+	HWND createWindow(
+		const math::Vec2u& _pos, const math::Vec2u& _size,
+		const char* _windowName,
+		bool fullScreen, bool useCursor, bool _visible)
 	{
 		if (!registerClass(useCursor))
 			return NULL;

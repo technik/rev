@@ -120,7 +120,7 @@ namespace rev::game {
 			m_windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
 			m_windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
 		}
-		auto wnd = createWindow(windowStart, m_windowSize, this->name().c_str(), true, m_fullScreen);
+		auto wnd = createWindow(windowStart, m_windowSize, this->name().c_str(), m_fullScreen, true, true);
 		auto openglDevice = std::make_unique<DeviceOpenGLWindows>(wnd, true);
 		if (!openglDevice)
 		{

@@ -26,7 +26,10 @@
 
 namespace rev :: gfx
 {
-	HWND createDummyWindow(bool useCursor);
+	HWND createDummyWindow();
 
-	HWND createWindow(const math::Vec2u& _pos, const math::Vec2u& _size, const char* _windowName, bool useCursor, bool _visible);
+	HWND createWindow(
+		const math::Vec2u& _pos, const math::Vec2u& _size,
+		const char* _windowName,
+		bool fullScreen, bool useCursor, bool _visible);
 }
