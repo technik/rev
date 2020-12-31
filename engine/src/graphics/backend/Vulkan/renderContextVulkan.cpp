@@ -21,6 +21,8 @@
 #include "../Windows/windowsPlatform.h"
 #include <core/platform/osHandler.h>
 
+#include <iostream>
+
 namespace rev::gfx {
 
 	//--------------------------------------------------------------------------------------------------
@@ -91,6 +93,19 @@ namespace rev::gfx {
 		createInstance(applicationName);
 	}
 
+	namespace {
+		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+			VkDebugUtilsMessageTypeFlagsEXT messageType,
+			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+			void* pUserData) {
+
+			std::cout << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+			return VK_FALSE;
+		}
+	}
+
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::createInstance(const char* applicationName)
 	{
@@ -133,9 +148,32 @@ namespace rev::gfx {
 
 		m_vkInstance = vk::createInstance(instanceInfo);
 		assert(m_vkInstance);
+
+#ifdef _DEBUG
+		// Debug callback
+		VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		createInfo.pfnUserCallback = debugCallback;
+		createInfo.pUserData = nullptr;
+
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugUtilsMessengerEXT");
+		assert(func);
+		func(m_vkInstance, &createInfo, nullptr, &m_debugMessenger);
+		vk::DebugUtilsMessengerEXT dbg;
+#endif
 	}
 
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::deinit()
-	{}
+	{
+		// Destroy debug messenger
+		if (m_debugMessenger)
+		{
+			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_vkInstance, "vkDestroyDebugUtilsMessengerEXT");
+			assert(func);
+			func(m_vkInstance, m_debugMessenger, nullptr);
+		}
+	}
 }

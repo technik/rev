@@ -76,5 +76,7 @@ namespace rev :: gfx
 
 		vk::Instance m_vkInstance;
 		Properties m_properties;
+
+		VkDebugUtilsMessengerEXT m_debugMessenger {};
 	};
 }
