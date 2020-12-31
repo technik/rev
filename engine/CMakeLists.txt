@@ -45,6 +45,8 @@ target_include_directories(revGfx PRIVATE "../include" ${CMAKE_CURRENT_SOURCE_DI
 target_include_directories (revGfx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
 target_link_libraries(revGfx LINK_PRIVATE revMath revCore)
 set_target_properties(revGfx PROPERTIES FOLDER rev)
+target_include_directories(revGfx PUBLIC ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(revGfx LINK_PRIVATE ${Vulkan_LIBRARY})
 
 # game
 file(GLOB_RECURSE GAME_SOURCE_FILES "src/game/*.cpp" "src/game/*.h" "src/game/*.inl")

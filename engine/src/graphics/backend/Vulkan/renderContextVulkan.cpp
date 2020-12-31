@@ -24,6 +24,12 @@
 namespace rev::gfx {
 
 	//--------------------------------------------------------------------------------------------------
+	RenderContextVulkan::~RenderContextVulkan()
+	{
+		deinit();
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::createWindow(
 		math::Vec2i& position,
 		math::Vec2u& size,
@@ -78,4 +84,55 @@ namespace rev::gfx {
 			return false;
 		};
 	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::initVulkan(const char* applicationName)
+	{
+		createInstance(applicationName);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::createInstance(const char* applicationName)
+	{
+		const uint32_t engineVersion = VK_MAKE_VERSION(5, 0, 0);
+		const uint32_t appVersion = VK_MAKE_VERSION(1, 0, 0);
+		const uint32_t apiVersion = VK_MAKE_VERSION(1, 2, 0);
+		vk::ApplicationInfo appInfo(applicationName, appVersion, "rev", engineVersion, apiVersion);
+
+		constexpr auto numRequiredExtensions = 1;
+		const char* requiredExtensions[numRequiredExtensions] = {};
+
+		vk::InstanceCreateInfo instanceInfo;
+		constexpr uint32_t numLayers = 1;
+		const char* instanceLayerNames[numLayers] = {
+			"VK_LAYER_LUNARG_monitor"
+		};
+		instanceInfo.enabledLayerCount = numLayers;
+		instanceInfo.ppEnabledLayerNames = instanceLayerNames;
+
+		// Query extensions
+		// Query available extensions count
+		vkEnumerateInstanceExtensionProperties(nullptr, &instanceInfo.enabledExtensionCount, nullptr);
+		
+		// Allocate space for extension names
+		m_properties.extensions.resize(instanceInfo.enabledExtensionCount);
+		std::vector<char*> extensionNames;
+		extensionNames.reserve(instanceInfo.enabledExtensionCount);
+		vk::enumerateInstanceExtensionProperties(nullptr, &instanceInfo.enabledExtensionCount, m_properties.extensions.data());
+
+		// Copy extension names into createInfo
+		// TODO: Is it worth enabling only the extensions we actually intend to use?
+		// TODO: Validate required extensions are available
+		for (auto& extension : m_properties.extensions) {
+			extensionNames.push_back(extension.extensionName);
+		}
+		instanceInfo.ppEnabledExtensionNames = extensionNames.data();
+
+		m_vkInstance = vk::createInstance(instanceInfo);
+		assert(m_vkInstance);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::deinit()
+	{}
 }

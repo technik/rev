@@ -125,6 +125,8 @@ namespace rev::game {
 			name().c_str(),
 			m_options.fullScreen, true);
 
+		m_renderContext.initVulkan(name().c_str());
+
 		return true;
 	}
 }

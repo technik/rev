@@ -22,9 +22,12 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vulkan/vulkan.hpp>
+#include <vector>
 
 #include <core/event.h>
 #include <math/algebra/vector.h>
+
 
 namespace rev :: gfx
 {
@@ -32,7 +35,7 @@ namespace rev :: gfx
 	{
 	public:
 		RenderContextVulkan() = default;
-		~RenderContextVulkan() = default;
+		~RenderContextVulkan();
 
 		// Window
 		// If full screen is enabled, size and position will be updated to
@@ -47,15 +50,31 @@ namespace rev :: gfx
 		const math::Vec2u& windowSize() const { return m_windowSize; }
 		auto& onResize() { return m_onResize; };
 
+		// Vulkan
+		void initVulkan(const char* applicationName);
+
 		// Swapchain
 		// Device
 		// Alloc
 		// Debug
 		// Device properties (capabilities)
+		struct Properties
+		{
+			std::vector<vk::ExtensionProperties> extensions;
+		};
+
+		const Properties properties() const { m_properties; }
+
+	private:
+		void createInstance(const char* applicationName);
+		void deinit();
 
 	private:
 		HWND nativeWindowHandle { NULL };
 		core::Event<math::Vec2u> m_onResize;
 		math::Vec2u m_windowSize { 0, 0 };
+
+		vk::Instance m_vkInstance;
+		Properties m_properties;
 	};
 }
