@@ -103,12 +103,15 @@ namespace rev::gfx {
 		const char* requiredExtensions[numRequiredExtensions] = {};
 
 		vk::InstanceCreateInfo instanceInfo;
+		instanceInfo.enabledLayerCount = 0;
+#ifdef _DEBUG
 		constexpr uint32_t numLayers = 1;
 		const char* instanceLayerNames[numLayers] = {
 			"VK_LAYER_LUNARG_monitor"
 		};
 		instanceInfo.enabledLayerCount = numLayers;
 		instanceInfo.ppEnabledLayerNames = instanceLayerNames;
+#endif
 
 		// Query extensions
 		// Query available extensions count
