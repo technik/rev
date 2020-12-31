@@ -35,7 +35,6 @@ namespace rev {
 		{
 			std::string scene;
 			std::string environment;
-			math::Vec2u size = { 640, 480 };
 			float fov = 45.f;
 
 			void registerOptions(core::CmdLineParser&);

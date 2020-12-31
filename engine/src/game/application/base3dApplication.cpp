@@ -37,6 +37,14 @@ using namespace rev::math;
 
 namespace rev::game {
 
+	//------------------------------------------------------------------------------------------------------------------
+	void Base3dApplication::CommandLineOptions::registerOptions(core::CmdLineParser& args)
+	{
+		args.addOption("w", &windowSize.x());
+		args.addOption("h", &windowSize.y());
+		args.addFlag("fullscreen", fullScreen);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	Base3dApplication::~Base3dApplication()
 	{
@@ -49,7 +57,7 @@ namespace rev::game {
 		std::chrono::high_resolution_clock::time_point lastTime = m_appTime.now();
 		// Parse command line
 		core::CmdLineParser arguments;
-		arguments.addFlag("fullscreen", m_fullScreen);
+		m_options.registerOptions(arguments);
 		getCommandLineOptions(arguments);
 		arguments.parse(argc, argv);
 		// Init engine
@@ -112,57 +120,10 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics()
 	{
-		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
-
-		Vec2u windowStart = { 100, 150 };
-		if (m_fullScreen)
-		{
-			m_windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
-			m_windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
-		}
-		auto wnd = createWindow(windowStart, m_windowSize, this->name().c_str(), m_fullScreen, true, true);
-		auto openglDevice = std::make_unique<DeviceOpenGLWindows>(wnd, true);
-		if (!openglDevice)
-		{
-			std::cout << "Unable to create graphics device\n";
-			return false;
-		}
-
-		m_backBuffer = openglDevice->defaultFrameBuffer();
-		m_gfxDevice = std::move(openglDevice);
-
-		// Hook up window resizing callback
-		*core::OSHandler::get() += [&](MSG _msg) {
-			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
-			{
-				// Get new rectangle size without borders
-				RECT clientSurface;
-				GetClientRect(_msg.hwnd, &clientSurface);
-				m_windowSize = Vec2u(clientSurface.right, clientSurface.bottom);
-				
-				onResize();
-				return true;
-			}
-			if (_msg.message == WM_DPICHANGED)
-			{
-				const RECT* recommendedSurface = reinterpret_cast<const RECT*>(_msg.lParam);
-				m_windowSize = Vec2u(
-					recommendedSurface->right - recommendedSurface->left,
-					recommendedSurface->bottom - recommendedSurface->top);
-				SetWindowPos(wnd,
-					NULL,
-					recommendedSurface->left,
-					recommendedSurface->top,
-					m_windowSize.x(),
-					m_windowSize.y(),
-					SWP_NOZORDER | SWP_NOACTIVATE);
-
-				onResize();
-				return true;
-			}
-
-			return false;
-		};
+		m_renderContext.createWindow(
+			m_options.windowPosition, m_options.windowSize,
+			name().c_str(),
+			m_options.fullScreen, true);
 
 		return true;
 	}

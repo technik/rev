@@ -12,6 +12,8 @@ if(REV_WITH_OPENGL)
 	add_definitions(-DOPENGL_45)
 endif()
 
+find_package(Vulkan REQUIRED)
+
 #######################################################################
 ####### Create separate libraries for each module of the engine #######
 # Core

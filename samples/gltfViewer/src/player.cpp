@@ -33,8 +33,6 @@ namespace rev {
 	{
 		args.addOption("env", &environment);
 		args.addOption("scene", &scene);
-		args.addOption("w", &size.x());
-		args.addOption("h", &size.y());
 		args.addOption("fov", &fov);
 	}
 
@@ -47,6 +45,8 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init()
 	{
+		// Create render context
+		// 
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 

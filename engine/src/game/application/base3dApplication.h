@@ -21,6 +21,7 @@
 
 #include <math/algebra/vector.h>
 #include <graphics/backend/renderPass.h>
+#include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <chrono>
 #include <memory>
 
@@ -39,6 +40,18 @@ namespace rev::game {
 	protected:
 		Base3dApplication() = default;
 		using TimeDelta = std::chrono::duration<float>;
+
+		struct CommandLineOptions
+		{
+			math::Vec2i windowPosition { 100, 150 };
+			math::Vec2u windowSize { 640, 480 };
+			bool fullScreen;
+
+			void registerOptions(core::CmdLineParser&);
+		};
+
+		gfx::RenderContextVulkan m_renderContext;
+		const CommandLineOptions& initOptions() const { m_options; }
 
 	public:
 		virtual ~Base3dApplication();
@@ -72,8 +85,8 @@ namespace rev::game {
 
 		std::chrono::high_resolution_clock m_appTime;
 
-		math::Vec2u m_windowSize = { 640, 480 };
-		bool m_fullScreen = false;
+		math::Vec2u m_windowSize;
+		CommandLineOptions m_options;
 	};
 
 }

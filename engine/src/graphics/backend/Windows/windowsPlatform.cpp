@@ -91,7 +91,7 @@ namespace rev :: gfx
 
 	//----------------------------------------------------------------------------------------------
 	HWND createWindow(
-		const math::Vec2u& _pos, const math::Vec2u& _size,
+		const math::Vec2i& _pos, const math::Vec2u& _size,
 		const char* _windowName,
 		bool fullScreen, bool useCursor, bool _visible)
 	{
@@ -99,7 +99,7 @@ namespace rev :: gfx
 			return NULL;
 
 		math::Vec2u windowSize = _size;
-		math::Vec2u windowPos = _pos;
+		math::Vec2i windowPos = _pos;
 		DWORD windowStyle = WS_POPUP | (_visible ? WS_VISIBLE : WS_DISABLED);
 		DWORD windowStyleEx = 0;
 		if (fullScreen)
@@ -107,7 +107,7 @@ namespace rev :: gfx
 			windowStyleEx = WS_EX_APPWINDOW;
 			windowSize.x() = GetSystemMetrics(SM_CXSCREEN);
 			windowSize.y() = GetSystemMetrics(SM_CYSCREEN);
-			windowPos = math::Vec2u::zero();
+			windowPos = math::Vec2i::zero();
 		}
 		else
 		{
