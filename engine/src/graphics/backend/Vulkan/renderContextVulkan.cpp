@@ -257,6 +257,10 @@ namespace rev::gfx {
 		if (std::find(presentModes.begin(), presentModes.end(), targetPresentMode) == presentModes.end())
 			return false;
 
+		// Must check device support before attempting to create the surface
+		if (!m_physicalDevice.getSurfaceSupportKHR(m_queueFamilies.present.value(), m_surface))
+			return false;
+
 		vk::Extent2D imageSize { m_windowSize.x(), m_windowSize.y() };
 		uint32_t minImageCount = 2; // Double buffered
 		auto queueFamilyIndices = { m_queueFamilies.graphics.value() };

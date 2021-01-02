@@ -47,6 +47,7 @@ namespace rev {
 	{
 		// Create render context
 		// 
+		/*
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 
@@ -75,7 +76,7 @@ namespace rev {
 		mGameScene.root()->init();
 
 		gui::init(windowSize());
-
+		*/
 		return true;
 	}
 
@@ -83,7 +84,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onResize()
 	{
-		mDeferred.onResizeTarget(windowSize());
+		//mDeferred.onResizeTarget(windowSize());
 	}
 #endif // _WIN32
 
@@ -186,14 +187,14 @@ namespace rev {
 		// Build render graph
 		// Grab screen capture / record video frame
 
-		updateUI(dt.count());
+		/*updateUI(dt.count());
 		// Render scene
 		mDeferred.render(mGraphicsScene, *mFlybyCam);
 		// Render gui
 		ImGui::Render();
 
 		// Present to screen
-		gfxDevice().renderQueue().present();
+		gfxDevice().renderQueue().present();*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
