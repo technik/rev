@@ -125,8 +125,11 @@ namespace rev::game {
 			name().c_str(),
 			m_options.fullScreen, true);
 
-		m_renderContext.initVulkan(name().c_str());
+		if (!m_renderContext.initVulkan(name().c_str()))
+		{
+			return false;
+		}
 
-		return true;
+		return m_renderContext.createSwapchain();
 	}
 }

@@ -45,7 +45,7 @@ namespace rev::game {
 		{
 			math::Vec2i windowPosition { 100, 150 };
 			math::Vec2u windowSize { 640, 480 };
-			bool fullScreen;
+			bool fullScreen{ false };
 
 			void registerOptions(core::CmdLineParser&);
 		};

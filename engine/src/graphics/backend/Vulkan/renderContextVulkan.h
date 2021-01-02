@@ -22,12 +22,13 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vector>
+#include <optional>
 
 #include <core/event.h>
 #include <math/algebra/vector.h>
-
 
 namespace rev :: gfx
 {
@@ -51,32 +52,75 @@ namespace rev :: gfx
 		auto& onResize() { return m_onResize; };
 
 		// Vulkan
-		void initVulkan(const char* applicationName);
+		bool initVulkan(
+			const char* applicationName,
+			uint32_t numAppDeviceExtensions = 0, const char** appDeviceExtensionNames = nullptr,
+			uint32_t numLayers = 0, const char** layerNames = nullptr);
 
 		// Swapchain
+		bool createSwapchain();
+
 		// Device
+		auto device() const { return m_device; }
+		auto graphicsQueue() const { return m_gfxQueue; }
+
 		// Alloc
 		// Debug
 		// Device properties (capabilities)
 		struct Properties
 		{
-			std::vector<vk::ExtensionProperties> extensions;
+			std::vector<vk::ExtensionProperties> instanceExtensions;
 		};
 
 		const Properties properties() const { m_properties; }
 
 	private:
-		void createInstance(const char* applicationName);
+		bool createInstance(const char* applicationName);
+		void getPhysicalDevice();
+		void initSurface();
+		bool initSwapChain();
+		void createLogicalDevice();
 		void deinit();
 
+		bool isDeviceSuitable(const vk::PhysicalDevice&);
+
 	private:
-		HWND nativeWindowHandle { NULL };
+		// Window
+		HWND m_nativeWindowHandle { NULL };
 		core::Event<math::Vec2u> m_onResize;
 		math::Vec2u m_windowSize { 0, 0 };
 
+		// Device
 		vk::Instance m_vkInstance;
+		vk::PhysicalDevice m_physicalDevice;
+		vk::Device m_device;
 		Properties m_properties;
+		std::vector<const char*> m_requiredDeviceExtensions;
+		std::vector<const char*> m_layers;
 
-		VkDebugUtilsMessengerEXT m_debugMessenger {};
+		// Swapchain
+		vk::SurfaceKHR m_surface;
+		vk::SwapchainKHR m_swapchain;
+
+		// Queues
+		struct QueueFamilies
+		{
+			std::optional<uint32_t> present;
+			std::optional<uint32_t> graphics;
+			std::optional<uint32_t> compute;
+			std::optional<uint32_t> transfer;
+
+			bool isFull() const {
+				return present.has_value() &&
+					graphics.has_value() &&
+					compute.has_value() &&
+					transfer.has_value();
+			}
+		} m_queueFamilies;
+		QueueFamilies getDeviceQueueFamilies(const vk::PhysicalDevice& device);
+		vk::Queue m_gfxQueue;
+
+		// Debug
+		vk::DebugUtilsMessengerEXT m_debugMessenger;
 	};
 }
