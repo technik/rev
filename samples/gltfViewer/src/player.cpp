@@ -185,7 +185,50 @@ namespace rev {
 		// TODO:
 		// Obtain swapchain image
 		// Build render graph
-		// Grab screen capture / record video frame
+			// Grab screen capture / record video frame
+
+		/* Render pseudo code
+		graph.reset();
+
+		// Option A: Empty graph
+		graph.addClearPass<format>(swapchain.next, Vec4f{0, 0, 0, 0}); // Syntax sugar for simple clears
+
+		// Option B: Basic RT pass
+		graphResId gbuffer;
+		graphResId dirLight;
+		graphResId toneMapped;
+		graph.addRTPass(pipeline,
+			[&](builder){
+				gbuffer = builder.addColorOut(set, binding, format);
+				dirLight = builder.addColorOut(set, binding, format);
+				},
+			[&](cmd){
+				cmd.bind(uniforms);
+				cmd.constants(pushConst);
+				cmd.raytrace(size);
+			});
+		graph.addComputePass(pipeline,
+			[&](builder){
+				builder.addInput(set, binding, gbuffer);
+				builder.addInput(set, binding, dirLight);
+				builder.addOutput(set, binding, toneMapped);
+				},
+			[&](cmd){
+				cmd.bind(uniforms);
+				cmd.constants();
+				cmd.dispatch(size);
+			});
+
+		// Common part. Everything up to here can be done only once per shader reload
+		grpah.build(); // This will be invoke the build callbacks, and so potentially alter the graph
+		graph.record(); // This will invoke the record callbacks, evaluate culling, Acceleration structs, ect...
+
+		// Unsure about how this part should go.
+		auto endSignal = graph.submit();
+		queue.present();
+		coawait fence(); // Not really needed here. Can actually do this wherever the resources are actually needed
+		*/
+
 
 		/*updateUI(dt.count());
 		// Render scene
