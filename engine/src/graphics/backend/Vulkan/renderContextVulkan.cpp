@@ -386,4 +386,27 @@ namespace rev::gfx {
 
 		return result;
 	}
+
+	//--------------------------------------------------------------------------------------------------
+	vk::Image RenderContextVulkan::currentSwapChainImage() const {
+		return m_swapchain.currentImage();
+	}
+	
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s)
+	{
+		auto res = m_device.acquireNextImageKHR(m_swapchain.vkSwapchain, uint64_t(-1), s);
+		m_swapchain.frameIndex = res.value;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::swapchainPresent(vk::Semaphore s)
+	{
+		auto presentInfo = vk::PresentInfoKHR(
+			1, &s,
+			1, &m_swapchain.vkSwapchain,
+			&m_swapchain.frameIndex);
+
+		m_gfxQueue.presentKHR(presentInfo);
+	}
 }

@@ -44,6 +44,7 @@ namespace rev {
 		// Life cycle
 		void getCommandLineOptions(core::CmdLineParser&) override;
 		bool init() override;
+		void end() override;
 		// Main loop
 		bool updateLogic(TimeDelta logicDt) override;
 		void render(TimeDelta renderDt) override;
@@ -58,6 +59,17 @@ namespace rev {
 		void createCamera();
 		void createFloor();
 		void updateSceneBBox();
+
+		auto getNextCmdPool() {
+			m_nextCmdPoolNdx %= m_commandPools.size();
+			return m_commandPools[m_nextCmdPoolNdx++];
+		}
+
+		// Vulkan objects to move into rev::gfx
+		std::vector<vk::CommandPool> m_commandPools;
+		size_t m_nextCmdPoolNdx{};
+		vk::Semaphore m_imageAvailableSemaphore;
+		vk::Semaphore m_renderFinishedSemaphore;
 
 		// Scene
 		gfx::RenderScene					mGraphicsScene;

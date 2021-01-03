@@ -59,10 +59,15 @@ namespace rev :: gfx
 
 		// Swapchain
 		bool createSwapchain();
+		auto nSwapChainImages() const { return m_swapchain.images.size(); }
+		vk::Image currentSwapChainImage() const;
+		void swapchainAquireNextImage(vk::Semaphore dst);
+		void swapchainPresent(vk::Semaphore src);
 
 		// Device
 		auto device() const { return m_device; }
 		auto graphicsQueue() const { return m_gfxQueue; }
+		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
 
 		// Alloc
 		// Debug
@@ -106,6 +111,9 @@ namespace rev :: gfx
 			vk::Format imageFormat;
 			std::vector<vk::Image> images;
 			std::vector<vk::ImageView> imageViews;
+			uint32_t frameIndex;
+
+			auto currentImage() const { return images[frameIndex]; }
 		} m_swapchain;
 
 		// Queues

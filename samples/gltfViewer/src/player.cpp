@@ -45,8 +45,22 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init()
 	{
-		// Create render context
-		// 
+		// Create command pools
+		auto device = renderContext().device();
+		const auto nCommandPools = renderContext().nSwapChainImages();
+		m_commandPools.reserve(nCommandPools);
+		for (size_t i = 0; i < nCommandPools; ++i)
+		{
+			auto cmdPool = device.createCommandPool(vk::CommandPoolCreateInfo(
+				vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+				renderContext().graphicsQueueFamily()));
+			m_commandPools.push_back(cmdPool);
+		}
+
+		// Create semaphores
+		m_imageAvailableSemaphore = device.createSemaphore({});
+		m_renderFinishedSemaphore = device.createSemaphore({});
+
 		/*
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
@@ -79,6 +93,18 @@ namespace rev {
 		*/
 		return true;
 	}
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::end()
+	{
+		auto device = renderContext().device();
+		device.destroySemaphore(m_imageAvailableSemaphore);
+		device.destroySemaphore(m_renderFinishedSemaphore);
+
+		for (auto& cmdPool : m_commandPools)
+		{
+			device.destroyCommandPool(cmdPool);
+		}
+	}
 
 #ifdef _WIN32
 	//------------------------------------------------------------------------------------------------------------------
@@ -108,8 +134,8 @@ namespace rev {
 
 		std::vector<std::shared_ptr<Animation>> animations;
 		std::vector<std::shared_ptr<SceneNode>> animNodes;
-		GltfLoader gltfLoader(gfxDevice());
-		gltfLoader.load(*m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
+		//GltfLoader gltfLoader(gfxDevice());
+		//gltfLoader.load(*m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -182,6 +208,36 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
+		auto& cmdPool = getNextCmdPool();
+		// Allocate a command buffer for the frame
+		vk::CommandBufferAllocateInfo cmdBufferInfo(cmdPool, vk::CommandBufferLevel::ePrimary, 1);
+		auto cmd = renderContext().device().allocateCommandBuffers(cmdBufferInfo).front();
+
+		// Record frame
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+		vk::ImageSubresourceRange clearRange[] = {
+			{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
+		};
+		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, 1.f, 1.f, 1.f });
+
+		renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore);
+		cmd.clearColorImage(
+			renderContext().currentSwapChainImage(),
+			vk::ImageLayout::ePresentSrcKHR,
+			&clearColor, 1, clearRange
+		);
+		cmd.end();
+
+		auto waitSemaphores = { m_imageAvailableSemaphore };
+		auto signalSemaphores = { m_renderFinishedSemaphore };
+		vk::PipelineStageFlags waitFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		vk::SubmitInfo submitInfo(
+			1, &m_imageAvailableSemaphore, &waitFlags, // wait
+			1, &cmd, // commands
+			1, &m_renderFinishedSemaphore); // signal
+		renderContext().graphicsQueue().submit(submitInfo);
+		renderContext().swapchainPresent(m_renderFinishedSemaphore);
+
 		// TODO:
 		// Obtain swapchain image
 		// Build render graph

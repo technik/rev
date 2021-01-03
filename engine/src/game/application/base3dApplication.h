@@ -50,7 +50,6 @@ namespace rev::game {
 			void registerOptions(core::CmdLineParser&);
 		};
 
-		gfx::RenderContextVulkan m_renderContext;
 		const CommandLineOptions& initOptions() const { m_options; }
 
 	public:
@@ -60,9 +59,8 @@ namespace rev::game {
 		void run(int argc, const char** argv);
 
 	protected:
-		gfx::Device& gfxDevice() { return *m_gfxDevice; }
-		const math::Vec2u& windowSize() const { return m_windowSize; }
-		gfx::FrameBuffer backBuffer() const { return m_backBuffer; }
+		const math::Vec2u& windowSize() const { return m_renderContext.windowSize(); }
+		gfx::RenderContextVulkan& renderContext() { return m_renderContext; }
 
 	private: // Extension interface
 		// Life cycle
@@ -80,12 +78,8 @@ namespace rev::game {
 		bool initGraphics();
 
 	private:
-		std::unique_ptr<gfx::Device> m_gfxDevice;
-		gfx::FrameBuffer m_backBuffer;
-
 		std::chrono::high_resolution_clock m_appTime;
-
-		math::Vec2u m_windowSize;
+		gfx::RenderContextVulkan m_renderContext;
 		CommandLineOptions m_options;
 	};
 
