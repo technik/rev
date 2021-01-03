@@ -208,6 +208,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
+		static float accumT = 0.f;
 		auto& cmdPool = getNextCmdPool();
 		// Allocate a command buffer for the frame
 		vk::CommandBufferAllocateInfo cmdBufferInfo(cmdPool, vk::CommandBufferLevel::ePrimary, 1);
@@ -218,7 +219,10 @@ namespace rev {
 		vk::ImageSubresourceRange clearRange[] = {
 			{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
 		};
-		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, 1.f, 1.f, 1.f });
+		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
+		accumT += dt.count();
+		if (accumT > 1.f)
+			accumT -= 1.f;
 
 		renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore);
 		cmd.clearColorImage(

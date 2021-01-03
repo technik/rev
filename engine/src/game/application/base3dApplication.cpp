@@ -94,6 +94,8 @@ namespace rev::game {
 			accumTime = std::min(maxCarryOverTime, accumTime); // Clamp max carry over
 			lastTime = t;
 		}
+		// Wait for the GPU to catch up before destroying stuff
+		renderContext().device().waitIdle();
 		end();
 		core::FileSystem::end();
 	}
