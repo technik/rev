@@ -250,6 +250,7 @@ namespace rev::gfx {
 		auto targetFormat = vk::Format::eR8G8B8A8Srgb;
 		if (std::find(surfaceFormats.begin(), surfaceFormats.end(), targetFormat) == surfaceFormats.end())
 			return false;
+		m_swapchain.imageFormat = targetFormat;
 
 		// Check VSync support here
 		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
@@ -275,7 +276,20 @@ namespace rev::gfx {
 			vk::SharingMode::eExclusive,
 			queueFamilyIndices);
 		
-		m_swapchain = m_device.createSwapchainKHR(surfaceInfo);
+		m_swapchain.vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
+		m_swapchain.images = m_device.getSwapchainImagesKHR(m_swapchain.vkSwapchain);
+
+		m_swapchain.imageViews.reserve(m_swapchain.images.size());
+		for (auto image : m_swapchain.images) {
+			vk::ImageViewCreateInfo viewInfo({},
+				image,
+				vk::ImageViewType::e2D,
+				m_swapchain.imageFormat,
+				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+			m_swapchain.imageViews.push_back(m_device.createImageView(viewInfo));
+		}
+
 		return true;
 	}
 
@@ -301,9 +315,17 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::deinit()
 	{
+		if(m_swapchain.images.size() > 0)
+		{
+			for (auto view : m_swapchain.imageViews)
+			{
+				m_device.destroyImageView(view);
+			}
+			m_device.destroySwapchainKHR(m_swapchain.vkSwapchain);
+		}
+
 		if(m_surface)
 		{
-			m_device.destroySwapchainKHR(m_swapchain);
 			m_vkInstance.destroySurfaceKHR(m_surface);
 		}
 

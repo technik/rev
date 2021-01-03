@@ -100,7 +100,13 @@ namespace rev :: gfx
 
 		// Swapchain
 		vk::SurfaceKHR m_surface;
-		vk::SwapchainKHR m_swapchain;
+		struct SwapChainInfo
+		{
+			vk::SwapchainKHR vkSwapchain;
+			vk::Format imageFormat;
+			std::vector<vk::Image> images;
+			std::vector<vk::ImageView> imageViews;
+		} m_swapchain;
 
 		// Queues
 		struct QueueFamilies
