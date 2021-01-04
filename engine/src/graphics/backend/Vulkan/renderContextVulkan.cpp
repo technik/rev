@@ -248,9 +248,26 @@ namespace rev::gfx {
 		// sRGB support here
 		auto surfaceFormats = m_physicalDevice.getSurfaceFormatsKHR(m_surface);
 		auto targetFormat = vk::Format::eR8G8B8A8Srgb;
+		auto targetComponentSwizzle = vk::ComponentMapping(
+			vk::ComponentSwizzle::eIdentity,
+			vk::ComponentSwizzle::eIdentity,
+			vk::ComponentSwizzle::eIdentity,
+			vk::ComponentSwizzle::eIdentity);
 		if (std::find(surfaceFormats.begin(), surfaceFormats.end(), targetFormat) == surfaceFormats.end())
-			return false;
+		{
+			// Try BGRA version, because some monitors are just weird
+			targetFormat = vk::Format::eB8G8R8A8Srgb;
+			if(std::find(surfaceFormats.begin(), surfaceFormats.end(), targetFormat) == surfaceFormats.end())
+				return false;
+
+			targetComponentSwizzle = vk::ComponentMapping(
+				vk::ComponentSwizzle::eB,
+				vk::ComponentSwizzle::eG,
+				vk::ComponentSwizzle::eR,
+				vk::ComponentSwizzle::eA);
+		}
 		m_swapchain.imageFormat = targetFormat;
+		m_swapchain.imageSwizzle = targetComponentSwizzle;
 
 		// Check VSync support here
 		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
@@ -289,7 +306,7 @@ namespace rev::gfx {
 				image,
 				vk::ImageViewType::e2D,
 				m_swapchain.imageFormat,
-				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+				targetComponentSwizzle,
 				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 			m_swapchain.imageViews.push_back(m_device.createImageView(viewInfo));
 		}

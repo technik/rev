@@ -110,6 +110,7 @@ namespace rev :: gfx
 		{
 			vk::SwapchainKHR vkSwapchain;
 			vk::Format imageFormat;
+			vk::ComponentMapping imageSwizzle;
 			std::vector<vk::Image> images;
 			std::vector<vk::ImageView> imageViews;
 			uint32_t frameIndex;
