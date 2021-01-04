@@ -207,7 +207,7 @@ namespace rev::math {
 	template<class T, size_t m, size_t n, class Derived>
 	auto& operator-(const MatrixExpr<T,m,n,Derived>& x)
 	{
-		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::CWiseUnaryExpr<std::negate<T>>&>(x);
+		return reinterpret_cast<const MatrixExpr<T, m, n, Derived>::template CWiseUnaryExpr<std::negate<T>>&>(x);
 	}
 
 	template<class T, size_t m, size_t n, class Derived>
@@ -231,25 +231,25 @@ namespace rev::math {
 	template<class T, size_t m, size_t n, class A, class B>
 	auto operator+(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
 	{
-		return MatrixExpr<T, m, n, A>::CWiseMatrixBinaryOp<B, std::plus<T>>(a, b);
+		return MatrixExpr<T, m, n, A>::template CWiseMatrixBinaryOp<B, std::plus<T>>(a, b);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>
 	auto operator-(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
 	{
-		return MatrixExpr<T, m, n, A>::CWiseMatrixBinaryOp<B, std::minus<T>>(a, b);
+		return MatrixExpr<T, m, n, A>::template CWiseMatrixBinaryOp<B, std::minus<T>>(a, b);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>
 	auto max(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
 	{
-		return MatrixExpr<T, m, n, A>::CWiseMatrixBinaryOp<B, math::maxOp<T>>(a, b);
+		return MatrixExpr<T, m, n, A>::template CWiseMatrixBinaryOp<B, math::maxOp<T>>(a, b);
 	}
 
 	template<class T, size_t m, size_t n, class A, class B>
 	auto min(const MatrixExpr<T, m, n, A>& a, const MatrixExpr<T, m, n, B>& b)
 	{
-		return MatrixExpr<T, m, n, A>::CWiseMatrixBinaryOp<B, math::minOp<T>>(a, b);
+		return MatrixExpr<T, m, n, A>::template CWiseMatrixBinaryOp<B, math::minOp<T>>(a, b);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

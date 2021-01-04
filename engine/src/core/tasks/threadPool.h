@@ -37,7 +37,7 @@ namespace rev::core {
 		{}
 
 		template<class TaskData, class Op>
-		bool run(const std::vector<TaskData>& taskData, Op& operation, std::ostream& log)
+		bool run(const std::vector<TaskData>& taskData, const Op& operation, std::ostream& log)
 		{
 			// Reset counter and metrics
 			mTaskCounter = 0;
@@ -46,7 +46,7 @@ namespace rev::core {
 
 			// Start global profiling
 			log << "Running " << mWorkers.size() << " worker threads for " << taskData.size() << " tasks\n";
-			auto start = chrono::high_resolution_clock::now();
+			auto start = std::chrono::high_resolution_clock::now();
 
 			// Run jobs
 			for (int i = 0; i < mWorkers.size(); ++i)
@@ -68,7 +68,7 @@ namespace rev::core {
 				worker.join();
 
 			// Close global profiling
-			chrono::duration<double> runningTime = chrono::high_resolution_clock::now() - start;
+			std::chrono::duration<double> runningTime = std::chrono::high_resolution_clock::now() - start;
 			auto seconds = runningTime.count();
 			log << "Running time: " << seconds << " seconds\n";
 
@@ -90,7 +90,7 @@ namespace rev::core {
 		};
 
 		template<class TaskData, class Op>
-		static void workerRoutine(ThreadMetrics& metrics, const std::vector<TaskData>& taskData, AtomicCounter* globalCounter, Op& operation)
+		static void workerRoutine(ThreadMetrics& metrics, const std::vector<TaskData>& taskData, AtomicCounter* globalCounter, const Op& operation)
 		{
 			assert(globalCounter);
 

@@ -125,19 +125,19 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	Image Image::proceduralXOR(const math::Vec2u& size, size_t nChannels)
 	{
-		Image xor({ChannelFormat::Byte, (uint8_t)nChannels}, size);
+		Image xorImg({ChannelFormat::Byte, (uint8_t)nChannels}, size);
 		for(unsigned i = 0; i < size.y(); ++i)
 			for(unsigned j = 0; j < size.x(); ++j)
 			{
 				auto clr = uint8_t(i^j);
-				auto pixelNdx = xor.indexFromPos({j,i});
+				auto pixelNdx = xorImg.indexFromPos({j,i});
 				for(uint8_t k = 0; k < nChannels; ++k)
 				{
 					auto dataOffset = k + pixelNdx*nChannels;
-					xor.data<uint8_t>()[dataOffset] = clr;
+					xorImg.data<uint8_t>()[dataOffset] = clr;
 				}
 			}
-		return xor;
+		return xorImg;
 	}
 
 	//----------------------------------------------------------------------------------------------

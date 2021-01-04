@@ -62,7 +62,7 @@ namespace rev { namespace game {
 
 		// This traverse includes the node itself
 		template<class Op>
-		void traverseSubtree(Op& op)
+		void traverseSubtree(const Op& op)
 		{
 			op(*this);
 			for(auto& c : mChildren)

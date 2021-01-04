@@ -27,7 +27,7 @@ namespace rev {
 			// Handle delegates
 			std::shared_ptr<Listener> operator+=(Delegate);
 			void operator-=(const std::shared_ptr<Listener>&);
-			void clear() { mDelegates.clear(); }
+			void clear() { mListeners.clear(); }
 
 			// Invoke
 			void operator()(Arg_...) const;
