@@ -76,7 +76,6 @@ namespace rev {
 
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
-		m_renderFinishedSemaphore = device.createSemaphore({});
 
 		/*
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
@@ -115,7 +114,6 @@ namespace rev {
 	{
 		auto device = renderContext().device();
 		device.destroySemaphore(m_imageAvailableSemaphore);
-		device.destroySemaphore(m_renderFinishedSemaphore);
 
 		for (auto& cmdPool : m_commandPools)
 		{
@@ -226,74 +224,35 @@ namespace rev {
 	void Player::render(TimeDelta dt)
 	{
 		static float accumT = 0.f; // This should really happen in the update stage
-		auto& cmd = getNextCmd();
+		auto cmd = renderContext().getNewRenderCmdBuffer();
 
 		// Record frame
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
-		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
 
 		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
 		accumT += dt.count();
 		if (accumT > 1.f)
 			accumT -= 1.f;
 
-		renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore);
+		auto swapchainImage = renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
 
-		// Transition swapchain image layout to general
-		auto swapchainImage = renderContext().currentSwapChainImage();
-		vk::ImageMemoryBarrier presentToTransferBarrier(
-			vk::AccessFlagBits::eColorAttachmentRead,
-			vk::AccessFlagBits::eTransferWrite,
-			vk::ImageLayout::eUndefined,
-			vk::ImageLayout::eTransferDstOptimal,
-			renderContext().graphicsQueueFamily(),
-			renderContext().graphicsQueueFamily(),
-			swapchainImage,
-			clearRange);
-		cmd.pipelineBarrier(
-			vk::PipelineStageFlagBits::eColorAttachmentOutput,
-			vk::PipelineStageFlagBits::eTransfer, // Clear
-			vk::DependencyFlagBits::eViewLocal,
-			0, nullptr, // Memory barriers
-			0, nullptr, // Buffer memory barriers
-			1, &presentToTransferBarrier);
-
+		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
 		cmd.clearColorImage(
 			swapchainImage,
-			vk::ImageLayout::eTransferDstOptimal,
+			vk::ImageLayout::eGeneral,
 			&clearColor, 1, &clearRange
 		);
 
-		// Transition swapchain image layout to presentable
-		vk::ImageMemoryBarrier transferToPresentBarrier(
-			vk::AccessFlagBits::eTransferWrite,
-			vk::AccessFlagBits::eColorAttachmentRead,
-			vk::ImageLayout::eTransferDstOptimal,
-			vk::ImageLayout::ePresentSrcKHR,
-			renderContext().graphicsQueueFamily(),
-			renderContext().graphicsQueueFamily(),
-			swapchainImage,
-			clearRange);
-		cmd.pipelineBarrier(
-			vk::PipelineStageFlagBits::eTransfer,
-			vk::PipelineStageFlagBits::eColorAttachmentOutput, // Clear
-			vk::DependencyFlagBits::eViewLocal,
-			0, nullptr, // Memory barriers
-			0, nullptr, // Buffer memory barriers
-			1, &transferToPresentBarrier);
-
 		cmd.end();
 
-		auto waitSemaphores = { m_imageAvailableSemaphore };
-		auto signalSemaphores = { m_renderFinishedSemaphore };
 		vk::PipelineStageFlags waitFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 		vk::SubmitInfo submitInfo(
 			1, &m_imageAvailableSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
-			1, &m_renderFinishedSemaphore); // signal
-		renderContext().graphicsQueue().submit(submitInfo, m_cmdInFlightFences[m_nextCmdPoolNdx]);
+			1, &renderContext().readyToPresentSemaphore()); // signal
+		renderContext().graphicsQueue().submit(submitInfo);
 		m_nextCmdPoolNdx++;
-		renderContext().swapchainPresent(m_renderFinishedSemaphore);
+		renderContext().swapchainPresent();
 
 		// TODO:
 		// Obtain swapchain image

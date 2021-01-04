@@ -68,7 +68,6 @@ namespace rev {
 		std::vector<vk::Fence> m_cmdInFlightFences;
 		size_t m_nextCmdPoolNdx{};
 		vk::Semaphore m_imageAvailableSemaphore;
-		vk::Semaphore m_renderFinishedSemaphore;
 
 		// Scene
 		gfx::RenderScene					mGraphicsScene;

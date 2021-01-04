@@ -294,6 +294,17 @@ namespace rev::gfx {
 			m_swapchain.imageViews.push_back(m_device.createImageView(viewInfo));
 		}
 
+		// Create render sync semaphores
+		m_renderFinishedSemaphore = m_device.createSemaphore({});
+		m_presentLayoutSemaphore = m_device.createSemaphore({});
+
+		// Prepare per frame data
+		m_frameData.reserve(m_swapchain.images.size());
+		for (auto& img : m_swapchain.images)
+		{
+			m_frameData.emplace_back(m_device, m_queueFamilies.present.value());
+		}
+
 		return true;
 	}
 
@@ -321,6 +332,8 @@ namespace rev::gfx {
 	{
 		if(m_swapchain.images.size() > 0)
 		{
+			m_device.destroySemaphore(m_renderFinishedSemaphore);
+
 			for (auto view : m_swapchain.imageViews)
 			{
 				m_device.destroyImageView(view);
@@ -352,7 +365,7 @@ namespace rev::gfx {
 		{
 			auto deviceExtensions = device.enumerateDeviceExtensionProperties();
 			available.reserve(deviceExtensions.size());
-			for (auto extension : deviceExtensions)
+			for (const auto& extension : deviceExtensions)
 			{
 				available.push_back(extension.extensionName);
 			}
@@ -390,27 +403,152 @@ namespace rev::gfx {
 
 		return result;
 	}
-
-	//--------------------------------------------------------------------------------------------------
-	vk::Image RenderContextVulkan::currentSwapChainImage() const {
-		return m_swapchain.currentImage();
-	}
 	
 	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s)
+	vk::Image RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s, vk::CommandBuffer cmd)
 	{
 		auto res = m_device.acquireNextImageKHR(m_swapchain.vkSwapchain, uint64_t(-1), s);
+
 		m_swapchain.frameIndex = res.value;
+		auto nextImage = m_swapchain.currentImage();
+
+		// Transition image to general layout before use
+		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+		vk::ImageMemoryBarrier presentToTransferBarrier(
+			vk::AccessFlagBits::eColorAttachmentRead,
+			vk::AccessFlagBits::eTransferWrite | vk::AccessFlagBits::eShaderWrite,
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eGeneral,
+			m_queueFamilies.present.value(),
+			m_queueFamilies.graphics.value(),
+			nextImage,
+			clearRange);
+
+		cmd.pipelineBarrier(
+			// Wait for
+			vk::PipelineStageFlagBits::eColorAttachmentOutput,
+			// Before
+			vk::PipelineStageFlagBits::eTransfer // Clear or blit
+			| vk::PipelineStageFlagBits::eFragmentShader // Raster
+			| vk::PipelineStageFlagBits::eComputeShader, // Compute
+			vk::DependencyFlagBits::eViewLocal,
+			0, nullptr, // Memory barriers
+			0, nullptr, // Buffer memory barriers
+			1, &presentToTransferBarrier);
+
+		return nextImage;
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::swapchainPresent(vk::Semaphore s)
+	void RenderContextVulkan::swapchainPresent()
 	{
+		auto cmd = getNewRenderCmdBuffer();
+		// TODO: Maybe can just record this command once on creation and reuse it.
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		// Transition swapchain image layout to presentable
+		auto imageRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+		vk::ImageMemoryBarrier transferToPresentBarrier(
+			vk::AccessFlagBits::eTransferWrite | vk::AccessFlagBits::eShaderWrite,
+			vk::AccessFlagBits::eColorAttachmentRead,
+			vk::ImageLayout::eGeneral,
+			vk::ImageLayout::ePresentSrcKHR,
+			m_queueFamilies.graphics.value(),
+			m_queueFamilies.present.value(),
+			m_swapchain.currentImage(),
+			imageRange);
+		cmd.pipelineBarrier(
+			// Wait for
+			vk::PipelineStageFlagBits::eTransfer // Clear or blit
+			| vk::PipelineStageFlagBits::eFragmentShader // Raster
+			| vk::PipelineStageFlagBits::eComputeShader, // Compute
+			// Before
+			vk::PipelineStageFlagBits::eColorAttachmentOutput,
+			vk::DependencyFlagBits::eViewLocal,
+			0, nullptr, // Memory barriers
+			0, nullptr, // Buffer memory barriers
+			1, &transferToPresentBarrier);
+
+		// Submit render finished sync fence and semaphore
+		cmd.end();
+		vk::PipelineStageFlags waitFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		vk::SubmitInfo submitInfo(
+			1, &m_renderFinishedSemaphore, &waitFlags, // wait
+			1, &cmd, // commands
+			1, &m_presentLayoutSemaphore); // signal
+		m_gfxQueue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
+
+		// Present image 
 		auto presentInfo = vk::PresentInfoKHR(
-			1, &s,
+			1, &m_presentLayoutSemaphore, // Wait on this
 			1, &m_swapchain.vkSwapchain,
 			&m_swapchain.frameIndex);
 
-		m_gfxQueue.presentKHR(presentInfo);
+		auto res = m_gfxQueue.presentKHR(presentInfo);
+		assert(res == vk::Result::eSuccess);
+
+		// Prepare next frame data for use
+		m_frameDataNdx++;
+		m_frameDataNdx %= m_frameData.size();
+		m_frameData[m_frameDataNdx].reset();
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	vk::CommandBuffer RenderContextVulkan::getNewRenderCmdBuffer()
+	{
+		return m_frameData[m_frameDataNdx].getRenderCmdBuffer();
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	RenderContextVulkan::FrameInfo::FrameInfo(vk::Device device, uint32_t gfxQueueFamily)
+		: m_device(device)
+	{
+		// Create a command pool
+		renderCommandPool = device.createCommandPool(vk::CommandPoolCreateInfo(
+			vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+			gfxQueueFamily));
+
+		// Allocate at least two command buffer for the frame
+		// One for the application, one for signaling end of render synchornization
+		vk::CommandBufferAllocateInfo cmdBufferInfo(renderCommandPool, vk::CommandBufferLevel::ePrimary, 2);
+		renderCmdBuffers = device.allocateCommandBuffers(cmdBufferInfo);
+
+		// Create a synchronization fence so we don't start writing commands while the buffers are still in flight
+		renderFence = device.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	RenderContextVulkan::FrameInfo::~FrameInfo()
+	{
+		m_device.destroyFence(renderFence);
+		m_device.freeCommandBuffers(renderCommandPool, renderCmdBuffers);
+		m_device.destroyCommandPool(renderCommandPool);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	vk::CommandBuffer RenderContextVulkan::FrameInfo::getRenderCmdBuffer()
+	{
+		// First cmd buffer in the frame? wait for fence
+		if (!usedBuffers)
+		{
+			const auto res = m_device.waitForFences(renderFence, 1, uint64_t(-1));
+			assert(res == vk::Result::eSuccess);
+			m_device.resetFences(renderFence);
+		}
+
+		if (usedBuffers == renderCmdBuffers.size()) // Exausted, allocate a new one
+		{
+			// Allocate at least one command buffer for the frame
+			vk::CommandBufferAllocateInfo cmdBufferInfo(renderCommandPool, vk::CommandBufferLevel::ePrimary, 1);
+			renderCmdBuffers.push_back(m_device.allocateCommandBuffers(cmdBufferInfo).front());
+		}
+
+		return renderCmdBuffers[usedBuffers++];
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::FrameInfo::reset()
+	{
+		usedBuffers = 0;
 	}
 }

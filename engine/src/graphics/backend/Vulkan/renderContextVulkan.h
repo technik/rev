@@ -60,14 +60,15 @@ namespace rev :: gfx
 		// Swapchain
 		bool createSwapchain(bool vSync);
 		auto nSwapChainImages() const { return m_swapchain.images.size(); }
-		vk::Image currentSwapChainImage() const;
-		void swapchainAquireNextImage(vk::Semaphore dst);
-		void swapchainPresent(vk::Semaphore src);
+		vk::Image swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
+		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
+		void swapchainPresent();
 
-		// Device
+		// Device, Queues and Commands
 		auto device() const { return m_device; }
 		auto graphicsQueue() const { return m_gfxQueue; }
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
+		vk::CommandBuffer getNewRenderCmdBuffer();
 
 		// Alloc
 		// Debug
@@ -115,6 +116,8 @@ namespace rev :: gfx
 
 			auto currentImage() const { return images[frameIndex]; }
 		} m_swapchain;
+		vk::Semaphore m_renderFinishedSemaphore;
+		vk::Semaphore m_presentLayoutSemaphore;
 
 		// Queues
 		struct QueueFamilies
@@ -133,6 +136,26 @@ namespace rev :: gfx
 		} m_queueFamilies;
 		QueueFamilies getDeviceQueueFamilies(const vk::PhysicalDevice& device);
 		vk::Queue m_gfxQueue;
+
+		// Commands
+		struct FrameInfo
+		{
+			FrameInfo(vk::Device device, uint32_t gfxQueueFamily);
+			~FrameInfo();
+
+			vk::CommandBuffer getRenderCmdBuffer();
+			void reset();
+
+			vk::Fence renderFence;
+		private:
+			vk::CommandPool renderCommandPool;
+			size_t usedBuffers{};
+
+			std::vector<vk::CommandBuffer> renderCmdBuffers;
+			vk::Device m_device;
+		};
+		std::vector<FrameInfo> m_frameData;
+		size_t m_frameDataNdx{};
 
 		// Debug
 		vk::DebugUtilsMessengerEXT m_debugMessenger;
