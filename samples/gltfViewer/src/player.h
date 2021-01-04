@@ -60,13 +60,12 @@ namespace rev {
 		void createFloor();
 		void updateSceneBBox();
 
-		auto getNextCmdPool() {
-			m_nextCmdPoolNdx %= m_commandPools.size();
-			return m_commandPools[m_nextCmdPoolNdx++];
-		}
+		vk::CommandBuffer getNextCmd();
 
 		// Vulkan objects to move into rev::gfx
 		std::vector<vk::CommandPool> m_commandPools;
+		std::vector<vk::CommandBuffer> m_commandBuffers;
+		std::vector<vk::Fence> m_cmdInFlightFences;
 		size_t m_nextCmdPoolNdx{};
 		vk::Semaphore m_imageAvailableSemaphore;
 		vk::Semaphore m_renderFinishedSemaphore;

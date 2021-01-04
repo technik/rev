@@ -57,6 +57,23 @@ namespace rev {
 			m_commandPools.push_back(cmdPool);
 		}
 
+		// Create command buffers
+		m_commandBuffers.reserve(nCommandPools);
+		for (size_t i = 0; i < nCommandPools; ++i)
+		{
+			auto& cmdPool = m_commandPools[i];
+			vk::CommandBufferAllocateInfo cmdBufferInfo(cmdPool, vk::CommandBufferLevel::ePrimary, 1);
+			m_commandBuffers.push_back(device.allocateCommandBuffers(cmdBufferInfo).front());
+		}
+
+		// Create fences for in flight commands
+		m_cmdInFlightFences.reserve(nCommandPools);
+		for (size_t i = 0; i < nCommandPools; ++i)
+		{
+			auto cmdFence = device.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
+			m_cmdInFlightFences.push_back(cmdFence);
+		}
+
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 		m_renderFinishedSemaphore = device.createSemaphore({});
@@ -209,10 +226,7 @@ namespace rev {
 	void Player::render(TimeDelta dt)
 	{
 		static float accumT = 0.f;
-		auto& cmdPool = getNextCmdPool();
-		// Allocate a command buffer for the frame
-		vk::CommandBufferAllocateInfo cmdBufferInfo(cmdPool, vk::CommandBufferLevel::ePrimary, 1);
-		auto cmd = renderContext().device().allocateCommandBuffers(cmdBufferInfo).front();
+		auto& cmd = getNextCmd();
 
 		// Record frame
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
@@ -277,7 +291,8 @@ namespace rev {
 			1, &m_imageAvailableSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &m_renderFinishedSemaphore); // signal
-		renderContext().graphicsQueue().submit(submitInfo);
+		renderContext().graphicsQueue().submit(submitInfo, m_cmdInFlightFences[m_nextCmdPoolNdx]);
+		m_nextCmdPoolNdx++;
 		renderContext().swapchainPresent(m_renderFinishedSemaphore);
 
 		// TODO:
@@ -336,6 +351,18 @@ namespace rev {
 
 		// Present to screen
 		gfxDevice().renderQueue().present();*/
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	vk::CommandBuffer Player::getNextCmd() {
+		m_nextCmdPoolNdx %= m_commandBuffers.size();
+		auto nextCmd = m_commandBuffers[m_nextCmdPoolNdx];
+		// Wait for the command buffer to be free
+		auto cmdFence = m_cmdInFlightFences[m_nextCmdPoolNdx];
+		renderContext().device().waitForFences(cmdFence, 1, uint64_t(-1));
+		renderContext().device().resetFences(cmdFence);
+
+		return nextCmd;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
