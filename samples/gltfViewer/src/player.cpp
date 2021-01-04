@@ -216,20 +216,58 @@ namespace rev {
 
 		// Record frame
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
-		vk::ImageSubresourceRange clearRange[] = {
-			{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
-		};
+		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+
 		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
 		accumT += dt.count();
 		if (accumT > 1.f)
 			accumT -= 1.f;
 
 		renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore);
+
+		// Transition swapchain image layout to general
+		auto swapchainImage = renderContext().currentSwapChainImage();
+		vk::ImageMemoryBarrier presentToTransferBarrier(
+			vk::AccessFlagBits::eColorAttachmentRead,
+			vk::AccessFlagBits::eTransferWrite,
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eTransferDstOptimal,
+			renderContext().graphicsQueueFamily(),
+			renderContext().graphicsQueueFamily(),
+			swapchainImage,
+			clearRange);
+		cmd.pipelineBarrier(
+			vk::PipelineStageFlagBits::eColorAttachmentOutput,
+			vk::PipelineStageFlagBits::eTransfer, // Clear
+			vk::DependencyFlagBits::eViewLocal,
+			0, nullptr, // Memory barriers
+			0, nullptr, // Buffer memory barriers
+			1, &presentToTransferBarrier);
+
 		cmd.clearColorImage(
-			renderContext().currentSwapChainImage(),
-			vk::ImageLayout::ePresentSrcKHR,
-			&clearColor, 1, clearRange
+			swapchainImage,
+			vk::ImageLayout::eTransferDstOptimal,
+			&clearColor, 1, &clearRange
 		);
+
+		// Transition swapchain image layout to presentable
+		vk::ImageMemoryBarrier transferToPresentBarrier(
+			vk::AccessFlagBits::eTransferWrite,
+			vk::AccessFlagBits::eColorAttachmentRead,
+			vk::ImageLayout::eTransferDstOptimal,
+			vk::ImageLayout::ePresentSrcKHR,
+			renderContext().graphicsQueueFamily(),
+			renderContext().graphicsQueueFamily(),
+			swapchainImage,
+			clearRange);
+		cmd.pipelineBarrier(
+			vk::PipelineStageFlagBits::eTransfer,
+			vk::PipelineStageFlagBits::eColorAttachmentOutput, // Clear
+			vk::DependencyFlagBits::eViewLocal,
+			0, nullptr, // Memory barriers
+			0, nullptr, // Buffer memory barriers
+			1, &transferToPresentBarrier);
+
 		cmd.end();
 
 		auto waitSemaphores = { m_imageAvailableSemaphore };

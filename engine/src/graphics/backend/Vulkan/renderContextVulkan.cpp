@@ -272,7 +272,8 @@ namespace rev::gfx {
 			vk::ColorSpaceKHR::eSrgbNonlinear,
 			imageSize,
 			1,
-			vk::ImageUsageFlagBits::eColorAttachment,
+			vk::ImageUsageFlagBits::eColorAttachment
+			| vk::ImageUsageFlagBits::eTransferDst, // So it can be cleared and copied to
 			vk::SharingMode::eExclusive,
 			queueFamilyIndices);
 		
