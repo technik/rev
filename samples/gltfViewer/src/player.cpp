@@ -225,7 +225,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
-		static float accumT = 0.f;
+		static float accumT = 0.f; // This should really happen in the update stage
 		auto& cmd = getNextCmd();
 
 		// Record frame

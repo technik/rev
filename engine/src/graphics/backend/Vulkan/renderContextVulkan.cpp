@@ -142,13 +142,13 @@ namespace rev::gfx {
 		return true;
 	}
 
-	bool RenderContextVulkan::createSwapchain()
+	bool RenderContextVulkan::createSwapchain(bool vSync)
 	{
 		if (!m_nativeWindowHandle)
 			return false;
 		
 		initSurface();
-		return initSwapChain();
+		return initSwapChain(vSync);
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	bool RenderContextVulkan::initSwapChain()
+	bool RenderContextVulkan::initSwapChain(bool vSync)
 	{
 		// sRGB support here
 		auto surfaceFormats = m_physicalDevice.getSurfaceFormatsKHR(m_surface);
@@ -254,7 +254,7 @@ namespace rev::gfx {
 
 		// Check VSync support here
 		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
-		auto targetPresentMode = vk::PresentModeKHR::eFifo;
+		auto targetPresentMode = vSync ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eImmediate;
 		if (std::find(presentModes.begin(), presentModes.end(), targetPresentMode) == presentModes.end())
 			return false;
 
@@ -275,7 +275,10 @@ namespace rev::gfx {
 			vk::ImageUsageFlagBits::eColorAttachment
 			| vk::ImageUsageFlagBits::eTransferDst, // So it can be cleared and copied to
 			vk::SharingMode::eExclusive,
-			queueFamilyIndices);
+			queueFamilyIndices,
+			vk::SurfaceTransformFlagBitsKHR::eIdentity,
+			vk::CompositeAlphaFlagBitsKHR::eOpaque,
+			targetPresentMode);
 		
 		m_swapchain.vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
 		m_swapchain.images = m_device.getSwapchainImagesKHR(m_swapchain.vkSwapchain);

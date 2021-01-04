@@ -132,6 +132,6 @@ namespace rev::game {
 			return false;
 		}
 
-		return m_renderContext.createSwapchain();
+		return m_renderContext.createSwapchain(true);
 	}
 }

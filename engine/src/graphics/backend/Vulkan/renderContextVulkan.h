@@ -58,7 +58,7 @@ namespace rev :: gfx
 			uint32_t numLayers = 0, const char** layerNames = nullptr);
 
 		// Swapchain
-		bool createSwapchain();
+		bool createSwapchain(bool vSync);
 		auto nSwapChainImages() const { return m_swapchain.images.size(); }
 		vk::Image currentSwapChainImage() const;
 		void swapchainAquireNextImage(vk::Semaphore dst);
@@ -83,7 +83,7 @@ namespace rev :: gfx
 		bool createInstance(const char* applicationName);
 		void getPhysicalDevice();
 		void initSurface();
-		bool initSwapChain();
+		bool initSwapChain(bool vSync);
 		void createLogicalDevice();
 		void deinit();
 
