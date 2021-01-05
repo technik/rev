@@ -221,8 +221,8 @@ namespace rev {
 		renderContext().swapchainPresent();
 
 		// TODO:
-		// Obtain swapchain image
 		// Build render graph
+			// Obtain swapchain image
 			// Grab screen capture / record video frame
 
 		/* Render pseudo code

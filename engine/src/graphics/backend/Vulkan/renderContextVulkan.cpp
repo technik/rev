@@ -347,9 +347,12 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::deinit()
 	{
+		m_frameData.clear(); // Free vulkan objects used per frame
+
 		if(m_swapchain.images.size() > 0)
 		{
 			m_device.destroySemaphore(m_renderFinishedSemaphore);
+			m_device.destroySemaphore(m_presentLayoutSemaphore);
 
 			for (auto view : m_swapchain.imageViews)
 			{
