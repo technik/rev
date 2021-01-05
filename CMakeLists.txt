@@ -20,7 +20,6 @@ if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
 
-add_subdirectory(samples/Vulkraft)
 add_subdirectory(samples/ShaderToy)
 add_subdirectory(samples/GltfViewer)
 
