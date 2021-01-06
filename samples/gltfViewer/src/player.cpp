@@ -49,6 +49,34 @@ namespace rev {
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
+		// UI pipeline layout
+		m_uiPipelineLayout = device.createPipelineLayout({});
+
+		// UI Render pass
+		vk::AttachmentDescription colorAttachment;
+		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.format = vk::Format::eR8G8B8A8Srgb; // TODO: Should be swapchain's format?
+		colorAttachment.samples = vk::SampleCountFlagBits::e1;
+		colorAttachment.loadOp = vk::AttachmentLoadOp::eLoad;
+		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+		vk::AttachmentReference colorAttachReference;
+		colorAttachReference.attachment = 0;
+		colorAttachReference.layout = vk::ImageLayout::eColorAttachmentOptimal;
+		vk::SubpassDescription colorSubpass;
+		colorSubpass.colorAttachmentCount = 1;
+		colorSubpass.pColorAttachments = &colorAttachReference;
+		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+		auto uiPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
+		m_uiPass = device.createRenderPass(uiPassInfo);
+
+		m_uiPipeline = std::make_unique<gfx::RasterPipeline>(
+			device,
+			m_uiPipelineLayout,
+			m_uiPass,
+			"shaders/ui.vert.spv",
+			"shaders/ui.frag.spv");
+
 		/*
 		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
@@ -85,6 +113,9 @@ namespace rev {
 	void Player::end()
 	{
 		auto device = renderContext().device();
+		m_uiPipeline.reset();
+		device.destroyPipelineLayout(m_uiPipelineLayout);
+		device.destroyRenderPass(m_uiPass);
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
@@ -196,6 +227,7 @@ namespace rev {
 		// Record frame
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
+		// Clear
 		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
 		accumT += dt.count();
 		if (accumT > 1.f)
@@ -209,6 +241,26 @@ namespace rev {
 			vk::ImageLayout::eGeneral,
 			&clearColor, 1, &clearRange
 		);
+
+		// Render a triangle
+		vk::RenderPassBeginInfo passInfo;
+		passInfo.framebuffer = renderContext().currentFrameBuffer();
+		passInfo.renderPass = m_uiPass;
+		passInfo.renderArea.offset;
+		passInfo.renderArea.extent.width = renderContext().windowSize().x();
+		passInfo.renderArea.extent.height = renderContext().windowSize().y();
+		passInfo.clearValueCount = 0;
+		cmd.beginRenderPass(passInfo, vk::SubpassContents::eInline);
+
+		m_uiPipeline->bind(cmd);
+		vk::Viewport viewport{ {0,0} };
+		viewport.maxDepth = 1.0f;
+		viewport.minDepth = 0.0f;
+		viewport.width = passInfo.renderArea.extent.width;
+		viewport.height = passInfo.renderArea.extent.height;
+		cmd.setViewport(0, 1, &viewport);
+		cmd.setScissor(0, passInfo.renderArea);
+		cmd.draw(3, 1, 0, 0);
 
 		cmd.end();
 

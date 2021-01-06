@@ -311,6 +311,34 @@ namespace rev::gfx {
 			m_swapchain.imageViews.push_back(m_device.createImageView(viewInfo));
 		}
 
+		// Create swapchain's render pass desc
+		vk::AttachmentDescription colorAttachment;
+		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.format = m_swapchain.imageFormat; // TODO: Should be swapchain's format?
+		colorAttachment.samples = vk::SampleCountFlagBits::e1;
+		colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+		vk::AttachmentReference colorAttachReference;
+		colorAttachReference.attachment = 0;
+		colorAttachReference.layout = vk::ImageLayout::eColorAttachmentOptimal;
+		vk::SubpassDescription colorSubpass;
+		colorSubpass.colorAttachmentCount = 1;
+		colorSubpass.pColorAttachments = &colorAttachReference;
+		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+		auto renderPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
+		m_swapchain.renderPassDesc = m_device.createRenderPass(renderPassInfo);
+
+		// Create frame buffers for each image in the swapchain
+		m_swapchain.frameBuffers.reserve(m_swapchain.images.size());
+		for (auto image : m_swapchain.imageViews) {
+			auto fbInfo = vk::FramebufferCreateInfo({},
+				m_swapchain.renderPassDesc,
+				image,
+				m_windowSize.x(), m_windowSize.y(),1);
+			m_swapchain.frameBuffers.push_back(m_device.createFramebuffer(fbInfo));
+		}
+
 		// Create render sync semaphores
 		m_renderFinishedSemaphore = m_device.createSemaphore({});
 		m_presentLayoutSemaphore = m_device.createSemaphore({});

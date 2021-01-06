@@ -5,6 +5,7 @@
 
 #include <game/scene/scene.h>
 #include <game/application/base3dApplication.h>
+#include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/OpenGL/deviceOpenGL.h>
 #include <graphics/renderer/ForwardRenderer.h>
 #include <graphics/renderer/deferred/DeferredRenderer.h>
@@ -62,6 +63,9 @@ namespace rev {
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
+		vk::RenderPass m_uiPass;
+		vk::PipelineLayout m_uiPipelineLayout;
+		std::unique_ptr<gfx::RasterPipeline> m_uiPipeline;
 
 		// Scene
 		gfx::RenderScene					mGraphicsScene;
