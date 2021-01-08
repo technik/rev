@@ -64,6 +64,7 @@ namespace rev :: gfx
 		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
 		const vk::Framebuffer& currentFrameBuffer() const { return m_swapchain.currentBuffer(); }
 		void swapchainPresent();
+		vk::Format swapchainFormat() const { return m_swapchain.imageFormat; }
 
 		// Device, Queues and Commands
 		auto device() const { return m_device; }
@@ -112,7 +113,6 @@ namespace rev :: gfx
 			vk::SwapchainKHR vkSwapchain;
 			vk::Format imageFormat;
 			vk::RenderPass renderPassDesc;
-			vk::ComponentMapping imageSwizzle;
 			std::vector<vk::Image> images;
 			std::vector<vk::ImageView> imageViews;
 			std::vector<vk::Framebuffer> frameBuffers;

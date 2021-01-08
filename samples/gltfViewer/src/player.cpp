@@ -56,7 +56,7 @@ namespace rev {
 		vk::AttachmentDescription colorAttachment;
 		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
 		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.format = vk::Format::eR8G8B8A8Srgb; // TODO: Should be swapchain's format?
+		colorAttachment.format = renderContext().swapchainFormat();
 		colorAttachment.samples = vk::SampleCountFlagBits::e1;
 		colorAttachment.loadOp = vk::AttachmentLoadOp::eLoad;
 		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
