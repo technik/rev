@@ -81,6 +81,7 @@ namespace rev::game {
 		std::chrono::high_resolution_clock m_appTime;
 		gfx::RenderContextVulkan m_renderContext;
 		CommandLineOptions m_options;
+		gfx::RenderContextVulkan::ResizeDelegate m_resizeDelegate;
 	};
 
 }

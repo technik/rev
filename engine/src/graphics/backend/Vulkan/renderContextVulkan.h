@@ -50,6 +50,7 @@ namespace rev :: gfx
 
 		const math::Vec2u& windowSize() const { return m_windowSize; }
 		auto& onResize() { return m_onResize; };
+		using ResizeDelegate = std::shared_ptr<core::Event<math::Vec2u>::Listener>;
 
 		// Vulkan
 		bool initVulkan(
@@ -59,12 +60,13 @@ namespace rev :: gfx
 
 		// Swapchain
 		bool createSwapchain(bool vSync);
+		void resizeSwapchain(const math::Vec2u& imageSize);
 		auto nSwapChainImages() const { return m_swapchain.images.size(); }
 		vk::Image swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
 		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
 		const vk::Framebuffer& currentFrameBuffer() const { return m_swapchain.currentBuffer(); }
 		void swapchainPresent();
-		vk::Format swapchainFormat() const { return m_swapchain.imageFormat; }
+		vk::Format swapchainFormat() const { return m_swapchain.m_imageFormat; }
 
 		// Device, Queues and Commands
 		auto device() const { return m_device; }
@@ -110,8 +112,9 @@ namespace rev :: gfx
 		vk::SurfaceKHR m_surface;
 		struct SwapChainInfo
 		{
+			vk::SurfaceKHR m_surface;
 			vk::SwapchainKHR vkSwapchain;
-			vk::Format imageFormat;
+			vk::Format m_imageFormat;
 			vk::RenderPass renderPassDesc;
 			std::vector<vk::Image> images;
 			std::vector<vk::ImageView> imageViews;
@@ -120,6 +123,25 @@ namespace rev :: gfx
 
 			auto currentImage() const { return images[frameIndex]; }
 			vk::Framebuffer currentBuffer() const { return frameBuffers[frameIndex]; }
+
+			bool init(
+				vk::Device device,
+				vk::SurfaceKHR surface,
+				vk::Format imgFormat,
+				const math::Vec2u& imageSize,
+				vk::PresentModeKHR presentMode,
+				uint32_t presentQueueFamily);
+
+			void resize(const math::Vec2u& imageSize);
+
+		private:
+			bool createSwapchain(const math::Vec2u& imageSize);
+			void createImageViews();
+			void createFrameBuffers(const math::Vec2u& imageSize);
+
+			uint32_t m_presentFamily;
+			vk::PresentModeKHR m_presentMode;
+			vk::Device m_device;
 		} m_swapchain;
 		vk::Semaphore m_renderFinishedSemaphore;
 		vk::Semaphore m_presentLayoutSemaphore;

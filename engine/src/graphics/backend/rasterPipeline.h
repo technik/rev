@@ -33,7 +33,8 @@ namespace rev::gfx
 			vk::PipelineLayout layout,
 			vk::RenderPass passDesc,
 			std::string vtxShaderFilename,
-			std::string pxlShaderFilename
+			std::string pxlShaderFilename,
+			bool blend = false
 		);
 
 		~RasterPipeline();
@@ -59,5 +60,6 @@ namespace rev::gfx
 		vk::Pipeline m_vkPipeline;
 		vk::PipelineLayout m_layout;
 		vk::RenderPass m_passDesc;
+		bool m_blend;
 	};
 }

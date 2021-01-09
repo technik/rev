@@ -243,6 +243,120 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+	bool RenderContextVulkan::SwapChainInfo::init(
+		vk::Device device,
+		vk::SurfaceKHR surface,
+		vk::Format imgFormat,
+		const math::Vec2u& imageSize,
+		vk::PresentModeKHR presentMode,
+		uint32_t presentQueueFamily)
+	{
+		m_device = device;
+		m_surface = surface;
+		m_imageFormat = imgFormat;
+		m_presentMode = presentMode;
+		m_presentFamily = presentQueueFamily;
+
+		// Create swapchain's render pass desc
+		vk::AttachmentDescription colorAttachment;
+		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
+		colorAttachment.format = imgFormat; // TODO: Should be swapchain's format?
+		colorAttachment.samples = vk::SampleCountFlagBits::e1;
+		colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+		vk::AttachmentReference colorAttachReference;
+		colorAttachReference.attachment = 0;
+		colorAttachReference.layout = vk::ImageLayout::eGeneral;
+		vk::SubpassDescription colorSubpass;
+		colorSubpass.colorAttachmentCount = 1;
+		colorSubpass.pColorAttachments = &colorAttachReference;
+		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+		auto renderPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
+		renderPassDesc = m_device.createRenderPass(renderPassInfo);
+
+		createSwapchain(imageSize);
+		createImageViews();
+		createFrameBuffers(imageSize);
+
+		return true;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::SwapChainInfo::resize(const math::Vec2u& imageSize)
+	{
+		// Destroy frame buffers
+		for (auto fb : frameBuffers)
+			m_device.destroyFramebuffer(fb);
+		frameBuffers.clear();
+		// Destroy image views
+		for (auto view : imageViews)
+			m_device.destroyImageView(view);
+		imageViews.clear();
+		// Destroy the swapchain
+		m_device.destroySwapchainKHR(vkSwapchain);
+
+		createSwapchain(imageSize);
+		createImageViews();
+		createFrameBuffers(imageSize);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::SwapChainInfo::createImageViews()
+	{
+		assert(imageViews.empty());
+		imageViews.reserve(images.size());
+		for (auto image : images) {
+			vk::ImageViewCreateInfo viewInfo({},
+				image,
+				vk::ImageViewType::e2D,
+				m_imageFormat,
+				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+			imageViews.push_back(m_device.createImageView(viewInfo));
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::SwapChainInfo::createFrameBuffers(const math::Vec2u& imageSize)
+	{
+		assert(frameBuffers.empty());
+		// Create frame buffers for each image in the swapchain
+		frameBuffers.reserve(images.size());
+		for (auto image : imageViews) {
+			auto fbInfo = vk::FramebufferCreateInfo({},
+				renderPassDesc,
+				image,
+				imageSize.x(), imageSize.y(), 1);
+			frameBuffers.push_back(m_device.createFramebuffer(fbInfo));
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	bool RenderContextVulkan::SwapChainInfo::createSwapchain(const math::Vec2u& imageSize)
+	{
+		const uint32_t minImageCount = 2; // Double buffered
+		auto surfaceInfo = vk::SwapchainCreateInfoKHR({},
+			m_surface,
+			minImageCount,
+			m_imageFormat,
+			vk::ColorSpaceKHR::eSrgbNonlinear,
+			vk::Extent2D{ imageSize.x(), imageSize.y() },
+			1,
+			vk::ImageUsageFlagBits::eColorAttachment
+			| vk::ImageUsageFlagBits::eTransferDst, // So it can be cleared and copied to
+			vk::SharingMode::eExclusive,
+			m_presentFamily,
+			vk::SurfaceTransformFlagBitsKHR::eIdentity,
+			vk::CompositeAlphaFlagBitsKHR::eOpaque,
+			m_presentMode);
+
+		vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
+		images = m_device.getSwapchainImagesKHR(vkSwapchain);
+		return true;
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	bool RenderContextVulkan::initSwapChain(bool vSync)
 	{
 		// sRGB support here
@@ -256,7 +370,6 @@ namespace rev::gfx {
 			if(std::find(surfaceFormats.begin(), surfaceFormats.end(), targetFormat) == surfaceFormats.end())
 				return false;
 		}
-		m_swapchain.imageFormat = targetFormat;
 
 		// Check VSync support here
 		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
@@ -268,65 +381,7 @@ namespace rev::gfx {
 		if (!m_physicalDevice.getSurfaceSupportKHR(m_queueFamilies.present.value(), m_surface))
 			return false;
 
-		vk::Extent2D imageSize { m_windowSize.x(), m_windowSize.y() };
-		uint32_t minImageCount = 2; // Double buffered
-		auto queueFamilyIndices = { m_queueFamilies.graphics.value() };
-		auto surfaceInfo = vk::SwapchainCreateInfoKHR({},
-			m_surface,
-			minImageCount,
-			targetFormat,
-			vk::ColorSpaceKHR::eSrgbNonlinear,
-			imageSize,
-			1,
-			vk::ImageUsageFlagBits::eColorAttachment
-			| vk::ImageUsageFlagBits::eTransferDst, // So it can be cleared and copied to
-			vk::SharingMode::eExclusive,
-			queueFamilyIndices,
-			vk::SurfaceTransformFlagBitsKHR::eIdentity,
-			vk::CompositeAlphaFlagBitsKHR::eOpaque,
-			targetPresentMode);
-		
-		m_swapchain.vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
-		m_swapchain.images = m_device.getSwapchainImagesKHR(m_swapchain.vkSwapchain);
-
-		m_swapchain.imageViews.reserve(m_swapchain.images.size());
-		for (auto image : m_swapchain.images) {
-			vk::ImageViewCreateInfo viewInfo({},
-				image,
-				vk::ImageViewType::e2D,
-				m_swapchain.imageFormat,
-				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
-				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
-			m_swapchain.imageViews.push_back(m_device.createImageView(viewInfo));
-		}
-
-		// Create swapchain's render pass desc
-		vk::AttachmentDescription colorAttachment;
-		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.format = m_swapchain.imageFormat; // TODO: Should be swapchain's format?
-		colorAttachment.samples = vk::SampleCountFlagBits::e1;
-		colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
-		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-		vk::AttachmentReference colorAttachReference;
-		colorAttachReference.attachment = 0;
-		colorAttachReference.layout = vk::ImageLayout::eColorAttachmentOptimal;
-		vk::SubpassDescription colorSubpass;
-		colorSubpass.colorAttachmentCount = 1;
-		colorSubpass.pColorAttachments = &colorAttachReference;
-		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-		auto renderPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
-		m_swapchain.renderPassDesc = m_device.createRenderPass(renderPassInfo);
-
-		// Create frame buffers for each image in the swapchain
-		m_swapchain.frameBuffers.reserve(m_swapchain.images.size());
-		for (auto image : m_swapchain.imageViews) {
-			auto fbInfo = vk::FramebufferCreateInfo({},
-				m_swapchain.renderPassDesc,
-				image,
-				m_windowSize.x(), m_windowSize.y(),1);
-			m_swapchain.frameBuffers.push_back(m_device.createFramebuffer(fbInfo));
-		}
+		m_swapchain.init(m_device, m_surface, targetFormat, m_windowSize, targetPresentMode, m_queueFamilies.present.value());
 
 		// Create render sync semaphores
 		m_renderFinishedSemaphore = m_device.createSemaphore({});
@@ -522,12 +577,19 @@ namespace rev::gfx {
 			&m_swapchain.frameIndex);
 
 		auto res = m_gfxQueue.presentKHR(presentInfo);
-		assert(res == vk::Result::eSuccess);
+		assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
 
 		// Prepare next frame data for use
 		m_frameDataNdx++;
 		m_frameDataNdx %= m_frameData.size();
 		m_frameData[m_frameDataNdx].reset();
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::resizeSwapchain(const math::Vec2u& imageSize)
+	{
+		m_device.waitIdle();
+		m_swapchain.resize(imageSize);
 	}
 
 	//--------------------------------------------------------------------------------------------------

@@ -127,6 +127,8 @@ namespace rev::game {
 			name().c_str(),
 			m_options.fullScreen, true);
 
+		m_resizeDelegate = m_renderContext.onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
+
 		if (!m_renderContext.initVulkan(name().c_str()))
 		{
 			return false;

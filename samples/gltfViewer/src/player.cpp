@@ -62,7 +62,7 @@ namespace rev {
 		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
 		vk::AttachmentReference colorAttachReference;
 		colorAttachReference.attachment = 0;
-		colorAttachReference.layout = vk::ImageLayout::eColorAttachmentOptimal;
+		colorAttachReference.layout = vk::ImageLayout::eGeneral;
 		vk::SubpassDescription colorSubpass;
 		colorSubpass.colorAttachmentCount = 1;
 		colorSubpass.pColorAttachments = &colorAttachReference;
@@ -123,7 +123,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::onResize()
 	{
-		//mDeferred.onResizeTarget(windowSize());
+		renderContext().resizeSwapchain(windowSize());
 	}
 #endif // _WIN32
 
@@ -261,6 +261,8 @@ namespace rev {
 		cmd.setViewport(0, 1, &viewport);
 		cmd.setScissor(0, passInfo.renderArea);
 		cmd.draw(3, 1, 0, 0);
+
+		cmd.endRenderPass();
 
 		cmd.end();
 

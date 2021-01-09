@@ -27,13 +27,15 @@ namespace rev::gfx
 		vk::PipelineLayout layout,
 		vk::RenderPass passDesc,
 		std::string vtxShaderFilename,
-		std::string pxlShaderFilename
+		std::string pxlShaderFilename,
+		bool blend
 	)
 		: m_vtxShader(vtxShaderFilename)
 		, m_pxlShader(pxlShaderFilename)
 		, m_device(device)
 		, m_layout(layout)
 		, m_passDesc(passDesc)
+		, m_blend(blend)
 	{
 		tryLoad();
 	}
@@ -93,7 +95,7 @@ namespace rev::gfx
 		auto rasterInfo = vk::PipelineRasterizationStateCreateInfo(
 			{}, // Flags
 			0, // No depth clamp
-			0, // Disable discard rasterizer
+			0, // Don't discard rasterizer
 			vk::PolygonMode::eFill,
 			vk::CullModeFlagBits::eBack, // Cull back facing geometry
 			vk::FrontFace::eCounterClockwise); // Front face direction
@@ -108,7 +110,7 @@ namespace rev::gfx
 			vk::ColorComponentFlagBits::eG |
 			vk::ColorComponentFlagBits::eB |
 			vk::ColorComponentFlagBits::eA;
-		colorBlend.blendEnable = VK_FALSE;
+		colorBlend.blendEnable = m_blend;
 
 		vk::PipelineColorBlendStateCreateInfo blendingInfo({},
 			VK_FALSE,
