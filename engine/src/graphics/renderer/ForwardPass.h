@@ -19,9 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/backend/device.h>
-#include <graphics/driver/shader.h>
 #include <graphics/renderer/RenderItem.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/scene/Light.h>
@@ -35,12 +32,11 @@ namespace rev::gfx {
 	class BackEndRenderer;
 	class Camera;
 	class EnvironmentProbe;
-	class GraphicsDriverGL;
 	class RenderScene;
 	class RenderTarget;
 	class ShadowMapPass;
 
-	class ForwardPass
+	/*class ForwardPass
 	{
 	public:
 		ForwardPass(gfx::Device&, const math::Vec2u& viewportSize, gfx::FrameBuffer target);
@@ -105,6 +101,6 @@ namespace rev::gfx {
 		};
 
 		std::map<std::string, ShaderPragma> m_pragmas;
-	};
+	};*/
 
 }

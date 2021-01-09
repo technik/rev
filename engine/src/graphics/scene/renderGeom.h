@@ -19,19 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/openGL/openGL.h>
-#include <graphics/backend/device.h>
-#include <graphics/types.h>
+/*#include <graphics/types.h>
 #include <math/algebra/vector.h>
 #include <math/geometry/aabb.h>
 #include <math/geometry/types.h>
 #include <iostream>
 #include <vector>
-#include <memory>
+#include <memory>*/
 
 namespace rev::gfx {
 
-	class RenderGeom {
+	/*class RenderGeom {
 	public:
 		struct BufferView
 		{
@@ -86,6 +84,6 @@ namespace rev::gfx {
 
 	private:
 		void initOpenGL();
-	};
+	};*/
 
 }

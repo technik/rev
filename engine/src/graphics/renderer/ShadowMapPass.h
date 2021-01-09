@@ -21,7 +21,6 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/renderer/renderPass/geometryPass.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <graphics/scene/renderGeom.h>
@@ -33,7 +32,7 @@
 
 namespace rev::gfx {
 
-	class Camera;
+	/*class Camera;
 
 	class ShadowMapPass
 	{
@@ -83,6 +82,6 @@ namespace rev::gfx {
 		size_t m_gpuMatrixCapacity = 0;
 		Buffer m_gpuMatrixBuffer;
 		Buffer m_gpuBatchCommands;
-	};
+	};*/
 
 }

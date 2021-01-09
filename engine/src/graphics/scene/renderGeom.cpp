@@ -20,11 +20,10 @@
 #pragma once
 
 #include "renderGeom.h"
-#include <graphics/driver/openGL/GraphicsDriverOpenGL.h>
 
 namespace rev::gfx
 {
-	//----------------------------------------------------------------------------------------------
+	/*//----------------------------------------------------------------------------------------------
 	RenderGeom::RenderGeom(
 		const Attribute* indices,
 		const Attribute* position,
@@ -153,5 +152,5 @@ namespace rev::gfx
 		};
 
 		return RenderGeom(&idxAttr, &vtxAttr, &nrmAttr, nullptr, nullptr, nullptr, nullptr);
-	}
+	}*/
 }

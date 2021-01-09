@@ -19,13 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/texture2d.h>
 
 namespace rev::gfx
 {
 	class Device;
 
-	class EnvironmentProbe
+	/*class EnvironmentProbe
 	{
 	public:
 		EnvironmentProbe(Device&, const std::string& jsonName);
@@ -37,5 +36,6 @@ namespace rev::gfx
 	private:
 		Texture2d	m_texture;
 		size_t m_numLevels;
-	};
+	};*/
+
 }	// namespace rev::gfx

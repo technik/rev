@@ -17,22 +17,22 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "EnvironmentProbe.h"
+
+/*#include "EnvironmentProbe.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <graphics/Image.h>
 #include <memory>
 #include <vector>
 #include <core/string_util.h>
-#include <graphics/backend/device.h>
 #include <iostream>
 
-using Json = nlohmann::json;
+using Json = nlohmann::json;*/
 
 namespace rev::gfx
 {
 	//------------------------------------------------------------------------------------------------------------------
-	EnvironmentProbe::EnvironmentProbe(Device& device, const std::string& jsonName)
+	/*EnvironmentProbe::EnvironmentProbe(Device& device, const std::string& jsonName)
 	{
 		auto folder = core::getPathFolder(jsonName);
 		// Open json descriptor
@@ -71,5 +71,5 @@ namespace rev::gfx
 		descriptor.size = mipImages[0]->size();
 		descriptor.sRGB = true;
 		m_texture = device.createTexture2d(descriptor);
-	}
+	}*/
 }

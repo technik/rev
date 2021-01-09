@@ -23,7 +23,7 @@
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	ShaderCodeFragment::ShaderCodeFragment(const char* code)
+	/*ShaderCodeFragment::ShaderCodeFragment(const char* code)
 		: m_srcCode(code)
 	{
 		ShaderProcessor::Context context;
@@ -90,5 +90,5 @@ namespace rev::gfx {
 			m_childA->collapse(out);
 		if(m_childB)
 			m_childB->collapse(out);
-	}
+	}*/
 }

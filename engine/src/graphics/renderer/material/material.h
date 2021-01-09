@@ -18,8 +18,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/backend/texture2d.h>
 #include <math/algebra/vector.h>
 #include <memory>
 #include <string>
@@ -28,7 +26,7 @@
 
 namespace rev::gfx {
 
-	class Material
+	/*class Material
 	{
 	public:
 		// A material parameter will only be bound in when it shares
@@ -118,6 +116,6 @@ namespace rev::gfx {
 	inline static Material::Flags operator|(Material::Flags a, Material::Flags b)
 	{
 		return static_cast<Material::Flags>(static_cast<int>(a) | static_cast<int>(b));
-	}
+	}*/
 
 }

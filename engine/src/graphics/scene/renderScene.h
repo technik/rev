@@ -18,16 +18,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include <vector>
+/*#include <vector>
 #include <math/algebra/vector.h>
 #include <memory>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/Light.h>
-#include <graphics/scene/EnvironmentProbe.h>
+#include <graphics/scene/EnvironmentProbe.h>*/
 
 namespace rev::gfx {
 
-	class Material;
+	/*class Material;
 	class RenderGeom;
 	class RenderObj;
 
@@ -60,6 +60,6 @@ namespace rev::gfx {
 
 		// Environment probe
 		std::shared_ptr<const gfx::EnvironmentProbe>			m_environment;
-	};
+	};*/
 
 }	// namespace rev::gfx

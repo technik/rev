@@ -17,13 +17,8 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#include "zPrePass.h"
+/*#include "zPrePass.h"
 
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/backend/device.h>
-#include <graphics/backend/renderPass.h>
-#include <graphics/debug/imgui.h>
-#include <graphics/driver/shaderProcessor.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/scene/renderMesh.h>
@@ -34,12 +29,12 @@
 
 using namespace rev::math;
 using namespace rev::gfx;
-using namespace std;
+using namespace std;*/
 
 namespace rev::gfx {
 
 	//----------------------------------------------------------------------------------------------
-	ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
+	/*ZPrePass::ZPrePass(gfx::Device& device, gfx::FrameBuffer target, const math::Vec2u& _size)
 		: m_device(device)
 		, m_geomPass(device, ShaderCodeFragment::loadFromFile("shaders/zPrePass.fx"))
 	{
@@ -145,5 +140,5 @@ namespace rev::gfx {
 		// Record commands
 		dst.beginPass(*m_pass);
 		m_geomPass.render(geometry, renderList, dst);
-	}
+	}*/
 }

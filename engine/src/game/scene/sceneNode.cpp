@@ -20,11 +20,7 @@
 #include <cassert>
 #include "sceneNode.h"
 #include "component.h"
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
 #include <core/tools/log.h>
-
-using namespace rev::gfx;
 
 namespace rev { namespace game {
 

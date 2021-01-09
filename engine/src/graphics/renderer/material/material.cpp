@@ -18,13 +18,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
-#include <graphics/backend/openGL/openGL.h>
 
 using namespace std;
 using namespace rev::math;
 
 namespace rev::gfx {
-
+	/*
 	//----------------------------------------------------------------------------------------------
 	Material::Material(const Descriptor& desc)
 		: mEffect(desc.effect)
@@ -94,5 +93,5 @@ namespace rev::gfx {
 		}
 
 		return loadedParams;
-	}
+	}*/
 }

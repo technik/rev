@@ -6,13 +6,7 @@
 #include <game/scene/scene.h>
 #include <game/application/base3dApplication.h>
 #include <graphics/backend/rasterPipeline.h>
-#include <graphics/backend/OpenGL/deviceOpenGL.h>
-#include <graphics/renderer/ForwardRenderer.h>
-#include <graphics/renderer/deferred/DeferredRenderer.h>
 #include <graphics/scene/camera.h>
-#include <graphics/scene/renderScene.h>
-#include <graphics/driver/geometryPool.h>
-
 
 namespace rev {
 
@@ -68,19 +62,12 @@ namespace rev {
 		std::unique_ptr<gfx::RasterPipeline> m_uiPipeline;
 
 		// Scene
-		gfx::RenderScene					mGraphicsScene;
 		game::Scene							mGameScene;
 		math::AABB							m_globalBBox;
 
 		// Camera options
 		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
-
-		// Renderer
-		gfx::DeferredRenderer				mDeferred;
-		std::shared_ptr<gfx::DirectionalLight>	m_envLight;
-		std::shared_ptr<gfx::RenderObj>		m_floorGeom;
-		std::shared_ptr<game::SceneNode>	m_gltfRoot;
 
 	private:
 

@@ -25,7 +25,7 @@ using namespace rev::math;
 
 namespace rev::gfx {
 
-	//----------------------------------------------------------------------------------------------
+	/*//----------------------------------------------------------------------------------------------
 	GeometryPass::GeometryPass(Device& device, ShaderCodeFragment* passCommonCode)
 		: mDevice(device)
 		, mPassCommonCode(passCommonCode)
@@ -179,6 +179,6 @@ namespace rev::gfx {
 				});
 		}
 		return iter->second;
-	}
+	}*/
 
 }	// namespace rev::gfx

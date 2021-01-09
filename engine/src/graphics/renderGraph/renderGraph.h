@@ -22,8 +22,6 @@
 #include "../backend/namedResource.h"
 #include "types.h"
 
-#include <graphics/backend/gpuTypes.h>
-#include <graphics/backend/texture2d.h>
 #include <math/algebra/vector.h>
 
 #include <functional>
@@ -32,11 +30,9 @@
 
 namespace rev::gfx {
 
-	class CommandBuffer;
-	class Device;
 	class FrameBufferCache;
 
-	class RenderGraph
+	/*class RenderGraph
 	{
 	public:
 
@@ -157,7 +153,7 @@ namespace rev::gfx {
 		// Resources
 		std::vector<VirtualResource> m_virtualResources;
 		std::map<size_t, Texture2d> m_virtualToPhysical; // Mapping from virtual resource indices to frame buffer attachments
-	};
+	};*/
 
 }
  

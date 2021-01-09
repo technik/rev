@@ -8,20 +8,18 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/cmdLineParser.h>
 #include <core/tools/log.h>
-#include <game/scene/camera.h>
+/*#include <game/scene/camera.h>
 #include <game/animation/animator.h>
-#include <game/resources/load.h>
-#include <game/scene/gltf/gltfLoader.h>
+//#include <game/scene/gltf/gltfLoader.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
-#include <graphics/debug/debugGUI.h>
 #include <graphics/renderer/material/material.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/scene/renderMesh.h>
 #include <graphics/scene/renderGeom.h>
-#include <graphics/scene/animation/animation.h>
+#include <graphics/scene/animation/animation.h>*/
 
 using namespace rev::math;
 using namespace rev::gfx;
@@ -141,12 +139,12 @@ namespace rev {
 		// Load lights
 		// Load cameras
 
-		m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
-		m_gltfRoot->addComponent<Transform>();
-		mGameScene.root()->addChild(m_gltfRoot);
+		//m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
+		//m_gltfRoot->addComponent<Transform>();
+		//mGameScene.root()->addChild(m_gltfRoot);
 
-		std::vector<std::shared_ptr<Animation>> animations;
-		std::vector<std::shared_ptr<SceneNode>> animNodes;
+		//std::vector<std::shared_ptr<Animation>> animations;
+		//std::vector<std::shared_ptr<SceneNode>> animNodes;
 		//GltfLoader gltfLoader(gfxDevice());
 		//gltfLoader.load(*m_gltfRoot, scene, mGraphicsScene, animNodes, animations);
 	}
@@ -156,7 +154,7 @@ namespace rev {
 	{
 		// Compute scene bbox
 		m_globalBBox.clear();
-		m_gltfRoot->traverseSubtree([&](SceneNode& node){
+		/*m_gltfRoot->traverseSubtree([&](SceneNode& node){
 			if(auto renderer = node.component<game::MeshRenderer>())
 			{
 				auto localbbox = renderer->renderObj().mesh->m_bbox;
@@ -164,28 +162,28 @@ namespace rev {
 				auto wsBbox = transform->absoluteXForm().matrix() * localbbox;
 				m_globalBBox.add(wsBbox);
 			}
-		});
+		});*/
 
 		// Re-center scene
-		auto xForm = m_gltfRoot->component<Transform>();
-		xForm->xForm.position() = -m_globalBBox.center();
+		//auto xForm = m_gltfRoot->component<Transform>();
+		//xForm->xForm.position() = -m_globalBBox.center();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createCamera()
 	{	
 		// Create flyby camera
-		auto cameraNode = mGameScene.root()->createChild("Flyby cam");
+		/*auto cameraNode = mGameScene.root()->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
 		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 5000.f);
-		mFlybyCam = &*camComponent->cam();
+		mFlybyCam = &*camComponent->cam();*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::createFloor()
 	{
-		auto floorNode = mGameScene.root()->createChild("floor");
+		/*auto floorNode = mGameScene.root()->createChild("floor");
 		auto sceneSize = m_globalBBox.size();
 		auto floorXForm = floorNode->addComponent<Transform>();
 		floorXForm->xForm.rotate(Quatf({1.f,0.f,0.f}, -math::Constants<float>::halfPi));
@@ -207,7 +205,7 @@ namespace rev {
 		m_floorGeom->visible = false;
 		mGraphicsScene.renderables().push_back(m_floorGeom);
 
-		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);
+		floorNode->addComponent<game::MeshRenderer>(m_floorGeom);*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -335,7 +333,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateUI(float dt)
 	{
-		gui::startFrame(windowSize());
+		/*gui::startFrame(windowSize());
 
 		if(ImGui::Begin("Player options"))
 		{
@@ -364,7 +362,7 @@ namespace rev {
 		lightXform.setRotation(rotation * elevation);
 		m_envLight->worldMatrix = lightXform;
 
-		gui::finishFrame(dt);
+		gui::finishFrame(dt);*/
 	}
 
 }	// namespace rev

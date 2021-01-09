@@ -5,8 +5,6 @@
 
 #include "../component.h"
 #include <math/algebra/affineTransform.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
 
 namespace rev { namespace game {
 

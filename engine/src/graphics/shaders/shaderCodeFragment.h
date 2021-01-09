@@ -23,12 +23,11 @@
 #include <string>
 #include <vector>
 #include <core/event.h>
-#include <graphics/driver/shaderProcessor.h>
 #include <core/platform/fileSystem/fileSystem.h>
 
 namespace rev::gfx {
 
-	class ShaderCodeFragment
+	/*class ShaderCodeFragment
 	{
 	public:
 		// Default constructor
@@ -69,6 +68,6 @@ namespace rev::gfx {
 		std::string m_processedCode;
 		const ShaderCodeFragment* m_childA = nullptr;
 		const ShaderCodeFragment* m_childB = nullptr;
-	};
+	};*/
 
 }	// namespace rev::gfx

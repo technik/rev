@@ -19,8 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/gpuTypes.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/scene/renderGeom.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <graphics/renderer/material/material.h>
@@ -32,8 +30,7 @@
 
 namespace rev::gfx {
 
-	class Device;
-	class ShaderCodeFragment;
+	/*class ShaderCodeFragment;
 
 	class GeometryPass
 	{
@@ -78,6 +75,6 @@ namespace rev::gfx {
 		std::map<std::string, ShaderCodeFragment*> m_materialCode;
 		std::map<PipelineSrc, Pipeline> m_pipelines;
 		std::vector<std::shared_ptr<ShaderCodeFragment::ReloadListener>> m_shaderListeners;
-	};
+	};*/
 
 }	// namespace rev::gfx

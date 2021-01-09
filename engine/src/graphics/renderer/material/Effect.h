@@ -23,13 +23,12 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
-#include <graphics/driver/shaderProcessor.h>
 #include <core/platform/fileSystem/fileSystem.h>
 #include <memory>
 
 namespace rev::gfx {
 
-	class Effect
+	/*class Effect
 	{
 	public:
 		// Effect creation
@@ -64,6 +63,6 @@ namespace rev::gfx {
 		// Advanced uses may allow enumerated or integer values for the options
 		// TODO: Let a shader specify that it requires specific data from the vertex or fragment stages
 		// This should allow optimization of shaders when some computations won't be used.
-	};
+	};*/
 
 }

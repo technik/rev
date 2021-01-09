@@ -26,9 +26,6 @@
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
 
-#include <graphics/backend/device.h>
-#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
-
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
 

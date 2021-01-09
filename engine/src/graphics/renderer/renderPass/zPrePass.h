@@ -21,7 +21,6 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
-#include <graphics/backend/commandBuffer.h>
 #include <graphics/renderer/renderPass/geometryPass.h>
 #include <graphics/shaders/shaderCodeFragment.h>
 #include <graphics/scene/renderGeom.h>
@@ -35,7 +34,7 @@ namespace rev::gfx {
 
 	class Camera;
 
-	class ZPrePass
+	/*class ZPrePass
 	{
 	public:
 		ZPrePass(Device& device, FrameBuffer target, const math::Vec2u& _size);
@@ -64,6 +63,6 @@ namespace rev::gfx {
 		FrameBuffer m_frameBuffer;
 
 		float mBias = 0.001f;
-	};
+	};*/
 
 }

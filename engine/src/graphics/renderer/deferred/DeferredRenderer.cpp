@@ -18,9 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "DeferredRenderer.h"
-#include <graphics/backend/renderPass.h>
-#include <graphics/debug/imgui.h>
+/*#include "DeferredRenderer.h"
 #include <graphics/renderGraph/frameBufferCache.h>
 #include <graphics/scene/camera.h>
 #include <graphics/scene/renderGeom.h>
@@ -533,4 +531,4 @@ namespace rev::gfx {
 		});
 	}
 
-} // namespace rev::gfx
+} // namespace rev::gfx*/

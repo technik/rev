@@ -19,15 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "frameBufferCache.h"
 #include "renderGraph.h"
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/backend/device.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
 
 #include <numeric>
 
 namespace rev::gfx {
 
+	/*
 	//--------------------------------------------------------------------------
 	RenderGraph::RenderGraph(Device& gfxDevice)
 		: m_gfxDevice(gfxDevice)
@@ -381,5 +378,5 @@ namespace rev::gfx {
 
 		m_outputs.push_back(newOutputStateNdx);
 		return BufferResource((int)newOutputStateNdx);
-	}
+	}*/
 }

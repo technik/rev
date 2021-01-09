@@ -19,14 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "Effect.h"
 #include <sstream>
-#include <graphics/driver/shader.h>
-#include <graphics/driver/shaderProcessor.h>
 
 using namespace std;
 
 namespace rev::gfx {
 
-	//----------------------------------------------------------------------------------------------
+	/*//----------------------------------------------------------------------------------------------
 	Effect::Effect(const string& _fileName)
 		: m_fileName(_fileName)
 	{
@@ -73,5 +71,5 @@ namespace rev::gfx {
 		ShaderProcessor::MetaData metadata;
 		loadFromFile(m_fileName.c_str(), metadata);
 		invokeCallbacks();
-	}
+	}*/
 }
