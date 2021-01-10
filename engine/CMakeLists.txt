@@ -1,7 +1,7 @@
 ################################################################################
 # Rev project
 ################################################################################
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.10)
 project(engine)
 
 include(../cmake/common.cmake)
@@ -32,9 +32,13 @@ target_include_directories (revMath PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
 set_target_properties(revMath PROPERTIES FOLDER rev)
 
 # graphics
+# ImGui source
+set(ImGui_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/)
+set(ImGui_SRC ${ImGui_ROOT}imgui.cpp ${ImGui_ROOT}imgui_demo.cpp ${ImGui_ROOT}imgui_draw.cpp ${ImGui_ROOT}imgui_tables.cpp ${ImGui_ROOT}imgui_widgets.cpp)
 file(GLOB_RECURSE GRAPHICS_SOURCE_FILES "src/graphics/*.cpp" "src/graphics/*.h" "src/graphics/*.inl")
 GroupSources(src/graphics src)
-add_library(revGfx STATIC ${GRAPHICS_SOURCE_FILES})
+source_group("lib/imgui" FILES ${ImGui_SRC})
+add_library(revGfx STATIC ${GRAPHICS_SOURCE_FILES} ${ImGui_SRC})
 target_include_directories(revGfx PRIVATE "../include" ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_include_directories (revGfx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
 target_link_libraries(revGfx LINK_PRIVATE revMath revCore)
