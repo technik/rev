@@ -89,6 +89,8 @@ namespace rev::gfx {
 			if (result != VK_SUCCESS)
 				return nullptr;
 
+			m_mappedMemory.insert(std::pair(mappedMemory, alloc));
+
 			return (T*)mappedMemory;
 		}
 

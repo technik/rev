@@ -112,10 +112,11 @@ namespace rev::gfx {
 		uint32_t numLayers, const char** layerNames)
 	{
 		// Combine required extensions with application specific extensions
-		constexpr size_t numRequiredExtensions = 1;
+		constexpr size_t numRequiredExtensions = 3;
 		const char* requiredExtensions[numRequiredExtensions] = {
-			VK_KHR_SWAPCHAIN_EXTENSION_NAME
-			//VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+			VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
 		};
 		m_requiredDeviceExtensions.reserve(numAppDeviceExtensions + numRequiredExtensions);
 		for(auto name : requiredExtensions)
