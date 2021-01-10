@@ -7,8 +7,14 @@
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/cmdLineParser.h>
+#include <core/platform/osHandler.h>
 #include <core/tools/log.h>
 #include <vma/vk_mem_alloc.h>
+#include <input/pointingInput.h>
+
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_vulkan.h>
+#include <imgui/backends/imgui_impl_win32.h>
 
 /*#include <game/scene/camera.h>
 #include <game/animation/animator.h>
@@ -26,6 +32,9 @@
 using namespace rev::math;
 using namespace rev::gfx;
 using namespace rev::game;
+
+// Imgui windows handler
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
@@ -76,6 +85,9 @@ namespace rev {
 			m_uiPass,
 			"ui.vert.spv",
 			"ui.frag.spv");
+
+		// Init ImGui
+		initImGui();
 
 		loadScene(m_options.scene);
 
@@ -252,6 +264,13 @@ namespace rev {
 		// Record frame
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
+		static bool imGuiFontsBuilt = false;
+		if (!imGuiFontsBuilt)
+		{
+			imGuiFontsBuilt = true;
+			ImGui_ImplVulkan_CreateFontsTexture(cmd);
+		}
+
 		// Clear
 		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
 		accumT += dt.count();
@@ -289,6 +308,15 @@ namespace rev {
 		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer, m_vtxClrBuffer }, {0, 0});
 
 		cmd.draw(3, 1, 0, 0);
+
+		ImGui_ImplWin32_NewFrame();
+		ImGui_ImplVulkan_NewFrame();
+		auto& io = ImGui::GetIO();
+		io.DisplaySize = { (float)windowSize().x(), (float)windowSize().y() };
+		auto mousePos = input::PointingInput::get()->touchPosition();
+		io.MousePos = { (float)mousePos.x(), (float)mousePos.y() };
+		updateUI(dt.count());
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
 		cmd.endRenderPass();
 
@@ -363,6 +391,16 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::updateUI(float dt)
 	{
+		ImGui::NewFrame();
+
+		if (ImGui::Begin("debug window"))
+		{
+			ImGui::Text("%s", "Sample text");
+			ImGui::End();
+		}
+
+		ImGui::Render();
+
 		/*gui::startFrame(windowSize());
 
 		if(ImGui::Begin("Player options"))
@@ -393,6 +431,59 @@ namespace rev {
 		m_envLight->worldMatrix = lightXform;
 
 		gui::finishFrame(dt);*/
+	}
+
+
+	//------------------------------------------------------------------------------------------------
+	void Player::initImGui()
+	{
+		ImGui::CreateContext();
+
+		auto& rc = renderContext();
+		auto nativeWindow = rc.nativeWindow();
+		ImGui_ImplWin32_Init(&nativeWindow);
+
+		vk::DescriptorPoolSize pool_sizes[] =
+		{
+			{ vk::DescriptorType::eSampler, 1000 },
+			{ vk::DescriptorType::eCombinedImageSampler, 1000 },
+			{ vk::DescriptorType::eSampledImage, 1000 },
+			{ vk::DescriptorType::eStorageImage, 1000 },
+			{ vk::DescriptorType::eUniformTexelBuffer, 1000 },
+			{ vk::DescriptorType::eStorageTexelBuffer, 1000 },
+			{ vk::DescriptorType::eUniformBuffer, 1000 },
+			{ vk::DescriptorType::eStorageBuffer, 1000 },
+			{ vk::DescriptorType::eUniformBufferDynamic, 1000 },
+			{ vk::DescriptorType::eStorageBufferDynamic, 1000 },
+			{ vk::DescriptorType::eInputAttachment, 1000 }
+		};
+
+		vk::DescriptorPoolCreateInfo pool_info = {};
+		pool_info.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+		pool_info.pPoolSizes = pool_sizes;
+
+		ImGui_ImplVulkan_InitInfo initInfo{};
+		initInfo.Instance = rc.instance();
+		initInfo.Device = rc.device();
+		initInfo.PhysicalDevice = rc.physicalDevice();
+		initInfo.Queue = rc.graphicsQueue();
+		initInfo.QueueFamily = rc.graphicsQueueFamily();
+		initInfo.Subpass = 0;
+		initInfo.ImageCount = 2;
+		initInfo.MinImageCount = 2;
+		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		initInfo.DescriptorPool = rc.device().createDescriptorPool(pool_info);
+
+		ImGui_ImplVulkan_Init(&initInfo, m_uiPass);
+
+		auto& os = *core::OSHandler::get();
+		os += [=](MSG msg) {
+			// ImGui handler
+			ImGui_ImplWin32_WndProcHandler(nativeWindow, msg.message, msg.wParam, msg.lParam);
+			return false;
+		};
 	}
 
 }	// namespace rev

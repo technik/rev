@@ -36,6 +36,7 @@ namespace rev :: gfx
 			msg.lParam = _lParam;
 			msg.wParam = _wParam;
 			msg.message = _uMsg;
+
 			auto osMessageProcessor = core::OSHandler::get();
 			if(osMessageProcessor)
 				if(osMessageProcessor->processMessage(msg))

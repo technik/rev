@@ -55,6 +55,9 @@ namespace rev {
 		void createFloor();
 		void updateSceneBBox();
 
+		// Init ImGui
+		void initImGui();
+
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
 		vk::RenderPass m_uiPass;

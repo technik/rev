@@ -64,6 +64,15 @@ namespace rev::game {
 		// Init application
 		init();
 
+		// OS Hooks
+		*core::OSHandler::get() += [&](MSG _msg) {
+			if (rev::input::PointingInput::get()->processMessage(_msg))
+				return true;
+			if (rev::input::KeyboardInput::get()->processWin32Message(_msg))
+				return true;
+			return false;
+		};
+
 		// main loop
 		const int kMaxIter = 4;
 		const TimeDelta fixedDt = TimeDelta(1.f / 60);
@@ -106,14 +115,6 @@ namespace rev::game {
 		// Init input systems
 		rev::input::KeyboardInput::init();
 		rev::input::PointingInput::init();
-
-		*core::OSHandler::get() += [&](MSG _msg) {
-			if (rev::input::PointingInput::get()->processMessage(_msg))
-				return true;
-			if (rev::input::KeyboardInput::get()->processWin32Message(_msg))
-				return true;
-			return false;
-		};
 	}
 
 	//------------------------------------------------------------------------------------------------

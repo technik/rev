@@ -49,6 +49,7 @@ namespace rev :: gfx
 			bool fullScreen,
 			bool showCursor);
 
+		auto nativeWindow() const { return m_nativeWindowHandle; }
 		const math::Vec2u& windowSize() const { return m_windowSize; }
 		auto& onResize() { return m_onResize; };
 		using ResizeDelegate = std::shared_ptr<core::Event<math::Vec2u>::Listener>;
@@ -71,6 +72,8 @@ namespace rev :: gfx
 
 		// Device, Queues and Commands
 		auto device() const { return m_device; }
+		auto physicalDevice() const { return m_physicalDevice; }
+		auto instance() const { return m_vkInstance; }
 		auto graphicsQueue() const { return m_gfxQueue; }
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
 		vk::CommandBuffer getNewRenderCmdBuffer();
