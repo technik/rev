@@ -6,8 +6,6 @@ project(engine)
 
 include(../cmake/common.cmake)
 
-find_package(Vulkan REQUIRED)
-
 #######################################################################
 ####### Create separate libraries for each module of the engine #######
 # Core

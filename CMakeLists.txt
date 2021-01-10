@@ -12,12 +12,18 @@ option(REV_BUILD_TEST "Build engine unit tests" ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 20)
 
+# Find GLSL compiler
+find_package(Vulkan REQUIRED)
+set(VULKAN_BIN_DIR ${Vulkan_INCLUDE_DIR}/../bin/)
+set(GLSLANGVALIDATOR ${VULKAN_BIN_DIR}glslc.exe)
+
 add_subdirectory(engine)
 
 if(REV_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
 
+# Compile sample projects
 add_subdirectory(samples/ShaderToy)
 add_subdirectory(samples/GltfViewer)
 
