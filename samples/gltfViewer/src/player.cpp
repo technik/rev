@@ -258,7 +258,6 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
-		static float accumT = 0.f; // This should really happen in the update stage
 		auto cmd = renderContext().getNewRenderCmdBuffer();
 
 		// Record frame
@@ -272,10 +271,7 @@ namespace rev {
 		}
 
 		// Clear
-		auto clearColor = vk::ClearColorValue(std::array<float,4>{ 0.f, accumT, 1.f, 1.f });
-		accumT += dt.count();
-		if (accumT > 1.f)
-			accumT -= 1.f;
+		auto clearColor = vk::ClearColorValue(std::array<float,4>{ m_bgColor, m_bgColor, m_bgColor, 1.f });
 
 		auto swapchainImage = renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
 
@@ -396,6 +392,7 @@ namespace rev {
 		if (ImGui::Begin("debug window"))
 		{
 			ImGui::Text("%s", "Sample text");
+			ImGui::SliderFloat("Background", &m_bgColor, 0.f, 1.f);
 			ImGui::End();
 		}
 
