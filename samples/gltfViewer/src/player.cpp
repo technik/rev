@@ -8,6 +8,8 @@
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/cmdLineParser.h>
 #include <core/tools/log.h>
+#include <vma/vk_mem_alloc.h>
+
 /*#include <game/scene/camera.h>
 #include <game/animation/animator.h>
 //#include <game/scene/gltf/gltfLoader.h>
@@ -72,13 +74,12 @@ namespace rev {
 			device,
 			m_uiPipelineLayout,
 			m_uiPass,
-			"shaders/ui.vert.spv",
-			"shaders/ui.frag.spv");
+			"ui.vert.spv",
+			"ui.frag.spv");
 
-		/*
-		mDeferred.init(gfxDevice(), windowSize(), backBuffer());
 		loadScene(m_options.scene);
 
+		/*
 		// Default scene light
 		{
 			m_envLight = std::make_shared<gfx::DirectionalLight>();
@@ -128,6 +129,32 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
+		const size_t numVertices = 3;
+		const Vec2f vtxPos[numVertices] = {
+			{0.0f, -0.5f},
+			{-0.5f, 0.5f},
+			{0.5f, 0.5f}
+		};
+		const Vec3f vtxColors[numVertices] = {
+			{1.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f},
+			{0.0f, 0.0f, 1.0f}
+		};
+
+		// Allocate buffers
+		auto& alloc = renderContext().allocator();
+		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY);
+		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY);
+
+		// Copy data to the GPU
+		auto gpuPos = alloc.mapBuffer<Vec2f>(m_vtxPosBuffer);
+		memcpy(gpuPos, vtxPos, sizeof(vtxPos));
+		alloc.unmapBuffer(gpuPos);
+
+		auto gpuClr = alloc.mapBuffer<Vec3f>(m_vtxClrBuffer);
+		memcpy(gpuClr , vtxColors, sizeof(vtxColors));
+		alloc.unmapBuffer(gpuClr);
+
 		// TODO:
 		// Preload metadata and scene definition
 		// Allocate memory in the renderer for meshes (and maybe textures)
@@ -254,10 +281,13 @@ namespace rev {
 		vk::Viewport viewport{ {0,0} };
 		viewport.maxDepth = 1.0f;
 		viewport.minDepth = 0.0f;
-		viewport.width = passInfo.renderArea.extent.width;
-		viewport.height = passInfo.renderArea.extent.height;
+		viewport.width = (float)passInfo.renderArea.extent.width;
+		viewport.height = (float)passInfo.renderArea.extent.height;
 		cmd.setViewport(0, 1, &viewport);
 		cmd.setScissor(0, passInfo.renderArea);
+
+		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer, m_vtxPosBuffer }, {});
+
 		cmd.draw(3, 1, 0, 0);
 
 		cmd.endRenderPass();

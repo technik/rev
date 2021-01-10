@@ -64,6 +64,7 @@ namespace rev {
 		// Scene
 		game::Scene							mGameScene;
 		math::AABB							m_globalBBox;
+		vk::Buffer							m_vtxPosBuffer, m_vtxClrBuffer;
 
 		// Camera options
 		gfx::Camera*						mFlybyCam = nullptr;

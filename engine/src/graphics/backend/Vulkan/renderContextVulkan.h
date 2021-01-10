@@ -29,6 +29,7 @@
 
 #include <core/event.h>
 #include <math/algebra/vector.h>
+#include "vulkanAllocator.h"
 
 namespace rev :: gfx
 {
@@ -64,7 +65,7 @@ namespace rev :: gfx
 		auto nSwapChainImages() const { return m_swapchain.images.size(); }
 		vk::Image swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
 		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
-		const vk::Framebuffer& currentFrameBuffer() const { return m_swapchain.currentBuffer(); }
+		vk::Framebuffer currentFrameBuffer() const { return m_swapchain.currentBuffer(); }
 		void swapchainPresent();
 		vk::Format swapchainFormat() const { return m_swapchain.m_imageFormat; }
 
@@ -75,6 +76,7 @@ namespace rev :: gfx
 		vk::CommandBuffer getNewRenderCmdBuffer();
 
 		// Alloc
+		VulkanAllocator& allocator() { return m_alloc; }
 		// Debug
 		// Device properties (capabilities)
 		struct Properties
@@ -186,5 +188,8 @@ namespace rev :: gfx
 
 		// Debug
 		vk::DebugUtilsMessengerEXT m_debugMessenger;
+
+		// Allocator
+		VulkanAllocator m_alloc;
 	};
 }

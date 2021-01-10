@@ -23,6 +23,9 @@
 
 #include <iostream>
 
+#define VMA_IMPLEMENTATION
+#include <vma/vk_mem_alloc.h>
+
 namespace rev::gfx {
 
 	namespace {
@@ -112,6 +115,7 @@ namespace rev::gfx {
 		constexpr size_t numRequiredExtensions = 1;
 		const char* requiredExtensions[numRequiredExtensions] = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
+			//VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
 		};
 		m_requiredDeviceExtensions.reserve(numAppDeviceExtensions + numRequiredExtensions);
 		for(auto name : requiredExtensions)
@@ -138,6 +142,9 @@ namespace rev::gfx {
 
 		getPhysicalDevice();
 		createLogicalDevice();
+
+		// Init vulkan allocator
+		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance);
 
 		return true;
 	}
