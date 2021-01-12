@@ -51,9 +51,16 @@ namespace rev::gfx {
 			unmapBufferInternal((void*)_buffer);
 		}
 
+		template<class T>
+		void copyToGPU(const GPUBuffer& dst, const T* src, size_t count, size_t dstOffset = 0)
+		{
+			copyToGPUInternal(dst, dstOffset, (const void*)src, count * sizeof(T));
+		}
+
 	private:
 		void* mapBufferInternal(const GPUBuffer& _buffer);
 		void unmapBufferInternal(void*);
+		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
 
 		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 

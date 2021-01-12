@@ -158,13 +158,8 @@ namespace rev {
 		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
 
 		// Copy data to the GPU
-		auto gpuPos = alloc.mapBuffer<Vec2f>(m_vtxPosBuffer);
-		memcpy(gpuPos, vtxPos, sizeof(vtxPos));
-		alloc.unmapBuffer(gpuPos);
-
-		auto gpuClr = alloc.mapBuffer<Vec3f>(m_vtxClrBuffer);
-		memcpy(gpuClr , vtxColors, sizeof(vtxColors));
-		alloc.unmapBuffer(gpuClr);
+		alloc.copyToGPU(m_vtxPosBuffer, vtxPos, numVertices);
+		alloc.copyToGPU(m_vtxClrBuffer, vtxColors, numVertices);
 
 		// TODO:
 		// Preload metadata and scene definition

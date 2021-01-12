@@ -73,6 +73,16 @@ namespace rev::gfx {
 		m_mappedMemory.erase(iter);
 	}
 
+	void VulkanAllocator::copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t size)
+	{
+		if (!size)
+			return; // Early out
+		assert(size + dstOffset <= dst.size());
+		auto devMemory = m_device.mapMemory(dst.memory(), dst.offset() + dstOffset, size);
+		memcpy(devMemory, src, size);
+		m_device.unmapMemory(dst.memory());
+	}
+
 	uint32_t VulkanAllocator::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 	{
 		auto memProperties = m_physicalDevice.getMemoryProperties();
