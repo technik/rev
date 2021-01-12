@@ -30,19 +30,58 @@ namespace rev::gfx {
 	{
 	public:
 		VulkanAllocator() = default;
-		VulkanAllocator(vk::Device device, vk::PhysicalDevice physicalDevice, vk::Instance instance)
+		VulkanAllocator(vk::Device device, vk::PhysicalDevice physicalDevice, vk::Instance instance, vk::Queue streamingQueue)
 			: m_device(device)
 			, m_physicalDevice(physicalDevice)
+			, m_streamingQueue(streamingQueue)
 		{
 		}
 
-		GPUBuffer createBuffer(size_t size, vk::BufferUsageFlags usage);
+		~VulkanAllocator()
+		{
+			m_streamingQueue.waitIdle();
+			m_stagingBuffer = nullptr;
+			for (auto& block : m_pendingBlocks)
+				m_device.destroyFence(block.fence);
+			for (auto& fence : m_freeFences)
+				m_device.destroyFence(fence);
+		}
+
+		std::shared_ptr<GPUBuffer> createBuffer(size_t size, vk::BufferUsageFlags usage);
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>
 		T* mapBuffer(const GPUBuffer& _buffer)
 		{
 			return (T*)mapBufferInternal(_buffer);
+		}
+
+		void resizeStreamingBuffer(size_t minSize)
+		{
+			m_streamingQueue.waitIdle();
+			if(m_stagingBuffer->size() < minSize)
+			{
+				m_stagingBuffer = createBuffer(minSize, vk::BufferUsageFlagBits::eTransferSrc);
+			}
+			// Reset counters
+			m_freeFences.reserve(m_pendingBlocks.size() + m_freeFences.size());
+			for (auto& block : m_pendingBlocks)
+				m_freeFences.push_back(block.fence);
+			m_pendingBlocks.clear();
+
+			m_capacity = m_stagingBuffer->size();
+			m_ringReadPos = m_capacity;
+			m_ringWritePos = 0;
+		}
+
+		template<class T>
+		void asyncStream(const GPUBuffer& dst, T* src, size_t count, size_t dstOffset = 0);
+
+		size_t asyncTransfer(const GPUBuffer& dst, uint8_t* src, size_t size, size_t dstOffset = 0);
+
+		bool isTransferFinished(size_t token) {
+			advanceReadPos();
+			return token <= m_ringReadPos;
 		}
 
 		template<class T>
@@ -61,12 +100,35 @@ namespace rev::gfx {
 		void* mapBufferInternal(const GPUBuffer& _buffer);
 		void unmapBufferInternal(void*);
 		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
+		void writeToRingBuffer(void* src, size_t size);
 
 		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
 		vk::Device m_device;
 		vk::PhysicalDevice m_physicalDevice;
+		vk::Queue m_streamingQueue;
 		
 		std::unordered_map<void*, vk::DeviceMemory> m_mappedMemory;
+
+		// Streaming
+		size_t availableSpace() const
+		{
+			return (m_ringReadPos - m_ringWritePos);
+		}
+		void advanceReadPos();
+		vk::Fence getFreeFence();
+
+		struct InFlightBlock
+		{
+			vk::Fence fence;
+			size_t size{};
+			vk::CommandBuffer cmd;
+		};
+
+		vk::CommandPool m_transferPool;
+		size_t m_ringReadPos{}, m_ringWritePos{}, m_capacity{};
+		std::vector<vk::Fence> m_freeFences;
+		std::vector<InFlightBlock> m_pendingBlocks;
+		std::shared_ptr<GPUBuffer> m_stagingBuffer;
 	};
 }

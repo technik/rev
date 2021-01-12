@@ -76,6 +76,7 @@ namespace rev :: gfx
 		auto instance() const { return m_vkInstance; }
 		auto graphicsQueue() const { return m_gfxQueue; }
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
+		auto transferQueue() const { return m_transferQueue; }
 		vk::CommandBuffer getNewRenderCmdBuffer();
 
 		// Alloc
@@ -168,6 +169,7 @@ namespace rev :: gfx
 		} m_queueFamilies;
 		QueueFamilies getDeviceQueueFamilies(const vk::PhysicalDevice& device);
 		vk::Queue m_gfxQueue;
+		vk::Queue m_transferQueue;
 
 		// Commands
 		struct FrameInfo

@@ -45,7 +45,7 @@ namespace rev::gfx
 
 		vk::Buffer m_buffer;
 		vk::DeviceMemory m_memory;
-		size_t m_offset; // Offset from the memory allocation start
-		size_t m_size; // Buffer size
+		size_t m_offset{}; // Offset from the memory allocation start
+		size_t m_size{}; // Buffer size
 	};
 }

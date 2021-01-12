@@ -158,8 +158,8 @@ namespace rev {
 		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
 
 		// Copy data to the GPU
-		alloc.copyToGPU(m_vtxPosBuffer, vtxPos, numVertices);
-		alloc.copyToGPU(m_vtxClrBuffer, vtxColors, numVertices);
+		alloc.copyToGPU(*m_vtxPosBuffer, vtxPos, numVertices);
+		alloc.copyToGPU(*m_vtxClrBuffer, vtxColors, numVertices);
 
 		// TODO:
 		// Preload metadata and scene definition
@@ -295,7 +295,7 @@ namespace rev {
 		cmd.setViewport(0, 1, &viewport);
 		cmd.setScissor(0, passInfo.renderArea);
 
-		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer.buffer(), m_vtxClrBuffer.buffer() }, {0, 0});
+		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, {0, 0});
 
 		cmd.draw(3, 1, 0, 0);
 

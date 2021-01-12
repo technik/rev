@@ -68,7 +68,8 @@ namespace rev {
 		// Scene
 		game::Scene	mGameScene;
 		math::AABB	m_globalBBox;
-		gfx::GPUBuffer	m_vtxPosBuffer, m_vtxClrBuffer;
+		std::shared_ptr<gfx::GPUBuffer>	m_vtxPosBuffer;
+		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;
 		float m_bgColor{};
 
 		// Camera options

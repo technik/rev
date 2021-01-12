@@ -142,7 +142,7 @@ namespace rev::gfx {
 		createLogicalDevice();
 
 		// Init vulkan allocator
-		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance);
+		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance, m_transferQueue);
 
 		return true;
 	}
@@ -419,6 +419,11 @@ namespace rev::gfx {
 		// Retrieve command queues
 		m_gfxQueue = m_device.getQueue(m_queueFamilies.graphics.value(), 0);
 		assert(m_gfxQueue);
+
+		if (m_queueFamilies.transfer.has_value())
+			m_transferQueue = m_device.getQueue(m_queueFamilies.transfer.value(), 0);
+		else
+			m_transferQueue = m_gfxQueue;
 	}
 
 	//--------------------------------------------------------------------------------------------------
