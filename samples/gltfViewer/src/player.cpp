@@ -154,12 +154,15 @@ namespace rev {
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
-		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
-		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 
 		// Copy data to the GPU
-		alloc.copyToGPU(*m_vtxPosBuffer, vtxPos, numVertices);
-		alloc.copyToGPU(*m_vtxClrBuffer, vtxColors, numVertices);
+		//alloc.copyToGPU(*m_vtxPosBuffer, vtxPos, numVertices);
+		//alloc.copyToGPU(*m_vtxClrBuffer, vtxColors, numVertices);
+		alloc.resizeStreamingBuffer(sizeof(vtxColors));
+		alloc.asyncTransfer(*m_vtxPosBuffer, vtxPos, numVertices);
+		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
 
 		// TODO:
 		// Preload metadata and scene definition
@@ -276,7 +279,7 @@ namespace rev {
 			&clearColor, 1, &clearRange
 		);
 
-		// Render a triangle
+		// Render the UI pass
 		vk::RenderPassBeginInfo passInfo;
 		passInfo.framebuffer = renderContext().currentFrameBuffer();
 		passInfo.renderPass = m_uiPass;
@@ -286,18 +289,22 @@ namespace rev {
 		passInfo.clearValueCount = 0;
 		cmd.beginRenderPass(passInfo, vk::SubpassContents::eInline);
 
-		m_uiPipeline->bind(cmd);
-		vk::Viewport viewport{ {0,0} };
-		viewport.maxDepth = 1.0f;
-		viewport.minDepth = 0.0f;
-		viewport.width = (float)passInfo.renderArea.extent.width;
-		viewport.height = (float)passInfo.renderArea.extent.height;
-		cmd.setViewport(0, 1, &viewport);
-		cmd.setScissor(0, passInfo.renderArea);
+		// Render a triangle if the scene is loaded
+		if (renderContext().allocator().isTransferFinished(m_sceneLoadStreamToken))
+		{
+			m_uiPipeline->bind(cmd);
+			vk::Viewport viewport{ {0,0} };
+			viewport.maxDepth = 1.0f;
+			viewport.minDepth = 0.0f;
+			viewport.width = (float)passInfo.renderArea.extent.width;
+			viewport.height = (float)passInfo.renderArea.extent.height;
+			cmd.setViewport(0, 1, &viewport);
+			cmd.setScissor(0, passInfo.renderArea);
 
-		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, {0, 0});
+			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
 
-		cmd.draw(3, 1, 0, 0);
+			cmd.draw(3, 1, 0, 0);
+		}
 
 		ImGui_ImplWin32_NewFrame();
 		ImGui_ImplVulkan_NewFrame();

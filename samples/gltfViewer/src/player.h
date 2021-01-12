@@ -102,6 +102,8 @@ namespace rev {
 			float EV = 0.f;
 			PostFX postOptions;
 		};
+
+		size_t m_sceneLoadStreamToken{};
 	};
 
 }	// namespace rev

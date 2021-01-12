@@ -142,7 +142,7 @@ namespace rev::gfx {
 		createLogicalDevice();
 
 		// Init vulkan allocator
-		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance, m_transferQueue);
+		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance, m_transferQueue, m_queueFamilies.transfer.value());
 
 		return true;
 	}

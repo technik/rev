@@ -27,6 +27,7 @@
 #include <chrono>
 #include <thread>
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 
 namespace rev::gfx {
@@ -67,7 +68,7 @@ namespace rev::gfx {
 		m_device.destroyBuffer(buffer.m_buffer);
 	}
 
-	size_t VulkanAllocator::asyncTransfer(const GPUBuffer& dst, uint8_t* src, size_t size, size_t dstOffset)
+	size_t VulkanAllocator::asyncTransferInternal(const GPUBuffer& dst, const uint8_t* src, size_t size, size_t dstOffset)
 	{
 		// Request too big? assert
 		assert(size <= m_stagingBuffer->size());
@@ -77,7 +78,7 @@ namespace rev::gfx {
 		// Ring exhausted?
 		while (availableSpace() < size) // Can't write exactly as much memory as available, because readPos==writePos means the buffer is empty
 		{
-			std::this_thread::sleep_for(1ms);
+			m_device.waitForFences(m_pendingBlocks.front().fence, 1, duration_cast<nanoseconds>(1ms).count());
 			advanceReadPos();
 		}
 
@@ -86,19 +87,19 @@ namespace rev::gfx {
 		auto sizeToEnd = m_stagingBuffer->size() - writePos;
 		auto writeSize = std::min(sizeToEnd, size);
 
-		writeToRingBuffer(src, writeSize);
+		writeToRingBuffer(dst, src, writeSize);
 		size -= writeSize;
 
 		if (size > 0)
 		{
 			src += writeSize;
-			writeToRingBuffer(src, size);
+			writeToRingBuffer(dst, src, size);
 		}
 
 		return m_ringWritePos;
 	}
 
-	void VulkanAllocator::writeToRingBuffer(void* src, size_t size)
+	void VulkanAllocator::writeToRingBuffer(const GPUBuffer& dst, const void* src, size_t size)
 	{
 		auto writePos = m_ringWritePos % m_stagingBuffer->size();
 		copyToGPUInternal(*m_stagingBuffer, writePos, src, size);
@@ -109,6 +110,15 @@ namespace rev::gfx {
 		writeBlock.size = size;
 		vk::CommandBufferAllocateInfo cmdInfo(m_transferPool, vk::CommandBufferLevel::ePrimary, 1);
 		writeBlock.cmd = m_device.allocateCommandBuffers(cmdInfo).front();
+		
+		writeBlock.cmd.begin({ vk::CommandBufferUsageFlagBits::eOneTimeSubmit });
+		vk::BufferCopy region;
+		region.dstOffset = dst.offset();
+		region.srcOffset = writePos + m_stagingBuffer->offset();
+		region.size = size;
+		writeBlock.cmd.copyBuffer(m_stagingBuffer->buffer(), dst.buffer(), region);
+		writeBlock.cmd.end();
+
 		vk::SubmitInfo submitInfo(
 			0, nullptr, nullptr, // Wait on
 			1, &writeBlock.cmd, // commands
@@ -165,11 +175,13 @@ namespace rev::gfx {
 				break;
 
 			// Clear the fence for reuse
+			m_device.resetFences(block.fence);
 			m_freeFences.push_back(block.fence);
-			// Release memory in the ring
-			m_ringReadPos += block.size;
+			// Clear the block
 			m_device.freeCommandBuffers(m_transferPool, block.cmd);
 			++clearedblocks;
+			// Mark memory as read
+			m_ringReadPos += block.size;
 		}
 		// Remove empty blocks from the queue
 		auto remainingBlocks = m_pendingBlocks.size() - clearedblocks;
