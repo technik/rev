@@ -6,6 +6,7 @@
 #include <game/scene/scene.h>
 #include <game/application/base3dApplication.h>
 #include <graphics/backend/rasterPipeline.h>
+#include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/scene/camera.h>
 
 namespace rev {
@@ -65,9 +66,9 @@ namespace rev {
 		std::unique_ptr<gfx::RasterPipeline> m_uiPipeline;
 
 		// Scene
-		game::Scene							mGameScene;
-		math::AABB							m_globalBBox;
-		vk::Buffer							m_vtxPosBuffer, m_vtxClrBuffer;
+		game::Scene	mGameScene;
+		math::AABB	m_globalBBox;
+		gfx::GPUBuffer	m_vtxPosBuffer, m_vtxClrBuffer;
 		float m_bgColor{};
 
 		// Camera options

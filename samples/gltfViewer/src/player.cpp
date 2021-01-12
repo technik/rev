@@ -9,7 +9,6 @@
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/osHandler.h>
 #include <core/tools/log.h>
-#include <vma/vk_mem_alloc.h>
 #include <input/pointingInput.h>
 
 #include <imgui/imgui.h>
@@ -155,8 +154,8 @@ namespace rev {
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
-		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eVertexBuffer);
 
 		// Copy data to the GPU
 		auto gpuPos = alloc.mapBuffer<Vec2f>(m_vtxPosBuffer);
@@ -301,7 +300,7 @@ namespace rev {
 		cmd.setViewport(0, 1, &viewport);
 		cmd.setScissor(0, passInfo.renderArea);
 
-		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer, m_vtxClrBuffer }, {0, 0});
+		cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer.buffer(), m_vtxClrBuffer.buffer() }, {0, 0});
 
 		cmd.draw(3, 1, 0, 0);
 

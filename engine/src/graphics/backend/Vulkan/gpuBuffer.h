@@ -1,6 +1,3 @@
-//--------------------------------------------------------------------------------------------------
-// Revolution Engine
-//--------------------------------------------------------------------------------------------------
 // Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
@@ -21,45 +18,34 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "gpuBuffer.h"
+namespace rev::gfx
+{
+	class VulkanAllocator;
 
-namespace rev::gfx {
-
-	// C++ Wrapper around the vulkan memory allocator
-	class VulkanAllocator
+	class GPUBuffer
 	{
 	public:
-		VulkanAllocator() = default;
-		VulkanAllocator(vk::Device device, vk::PhysicalDevice physicalDevice, vk::Instance instance)
-			: m_device(device)
-			, m_physicalDevice(physicalDevice)
-		{
-		}
+		bool empty() const { return size() == 0; }
 
-		GPUBuffer createBuffer(size_t size, vk::BufferUsageFlags usage);
-		void destroyBuffer(const GPUBuffer&);
+		vk::Buffer buffer() const { return m_buffer; }
+		vk::DeviceMemory memory() const { return m_memory; }
+		size_t offset() const { return m_offset; } // Offset from the memory allocation start
+		size_t size() const { return m_size; } // Buffer size in bytes
 
-		template<class T>
-		T* mapBuffer(const GPUBuffer& _buffer)
-		{
-			return (T*)mapBufferInternal(_buffer);
-		}
-
-		template<class T>
-		void unmapBuffer(T* _buffer)
-		{
-			unmapBufferInternal((void*)_buffer);
-		}
+		// Disable copy
+		GPUBuffer() = default;
+		GPUBuffer(const GPUBuffer&) = delete;
 
 	private:
-		void* mapBufferInternal(const GPUBuffer& _buffer);
-		void unmapBufferInternal(void*);
+		GPUBuffer(vk::Buffer buffer, vk::DeviceMemory memory, size_t offset, size_t size)
+			: m_buffer(buffer), m_memory(memory), m_offset(offset), m_size(size)
+		{}
 
-		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+		friend class VulkanAllocator;
 
-		vk::Device m_device;
-		vk::PhysicalDevice m_physicalDevice;
-		
-		std::unordered_map<void*, vk::DeviceMemory> m_mappedMemory;
+		vk::Buffer m_buffer;
+		vk::DeviceMemory m_memory;
+		size_t m_offset; // Offset from the memory allocation start
+		size_t m_size; // Buffer size
 	};
 }
