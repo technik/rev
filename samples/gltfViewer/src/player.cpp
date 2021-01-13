@@ -141,6 +141,7 @@ namespace rev {
 	void Player::loadScene(const std::string& scene)
 	{
 		const size_t numVertices = 3;
+		const size_t numIndices = 3;
 		const Vec2f vtxPos[numVertices] = {
 			{0.0f, -0.5f},
 			{-0.5f, 0.5f},
@@ -151,18 +152,22 @@ namespace rev {
 			{0.0f, 1.0f, 0.0f},
 			{0.0f, 0.0f, 1.0f}
 		};
+		const uint32_t indices[numIndices] = {
+			0, 1, 2
+		};
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
 		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_indexBuffer = alloc.createGpuBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
 
 		// Copy data to the GPU
-		//alloc.copyToGPU(*m_vtxPosBuffer, vtxPos, numVertices);
-		//alloc.copyToGPU(*m_vtxClrBuffer, vtxColors, numVertices);
-		alloc.resizeStreamingBuffer(sizeof(vtxColors));
+		// Allocate enough room to stream all data at once
+		alloc.resizeStreamingBuffer(sizeof(vtxColors) + sizeof(vtxPos) + sizeof(indices));
 		alloc.asyncTransfer(*m_vtxPosBuffer, vtxPos, numVertices);
-		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
+		alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
+		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_indexBuffer, indices, numIndices);
 
 		// TODO:
 		// Preload metadata and scene definition
@@ -302,8 +307,9 @@ namespace rev {
 			cmd.setScissor(0, passInfo.renderArea);
 
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
+			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
 
-			cmd.draw(3, 1, 0, 0);
+			cmd.drawIndexed(3, 1, 0, 0, 0);
 		}
 
 		ImGui_ImplWin32_NewFrame();

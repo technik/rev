@@ -70,6 +70,7 @@ namespace rev {
 		math::AABB	m_globalBBox;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxPosBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;
+		std::shared_ptr<gfx::GPUBuffer>	m_indexBuffer;
 		float m_bgColor{};
 
 		// Camera options
