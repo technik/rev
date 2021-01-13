@@ -406,10 +406,12 @@ namespace rev::gfx {
 	void RenderContextVulkan::createLogicalDevice()
 	{
 		constexpr float TopPriority = 1.f;
+		constexpr float LowPriority = 0.f;
 		// Create one graphics queue with full priority
 		auto graphicsQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.graphics.value(), 1, &TopPriority);
+		auto transferQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.transfer.value(), 1, &LowPriority);
 		// TODO: Add dedicated queues for transfer and async compute, etc (maybe more than one)
-		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues };
+		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues, transferQueues };
 
 		// Specify required extensions
 		vk::DeviceCreateInfo deviceInfo({}, queueCreateInfo, m_layers, m_requiredDeviceExtensions);
@@ -418,12 +420,9 @@ namespace rev::gfx {
 
 		// Retrieve command queues
 		m_gfxQueue = m_device.getQueue(m_queueFamilies.graphics.value(), 0);
+		m_transferQueue = m_device.getQueue(m_queueFamilies.transfer.value(), 0);
 		assert(m_gfxQueue);
-
-		if (m_queueFamilies.transfer.has_value())
-			m_transferQueue = m_device.getQueue(m_queueFamilies.transfer.value(), 0);
-		else
-			m_transferQueue = m_gfxQueue;
+		assert(m_transferQueue);
 	}
 
 	//--------------------------------------------------------------------------------------------------
