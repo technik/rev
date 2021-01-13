@@ -70,10 +70,10 @@ namespace rev::gfx
 		vk::PipelineShaderStageCreateInfo stages[2] = { vtxStage, pxlStage };
 
 		// Vertex input format
-		vk::VertexInputBindingDescription vtxPosBinding(0, sizeof(math::Vec2f), vk::VertexInputRate::eVertex);
+		vk::VertexInputBindingDescription vtxPosBinding(0, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
 		vk::VertexInputBindingDescription vtxClrBinding(1, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
 
-		vk::VertexInputAttributeDescription vtxPosAttribute(0, 0, vk::Format::eR32G32Sfloat, 0);
+		vk::VertexInputAttributeDescription vtxPosAttribute(0, 0, vk::Format::eR32G32B32Sfloat, 0);
 		vk::VertexInputAttributeDescription vtxClrAttribute(1, 1, vk::Format::eR32G32B32Sfloat, 0);
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputFormat({},

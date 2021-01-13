@@ -142,10 +142,10 @@ namespace rev {
 	{
 		const size_t numVertices = 3;
 		const size_t numIndices = 3;
-		const Vec2f vtxPos[numVertices] = {
-			{0.0f, -0.5f},
-			{-0.5f, 0.5f},
-			{0.5f, 0.5f}
+		const Vec3f vtxPos[numVertices] = {
+			{0.0f, -0.5f, 0.f},
+			{-0.5f, 0.5f, 0.f},
+			{0.5f, 0.5f, 0.f}
 		};
 		const Vec3f vtxColors[numVertices] = {
 			{1.0f, 0.0f, 0.0f},
@@ -158,9 +158,9 @@ namespace rev {
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
-		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-		m_indexBuffer = alloc.createGpuBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
+		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(vtxPos), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(vtxColors) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_indexBuffer = alloc.createGpuBuffer(sizeof(indices), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
 
 		// Copy data to the GPU
 		// Allocate enough room to stream all data at once
