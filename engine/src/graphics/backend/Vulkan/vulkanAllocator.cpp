@@ -32,7 +32,7 @@ using namespace std::chrono_literals;
 
 namespace rev::gfx {
 
-	auto VulkanAllocator::createBuffer(size_t size, vk::BufferUsageFlags usage) -> std::shared_ptr<GPUBuffer>
+	auto VulkanAllocator::createBufferInternal(size_t size, vk::BufferUsageFlags usage, BufferLocation memoryType) -> std::shared_ptr<GPUBuffer>
 	{
 		vk::BufferCreateInfo bufferInfo({},size,usage,vk::SharingMode::eExclusive);
 
@@ -42,7 +42,11 @@ namespace rev::gfx {
 		
 		vk::MemoryRequirements memRequirements = m_device.getBufferMemoryRequirements(buffer);
 
-		vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent; // So that we can map to it
+		vk::MemoryPropertyFlags properties;
+		if(memoryType == BufferLocation::host)
+			properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent; // So that we can map to it
+		else
+			properties = vk::MemoryPropertyFlagBits::eDeviceLocal; // So that we can map to it
 		auto memType = findMemoryType(memRequirements.memoryTypeBits, properties);
 		vk::MemoryAllocateInfo allocInfo(memRequirements.size, memType);
 
@@ -62,10 +66,34 @@ namespace rev::gfx {
 			});
 	}
 
+	auto VulkanAllocator::createGpuBuffer(size_t size, vk::BufferUsageFlags usage)->std::shared_ptr<GPUBuffer>
+	{
+		return createBufferInternal(size, usage, BufferLocation::device);
+	}
+
 	void VulkanAllocator::destroyBuffer(const GPUBuffer& buffer)
 	{
 		m_device.freeMemory(buffer.m_memory);
 		m_device.destroyBuffer(buffer.m_buffer);
+	}
+
+	void VulkanAllocator::resizeStreamingBuffer(size_t minSize)
+	{
+		if (m_capacity >= minSize)
+			return; // Early out if we already have sufficient capacity
+
+		m_streamingQueue.waitIdle();
+		m_stagingBuffer = createBufferInternal(minSize, vk::BufferUsageFlagBits::eTransferSrc, BufferLocation::host);
+		m_capacity = m_stagingBuffer->size();
+
+		// Reset counters
+		m_freeFences.reserve(m_pendingBlocks.size() + m_freeFences.size());
+		for (auto& block : m_pendingBlocks)
+			m_freeFences.push_back(block.fence);
+		m_pendingBlocks.clear();
+
+		m_ringReadPos = m_capacity;
+		m_ringWritePos = 0;
 	}
 
 	size_t VulkanAllocator::asyncTransferInternal(const GPUBuffer& dst, const uint8_t* src, size_t size, size_t dstOffset)
@@ -87,19 +115,19 @@ namespace rev::gfx {
 		auto sizeToEnd = m_stagingBuffer->size() - writePos;
 		auto writeSize = std::min(sizeToEnd, size);
 
-		writeToRingBuffer(dst, src, writeSize);
+		writeToRingBuffer(dst, 0, src, writeSize);
 		size -= writeSize;
 
 		if (size > 0)
 		{
 			src += writeSize;
-			writeToRingBuffer(dst, src, size);
+			writeToRingBuffer(dst, writeSize, src, size);
 		}
 
 		return m_ringWritePos;
 	}
 
-	void VulkanAllocator::writeToRingBuffer(const GPUBuffer& dst, const void* src, size_t size)
+	void VulkanAllocator::writeToRingBuffer(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t size)
 	{
 		auto writePos = m_ringWritePos % m_stagingBuffer->size();
 		copyToGPUInternal(*m_stagingBuffer, writePos, src, size);
@@ -113,7 +141,7 @@ namespace rev::gfx {
 		
 		writeBlock.cmd.begin({ vk::CommandBufferUsageFlagBits::eOneTimeSubmit });
 		vk::BufferCopy region;
-		region.dstOffset = dst.offset();
+		region.dstOffset = dst.offset() + dstOffset;
 		region.srcOffset = writePos + m_stagingBuffer->offset();
 		region.size = size;
 		writeBlock.cmd.copyBuffer(m_stagingBuffer->buffer(), dst.buffer(), region);

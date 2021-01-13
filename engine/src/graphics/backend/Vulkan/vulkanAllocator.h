@@ -49,7 +49,7 @@ namespace rev::gfx {
 				m_device.destroyFence(fence);
 		}
 
-		std::shared_ptr<GPUBuffer> createBuffer(size_t size, vk::BufferUsageFlags usage);
+		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage);
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>
@@ -58,24 +58,7 @@ namespace rev::gfx {
 			return (T*)mapBufferInternal(_buffer);
 		}
 
-		void resizeStreamingBuffer(size_t minSize)
-		{
-			if(m_capacity >= minSize)
-				return; // Early out if we already have sufficient capacity
-
-			m_streamingQueue.waitIdle();
-			m_stagingBuffer = createBuffer(minSize, vk::BufferUsageFlagBits::eTransferSrc);
-			m_capacity = m_stagingBuffer->size();
-				
-			// Reset counters
-			m_freeFences.reserve(m_pendingBlocks.size() + m_freeFences.size());
-			for (auto& block : m_pendingBlocks)
-				m_freeFences.push_back(block.fence);
-			m_pendingBlocks.clear();
-
-			m_ringReadPos = m_capacity;
-			m_ringWritePos = 0;
-		}
+		void resizeStreamingBuffer(size_t minSize);
 
 		template<class T>
 		size_t asyncTransfer(const GPUBuffer& dst, const T* src, size_t count, size_t dstOffset = 0)
@@ -85,7 +68,7 @@ namespace rev::gfx {
 
 		bool isTransferFinished(size_t token) {
 			advanceReadPos();
-			return token <= m_ringReadPos;
+			return token <= (m_ringReadPos-m_capacity);
 		}
 
 		template<class T>
@@ -101,10 +84,16 @@ namespace rev::gfx {
 		}
 
 	private:
+		enum class BufferLocation
+		{
+			device,
+			host
+		};
+		std::shared_ptr<GPUBuffer> createBufferInternal(size_t size, vk::BufferUsageFlags usage, BufferLocation memoryType);
 		void* mapBufferInternal(const GPUBuffer& _buffer);
 		void unmapBufferInternal(void*);
 		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
-		void writeToRingBuffer(const GPUBuffer& dst, const void* src, size_t size);
+		void writeToRingBuffer(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t size);
 
 		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 

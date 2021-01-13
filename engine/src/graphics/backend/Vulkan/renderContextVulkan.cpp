@@ -411,7 +411,9 @@ namespace rev::gfx {
 		auto graphicsQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.graphics.value(), 1, &TopPriority);
 		auto transferQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.transfer.value(), 1, &LowPriority);
 		// TODO: Add dedicated queues for transfer and async compute, etc (maybe more than one)
-		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues, transferQueues };
+		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues };
+		if (m_queueFamilies.graphics.value() != m_queueFamilies.transfer.value())
+			queueCreateInfo.push_back(transferQueues);
 
 		// Specify required extensions
 		vk::DeviceCreateInfo deviceInfo({}, queueCreateInfo, m_layers, m_requiredDeviceExtensions);

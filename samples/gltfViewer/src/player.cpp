@@ -154,8 +154,8 @@ namespace rev {
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
-		m_vtxPosBuffer = alloc.createBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-		m_vtxClrBuffer = alloc.createBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(Vec2f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(Vec3f) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 
 		// Copy data to the GPU
 		//alloc.copyToGPU(*m_vtxPosBuffer, vtxPos, numVertices);
