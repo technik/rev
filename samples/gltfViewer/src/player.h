@@ -66,6 +66,7 @@ namespace rev {
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 
 		// Scene
+		std::shared_ptr<game::SceneNode> m_sceneRoot;
 		math::AABB	m_globalBBox;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxPosBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;

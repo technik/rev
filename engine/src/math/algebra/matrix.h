@@ -120,10 +120,13 @@ namespace rev {
 			auto yFocalLength = 1 / std::tan(yFovRad / 2);
 			auto xFocalLength = yFocalLength / aspectRatio;
 			auto B = 2*n;
+			// P * (0,0,-n,1) = (0,0,-n,-n) = (0,0,n,n)
+			// P.z/w = 1;
+			// P * (0,0,-i,1) = (0,0,-n,-i); z/w = 0
 			return Matrix44<Number_>({
 				xFocalLength, 0, 0, 0,
 				0, yFocalLength, 0, 0,
-				0, 0,			 1, B,
+				0, 0,			 0, n,
 				0, 0,			-1, 0
 			});
 		}

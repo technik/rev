@@ -15,18 +15,10 @@
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_win32.h>
 
-/*#include <game/scene/camera.h>
-#include <game/animation/animator.h>
-//#include <game/scene/gltf/gltfLoader.h>
-#include <game/scene/meshRenderer.h>
+#include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
-#include <graphics/renderer/material/material.h>
-#include <graphics/renderer/material/Effect.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/animation/animation.h>*/
 
 using namespace rev::math;
 using namespace rev::gfx;
@@ -97,7 +89,12 @@ namespace rev {
 		// Init ImGui
 		initImGui();
 
+		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		loadScene(m_options.scene);
+
+		// Create camera
+		createCamera();
+		m_sceneRoot->init();
 
 		/*
 		// Default scene light
@@ -119,12 +116,8 @@ namespace rev {
 				mGraphicsScene.setEnvironment(probe);
 		}
 
-		// Create camera
-		createCamera();
 		createFloor();
 		mGameScene.root()->init();
-
-		gui::init(windowSize());
 		*/
 		return true;
 	}
@@ -152,9 +145,9 @@ namespace rev {
 		const size_t numVertices = 3;
 		const size_t numIndices = 3;
 		const Vec3f vtxPos[numVertices] = {
-			{0.0f, -0.5f, 0.f},
-			{-0.5f, 0.5f, 0.f},
-			{0.5f, 0.5f, 0.f}
+			{0.0f, -0.5f, -1.f},
+			{-0.5f, 0.5f, -1.f},
+			{0.5f, 0.5f, -1.f}
 		};
 		const Vec3f vtxColors[numVertices] = {
 			{1.0f, 0.0f, 0.0f},
@@ -223,11 +216,11 @@ namespace rev {
 	void Player::createCamera()
 	{	
 		// Create flyby camera
-		/*auto cameraNode = mGameScene.root()->createChild("Flyby cam");
+		auto cameraNode = m_sceneRoot->createChild("Flyby cam");
 		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
 		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 5000.f);
-		mFlybyCam = &*camComponent->cam();*/
+		mFlybyCam = &*camComponent->cam();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -262,7 +255,7 @@ namespace rev {
 	bool Player::updateLogic(TimeDelta dt)
 	{
 		// TODO: Play animations
-		//mGameScene.root()->update(dt.count());
+		m_sceneRoot->update(dt.count());
 		return true;
 	}
 
@@ -315,8 +308,8 @@ namespace rev {
 			cmd.setViewport(0, 1, &viewport);
 			cmd.setScissor(0, passInfo.renderArea);
 
-			m_cameraPushC.proj = Mat44f::identity();
-			m_cameraPushC.view = Mat44f::identity();
+			m_cameraPushC.proj = mFlybyCam->projection(1.f).transpose();
+			m_cameraPushC.view = mFlybyCam->view().transpose();
 			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
