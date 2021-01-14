@@ -34,6 +34,7 @@ namespace rev::gfx {
 			: m_device(device)
 			, m_physicalDevice(physicalDevice)
 			, m_streamingQueue(streamingQueue)
+			, m_transferQueueFamily(copyQueueFamily)
 		{
 			vk::CommandPoolCreateInfo poolInfo(vk::CommandPoolCreateFlagBits::eTransient, copyQueueFamily);
 			m_transferPool = device.createCommandPool(poolInfo);
@@ -49,7 +50,7 @@ namespace rev::gfx {
 				m_device.destroyFence(fence);
 		}
 
-		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage);
+		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>
@@ -84,12 +85,12 @@ namespace rev::gfx {
 		}
 
 	private:
-		enum class BufferLocation
+		enum class MemoryAccess : uint8_t
 		{
-			device,
-			host
+			device = 1,
+			host = 2
 		};
-		std::shared_ptr<GPUBuffer> createBufferInternal(size_t size, vk::BufferUsageFlags usage, BufferLocation memoryType);
+		std::shared_ptr<GPUBuffer> createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryAccess memoryAccess, const std::vector<uint32_t>& queueFamilies);
 		void* mapBufferInternal(const GPUBuffer& _buffer);
 		void unmapBufferInternal(void*);
 		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
@@ -100,6 +101,7 @@ namespace rev::gfx {
 		vk::Device m_device;
 		vk::PhysicalDevice m_physicalDevice;
 		vk::Queue m_streamingQueue;
+		uint32_t m_transferQueueFamily;
 		
 		std::unordered_map<void*, vk::DeviceMemory> m_mappedMemory;
 

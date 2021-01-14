@@ -158,9 +158,9 @@ namespace rev {
 
 		// Allocate buffers
 		auto& alloc = renderContext().allocator();
-		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(vtxPos), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(vtxColors) * numVertices, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-		m_indexBuffer = alloc.createGpuBuffer(sizeof(indices), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
+		m_vtxPosBuffer = alloc.createGpuBuffer(sizeof(vtxPos), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, renderContext().graphicsQueueFamily());
+		m_vtxClrBuffer = alloc.createGpuBuffer(sizeof(vtxColors), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, renderContext().graphicsQueueFamily());
+		m_indexBuffer = alloc.createGpuBuffer(sizeof(indices), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, renderContext().graphicsQueueFamily());
 
 		// Copy data to the GPU
 		// Allocate enough room to stream all data at once

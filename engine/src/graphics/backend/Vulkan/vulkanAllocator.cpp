@@ -32,9 +32,10 @@ using namespace std::chrono_literals;
 
 namespace rev::gfx {
 
-	auto VulkanAllocator::createBufferInternal(size_t size, vk::BufferUsageFlags usage, BufferLocation memoryType) -> std::shared_ptr<GPUBuffer>
+	auto VulkanAllocator::createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryAccess memoryAccess, const std::vector<uint32_t>& queueFamilies) -> std::shared_ptr<GPUBuffer>
 	{
-		vk::BufferCreateInfo bufferInfo({},size,usage,vk::SharingMode::eExclusive);
+		vk::SharingMode bufferQueueSharing = (queueFamilies.size() > 1) ? vk::SharingMode::eConcurrent: vk::SharingMode::eExclusive;
+		vk::BufferCreateInfo bufferInfo({},size,usage,bufferQueueSharing,queueFamilies);
 
 		auto buffer = m_device.createBuffer(bufferInfo);
 		if (!buffer)
@@ -43,7 +44,7 @@ namespace rev::gfx {
 		vk::MemoryRequirements memRequirements = m_device.getBufferMemoryRequirements(buffer);
 
 		vk::MemoryPropertyFlags properties;
-		if(memoryType == BufferLocation::host)
+		if(memoryAccess == MemoryAccess::host)
 			properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent; // So that we can map to it
 		else
 			properties = vk::MemoryPropertyFlagBits::eDeviceLocal; // So that we can map to it
@@ -66,9 +67,14 @@ namespace rev::gfx {
 			});
 	}
 
-	auto VulkanAllocator::createGpuBuffer(size_t size, vk::BufferUsageFlags usage)->std::shared_ptr<GPUBuffer>
+	auto VulkanAllocator::createGpuBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
 	{
-		return createBufferInternal(size, usage, BufferLocation::device);
+		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
+		bool isTransferDst = (usage & vk::BufferUsageFlagBits::eTransferDst) == vk::BufferUsageFlagBits::eTransferDst;
+		if (isTransferDst && (graphicsQueueFamily != m_transferQueueFamily))
+			queueFamilies.push_back(m_transferQueueFamily);
+
+		return createBufferInternal(size, usage, MemoryAccess::device, queueFamilies);
 	}
 
 	void VulkanAllocator::destroyBuffer(const GPUBuffer& buffer)
@@ -83,7 +89,7 @@ namespace rev::gfx {
 			return; // Early out if we already have sufficient capacity
 
 		m_streamingQueue.waitIdle();
-		m_stagingBuffer = createBufferInternal(minSize, vk::BufferUsageFlagBits::eTransferSrc, BufferLocation::host);
+		m_stagingBuffer = createBufferInternal(minSize, vk::BufferUsageFlagBits::eTransferSrc, MemoryAccess::host, { m_transferQueueFamily });
 		m_capacity = m_stagingBuffer->size();
 
 		// Reset counters
@@ -186,7 +192,8 @@ namespace rev::gfx {
 	{
 		auto memProperties = m_physicalDevice.getMemoryProperties();
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if (typeFilter & (1 << i)) {
+			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties))
+			{
 				return i;
 			}
 		}
