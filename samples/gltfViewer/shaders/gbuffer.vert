@@ -22,9 +22,15 @@
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 color;
 
+layout(push_constant) uniform Constants
+{
+    mat4 proj;
+    mat4 view;
+} camera;
+
 layout(location = 0) out vec3 vVtxColor;
 
 void main() {
-    gl_Position = vec4(position, 1.0);
+    gl_Position = camera.proj * (camera.view * vec4(position, 1.0));
     vVtxColor = color;
 }

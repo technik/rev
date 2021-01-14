@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
-#include <game/scene/scene.h>
+#include <game/scene/sceneNode.h>
 #include <game/application/base3dApplication.h>
 #include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
@@ -62,11 +62,10 @@ namespace rev {
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
 		vk::RenderPass m_uiPass;
-		vk::PipelineLayout m_uiPipelineLayout;
-		std::unique_ptr<gfx::RasterPipeline> m_uiPipeline;
+		vk::PipelineLayout m_gbufferPipelineLayout;
+		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 
 		// Scene
-		game::Scene	mGameScene;
 		math::AABB	m_globalBBox;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxPosBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;
@@ -76,6 +75,12 @@ namespace rev {
 		// Camera options
 		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
+
+		struct CameraPushConstants
+		{
+			math::Mat44f proj;
+			math::Mat44f view;
+		} m_cameraPushC;
 
 	private:
 

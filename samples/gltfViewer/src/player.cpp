@@ -58,7 +58,16 @@ namespace rev {
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
 		// UI pipeline layout
-		m_uiPipelineLayout = device.createPipelineLayout({});
+		vk::PushConstantRange camerasPushRange(
+			vk::ShaderStageFlagBits::eVertex,
+			0, sizeof(CameraPushConstants));
+
+		vk::PipelineLayoutCreateInfo layoutInfo({},
+			0, // Uniform desc set layout count
+			nullptr, // Descriptor sets
+			1, &camerasPushRange);
+
+		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
 
 		// UI Render pass
 		vk::AttachmentDescription colorAttachment;
@@ -78,12 +87,12 @@ namespace rev {
 		auto uiPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
 		m_uiPass = device.createRenderPass(uiPassInfo);
 
-		m_uiPipeline = std::make_unique<gfx::RasterPipeline>(
+		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			device,
-			m_uiPipelineLayout,
+			m_gbufferPipelineLayout,
 			m_uiPass,
-			"ui.vert.spv",
-			"ui.frag.spv");
+			"gbuffer.vert.spv",
+			"gbuffer.frag.spv");
 
 		// Init ImGui
 		initImGui();
@@ -123,8 +132,8 @@ namespace rev {
 	void Player::end()
 	{
 		auto device = renderContext().device();
-		m_uiPipeline.reset();
-		device.destroyPipelineLayout(m_uiPipelineLayout);
+		m_gBufferPipeline.reset();
+		device.destroyPipelineLayout(m_gbufferPipelineLayout);
 		device.destroyRenderPass(m_uiPass);
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
@@ -253,7 +262,7 @@ namespace rev {
 	bool Player::updateLogic(TimeDelta dt)
 	{
 		// TODO: Play animations
-		mGameScene.root()->update(dt.count());
+		//mGameScene.root()->update(dt.count());
 		return true;
 	}
 
@@ -297,7 +306,7 @@ namespace rev {
 		// Render a triangle if the scene is loaded
 		if (renderContext().allocator().isTransferFinished(m_sceneLoadStreamToken))
 		{
-			m_uiPipeline->bind(cmd);
+			m_gBufferPipeline->bind(cmd);
 			vk::Viewport viewport{ {0,0} };
 			viewport.maxDepth = 1.0f;
 			viewport.minDepth = 0.0f;
@@ -305,6 +314,10 @@ namespace rev {
 			viewport.height = (float)passInfo.renderArea.extent.height;
 			cmd.setViewport(0, 1, &viewport);
 			cmd.setScissor(0, passInfo.renderArea);
+
+			m_cameraPushC.proj = Mat44f::identity();
+			m_cameraPushC.view = Mat44f::identity();
+			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
 			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
