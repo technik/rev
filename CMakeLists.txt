@@ -20,7 +20,8 @@ set(GLSLANGVALIDATOR ${VULKAN_BIN_DIR}glslc.exe)
 add_subdirectory(engine)
 
 if(REV_BUILD_TOOLS)
-	add_subdirectory(tools)
+	add_subdirectory(tools/gltfOptimizer)
+	set_target_properties(gltfOptimizer PROPERTIES FOLDER "tools")
 endif()
 
 # Compile sample projects
