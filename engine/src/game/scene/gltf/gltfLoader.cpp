@@ -17,10 +17,16 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-/*#include "gltfLoader.h"
+#include "gltfLoader.h"
 
 #include "gltf.h"
-#include <core/platform/fileSystem/file.h>
+#include <filesystem>
+
+#include <graphics/backend/Vulkan/renderContextVulkan.h>
+#include <graphics/backend/Vulkan/vulkanAllocator.h>
+#include <core/platform/fileSystem/fileSystem.h>
+
+/*
 #include <core/tasks/threadPool.h>
 #include <core/tools/log.h>
 #include <core/string_util.h>
@@ -33,25 +39,100 @@
 #include <game/scene/meshRenderer.h>
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
-#include <graphics/backend/device.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/scene/renderObj.h>
 #include <graphics/scene/animation/skinning.h>
 #include <graphics/renderer/material/Effect.h>
 #include <graphics/renderer/material/material.h>
-#include <vector>
+#include <vector>*/
 
 using Json = nlohmann::json;
 
 using namespace fx;
 using namespace rev::gfx;
-using namespace rev::math;
+//using namespace rev::math;
 using namespace std;
 
-namespace rev { namespace game {
+namespace rev::game {
 
-	math::Vec3f loadVec3f(const Json& v)
+	namespace {
+		//----------------------------------------------------------------------------------------------
+		bool openAndValidateDocument(const std::string& fullPath, const std::string& folder, gltf::Document& document)
+		{
+			// Open file
+			if(!filesystem::exists(fullPath))
+			{
+				return false;
+			}
+			// Load gltf document
+			//core::File sceneFile(fullPath);
+			/*auto jsonText = sceneFile.buffer<char>();
+			document = gltf::detail::Create(
+				Json::parse(jsonText, nullptr, false),
+				{ folder, {} });
+
+			// Verify document is supported
+			auto asset = document.asset;
+			if (asset.empty()) {
+				core::Log::error("Can't find asset descriptor");
+				return false;
+			}
+			if (asset.version != "2.0") {
+				core::Log::error("Wrong format version. GLTF assets must be 2.0");
+				return false;
+			}*/
+			return true;
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	GltfLoader::GltfLoader(gfx::RenderContextVulkan& rc)
+		: m_renderContext(rc)
+		, m_alloc(rc.allocator())
+	{}
+
+	//----------------------------------------------------------------------------------------------
+	GltfLoader::~GltfLoader()
+	{}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<SceneNode> GltfLoader::load(const std::string& filePath)
+	{
+		// Open file
+		m_assetsFolder = filesystem::path(filePath).parent_path().string();
+
+		// Load gltf document
+		gltf::Document document;
+		/*if (!openAndValidateDocument(_filePath, m_assetsFolder, document))
+			return;
+
+		// Load buffers
+		vector<core::File*> buffers;
+		for (auto b : document.buffers)
+			buffers.push_back(new core::File(m_assetsFolder + b.uri));
+		auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
+		auto attributes = readAttributes(document, bufferViews); // Load accessors
+
+		// Load resources
+		loadImages(document);
+		m_textures.resize(document.textures.size());
+		auto skins = loadSkins(attributes, document);
+		auto materials = loadMaterials(document);
+		auto meshes = loadMeshes(attributes, document, materials);
+
+		// Load nodes
+		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);
+
+		// Load animations
+		loadAnimations(document, attributes, nodes, animNodes, _animations);
+
+		// Return the right scene
+		int sceneIndex = document.scene == -1 ? 0 : document.scene;
+		auto& displayScene = document.scenes[sceneIndex];
+		for (auto nodeNdx : displayScene.nodes)
+			_parentNode.addChild(nodes[nodeNdx]);*/
+		return nullptr;
+	}
+
+	/*math::Vec3f loadVec3f(const Json& v)
 	{
 		return Vec3f {
 			v[0].get<float>(),
@@ -441,10 +522,6 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	GltfLoader::~GltfLoader()
-	{}
-
-	//----------------------------------------------------------------------------------------------
 	vector<shared_ptr<RenderMesh>> GltfLoader::loadMeshes(
 		const vector<gfx::RenderGeom::Attribute>& attributes,
 		const gltf::Document& _document,
@@ -591,34 +668,6 @@ namespace rev { namespace game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	bool openAndValidateDocument(const std::string& fullPath, const std::string& folder, gltf::Document& document)
-	{
-		// Open file
-		core::File sceneFile(fullPath);
-		if(!sceneFile.size()) {
-			core::Log::error("Unable to find scene asset");
-			return false;
-		}
-		// Load gltf document
-		auto jsonText = sceneFile.buffer<char>();
-		document = gltf::detail::Create(
-			Json::parse(jsonText, nullptr, false),
-			{ folder, {}});
-
-		// Verify document is supported
-		auto asset = document.asset;
-		if(asset.empty()) {
-			core::Log::error("Can't find asset descriptor");
-			return false;
-		}
-		if(asset.version != "2.0") {
-			core::Log::error("Wrong format version. GLTF assets must be 2.0");
-			return false;
-		}
-		return true;
-	}
-
-	//----------------------------------------------------------------------------------------------
 	void loadAnimations(
 		const gltf::Document& document,
 		const vector<gfx::RenderGeom::Attribute>& accessors,
@@ -668,49 +717,6 @@ namespace rev { namespace game {
 		}
 	}
 
-	//----------------------------------------------------------------------------------------------
-	void GltfLoader::load(
-		SceneNode& _parentNode,
-		const std::string& _filePath,
-		gfx::RenderScene& _gfxWorld,
-		std::vector<std::shared_ptr<SceneNode>>& animNodes,
-		vector<shared_ptr<Animation>>& _animations)
-	{
-		// Open file
-		m_assetsFolder = core::getPathFolder(_filePath);
-
-		// Load gltf document
-		gltf::Document document;
-		if(!openAndValidateDocument(_filePath, m_assetsFolder, document))
-			return;
-
-		// Load buffers
-		vector<core::File*> buffers;
-		for(auto b : document.buffers)
-			buffers.push_back(new core::File(m_assetsFolder +b.uri));
-		auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
-		auto attributes = readAttributes(document, bufferViews); // Load accessors
-
-		// Load resources
-		loadImages(document);
-		m_textures.resize(document.textures.size());
-		auto skins = loadSkins(attributes, document);
-		auto materials = loadMaterials(document);
-		auto meshes = loadMeshes(attributes, document, materials);
-
-		// Load nodes
-		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);
-
-		// Load animations
-		loadAnimations(document, attributes, nodes, animNodes, _animations);
-
-		// Return the right scene
-		int sceneIndex = document.scene == -1 ? 0 : document.scene;
-		auto& displayScene = document.scenes[sceneIndex];
-		for(auto nodeNdx : displayScene.nodes)
-			_parentNode.addChild(nodes[nodeNdx]);
-	}
-
 	std::shared_ptr<Effect> GltfLoader::metallicRoughnessEffect()
 	{
 		if (!m_metallicRoughnessEffect)
@@ -758,6 +764,5 @@ namespace rev { namespace game {
 				std::cout << "Unable to load " << document.images[i].uri << "\n";
 			}
 		}
-	}
-}}
-*/
+	}*/
+}
