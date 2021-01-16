@@ -16,6 +16,7 @@
 #include <imgui/backends/imgui_impl_win32.h>
 
 #include <game/scene/camera.h>
+#include <game/scene/gltf/gltfLoader.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
 #include <game/scene/transform/transform.h>
@@ -90,7 +91,9 @@ namespace rev {
 		initImGui();
 
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
-		loadScene(m_options.scene);
+		loadScene("D:\\repos\\assets\\ZeroDay_v1\\MEASURE_ONE\\blenderGltf\\measure_one.gltf");
+		//loadScene("D:\\repos\\halo\\h3pt\\media\\halo\\sandtrap\\scene.gltf");
+		//loadScene(m_options.scene);
 
 		// Create camera
 		createCamera();
@@ -175,6 +178,8 @@ namespace rev {
 		// Preload metadata and scene definition
 		// Allocate memory in the renderer for meshes (and maybe textures)
 		// Load scene (meshes, mats, etc)
+		GltfLoader gltfLoader(renderContext());
+		gltfLoader.load(scene);
 		// Update scene representation in GUI
 		// Optimize/Convert buffers to runtime formats
 		// Instantiate nodes with render components

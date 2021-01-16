@@ -53,36 +53,6 @@ using namespace std;
 
 namespace rev::game {
 
-	namespace {
-		//----------------------------------------------------------------------------------------------
-		bool openAndValidateDocument(const std::string& fullPath, const std::string& folder, gltf::Document& document)
-		{
-			// Open file
-			if(!filesystem::exists(fullPath))
-			{
-				return false;
-			}
-			// Load gltf document
-			//core::File sceneFile(fullPath);
-			/*auto jsonText = sceneFile.buffer<char>();
-			document = gltf::detail::Create(
-				Json::parse(jsonText, nullptr, false),
-				{ folder, {} });
-
-			// Verify document is supported
-			auto asset = document.asset;
-			if (asset.empty()) {
-				core::Log::error("Can't find asset descriptor");
-				return false;
-			}
-			if (asset.version != "2.0") {
-				core::Log::error("Wrong format version. GLTF assets must be 2.0");
-				return false;
-			}*/
-			return true;
-		}
-	}
-
 	//----------------------------------------------------------------------------------------------
 	GltfLoader::GltfLoader(gfx::RenderContextVulkan& rc)
 		: m_renderContext(rc)
@@ -100,7 +70,7 @@ namespace rev::game {
 		m_assetsFolder = filesystem::path(filePath).parent_path().string();
 
 		// Load gltf document
-		gltf::Document document;
+		gltf::Document document = gltf::LoadFromText(filePath);
 		/*if (!openAndValidateDocument(_filePath, m_assetsFolder, document))
 			return;
 
