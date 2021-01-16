@@ -160,16 +160,8 @@ void deduplicateBufferViews(gltf::Document& document)
 	cout << "Performed " << negativeTests << " negative memory compares of non-duplicates" << endl;
 	cout << "Found " << redundantMemory << " redundant bytes of memory" << endl;
 	cout << endl;
-	// Replace identical buffer views
-	for (auto& accessor : document.accessors)
-	{
-		auto bv = accessor.bufferView;
-		if (bvMapping[bv])
-		{
-			accessor.bufferView = bvMapping[bv];
-		}
-	}
 
+	// Eliminate unused buffer views
 	std::vector<gltf::BufferView> usedBVs;
 	for (size_t i = 0; i < bvMapping.size(); ++i)
 	{
@@ -185,10 +177,21 @@ void deduplicateBufferViews(gltf::Document& document)
 	}
 	document.bufferViews = usedBVs;
 
-	// Substitute bufferViews
-	for (auto& ac : document.accessors)
+	// Replace identical buffer views
+	for (auto& accessor : document.accessors)
 	{
-		ac.bufferView = bvMapping[ac.bufferView];
+		auto bv = accessor.bufferView;
+		if (bv != uint32_t(-1))
+		{
+			accessor.bufferView = bvMapping[bv];
+		}
+	}
+	for (auto& image : document.images)
+	{
+		if (image.bufferView != uint32_t(-1))
+		{
+			image.bufferView = bvMapping[image.bufferView];
+		}
 	}
 
 	// Clean up unused memory
@@ -224,6 +227,11 @@ void deduplicateAccessors(gltf::Document& document)
 	for (size_t i = 0; i < document.accessors.size(); ++i)
 	{
 		const auto& ac = document.accessors[i];
+		if (ac.bufferView == uint32_t(-1))
+		{
+			acMapping[i] = i;
+			break;
+		}
 
 		// Find duplicate accessors
 		size_t j = 0;
@@ -242,33 +250,39 @@ void deduplicateAccessors(gltf::Document& document)
 		}
 		if (i == j) // No duplicate
 			acMapping[i] = i;
+	}
 
-		// Extract unique accessors
-		std::vector<gltf::Accessor> usedAcs;
-		for (size_t i = 0; i < acMapping.size(); ++i)
+	// Extract unique accessors
+	std::vector<gltf::Accessor> usedAcs;
+	for (size_t i = 0; i < acMapping.size(); ++i)
+	{
+		if (acMapping[i] == i) // Unique accessor
 		{
-			if (acMapping[i] == i) // Unique accessor
-			{
-				acMapping[i] = (uint32_t)usedAcs.size();
-				usedAcs.push_back(document.accessors[i]);
-			}
-			else // Redundant, look up unique entry's mapping
-			{
-				acMapping[i] = acMapping[acMapping[i]];
-			}
+			acMapping[i] = (uint32_t)usedAcs.size();
+			usedAcs.push_back(document.accessors[i]);
 		}
-		document.accessors = usedAcs;
-
-		// Substitute bufferViews
-		for (auto& mesh : document.meshes)
+		else // Redundant, look up unique entry's mapping
 		{
-			for (auto& primitive : mesh.primitives)
+			acMapping[i] = acMapping[acMapping[i]];
+		}
+	}
+	document.accessors = usedAcs;
+
+	// Substitute bufferViews
+	for (auto& mesh : document.meshes)
+	{
+		for (auto& primitive : mesh.primitives)
+		{
+			primitive.indices = acMapping[primitive.indices];
+			// TODO: Normals, uvs, positions, ...
+			for (auto& attr : primitive.attributes)
 			{
-				primitive.indices = acMapping[primitive.indices];
-				// TODO: Normals, uvs, positions, ...
+				attr.second = acMapping[attr.second];
 			}
 		}
 	}
+	// TODO: Animation samplers
+	// TODO: Skin inverse bind matrices
 }
 
 int main(int argc, const char** argv)
