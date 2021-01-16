@@ -31,6 +31,7 @@ namespace rev::gfx
 {
 	class RenderContextVulkan;
 	class VulkanAllocator;
+	class GPUBuffer;
 }
 
 namespace rev::game {
@@ -41,10 +42,17 @@ namespace rev::game {
 		GltfLoader(gfx::RenderContextVulkan&);
 		~GltfLoader();
 
+		struct LoadResult
+		{
+			std::shared_ptr<SceneNode> rootNode;
+			std::shared_ptr<gfx::GPUBuffer> m_gpuData;
+			size_t asyncLoadToken;
+		};
+
 		/// Load a gltf scene
 		/// filePath must contain folder, file name and extension
 		/// \return root node of the loaded asset
-		std::shared_ptr<SceneNode> load(const std::string& filePath);
+		LoadResult load(const std::string& filePath);
 
 	private:
 		gfx::RenderContextVulkan& m_renderContext;

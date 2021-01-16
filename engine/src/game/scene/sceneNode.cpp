@@ -54,6 +54,8 @@ namespace rev { namespace game {
 	//--------------------------------------------------------------------------------------------------------------
 	void SceneNode::addChild(std::shared_ptr<SceneNode> child)
 	{
+		if (!child)
+			return;
 		if(child->parent()) {
 			auto oldParent = child->parent();
 			auto i = std::find(oldParent->mChildren.begin(), oldParent->mChildren.end(), child);

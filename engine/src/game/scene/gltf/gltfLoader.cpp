@@ -22,6 +22,7 @@
 #include "gltf.h"
 #include <filesystem>
 
+#include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/backend/Vulkan/vulkanAllocator.h>
 #include <core/platform/fileSystem/fileSystem.h>
@@ -63,18 +64,38 @@ namespace rev::game {
 	GltfLoader::~GltfLoader()
 	{}
 
-	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<SceneNode> GltfLoader::load(const std::string& filePath)
+	bool isBinaryGltf(const std::string& path)
 	{
+		return path.substr(path.size() - 4) == ".glb";
+	}
+
+	//----------------------------------------------------------------------------------------------
+	auto GltfLoader::load(const std::string& filePath) -> LoadResult
+	{
+		LoadResult result{};
+
 		// Open file
 		m_assetsFolder = filesystem::path(filePath).parent_path().string();
 
 		// Load gltf document
-		gltf::Document document = gltf::LoadFromText(filePath);
-		/*if (!openAndValidateDocument(_filePath, m_assetsFolder, document))
-			return;
+		gltf::Document document = isBinaryGltf(filePath) ? gltf::LoadFromBinary(filePath) : gltf::LoadFromText(filePath);
+		if (document.buffers.size() != 1)
+		{
+			std::cout << "Unable to load scene " << filePath << " with " << document.buffers.size() << " buffers." << endl
+				<< "Only scenes with exactly one buffer are supported." << endl;
+			return result;
+		}
 
 		// Load buffers
+		const auto& gltfBuffer = document.buffers[0];
+		result.m_gpuData = m_alloc.createGpuBuffer(gltfBuffer.byteLength,
+			vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
+			m_renderContext.graphicsQueueFamily());
+
+		m_alloc.resizeStreamingBuffer(gltfBuffer.byteLength);
+		result.asyncLoadToken = m_alloc.asyncTransfer(*result.m_gpuData, gltfBuffer.data.data(), gltfBuffer.data.size());
+		/*
+		
 		vector<core::File*> buffers;
 		for (auto b : document.buffers)
 			buffers.push_back(new core::File(m_assetsFolder + b.uri));
@@ -99,7 +120,7 @@ namespace rev::game {
 		auto& displayScene = document.scenes[sceneIndex];
 		for (auto nodeNdx : displayScene.nodes)
 			_parentNode.addChild(nodes[nodeNdx]);*/
-		return nullptr;
+		return result;
 	}
 
 	/*math::Vec3f loadVec3f(const Json& v)

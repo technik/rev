@@ -2,6 +2,8 @@
 // Revolution Engine
 //----------------------------------------------------------------------------------------------------------------------
 #include <cassert>
+#include <thread>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "player.h"
 #include <math/algebra/vector.h>
@@ -91,9 +93,7 @@ namespace rev {
 		initImGui();
 
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
-		loadScene("D:\\repos\\assets\\ZeroDay_v1\\MEASURE_ONE\\blenderGltf\\measure_one.gltf");
-		//loadScene("D:\\repos\\halo\\h3pt\\media\\halo\\sandtrap\\scene.gltf");
-		//loadScene(m_options.scene);
+		loadScene(m_options.scene);
 
 		// Create camera
 		createCamera();
@@ -145,6 +145,9 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::loadScene(const std::string& scene)
 	{
+		if (scene.empty()) // Early out
+			return;
+
 		const size_t numVertices = 3;
 		const size_t numIndices = 3;
 		const Vec3f vtxPos[numVertices] = {
@@ -179,7 +182,12 @@ namespace rev {
 		// Allocate memory in the renderer for meshes (and maybe textures)
 		// Load scene (meshes, mats, etc)
 		GltfLoader gltfLoader(renderContext());
-		gltfLoader.load(scene);
+		auto loadRes = gltfLoader.load(scene);
+		while (!alloc.isTransferFinished(loadRes.asyncLoadToken))
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+		m_sceneRoot->addChild(loadRes.rootNode);
 		// Update scene representation in GUI
 		// Optimize/Convert buffers to runtime formats
 		// Instantiate nodes with render components
