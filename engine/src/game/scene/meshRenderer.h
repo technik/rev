@@ -28,7 +28,7 @@ namespace rev { namespace game {
 
 	class MeshRenderer : public Component {
 	public:
-		MeshRenderer( // TODO: Move serialization out of the game component
+		MeshRenderer(
 			const std::shared_ptr<gfx::RenderObj>& renderObj
 		);
 

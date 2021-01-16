@@ -55,6 +55,8 @@ namespace rev::game {
 		LoadResult load(const std::string& filePath);
 
 	private:
+		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&);
+
 		gfx::RenderContextVulkan& m_renderContext;
 		gfx::VulkanAllocator& m_alloc;
 

@@ -321,7 +321,8 @@ namespace rev {
 			cmd.setViewport(0, 1, &viewport);
 			cmd.setScissor(0, passInfo.renderArea);
 
-			m_cameraPushC.proj = mFlybyCam->projection(1.f).transpose();
+			float aspect = viewport.width / viewport.height;
+			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
 			m_cameraPushC.view = mFlybyCam->view().transpose();
 			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 

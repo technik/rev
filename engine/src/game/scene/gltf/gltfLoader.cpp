@@ -22,10 +22,12 @@
 #include "gltf.h"
 #include <filesystem>
 
+#include <core/platform/fileSystem/fileSystem.h>
+#include <game/scene/meshRenderer.h>
+#include <game/scene/transform/transform.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/backend/Vulkan/vulkanAllocator.h>
-#include <core/platform/fileSystem/fileSystem.h>
 
 /*
 #include <core/tasks/threadPool.h>
@@ -34,10 +36,7 @@
 #include <nlohmann/json.hpp>
 #include <game/animation/skeleton.h>
 #include <game/resources/load.h>
-#include <game/scene/transform/transform.h>
 #include <game/scene/LightComponent.h>
-#include <game/scene/meshRenderer.h>
-#include <game/scene/meshRenderer.h>
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
 #include <graphics/scene/animation/skinning.h>
@@ -49,10 +48,60 @@ using Json = nlohmann::json;
 
 using namespace fx;
 using namespace rev::gfx;
-//using namespace rev::math;
+using namespace rev::math;
 using namespace std;
 
 namespace rev::game {
+
+	namespace
+	{
+		math::Vec3f loadVec3f(const Json& v)
+		{
+			return Vec3f{
+				v[0].get<float>(),
+				v[1].get<float>(),
+				v[2].get<float>()
+			};
+		}
+
+		std::unique_ptr<Transform> loadNodeTransform(const gltf::Node& _nodeDesc)
+		{
+			auto nodeTransform = std::make_unique<game::Transform>();
+			bool useTransform = false;
+			if (!_nodeDesc.matrix.empty())
+			{
+				useTransform = true;
+				auto& matrixDesc = _nodeDesc.matrix;
+				for (size_t i = 0; i < 3; ++i)
+					for (size_t j = 0; j < 4; ++j)
+						nodeTransform->xForm.matrix()(i, j) = matrixDesc[i + 4 * j];
+			}
+			if (!_nodeDesc.rotation.empty())
+			{
+				useTransform = true;
+				Quatf rot = *reinterpret_cast<const Quatf*>(_nodeDesc.rotation.data());
+				nodeTransform->xForm.matrix().block<3, 3, 0, 0>() = (Mat33f)rot;
+			}
+			if (!_nodeDesc.translation.empty())
+			{
+				useTransform = true;
+				for (size_t i = 0; i < 3; ++i)
+					nodeTransform->xForm.matrix()(i, 3) = _nodeDesc.translation[i];
+			}
+			if (!_nodeDesc.scale.empty())
+			{
+				useTransform = true;
+				Mat33f scale = Mat33f::identity();
+				for (size_t i = 0; i < 3; ++i)
+					scale(i, i) = _nodeDesc.scale[i];
+				nodeTransform->xForm.matrix().block<3, 3, 0, 0>() = nodeTransform->xForm.matrix().block<3, 3, 0, 0>() * scale;
+			}
+			if (useTransform)
+				return std::move(nodeTransform);
+			else
+				return nullptr;
+		}
+	}
 
 	//----------------------------------------------------------------------------------------------
 	GltfLoader::GltfLoader(gfx::RenderContextVulkan& rc)
@@ -89,11 +138,15 @@ namespace rev::game {
 		// Load buffers
 		const auto& gltfBuffer = document.buffers[0];
 		result.m_gpuData = m_alloc.createGpuBuffer(gltfBuffer.byteLength,
-			vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
 			m_renderContext.graphicsQueueFamily());
 
 		m_alloc.resizeStreamingBuffer(gltfBuffer.byteLength);
 		result.asyncLoadToken = m_alloc.asyncTransfer(*result.m_gpuData, gltfBuffer.data.data(), gltfBuffer.data.size());
+
+		// Load node tree
+		result.rootNode = loadNodes(document);
+
 		/*
 		
 		vector<core::File*> buffers;
@@ -123,52 +176,71 @@ namespace rev::game {
 		return result;
 	}
 
-	/*math::Vec3f loadVec3f(const Json& v)
+	//----------------------------------------------------------------------------------------------
+	shared_ptr<SceneNode> GltfLoader::loadNodes(const gltf::Document& _document)
 	{
-		return Vec3f {
-			v[0].get<float>(),
-			v[1].get<float>(),
-			v[2].get<float>()
-		};
+		vector<shared_ptr<SceneNode>> sceneNodes;
+		for (auto& nodeDesc : _document.nodes)
+		{
+			auto node = std::make_shared<SceneNode>();
+			sceneNodes.push_back(node);
+
+			node->name = nodeDesc.name; // Node name
+
+			// Optional node transform
+			auto nodeTransform = loadNodeTransform(nodeDesc);
+			if (nodeTransform)
+				node->addComponent(std::move(nodeTransform));
+		}
+
+		// Build hierarchy
+		size_t i = 0;
+		for (auto& nodeDesc : _document.nodes)
+		{
+			auto& node = sceneNodes[i++];
+			for (auto& child : nodeDesc.children)
+				node->addChild(sceneNodes[child]);
+		}
+
+		i = 0;
+		// Create node and add basic components
+		for (auto& nodeDesc : _document.nodes)
+		{
+			auto& node = sceneNodes[i++];
+
+			// Optional node mesh
+			std::shared_ptr<RenderObj> renderObj;
+			if (nodeDesc.mesh >= 0)
+			{
+				renderObj = make_shared<RenderObj>(nullptr);
+				node->addComponent<MeshRenderer>(renderObj);
+			}
+
+			// Optional skinning
+			/*if (nodeDesc.skin >= 0)
+			{
+				renderObj->skin = _skins[nodeDesc.skin];
+			}
+
+			// Optional camera
+			if (nodeDesc.camera >= 0)
+			{
+				if (nodeDesc.mesh >= 0 || nodeDesc.children.size() > 0)
+				{
+					cout << "Error: Cameras are only supported in separate nodes with no children\n";
+				}
+				auto& cam = _document.cameras[nodeDesc.camera];
+				auto camComponent = node->addComponent<game::Camera>(cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
+				_gfxWorld.addCamera(camComponent->cam());
+				node->addComponent<FlyBy>(1.f, -0.4f);
+
+			}*/
+		}
+
+		return sceneNodes[_document.scenes[_document.scene].nodes.front()];
 	}
 
-	std::unique_ptr<Transform> loadNodeTransform(const gltf::Node& _nodeDesc)
-	{
-		auto nodeTransform = std::make_unique<game::Transform>();
-		bool useTransform = false;
-		if(!_nodeDesc.matrix.empty())
-		{
-			useTransform = true;
-			auto& matrixDesc = _nodeDesc.matrix;
-			for(size_t i = 0; i < 3; ++i)
-				for(size_t j = 0; j < 4; ++j)
-					nodeTransform->xForm.matrix()(i,j) = matrixDesc[i+4*j];
-		}
-		if(!_nodeDesc.rotation.empty())
-		{
-			useTransform = true;
-			Quatf rot = *reinterpret_cast<const Quatf*>(_nodeDesc.rotation.data());
-			nodeTransform->xForm.matrix().block<3,3,0,0>() = (Mat33f)rot;
-		}
-		if(!_nodeDesc.translation.empty())
-		{
-			useTransform = true;
-			for(size_t i = 0; i < 3; ++i)
-				nodeTransform->xForm.matrix()(i,3) = _nodeDesc.translation[i];
-		}
-		if(!_nodeDesc.scale.empty())
-		{
-			useTransform = true;
-			Mat33f scale = Mat33f::identity();
-			for(size_t i = 0; i < 3; ++i)
-				scale(i,i) = _nodeDesc.scale[i];
-			nodeTransform->xForm.matrix().block<3,3,0,0>() = nodeTransform->xForm.matrix().block<3,3,0,0>() * scale;
-		}
-		if(useTransform)
-			return std::move(nodeTransform);
-		else
-			return nullptr;
-	}
+	/*
 
 	//----------------------------------------------------------------------------------------------
 	auto loadSkin(
@@ -202,76 +274,6 @@ namespace rev::game {
 		}
 
 		return skins;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	vector<shared_ptr<SceneNode>> GltfLoader::loadNodes(
-		const gltf::Document& _document,
-		const vector<shared_ptr<RenderMesh>>& _meshes,
-		const vector<shared_ptr<SkinInstance>>& _skins,
-		const vector<shared_ptr<Material>>& _materials,
-		gfx::RenderScene& _gfxWorld)
-	{
-		vector<shared_ptr<SceneNode>> nodes;
-		for(auto& nodeDesc : _document.nodes)
-		{
-			auto node = std::make_shared<SceneNode>();
-			nodes.push_back(node);
-
-			node->name = nodeDesc.name; // Node name
-
-			// Optional node transform
-			auto nodeTransform = loadNodeTransform(nodeDesc);
-			if(nodeTransform)
-				node->addComponent(std::move(nodeTransform));
-		}
-
-		// Build hierarchy
-		size_t i = 0;
-		for(auto& nodeDesc : _document.nodes)
-		{
-			auto& node = nodes[i++];
-			for(auto& child : nodeDesc.children)
-				node->addChild(nodes[child]);
-		}
-
-		i = 0;
-		// Create node and add basic components
-		for(auto& nodeDesc : _document.nodes)
-		{
-			auto& node = nodes[i++];
-			
-			// Optional node mesh
-			std::shared_ptr<RenderObj> renderObj;
-			if(nodeDesc.mesh >= 0)
-			{
-				renderObj = make_shared<RenderObj>(_meshes[nodeDesc.mesh]);
-				node->addComponent<MeshRenderer>(renderObj);
-				_gfxWorld.renderables().push_back(renderObj);
-			}
-
-			// Optional skinning
-			if(nodeDesc.skin >= 0)
-			{
-				renderObj->skin = _skins[nodeDesc.skin];
-			}
-
-			// Optional camera
-			if(nodeDesc.camera >= 0)
-			{
-				if(nodeDesc.mesh >= 0 || nodeDesc.children.size() > 0)
-				{
-					cout << "Error: Cameras are only supported in separate nodes with no children\n";
-				}
-				auto& cam = _document.cameras[nodeDesc.camera];
-				auto camComponent = node->addComponent<game::Camera>(cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
-				_gfxWorld.addCamera(camComponent->cam());
-				node->addComponent<FlyBy>(1.f, -0.4f);
-
-			}
-		}
-
-		return nodes;
 	}
 
 	//----------------------------------------------------------------------------------------------

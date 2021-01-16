@@ -95,7 +95,10 @@ namespace rev::gfx {
 		// Reset counters
 		m_freeFences.reserve(m_pendingBlocks.size() + m_freeFences.size());
 		for (auto& block : m_pendingBlocks)
+		{
+			m_device.resetFences(block.fence);
 			m_freeFences.push_back(block.fence);
+		}
 		m_pendingBlocks.clear();
 
 		m_ringReadPos = m_capacity;
