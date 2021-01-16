@@ -284,7 +284,10 @@ int main(int argc, const char** argv)
 	}
 	if (options.outputScene.empty())
 	{
-		options.outputScene = options.inputScene.substr(0, options.inputScene.size() - 5) + "_out.gltf";
+		auto inFile = filesystem::path(options.inputScene);
+		auto inFolder = inFile.parent_path();
+		auto outFolder = inFolder / "out";
+		options.outputScene = (outFolder / inFile.filename()).string();
 	}
 
 	// Load input scene
@@ -296,14 +299,14 @@ int main(int argc, const char** argv)
 
 	high_resolution_clock timer;
 	auto t0 = timer.now();
-	fx::gltf::Document inputScene;
+	fx::gltf::Document scene;
 	try
 	{
 		bool binaryInput = isBinaryFile(options.inputScene);
 		if (binaryInput)
-			inputScene = fx::gltf::LoadFromBinary(options.inputScene, limits);
+			scene = fx::gltf::LoadFromBinary(options.inputScene, limits);
 		else
-			inputScene = fx::gltf::LoadFromText(options.inputScene, limits);
+			scene = fx::gltf::LoadFromText(options.inputScene, limits);
 	}
 	catch (fx::gltf::invalid_gltf_document e)
 	{
@@ -316,18 +319,39 @@ int main(int argc, const char** argv)
 	// Display statistics
 	cout << "------------------------------------------------" << endl
 		<< "Initial stats" << endl;
-	SceneStats initialStats(options.inputScene, inputScene);
+	SceneStats initialStats(options.inputScene, scene);
 	initialStats.dumpStatistics(cout);
 	cout << endl;
 
 	// Optimize scene
-	deduplicateBufferViews(inputScene);
-	deduplicateAccessors(inputScene);
+	deduplicateBufferViews(scene);
+	deduplicateAccessors(scene);
+
+	// Save optimized model
+	try {
+		filesystem::path outPath(options.outputScene);
+		auto outFolder = outPath.parent_path();
+		if (!filesystem::exists(outFolder))
+			filesystem::create_directory(outFolder);
+		gltf::Save(scene, options.outputScene, isBinaryFile(options.outputScene));
+	}
+	catch(runtime_error e)
+	{
+		cout << "Exception thrown trying to save optimized model" << endl;
+		cout << e.what() << endl;
+		return -2;
+	}
+	catch (exception e)
+	{
+		cout << "Exception thrown trying to save optimized model" << endl;
+		cout << e.what() << endl;
+		return -3;
+	}
 
 	// Display final statistics
 	cout << "------------------------------------------------" << endl
 		<< "Final stats" << endl;
-	SceneStats finalStats(options.inputScene, inputScene);
+	SceneStats finalStats(options.outputScene, scene);
 	finalStats.dumpStatistics(cout);
 	cout << endl;
 
