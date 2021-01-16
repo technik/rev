@@ -23,6 +23,8 @@
 
 #include <iostream>
 
+#define USE_VULKAN_LAYERS
+
 namespace rev::gfx {
 
 	namespace {
@@ -129,7 +131,7 @@ namespace rev::gfx {
 		m_layers.reserve(numLayers);
 		for(uint32_t i = 0; i < numLayers; ++i)
 			m_layers.push_back(layerNames[i]);
-#ifdef _DEBUG
+#ifdef USE_VULKAN_LAYERS
 		m_layers.push_back("VK_LAYER_KHRONOS_validation");
 		m_layers.push_back("VK_LAYER_LUNARG_monitor");
 #endif
@@ -194,7 +196,7 @@ namespace rev::gfx {
 
 		// Debug layers
 		instanceInfo.enabledLayerCount = 0;
-#ifdef _DEBUG
+#ifdef USE_VULKAN_LAYERS
 		constexpr uint32_t numLayers = 2;
 		const char* instanceLayerNames[numLayers] = {
 			"VK_LAYER_KHRONOS_validation",
@@ -206,7 +208,7 @@ namespace rev::gfx {
 		m_vkInstance = vk::createInstance(instanceInfo);
 		assert(m_vkInstance);
 
-#ifdef _DEBUG
+#ifdef USE_VULKAN_LAYERS
 		// Debug callback
 		vk::DebugUtilsMessengerCreateInfoEXT createInfo({},
 			vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |

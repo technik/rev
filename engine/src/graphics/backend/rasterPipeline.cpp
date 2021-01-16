@@ -76,9 +76,12 @@ namespace rev::gfx
 		vk::VertexInputAttributeDescription vtxPosAttribute(0, 0, vk::Format::eR32G32B32Sfloat, 0);
 		vk::VertexInputAttributeDescription vtxClrAttribute(1, 1, vk::Format::eR32G32B32Sfloat, 0);
 
+		auto vtxBindings = std::array{ vtxPosBinding, vtxClrBinding };
+		auto vtxAttributes = std::array{ vtxPosAttribute, vtxClrAttribute };
+
 		vk::PipelineVertexInputStateCreateInfo vertexInputFormat({},
-			std::array{ vtxPosBinding, vtxClrBinding }, // Vertex bindings
-			std::array{ vtxPosAttribute, vtxClrAttribute } // Vertex attributes
+			vtxBindings, // Vertex bindings
+			vtxAttributes // Vertex attributes
 		);
 
 		// Input assembly

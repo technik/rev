@@ -127,7 +127,10 @@ namespace rev::game {
 		m_assetsFolder = filesystem::path(filePath).parent_path().string();
 
 		// Load gltf document
-		gltf::Document document = isBinaryGltf(filePath) ? gltf::LoadFromBinary(filePath) : gltf::LoadFromText(filePath);
+		gltf::ReadQuotas limits;
+		limits.MaxFileSize = 1 * 1024 * 1024 * 1024; // 1 GB
+		limits.MaxBufferByteLength = limits.MaxFileSize;
+		gltf::Document document = isBinaryGltf(filePath) ? gltf::LoadFromBinary(filePath, limits) : gltf::LoadFromText(filePath, limits);
 		if (document.buffers.size() != 1)
 		{
 			std::cout << "Unable to load scene " << filePath << " with " << document.buffers.size() << " buffers." << endl
