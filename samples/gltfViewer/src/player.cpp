@@ -184,6 +184,8 @@ namespace rev {
 		// Load scene (meshes, mats, etc)
 		GltfLoader gltfLoader(renderContext());
 		auto loadRes = gltfLoader.load(scene);
+		m_sceneInstances = loadRes.meshInstances;
+
 		while (!alloc.isTransferFinished(loadRes.asyncLoadToken))
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -328,16 +330,17 @@ namespace rev {
 			
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
 			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
-			
-			m_sceneRoot->traverseSubtree([&](auto& node) {
-				const rev::game::MeshRenderer* objRenderer = node.component<game::MeshRenderer>();
-				if (!objRenderer)
-					return;
-				const rev::gfx::RenderObj& obj = objRenderer->renderObj();
-				m_cameraPushC.view = (view * obj.transform).transpose();
+
+			m_sceneInstances.updatePoses();
+			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
+			{
+				auto worldMtx = m_sceneInstances.instancePose(i);
+				m_cameraPushC.view = (view * worldMtx).transpose();
 				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
+
 				cmd.drawIndexed(3, 1, 0, 0, 0);
-			});
+			}
+			
 		}
 
 		ImGui_ImplWin32_NewFrame();

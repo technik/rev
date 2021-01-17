@@ -21,29 +21,13 @@
 
 #include <memory>
 #include <vector>
-#include "renderGeom.h"
-#include "../renderer/material/material.h"
+//#include "renderGeom.h"
+//#include "../renderer/material/material.h"
 
 namespace rev::gfx {
 
 	class RenderMesh {
 	public:
-		using Primitive = std::pair<
-			std::shared_ptr<RenderGeom>,
-			std::shared_ptr<Material>
-		>;
-		
-		std::vector<Primitive> mPrimitives;
-		void updateBBox()
-		{
-			m_bbox.clear();
-			for(auto& primitive : mPrimitives)
-			{
-				m_bbox.add(primitive.first->bbox());
-			}
-		}
-
-		math::AABB m_bbox;
 	};
 
 } // namespace rev::gfx

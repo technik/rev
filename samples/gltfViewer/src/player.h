@@ -4,6 +4,7 @@
 #pragma once
 
 #include <game/scene/sceneNode.h>
+#include <game/scene/meshRenderer.h>
 #include <game/application/base3dApplication.h>
 #include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
@@ -71,6 +72,7 @@ namespace rev {
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxPosBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_indexBuffer;
+		game::MeshRenderer m_sceneInstances;
 		float m_bgColor{};
 
 		// Camera options

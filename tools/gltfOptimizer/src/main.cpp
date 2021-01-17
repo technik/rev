@@ -65,6 +65,7 @@ public:
 	size_t numMeshes = 0;
 	size_t numTriangles = 0;
 	size_t numImages = 0;
+	size_t numMeshInstances = 0;
 	bool triangulated = true;
 	SceneStats() = default;
 	SceneStats(const string& scenePath, const gltf::Document& scene)
@@ -97,12 +98,21 @@ public:
 		{
 			binDataSize += buffer.byteLength;
 		}
+		// Count mesh instances
+		for (auto& node : scene.nodes)
+		{
+			if (node.mesh >= 0)
+			{
+				++numMeshInstances;
+			}
+		}
 	}
 
 	void dumpStatistics(std::ostream& out)
 	{
 		out << "Binary size:\t\t" << toMegabytes(binFileSize) << "mb" << endl
 			<< "Num meshes:\t\t" << numMeshes << endl
+			<< "Num mesh instances:\t" << numMeshInstances << endl
 			<< "Num images:\t\t" << numImages << endl
 			<< "Num Buffer views:\t" << numBufferViews << endl
 			<< "Data size:\t\t" << toMegabytes(binDataSize) << "mb" << endl;

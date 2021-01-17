@@ -20,6 +20,8 @@
 #pragma once
 
 #include "../sceneNode.h"
+#include "../meshRenderer.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -46,6 +48,8 @@ namespace rev::game {
 		{
 			std::shared_ptr<SceneNode> rootNode;
 			std::shared_ptr<gfx::GPUBuffer> m_gpuData;
+			MeshRenderer meshInstances;
+
 			size_t asyncLoadToken;
 		};
 
@@ -55,7 +59,7 @@ namespace rev::game {
 		LoadResult load(const std::string& filePath);
 
 	private:
-		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&);
+		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, MeshRenderer& meshes);
 
 		gfx::RenderContextVulkan& m_renderContext;
 		gfx::VulkanAllocator& m_alloc;

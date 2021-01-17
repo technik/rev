@@ -18,34 +18,53 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
-#include "component.h"
+
 #include <memory>
-#include <graphics/scene/renderObj.h>
+#include <vector>
+#include <graphics/scene/renderMesh.h>
+#include <game/scene/transform/transform.h>
 
 namespace rev { namespace game {
 
 	class Transform;
 
-	class MeshRenderer : public Component {
+	// Data oriented container of renderable meshes
+	class MeshRenderer {
 	public:
-		MeshRenderer(
-			const std::shared_ptr<gfx::RenderObj>& renderObj
-		);
-
-		~MeshRenderer()
+		// Invalidates the order of renderables
+		size_t addMesh(gfx::RenderMesh mesh)
 		{
-			
+			m_meshes.push_back(mesh);
+			return m_meshes.size() - 1;
 		}
 
-		void init		() override;
-		void update		(float _dt) override;
+		// Invalidates the order of renderables
+		void addInstance(const Transform* transformSrc, size_t meshNdx)
+		{
+			m_instanceTransforms.push_back(transformSrc);
+			m_instanceMeshes.push_back(meshNdx);
+		}
 
-		const	gfx::RenderObj& renderObj() const { return *mRenderable; }
-				gfx::RenderObj& renderObj() { return *mRenderable; }
+		void updatePoses()
+		{
+			m_instancePoses.resize(m_instanceMeshes.size());
+			for (size_t i = 0; i < m_instanceTransforms.size(); ++i)
+			{
+				m_instancePoses[i] = m_instanceTransforms[i]->absoluteXForm().matrix();
+			}
+		}
+
+		size_t numInstances() const { return m_instanceTransforms.size(); }
+		const math::Mat44f& instancePose(size_t i) const { return m_instancePoses[i]; }
+		const gfx::RenderMesh& instanceMesh(size_t i) const {
+			return m_meshes[m_instanceMeshes[i]];
+		}
 
 	private:
-		const std::shared_ptr<gfx::RenderObj>	mRenderable;
-		Transform*								mSrcTransform = nullptr;
+		std::vector<gfx::RenderMesh> m_meshes;
+		std::vector<math::Mat44f> m_instancePoses;
+		std::vector<size_t> m_instanceMeshes;
+		std::vector<const Transform*> m_instanceTransforms;
 	};
 
 }}	// namespace rev::game

@@ -149,7 +149,7 @@ namespace rev::game {
 		result.asyncLoadToken = m_alloc.asyncTransfer(*result.m_gpuData, gltfBuffer.data.data(), gltfBuffer.data.size());
 
 		// Load node tree
-		result.rootNode = loadNodes(document);
+		result.rootNode = loadNodes(document, result.meshInstances);
 
 		/*
 		
@@ -181,7 +181,7 @@ namespace rev::game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	shared_ptr<SceneNode> GltfLoader::loadNodes(const gltf::Document& _document)
+	shared_ptr<SceneNode> GltfLoader::loadNodes(const gltf::Document& _document, MeshRenderer& meshes)
 	{
 		vector<shared_ptr<SceneNode>> sceneNodes;
 		for (auto& nodeDesc : _document.nodes)
@@ -213,32 +213,10 @@ namespace rev::game {
 			auto& node = sceneNodes[i++];
 
 			// Optional node mesh
-			std::shared_ptr<RenderObj> renderObj;
 			if (nodeDesc.mesh >= 0)
 			{
-				renderObj = make_shared<RenderObj>(nullptr);
-				node->addComponent<MeshRenderer>(renderObj);
+				meshes.addInstance(node->component<Transform>(), nodeDesc.mesh);
 			}
-
-			// Optional skinning
-			/*if (nodeDesc.skin >= 0)
-			{
-				renderObj->skin = _skins[nodeDesc.skin];
-			}
-
-			// Optional camera
-			if (nodeDesc.camera >= 0)
-			{
-				if (nodeDesc.mesh >= 0 || nodeDesc.children.size() > 0)
-				{
-					cout << "Error: Cameras are only supported in separate nodes with no children\n";
-				}
-				auto& cam = _document.cameras[nodeDesc.camera];
-				auto camComponent = node->addComponent<game::Camera>(cam.perspective.yfov, cam.perspective.znear, cam.perspective.zfar);
-				_gfxWorld.addCamera(camComponent->cam());
-				node->addComponent<FlyBy>(1.f, -0.4f);
-
-			}*/
 		}
 
 		auto& scene = _document.scenes[_document.scene];
