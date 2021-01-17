@@ -96,6 +96,7 @@ namespace rev::game {
 					scale(i, i) = _nodeDesc.scale[i];
 				nodeTransform->xForm.matrix().block<3, 3, 0, 0>() = nodeTransform->xForm.matrix().block<3, 3, 0, 0>() * scale;
 			}
+
 			if (useTransform)
 				return std::move(nodeTransform);
 			else
@@ -240,7 +241,17 @@ namespace rev::game {
 			}*/
 		}
 
-		return sceneNodes[_document.scenes[_document.scene].nodes.front()];
+		auto& scene = _document.scenes[_document.scene];
+		if (scene.nodes.size() == 1)
+			return sceneNodes[scene.nodes.front()];
+		else
+		{
+			auto rootNode = make_shared<SceneNode>("Gltf root");
+			for (auto id : scene.nodes)
+				rootNode->addChild(sceneNodes[id]);
+
+			return rootNode;
+		}
 	}
 
 	/*

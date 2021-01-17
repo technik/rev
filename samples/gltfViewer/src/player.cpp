@@ -18,6 +18,7 @@
 #include <imgui/backends/imgui_impl_win32.h>
 
 #include <game/scene/camera.h>
+#include <game/scene/meshRenderer.h>
 #include <game/scene/gltf/gltfLoader.h>
 #include <game/scene/transform/flyby.h>
 #include <game/scene/transform/orbit.h>
@@ -323,13 +324,20 @@ namespace rev {
 
 			float aspect = viewport.width / viewport.height;
 			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
-			m_cameraPushC.view = mFlybyCam->view().transpose();
-			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
-
+			Mat44f view = mFlybyCam->view();
+			
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
 			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
-
-			cmd.drawIndexed(3, 1, 0, 0, 0);
+			
+			m_sceneRoot->traverseSubtree([&](auto& node) {
+				const rev::game::MeshRenderer* objRenderer = node.component<game::MeshRenderer>();
+				if (!objRenderer)
+					return;
+				const rev::gfx::RenderObj& obj = objRenderer->renderObj();
+				m_cameraPushC.view = (view * obj.transform).transpose();
+				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
+				cmd.drawIndexed(3, 1, 0, 0, 0);
+			});
 		}
 
 		ImGui_ImplWin32_NewFrame();
