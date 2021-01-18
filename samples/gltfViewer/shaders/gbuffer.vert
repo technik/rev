@@ -22,6 +22,8 @@
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 
+layout(set = 0, binding = 0) readonly buffer _Matrix { mat4 worldMtx[]; };
+
 layout(push_constant) uniform Constants
 {
     mat4 proj;

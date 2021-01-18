@@ -53,15 +53,30 @@ namespace rev {
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
+		// Init descriptor sets
+		const uint32_t numDescriptors = 2 * 2; // 2 per frame * 2 frames
+		vk::DescriptorPoolSize poolSize(vk::DescriptorType::eStorageBuffer, numDescriptors);
+
+		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptors, poolSize);
+		m_descPool = device.createDescriptorPool(poolInfo);
+
+		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+
+		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, matricesBinding);
+		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
+		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
+		
+		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
+		m_frameDescs = device.allocateDescriptorSets(setInfo);
+
 		// UI pipeline layout
 		vk::PushConstantRange camerasPushRange(
 			vk::ShaderStageFlagBits::eVertex,
 			0, sizeof(CameraPushConstants));
 
 		vk::PipelineLayoutCreateInfo layoutInfo({},
-			0, // Uniform desc set layout count
-			nullptr, // Descriptor sets
-			1, &camerasPushRange);
+			1, &m_frameDescLayout, // Descriptor sets
+			1, &camerasPushRange); // Push constants
 
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
 
@@ -185,6 +200,25 @@ namespace rev {
 		GltfLoader gltfLoader(renderContext());
 		auto loadRes = gltfLoader.load(scene);
 		m_sceneInstances = loadRes.meshInstances;
+
+		// Allocate matrix buffers
+		m_mtxBuffers.resize(2);
+		m_mtxBuffers[0] = alloc.createSharedBuffer(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
+		m_mtxBuffers[1] = alloc.createSharedBuffer(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
+
+		// Update descriptor sets
+		vk::WriteDescriptorSet writeInfo;
+		writeInfo.dstSet = m_frameDescs[0];
+		writeInfo.dstBinding = 0;
+		writeInfo.dstArrayElement = 0;
+		writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+		writeInfo.descriptorCount = 1;
+		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, sizeof(vk::Buffer));
+		writeInfo.pBufferInfo = &writeBufferInfo;
+		renderContext().device().updateDescriptorSets(writeInfo, {});
+		writeInfo.dstSet = m_frameDescs[1];
+		writeBufferInfo.buffer = m_mtxBuffers[1]->buffer();
+		renderContext().device().updateDescriptorSets(writeInfo, {});
 
 		while (!alloc.isTransferFinished(loadRes.asyncLoadToken))
 		{
@@ -324,6 +358,10 @@ namespace rev {
 			cmd.setViewport(0, 1, &viewport);
 			cmd.setScissor(0, passInfo.renderArea);
 
+
+			// Update matrices descriptor set
+			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
+
 			float aspect = viewport.width / viewport.height;
 			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
 			Mat44f view = mFlybyCam->view();
@@ -332,14 +370,19 @@ namespace rev {
 			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
 
 			m_sceneInstances.updatePoses();
+			auto mtxDst = renderContext().allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
 			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
 			{
 				auto worldMtx = m_sceneInstances.instancePose(i);
+				mtxDst[i] = worldMtx;
 				m_cameraPushC.view = (view * worldMtx).transpose();
 				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 
 				cmd.drawIndexed(3, 1, 0, 0, 0);
 			}
+			renderContext().allocator().unmapBuffer(mtxDst);
+
+			m_doubleBufferNdx ^= 1;
 			
 		}
 

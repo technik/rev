@@ -51,6 +51,7 @@ namespace rev::gfx {
 		}
 
 		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
+		std::shared_ptr<GPUBuffer> createSharedBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>

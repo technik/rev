@@ -77,6 +77,12 @@ namespace rev::gfx {
 		return createBufferInternal(size, usage, MemoryAccess::device, queueFamilies);
 	}
 
+	auto VulkanAllocator::createSharedBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
+	{
+		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
+		return createBufferInternal(size, usage, MemoryAccess::host, queueFamilies);
+	}
+
 	void VulkanAllocator::destroyBuffer(const GPUBuffer& buffer)
 	{
 		m_device.freeMemory(buffer.m_memory);
