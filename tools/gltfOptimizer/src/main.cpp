@@ -397,7 +397,7 @@ void deduplicateMeshes(gltf::Document& document)
 	}
 }
 
-void deduplicateMaterials()
+//void deduplicateMaterials()
 
 int main(int argc, const char** argv)
 {
