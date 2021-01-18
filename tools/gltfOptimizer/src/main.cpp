@@ -64,6 +64,7 @@ public:
 	size_t numBufferViews = 0;
 	size_t numMeshes = 0;
 	size_t numTriangles = 0;
+	size_t numEmissiveTriangles = 0;
 	size_t numImages = 0;
 	size_t numMeshInstances = 0;
 	bool triangulated = true;
@@ -86,6 +87,12 @@ public:
 				auto& accessor = scene.accessors[indicesAccess];
 				auto primitiveNumIndices = accessor.count;
 				numTriangles += primitiveNumIndices;
+				if (primitive.material >= 0)
+				{
+					auto& mat = scene.materials[primitive.material];
+					if (mat.emissiveFactor[0] > 0 || mat.emissiveFactor[1] > 0 || mat.emissiveFactor[2] > 0)
+						numEmissiveTriangles += primitiveNumIndices;
+				}
 				if (primitive.mode != gltf::Primitive::Mode::Triangles)
 				{
 					triangulated = false;
@@ -93,6 +100,7 @@ public:
 			}
 		}
 		numTriangles /= 3; // Exact for tris, approx for other
+		numEmissiveTriangles /= 3;
 		// Aggregate data size
 		for (auto& buffer : scene.buffers)
 		{
@@ -106,6 +114,9 @@ public:
 				++numMeshInstances;
 			}
 		}
+		// Count images
+		for (auto& images : scene.images)
+			++numImages;
 	}
 
 	void dumpStatistics(std::ostream& out)
@@ -119,6 +130,7 @@ public:
 		if (triangulated)
 		{
 			out << "Num triangles:\t\t" << numTriangles << endl;
+			out << "Num Emissive triangles:\t" << numEmissiveTriangles << endl;
 			out << "Triangulated" << endl;
 		}
 		else
@@ -163,7 +175,7 @@ void deduplicateBufferViews(gltf::Document& document)
 				else negativeTests++;
 			}
 		}
-		if (i == j) // No duplicate
+		if (i == j) // Not a duplicate
 			bvMapping[i] = i;
 	}
 	cout << "Found " << numDuplicates << " duplicate buffer views" << endl;
@@ -237,7 +249,7 @@ void deduplicateAccessors(gltf::Document& document)
 	for (size_t i = 0; i < document.accessors.size(); ++i)
 	{
 		const auto& ac = document.accessors[i];
-		if (ac.bufferView == uint32_t(-1))
+		if (ac.bufferView == -1)
 		{
 			acMapping[i] = i;
 			break;
@@ -258,7 +270,7 @@ void deduplicateAccessors(gltf::Document& document)
 				break;
 			}
 		}
-		if (i == j) // No duplicate
+		if (i == j) // Not a duplicate
 			acMapping[i] = i;
 	}
 
@@ -294,6 +306,98 @@ void deduplicateAccessors(gltf::Document& document)
 	// TODO: Animation samplers
 	// TODO: Skin inverse bind matrices
 }
+
+bool operator==(const gltf::Primitive& a, const gltf::Primitive& b)
+{
+	if (a.indices != b.indices)
+		return false;
+	if (a.material != b.material)
+		return false;
+	if (a.mode != b.mode)
+		return false;
+	if (a.attributes.size() != b.attributes.size())
+		return false;
+	for (auto& attr : a.attributes)
+	{
+		auto bAttr = b.attributes.find(attr.first);
+		if (bAttr == b.attributes.end())
+		{
+			if (bAttr->second != attr.second)
+				return false;
+		}
+	}
+	return true;
+}
+
+bool operator==(const gltf::Mesh& a, const gltf::Mesh& b)
+{
+	if (a.primitives.size() != b.primitives.size())
+		return false;
+	if (a.weights.size() != b.weights.size())
+		return false;
+	if (a.weights.size() > 0)
+	{
+		return memcmp(a.weights.data(), b.weights.data(), a.weights.size()) != 0;
+	}
+	for (size_t i = 0; i < a.primitives.size(); ++i)
+	{
+		bool eqPrim = a.primitives[i] == b.primitives[i];
+		if (!eqPrim)
+			return false;
+	}
+	return true;
+}
+
+void deduplicateMeshes(gltf::Document& document)
+{
+	// Find duplicate meshes
+	std::vector<uint32_t> meshMapping(document.meshes.size(), 0);
+	for (size_t i = 0; i < document.meshes.size(); ++i)
+	{
+		const auto& mesh = document.meshes[i];
+
+		// Compare against previous meshes
+		size_t j = 0;
+		for (; j < i; ++j)
+		{
+			const auto& prevMesh = document.meshes[j];
+			if(prevMesh == mesh)
+			{
+				meshMapping[i] = j;
+				break;
+			}
+		}
+		if (i == j) // Not a duplicate
+			meshMapping[i] = i;
+	}
+
+	// Extract unique meshes
+	std::vector<gltf::Mesh> uniqueMeshes;
+	for (size_t i = 0; i < meshMapping.size(); ++i)
+	{
+		if (meshMapping[i] == i) // Unique mesh
+		{
+			meshMapping[i] = (uint32_t)uniqueMeshes.size();
+			uniqueMeshes.push_back(document.meshes[i]);
+		}
+		else // Redundant, look up unique entry's mapping
+		{
+			meshMapping[i] = meshMapping[meshMapping[i]];
+		}
+	}
+	document.meshes = uniqueMeshes;
+
+	// Substitute mesh indices
+	for (auto& node : document.nodes)
+	{
+		if (node.mesh >= 0)
+		{
+			node.mesh = meshMapping[node.mesh];
+		}
+	}
+}
+
+void deduplicateMaterials()
 
 int main(int argc, const char** argv)
 {
@@ -350,6 +454,7 @@ int main(int argc, const char** argv)
 	// Optimize scene
 	deduplicateBufferViews(scene);
 	deduplicateAccessors(scene);
+	deduplicateMeshes(scene);
 
 	// Save optimized model
 	try {
