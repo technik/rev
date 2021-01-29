@@ -364,7 +364,7 @@ namespace rev {
 
 			float aspect = viewport.width / viewport.height;
 			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
-			Mat44f view = mFlybyCam->view();
+			m_cameraPushC.view = mFlybyCam->view().transpose();
 			
 			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
 			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
@@ -375,7 +375,7 @@ namespace rev {
 			{
 				auto worldMtx = m_sceneInstances.instancePose(i);
 				mtxDst[i] = worldMtx;
-				m_cameraPushC.view = (view * worldMtx).transpose();
+				m_cameraPushC.mtxNdx = i;
 				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 
 				cmd.drawIndexed(3, 1, 0, 0, 0);

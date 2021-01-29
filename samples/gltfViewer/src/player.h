@@ -88,6 +88,7 @@ namespace rev {
 		{
 			math::Mat44f proj;
 			math::Mat44f view;
+			uint32_t mtxNdx;
 		} m_cameraPushC;
 
 	private:

@@ -67,6 +67,7 @@ public:
 	size_t numEmissiveTriangles = 0;
 	size_t numImages = 0;
 	size_t numMeshInstances = 0;
+	size_t numEmissivePrimitives = 0;
 	bool triangulated = true;
 	SceneStats() = default;
 	SceneStats(const string& scenePath, const gltf::Document& scene)
@@ -112,6 +113,16 @@ public:
 			if (node.mesh >= 0)
 			{
 				++numMeshInstances;
+				auto& mesh = scene.meshes[node.mesh];
+				for (auto& p : mesh.primitives)
+				{
+					if (p.material >= 0)
+					{
+						auto& mat = scene.materials[p.material];
+						if (mat.emissiveFactor[0] > 0 || mat.emissiveFactor[1] > 0 || mat.emissiveFactor[2] > 0)
+							numEmissivePrimitives++;
+					}
+				}
 			}
 		}
 		// Count images
@@ -124,6 +135,7 @@ public:
 		out << "Binary size:\t\t" << toMegabytes(binFileSize) << "mb" << endl
 			<< "Num meshes:\t\t" << numMeshes << endl
 			<< "Num mesh instances:\t" << numMeshInstances << endl
+			<< "Num emissive primitive instances:\t" << numEmissivePrimitives << endl
 			<< "Num images:\t\t" << numImages << endl
 			<< "Num Buffer views:\t" << numBufferViews << endl
 			<< "Data size:\t\t" << toMegabytes(binDataSize) << "mb" << endl;
@@ -397,7 +409,67 @@ void deduplicateMeshes(gltf::Document& document)
 	}
 }
 
-//void deduplicateMaterials()
+bool operator==(const gltf::Image& a, const gltf::Image& b)
+{
+	if (a.bufferView > -1 && b.bufferView == a.bufferView)
+	{
+		return true;
+	}
+
+	if (b.bufferView > -1)
+		return false;
+
+	return a.uri == b.uri;
+}
+
+void deduplicateImages(gltf::Document& document)
+{
+	// Find duplicate images
+	std::vector<uint32_t> imageMapping(document.images.size());
+	for (size_t i = 0; i < document.images.size(); ++i)
+	{
+		const auto& image = document.images[i];
+
+		// Compare against previous images
+		size_t j = 0;
+		for (; j < i; ++j)
+		{
+			const auto& prevImage = document.images[j];
+			if(prevImage == image)
+			{
+				imageMapping[i] = j;
+				break;
+			}
+		}
+		if (i == j) // Not a duplicate
+			imageMapping[i] = i;
+	}
+
+	// Extract unique images
+	std::vector<gltf::Image> uniqueImages;
+	for (size_t i = 0; i < imageMapping.size(); ++i)
+	{
+		if (imageMapping[i] == i) // Unique image
+		{
+			imageMapping[i] = (uint32_t)uniqueImages.size();
+			uniqueImages.push_back(document.images[i]);
+		}
+		else // Redundant image. Look up unique entry's final mapping
+		{
+			imageMapping[i] = imageMapping[imageMapping[i]];
+		}
+	}
+	document.images = uniqueImages;
+
+	// Substitute image indices
+	for (auto& texture : document.textures)
+	{
+		if (texture.source > -1)
+		{
+			texture.source = imageMapping[texture.source];
+		}
+	}
+}
 
 int main(int argc, const char** argv)
 {
@@ -455,6 +527,7 @@ int main(int argc, const char** argv)
 	deduplicateBufferViews(scene);
 	deduplicateAccessors(scene);
 	deduplicateMeshes(scene);
+	deduplicateImages(scene);
 
 	// Save optimized model
 	try {
