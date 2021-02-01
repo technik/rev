@@ -315,7 +315,15 @@ void deduplicateAccessors(gltf::Document& document)
 			}
 		}
 	}
-	// TODO: Animation samplers
+	// Animation samplers
+	for (auto& anim : document.animations)
+	{
+		for (auto& sampler : anim.samplers)
+		{
+			sampler.input = acMapping[sampler.input];
+			sampler.output = acMapping[sampler.output];
+		}
+	}
 	// TODO: Skin inverse bind matrices
 }
 
