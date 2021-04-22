@@ -22,7 +22,6 @@
 #include "component.h"
 #include <iostream>
 #include <string>
-#include <nlohmann/json.hpp>
 
 namespace rev { namespace game {
 

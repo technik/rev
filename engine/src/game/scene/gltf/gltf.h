@@ -16,7 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <nlohmann/json.hpp>
+#include <rapidjson/document.h>
+//#include <nlohmann/json.hpp>
 
 #if (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201703L) && (_MSC_VER >= 1911))
 #define FX_GLTF_HAS_CPP_17
@@ -25,6 +26,11 @@
 
 namespace fx
 {
+
+	namespace nlohmann
+	{
+		using json = rapidjson::Value;
+	}
 namespace base64
 {
     namespace detail
@@ -187,82 +193,99 @@ namespace gltf
         }
     };
 
+	template<class T>
+	void from_json(rapidjson::Value const& json, T& dst);
+
+	inline void from_json(rapidjson::Value const& json, int32_t& dst)
+	{
+		dst = json.GetInt();
+	}
+
+	inline void from_json(nlohmann::json const& json, uint32_t& x)
+	{
+		x = json.GetInt();
+	}
+
+	inline void from_json(nlohmann::json const& json, std::string& x)
+	{
+		x = json.GetString();
+	}
+
     namespace detail
     {
 #if defined(FX_GLTF_HAS_CPP_17)
         template <typename TTarget>
-        inline void ReadRequiredField(std::string_view key, nlohmann::json const & json, TTarget & target)
+        inline void ReadRequiredField(std::string_view key, rapidjson::Value const & json, TTarget & target)
 #else
         template <typename TKey, typename TTarget>
         inline void ReadRequiredField(TKey && key, nlohmann::json const & json, TTarget & target)
 #endif
         {
-            const nlohmann::json::const_iterator iter = json.find(key);
-            if (iter == json.end())
-            {
-                throw invalid_gltf_document("Required field not found", std::string(key));
-            }
-
-            target = iter->get<TTarget>();
+			const auto iter = json.FindMember(key.data());
+			if (iter == json.MemberEnd())
+			{
+				throw invalid_gltf_document("Required field not found", std::string(key));
+			}
+			from_json(iter->value, target);
         }
 
 #if defined(FX_GLTF_HAS_CPP_17)
         template <typename TTarget>
-        inline void ReadOptionalField(std::string_view key, nlohmann::json const & json, TTarget & target)
+        inline void ReadOptionalField(std::string_view key, rapidjson::Value const & json, TTarget & target)
 #else
         template <typename TKey, typename TTarget>
         inline void ReadOptionalField(TKey && key, nlohmann::json const & json, TTarget & target)
 #endif
         {
-            const nlohmann::json::const_iterator iter = json.find(key);
-            if (iter != json.end())
+            const auto iter = json.FindMember(key.data());
+            if (iter != json.MemberEnd())
             {
-                target = iter->get<TTarget>();
+				from_json(iter->value, target);
             }
         }
 
-        inline void ReadExtensionsAndExtras(nlohmann::json const & json, nlohmann::json & extensionsAndExtras)
+        inline void ReadExtensionsAndExtras(rapidjson::Value const & json, rapidjson::Value& extensionsAndExtras)
         {
-            const nlohmann::json::const_iterator iterExtensions = json.find("extensions");
-            const nlohmann::json::const_iterator iterExtras = json.find("extras");
-            if (iterExtensions != json.end())
+            const auto iterExtensions = json.FindMember("extensions");
+            const auto iterExtras = json.FindMember("extras");
+            if (!(iterExtensions == json.MemberEnd()))
             {
-                extensionsAndExtras["extensions"] = *iterExtensions;
+			//	extensionsAndExtras.AddMember(iterExtensions->name, iterExtensions->value,);
             }
 
-            if (iterExtras != json.end())
+            //if (iterExtras != json.End())
             {
-                extensionsAndExtras["extras"] = *iterExtras;
+            //    extensionsAndExtras["extras"] = *iterExtras;
             }
         }
 
         template <typename TValue>
         inline void WriteField(std::string const & key, nlohmann::json & json, TValue const & value)
         {
-            if (!value.empty())
+            /*if (!value.empty())
             {
                 json[key] = value;
-            }
+            }*/
         }
 
         template <typename TValue>
         inline void WriteField(std::string const & key, nlohmann::json & json, TValue const & value, TValue const & defaultValue)
         {
-            if (value != defaultValue)
+            /*if (value != defaultValue)
             {
                 json[key] = value;
-            }
+            }*/
         }
 
         inline void WriteExtensions(nlohmann::json & json, nlohmann::json const & extensionsAndExtras)
         {
-            if (!extensionsAndExtras.empty())
+            /*if (!extensionsAndExtras.empty())
             {
                 for (nlohmann::json::const_iterator it = extensionsAndExtras.begin(); it != extensionsAndExtras.end(); ++it)
                 {
                     json[it.key()] = it.value();
                 }
-            }
+            }*/
         }
 
         inline std::string GetDocumentRootPath(std::string const & documentFilePath)
@@ -745,7 +768,7 @@ namespace gltf
 
         bool empty() const noexcept
         {
-            return name.empty() && magFilter == MagFilter::None && minFilter == MinFilter::None && wrapS == WrappingMode::Repeat && wrapT == WrappingMode::Repeat && extensionsAndExtras.empty();
+            return name.empty() && magFilter == MagFilter::None && minFilter == MinFilter::None && wrapS == WrappingMode::Repeat && wrapT == WrappingMode::Repeat && extensionsAndExtras.Empty();
         }
     };
 
@@ -811,9 +834,9 @@ namespace gltf
         uint32_t MaxBufferByteLength{ detail::DefaultMaxMemoryAllocation };
     };
 
-    inline void from_json(nlohmann::json const & json, Accessor::Type & accessorType)
+	inline void from_json(nlohmann::json const & json, Accessor::Type & accessorType)
     {
-        std::string type = json.get<std::string>();
+        std::string type = json.GetString();
         if (type == "SCALAR")
         {
             accessorType = Accessor::Type::Scalar;
@@ -912,7 +935,7 @@ namespace gltf
 
     inline void from_json(nlohmann::json const & json, Animation::Sampler::Type & animationSamplerType)
     {
-        std::string type = json.get<std::string>();
+        std::string type = json.GetString();
         if (type == "LINEAR")
         {
             animationSamplerType = Animation::Sampler::Type::Linear;
@@ -986,7 +1009,7 @@ namespace gltf
 
     inline void from_json(nlohmann::json const & json, Camera::Type & cameraType)
     {
-        std::string type = json.get<std::string>();
+        std::string type = json.GetString();
         if (type == "orthographic")
         {
             cameraType = Camera::Type::Orthographic;
@@ -1052,7 +1075,7 @@ namespace gltf
 
     inline void from_json(nlohmann::json const & json, Material::AlphaMode & materialAlphaMode)
     {
-        std::string alphaMode = json.get<std::string>();
+        std::string alphaMode = json.GetString();
         if (alphaMode == "OPAQUE")
         {
             materialAlphaMode = Material::AlphaMode::Opaque;
@@ -1289,24 +1312,24 @@ namespace gltf
         template <typename TType>
         inline void WriteMinMaxConvert(nlohmann::json & json, Accessor const & accessor)
         {
-            if (!accessor.min.empty())
+            /*if (!accessor.min.empty())
             {
                 auto & item = json["min"];
                 for (float v : accessor.min)
-                    item.push_back(static_cast<TType>(v));
+                    item.PushBack(static_cast<TType>(v));
             }
 
             if (!accessor.max.empty())
             {
                 auto & item = json["max"];
                 for (float v : accessor.max)
-                    item.push_back(static_cast<TType>(v));
-            }
+                    item.PushBack(static_cast<TType>(v));
+            }*/
         }
 
         inline void WriteAccessorMinMax(nlohmann::json & json, Accessor const & accessor)
         {
-            switch (accessor.componentType)
+            /*switch (accessor.componentType)
             {
             // fast path
             case Accessor::ComponentType::Float:
@@ -1330,7 +1353,7 @@ namespace gltf
             case Accessor::ComponentType::UnsignedInt:
                 WriteMinMaxConvert<uint32_t>(json, accessor);
                 break;
-            }
+            }*/
         }
     } // namespace detail
 
@@ -1589,7 +1612,7 @@ namespace gltf
         else
         {
             // If a sampler is completely empty we still need to write out an empty object for the encompassing array...
-            json = nlohmann::json::object();
+            json.SetObject();
         }
     }
 
@@ -1681,7 +1704,8 @@ namespace gltf
 
         inline Document Create(nlohmann::json const & json, DataContext const & dataContext)
         {
-            Document document = json;
+            Document document;
+			from_json(json, document);
 
             if (document.buffers.size() > dataContext.readQuotas.MaxBufferCount)
             {
@@ -1777,7 +1801,8 @@ namespace gltf
             // if it's "good" is the best we can do from here...
             detail::ThrowIfBad(output);
 
-            nlohmann::json json = document;
+			nlohmann::json json;
+			to_json(json, document);
 
             std::size_t externalBufferIndex = 0;
             if (useBinaryFormat)
@@ -1785,7 +1810,14 @@ namespace gltf
                 detail::GLBHeader header{ detail::GLBHeaderMagic, 2, 0, { 0, detail::GLBChunkJSON } };
                 detail::ChunkHeader binHeader{ 0, detail::GLBChunkBIN };
 
-                std::string jsonText = json.dump();
+				// TODO: Write!
+				// // 3. Stringify the DOM
+				//StringBuffer buffer;
+				//Writer<StringBuffer> writer(buffer);
+				//d.Accept(writer);
+				//		
+				assert(false && "Not implemented!");
+				std::string jsonText;// = json.dump();
 
                 Buffer const & binBuffer = document.buffers.front();
                 const uint32_t binPaddedLength = ((binBuffer.byteLength + 3) & (~3u));
@@ -1810,7 +1842,14 @@ namespace gltf
             }
             else
             {
-                output << json.dump(2);
+				// TODO: Write!
+				// // 3. Stringify the DOM
+				//StringBuffer buffer;
+				//Writer<StringBuffer> writer(buffer);
+				//d.Accept(writer);
+				//		
+				assert(false && "Not implemented!");
+                //output << json.dump(2);
             }
 
             // The glTF 2.0 spec allows a document to have more than 1 buffer. However, only the first one will be included in the .glb
@@ -1832,16 +1871,17 @@ namespace gltf
         }
     } // namespace detail
 
-    inline Document LoadFromText(std::istream & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
+    inline Document LoadFromText(std::string_view & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
     {
         try
         {
-            detail::ThrowIfBad(input);
+            //detail::ThrowIfBad(input);
 
-            nlohmann::json json;
-            input >> json;
+			rapidjson::Document jsonDoc;
+			jsonDoc.Parse(input.data());
+            //input >> json;
 
-            return detail::Create(json, { documentRootPath, readQuotas });
+            return detail::Create(jsonDoc, { documentRootPath, readQuotas });
         }
         catch (invalid_gltf_document &)
         {
@@ -1865,7 +1905,7 @@ namespace gltf
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
         }
 
-        return LoadFromText(input, detail::GetDocumentRootPath(documentFilePath), readQuotas);
+        //return LoadFromText(input, detail::GetDocumentRootPath(documentFilePath), readQuotas);
     }
 
     inline Document LoadFromBinary(std::istream & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
@@ -1908,8 +1948,10 @@ namespace gltf
             binary.resize(binHeader.chunkLength);
             detail::ThrowIfBad(input.read(reinterpret_cast<char *>(&binary[0]), binHeader.chunkLength));
 
+			rapidjson::Document jsonDoc;
+			jsonDoc.Parse((char*)json.data());
             return detail::Create(
-                nlohmann::json::parse(json.begin(), json.end()),
+				jsonDoc,
                 { documentRootPath, readQuotas, &binary });
         }
         catch (invalid_gltf_document &)
