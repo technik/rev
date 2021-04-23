@@ -194,7 +194,20 @@ namespace gltf
     };
 
 	template<class T>
-	void from_json(rapidjson::Value const& json, T& dst);
+	T get_from_json(const rapidjson::Value& json);
+
+	template<class T>
+	void from_json(const rapidjson::Value& json, std::unordered_map<std::string, T>& dst);
+
+	inline void from_json(rapidjson::Value const& json, bool& dst)
+	{
+		dst = json.GetBool();
+	}
+
+	inline void from_json(rapidjson::Value const& json, float& dst)
+	{
+		dst = json.GetFloat();
+	}
 
 	inline void from_json(rapidjson::Value const& json, int32_t& dst)
 	{
@@ -209,6 +222,37 @@ namespace gltf
 	inline void from_json(nlohmann::json const& json, std::string& x)
 	{
 		x = json.GetString();
+	}
+
+	template<class T>
+	void from_json(rapidjson::Value const& json, std::vector<T>& dst)
+	{
+		dst.reserve(json.Size() + dst.size());
+		for (auto iter = json.Begin(); iter != json.End(); iter++)
+		{
+			dst.resize(dst.size() + 1);
+			from_json(*iter, dst.back());
+		}
+	}
+
+	template<class T, size_t N>
+	void from_json(rapidjson::Value const& json, std::array<T,N>& dst)
+	{
+		for (size_t i = 0; i < N; ++i)
+		{
+			from_json(json[i], dst[i]);
+		}
+	}
+
+	template<class T>
+	void from_json(const rapidjson::Value& json, std::unordered_map<std::string, T>& dst)
+	{
+		for (auto iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter)
+		{
+			T val;
+			from_json(iter->value, val);
+			dst.insert(std::pair<std::string, T>{iter->name.GetString(), val});
+		}
 	}
 
     namespace detail
@@ -226,7 +270,7 @@ namespace gltf
 			{
 				throw invalid_gltf_document("Required field not found", std::string(key));
 			}
-			from_json(iter->value, target);
+			target = get_from_json<TTarget>(iter->value);
         }
 
 #if defined(FX_GLTF_HAS_CPP_17)
@@ -240,7 +284,7 @@ namespace gltf
             const auto iter = json.FindMember(key.data());
             if (iter != json.MemberEnd())
             {
-				from_json(iter->value, target);
+				target = get_from_json<TTarget>(iter->value);
             }
         }
 
@@ -834,6 +878,48 @@ namespace gltf
         uint32_t MaxBufferByteLength{ detail::DefaultMaxMemoryAllocation };
     };
 
+	inline void from_json(nlohmann::json const& json, Accessor::ComponentType& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<Accessor::ComponentType>(value);
+	}
+
+	inline void from_json(nlohmann::json const& json, BufferView::TargetType& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<BufferView::TargetType>(value);
+	}
+
+	inline void from_json(nlohmann::json const& json, Primitive::Mode& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<Primitive::Mode>(value);
+	}
+
+	inline void from_json(nlohmann::json const& json, Sampler::MagFilter& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<Sampler::MagFilter>(value);
+	}
+
+	inline void from_json(nlohmann::json const& json, Sampler::MinFilter& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<Sampler::MinFilter>(value);
+	}
+
+	inline void from_json(nlohmann::json const& json, Sampler::WrappingMode& accessorType)
+	{
+		uint32_t value;
+		from_json(json, value);
+		accessorType = static_cast<Sampler::WrappingMode>(value);
+	}
+
 	inline void from_json(nlohmann::json const & json, Accessor::Type & accessorType)
     {
         std::string type = json.GetString();
@@ -1243,6 +1329,14 @@ namespace gltf
         detail::ReadOptionalField("extensionsRequired", json, document.extensionsRequired);
         detail::ReadExtensionsAndExtras(json, document.extensionsAndExtras);
     }
+
+	template<class T>
+	inline T get_from_json(const rapidjson::Value& json)
+	{
+		T dst;
+		from_json(json, dst);
+		return dst;
+	}
 
     inline void to_json(nlohmann::json & json, Accessor::ComponentType const & accessorComponentType)
     {
@@ -1704,8 +1798,7 @@ namespace gltf
 
         inline Document Create(nlohmann::json const & json, DataContext const & dataContext)
         {
-            Document document;
-			from_json(json, document);
+            auto document = get_from_json<Document>(json);
 
             if (document.buffers.size() > dataContext.readQuotas.MaxBufferCount)
             {
@@ -1905,7 +1998,8 @@ namespace gltf
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
         }
 
-        //return LoadFromText(input, detail::GetDocumentRootPath(documentFilePath), readQuotas);
+		assert(fasle && "From stream not implemented");
+		return Document();// LoadFromText(input, detail::GetDocumentRootPath(documentFilePath), readQuotas);
     }
 
     inline Document LoadFromBinary(std::istream & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
