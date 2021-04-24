@@ -197,6 +197,9 @@ namespace gltf
 	T get_from_json(const rapidjson::Value& json);
 
 	template<class T>
+	inline rapidjson::Value json_cast(const T& value);
+
+	template<class T>
 	void from_json(const rapidjson::Value& json, std::unordered_map<std::string, T>& dst);
 
 	inline void from_json(rapidjson::Value const& json, bool& dst)
@@ -288,48 +291,48 @@ namespace gltf
             }
         }
 
-        inline void ReadExtensionsAndExtras(rapidjson::Value const & json, rapidjson::Value& extensionsAndExtras)
+        inline void ReadExtensionsAndExtras(/*rapidjson::Document& doc,*/ rapidjson::Value const & json, rapidjson::Value& extensionsAndExtras)
         {
             const auto iterExtensions = json.FindMember("extensions");
             const auto iterExtras = json.FindMember("extras");
-            if (!(iterExtensions == json.MemberEnd()))
+            if (iterExtensions != json.MemberEnd())
             {
-			//	extensionsAndExtras.AddMember(iterExtensions->name, iterExtensions->value,);
+				extensionsAndExtras["extensions"] = iterExtensions->value;
             }
 
-            //if (iterExtras != json.End())
+            if (iterExtras != json.MemberEnd())
             {
-            //    extensionsAndExtras["extras"] = *iterExtras;
+                extensionsAndExtras["extras"] = iterExtras->value;
             }
         }
 
         template <typename TValue>
         inline void WriteField(std::string const & key, nlohmann::json & json, TValue const & value)
         {
-            /*if (!value.empty())
+            if (!value.empty())
             {
-                json[key] = value;
-            }*/
+                json[key.c_str()] = json_cast(value);
+            }
         }
 
         template <typename TValue>
         inline void WriteField(std::string const & key, nlohmann::json & json, TValue const & value, TValue const & defaultValue)
         {
-            /*if (value != defaultValue)
+            if (value != defaultValue)
             {
-                json[key] = value;
-            }*/
+                json[key.c_str()] = json_cast(value);
+            }
         }
 
         inline void WriteExtensions(nlohmann::json & json, nlohmann::json const & extensionsAndExtras)
         {
-            /*if (!extensionsAndExtras.empty())
+            if (!extensionsAndExtras.Empty())
             {
-                for (nlohmann::json::const_iterator it = extensionsAndExtras.begin(); it != extensionsAndExtras.end(); ++it)
+                for (auto it = extensionsAndExtras.MemberBegin(); it != extensionsAndExtras.MemberEnd(); ++it)
                 {
-                    json[it.key()] = it.value();
+                    json[it->name] = it->value;
                 }
-            }*/
+            }
         }
 
         inline std::string GetDocumentRootPath(std::string const & documentFilePath)
@@ -1756,6 +1759,79 @@ namespace gltf
         detail::WriteField("extensionsRequired", json, document.extensionsRequired);
         detail::WriteExtensions(json, document.extensionsAndExtras);
     }
+
+	inline void to_json(nlohmann::json& json, uint32_t value)
+	{
+		json.SetUint(value);
+	}
+
+	inline void to_json(nlohmann::json& json, BufferView::TargetType value)
+	{
+		json.SetUint((uint32_t)value);
+	}
+
+	inline void to_json(nlohmann::json& json, Primitive::Mode value)
+	{
+		json.SetUint((uint32_t)value);
+	}
+
+	inline void to_json(nlohmann::json& json, Sampler::MinFilter value)
+	{
+		json.SetUint((uint32_t)value);
+	}
+
+	inline void to_json(nlohmann::json& json, Sampler::MagFilter value)
+	{
+		json.SetUint((uint32_t)value);
+	}
+
+	inline void to_json(nlohmann::json& json, Sampler::WrappingMode value)
+	{
+		json.SetUint((uint32_t)value);
+	}
+
+	inline void to_json(nlohmann::json& json, const std::string& value)
+	{
+		json.SetString(value.c_str(), value.size());
+	}
+
+	template<class T, size_t N>
+	inline void to_json(nlohmann::json& json, const std::array<T,N>& value)
+	{
+		json.SetArray();
+		for (auto& x : value)
+		{
+			json.PushBack(json_cast(x));
+		}
+	}
+
+	template<class T>
+	inline void to_json(nlohmann::json& json, const std::vector<T>& value)
+	{
+		json.SetArray();
+		for (auto& x : value)
+		{
+			json.PushBack(json_cast(x));
+		}
+	}
+
+	template<class T>
+	inline void to_json(nlohmann::json& json, const std::unordered_map<std::string,T>& value)
+	{
+		json.SetObject();
+		for (auto& [key,val] : value)
+		{
+			json.AddMember(key.c_str(), json_cast(val));
+		}
+	}
+
+	template<class T>
+	inline rapidjson::Value json_cast(const T& value)
+	{
+		rapidjson::Value json;
+		to_json(json, value);
+		return json;
+	}
 
     namespace detail
     {
