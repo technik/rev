@@ -40,7 +40,7 @@ struct Options
 	{
 		CmdLineParser cmd;
 		cmd.addOption("input", &inputScene);
-		cmd.addOption("output", &inputScene);
+		cmd.addOption("output", &outputScene);
 
 		cmd.parse(argc, argv);
 	}

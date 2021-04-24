@@ -17,7 +17,7 @@
 #include <vector>
 
 #include <rapidjson/document.h>
-//#include <nlohmann/json.hpp>
+#include <rapidjson/writer.h>
 
 #if (defined(__cplusplus) && __cplusplus >= 201703L) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201703L) && (_MSC_VER >= 1911))
 #define FX_GLTF_HAS_CPP_17
@@ -1903,14 +1903,10 @@ namespace gltf
                 detail::GLBHeader header{ detail::GLBHeaderMagic, 2, 0, { 0, detail::GLBChunkJSON } };
                 detail::ChunkHeader binHeader{ 0, detail::GLBChunkBIN };
 
-				// TODO: Write!
-				// // 3. Stringify the DOM
-				//StringBuffer buffer;
-				//Writer<StringBuffer> writer(buffer);
-				//d.Accept(writer);
-				//		
-				assert(false && "Not implemented!");
-				std::string jsonText;// = json.dump();
+				rapidjson::StringBuffer sb;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+				json.Accept(writer);    // Accept() traverses the DOM and generates Handler events.
+				std::string jsonText = sb.GetString();
 
                 Buffer const & binBuffer = document.buffers.front();
                 const uint32_t binPaddedLength = ((binBuffer.byteLength + 3) & (~3u));
@@ -1935,14 +1931,10 @@ namespace gltf
             }
             else
             {
-				// TODO: Write!
-				// // 3. Stringify the DOM
-				//StringBuffer buffer;
-				//Writer<StringBuffer> writer(buffer);
-				//d.Accept(writer);
-				//		
-				assert(false && "Not implemented!");
-                //output << json.dump(2);
+				rapidjson::StringBuffer sb;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+				json.Accept(writer);    // Accept() traverses the DOM and generates Handler events.
+				std::string jsonText = json.GetString();
             }
 
             // The glTF 2.0 spec allows a document to have more than 1 buffer. However, only the first one will be included in the .glb
@@ -1964,15 +1956,12 @@ namespace gltf
         }
     } // namespace detail
 
-    inline Document LoadFromText(std::string_view & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
+    inline Document LoadFromText(std::string_view input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
     {
         try
         {
-            //detail::ThrowIfBad(input);
-
 			rapidjson::Document jsonDoc;
 			jsonDoc.Parse(input.data());
-            //input >> json;
 
             return detail::Create(jsonDoc, { documentRootPath, readQuotas });
         }
@@ -1992,14 +1981,22 @@ namespace gltf
 
     inline Document LoadFromText(std::string const & documentFilePath, ReadQuotas const & readQuotas = {})
     {
-        std::ifstream input(documentFilePath);
+        std::ifstream input(documentFilePath, std::ifstream::ate);
         if (!input.is_open())
         {
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
         }
 
-		assert(fasle && "From stream not implemented");
-		return Document();// LoadFromText(input, detail::GetDocumentRootPath(documentFilePath), readQuotas);
+		auto endPos = input.tellg();
+		input.seekg(std::ifstream::beg);
+		auto size = endPos - input.tellg();
+		std::vector<char> preloadedBuffer(size);
+		input.read(preloadedBuffer.data(), size);
+
+		return LoadFromText(
+			std::string_view(preloadedBuffer.data(), size),
+			detail::GetDocumentRootPath(documentFilePath),
+			readQuotas);
     }
 
     inline Document LoadFromBinary(std::istream & input, std::string const & documentRootPath, ReadQuotas const & readQuotas = {})
