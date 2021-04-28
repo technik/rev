@@ -145,7 +145,7 @@ namespace rev::game {
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
 			m_renderContext.graphicsQueueFamily());
 
-		m_alloc.resizeStreamingBuffer(gltfBuffer.byteLength);
+		m_alloc.reserveStreamingBuffer(gltfBuffer.byteLength);
 		result.asyncLoadToken = m_alloc.asyncTransfer(*result.m_gpuData, gltfBuffer.data.data(), gltfBuffer.data.size());
 
 		// Load node tree

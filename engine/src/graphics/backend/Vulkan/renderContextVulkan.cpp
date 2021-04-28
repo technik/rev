@@ -111,14 +111,16 @@ namespace rev::gfx {
 		uint32_t numLayers, const char** layerNames)
 	{
 		// Combine required extensions with application specific extensions
-		constexpr size_t numRequiredExtensions = 3;
-		const char* requiredExtensions[numRequiredExtensions] = {
+		const char* requiredDeviceExtensions[] = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-			VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
+			// The following are a workaround for NSight to stop complaining about extensions that are part of Vulkan 1.2 anyway.
+			VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
+			VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
+			VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
 		};
-		m_requiredDeviceExtensions.reserve(numAppDeviceExtensions + numRequiredExtensions);
-		for(auto name : requiredExtensions)
+		constexpr size_t numRequiredDeviceExtensions = sizeof(requiredDeviceExtensions) / sizeof(char*);
+		m_requiredDeviceExtensions.reserve(numAppDeviceExtensions + numRequiredDeviceExtensions);
+		for(auto name : requiredDeviceExtensions)
 			m_requiredDeviceExtensions.push_back(name);
 		for (uint32_t i = 0; i < numAppDeviceExtensions; ++i)
 		{
@@ -168,13 +170,17 @@ namespace rev::gfx {
 
 		// Technically, this is only necessary if we intend to create a surface, which we don't know yet.
 		// In practice, these are available in all my test platforms so it's ok for now.
-		constexpr auto numRequiredInstanceExtensions = 4;
-		const char* requiredInstanceExtensions[numRequiredInstanceExtensions] = {
+		const char* requiredInstanceExtensions[] = {
 			VK_KHR_SURFACE_EXTENSION_NAME,
 			VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 			VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME,
+			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, // Workaround for NSight
+#ifdef _DEBUG
+			VK_EXT_DEBUG_REPORT_EXTENSION_NAME, // Workaround for NSight
+#endif
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 		};
+		constexpr auto numRequiredInstanceExtensions = sizeof(requiredInstanceExtensions)/sizeof(char*);
 
 		vk::InstanceCreateInfo instanceInfo;
 		// Query extensions

@@ -34,6 +34,7 @@ layout(push_constant) uniform Constants
 layout(location = 0) out vec3 vVtxColor;
 
 void main() {
-    gl_Position = camera.proj * (camera.view * worldMtx[camera.mtxNdx] * vec4(position, 1.0));
+    mat4 world = worldMtx[camera.mtxNdx];
+    gl_Position = camera.proj * (camera.view  * (world * vec4(position, 1.0)));
     vVtxColor = normal * 0.5 + 0.5;
 }

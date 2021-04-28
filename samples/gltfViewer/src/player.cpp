@@ -188,7 +188,7 @@ namespace rev {
 
 		// Copy data to the GPU
 		// Allocate enough room to stream all data at once
-		alloc.resizeStreamingBuffer(sizeof(vtxColors) + sizeof(vtxPos) + sizeof(indices));
+		alloc.reserveStreamingBuffer(sizeof(vtxColors) + sizeof(vtxPos) + sizeof(indices));
 		alloc.asyncTransfer(*m_vtxPosBuffer, vtxPos, numVertices);
 		alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
 		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_indexBuffer, indices, numIndices);
@@ -203,8 +203,8 @@ namespace rev {
 
 		// Allocate matrix buffers
 		m_mtxBuffers.resize(2);
-		m_mtxBuffers[0] = alloc.createSharedBuffer(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
-		m_mtxBuffers[1] = alloc.createSharedBuffer(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
+		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
+		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * m_sceneInstances.numInstances(), vk::BufferUsageFlagBits::eStorageBuffer, renderContext().graphicsQueueFamily());
 
 		// Update descriptor sets
 		vk::WriteDescriptorSet writeInfo;
@@ -213,7 +213,7 @@ namespace rev {
 		writeInfo.dstArrayElement = 0;
 		writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
 		writeInfo.descriptorCount = 1;
-		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, sizeof(vk::Buffer));
+		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, m_mtxBuffers[0]->size());
 		writeInfo.pBufferInfo = &writeBufferInfo;
 		renderContext().device().updateDescriptorSets(writeInfo, {});
 		writeInfo.dstSet = m_frameDescs[1];
@@ -373,8 +373,7 @@ namespace rev {
 			auto mtxDst = renderContext().allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
 			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
 			{
-				auto worldMtx = m_sceneInstances.instancePose(i);
-				mtxDst[i] = worldMtx;
+				mtxDst[i] = m_sceneInstances.instancePose(i).transpose();
 				m_cameraPushC.mtxNdx = i;
 				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 

@@ -32,31 +32,64 @@ using namespace std::chrono_literals;
 
 namespace rev::gfx {
 
-	auto VulkanAllocator::createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryAccess memoryAccess, const std::vector<uint32_t>& queueFamilies) -> std::shared_ptr<GPUBuffer>
+	vk::MemoryPropertyFlags VulkanAllocator::getVulkanMemoryProperties(MemoryProperties flags)
 	{
-		vk::SharingMode bufferQueueSharing = (queueFamilies.size() > 1) ? vk::SharingMode::eConcurrent: vk::SharingMode::eExclusive;
-		vk::BufferCreateInfo bufferInfo({},size,usage,bufferQueueSharing,queueFamilies);
+		vk::MemoryPropertyFlags vulkanProperties;
+		if (flags & MemoryProperties::supportsHostMapping)
+		{
+			vulkanProperties =
+				vk::MemoryPropertyFlagBits::eHostVisible | // So that we can map to it
+				vk::MemoryPropertyFlagBits::eHostCoherent; // So that we don't need to flush it after writing
+		}
+		if (flags & MemoryProperties::deviceLocal)
+		{
+			vulkanProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
+		}
+		return vulkanProperties;
+	}
 
-		auto buffer = m_device.createBuffer(bufferInfo);
+	uint32_t VulkanAllocator::getVulkanMemoryHeap(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+	{
+		auto memProperties = m_physicalDevice.getMemoryProperties();
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties))
+			{
+				return i;
+			}
+		}
+		assert(false && "Unable to find a suitable memory heap for allocation");
+		return uint32_t(-1);
+	}
+
+	uint32_t VulkanAllocator::getVulkanMemoryHeap(MemoryProperties flags)
+	{
+		auto vulkanMemoryProperties = getVulkanMemoryProperties(flags);
+		return getVulkanMemoryHeap(~0,vulkanMemoryProperties);
+	}
+
+	auto VulkanAllocator::createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryProperties memoryProperties, const std::vector<uint32_t>& queueFamilies) -> std::shared_ptr<GPUBuffer>
+	{
+		const vk::SharingMode bufferQueueSharing = (queueFamilies.size() > 1) ? vk::SharingMode::eConcurrent: vk::SharingMode::eExclusive;
+		const vk::BufferCreateInfo bufferInfo({},size,usage,bufferQueueSharing,queueFamilies);
+
+		// Create a buffer handle
+		const auto buffer = m_device.createBuffer(bufferInfo);
 		if (!buffer)
 			return {};
 		
-		vk::MemoryRequirements memRequirements = m_device.getBufferMemoryRequirements(buffer);
+		// Allocate memory for the buffer
+		const auto memoryHeap = getVulkanMemoryHeap(memoryProperties);
+		const auto memRequirements = m_device.getBufferMemoryRequirements(buffer);
+		const vk::MemoryAllocateInfo allocInfo(memRequirements.size, memoryHeap);
+		const auto memory = m_device.allocateMemory(allocInfo);
 
-		vk::MemoryPropertyFlags properties;
-		if(memoryAccess == MemoryAccess::host)
-			properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent; // So that we can map to it
-		else
-			properties = vk::MemoryPropertyFlagBits::eDeviceLocal; // So that we can map to it
-		auto memType = findMemoryType(memRequirements.memoryTypeBits, properties);
-		vk::MemoryAllocateInfo allocInfo(memRequirements.size, memType);
-
-		auto memory = m_device.allocateMemory(allocInfo);
 		if (!memory)
 		{
 			m_device.destroyBuffer(buffer);
 			return {};
 		}
+
+		// Bind handle and memory
 		m_device.bindBufferMemory(buffer, memory, 0);
 
 		return std::shared_ptr<GPUBuffer>(new GPUBuffer(buffer, memory, 0, size), 
@@ -71,16 +104,17 @@ namespace rev::gfx {
 	{
 		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
 		bool isTransferDst = (usage & vk::BufferUsageFlagBits::eTransferDst) == vk::BufferUsageFlagBits::eTransferDst;
-		if (isTransferDst && (graphicsQueueFamily != m_transferQueueFamily))
+		assert(graphicsQueueFamily != m_transferQueueFamily);
+		if (isTransferDst)
 			queueFamilies.push_back(m_transferQueueFamily);
 
-		return createBufferInternal(size, usage, MemoryAccess::device, queueFamilies);
+		return createBufferInternal(size, usage, MemoryProperties::deviceLocal, queueFamilies);
 	}
 
-	auto VulkanAllocator::createSharedBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
+	auto VulkanAllocator::createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
 	{
 		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
-		return createBufferInternal(size, usage, MemoryAccess::host, queueFamilies);
+		return createBufferInternal(size, usage, MemoryProperties::supportsHostMapping, queueFamilies);
 	}
 
 	void VulkanAllocator::destroyBuffer(const GPUBuffer& buffer)
@@ -89,13 +123,13 @@ namespace rev::gfx {
 		m_device.destroyBuffer(buffer.m_buffer);
 	}
 
-	void VulkanAllocator::resizeStreamingBuffer(size_t minSize)
+	void VulkanAllocator::reserveStreamingBuffer(size_t minSize)
 	{
 		if (m_capacity >= minSize)
 			return; // Early out if we already have sufficient capacity
 
 		m_streamingQueue.waitIdle();
-		m_stagingBuffer = createBufferInternal(minSize, vk::BufferUsageFlagBits::eTransferSrc, MemoryAccess::host, { m_transferQueueFamily });
+		m_stagingBuffer = createBufferInternal(minSize, vk::BufferUsageFlagBits::eTransferSrc, MemoryProperties::supportsHostMapping, {});
 		m_capacity = m_stagingBuffer->size();
 
 		// Reset counters
@@ -183,6 +217,7 @@ namespace rev::gfx {
 		auto iter = m_mappedMemory.find(_buffer);
 		assert(iter != m_mappedMemory.end());
 
+		m_device.flushMappedMemoryRanges(vk::MappedMemoryRange(iter->second, 0, VK_WHOLE_SIZE));
 		m_device.unmapMemory(iter->second);
 		m_mappedMemory.erase(iter);
 	}
@@ -195,19 +230,6 @@ namespace rev::gfx {
 		auto devMemory = m_device.mapMemory(dst.memory(), dst.offset() + dstOffset, size);
 		memcpy(devMemory, src, size);
 		m_device.unmapMemory(dst.memory());
-	}
-
-	uint32_t VulkanAllocator::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
-	{
-		auto memProperties = m_physicalDevice.getMemoryProperties();
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties))
-			{
-				return i;
-			}
-		}
-		assert(false && "Unable to find a suitable memory type for allocation");
-		return uint32_t(-1);
 	}
 
 	void VulkanAllocator::advanceReadPos()

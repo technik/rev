@@ -51,7 +51,7 @@ namespace rev::gfx {
 		}
 
 		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
-		std::shared_ptr<GPUBuffer> createSharedBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
+		std::shared_ptr<GPUBuffer> createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>
@@ -60,7 +60,7 @@ namespace rev::gfx {
 			return (T*)mapBufferInternal(_buffer);
 		}
 
-		void resizeStreamingBuffer(size_t minSize);
+		void reserveStreamingBuffer(size_t minSize);
 
 		template<class T>
 		size_t asyncTransfer(const GPUBuffer& dst, const T* src, size_t count, size_t dstOffset = 0)
@@ -86,18 +86,22 @@ namespace rev::gfx {
 		}
 
 	private:
-		enum class MemoryAccess : uint8_t
+		enum MemoryProperties
 		{
-			device = 1,
-			host = 2
+			supportsHostMapping = 1,
+			deviceLocal = 2
 		};
-		std::shared_ptr<GPUBuffer> createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryAccess memoryAccess, const std::vector<uint32_t>& queueFamilies);
+
+		static vk::MemoryPropertyFlags getVulkanMemoryProperties(MemoryProperties flags);
+		uint32_t getVulkanMemoryHeap(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+		uint32_t getVulkanMemoryHeap(MemoryProperties flags);
+
+		std::shared_ptr<GPUBuffer> createBufferInternal(size_t size, vk::BufferUsageFlags usage, MemoryProperties memoryAccess, const std::vector<uint32_t>& queueFamilies);
 		void* mapBufferInternal(const GPUBuffer& _buffer);
 		void unmapBufferInternal(void*);
 		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
 		void writeToRingBuffer(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t size);
 
-		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
 		vk::Device m_device;
 		vk::PhysicalDevice m_physicalDevice;
