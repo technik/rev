@@ -36,7 +36,7 @@ namespace rev { namespace game {
 	void SceneNode::update(float _dt) {
 		for(auto& c : mComponents)
 			c->update(_dt);
-		for(auto c : mChildren)
+		for(auto& c : mChildren)
 			c->update(_dt);
 	}
 
