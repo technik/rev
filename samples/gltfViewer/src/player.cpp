@@ -164,6 +164,16 @@ namespace rev {
 		if (scene.empty()) // Early out
 			return;
 
+		// TODO:
+		// Preload metadata and scene definition
+		// Allocate memory in the renderer for meshes (and maybe textures)
+		// Load scene (meshes, mats, etc)
+		GltfLoader gltfLoader(renderContext());
+		auto loadRes = gltfLoader.load(scene);
+		m_sceneInstances = loadRes.meshInstances;
+
+		// Load geometry data and consolidate it into a small set of continuous buffers
+
 		const size_t numVertices = 3;
 		const size_t numIndices = 3;
 		const Vec3f vtxPos[numVertices] = {
@@ -192,14 +202,6 @@ namespace rev {
 		alloc.asyncTransfer(*m_vtxPosBuffer, vtxPos, numVertices);
 		alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
 		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_indexBuffer, indices, numIndices);
-
-		// TODO:
-		// Preload metadata and scene definition
-		// Allocate memory in the renderer for meshes (and maybe textures)
-		// Load scene (meshes, mats, etc)
-		GltfLoader gltfLoader(renderContext());
-		auto loadRes = gltfLoader.load(scene);
-		m_sceneInstances = loadRes.meshInstances;
 
 		// Allocate matrix buffers
 		m_mtxBuffers.resize(2);
@@ -358,28 +360,28 @@ namespace rev {
 			cmd.setViewport(0, 1, &viewport);
 			cmd.setScissor(0, passInfo.renderArea);
 
-
-			// Update matrices descriptor set
-			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
-
-			float aspect = viewport.width / viewport.height;
-			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
-			m_cameraPushC.view = mFlybyCam->view().transpose();
-			
-			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
-			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
-
+			// Update per instance model matrices
 			m_sceneInstances.updatePoses();
 			auto mtxDst = renderContext().allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
 			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
 			{
 				mtxDst[i] = m_sceneInstances.instancePose(i).transpose();
-				m_cameraPushC.mtxNdx = i;
-				cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
-
-				cmd.drawIndexed(3, 1, 0, 0, 0);
 			}
 			renderContext().allocator().unmapBuffer(mtxDst);
+
+			// Update descriptor set with this frame's matrices
+			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
+
+			// Update view and projection matrices push constants
+			float aspect = viewport.width / viewport.height;
+			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
+			m_cameraPushC.view = mFlybyCam->view().transpose();
+			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
+			
+			// Draw all instances in a single batch
+			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
+			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
+			cmd.drawIndexed(3, m_sceneInstances.numInstances(), 0, 0, 0);
 
 			m_doubleBufferNdx ^= 1;
 			
