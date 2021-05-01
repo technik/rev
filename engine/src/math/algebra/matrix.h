@@ -108,6 +108,26 @@ namespace rev {
 			return result;
 		}
 
+		// 4x4 float specialization
+		template<>
+		Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& a, const Matrix<float, 4, 4>& b)
+		{
+			Matrix<float, 4, 4> result;
+			for (int i = 0; i < 4; ++i)
+			{
+				for (int j = 0; j < 4; ++j)
+				{
+					result(i, j) =
+						a(i, 0) * b(0, j) +
+						a(i, 1) * b(1, j) +
+						a(i, 2) * b(2, j) +
+						a(i, 3) * b(3, j);
+				}
+			}
+
+			return result;
+		}
+
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> frustumMatrix(
