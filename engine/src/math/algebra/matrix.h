@@ -56,17 +56,17 @@ namespace rev {
 			static Matrix ones()		{ Matrix res; res.setOnes(); return res; }
 
 			// Generic component accessor.
-			T operator()(size_t i, size_t j) const
+			inline T operator()(size_t i, size_t j) const
 			{
 				return m_data[i][j];
 			}
-			T& operator()(size_t i, size_t j)
+			inline T& operator()(size_t i, size_t j)
 			{
 				return m_data[i][j];
 			}
 
-			T* data() { return &m_data[0][0]; }
-			const T* data() const { return &m_data[0][0]; }
+			inline T* data() { return &m_data[0][0]; }
+			inline const T* data() const { return &m_data[0][0]; }
 
 			static constexpr bool is_col_major = false;
 		private:

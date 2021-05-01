@@ -64,9 +64,9 @@ namespace rev::game {
 			};
 		}
 
-		std::unique_ptr<Transform> loadNodeTransform(const gltf::Node& _nodeDesc)
+		bool loadNodeTransform(const gltf::Node& _nodeDesc, Mat44f& dst)
 		{
-			auto nodeTransform = std::make_unique<game::Transform>();
+			dst = Mat44f::identity();
 			bool useTransform = false;
 			if (!_nodeDesc.matrix.empty())
 			{
@@ -74,19 +74,19 @@ namespace rev::game {
 				auto& matrixDesc = _nodeDesc.matrix;
 				for (size_t i = 0; i < 3; ++i)
 					for (size_t j = 0; j < 4; ++j)
-						nodeTransform->xForm.matrix()(i, j) = matrixDesc[i + 4 * j];
+						dst(i, j) = matrixDesc[i + 4 * j];
 			}
 			if (!_nodeDesc.rotation.empty())
 			{
 				useTransform = true;
 				Quatf rot = *reinterpret_cast<const Quatf*>(_nodeDesc.rotation.data());
-				nodeTransform->xForm.matrix().block<3, 3, 0, 0>() = (Mat33f)rot;
+				dst.block<3, 3, 0, 0>() = (Mat33f)rot;
 			}
 			if (!_nodeDesc.translation.empty())
 			{
 				useTransform = true;
 				for (size_t i = 0; i < 3; ++i)
-					nodeTransform->xForm.matrix()(i, 3) = _nodeDesc.translation[i];
+					dst(i, 3) = _nodeDesc.translation[i];
 			}
 			if (!_nodeDesc.scale.empty())
 			{
@@ -94,13 +94,9 @@ namespace rev::game {
 				Mat33f scale = Mat33f::identity();
 				for (size_t i = 0; i < 3; ++i)
 					scale(i, i) = _nodeDesc.scale[i];
-				nodeTransform->xForm.matrix().block<3, 3, 0, 0>() = nodeTransform->xForm.matrix().block<3, 3, 0, 0>() * scale;
+				dst.block<3, 3, 0, 0>() = dst.block<3, 3, 0, 0>() * scale;
 			}
-
-			if (useTransform)
-				return std::move(nodeTransform);
-			else
-				return nullptr;
+			return useTransform;
 		}
 	}
 
@@ -190,11 +186,6 @@ namespace rev::game {
 			sceneNodes.push_back(node);
 
 			node->name = nodeDesc.name; // Node name
-
-			// Optional node transform
-			auto nodeTransform = loadNodeTransform(nodeDesc);
-			if (nodeTransform)
-				node->addComponent(std::move(nodeTransform));
 		}
 
 		// Build hierarchy
@@ -211,6 +202,14 @@ namespace rev::game {
 		for (auto& nodeDesc : _document.nodes)
 		{
 			auto& node = sceneNodes[i++];
+
+			// Optional node transform
+			Mat44f nodeFromParent;
+			if (loadNodeTransform(nodeDesc, nodeFromParent))
+			{
+				auto transform = node->addComponent<Transform>();
+				transform->xForm.matrix() = nodeFromParent;
+			}
 
 			// Optional node mesh
 			if (nodeDesc.mesh >= 0)
