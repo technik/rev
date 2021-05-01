@@ -56,7 +56,35 @@ static void ContiguousMatrixTree(benchmark::State& state)
 	}
 }
 
-static void InterleavedMatrices(benchmark::State& state)
+static void InterleavedMatricesTree(benchmark::State& state)
+{
+	const size_t numMatrices = state.range();
+	using Node = std::pair<Mat44f, size_t>;
+	// Allocate matrices
+	std::vector<Node> tree(numMatrices);
+	// Randomize data
+	std::uniform_int_distribution<size_t> ints(0, numMatrices);
+	for (size_t i = 0; i < numMatrices; ++i)
+	{
+		for (size_t j = 0; j < 16; ++j)
+			tree[i].first.data()[j] = reals(rng);
+		tree[i].second = ints(rng);
+	}
+
+	// Run the actual benchmark
+	while (state.KeepRunning())
+	{
+		for (size_t i = 1; i < numMatrices; ++i)
+		{
+			auto parent = tree[i].second;
+			tree[i].first = tree[parent].first * tree[i].first;
+		}
+	}
+}
+
+// Each matrix is allocated independently
+// Pointers stored together with parent index
+static void ScatteredMatrices(benchmark::State& state)
 {
 	// Allocate matrices
 	// Randomize data
@@ -66,7 +94,7 @@ static void InterleavedMatrices(benchmark::State& state)
 
 // Each matrix is allocated independently
 // Pointers stored together with parent index
-static void ScatteredMatrices(benchmark::State& state)
+static void TransformMatrixArray(benchmark::State& state)
 {
 	// Allocate matrices
 	// Randomize data
@@ -83,5 +111,16 @@ BENCHMARK(ContiguousMatrixTree)
 	->Arg(2 << 14) // Exact L2 size
 	->Arg(2 << 18) // Exact L3 size
 	->Arg(2 << 24); // Main memory
+
+
+BENCHMARK(InterleavedMatricesTree)
+->Arg(2 << 6) // Totally fits in L1 cache
+->Arg(2 << 8) // Totally fits in L1 cache
+->Arg(2 << 9) // Exact size of L1 cache
+->Arg(2 << 10) // Twice the size of L1 cache
+->Arg(2 << 12) // Totally fits in L2 size
+->Arg(2 << 14) // Exact L2 size
+->Arg(2 << 18) // Exact L3 size
+->Arg(2 << 24); // Main memory
 
 BENCHMARK_MAIN();
