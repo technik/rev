@@ -1,3 +1,6 @@
 [submodule "engine/lib/imgui"]
 	path = engine/lib/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "engine/lib/benchmark"]
+	path = engine/lib/benchmark
+	url = https://github.com/google/benchmark.git

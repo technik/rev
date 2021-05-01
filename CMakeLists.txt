@@ -8,9 +8,15 @@ project(revAll)
 # --- Configurable options -----
 option(REV_BUILD_TOOLS "Build the asset processing tools" OFF)
 option(REV_BUILD_TEST "Build engine unit tests" ON)
+option(REV_BUILD_BENCHMARK "Build engine benchmarks" ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 20)
+
+# Libraries
+add_subdirectory(engine/lib/benchmark)
+set_target_properties(benchmark PROPERTIES FOLDER benchmarks)
+set_target_properties(benchmark_main PROPERTIES FOLDER benchmarks)
 
 # Find GLSL compiler
 find_package(Vulkan REQUIRED)
