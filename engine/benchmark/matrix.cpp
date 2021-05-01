@@ -117,17 +117,17 @@ static void ScatteredMatrices(benchmark::State& state)
 
 BENCHMARK(ContiguousMatrixTree)
 // Initial two are to avoid outlayers
-	->Arg(2 << 4) // Totally fits in L1 cache
-	->Arg(2 << 6) // Totally fits in L1 cache
-	// Real testing
-	->Arg(2 << 6) // Totally fits in L1 cache
-	->Arg(2 << 8) // Totally fits in L1 cache
-	->Arg(2 << 9) // Exact size of L1 cache
-	->Arg(2 << 10) // Twice the size of L1 cache
-	->Arg(2 << 12) // Totally fits in L2 size
-	->Arg(2 << 14) // Exact L2 size
-	->Arg(2 << 18) // Exact L3 size
-	->Arg(2 << 24); // Main memory
+->Arg(2 << 4) // Totally fits in L1 cache
+->Arg(2 << 6) // Totally fits in L1 cache
+// Real testing
+->Arg(2 << 6) // Totally fits in L1 cache
+->Arg(2 << 8) // Totally fits in L1 cache
+->Arg(2 << 9) // Exact size of L1 cache
+->Arg(2 << 10) // Twice the size of L1 cache
+->Arg(2 << 12) // Totally fits in L2 size
+->Arg(2 << 14); // Exact L2 size
+//->Arg(2 << 18) // Exact L3 size
+//->Arg(2 << 24); // Main memory
 
 BENCHMARK(InterleavedMatricesTree)
 ->Arg(2 << 6) // Totally fits in L1 cache
@@ -135,9 +135,9 @@ BENCHMARK(InterleavedMatricesTree)
 ->Arg(2 << 9) // Exact size of L1 cache
 ->Arg(2 << 10) // Twice the size of L1 cache
 ->Arg(2 << 12) // Totally fits in L2 size
-->Arg(2 << 14) // Exact L2 size
-->Arg(2 << 18) // Exact L3 size
-->Arg(2 << 24); // Main memory
+->Arg(2 << 14); // Exact L2 size
+//->Arg(2 << 18) // Exact L3 size
+//->Arg(2 << 24); // Main memory
 
 BENCHMARK(ScatteredMatrices)
 ->Arg(2 << 6) // Totally fits in L1 cache
@@ -145,8 +145,8 @@ BENCHMARK(ScatteredMatrices)
 ->Arg(2 << 9) // Exact size of L1 cache
 ->Arg(2 << 10) // Twice the size of L1 cache
 ->Arg(2 << 12) // Totally fits in L2 size
-->Arg(2 << 14) // Exact L2 size
-->Arg(2 << 18) // Exact L3 size
-->Arg(2 << 24); // Main memory
+->Arg(2 << 14); // Exact L2 size
+//->Arg(2 << 18) // Exact L3 size
+//->Arg(2 << 24); // Main memory
 
 BENCHMARK_MAIN();
