@@ -110,7 +110,7 @@ namespace rev {
 
 		// 4x4 float specialization
 		template<>
-		Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& a, const Matrix<float, 4, 4>& b)
+		inline Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& a, const Matrix<float, 4, 4>& b)
 		{
 			Matrix<float, 4, 4> result;
 			for (int i = 0; i < 4; ++i)

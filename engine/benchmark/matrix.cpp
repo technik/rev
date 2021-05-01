@@ -116,6 +116,10 @@ static void ScatteredMatrices(benchmark::State& state)
 }
 
 BENCHMARK(ContiguousMatrixTree)
+// Initial two are to avoid outlayers
+	->Arg(2 << 4) // Totally fits in L1 cache
+	->Arg(2 << 6) // Totally fits in L1 cache
+	// Real testing
 	->Arg(2 << 6) // Totally fits in L1 cache
 	->Arg(2 << 8) // Totally fits in L1 cache
 	->Arg(2 << 9) // Exact size of L1 cache
