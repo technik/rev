@@ -365,7 +365,7 @@ namespace rev {
 			auto mtxDst = renderContext().allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
 			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
 			{
-				mtxDst[i] = m_sceneInstances.instancePose(i).transpose();
+				mtxDst[i] = m_sceneInstances.instancePose(i);// .transpose();
 			}
 			renderContext().allocator().unmapBuffer(mtxDst);
 
@@ -374,8 +374,8 @@ namespace rev {
 
 			// Update view and projection matrices push constants
 			float aspect = viewport.width / viewport.height;
-			m_cameraPushC.proj = mFlybyCam->projection(aspect).transpose();
-			m_cameraPushC.view = mFlybyCam->view().transpose();
+			m_cameraPushC.proj = mFlybyCam->projection(aspect);// .transpose();
+			m_cameraPushC.view = mFlybyCam->view();// .transpose();
 			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 			
 			// Draw all instances in a single batch

@@ -58,19 +58,19 @@ namespace rev {
 			// Generic component accessor.
 			inline T operator()(size_t i, size_t j) const
 			{
-				return m_data[i][j];
+				return m_data[j][i];
 			}
 			inline T& operator()(size_t i, size_t j)
 			{
-				return m_data[i][j];
+				return m_data[j][i];
 			}
 
 			inline T* data() { return &m_data[0][0]; }
 			inline const T* data() const { return &m_data[0][0]; }
 
 			static constexpr bool is_col_major = false;
-		private:
-			T m_data[m][n];
+		
+			T m_data[n][m];
 		};
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -117,11 +117,11 @@ namespace rev {
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result(i, j) =
-						a(i, 0) * b(0, j) +
-						a(i, 1) * b(1, j) +
-						a(i, 2) * b(2, j) +
-						a(i, 3) * b(3, j);
+					result.m_data[j][i] =
+						a.m_data[0][i] * b.m_data[j][0] +
+						a.m_data[1][i] * b.m_data[j][1] +
+						a.m_data[2][i] * b.m_data[j][2] +
+						a.m_data[3][i] * b.m_data[j][3];
 				}
 			}
 
