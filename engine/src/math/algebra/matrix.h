@@ -188,21 +188,21 @@ namespace rev {
 			// Generic component accessor.
 			inline float operator()(size_t i, size_t j) const
 			{
-				return m_data[j][i];
+				return ((const float*)&m_cols[j])[i];
 			}
 			inline float& operator()(size_t i, size_t j)
 			{
-				return m_data[j][i];
+				return ((float*)&m_cols[j])[i];
 			}
 
-			inline float* data() { return &m_data[0][0]; }
-			inline const float* data() const { return &m_data[0][0]; }
+			inline float* data() { return (float*)&m_cols[0]; }
+			inline const float* data() const { return (const float*)&m_cols[0]; }
 
 			static constexpr bool is_col_major = false;
 
 			Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
 
-			float m_data[Cols][Rows];
+			__m128 m_cols[Cols];
 		};
 
 
@@ -210,15 +210,16 @@ namespace rev {
 		inline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
 		{
 			Matrix<float, 4, 4> result;
-			for (int i = 0; i < 4; ++i)
+			
+			for (int j = 0; j < 4; ++j)
 			{
-				for (int j = 0; j < 4; ++j)
+				__m128 b_0j = _mm_set_ps1(b(0, j));
+				result.m_cols[j] = _mm_mul_ps(m_cols[0], b_0j);
+				for (int k = 1; k < 4; ++k)
 				{
-					result.m_data[j][i] = m_data[0][i] * b.m_data[j][0];
-					for (int k = 1; k < 4; ++k)
-					{
-						result.m_data[j][i] += m_data[k][i] * b.m_data[j][k];
-					}
+					__m128 b_kj = _mm_set_ps1(b(k, j));
+					__m128 a_ik_b_kj = _mm_mul_ps(m_cols[k], b_kj);
+					result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_ik_b_kj);
 				}
 			}
 
