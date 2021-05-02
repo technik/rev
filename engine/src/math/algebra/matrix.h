@@ -108,26 +108,6 @@ namespace rev {
 			return result;
 		}
 
-		// 4x4 float specialization
-		template<>
-		inline Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& a, const Matrix<float, 4, 4>& b)
-		{
-			Matrix<float, 4, 4> result;
-			for (int i = 0; i < 4; ++i)
-			{
-				for (int j = 0; j < 4; ++j)
-				{
-					result.m_data[j][i] =
-						a.m_data[0][i] * b.m_data[j][0] +
-						a.m_data[1][i] * b.m_data[j][1] +
-						a.m_data[2][i] * b.m_data[j][2] +
-						a.m_data[3][i] * b.m_data[j][3];
-				}
-			}
-
-			return result;
-		}
-
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
 		inline Matrix44<Number_> frustumMatrix(
@@ -164,6 +144,81 @@ namespace rev {
 				0,             0,		 -2 * invRange,      (_near+_far) * invRange,
 				0,             0,                0,             1
 				});
+		}
+
+		// -----------------------------------------------------------------------------------------------------------------
+		// Matrix 4x4 float specialization
+		//------------------------------------------------------------------------------------------------------------------
+		template<>
+		struct Matrix<float,4,4> : MatrixView <float, 4, 4, Matrix<float, 4, 4>>
+		{
+			static constexpr size_t Rows = 4;
+			static constexpr size_t Cols = 4;
+			// Basic construction
+			Matrix() = default;
+			Matrix(const Matrix&) = default;
+			template<typename Other>
+			Matrix(const MatrixExpr<float, 4, 4, Other>& _x)
+			{
+				for (size_t i = 0; i < Rows; ++i)
+					for (size_t j = 0; j < Cols; ++j)
+						(*this)(i, j) = _x(i, j);
+			}
+
+			Matrix(std::initializer_list<float> _l)
+			{
+				auto x = _l.begin();
+				for (size_t i = 0; i < Rows; ++i)
+					for (size_t j = 0; j < Cols; ++j)
+						(*this)(i, j) = *x++;
+			}
+
+			Matrix& operator=(const Matrix&) = default;
+			using MatrixView<float, 4, 4, Matrix<float, 4, 4>>::operator=;
+
+			// Smarter construction
+			static Matrix identity() { Matrix res; res.setIdentity(); return res; }
+			static Matrix zero() { Matrix res; res.setZero(); return res; }
+			static Matrix ones() { Matrix res; res.setOnes(); return res; }
+
+			// Generic component accessor.
+			inline float operator()(size_t i, size_t j) const
+			{
+				return m_data[j][i];
+			}
+			inline float& operator()(size_t i, size_t j)
+			{
+				return m_data[j][i];
+			}
+
+			inline float* data() { return &m_data[0][0]; }
+			inline const float* data() const { return &m_data[0][0]; }
+
+			static constexpr bool is_col_major = false;
+
+			Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
+
+			float m_data[Cols][Rows];
+		};
+
+
+		// 4x4 float specialization
+		inline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
+		{
+			Matrix<float, 4, 4> result;
+			for (int i = 0; i < 4; ++i)
+			{
+				for (int j = 0; j < 4; ++j)
+				{
+					result.m_data[j][i] =
+						m_data[0][i] * b.m_data[j][0] +
+						m_data[1][i] * b.m_data[j][1] +
+						m_data[2][i] * b.m_data[j][2] +
+						m_data[3][i] * b.m_data[j][3];
+				}
+			}
+
+			return result;
 		}
 
 		//------------------------------------------------------------------------------------------------------------------
