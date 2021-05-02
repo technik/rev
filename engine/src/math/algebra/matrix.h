@@ -205,22 +205,42 @@ namespace rev {
 			__m128 m_cols[Cols];
 		};
 
+		namespace
+		{
+			template<int i>
+			struct float4_broadcast
+			{
+				static constexpr int mask = (i << 6) | (i << 4) | (i << 2) | i;
+			};
+		}
+
 
 		// 4x4 float specialization
 		inline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
 		{
 			Matrix<float, 4, 4> result;
 			
+			constexpr int mask_0j = float4_broadcast<0>::mask; // Expand element 0 to a full float4
+			constexpr int mask_1j = float4_broadcast<1>::mask; // Expand element 0 to a full float4
+			constexpr int mask_2j = float4_broadcast<2>::mask; // Expand element 0 to a full float4
+			constexpr int mask_3j = float4_broadcast<3>::mask; // Expand element 0 to a full float4
+			
 			for (int j = 0; j < 4; ++j)
 			{
-				__m128 b_0j = _mm_set_ps1(b(0, j));
+				__m128 b_0j = _mm_permute_ps(b.m_cols[j],mask_0j);
 				result.m_cols[j] = _mm_mul_ps(m_cols[0], b_0j);
-				for (int k = 1; k < 4; ++k)
-				{
-					__m128 b_kj = _mm_set_ps1(b(k, j));
-					__m128 a_ik_b_kj = _mm_mul_ps(m_cols[k], b_kj);
-					result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_ik_b_kj);
-				}
+
+				__m128 b_1j = _mm_permute_ps(b.m_cols[j], mask_1j);
+				__m128 a_i1_b_1j = _mm_mul_ps(m_cols[1], b_1j);
+				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i1_b_1j);
+
+				__m128 b_2j = _mm_permute_ps(b.m_cols[j], mask_2j);
+				__m128 a_i2_b_2j = _mm_mul_ps(m_cols[2], b_2j);
+				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i2_b_2j);
+
+				__m128 b_3j = _mm_permute_ps(b.m_cols[j], mask_3j);
+				__m128 a_i3_b_3j = _mm_mul_ps(m_cols[3], b_3j);
+				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i3_b_3j);
 			}
 
 			return result;
