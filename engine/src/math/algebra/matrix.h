@@ -21,6 +21,10 @@
 #pragma once
 #include "matrixView.h"
 
+#include <immintrin.h>
+#include <xmmintrin.h>
+#include <zmmintrin.h>
+
 namespace rev {
 	namespace math {
 
@@ -210,11 +214,11 @@ namespace rev {
 			{
 				for (int j = 0; j < 4; ++j)
 				{
-					result.m_data[j][i] =
-						m_data[0][i] * b.m_data[j][0] +
-						m_data[1][i] * b.m_data[j][1] +
-						m_data[2][i] * b.m_data[j][2] +
-						m_data[3][i] * b.m_data[j][3];
+					result.m_data[j][i] = m_data[0][i] * b.m_data[j][0];
+					for (int k = 1; k < 4; ++k)
+					{
+						result.m_data[j][i] += m_data[k][i] * b.m_data[j][k];
+					}
 				}
 			}
 

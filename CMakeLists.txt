@@ -13,6 +13,11 @@ option(REV_BUILD_BENCHMARK "Build engine benchmarks" ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 20)
 
+if (MSVC)
+	# Target AVX2 architecture
+    add_compile_options(/arch:AVX2)
+endif()
+
 # Libraries
 add_subdirectory(engine/lib/benchmark)
 set_target_properties(benchmark PROPERTIES FOLDER benchmarks)
