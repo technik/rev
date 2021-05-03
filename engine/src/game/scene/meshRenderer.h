@@ -45,24 +45,21 @@ namespace rev { namespace game {
 			m_instanceMeshes.push_back(meshNdx);
 		}
 
-		void updatePoses()
+		void updatePoses(math::Mat44f* dst)
 		{
-			m_instancePoses.resize(m_instanceMeshes.size());
 			for (size_t i = 0; i < m_instanceTransforms.size(); ++i)
 			{
-				m_instancePoses[i] = m_instanceTransforms[i]->absoluteXForm().matrix();
+				dst[i] = m_instanceTransforms[i]->absoluteXForm().matrix();
 			}
 		}
 
 		size_t numInstances() const { return m_instanceTransforms.size(); }
-		const math::Mat44f& instancePose(size_t i) const { return m_instancePoses[i]; }
 		const gfx::RenderMesh& instanceMesh(size_t i) const {
 			return m_meshes[m_instanceMeshes[i]];
 		}
 
 	private:
 		std::vector<gfx::RenderMesh> m_meshes;
-		std::vector<math::Mat44f> m_instancePoses;
 		std::vector<size_t> m_instanceMeshes;
 		std::vector<const Transform*> m_instanceTransforms;
 	};

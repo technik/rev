@@ -361,12 +361,8 @@ namespace rev {
 			cmd.setScissor(0, passInfo.renderArea);
 
 			// Update per instance model matrices
-			m_sceneInstances.updatePoses();
 			auto mtxDst = renderContext().allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
-			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
-			{
-				mtxDst[i] = m_sceneInstances.instancePose(i);// .transpose();
-			}
+			m_sceneInstances.updatePoses(mtxDst);
 			renderContext().allocator().unmapBuffer(mtxDst);
 
 			// Update descriptor set with this frame's matrices
