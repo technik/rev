@@ -227,17 +227,17 @@ namespace rev {
 			
 			for (int j = 0; j < 4; ++j)
 			{
-				__m128 Bj = b.m_cols[j];
-				__m128 b_0j = _mm_permute_ps(Bj,mask_0j);
+				const float* Bj = (const float*)&b.m_cols[j];
+				__m128 b_0j = _mm_broadcast_ss(Bj + 0);
 				result.m_cols[j] = _mm_mul_ps(m_cols[0], b_0j);
 
-				__m128 b_1j = _mm_permute_ps(Bj, mask_1j);
+				__m128 b_1j = _mm_broadcast_ss(Bj + 1);
 				result.m_cols[j] = _mm_fmadd_ps(m_cols[1], b_1j, result.m_cols[j]);
 
-				__m128 b_2j = _mm_permute_ps(Bj, mask_2j);
+				__m128 b_2j = _mm_broadcast_ss(Bj + 2);
 				result.m_cols[j] = _mm_fmadd_ps(m_cols[2], b_2j, result.m_cols[j]);
 
-				__m128 b_3j = _mm_permute_ps(Bj, mask_3j);
+				__m128 b_3j = _mm_broadcast_ss(Bj + 3);
 				result.m_cols[j] = _mm_fmadd_ps(m_cols[3], b_3j, result.m_cols[j]);
 			}
 
