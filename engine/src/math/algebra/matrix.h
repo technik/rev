@@ -200,7 +200,7 @@ namespace rev {
 
 			static constexpr bool is_col_major = false;
 
-			__forceinline Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
+			Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
 
 			__m128 m_cols[Cols];
 		};
@@ -216,7 +216,7 @@ namespace rev {
 
 
 		// 4x4 float specialization
-		__forceinline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
+		inline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
 		{
 			Matrix<float, 4, 4> result;
 			
