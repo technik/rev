@@ -227,20 +227,18 @@ namespace rev {
 			
 			for (int j = 0; j < 4; ++j)
 			{
-				__m128 b_0j = _mm_permute_ps(b.m_cols[j],mask_0j);
+				__m128 Bj = b.m_cols[j];
+				__m128 b_0j = _mm_permute_ps(Bj,mask_0j);
 				result.m_cols[j] = _mm_mul_ps(m_cols[0], b_0j);
 
-				__m128 b_1j = _mm_permute_ps(b.m_cols[j], mask_1j);
-				__m128 a_i1_b_1j = _mm_mul_ps(m_cols[1], b_1j);
-				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i1_b_1j);
+				__m128 b_1j = _mm_permute_ps(Bj, mask_1j);
+				result.m_cols[j] = _mm_fmadd_ps(m_cols[1], b_1j, result.m_cols[j]);
 
-				__m128 b_2j = _mm_permute_ps(b.m_cols[j], mask_2j);
-				__m128 a_i2_b_2j = _mm_mul_ps(m_cols[2], b_2j);
-				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i2_b_2j);
+				__m128 b_2j = _mm_permute_ps(Bj, mask_2j);
+				result.m_cols[j] = _mm_fmadd_ps(m_cols[2], b_2j, result.m_cols[j]);
 
-				__m128 b_3j = _mm_permute_ps(b.m_cols[j], mask_3j);
-				__m128 a_i3_b_3j = _mm_mul_ps(m_cols[3], b_3j);
-				result.m_cols[j] = _mm_add_ps(result.m_cols[j], a_i3_b_3j);
+				__m128 b_3j = _mm_permute_ps(Bj, mask_3j);
+				result.m_cols[j] = _mm_fmadd_ps(m_cols[3], b_3j, result.m_cols[j]);
 			}
 
 			return result;
