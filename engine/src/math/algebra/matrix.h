@@ -154,7 +154,7 @@ namespace rev {
 		// Matrix 4x4 float specialization
 		//------------------------------------------------------------------------------------------------------------------
 		template<>
-		struct Matrix<float,4,4> : MatrixView <float, 4, 4, Matrix<float, 4, 4>>
+		struct alignas(32) Matrix<float,4,4> : MatrixView <float, 4, 4, Matrix<float, 4, 4>>
 		{
 			static constexpr size_t Rows = 4;
 			static constexpr size_t Cols = 4;
@@ -200,7 +200,7 @@ namespace rev {
 
 			static constexpr bool is_col_major = false;
 
-			Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
+			__forceinline Matrix<float, 4, 4> operator*(const Matrix<float, 4, 4>& b) const;
 
 			__m128 m_cols[Cols];
 		};
@@ -216,7 +216,7 @@ namespace rev {
 
 
 		// 4x4 float specialization
-		inline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
+		__forceinline Matrix<float, 4, 4> Matrix<float, 4, 4>::operator*(const Matrix<float, 4, 4>& b) const
 		{
 			Matrix<float, 4, 4> result;
 			
