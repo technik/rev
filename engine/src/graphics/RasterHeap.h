@@ -22,8 +22,16 @@
 #include <cstdint>
 #include <math/algebra/vector.h>
 
+namespace vk {
+	class CommandBuffer;
+}
+
 namespace rev::gfx
 {
+	class GPUBuffer;
+	class RenderContextVulkan;
+	class VulkanAllocator;
+
 	// Utility to create a bunch of
 	class RasterHeap
 	{
@@ -51,19 +59,24 @@ namespace rev::gfx
 			const math::Vec2f* uvs,
 			uint32_t numIndices,
 			const uint32_t* indices
-			);
+		);
 
 		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, new primitives can no longer be added to the heap.
 		// Returns an async load token that indicates when the scene is ready for drawing.
-		size_t closeAndSubmit();
+		size_t closeAndSubmit(
+			RenderContextVulkan& m_renderContext,
+			VulkanAllocator& m_alloc
+		);
 
 		// Bind data buffers for draw.
-		void bindBuffers();
+		void bindBuffers(const vk::CommandBuffer& cmd);
 
 	private:
+		bool isClosed() const;
+
 		// Temporary data to accumulate all primitives
 		std::vector<math::Vec3f> m_vtxPositions;
 		std::vector<math::Vec3f> m_vtxNormals;
@@ -72,6 +85,9 @@ namespace rev::gfx
 
 		std::vector<Primitive> m_primitives;
 
-		bool m_closed = false;
+		// GPU data
+		std::shared_ptr<GPUBuffer> m_vtxBuffer;
+		std::shared_ptr<GPUBuffer> m_indexBuffer;
+		size_t m_vtxPosOffset, m_normalsOffset, m_texCoordOffset;
 	};
 }

@@ -19,16 +19,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "RasterHeap.h"
 
+#include <graphics/backend/Vulkan/gpuBuffer.h>
+#include <graphics/backend/Vulkan/renderContextVulkan.h>
+#include <graphics/backend/Vulkan/vulkanAllocator.h>
+
+using namespace rev::math;
+
 namespace rev::gfx {
+
+	// Out of line constructor to enable use of shared_ptr with just a forward reference
+	RasterHeap::~RasterHeap()
+	{}
 
 	size_t RasterHeap::addPrimitiveData(
 		uint32_t numVertices,
-		const math::Vec3f* vtxPos,
-		const math::Vec3f* normals,
-		const math::Vec2f* uvs,
+		const Vec3f* vtxPos,
+		const Vec3f* normals,
+		const Vec2f* uvs,
 		uint32_t numIndices,
 		const uint32_t* indices)
 	{
+		assert(!isClosed());
+
 		// Allocate space for the new vertices and indices
 		const size_t numVerticesBefore = m_vtxPositions.size();
 		m_vtxPositions.resize(numVerticesBefore + numVertices);
@@ -39,9 +51,9 @@ namespace rev::gfx {
 		m_indices.resize(numIndicesBefore + numIndices);
 
 		// Copy primitive data
-		memcpy(&m_vtxPositions[numVerticesBefore], vtxPos, sizeof(math::Vec3f) * numVertices);
-		memcpy(&m_vtxNormals[numVerticesBefore], normals, sizeof(math::Vec3f) * numVertices);
-		memcpy(&m_textureCoords[numVerticesBefore], uvs, sizeof(math::Vec2f) * numVertices);
+		memcpy(&m_vtxPositions[numVerticesBefore], vtxPos, sizeof(Vec3f) * numVertices);
+		memcpy(&m_vtxNormals[numVerticesBefore], normals, sizeof(Vec3f) * numVertices);
+		memcpy(&m_textureCoords[numVerticesBefore], uvs, sizeof(Vec2f) * numVertices);
 		memcpy(&m_indices[numIndicesBefore], indices, sizeof(uint32_t) * numIndices);
 
 		auto& primitive = m_primitives.emplace_back();
@@ -57,4 +69,63 @@ namespace rev::gfx {
 		return m_primitives.size() - 1;
 	}
 
+	size_t RasterHeap::closeAndSubmit(
+		RenderContextVulkan& renderContext,
+		VulkanAllocator& alloc)
+	{
+		assert(!isClosed());
+
+		const auto numVertices = m_vtxPositions.size();
+		const auto vtxDataSize = numVertices * (sizeof(Vec3f) * 2 + sizeof(Vec2f)); // Pos+Normal + UVs
+		const auto indexDataSize = m_indices.size() * sizeof(uint32_t);
+
+		m_vtxBuffer = alloc.createGpuBuffer(
+			vtxDataSize,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+			renderContext.graphicsQueueFamily());
+
+		m_indexBuffer = alloc.createGpuBuffer(
+			indexDataSize,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+			renderContext.graphicsQueueFamily());
+
+		// Stream it into GPU memory
+		alloc.reserveStreamingBuffer(vtxDataSize + indexDataSize);
+
+		m_vtxPosOffset = 0;
+		alloc.asyncTransfer(*m_vtxBuffer, m_vtxPositions.data(), numVertices, m_vtxPosOffset);
+		m_normalsOffset = numVertices * sizeof(Vec3f);
+		alloc.asyncTransfer(*m_vtxBuffer, m_vtxNormals.data(), numVertices, m_normalsOffset);
+		m_texCoordOffset = numVertices * sizeof(Vec3f) + m_normalsOffset;
+		alloc.asyncTransfer(*m_vtxBuffer, m_textureCoords.data(), numVertices, m_texCoordOffset);
+
+		return alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), numVertices, 0);
+
+		// Get rid of local data
+		m_vtxPositions.clear();
+		m_vtxNormals.clear();
+		m_textureCoords.clear();
+		m_indices.clear();
+	}
+
+	void RasterHeap::bindBuffers(const vk::CommandBuffer& cmd)
+	{
+		cmd.bindVertexBuffers(0,
+			std::array{
+				m_vtxBuffer->buffer(),
+				m_vtxBuffer->buffer(),
+				m_vtxBuffer->buffer() },
+			{
+				m_vtxBuffer->offset() + m_vtxPosOffset,
+				m_vtxBuffer->offset() + m_normalsOffset,
+				m_vtxBuffer->offset() + m_texCoordOffset
+			});
+
+		cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
+	}
+
+	bool RasterHeap::isClosed() const
+	{
+		return m_vtxBuffer != nullptr;
+	}
 }

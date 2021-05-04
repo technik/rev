@@ -118,13 +118,16 @@ namespace rev::game {
 			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Vec2;
 		};
 
-		template<class Element>
-		std::vector<Element> extractBufferData(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget);
-
-		template<size_t N>
-		std::vector<math::Vector<float,N>> extractBufferData(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
+		template<>
+		struct AccessorTraits<uint32_t>
 		{
-			using Element = Vector<float, N>;
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::UnsignedInt;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Scalar;
+		};
+
+		template<class Element>
+		std::vector<Element> extractBufferData(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
+		{
 			std::vector<Element> data;
 			const auto& accessor = document.accessors[accessorNdx];
 			assert(accessor.componentType == AccessorTraits<Element>::componentType);
@@ -142,7 +145,7 @@ namespace rev::game {
 			else // Interleaved array
 			{
 				data.reserve(accessor.count);
-				uint8_t* rawData = buffer.data.data() + bufferView.byteOffset + accessor.byteOffset;
+				auto rawData = reinterpret_cast<const uint8_t*>(buffer.data.data()) + bufferView.byteOffset + accessor.byteOffset;
 				for (uint32_t i = 0; i < accessor.count; ++i)
 				{
 					data.push_back(reinterpret_cast<const Element&>(*rawData));
@@ -222,7 +225,9 @@ namespace rev::game {
 				// Locate index data
 				auto indices = extractBufferData<uint32_t>(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
 
-				auto p = rasterDataDst.addPrimitiveData(vtxPos.size(), vtxPos.data(), vtxNormal.data(), texCoord.data(), indices.size(), indices.data());
+				auto p = rasterDataDst.addPrimitiveData(
+					(uint32_t)vtxPos.size(), vtxPos.data(), vtxNormal.data(), texCoord.data(),
+					(uint32_t)indices.size(), indices.data());
 				firstPrimitive = min(firstPrimitive, p);
 				lastPrimitive = p;
 			}

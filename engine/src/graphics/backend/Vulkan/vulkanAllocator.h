@@ -62,6 +62,7 @@ namespace rev::gfx {
 
 		void reserveStreamingBuffer(size_t minSize);
 
+		// You are free to erase or override the src memory as soon as this call returns.
 		template<class T>
 		size_t asyncTransfer(const GPUBuffer& dst, const T* src, size_t count, size_t dstOffset = 0)
 		{
