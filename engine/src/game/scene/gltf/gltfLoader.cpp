@@ -220,10 +220,11 @@ namespace rev::game {
 				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes.at("NORMAL"), gltf::BufferView::TargetType::ArrayBuffer); // Locate normal data
 				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes.at("TEXCOORD_0"), gltf::BufferView::TargetType::ArrayBuffer); // Locate UVs
 				// Locate index data
+				auto indices = extractBufferData<uint32_t>(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
 
-				// p = rasterDataDst.addPrimitiveData();
-				// firstPrimitive = min(firstPrimitive, p);
-				// lastPrimitive = p
+				auto p = rasterDataDst.addPrimitiveData(vtxPos.size(), vtxPos.data(), vtxNormal.data(), texCoord.data(), indices.size(), indices.data());
+				firstPrimitive = min(firstPrimitive, p);
+				lastPrimitive = p;
 			}
 
 			result.meshInstances.addMesh(firstPrimitive, lastPrimitive + 1);
