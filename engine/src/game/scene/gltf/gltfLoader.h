@@ -57,7 +57,7 @@ namespace rev::game {
 		/// Load a gltf scene
 		/// filePath must contain folder, file name and extension
 		/// \return root node of the loaded asset
-		LoadResult load(const std::string& filePath, RasterHeap& rasterDataDst);
+		LoadResult load(const std::string& filePath, gfx::RasterHeap& rasterDataDst);
 
 	private:
 		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, MeshRenderer& meshes);

@@ -118,8 +118,11 @@ namespace rev::game {
 			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Vec2;
 		};
 
+		template<class Element>
+		std::vector<Element> extractBufferData(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget);
+
 		template<size_t N>
-		std::vector<Vector<float,N>> extractBufferData(const gltf::Document& document, int32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
+		std::vector<math::Vector<float,N>> extractBufferData(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
 		{
 			using Element = Vector<float, N>;
 			std::vector<Element> data;
@@ -134,12 +137,12 @@ namespace rev::game {
 			if(bufferView.byteStride == 0 || bufferView.byteStride == sizeof(Element)) // Tightly packed array
 			{
 				data.resize(accessor.count);
-				memcpy(data.data(), buffer.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(Element));
+				memcpy(data.data(), buffer.data.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(Element));
 			}
 			else // Interleaved array
 			{
 				data.reserve(accessor.count);
-				uint8_t* rawData = buffer.data() + bufferView.byteOffset + accessor.byteOffset;
+				uint8_t* rawData = buffer.data.data() + bufferView.byteOffset + accessor.byteOffset;
 				for (uint32_t i = 0; i < accessor.count; ++i)
 				{
 					data.push_back(reinterpret_cast<const Element&>(*rawData));
@@ -213,9 +216,9 @@ namespace rev::game {
 			// Iterate over the mesh's primitives
 			for (auto& primitive : mesh.primitives)
 			{
-				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes["POSITION"]); // Locate vertex data
-				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes["NORMAL"]); // Locate normal data
-				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes["TEXCOORD_0"]); // Locate UVs
+				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes.at("POSITION"), gltf::BufferView::TargetType::ArrayBuffer); // Locate vertex data
+				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes.at("NORMAL"), gltf::BufferView::TargetType::ArrayBuffer); // Locate normal data
+				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes.at("TEXCOORD_0"), gltf::BufferView::TargetType::ArrayBuffer); // Locate UVs
 				// Locate index data
 
 				// p = rasterDataDst.addPrimitiveData();
