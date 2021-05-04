@@ -100,6 +100,55 @@ namespace rev::game {
 			}
 			return useTransform;
 		}
+
+		template<class T>
+		struct AccessorTraits;
+
+		template<>
+		struct AccessorTraits<Vec3f>
+		{
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::Float;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Vec3;
+		};
+
+		template<>
+		struct AccessorTraits<Vec2f>
+		{
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::Float;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Vec2;
+		};
+
+		template<size_t N>
+		std::vector<Vector<float,N>> extractBufferData(const gltf::Document& document, int32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
+		{
+			using Element = Vector<float, N>;
+			std::vector<Element> data;
+			const auto& accessor = document.accessors[accessorNdx];
+			assert(accessor.componentType == AccessorTraits<Element>::componentType);
+			assert(accessor.type == AccessorTraits<Element>::type);
+
+			const auto& bufferView = document.bufferViews[accessor.bufferView];
+			assert(expectedTarget == bufferView.target);
+			const auto& buffer = document.buffers[bufferView.buffer];
+
+			if(bufferView.byteStride == 0 || bufferView.byteStride == sizeof(Element)) // Tightly packed array
+			{
+				data.resize(accessor.count);
+				memcpy(data.data(), buffer.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(Element));
+			}
+			else // Interleaved array
+			{
+				data.reserve(accessor.count);
+				uint8_t* rawData = buffer.data() + bufferView.byteOffset + accessor.byteOffset;
+				for (uint32_t i = 0; i < accessor.count; ++i)
+				{
+					data.push_back(reinterpret_cast<const Element&>(*rawData));
+					rawData += bufferView.byteStride;
+				}
+			}
+
+			return data;
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -164,9 +213,9 @@ namespace rev::game {
 			// Iterate over the mesh's primitives
 			for (auto& primitive : mesh.primitives)
 			{
-				// Locate vertex data
-				// Locate normal data
-				// Locate uvs
+				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes["POSITION"]); // Locate vertex data
+				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes["NORMAL"]); // Locate normal data
+				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes["TEXCOORD_0"]); // Locate UVs
 				// Locate index data
 
 				// p = rasterDataDst.addPrimitiveData();
