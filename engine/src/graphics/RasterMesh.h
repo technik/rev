@@ -19,15 +19,63 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <memory>
-#include <vector>
-//#include "renderGeom.h"
-//#include "../renderer/material/material.h"
+#include <cstdint>
+#include <math/algebra/vector.h>
 
-namespace rev::gfx {
+namespace fx::gltf {
+	class Document;
+}
 
-	class RenderMesh {
+namespace rev::gfx
+{
+	// Utility to create a bunch of
+	class RasterHeap
+	{
 	public:
-	};
+		struct alignas(32) Primitive
+		{
+			uint32_t vtxOffset;
+			uint32_t indexOffset;
+			uint32_t numIndices;
+			uint32_t primitiveNdx;
+			// uint32_t materialNdx;
+		};
 
-} // namespace rev::gfx
+	public:
+		~RasterHeap(); // Destroy heap and deallocate resources (Both CPU and GPU)
+
+		// Disable copy
+		RasterHeap(const RasterHeap&) = delete;
+		RasterHeap& operator=(const RasterHeap&) = delete;
+
+		// Add per primitive data (vtx, normal, ...) -> primitive id
+		size_t addPrimitiveData(
+			uint32_t numVertices,
+			const math::Vec3f* vtxPos,
+			const math::Vec3f* normals,
+			const math::Vec2f* uvs,
+			uint32_t numIndices,
+			const uint32_t* indices
+			);
+
+		const Primitive& getPrimitiveById(size_t primitiveId);
+
+
+		// Close the heap. After this point you can't add any more meshes to the heap, but 
+		// you can submit it to the GPU for use in draw calls
+		void close();
+		// Submit GPU data
+		void submitToGPU();
+
+		// Load utilities
+		void loadGltfMesh(const fx::gltf::Document&);
+
+	private:
+		// Vtx data
+		// Normals data
+		// ...
+		// Primitives ?
+		// Materials?
+		// Matrices?
+	};
+}

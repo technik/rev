@@ -21,7 +21,6 @@
 
 #include <memory>
 #include <vector>
-#include <graphics/scene/renderMesh.h>
 #include <game/scene/transform/transform.h>
 
 namespace rev { namespace game {
@@ -32,7 +31,7 @@ namespace rev { namespace game {
 	class MeshRenderer {
 	public:
 		// Invalidates the order of renderables
-		size_t addMesh(gfx::RenderMesh mesh)
+		size_t addMesh(gfx::RasterMesh mesh)
 		{
 			m_meshes.push_back(mesh);
 			return m_meshes.size() - 1;
