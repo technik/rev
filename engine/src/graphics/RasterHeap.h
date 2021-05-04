@@ -32,12 +32,11 @@ namespace rev::gfx
 	class RasterHeap
 	{
 	public:
-		struct alignas(32) Primitive
+		struct Primitive
 		{
 			uint32_t vtxOffset;
 			uint32_t indexOffset;
 			uint32_t numIndices;
-			uint32_t primitiveNdx;
 		};
 
 	public:
@@ -57,8 +56,7 @@ namespace rev::gfx
 			const uint32_t* indices
 			);
 
-		const Primitive& getPrimitiveById(size_t primitiveId);
-
+		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, the buffer is ready to bind for draw calls, and new primitives
@@ -73,10 +71,12 @@ namespace rev::gfx
 	private:
 		// Temporary data to accumulate all primitives
 		std::vector<math::Vec3f> m_vtxPositions;
-		std::vector<math::Vec3f> m_vtxPositions;
+		std::vector<math::Vec3f> m_vtxNormals;
 		std::vector<math::Vec2f> m_textureCoords;
 		std::vector<uint32_t> m_indices;
 
 		std::vector<Primitive> m_primitives;
+
+		bool m_closed = false;
 	};
 }
