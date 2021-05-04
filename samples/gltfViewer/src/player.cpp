@@ -169,7 +169,7 @@ namespace rev {
 		// Allocate memory in the renderer for meshes (and maybe textures)
 		// Load scene (meshes, mats, etc)
 		GltfLoader gltfLoader(renderContext());
-		auto loadRes = gltfLoader.load(scene);
+		auto loadRes = gltfLoader.load(scene, m_rasterData);
 		m_sceneInstances = loadRes.meshInstances;
 
 		// Load geometry data and consolidate it into a small set of continuous buffers

@@ -36,6 +36,7 @@ namespace rev::gfx
 		};
 
 	public:
+		RasterHeap() = default;
 		~RasterHeap(); // Destroy heap and deallocate resources (Both CPU and GPU)
 
 		// Disable copy
