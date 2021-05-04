@@ -31,9 +31,9 @@ namespace rev { namespace game {
 	class MeshRenderer {
 	public:
 		// Invalidates the order of renderables
-		size_t addMesh(gfx::RasterMesh mesh)
+		size_t addMesh(size_t primitiveBegin, size_t primitiveEnd)
 		{
-			m_meshes.push_back(mesh);
+			m_meshes.emplace_back(primitiveBegin, primitiveEnd);
 			return m_meshes.size() - 1;
 		}
 
@@ -53,12 +53,13 @@ namespace rev { namespace game {
 		}
 
 		size_t numInstances() const { return m_instanceTransforms.size(); }
-		const gfx::RenderMesh& instanceMesh(size_t i) const {
+		const auto& instanceMesh(size_t i) const {
 			return m_meshes[m_instanceMeshes[i]];
 		}
 
 	private:
-		std::vector<gfx::RenderMesh> m_meshes;
+		using Mesh = std::pair<size_t, size_t>; // Begin,End
+		std::vector<Mesh> m_meshes;
 		std::vector<size_t> m_instanceMeshes;
 		std::vector<const Transform*> m_instanceTransforms;
 	};

@@ -34,6 +34,7 @@ namespace rev::gfx
 	class RenderContextVulkan;
 	class VulkanAllocator;
 	class GPUBuffer;
+	class RasterHeap;
 }
 
 namespace rev::game {
@@ -56,7 +57,7 @@ namespace rev::game {
 		/// Load a gltf scene
 		/// filePath must contain folder, file name and extension
 		/// \return root node of the loaded asset
-		LoadResult load(const std::string& filePath);
+		LoadResult load(const std::string& filePath, RasterHeap& rasterDataDst);
 
 	private:
 		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, MeshRenderer& meshes);

@@ -8,6 +8,7 @@
 #include <game/application/base3dApplication.h>
 #include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
+#include <graphics/RasterHeap.h>
 #include <graphics/scene/camera.h>
 
 namespace rev {
@@ -78,6 +79,7 @@ namespace rev {
 		std::shared_ptr<gfx::GPUBuffer>	m_vtxClrBuffer;
 		std::shared_ptr<gfx::GPUBuffer>	m_indexBuffer;
 		game::MeshRenderer m_sceneInstances;
+		gfx::RasterHeap m_rasterData;
 		float m_bgColor{};
 
 		// Camera options

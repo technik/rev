@@ -22,10 +22,6 @@
 #include <cstdint>
 #include <math/algebra/vector.h>
 
-namespace fx::gltf {
-	class Document;
-}
-
 namespace rev::gfx
 {
 	// Utility to create a bunch of
@@ -59,14 +55,12 @@ namespace rev::gfx
 		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
 
 		// Pack data buffers and submits all data to the GPU.
-		// After this point, the buffer is ready to bind for draw calls, and new primitives
-		// can no longer be added to it.
-		void closeAndSubmit();
+		// After this point, new primitives can no longer be added to the heap.
+		// Returns an async load token that indicates when the scene is ready for drawing.
+		size_t closeAndSubmit();
+
 		// Bind data buffers for draw.
 		void bindBuffers();
-
-		// Load utilities
-		void loadGltfMesh(const fx::gltf::Document&);
 
 	private:
 		// Temporary data to accumulate all primitives

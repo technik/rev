@@ -23,11 +23,13 @@
 #include <filesystem>
 
 #include <core/platform/fileSystem/fileSystem.h>
+#include <core/platform/fileSystem/file.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/backend/Vulkan/vulkanAllocator.h>
+#include <graphics/RasterHeap.h>
 
 /*
 #include <core/tasks/threadPool.h>
@@ -116,7 +118,7 @@ namespace rev::game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto GltfLoader::load(const std::string& filePath) -> LoadResult
+	auto GltfLoader::load(const std::string& filePath, RasterHeap& rasterDataDst) -> LoadResult
 	{
 		LoadResult result{};
 
@@ -135,7 +137,7 @@ namespace rev::game {
 			return result;
 		}
 
-		// Load buffers
+		// Load buffers (temporary - will be replaced by RasterHeap's internal data upload).
 		const auto& gltfBuffer = document.buffers[0];
 		result.m_gpuData = m_alloc.createGpuBuffer(gltfBuffer.byteLength,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
@@ -147,16 +149,43 @@ namespace rev::game {
 		// Load node tree
 		result.rootNode = loadNodes(document, result.meshInstances);
 
-		/*
-		
 		vector<core::File*> buffers;
 		for (auto b : document.buffers)
 			buffers.push_back(new core::File(m_assetsFolder + b.uri));
-		auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
+
+		// Load meshes
+		for(const auto& mesh : document.meshes)
+		{
+			if (mesh.primitives.empty())
+				continue;
+
+			size_t firstPrimitive = size_t(-1);
+			size_t lastPrimitive = 0;
+			// Iterate over the mesh's primitives
+			for (auto& primitive : mesh.primitives)
+			{
+				// Locate vertex data
+				// Locate normal data
+				// Locate uvs
+				// Locate index data
+
+				// p = rasterDataDst.addPrimitiveData();
+				// firstPrimitive = min(firstPrimitive, p);
+				// lastPrimitive = p
+			}
+
+			result.meshInstances.addMesh(firstPrimitive, lastPrimitive + 1);
+		}
+
+		/*auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
 		auto attributes = readAttributes(document, bufferViews); // Load accessors
 
+		// Clean up file buffers
+		for (auto file : buffers)
+			delete file;*/
+
 		// Load resources
-		loadImages(document);
+		/*loadImages(document);
 		m_textures.resize(document.textures.size());
 		auto skins = loadSkins(attributes, document);
 		auto materials = loadMaterials(document);
