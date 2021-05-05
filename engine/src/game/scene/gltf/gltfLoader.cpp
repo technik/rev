@@ -119,6 +119,20 @@ namespace rev::game {
 		};
 
 		template<>
+		struct AccessorTraits<uint8_t>
+		{
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::UnsignedByte;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Scalar;
+		};
+
+		template<>
+		struct AccessorTraits<uint16_t>
+		{
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::UnsignedShort;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Scalar;
+		};
+
+		template<>
 		struct AccessorTraits<uint32_t>
 		{
 			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::UnsignedInt;
@@ -134,7 +148,7 @@ namespace rev::game {
 			assert(accessor.type == AccessorTraits<Element>::type);
 
 			const auto& bufferView = document.bufferViews[accessor.bufferView];
-			assert(expectedTarget == bufferView.target);
+			assert(expectedTarget == bufferView.target || bufferView.target == gltf::BufferView::TargetType::None);
 			const auto& buffer = document.buffers[bufferView.buffer];
 
 			if(bufferView.byteStride == 0 || bufferView.byteStride == sizeof(Element)) // Tightly packed array
@@ -154,6 +168,42 @@ namespace rev::game {
 			}
 
 			return data;
+		}
+
+		template<class Element>
+		std::vector<Element> extractBufferData(const gltf::Document& document, const gltf::Attributes& attributes, const char* attributeTag, gltf::BufferView::TargetType expectedTarget)
+		{
+			// Locate the right accessor
+			auto iter = attributes.find(attributeTag);
+			if (iter == attributes.end())
+			{
+				return {};
+			}
+
+			return extractBufferData<Element>(document, iter->second, expectedTarget);
+		}
+
+		std::vector<uint32_t> loadIndices(const gltf::Document& document, uint32_t accessorNdx, gltf::BufferView::TargetType expectedTarget)
+		{
+			std::vector<uint32_t> result;
+			const auto& accessor = document.accessors[accessorNdx];
+			if (accessor.componentType == gltf::Accessor::ComponentType::UnsignedByte)
+			{
+				auto shortIndices = extractBufferData<uint8_t>(document, accessorNdx, expectedTarget);
+				result.reserve(shortIndices.size());
+				for (auto index : shortIndices) result.push_back(index);
+			} else if (accessor.componentType == gltf::Accessor::ComponentType::UnsignedShort)
+			{
+				auto shortIndices = extractBufferData<uint16_t>(document, accessorNdx, expectedTarget);
+				result.reserve(shortIndices.size());
+				for (auto index : shortIndices) result.push_back(index);
+			}
+			else
+			{
+				result = extractBufferData<uint32_t>(document, accessorNdx, expectedTarget);
+			}
+
+			return result;
 		}
 	}
 
@@ -204,10 +254,6 @@ namespace rev::game {
 		// Load node tree
 		result.rootNode = loadNodes(document, result.meshInstances);
 
-		vector<core::File*> buffers;
-		for (auto b : document.buffers)
-			buffers.push_back(new core::File(m_assetsFolder + b.uri));
-
 		// Load meshes
 		for(const auto& mesh : document.meshes)
 		{
@@ -219,11 +265,13 @@ namespace rev::game {
 			// Iterate over the mesh's primitives
 			for (auto& primitive : mesh.primitives)
 			{
-				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes.at("POSITION"), gltf::BufferView::TargetType::ArrayBuffer); // Locate vertex data
-				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes.at("NORMAL"), gltf::BufferView::TargetType::ArrayBuffer); // Locate normal data
-				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes.at("TEXCOORD_0"), gltf::BufferView::TargetType::ArrayBuffer); // Locate UVs
+				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes, "POSITION", gltf::BufferView::TargetType::ArrayBuffer); // Locate vertex data
+				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes, "NORMAL", gltf::BufferView::TargetType::ArrayBuffer); // Locate normal data
+				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes, "TEXCOORD_0", gltf::BufferView::TargetType::ArrayBuffer); // Locate UVs
+				if (texCoord.empty())
+					texCoord.resize(vtxPos.size(), {});
 				// Locate index data
-				auto indices = extractBufferData<uint32_t>(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
+				auto indices = loadIndices(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
 
 				auto p = rasterDataDst.addPrimitiveData(
 					(uint32_t)vtxPos.size(), vtxPos.data(), vtxNormal.data(), texCoord.data(),
@@ -234,13 +282,6 @@ namespace rev::game {
 
 			result.meshInstances.addMesh(firstPrimitive, lastPrimitive + 1);
 		}
-
-		/*auto bufferViews = loadBufferViews(document, buffers); // // Load buffer views
-		auto attributes = readAttributes(document, bufferViews); // Load accessors
-
-		// Clean up file buffers
-		for (auto file : buffers)
-			delete file;*/
 
 		// Load resources
 		/*loadImages(document);
