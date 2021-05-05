@@ -57,7 +57,6 @@ namespace rev { namespace game {
 			return m_meshes[m_instanceMeshes[i]];
 		}
 
-	private:
 		using Mesh = std::pair<size_t, size_t>; // Begin,End
 		std::vector<Mesh> m_meshes;
 		std::vector<size_t> m_instanceMeshes;

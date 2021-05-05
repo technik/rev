@@ -201,7 +201,7 @@ namespace rev {
 		alloc.reserveStreamingBuffer(sizeof(vtxColors) + sizeof(vtxPos) + sizeof(indices));
 		alloc.asyncTransfer(*m_vtxPosBuffer, vtxPos, numVertices);
 		alloc.asyncTransfer(*m_vtxClrBuffer, vtxColors, numVertices);
-		m_sceneLoadStreamToken = alloc.asyncTransfer(*m_indexBuffer, indices, numIndices);
+		alloc.asyncTransfer(*m_indexBuffer, indices, numIndices);
 
 		// Allocate matrix buffers
 		m_mtxBuffers.resize(2);
@@ -222,10 +222,6 @@ namespace rev {
 		writeBufferInfo.buffer = m_mtxBuffers[1]->buffer();
 		renderContext().device().updateDescriptorSets(writeInfo, {});
 
-		while (!alloc.isTransferFinished(loadRes.asyncLoadToken))
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
 		m_sceneRoot->addChild(loadRes.rootNode);
 		// Update scene representation in GUI
 		// Optimize/Convert buffers to runtime formats
@@ -233,6 +229,7 @@ namespace rev {
 		// Load animations, if any
 		// Load lights
 		// Load cameras
+		m_sceneLoadStreamToken = m_rasterData.closeAndSubmit(renderContext(), alloc);
 
 		//m_gltfRoot = std::make_shared<SceneNode>("gltf scene parent");
 		//m_gltfRoot->addComponent<Transform>();
@@ -375,9 +372,17 @@ namespace rev {
 			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
 			
 			// Draw all instances in a single batch
-			cmd.bindVertexBuffers(0, std::array{ m_vtxPosBuffer->buffer(), m_vtxClrBuffer->buffer() }, { 0, 0 });
-			cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
-			cmd.drawIndexed(3, m_sceneInstances.numInstances(), 0, 0, 0);
+			m_rasterData.bindBuffers(cmd);
+			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
+			{
+				auto meshNdx = m_sceneInstances.m_instanceMeshes[i];
+				auto& mesh = m_sceneInstances.m_meshes[meshNdx];
+				for (size_t primitiveId = mesh.first; primitiveId != mesh.second; ++primitiveId)
+				{
+					auto& primitive = m_rasterData.getPrimitiveById(primitiveId);
+					cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, i);
+				}
+			}
 
 			m_doubleBufferNdx ^= 1;
 			
@@ -471,8 +476,8 @@ namespace rev {
 		{
 			ImGui::Text("%s", "Sample text");
 			ImGui::SliderFloat("Background", &m_bgColor, 0.f, 1.f);
-			ImGui::End();
 		}
+		ImGui::End();
 
 		ImGui::Render();
 
