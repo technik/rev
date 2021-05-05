@@ -288,10 +288,6 @@ namespace rev::game {
 		m_textures.resize(document.textures.size());
 		auto skins = loadSkins(attributes, document);
 		auto materials = loadMaterials(document);
-		auto meshes = loadMeshes(attributes, document, materials);
-
-		// Load nodes
-		auto nodes = loadNodes(document, meshes, skins, materials, _gfxWorld);
 
 		// Load animations
 		loadAnimations(document, attributes, nodes, animNodes, _animations);
