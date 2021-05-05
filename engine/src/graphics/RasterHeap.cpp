@@ -99,7 +99,7 @@ namespace rev::gfx {
 		m_texCoordOffset = numVertices * sizeof(Vec3f) + m_normalsOffset;
 		alloc.asyncTransfer(*m_vtxBuffer, m_textureCoords.data(), numVertices, m_texCoordOffset);
 
-		return alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), numVertices, 0);
+		return alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), m_indices.size(), 0);
 
 		// Get rid of local data
 		m_vtxPositions.clear();

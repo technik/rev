@@ -164,13 +164,13 @@ namespace rev::gfx {
 		auto sizeToEnd = m_stagingBuffer->size() - writePos;
 		auto writeSize = std::min(sizeToEnd, size);
 
-		writeToRingBuffer(dst, 0, src, writeSize);
+		writeToRingBuffer(dst, dstOffset, src, writeSize);
 		size -= writeSize;
 
 		if (size > 0)
 		{
 			src += writeSize;
-			writeToRingBuffer(dst, writeSize, src, size);
+			writeToRingBuffer(dst, dstOffset + writeSize, src, size);
 		}
 
 		return m_ringWritePos;
