@@ -79,8 +79,6 @@ namespace rev {
 
 		auto device = renderContext().device();
 
-		createFrameBuffers();
-
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
@@ -128,6 +126,8 @@ namespace rev {
 		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 		auto uiPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
 		m_uiPass = device.createRenderPass(uiPassInfo);
+
+		createFrameBuffers();
 
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			device,
@@ -305,11 +305,27 @@ namespace rev {
 		m_gBufferNormals = alloc.createImageBuffer("normals", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
 		m_gBufferPBR = alloc.createImageBuffer("PBR", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
 		m_gBufferZ = alloc.createDepthBuffer("Depth", windowSize, vk::Format::eD32Sfloat, vk::ImageUsageFlagBits::eDepthStencilAttachment, renderContext().graphicsQueueFamily());
+
+		// Actual frame buffer creation
+		m_swapchainFrameBuffers.clear();
+
+		// Create frame buffers for each image in the swapchain
+		m_swapchainFrameBuffers.reserve(renderContext().nSwapChainImages());
+		for (size_t i = 0; i < renderContext().nSwapChainImages(); ++i) {
+			auto imageView = renderContext().swapchainImageView(i);
+			auto fbInfo = vk::FramebufferCreateInfo({},
+				m_uiPass,
+				imageView,
+				(uint32_t)windowSize.x(), (uint32_t)windowSize.y(), 1);
+			m_swapchainFrameBuffers.push_back(renderContext().device().createFramebuffer(fbInfo));
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::destroyFrameBuffers()
 	{
+		m_swapchainFrameBuffers.clear();
+
 		m_gBufferNormals = nullptr;
 		m_gBufferPBR = nullptr;
 		m_gBufferZ = nullptr;
@@ -391,7 +407,7 @@ namespace rev {
 
 		// Render the UI pass
 		vk::RenderPassBeginInfo passInfo;
-		passInfo.framebuffer = renderContext().currentFrameBuffer();
+		passInfo.framebuffer = m_swapchainFrameBuffers[renderContext().currentFrameIndex()];
 		passInfo.renderPass = m_uiPass;
 		passInfo.renderArea.offset;
 		passInfo.renderArea.extent.width = renderContext().windowSize().x();
@@ -429,12 +445,14 @@ namespace rev {
 			m_rasterData.bindBuffers(cmd);
 			for (size_t i = 0; i < m_sceneInstances.numInstances(); ++i)
 			{
+				assert(i < std::numeric_limits<uint32_t>::max());
+
 				auto meshNdx = m_sceneInstances.m_instanceMeshes[i];
 				auto& mesh = m_sceneInstances.m_meshes[meshNdx];
 				for (size_t primitiveId = mesh.first; primitiveId != mesh.second; ++primitiveId)
 				{
 					auto& primitive = m_rasterData.getPrimitiveById(primitiveId);
-					cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, i);
+					cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, (uint32_t)i);
 				}
 			}
 

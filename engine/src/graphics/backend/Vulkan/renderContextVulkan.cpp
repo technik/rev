@@ -286,11 +286,9 @@ namespace rev::gfx {
 		colorSubpass.pColorAttachments = &colorAttachReference;
 		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
 		auto renderPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
-		renderPassDesc = m_device.createRenderPass(renderPassInfo);
 
 		createSwapchain(imageSize);
 		createImageViews();
-		createFrameBuffers(imageSize);
 
 		return true;
 	}
@@ -298,10 +296,6 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::SwapChainInfo::resize(const math::Vec2u& imageSize)
 	{
-		// Destroy frame buffers
-		for (auto fb : frameBuffers)
-			m_device.destroyFramebuffer(fb);
-		frameBuffers.clear();
 		// Destroy image views
 		for (auto view : imageViews)
 			m_device.destroyImageView(view);
@@ -311,7 +305,6 @@ namespace rev::gfx {
 
 		createSwapchain(imageSize);
 		createImageViews();
-		createFrameBuffers(imageSize);
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -327,21 +320,6 @@ namespace rev::gfx {
 				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
 				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 			imageViews.push_back(m_device.createImageView(viewInfo));
-		}
-	}
-
-	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::SwapChainInfo::createFrameBuffers(const math::Vec2u& imageSize)
-	{
-		assert(frameBuffers.empty());
-		// Create frame buffers for each image in the swapchain
-		frameBuffers.reserve(images.size());
-		for (auto image : imageViews) {
-			auto fbInfo = vk::FramebufferCreateInfo({},
-				renderPassDesc,
-				image,
-				imageSize.x(), imageSize.y(), 1);
-			frameBuffers.push_back(m_device.createFramebuffer(fbInfo));
 		}
 	}
 

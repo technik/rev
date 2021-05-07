@@ -76,6 +76,7 @@ namespace rev {
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
+		std::vector<vk::Framebuffer> m_swapchainFrameBuffers;
 
 		// Scene
 		std::shared_ptr<game::SceneNode> m_sceneRoot;
