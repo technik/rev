@@ -114,7 +114,7 @@ namespace rev {
 
 		//------------------------------------------------------------------------------------------------------------------
 		template<typename Number_>
-		inline Matrix44<Number_> frustumMatrix(
+		inline Matrix44<Number_> frustumMatrixOpenGL(
 			Number_ yFovRad,
 			Number_ aspectRatio,
 			Number_ n, // Near clip
@@ -252,6 +252,29 @@ namespace rev {
 				x(0,1) * (x(1,0)*x(2,2)-x(2,0)*x(1,2)) +
 				x(0,2) * (x(1,0)*x(2,1)-x(2,0)*x(1,1));
 			return det;
+		}
+
+
+		//------------------------------------------------------------------------------------------------------------------
+		inline Mat44f frustumMatrixVulkan(
+			float yFovRad,
+			float aspectRatio,
+			float n, // Near clip
+			float f) // Far clip
+		{
+			// Precomputations
+			auto yFocalLength = 1 / std::tan(yFovRad / 2);
+			auto xFocalLength = yFocalLength / aspectRatio;
+			auto B = 2 * n;
+			// P * (0,0,-n,1) = (0,0,-n,-n) = (0,0,n,n)
+			// P.z/w = 1;
+			// P * (0,0,-i,1) = (0,0,-n,-i); z/w = 0
+			return Mat44f({
+				xFocalLength, 0, 0, 0,
+				0, -yFocalLength, 0, 0,
+				0, 0,			 0, n,
+				0, 0,			-1, 0
+				});
 		}
 
 	}	// namespace math

@@ -49,6 +49,32 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::init()
 	{
+		//
+		// Ideal interface for render graph
+		// 
+		// G-Buffer pass -> Normals, PBR, Z, Motion vectors
+		// Direct light
+		//	- Light sample (Normals, PBR, Z) -> Direct Light Reservoir [DLR]
+		//	- Temporal ReStir (DLR-1, Normals, Z) -> DLR
+		//	- Spatial ReStir (DLR, Normals, Z) -> DLR
+		//	- Shadow trace (Z, DLR) -> Direct Light
+		// Indirect light 
+		// Direct diffuse denoise
+		// Direct spec denoise
+		// Indirect denoise
+		// Post process
+		// 
+		// UI
+
+		// Start with
+		// 
+		// GBufferNormals = createColorBuffer("name", size, format);
+		// Z = createDepthBuffer("name", size, format);
+		// 
+		// objs = CullInstances()
+		// GBufferPass(objs)
+
+
 		auto device = renderContext().device();
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
