@@ -71,6 +71,9 @@ namespace rev {
 		vk::PipelineLayout m_gbufferPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
+		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;
+		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
+		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
 
 		// Scene
 		std::shared_ptr<game::SceneNode> m_sceneRoot;

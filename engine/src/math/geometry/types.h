@@ -38,7 +38,7 @@ namespace rev {
 				,mNear(_near)
 				,mFar(_far)
 			{
-				mProjection = frustumMatrix(_yFov, _aspectRatio, _near, _far);
+				mProjection = frustumMatrixOpenGL(_yFov, _aspectRatio, _near, _far);
 
 				// fov tangents
 				float yTangent = tan(_yFov / 2.f);

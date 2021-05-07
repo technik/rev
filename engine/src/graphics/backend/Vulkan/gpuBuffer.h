@@ -48,4 +48,22 @@ namespace rev::gfx
 		size_t m_offset{}; // Offset from the memory allocation start
 		size_t m_size{}; // Buffer size
 	};
+
+	class ImageBuffer
+	{
+	public:
+		ImageBuffer() = default;
+		ImageBuffer(const ImageBuffer&) = delete;
+
+	private:
+		ImageBuffer(vk::Image image, vk::DeviceMemory memory)
+			: m_deviceImage(image)
+			, m_memory(memory)
+		{}
+
+		friend class VulkanAllocator;
+
+		vk::Image m_deviceImage;
+		vk::DeviceMemory m_memory;
+	};
 }

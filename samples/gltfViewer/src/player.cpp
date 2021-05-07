@@ -76,6 +76,13 @@ namespace rev {
 
 
 		auto device = renderContext().device();
+
+		auto& alloc = renderContext().allocator();
+
+		m_gBufferNormals = alloc.createImageBuffer("normals", renderContext().windowSize(), vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
+		m_gBufferPBR = alloc.createImageBuffer("PBR", renderContext().windowSize(), vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
+		m_gBufferZ = alloc.createDepthBuffer("Depth", renderContext().windowSize(), vk::Format::eD32Sfloat, vk::ImageUsageFlagBits::eDepthStencilAttachment, renderContext().graphicsQueueFamily());
+
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 

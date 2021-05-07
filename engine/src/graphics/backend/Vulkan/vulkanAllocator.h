@@ -22,6 +22,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "gpuBuffer.h"
+#include <math/algebra/vector.h>
 
 namespace rev::gfx {
 
@@ -52,6 +53,9 @@ namespace rev::gfx {
 
 		std::shared_ptr<GPUBuffer> createGpuBuffer(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
 		std::shared_ptr<GPUBuffer> createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
+		std::shared_ptr<ImageBuffer> createImageBuffer(const char* name, math::Vec2u size, vk::Format format, vk::ImageUsageFlags usage, uint32_t graphicsQueueFamily);
+		std::shared_ptr<ImageBuffer> createDepthBuffer(const char* name, math::Vec2u size, vk::Format format, vk::ImageUsageFlags usage, uint32_t graphicsQueueFamily);
+
 		void destroyBuffer(const GPUBuffer&);
 
 		template<class T>

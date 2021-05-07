@@ -56,7 +56,7 @@ namespace rev::gfx {
 		{
 			assert(mNear != 0 && mFar > mNear);
 			//auto projectionMatrix = math::orthographicMatrix({4.f, 2.f}, mNear, mFar);//(mFov, _aspectRatio, mNear, mFar);
-			return math::frustumMatrix(mFov, _aspectRatio, mNear, mFar);
+			return math::frustumMatrixVulkan(mFov, _aspectRatio, mNear, mFar);
 		}
 
 		void setWorldTransform(const math::AffineTransform& _x)
