@@ -57,6 +57,8 @@ namespace rev {
 		void createCamera();
 		void createFloor();
 		void updateSceneBBox();
+		void createFrameBuffers();
+		void destroyFrameBuffers();
 
 		// Init ImGui
 		void initImGui();

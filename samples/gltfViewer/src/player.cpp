@@ -53,6 +53,7 @@ namespace rev {
 		// Ideal interface for render graph
 		// 
 		// G-Buffer pass -> Normals, PBR, Z, Motion vectors
+		// [Normals, PBR, Z] = GBufferPass();
 		// Direct light
 		//	- Light sample (Normals, PBR, Z) -> Direct Light Reservoir [DLR]
 		//	- Temporal ReStir (DLR-1, Normals, Z) -> DLR
@@ -65,6 +66,7 @@ namespace rev {
 		// Post process
 		// 
 		// UI
+		// UIPass(GBuffer, SwapChain);
 
 		// Start with
 		// 
@@ -77,11 +79,7 @@ namespace rev {
 
 		auto device = renderContext().device();
 
-		auto& alloc = renderContext().allocator();
-
-		m_gBufferNormals = alloc.createImageBuffer("normals", renderContext().windowSize(), vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
-		m_gBufferPBR = alloc.createImageBuffer("PBR", renderContext().windowSize(), vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
-		m_gBufferZ = alloc.createDepthBuffer("Depth", renderContext().windowSize(), vk::Format::eD32Sfloat, vk::ImageUsageFlagBits::eDepthStencilAttachment, renderContext().graphicsQueueFamily());
+		createFrameBuffers();
 
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
@@ -176,6 +174,8 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::end()
 	{
+		destroyFrameBuffers();
+
 		auto device = renderContext().device();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
@@ -188,6 +188,8 @@ namespace rev {
 	void Player::onResize()
 	{
 		renderContext().resizeSwapchain(windowSize());
+
+		createFrameBuffers();
 	}
 #endif // _WIN32
 
@@ -292,6 +294,25 @@ namespace rev {
 		// Re-center scene
 		//auto xForm = m_gltfRoot->component<Transform>();
 		//xForm->xForm.position() = -m_globalBBox.center();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::createFrameBuffers()
+	{
+		auto windowSize = renderContext().windowSize();
+		auto& alloc = renderContext().allocator();
+
+		m_gBufferNormals = alloc.createImageBuffer("normals", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
+		m_gBufferPBR = alloc.createImageBuffer("PBR", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
+		m_gBufferZ = alloc.createDepthBuffer("Depth", windowSize, vk::Format::eD32Sfloat, vk::ImageUsageFlagBits::eDepthStencilAttachment, renderContext().graphicsQueueFamily());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Player::destroyFrameBuffers()
+	{
+		m_gBufferNormals = nullptr;
+		m_gBufferPBR = nullptr;
+		m_gBufferZ = nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
