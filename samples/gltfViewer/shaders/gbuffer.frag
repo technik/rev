@@ -19,9 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #version 450
 
-layout(location = 0) in vec3 vVtxColor;
+layout(location = 0) in vec3 vPxlNormal;
 layout(location = 0) out vec4 outColor;
 
+layout(push_constant) uniform Constants
+{
+    mat4 proj;
+    mat4 view;
+	vec3 lightDir;
+	vec3 ambiendColor;
+	vec3 lightColor;
+} frameInfo;
+
 void main() {
-    outColor = vec4(vVtxColor, 1.0);
+	vec3 normal = normalize(vPxlNormal);
+	float ndl = max(0, dot(frameInfo.lightDir, normal));
+	vec3 pxlColor = frameInfo.ambiendColor + ndl * frameInfo.lightColor;
+    outColor = vec4(pxlColor, 1.0);
 }

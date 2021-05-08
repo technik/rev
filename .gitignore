@@ -56,3 +56,4 @@ sports
 /samples/gltfViewer/bin/shaders/ui.frag.spv
 *.spv
 /tools/gltfOptimizer/bin/
+/.vscode

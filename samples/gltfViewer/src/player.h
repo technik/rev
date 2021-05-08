@@ -97,6 +97,9 @@ namespace rev {
 		{
 			math::Mat44f proj;
 			math::Mat44f view;
+			math::Vec4f lightDir;
+			math::Vec4f ambiendColor;
+			math::Vec4f lightColor;
 		} m_cameraPushC;
 
 	private:

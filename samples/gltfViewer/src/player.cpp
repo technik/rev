@@ -100,7 +100,7 @@ namespace rev {
 
 		// UI pipeline layout
 		vk::PushConstantRange camerasPushRange(
-			vk::ShaderStageFlagBits::eVertex,
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(CameraPushConstants));
 
 		vk::PipelineLayoutCreateInfo layoutInfo({},
@@ -134,6 +134,10 @@ namespace rev {
 		// Create camera
 		createCamera();
 		m_sceneRoot->init();
+
+		m_cameraPushC.ambiendColor = Vec4f(0.2f, 0.2f, 0.4f);
+		m_cameraPushC.lightColor = Vec4f(1.f, 1.f, 1.f);
+		m_cameraPushC.lightDir = normalize(Vec4f(1.f, 1.f, 1.f, 0.f));
 
 		/*
 		// Default scene light
@@ -391,7 +395,7 @@ namespace rev {
 		}
 
 		// Clear
-		auto clearColor = vk::ClearColorValue(std::array<float,4>{ m_bgColor, m_bgColor, m_bgColor, 1.f });
+		auto clearColor = vk::ClearColorValue(std::array<float,4>{ m_cameraPushC.ambiendColor.x(), m_cameraPushC.ambiendColor.y(), m_cameraPushC.ambiendColor.z(), 1.f });
 
 		auto swapchainImage = renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
 
@@ -444,7 +448,12 @@ namespace rev {
 			float aspect = viewport.width / viewport.height;
 			m_cameraPushC.proj = mFlybyCam->projection(aspect);// .transpose();
 			m_cameraPushC.view = mFlybyCam->view();// .transpose();
-			cmd.pushConstants<CameraPushConstants>(m_gbufferPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, m_cameraPushC);
+
+			cmd.pushConstants<CameraPushConstants>(
+				m_gbufferPipelineLayout,
+				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+				0,
+				m_cameraPushC);
 			
 			// Draw all instances in a single batch
 			m_rasterData.bindBuffers(cmd);
@@ -553,6 +562,8 @@ namespace rev {
 		{
 			ImGui::Text("%s", "Sample text");
 			ImGui::SliderFloat("Background", &m_bgColor, 0.f, 1.f);
+			ImGui::ColorPicker3("Ambient Color", reinterpret_cast<float*>(&m_cameraPushC.ambiendColor));
+			ImGui::ColorPicker3("Light Color", reinterpret_cast<float*>(&m_cameraPushC.lightColor));
 		}
 		ImGui::End();
 

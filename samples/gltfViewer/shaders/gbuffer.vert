@@ -28,12 +28,15 @@ layout(push_constant) uniform Constants
 {
     mat4 proj;
     mat4 view;
-} camera;
+	vec3 lightDir;
+	vec3 ambiendColor;
+	vec3 lightColor;
+} frameInfo;
 
-layout(location = 0) out vec3 vVtxColor;
+layout(location = 0) out vec3 vPxlNormal;
 
 void main() {
     mat4 world = worldMtx[gl_InstanceIndex];
-    gl_Position = camera.proj * (camera.view  * (world * vec4(position, 1.0)));
-    vVtxColor = normal * 0.5 + 0.5;
+    gl_Position = frameInfo.proj * (frameInfo.view  * (world * vec4(position, 1.0)));
+    vPxlNormal = (world * vec4(normal, 0)).xyz;
 }
