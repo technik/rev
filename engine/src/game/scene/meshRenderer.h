@@ -44,7 +44,7 @@ namespace rev { namespace game {
 			m_instanceMeshes.push_back(meshNdx);
 		}
 
-		void updatePoses(math::Mat44f* dst)
+		void updatePoses(math::Mat44f* dst) const
 		{
 			for (size_t i = 0; i < m_instanceTransforms.size(); ++i)
 			{
