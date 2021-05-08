@@ -65,6 +65,7 @@ namespace rev {
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
+		vk::RenderPass m_gBufferPass;
 		vk::RenderPass m_uiPass;
 		vk::DescriptorPool m_descPool;
 		std::vector<vk::DescriptorSet> m_frameDescs;

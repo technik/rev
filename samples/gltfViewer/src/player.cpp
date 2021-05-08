@@ -110,22 +110,10 @@ namespace rev {
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
 
 		// UI Render pass
-		vk::AttachmentDescription colorAttachment;
-		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.format = renderContext().swapchainFormat();
-		colorAttachment.samples = vk::SampleCountFlagBits::e1;
-		colorAttachment.loadOp = vk::AttachmentLoadOp::eLoad;
-		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-		vk::AttachmentReference colorAttachReference;
-		colorAttachReference.attachment = 0;
-		colorAttachReference.layout = vk::ImageLayout::eGeneral;
-		vk::SubpassDescription colorSubpass;
-		colorSubpass.colorAttachmentCount = 1;
-		colorSubpass.pColorAttachments = &colorAttachReference;
-		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-		auto uiPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
-		m_uiPass = device.createRenderPass(uiPassInfo);
+		m_uiPass = renderContext().createRenderPass({
+			{ renderContext().swapchainFormat(), vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral },
+			{ vk::Format::eD32Sfloat, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral }
+			});
 
 		createFrameBuffers();
 
@@ -134,7 +122,8 @@ namespace rev {
 			m_gbufferPipelineLayout,
 			m_uiPass,
 			"gbuffer.vert.spv",
-			"gbuffer.frag.spv");
+			"gbuffer.frag.spv",
+			true);
 
 		// Init ImGui
 		initImGui();
@@ -304,7 +293,15 @@ namespace rev {
 
 		m_gBufferNormals = alloc.createImageBuffer("normals", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
 		m_gBufferPBR = alloc.createImageBuffer("PBR", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, renderContext().graphicsQueueFamily());
-		m_gBufferZ = alloc.createDepthBuffer("Depth", windowSize, vk::Format::eD32Sfloat, vk::ImageUsageFlagBits::eDepthStencilAttachment, renderContext().graphicsQueueFamily());
+		m_gBufferZ = alloc.createDepthBuffer(
+			"Depth",
+			windowSize,
+			vk::Format::eD32Sfloat,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
+			renderContext().graphicsQueueFamily());
+
+		// Transition new images to general layout
+		renderContext().transitionImageLayout(m_gBufferZ->image(), m_gBufferZ->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
 
 		// Actual frame buffer creation
 		m_swapchainFrameBuffers.clear();
@@ -312,10 +309,10 @@ namespace rev {
 		// Create frame buffers for each image in the swapchain
 		m_swapchainFrameBuffers.reserve(renderContext().nSwapChainImages());
 		for (size_t i = 0; i < renderContext().nSwapChainImages(); ++i) {
-			auto imageView = renderContext().swapchainImageView(i);
+			std::vector<vk::ImageView> imageViews = { renderContext().swapchainImageView(i), m_gBufferZ->view() };
 			auto fbInfo = vk::FramebufferCreateInfo({},
 				m_uiPass,
-				imageView,
+				imageViews,
 				(uint32_t)windowSize.x(), (uint32_t)windowSize.y(), 1);
 			m_swapchainFrameBuffers.push_back(renderContext().device().createFramebuffer(fbInfo));
 		}
@@ -398,12 +395,20 @@ namespace rev {
 
 		auto swapchainImage = renderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
 
-		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+		auto clearColorRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
 		cmd.clearColorImage(
 			swapchainImage,
 			vk::ImageLayout::eGeneral,
-			&clearColor, 1, &clearRange
-		);
+			clearColor,
+			clearColorRange);
+
+		auto clearDepthRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1);
+		auto clearDepth = vk::ClearDepthStencilValue(0.f);
+		cmd.clearDepthStencilImage(
+			m_gBufferZ->image(),
+			vk::ImageLayout::eGeneral,
+			clearDepth,
+			clearDepthRange);
 
 		// Render the UI pass
 		vk::RenderPassBeginInfo passInfo;

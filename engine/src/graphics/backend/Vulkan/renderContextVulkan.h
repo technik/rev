@@ -80,6 +80,15 @@ namespace rev :: gfx
 		auto transferQueue() const { return m_transferQueue; }
 		vk::CommandBuffer getNewRenderCmdBuffer();
 
+		// Render passes and frame buffers
+		struct RenderPassAttachment
+		{
+			vk::Format format;
+			vk::ImageLayout initialLayout, finalLayout;
+		};
+		vk::RenderPass createRenderPass(const std::vector<RenderPassAttachment>& attachments);
+		void transitionImageLayout(vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
+
 		// Alloc
 		VulkanAllocator& allocator() { return m_alloc; }
 		// Debug

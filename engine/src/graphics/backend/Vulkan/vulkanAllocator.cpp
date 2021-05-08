@@ -137,6 +137,7 @@ namespace rev::gfx {
 		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
 		imageInfo.usage = usage;
 		imageInfo.sharingMode = queueFamilies.size() > 1 ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
+		imageInfo.setQueueFamilyIndices(queueFamilies);
 
 		imageInfo.samples = vk::SampleCountFlagBits::e1;
 		imageInfo.flags = {};
@@ -157,7 +158,15 @@ namespace rev::gfx {
 
 		m_device.bindImageMemory(vkImage, imageMemory, 0);
 
-		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageMemory),
+		vk::ImageViewCreateInfo viewInfo({},
+			vkImage,
+			vk::ImageViewType::e2D,
+			format,
+			{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+			vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+		auto imageView = m_device.createImageView(viewInfo);
+
+		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
 			[this,imageMemory,vkImage](ImageBuffer* p)
 			{
 				m_device.freeMemory(imageMemory);
@@ -192,6 +201,7 @@ namespace rev::gfx {
 		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
 		imageInfo.usage = usage;
 		imageInfo.sharingMode = queueFamilies.size() > 1 ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
+		imageInfo.setQueueFamilyIndices(queueFamilies);
 
 		imageInfo.samples = vk::SampleCountFlagBits::e1;
 		imageInfo.flags = {};
@@ -212,7 +222,15 @@ namespace rev::gfx {
 
 		m_device.bindImageMemory(vkImage, imageMemory, 0);
 
-		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageMemory),
+		vk::ImageViewCreateInfo viewInfo({},
+			vkImage,
+			vk::ImageViewType::e2D,
+			format,
+			{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+			vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
+		auto imageView = m_device.createImageView(viewInfo);
+
+		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
 			[this, imageMemory, vkImage](ImageBuffer* p)
 			{
 				m_device.freeMemory(imageMemory);

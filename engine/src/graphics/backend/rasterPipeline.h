@@ -34,6 +34,7 @@ namespace rev::gfx
 			vk::RenderPass passDesc,
 			std::string vtxShaderFilename,
 			std::string pxlShaderFilename,
+			bool depthTest,
 			bool blend = false
 		);
 
@@ -60,6 +61,7 @@ namespace rev::gfx
 		vk::Pipeline m_vkPipeline;
 		vk::PipelineLayout m_layout;
 		vk::RenderPass m_passDesc;
+		bool m_depthTest;
 		bool m_blend;
 	};
 }

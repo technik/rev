@@ -596,6 +596,83 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+	vk::RenderPass RenderContextVulkan::createRenderPass(const std::vector<RenderPassAttachment>& attachments)
+	{
+		// UI Render pass
+		std::vector<vk::AttachmentDescription> attachmentInfo;
+		std::vector<vk::AttachmentReference> colorReferences;
+		std::vector<vk::AttachmentReference> depthReferences;
+
+		for (const auto& attachment : attachments)
+		{
+			auto& info = attachmentInfo.emplace_back();
+			info.initialLayout = attachment.initialLayout;
+			info.finalLayout = attachment.finalLayout;
+			info.format = attachment.format;
+			info.samples = vk::SampleCountFlagBits::e1;
+			info.loadOp = vk::AttachmentLoadOp::eLoad;
+			info.storeOp = vk::AttachmentStoreOp::eStore;
+
+			vk::AttachmentReference reference;
+			reference.attachment = attachmentInfo.size() - 1;
+			reference.layout = vk::ImageLayout::eGeneral; // TODO: eColorOptimal/eDepthOptimal?
+
+			if (info.format == vk::Format::eD32Sfloat)
+				depthReferences.push_back(reference);
+			else
+				colorReferences.push_back(reference);
+		}
+
+		vk::SubpassDescription subpass;
+		subpass.colorAttachmentCount = colorReferences.size();
+		subpass.pColorAttachments = colorReferences.data();
+		subpass.pDepthStencilAttachment = depthReferences.empty() ? nullptr : depthReferences.data();
+		subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+
+		auto passInfo = vk::RenderPassCreateInfo({}, attachmentInfo, subpass);
+
+		return m_device.createRenderPass(passInfo);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::transitionImageLayout(vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth)
+	{
+		auto cmd = getNewRenderCmdBuffer();
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		vk::ImageMemoryBarrier barrier;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		barrier.subresourceRange.aspectMask = isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+		
+		barrier.srcAccessMask = {};
+		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+
+		cmd.pipelineBarrier(
+			vk::PipelineStageFlagBits::eTopOfPipe, // src stage mask
+			vk::PipelineStageFlagBits::eFragmentShader, // Dst stage mask
+			{},
+			{}, // Memory barriers
+			{}, // Buffer mem
+			barrier);
+
+		cmd.end();
+		vk::SubmitInfo submitInfo(
+			0, nullptr, nullptr, // wait
+			1, &cmd, // commands
+			0, nullptr); // signal
+		graphicsQueue().submit(submitInfo);
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	RenderContextVulkan::FrameInfo::FrameInfo(vk::Device device, uint32_t gfxQueueFamily)
 		: m_device(device)
 	{

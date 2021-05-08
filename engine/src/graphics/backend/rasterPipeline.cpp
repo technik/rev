@@ -28,6 +28,7 @@ namespace rev::gfx
 		vk::RenderPass passDesc,
 		std::string vtxShaderFilename,
 		std::string pxlShaderFilename,
+		bool depthTest,
 		bool blend
 	)
 		: m_vtxShader(vtxShaderFilename)
@@ -35,6 +36,7 @@ namespace rev::gfx
 		, m_device(device)
 		, m_layout(layout)
 		, m_passDesc(passDesc)
+		, m_depthTest(depthTest)
 		, m_blend(blend)
 	{
 		tryLoad();
@@ -135,6 +137,11 @@ namespace rev::gfx
 		};
 		vk::PipelineDynamicStateCreateInfo dynamicStateInfo({}, 3, dynamicStates);
 
+		vk::PipelineDepthStencilStateCreateInfo depthInfo;
+		depthInfo.depthTestEnable = m_depthTest;
+		depthInfo.depthWriteEnable = m_depthTest;
+		depthInfo.depthCompareOp = vk::CompareOp::eGreater;
+
 		// Pipeline info
 		auto pipelineInfo = vk::GraphicsPipelineCreateInfo(
 			{}, // Flags
@@ -145,7 +152,7 @@ namespace rev::gfx
 			& viewportInfo, // Viewport (dynamic)
 			&rasterInfo,
 			&multiSamplingInfo,
-			nullptr);
+			&depthInfo);
 		pipelineInfo.setLayout(m_layout);
 		pipelineInfo.setRenderPass(m_passDesc);
 		pipelineInfo.setPDynamicState(&dynamicStateInfo);
