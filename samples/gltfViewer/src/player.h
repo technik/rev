@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 #pragma once
 
+#include <core/platform/fileSystem/FolderWatcher.h>
 #include <game/scene/sceneNode.h>
 #include <game/scene/meshRenderer.h>
 #include <game/application/base3dApplication.h>
@@ -130,6 +131,7 @@ namespace rev {
 		};
 
 		size_t m_sceneLoadStreamToken{};
+		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 	};
 
 }	// namespace rev

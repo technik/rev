@@ -18,7 +18,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "rasterPipeline.h"
+
 #include <fstream>
+#include <iostream>
 
 namespace rev::gfx
 {
@@ -39,15 +41,21 @@ namespace rev::gfx
 		, m_depthTest(depthTest)
 		, m_blend(blend)
 	{
-		tryLoad();
+		m_vkPipeline = tryLoad();
 	}
 
 	RasterPipeline::~RasterPipeline()
 	{
+		clearPipeline();
 	}
 
 	void RasterPipeline::bind(const vk::CommandBuffer& cmdBuf)
 	{
+		if (m_invalidated)
+		{
+			if (reload())
+				m_invalidated = false;
+		}
 		cmdBuf.bindPipeline(vk::PipelineBindPoint::eGraphics, m_vkPipeline);
 	}
 
@@ -57,11 +65,27 @@ namespace rev::gfx
 			uint32_t firstSet)
 	{}
 
-	template<class T>
-	void RasterPipeline::pushConstant(const vk::CommandBuffer& cmdBuf, const T&)
-	{}
+	bool RasterPipeline::reload()
+	{
+		vk::Pipeline newPipeline = tryLoad();
+		if (newPipeline)
+		{
+			m_device.waitIdle();
+			clearPipeline();
+			m_vkPipeline = newPipeline;
+			return true;
+		}
 
-	void RasterPipeline::tryLoad()
+		return false;
+	}
+
+	void RasterPipeline::clearPipeline()
+	{
+		if (m_vkPipeline)
+			m_device.destroyPipeline(m_vkPipeline);
+	}
+
+	vk::Pipeline RasterPipeline::tryLoad()
 	{
 		vk::ShaderModule vtxModule = loadShaderModule(m_vtxShader);
 		vk::ShaderModule pxlModule = loadShaderModule(m_pxlShader);
@@ -127,7 +151,7 @@ namespace rev::gfx
 			VK_FALSE,
 			vk::LogicOp::eNoOp,
 			1, &colorBlend,
-			{ 1.f, 1.f, 1.f, 1.f});
+			{ 1.f, 1.f, 1.f, 1.f });
 
 		vk::DynamicState dynamicStates[] =
 		{
@@ -145,11 +169,11 @@ namespace rev::gfx
 		// Pipeline info
 		auto pipelineInfo = vk::GraphicsPipelineCreateInfo(
 			{}, // Flags
-			2, stages,
+			2, stages, // Shader stages
 			&vertexInputFormat,
 			&inputAssemblyInfo,
 			nullptr, // Tesselation
-			& viewportInfo, // Viewport (dynamic)
+			&viewportInfo, // Viewport (dynamic)
 			&rasterInfo,
 			&multiSamplingInfo,
 			&depthInfo);
@@ -159,14 +183,16 @@ namespace rev::gfx
 		pipelineInfo.setPColorBlendState(&blendingInfo);
 
 		auto newPipeline = m_device.createGraphicsPipeline({}, pipelineInfo);
-		if (newPipeline.result == vk::Result::eSuccess)
-		{
-			m_vkPipeline = newPipeline.value;
-		}
 
 		// Clean up
 		m_device.destroyShaderModule(vtxModule);
 		m_device.destroyShaderModule(pxlModule);
+
+		if (newPipeline.result != vk::Result::eSuccess)
+		{
+			std::cout << "Error loading pipeline " << m_vtxShader << ", "<< m_pxlShader << ".\n";
+		}
+		return newPipeline.value;
 	}
 
 	vk::ShaderModule RasterPipeline::loadShaderModule(const std::string& fileName)

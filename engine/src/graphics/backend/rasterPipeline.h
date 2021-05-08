@@ -45,23 +45,30 @@ namespace rev::gfx
 			const vk::CommandBuffer& cmdBuf,
 			const vk::ArrayProxy<const vk::DescriptorSet>& descSets,
 			uint32_t firstSet = 0);
-		template<class T>
-		void pushConstant(const vk::CommandBuffer& cmdBuf, const T&);
 
-		void tryLoad();
+		bool reload();
+		void invalidate()
+		{
+			m_invalidated = true;
+		}
 
 	private:
+		void clearPipeline();
+		vk::Pipeline tryLoad();
 		vk::ShaderModule loadShaderModule(const std::string& fileName);
 
 	private:
-		std::string m_vtxShader;
-		std::string m_pxlShader;
-
+		// Permanent state
 		vk::Device m_device;
-		vk::Pipeline m_vkPipeline;
 		vk::PipelineLayout m_layout;
 		vk::RenderPass m_passDesc;
 		bool m_depthTest;
 		bool m_blend;
+
+		std::string m_vtxShader;
+		std::string m_pxlShader;
+
+		vk::Pipeline m_vkPipeline;
+		bool m_invalidated = false;
 	};
 }

@@ -21,7 +21,7 @@ file(GLOB_RECURSE GLSL_SOURCE_FILES
     )
 foreach(GLSL ${GLSL_SOURCE_FILES})
     get_filename_component(FILE_NAME ${GLSL} NAME)
-    _compile_GLSL(${GLSL} "./bin/${FILE_NAME}.spv" GLSL_SOURCES SPV_OUTPUT)
+    _compile_GLSL(${GLSL} "./shaders/${FILE_NAME}.spv" GLSL_SOURCES SPV_OUTPUT)
 endforeach(GLSL)
 
 list(APPEND GLSL_SOURCES ${GLSL_HEADER_FILES})

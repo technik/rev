@@ -8,6 +8,7 @@
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
+#include <core/platform/fileSystem/FolderWatcher.h>
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/osHandler.h>
 #include <core/tools/log.h>
@@ -121,9 +122,11 @@ namespace rev {
 			device,
 			m_gbufferPipelineLayout,
 			m_uiPass,
-			"gbuffer.vert.spv",
-			"gbuffer.frag.spv",
+			"../shaders/gbuffer.vert.spv",
+			"../shaders/gbuffer.frag.spv",
 			true);
+		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
+		m_shaderWatcher->listen([this](auto paths) { m_gBufferPipeline->invalidate(); });
 
 		// Init ImGui
 		initImGui();
@@ -160,7 +163,6 @@ namespace rev {
 		}
 
 		createFloor();
-		mGameScene.root()->init();
 		*/
 		return true;
 	}
@@ -374,6 +376,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	bool Player::updateLogic(TimeDelta dt)
 	{
+		m_shaderWatcher->update();
 		// TODO: Play animations
 		m_sceneRoot->update(dt.count());
 		return true;
