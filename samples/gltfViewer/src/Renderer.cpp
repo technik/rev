@@ -45,39 +45,10 @@ namespace rev
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
-		// UI pipeline layout
-		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-
-		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, matricesBinding);
-		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
-
-		vk::PushConstantRange camerasPushRange(
-			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-			0, sizeof(FramePushConstants));
-
-		vk::PipelineLayoutCreateInfo layoutInfo({},
-			1, &m_frameDescLayout, // Descriptor sets
-			1, &camerasPushRange); // Push constants
-
-		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
-
-		// UI Render pass
-		m_uiRenderPass.setClearDepth(0.f);
-		m_uiRenderPass.setClearColor(math::Vec3f::zero());
-		m_uiRenderPass.m_vkPass = ctxt.createRenderPass({ ctxt.swapchainFormat(), vk::Format::eD32Sfloat });
-
+		createRenderTargets();
+		createRenderPasses();
 		createFrameBuffers();
-		m_uiRenderPass.depthTarget = m_gBufferZ->image();
-
-		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
-			device,
-			m_gbufferPipelineLayout,
-			m_uiRenderPass.m_vkPass,
-			"../shaders/gbuffer.vert.spv",
-			"../shaders/gbuffer.frag.spv",
-			true);
-		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
-		m_shaderWatcher->listen([this](auto paths) { m_gBufferPipeline->invalidate(); });
+		createShaderPipelines();
 
 		// Allocate matrix buffers
 		auto& alloc = m_ctxt->allocator();
@@ -97,7 +68,6 @@ namespace rev
 		m_frameDescs = device.allocateDescriptorSets(setInfo);
 
 		// Update descriptor sets
-
 		vk::WriteDescriptorSet writeInfo;
 		writeInfo.dstSet = m_frameDescs[0];
 		writeInfo.dstBinding = 0;
@@ -118,6 +88,7 @@ namespace rev
 	void Renderer::end()
 	{
 		destroyFrameBuffers();
+		destroyRenderTargets();
 
 		auto device = m_ctxt->device();
 		m_gBufferPipeline.reset();
@@ -206,7 +177,49 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::createFrameBuffers()
+	void Renderer::createRenderPasses()
+	{
+		// UI Render pass
+		m_uiRenderPass.setClearDepth(0.f);
+		m_uiRenderPass.setClearColor(math::Vec3f::zero());
+		m_uiRenderPass.m_vkPass = m_ctxt->createRenderPass({ m_ctxt->swapchainFormat(), vk::Format::eD32Sfloat });
+		m_uiRenderPass.depthTarget = m_gBufferZ->image();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::createShaderPipelines()
+	{
+		auto device = m_ctxt->device();
+
+		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
+
+		// G-Buffer pipeline
+		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+
+		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, matricesBinding);
+		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
+
+		vk::PushConstantRange camerasPushRange(
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			0, sizeof(FramePushConstants));
+
+		vk::PipelineLayoutCreateInfo layoutInfo({},
+			1, &m_frameDescLayout, // Descriptor sets
+			1, &camerasPushRange); // Push constants
+
+		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
+		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
+			device,
+			m_gbufferPipelineLayout,
+			m_uiRenderPass.m_vkPass,
+			"../shaders/gbuffer.vert.spv",
+			"../shaders/gbuffer.frag.spv",
+			true);
+		m_shaderWatcher->listen([this](auto paths) { m_gBufferPipeline->invalidate(); });
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::createRenderTargets()
 	{
 		auto windowSize = m_ctxt->windowSize();
 		auto& alloc = m_ctxt->allocator();
@@ -219,6 +232,21 @@ namespace rev
 			vk::Format::eD32Sfloat,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
 			m_ctxt->graphicsQueueFamily());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void Renderer::destroyRenderTargets()
+	{
+		m_gBufferNormals = nullptr;
+		m_gBufferPBR = nullptr;
+		m_gBufferZ = nullptr;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::createFrameBuffers()
+	{
+		auto windowSize = m_ctxt->windowSize();
+		auto& alloc = m_ctxt->allocator();
 
 		// Transition new images to general layout
 		m_ctxt->transitionImageLayout(m_gBufferZ->image(), m_gBufferZ->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
@@ -242,10 +270,6 @@ namespace rev
 	void Renderer::destroyFrameBuffers()
 	{
 		m_swapchainFrameBuffers.clear();
-
-		m_gBufferNormals = nullptr;
-		m_gBufferPBR = nullptr;
-		m_gBufferZ = nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------

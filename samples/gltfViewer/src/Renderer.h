@@ -56,6 +56,10 @@ namespace rev
 		void render(SceneDesc& scene, bool geometryReady);
 
 	private:
+		void createRenderPasses();
+		void createShaderPipelines();
+		void createRenderTargets();
+		void destroyRenderTargets();
 		void createFrameBuffers();
 		void destroyFrameBuffers();
 
@@ -70,7 +74,6 @@ namespace rev
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
-		vk::RenderPass m_gBufferPass;
 		vk::DescriptorPool m_descPool;
 		std::vector<vk::DescriptorSet> m_frameDescs;
 		uint32_t m_doubleBufferNdx = 0;
@@ -94,6 +97,7 @@ namespace rev
 		} m_frameConstants;
 
 		RenderPass m_uiRenderPass;
+		RenderPass m_gBufferPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 	};
