@@ -106,6 +106,13 @@ namespace rev::gfx {
 		void unmapBufferInternal(void*);
 		void copyToGPUInternal(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t count);
 		void writeToRingBuffer(const GPUBuffer& dst, size_t dstOffset, const void* src, size_t size);
+		std::shared_ptr<ImageBuffer> createImageBufferInternal(
+			const char* debugName,
+			math::Vec2u size,
+			vk::Format format,
+			vk::ImageUsageFlags usage,
+			uint32_t graphicsQueueFamily,
+			bool isDepth);
 
 
 		vk::Device m_device;

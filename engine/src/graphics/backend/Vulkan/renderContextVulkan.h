@@ -30,8 +30,9 @@
 #include <core/event.h>
 #include <math/algebra/vector.h>
 #include "vulkanAllocator.h"
+#include "../ScopedCommandBuffer.h"
 
-namespace rev :: gfx
+namespace rev::gfx
 {
 	class RenderContextVulkan
 	{
@@ -79,6 +80,7 @@ namespace rev :: gfx
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
 		auto transferQueue() const { return m_transferQueue; }
 		vk::CommandBuffer getNewRenderCmdBuffer();
+		ScopedCommandBuffer getScopedCmdBuffer(vk::Queue submitQueue);
 
 		// Render passes and frame buffers
 		vk::RenderPass createRenderPass(const std::vector<vk::Format>& attachmentFormats);

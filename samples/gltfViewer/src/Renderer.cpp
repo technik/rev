@@ -207,7 +207,6 @@ namespace rev
 			}
 
 			m_doubleBufferNdx ^= 1;
-
 		}
 
 		// Finish ImGui

@@ -596,6 +596,12 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
+	ScopedCommandBuffer RenderContextVulkan::getScopedCmdBuffer(vk::Queue submitQueue)
+	{
+		return ScopedCommandBuffer(getNewRenderCmdBuffer(), submitQueue);
+	}
+
+	//--------------------------------------------------------------------------------------------------
 	vk::RenderPass RenderContextVulkan::createRenderPass(const std::vector<vk::Format>& attachmentFormats)
 	{
 		// UI Render pass

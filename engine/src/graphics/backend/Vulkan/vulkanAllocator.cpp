@@ -118,61 +118,7 @@ namespace rev::gfx {
 		vk::ImageUsageFlags usage,
 		uint32_t graphicsQueueFamily) ->std::shared_ptr<ImageBuffer>
 	{
-		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
-		bool isTransferDst = (usage & vk::ImageUsageFlagBits::eTransferDst) == vk::ImageUsageFlagBits::eTransferDst;
-		assert(graphicsQueueFamily != m_transferQueueFamily);
-		if (isTransferDst)
-			queueFamilies.push_back(m_transferQueueFamily);
-
-		vk::ImageCreateInfo imageInfo;
-		imageInfo.imageType = vk::ImageType::e2D;
-		imageInfo.extent.width = size.x();
-		imageInfo.extent.height = size.y();
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-
-		imageInfo.format = format;
-		imageInfo.tiling = vk::ImageTiling::eOptimal;
-		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-		imageInfo.usage = usage;
-		imageInfo.sharingMode = queueFamilies.size() > 1 ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
-		imageInfo.setQueueFamilyIndices(queueFamilies);
-
-		imageInfo.samples = vk::SampleCountFlagBits::e1;
-		imageInfo.flags = {};
-
-		auto vkImage = m_device.createImage(imageInfo);
-		if (!vkImage)
-			return nullptr;
-
-		// Allocate memory for the image
-		vk::MemoryRequirements memoryRequirements = m_device.getImageMemoryRequirements(vkImage);
-		vk::MemoryAllocateInfo allocInfo;
-		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = getVulkanMemoryHeap(MemoryProperties(memoryRequirements.memoryTypeBits));
-
-		auto imageMemory = m_device.allocateMemory(allocInfo);
-		if (!imageMemory)
-			return nullptr;
-
-		m_device.bindImageMemory(vkImage, imageMemory, 0);
-
-		vk::ImageViewCreateInfo viewInfo({},
-			vkImage,
-			vk::ImageViewType::e2D,
-			format,
-			{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
-			vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
-		auto imageView = m_device.createImageView(viewInfo);
-
-		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
-			[this,imageMemory,vkImage](ImageBuffer* p)
-			{
-				m_device.freeMemory(imageMemory);
-				m_device.destroyImage(vkImage);
-				delete p;
-			});
+		return createImageBufferInternal(name, size, format, usage, graphicsQueueFamily, false);
 	}
 
 	auto VulkanAllocator::createDepthBuffer(
@@ -182,61 +128,7 @@ namespace rev::gfx {
 		vk::ImageUsageFlags usage,
 		uint32_t graphicsQueueFamily) ->std::shared_ptr<ImageBuffer>
 	{
-		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
-		bool isTransferDst = (usage & vk::ImageUsageFlagBits::eTransferDst) == vk::ImageUsageFlagBits::eTransferDst;
-		assert(graphicsQueueFamily != m_transferQueueFamily);
-		if (isTransferDst)
-			queueFamilies.push_back(m_transferQueueFamily);
-
-		vk::ImageCreateInfo imageInfo;
-		imageInfo.imageType = vk::ImageType::e2D;
-		imageInfo.extent.width = size.x();
-		imageInfo.extent.height = size.y();
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-
-		imageInfo.format = format;
-		imageInfo.tiling = vk::ImageTiling::eOptimal;
-		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-		imageInfo.usage = usage;
-		imageInfo.sharingMode = queueFamilies.size() > 1 ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
-		imageInfo.setQueueFamilyIndices(queueFamilies);
-
-		imageInfo.samples = vk::SampleCountFlagBits::e1;
-		imageInfo.flags = {};
-
-		auto vkImage = m_device.createImage(imageInfo);
-		if (!vkImage)
-			return nullptr;
-
-		// Allocate memory for the image
-		vk::MemoryRequirements memoryRequirements = m_device.getImageMemoryRequirements(vkImage);
-		vk::MemoryAllocateInfo allocInfo;
-		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = getVulkanMemoryHeap(MemoryProperties(memoryRequirements.memoryTypeBits));
-
-		auto imageMemory = m_device.allocateMemory(allocInfo);
-		if (!imageMemory)
-			return nullptr;
-
-		m_device.bindImageMemory(vkImage, imageMemory, 0);
-
-		vk::ImageViewCreateInfo viewInfo({},
-			vkImage,
-			vk::ImageViewType::e2D,
-			format,
-			{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
-			vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
-		auto imageView = m_device.createImageView(viewInfo);
-
-		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
-			[this, imageMemory, vkImage](ImageBuffer* p)
-			{
-				m_device.freeMemory(imageMemory);
-				m_device.destroyImage(vkImage);
-				delete p;
-			});
+		return createImageBufferInternal(name, size, format, usage, graphicsQueueFamily, true);
 	}
 
 	auto VulkanAllocator::createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
@@ -331,6 +223,71 @@ namespace rev::gfx {
 		m_streamingQueue.submit(submitInfo, writeBlock.fence);
 
 		m_pendingBlocks.push_back(writeBlock);
+	}
+
+	std::shared_ptr<ImageBuffer> VulkanAllocator::createImageBufferInternal(
+		const char* debugName,
+		math::Vec2u size,
+		vk::Format format,
+		vk::ImageUsageFlags usage,
+		uint32_t graphicsQueueFamily,
+		bool isDepth)
+	{
+		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
+		bool isTransferDst = (usage & vk::ImageUsageFlagBits::eTransferDst) == vk::ImageUsageFlagBits::eTransferDst;
+		assert(graphicsQueueFamily != m_transferQueueFamily);
+		if (isTransferDst)
+			queueFamilies.push_back(m_transferQueueFamily);
+
+		vk::ImageCreateInfo imageInfo;
+		imageInfo.imageType = vk::ImageType::e2D;
+		imageInfo.extent.width = size.x();
+		imageInfo.extent.height = size.y();
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = 1;
+		imageInfo.arrayLayers = 1;
+
+		imageInfo.format = format;
+		imageInfo.tiling = vk::ImageTiling::eOptimal;
+		imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+		imageInfo.usage = usage;
+		imageInfo.sharingMode = queueFamilies.size() > 1 ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive;
+		imageInfo.setQueueFamilyIndices(queueFamilies);
+
+		imageInfo.samples = vk::SampleCountFlagBits::e1;
+		imageInfo.flags = {};
+
+		auto vkImage = m_device.createImage(imageInfo);
+		if (!vkImage)
+			return nullptr;
+
+		// Allocate memory for the image
+		vk::MemoryRequirements memoryRequirements = m_device.getImageMemoryRequirements(vkImage);
+		vk::MemoryAllocateInfo allocInfo;
+		allocInfo.allocationSize = memoryRequirements.size;
+		allocInfo.memoryTypeIndex = getVulkanMemoryHeap(MemoryProperties(memoryRequirements.memoryTypeBits));
+
+		auto imageMemory = m_device.allocateMemory(allocInfo);
+		if (!imageMemory)
+			return nullptr;
+
+		m_device.bindImageMemory(vkImage, imageMemory, 0);
+
+		vk::ImageViewCreateInfo viewInfo({},
+			vkImage,
+			vk::ImageViewType::e2D,
+			format,
+			{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+			vk::ImageSubresourceRange( isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+		auto imageView = m_device.createImageView(viewInfo);
+
+		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
+			[this, imageMemory, vkImage](ImageBuffer* p)
+			{
+				m_device.freeMemory(imageMemory);
+				m_device.destroyImage(vkImage);
+				delete p;
+			});
 	}
 
 	void* VulkanAllocator::mapBufferInternal(const GPUBuffer& _buffer)
