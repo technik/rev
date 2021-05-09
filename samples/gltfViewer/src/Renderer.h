@@ -60,7 +60,6 @@ namespace rev
 		void destroyFrameBuffers();
 
 		// Init ImGui
-		void setRenderArea(const math::Vec2u& size);
 		void initImGui();
 
 	private:

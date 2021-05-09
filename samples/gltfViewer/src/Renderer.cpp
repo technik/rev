@@ -36,7 +36,6 @@ namespace rev
 	void Renderer::init(gfx::RenderContextVulkan& ctxt, const math::Vec2u& windowSize, size_t maxNumInstances)
 	{
 		m_windowSize = windowSize;
-		setRenderArea(windowSize);
 
 		m_maxNumInstances = maxNumInstances;
 		m_ctxt = &ctxt;
@@ -137,8 +136,6 @@ namespace rev
 
 		// Update render passes
 		m_uiRenderPass.depthTarget = m_gBufferZ->image();
-
-		setRenderArea(windowSize);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -175,8 +172,6 @@ namespace rev
 
 			// Bind pipeline
 			m_gBufferPipeline->bind(cmd);
-			cmd.setViewport(0, 1, &m_viewport);
-			cmd.setScissor(0, m_renderArea);
 
 			// Update descriptor set with this frame's matrices
 			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
@@ -251,22 +246,6 @@ namespace rev
 		m_gBufferNormals = nullptr;
 		m_gBufferPBR = nullptr;
 		m_gBufferZ = nullptr;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	void Renderer::setRenderArea(const math::Vec2u& size)
-	{
-		m_viewport.x = 0;
-		m_viewport.y = 0;
-		m_viewport.maxDepth = 1.0f;
-		m_viewport.minDepth = 0.0f;
-		m_viewport.width = (float)size.x();
-		m_viewport.height = (float)size.y();
-
-		m_renderArea.offset.x = 0;
-		m_renderArea.offset.y = 0;
-		m_renderArea.extent.width = size.x();
-		m_renderArea.extent.height = size.y();
 	}
 
 	//------------------------------------------------------------------------------------------------

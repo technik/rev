@@ -74,6 +74,18 @@ namespace rev
 			passInfo.renderArea.extent.height = targetSize.y();
 			passInfo.clearValueCount = 0;
 			cmd.beginRenderPass(passInfo, vk::SubpassContents::eInline);
+
+			// Update drawing space
+			vk::Viewport viewport;
+			viewport.x = 0;
+			viewport.y = 0;
+			viewport.maxDepth = 1.0f;
+			viewport.minDepth = 0.0f;
+			viewport.width = (float)targetSize.x();
+			viewport.height = (float)targetSize.y();
+
+			cmd.setViewport(0, 1, &viewport);
+			cmd.setScissor(0, passInfo.renderArea);
 		}
 
 		void setClearDepth(float depth)
