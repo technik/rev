@@ -36,8 +36,19 @@ namespace rev
 	void Renderer::init(gfx::RenderContextVulkan& ctxt, const math::Vec2u& windowSize, size_t maxNumInstances)
 	{
 		m_windowSize = windowSize;
-		m_maxNumInstances = maxNumInstances;
+		m_viewport.x = 0;
+		m_viewport.y = 0;
+		m_viewport.maxDepth = 1.0f;
+		m_viewport.minDepth = 0.0f;
+		m_viewport.width = (float)m_windowSize.x();
+		m_viewport.height = (float)m_windowSize.y();
 
+		m_renderArea.offset.x = 0;
+		m_renderArea.offset.y = 0;
+		m_renderArea.extent.width = m_windowSize.x();
+		m_renderArea.extent.height = m_windowSize.y();
+
+		m_maxNumInstances = maxNumInstances;
 		m_ctxt = &ctxt;
 
 		auto device = ctxt.device();
@@ -77,6 +88,10 @@ namespace rev
 			{ ctxt.swapchainFormat(), vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral },
 			{ vk::Format::eD32Sfloat, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral }
 			});
+
+		m_uiRenderPass.setClearDepth(0.f);
+		m_uiRenderPass.setClearColor(math::Vec3f::zero());
+		m_uiRenderPass.m_vkPass = m_uiPass;
 
 		createFrameBuffers();
 
@@ -131,6 +146,18 @@ namespace rev
 		m_windowSize = windowSize;
 		m_ctxt->resizeSwapchain(windowSize);
 		createFrameBuffers();
+
+		m_viewport.x = 0;
+		m_viewport.y = 0;
+		m_viewport.maxDepth = 1.0f;
+		m_viewport.minDepth = 0.0f;
+		m_viewport.width = (float)m_windowSize.x();
+		m_viewport.height = (float)m_windowSize.y();
+
+		m_renderArea.offset.x = 0;
+		m_renderArea.offset.y = 0;
+		m_renderArea.extent.width = m_viewport.width;
+		m_renderArea.extent.height = m_viewport.height;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -138,65 +165,36 @@ namespace rev
 	{
 		// Watch for shader reload
 		m_shaderWatcher->update();
+
+		// Update frame state
 		m_frameConstants.lightColor = scene.lightColor;
 		m_frameConstants.ambientColor = scene.ambientColor;
 		m_frameConstants.lightDir = normalize(scene.lightDir);
 
-		auto cmd = m_ctxt->getNewRenderCmdBuffer();
-
 		// Record frame
+		auto cmd = m_ctxt->getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
-		// Clear
-		auto clearColor = vk::ClearColorValue(std::array<float, 4>{
-			m_frameConstants.ambientColor.x(),
-			m_frameConstants.ambientColor.y(),
-			m_frameConstants.ambientColor.z(),
-			1.f });
-
+		// Render the Geometry/UI pass
 		auto swapchainImage = m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
-
-		auto clearColorRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
-		cmd.clearColorImage(
-			swapchainImage,
-			vk::ImageLayout::eGeneral,
-			clearColor,
-			clearColorRange);
-
-		auto clearDepthRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1);
-		auto clearDepth = vk::ClearDepthStencilValue(0.f);
-		cmd.clearDepthStencilImage(
-			m_gBufferZ->image(),
-			vk::ImageLayout::eGeneral,
-			clearDepth,
-			clearDepthRange);
-
-		// Render the UI pass
-		vk::RenderPassBeginInfo passInfo;
-		passInfo.framebuffer = m_swapchainFrameBuffers[m_ctxt->currentFrameIndex()];
-		passInfo.renderPass = m_uiPass;
-		passInfo.renderArea.offset;
-		passInfo.renderArea.extent.width = m_ctxt->windowSize().x();
-		passInfo.renderArea.extent.height = m_ctxt->windowSize().y();
-		passInfo.clearValueCount = 0;
-		cmd.beginRenderPass(passInfo, vk::SubpassContents::eInline);
+		m_uiRenderPass.colorTargets = { swapchainImage };
+		m_uiRenderPass.m_fb = m_swapchainFrameBuffers[m_ctxt->currentFrameIndex()];
+		m_uiRenderPass.depthTarget = m_gBufferZ->image();
+		m_uiRenderPass.setClearColor(m_frameConstants.ambientColor);
+		m_uiRenderPass.begin(cmd, m_windowSize);
 
 		// Render a triangle if the scene is loaded
 		if (geometryReady)
 		{
-			m_gBufferPipeline->bind(cmd);
-			vk::Viewport viewport{ {0,0} };
-			viewport.maxDepth = 1.0f;
-			viewport.minDepth = 0.0f;
-			viewport.width = (float)passInfo.renderArea.extent.width;
-			viewport.height = (float)passInfo.renderArea.extent.height;
-			cmd.setViewport(0, 1, &viewport);
-			cmd.setScissor(0, passInfo.renderArea);
-
 			// Update per instance model matrices
 			auto mtxDst = m_ctxt->allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
 			scene.m_sceneInstances.updatePoses(mtxDst);
 			m_ctxt->allocator().unmapBuffer(mtxDst);
+
+			// Bind pipeline
+			m_gBufferPipeline->bind(cmd);
+			cmd.setViewport(0, 1, &m_viewport);
+			cmd.setScissor(0, m_renderArea);
 
 			// Update descriptor set with this frame's matrices
 			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
@@ -231,10 +229,11 @@ namespace rev
 
 		}
 
+		// Finish ImGui
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
-		cmd.endRenderPass();
+		m_uiRenderPass.end(cmd);
 
 		cmd.end();
 

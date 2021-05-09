@@ -26,6 +26,8 @@
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/RasterHeap.h>
 
+#include "RenderPass.h"
+
 namespace rev
 {
 	namespace gfx
@@ -63,6 +65,8 @@ namespace rev
 	private:
 		gfx::RenderContextVulkan* m_ctxt;
 		math::Vec2u m_windowSize;
+		vk::Viewport m_viewport;
+		vk::Rect2D m_renderArea;
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
@@ -89,6 +93,8 @@ namespace rev
 			math::Vec4f ambientColor;
 			math::Vec4f lightColor;
 		} m_frameConstants;
+
+		RenderPass m_uiRenderPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 	};
