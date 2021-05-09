@@ -104,8 +104,8 @@ namespace rev::gfx {
 	{
 		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
 		bool isTransferDst = (usage & vk::BufferUsageFlagBits::eTransferDst) == vk::BufferUsageFlagBits::eTransferDst;
-		assert(graphicsQueueFamily != m_transferQueueFamily);
-		if (isTransferDst)
+		
+		if (isTransferDst && (graphicsQueueFamily != m_transferQueueFamily))
 			queueFamilies.push_back(m_transferQueueFamily);
 
 		return createBufferInternal(size, usage, MemoryProperties::deviceLocal, queueFamilies);
@@ -235,8 +235,8 @@ namespace rev::gfx {
 	{
 		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
 		bool isTransferDst = (usage & vk::ImageUsageFlagBits::eTransferDst) == vk::ImageUsageFlagBits::eTransferDst;
-		assert(graphicsQueueFamily != m_transferQueueFamily);
-		if (isTransferDst)
+		
+		if (isTransferDst && (graphicsQueueFamily != m_transferQueueFamily))
 			queueFamilies.push_back(m_transferQueueFamily);
 
 		vk::ImageCreateInfo imageInfo;
