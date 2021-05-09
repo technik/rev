@@ -103,9 +103,11 @@ namespace rev
 	{
 		m_windowSize = windowSize;
 		m_ctxt->resizeSwapchain(windowSize);
+		createRenderTargets();
 		
 		// Update render passes
 		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
+
 
 		// Invalidate frame buffers
 		m_frameBuffers->clear();
