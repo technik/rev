@@ -21,6 +21,7 @@
 
 #include <core/platform/fileSystem/FolderWatcher.h>
 #include <game/scene/meshRenderer.h>
+#include <graphics/backend/FrameBufferManager.h>
 #include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
@@ -60,7 +61,6 @@ namespace rev
 		void createShaderPipelines();
 		void createRenderTargets();
 		void destroyRenderTargets();
-		void createFrameBuffers();
 		void destroyFrameBuffers();
 
 		// Init ImGui
@@ -83,7 +83,6 @@ namespace rev
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
-		std::vector<vk::Framebuffer> m_swapchainFrameBuffers;
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
 		size_t m_maxNumInstances;
 
@@ -96,9 +95,10 @@ namespace rev
 			math::Vec4f lightColor;
 		} m_frameConstants;
 
-		RenderPass m_uiRenderPass;
-		RenderPass m_gBufferPass;
+		std::unique_ptr<RenderPass> m_uiRenderPass;
+		std::unique_ptr<RenderPass> m_gBufferPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
+		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
 	};
 }

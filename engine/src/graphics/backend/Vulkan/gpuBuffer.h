@@ -53,25 +53,23 @@ namespace rev::gfx
 	{
 	public:
 		ImageBuffer() = default;
-		ImageBuffer(const ImageBuffer&) = delete;
+
+		ImageBuffer(vk::Image image, vk::ImageView view, vk::Format format)
+			: m_deviceImage(image)
+			, m_imageView(view)
+			, m_format(format)
+		{}
 
 		vk::Format format() const { return m_format; }
 		vk::ImageView view() const { return m_imageView; }
 		vk::Image image() const { return m_deviceImage; }
 
+		// Disable copy
+		ImageBuffer(const ImageBuffer&) = delete;
+
 	private:
-		ImageBuffer(vk::Image image, vk::ImageView view, vk::Format format, vk::DeviceMemory memory)
-			: m_deviceImage(image)
-			, m_imageView(view)
-			, m_format(format)
-			, m_memory(memory)
-		{}
-
-		friend class VulkanAllocator;
-
 		vk::Image m_deviceImage;
 		vk::ImageView m_imageView;
 		vk::Format m_format;
-		vk::DeviceMemory m_memory;
 	};
 }

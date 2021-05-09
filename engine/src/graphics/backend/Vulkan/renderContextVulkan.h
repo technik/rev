@@ -64,9 +64,9 @@ namespace rev::gfx
 		// Swapchain
 		bool createSwapchain(bool vSync);
 		void resizeSwapchain(const math::Vec2u& imageSize);
-		auto swapchainImageView(size_t i) const { return m_swapchain.imageViews[i]; }
-		auto nSwapChainImages() const { return m_swapchain.images.size(); }
-		vk::Image swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
+		auto& swapchainImageView(size_t i) const { return *m_swapchain.imageBuffers[i]; }
+		auto nSwapChainImages() const { return m_swapchain.imageBuffers.size(); }
+		const ImageBuffer& swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
 		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
 		auto currentFrameIndex() const { return m_swapchain.frameIndex; }
 		void swapchainPresent();
@@ -126,13 +126,12 @@ namespace rev::gfx
 		struct SwapChainInfo
 		{
 			vk::SurfaceKHR m_surface;
-			vk::SwapchainKHR vkSwapchain;
+			vk::SwapchainKHR m_vkSwapchain;
 			vk::Format m_imageFormat;
-			std::vector<vk::Image> images;
-			std::vector<vk::ImageView> imageViews;
+			std::vector<std::unique_ptr<ImageBuffer>> imageBuffers;
 			uint32_t frameIndex;
 
-			auto currentImage() const { return images[frameIndex]; }
+			const auto& currentImage() const { return imageBuffers[frameIndex]; }
 
 			bool init(
 				vk::Device device,
@@ -146,7 +145,6 @@ namespace rev::gfx
 
 		private:
 			bool createSwapchain(const math::Vec2u& imageSize);
-			void createImageViews();
 
 			uint32_t m_presentFamily;
 			vk::PresentModeKHR m_presentMode;

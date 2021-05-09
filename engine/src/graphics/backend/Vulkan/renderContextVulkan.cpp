@@ -270,25 +270,7 @@ namespace rev::gfx {
 		m_presentMode = presentMode;
 		m_presentFamily = presentQueueFamily;
 
-		// Create swapchain's render pass desc
-		vk::AttachmentDescription colorAttachment;
-		colorAttachment.initialLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.finalLayout = vk::ImageLayout::eGeneral;
-		colorAttachment.format = imgFormat; // TODO: Should be swapchain's format?
-		colorAttachment.samples = vk::SampleCountFlagBits::e1;
-		colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
-		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-		vk::AttachmentReference colorAttachReference;
-		colorAttachReference.attachment = 0;
-		colorAttachReference.layout = vk::ImageLayout::eGeneral;
-		vk::SubpassDescription colorSubpass;
-		colorSubpass.colorAttachmentCount = 1;
-		colorSubpass.pColorAttachments = &colorAttachReference;
-		colorSubpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-		auto renderPassInfo = vk::RenderPassCreateInfo({}, colorAttachment, colorSubpass);
-
 		createSwapchain(imageSize);
-		createImageViews();
 
 		return true;
 	}
@@ -297,30 +279,13 @@ namespace rev::gfx {
 	void RenderContextVulkan::SwapChainInfo::resize(const math::Vec2u& imageSize)
 	{
 		// Destroy image views
-		for (auto view : imageViews)
-			m_device.destroyImageView(view);
-		imageViews.clear();
+		for (auto& buffer: imageBuffers)
+			m_device.destroyImageView(buffer->view());
+		imageBuffers.clear();
 		// Destroy the swapchain
-		m_device.destroySwapchainKHR(vkSwapchain);
+		m_device.destroySwapchainKHR(m_vkSwapchain);
 
 		createSwapchain(imageSize);
-		createImageViews();
-	}
-
-	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::SwapChainInfo::createImageViews()
-	{
-		assert(imageViews.empty());
-		imageViews.reserve(images.size());
-		for (auto image : images) {
-			vk::ImageViewCreateInfo viewInfo({},
-				image,
-				vk::ImageViewType::e2D,
-				m_imageFormat,
-				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
-				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
-			imageViews.push_back(m_device.createImageView(viewInfo));
-		}
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -342,8 +307,22 @@ namespace rev::gfx {
 			vk::CompositeAlphaFlagBitsKHR::eOpaque,
 			m_presentMode);
 
-		vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
-		images = m_device.getSwapchainImagesKHR(vkSwapchain);
+		m_vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
+		auto images = m_device.getSwapchainImagesKHR(m_vkSwapchain);
+
+		assert(imageBuffers.empty());
+		imageBuffers.reserve(images.size());
+		for (auto image : images) {
+			vk::ImageViewCreateInfo viewInfo({},
+				image,
+				vk::ImageViewType::e2D,
+				m_imageFormat,
+				{ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity },
+				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+			auto view = m_device.createImageView(viewInfo);
+
+			imageBuffers.emplace_back(new ImageBuffer(image, view, m_imageFormat));
+		}
 		return true;
 	}
 
@@ -379,8 +358,8 @@ namespace rev::gfx {
 		m_presentLayoutSemaphore = m_device.createSemaphore({});
 
 		// Prepare per frame data
-		m_frameData.reserve(m_swapchain.images.size());
-		for (auto& img : m_swapchain.images)
+		m_frameData.reserve(m_swapchain.imageBuffers.size());
+		for (auto& img : m_swapchain.imageBuffers)
 		{
 			m_frameData.emplace_back(m_device, m_queueFamilies.present.value());
 		}
@@ -418,16 +397,16 @@ namespace rev::gfx {
 	{
 		m_frameData.clear(); // Free vulkan objects used per frame
 
-		if(m_swapchain.images.size() > 0)
+		if(m_swapchain.imageBuffers.size() > 0)
 		{
 			m_device.destroySemaphore(m_renderFinishedSemaphore);
 			m_device.destroySemaphore(m_presentLayoutSemaphore);
 
-			for (auto view : m_swapchain.imageViews)
+			for (auto& image : m_swapchain.imageBuffers)
 			{
-				m_device.destroyImageView(view);
+				m_device.destroyImageView(image->view());
 			}
-			m_device.destroySwapchainKHR(m_swapchain.vkSwapchain);
+			m_device.destroySwapchainKHR(m_swapchain.m_vkSwapchain);
 		}
 
 		if(m_surface)
@@ -494,12 +473,12 @@ namespace rev::gfx {
 	}
 	
 	//--------------------------------------------------------------------------------------------------
-	vk::Image RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s, vk::CommandBuffer cmd)
+	const ImageBuffer& RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s, vk::CommandBuffer cmd)
 	{
-		auto res = m_device.acquireNextImageKHR(m_swapchain.vkSwapchain, uint64_t(-1), s);
+		auto res = m_device.acquireNextImageKHR(m_swapchain.m_vkSwapchain, uint64_t(-1), s);
 
 		m_swapchain.frameIndex = res.value;
-		auto nextImage = m_swapchain.currentImage();
+		auto& nextImage = m_swapchain.currentImage();
 
 		// Transition image to general layout before use
 		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
@@ -510,7 +489,7 @@ namespace rev::gfx {
 			vk::ImageLayout::eGeneral,
 			m_queueFamilies.present.value(),
 			m_queueFamilies.graphics.value(),
-			nextImage,
+			nextImage->image(),
 			clearRange);
 
 		cmd.pipelineBarrier(
@@ -525,7 +504,7 @@ namespace rev::gfx {
 			0, nullptr, // Buffer memory barriers
 			1, &presentToTransferBarrier);
 
-		return nextImage;
+		return *nextImage;
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -544,7 +523,7 @@ namespace rev::gfx {
 			vk::ImageLayout::ePresentSrcKHR,
 			m_queueFamilies.graphics.value(),
 			m_queueFamilies.present.value(),
-			m_swapchain.currentImage(),
+			m_swapchain.currentImage()->image(),
 			imageRange);
 		cmd.pipelineBarrier(
 			// Wait for
@@ -570,7 +549,7 @@ namespace rev::gfx {
 		// Present image 
 		auto presentInfo = vk::PresentInfoKHR(
 			1, &m_presentLayoutSemaphore, // Wait on this
-			1, &m_swapchain.vkSwapchain,
+			1, &m_swapchain.m_vkSwapchain,
 			&m_swapchain.frameIndex);
 
 		auto res = m_gfxQueue.presentKHR(presentInfo);

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
+#include <graphics/backend/FrameBufferManager.h>
 
 #include <vector>
 
@@ -27,24 +28,28 @@ namespace rev
 {
 	struct RenderPass
 	{
-		vk::RenderPass m_vkPass;
-		vk::Framebuffer m_fb;
+		RenderPass(vk::RenderPass vkPass, gfx::FrameBufferManager& fbManager)
+			: m_vkPass(vkPass)
+			, m_fbManager(fbManager)
+		{}
 
-		std::vector<vk::Image> colorTargets;
-		std::optional<vk::Image> depthTarget;
+
+		vk::RenderPass vkPass() const { return m_vkPass; }
 
 		void begin(vk::CommandBuffer cmd, const math::Vec2u& targetSize)
 		{
-			assert(m_clearColors.size() >= colorTargets.size());
+			assert(m_clearColors.size() >= m_colorTargets.size());
+
+			refreshFrameBuffer(targetSize); // Refresh frame buffer
 
 			// Clear color attachments
-			if (clearColor)
+			if (m_clearColor)
 			{
-				for (uint32_t i = 0; i < colorTargets.size(); ++i)
+				for (uint32_t i = 0; i < m_colorTargets.size(); ++i)
 				{
 					auto clearColorRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
 					cmd.clearColorImage(
-						colorTargets[i],
+						m_colorTargets[i],
 						vk::ImageLayout::eGeneral,
 						m_clearColors[i],
 						clearColorRange);
@@ -52,13 +57,13 @@ namespace rev
 			}
 
 			// Clear depth
-			if (clearZ)
+			if (m_clearZ)
 			{
-				assert(depthTarget.has_value());
+				assert(m_depthTarget.has_value());
 
 				auto clearDepthRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1);
 				cmd.clearDepthStencilImage(
-					depthTarget.value(),
+					m_depthTarget.value(),
 					vk::ImageLayout::eGeneral,
 					m_clearDepth,
 					clearDepthRange);
@@ -90,13 +95,13 @@ namespace rev
 
 		void setClearDepth(float depth)
 		{
-			clearZ = true;
+			m_clearZ = true;
 			m_clearDepth = vk::ClearDepthStencilValue(0.f);
 		}
 
 		void setClearColor(const std::vector<math::Vec4f>& colors)
 		{
-			clearColor = true;
+			m_clearColor = true;
 			m_clearColors.reserve(colors.size());
 			m_clearColors.clear();
 
@@ -109,16 +114,40 @@ namespace rev
 
 		void setClearColor(const math::Vec4f& c)
 		{
-			clearColor = true;
+			m_clearColor = true;
 			m_clearColors.resize(1);
 			m_clearColors[0] = vk::ClearColorValue(std::array<float, 4>{c.x(), c.y(), c.z(), c.w()});
 		}
 
 		void setClearColor(const math::Vec3f& c)
 		{
-			clearColor = true;
+			m_clearColor = true;
 			m_clearColors.resize(1);
 			m_clearColors[0] = vk::ClearColorValue(std::array<float, 4>{c.x(), c.y(), c.z(), 1.f});
+		}
+
+		void setColorTargets(const std::vector<const gfx::ImageBuffer*>& colorTargets)
+		{
+			// Invalidate frame buffer
+			m_fb = vk::Framebuffer{};
+
+			m_colorTargets.clear();
+			m_colorViews.clear();
+
+			for (auto t : colorTargets)
+			{
+				m_colorTargets.push_back(t->image());
+				m_colorViews.push_back(t->view());
+			}
+		}
+
+		void setDepthTarget(const gfx::ImageBuffer& depthTarget)
+		{
+			// Invalidate frame buffer
+			m_fb = vk::Framebuffer{};
+
+			m_depthTarget = depthTarget.image();
+			m_depthView = depthTarget.view();
 		}
 
 		void end(vk::CommandBuffer cmd)
@@ -148,9 +177,31 @@ namespace rev
 		}
 
 	private:
-		bool clearColor = false;
-		bool clearZ = false;
 
+		void refreshFrameBuffer(const math::Vec2u& targetSize)
+		{
+			if (!m_fb)
+			{
+				auto views = m_colorViews;
+				if (m_depthView.has_value())
+					views.push_back(m_depthView.value());
+
+				m_fb = m_fbManager.get(views, m_vkPass, targetSize);
+			}
+		}
+
+		vk::RenderPass m_vkPass;
+		gfx::FrameBufferManager& m_fbManager;
+
+		bool m_clearColor = false;
+		bool m_clearZ = false;
+
+		std::vector<vk::Image> m_colorTargets;
+		std::vector<vk::ImageView> m_colorViews;
+		std::optional<vk::Image> m_depthTarget;
+		std::optional<vk::ImageView> m_depthView;
+
+		vk::Framebuffer m_fb;
 		vk::ClearDepthStencilValue m_clearDepth;
 		std::vector<vk::ClearColorValue> m_clearColors;
 	};

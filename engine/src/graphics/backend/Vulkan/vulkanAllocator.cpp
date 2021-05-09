@@ -281,7 +281,7 @@ namespace rev::gfx {
 			vk::ImageSubresourceRange( isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 		auto imageView = m_device.createImageView(viewInfo);
 
-		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format, imageMemory),
+		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format),
 			[this, imageMemory, vkImage](ImageBuffer* p)
 			{
 				m_device.freeMemory(imageMemory);

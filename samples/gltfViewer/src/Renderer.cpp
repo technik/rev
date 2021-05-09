@@ -40,6 +40,8 @@ namespace rev
 		m_maxNumInstances = maxNumInstances;
 		m_ctxt = &ctxt;
 
+		m_frameBuffers = std::make_unique<gfx::FrameBufferManager>(ctxt.device());
+
 		auto device = ctxt.device();
 
 		// Create semaphores
@@ -47,7 +49,6 @@ namespace rev
 
 		createRenderTargets();
 		createRenderPasses();
-		createFrameBuffers();
 		createShaderPipelines();
 
 		// Allocate matrix buffers
@@ -93,7 +94,7 @@ namespace rev
 		auto device = m_ctxt->device();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
-		device.destroyRenderPass(m_uiRenderPass.m_vkPass);
+		device.destroyRenderPass(m_uiRenderPass->vkPass());
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
@@ -103,10 +104,11 @@ namespace rev
 		m_windowSize = windowSize;
 		m_ctxt->resizeSwapchain(windowSize);
 		
-		createFrameBuffers();
-
 		// Update render passes
-		m_uiRenderPass.depthTarget = m_gBufferZ->image();
+		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
+
+		// Invalidate frame buffers
+		m_frameBuffers->clear();
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -128,10 +130,9 @@ namespace rev
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
 		// Render the Geometry/UI pass
-		m_uiRenderPass.colorTargets = { m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) };
-		m_uiRenderPass.m_fb = m_swapchainFrameBuffers[m_ctxt->currentFrameIndex()];
-		m_uiRenderPass.setClearColor(m_frameConstants.ambientColor);
-		m_uiRenderPass.begin(cmd, m_windowSize);
+		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
+		m_uiRenderPass->setClearColor(m_frameConstants.ambientColor);
+		m_uiRenderPass->begin(cmd, m_windowSize);
 
 		// Render a triangle if the scene is loaded
 		if (geometryReady)
@@ -154,7 +155,7 @@ namespace rev
 				m_frameConstants);
 
 			// Draw all instances in a single batch
-			m_uiRenderPass.drawGeometry(cmd, scene.m_sceneInstances, scene.m_rasterData);
+			m_uiRenderPass->drawGeometry(cmd, scene.m_sceneInstances, scene.m_rasterData);
 
 			m_doubleBufferNdx ^= 1;
 		}
@@ -163,7 +164,7 @@ namespace rev
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
-		m_uiRenderPass.end(cmd);
+		m_uiRenderPass->end(cmd);
 
 		cmd.end();
 
@@ -180,10 +181,11 @@ namespace rev
 	void Renderer::createRenderPasses()
 	{
 		// UI Render pass
-		m_uiRenderPass.setClearDepth(0.f);
-		m_uiRenderPass.setClearColor(math::Vec3f::zero());
-		m_uiRenderPass.m_vkPass = m_ctxt->createRenderPass({ m_ctxt->swapchainFormat(), vk::Format::eD32Sfloat });
-		m_uiRenderPass.depthTarget = m_gBufferZ->image();
+		m_uiRenderPass = std::make_unique<RenderPass>(
+			m_ctxt->createRenderPass({ m_ctxt->swapchainFormat(), vk::Format::eD32Sfloat }),
+			*m_frameBuffers);
+		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
+		m_uiRenderPass->setClearDepth(0.f);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -211,7 +213,7 @@ namespace rev
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			device,
 			m_gbufferPipelineLayout,
-			m_uiRenderPass.m_vkPass,
+			m_uiRenderPass->vkPass(),
 			"../shaders/gbuffer.vert.spv",
 			"../shaders/gbuffer.frag.spv",
 			true);
@@ -232,6 +234,9 @@ namespace rev
 			vk::Format::eD32Sfloat,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
 			m_ctxt->graphicsQueueFamily());
+
+		// Transition new images to general layout
+		m_ctxt->transitionImageLayout(m_gBufferZ->image(), m_gBufferZ->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -242,34 +247,10 @@ namespace rev
 		m_gBufferZ = nullptr;
 	}
 
-	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::createFrameBuffers()
-	{
-		auto windowSize = m_ctxt->windowSize();
-		auto& alloc = m_ctxt->allocator();
-
-		// Transition new images to general layout
-		m_ctxt->transitionImageLayout(m_gBufferZ->image(), m_gBufferZ->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
-
-		// Actual frame buffer creation
-		m_swapchainFrameBuffers.clear();
-
-		// Create frame buffers for each image in the swapchain
-		m_swapchainFrameBuffers.reserve(m_ctxt->nSwapChainImages());
-		for (size_t i = 0; i < m_ctxt->nSwapChainImages(); ++i) {
-			std::vector<vk::ImageView> imageViews = { m_ctxt->swapchainImageView(i), m_gBufferZ->view() };
-			auto fbInfo = vk::FramebufferCreateInfo({},
-				m_uiRenderPass.m_vkPass,
-				imageViews,
-				(uint32_t)windowSize.x(), (uint32_t)windowSize.y(), 1);
-			m_swapchainFrameBuffers.push_back(m_ctxt->device().createFramebuffer(fbInfo));
-		}
-	}
-
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::destroyFrameBuffers()
 	{
-		m_swapchainFrameBuffers.clear();
+		m_frameBuffers->clear();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -314,7 +295,7 @@ namespace rev
 		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 		initInfo.DescriptorPool = rc.device().createDescriptorPool(pool_info);
 
-		ImGui_ImplVulkan_Init(&initInfo, m_uiRenderPass.m_vkPass);
+		ImGui_ImplVulkan_Init(&initInfo, m_uiRenderPass->vkPass());
 
 		auto& os = *core::OSHandler::get();
 		os += [=](MSG msg) {
