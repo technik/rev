@@ -81,12 +81,7 @@ namespace rev :: gfx
 		vk::CommandBuffer getNewRenderCmdBuffer();
 
 		// Render passes and frame buffers
-		struct RenderPassAttachment
-		{
-			vk::Format format;
-			vk::ImageLayout initialLayout, finalLayout;
-		};
-		vk::RenderPass createRenderPass(const std::vector<RenderPassAttachment>& attachments);
+		vk::RenderPass createRenderPass(const std::vector<vk::Format>& attachmentFormats);
 		void transitionImageLayout(vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
 
 		// Alloc

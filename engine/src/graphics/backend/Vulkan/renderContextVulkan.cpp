@@ -596,19 +596,19 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	vk::RenderPass RenderContextVulkan::createRenderPass(const std::vector<RenderPassAttachment>& attachments)
+	vk::RenderPass RenderContextVulkan::createRenderPass(const std::vector<vk::Format>& attachmentFormats)
 	{
 		// UI Render pass
 		std::vector<vk::AttachmentDescription> attachmentInfo;
 		std::vector<vk::AttachmentReference> colorReferences;
 		std::vector<vk::AttachmentReference> depthReferences;
 
-		for (const auto& attachment : attachments)
+		for (const auto& attachmentFormat : attachmentFormats)
 		{
 			auto& info = attachmentInfo.emplace_back();
-			info.initialLayout = attachment.initialLayout;
-			info.finalLayout = attachment.finalLayout;
-			info.format = attachment.format;
+			info.initialLayout = vk::ImageLayout::eGeneral;
+			info.finalLayout = vk::ImageLayout::eGeneral;
+			info.format = attachmentFormat;
 			info.samples = vk::SampleCountFlagBits::e1;
 			info.loadOp = vk::AttachmentLoadOp::eLoad;
 			info.storeOp = vk::AttachmentStoreOp::eStore;

@@ -36,17 +36,7 @@ namespace rev
 	void Renderer::init(gfx::RenderContextVulkan& ctxt, const math::Vec2u& windowSize, size_t maxNumInstances)
 	{
 		m_windowSize = windowSize;
-		m_viewport.x = 0;
-		m_viewport.y = 0;
-		m_viewport.maxDepth = 1.0f;
-		m_viewport.minDepth = 0.0f;
-		m_viewport.width = (float)m_windowSize.x();
-		m_viewport.height = (float)m_windowSize.y();
-
-		m_renderArea.offset.x = 0;
-		m_renderArea.offset.y = 0;
-		m_renderArea.extent.width = m_windowSize.x();
-		m_renderArea.extent.height = m_windowSize.y();
+		setRenderArea(windowSize);
 
 		m_maxNumInstances = maxNumInstances;
 		m_ctxt = &ctxt;
@@ -56,23 +46,12 @@ namespace rev
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
-		// Init descriptor sets
-		const uint32_t numDescriptors = 2 * 2; // 2 per frame * 2 frames
-		vk::DescriptorPoolSize poolSize(vk::DescriptorType::eStorageBuffer, numDescriptors);
-
-		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptors, poolSize);
-		m_descPool = device.createDescriptorPool(poolInfo);
-
+		// UI pipeline layout
 		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 
 		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, matricesBinding);
 		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
-		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
 
-		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
-		m_frameDescs = device.allocateDescriptorSets(setInfo);
-
-		// UI pipeline layout
 		vk::PushConstantRange camerasPushRange(
 			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(FramePushConstants));
@@ -84,16 +63,14 @@ namespace rev
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
 
 		// UI Render pass
-		m_uiPass = ctxt.createRenderPass({
-			{ ctxt.swapchainFormat(), vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral },
-			{ vk::Format::eD32Sfloat, vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral }
-			});
+		m_uiPass = ctxt.createRenderPass({ ctxt.swapchainFormat(), vk::Format::eD32Sfloat });
 
 		m_uiRenderPass.setClearDepth(0.f);
 		m_uiRenderPass.setClearColor(math::Vec3f::zero());
 		m_uiRenderPass.m_vkPass = m_uiPass;
 
 		createFrameBuffers();
+		m_uiRenderPass.depthTarget = m_gBufferZ->image();
 
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			device,
@@ -111,7 +88,19 @@ namespace rev
 		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 
+		// Init descriptor sets
+		const uint32_t numDescriptors = 2 * 2; // 2 per frame * 2 frames
+		vk::DescriptorPoolSize poolSize(vk::DescriptorType::eStorageBuffer, numDescriptors);
+
+		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptors, poolSize);
+		m_descPool = device.createDescriptorPool(poolInfo);
+
+		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
+		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
+		m_frameDescs = device.allocateDescriptorSets(setInfo);
+
 		// Update descriptor sets
+
 		vk::WriteDescriptorSet writeInfo;
 		writeInfo.dstSet = m_frameDescs[0];
 		writeInfo.dstBinding = 0;
@@ -145,19 +134,13 @@ namespace rev
 	{
 		m_windowSize = windowSize;
 		m_ctxt->resizeSwapchain(windowSize);
+		
 		createFrameBuffers();
 
-		m_viewport.x = 0;
-		m_viewport.y = 0;
-		m_viewport.maxDepth = 1.0f;
-		m_viewport.minDepth = 0.0f;
-		m_viewport.width = (float)m_windowSize.x();
-		m_viewport.height = (float)m_windowSize.y();
+		// Update render passes
+		m_uiRenderPass.depthTarget = m_gBufferZ->image();
 
-		m_renderArea.offset.x = 0;
-		m_renderArea.offset.y = 0;
-		m_renderArea.extent.width = m_viewport.width;
-		m_renderArea.extent.height = m_viewport.height;
+		setRenderArea(windowSize);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -176,10 +159,8 @@ namespace rev
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
 		// Render the Geometry/UI pass
-		auto swapchainImage = m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
-		m_uiRenderPass.colorTargets = { swapchainImage };
+		m_uiRenderPass.colorTargets = { m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) };
 		m_uiRenderPass.m_fb = m_swapchainFrameBuffers[m_ctxt->currentFrameIndex()];
-		m_uiRenderPass.depthTarget = m_gBufferZ->image();
 		m_uiRenderPass.setClearColor(m_frameConstants.ambientColor);
 		m_uiRenderPass.begin(cmd, m_windowSize);
 
@@ -287,6 +268,22 @@ namespace rev
 		m_gBufferNormals = nullptr;
 		m_gBufferPBR = nullptr;
 		m_gBufferZ = nullptr;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Renderer::setRenderArea(const math::Vec2u& size)
+	{
+		m_viewport.x = 0;
+		m_viewport.y = 0;
+		m_viewport.maxDepth = 1.0f;
+		m_viewport.minDepth = 0.0f;
+		m_viewport.width = (float)size.x();
+		m_viewport.height = (float)size.y();
+
+		m_renderArea.offset.x = 0;
+		m_renderArea.offset.y = 0;
+		m_renderArea.extent.width = m_viewport.width;
+		m_renderArea.extent.height = m_viewport.height;
 	}
 
 	//------------------------------------------------------------------------------------------------
