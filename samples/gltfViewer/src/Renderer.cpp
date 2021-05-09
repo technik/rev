@@ -108,7 +108,6 @@ namespace rev
 		// Update render passes
 		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
 
-
 		// Invalidate frame buffers
 		m_frameBuffers->clear();
 	}

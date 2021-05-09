@@ -36,11 +36,12 @@ namespace rev::gfx
 	class RasterHeap
 	{
 	public:
-		struct Primitive
+		struct alignas(16) Primitive
 		{
 			uint32_t vtxOffset;
 			uint32_t indexOffset;
 			uint32_t numIndices;
+			uint32_t materialNdx;
 		};
 
 	public:

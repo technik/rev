@@ -30,6 +30,7 @@
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/backend/Vulkan/vulkanAllocator.h>
 #include <graphics/RasterHeap.h>
+#include <graphics/scene/Material.h>
 
 /*
 #include <core/tasks/threadPool.h>
