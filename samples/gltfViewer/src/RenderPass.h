@@ -114,6 +114,27 @@ namespace rev
 			cmd.endRenderPass();
 		}
 
+		void drawGeometry(
+			vk::CommandBuffer cmd,
+			const game::MeshRenderer& sceneInstances,
+			const gfx::RasterHeap& rasterData)
+		{
+			// Draw all instances in a single batch
+			rasterData.bindBuffers(cmd);
+			for (size_t i = 0; i < sceneInstances.numInstances(); ++i)
+			{
+				assert(i < std::numeric_limits<uint32_t>::max());
+
+				auto meshNdx = sceneInstances.m_instanceMeshes[i];
+				auto& mesh = sceneInstances.m_meshes[meshNdx];
+				for (size_t primitiveId = mesh.first; primitiveId != mesh.second; ++primitiveId)
+				{
+					auto& primitive = rasterData.getPrimitiveById(primitiveId);
+					cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, (uint32_t)i);
+				}
+			}
+		}
+
 	private:
 		bool clearColor = false;
 		bool clearZ = false;

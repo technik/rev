@@ -108,7 +108,7 @@ namespace rev::gfx {
 		m_indices.clear();
 	}
 
-	void RasterHeap::bindBuffers(const vk::CommandBuffer& cmd)
+	void RasterHeap::bindBuffers(vk::CommandBuffer cmd) const
 	{
 		cmd.bindVertexBuffers(0,
 			std::array{

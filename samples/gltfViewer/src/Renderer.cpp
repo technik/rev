@@ -63,11 +63,9 @@ namespace rev
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
 
 		// UI Render pass
-		m_uiPass = ctxt.createRenderPass({ ctxt.swapchainFormat(), vk::Format::eD32Sfloat });
-
 		m_uiRenderPass.setClearDepth(0.f);
 		m_uiRenderPass.setClearColor(math::Vec3f::zero());
-		m_uiRenderPass.m_vkPass = m_uiPass;
+		m_uiRenderPass.m_vkPass = ctxt.createRenderPass({ ctxt.swapchainFormat(), vk::Format::eD32Sfloat });
 
 		createFrameBuffers();
 		m_uiRenderPass.depthTarget = m_gBufferZ->image();
@@ -75,7 +73,7 @@ namespace rev
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			device,
 			m_gbufferPipelineLayout,
-			m_uiPass,
+			m_uiRenderPass.m_vkPass,
 			"../shaders/gbuffer.vert.spv",
 			"../shaders/gbuffer.frag.spv",
 			true);
@@ -125,7 +123,7 @@ namespace rev
 		auto device = m_ctxt->device();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
-		device.destroyRenderPass(m_uiPass);
+		device.destroyRenderPass(m_uiRenderPass.m_vkPass);
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
@@ -153,6 +151,9 @@ namespace rev
 		m_frameConstants.lightColor = scene.lightColor;
 		m_frameConstants.ambientColor = scene.ambientColor;
 		m_frameConstants.lightDir = normalize(scene.lightDir);
+		float aspect = float(m_windowSize.x()) / m_windowSize.y();
+		m_frameConstants.proj = scene.proj;
+		m_frameConstants.view = scene.view;
 
 		// Record frame
 		auto cmd = m_ctxt->getNewRenderCmdBuffer();
@@ -180,11 +181,6 @@ namespace rev
 			// Update descriptor set with this frame's matrices
 			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
 
-			// Update view and projection matrices push constants
-			float aspect = float(m_windowSize.x()) / m_windowSize.y();
-			m_frameConstants.proj = scene.proj;
-			m_frameConstants.view = scene.view;
-
 			cmd.pushConstants<FramePushConstants>(
 				m_gbufferPipelineLayout,
 				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
@@ -192,19 +188,7 @@ namespace rev
 				m_frameConstants);
 
 			// Draw all instances in a single batch
-			scene.m_rasterData.bindBuffers(cmd);
-			for (size_t i = 0; i < scene.m_sceneInstances.numInstances(); ++i)
-			{
-				assert(i < std::numeric_limits<uint32_t>::max());
-
-				auto meshNdx = scene.m_sceneInstances.m_instanceMeshes[i];
-				auto& mesh = scene.m_sceneInstances.m_meshes[meshNdx];
-				for (size_t primitiveId = mesh.first; primitiveId != mesh.second; ++primitiveId)
-				{
-					auto& primitive = scene.m_rasterData.getPrimitiveById(primitiveId);
-					cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, (uint32_t)i);
-				}
-			}
+			m_uiRenderPass.drawGeometry(cmd, scene.m_sceneInstances, scene.m_rasterData);
 
 			m_doubleBufferNdx ^= 1;
 		}
@@ -252,7 +236,7 @@ namespace rev
 		for (size_t i = 0; i < m_ctxt->nSwapChainImages(); ++i) {
 			std::vector<vk::ImageView> imageViews = { m_ctxt->swapchainImageView(i), m_gBufferZ->view() };
 			auto fbInfo = vk::FramebufferCreateInfo({},
-				m_uiPass,
+				m_uiRenderPass.m_vkPass,
 				imageViews,
 				(uint32_t)windowSize.x(), (uint32_t)windowSize.y(), 1);
 			m_swapchainFrameBuffers.push_back(m_ctxt->device().createFramebuffer(fbInfo));
@@ -281,8 +265,8 @@ namespace rev
 
 		m_renderArea.offset.x = 0;
 		m_renderArea.offset.y = 0;
-		m_renderArea.extent.width = m_viewport.width;
-		m_renderArea.extent.height = m_viewport.height;
+		m_renderArea.extent.width = size.x();
+		m_renderArea.extent.height = size.y();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -327,7 +311,7 @@ namespace rev
 		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 		initInfo.DescriptorPool = rc.device().createDescriptorPool(pool_info);
 
-		ImGui_ImplVulkan_Init(&initInfo, m_uiPass);
+		ImGui_ImplVulkan_Init(&initInfo, m_uiRenderPass.m_vkPass);
 
 		auto& os = *core::OSHandler::get();
 		os += [=](MSG msg) {

@@ -72,7 +72,7 @@ namespace rev::gfx
 		);
 
 		// Bind data buffers for draw.
-		void bindBuffers(const vk::CommandBuffer& cmd);
+		void bindBuffers(vk::CommandBuffer cmd) const;
 
 	private:
 		bool isClosed() const;
