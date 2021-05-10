@@ -17,43 +17,51 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#version 450
-#extension GL_GOOGLE_include_directive : enable
+#ifndef _PBR_GLSL_
+#define _PBR_GLSL_
 
-#include "material.glsl"
-#include "pbr.glsl"
+#define PI 3.1415927
 
-layout(location = 0) in vec4 vPxlNormal;
-layout(location = 1) in vec4 vPxlWorldPos;
-
-layout(location = 0) out vec4 outColor;
-
-layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
-
-layout(push_constant) uniform Constants
-{
-    mat4 proj;
-    mat4 view;
-	vec3 lightDir;
-	vec3 ambiendColor;
-	vec3 lightColor;
-} frameInfo;
-
-void main() {
-	vec3 normal = normalize(vPxlNormal.xyz);
-	vec3 eye = normalize(inverse(frameInfo.view) * vec4(0,0,0,1) - vPxlWorldPos).xyz;
-	vec3 halfV = normalize(eye + frameInfo.lightDir);
-
-	float ndh = max(0, dot(halfV, normal));
-	float ndl = max(0, dot(frameInfo.lightDir, normal));
-	float ndv = max(0, dot(eye, normal));
-
-	PBRMaterial material = materials[0];
-	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
-	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
-
-	vec3 diffuseLight = diffuseColor  * (frameInfo.ambiendColor + ndl * frameInfo.lightColor) / PI;
-	vec3 specularLight = specularBRDF(specularColor, ndh, ndl, ndv, material.roughness) * frameInfo.lightColor;
-	vec3 pxlColor = specularLight + diffuseLight;
-    outColor = vec4(pxlColor, 1.0);
+float D_GGX(float NoH, float roughness) {
+    float a = NoH * roughness;
+    float k = roughness / (1.0 - NoH * NoH + a * a);
+    return k * k * (1.0 / PI);
 }
+
+float V_SmithGGXCorrelated(float NoV, float NoL, float roughness) {
+    float a2 = roughness * roughness;
+    float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
+    float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
+    return 0.5 / (GGXV + GGXL);
+}
+
+float V_SmithGGXCorrelatedFast(float NoV, float NoL, float roughness) {
+    float a = roughness;
+    float GGXV = NoL * (NoV * (1.0 - a) + a);
+    float GGXL = NoV * (NoL * (1.0 - a) + a);
+    return 0.5 / (GGXV + GGXL);
+}
+
+vec3 F_Schlick(float u, vec3 f0) {
+    float f = pow(1.0 - u, 5.0);
+    return f + f0 * (1.0 - f);
+}
+
+float Fd_Lambert() {
+    return 1.0 / PI;
+}
+
+float whiteBRDF(float ndh, float ndl, float ndv, float r)
+{
+	float D = D_GGX(ndh, r);
+	float G = V_SmithGGXCorrelatedFast(ndv, ndl, r);
+	return D*G;
+}
+
+vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float r)
+{
+	float s = whiteBRDF(ndh, ndv, ndl, r);
+	return F_Schlick(ndv, specularColor) * s * ndl;
+}
+
+#endif // _PBR_GLSL_
