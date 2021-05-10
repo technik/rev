@@ -22,23 +22,22 @@
 
 #define PI 3.1415927
 
-float D_GGX(float NoH, float roughness) {
-    float a = NoH * roughness;
-    float k = roughness / (1.0 - NoH * NoH + a * a);
+float D_GGX(float NoH, float alpha) {
+    float a2 = NoH * alpha;
+    float k = alpha / (1.0 - NoH * NoH + a2 * a2);
     return k * k * (1.0 / PI);
 }
 
-float V_SmithGGXCorrelated(float NoV, float NoL, float roughness) {
-    float a2 = roughness * roughness;
+float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
+    float a2 = alpha * alpha;
     float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
     float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
     return 0.5 / (GGXV + GGXL);
 }
 
-float V_SmithGGXCorrelatedFast(float NoV, float NoL, float roughness) {
-    float a = roughness;
-    float GGXV = NoL * (NoV * (1.0 - a) + a);
-    float GGXL = NoV * (NoL * (1.0 - a) + a);
+float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
+    float GGXV = NoL * (NoV * (1.0 - alpha) + alpha);
+    float GGXL = NoV * (NoL * (1.0 - alpha) + alpha);
     return 0.5 / (GGXV + GGXL);
 }
 

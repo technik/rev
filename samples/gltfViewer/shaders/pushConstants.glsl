@@ -17,37 +17,17 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#version 450
-#extension GL_GOOGLE_include_directive : enable
-#extension GL_EXT_scalar_block_layout : enable
+#ifndef _PUSH_CONSTANTS_GLSL_
+#define _PUSH_CONSTANTS_GLSL_
 
-#include "material.glsl"
-#include "pbr.glsl"
+layout(push_constant,scalar) uniform Constants
+{
+    mat4 proj;
+    mat4 view;
+	vec3 lightDir;
+	vec3 ambientColor;
+	vec3 lightColor;
+	uint flags;
+} frameInfo;
 
-layout(location = 0) in vec4 vPxlNormal;
-layout(location = 1) in vec4 vPxlWorldPos;
-
-layout(location = 0) out vec4 outColor;
-
-layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
-
-#include "pushConstants.glsl"
-
-void main() {
-	vec3 normal = normalize(vPxlNormal.xyz);
-	vec3 eye = normalize(inverse(frameInfo.view) * vec4(0,0,0,1) - vPxlWorldPos).xyz;
-	vec3 halfV = normalize(eye + frameInfo.lightDir);
-
-	float ndh = max(0, dot(halfV, normal));
-	float ndl = max(0, dot(frameInfo.lightDir, normal));
-	float ndv = max(0, dot(eye, normal));
-
-	PBRMaterial material = materials[0];
-	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
-	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
-
-	vec3 diffuseLight = diffuseColor  * (frameInfo.ambientColor + ndl * frameInfo.lightColor) / PI;
-	vec3 specularLight = specularBRDF(specularColor, ndh, ndl, ndv, material.roughness) * frameInfo.lightColor;
-	vec3 pxlColor = specularLight + diffuseLight;
-    outColor = vec4(pxlColor, 1.0);
-}
+#endif // _PUSH_CONSTANTS_GLSL_

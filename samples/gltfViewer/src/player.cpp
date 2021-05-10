@@ -56,9 +56,9 @@ namespace rev {
 		m_sceneRoot->init();
 
 		// Lighting state
-		m_sceneGraphics.ambientColor = Vec4f(0.2f, 0.2f, 0.4f);
-		m_sceneGraphics.lightColor = Vec4f(1.f, 1.f, 1.f);
-		m_sceneGraphics.lightDir = normalize(Vec4f(1.f, 1.f, 1.f, 0.f));
+		m_sceneGraphics.ambientColor = Vec3f(0.2f, 0.2f, 0.4f);
+		m_sceneGraphics.lightColor = Vec3f(1.f, 1.f, 1.f);
+		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
 
 		// Init renderer
 		auto sceneStream = m_renderer.init(

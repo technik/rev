@@ -48,9 +48,9 @@ namespace rev
 
 			math::Mat44f proj;
 			math::Mat44f view;
-			math::Vec4f lightDir;
-			math::Vec4f ambientColor;
-			math::Vec4f lightColor;
+			math::Vec3f lightDir;
+			math::Vec3f ambientColor;
+			math::Vec3f lightColor;
 		};
 
 		size_t init(
@@ -96,9 +96,10 @@ namespace rev
 		{
 			math::Mat44f proj;
 			math::Mat44f view;
-			math::Vec4f lightDir;
-			math::Vec4f ambientColor;
-			math::Vec4f lightColor;
+			math::Vec3f lightDir;
+			math::Vec3f ambientColor;
+			math::Vec3f lightColor;
+			uint32_t flags;
 		} m_frameConstants;
 
 		std::unique_ptr<RenderPass> m_uiRenderPass;

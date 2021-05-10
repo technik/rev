@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #version 450
 #extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_scalar_block_layout : enable
 
 #include "material.glsl"
 
@@ -28,14 +29,7 @@ layout(location = 1) in vec3 normal;
 layout(set = 0, binding = 0) readonly buffer _Matrix { mat4 worldMtx[]; };
 layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
 
-layout(push_constant) uniform Constants
-{
-    mat4 proj;
-    mat4 view;
-	vec3 lightDir;
-	vec3 ambiendColor;
-	vec3 lightColor;
-} frameInfo;
+#include "pushConstants.glsl"
 
 layout(location = 0) out vec4 vPxlNormal;
 layout(location = 1) out vec4 vPxlWorldPos;
