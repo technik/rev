@@ -26,6 +26,7 @@
 #include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/RasterHeap.h>
+#include <graphics/scene/Material.h>
 
 #include "RenderPass.h"
 
@@ -43,6 +44,7 @@ namespace rev
 		{
 			game::MeshRenderer m_sceneInstances;
 			gfx::RasterHeap m_rasterData;
+			std::vector<gfx::PBRMaterial> m_materials;
 
 			math::Mat44f proj;
 			math::Mat44f view;
@@ -51,7 +53,11 @@ namespace rev
 			math::Vec4f lightColor;
 		};
 
-		void init(gfx::RenderContextVulkan& ctxt, const math::Vec2u& windowSize, size_t maxNumInstances);
+		size_t init(
+			gfx::RenderContextVulkan& ctxt,
+			const math::Vec2u& windowSize,
+			const SceneDesc& scene
+		);
 		void end();
 		void onResize(const math::Vec2u& windowSize);
 		void render(SceneDesc& scene, bool geometryReady);
@@ -84,7 +90,7 @@ namespace rev
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
-		size_t m_maxNumInstances;
+		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
 
 		struct FramePushConstants
 		{

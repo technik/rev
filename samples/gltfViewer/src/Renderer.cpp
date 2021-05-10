@@ -22,6 +22,7 @@
 #include <core/platform/osHandler.h>
 
 #include <graphics/backend/Vulkan/gpuBuffer.h>
+#include <graphics/scene/Material.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
@@ -33,11 +34,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace rev
 {
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::init(gfx::RenderContextVulkan& ctxt, const math::Vec2u& windowSize, size_t maxNumInstances)
+	size_t Renderer::init(
+		gfx::RenderContextVulkan& ctxt,
+		const math::Vec2u& windowSize,
+		const SceneDesc& scene)
 	{
 		m_windowSize = windowSize;
 
-		m_maxNumInstances = maxNumInstances;
 		m_ctxt = &ctxt;
 
 		m_frameBuffers = std::make_unique<gfx::FrameBufferManager>(ctxt.device());
@@ -54,8 +57,22 @@ namespace rev
 		// Allocate matrix buffers
 		auto& alloc = m_ctxt->allocator();
 		m_mtxBuffers.resize(2);
+		const size_t maxNumInstances = scene.m_sceneInstances.numInstances();
+		const size_t maxNumMaterials = scene.m_materials.size();
+
 		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
+
+		// Allocate materials buffer
+		size_t streamToken = 0;
+		if (!scene.m_materials.empty())
+		{
+			m_materialsBuffer = alloc.createGpuBuffer(
+				sizeof(gfx::PBRMaterial) * maxNumMaterials,
+				vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
+				m_ctxt->graphicsQueueFamily());
+			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
+		}
 
 		// Init descriptor sets
 		const uint32_t numDescriptors = 2 * 2; // 2 per frame * 2 frames
@@ -69,20 +86,32 @@ namespace rev
 		m_frameDescs = device.allocateDescriptorSets(setInfo);
 
 		// Update descriptor sets
+		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, m_mtxBuffers[0]->size());
 		vk::WriteDescriptorSet writeInfo;
 		writeInfo.dstSet = m_frameDescs[0];
 		writeInfo.dstBinding = 0;
 		writeInfo.dstArrayElement = 0;
 		writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
 		writeInfo.descriptorCount = 1;
-		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, m_mtxBuffers[0]->size());
 		writeInfo.pBufferInfo = &writeBufferInfo;
 		device.updateDescriptorSets(writeInfo, {});
-		writeInfo.dstSet = m_frameDescs[1];
+
 		writeBufferInfo.buffer = m_mtxBuffers[1]->buffer();
+		writeInfo.dstSet = m_frameDescs[1];
+		device.updateDescriptorSets(writeInfo, {});
+
+		// Matrix buffer
+		vk::DescriptorBufferInfo matrixBufferInfo(m_materialsBuffer->buffer(), 0, m_materialsBuffer->size());
+		writeInfo.dstBinding = 1;
+		writeInfo.pBufferInfo = &matrixBufferInfo;
+		device.updateDescriptorSets(writeInfo, {});
+
+		writeInfo.dstSet = m_frameDescs[0];
 		device.updateDescriptorSets(writeInfo, {});
 
 		initImGui();
+
+		return streamToken;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -198,8 +227,10 @@ namespace rev
 
 		// G-Buffer pipeline
 		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+		vk::DescriptorSetLayoutBinding materialsBinding(1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding };
 
-		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, matricesBinding);
+		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, bindings);
 		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
 
 		vk::PushConstantRange camerasPushRange(

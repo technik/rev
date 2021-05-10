@@ -206,6 +206,24 @@ namespace rev::game {
 
 			return result;
 		}
+
+		std::vector<gfx::PBRMaterial> loadMaterials(const gltf::Document& document)
+		{
+			std::vector<gfx::PBRMaterial> result;
+			result.reserve(document.materials.size());
+
+			for (auto& gltfMaterial : document.materials)
+			{
+				PBRMaterial material;
+				material.baseColor_a = reinterpret_cast<const Vec4f&>(gltfMaterial.pbrMetallicRoughness.baseColorFactor);
+				material.metalness = gltfMaterial.pbrMetallicRoughness.metallicFactor;
+				material.roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
+
+				result.push_back(material);
+			}
+
+			return result;
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -285,6 +303,7 @@ namespace rev::game {
 		}
 
 		// Load resources
+		result.materials = loadMaterials(document);
 		/*loadImages(document);
 		m_textures.resize(document.textures.size());
 		auto skins = loadSkins(attributes, document);

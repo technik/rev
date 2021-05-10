@@ -23,7 +23,7 @@
 
 namespace rev::gfx
 {
-	struct PBRMaterial
+	struct alignas(16) PBRMaterial
 	{
 		math::Vec4f baseColor_a; // base color + alpha coverage
 		float metalness;

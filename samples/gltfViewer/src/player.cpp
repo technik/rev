@@ -61,7 +61,14 @@ namespace rev {
 		m_sceneGraphics.lightDir = normalize(Vec4f(1.f, 1.f, 1.f, 0.f));
 
 		// Init renderer
-		m_renderer.init(renderContext(), renderContext().windowSize(), m_sceneGraphics.m_sceneInstances.numInstances());
+		auto sceneStream = m_renderer.init(
+			renderContext(),
+			renderContext().windowSize(),
+			m_sceneGraphics
+		);
+
+		if (sceneStream)
+			m_sceneLoadStreamToken = sceneStream;
 
 		return true;
 	}
@@ -87,7 +94,8 @@ namespace rev {
 
 		GltfLoader gltfLoader(renderContext());
 		auto loadRes = gltfLoader.load(scene, m_sceneGraphics.m_rasterData);
-		m_sceneGraphics.m_sceneInstances = loadRes.meshInstances;
+		m_sceneGraphics.m_sceneInstances = std::move(loadRes.meshInstances);
+		m_sceneGraphics.m_materials = std::move(loadRes.materials);
 
 		m_sceneRoot->addChild(loadRes.rootNode);
 		m_sceneLoadStreamToken = m_sceneGraphics.m_rasterData.closeAndSubmit(renderContext(), renderContext().allocator());

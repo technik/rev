@@ -17,33 +17,15 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#version 450
-#extension GL_GOOGLE_include_directive : enable
+#ifndef _MATERIAL_GLSL_
+#define _MATERIAL_GLSL_
 
-#include "material.glsl"
-
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 normal;
-
-layout(set = 0, binding = 0) readonly buffer _Matrix { mat4 worldMtx[]; };
-layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
-
-layout(push_constant) uniform Constants
+struct PBRMaterial
 {
-    mat4 proj;
-    mat4 view;
-	vec3 lightDir;
-	vec3 ambiendColor;
-	vec3 lightColor;
-} frameInfo;
+	vec4 baseColor_a; // Base color + alpha coverage
+	float metalness;
+	float roughness;
+	float padding[2];
+};
 
-layout(location = 0) out vec4 vPxlNormal;
-layout(location = 1) out vec4 vPxlWorldPos;
-
-void main() {
-    mat4 world = worldMtx[gl_InstanceIndex];
-
-    vPxlNormal = world * vec4(normal, 0);
-    vPxlWorldPos = world * vec4(position, 1.0);
-    gl_Position = frameInfo.proj * (frameInfo.view  * (world * vPxlWorldPos));
-}
+#endif // _MATERIAL_GLSL_
