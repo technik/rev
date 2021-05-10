@@ -141,14 +141,14 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::unique_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
+	std::shared_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
 	{
 		core::File file(_name.data());
 		return loadFromMemory(file.buffer(), file.size(), nChannels);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::unique_ptr<Image> Image::loadFromMemory(void* data, size_t bufferSize, unsigned nChannels)
+	std::shared_ptr<Image> Image::loadFromMemory(const void* data, size_t bufferSize, unsigned nChannels)
 	{
 		if (bufferSize > 0)
 		{
@@ -175,7 +175,7 @@ namespace rev::gfx
 				PixelFormat format;
 				format.numChannels = nChannels ? nChannels : (unsigned)realNumChannels;
 				format.channel = isHDR ? ChannelFormat::Float32 : ChannelFormat::Byte;
-				auto result = std::make_unique<Image>(format, size);
+				auto result = std::make_shared<Image>(format, size);
 				memcpy(result->data<void>(), imgData, result->area() * format.pixelSize());
 
 				stbi_image_free(imgData);

@@ -30,6 +30,7 @@
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/backend/Vulkan/vulkanAllocator.h>
 #include <graphics/RasterHeap.h>
+#include <graphics/Image.h>
 #include <graphics/scene/Material.h>
 
 /*
@@ -224,6 +225,29 @@ namespace rev::game {
 
 			return result;
 		}
+
+		auto loadImages(const gltf::Document& document)
+		{
+			std::vector<std::shared_ptr<Image>> images;
+			images.reserve(document.images.size());
+
+			for(auto& gltfImage : document.images)
+			{
+				if (!gltfImage.uri.empty()) // Load image from file
+				{
+					images.push_back(Image::load(gltfImage.uri, 4));
+				}
+				else // Load from memory
+				{
+					auto& bv = document.bufferViews[gltfImage.bufferView];
+					auto& buffer = document.buffers[bv.buffer];
+					auto image = Image::loadFromMemory(buffer.data.data() + bv.byteOffset, bv.byteLength, 4);
+					images.push_back(image);
+				}
+			}
+
+			return images;
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -304,19 +328,9 @@ namespace rev::game {
 
 		// Load resources
 		result.materials = loadMaterials(document);
-		/*loadImages(document);
-		m_textures.resize(document.textures.size());
-		auto skins = loadSkins(attributes, document);
-		auto materials = loadMaterials(document);
-
-		// Load animations
-		loadAnimations(document, attributes, nodes, animNodes, _animations);
-
-		// Return the right scene
-		int sceneIndex = document.scene == -1 ? 0 : document.scene;
-		auto& displayScene = document.scenes[sceneIndex];
-		for (auto nodeNdx : displayScene.nodes)
-			_parentNode.addChild(nodes[nodeNdx]);*/
+		auto images = loadImages(document);
+		// Load textures
+		// Load materials
 		return result;
 	}
 

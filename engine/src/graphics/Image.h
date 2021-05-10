@@ -91,8 +91,8 @@ namespace rev::gfx {
 		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
 
 		// Note: nChannels = 0 sets automatic number of channels
-		static std::unique_ptr<Image> load(std::string_view _name, unsigned nChannels);
-		static std::unique_ptr<Image> loadFromMemory(void* data, size_t size, unsigned nChannels);
+		static std::shared_ptr<Image> load(std::string_view _name, unsigned nChannels);
+		static std::shared_ptr<Image> loadFromMemory(const void* data, size_t size, unsigned nChannels);
 
 	private:
 		// Base constructor from size and data
