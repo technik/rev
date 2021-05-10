@@ -143,37 +143,44 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	std::unique_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
 	{
-		core::File file(&_name[0]); //<-- Hack!
-		if(file.size() > 0)
+		core::File file(_name.data());
+		return loadFromMemory(file.buffer(), file.size(), nChannels);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::unique_ptr<Image> Image::loadFromMemory(void* data, size_t bufferSize, unsigned nChannels)
+	{
+		if (bufferSize > 0)
 		{
-			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)file.buffer(), file.size());
+			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)data, bufferSize);
 			int width, height, realNumChannels;
 			uint8_t* imgData;
-			if(!nChannels)
+			if (!nChannels)
 			{
 				int srcChannels;
-				stbi_info_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &srcChannels);
-				if(srcChannels < 3)
+				stbi_info_from_memory((const uint8_t*)data, bufferSize, &width, &height, &srcChannels);
+				if (srcChannels < 3)
 					nChannels = 4;
 			}
 			// Read image data from buffer
-			if(isHDR)
-				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &realNumChannels, nChannels);
+			if (isHDR)
+				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, nChannels);
 			else
-				imgData= stbi_load_from_memory((const uint8_t*)file.buffer(), file.size(), &width, &height, &realNumChannels, nChannels);
+				imgData = stbi_load_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, nChannels);
 
 			// Create the actual image
-			if(imgData)
+			if (imgData)
 			{
-				math::Vec2u size = { unsigned(width), unsigned(height)};
+				math::Vec2u size = { unsigned(width), unsigned(height) };
 				PixelFormat format;
-				format.numChannels = nChannels?nChannels:(unsigned)realNumChannels;
+				format.numChannels = nChannels ? nChannels : (unsigned)realNumChannels;
 				format.channel = isHDR ? ChannelFormat::Float32 : ChannelFormat::Byte;
 				auto result = std::make_unique<Image>(format, size);
 				memcpy(result->data<void>(), imgData, result->area() * format.pixelSize());
 
 				stbi_image_free(imgData);
-				return result;
+
+				return std::move(result);
 			}
 		}
 
