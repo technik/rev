@@ -64,6 +64,9 @@ namespace rev
 		void render(SceneDesc& scene, bool geometryReady);
 
 	private:
+		void createDescriptorLayouts();
+		void createDescriptorSets();
+		void fillConstantDescriptorSets();
 		void createRenderPasses();
 		void createShaderPipelines();
 		void createRenderTargets();

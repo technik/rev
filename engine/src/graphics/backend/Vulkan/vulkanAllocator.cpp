@@ -92,7 +92,7 @@ namespace rev::gfx {
 			srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
 			dstStageMask = vk::PipelineStageFlagBits::eTransfer;
 		}
-		else if(oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eGeneral) // Texture dst
+		else if(oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) // Texture dst
 		{
 			barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
 			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
@@ -248,7 +248,7 @@ namespace rev::gfx {
 			scopedCmd.cmd.copyBufferToImage(buffer->buffer(), image->image(), vk::ImageLayout::eTransferDstOptimal, region);
 
 			// Trasition the final image into general layout
-			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral, false);
+			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, false);
 		}
 		m_device.waitIdle();
 

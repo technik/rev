@@ -53,6 +53,7 @@ namespace rev
 
 		createRenderTargets();
 		createRenderPasses();
+		createDescriptorLayouts();
 		createShaderPipelines();
 		loadIBLLUT();
 
@@ -76,43 +77,12 @@ namespace rev
 			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
 		}
 
-		// Init descriptor sets
-		const uint32_t numDescriptors = 2 * 2; // 2 per frame * 2 frames
-		vk::DescriptorPoolSize poolSize(vk::DescriptorType::eStorageBuffer, numDescriptors);
-
-		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptors, poolSize);
-		m_descPool = device.createDescriptorPool(poolInfo);
-
-		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
-		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
-		m_frameDescs = device.allocateDescriptorSets(setInfo);
-
-		// Update descriptor sets
-		vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[0]->buffer(), 0, m_mtxBuffers[0]->size());
-		vk::WriteDescriptorSet writeInfo;
-		writeInfo.dstSet = m_frameDescs[0];
-		writeInfo.dstBinding = 0;
-		writeInfo.dstArrayElement = 0;
-		writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-		writeInfo.descriptorCount = 1;
-		writeInfo.pBufferInfo = &writeBufferInfo;
-		device.updateDescriptorSets(writeInfo, {});
-
-		writeBufferInfo.buffer = m_mtxBuffers[1]->buffer();
-		writeInfo.dstSet = m_frameDescs[1];
-		device.updateDescriptorSets(writeInfo, {});
-
-		// Matrix buffer
-		vk::DescriptorBufferInfo matrixBufferInfo(m_materialsBuffer->buffer(), 0, m_materialsBuffer->size());
-		writeInfo.dstBinding = 1;
-		writeInfo.pBufferInfo = &matrixBufferInfo;
-		device.updateDescriptorSets(writeInfo, {});
-
-		writeInfo.dstSet = m_frameDescs[0];
-		device.updateDescriptorSets(writeInfo, {});
-
 		// Load ibl texture
 
+		// Init descriptor sets
+		createDescriptorSets();
+		// Update descriptor sets
+		fillConstantDescriptorSets();
 
 		initImGui();
 
@@ -213,6 +183,81 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::createDescriptorLayouts()
+	{
+		auto device = m_ctxt->device();
+
+		// Matrices
+		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+		//Materials
+		vk::DescriptorSetLayoutBinding materialsBinding(1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+		// IBL LUT
+		vk::DescriptorSetLayoutBinding iblBinding(2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+
+		// Create layout
+		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding, iblBinding };
+		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, bindings);
+		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::createDescriptorSets()
+	{
+		auto device = m_ctxt->device();
+
+		const uint32_t numDescriptorBindings = 3 * 2; // 3 per frame * 2 frames
+		vk::DescriptorPoolSize poolSize[2] = {
+			{vk::DescriptorType::eStorageBuffer, 2 * 2},
+			{vk::DescriptorType::eCombinedImageSampler, 1*2}
+		};
+
+		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptorBindings);
+		poolInfo.pPoolSizes = poolSize;
+		poolInfo.poolSizeCount = 2;
+		m_descPool = device.createDescriptorPool(poolInfo);
+
+		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
+		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
+		m_frameDescs = device.allocateDescriptorSets(setInfo);
+	}
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::fillConstantDescriptorSets()
+	{
+		auto device = m_ctxt->device();
+
+		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
+		{
+			vk::WriteDescriptorSet writeInfo;
+			writeInfo.dstSet = m_frameDescs[frameNdx];
+			writeInfo.dstArrayElement = 0;
+
+			// Matrix buffer
+			vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[frameNdx]->buffer(), 0, m_mtxBuffers[frameNdx]->size());
+			writeInfo.dstBinding = 0;
+			writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+			writeInfo.descriptorCount = 1;
+			writeInfo.pBufferInfo = &writeBufferInfo;
+			device.updateDescriptorSets(writeInfo, {});
+			
+			// Materials buffer
+			vk::DescriptorBufferInfo materialsBufferInfo(m_materialsBuffer->buffer(), 0, m_materialsBuffer->size());
+			writeInfo.dstBinding = 1;
+			writeInfo.pBufferInfo = &materialsBufferInfo;
+			device.updateDescriptorSets(writeInfo, {});
+
+			// IBL texture
+			vk::DescriptorImageInfo iblInfo;
+			iblInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			iblInfo.imageView = m_iblLUT->image->view();
+			iblInfo.sampler = m_iblLUT->sampler;
+			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+			writeInfo.dstBinding = 2;
+			writeInfo.pImageInfo = &iblInfo;
+			device.updateDescriptorSets(writeInfo, {});
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::createRenderPasses()
 	{
 		// UI Render pass
@@ -231,13 +276,6 @@ namespace rev
 		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
 
 		// G-Buffer pipeline
-		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-		vk::DescriptorSetLayoutBinding materialsBinding(1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
-		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding };
-
-		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, bindings);
-		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
-
 		vk::PushConstantRange camerasPushRange(
 			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(FramePushConstants));
