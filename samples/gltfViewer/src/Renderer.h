@@ -27,6 +27,7 @@
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 #include <graphics/RasterHeap.h>
 #include <graphics/scene/Material.h>
+#include <graphics/Texture.h>
 
 #include "RenderPass.h"
 
@@ -68,6 +69,7 @@ namespace rev
 		void createRenderTargets();
 		void destroyRenderTargets();
 		void destroyFrameBuffers();
+		void loadIBLLUT();
 
 		// Init ImGui
 		void initImGui();
@@ -91,6 +93,7 @@ namespace rev
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
 		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
+		std::shared_ptr<gfx::Texture> m_iblLUT;
 
 		struct FramePushConstants
 		{

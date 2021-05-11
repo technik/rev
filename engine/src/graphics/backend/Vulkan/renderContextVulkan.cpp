@@ -625,29 +625,7 @@ namespace rev::gfx {
 		auto cmd = getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
-		vk::ImageMemoryBarrier barrier;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
-
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.image = image;
-		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = 1;
-		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
-		barrier.subresourceRange.aspectMask = isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-		
-		barrier.srcAccessMask = {};
-		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
-
-		cmd.pipelineBarrier(
-			vk::PipelineStageFlagBits::eTopOfPipe, // src stage mask
-			vk::PipelineStageFlagBits::eFragmentShader, // Dst stage mask
-			{},
-			{}, // Memory barriers
-			{}, // Buffer mem
-			barrier);
+		allocator().transitionImageLayout(cmd, image, imageFormat, oldLayout, newLayout, isDepth);
 
 		cmd.end();
 		vk::SubmitInfo submitInfo(

@@ -132,7 +132,7 @@ namespace rev::gfx
 			0, // No depth clamp
 			0, // Don't discard rasterizer
 			vk::PolygonMode::eFill,
-			vk::CullModeFlagBits::eBack, // Cull back facing geometry
+			vk::CullModeFlagBits::eNone, // Cull back facing geometry
 			vk::FrontFace::eCounterClockwise); // Front face direction
 
 		// Multisampling

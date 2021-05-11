@@ -24,6 +24,8 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 
+#include "renderContextVulkan.h"
+
 #include <chrono>
 #include <thread>
 
@@ -31,6 +33,24 @@ using namespace std::chrono;
 using namespace std::chrono_literals;
 
 namespace rev::gfx {
+
+	namespace
+	{
+		size_t getPixelSize(vk::Format fmt)
+		{
+			switch (fmt)
+			{
+			case vk::Format::eR32G32B32A32Sfloat:
+				return sizeof(math::Vec4f);
+			case vk::Format::eR8G8B8A8Srgb:
+			case vk::Format::eR8G8B8A8Unorm:
+				return sizeof(uint8_t) * 4;
+			default:
+				assert(false && "Unsupported texture format");
+				return 0;
+			}
+		}
+	}
 
 	vk::MemoryPropertyFlags VulkanAllocator::getVulkanMemoryProperties(MemoryProperties flags)
 	{
@@ -46,6 +66,60 @@ namespace rev::gfx {
 			vulkanProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
 		}
 		return vulkanProperties;
+	}
+
+	void VulkanAllocator::transitionImageLayout(vk::CommandBuffer cmd, vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth)
+	{
+		vk::ImageMemoryBarrier barrier;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		barrier.subresourceRange.aspectMask = isDepth ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+
+		vk::PipelineStageFlags srcStageMask, dstStageMask;
+		if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal) // Staging buffer
+		{
+			barrier.srcAccessMask = {};
+			barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+			srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
+			dstStageMask = vk::PipelineStageFlagBits::eTransfer;
+		}
+		else if(oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eGeneral) // Texture dst
+		{
+			barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+			srcStageMask = vk::PipelineStageFlagBits::eTransfer;
+			dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+		}
+		else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eGeneral) // Attachments
+		{
+			srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
+			dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+
+			barrier.srcAccessMask = {};
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+		}
+		else
+		{
+			assert(false && "Unsupported layout transition");
+		}
+
+		cmd.pipelineBarrier(
+			srcStageMask,
+			dstStageMask,
+			{},
+			{}, // Memory barriers
+			{}, // Buffer mem
+			barrier); // Image barriers
 	}
 
 	uint32_t VulkanAllocator::getVulkanMemoryHeap(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
@@ -131,6 +205,82 @@ namespace rev::gfx {
 		return createImageBufferInternal(name, size, format, usage, graphicsQueueFamily, true);
 	}
 
+	auto VulkanAllocator::createTexture(
+		RenderContextVulkan& rc,
+		const char* debugName,
+		const math::Vec2u& imageSize,
+		vk::Format gpuFormat,
+		vk::SamplerAddressMode repeatX,
+		vk::SamplerAddressMode repeatY,
+		bool anisotropy,
+		size_t mipLevels,
+		void* data,
+		vk::ImageUsageFlags usage,
+		uint32_t graphicsQueueFamily) ->std::shared_ptr<Texture>
+	{
+
+		// Create a staging buffer
+		size_t bufferSize = getPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
+		auto buffer = createBufferForMapping(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, graphicsQueueFamily);
+		// Copy data to the buffer
+		auto dataDst = mapBuffer<uint8_t*>(*buffer);
+		memcpy(dataDst, data, bufferSize);
+		unmapBuffer(dataDst);
+
+		// Create the final texture image
+		auto dstUsage = usage | vk::ImageUsageFlagBits::eTransferDst;
+		auto image = createImageBufferInternal(debugName, imageSize, gpuFormat, dstUsage, graphicsQueueFamily, false);
+
+		// Transition image to copyDst
+		{
+			auto scopedCmd = rc.getScopedCmdBuffer(rc.graphicsQueue());
+			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, false);
+
+			// Copy texture data to it through a staging buffer
+			vk::BufferImageCopy region{};
+			region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+			region.imageSubresource.mipLevel = 0;
+			region.imageSubresource.baseArrayLayer = 0;
+			region.imageSubresource.layerCount = 1;
+			region.imageExtent.width = imageSize.x();
+			region.imageExtent.height = imageSize.y();
+			region.imageExtent.depth = 1;
+			scopedCmd.cmd.copyBufferToImage(buffer->buffer(), image->image(), vk::ImageLayout::eTransferDstOptimal, region);
+
+			// Trasition the final image into general layout
+			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral, false);
+		}
+		m_device.waitIdle();
+
+		// Image sampler
+		vk::SamplerCreateInfo samplerInfo;
+		samplerInfo.addressModeU = repeatX;
+		samplerInfo.addressModeV = repeatY;
+		samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+		samplerInfo.magFilter = vk::Filter::eLinear;
+		samplerInfo.minFilter = vk::Filter::eLinear;
+		samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+		if (anisotropy)
+		{
+			samplerInfo.anisotropyEnable = VK_TRUE;
+			samplerInfo.maxAnisotropy = 16;
+		}
+		else
+		{
+			samplerInfo.anisotropyEnable = VK_FALSE;
+			samplerInfo.maxAnisotropy = 0;
+		}
+		auto sampler = m_device.createSampler(samplerInfo);
+
+		auto texture = std::make_shared<Texture>();
+		// Take over the image and image view
+		texture->image = std::move(image);
+		texture->format = gpuFormat;
+		texture->sampler = sampler;
+
+		return texture;
+	}
+
 	auto VulkanAllocator::createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily)->std::shared_ptr<GPUBuffer>
 	{
 		std::vector<uint32_t> queueFamilies = { graphicsQueueFamily };
@@ -173,7 +323,7 @@ namespace rev::gfx {
 		advanceReadPos();
 
 		// Ring exhausted?
-		while (availableSpace() < size) // Can't write exactly as much memory as available, because readPos==writePos means the buffer is empty
+		while (availableSpace() < size)
 		{
 			m_device.waitForFences(m_pendingBlocks.front().fence, 1, duration_cast<nanoseconds>(1ms).count());
 			advanceReadPos();
@@ -284,8 +434,11 @@ namespace rev::gfx {
 		return std::shared_ptr<ImageBuffer>(new ImageBuffer(vkImage, imageView, format),
 			[this, imageMemory, vkImage](ImageBuffer* p)
 			{
-				m_device.freeMemory(imageMemory);
-				m_device.destroyImage(vkImage);
+				if (p->image())
+				{
+					m_device.freeMemory(imageMemory);
+					m_device.destroyImage(vkImage);
+				}
 				delete p;
 			});
 	}

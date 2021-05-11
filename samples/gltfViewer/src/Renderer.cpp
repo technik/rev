@@ -23,6 +23,7 @@
 
 #include <graphics/backend/Vulkan/gpuBuffer.h>
 #include <graphics/scene/Material.h>
+#include <graphics/Image.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
@@ -53,6 +54,7 @@ namespace rev
 		createRenderTargets();
 		createRenderPasses();
 		createShaderPipelines();
+		loadIBLLUT();
 
 		// Allocate matrix buffers
 		auto& alloc = m_ctxt->allocator();
@@ -108,6 +110,9 @@ namespace rev
 
 		writeInfo.dstSet = m_frameDescs[0];
 		device.updateDescriptorSets(writeInfo, {});
+
+		// Load ibl texture
+
 
 		initImGui();
 
@@ -283,6 +288,24 @@ namespace rev
 	void Renderer::destroyFrameBuffers()
 	{
 		m_frameBuffers->clear();
+	}
+
+	void Renderer::loadIBLLUT()
+	{
+		auto image = gfx::Image::load("shaders/ibl_brdf.hdr", 4);
+		m_iblLUT = m_ctxt->allocator().createTexture(
+			*m_ctxt,
+			"IBL LUT",
+			image->size(),
+			vk::Format::eR32G32B32A32Sfloat,
+			vk::SamplerAddressMode::eClampToEdge,
+			vk::SamplerAddressMode::eClampToEdge,
+			false,
+			0,
+			image->data(),
+			vk::ImageUsageFlagBits::eSampled,
+			m_ctxt->graphicsQueueFamily()
+		);
 	}
 
 	//------------------------------------------------------------------------------------------------

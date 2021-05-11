@@ -22,9 +22,12 @@
 #include <vulkan/vulkan.hpp>
 
 #include "gpuBuffer.h"
+#include <graphics/Texture.h>
 #include <math/algebra/vector.h>
 
 namespace rev::gfx {
+
+	class RenderContextVulkan;
 
 	// C++ Wrapper around the vulkan memory allocator
 	class VulkanAllocator
@@ -55,6 +58,20 @@ namespace rev::gfx {
 		std::shared_ptr<GPUBuffer> createBufferForMapping(size_t size, vk::BufferUsageFlags usage, uint32_t graphicsQueueFamily);
 		std::shared_ptr<ImageBuffer> createImageBuffer(const char* name, math::Vec2u size, vk::Format format, vk::ImageUsageFlags usage, uint32_t graphicsQueueFamily);
 		std::shared_ptr<ImageBuffer> createDepthBuffer(const char* name, math::Vec2u size, vk::Format format, vk::ImageUsageFlags usage, uint32_t graphicsQueueFamily);
+
+		// If data is not null, its contents will be copied into the dst texture, and its format is expected to be the same as gpuFormat
+		std::shared_ptr<Texture> createTexture(
+			RenderContextVulkan& rc,
+			const char* debugName,
+			const math::Vec2u& size,
+			vk::Format gpuFormat,
+			vk::SamplerAddressMode repeatX,
+			vk::SamplerAddressMode repeatY,
+			bool anisotropy,
+			size_t mipLevels,
+			void* data,
+			vk::ImageUsageFlags usage,
+			uint32_t graphicsQueueFamily);
 
 		void destroyBuffer(const GPUBuffer&);
 
@@ -89,6 +106,8 @@ namespace rev::gfx {
 		{
 			copyToGPUInternal(dst, dstOffset, (const void*)src, count * sizeof(T));
 		}
+
+		void transitionImageLayout(vk::CommandBuffer cmd, vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
 
 	private:
 		enum MemoryProperties
