@@ -43,6 +43,8 @@ void main() {
 
     vPxlNormal = world * vec4(normal, 0);
     vPxlWorldPos = world * vec4(position, 1.0);
+    vPxlWorldTan = world * vec4(tangent.xyz, 1.0);
+    vPxlWorldTan.w = tangent.w;
     vPxlTexCoord = uvs;
 
     gl_Position = frameInfo.proj * (frameInfo.view  * vPxlWorldPos);

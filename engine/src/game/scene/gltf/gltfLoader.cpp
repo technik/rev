@@ -230,6 +230,7 @@ namespace rev::game {
 				material.pbrTexture = gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index;
 				material.aoTexture = gltfMaterial.occlusionTexture.index;
 				material.emissiveTexture = gltfMaterial.emissiveTexture.index;
+				material.normalTexture = gltfMaterial.normalTexture.index;
 
 				result.push_back(material);
 			}

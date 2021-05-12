@@ -190,7 +190,9 @@ namespace rev
 
 	//---------------------------------------------------------------------------------------------------------------------
 	constexpr uint32_t RF_OVERRIDE_MATERIAL = 1<<0;
-	constexpr uint32_t RF_ENV_PROBE = 1<<1;
+	constexpr uint32_t RF_ENV_PROBE = 1 << 1;
+	constexpr uint32_t RF_DISABLE_AO = 1 << 2;
+	constexpr uint32_t RF_NO_NORMAL_MAP = 1<<3;
 
 	void Renderer::updateUI()
 	{

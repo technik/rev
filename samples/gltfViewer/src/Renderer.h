@@ -109,7 +109,7 @@ namespace rev
 			math::Vec3f ambientColor;
 			math::Vec3f lightColor;
 
-			uint32_t renderFlags;
+			uint32_t renderFlags = 0;
 			// Material override parameters
 			math::Vec3f overrideBaseColor = { 0.7f, 0.7f, 0.7f };
 			float overrideMetallic = 0.f;

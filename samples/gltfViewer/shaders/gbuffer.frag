@@ -83,30 +83,39 @@ void main()
 	vec3 eye = normalize(inverse(frameInfo.view) * vec4(0,0,0,1) - vPxlWorldPos).xyz;
 	vec3 halfV = normalize(eye + frameInfo.lightDir);
 
-	float ndh = max(0, dot(halfV, normal));
-	float ndl = max(0, dot(frameInfo.lightDir, normal));
-	float ndv = max(0, dot(eye, normal));
-	float hdv = max(0, dot(halfV, eye));
-
 	PBRMaterial material = materials[0];
 	if(material.baseColorTexture >= 0)
 	{
 		uint index = material.baseColorTexture;
-		material.baseColor_a *= texture(textures[index], vPxlTexCoord);
+		material.baseColor_a *= texture(nonuniformEXT(textures[index]), vPxlTexCoord);
 	}
 	if(material.pbrTexture >= 0)
 	{
 		uint index = material.pbrTexture;
-		vec2 metalRough = texture(textures[index], vPxlTexCoord).bg;
+		vec2 metalRough = texture(textures[nonuniformEXT(index)], vPxlTexCoord).bg;
 		material.metalness *= metalRough.x;
 		material.roughness *= metalRough.y;
 	}
 	float ao = 1.0;
-	if(material.aoTexture >= 0)
+	if(material.aoTexture >= 0 && !renderFlag(RF_DISABLE_AO))
 	{
 		uint index = material.aoTexture;
-		ao = texture(textures[index], vPxlTexCoord).x;
+		ao = texture(textures[nonuniformEXT(index)], vPxlTexCoord).x;
 	}
+	if(material.normalTexture >= 0 && !renderFlag(RF_NO_NORMAL_MAP))
+    {
+        // Tangent
+        vec3 tan = vPxlWorldTan.xyz;
+        vec3 wsBitangent = cross(normal, tan) * vPxlWorldTan.w;
+
+        mat3 modelFromTangent = mat3(tan, wsBitangent, normal);
+
+        uint txtId = material.normalTexture;
+        vec3 tsNormal = texture(textures[nonuniformEXT(txtId)], vPxlTexCoord).xyz;
+        tsNormal = pow(tsNormal, vec3(1/2.2)) + vec3(0,0,1e-2);
+        tsNormal = normalize(tsNormal * 255.0 - 127.0);
+        normal = normalize(modelFromTangent * tsNormal);
+    }
 
 	if(renderFlag(RF_OVERRIDE_MATERIAL))
 	{
@@ -114,6 +123,11 @@ void main()
 		material.metalness = frameInfo.overrideMetallic;
 		material.roughness = frameInfo.overrideRoughness;
 	}
+
+	float ndh = max(0, dot(halfV, normal));
+	float ndl = max(0, dot(frameInfo.lightDir, normal));
+	float ndv = max(0, dot(eye, normal));
+	float hdv = max(0, dot(halfV, eye));
 
 	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
 	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);

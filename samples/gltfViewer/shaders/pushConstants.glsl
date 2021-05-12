@@ -38,6 +38,8 @@ layout(push_constant,scalar) uniform Constants
 
 #define RF_OVERRIDE_MATERIAL (1<<0)
 #define RF_ENV_PROBE = (1<<1)
+#define RF_DISABLE_AO (1 << 2)
+#define RF_NO_NORMAL_MAP (1<<3)
 
 bool renderFlag(uint flag)
 {
