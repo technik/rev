@@ -28,6 +28,7 @@ struct PBRMaterial
 	int baseColorTexture;
 	int pbrTexture;
 	int emissiveTexture;
+	int aoTexture;
 };
 
 #endif // _MATERIAL_GLSL_

@@ -101,6 +101,12 @@ void main()
 		material.metalness *= metalRough.x;
 		material.roughness *= metalRough.y;
 	}
+	float ao = 1.0;
+	if(material.aoTexture >= 0)
+	{
+		uint index = material.aoTexture;
+		ao = texture(textures[index], vPxlTexCoord).x;
+	}
 
 	if(renderFlag(RF_OVERRIDE_MATERIAL))
 	{
@@ -126,7 +132,7 @@ void main()
 		material.roughness,
 		ndh, ndl, ndv, hdv);
 	
-	vec3 pxlColor = mainLight + ambientLight;
+	vec3 pxlColor = mainLight + ao * ambientLight;
 	if(material.emissiveTexture >= 0)
 	{
 		uint index = material.emissiveTexture;

@@ -31,6 +31,7 @@ namespace rev::gfx
 		int32_t baseColorTexture = -1;
 		int32_t pbrTexture = -1;
 		int32_t emissiveTexture = -1;
-		int32_t padding[3];
+		int32_t aoTexture = -1;
+		int32_t padding[2];
 	};
 }
