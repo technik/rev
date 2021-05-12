@@ -97,13 +97,17 @@ namespace rev::gfx
 
 		// Vertex input format
 		vk::VertexInputBindingDescription vtxPosBinding(0, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
-		vk::VertexInputBindingDescription vtxClrBinding(1, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
+		vk::VertexInputBindingDescription normalBinding(1, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
+		vk::VertexInputBindingDescription tangentBinding(2, sizeof(math::Vec4f), vk::VertexInputRate::eVertex);
+		vk::VertexInputBindingDescription texCoordBinding(3, sizeof(math::Vec2f), vk::VertexInputRate::eVertex);
 
 		vk::VertexInputAttributeDescription vtxPosAttribute(0, 0, vk::Format::eR32G32B32Sfloat, 0);
-		vk::VertexInputAttributeDescription vtxClrAttribute(1, 1, vk::Format::eR32G32B32Sfloat, 0);
+		vk::VertexInputAttributeDescription normalAttribute(1, 1, vk::Format::eR32G32B32Sfloat, 0);
+		vk::VertexInputAttributeDescription tangentAttribute(2, 2, vk::Format::eR32G32B32A32Sfloat, 0);
+		vk::VertexInputAttributeDescription texCoordAttribute(3, 3, vk::Format::eR32G32Sfloat, 0);
 
-		auto vtxBindings = std::array{ vtxPosBinding, vtxClrBinding };
-		auto vtxAttributes = std::array{ vtxPosAttribute, vtxClrAttribute };
+		auto vtxBindings = std::array{ vtxPosBinding, normalBinding, tangentBinding, texCoordBinding };
+		auto vtxAttributes = std::array{ vtxPosAttribute, normalAttribute, tangentAttribute, texCoordAttribute };
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputFormat({},
 			vtxBindings, // Vertex bindings

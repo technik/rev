@@ -26,6 +26,8 @@
 
 layout(location = 0) in vec4 vPxlNormal;
 layout(location = 1) in vec4 vPxlWorldPos;
+layout(location = 2) in vec4 vPxlWorldTan;
+layout(location = 3) in vec2 vPxlTexCoord;
 
 layout(location = 0) out vec4 outColor;
 

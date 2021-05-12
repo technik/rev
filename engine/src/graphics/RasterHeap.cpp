@@ -35,6 +35,7 @@ namespace rev::gfx {
 		uint32_t numVertices,
 		const Vec3f* vtxPos,
 		const Vec3f* normals,
+		const Vec4f* tangents,
 		const Vec2f* uvs,
 		uint32_t numIndices,
 		const uint32_t* indices)
@@ -45,6 +46,7 @@ namespace rev::gfx {
 		const size_t numVerticesBefore = m_vtxPositions.size();
 		m_vtxPositions.resize(numVerticesBefore + numVertices);
 		m_vtxNormals.resize(numVerticesBefore + numVertices);
+		m_vtxTangents.resize(numVerticesBefore + numVertices);
 		m_textureCoords.resize(numVerticesBefore + numVertices);
 
 		const size_t numIndicesBefore = m_indices.size();
@@ -53,6 +55,7 @@ namespace rev::gfx {
 		// Copy primitive data
 		memcpy(&m_vtxPositions[numVerticesBefore], vtxPos, sizeof(Vec3f) * numVertices);
 		memcpy(&m_vtxNormals[numVerticesBefore], normals, sizeof(Vec3f) * numVertices);
+		memcpy(&m_vtxTangents[numVerticesBefore], tangents, sizeof(Vec4f) * numVertices);
 		memcpy(&m_textureCoords[numVerticesBefore], uvs, sizeof(Vec2f) * numVertices);
 		memcpy(&m_indices[numIndicesBefore], indices, sizeof(uint32_t) * numIndices);
 
@@ -76,7 +79,7 @@ namespace rev::gfx {
 		assert(!isClosed());
 
 		const auto numVertices = m_vtxPositions.size();
-		const auto vtxDataSize = numVertices * (sizeof(Vec3f) * 2 + sizeof(Vec2f)); // Pos+Normal + UVs
+		const auto vtxDataSize = numVertices * (sizeof(Vec3f) * 2 + sizeof(Vec4f) + sizeof(Vec2f)); // Pos+Normal + UVs
 		const auto indexDataSize = m_indices.size() * sizeof(uint32_t);
 
 		m_vtxBuffer = alloc.createGpuBuffer(
@@ -96,7 +99,9 @@ namespace rev::gfx {
 		alloc.asyncTransfer(*m_vtxBuffer, m_vtxPositions.data(), numVertices, m_vtxPosOffset);
 		m_normalsOffset = numVertices * sizeof(Vec3f);
 		alloc.asyncTransfer(*m_vtxBuffer, m_vtxNormals.data(), numVertices, m_normalsOffset);
-		m_texCoordOffset = numVertices * sizeof(Vec3f) + m_normalsOffset;
+		m_tangentsOffset = numVertices * sizeof(Vec3f) + m_normalsOffset;
+		alloc.asyncTransfer(*m_vtxBuffer, m_vtxTangents.data(), numVertices, m_tangentsOffset);
+		m_texCoordOffset = numVertices * sizeof(Vec4f) + m_tangentsOffset;
 		alloc.asyncTransfer(*m_vtxBuffer, m_textureCoords.data(), numVertices, m_texCoordOffset);
 
 		return alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), m_indices.size(), 0);
@@ -104,6 +109,7 @@ namespace rev::gfx {
 		// Get rid of local data
 		m_vtxPositions.clear();
 		m_vtxNormals.clear();
+		m_vtxTangents.clear();
 		m_textureCoords.clear();
 		m_indices.clear();
 	}
@@ -114,10 +120,12 @@ namespace rev::gfx {
 			std::array{
 				m_vtxBuffer->buffer(),
 				m_vtxBuffer->buffer(),
+				m_vtxBuffer->buffer(),
 				m_vtxBuffer->buffer() },
 			{
 				m_vtxBuffer->offset() + m_vtxPosOffset,
 				m_vtxBuffer->offset() + m_normalsOffset,
+				m_vtxBuffer->offset() + m_tangentsOffset,
 				m_vtxBuffer->offset() + m_texCoordOffset
 			});
 

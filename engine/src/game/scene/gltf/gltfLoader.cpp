@@ -107,6 +107,13 @@ namespace rev::game {
 		struct AccessorTraits;
 
 		template<>
+		struct AccessorTraits<Vec4f>
+		{
+			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::Float;
+			static constexpr gltf::Accessor::Type type = gltf::Accessor::Type::Vec4;
+		};
+
+		template<>
 		struct AccessorTraits<Vec3f>
 		{
 			static constexpr gltf::Accessor::ComponentType componentType = gltf::Accessor::ComponentType::Float;
@@ -376,14 +383,20 @@ namespace rev::game {
 			{
 				auto vtxPos = extractBufferData<Vec3f>(document, primitive.attributes, "POSITION", gltf::BufferView::TargetType::ArrayBuffer); // Locate vertex data
 				auto vtxNormal = extractBufferData<Vec3f>(document, primitive.attributes, "NORMAL", gltf::BufferView::TargetType::ArrayBuffer); // Locate normal data
+				auto vtxTangents= extractBufferData<Vec4f>(document, primitive.attributes, "TANGENT", gltf::BufferView::TargetType::ArrayBuffer); // Locate tangent data
 				auto texCoord = extractBufferData<Vec2f>(document, primitive.attributes, "TEXCOORD_0", gltf::BufferView::TargetType::ArrayBuffer); // Locate UVs
 				if (texCoord.empty())
 					texCoord.resize(vtxPos.size(), {});
+				if (vtxTangents.empty())
+				{
+					//assert(false && "Tangent generation not supported");
+					vtxTangents.resize(vtxPos.size(), {});
+				}
 				// Locate index data
 				auto indices = loadIndices(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
 
 				auto p = rasterDataDst.addPrimitiveData(
-					(uint32_t)vtxPos.size(), vtxPos.data(), vtxNormal.data(), texCoord.data(),
+					(uint32_t)vtxPos.size(), vtxPos.data(), vtxNormal.data(), vtxTangents.data(), texCoord.data(),
 					(uint32_t)indices.size(), indices.data());
 				firstPrimitive = min(firstPrimitive, p);
 				lastPrimitive = p;

@@ -57,6 +57,7 @@ namespace rev::gfx
 			uint32_t numVertices,
 			const math::Vec3f* vtxPos,
 			const math::Vec3f* normals,
+			const math::Vec4f* tangents,
 			const math::Vec2f* uvs,
 			uint32_t numIndices,
 			const uint32_t* indices
@@ -81,6 +82,7 @@ namespace rev::gfx
 		// Temporary data to accumulate all primitives
 		std::vector<math::Vec3f> m_vtxPositions;
 		std::vector<math::Vec3f> m_vtxNormals;
+		std::vector<math::Vec4f> m_vtxTangents;
 		std::vector<math::Vec2f> m_textureCoords;
 		std::vector<uint32_t> m_indices;
 
@@ -89,6 +91,6 @@ namespace rev::gfx
 		// GPU data
 		std::shared_ptr<GPUBuffer> m_vtxBuffer;
 		std::shared_ptr<GPUBuffer> m_indexBuffer;
-		size_t m_vtxPosOffset, m_normalsOffset, m_texCoordOffset;
+		size_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
 	};
 }
