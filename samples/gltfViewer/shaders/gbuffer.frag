@@ -34,6 +34,45 @@ layout(set = 0, binding = 2) uniform sampler2D iblLUT;
 
 #include "pushConstants.glsl"
 
+vec3 directLight(
+	vec3 specularColor,
+	vec3 diffuseColor,
+	vec3 lightColor,
+	float roughness,
+	float ndh,
+	float ndl,
+	float ndv,
+	float hdv)
+{
+	float r = max(1e-4, roughness);
+	// Single bounce specular lighting0
+	vec3 specular = specularBRDF(specularColor, ndh, ndl, ndv, hdv, r);
+
+	// Energy compensation - substract single bounce specular from the light that goes into diffuse
+	vec2 reflectedLight = textureLod(iblLUT, vec2(ndl, roughness), 0).xy;
+	vec3 totalFresnel = specularColor * reflectedLight.x + reflectedLight.y;
+
+	vec3 kD = diffuseColor * (1-totalFresnel);
+	vec3 diffuse = kD / PI;
+	return (specular + diffuse) * ndl * lightColor;
+}
+
+vec3 envLight(
+	vec3 specularColor,
+	vec3 diffuseColor,
+	vec3 lightColor,
+	float roughness,
+	float ndh,
+	float ndl,
+	float ndv,
+	float hdv)
+{
+	vec2 iblFresnel = textureLod(iblLUT, vec2(ndv, roughness), 0).xy;
+	vec3 specular = specularColor * iblFresnel.x + iblFresnel.y;
+	vec3 diffuse = (1 - specular) * diffuseColor / PI;
+	return (diffuse + specular) * lightColor;
+}
+
 void main()
 {
 	vec3 normal = normalize(vPxlNormal.xyz);
@@ -55,21 +94,28 @@ void main()
 	}
 
 	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
-	float r = max(1e-4, material.roughness);
-	vec3 specularLight = ndl * specularBRDF(specularColor, ndh, ndl, ndv, hdv, r) * frameInfo.lightColor;
-
-	// Energy compensation
-	vec2 reflectedLight = textureLod(iblLUT, vec2(ndl, material.roughness), 0).xy;
-	vec3 totalFresnel = specularColor * reflectedLight.x + reflectedLight.y;
-
 	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
-	vec3 kD = diffuseColor * (1-totalFresnel);
-	vec3 diffuseLight = kD * ndl * frameInfo.lightColor / PI;
-	vec3 pxlColor = specularLight + diffuseLight;
 
-	//pxlColor = kD * ndl / PI;
+	vec3 mainLight = directLight(
+		specularColor,
+		diffuseColor,
+		frameInfo.lightColor,
+		material.roughness,
+		ndh, ndl, ndv, hdv);
+
+	vec3 ambientLight = envLight(
+		specularColor,
+		diffuseColor,
+		frameInfo.ambientColor,
+		material.roughness,
+		ndh, ndl, ndv, hdv);
+	
+	vec3 pxlColor = mainLight + ambientLight;
 
 	// TODO: Treat ambient light as an environment probe and maybe main light as a disk light
 
-    outColor = vec4(pxlColor, 1.0);
+	// Basic toneMapping
+	vec3 toneMapped = pxlColor / (1 + pxlColor);
+
+    outColor = vec4(toneMapped, 1.0);
 }
