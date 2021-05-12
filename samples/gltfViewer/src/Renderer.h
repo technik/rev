@@ -66,9 +66,9 @@ namespace rev
 		void updateUI();
 
 	private:
-		void createDescriptorLayouts();
-		void createDescriptorSets();
-		void fillConstantDescriptorSets();
+		void createDescriptorLayouts(size_t numTextures);
+		void createDescriptorSets(size_t numTextures);
+		void fillConstantDescriptorSets(const SceneDesc& scene);
 		void createRenderPasses();
 		void createShaderPipelines();
 		void createRenderTargets();

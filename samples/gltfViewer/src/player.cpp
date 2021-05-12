@@ -96,6 +96,7 @@ namespace rev {
 		auto loadRes = gltfLoader.load(scene, m_sceneGraphics.m_rasterData);
 		m_sceneGraphics.m_sceneInstances = std::move(loadRes.meshInstances);
 		m_sceneGraphics.m_materials = std::move(loadRes.materials);
+		m_sceneGraphics.m_textures = std::move(loadRes.textures);
 
 		m_sceneRoot->addChild(loadRes.rootNode);
 		m_sceneLoadStreamToken = m_sceneGraphics.m_rasterData.closeAndSubmit(renderContext(), renderContext().allocator());

@@ -22,6 +22,7 @@
 #include "../sceneNode.h"
 #include "../meshRenderer.h"
 #include <graphics/scene/Material.h>
+#include <graphics/Texture.h>
 
 #include <memory>
 #include <string>
@@ -52,6 +53,7 @@ namespace rev::game {
 			std::shared_ptr<gfx::GPUBuffer> m_gpuData;
 			MeshRenderer meshInstances;
 			std::vector<gfx::PBRMaterial> materials;
+			std::vector<std::shared_ptr<gfx::Texture>> textures;
 
 			size_t asyncLoadToken;
 		};

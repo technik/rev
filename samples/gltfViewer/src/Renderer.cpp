@@ -51,9 +51,11 @@ namespace rev
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
+		const size_t maxSceneTextures = scene.m_textures.size();
+
 		createRenderTargets();
 		createRenderPasses();
-		createDescriptorLayouts();
+		createDescriptorLayouts(maxSceneTextures);
 		createShaderPipelines();
 		loadIBLLUT();
 
@@ -77,12 +79,10 @@ namespace rev
 			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
 		}
 
-		// Load ibl texture
-
 		// Init descriptor sets
-		createDescriptorSets();
+		createDescriptorSets(maxSceneTextures);
 		// Update descriptor sets
-		fillConstantDescriptorSets();
+		fillConstantDescriptorSets(scene);
 
 		initImGui();
 
@@ -211,7 +211,7 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::createDescriptorLayouts()
+	void Renderer::createDescriptorLayouts(size_t numTextures)
 	{
 		auto device = m_ctxt->device();
 
@@ -222,21 +222,25 @@ namespace rev
 		// IBL LUT
 		vk::DescriptorSetLayoutBinding iblBinding(2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 
+		// Textures
+		vk::DescriptorSetLayoutBinding textureBinding(3, vk::DescriptorType::eCombinedImageSampler, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+
 		// Create layout
-		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding, iblBinding };
+		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding, iblBinding, textureBinding };
 		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, bindings);
 		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::createDescriptorSets()
+	void Renderer::createDescriptorSets(size_t numTextures)
 	{
 		auto device = m_ctxt->device();
 
-		const uint32_t numDescriptorBindings = 3 * 2; // 3 per frame * 2 frames
+		const uint32_t numDescriptorsPerFrame = 3 + numTextures;
+		const uint32_t numDescriptorBindings = numDescriptorsPerFrame * 2; // 3 per frame * 2 frames
 		vk::DescriptorPoolSize poolSize[2] = {
 			{vk::DescriptorType::eStorageBuffer, 2 * 2},
-			{vk::DescriptorType::eCombinedImageSampler, 1*2}
+			{vk::DescriptorType::eCombinedImageSampler, (1+(uint32_t)numTextures)*2}
 		};
 
 		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptorBindings);
@@ -249,7 +253,7 @@ namespace rev
 		m_frameDescs = device.allocateDescriptorSets(setInfo);
 	}
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::fillConstantDescriptorSets()
+	void Renderer::fillConstantDescriptorSets(const SceneDesc& scene)
 	{
 		auto device = m_ctxt->device();
 
@@ -281,6 +285,21 @@ namespace rev
 			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 			writeInfo.dstBinding = 2;
 			writeInfo.pImageInfo = &iblInfo;
+			device.updateDescriptorSets(writeInfo, {});
+
+			// Material textures
+			std::vector<vk::DescriptorImageInfo> texInfo(scene.m_textures.size());
+			for(size_t i = 0; i < scene.m_textures.size(); ++i)
+			{
+				auto& texture = *scene.m_textures[i];
+				texInfo[i].imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+				texInfo[i].imageView = texture.image->view();
+				texInfo[i].sampler = texture.sampler;
+			}
+			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+			writeInfo.dstBinding = 3;
+			writeInfo.descriptorCount = scene.m_textures.size();
+			writeInfo.pImageInfo = texInfo.data();
 			device.updateDescriptorSets(writeInfo, {});
 		}
 	}

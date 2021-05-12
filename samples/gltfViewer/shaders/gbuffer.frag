@@ -31,6 +31,7 @@ layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
 layout(set = 0, binding = 2) uniform sampler2D iblLUT;
+layout(set = 0, binding = 3) uniform sampler2D textures[];
 
 #include "pushConstants.glsl"
 

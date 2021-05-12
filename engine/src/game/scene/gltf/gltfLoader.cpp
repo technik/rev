@@ -303,7 +303,7 @@ namespace rev::game {
 					image->format(),
 					repeatX,
 					repeatY,
-					true,
+					false, // No anisotropy
 					0,
 					image->data(),
 					vk::ImageUsageFlagBits::eSampled,
@@ -395,7 +395,7 @@ namespace rev::game {
 		// Load resources
 		result.materials = loadMaterials(document);
 		auto images = loadImages(document);
-		// Load textures
+		result.textures = loadTextures(document, images);
 		// Load materials
 		return result;
 	}
