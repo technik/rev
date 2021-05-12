@@ -62,6 +62,7 @@ namespace rev
 		void end();
 		void onResize(const math::Vec2u& windowSize);
 		void render(SceneDesc& scene, bool geometryReady);
+		void updateUI();
 
 	private:
 		void createDescriptorLayouts();
@@ -76,6 +77,7 @@ namespace rev
 
 		// Init ImGui
 		void initImGui();
+		bool renderFlag(uint32_t flag) const { return (m_frameConstants.renderFlags & flag) > 0; }
 
 	private:
 		gfx::RenderContextVulkan* m_ctxt;
@@ -105,7 +107,14 @@ namespace rev
 			math::Vec3f lightDir;
 			math::Vec3f ambientColor;
 			math::Vec3f lightColor;
-			uint32_t flags;
+
+			uint32_t renderFlags;
+			// Material override parameters
+			math::Vec3f overrideBaseColor = { 0.7f, 0.7f, 0.7f };
+			float overrideMetallic = 0.f;
+			float overrideRoughness = 0.75f;
+			float overrideClearCoat = 0.f;
+
 		} m_frameConstants;
 
 		std::unique_ptr<RenderPass> m_uiRenderPass;

@@ -27,7 +27,21 @@ layout(push_constant,scalar) uniform Constants
 	vec3 lightDir;
 	vec3 ambientColor;
 	vec3 lightColor;
-	uint flags;
+
+	uint renderFlags;
+	// Material override parameters
+	vec3 overrideBaseColor;
+	float overrideMetallic;
+	float overrideRoughness;
+	float overrideClearCoat;
 } frameInfo;
+
+#define RF_OVERRIDE_MATERIAL (1<<0)
+#define RF_ENV_PROBE = (1<<1)
+
+bool renderFlag(uint flag)
+{
+	return (frameInfo.renderFlags & flag) > 0;
+}
 
 #endif // _PUSH_CONSTANTS_GLSL_

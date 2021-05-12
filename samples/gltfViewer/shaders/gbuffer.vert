@@ -39,5 +39,6 @@ void main() {
 
     vPxlNormal = world * vec4(normal, 0);
     vPxlWorldPos = world * vec4(position, 1.0);
+    
     gl_Position = frameInfo.proj * (frameInfo.view  * vPxlWorldPos);
 }

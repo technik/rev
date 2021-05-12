@@ -183,6 +183,34 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
+	constexpr uint32_t RF_OVERRIDE_MATERIAL = 1<<0;
+	constexpr uint32_t RF_ENV_PROBE = 1<<1;
+
+	void Renderer::updateUI()
+	{
+		if (ImGui::CollapsingHeader("Renderer"))
+		{
+			// Render flags
+			bool overrideMaterial = renderFlag(RF_OVERRIDE_MATERIAL);
+			ImGui::Checkbox("Override Material", &overrideMaterial);
+			bool useEnvProbe = renderFlag(RF_ENV_PROBE);
+			ImGui::Checkbox("Env. Probe", &useEnvProbe);
+
+			m_frameConstants.renderFlags =
+				(overrideMaterial ? RF_OVERRIDE_MATERIAL : 0) |
+				(useEnvProbe ? RF_ENV_PROBE : 0);
+
+			if (overrideMaterial)
+			{
+				ImGui::ColorPicker3("Base Color", m_frameConstants.overrideBaseColor.data());
+				ImGui::SliderFloat("Metallic", &m_frameConstants.overrideMetallic, 0.f, 1.f);
+				ImGui::SliderFloat("Roughness", &m_frameConstants.overrideRoughness, 0.f, 1.f);
+				ImGui::SliderFloat("Clear Coat", &m_frameConstants.overrideClearCoat, 0.f, 1.f);
+			}
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::createDescriptorLayouts()
 	{
 		auto device = m_ctxt->device();

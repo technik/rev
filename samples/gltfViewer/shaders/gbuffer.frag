@@ -46,11 +46,22 @@ void main()
 	float hdv = max(0, dot(halfV, eye));
 
 	PBRMaterial material = materials[0];
+
+	if(renderFlag(RF_OVERRIDE_MATERIAL))
+	{
+		material.baseColor_a.xyz = frameInfo.overrideBaseColor.xyz;
+		material.metalness = frameInfo.overrideMetallic;
+		material.roughness = frameInfo.overrideRoughness;
+	}
+
 	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
 	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
 
 	vec3 diffuseLight = diffuseColor  * ndl * frameInfo.lightColor / PI;
 	vec3 specularLight = ndl * specularBRDF(specularColor, ndh, ndl, ndv, hdv, material.roughness) * frameInfo.lightColor;
 	vec3 pxlColor = specularLight + diffuseLight;
+
+	// TODO: Treat ambient light as an environment probe and maybe main light as a disk light
+
     outColor = vec4(pxlColor, 1.0);
 }
