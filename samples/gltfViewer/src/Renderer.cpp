@@ -106,6 +106,9 @@ namespace rev
 	void Renderer::onResize(const math::Vec2u& windowSize)
 	{
 		m_windowSize = windowSize;
+		if (windowSize.x() == 0 || windowSize.y() == 0)
+			return; // Avoid recreating an empty swap chain
+
 		m_ctxt->resizeSwapchain(windowSize);
 		createRenderTargets();
 		
@@ -119,6 +122,9 @@ namespace rev
 	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::render(SceneDesc& scene, bool geometryReady)
 	{
+		if (m_windowSize.x() == 0 || m_windowSize.y() == 0)
+			return; // Don't try to render while minimized
+
 		// Watch for shader reload
 		m_shaderWatcher->update();
 
