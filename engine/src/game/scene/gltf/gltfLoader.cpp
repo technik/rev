@@ -236,7 +236,7 @@ namespace rev::game {
 			return result;
 		}
 
-		auto loadImages(const gltf::Document& document)
+		auto loadImages(const std::string assetFolder, const gltf::Document& document)
 		{
 			// Check where images are used to decide whether to mark their format as srgb or not
 			std::vector<bool> isSRGB(document.images.size(), false); // Linear by default
@@ -265,7 +265,7 @@ namespace rev::game {
 			{
 				if (!gltfImage.uri.empty()) // Load image from file
 				{
-					images.push_back(Image::load(gltfImage.uri, 4, isSRGB[imgNdx]));
+					images.push_back(Image::load(assetFolder + "/"+ gltfImage.uri, 4, isSRGB[imgNdx]));
 				}
 				else // Load from memory
 				{
@@ -410,7 +410,7 @@ namespace rev::game {
 
 		// Load resources
 		result.materials = loadMaterials(document);
-		auto images = loadImages(document);
+		auto images = loadImages(m_assetsFolder, document);
 		result.textures = loadTextures(document, images);
 		// Load materials
 		return result;
