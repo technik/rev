@@ -55,11 +55,19 @@ void main()
 	}
 
 	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
-	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
+	float r = max(1e-4, material.roughness);
+	vec3 specularLight = ndl * specularBRDF(specularColor, ndh, ndl, ndv, hdv, r) * frameInfo.lightColor;
 
-	vec3 diffuseLight = diffuseColor  * ndl * frameInfo.lightColor / PI;
-	vec3 specularLight = ndl * specularBRDF(specularColor, ndh, ndl, ndv, hdv, material.roughness) * frameInfo.lightColor;
+	// Energy compensation
+	vec2 reflectedLight = textureLod(iblLUT, vec2(ndl, material.roughness), 0).xy;
+	vec3 totalFresnel = specularColor * reflectedLight.x + reflectedLight.y;
+
+	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
+	vec3 kD = diffuseColor * (1-totalFresnel);
+	vec3 diffuseLight = kD * ndl * frameInfo.lightColor / PI;
 	vec3 pxlColor = specularLight + diffuseLight;
+
+	//pxlColor = kD * ndl / PI;
 
 	// TODO: Treat ambient light as an environment probe and maybe main light as a disk light
 
