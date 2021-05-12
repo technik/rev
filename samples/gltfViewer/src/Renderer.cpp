@@ -203,10 +203,16 @@ namespace rev
 			ImGui::Checkbox("Override Material", &overrideMaterial);
 			bool useEnvProbe = renderFlag(RF_ENV_PROBE);
 			ImGui::Checkbox("Env. Probe", &useEnvProbe);
+			bool enableAO = !renderFlag(RF_DISABLE_AO);
+			ImGui::Checkbox("Enable AO", &enableAO);
+			bool enableNormalMaps = !renderFlag(RF_NO_NORMAL_MAP);
+			ImGui::Checkbox("Normal Maps", &enableNormalMaps);
 
 			m_frameConstants.renderFlags =
 				(overrideMaterial ? RF_OVERRIDE_MATERIAL : 0) |
-				(useEnvProbe ? RF_ENV_PROBE : 0);
+				(useEnvProbe ? RF_ENV_PROBE : 0) |
+				(!enableAO ? RF_DISABLE_AO : 0) |
+				(!enableNormalMaps ? RF_NO_NORMAL_MAP : 0);
 
 			if (overrideMaterial)
 			{

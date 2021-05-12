@@ -112,9 +112,10 @@ void main()
 
         uint txtId = material.normalTexture;
         vec3 tsNormal = texture(textures[nonuniformEXT(txtId)], vPxlTexCoord).xyz;
-        tsNormal = pow(tsNormal, vec3(1/2.2)) + vec3(0,0,1e-2);
+        tsNormal = tsNormal + vec3(0,0,1e-2);
         tsNormal = normalize(tsNormal * 255.0 - 127.0);
         normal = normalize(modelFromTangent * tsNormal);
+        //material.baseColor_a.xyz = normal;
     }
 
 	if(renderFlag(RF_OVERRIDE_MATERIAL))
@@ -157,7 +158,8 @@ void main()
 
 	// Basic toneMapping
 	vec3 toneMapped = pxlColor / (1 + pxlColor);
-	//toneMapped = vec3(ndv);
+	//toneMapped = normal * 0.5 + 0.5;
+	//toneMapped = vec3(ao);
 
     outColor = vec4(toneMapped, 1.0);
 }
