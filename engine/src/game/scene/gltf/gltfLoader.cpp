@@ -228,6 +228,7 @@ namespace rev::game {
 				material.roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
 				material.baseColorTexture = gltfMaterial.pbrMetallicRoughness.baseColorTexture.index;
 				material.pbrTexture = gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index;
+				material.emissiveTexture = gltfMaterial.emissiveTexture.index;
 
 				result.push_back(material);
 			}

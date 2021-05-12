@@ -27,6 +27,7 @@ struct PBRMaterial
 	float roughness;
 	int baseColorTexture;
 	int pbrTexture;
+	int emissiveTexture;
 };
 
 #endif // _MATERIAL_GLSL_

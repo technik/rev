@@ -127,6 +127,11 @@ void main()
 		ndh, ndl, ndv, hdv);
 	
 	vec3 pxlColor = mainLight + ambientLight;
+	if(material.emissiveTexture >= 0)
+	{
+		uint index = material.emissiveTexture;
+		pxlColor += texture(textures[index], vPxlTexCoord).xyz;
+	}
 
 	// TODO: Treat ambient light as an environment probe and maybe main light as a disk light
 
