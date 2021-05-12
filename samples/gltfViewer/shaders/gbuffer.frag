@@ -143,6 +143,7 @@ void main()
 
 	// Basic toneMapping
 	vec3 toneMapped = pxlColor / (1 + pxlColor);
+	//toneMapped = vec3(ndv);
 
     outColor = vec4(toneMapped, 1.0);
 }

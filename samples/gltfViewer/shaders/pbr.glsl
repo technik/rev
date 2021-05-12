@@ -24,7 +24,7 @@
 
 float D_GGX(float NoH, float alpha) {
     float a2 = NoH * alpha;
-    float k = alpha / (1.0 - NoH * NoH + a2 * a2);
+    float k = alpha / max(1e-4, 1.0 - NoH * NoH + a2 * a2);
     return k * k * (1.0 / PI);
 }
 
@@ -32,13 +32,13 @@ float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
     float a2 = alpha * alpha;
     float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
     float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
-    return 0.5 / (GGXV + GGXL);
+    return 0.5 / max(1e-4, GGXV + GGXL);
 }
 
 float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
     float GGXV = NoL * (NoV * (1.0 - alpha) + alpha);
     float GGXL = NoV * (NoL * (1.0 - alpha) + alpha);
-    return 0.5 / (GGXV + GGXL);
+    return 0.5 / max(1e-4, GGXV + GGXL);
 }
 
 vec3 F_Schlick(float u, vec3 f0) {
