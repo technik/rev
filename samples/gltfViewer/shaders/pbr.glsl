@@ -50,17 +50,17 @@ float Fd_Lambert() {
     return 1.0 / PI;
 }
 
-float whiteBRDF(float ndh, float ndl, float ndv, float r)
+float pureMirrorBRDF(float ndh, float ndl, float ndv, float r)
 {
 	float D = D_GGX(ndh, r);
 	float G = V_SmithGGXCorrelatedFast(ndv, ndl, r);
 	return D*G;
 }
 
-vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float r)
+vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float hdv, float r)
 {
-	float s = whiteBRDF(ndh, ndv, ndl, r);
-	return F_Schlick(ndv, specularColor) * s * ndl;
+	float s = pureMirrorBRDF(ndh, ndv, ndl, r);
+	return F_Schlick(hdv, specularColor) * s;
 }
 
 #endif // _PBR_GLSL_

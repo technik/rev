@@ -34,7 +34,8 @@ layout(set = 0, binding = 2) uniform sampler2D iblLUT;
 
 #include "pushConstants.glsl"
 
-void main() {
+void main()
+{
 	vec3 normal = normalize(vPxlNormal.xyz);
 	vec3 eye = normalize(inverse(frameInfo.view) * vec4(0,0,0,1) - vPxlWorldPos).xyz;
 	vec3 halfV = normalize(eye + frameInfo.lightDir);
@@ -42,13 +43,14 @@ void main() {
 	float ndh = max(0, dot(halfV, normal));
 	float ndl = max(0, dot(frameInfo.lightDir, normal));
 	float ndv = max(0, dot(eye, normal));
+	float hdv = max(0, dot(halfV, eye));
 
 	PBRMaterial material = materials[0];
 	vec3 specularColor = mix(vec3(0.04), material.baseColor_a.xyz, material.metalness);
 	vec3 diffuseColor = material.baseColor_a.xyz * (1 - material.metalness);
 
-	vec3 diffuseLight = diffuseColor  * (frameInfo.ambientColor + ndl * frameInfo.lightColor) / PI;
-	vec3 specularLight = specularBRDF(specularColor, ndh, ndl, ndv, material.roughness) * frameInfo.lightColor;
+	vec3 diffuseLight = diffuseColor  * ndl * frameInfo.lightColor / PI;
+	vec3 specularLight = ndl * specularBRDF(specularColor, ndh, ndl, ndv, hdv, material.roughness) * frameInfo.lightColor;
 	vec3 pxlColor = specularLight + diffuseLight;
     outColor = vec4(pxlColor, 1.0);
 }
