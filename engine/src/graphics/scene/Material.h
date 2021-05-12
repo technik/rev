@@ -28,6 +28,7 @@ namespace rev::gfx
 		math::Vec4f baseColor_a; // base color + alpha coverage
 		float metalness;
 		float roughness;
-		float padding[2];
+		int32_t baseColorTexture = -1;
+		int32_t pbrTexture = -1;
 	};
 }

@@ -25,8 +25,8 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-//layout(location = 2) in vec4 tangent;
-//layout(location = 3) in vec2 uvs;
+layout(location = 2) in vec4 tangent;
+layout(location = 3) in vec2 uvs;
 
 layout(set = 0, binding = 0) readonly buffer _Matrix { mat4 worldMtx[]; };
 layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
@@ -43,6 +43,7 @@ void main() {
 
     vPxlNormal = world * vec4(normal, 0);
     vPxlWorldPos = world * vec4(position, 1.0);
+    vPxlTexCoord = uvs;
 
     gl_Position = frameInfo.proj * (frameInfo.view  * vPxlWorldPos);
 }

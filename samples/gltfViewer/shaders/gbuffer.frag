@@ -20,6 +20,7 @@
 #version 450
 #extension GL_GOOGLE_include_directive : enable
 #extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
 
 #include "material.glsl"
 #include "pbr.glsl"
@@ -88,6 +89,18 @@ void main()
 	float hdv = max(0, dot(halfV, eye));
 
 	PBRMaterial material = materials[0];
+	if(material.baseColorTexture >= 0)
+	{
+		uint index = material.baseColorTexture;
+		material.baseColor_a *= texture(textures[index], vPxlTexCoord);
+	}
+	if(material.pbrTexture >= 0)
+	{
+		uint index = material.pbrTexture;
+		vec2 metalRough = texture(textures[index], vPxlTexCoord).bg;
+		material.metalness *= metalRough.x;
+		material.roughness *= metalRough.y;
+	}
 
 	if(renderFlag(RF_OVERRIDE_MATERIAL))
 	{

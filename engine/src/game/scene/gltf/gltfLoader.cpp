@@ -226,6 +226,8 @@ namespace rev::game {
 				material.baseColor_a = reinterpret_cast<const Vec4f&>(gltfMaterial.pbrMetallicRoughness.baseColorFactor);
 				material.metalness = gltfMaterial.pbrMetallicRoughness.metallicFactor;
 				material.roughness = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
+				material.baseColorTexture = gltfMaterial.pbrMetallicRoughness.baseColorTexture.index;
+				material.pbrTexture = gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index;
 
 				result.push_back(material);
 			}

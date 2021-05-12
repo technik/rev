@@ -25,7 +25,8 @@ struct PBRMaterial
 	vec4 baseColor_a; // Base color + alpha coverage
 	float metalness;
 	float roughness;
-	float padding[2];
+	int baseColorTexture;
+	int pbrTexture;
 };
 
 #endif // _MATERIAL_GLSL_
