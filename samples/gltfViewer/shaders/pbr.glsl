@@ -36,9 +36,11 @@ float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
 }
 
 float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
-    float GGXV = NoL * (NoV * (1.0 - alpha) + alpha);
-    float GGXL = NoV * (NoL * (1.0 - alpha) + alpha);
-    return 0.5 / max(1e-4, GGXV + GGXL);
+    // float GGXV = NoL * (NoV * (1.0 - alpha) + alpha);
+    // float GGXL = NoV * (NoL * (1.0 - alpha) + alpha);
+    // float den = GGXV + GGXL;
+    float den = mix(2*NoL*NoV, NoL+NoV, alpha);
+    return 0.5 / max(1e-4, den);
 }
 
 vec3 F_Schlick(float u, vec3 f0) {
