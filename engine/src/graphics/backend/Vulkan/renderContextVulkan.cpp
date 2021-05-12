@@ -44,6 +44,7 @@ namespace rev::gfx {
 	RenderContextVulkan::~RenderContextVulkan()
 	{
 		deinit();
+		s_instance = nullptr;
 	}
 
 	//--------------------------------------------------------------------------------------------------

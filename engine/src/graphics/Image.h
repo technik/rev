@@ -24,6 +24,12 @@
 #include <memory>
 #include <math/algebra/vector.h>
 
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.hpp>
+
 namespace rev::gfx {
 
 	// An image must always have a pixel format, even if it's empty.
@@ -38,22 +44,24 @@ namespace rev::gfx {
 			Float32
 		};
 
-		struct PixelFormat
+		static size_t GetPixelSize(vk::Format fmt)
 		{
-			ChannelFormat channel;
-			std::uint8_t numChannels;
-
-			size_t pixelSize() const {
-				return numChannels * ((channel == ChannelFormat::Byte)?1:4);
-			}
-
-			bool operator==(const PixelFormat& b) const
+			switch (fmt)
 			{
-				return channel == b.channel && numChannels == b.numChannels;
+			case vk::Format::eR32G32B32A32Sfloat:
+				return sizeof(math::Vec4f);
+			case vk::Format::eR8G8B8A8Srgb:
+			case vk::Format::eR8G8B8A8Unorm:
+				return sizeof(uint8_t) * 4;
+			default:
+				assert(false && "Unsupported texture format");
+				return 0;
 			}
-		};
+		}
 
-		Image(PixelFormat, const math::Vec2u& size = math::Vec2u::zero());
+		static vk::Format GetPixelFormat(bool hdr, unsigned numChannnels, bool srgb);
+
+		Image(vk::Format format, const math::Vec2u& size = math::Vec2u::zero());
 		Image(const Image&) = delete;
 		Image(Image&&);
 
@@ -72,10 +80,10 @@ namespace rev::gfx {
 		void		clear(); ///< Clears the size, but doesn't free the storage buffer, so capacity remains intact
 		void		erase(); ///< Erases all data, and restores both size and capacity to 0
 		void		resize(const math::Vec2u& size); ///< Resizing invalidates the original contents
-		void		setPixelFormat(PixelFormat);
+		void		setPixelFormat(vk::Format);
 
 		// Accessors
-		PixelFormat format()	const	{ return mFormat; }
+		vk::Format format()	const	{ return mFormat; }
 		auto&		size()		const	{ return mSize; }
 		size_t		area()		const	{ return size().x() * size().y(); }
 		template<typename T = void*>
@@ -91,20 +99,20 @@ namespace rev::gfx {
 		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
 
 		// Note: nChannels = 0 sets automatic number of channels
-		static std::shared_ptr<Image> load(std::string_view _name, unsigned nChannels);
-		static std::shared_ptr<Image> loadFromMemory(const void* data, size_t size, unsigned nChannels);
+		static std::shared_ptr<Image> load(std::string_view _name, unsigned nChannels, bool srgb);
+		static std::shared_ptr<Image> loadFromMemory(const void* data, size_t size, unsigned nChannels, bool srgb);
 
 	private:
 		// Base constructor from size and data
-		Image(PixelFormat, const math::Vec2u& size, void* rawData);
-		static void* allocatePixelData(PixelFormat pxlFormat, size_t numPixels);
+		Image(vk::Format, const math::Vec2u& size, void* rawData);
+		static void* allocatePixelData(vk::Format pxlFormat, size_t numPixels);
 		size_t indexFromPos(const math::Vec2u&) const;
 		size_t rawDataSize() const; ///< Size in number of bytes of the allocated storage buffer
 
 	private:
 		math::Vec2u mSize;
 		size_t		mCapacity;
-		PixelFormat mFormat;
+		vk::Format mFormat;
 		void*		mData = nullptr;
 	};
 

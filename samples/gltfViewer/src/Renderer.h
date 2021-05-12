@@ -46,6 +46,7 @@ namespace rev
 			game::MeshRenderer m_sceneInstances;
 			gfx::RasterHeap m_rasterData;
 			std::vector<gfx::PBRMaterial> m_materials;
+			std::vector<std::shared_ptr<gfx::Texture>> m_textures;
 
 			math::Mat44f proj;
 			math::Mat44f view;

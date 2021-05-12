@@ -25,6 +25,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "renderContextVulkan.h"
+#include <graphics/Image.h>
 
 #include <chrono>
 #include <thread>
@@ -33,24 +34,6 @@ using namespace std::chrono;
 using namespace std::chrono_literals;
 
 namespace rev::gfx {
-
-	namespace
-	{
-		size_t getPixelSize(vk::Format fmt)
-		{
-			switch (fmt)
-			{
-			case vk::Format::eR32G32B32A32Sfloat:
-				return sizeof(math::Vec4f);
-			case vk::Format::eR8G8B8A8Srgb:
-			case vk::Format::eR8G8B8A8Unorm:
-				return sizeof(uint8_t) * 4;
-			default:
-				assert(false && "Unsupported texture format");
-				return 0;
-			}
-		}
-	}
 
 	vk::MemoryPropertyFlags VulkanAllocator::getVulkanMemoryProperties(MemoryProperties flags)
 	{
@@ -220,7 +203,7 @@ namespace rev::gfx {
 	{
 
 		// Create a staging buffer
-		size_t bufferSize = getPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
+		size_t bufferSize = Image::GetPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
 		auto buffer = createBufferForMapping(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, graphicsQueueFamily);
 		// Copy data to the buffer
 		auto dataDst = mapBuffer<uint8_t*>(*buffer);

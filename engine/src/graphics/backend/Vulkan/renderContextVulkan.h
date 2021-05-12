@@ -34,10 +34,18 @@
 
 namespace rev::gfx
 {
+	class RenderContextVulkan;
+
+	RenderContextVulkan& RenderContext();
+
 	class RenderContextVulkan
 	{
 	public:
-		RenderContextVulkan() = default;
+		RenderContextVulkan()
+		{
+			assert(!s_instance);
+			s_instance = this;
+		}
 		~RenderContextVulkan();
 
 		// Window
@@ -97,6 +105,8 @@ namespace rev::gfx
 
 		const Properties properties() const { m_properties; }
 
+		__forceinline static RenderContextVulkan* singleton() { return s_instance; }
+
 	private:
 		bool createInstance(const char* applicationName);
 		void getPhysicalDevice();
@@ -106,6 +116,8 @@ namespace rev::gfx
 		void deinit();
 
 		bool isDeviceSuitable(const vk::PhysicalDevice&);
+
+		inline static RenderContextVulkan* s_instance = nullptr;
 
 	private:
 		// Window
@@ -198,4 +210,10 @@ namespace rev::gfx
 		// Allocator
 		VulkanAllocator m_alloc;
 	};
+
+	__forceinline RenderContextVulkan& RenderContext()
+	{
+		assert(RenderContextVulkan::singleton());
+		return *RenderContextVulkan::singleton();
+	}
 }

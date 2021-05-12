@@ -228,25 +228,91 @@ namespace rev::game {
 
 		auto loadImages(const gltf::Document& document)
 		{
+			// Check where images are used to decide whether to mark their format as srgb or not
+			std::vector<bool> isSRGB(document.images.size(), false); // Linear by default
+			for (auto& mat : document.materials)
+			{
+				if(mat.emissiveTexture.index >= 0)
+				{
+					auto& tex = document.textures[mat.emissiveTexture.index];
+					if (tex.source >= 0)
+						isSRGB[tex.source] = true;
+				}
+
+				if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
+				{
+					auto& tex = document.textures[mat.pbrMetallicRoughness.baseColorTexture.index];
+					if (tex.source >= 0)
+						isSRGB[tex.source] = true;
+				}
+			}
+
 			std::vector<std::shared_ptr<Image>> images;
 			images.reserve(document.images.size());
 
+			uint32_t imgNdx = 0;
 			for(auto& gltfImage : document.images)
 			{
 				if (!gltfImage.uri.empty()) // Load image from file
 				{
-					images.push_back(Image::load(gltfImage.uri, 4));
+					images.push_back(Image::load(gltfImage.uri, 4, isSRGB[imgNdx]));
 				}
 				else // Load from memory
 				{
 					auto& bv = document.bufferViews[gltfImage.bufferView];
 					auto& buffer = document.buffers[bv.buffer];
-					auto image = Image::loadFromMemory(buffer.data.data() + bv.byteOffset, bv.byteLength, 4);
+					auto image = Image::loadFromMemory(buffer.data.data() + bv.byteOffset, bv.byteLength, 4, isSRGB[imgNdx]);
 					images.push_back(image);
 				}
+				++imgNdx;
 			}
 
 			return images;
+		}
+
+		auto loadTextures(const gltf::Document& document, const std::vector<std::shared_ptr<Image>>& images)
+		{
+			auto& rc = RenderContext();
+
+			std::vector<std::shared_ptr<gfx::Texture>> textures;
+
+			for (auto& gltfTexture : document.textures)
+			{
+				gltf::Sampler sampler;
+				if (gltfTexture.sampler >= 0)
+				{
+					sampler = document.samplers[gltfTexture.sampler];
+				}
+				auto repeatX = sampler.wrapS == gltf::Sampler::WrappingMode::Repeat ? vk::SamplerAddressMode::eRepeat : vk::SamplerAddressMode::eClampToEdge;
+				auto repeatY = sampler.wrapT == gltf::Sampler::WrappingMode::Repeat ? vk::SamplerAddressMode::eRepeat : vk::SamplerAddressMode::eClampToEdge;
+
+				std::shared_ptr<Image> image;
+				if (gltfTexture.source >= 0)
+				{
+					image = images[gltfTexture.source];
+				}
+				else
+				{
+					assert(false && "Empty textures unsupported");
+				}
+
+				auto texture = rc.allocator().createTexture(
+					rc,
+					gltfTexture.name.c_str(),
+					image->size(),
+					image->format(),
+					repeatX,
+					repeatY,
+					true,
+					0,
+					image->data(),
+					vk::ImageUsageFlagBits::eSampled,
+					rc.graphicsQueueFamily()
+				);
+				textures.push_back(texture);
+			}
+
+			return textures;
 		}
 	}
 

@@ -358,7 +358,7 @@ namespace rev
 
 	void Renderer::loadIBLLUT()
 	{
-		auto image = gfx::Image::load("shaders/ibl_brdf.hdr", 4);
+		auto image = gfx::Image::load("shaders/ibl_brdf.hdr", 4, false);
 		m_iblLUT = m_ctxt->allocator().createTexture(
 			*m_ctxt,
 			"IBL LUT",

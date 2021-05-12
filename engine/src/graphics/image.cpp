@@ -26,8 +26,43 @@
 
 namespace rev::gfx
 {
+
+	vk::Format Image::GetPixelFormat(bool hdr, unsigned numChannels, bool srgb)
+	{
+		if (hdr)
+		{
+			assert(!srgb);
+			switch (numChannels)
+			{
+			case 1:
+				return vk::Format::eR32Sfloat;
+			case 2:
+				return vk::Format::eR32G32Sfloat;
+			case 3:
+				return vk::Format::eR32G32B32Sfloat;
+			case 4:
+				return vk::Format::eR32G32B32A32Sfloat;
+			}
+		}
+		else
+		{
+			assert(!srgb || numChannels > 2);
+			switch (numChannels)
+			{
+			case 1:
+				return vk::Format::eR8Unorm;
+			case 2:
+				return vk::Format::eR8G8Unorm;
+			case 3:
+				return srgb ? vk::Format::eR8G8B8Srgb : vk::Format::eR8G8B8Unorm;
+			case 4:
+				return srgb ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8A8Unorm;
+			}
+		}
+	}
+
 	//----------------------------------------------------------------------------------------------
-	Image::Image(PixelFormat pxlFormat, const math::Vec2u& size)
+	Image::Image(vk::Format pxlFormat, const math::Vec2u& size)
 		: mSize(size)
 		, mFormat(pxlFormat)
 	{
@@ -42,7 +77,7 @@ namespace rev::gfx
 		, mCapacity(x.mCapacity)
 		, mFormat(x.mFormat)
 	{
-		auto memorySize = mFormat.pixelSize() * mCapacity;
+		auto memorySize = GetPixelSize(mFormat) * mCapacity;
 		mData = x.mData;
 		x.mCapacity = 0;
 	}
@@ -50,22 +85,22 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	// Constructors from specific color formats
 	Image::Image(const math::Vec2u& size, math::Vec3u8* data)
-		: Image({ChannelFormat::Byte, 3}, size, data)
+		: Image(vk::Format::eR8G8B8Unorm, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4u8* data)
-		: Image({ChannelFormat::Byte, 4}, size, data)
+		: Image(vk::Format::eR8G8B8A8Unorm, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec3f* data)
-		: Image({ChannelFormat::Float32, 3}, size, data)
+		: Image(vk::Format::eR32G32B32Sfloat, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
 	Image::Image(const math::Vec2u& size, math::Vec4f* data)
-		: Image({ChannelFormat::Float32, 4}, size, data)
+		: Image(vk::Format::eR32G32B32A32Sfloat, size, data)
 	{}
 
 	//----------------------------------------------------------------------------------------------
@@ -115,17 +150,18 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Image::setPixelFormat(PixelFormat fmt)
+	void Image::setPixelFormat(vk::Format fmt)
 	{
-		if(mCapacity > 0 && fmt.pixelSize() != mFormat.pixelSize())
-			mCapacity = mCapacity * mFormat.pixelSize() / fmt.pixelSize();
+		if(mCapacity > 0 && GetPixelSize(fmt) != GetPixelSize(mFormat))
+			mCapacity = mCapacity * GetPixelSize(mFormat) / GetPixelSize(fmt);
 		mFormat = fmt;
 	}
 
 	//----------------------------------------------------------------------------------------------
 	Image Image::proceduralXOR(const math::Vec2u& size, size_t nChannels)
 	{
-		Image xorImg({ChannelFormat::Byte, (uint8_t)nChannels}, size);
+		vk::Format format = GetPixelFormat(false, nChannels, false);
+		Image xorImg(format, size);
 		for(unsigned i = 0; i < size.y(); ++i)
 			for(unsigned j = 0; j < size.x(); ++j)
 			{
@@ -141,14 +177,14 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Image> Image::load(std::string_view _name, unsigned nChannels)
+	std::shared_ptr<Image> Image::load(std::string_view _name, unsigned nChannels, bool srgb)
 	{
 		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size(), nChannels);
+		return loadFromMemory(file.buffer(), file.size(), nChannels, srgb);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Image> Image::loadFromMemory(const void* data, size_t bufferSize, unsigned nChannels)
+	std::shared_ptr<Image> Image::loadFromMemory(const void* data, size_t bufferSize, unsigned nChannels, bool srgb)
 	{
 		if (bufferSize > 0)
 		{
@@ -172,11 +208,9 @@ namespace rev::gfx
 			if (imgData)
 			{
 				math::Vec2u size = { unsigned(width), unsigned(height) };
-				PixelFormat format;
-				format.numChannels = nChannels ? nChannels : (unsigned)realNumChannels;
-				format.channel = isHDR ? ChannelFormat::Float32 : ChannelFormat::Byte;
+				vk::Format format = GetPixelFormat(isHDR, nChannels, srgb);
 				auto result = std::make_shared<Image>(format, size);
-				memcpy(result->data<void>(), imgData, result->area() * format.pixelSize());
+				memcpy(result->data<void>(), imgData, result->area() * GetPixelSize(format));
 
 				stbi_image_free(imgData);
 
@@ -188,7 +222,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(PixelFormat pxlFmt, const math::Vec2u& size, void* data)
+	Image::Image(vk::Format pxlFmt, const math::Vec2u& size, void* data)
 		: mSize(size)
 		, mFormat(pxlFmt)
 		, mData(data)
@@ -197,9 +231,9 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void* Image::allocatePixelData(PixelFormat pxlFormat, size_t numPixels)
+	void* Image::allocatePixelData(vk::Format pxlFormat, size_t numPixels)
 	{
-		auto rawSize = numPixels * pxlFormat.pixelSize();
+		auto rawSize = numPixels * GetPixelSize(pxlFormat);
 		return new uint8_t[rawSize];
 	}
 
@@ -212,6 +246,6 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	size_t Image::rawDataSize() const
 	{
-		return mFormat.pixelSize() * mCapacity;
+		return GetPixelSize(mFormat) * mCapacity;
 	}
 }
