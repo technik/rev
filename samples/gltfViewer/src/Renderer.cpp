@@ -142,7 +142,11 @@ namespace rev
 
 		// Render the Geometry/UI pass
 		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
-		m_uiRenderPass->setClearColor(m_frameConstants.ambientColor);
+		math::Vec3f ambient = m_frameConstants.ambientColor;
+		ambient.x() = ambient.x() / (1 + ambient.x());
+		ambient.y() = ambient.y() / (1 + ambient.y());
+		ambient.z() = ambient.z() / (1 + ambient.z());
+		m_uiRenderPass->setClearColor(ambient);
 		m_uiRenderPass->begin(cmd, m_windowSize);
 
 		// Render a triangle if the scene is loaded
@@ -302,19 +306,22 @@ namespace rev
 			device.updateDescriptorSets(writeInfo, {});
 
 			// Material textures
-			std::vector<vk::DescriptorImageInfo> texInfo(scene.m_textures.size());
-			for(size_t i = 0; i < scene.m_textures.size(); ++i)
+			if (scene.m_textures.size() > 0)
 			{
-				auto& texture = *scene.m_textures[i];
-				texInfo[i].imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-				texInfo[i].imageView = texture.image->view();
-				texInfo[i].sampler = texture.sampler;
+				std::vector<vk::DescriptorImageInfo> texInfo(scene.m_textures.size());
+				for(size_t i = 0; i < scene.m_textures.size(); ++i)
+				{
+					auto& texture = *scene.m_textures[i];
+					texInfo[i].imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+					texInfo[i].imageView = texture.image->view();
+					texInfo[i].sampler = texture.sampler;
+				}
+				writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+				writeInfo.dstBinding = 3;
+				writeInfo.descriptorCount = scene.m_textures.size();
+				writeInfo.pImageInfo = texInfo.data();
+				device.updateDescriptorSets(writeInfo, {});
 			}
-			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-			writeInfo.dstBinding = 3;
-			writeInfo.descriptorCount = scene.m_textures.size();
-			writeInfo.pImageInfo = texInfo.data();
-			device.updateDescriptorSets(writeInfo, {});
 		}
 	}
 

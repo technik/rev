@@ -38,6 +38,11 @@ layout(set = 0, binding = 3) uniform sampler2D textures[];
 
 #include "pushConstants.glsl"
 
+vec2 Eavg(float ndl, float r)
+{
+	return textureLod(iblLUT, vec2(ndl, r), 0).xy;
+}
+
 vec3 directLight(
 	vec3 specularColor,
 	vec3 diffuseColor,
@@ -73,7 +78,7 @@ vec3 envLight(
 {
 	vec2 iblFresnel = textureLod(iblLUT, vec2(ndv, roughness), 0).xy;
 	vec3 specular = specularColor * iblFresnel.x + iblFresnel.y;
-	vec3 diffuse = (1 - specular) * diffuseColor / PI;
+	vec3 diffuse = (1 - specular) * diffuseColor;
 	return (diffuse + specular) * lightColor;
 }
 
