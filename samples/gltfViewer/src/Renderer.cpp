@@ -247,51 +247,15 @@ namespace rev
 
 		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
 		{
-			vk::WriteDescriptorSet writeInfo;
-			writeInfo.dstSet = m_frameDescriptorSets.getDescriptor(frameNdx);
-			writeInfo.dstArrayElement = 0;
+			gfx::DescriptorSetUpdate frameUpdate(m_frameDescriptorSets, frameNdx);
 
-			// Matrix buffer
-			vk::DescriptorBufferInfo writeBufferInfo(m_mtxBuffers[frameNdx]->buffer(), 0, m_mtxBuffers[frameNdx]->size());
-			writeInfo.dstBinding = 0;
-			writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-			writeInfo.descriptorCount = 1;
-			writeInfo.pBufferInfo = &writeBufferInfo;
-			device.updateDescriptorSets(writeInfo, {});
-			
-			// Materials buffer
-			vk::DescriptorBufferInfo materialsBufferInfo(m_materialsBuffer->buffer(), 0, m_materialsBuffer->size());
-			writeInfo.dstBinding = 1;
-			writeInfo.pBufferInfo = &materialsBufferInfo;
-			device.updateDescriptorSets(writeInfo, {});
-
-			// IBL texture
-			vk::DescriptorImageInfo iblInfo;
-			iblInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-			iblInfo.imageView = m_iblLUT->image->view();
-			iblInfo.sampler = m_iblLUT->sampler;
-			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-			writeInfo.dstBinding = 2;
-			writeInfo.pImageInfo = &iblInfo;
-			device.updateDescriptorSets(writeInfo, {});
+			frameUpdate.addStorageBuffer("World mtx", m_mtxBuffers[frameNdx]);
+			frameUpdate.addStorageBuffer("Materials", m_materialsBuffer);
+			frameUpdate.addTexture("IBL texture", m_iblLUT);
+			frameUpdate.send();
 
 			// Material textures
-			if (scene.m_textures.size() > 0)
-			{
-				std::vector<vk::DescriptorImageInfo> texInfo(scene.m_textures.size());
-				for(size_t i = 0; i < scene.m_textures.size(); ++i)
-				{
-					auto& texture = *scene.m_textures[i];
-					texInfo[i].imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-					texInfo[i].imageView = texture.image->view();
-					texInfo[i].sampler = texture.sampler;
-				}
-				writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-				writeInfo.dstBinding = 3;
-				writeInfo.descriptorCount = (uint32_t)scene.m_textures.size();
-				writeInfo.pImageInfo = texInfo.data();
-				device.updateDescriptorSets(writeInfo, {});
-			}
+			m_frameDescriptorSets.writeArrayTextureToDescriptor(frameNdx, "Textures", scene.m_textures);
 		}
 	}
 

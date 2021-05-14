@@ -99,8 +99,8 @@ namespace rev::gfx
 			writeInfo.dstBinding = 3;
 			writeInfo.descriptorCount = (uint32_t)textureArray.size();
 			writeInfo.pImageInfo = texInfo.data();
+			RenderContext().device().updateDescriptorSets(writeInfo, {});
 		}
-		RenderContext().device().updateDescriptorSets(writeInfo, {});
 	}
 	
 	void DescriptorSetUpdate::addStorageBuffer(const std::string& name, std::shared_ptr<GPUBuffer> buffer)
@@ -112,7 +112,7 @@ namespace rev::gfx
 		m_bufferWrites.insert({ iter->second, buffer });
 	}
 
-	void DescriptorSetUpdate::setTexture(const std::string& name, std::shared_ptr<Texture> texture)
+	void DescriptorSetUpdate::addTexture(const std::string& name, std::shared_ptr<Texture> texture)
 	{
 		// Locate binding in layout
 		auto iter = m_layout.m_textureBindings.find(name);

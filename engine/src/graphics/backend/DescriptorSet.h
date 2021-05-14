@@ -43,13 +43,14 @@ namespace rev::gfx
 
 		inline auto layout() const { return m_vkLayout; }
 
+		// Immediate write
+		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string name, const std::vector<std::shared_ptr<Texture>>& textureArray);
+
 	private:
 
 		void createDescriptorPool(uint32_t numDescriptorSets);
 
 		void createDescriptors(uint32_t numDescriptors);
-
-		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string name, const std::vector<std::shared_ptr<Texture>>& textureArray);
 
 		std::vector<vk::DescriptorSetLayoutBinding> m_bindings;
 		std::map<std::string, uint32_t> m_storageBufferBindings;
@@ -72,7 +73,7 @@ namespace rev::gfx
 
 		void addStorageBuffer(const std::string& name, std::shared_ptr<GPUBuffer> buffer);
 
-		void setTexture(const std::string& name, std::shared_ptr<Texture> texture);
+		void addTexture(const std::string& name, std::shared_ptr<Texture> texture);
 
 		void send() const;
 
