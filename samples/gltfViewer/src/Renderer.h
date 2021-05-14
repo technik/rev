@@ -89,12 +89,17 @@ namespace rev
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
 		uint32_t m_doubleBufferNdx = 0;
-		gfx::DescriptorSetLayout m_frameDescriptorSets;
+		gfx::DescriptorSetLayout m_geometryDescriptorSets;
+		gfx::DescriptorSetLayout m_postProDescriptorSets;
+
 		vk::PipelineLayout m_gbufferPipelineLayout;
+		vk::PipelineLayout m_postProcessPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
+		std::unique_ptr<gfx::RasterPipeline> m_postProPipeline;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
+
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
 		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
 		std::shared_ptr<gfx::Texture> m_iblLUT;
@@ -115,6 +120,14 @@ namespace rev
 			float overrideClearCoat = 0.f;
 
 		} m_frameConstants;
+
+		struct PostProPushConstants
+		{
+			uint32_t renderFlags;
+			math::Vec2f windowSize;
+			float exposure;
+			float bloom;
+		};
 
 		std::unique_ptr<RenderPass> m_uiRenderPass;
 		std::unique_ptr<RenderPass> m_gBufferPass;

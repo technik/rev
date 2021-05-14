@@ -203,7 +203,7 @@ namespace rev::gfx {
 	{
 
 		// Create a staging buffer
-		size_t bufferSize = Image::GetPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
+		size_t bufferSize = GetPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
 		auto buffer = createBufferForMapping(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, graphicsQueueFamily);
 		// Copy data to the buffer
 		auto dataDst = mapBuffer<uint8_t*>(*buffer);

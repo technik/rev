@@ -22,14 +22,35 @@
 #include "Vulkan/renderContextVulkan.h"
 
 #include <string>
+#include <vector>
 
 namespace rev::gfx
 {
 	class RasterPipeline
 	{
 	public:
+		struct VertexBindings
+		{
+			template<class T> void addAttribute(uint32_t bindingPosition);
+
+			template<> void addAttribute<math::Vec2f>(uint32_t bindingPosition)
+			{
+				m_attributes.emplace_back(bindingPosition, vk::Format::eR32G32Sfloat);
+			}
+			template<> void addAttribute<math::Vec3f>(uint32_t bindingPosition)
+			{
+				m_attributes.emplace_back(bindingPosition, vk::Format::eR32G32B32Sfloat);
+			}
+			template<> void addAttribute<math::Vec4f>(uint32_t bindingPosition)
+			{
+				m_attributes.emplace_back(bindingPosition, vk::Format::eR32G32B32A32Sfloat);
+			}
+
+			std::vector<std::pair<uint32_t, vk::Format>> m_attributes;
+		};
+
 		RasterPipeline(
-			vk::Device device,
+			const VertexBindings& vtxFormat,
 			vk::PipelineLayout layout,
 			vk::RenderPass passDesc,
 			std::string vtxShaderFilename,
@@ -59,7 +80,7 @@ namespace rev::gfx
 
 	private:
 		// Permanent state
-		vk::Device m_device;
+		std::vector<std::pair<uint32_t, vk::Format>> m_attributes;
 		vk::PipelineLayout m_layout;
 		vk::RenderPass m_passDesc;
 		bool m_depthTest;

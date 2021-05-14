@@ -96,6 +96,7 @@ namespace rev
 		auto device = m_ctxt->device();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
+		device.destroyPipelineLayout(m_postProcessPipelineLayout);
 		device.destroyRenderPass(m_uiRenderPass->vkPass());
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
@@ -158,7 +159,10 @@ namespace rev
 			m_gBufferPipeline->bind(cmd);
 
 			// Update descriptor set with this frame's matrices
-			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
+			cmd.bindDescriptorSets(
+				vk::PipelineBindPoint::eGraphics,
+				m_gbufferPipelineLayout,
+				0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
 
 			cmd.pushConstants<FramePushConstants>(
 				m_gbufferPipelineLayout,
@@ -228,15 +232,20 @@ namespace rev
 	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::createDescriptorLayouts(size_t numTextures)
 	{
-		m_frameDescriptorSets.addStorageBuffer("World mtx", 0, vk::ShaderStageFlagBits::eVertex);
-		m_frameDescriptorSets.addStorageBuffer("Materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+		// Geometry pass
+		m_geometryDescriptorSets.addStorageBuffer("World mtx", 0, vk::ShaderStageFlagBits::eVertex);
+		m_geometryDescriptorSets.addStorageBuffer("Materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
-		m_frameDescriptorSets.addTexture("IBL texture", 2, vk::ShaderStageFlagBits::eFragment);
+		m_geometryDescriptorSets.addTexture("IBL texture", 2, vk::ShaderStageFlagBits::eFragment);
 		assert(numTextures < std::numeric_limits<uint32_t>::max());
-		m_frameDescriptorSets.addTextureArray("Textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+		m_geometryDescriptorSets.addTextureArray("Textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
 
 		constexpr uint32_t numSwapchainImages = 2;
-		m_frameDescriptorSets.close(numSwapchainImages);
+		m_geometryDescriptorSets.close(numSwapchainImages);
+
+		// Post process passes
+		m_postProDescriptorSets.addTexture("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
+		m_postProDescriptorSets.close(numSwapchainImages);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -246,7 +255,7 @@ namespace rev
 
 		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
 		{
-			gfx::DescriptorSetUpdate frameUpdate(m_frameDescriptorSets, frameNdx);
+			gfx::DescriptorSetUpdate frameUpdate(m_geometryDescriptorSets, frameNdx);
 
 			frameUpdate.addStorageBuffer("World mtx", m_mtxBuffers[frameNdx]);
 			frameUpdate.addStorageBuffer("Materials", m_materialsBuffer);
@@ -254,7 +263,7 @@ namespace rev
 			frameUpdate.send();
 
 			// Material textures
-			m_frameDescriptorSets.writeArrayTextureToDescriptor(frameNdx, "Textures", scene.m_textures);
+			m_geometryDescriptorSets.writeArrayTextureToDescriptor(frameNdx, "Textures", scene.m_textures);
 		}
 	}
 
@@ -281,19 +290,47 @@ namespace rev
 			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(FramePushConstants));
 
-		auto descriptorSetLayout = m_frameDescriptorSets.layout();
+		auto descriptorSetLayout = m_geometryDescriptorSets.layout();
 		vk::PipelineLayoutCreateInfo layoutInfo({},
 			1, & descriptorSetLayout, // Descriptor sets
 			1, &camerasPushRange); // Push constants
 
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
+
+		gfx::RasterPipeline::VertexBindings geometryBindings;
+		geometryBindings.addAttribute<math::Vec3f>(0); // Vertex position
+		geometryBindings.addAttribute<math::Vec3f>(1); // Normals
+		geometryBindings.addAttribute<math::Vec4f>(2); // Tangents
+		geometryBindings.addAttribute<math::Vec2f>(3); // UVs
+
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
-			device,
+			geometryBindings,
 			m_gbufferPipelineLayout,
 			m_uiRenderPass->vkPass(),
 			"../shaders/gbuffer.vert.spv",
 			"../shaders/gbuffer.frag.spv",
 			true);
+
+		// Full screen pipeline
+		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, sizeof(PostProPushConstants));
+		auto postProDescLayout = m_postProDescriptorSets.layout();
+		vk::PipelineLayoutCreateInfo postLayoutInfo({},
+			1, & postProDescLayout, // Descriptor sets
+			1, & postProPushRange); // Push constants
+		m_postProcessPipelineLayout = device.createPipelineLayout(postLayoutInfo);
+		// 
+		// Intentionally empty bindings. Full screen generates all vertices on the fly
+		gfx::RasterPipeline::VertexBindings fullScreenBindings;
+		m_postProPipeline = std::make_unique<gfx::RasterPipeline>(
+			fullScreenBindings,
+			m_postProcessPipelineLayout,
+			m_uiRenderPass->vkPass(),
+			"../shaders/fullScreen.vert.spv",
+			"../shaders/postPro.frag.spv",
+			false
+			);
+
+		// Set up shader reload
 		m_shaderWatcher->listen([this](auto paths) { m_gBufferPipeline->invalidate(); });
 	}
 

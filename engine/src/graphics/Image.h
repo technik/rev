@@ -29,6 +29,7 @@
 #include <Windows.h>
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
+#include <graphics/types.h>
 
 namespace rev::gfx {
 
@@ -37,27 +38,11 @@ namespace rev::gfx {
 	class Image
 	{
 	public:
-
 		enum class ChannelFormat : std::uint8_t
 		{
 			Byte,
 			Float32
 		};
-
-		static size_t GetPixelSize(vk::Format fmt)
-		{
-			switch (fmt)
-			{
-			case vk::Format::eR32G32B32A32Sfloat:
-				return sizeof(math::Vec4f);
-			case vk::Format::eR8G8B8A8Srgb:
-			case vk::Format::eR8G8B8A8Unorm:
-				return sizeof(uint8_t) * 4;
-			default:
-				assert(false && "Unsupported texture format");
-				return 0;
-			}
-		}
 
 		static vk::Format GetPixelFormat(bool hdr, unsigned numChannnels, bool srgb);
 

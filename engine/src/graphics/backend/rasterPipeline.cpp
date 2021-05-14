@@ -22,10 +22,12 @@
 #include <fstream>
 #include <iostream>
 
+#include <graphics/types.h>
+
 namespace rev::gfx
 {
 	RasterPipeline::RasterPipeline(
-		vk::Device device,
+		const VertexBindings& vtxFormat,
 		vk::PipelineLayout layout,
 		vk::RenderPass passDesc,
 		std::string vtxShaderFilename,
@@ -35,7 +37,7 @@ namespace rev::gfx
 	)
 		: m_vtxShader(vtxShaderFilename)
 		, m_pxlShader(pxlShaderFilename)
-		, m_device(device)
+		, m_attributes(vtxFormat.m_attributes)
 		, m_layout(layout)
 		, m_passDesc(passDesc)
 		, m_depthTest(depthTest)
@@ -70,7 +72,7 @@ namespace rev::gfx
 		vk::Pipeline newPipeline = tryLoad();
 		if (newPipeline)
 		{
-			m_device.waitIdle();
+			RenderContext().device().waitIdle();
 			clearPipeline();
 			m_vkPipeline = newPipeline;
 			return true;
@@ -82,7 +84,7 @@ namespace rev::gfx
 	void RasterPipeline::clearPipeline()
 	{
 		if (m_vkPipeline)
-			m_device.destroyPipeline(m_vkPipeline);
+			RenderContext().device().destroyPipeline(m_vkPipeline);
 	}
 
 	vk::Pipeline RasterPipeline::tryLoad()
@@ -96,18 +98,21 @@ namespace rev::gfx
 		vk::PipelineShaderStageCreateInfo stages[2] = { vtxStage, pxlStage };
 
 		// Vertex input format
-		vk::VertexInputBindingDescription vtxPosBinding(0, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
-		vk::VertexInputBindingDescription normalBinding(1, sizeof(math::Vec3f), vk::VertexInputRate::eVertex);
-		vk::VertexInputBindingDescription tangentBinding(2, sizeof(math::Vec4f), vk::VertexInputRate::eVertex);
-		vk::VertexInputBindingDescription texCoordBinding(3, sizeof(math::Vec2f), vk::VertexInputRate::eVertex);
+		std::vector<vk::VertexInputBindingDescription> vtxBindings;
+		std::vector<vk::VertexInputAttributeDescription> vtxAttributes;
+		for (auto& shaderAttribute : m_attributes)
+		{
+			auto& binding = vtxBindings.emplace_back();
+			binding.binding = shaderAttribute.first;
+			binding.stride = GetPixelSize(shaderAttribute.second);
+			binding.inputRate = vk::VertexInputRate::eVertex;
 
-		vk::VertexInputAttributeDescription vtxPosAttribute(0, 0, vk::Format::eR32G32B32Sfloat, 0);
-		vk::VertexInputAttributeDescription normalAttribute(1, 1, vk::Format::eR32G32B32Sfloat, 0);
-		vk::VertexInputAttributeDescription tangentAttribute(2, 2, vk::Format::eR32G32B32A32Sfloat, 0);
-		vk::VertexInputAttributeDescription texCoordAttribute(3, 3, vk::Format::eR32G32Sfloat, 0);
-
-		auto vtxBindings = std::array{ vtxPosBinding, normalBinding, tangentBinding, texCoordBinding };
-		auto vtxAttributes = std::array{ vtxPosAttribute, normalAttribute, tangentAttribute, texCoordAttribute };
+			auto& attribute = vtxAttributes.emplace_back();
+			attribute.binding = shaderAttribute.first;
+			attribute.location = shaderAttribute.first;
+			attribute.format = shaderAttribute.second;
+			attribute.offset = 0;
+		}
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputFormat({},
 			vtxBindings, // Vertex bindings
@@ -186,11 +191,12 @@ namespace rev::gfx
 		pipelineInfo.setPDynamicState(&dynamicStateInfo);
 		pipelineInfo.setPColorBlendState(&blendingInfo);
 
-		auto newPipeline = m_device.createGraphicsPipeline({}, pipelineInfo);
+		auto device = RenderContext().device();
+		auto newPipeline = device.createGraphicsPipeline({}, pipelineInfo);
 
 		// Clean up
-		m_device.destroyShaderModule(vtxModule);
-		m_device.destroyShaderModule(pxlModule);
+		device.destroyShaderModule(vtxModule);
+		device.destroyShaderModule(pxlModule);
 
 		if (newPipeline.result != vk::Result::eSuccess)
 		{
@@ -213,6 +219,6 @@ namespace rev::gfx
 
 		// Compile spirv
 		vk::ShaderModuleCreateInfo moduleInfo({}, size, (const uint32_t*)byteCode.data());
-		return m_device.createShaderModule(moduleInfo);
+		return RenderContext().device().createShaderModule(moduleInfo);
 	}
 }
