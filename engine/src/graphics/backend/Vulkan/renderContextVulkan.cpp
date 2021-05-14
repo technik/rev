@@ -563,10 +563,24 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::resizeSwapchain(const math::Vec2u& imageSize)
+	math::Vec2u RenderContextVulkan::resizeSwapchain(const math::Vec2u& imageSize)
 	{
 		m_device.waitIdle();
-		m_swapchain.resize(imageSize);
+
+		// Find out current device capabilities. Needed to move across different dpi surfaces
+		vk::SurfaceCapabilitiesKHR capabilities;
+		auto result = m_physicalDevice.getSurfaceCapabilitiesKHR(m_surface, &capabilities);
+		assert(result == vk::Result::eSuccess);
+
+		math::Vec2u clampedSize = {
+			std::min(capabilities.maxImageExtent.width, std::max(capabilities.minImageExtent.width, imageSize.x())),
+			std::min(capabilities.maxImageExtent.height, std::max(capabilities.minImageExtent.height, imageSize.y()))
+		};
+
+		m_swapchain.resize(clampedSize);
+		m_windowSize = clampedSize;
+
+		return clampedSize;
 	}
 
 	//--------------------------------------------------------------------------------------------------

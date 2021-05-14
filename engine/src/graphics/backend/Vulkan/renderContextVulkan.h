@@ -71,7 +71,7 @@ namespace rev::gfx
 
 		// Swapchain
 		bool createSwapchain(bool vSync);
-		void resizeSwapchain(const math::Vec2u& imageSize);
+		math::Vec2u resizeSwapchain(const math::Vec2u& imageSize); // Returns the actual size the swapchain was resized to
 		auto& swapchainImageView(size_t i) const { return *m_swapchain.imageBuffers[i]; }
 		auto nSwapChainImages() const { return m_swapchain.imageBuffers.size(); }
 		const ImageBuffer& swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);

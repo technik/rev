@@ -101,13 +101,12 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::onResize(const math::Vec2u& windowSize)
+	void Renderer::onResize(const math::Vec2u& intendedSize)
 	{
-		m_windowSize = windowSize;
-		if (windowSize.x() == 0 || windowSize.y() == 0)
+		if (intendedSize.x() == 0 || intendedSize.y() == 0)
 			return; // Avoid recreating an empty swap chain
 
-		m_ctxt->resizeSwapchain(windowSize);
+		m_windowSize = m_ctxt->resizeSwapchain(intendedSize);
 		createRenderTargets();
 		
 		// Update render passes
