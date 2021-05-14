@@ -21,6 +21,7 @@
 
 #include <core/platform/fileSystem/FolderWatcher.h>
 #include <game/scene/meshRenderer.h>
+#include <graphics/backend/DescriptorSet.h>
 #include <graphics/backend/FrameBufferManager.h>
 #include <graphics/backend/rasterPipeline.h>
 #include <graphics/backend/Vulkan/gpuBuffer.h>
@@ -67,7 +68,6 @@ namespace rev
 
 	private:
 		void createDescriptorLayouts(size_t numTextures);
-		void createDescriptorSets(size_t numTextures);
 		void fillConstantDescriptorSets(const SceneDesc& scene);
 		void createRenderPasses();
 		void createShaderPipelines();
@@ -88,10 +88,8 @@ namespace rev
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
-		vk::DescriptorPool m_descPool;
-		std::vector<vk::DescriptorSet> m_frameDescs;
 		uint32_t m_doubleBufferNdx = 0;
-		vk::DescriptorSetLayout m_frameDescLayout;
+		gfx::DescriptorSetLayout m_frameDescriptorSets;
 		vk::PipelineLayout m_gbufferPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;

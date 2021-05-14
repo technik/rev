@@ -79,8 +79,6 @@ namespace rev
 			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
 		}
 
-		// Init descriptor sets
-		createDescriptorSets(maxSceneTextures);
 		// Update descriptor sets
 		fillConstantDescriptorSets(scene);
 
@@ -161,7 +159,7 @@ namespace rev
 			m_gBufferPipeline->bind(cmd);
 
 			// Update descriptor set with this frame's matrices
-			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescs[m_doubleBufferNdx], {});
+			cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_gbufferPipelineLayout, 0, m_frameDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
 
 			cmd.pushConstants<FramePushConstants>(
 				m_gbufferPipelineLayout,
@@ -231,45 +229,17 @@ namespace rev
 	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::createDescriptorLayouts(size_t numTextures)
 	{
-		auto device = m_ctxt->device();
+		m_frameDescriptorSets.addStorageBuffer("World mtx", 0, vk::ShaderStageFlagBits::eVertex);
+		m_frameDescriptorSets.addStorageBuffer("Materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
-		// Matrices
-		vk::DescriptorSetLayoutBinding matricesBinding(0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-		//Materials
-		vk::DescriptorSetLayoutBinding materialsBinding(1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
-		// IBL LUT
-		vk::DescriptorSetLayoutBinding iblBinding(2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+		m_frameDescriptorSets.addTexture("IBL texture", 2, vk::ShaderStageFlagBits::eFragment);
+		assert(numTextures < std::numeric_limits<uint32_t>::max());
+		m_frameDescriptorSets.addTextureArray("Textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
 
-		// Textures
-		vk::DescriptorSetLayoutBinding textureBinding(3, vk::DescriptorType::eCombinedImageSampler, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
-
-		// Create layout
-		std::vector<vk::DescriptorSetLayoutBinding> bindings{ matricesBinding, materialsBinding, iblBinding, textureBinding };
-		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, bindings);
-		m_frameDescLayout = device.createDescriptorSetLayout(setLayoutInfo);
+		constexpr uint32_t numSwapchainImages = 2;
+		m_frameDescriptorSets.close(numSwapchainImages);
 	}
 
-	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::createDescriptorSets(size_t numTextures)
-	{
-		auto device = m_ctxt->device();
-
-		const uint32_t numDescriptorsPerFrame = 3 + numTextures;
-		const uint32_t numDescriptorBindings = numDescriptorsPerFrame * 2; // 3 per frame * 2 frames
-		vk::DescriptorPoolSize poolSize[2] = {
-			{vk::DescriptorType::eStorageBuffer, 2 * 2},
-			{vk::DescriptorType::eCombinedImageSampler, (1+(uint32_t)numTextures)*2}
-		};
-
-		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptorBindings);
-		poolInfo.pPoolSizes = poolSize;
-		poolInfo.poolSizeCount = 2;
-		m_descPool = device.createDescriptorPool(poolInfo);
-
-		vk::DescriptorSetLayout setLayouts[2] = { m_frameDescLayout, m_frameDescLayout };
-		vk::DescriptorSetAllocateInfo setInfo(m_descPool, 2, setLayouts);
-		m_frameDescs = device.allocateDescriptorSets(setInfo);
-	}
 	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::fillConstantDescriptorSets(const SceneDesc& scene)
 	{
@@ -278,7 +248,7 @@ namespace rev
 		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
 		{
 			vk::WriteDescriptorSet writeInfo;
-			writeInfo.dstSet = m_frameDescs[frameNdx];
+			writeInfo.dstSet = m_frameDescriptorSets.getDescriptor(frameNdx);
 			writeInfo.dstArrayElement = 0;
 
 			// Matrix buffer
@@ -318,7 +288,7 @@ namespace rev
 				}
 				writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
 				writeInfo.dstBinding = 3;
-				writeInfo.descriptorCount = scene.m_textures.size();
+				writeInfo.descriptorCount = (uint32_t)scene.m_textures.size();
 				writeInfo.pImageInfo = texInfo.data();
 				device.updateDescriptorSets(writeInfo, {});
 			}
@@ -348,8 +318,9 @@ namespace rev
 			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(FramePushConstants));
 
+		auto descriptorSetLayout = m_frameDescriptorSets.layout();
 		vk::PipelineLayoutCreateInfo layoutInfo({},
-			1, &m_frameDescLayout, // Descriptor sets
+			1, & descriptorSetLayout, // Descriptor sets
 			1, &camerasPushRange); // Push constants
 
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);

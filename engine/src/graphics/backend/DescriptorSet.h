@@ -72,7 +72,7 @@ namespace rev::gfx
 		auto layout() const { return m_vkLayout; }
 	private:
 
-		void createDescriptorPool(size_t numDescriptorSets)
+		void createDescriptorPool(uint32_t numDescriptorSets)
 		{
 			auto device = RenderContext().device();
 
@@ -90,7 +90,7 @@ namespace rev::gfx
 			m_pool = device.createDescriptorPool(poolInfo);
 		}
 
-		void createDescriptors(size_t numDescriptors)
+		void createDescriptors(uint32_t numDescriptors)
 		{
 			auto device = RenderContext().device();
 
