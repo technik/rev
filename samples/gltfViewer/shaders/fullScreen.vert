@@ -24,9 +24,9 @@
 // Screen space coordinates of a single triangle that covers the full screen
 const vec4 fullPasPositions[3] =
 {
-	vec4(-1,-1,0,1), // Top left corner
-	vec4(3,-1,0,1), // Beyond bottom left corner
-	vec4(-1,3,0,1) // Beyond top right corner
+	vec4(-1,-1,1,1), // Top left corner
+	vec4(3,-1,1,1), // Beyond bottom left corner
+	vec4(-1,3,1,1) // Beyond top right corner
 };
 
 const vec2 fullPassUVs[3] =

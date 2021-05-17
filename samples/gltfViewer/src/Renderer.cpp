@@ -59,8 +59,16 @@ namespace rev
 		createShaderPipelines();
 		loadIBLLUT();
 
-		// Allocate matrix buffers
+		// Full screen vertices
 		auto& alloc = m_ctxt->allocator();
+		m_fullScreenIndices = alloc.createGpuBuffer(
+			3 * sizeof(uint32_t),
+			vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+			ctxt.graphicsQueueFamily());
+		uint32_t indices[3] = { 0, 1, 2 };
+		size_t streamToken = alloc.asyncTransfer(*m_fullScreenIndices, indices, 3);
+
+		// Allocate matrix buffers
 		m_mtxBuffers.resize(2);
 		const size_t maxNumInstances = scene.m_sceneInstances.numInstances();
 		const size_t maxNumMaterials = scene.m_materials.size();
@@ -69,7 +77,6 @@ namespace rev
 		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 
 		// Allocate materials buffer
-		size_t streamToken = 0;
 		if (!scene.m_materials.empty())
 		{
 			m_materialsBuffer = alloc.createGpuBuffer(
@@ -81,6 +88,10 @@ namespace rev
 
 		// Update descriptor sets
 		fillConstantDescriptorSets(scene);
+
+		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
+		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		renderBufferUpdates.send();
 
 		initImGui();
 
@@ -98,6 +109,7 @@ namespace rev
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
 		device.destroyPipelineLayout(m_postProcessPipelineLayout);
 		device.destroyRenderPass(m_uiRenderPass->vkPass());
+		device.destroyRenderPass(m_hdrLightPass->vkPass());
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
@@ -111,7 +123,12 @@ namespace rev
 		createRenderTargets();
 		
 		// Update render passes
-		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
+		m_hdrLightPass->setDepthTarget(*m_zBuffer);
+		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
+
+		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
+		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		renderBufferUpdates.send();
 
 		// Invalidate frame buffers
 		m_frameBuffers->clear();
@@ -126,6 +143,18 @@ namespace rev
 		// Watch for shader reload
 		m_shaderWatcher->update();
 
+		// Render passes
+		renderGeometryPass(scene, geometryReady);
+		renderPostProPass();
+
+		// Swapchain update
+		m_ctxt->swapchainPresent();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::renderGeometryPass(SceneDesc& scene, bool geometryReady)
+	{
+
 		// Update frame state
 		m_frameConstants.lightColor = scene.lightColor;
 		m_frameConstants.ambientColor = scene.ambientColor;
@@ -134,20 +163,11 @@ namespace rev
 		m_frameConstants.proj = scene.proj;
 		m_frameConstants.view = scene.view;
 
-		// Record frame
-		auto cmd = m_ctxt->getNewRenderCmdBuffer();
-		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+		// Render geometry if the scene is loaded
+		auto scope = m_ctxt->getScopedCmdBuffer(m_ctxt->graphicsQueue());
+		auto cmd = scope.cmd;
+		m_hdrLightPass->begin(cmd, m_windowSize);
 
-		// Render the Geometry/UI pass
-		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
-		math::Vec3f ambient = m_frameConstants.ambientColor;
-		ambient.x() = ambient.x() / (1 + ambient.x());
-		ambient.y() = ambient.y() / (1 + ambient.y());
-		ambient.z() = ambient.z() / (1 + ambient.z());
-		m_uiRenderPass->setClearColor(ambient);
-		m_uiRenderPass->begin(cmd, m_windowSize);
-
-		// Render a triangle if the scene is loaded
 		if (geometryReady)
 		{
 			// Update per instance model matrices
@@ -176,11 +196,55 @@ namespace rev
 			m_doubleBufferNdx ^= 1;
 		}
 
+		m_hdrLightPass->end(cmd);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void Renderer::renderPostProPass()
+	{
+		auto cmd = m_ctxt->getNewRenderCmdBuffer();
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+
+		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
+		math::Vec3f ambient = m_frameConstants.ambientColor;
+		ambient.x() = ambient.x() / (1 + ambient.x());
+		ambient.y() = ambient.y() / (1 + ambient.y());
+		ambient.z() = ambient.z() / (1 + ambient.z());
+		m_uiRenderPass->setClearColor(ambient);
+		m_uiRenderPass->begin(cmd, m_windowSize);
+
+		m_postProConstants.windowSize = math::Vec2f(m_windowSize.x(), m_windowSize.y());
+		m_postProConstants.renderFlags = {};
+		m_postProConstants.exposure = 1.f;
+		m_postProConstants.bloom = 0.f;
+
+		// Post-process HDR image
+		m_postProPipeline->bind(cmd);
+		
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+			m_postProcessPipelineLayout,
+			0, m_postProDescriptorSets.getDescriptor(0), {});
+
+		cmd.pushConstants<PostProPushConstants>(
+			m_postProcessPipelineLayout,
+			vk::ShaderStageFlagBits::eFragment,
+			0,
+			m_postProConstants);
+
+		cmd.bindIndexBuffer(m_fullScreenIndices->buffer(), {}, vk::IndexType::eUint32);
+
+		cmd.drawIndexed(3, 1, 0, 0, 0);
+
+
 		// Finish ImGui
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
 		m_uiRenderPass->end(cmd);
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
 
 		cmd.end();
 
@@ -190,7 +254,6 @@ namespace rev
 			1, &cmd, // commands
 			1, &m_ctxt->readyToPresentSemaphore()); // signal
 		m_ctxt->graphicsQueue().submit(submitInfo);
-		m_ctxt->swapchainPresent();
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -244,8 +307,8 @@ namespace rev
 		m_geometryDescriptorSets.close(numSwapchainImages);
 
 		// Post process passes
-		m_postProDescriptorSets.addTexture("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
-		m_postProDescriptorSets.close(numSwapchainImages);
+		m_postProDescriptorSets.addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
+		m_postProDescriptorSets.close(1);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -270,12 +333,19 @@ namespace rev
 	//---------------------------------------------------------------------------------------------------------------------
 	void Renderer::createRenderPasses()
 	{
+		// HDR geometry pass
+		m_hdrLightPass = std::make_unique<RenderPass>(
+			m_ctxt->createRenderPass({ m_hdrLightBuffer->format(), m_zBuffer->format() }),
+			*m_frameBuffers);
+		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_hdrLightPass->setDepthTarget(*m_zBuffer);
+		m_hdrLightPass->setClearDepth(0.f);
+		m_hdrLightPass->setClearColor(math::Vec4f::zero());
+
 		// UI Render pass
 		m_uiRenderPass = std::make_unique<RenderPass>(
-			m_ctxt->createRenderPass({ m_ctxt->swapchainFormat(), vk::Format::eD32Sfloat }),
+			m_ctxt->createRenderPass({ m_ctxt->swapchainFormat() }),
 			*m_frameBuffers);
-		m_uiRenderPass->setDepthTarget(*m_gBufferZ);
-		m_uiRenderPass->setClearDepth(0.f);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -306,7 +376,7 @@ namespace rev
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			geometryBindings,
 			m_gbufferPipelineLayout,
-			m_uiRenderPass->vkPass(),
+			m_hdrLightPass->vkPass(),
 			"../shaders/gbuffer.vert.spv",
 			"../shaders/gbuffer.frag.spv",
 			true);
@@ -331,7 +401,10 @@ namespace rev
 			);
 
 		// Set up shader reload
-		m_shaderWatcher->listen([this](auto paths) { m_gBufferPipeline->invalidate(); });
+		m_shaderWatcher->listen([this](auto paths) {
+			m_gBufferPipeline->invalidate();
+			m_postProPipeline->invalidate();
+			});
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -340,9 +413,13 @@ namespace rev
 		auto windowSize = m_ctxt->windowSize();
 		auto& alloc = m_ctxt->allocator();
 
-		m_gBufferNormals = alloc.createImageBuffer("normals", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, m_ctxt->graphicsQueueFamily());
-		m_gBufferPBR = alloc.createImageBuffer("PBR", windowSize, vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment, m_ctxt->graphicsQueueFamily());
-		m_gBufferZ = alloc.createDepthBuffer(
+		m_hdrLightBuffer = alloc.createImageBuffer(
+			"HDR light",
+			windowSize,
+			vk::Format::eR32G32B32A32Sfloat,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
+			m_ctxt->graphicsQueueFamily());
+		m_zBuffer = alloc.createDepthBuffer(
 			"Depth",
 			windowSize,
 			vk::Format::eD32Sfloat,
@@ -350,15 +427,15 @@ namespace rev
 			m_ctxt->graphicsQueueFamily());
 
 		// Transition new images to general layout
-		m_ctxt->transitionImageLayout(m_gBufferZ->image(), m_gBufferZ->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
+		m_ctxt->transitionImageLayout(m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
+		m_ctxt->transitionImageLayout(m_zBuffer->image(), m_zBuffer->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void Renderer::destroyRenderTargets()
 	{
-		m_gBufferNormals = nullptr;
-		m_gBufferPBR = nullptr;
-		m_gBufferZ = nullptr;
+		m_hdrLightBuffer = nullptr;
+		m_zBuffer = nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ layout(location = 0) in vec2 vPxlTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform sampler2D HDRLight;
+layout(set = 0, binding = 0, rgba32f) uniform image2D HDRLight;
 
 layout(push_constant,scalar) uniform Constants
 {
@@ -41,5 +41,8 @@ layout(push_constant,scalar) uniform Constants
 
 void main()
 {
-	outColor = textureLod(HDRLight, vPxlTexCoord, 0);
+	ivec2 pixelPos = ivec2(
+		pushC.windowSize.x * vPxlTexCoord.x,
+		pushC.windowSize.y * vPxlTexCoord.y);
+	outColor = imageLoad(HDRLight, pixelPos);
 }

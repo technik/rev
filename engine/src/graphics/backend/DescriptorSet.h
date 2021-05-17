@@ -28,11 +28,13 @@ namespace rev::gfx
 	class DescriptorSetLayout
 	{
 	public:
-		void addStorageBuffer(std::string name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages);
+		void addStorageBuffer(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages);
 
-		void addTexture(std::string name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages);
+		void addTexture(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages);
 
-		void addTextureArray(std::string name, uint32_t bindingPos, uint32_t numTextures, vk::ShaderStageFlags shaderStages);
+		void addImage(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages);
+
+		void addTextureArray(const std::string& name, uint32_t bindingPos, uint32_t numTextures, vk::ShaderStageFlags shaderStages);
 
 		void close(uint32_t poolSize);
 
@@ -44,7 +46,7 @@ namespace rev::gfx
 		inline auto layout() const { return m_vkLayout; }
 
 		// Immediate write
-		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string name, const std::vector<std::shared_ptr<Texture>>& textureArray);
+		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string& name, const std::vector<std::shared_ptr<Texture>>& textureArray);
 
 	private:
 
@@ -55,8 +57,10 @@ namespace rev::gfx
 		std::vector<vk::DescriptorSetLayoutBinding> m_bindings;
 		std::map<std::string, uint32_t> m_storageBufferBindings;
 		std::map<std::string, uint32_t> m_textureBindings;
+		std::map<std::string, uint32_t> m_imageBindings;
 		std::map<std::string, std::pair<uint32_t,uint32_t>> m_textureArrayBindings;
 		uint32_t m_numTextures = 0;
+		uint32_t m_numImages = 0;
 		uint32_t m_numStorageBuffers = 0;
 		vk::DescriptorSetLayout m_vkLayout;
 		vk::DescriptorPool m_pool;
@@ -74,6 +78,7 @@ namespace rev::gfx
 		void addStorageBuffer(const std::string& name, std::shared_ptr<GPUBuffer> buffer);
 
 		void addTexture(const std::string& name, std::shared_ptr<Texture> texture);
+		void addImage(const std::string& name, std::shared_ptr<ImageBuffer> image);
 
 		void send() const;
 
@@ -82,5 +87,6 @@ namespace rev::gfx
 		uint32_t m_descNdx;
 		std::map<uint32_t, std::shared_ptr<GPUBuffer>> m_bufferWrites;
 		std::map<uint32_t, std::shared_ptr<Texture>> m_textureWrites;
+		std::map<uint32_t, std::shared_ptr<ImageBuffer>> m_imageWrites;
 	};
 }

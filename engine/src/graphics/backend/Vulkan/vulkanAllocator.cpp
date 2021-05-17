@@ -91,6 +91,22 @@ namespace rev::gfx {
 			barrier.srcAccessMask = {};
 			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
 		}
+		else if (oldLayout == vk::ImageLayout::eShaderReadOnlyOptimal && newLayout == vk::ImageLayout::eGeneral) // Attachments
+		{
+			srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+			dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+
+			barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderWrite;
+		}
+		else if (oldLayout == vk::ImageLayout::eGeneral && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) // Attachments
+		{
+			srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+			dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+
+			barrier.srcAccessMask = vk::AccessFlagBits::eShaderWrite;
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+		}
 		else
 		{
 			assert(false && "Unsupported layout transition");

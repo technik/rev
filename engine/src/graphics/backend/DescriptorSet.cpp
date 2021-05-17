@@ -21,7 +21,7 @@
 
 namespace rev::gfx
 {
-	void DescriptorSetLayout::addStorageBuffer(std::string name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages)
+	void DescriptorSetLayout::addStorageBuffer(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages)
 	{
 		m_bindings.emplace_back(bindingPos, vk::DescriptorType::eStorageBuffer, 1, shaderStages);
 		assert(!name.empty());
@@ -29,7 +29,7 @@ namespace rev::gfx
 		++m_numStorageBuffers;
 	}
 
-	void DescriptorSetLayout::addTexture(std::string name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages)
+	void DescriptorSetLayout::addTexture(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages)
 	{
 		m_bindings.emplace_back(bindingPos, vk::DescriptorType::eCombinedImageSampler, 1, shaderStages);
 		assert(!name.empty());
@@ -37,7 +37,15 @@ namespace rev::gfx
 		++m_numTextures;
 	}
 
-	void DescriptorSetLayout::addTextureArray(std::string name, uint32_t bindingPos, uint32_t numTextures, vk::ShaderStageFlags shaderStages)
+	void DescriptorSetLayout::addImage(const std::string& name, uint32_t bindingPos, vk::ShaderStageFlags shaderStages)
+	{
+		m_bindings.emplace_back(bindingPos, vk::DescriptorType::eStorageImage, 1, shaderStages);
+		assert(!name.empty());
+		m_imageBindings.insert({ name, bindingPos });
+		++m_numImages;
+	}
+
+	void DescriptorSetLayout::addTextureArray(const std::string& name, uint32_t bindingPos, uint32_t numTextures, vk::ShaderStageFlags shaderStages)
 	{
 		m_bindings.emplace_back(bindingPos, vk::DescriptorType::eCombinedImageSampler, numTextures, shaderStages);
 		assert(!name.empty());
@@ -59,16 +67,25 @@ namespace rev::gfx
 
 	void DescriptorSetLayout::createDescriptorPool(uint32_t numDescriptorSets)
 	{
-		const uint32_t numDescriptorsPerSet = m_numTextures + m_numStorageBuffers;
+		const uint32_t numDescriptorsPerSet = m_numTextures + m_numStorageBuffers + m_numImages;
 		const uint32_t numDescriptorBindings = numDescriptorsPerSet * numDescriptorSets;
-		vk::DescriptorPoolSize poolSize[2] = {
-			{vk::DescriptorType::eStorageBuffer, numDescriptorSets * m_numStorageBuffers},
-			{vk::DescriptorType::eCombinedImageSampler, numDescriptorSets * m_numTextures }
-		};
+		std::vector<vk::DescriptorPoolSize> poolSize;
+		if(m_numStorageBuffers > 0)
+		{
+			poolSize.emplace_back(vk::DescriptorType::eStorageBuffer, numDescriptorSets * m_numStorageBuffers);
+		}
+		if(m_numTextures > 0)
+		{
+			poolSize.emplace_back(vk::DescriptorType::eCombinedImageSampler, numDescriptorSets * m_numTextures);
+		}
+		if (m_numImages > 0)
+		{
+			poolSize.emplace_back(vk::DescriptorType::eStorageImage, numDescriptorSets * m_numImages);
+		}
 
 		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptorBindings);
-		poolInfo.pPoolSizes = poolSize;
-		poolInfo.poolSizeCount = 2;
+		poolInfo.pPoolSizes = poolSize.data();
+		poolInfo.poolSizeCount = poolSize.size();
 
 		m_pool = RenderContext().device().createDescriptorPool(poolInfo);
 	}
@@ -80,7 +97,7 @@ namespace rev::gfx
 		m_descriptorSets = RenderContext().device().allocateDescriptorSets(setInfo);
 	}
 
-	void DescriptorSetLayout::writeArrayTextureToDescriptor(uint32_t descNdx, const std::string name, const std::vector<std::shared_ptr<Texture>>& textureArray)
+	void DescriptorSetLayout::writeArrayTextureToDescriptor(uint32_t descNdx, const std::string& name, const std::vector<std::shared_ptr<Texture>>& textureArray)
 	{
 		vk::WriteDescriptorSet writeInfo;
 		writeInfo.dstSet = getDescriptor(descNdx);
@@ -121,6 +138,15 @@ namespace rev::gfx
 		m_textureWrites.insert({ iter->second, texture });
 	}
 
+	void DescriptorSetUpdate::addImage(const std::string& name, std::shared_ptr<ImageBuffer> image)
+	{
+		// Locate binding in layout
+		auto iter = m_layout.m_imageBindings.find(name);
+		assert(iter != m_layout.m_imageBindings.end());
+
+		m_imageWrites.insert({ iter->second, image });
+	}
+
 	void DescriptorSetUpdate::send() const
 	{
 		std::vector<vk::WriteDescriptorSet> writes;
@@ -158,6 +184,24 @@ namespace rev::gfx
 			writeInfo.dstArrayElement = 0;
 			writeInfo.descriptorCount = 1;
 			writeInfo.pImageInfo = &writeTextureInfo;
+		}
+
+		// Single image writes
+		std::vector<vk::DescriptorImageInfo> imageInfo;
+		imageInfo.reserve(m_imageWrites.size());
+		for (auto& [bindingPos, image] : m_imageWrites)
+		{
+			vk::DescriptorImageInfo& writeImageInfo = imageInfo.emplace_back();
+			writeImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			writeImageInfo.imageView = image->view();
+
+			vk::WriteDescriptorSet& writeInfo = writes.emplace_back();
+			writeInfo.dstSet = m_layout.getDescriptor(m_descNdx);
+			writeInfo.descriptorType = vk::DescriptorType::eStorageImage;
+			writeInfo.dstBinding = bindingPos;
+			writeInfo.dstArrayElement = 0;
+			writeInfo.descriptorCount = 1;
+			writeInfo.pImageInfo = &writeImageInfo;
 		}
 
 		// Write all

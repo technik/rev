@@ -76,6 +76,9 @@ namespace rev
 		void destroyFrameBuffers();
 		void loadIBLLUT();
 
+		void renderGeometryPass(SceneDesc& scene, bool geometryReady);
+		void renderPostProPass();
+
 		// Init ImGui
 		void initImGui();
 		bool renderFlag(uint32_t flag) const { return (m_frameConstants.renderFlags & flag) > 0; }
@@ -96,12 +99,13 @@ namespace rev
 		vk::PipelineLayout m_postProcessPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 		std::unique_ptr<gfx::RasterPipeline> m_postProPipeline;
-		std::shared_ptr<gfx::ImageBuffer> m_gBufferNormals;
-		std::shared_ptr<gfx::ImageBuffer> m_gBufferPBR;
-		std::shared_ptr<gfx::ImageBuffer> m_gBufferZ;
+
+		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
+		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
 
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
 		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
+		std::shared_ptr<gfx::GPUBuffer> m_fullScreenIndices;
 		std::shared_ptr<gfx::Texture> m_iblLUT;
 
 		struct FramePushConstants
@@ -127,10 +131,10 @@ namespace rev
 			math::Vec2f windowSize;
 			float exposure;
 			float bloom;
-		};
+		} m_postProConstants;
 
 		std::unique_ptr<RenderPass> m_uiRenderPass;
-		std::unique_ptr<RenderPass> m_gBufferPass;
+		std::unique_ptr<RenderPass> m_hdrLightPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
