@@ -159,12 +159,5 @@ void main()
 		pxlColor += texture(textures[index], vPxlTexCoord).xyz;
 	}
 
-	// TODO: Treat ambient light as an environment probe and maybe main light as a disk light
-
-	// Basic toneMapping
-	vec3 toneMapped = pxlColor / (1 + pxlColor);
-	//toneMapped = normal * 0.5 + 0.5;
-	//toneMapped = vec3(ao);
-
-    outColor = vec4(toneMapped, 1.0);
+    outColor = vec4(pxlColor, 1.0);
 }

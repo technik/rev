@@ -152,7 +152,7 @@ namespace rev {
 			{
 				ImGui::ColorPicker3("Ambient Color", reinterpret_cast<float*>(&m_sceneGraphics.ambientColor));
 				ImGui::ColorPicker3("Light Color", reinterpret_cast<float*>(&m_sceneGraphics.lightColor));
-				ImGui::DragFloat3("Light dir", reinterpret_cast<float*>(&m_sceneGraphics.lightDir), 1.f, -3.f, 3.f);
+				ImGui::SliderFloat3("Light dir", reinterpret_cast<float*>(&m_sceneGraphics.lightDir), -3.f, 3.f);
 			}
 			m_renderer.updateUI();
 		}

@@ -208,16 +208,12 @@ namespace rev
 		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
 
 		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
-		math::Vec3f ambient = m_frameConstants.ambientColor;
-		ambient.x() = ambient.x() / (1 + ambient.x());
-		ambient.y() = ambient.y() / (1 + ambient.y());
-		ambient.z() = ambient.z() / (1 + ambient.z());
-		m_uiRenderPass->setClearColor(ambient);
+		m_uiRenderPass->setClearColor(m_frameConstants.ambientColor);
 		m_uiRenderPass->begin(cmd, m_windowSize);
 
 		m_postProConstants.windowSize = math::Vec2f(m_windowSize.x(), m_windowSize.y());
+		m_postProConstants.ambientColor = m_frameConstants.ambientColor;
 		m_postProConstants.renderFlags = {};
-		m_postProConstants.exposure = 1.f;
 		m_postProConstants.bloom = 0.f;
 
 		// Post-process HDR image
@@ -289,6 +285,10 @@ namespace rev
 				ImGui::SliderFloat("Roughness", &m_frameConstants.overrideRoughness, 0.f, 1.f);
 				ImGui::SliderFloat("Clear Coat", &m_frameConstants.overrideClearCoat, 0.f, 1.f);
 			}
+
+			float fStops = log2f(m_postProConstants.exposure);
+			ImGui::SliderFloat("Exposure", &fStops, -3.f, 3.f);
+			m_postProConstants.exposure = powf(2.f, fStops);
 		}
 	}
 
@@ -340,7 +340,7 @@ namespace rev
 		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
 		m_hdrLightPass->setDepthTarget(*m_zBuffer);
 		m_hdrLightPass->setClearDepth(0.f);
-		m_hdrLightPass->setClearColor(math::Vec4f::zero());
+		m_hdrLightPass->setClearColor(-math::Vec4f::ones());
 
 		// UI Render pass
 		m_uiRenderPass = std::make_unique<RenderPass>(

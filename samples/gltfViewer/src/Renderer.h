@@ -128,8 +128,9 @@ namespace rev
 		struct PostProPushConstants
 		{
 			uint32_t renderFlags;
+			math::Vec3f ambientColor;
 			math::Vec2f windowSize;
-			float exposure;
+			float exposure = 1.f;
 			float bloom;
 		} m_postProConstants;
 
