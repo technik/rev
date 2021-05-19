@@ -1,6 +1,5 @@
 ################################################################################
 # Rev project
-# Sample project that creates a simple scene graph
 ################################################################################
 cmake_minimum_required (VERSION 3.10)
 project(revAll)
@@ -33,6 +32,7 @@ add_subdirectory(engine)
 if(REV_BUILD_TOOLS)
 	add_subdirectory(tools/gltfOptimizer)
 	set_target_properties(gltfOptimizer PROPERTIES FOLDER "tools")
+	add_subdirectory(tools/probe)
 endif()
 
 # Compile sample projects

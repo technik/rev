@@ -55,15 +55,25 @@ vec3 directLight(
 {
 	float r = max(1e-4, roughness);
 	// Single bounce specular lighting0
-	vec3 specular = specularBRDF(specularColor, ndh, ndl, ndv, hdv, r);
+	vec3 specular = specularBRDF(specularColor, ndh, ndl, ndv, hdv, r); // Single scattering
 
 	// Energy compensation - substract single bounce specular from the light that goes into diffuse
-	vec2 reflectedLight = textureLod(iblLUT, vec2(ndl, roughness), 0).xy;
-	vec3 totalFresnel = specularColor * reflectedLight.x + reflectedLight.y;
+	vec2 Fss_wi = textureLod(iblLUT, vec2(ndl, roughness), 0).xy;
+	vec3 FssRss_wi = specularColor * Fss_wi.x + Fss_wi.y; // Single scattering
+	float Eavg = 1-0.6*roughness;
+	float Ess_wi = Fss_wi.x + Fss_wi.y;
+	vec2 Fss_wo = textureLod(iblLUT, vec2(ndv, roughness), 0).xy;
+	vec3 FssRss_wo = specularColor * Fss_wo.x + Fss_wo.y; // Single scattering
+	vec3 Favg = (20+specularColor)/21;
+	vec3 Fwi = FssRss_wi / Ess_wi;
 
-	vec3 kD = diffuseColor * (1-totalFresnel);
+	vec3 num = (Fwi-FssRss_wi)*FssRss_wo;
+	vec3 den = 1-Favg+Eavg*Favg;
+	vec3 FmsRms = num/den;
+
+	vec3 kD = diffuseColor * (1-FssRss_wi);
 	vec3 diffuse = kD / PI;
-	return (specular + diffuse) * ndl * lightColor;
+	return (specular + FmsRms + diffuse) * ndl * lightColor;
 }
 
 vec3 envLight(

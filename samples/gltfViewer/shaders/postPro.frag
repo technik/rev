@@ -48,7 +48,7 @@ void main()
 
 	// Gather slight bloom
 	vec4 hdrColor = vec4(0);
-	int bloomWin = 5;
+	int bloomWin = 0;
 	ivec2 minPos = max(pixelPos-bloomWin, ivec2(0));
 	ivec2 maxPos = min(pixelPos+bloomWin, ivec2(pushC.windowSize-1));
 
