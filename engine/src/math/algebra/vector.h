@@ -6,6 +6,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <concepts>
+#include <math/linear.h>
 #include "matrixView.h"
 
 namespace rev {
@@ -90,6 +92,78 @@ namespace rev {
 			T m[n];
 		};
 
+		// Specializations
+		template<>
+		struct Vector<float,3> : MatrixView<float, 3, 1, Vector<float, 3>>
+		{
+			template<class Derived>
+			using VectorExpr = MatrixExpr<float, 3, 1, Derived>;
+
+			// Basic construction
+			Vector() = default;
+			Vector(const Vector&) = default;
+
+			template<class Other>
+			Vector(const VectorExpr<Other>& x)
+			{
+				for (size_t i = 0; i < 3; ++i)
+					m[i] = x(i, 0);
+			}
+
+			template<class OtherT>
+			Vector(const MatrixExpr<float, 2, 1, OtherT>& x, float f)
+			{
+				for (size_t i = 0; i < 2; ++i)
+				{
+					m[i] = x[i];
+				}
+				m[2] = f;
+			}
+
+			Vector(float _x, float _y, float _z)
+				: m{ _x, _y, _z }
+			{
+			}
+
+			Vector(std::initializer_list<float> _l)
+			{
+				auto x = _l.begin();
+				for (size_t i = 0; i < 3; ++i)
+					m[i] = *x++;
+			}
+
+			float& operator[]	(size_t i) { return m[i]; }
+			float	operator[] 	(size_t i) const { return m[i]; }
+			float& operator()(size_t i, size_t) { return m[i]; }
+			float	operator()(size_t i, size_t) const { return m[i]; }
+
+			Vector operator*(Scalar auto x) const
+			{
+				return Vector(x * m[0], x * m[1], x * m[2]);
+			}
+
+			// Compile time accessors
+			template<size_t i>
+			float& getComponent()
+			{
+				static_assert(i < 3);
+				return m[i];
+			}
+
+			template<size_t i>
+			float getComponent() const
+			{
+				static_assert(i < 3);
+				return m[i];
+			}
+
+			float* data() { return m; }
+			const float* data() const { return m; }
+
+		private:
+			float m[3];
+		};
+
 		template<class T, size_t n, class Derived>
 		using VectorExpr = MatrixExpr<T, n, 1, Derived>;
 
@@ -141,6 +215,12 @@ namespace rev {
             result.z() = a.x()*b.y() - a.y()*b.x();
             return result;
         }
+
+		//--------------------------------------------------------------------------------------------------------------
+		__forceinline Vec3f operator*(Scalar auto x, const Vec3f& v)
+		{
+			return v*x;
+		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		template<class T, size_t n>

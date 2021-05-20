@@ -19,8 +19,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <concepts>
+
 namespace rev::math
 {
+	// Common concepts
+	template<class T>
+	concept Scalar = std::integral<T> || std::floating_point<T>;
+
+	// Generic operands
 	template<class T>
 	auto lerp(const T& a, const T& b, float x)
 	{
