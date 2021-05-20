@@ -10,5 +10,6 @@ add_executable(probeTool
 	Heitz/MicrosurfaceScattering.cpp)
 target_include_directories(probeTool PUBLIC ../../engine/src)
 target_include_directories(probeTool PUBLIC ../../include)
+target_include_directories(probeTool PUBLIC ../../include/glm)
 target_link_libraries(probeTool LINK_PUBLIC revCore revGfx revMath)
 set_target_properties(probeTool PROPERTIES FOLDER "tools")

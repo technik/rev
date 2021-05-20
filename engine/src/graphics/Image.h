@@ -68,9 +68,12 @@ namespace rev::gfx {
 		void		setPixelFormat(vk::Format);
 
 		// Accessors
-		vk::Format format()	const	{ return mFormat; }
-		auto&		size()		const	{ return mSize; }
-		size_t		area()		const	{ return size().x() * size().y(); }
+		vk::Format	format()	const { return mFormat; }
+		auto&		size()		const { return mSize; }
+		uint32_t	area()		const { return mSize.x() * mSize.y(); }
+		uint32_t	width()		const { return mSize.x(); }
+		uint32_t	height()	const { return mSize.y(); }
+
 		template<typename T = void*>
 		auto		data()				{ return reinterpret_cast<T*>(mData); }
 		template<typename T = const void*>
@@ -78,7 +81,11 @@ namespace rev::gfx {
 		template<typename T>
 		auto&		pixel(const math::Vec2u& pos)				{ return data<T>()[indexFromPos(pos)]; }
 		template<typename T>
-		auto&		pixel(const math::Vec2u& pos) const			{ return data<T>()[indexFromPos(pos)]; }
+		auto&		pixel(const math::Vec2u& pos) const			{ return data<const T>()[indexFromPos(pos)]; }
+		template<typename T>
+		auto& pixel(unsigned i, unsigned j) { return data<T>()[indexFromPos({ i,j })]; }
+		template<typename T>
+		auto& pixel(unsigned i, unsigned j) const { return data<const T>()[indexFromPos({ i,j })]; }
 
 		// XOR textures are always 8-bits per channel
 		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
