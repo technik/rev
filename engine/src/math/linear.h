@@ -58,4 +58,9 @@ namespace rev::math
 	{
 		T operator()(T a, T b) const { return (a > b) ? a : b; } // Same NaN behavior as simd
 	};
+
+	auto sign(Scalar auto x)
+	{
+		return x ? (x / abs(x)) : 0;
+	}
 }

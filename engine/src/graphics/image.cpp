@@ -57,6 +57,9 @@ namespace rev::gfx
 				return srgb ? vk::Format::eR8G8B8Srgb : vk::Format::eR8G8B8Unorm;
 			case 4:
 				return srgb ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8A8Unorm;
+			default:
+				assert(false);
+				return vk::Format::eR8G8B8A8Unorm;
 			}
 		}
 	}
