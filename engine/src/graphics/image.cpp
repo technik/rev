@@ -19,13 +19,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 #include "Image.h"
 #include <cstdint>
 #include <core/platform/fileSystem/file.h>
+#include <math/linear.h>
 
 namespace rev::gfx
 {
+	namespace
+	{
+		auto extension(const std::string_view& s)
+		{
+			auto dot = s.find_last_of(".");
+			if (dot == std::string_view::npos)
+				return std::string_view("");
+			else
+				return s.substr(dot + 1);
+		}
+	}
 
 	vk::Format Image::GetPixelFormat(bool hdr, unsigned numChannels, bool srgb)
 	{
@@ -250,5 +264,70 @@ namespace rev::gfx
 	size_t Image::rawDataSize() const
 	{
 		return GetPixelSize(mFormat) * mCapacity;
+	}
+
+
+
+	void saveHDR(const Image& img, const std::string& fileName)
+	{
+		if (extension(fileName) != "hdr")
+		{
+			std::cout << "Only .hdr is supported for hdr output images\n";
+		}
+
+		assert(img.format() == vk::Format::eR32G32B32Sfloat);
+		auto src = reinterpret_cast<const float*>(img.data());
+		stbi_write_hdr(fileName.c_str(), img.width(), img.height(), 3, src);
+	}
+
+	void save2sRGB(const Image& img, const std::string& fileName)
+	{
+		if (extension(fileName) != "png")
+		{
+			std::cout << "Only png is supported for output images\n";
+		}
+		auto nBytes = 3 * img.area();
+		std::vector<uint8_t> raw(nBytes);
+		assert(img.format() == vk::Format::eR32G32B32Sfloat);
+		auto src = reinterpret_cast<const float*>(img.data());
+
+		// Linear to sRGB conversion following the formal specification of sRGB
+		for (int i = 0; i < nBytes; ++i)
+		{
+			auto linear = src[i];
+			float srgb = pow(linear, 0.4545f) * 255;
+			/*if(linear <= 0.0031308f)
+			{
+				srgb = clamp(linear * 3294.6f, 0.f, 255.f);
+			}
+			else
+			{
+				srgb = 269.025f * pow(linear,1/2.4f) - 0.055f;
+			}*/
+			raw[i] = uint8_t(math::clamp(srgb + 0.5f, 0.f, 255.f));
+		}
+		auto bytesPerRow = 3 * img.width();
+		stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
+	}
+
+	void saveLinear(const Image& img, const std::string& fileName)
+	{
+		if (extension(fileName) != "png")
+		{
+			std::cout << "Only png is supported for output images\n";
+		}
+		auto nBytes = 3 * img.area();
+		std::vector<uint8_t> raw(nBytes);
+		assert(img.format() == vk::Format::eR32G32B32Sfloat);
+		auto src = reinterpret_cast<const float*>(img.data());
+
+		// Linear to sRGB conversion following the formal specification of sRGB
+		for (int i = 0; i < nBytes; ++i)
+		{
+			auto linear = src[i] * 255.f;
+			raw[i] = (uint8_t)math::clamp(linear, 0.f, 255.f);
+		}
+		auto bytesPerRow = 3 * img.width();
+		stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
 	}
 }

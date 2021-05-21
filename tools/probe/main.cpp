@@ -21,11 +21,7 @@
 #include <core/platform/cmdLineParser.h>
 #include <graphics/Image.h>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
-#include "Heitz/MicrosurfaceScattering.h"
-
-// Convert latlong images into environment probes
+#include "Materials.h"
 
 using namespace std;
 using namespace rev::math;
@@ -57,95 +53,6 @@ struct Params {
 		return true;
 	}
 };
-
-auto extension(const std::string_view& s)
-{
-	auto dot = s.find_last_of(".");
-	if (dot == std::string_view::npos)
-		return std::string_view("");
-	else
-		return s.substr(dot+1);
-}
-
-Vec3f latLong2Sphere(float u, float v)
-{
-	auto z = sin(Pi*(v - 0.5f));
-	auto cosPhi = sqrt(1-z*z);
-	auto theta = TwoPi*u-Pi;
-	auto x = cos(theta) * cosPhi;
-	auto y = sin(theta) * cosPhi;
-	return {x,y,z};
-}
-
-Vec2f sphere2LatLong(const Vec3f& dir)
-{
-	auto u = atan2(dir.y(), dir.x()) / TwoPi + 0.5f;
-	auto v = (float)(asin(-dir.z()) / Pi + 0.5f);
-	return {u, v};
-}
-
-void saveHDR(const Image& img, const std::string& fileName)
-{
-	if(extension(fileName) != "hdr")
-	{
-		cout << "Only .hdr is supported for hdr output images\n";
-	}
-
-	assert(img.format() == vk::Format::eR32G32B32Sfloat);
-	auto src = reinterpret_cast<const float*>(img.data());
-	stbi_write_hdr(fileName.c_str(), img.width(), img.height(), 3, src);
-}
-
-void save2sRGB(const Image& img, const std::string& fileName)
-{
-	if(extension(fileName) != "png")
-	{
-		cout << "Only png is supported for output images\n";
-	}
-	auto nBytes = 3*img.area();
-	std::vector<uint8_t> raw(nBytes);
-	assert(img.format() == vk::Format::eR32G32B32Sfloat);
-	auto src = reinterpret_cast<const float*>(img.data());
-
-	// Linear to sRGB conversion following the formal specification of sRGB
-	for(int i = 0; i < nBytes; ++i)
-	{
-		auto linear = src[i];
-		float srgb = pow(linear, 0.4545f) * 255;
-		/*if(linear <= 0.0031308f)
-		{
-			srgb = clamp(linear * 3294.6f, 0.f, 255.f); 
-		}
-		else
-		{
-			srgb = 269.025f * pow(linear,1/2.4f) - 0.055f;
-		}*/
-		raw[i] = uint8_t(clamp(srgb+0.5f, 0.f, 255.f));
-	}
-	auto bytesPerRow = 3 * img.width();
-	stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
-}
-
-void saveLinear(const Image& img, const std::string& fileName)
-{
-	if(extension(fileName) != "png")
-	{
-		cout << "Only png is supported for output images\n";
-	}
-	auto nBytes = 3*img.area();
-	std::vector<uint8_t> raw(nBytes);
-	assert(img.format() == vk::Format::eR32G32B32Sfloat);
-	auto src = reinterpret_cast<const float*>(img.data());
-
-	// Linear to sRGB conversion following the formal specification of sRGB
-	for(int i = 0; i < nBytes; ++i)
-	{
-		auto linear = src[i] * 255.f;
-		raw[i] = (uint8_t)clamp(linear, 0.f, 255.f);
-	}
-	auto bytesPerRow = 3*img.width();
-	stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
-}
 
 // Integrate Fresnel modulated directional albedo components
 // res = directionalFresnel(r, ndv, N);
@@ -269,49 +176,6 @@ void generateIBLCPU()
 
 }
 
-struct SurfaceMaterial
-{
-	virtual Vec3f shade(const Vec3f& eye, const Vec3f& light) const = 0;
-};
-
-__forceinline vec3 toGlm(const Vec3f& v)
-{
-	return vec3(v.x(), v.y(), v.z());
-}
-
-struct HeitzRoughMirror : SurfaceMaterial
-{
-	MicrosurfaceConductor model;
-	int m_scatteringOrder;
-	int m_numSamples = 16;
-
-	HeitzRoughMirror(float alpha, int scattering)
-		: model(false, false, alpha, alpha)
-		, m_scatteringOrder(scattering)
-	{
-	}
-
-	Vec3f shade(const Vec3f& eye, const Vec3f& light) const override
-	{
-		float lightAccum = 0.f;
-		for(int i = 0; i < m_numSamples; ++i)
-		{
-			lightAccum += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder);
-		}
-		return Vec3f(lightAccum / float(m_numSamples));
-	}
-};
-
-// Pixar's method for orthonormal basis generation
-void branchlessONB(const Vec3f& n, Vec3f& b1, Vec3f& b2)
-{
-	float sign = copysignf(1.0f, n.z());
-	const float a = -1.0f / (sign + n.z());
-	const float b = n.x() * n.y() * a;
-	b1 = Vec3f(1.0f + sign * n.x() * n.x() * a, sign * b, -sign * n.x());
-	b2 = Vec3f(b, sign + n.y() * n.y() * a, -n.y());
-}
-
 std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float lightClr, const SurfaceMaterial& material)
 {
 	auto img = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, size);
@@ -403,22 +267,35 @@ std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
 	return image;
 }
 
+void renderDisneySliceToFile(float r, int scatteringOrder, const std::string& prefix, const std::string& suffix, int imgSize)
+{
+	auto t0 = std::chrono::system_clock::now();
+	std::stringstream ss;
+	ss << prefix << int(1000 * r) << suffix;
+	std::cout << "Rendering: " << ss.str() << "... ";
+	HeitzRoughMirror surface(r * r, scatteringOrder);
+	surface.m_numSamples = 64;
+
+	auto render = renderDisneySlice(surface, imgSize);
+	auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
+	std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+	save2sRGB(*render, ss.str());
+}
+
 void renderDisneySlices()
 {
 	const int imageRes = 512;
 	for (float r = 0.125f; r <= 1.f; r += 0.125f)
 	{
-		auto t0 = std::chrono::system_clock::now();
-		std::stringstream ss;
-		ss << "disney_conductor_" << int(1000 * r) << "_htz.png";
-		std::cout << "Rendering: " << ss.str() << "... ";
-		HeitzRoughMirror surface(r * r, 0);
-		surface.m_numSamples = 64;
-
-		auto render = renderDisneySlice(surface, imageRes);
-		auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
-		std::cout << (dt.count() / 1000.f) << "s" << std::endl;
-		save2sRGB(*render, ss.str());
+		//renderDisneySliceToFile(r, 0, "disney_conductor_", "_htz.png", imageRes);
+	}
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		renderDisneySliceToFile(r, 1, "disney_conductor_s1_", "_htz.png", imageRes);
+	}
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		renderDisneySliceToFile(r, 2, "disney_conductor_s2_", "_htz.png", imageRes);
 	}
 }
 
@@ -461,7 +338,6 @@ void renderMetalSpheres()
 		save2sRGB(*render, ss.str());
 	}
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {

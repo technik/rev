@@ -108,4 +108,10 @@ namespace rev::gfx {
 		void*		mData = nullptr;
 	};
 
+	void saveHDR(const Image& img, const std::string& fileName);
+
+	void save2sRGB(const Image& img, const std::string& fileName);
+
+	void saveLinear(const Image& img, const std::string& fileName);
+
 } // namespace rev::gfx

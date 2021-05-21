@@ -6,6 +6,7 @@
 
 add_executable(probeTool
 	main.cpp
+	Materials.h
 	Heitz/MicrosurfaceScattering.h
 	Heitz/MicrosurfaceScattering.cpp)
 target_include_directories(probeTool PUBLIC ../../engine/src)
