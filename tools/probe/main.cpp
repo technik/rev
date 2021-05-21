@@ -3,15 +3,18 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa (a.k.a. Technik)
 //----------------------------------------------------------------------------------------------------------------------
 #include <cassert>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <math/algebra/vector.h>
+#include <math/algebra/matrix.h>
 #include <math/numericTraits.h>
 #include <math/linear.h>
 #include <math/noise.h>
+#include <numbers>
 #include <nlohmann/json.hpp>
 
 #include <core/platform/osHandler.h>
@@ -108,16 +111,16 @@ void save2sRGB(const Image& img, const std::string& fileName)
 	for(int i = 0; i < nBytes; ++i)
 	{
 		auto linear = src[i];
-		float srgb;
-		if(linear <= 0.0031308f)
+		float srgb = pow(linear, 0.4545f) * 255;
+		/*if(linear <= 0.0031308f)
 		{
-			srgb = uint8_t(clamp(linear * 3294.6f, 0.f, 255.f)); 
+			srgb = clamp(linear * 3294.6f, 0.f, 255.f); 
 		}
 		else
 		{
 			srgb = 269.025f * pow(linear,1/2.4f) - 0.055f;
-		}
-		raw[i] = (uint8_t)clamp(srgb, 0.f, 255.f);
+		}*/
+		raw[i] = uint8_t(clamp(srgb+0.5f, 0.f, 255.f));
 	}
 	auto bytesPerRow = 3 * img.width();
 	stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
@@ -266,26 +269,199 @@ void generateIBLCPU()
 
 }
 
-std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius)
+struct SurfaceMaterial
+{
+	virtual Vec3f shade(const Vec3f& eye, const Vec3f& light) const = 0;
+};
+
+__forceinline vec3 toGlm(const Vec3f& v)
+{
+	return vec3(v.x(), v.y(), v.z());
+}
+
+struct HeitzRoughMirror : SurfaceMaterial
+{
+	MicrosurfaceConductor model;
+	int m_scatteringOrder;
+	int m_numSamples = 16;
+
+	HeitzRoughMirror(float alpha, int scattering)
+		: model(false, false, alpha, alpha)
+		, m_scatteringOrder(scattering)
+	{
+	}
+
+	Vec3f shade(const Vec3f& eye, const Vec3f& light) const override
+	{
+		float lightAccum = 0.f;
+		for(int i = 0; i < m_numSamples; ++i)
+		{
+			lightAccum += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder);
+		}
+		return Vec3f(lightAccum / float(m_numSamples));
+	}
+};
+
+// Pixar's method for orthonormal basis generation
+void branchlessONB(const Vec3f& n, Vec3f& b1, Vec3f& b2)
+{
+	float sign = copysignf(1.0f, n.z());
+	const float a = -1.0f / (sign + n.z());
+	const float b = n.x() * n.y() * a;
+	b1 = Vec3f(1.0f + sign * n.x() * n.x() * a, sign * b, -sign * n.x());
+	b2 = Vec3f(b, sign + n.y() * n.y() * a, -n.y());
+}
+
+std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float lightClr, const SurfaceMaterial& material)
 {
 	auto img = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
+
+	const auto backgroundColor = Vec3f::ones() * 0.5f;
+
+	Vec3f light = Vec3f(0,1,0);
+	Vec3f eye = -Vec3f(0,0,-1);
+
+#ifdef _DEBUG
+	constexpr int nSamples = 4;
+#else
+	constexpr int nSamples = 64;
+#endif
 
 	for (uint32_t i = 0; i < size.y(); ++i)
 	{
 		for (uint32_t j = 0; j < size.x(); ++j)
 		{
 			Vec2f samplePos2d(j, i);
-			auto relPos2d = samplePos2d - center;
-			if (norm(relPos2d) < radius)
-				img->pixel<Vec3f>(i, j) = Vec3f::ones();
-			else
-				img->pixel<Vec3f>(i, j) = Vec3f::zero();
+			Vec3f accumColor = Vec3f::zero();
+			for (uint32_t k = 0; k < nSamples; ++k)
+			{
+				Vec3f pixelColor = backgroundColor;
+				Vec2f pixelJitter = Hammersley(k, nSamples);
+				Vec2f relPos2d = samplePos2d - center + pixelJitter;
+				if (norm(relPos2d) < radius) // Render the sphere
+				{
+					// Project directions into tangent space
+					relPos2d = 1/radius * relPos2d;
+					float z = sqrt(1.f - max(0.f,dot(relPos2d, relPos2d)));
+					const auto normal = Vec3f (relPos2d.x(), -relPos2d.y(), z);
+					Vec3f tan, bitan;
+					branchlessONB(normal, tan, bitan);
+					Mat33f worldFromTan;
+					worldFromTan.col<0>() = tan;
+					worldFromTan.col<1>() = bitan;
+					worldFromTan.col<2>() = normal;
+
+					Mat33f tanFromWorld = worldFromTan.transpose();
+
+					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light) * lightClr * max(0.f, dot(normal,light));
+				}
+
+				accumColor = accumColor + pixelColor;
+			}
+			
+			img->pixel<Vec3f>(j, i) = accumColor *(1.f / nSamples);
 		}
 	}
 
 	return img;
 }
+
+std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
+{
+	auto image = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, Vec2u(imgSize, imgSize));
+	constexpr int nSamples = 4;
+
+	for (uint32_t i = 0; i < imgSize; ++i)
+	{
+		for (uint32_t j = 0; j < imgSize; ++j)
+		{
+			Vec2f pixelPos(j, i);
+			Vec3f accumColor = Vec3f::zero();
+			for (uint32_t k = 0; k < nSamples; ++k)
+			{
+				Vec2f pixelJitter = Hammersley(k, nSamples);
+				Vec2f samplePos = (pixelPos + pixelJitter) * (1.f/ imgSize);
+
+				// Compute view and light vectors
+				float thetaH = samplePos.x() * std::numbers::pi / 2;
+				float thetaD = (1-samplePos.y()) * std::numbers::pi / 2;
+
+				//float sinTh = sample
+				Vec3f half = Vec3f(sin(thetaH), 0, max(0.f, cos(thetaH))); // Half vector along the xz plane
+				Vec3f eye = Vec3f(0, sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
+				Vec3f light = Vec3f(0, -sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
+				Vec3f sampleColor = model.shade(eye, light);
+
+				accumColor = accumColor + sampleColor;
+			}
+
+			image->pixel<Vec3f>(j, i) = accumColor * (1.f / nSamples);
+		}
+	}
+
+	return image;
+}
+
+void renderDisneySlices()
+{
+	const int imageRes = 512;
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		auto t0 = std::chrono::system_clock::now();
+		std::stringstream ss;
+		ss << "disney_conductor_" << int(1000 * r) << "_htz.png";
+		std::cout << "Rendering: " << ss.str() << "... ";
+		HeitzRoughMirror surface(r * r, 0);
+		surface.m_numSamples = 64;
+
+		auto render = renderDisneySlice(surface, imageRes);
+		auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
+		std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+		save2sRGB(*render, ss.str());
+	}
+}
+
+void renderMetalSpheres()
+{
+	const float light = 4.f;
+	// Generate a r=0.5 GGX microsurface sphere
+	const int imageRes = 512;
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		auto t0 = std::chrono::system_clock::now();
+		std::stringstream ss;
+		ss << "conductor_" << int(1000 * r) << "_heitz.png";
+		std::cout << "Rendering: " << ss.str() << "... ";
+		HeitzRoughMirror surface(r * r, 0);
+
+		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
+		auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
+		std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+		save2sRGB(*render, ss.str());
+	}
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		std::stringstream ss;
+		ss << "conductor_s1_" << int(1000 * r) << "_heitz.png";
+		std::cout << "Rendering: " << ss.str() << std::endl;
+		HeitzRoughMirror surface(r * r, 1);
+
+		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
+		save2sRGB(*render, ss.str());
+	}
+	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	{
+		std::stringstream ss;
+		ss << "conductor_s2_" << int(1000 * r) << "_heitz.png";
+		std::cout << "Rendering: " << ss.str() << std::endl;
+		HeitzRoughMirror surface(r * r, 2);
+
+		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
+		save2sRGB(*render, ss.str());
+	}
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
@@ -297,9 +473,8 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 	
-	// Generate a r=0.5 GGX microsurface sphere
-	auto render = renderSphere({ 512,512 }, 200.f);
-	save2sRGB(*render, "render.png");
+	renderDisneySlices();
+	renderMetalSpheres();
 
 	return 0;
 }

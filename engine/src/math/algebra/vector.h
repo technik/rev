@@ -120,6 +120,11 @@ namespace rev {
 				m[2] = f;
 			}
 
+			Vector(float _s)
+				: m{ _s, _s, _s }
+			{
+			}
+
 			Vector(float _x, float _y, float _z)
 				: m{ _x, _y, _z }
 			{
@@ -136,6 +141,14 @@ namespace rev {
 			float	operator[] 	(size_t i) const { return m[i]; }
 			float& operator()(size_t i, size_t) { return m[i]; }
 			float	operator()(size_t i, size_t) const { return m[i]; }
+
+			float x() const { return m[0]; }
+			float y() const { return m[1]; }
+			float z() const { return m[2]; }
+
+			float& x() { return m[0]; }
+			float& y() { return m[1]; }
+			float& z() { return m[2]; }
 
 			Vector operator*(Scalar auto x) const
 			{

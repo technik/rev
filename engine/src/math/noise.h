@@ -61,7 +61,7 @@ namespace rev::math {
 	//------------------------------------------------------------------------------
 	inline Vec2f Hammersley(uint32_t i, uint32_t N)
 	{
-		return Vec2f(float(i) / N, RadicalInverse_VdC(i));
+		return Vec2f(float(i+0.5f) / N, RadicalInverse_VdC(i));
 	}
 
 	inline Vec3f ImportanceSampleGGX(Vec2f Xi, float Roughness)
