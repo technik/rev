@@ -81,6 +81,7 @@ vec3 envLight(
 	vec3 diffuseColor,
 	vec3 lightColor,
 	float roughness,
+	float ao,
 	float ndh,
 	float ndl,
 	float ndv,
@@ -89,7 +90,7 @@ vec3 envLight(
 	vec2 iblFresnel = textureLod(iblLUT, vec2(ndv, roughness), 0).xy;
 	vec3 specular = specularColor * iblFresnel.x + iblFresnel.y;
 	vec3 diffuse = (1 - specular) * diffuseColor;
-	return (diffuse + specular) * lightColor;
+	return (diffuse + specular) * lightColor* mix(diffuseColor, vec3(1.0), ao);
 }
 
 void main()
@@ -108,8 +109,8 @@ void main()
 	{
 		uint index = material.pbrTexture;
 		vec2 metalRough = texture(textures[nonuniformEXT(index)], vPxlTexCoord).bg;
-		material.metalness *= metalRough.x;
-		material.roughness *= metalRough.y;
+		material.metalness *= metalRough.x;//*metalRough.x;
+		material.roughness *= metalRough.y;//*metalRough.y;
 	}
 	float ao = 1.0;
 	if(material.aoTexture >= 0 && !renderFlag(RF_DISABLE_AO))
@@ -160,9 +161,10 @@ void main()
 		diffuseColor,
 		frameInfo.ambientColor,
 		material.roughness,
+		ao,
 		ndh, ndl, ndv, hdv);
 	
-	vec3 pxlColor = mainLight + ao * ambientLight;
+	vec3 pxlColor = mainLight + ambientLight;
 	if(material.emissiveTexture >= 0)
 	{
 		uint index = material.emissiveTexture;

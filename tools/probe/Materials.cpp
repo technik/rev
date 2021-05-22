@@ -27,41 +27,49 @@ using namespace rev::math;
 
 // PBR math
 namespace {
-	float D_GGX(float NoH, float alpha) {
-		float a2 = NoH * alpha;
-		float k = alpha / max(1e-4, 1.0 - NoH * NoH + a2 * a2);
-		return k * k * (1 / pi);
-	}
 
-	float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
+	float D_GGX(float ndh, float alpha) {
 		float a2 = alpha * alpha;
-		float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
-		float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
-		return 0.5 / max(1e-4, GGXV + GGXL);
+		float root = (ndh * a2 - ndh) * ndh + 1;
+		return a2 / (pi  * root * root);
 	}
 
+	// G1(V) = 2ndv / [sqrt(a2 + (1-a2)ndv2) + ndv]
+	// G2(L,V) = (2 ndv ndl) / [ndl sqrt(a2 + (1-a2)ndv2) + ndv sqrt(a2 + (1-a2)ndl2)]
+	// Result is predivided by 4*ndl*ndv
+	float V_SmithGGXCorrelated(float ndv, float ndl, float alpha) {
+		assert(ndv > 0 || ndl > 0);
+		float a2 = alpha * alpha;
+		float G1L = ndv * sqrt(lerp(ndl * ndl, 1.f, a2));
+		float G1V = ndl * sqrt(lerp(ndv * ndv, 1.f, a2));
+		return 0.5 / (G1L + G1V);
+	}
+
+	// G2(L,V) = (2 ndv ndl) / [ndl a + (1-aa)ndv) + ndv sqrt(a + (1-a)ndl)]
+	// Result is predivided by 4*ndl*ndv
 	float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
-		// float GGXV = NoL * (NoV * (1.0 - alpha) + alpha);
-		// float GGXL = NoV * (NoL * (1.0 - alpha) + alpha);
-		// float den = GGXV + GGXL;
+		assert(NoV > 0 || NoL > 0);
 		float den = lerp(2 * NoL * NoV, NoL + NoV, alpha);
-		return 0.5 / max(1e-4, den);
+		return 0.5 / den;
 	}
 
 	Vec3f F_Schlick(float u, Vec3f f0) {
-		float f = pow(1.0 - u, 5.0);
-		return Vec3f(f) + f0 * (1.0 - f);
+		float f = pow(1.f - u, 5.f);
+		return Vec3f(f) + f0 * (1.f - f);
 	}
 
 	float Fd_Lambert() {
 		return 1.0 / pi;
 	}
 
+	// BRDF = D(H)G2(L,V) / (4 ndl ndv)
 	float pureMirrorBRDF(float ndh, float ndl, float ndv, float r)
 	{
-		float D = D_GGX(ndh, r);
-		float G = V_SmithGGXCorrelatedFast(ndv, ndl, r);
-		return D * G;
+		float alpha = r * r;
+		float D = D_GGX(ndh, alpha);
+		//float G = V_SmithGGXCorrelatedFast(ndv, ndl, alpha);
+		float G2 = V_SmithGGXCorrelated(ndv, ndl, alpha);
+		return D * G2;
 	}
 
 	Vec3f specularBRDF(Vec3f specularColor, float ndh, float ndl, float ndv, float hdv, float r)
@@ -71,8 +79,10 @@ namespace {
 	}
 }
 
-Vec3f GGXSmithMirror::shade(const Vec3f& eye, const Vec3f& light) const
+Vec3f GGXSmithMirror::shade(
+	const rev::math::Vec3f& eye,
+	const rev::math::Vec3f& light,
+	const rev::math::Vec3f& half) const
 {
-	Vec3f half = normalize(eye + light);
-	return pureMirrorBRDF(half.z(), light.z(), eye.z(), m_roughness);
+	return pureMirrorBRDF(half.z(), light.z(), max(1e-6f,eye.z()), m_roughness) *light.z();
 }

@@ -22,10 +22,10 @@
 
 #define PI 3.1415927
 
-float D_GGX(float NoH, float alpha) {
-    float a2 = NoH * alpha;
-    float k = alpha / max(1e-4, 1.0 - NoH * NoH + a2 * a2);
-    return k * k * (1.0 / PI);
+float D_GGX(float ndh, float alpha) {
+    float a2 = alpha * alpha;
+    float root = (ndh * a2 - ndh) * ndh + 1;
+    return a2 / (PI * root * root);
 }
 
 float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
@@ -45,7 +45,7 @@ float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
 
 vec3 F_Schlick(float u, vec3 f0) {
     float f = pow(1.0 - u, 5.0);
-    return f + f0 * (1.0 - f);
+    return f0 + (1.0 - f0) * f;
 }
 
 float Fd_Lambert() {
@@ -54,14 +54,14 @@ float Fd_Lambert() {
 
 float pureMirrorBRDF(float ndh, float ndl, float ndv, float r)
 {
-	float D = D_GGX(ndh, r);
-	float G = V_SmithGGXCorrelatedFast(ndv, ndl, r);
+	float D = D_GGX(ndh, r*r);
+	float G = V_SmithGGXCorrelatedFast(ndv, ndl, r*r);
 	return D*G;
 }
 
 vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float hdv, float r)
 {
-	float s = pureMirrorBRDF(ndh, ndv, ndl, r);
+	float s = pureMirrorBRDF(ndh, ndl, ndv, r);
 	return F_Schlick(hdv, specularColor) * s;
 }
 

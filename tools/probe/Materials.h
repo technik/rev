@@ -24,7 +24,10 @@
 
 struct SurfaceMaterial
 {
-	virtual rev::math::Vec3f shade(const rev::math::Vec3f& eye, const rev::math::Vec3f& light) const = 0;
+	virtual rev::math::Vec3f shade(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const = 0;
 };
 
 __forceinline vec3 toGlm(const rev::math::Vec3f& v)
@@ -36,15 +39,22 @@ struct HeitzRoughMirror : SurfaceMaterial
 {
 	MicrosurfaceConductor model;
 	int m_scatteringOrder = 0;
-	int m_numSamples = 16;
+#ifdef _DEBUG
+	static constexpr int m_numSamples = 4;
+#else
+	static constexpr int m_numSamples = 64;
+#endif
 
-	HeitzRoughMirror(float alpha, int scattering)
-		: model(false, false, alpha, alpha)
+	HeitzRoughMirror(float roughness, int scattering)
+		: model(false, false, roughness* roughness, roughness* roughness)
 		, m_scatteringOrder(scattering)
 	{
 	}
 
-	rev::math::Vec3f shade(const rev::math::Vec3f& eye, const rev::math::Vec3f& light) const override
+	rev::math::Vec3f shade(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const override
 	{
 		float lightAccum = 0.f;
 		for (int i = 0; i < m_numSamples; ++i)
@@ -68,5 +78,8 @@ struct GGXSmithMirror : SurfaceMaterial
 	{
 	}
 
-	rev::math::Vec3f shade(const rev::math::Vec3f& eye, const rev::math::Vec3f& light) const override;
+	rev::math::Vec3f shade(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const override;
 };

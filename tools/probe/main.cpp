@@ -91,7 +91,7 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 	{
 		for (uint32_t i = 0; i < numSamples; i++)
 		{
-			Vec2f Xi = Hammersley(i, numSamples);
+			Vec2f Xi = Hammersley(i, numSamples)+Vec2f(0.5f/numSamples, 0.5f / numSamples);
 			Vec3f H = ImportanceSampleGGX_r1(Xi);
 			Vec3f L = 2.f * dot(V, H) * H - V;
 
@@ -117,7 +117,7 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 
 		for (uint32_t i = 0; i < numSamples; i++)
 		{
-			Vec2f Xi = Hammersley(i, numSamples);
+			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
 			Vec3f H = ImportanceSampleGGX(Xi, roughness);
 			Vec3f L = 2 * dot(V, H) * H - V;
 
@@ -183,13 +183,14 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float light
 
 	const auto backgroundColor = Vec3f::ones() * 0.5f;
 
-	Vec3f light = Vec3f(0,1,0);
-	Vec3f eye = -Vec3f(0,0,-1);
+	const Vec3f light = Vec3f(0,1,0);
+	const Vec3f eye = -Vec3f(0,0,-1);
+	const Vec3f half = normalize(eye + light);
 
 #ifdef _DEBUG
 	constexpr int nSamples = 4;
 #else
-	constexpr int nSamples = 64;
+	constexpr int nSamples = 16;
 #endif
 
 	for (uint32_t i = 0; i < size.y(); ++i)
@@ -201,7 +202,7 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float light
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
 				Vec3f pixelColor = backgroundColor;
-				Vec2f pixelJitter = Hammersley(k, nSamples);
+				Vec2f pixelJitter = Hammersley(k, nSamples) + Vec2f(0.5f / nSamples, 0.5f / nSamples);
 				Vec2f relPos2d = samplePos2d - center + pixelJitter;
 				if (norm(relPos2d) < radius) // Render the sphere
 				{
@@ -218,7 +219,7 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float light
 
 					Mat33f tanFromWorld = worldFromTan.transpose();
 
-					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light) * lightClr * max(0.f, dot(normal,light));
+					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld* half) * lightClr * max(0.f, normal.y());
 				}
 
 				accumColor = accumColor + pixelColor;
@@ -231,7 +232,7 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float light
 	return img;
 }
 
-std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
+std::shared_ptr<Image> renderDisneySlice(const SurfaceMaterial& model, int imgSize)
 {
 	auto image = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, Vec2u(imgSize, imgSize));
 	constexpr int nSamples = 4;
@@ -244,7 +245,7 @@ std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
 			Vec3f accumColor = Vec3f::zero();
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
-				Vec2f pixelJitter = Hammersley(k, nSamples);
+				Vec2f pixelJitter = Hammersley(k, nSamples) + Vec2f(0.5f / nSamples, 0.5f / nSamples);
 				Vec2f samplePos = (pixelPos + pixelJitter) * (1.f/ imgSize);
 
 				// Compute view and light vectors
@@ -255,7 +256,7 @@ std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
 				Vec3f half = Vec3f(sin(thetaH), 0, max(0.f, cos(thetaH))); // Half vector along the xz plane
 				Vec3f eye = Vec3f(0, sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
 				Vec3f light = Vec3f(0, -sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
-				Vec3f sampleColor = model.shade(eye, light);
+				Vec3f sampleColor = model.shade(eye, light, half);
 
 				accumColor = accumColor + sampleColor;
 			}
@@ -267,14 +268,12 @@ std::shared_ptr<Image> renderDisneySlice(SurfaceMaterial& model, int imgSize)
 	return image;
 }
 
-void renderDisneySliceToFile(float r, int scatteringOrder, const std::string& prefix, const std::string& suffix, int imgSize)
+void renderDisneySliceToFile(const SurfaceMaterial& surface, float r, const std::string& prefix, const std::string& suffix, int imgSize)
 {
 	auto t0 = std::chrono::system_clock::now();
 	std::stringstream ss;
 	ss << prefix << int(1000 * r) << suffix;
 	std::cout << "Rendering: " << ss.str() << "... ";
-	HeitzRoughMirror surface(r * r, scatteringOrder);
-	surface.m_numSamples = 64;
 
 	auto render = renderDisneySlice(surface, imgSize);
 	auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
@@ -282,60 +281,47 @@ void renderDisneySliceToFile(float r, int scatteringOrder, const std::string& pr
 	save2sRGB(*render, ss.str());
 }
 
-void renderDisneySlices()
+template<class SurfaceModel>
+void renderDisneySlices(const std::string& suffix)
 {
 	const int imageRes = 512;
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	for (int scatteringOrder = 0; scatteringOrder < 3; ++scatteringOrder)
 	{
-		//renderDisneySliceToFile(r, 0, "disney_conductor_", "_htz.png", imageRes);
-	}
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
-	{
-		renderDisneySliceToFile(r, 1, "disney_conductor_s1_", "_htz.png", imageRes);
-	}
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
-	{
-		renderDisneySliceToFile(r, 2, "disney_conductor_s2_", "_htz.png", imageRes);
+		std::stringstream prefix;
+		prefix << "disney_conductor_s" << scatteringOrder << "_";
+
+		for (float r = 0.125f; r <= 1.f; r += 0.125f)
+		{
+			SurfaceModel surface(r, scatteringOrder);
+			renderDisneySliceToFile(surface, r, prefix.str(), suffix, imageRes);
+		}
 	}
 }
 
-void renderMetalSpheres()
+template<class SurfaceModel>
+void renderMetalSpheres(const std::string& suffix)
 {
 	const float light = 4.f;
 	// Generate a r=0.5 GGX microsurface sphere
 	const int imageRes = 512;
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
+	for (int scatteringOrder = 0; scatteringOrder < 3; ++scatteringOrder)
 	{
-		auto t0 = std::chrono::system_clock::now();
-		std::stringstream ss;
-		ss << "conductor_" << int(1000 * r) << "_heitz.png";
-		std::cout << "Rendering: " << ss.str() << "... ";
-		HeitzRoughMirror surface(r * r, 0);
+		std::stringstream prefix;
+		prefix << "conductor_s" << scatteringOrder << "_";
 
-		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
-		auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
-		std::cout << (dt.count() / 1000.f) << "s" << std::endl;
-		save2sRGB(*render, ss.str());
-	}
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
-	{
-		std::stringstream ss;
-		ss << "conductor_s1_" << int(1000 * r) << "_heitz.png";
-		std::cout << "Rendering: " << ss.str() << std::endl;
-		HeitzRoughMirror surface(r * r, 1);
+		for (float r = 0.125f; r <= 1.f; r += 0.125f)
+		{
+			auto t0 = std::chrono::system_clock::now();
+			std::stringstream ss;
+			ss << prefix.str() << int(1000 * r) << suffix;
+			std::cout << "Rendering: " << ss.str() << "... ";
+			SurfaceModel surface(r, scatteringOrder);
 
-		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
-		save2sRGB(*render, ss.str());
-	}
-	for (float r = 0.125f; r <= 1.f; r += 0.125f)
-	{
-		std::stringstream ss;
-		ss << "conductor_s2_" << int(1000 * r) << "_heitz.png";
-		std::cout << "Rendering: " << ss.str() << std::endl;
-		HeitzRoughMirror surface(r * r, 2);
-
-		auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
-		save2sRGB(*render, ss.str());
+			auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
+			auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
+			std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+			save2sRGB(*render, ss.str());
+		}
 	}
 }
 
@@ -349,8 +335,10 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 	
-	renderDisneySlices();
-	renderMetalSpheres();
+	renderMetalSpheres<GGXSmithMirror>("_GGX.png");
+	renderDisneySlices<GGXSmithMirror>("_GGX.png");
+	//renderDisneySlices<HeitzRoughMirror>("_heitz.png");
+	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png");
 
 	return 0;
 }
