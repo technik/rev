@@ -29,27 +29,42 @@ using namespace rev::math;
 namespace {
 
 	float D_GGX(float ndh, float alpha) {
-		float a2 = alpha * alpha;
-		float root = (ndh * a2 - ndh) * ndh + 1;
-		return a2 / (pi  * root * root);
+		float root = alpha / (ndh*ndh*(alpha*alpha-1) + 1);
+		return inv_pi * root * root;
 	}
 
 	// G1(V) = 2ndv / [sqrt(a2 + (1-a2)ndv2) + ndv]
+	// Predivided by 2*ndx
+	float G1(float ndx, float alpha)
+	{
+		float a2 = alpha * alpha;
+		return 0.5 / (ndx + sqrt(a2 + (1 - a2) * ndx * ndx));
+	}
+
+	// Predivided by 4ndv*ndl
+	float V_SmithGGXUncorrelated(float ndl, float ndv, float alpha) {
+
+		assert(ndv > 0 || ndl > 0);
+		float G1L = G1(ndl,alpha);
+		float G1V = G1(ndv, alpha);
+		return G1L * G1V;
+	}
+
 	// G2(L,V) = (2 ndv ndl) / [ndl sqrt(a2 + (1-a2)ndv2) + ndv sqrt(a2 + (1-a2)ndl2)]
 	// Result is predivided by 4*ndl*ndv
-	float V_SmithGGXCorrelated(float ndv, float ndl, float alpha) {
+	float V_SmithGGXCorrelated(float ndl, float ndv, float alpha) {
 		assert(ndv > 0 || ndl > 0);
 		float a2 = alpha * alpha;
 		float G1L = ndv * sqrt(lerp(ndl * ndl, 1.f, a2));
 		float G1V = ndl * sqrt(lerp(ndv * ndv, 1.f, a2));
-		return 0.5 / (G1L + G1V);
+		return 0.5f / (G1L + G1V);
 	}
 
 	// G2(L,V) = (2 ndv ndl) / [ndl a + (1-aa)ndv) + ndv sqrt(a + (1-a)ndl)]
 	// Result is predivided by 4*ndl*ndv
-	float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
+	float V_SmithGGXCorrelatedFast(float ndl, float ndv, float alpha) {
 		assert(NoV > 0 || NoL > 0);
-		float den = lerp(2 * NoL * NoV, NoL + NoV, alpha);
+		float den = lerp(2 * ndl * ndv, ndl + ndv, alpha);
 		return 0.5 / den;
 	}
 
@@ -67,8 +82,8 @@ namespace {
 	{
 		float alpha = r * r;
 		float D = D_GGX(ndh, alpha);
-		//float G = V_SmithGGXCorrelatedFast(ndv, ndl, alpha);
-		float G2 = V_SmithGGXCorrelated(ndv, ndl, alpha);
+		float G2 = V_SmithGGXCorrelated(ndl, ndv, alpha);
+		//float G2 = V_SmithGGXCorrelatedFast(ndl, ndv, alpha);
 		return D * G2;
 	}
 
@@ -79,10 +94,10 @@ namespace {
 	}
 }
 
-Vec3f GGXSmithMirror::shade(
+Vec3f GGXSmithMirror::brdf(
 	const rev::math::Vec3f& eye,
 	const rev::math::Vec3f& light,
 	const rev::math::Vec3f& half) const
 {
-	return pureMirrorBRDF(half.z(), light.z(), max(1e-6f,eye.z()), m_roughness) *light.z();
+	return pureMirrorBRDF(half.z(), light.z(), max(1e-6f,eye.z()), m_roughness);
 }

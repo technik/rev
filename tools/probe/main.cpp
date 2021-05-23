@@ -176,7 +176,7 @@ void generateIBLCPU()
 
 }
 
-std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float lightClr, const SurfaceMaterial& material)
+std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& material)
 {
 	auto img = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
@@ -219,7 +219,7 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float light
 
 					Mat33f tanFromWorld = worldFromTan.transpose();
 
-					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld* half) * lightClr * max(0.f, normal.y());
+					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
 				}
 
 				accumColor = accumColor + pixelColor;
@@ -299,12 +299,12 @@ void renderDisneySlices(const std::string& suffix)
 }
 
 template<class SurfaceModel>
-void renderMetalSpheres(const std::string& suffix)
+void renderMetalSpheres(const std::string& suffix, int s0, int sMax)
 {
 	const float light = 4.f;
 	// Generate a r=0.5 GGX microsurface sphere
 	const int imageRes = 512;
-	for (int scatteringOrder = 0; scatteringOrder < 3; ++scatteringOrder)
+	for (int scatteringOrder = s0; scatteringOrder <= sMax; ++scatteringOrder)
 	{
 		std::stringstream prefix;
 		prefix << "conductor_s" << scatteringOrder << "_";
@@ -335,10 +335,10 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 	
-	renderMetalSpheres<GGXSmithMirror>("_GGX.png");
 	renderDisneySlices<GGXSmithMirror>("_GGX.png");
-	//renderDisneySlices<HeitzRoughMirror>("_heitz.png");
-	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png");
+	renderMetalSpheres<GGXSmithMirror>("_GGX.png", 1, 1);
+	renderDisneySlices<HeitzRoughMirror>("_heitz.png");
+	renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 2);
 
 	return 0;
 }

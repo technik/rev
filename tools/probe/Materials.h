@@ -24,10 +24,18 @@
 
 struct SurfaceMaterial
 {
-	virtual rev::math::Vec3f shade(
+	virtual rev::math::Vec3f brdf(
 		const rev::math::Vec3f& eye,
 		const rev::math::Vec3f& light,
 		const rev::math::Vec3f& half) const = 0;
+
+	virtual rev::math::Vec3f shade(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const
+	{
+		return light.z() * brdf(eye, light, half);
+	}
 };
 
 __forceinline vec3 toGlm(const rev::math::Vec3f& v)
@@ -42,13 +50,26 @@ struct HeitzRoughMirror : SurfaceMaterial
 #ifdef _DEBUG
 	static constexpr int m_numSamples = 4;
 #else
-	static constexpr int m_numSamples = 64;
+	static constexpr int m_numSamples = 4;// 64;
 #endif
 
 	HeitzRoughMirror(float roughness, int scattering)
-		: model(false, false, roughness* roughness, roughness* roughness)
+		: model(false, false, roughness* roughness, roughness*roughness)
 		, m_scatteringOrder(scattering)
 	{
+	}
+
+	rev::math::Vec3f brdf(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const override
+	{
+		float bsdf = 0.f;
+		for (int i = 0; i < m_numSamples; ++i)
+		{
+			bsdf += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder) / rev::math::max(1e-6f,light.z());
+		}
+		return rev::math::Vec3f(bsdf / float(m_numSamples));
 	}
 
 	rev::math::Vec3f shade(
@@ -56,12 +77,12 @@ struct HeitzRoughMirror : SurfaceMaterial
 		const rev::math::Vec3f& light,
 		const rev::math::Vec3f& half) const override
 	{
-		float lightAccum = 0.f;
+		float bsdf = 0.f;
 		for (int i = 0; i < m_numSamples; ++i)
 		{
-			lightAccum += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder);
+			bsdf += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder);
 		}
-		return rev::math::Vec3f(lightAccum / float(m_numSamples));
+		return rev::math::Vec3f(bsdf / float(m_numSamples));
 	}
 };
 
@@ -74,11 +95,11 @@ struct GGXSmithMirror : SurfaceMaterial
 	GGXSmithMirror(float roughness, int scattering)
 		: m_scatteringOrder(scattering)
 		, m_roughness(roughness)
-		, m_alpha(roughness * roughness)
+		, m_alpha(roughness* roughness)
 	{
 	}
 
-	rev::math::Vec3f shade(
+	rev::math::Vec3f brdf(
 		const rev::math::Vec3f& eye,
 		const rev::math::Vec3f& light,
 		const rev::math::Vec3f& half) const override;

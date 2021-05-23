@@ -32,7 +32,7 @@ float V_SmithGGXCorrelated(float NoV, float NoL, float alpha) {
     float a2 = alpha * alpha;
     float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
     float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
-    return 0.5 / max(1e-4, GGXV + GGXL);
+    return 0.5 / (GGXV + GGXL);
 }
 
 float V_SmithGGXCorrelatedFast(float NoV, float NoL, float alpha) {
@@ -54,9 +54,10 @@ float Fd_Lambert() {
 
 float pureMirrorBRDF(float ndh, float ndl, float ndv, float r)
 {
-	float D = D_GGX(ndh, r*r);
-	float G = V_SmithGGXCorrelatedFast(ndv, ndl, r*r);
-	return D*G;
+    float a = r*r;
+	float D = D_GGX(ndh, a);
+	float G = V_SmithGGXCorrelated(ndv, ndl, a);
+	return D*G* ndl;
 }
 
 vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float hdv, float r)
