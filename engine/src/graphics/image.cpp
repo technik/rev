@@ -114,6 +114,8 @@ namespace rev::gfx
 				return Image3u8::loadFromMemory(data, size, srgb);
 			}
 		}
+		assert(false);
+		return nullptr;
 	}
 
 	//----------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace {
 
 	float D_GGX(float ndh, float alpha) {
 		float root = alpha / (ndh*ndh*(alpha*alpha-1) + 1);
-		return inv_pi * root * root;
+		return inv_pi_v<float> * root * root;
 	}
 
 	// G1(V) = 2ndv / [sqrt(a2 + (1-a2)ndv2) + ndv]
@@ -38,7 +38,7 @@ namespace {
 	float G1(float ndx, float alpha)
 	{
 		float a2 = alpha * alpha;
-		return 0.5 / (ndx + sqrt(a2 + (1 - a2) * ndx * ndx));
+		return 0.5f / (ndx + sqrt(a2 + (1 - a2) * ndx * ndx));
 	}
 
 	// Predivided by 4ndv*ndl
@@ -65,7 +65,7 @@ namespace {
 	float V_SmithGGXCorrelatedFast(float ndl, float ndv, float alpha) {
 		assert(ndv > 0 || ndl > 0);
 		float den = lerp(2 * ndl * ndv, ndl + ndv, alpha);
-		return 0.5 / den;
+		return 0.5f / den;
 	}
 
 	Vec3f F_Schlick(float u, Vec3f f0) {
@@ -74,7 +74,7 @@ namespace {
 	}
 
 	float Fd_Lambert() {
-		return 1.0 / pi;
+		return inv_pi_v<float>;
 	}
 
 	// BRDF = D(H)G2(L,V) / (4 ndl ndv)
@@ -92,6 +92,18 @@ namespace {
 		float s = pureMirrorBRDF(ndh, ndv, ndl, r);
 		return F_Schlick(hdv, specularColor) * s;
 	}
+
+	// See Kulla-Conty 2017, appendix
+	// Returns 1-Eavg(r)
+	float compEavg(float r)
+	{
+		constexpr float Aa = 0.592665f;
+		constexpr float Ab = -1.47034f;
+		constexpr float Ac = 1.47196f;
+		float r2 = r * r;
+		float r3 = r2 * r;
+		return Aa * r3 / (1 + (Ab + Ac * r) * r);
+	}
 }
 
 Vec3f GGXSmithMirror::brdf(
@@ -100,4 +112,27 @@ Vec3f GGXSmithMirror::brdf(
 	const rev::math::Vec3f& half) const
 {
 	return pureMirrorBRDF(half.z(), light.z(), max(1e-6f,eye.z()), m_roughness);
+}
+
+Vec3f KullaContyMirror::brdf(
+	const rev::math::Vec3f& eye,
+	const rev::math::Vec3f& light,
+	const rev::math::Vec3f& half) const
+{
+	float s0 = 0.f;
+	float ms = 0.f;
+	if (m_scatteringOrder <= 1)
+	{
+		s0 = pureMirrorBRDF(half.z(), light.z(), max(1e-6f, eye.z()), m_roughness);
+	}
+	if (m_scatteringOrder == 0) // Multiple scattering
+	{
+		Vec3f Eo3 = sIblLut.sample({ eye.z(), m_roughness });
+		float Eo = Eo3.x() + Eo3.y();
+		Vec3f Ei3 = sIblLut.sample({ light.z(), m_roughness });
+		float Ei = Ei3.x() + Ei3.y();
+		float den = pi_v<float> *compEavg(m_roughness);
+		ms = (1 - Eo) * (1 - Ei) / den;
+	}
+	return s0 + ms;
 }

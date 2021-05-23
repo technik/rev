@@ -95,9 +95,9 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 			Vec3f H = ImportanceSampleGGX_r1(Xi);
 			Vec3f L = 2.f * dot(V, H) * H - V;
 
-			float ndl = clamp(L.z(), 0.f, 1.f);
+			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
 			float NoH = H.z();
-			float VoH = clamp(dot(V, H), 0.f, 1.f);
+			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
 
 			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
 			{
@@ -121,9 +121,9 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 			Vec3f H = ImportanceSampleGGX(Xi, roughness);
 			Vec3f L = 2 * dot(V, H) * H - V;
 
-			float ndl = clamp(L.z(), 0.f, 1.f);
+			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
 			float NoH = H.z();
-			float VoH = clamp(dot(V, H), 0.f, 1.f);
+			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
 
 			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
 			{
@@ -334,9 +334,14 @@ int main(int _argc, const char** _argv) {
 
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
+
+	// Init ibl lut
+	KullaContyMirror::sIblLut.m_image = rev::gfx::Image3f::load("ibl.png");
 	
-	renderDisneySlices<GGXSmithMirror>("_GGX.png", 1, 1);
-	renderMetalSpheres<GGXSmithMirror>("_GGX.png", 1, 1);
+	//renderDisneySlices<GGXSmithMirror>("_GGX.png", 0, 1);
+	//renderMetalSpheres<GGXSmithMirror>("_GGX.png", 0, 1);
+	renderDisneySlices<KullaContyMirror>("_KC.png", 0, 1);
+	renderMetalSpheres<KullaContyMirror>("_KC.png", 0, 1);
 	//renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
 	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
 

@@ -21,6 +21,7 @@
 
 #include "Heitz/MicrosurfaceScattering.h"
 #include <math/algebra/vector.h>
+#include <graphics/ImageSampler.h>
 
 struct SurfaceMaterial
 {
@@ -67,7 +68,8 @@ struct HeitzRoughMirror : SurfaceMaterial
 		float bsdf = 0.f;
 		for (int i = 0; i < m_numSamples; ++i)
 		{
-			bsdf += model.eval(toGlm(eye), toGlm(light), m_scatteringOrder) / rev::math::max(1e-6f,light.z());
+			float lit = model.eval(toGlm(eye), toGlm(light), m_scatteringOrder);
+			bsdf += lit / rev::math::max(1e-6f,light.z());
 		}
 		return rev::math::Vec3f(bsdf / float(m_numSamples));
 	}
@@ -93,6 +95,27 @@ struct GGXSmithMirror : SurfaceMaterial
 	float m_alpha = 0;
 
 	GGXSmithMirror(float roughness, int scattering)
+		: m_scatteringOrder(scattering)
+		, m_roughness(roughness)
+		, m_alpha(roughness* roughness)
+	{
+	}
+
+	rev::math::Vec3f brdf(
+		const rev::math::Vec3f& eye,
+		const rev::math::Vec3f& light,
+		const rev::math::Vec3f& half) const override;
+};
+
+struct KullaContyMirror : SurfaceMaterial
+{
+	int m_scatteringOrder = 0;
+	float m_roughness = 0;
+	float m_alpha = 0;
+
+	inline static rev::gfx::ImageSampler<rev::math::Vec3f> sIblLut;
+
+	KullaContyMirror(float roughness, int scattering)
 		: m_scatteringOrder(scattering)
 		, m_roughness(roughness)
 		, m_alpha(roughness* roughness)

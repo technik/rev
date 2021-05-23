@@ -57,6 +57,12 @@ namespace rev {
 				m[n - 1] = f;
 			}
 
+			explicit Vector(T _x)
+			{
+				for (size_t i = 0; i < n; ++i)
+					m[i] = _x;
+			}
+
 			Vector(T _x, T _y)
 				: m{ _x, _y }
 			{
@@ -80,6 +86,54 @@ namespace rev {
 				auto x = _l.begin();
 				for (size_t i = 0; i < n; ++i)
 					m[i] = *x++;
+			}
+
+			Vector operator+(Scalar auto x) const
+			{
+				Vector res;
+				for (size_t i = 0; i < n - 1; ++i)
+				{
+					res[i] = x + m[i];
+				}
+				return res;
+			}
+
+			Vector operator-(Scalar auto x) const
+			{
+				Vector res;
+				for (size_t i = 0; i < n - 1; ++i)
+				{
+					res[i] = x - m[i];
+				}
+				return res;
+			}
+
+			Vector operator*(Scalar auto x) const
+			{
+				Vector res;
+				for (size_t i = 0; i < n - 1; ++i)
+				{
+					res[i] = x * m[i];
+				}
+				return res;
+			}
+
+			Vector operator*(Vector x) const
+			{
+				Vector res;
+				for (size_t i = 0; i < n - 1; ++i)
+				{
+					res[i] = x[i] * m[i];
+				}
+				return res;
+			}
+
+			template<class T2>
+			Vector<T2, n> cast() const {
+				Vector<T2, n> castedResult;
+				for (size_t i = 0; i < n; ++i)
+					castedResult[i] = T2(m[i]);
+				return castedResult;
 			}
 
             T&	operator[]	(size_t i)       { return m[i]; }
@@ -167,6 +221,16 @@ namespace rev {
 			float& y() { return m[1]; }
 			float& z() { return m[2]; }
 
+			Vector operator+(Scalar auto x) const
+			{
+				return Vector(x + m[0], x + m[1], x + m[2]);
+			}
+
+			Vector operator-(Scalar auto x) const
+			{
+				return Vector(x - m[0], x - m[1], x - m[2]);
+			}
+
 			Vector operator*(Scalar auto x) const
 			{
 				return Vector(x * m[0], x * m[1], x * m[2]);
@@ -206,19 +270,19 @@ namespace rev {
 
 		typedef Vector<unsigned, 2> Vec2u;
 		typedef Vector<uint16_t, 2> Vec2u16;
-		typedef Vector<int, 2>		Vec2i;
+		typedef Vector<int32_t, 2>	Vec2i;
 		typedef Vector<float, 2>	Vec2f;
 		typedef Vector<double, 2>	Vec2d;
 
 		typedef Vector3<unsigned>	Vec3u;
 		typedef Vector3<uint8_t>	Vec3u8;
-		typedef Vector3<int>		Vec3i;
+		typedef Vector3<int32_t>	Vec3i;
 		typedef Vector3<float>		Vec3f;
 		typedef Vector3<double>		Vec3d;
 
 		typedef Vector4<unsigned>	Vec4u;
 		typedef Vector4<uint8_t>	Vec4u8;
-		typedef Vector4<int>		Vec4i;
+		typedef Vector4<int32_t>	Vec4i;
 		typedef Vector4<float>		Vec4f;
 		typedef Vector4<double>		Vec4d;
 

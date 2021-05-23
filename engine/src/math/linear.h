@@ -44,7 +44,20 @@ namespace rev::math
 		return a<b?a:b; // Same NaN behavior as simd
 	}
 
-	inline float clamp(float t, float a, float b)
+	template<Scalar T>
+	__forceinline auto max(T a, T b)
+	{
+		return a > b ? a : b; // Same NaN behavior as simd
+	}
+
+	template<Scalar T>
+	__forceinline auto min(T a, T b)
+	{
+		return a < b ? a : b; // Same NaN behavior as simd
+	}
+
+	template<class T>
+	__forceinline T clamp(T t, T a, T b)
 	{
 		return max(a, min(b, t));
 	}
