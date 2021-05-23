@@ -282,10 +282,10 @@ void renderDisneySliceToFile(const SurfaceMaterial& surface, float r, const std:
 }
 
 template<class SurfaceModel>
-void renderDisneySlices(const std::string& suffix)
+void renderDisneySlices(const std::string& suffix, int s0, int sMax)
 {
 	const int imageRes = 512;
-	for (int scatteringOrder = 0; scatteringOrder < 3; ++scatteringOrder)
+	for (int scatteringOrder = s0; scatteringOrder <= sMax; ++scatteringOrder)
 	{
 		std::stringstream prefix;
 		prefix << "disney_conductor_s" << scatteringOrder << "_";
@@ -335,10 +335,10 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 	
-	renderDisneySlices<GGXSmithMirror>("_GGX.png");
+	renderDisneySlices<GGXSmithMirror>("_GGX.png", 1, 1);
 	renderMetalSpheres<GGXSmithMirror>("_GGX.png", 1, 1);
-	renderDisneySlices<HeitzRoughMirror>("_heitz.png");
-	renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 2);
+	renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
+	renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
 
 	return 0;
 }

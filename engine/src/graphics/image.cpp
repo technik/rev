@@ -25,22 +25,11 @@
 #include "Image.h"
 #include <cstdint>
 #include <core/platform/fileSystem/file.h>
+#include <core/string_util.h>
 #include <math/linear.h>
 
 namespace rev::gfx
 {
-	namespace
-	{
-		auto extension(const std::string_view& s)
-		{
-			auto dot = s.find_last_of(".");
-			if (dot == std::string_view::npos)
-				return std::string_view("");
-			else
-				return s.substr(dot + 1);
-		}
-	}
-
 	vk::Format Image::GetPixelFormat(bool hdr, unsigned numChannels, bool srgb)
 	{
 		if (hdr)
@@ -56,6 +45,9 @@ namespace rev::gfx
 				return vk::Format::eR32G32B32Sfloat;
 			case 4:
 				return vk::Format::eR32G32B32A32Sfloat;
+			default:
+				assert(false);
+				return vk::Format::eR8G8B8A8Unorm;
 			}
 		}
 		else
@@ -266,11 +258,10 @@ namespace rev::gfx
 		return GetPixelSize(mFormat) * mCapacity;
 	}
 
-
-
+	//----------------------------------------------------------------------------------------------
 	void saveHDR(const Image& img, const std::string& fileName)
 	{
-		if (extension(fileName) != "hdr")
+		if (core::getFileExtension(fileName) != "hdr")
 		{
 			std::cout << "Only .hdr is supported for hdr output images\n";
 		}
@@ -280,9 +271,10 @@ namespace rev::gfx
 		stbi_write_hdr(fileName.c_str(), img.width(), img.height(), 3, src);
 	}
 
+	//----------------------------------------------------------------------------------------------
 	void save2sRGB(const Image& img, const std::string& fileName)
 	{
-		if (extension(fileName) != "png")
+		if (core::getFileExtension(fileName) != "png")
 		{
 			std::cout << "Only png is supported for output images\n";
 		}
@@ -310,9 +302,10 @@ namespace rev::gfx
 		stbi_write_png(fileName.c_str(), img.width(), img.height(), 3, raw.data(), bytesPerRow);
 	}
 
+	//----------------------------------------------------------------------------------------------
 	void saveLinear(const Image& img, const std::string& fileName)
 	{
-		if (extension(fileName) != "png")
+		if (core::getFileExtension(fileName) != "png")
 		{
 			std::cout << "Only png is supported for output images\n";
 		}
