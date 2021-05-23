@@ -211,7 +211,7 @@ namespace rev
 		m_uiRenderPass->setClearColor(m_frameConstants.ambientColor);
 		m_uiRenderPass->begin(cmd, m_windowSize);
 
-		m_postProConstants.windowSize = math::Vec2f(m_windowSize.x(), m_windowSize.y());
+		m_postProConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
 		m_postProConstants.ambientColor = m_frameConstants.ambientColor;
 		m_postProConstants.renderFlags = {};
 		m_postProConstants.bloom = 0.f;
@@ -446,7 +446,7 @@ namespace rev
 
 	void Renderer::loadIBLLUT()
 	{
-		auto image = gfx::Image::load("shaders/ibl_brdf.hdr", 4, false);
+		auto image = gfx::Image4f::load("shaders/ibl_brdf.hdr");
 		m_iblLUT = m_ctxt->allocator().createTexture(
 			*m_ctxt,
 			"IBL LUT",

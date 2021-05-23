@@ -259,7 +259,7 @@ namespace rev::game {
 				}
 			}
 
-			std::vector<std::shared_ptr<Image>> images;
+			std::vector<std::shared_ptr<Image<>>> images;
 			images.reserve(document.images.size());
 
 			uint32_t imgNdx = 0;
@@ -267,13 +267,13 @@ namespace rev::game {
 			{
 				if (!gltfImage.uri.empty()) // Load image from file
 				{
-					images.push_back(Image::load(assetFolder + "/"+ gltfImage.uri, 4, isSRGB[imgNdx]));
+					images.push_back(Image<>::load(assetFolder + "/"+ gltfImage.uri, 4, false, isSRGB[imgNdx]));
 				}
 				else // Load from memory
 				{
 					auto& bv = document.bufferViews[gltfImage.bufferView];
 					auto& buffer = document.buffers[bv.buffer];
-					auto image = Image::loadFromMemory(buffer.data.data() + bv.byteOffset, bv.byteLength, 4, isSRGB[imgNdx]);
+					auto image = Image<>::loadFromMemory(buffer.data.data() + bv.byteOffset, bv.byteLength, 4, false, isSRGB[imgNdx]);
 					images.push_back(image);
 				}
 				++imgNdx;
@@ -282,7 +282,7 @@ namespace rev::game {
 			return images;
 		}
 
-		auto loadTextures(const gltf::Document& document, const std::vector<std::shared_ptr<Image>>& images)
+		auto loadTextures(const gltf::Document& document, const std::vector<std::shared_ptr<Image<>>>& images)
 		{
 			auto& rc = RenderContext();
 
@@ -298,7 +298,7 @@ namespace rev::game {
 				auto repeatX = sampler.wrapS == gltf::Sampler::WrappingMode::Repeat ? vk::SamplerAddressMode::eRepeat : vk::SamplerAddressMode::eClampToEdge;
 				auto repeatY = sampler.wrapT == gltf::Sampler::WrappingMode::Repeat ? vk::SamplerAddressMode::eRepeat : vk::SamplerAddressMode::eClampToEdge;
 
-				std::shared_ptr<Image> image;
+				std::shared_ptr<Image<>> image;
 				if (gltfTexture.source >= 0)
 				{
 					image = images[gltfTexture.source];

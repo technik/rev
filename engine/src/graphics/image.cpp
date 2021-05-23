@@ -28,9 +28,11 @@
 #include <core/string_util.h>
 #include <math/linear.h>
 
+using namespace rev::math;
+
 namespace rev::gfx
 {
-	vk::Format Image::GetPixelFormat(bool hdr, unsigned numChannels, bool srgb)
+	vk::Format Image<>::GetPixelFormat(bool hdr, unsigned numChannels, bool srgb)
 	{
 		if (hdr)
 		{
@@ -71,159 +73,119 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(vk::Format pxlFormat, const math::Vec2u& size)
-		: mSize(size)
-		, mFormat(pxlFormat)
+	Image<>::Image(const Vec2u& size, vk::Format format, uint32_t byteStride, std::unique_ptr<uint8_t[]>&& data)
+		: m_data(std::move(data))
+		, m_size(size)
+		, m_format(format)
+		, m_byteStride(byteStride)
 	{
-		mCapacity = area();
-		if(mCapacity)
-			mData = allocatePixelData(pxlFormat, mCapacity);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(Image&& x)
-		: mSize(x.mSize)
-		, mCapacity(x.mCapacity)
-		, mFormat(x.mFormat)
+	std::shared_ptr<Image<>> Image<>::load(std::string_view _name, unsigned nChannels, bool hdr, bool srgb)
 	{
-		auto memorySize = GetPixelSize(mFormat) * mCapacity;
-		mData = x.mData;
-		x.mCapacity = 0;
+		core::File file(_name.data());
+		return loadFromMemory(file.buffer(), file.size(), nChannels, hdr, srgb);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	// Constructors from specific color formats
-	Image::Image(const math::Vec2u& size, math::Vec3u8* data)
-		: Image(vk::Format::eR8G8B8Unorm, size, data)
-	{}
-
-	//----------------------------------------------------------------------------------------------
-	Image::Image(const math::Vec2u& size, math::Vec4u8* data)
-		: Image(vk::Format::eR8G8B8A8Unorm, size, data)
-	{}
-
-	//----------------------------------------------------------------------------------------------
-	Image::Image(const math::Vec2u& size, math::Vec3f* data)
-		: Image(vk::Format::eR32G32B32Sfloat, size, data)
-	{}
-
-	//----------------------------------------------------------------------------------------------
-	Image::Image(const math::Vec2u& size, math::Vec4f* data)
-		: Image(vk::Format::eR32G32B32A32Sfloat, size, data)
-	{}
-
-	//----------------------------------------------------------------------------------------------
-	Image::~Image()
+	template<>
+	std::shared_ptr<Image<>> Image<>::loadFromMemory(const void* data, size_t size, unsigned nChannels, bool hdr, bool srgb)
 	{
-		if(mCapacity)
-			delete[] mData;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	Image& Image::operator=(Image&& x)
-	{
-		delete[] mData;
-		mSize = x.size();
-		mCapacity = x.mCapacity;
-		mFormat = x.format();
-		mData = x.mData;
-		x.mCapacity = 0;
-		return *this;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Image::clear()
-	{
-		mSize = math::Vec2u::zero();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Image::erase()
-	{
-		clear();
-		if(mCapacity)
-			delete[] mData;
-		mCapacity = 0;
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void Image::resize(const math::Vec2u& size)
-	{
-		mSize = size;
-		if(area() > mCapacity)
+		if (hdr)
 		{
-			delete[] mData;
-			mCapacity = area();
-			mData = allocatePixelData(mFormat, mCapacity);
+			assert(!srgb);
+
+			switch (nChannels)
+			{
+			case 3:
+				return Image3f::loadFromMemory(data, size);
+			case 4:
+				return Image3f::loadFromMemory(data, size);
+			}
+		}
+		else
+		{
+			switch (nChannels)
+			{
+			case 3:
+				return Image3u8::loadFromMemory(data, size, srgb);
+			case 4:
+				return Image3u8::loadFromMemory(data, size, srgb);
+			}
 		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void Image::setPixelFormat(vk::Format fmt)
+	Image<uint8_t,3>::Image(const Vec2u& size, bool srgb)
+		: Image<void,0>(
+			size,
+			srgb?vk::Format::eR8G8B8Srgb : vk::Format::eR8G8B8Unorm,
+			3,
+			std::make_unique<uint8_t[]>(sizeof(Vec3u8)*size.x()*size.y()))
 	{
-		if(mCapacity > 0 && GetPixelSize(fmt) != GetPixelSize(mFormat))
-			mCapacity = mCapacity * GetPixelSize(mFormat) / GetPixelSize(fmt);
-		mFormat = fmt;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image Image::proceduralXOR(const math::Vec2u& size, size_t nChannels)
+	Image<uint8_t, 3>::Image(const Vec2u& size, std::unique_ptr<math::Vec3u8[]>&& data, bool srgb, bool stbiAlloc)
+		: Image<void, 0>(
+			size,
+			srgb ? vk::Format::eR8G8B8Srgb : vk::Format::eR8G8B8Unorm,
+			3,
+			std::unique_ptr<uint8_t[]>((uint8_t*)data.release()))
+		, m_isStbiAllocated(stbiAlloc)
 	{
-		vk::Format format = GetPixelFormat(false, nChannels, false);
-		Image xorImg(format, size);
-		for(unsigned i = 0; i < size.y(); ++i)
-			for(unsigned j = 0; j < size.x(); ++j)
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image<uint8_t, 3>::~Image()
+	{
+		if (m_isStbiAllocated)
+		{
+			stbi_image_free(m_data.release());
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image<uint8_t, 3>> Image<uint8_t, 3>::proceduralXOR(const math::Vec2u& size)
+	{
+		auto data = std::make_unique<Vec3u8[]>(size.x() * size.y());
+		auto image = std::make_unique<Image3u8>(size, std::move(data), false, false);
+
+		for (unsigned i = 0; i < size.y(); ++i)
+		{
+			for (unsigned j = 0; j < size.x(); ++j)
 			{
-				auto clr = uint8_t(i^j);
-				auto pixelNdx = xorImg.indexFromPos({j,i});
-				for(uint8_t k = 0; k < nChannels; ++k)
-				{
-					auto dataOffset = k + pixelNdx*nChannels;
-					xorImg.data<uint8_t>()[dataOffset] = clr;
-				}
+				auto clr = uint8_t(i ^ j);
+				image->pixel(i, j) = Vec3u8(clr, clr, clr);
 			}
-		return xorImg;
+		}
+		return image;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Image> Image::load(std::string_view _name, unsigned nChannels, bool srgb)
+	std::shared_ptr<Image<uint8_t, 3>> Image<uint8_t, 3>::load(std::string_view _name, bool srgb)
 	{
 		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size(), nChannels, srgb);
+		return loadFromMemory(file.buffer(), file.size(), srgb);
 	}
 
 	//----------------------------------------------------------------------------------------------
-	std::shared_ptr<Image> Image::loadFromMemory(const void* data, size_t bufferSize, unsigned nChannels, bool srgb)
+	std::shared_ptr<Image<uint8_t, 3>> Image<uint8_t, 3>::loadFromMemory(const void* data, size_t bufferSize, bool srgb)
 	{
 		if (bufferSize > 0)
 		{
-			bool isHDR = stbi_is_hdr_from_memory((uint8_t*)data, bufferSize);
+			// Process in memory data
 			int width, height, realNumChannels;
-			uint8_t* imgData;
-			if (!nChannels)
-			{
-				int srcChannels;
-				stbi_info_from_memory((const uint8_t*)data, bufferSize, &width, &height, &srcChannels);
-				if (srcChannels < 3)
-					nChannels = 4;
-			}
-			// Read image data from buffer
-			if (isHDR)
-				imgData = (uint8_t*)stbi_loadf_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, nChannels);
-			else
-				imgData = stbi_load_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, nChannels);
+			const auto expectedChannels = 3;
+			uint8_t* imgData = stbi_load_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, expectedChannels);
 
 			// Create the actual image
 			if (imgData)
 			{
+				auto dataPtr = std::unique_ptr<Vec3u8[]>(reinterpret_cast<Vec3u8*>(imgData));
 				math::Vec2u size = { unsigned(width), unsigned(height) };
-				vk::Format format = GetPixelFormat(isHDR, nChannels, srgb);
-				auto result = std::make_shared<Image>(format, size);
-				memcpy(result->data<void>(), imgData, result->area() * GetPixelSize(format));
-
-				stbi_image_free(imgData);
-
-				return std::move(result);
+				return std::make_shared<Image3u8>(size, std::move(dataPtr), srgb, true);
 			}
 		}
 
@@ -231,35 +193,201 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	Image::Image(vk::Format pxlFmt, const math::Vec2u& size, void* data)
-		: mSize(size)
-		, mFormat(pxlFmt)
-		, mData(data)
+	Image<uint8_t, 4>::Image(const Vec2u& size, bool srgb)
+		: Image<void, 0>(
+			size,
+			srgb ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8A8Unorm,
+			4,
+			std::make_unique<uint8_t[]>(sizeof(Vec4u8)* size.x()* size.y()))
 	{
-		mCapacity = area();
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void* Image::allocatePixelData(vk::Format pxlFormat, size_t numPixels)
+	Image<uint8_t, 4>::Image(const Vec2u& size, std::unique_ptr<math::Vec4u8[]>&& data, bool srgb, bool stbiAlloc)
+		: Image<void, 0>(
+			size,
+			srgb ? vk::Format::eR8G8B8A8Srgb : vk::Format::eR8G8B8A8Unorm,
+			4,
+			std::unique_ptr<uint8_t[]>((uint8_t*)data.release()))
+		, m_isStbiAllocated(stbiAlloc)
 	{
-		auto rawSize = numPixels * GetPixelSize(pxlFormat);
-		return new uint8_t[rawSize];
 	}
 
 	//----------------------------------------------------------------------------------------------
-	size_t Image::indexFromPos(const math::Vec2u& p) const
+	Image<uint8_t, 4>::~Image()
 	{
-		return p.x() + p.y() * mSize.x();
+		if (m_isStbiAllocated)
+		{
+			stbi_image_free(m_data.release());
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------
-	size_t Image::rawDataSize() const
+	std::shared_ptr<Image4u8> Image4u8::proceduralXOR(const math::Vec2u& size)
 	{
-		return GetPixelSize(mFormat) * mCapacity;
+		auto data = std::make_unique<Vec4u8[]>(size.x() * size.y());
+		auto image = std::make_unique<Image4u8>(size, std::move(data), false, false);
+
+		for (unsigned i = 0; i < size.y(); ++i)
+		{
+			for (unsigned j = 0; j < size.x(); ++j)
+			{
+				auto clr = uint8_t(i ^ j);
+				image->pixel(i, j) = Vec4u8(clr, clr, clr, clr);
+			}
+		}
+		return image;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void saveHDR(const Image& img, const std::string& fileName)
+	std::shared_ptr<Image4u8> Image4u8::load(std::string_view _name, bool srgb)
+	{
+		core::File file(_name.data());
+		return loadFromMemory(file.buffer(), file.size(), srgb);
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image4u8> Image4u8::loadFromMemory(const void* data, size_t bufferSize, bool srgb)
+	{
+		if (bufferSize > 0)
+		{
+			// Process in memory data
+			int width, height, realNumChannels;
+			const auto expectedChannels = 4;
+			uint8_t* imgData = stbi_load_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, expectedChannels);
+
+			// Create the actual image
+			if (imgData)
+			{
+				auto dataPtr = std::unique_ptr<Vec4u8[]>(reinterpret_cast<Vec4u8*>(imgData));
+				math::Vec2u size = { unsigned(width), unsigned(height) };
+				return std::make_shared<Image4u8>(size, std::move(dataPtr), srgb, true);
+			}
+		}
+
+		return nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image<float, 3>::Image(const Vec2u& size)
+		: Image<void, 0>(
+			size,
+			vk::Format::eR32G32B32Sfloat,
+			3,
+			std::make_unique<uint8_t[]>(sizeof(Vec3f)* size.x()* size.y()))
+	{
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image3f::Image(const Vec2u& size, std::unique_ptr<math::Vec3f[]>&& data, bool stbiAlloc)
+		: Image<void, 0>(
+			size,
+			vk::Format::eR32G32B32Sfloat,
+			3,
+			std::unique_ptr<uint8_t[]>((uint8_t*)data.release()))
+		, m_isStbiAllocated(stbiAlloc)
+	{
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image3f::~Image()
+	{
+		if (m_isStbiAllocated)
+		{
+			stbi_image_free(m_data.release());
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image3f> Image3f::load(std::string_view _name)
+	{
+		core::File file(_name.data());
+		return loadFromMemory(file.buffer(), file.size());
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image3f> Image3f::loadFromMemory(const void* data, size_t bufferSize)
+	{
+		if (bufferSize > 0)
+		{
+			// Process in memory data
+			int width, height, realNumChannels;
+			const auto expectedChannels = 3;
+			float* imgData = stbi_loadf_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, expectedChannels);
+
+			// Create the actual image
+			if (imgData)
+			{
+				auto dataPtr = std::unique_ptr<Vec3f[]>(reinterpret_cast<Vec3f*>(imgData));
+				math::Vec2u size = { unsigned(width), unsigned(height) };
+				return std::make_shared<Image3f>(size, std::move(dataPtr), true);
+			}
+		}
+
+		return nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image<float, 4>::Image(const Vec2u& size)
+		: Image<void, 0>(
+			size,
+			vk::Format::eR32G32B32A32Sfloat,
+			4,
+			std::make_unique<uint8_t[]>(sizeof(Vec4f)* size.x()* size.y()))
+	{
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image4f::Image(const Vec2u& size, std::unique_ptr<math::Vec4f[]>&& data, bool stbiAlloc)
+		: Image<void, 0>(
+			size,
+			vk::Format::eR32G32B32A32Sfloat,
+			4,
+			std::unique_ptr<uint8_t[]>((uint8_t*)data.release()))
+		, m_isStbiAllocated(stbiAlloc)
+	{
+	}
+
+	//----------------------------------------------------------------------------------------------
+	Image4f::~Image()
+	{
+		if (m_isStbiAllocated)
+		{
+			stbi_image_free(m_data.release());
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image4f> Image4f::load(std::string_view _name)
+	{
+		core::File file(_name.data());
+		return loadFromMemory(file.buffer(), file.size());
+	}
+
+	//----------------------------------------------------------------------------------------------
+	std::shared_ptr<Image4f> Image4f::loadFromMemory(const void* data, size_t bufferSize)
+	{
+		if (bufferSize > 0)
+		{
+			// Process in memory data
+			int width, height, realNumChannels;
+			const auto expectedChannels = 4;
+			float* imgData = stbi_loadf_from_memory((const uint8_t*)data, bufferSize, &width, &height, &realNumChannels, expectedChannels);
+
+			// Create the actual image
+			if (imgData)
+			{
+				auto dataPtr = std::unique_ptr<Vec4f[]>(reinterpret_cast<Vec4f*>(imgData));
+				math::Vec2u size = { unsigned(width), unsigned(height) };
+				return std::make_shared<Image4f>(size, std::move(dataPtr), true);
+			}
+		}
+
+		return nullptr;
+	}
+
+	//----------------------------------------------------------------------------------------------
+	void saveHDR(const Image3f& img, const std::string& fileName)
 	{
 		if (core::getFileExtension(fileName) != "hdr")
 		{
@@ -272,7 +400,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void save2sRGB(const Image& img, const std::string& fileName)
+	void save2sRGB(const Image3f& img, const std::string& fileName)
 	{
 		if (core::getFileExtension(fileName) != "png")
 		{
@@ -303,7 +431,7 @@ namespace rev::gfx
 	}
 
 	//----------------------------------------------------------------------------------------------
-	void saveLinear(const Image& img, const std::string& fileName)
+	void saveLinear(const Image3f& img, const std::string& fileName)
 	{
 		if (core::getFileExtension(fileName) != "png")
 		{

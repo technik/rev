@@ -31,87 +31,170 @@
 #include <vulkan/vulkan.hpp>
 #include <graphics/types.h>
 
-namespace rev::gfx {
-
-	// An image must always have a pixel format, even if it's empty.
-	// This format, however, is mutable, and can be changed when assigning new content to the image
+namespace rev::gfx
+{
+	// Type erased base class of all images
+	template<class T=void, size_t N=0>
 	class Image
 	{
 	public:
-		enum class ChannelFormat : std::uint8_t
-		{
-			Byte,
-			Float32
-		};
-
 		static vk::Format GetPixelFormat(bool hdr, unsigned numChannnels, bool srgb);
 
-		Image(vk::Format format, const math::Vec2u& size = math::Vec2u::zero());
-		Image(const Image&) = delete;
-		Image(Image&&);
-
-		// Constructors from specific color formats
-		Image(const math::Vec2u& size, math::Vec3u8* data);
-		Image(const math::Vec2u& size, math::Vec4u8* data);
-		Image(const math::Vec2u& size, math::Vec3f* data);
-		Image(const math::Vec2u& size, math::Vec4f* data);
-
-		~Image();
-
-		Image& operator=(const Image&) = delete;
-		Image& operator=(Image&&);
-
-		// Modifiers
-		void		clear(); ///< Clears the size, but doesn't free the storage buffer, so capacity remains intact
-		void		erase(); ///< Erases all data, and restores both size and capacity to 0
-		void		resize(const math::Vec2u& size); ///< Resizing invalidates the original contents
-		void		setPixelFormat(vk::Format);
-
 		// Accessors
-		vk::Format	format()	const { return mFormat; }
-		auto&		size()		const { return mSize; }
-		uint32_t	area()		const { return mSize.x() * mSize.y(); }
-		uint32_t	width()		const { return mSize.x(); }
-		uint32_t	height()	const { return mSize.y(); }
+		vk::Format	format()	const { return m_format; }
+		auto&		size()		const { return m_size; }
+		auto		byteSize()	const { return m_size.x() * m_size.y() * m_byteStride; }
+		uint32_t	area()		const { return m_size.x() * m_size.y(); }
+		uint32_t	width()		const { return m_size.x(); }
+		uint32_t	height()	const { return m_size.y(); }
 
-		template<typename T = void*>
-		auto		data()				{ return reinterpret_cast<T*>(mData); }
-		template<typename T = const void*>
-		auto		data()		const	{ return reinterpret_cast<const T*>(mData); }
-		template<typename T>
-		auto&		pixel(const math::Vec2u& pos)				{ return data<T>()[indexFromPos(pos)]; }
-		template<typename T>
-		auto&		pixel(const math::Vec2u& pos) const			{ return data<const T>()[indexFromPos(pos)]; }
-		template<typename T>
-		auto& pixel(unsigned i, unsigned j) { return data<T>()[indexFromPos({ i,j })]; }
-		template<typename T>
-		auto& pixel(unsigned i, unsigned j) const { return data<const T>()[indexFromPos({ i,j })]; }
-
-		// XOR textures are always 8-bits per channel
-		static Image proceduralXOR(const math::Vec2u& size, size_t nChannels);
+		void* data() const { return m_data.get(); }
 
 		// Note: nChannels = 0 sets automatic number of channels
-		static std::shared_ptr<Image> load(std::string_view _name, unsigned nChannels, bool srgb);
-		static std::shared_ptr<Image> loadFromMemory(const void* data, size_t size, unsigned nChannels, bool srgb);
+		static std::shared_ptr<Image> load(std::string_view _name, unsigned nChannels, bool hdr, bool srgb);
+		static std::shared_ptr<Image> loadFromMemory(const void* data, size_t size, unsigned nChannels, bool hdr, bool srgb);
+
+	protected:
+		Image(const math::Vec2u& size, vk::Format format, uint32_t byteStride, std::unique_ptr<uint8_t[]>&& data);
+		~Image() = default;
+
+		template<typename T2 = void>
+		auto dataAs() { return reinterpret_cast<T2*>(m_data.get()); }
+		template<typename T2 = void>
+		auto dataAs() const { return reinterpret_cast<const T2*>(m_data.get()); }
+
+		template<typename T>
+		auto& pixelAs(const math::Vec2u& pos) { return dataAs<T>()[indexFromPos(pos)]; }
+		template<typename T>
+		auto& pixelAs(const math::Vec2u& pos) const { return dataAs<T>()[indexFromPos(pos)]; }
+
+		__forceinline size_t indexFromPos(const math::Vec2u& pos) const
+		{
+			return pos.x() + pos.y() * m_size.x();
+		}
+		__forceinline size_t indexFromPos(unsigned x, unsigned y) const
+		{
+			return x + y * m_size.x();
+		}
 
 	private:
-		// Base constructor from size and data
-		Image(vk::Format, const math::Vec2u& size, void* rawData);
-		static void* allocatePixelData(vk::Format pxlFormat, size_t numPixels);
-		size_t indexFromPos(const math::Vec2u&) const;
-		size_t rawDataSize() const; ///< Size in number of bytes of the allocated storage buffer
+		Image(const Image&) = delete;
+		Image& operator=(const Image&) = delete;
 
-	private:
-		math::Vec2u mSize;
-		size_t		mCapacity;
-		vk::Format mFormat;
-		void*		mData = nullptr;
+	protected:
+		std::unique_ptr<uint8_t[]> m_data;
+		math::Vec2u m_size;
+		vk::Format m_format;
+		uint32_t m_byteStride;
 	};
 
-	void saveHDR(const Image& img, const std::string& fileName);
+	template<>
+	class Image<uint8_t,3> : public Image<void,0>
+	{
+	public:
+		Image(const math::Vec2u& size, bool srgb);
+		Image(const math::Vec2u& size, std::unique_ptr<math::Vec3u8[]>&& data, bool srgb, bool stbiAlloc = false);
+		~Image();
 
-	void save2sRGB(const Image& img, const std::string& fileName);
+		auto		data() { return dataAs<math::Vec3u8>(); }
+		auto		data() const { return dataAs<math::Vec3u8>(); }
+		auto& pixel(const math::Vec2u& pos) { return data()[indexFromPos(pos)]; }
+		auto& pixel(const math::Vec2u& pos) const { return data()[indexFromPos(pos)]; }
 
-	void saveLinear(const Image& img, const std::string& fileName);
+		auto& pixel(unsigned x, unsigned y) { return data()[indexFromPos(x, y)]; }
+		auto& pixel(unsigned x, unsigned y) const { return data()[indexFromPos(x, y)]; }
+
+		// XOR textures are always 8-bits per channel
+		static std::shared_ptr<Image<uint8_t, 3>> proceduralXOR(const math::Vec2u& size);
+
+		static std::shared_ptr<Image<uint8_t, 3>> load(std::string_view _name, bool srgb);
+		static std::shared_ptr<Image<uint8_t, 3>> loadFromMemory(const void* data, size_t size, bool srgb);
+
+	private:
+		bool m_isStbiAllocated;
+	};
+
+	template<>
+	class Image<uint8_t, 4> : public Image<void, 0>
+	{
+	public:
+		Image(const math::Vec2u& size, bool srgb);
+		Image(const math::Vec2u& size, std::unique_ptr<math::Vec4u8[]>&& data, bool srgb, bool stbiAlloc = false);
+		~Image();
+
+		auto		data() { return dataAs<math::Vec4u8>(); }
+		auto		data() const { return dataAs<math::Vec4u8>(); }
+		auto& pixel(const math::Vec2u& pos) { return data()[indexFromPos(pos)]; }
+		auto& pixel(const math::Vec2u& pos) const { return data()[indexFromPos(pos)]; }
+
+		auto& pixel(unsigned x, unsigned y) { return data()[indexFromPos(x, y)]; }
+		auto& pixel(unsigned x, unsigned y) const { return data()[indexFromPos(x, y)]; }
+
+		// XOR textures are always 8-bits per channel
+		static std::shared_ptr<Image<uint8_t, 4>> proceduralXOR(const math::Vec2u& size);
+
+		static std::shared_ptr<Image<uint8_t, 4>> load(std::string_view _name, bool srgb);
+		static std::shared_ptr<Image<uint8_t, 4>> loadFromMemory(const void* data, size_t size, bool srgb);
+
+	private:
+		bool m_isStbiAllocated;
+	};
+
+	template<>
+	class Image<float, 3> : public Image<void, 0>
+	{
+	public:
+		Image(const math::Vec2u& size);
+		Image(const math::Vec2u& size, std::unique_ptr<math::Vec3f[]>&& data, bool stbiAlloc = false);
+		~Image();
+
+		auto		data() { return dataAs<math::Vec3f>(); }
+		auto		data() const { return dataAs<math::Vec3f>(); }
+		auto& pixel(const math::Vec2u& pos) { return data()[indexFromPos(pos)]; }
+		auto& pixel(const math::Vec2u& pos) const { return data()[indexFromPos(pos)]; }
+
+		auto& pixel(unsigned x, unsigned y) { return data()[indexFromPos(x, y)]; }
+		auto& pixel(unsigned x, unsigned y) const { return data()[indexFromPos(x, y)]; }
+
+		static std::shared_ptr<Image<float, 3>> load(std::string_view _name);
+		static std::shared_ptr<Image<float, 3>> loadFromMemory(const void* data, size_t size);
+
+	private:
+		bool m_isStbiAllocated;
+	};
+
+	template<>
+	class Image<float, 4> : public Image<void, 0>
+	{
+	public:
+		Image(const math::Vec2u& size);
+		Image(const math::Vec2u& size, std::unique_ptr<math::Vec4f[]>&& data, bool stbiAlloc = false);
+		~Image();
+
+		auto		data() { return dataAs<math::Vec4f>(); }
+		auto		data() const { return dataAs<math::Vec4f>(); }
+		auto& pixel(const math::Vec2u& pos) { return data()[indexFromPos(pos)]; }
+		auto& pixel(const math::Vec2u& pos) const { return data()[indexFromPos(pos)]; }
+
+		auto& pixel(unsigned x, unsigned y) { return data()[indexFromPos(x,y)]; }
+		auto& pixel(unsigned x, unsigned y) const { return data()[indexFromPos(x, y)]; }
+
+		static std::shared_ptr<Image<float, 4>> load(std::string_view _name);
+		static std::shared_ptr<Image<float, 4>> loadFromMemory(const void* data, size_t size);
+
+	private:
+		bool m_isStbiAllocated;
+	};
+
+	using Image3u8 = Image<uint8_t, 3>;
+	using Image4u8 = Image<uint8_t, 4>;
+	using Image3f = Image<float, 3>;
+	using Image4f = Image<float, 4>;
+
+	void saveHDR(const Image<float,3>& img, const std::string& fileName);
+
+	void save2sRGB(const Image<float,3>& img, const std::string& fileName);
+
+	void saveLinear(const Image<float,3>& img, const std::string& fileName);
 
 } // namespace rev::gfx

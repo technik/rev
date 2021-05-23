@@ -63,7 +63,7 @@ namespace {
 	// G2(L,V) = (2 ndv ndl) / [ndl a + (1-aa)ndv) + ndv sqrt(a + (1-a)ndl)]
 	// Result is predivided by 4*ndl*ndv
 	float V_SmithGGXCorrelatedFast(float ndl, float ndv, float alpha) {
-		assert(NoV > 0 || NoL > 0);
+		assert(ndv > 0 || ndl > 0);
 		float den = lerp(2 * ndl * ndv, ndl + ndv, alpha);
 		return 0.5 / den;
 	}

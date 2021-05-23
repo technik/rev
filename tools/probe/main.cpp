@@ -105,7 +105,7 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 				float G2_over_ndv = 2 * ndl / (ndl + ndv);
 
 				float G_Vis = G2_over_ndv * VoH / (NoH);
-				float Fc = pow(1 - VoH, 5);
+				float Fc = powf(1 - VoH, 5);
 				A += (1 - Fc) * G_Vis;
 				B += Fc * G_Vis;
 			}
@@ -135,7 +135,7 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 					G2 = SmithGGXCorrelatedG2_over_ndv(ndv, ndl, alpha);
 
 				float G_Vis = G2 * VoH / NoH;
-				float Fc = pow(1 - VoH, 5);
+				float Fc = powf(1 - VoH, 5);
 				A += (1 - Fc) * G_Vis;
 				B += Fc * G_Vis;
 			}
@@ -155,7 +155,7 @@ void generateIBLCPU()
 {
 	constexpr uint32_t lutSize = 64;
 	constexpr int numSamples = 512;
-	auto lut = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, Vec2u{ lutSize, lutSize });
+	auto lut = std::make_shared<Image3f>(Vec2u{ lutSize, lutSize });
 
 	for (int i = 0; i < lutSize; ++i)
 	{
@@ -165,9 +165,9 @@ void generateIBLCPU()
 			float ndv = j / float(lutSize - 1);
 
 			Vec2f fresnelTerms = directionalFresnel(r, ndv, numSamples);
-			lut->pixel<Vec3f>(j, i).x() = fresnelTerms.x();
-			lut->pixel<Vec3f>(j, i).y() = fresnelTerms.y();
-			lut->pixel<Vec3f>(j, i).z() = 0;
+			lut->pixel(j, i).x() = fresnelTerms.x();
+			lut->pixel(j, i).y() = fresnelTerms.y();
+			lut->pixel(j, i).z() = 0;
 		}
 	}
 
@@ -176,9 +176,9 @@ void generateIBLCPU()
 
 }
 
-std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& material)
+std::shared_ptr<Image3f> renderSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& material)
 {
-	auto img = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, size);
+	auto img = std::make_shared<Image3f>(size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
 
 	const auto backgroundColor = Vec3f::ones() * 0.5f;
@@ -197,7 +197,7 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float incid
 	{
 		for (uint32_t j = 0; j < size.x(); ++j)
 		{
-			Vec2f samplePos2d(j, i);
+			Vec2f samplePos2d((float)j, (float)i);
 			Vec3f accumColor = Vec3f::zero();
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
@@ -225,23 +225,23 @@ std::shared_ptr<Image> renderSphere(const Vec2u& size, float radius, float incid
 				accumColor = accumColor + pixelColor;
 			}
 			
-			img->pixel<Vec3f>(j, i) = accumColor *(1.f / nSamples);
+			img->pixel(j, i) = accumColor *(1.f / nSamples);
 		}
 	}
 
 	return img;
 }
 
-std::shared_ptr<Image> renderDisneySlice(const SurfaceMaterial& model, int imgSize)
+std::shared_ptr<Image3f> renderDisneySlice(const SurfaceMaterial& model, uint32_t imgSize)
 {
-	auto image = std::make_shared<Image>(vk::Format::eR32G32B32Sfloat, Vec2u(imgSize, imgSize));
+	auto image = std::make_shared<Image3f>(Vec2u(imgSize, imgSize));
 	constexpr int nSamples = 4;
 
 	for (uint32_t i = 0; i < imgSize; ++i)
 	{
 		for (uint32_t j = 0; j < imgSize; ++j)
 		{
-			Vec2f pixelPos(j, i);
+			Vec2f pixelPos((float)j, (float)i);
 			Vec3f accumColor = Vec3f::zero();
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
@@ -249,8 +249,8 @@ std::shared_ptr<Image> renderDisneySlice(const SurfaceMaterial& model, int imgSi
 				Vec2f samplePos = (pixelPos + pixelJitter) * (1.f/ imgSize);
 
 				// Compute view and light vectors
-				float thetaH = samplePos.x() * std::numbers::pi / 2;
-				float thetaD = (1-samplePos.y()) * std::numbers::pi / 2;
+				float thetaH = samplePos.x() * std::numbers::pi_v<float> / 2;
+				float thetaD = (1-samplePos.y()) * std::numbers::pi_v<float> / 2;
 
 				//float sinTh = sample
 				Vec3f half = Vec3f(sin(thetaH), 0, max(0.f, cos(thetaH))); // Half vector along the xz plane
@@ -261,14 +261,14 @@ std::shared_ptr<Image> renderDisneySlice(const SurfaceMaterial& model, int imgSi
 				accumColor = accumColor + sampleColor;
 			}
 
-			image->pixel<Vec3f>(j, i) = accumColor * (1.f / nSamples);
+			image->pixel(j, i) = accumColor * (1.f / nSamples);
 		}
 	}
 
 	return image;
 }
 
-void renderDisneySliceToFile(const SurfaceMaterial& surface, float r, const std::string& prefix, const std::string& suffix, int imgSize)
+void renderDisneySliceToFile(const SurfaceMaterial& surface, float r, const std::string& prefix, const std::string& suffix, uint32_t imgSize)
 {
 	auto t0 = std::chrono::system_clock::now();
 	std::stringstream ss;
@@ -337,8 +337,8 @@ int main(int _argc, const char** _argv) {
 	
 	renderDisneySlices<GGXSmithMirror>("_GGX.png", 1, 1);
 	renderMetalSpheres<GGXSmithMirror>("_GGX.png", 1, 1);
-	renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
-	renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
+	//renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
+	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
 
 	return 0;
 }
