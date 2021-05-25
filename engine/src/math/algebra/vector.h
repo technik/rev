@@ -91,7 +91,7 @@ namespace rev {
 			Vector operator+(Scalar auto x) const
 			{
 				Vector res;
-				for (size_t i = 0; i < n - 1; ++i)
+				for (size_t i = 0; i < n; ++i)
 				{
 					res[i] = x + m[i];
 				}
@@ -101,9 +101,9 @@ namespace rev {
 			Vector operator-(Scalar auto x) const
 			{
 				Vector res;
-				for (size_t i = 0; i < n - 1; ++i)
+				for (size_t i = 0; i < n; ++i)
 				{
-					res[i] = x - m[i];
+					res[i] = m[i] - x;
 				}
 				return res;
 			}
@@ -111,7 +111,7 @@ namespace rev {
 			Vector operator*(Scalar auto x) const
 			{
 				Vector res;
-				for (size_t i = 0; i < n - 1; ++i)
+				for (size_t i = 0; i < n; ++i)
 				{
 					res[i] = x * m[i];
 				}
@@ -121,7 +121,7 @@ namespace rev {
 			Vector operator*(Vector x) const
 			{
 				Vector res;
-				for (size_t i = 0; i < n - 1; ++i)
+				for (size_t i = 0; i < n; ++i)
 				{
 					res[i] = x[i] * m[i];
 				}
@@ -231,9 +231,19 @@ namespace rev {
 				return Vector(x - m[0], x - m[1], x - m[2]);
 			}
 
-			Vector operator*(Scalar auto x) const
+			Vector operator*(float x) const
 			{
 				return Vector(x * m[0], x * m[1], x * m[2]);
+			}
+
+			Vector operator*(int x) const
+			{
+				return Vector(x * m[0], x * m[1], x * m[2]);
+			}
+
+			Vector operator*(Vector x) const
+			{
+				return { m[0] * x[0], m[1] * x[1], m[2] * x[2] };
 			}
 
 			// Compile time accessors

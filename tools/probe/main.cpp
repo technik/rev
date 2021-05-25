@@ -54,95 +54,7 @@ struct Params {
 	}
 };
 
-// Integrate Fresnel modulated directional albedo components
-// res = directionalFresnel(r, ndv, N);
-// where ndv = dot(normal, w), then
-// Ess(w) = res.x+res.y is the directional albedo and
-// Fss(w) = F0 * res.x + res.y is the Fresnel modulated directional
-// albedo usig a Schlick approximated Fresnel.
-Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
-{
-	// Handle special cases
-	if (roughness == 0)
-	{
-		if (ndv == 0)
-			return { 0.f, 1.f };
-		if (ndv == 1)
-			return { 1.f, 0.f };
-		// F = F0 + (1-F0)(1-CosT)^5
-		// F = F0 + (1-F0)(1-ndv)^5
-		// F = F0 + (1-ndv)^5 - F0(1-ndv)^5
-		// F = F0(1-(1-ndv)^5) + (1-ndv)^5
-		float one_min_ndv = 1 - ndv;
-		float B = one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv;
-		float A = 1 - B;
-		return Vec2f(A, B);
-	}
 
-	Vec3f V;
-	V.x() = sqrt(1.0f - ndv * ndv); // sin
-	V.y() = 0;
-	V.z() = ndv; // cos
-
-	float A = 0;
-	float B = 0;
-
-	if (roughness == 1)
-	{
-		for (uint32_t i = 0; i < numSamples; i++)
-		{
-			Vec2f Xi = Hammersley(i, numSamples)+Vec2f(0.5f/numSamples, 0.5f / numSamples);
-			Vec3f H = ImportanceSampleGGX_r1(Xi);
-			Vec3f L = 2.f * dot(V, H) * H - V;
-
-			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-			float NoH = H.z();
-			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
-
-			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-			{
-				// GGX Geometry schlick
-				float G2_over_ndv = 2 * ndl / (ndl + ndv);
-
-				float G_Vis = G2_over_ndv * VoH / (NoH);
-				float Fc = powf(1 - VoH, 5);
-				A += (1 - Fc) * G_Vis;
-				B += Fc * G_Vis;
-			}
-		}
-	}
-	else
-	{
-		float alpha = roughness * roughness;
-
-		for (uint32_t i = 0; i < numSamples; i++)
-		{
-			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
-			Vec3f H = ImportanceSampleGGX(Xi, roughness);
-			Vec3f L = 2 * dot(V, H) * H - V;
-
-			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-			float NoH = H.z();
-			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
-
-			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-			{
-				// GGX Geometry schlick
-				float G2;
-				if(ndv == 0)
-					G2 = SmithGGXCorrelatedG2_overNdv_ndv0(alpha);
-				else
-					G2 = SmithGGXCorrelatedG2_over_ndv(ndv, ndl, alpha);
-
-				float G_Vis = G2 * VoH / NoH;
-				float Fc = powf(1 - VoH, 5);
-				A += (1 - Fc) * G_Vis;
-				B += Fc * G_Vis;
-			}
-		}
-	}
-	return Vec2f(A / numSamples, B / numSamples);
-}
 
 float directionalAlbedo(float roughness, float ndv, uint32_t numSamples)
 {
@@ -176,7 +88,7 @@ void generateIBLCPU()
 
 }
 
-std::shared_ptr<Image3f> renderSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& material)
+std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& materialLeft, const SurfaceMaterial& materialRight)
 {
 	auto img = std::make_shared<Image3f>(size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
@@ -219,7 +131,10 @@ std::shared_ptr<Image3f> renderSphere(const Vec2u& size, float radius, float inc
 
 					Mat33f tanFromWorld = worldFromTan.transpose();
 
-					pixelColor = material.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
+					if(j < size.x()/2)
+						pixelColor = materialLeft.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
+					else
+						pixelColor = materialRight.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
 				}
 
 				accumColor = accumColor + pixelColor;
@@ -292,7 +207,7 @@ void renderDisneySlices(const std::string& suffix, int s0, int sMax)
 
 		for (float r = 0.125f; r <= 1.f; r += 0.125f)
 		{
-			SurfaceModel surface(r, scatteringOrder);
+			SurfaceModel surface(r, scatteringOrder, Vec3f(1.f));
 			renderDisneySliceToFile(surface, r, prefix.str(), suffix, imageRes);
 		}
 	}
@@ -315,9 +230,38 @@ void renderMetalSpheres(const std::string& suffix, int s0, int sMax)
 			std::stringstream ss;
 			ss << prefix.str() << int(1000 * r) << suffix;
 			std::cout << "Rendering: " << ss.str() << "... ";
-			SurfaceModel surface(r, scatteringOrder);
+			SurfaceModel surface(r, scatteringOrder, Vec3f(1.0));
 
-			auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface);
+			auto render = renderSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surface, surface);
+			auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
+			std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+			save2sRGB(*render, ss.str());
+		}
+	}
+}
+
+template<class ModelLeft, class ModelRight>
+void renderHalfSpheres(const std::string& suffix, int s0, int sMax)
+{
+	const float light = 4.f;
+	// Generate a r=0.5 GGX microsurface sphere
+	const int imageRes = 512;
+	const Vec3f f0 = Vec3f(1.f);
+	for (int scatteringOrder = s0; scatteringOrder <= sMax; ++scatteringOrder)
+	{
+		std::stringstream prefix;
+		prefix << "conductor_s" << scatteringOrder << "_";
+
+		for (float r = 0.125f; r <= 1.f; r += 0.125f)
+		{
+			auto t0 = std::chrono::system_clock::now();
+			std::stringstream ss;
+			ss << prefix.str() << int(1000 * r) << suffix;
+			std::cout << "Rendering: " << ss.str() << "... ";
+			ModelLeft surfaceLeft(r, scatteringOrder, f0);
+			ModelRight surfaceRight(r, scatteringOrder, f0);
+
+			auto render = renderHalfSphere({ imageRes, imageRes }, imageRes * 0.4f, light, surfaceLeft, surfaceRight);
 			auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t0);
 			std::cout << (dt.count() / 1000.f) << "s" << std::endl;
 			save2sRGB(*render, ss.str());
@@ -336,12 +280,14 @@ int main(int _argc, const char** _argv) {
 	rev::core::OSHandler::startUp();
 
 	// Init ibl lut
-	KullaContyMirror::sIblLut.m_image = rev::gfx::Image3f::load("ibl.png");
+	//KullaContyMirror::sIblLut.m_image = rev::gfx::Image3f::load("ibl.png");
 	
+	//renderHalfSpheres<HeitzRoughMirror, KullaContyMirror>("_Heitz-Kulla.png", 0, 0);
+	renderHalfSpheres<HeitzSchlick, HillConductor>("_Heitz-Schlick.png", 0, 2);
 	//renderDisneySlices<GGXSmithMirror>("_GGX.png", 0, 1);
 	//renderMetalSpheres<GGXSmithMirror>("_GGX.png", 0, 1);
-	renderDisneySlices<KullaContyMirror>("_KC.png", 0, 1);
-	renderMetalSpheres<KullaContyMirror>("_KC.png", 0, 1);
+	//renderDisneySlices<KullaContyMirror>("_KC.png", 0, 0);
+	//renderMetalSpheres<KullaContyMirror>("_KC.png", 0, 1);
 	//renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
 	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
 

@@ -39,7 +39,7 @@ namespace rev::gfx
 			math::Vec2f centered = scaled - 0.5f;
 			math::Vec2i uv0 = centered.cast<int32_t>();
 			math::Vec2f alpha = centered - uv0.cast<float>();
-			math::Vec2i uv1 = clamp(math::Vec2i(uv0 + 1), math::Vec2i(0), m_image->size().cast<int32_t>());
+			math::Vec2i uv1 = clamp(math::Vec2i(uv0 + 1), math::Vec2i(0), m_image->size().cast<int32_t>()-1);
 			uv0 = clamp(uv0, math::Vec2i(0), m_image->size().cast<int32_t>());
 
 			texel top = m_image->pixel(uv0.cast<uint32_t>()) * (1 - alpha.x()) + alpha.x() * m_image->pixel(uv1.x(), uv0.y());
