@@ -65,14 +65,25 @@ public:
 	// evaluate local phase function 
 	virtual vec3 evalPhaseFunction(const vec3& wi, const vec3& wo) const;
 
-	vec3 m_F0 = vec3(0.95f, 0.64f, 0.54f);
+	vec3 m_F0;
 };
+
+template<class SurfaceModel>
+inline void setModelF0(SurfaceModel& model, const vec3& f0)
+{}
+
+template<>
+inline void setModelF0(SchlickConductor& model, const vec3 & f0)
+{
+	model.m_F0 = f0;
+}
 
 template<class SurfaceModel>
 struct HeitzModel : SurfaceMaterial
 {
 	SurfaceModel model;
 	int m_scatteringOrder = 0;
+	vec3 m_F0;
 #ifdef _DEBUG
 	static constexpr int m_numSamples = 4;
 #else
@@ -82,7 +93,9 @@ struct HeitzModel : SurfaceMaterial
 	HeitzModel(float roughness, int scattering, const vec3& f0)
 		: model(false, false, roughness* roughness, roughness*roughness)
 		, m_scatteringOrder(scattering)
+		, m_F0(f0)
 	{
+		setModelF0(model, m_F0);
 	}
 
 	vec3 brdf(
@@ -128,44 +141,39 @@ struct GGXSmithConductor : SurfaceMaterial
 		: m_scatteringOrder(scattering)
 		, m_roughness(roughness)
 		, m_alpha(roughness* roughness)
-	{
-	}
-
-	vec3 brdf(
-		const vec3& eye,
-		const vec3& light,
-		const vec3& half) const override;
-};
-
-struct HillConductor : SurfaceMaterial
-{
-	int m_scatteringOrder = 0;
-	float m_roughness = 0;
-	float m_alpha = 0;
-	vec3 m_F0;
-
-	HillConductor(float roughness, int scattering, vec3 F0)
-		: m_scatteringOrder(scattering)
-		, m_roughness(roughness)
-		, m_alpha(roughness* roughness)
 		, m_F0(F0)
 	{
 	}
 
+	float ss(
+		const vec3& eye,
+		const vec3& light,
+		const vec3& half) const;
+
+	virtual vec3 ms(
+		float fss,
+		const vec3& eye,
+		const vec3& light,
+		const vec3& half) const
+	{
+		return vec3(0);
+	}
+
 	vec3 brdf(
 		const vec3& eye,
 		const vec3& light,
 		const vec3& half) const override;
 };
 
-struct TurquinConductor : HillConductor
+struct HillConductor : GGXSmithConductor
 {
-	TurquinConductor(float roughness, int scattering, vec3 F0)
-		: HillConductor(roughness, scattering, F0)
+	HillConductor(float roughness, int scattering, vec3 F0)
+		: GGXSmithConductor(roughness, scattering, F0)
 	{
 	}
 
-	vec3 brdf(
+	vec3 ms(
+		float fss,
 		const vec3& eye,
 		const vec3& light,
 		const vec3& half) const override;

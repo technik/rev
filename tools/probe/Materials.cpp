@@ -196,55 +196,59 @@ namespace {
 	}
 }
 
+float GGXSmithConductor::ss(
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
+{
+	return pureMirrorBRDF(half.z, light.z, max(1e-6f, eye.z), m_roughness);
+}
+
 vec3 GGXSmithConductor::brdf(
 	const vec3& eye,
 	const vec3& light,
 	const vec3& half) const
 {
-	return toGlm(pureMirrorBRDF(half.z, light.z, max(1e-6f,eye.z), m_roughness));
+	float fss = ss(eye, light, half);
+	vec3 singleScattering(0);
+	vec3 multipleScattering(0);
+	if (m_scatteringOrder <= 1)
+	{
+		vec3 F = m_F0 + (vec3(1) - m_F0) * powf(eye.z, 5);
+		singleScattering = F * fss;
+	}
+	if (m_scatteringOrder == 0 && m_roughness > 0.1f) // Multiple scattering
+	{
+		multipleScattering = ms(fss,eye,light,half);
+	}
+	return singleScattering + multipleScattering;
 }
 
-vec3 HillConductor::brdf(
+vec3 HillConductor::ms(
+	float fss,
 	const vec3& eye,
 	const vec3& light,
 	const vec3& half) const
 {
-	vec3 s0(0);
-	vec3 ms(0);
-	if (m_scatteringOrder <= 1)
-	{
-		vec3 F = m_F0 + (vec3(1) - m_F0) * powf(eye.z, 5);
-		s0 = F * pureMirrorBRDF(half.z, light.z, max(1e-6f, eye.z), m_roughness);
-	}
-	if (m_scatteringOrder == 0 && m_roughness > 0.1f) // Multiple scattering
-	{
-		Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
-		float Eo = Eo3.x() + Eo3.y();
-		Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
-		float Ei = Ei3.x() + Ei3.y();
-		float den = pi_v<float> * compEavg(m_roughness);
-		float fms = (1-Eo) * (1 - Ei) / den;
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	float Eo = Eo3.x() + Eo3.y();
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	float Ei = Ei3.x() + Ei3.y();
+	float compE = compEavg(m_roughness);
+	float Eavg = 1 - compE;
+	float den = pi_v<float> * compEavg(m_roughness);
+	float fms = (1-Eo) * (1 - Ei) / den;
 
-		//Vec3f Fms(0);
-	}
-	return s0 + ms;
+	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
+	vec3 Fms = Favg * Favg * Eavg / (1.f - Favg * compE);
+
+	return Fms * fms;
 }
 
 vec3 SchlickConductor::evalPhaseFunction(const vec3& wi, const vec3& wo) const
 {
 	vec3 mirrorPhaseFunction = MicrosurfaceConductor::evalPhaseFunction(wi, wo);
 	vec3 F = m_F0 + (vec3(1) - m_F0) * powf(wi.z, 5);
-
-	return F * mirrorPhaseFunction;
-}
-
-vec3 TurquinConductor::brdf(
-	const vec3& eye,
-	const vec3& light,
-	const vec3& half) const
-{
-	vec3 mirrorPhaseFunction = HillConductor::brdf(eye, light, half);
-	vec3 F = m_F0 + (vec3(1) - m_F0) * powf(eye.z, 5);
 
 	return F * mirrorPhaseFunction;
 }
