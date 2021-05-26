@@ -21,7 +21,7 @@
 #include <math/linear.h>
 #include <math/noise.h>
 #include <numbers>
-
+#include "Heitz/MicrosurfaceScattering.h"
 
 using namespace std::numbers;
 using namespace rev::math;
@@ -32,89 +32,89 @@ using namespace rev::math;
 // Ess(w) = res.x+res.y is the directional albedo and
 // Fss(w) = F0 * res.x + res.y is the Fresnel modulated directional
 // albedo usig a Schlick approximated Fresnel.
-	Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
+Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
+{
+	// Handle special cases
+	if (roughness == 0)
 	{
-		// Handle special cases
-		if (roughness == 0)
-		{
-			if (ndv == 0)
-				return { 0.f, 1.f };
-			if (ndv == 1)
-				return { 1.f, 0.f };
-			// F = F0 + (1-F0)(1-CosT)^5
-			// F = F0 + (1-F0)(1-ndv)^5
-			// F = F0 + (1-ndv)^5 - F0(1-ndv)^5
-			// F = F0(1-(1-ndv)^5) + (1-ndv)^5
-			float one_min_ndv = 1 - ndv;
-			float B = one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv;
-			float A = 1 - B;
-			return Vec2f(A, B);
-		}
-
-		Vec3f V;
-		V.x() = sqrt(1.0f - ndv * ndv); // sin
-		V.y() = 0;
-		V.z() = ndv; // cos
-
-		float A = 0;
-		float B = 0;
-
-		if (roughness == 1)
-		{
-			for (uint32_t i = 0; i < numSamples; i++)
-			{
-				Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
-				Vec3f H = ImportanceSampleGGX_r1(Xi);
-				Vec3f L = 2.f * dot(V, H) * H - V;
-
-				float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-				float NoH = H.z();
-				float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
-
-				if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-				{
-					// GGX Geometry schlick
-					float G2_over_ndv = 2 * ndl / (ndl + ndv);
-
-					float G_Vis = G2_over_ndv * VoH / (NoH);
-					float Fc = powf(1 - VoH, 5);
-					A += (1 - Fc) * G_Vis;
-					B += Fc * G_Vis;
-				}
-			}
-		}
-		else
-		{
-			float alpha = roughness * roughness;
-
-			for (uint32_t i = 0; i < numSamples; i++)
-			{
-				Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
-				Vec3f H = ImportanceSampleGGX(Xi, roughness);
-				Vec3f L = 2 * dot(V, H) * H - V;
-
-				float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-				float NoH = H.z();
-				float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
-
-				if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-				{
-					// GGX Geometry schlick
-					float G2;
-					if (ndv == 0)
-						G2 = SmithGGXCorrelatedG2_overNdv_ndv0(alpha);
-					else
-						G2 = SmithGGXCorrelatedG2_over_ndv(ndv, ndl, alpha);
-
-					float G_Vis = G2 * VoH / NoH;
-					float Fc = powf(1 - VoH, 5);
-					A += (1 - Fc) * G_Vis;
-					B += Fc * G_Vis;
-				}
-			}
-		}
-		return Vec2f(A / numSamples, B / numSamples);
+		if (ndv == 0)
+			return { 0.f, 1.f };
+		if (ndv == 1)
+			return { 1.f, 0.f };
+		// F = F0 + (1-F0)(1-CosT)^5
+		// F = F0 + (1-F0)(1-ndv)^5
+		// F = F0 + (1-ndv)^5 - F0(1-ndv)^5
+		// F = F0(1-(1-ndv)^5) + (1-ndv)^5
+		float one_min_ndv = 1 - ndv;
+		float B = one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv * one_min_ndv;
+		float A = 1 - B;
+		return Vec2f(A, B);
 	}
+
+	Vec3f V;
+	V.x() = sqrt(1.0f - ndv * ndv); // sin
+	V.y() = 0;
+	V.z() = ndv; // cos
+
+	float A = 0;
+	float B = 0;
+
+	if (roughness == 1)
+	{
+		for (uint32_t i = 0; i < numSamples; i++)
+		{
+			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
+			Vec3f H = ImportanceSampleGGX_r1(Xi);
+			Vec3f L = 2.f * dot(V, H) * H - V;
+
+			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
+			float NoH = H.z();
+			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
+
+			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
+			{
+				// GGX Geometry schlick
+				float G2_over_ndv = 2 * ndl / (ndl + ndv);
+
+				float G_Vis = G2_over_ndv * VoH / (NoH);
+				float Fc = powf(1 - VoH, 5);
+				A += (1 - Fc) * G_Vis;
+				B += Fc * G_Vis;
+			}
+		}
+	}
+	else
+	{
+		float alpha = roughness * roughness;
+
+		for (uint32_t i = 0; i < numSamples; i++)
+		{
+			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
+			Vec3f H = ImportanceSampleGGX(Xi, roughness);
+			Vec3f L = 2 * dot(V, H) * H - V;
+
+			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
+			float NoH = H.z();
+			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
+
+			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
+			{
+				// GGX Geometry schlick
+				float G2;
+				if (ndv == 0)
+					G2 = SmithGGXCorrelatedG2_overNdv_ndv0(alpha);
+				else
+					G2 = SmithGGXCorrelatedG2_over_ndv(ndv, ndl, alpha);
+
+				float G_Vis = G2 * VoH / NoH;
+				float Fc = powf(1 - VoH, 5);
+				A += (1 - Fc) * G_Vis;
+				B += Fc * G_Vis;
+			}
+		}
+	}
+	return Vec2f(A / numSamples, B / numSamples);
+}
 
 // PBR math
 namespace {
@@ -196,36 +196,36 @@ namespace {
 	}
 }
 
-Vec3f GGXSmithConductor::brdf(
-	const rev::math::Vec3f& eye,
-	const rev::math::Vec3f& light,
-	const rev::math::Vec3f& half) const
+vec3 GGXSmithConductor::brdf(
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
 {
-	return pureMirrorBRDF(half.z(), light.z(), max(1e-6f,eye.z()), m_roughness);
+	return toGlm(pureMirrorBRDF(half.z, light.z, max(1e-6f,eye.z), m_roughness));
 }
 
-Vec3f HillConductor::brdf(
-	const rev::math::Vec3f& eye,
-	const rev::math::Vec3f& light,
-	const rev::math::Vec3f& half) const
+vec3 HillConductor::brdf(
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
 {
-	Vec3f s0 = 0.f;
-	Vec3f ms = 0.f;
+	vec3 s0(0);
+	vec3 ms(0);
 	if (m_scatteringOrder <= 1)
 	{
-		Vec3f F = m_F0 + (Vec3f(1) - m_F0) * powf(eye.z(), 5);
-		s0 = F * pureMirrorBRDF(half.z(), light.z(), max(1e-6f, eye.z()), m_roughness);
+		vec3 F = m_F0 + (vec3(1) - m_F0) * powf(eye.z, 5);
+		s0 = F * pureMirrorBRDF(half.z, light.z, max(1e-6f, eye.z), m_roughness);
 	}
 	if (m_scatteringOrder == 0 && m_roughness > 0.1f) // Multiple scattering
 	{
-		Vec2f Eo3 = directionalFresnel(m_roughness, eye.z(), 64);
+		Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
 		float Eo = Eo3.x() + Eo3.y();
-		Vec2f Ei3 = directionalFresnel(m_roughness, light.z(), 64);
+		Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
 		float Ei = Ei3.x() + Ei3.y();
 		float den = pi_v<float> * compEavg(m_roughness);
 		float fms = (1-Eo) * (1 - Ei) / den;
 
-		Vec3f Fms;
+		//Vec3f Fms(0);
 	}
 	return s0 + ms;
 }
@@ -238,13 +238,13 @@ vec3 SchlickConductor::evalPhaseFunction(const vec3& wi, const vec3& wo) const
 	return F * mirrorPhaseFunction;
 }
 
-Vec3f TurquinConductor::brdf(
-	const rev::math::Vec3f& eye,
-	const rev::math::Vec3f& light,
-	const rev::math::Vec3f& half) const
+vec3 TurquinConductor::brdf(
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
 {
-	Vec3f mirrorPhaseFunction = HillConductor::brdf(eye, light, half);
-	Vec3f F = m_F0 + (Vec3f(1) - m_F0) * powf(eye.z(), 5);
+	vec3 mirrorPhaseFunction = HillConductor::brdf(eye, light, half);
+	vec3 F = m_F0 + (vec3(1) - m_F0) * powf(eye.z, 5);
 
 	return F * mirrorPhaseFunction;
 }

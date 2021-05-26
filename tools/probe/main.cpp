@@ -93,7 +93,7 @@ std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float
 	auto img = std::make_shared<Image3f>(size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
 
-	const auto backgroundColor = Vec3f::ones() * 0.5f;
+	const auto backgroundColor = vec3(0.5);
 
 	const Vec3f light = Vec3f(0,1,0);
 	const Vec3f eye = -Vec3f(0,0,-1);
@@ -110,10 +110,10 @@ std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float
 		for (uint32_t j = 0; j < size.x(); ++j)
 		{
 			Vec2f samplePos2d((float)j, (float)i);
-			Vec3f accumColor = Vec3f::zero();
+			vec3 accumColor(0);
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
-				Vec3f pixelColor = backgroundColor;
+				vec3 pixelColor = backgroundColor;
 				Vec2f pixelJitter = Hammersley(k, nSamples) + Vec2f(0.5f / nSamples, 0.5f / nSamples);
 				Vec2f relPos2d = samplePos2d - center + pixelJitter;
 				if (norm(relPos2d) < radius) // Render the sphere
@@ -131,16 +131,20 @@ std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float
 
 					Mat33f tanFromWorld = worldFromTan.transpose();
 
+					vec3 tsEye = toGlm(tanFromWorld * eye);
+					vec3 tsLight = toGlm(tanFromWorld * light);
+					vec3 tsHalf = toGlm(tanFromWorld * half);
+
 					if(j < size.x()/2)
-						pixelColor = materialLeft.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
+						pixelColor = materialLeft.shade(tsEye, tsLight, tsHalf) * incidentLight * max(0.f, normal.y());
 					else
-						pixelColor = materialRight.shade(tanFromWorld * eye, tanFromWorld * light, tanFromWorld * half) * incidentLight * max(0.f, normal.y());
+						pixelColor = materialRight.shade(tsEye, tsLight, tsHalf) * incidentLight * max(0.f, normal.y());
 				}
 
-				accumColor = accumColor + pixelColor;
+				accumColor += pixelColor;
 			}
 			
-			img->pixel(j, i) = accumColor *(1.f / nSamples);
+			img->pixel(j, i) = fromGlm(accumColor) *(1.f / nSamples);
 		}
 	}
 
@@ -157,7 +161,7 @@ std::shared_ptr<Image3f> renderDisneySlice(const SurfaceMaterial& model, uint32_
 		for (uint32_t j = 0; j < imgSize; ++j)
 		{
 			Vec2f pixelPos((float)j, (float)i);
-			Vec3f accumColor = Vec3f::zero();
+			vec3 accumColor(0);
 			for (uint32_t k = 0; k < nSamples; ++k)
 			{
 				Vec2f pixelJitter = Hammersley(k, nSamples) + Vec2f(0.5f / nSamples, 0.5f / nSamples);
@@ -168,15 +172,15 @@ std::shared_ptr<Image3f> renderDisneySlice(const SurfaceMaterial& model, uint32_
 				float thetaD = (1-samplePos.y()) * std::numbers::pi_v<float> / 2;
 
 				//float sinTh = sample
-				Vec3f half = Vec3f(sin(thetaH), 0, max(0.f, cos(thetaH))); // Half vector along the xz plane
-				Vec3f eye = Vec3f(0, sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
-				Vec3f light = Vec3f(0, -sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
-				Vec3f sampleColor = model.shade(eye, light, half);
+				vec3 half = vec3(sin(thetaH), 0, max(0.f, cos(thetaH))); // Half vector along the xz plane
+				vec3 eye = vec3(0, sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
+				vec3 light = vec3(0, -sin(thetaD), 0) + max(0.f, cos(thetaD)) * half;
+				vec3 sampleColor = model.shade(eye, light, half);
 
-				accumColor = accumColor + sampleColor;
+				accumColor += accumColor;
 			}
 
-			image->pixel(j, i) = accumColor * (1.f / nSamples);
+			image->pixel(j, i) = fromGlm(accumColor) * (1.f / nSamples);
 		}
 	}
 
@@ -246,7 +250,7 @@ void renderHalfSpheres(const std::string& suffix, int s0, int sMax)
 	const float light = 4.f;
 	// Generate a r=0.5 GGX microsurface sphere
 	const int imageRes = 512;
-	const Vec3f f0 = Vec3f(1.f);
+	const vec3 f0(1.f);
 	for (int scatteringOrder = s0; scatteringOrder <= sMax; ++scatteringOrder)
 	{
 		std::stringstream prefix;
