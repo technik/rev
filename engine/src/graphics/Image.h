@@ -111,7 +111,7 @@ namespace rev::gfx
 		static std::shared_ptr<Image<uint8_t, 3>> loadFromMemory(const void* data, size_t size, bool srgb);
 
 	private:
-		bool m_isStbiAllocated;
+		bool m_isStbiAllocated = false;
 	};
 
 	template<>
@@ -137,7 +137,7 @@ namespace rev::gfx
 		static std::shared_ptr<Image<uint8_t, 4>> loadFromMemory(const void* data, size_t size, bool srgb);
 
 	private:
-		bool m_isStbiAllocated;
+		bool m_isStbiAllocated = false;
 	};
 
 	template<>
@@ -160,7 +160,7 @@ namespace rev::gfx
 		static std::shared_ptr<Image<float, 3>> loadFromMemory(const void* data, size_t size);
 
 	private:
-		bool m_isStbiAllocated;
+		bool m_isStbiAllocated = false;
 	};
 
 	template<>
@@ -183,7 +183,7 @@ namespace rev::gfx
 		static std::shared_ptr<Image<float, 4>> loadFromMemory(const void* data, size_t size);
 
 	private:
-		bool m_isStbiAllocated;
+		bool m_isStbiAllocated = false;
 	};
 
 	using Image3u8 = Image<uint8_t, 3>;

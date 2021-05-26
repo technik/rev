@@ -32,7 +32,7 @@ void sideBySide(const rev::gfx::Image3f& left, const rev::gfx::Image3f& right, r
 void topAndBottom(const rev::gfx::Image3f& top, const rev::gfx::Image3f& bottom, rev::gfx::Image3f& dst);
 
 // Copy the images from the input array next each other into the output
-void composeRow(const std::vector<std::shared_ptr<const rev::gfx::Image3f>>& input, rev::gfx::Image3f& dst);
+void composeRow(const std::vector<std::shared_ptr<rev::gfx::Image3f>>& input, rev::gfx::Image3f& dst);
 
 // Copy the images from the input array top to bottom into the output
-void composeColumn(const std::vector<std::shared_ptr<const rev::gfx::Image3f>>& input, rev::gfx::Image3f& dst);
+void composeColumn(const std::vector<std::shared_ptr<rev::gfx::Image3f>>& input, rev::gfx::Image3f& dst);

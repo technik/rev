@@ -22,6 +22,7 @@
 #include <graphics/Image.h>
 
 #include "Materials.h"
+#include "ImageOperations.h"
 
 using namespace std;
 using namespace rev::math;
@@ -88,16 +89,21 @@ void generateIBLCPU()
 
 }
 
-std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float incidentLight, const SurfaceMaterial& materialLeft, const SurfaceMaterial& materialRight)
+std::shared_ptr<Image3f> renderHalfSphere(
+	const Vec2u& size,
+	float radius,
+	const Vec3f& lightDir,
+	float incidentLight,
+	const SurfaceMaterial& materialLeft,
+	const SurfaceMaterial& materialRight)
 {
 	auto img = std::make_shared<Image3f>(size);
 	Vec2f center(float(size.x()) / 2, float(size.y()) / 2);
 
 	const auto backgroundColor = vec3(0.5);
 
-	const Vec3f light = Vec3f(0,1,0);
 	const Vec3f eye = -Vec3f(0,0,-1);
-	const Vec3f half = normalize(eye + light);
+	const Vec3f half = normalize(eye + lightDir);
 
 #ifdef _DEBUG
 	constexpr int nSamples = 4;
@@ -132,7 +138,7 @@ std::shared_ptr<Image3f> renderHalfSphere(const Vec2u& size, float radius, float
 					Mat33f tanFromWorld = worldFromTan.transpose();
 
 					vec3 tsEye = toGlm(tanFromWorld * eye);
-					vec3 tsLight = toGlm(tanFromWorld * light);
+					vec3 tsLight = toGlm(tanFromWorld * lightDir);
 					vec3 tsHalf = toGlm(tanFromWorld * half);
 
 					if(j < size.x()/2)
@@ -274,6 +280,33 @@ void renderHalfSpheres(const std::string& suffix, int s0, int sMax)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+template<class Op>
+vector<shared_ptr<Image3f>> iterateRoughness(const Op& op, const vector<float>& roughnessList)
+{
+	vector<shared_ptr<Image3f>> result;
+	result.reserve(roughnessList.size());
+
+	for (auto r : roughnessList)
+	{
+		result.push_back(op(r));
+	}
+
+	return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class MaterialLeft, class MaterialRight>
+std::shared_ptr<Image3f> renderHalfSphere(const uint32_t imgSize, const Vec3f& lightDir, float incidentLight, int scatteringOrder, float r)
+{
+	const vec3 f0(1.f);
+	MaterialLeft surfaceLeft(r, scatteringOrder, f0);
+	MaterialRight surfaceRight(r, scatteringOrder, f0);
+
+	std::cout << "Rendering r=" << r << std::endl;
+	return renderHalfSphere({ imgSize, imgSize }, 0.4f * imgSize, lightDir, incidentLight, surfaceLeft, surfaceRight);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	// Parse arguments
 	Params params;
@@ -285,9 +318,17 @@ int main(int _argc, const char** _argv) {
 
 	// Init ibl lut
 	//KullaContyMirror::sIblLut.m_image = rev::gfx::Image3f::load("ibl.png");
+	auto images = iterateRoughness([](auto r) {
+		return renderHalfSphere<HeitzSchlick,HillConductor>(512, { 0,1,0 }, 4.f, 0, r);
+		}, { 0.125f, 0.5f, 1.f });
+
+	auto imageAccum = std::make_shared<Image3f>(Vec2u(512 * images.size(), 512));
+	composeRow(images, *imageAccum);
+	save2sRGB(*imageAccum, "Heitz-Hill");
+
 	
 	//renderHalfSpheres<HeitzRoughMirror, KullaContyMirror>("_Heitz-Kulla.png", 0, 0);
-	renderHalfSpheres<HeitzSchlick, HillConductor>("_Heitz-Schlick.png", 0, 2);
+	//renderHalfSpheres<HeitzSchlick, HillConductor>("_Heitz-Schlick.png", 0, 2);
 	//renderDisneySlices<GGXSmithMirror>("_GGX.png", 0, 1);
 	//renderMetalSpheres<GGXSmithMirror>("_GGX.png", 0, 1);
 	//renderDisneySlices<KullaContyMirror>("_KC.png", 0, 0);

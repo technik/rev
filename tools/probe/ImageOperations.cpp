@@ -96,7 +96,7 @@ void topAndBottom(const Image3f& top, const Image3f& bottom, Image3f& dst)
 }
 
 // Copy the images from the input array next each other into the output
-void composeRow(const vector<shared_ptr<const Image3f>>& input, Image3f& dst)
+void composeRow(const vector<shared_ptr<Image3f>>& input, Image3f& dst)
 {
 	if (input.empty())
 		return;
@@ -110,9 +110,9 @@ void composeRow(const vector<shared_ptr<const Image3f>>& input, Image3f& dst)
 	{
 		auto& src = *input[n];
 
-		for (uint32_t i = 0; i < dst.height(); ++i)
+		for (uint32_t i = 0; i < src.height(); ++i)
 		{
-			for (uint32_t j = 0; j < dst.width(); ++j)
+			for (uint32_t j = 0; j < src.width(); ++j)
 			{
 				dst.pixel(j + n*stride, i) = src.pixel(j, i);
 			}
@@ -121,7 +121,7 @@ void composeRow(const vector<shared_ptr<const Image3f>>& input, Image3f& dst)
 }
 
 // Copy the images from the input array top to bottom into the output
-void composeColumn(const vector<shared_ptr<const Image3f>>& input, Image3f& dst)
+void composeColumn(const vector<shared_ptr<Image3f>>& input, Image3f& dst)
 {
 	if (input.empty())
 		return;
