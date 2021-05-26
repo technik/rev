@@ -224,6 +224,14 @@ vec3 GGXSmithConductor::brdf(
 	return singleScattering + multipleScattering;
 }
 
+vec3 SchlickConductor::evalPhaseFunction(const vec3& wi, const vec3& wo) const
+{
+	vec3 mirrorPhaseFunction = MicrosurfaceConductor::evalPhaseFunction(wi, wo);
+	vec3 F = m_F0 + (vec3(1) - m_F0) * powf(wi.z, 5);
+
+	return F * mirrorPhaseFunction;
+}
+
 vec3 HillConductor::ms(
 	float fss,
 	const vec3& eye,
@@ -236,8 +244,8 @@ vec3 HillConductor::ms(
 	float Ei = Ei3.x() + Ei3.y();
 	float compE = compEavg(m_roughness);
 	float Eavg = 1 - compE;
-	float den = pi_v<float> * compEavg(m_roughness);
-	float fms = (1-Eo) * (1 - Ei) / den;
+	float den = pi_v<float> *compEavg(m_roughness);
+	float fms = (1 - Eo) * (1 - Ei) / den;
 
 	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
 	vec3 Fms = Favg * Favg * Eavg / (1.f - Favg * compE);
@@ -245,10 +253,25 @@ vec3 HillConductor::ms(
 	return Fms * fms;
 }
 
-vec3 SchlickConductor::evalPhaseFunction(const vec3& wi, const vec3& wo) const
+vec3 DirectionalConductor::ms(
+	float fss,
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
 {
-	vec3 mirrorPhaseFunction = MicrosurfaceConductor::evalPhaseFunction(wi, wo);
-	vec3 F = m_F0 + (vec3(1) - m_F0) * powf(wi.z, 5);
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	float Eo = Eo3.x() + Eo3.y();
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	float Ei = Ei3.x() + Ei3.y();
+	float compE = compEavg(m_roughness);
+	float Eavg = 1 - compE;
+	float den = pi_v<float> *compEavg(m_roughness);
+	float fms = (1 - Eo) * (1 - Ei) / den;
 
-	return F * mirrorPhaseFunction;
+	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
+	vec3 Fo = Eo3.x() * m_F0 + Eo3.y();
+	//vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
+	vec3 Fms = Fo * Favg * Eavg / (1.f - Favg * compE);
+
+	return Fms * fms;
 }

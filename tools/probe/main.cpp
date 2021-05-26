@@ -296,9 +296,8 @@ vector<shared_ptr<Image3f>> iterateRoughness(const Op& op, const vector<float>& 
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class MaterialLeft, class MaterialRight>
-std::shared_ptr<Image3f> renderHalfSphere(const uint32_t imgSize, const Vec3f& lightDir, float incidentLight, int scatteringOrder, float r)
+std::shared_ptr<Image3f> renderHalfSphere(const uint32_t imgSize, const vec3& f0, const Vec3f& lightDir, float incidentLight, int scatteringOrder, float r)
 {
-	const vec3 f0(1.f, 0.5f, 0.0f);
 	MaterialLeft surfaceLeft(r, scatteringOrder, f0);
 	MaterialRight surfaceRight(r, scatteringOrder, f0);
 
@@ -319,17 +318,29 @@ int main(int _argc, const char** _argv) {
 	// Useful colors
 	const vec3 copper(0.95f, 0.64f, 0.54f);
 
-	auto img = renderHalfSphere<HeitzSchlick, HillConductor>(512, { 0,1,0 }, 4.f, 0, 0.5f);
-	save2sRGB(*img, "Heitz-Hill.png");
-	// Init ibl lut
-	//KullaContyMirror::sIblLut.m_image = rev::gfx::Image3f::load("ibl.png");
-	/*auto images = iterateRoughness([](auto r) {
-		return renderHalfSphere<HeitzSchlick,HillConductor>(512, { 0,1,0 }, 4.f, 0, r);
-		}, { 0.125f, 0.5f, 1.f });
+	/*auto img = renderHalfSphere<HeitzSchlick, HillConductor>(512, copper, { 0,1,0 }, 4.f, 0, 0.875f);
+	save2sRGB(*img, "Heitz-Hill_0875.png");
+	img = renderHalfSphere<HeitzSchlick, DirectionalConductor>(512, copper, { 0,1,0 }, 4.f, 0, 0.875f);
+	save2sRGB(*img, "Heitz-Directional_0875.png");*/
 
-	auto imageAccum = std::make_shared<Image3f>(Vec2u(512 * images.size(), 512));
-	composeRow(images, *imageAccum);
-	save2sRGB(*imageAccum, "Heitz-Hill");*/
+	std::vector<float> roughnessList = { 0.125f, 0.5f, 0.75f, 1.f };
+	auto dirImages = iterateRoughness([=](auto r) {
+		return renderHalfSphere<HeitzSchlick, DirectionalConductor>(512, copper, { 0,1,0 }, 4.f, 0, r);
+		}, roughnessList);
+	auto topRow = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512));
+	save2sRGB(*topRow, "Heitz-Dir.png");
+	composeRow(dirImages, *topRow);
+
+	dirImages = iterateRoughness([=](auto r) {
+		return renderHalfSphere<HeitzSchlick, HillConductor>(512, copper, { 0,1,0 }, 4.f, 0, r);
+		}, roughnessList);
+	auto bottomRow = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512));
+	save2sRGB(*bottomRow, "Heitz-Hill.png");
+	composeRow(dirImages, *bottomRow);
+
+	auto imageAccum = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512 * 2));
+	composeColumn({ topRow, bottomRow }, *imageAccum);
+	save2sRGB(*imageAccum, "Dir-Hill.png");
 
 	
 	//renderHalfSpheres<HeitzRoughMirror, KullaContyMirror>("_Heitz-Kulla.png", 0, 0);

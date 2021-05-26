@@ -178,3 +178,17 @@ struct HillConductor : GGXSmithConductor
 		const vec3& light,
 		const vec3& half) const override;
 };
+
+struct DirectionalConductor : GGXSmithConductor
+{
+	DirectionalConductor(float roughness, int scattering, vec3 F0)
+		: GGXSmithConductor(roughness, scattering, F0)
+	{
+	}
+
+	vec3 ms(
+		float fss,
+		const vec3& eye,
+		const vec3& light,
+		const vec3& half) const override;
+};
