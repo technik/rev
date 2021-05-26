@@ -6,10 +6,13 @@
 
 add_executable(probeTool
 	main.cpp
+	ImageOperations.h
+	ImageOperations.cpp
 	Materials.h
 	Materials.cpp
 	Heitz/MicrosurfaceScattering.h
 	Heitz/MicrosurfaceScattering.cpp)
+
 target_compile_definitions(probeTool PUBLIC NOMINMAX)
 target_include_directories(probeTool PUBLIC ../../engine/src)
 target_include_directories(probeTool PUBLIC ../../include)
