@@ -135,9 +135,9 @@ void composeColumn(const vector<shared_ptr<Image3f>>& input, Image3f& dst)
 	{
 		auto& src = *input[n];
 
-		for (uint32_t i = 0; i < dst.height(); ++i)
+		for (uint32_t i = 0; i < src.height(); ++i)
 		{
-			for (uint32_t j = 0; j < dst.width(); ++j)
+			for (uint32_t j = 0; j < src.width(); ++j)
 			{
 				dst.pixel(j, i + n * stride) = src.pixel(j, i);
 			}

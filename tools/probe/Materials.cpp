@@ -253,6 +253,29 @@ vec3 HillConductor::ms(
 	return Fms * fms;
 }
 
+vec3 KullaConductor::ms(
+	float fss,
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
+{
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	float Eo = Eo3.x() + Eo3.y();
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	float Ei = Ei3.x() + Ei3.y();
+	float compE = compEavg(m_roughness);
+	float Eavg = 1 - compE;
+	float den = pi_v<float> *compEavg(m_roughness);
+	float fms = (1 - Eo) * (1 - Ei) / den;
+
+	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
+	vec3 Fo = Eo3.x() * m_F0 + Eo3.y();
+	vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
+	vec3 Fms = Favg * Eavg / (1.f - Favg * compE);
+
+	return Fms * fms;
+}
+
 vec3 DirectionalConductor::ms(
 	float fss,
 	const vec3& eye,
@@ -270,8 +293,31 @@ vec3 DirectionalConductor::ms(
 
 	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
 	vec3 Fo = Eo3.x() * m_F0 + Eo3.y();
-	//vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
-	vec3 Fms = Fo * Favg * Eavg / (1.f - Favg * compE);
+	vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
+	vec3 Fms = Fi*Fo * Eavg / (1.f - Favg * compE);
 
 	return Fms * fms;
+}
+
+vec3 TurquinConductor::ms(
+	float fss,
+	const vec3& eye,
+	const vec3& light,
+	const vec3& half) const
+{
+	//Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	//float Eo = Eo3.x() + Eo3.y();
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	float Ei = Ei3.x() + Ei3.y();
+	//float compE = compEavg(m_roughness);
+	//float Eavg = 1 - compE;
+	//float den = pi_v<float> *compEavg(m_roughness);
+	//float fms = (1 - Eo) * (1 - Ei) / den;
+
+	//vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
+	//vec3 Fo = Eo3.x() * m_F0 + Eo3.y();
+	//vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
+	vec3 Fms = m_F0 * (1 - Ei) / Ei;
+
+	return Fms * fss;
 }

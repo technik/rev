@@ -37,6 +37,8 @@ __forceinline rev::math::Vec3f fromGlm(const vec3& v)
 
 struct SurfaceMaterial
 {
+	virtual std::string NameTag() const = 0;
+
 	virtual vec3 brdf(
 		const vec3& eye,
 		const vec3& light,
@@ -81,6 +83,8 @@ inline void setModelF0(SchlickConductor& model, const vec3 & f0)
 template<class SurfaceModel>
 struct HeitzModel : SurfaceMaterial
 {
+	std::string NameTag() const { return "Hill"; }
+
 	SurfaceModel model;
 	int m_scatteringOrder = 0;
 	vec3 m_F0;
@@ -132,6 +136,7 @@ using HeitzSchlick = HeitzModel<SchlickConductor>;
 
 struct GGXSmithConductor : SurfaceMaterial
 {
+	std::string NameTag() const { return "GGXSmith"; }
 	int m_scatteringOrder = 0;
 	float m_roughness = 0;
 	float m_alpha = 0;
@@ -167,7 +172,25 @@ struct GGXSmithConductor : SurfaceMaterial
 
 struct HillConductor : GGXSmithConductor
 {
+	std::string NameTag() const { return "Hill"; }
+
 	HillConductor(float roughness, int scattering, vec3 F0)
+		: GGXSmithConductor(roughness, scattering, F0)
+	{
+	}
+
+	vec3 ms(
+		float fss,
+		const vec3& eye,
+		const vec3& light,
+		const vec3& half) const override;
+};
+
+struct KullaConductor : GGXSmithConductor
+{
+	std::string NameTag() const { return "Kulla"; }
+
+	KullaConductor(float roughness, int scattering, vec3 F0)
 		: GGXSmithConductor(roughness, scattering, F0)
 	{
 	}
@@ -181,7 +204,25 @@ struct HillConductor : GGXSmithConductor
 
 struct DirectionalConductor : GGXSmithConductor
 {
+	std::string NameTag() const { return "Dir"; }
+
 	DirectionalConductor(float roughness, int scattering, vec3 F0)
+		: GGXSmithConductor(roughness, scattering, F0)
+	{
+	}
+
+	vec3 ms(
+		float fss,
+		const vec3& eye,
+		const vec3& light,
+		const vec3& half) const override;
+};
+
+struct TurquinConductor : GGXSmithConductor
+{
+	std::string NameTag() const { return "Turquin"; }
+
+	TurquinConductor(float roughness, int scattering, vec3 F0)
 		: GGXSmithConductor(roughness, scattering, F0)
 	{
 	}

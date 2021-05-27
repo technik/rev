@@ -296,13 +296,141 @@ vector<shared_ptr<Image3f>> iterateRoughness(const Op& op, const vector<float>& 
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class MaterialLeft, class MaterialRight>
-std::shared_ptr<Image3f> renderHalfSphere(const uint32_t imgSize, const vec3& f0, const Vec3f& lightDir, float incidentLight, int scatteringOrder, float r)
+std::shared_ptr<Image3f> renderHalfSphere(uint32_t imgSize, const vec3& f0, const Vec3f& lightDir, float incidentLight, int scatteringOrder, float r)
 {
 	MaterialLeft surfaceLeft(r, scatteringOrder, f0);
 	MaterialRight surfaceRight(r, scatteringOrder, f0);
 
 	std::cout << "Rendering r=" << r << std::endl;
 	return renderHalfSphere({ imgSize, imgSize }, 0.4f * imgSize, lightDir, incidentLight, surfaceLeft, surfaceRight);
+}
+
+auto renderSphereTile(uint32_t imgSize, const SurfaceMaterial& surfaceModel, const Vec3f& lightDirection, float lightIntensity, const vec3& backgroundColor = vec3(0.5f))
+{
+	auto img = std::make_shared<Image3f>(Vec2u(imgSize, imgSize));
+	Vec2f center(float(imgSize) / 2, float(imgSize) / 2);
+	const float radius = 0.4f * imgSize;
+
+	const Vec3f eye = -Vec3f(0, 0, -1);
+	const Vec3f half = normalize(eye + lightDirection);
+
+#ifdef _DEBUG
+	constexpr int nSamples = 1;
+#else
+	constexpr int nSamples = 8;
+#endif
+
+	for (uint32_t i = 0; i < imgSize; ++i)
+	{
+		for (uint32_t j = 0; j < imgSize; ++j)
+		{
+			Vec2f samplePos2d((float)j, (float)i);
+			vec3 accumColor(0);
+			for (uint32_t k = 0; k < nSamples; ++k)
+			{
+				vec3 pixelColor = backgroundColor;
+				Vec2f pixelJitter = Hammersley(k, nSamples) + Vec2f(0.5f / nSamples, 0.5f / nSamples);
+				Vec2f relPos2d = samplePos2d - center + pixelJitter;
+				if (norm(relPos2d) < radius) // Render the sphere
+				{
+					// Project directions into tangent space
+					relPos2d = 1 / radius * relPos2d;
+					float z = sqrt(1.f - max(0.f, dot(relPos2d, relPos2d)));
+					const auto normal = Vec3f(relPos2d.x(), -relPos2d.y(), z);
+					Vec3f tan, bitan;
+					branchlessONB(normal, tan, bitan);
+					Mat33f worldFromTan;
+					worldFromTan.col<0>() = tan;
+					worldFromTan.col<1>() = bitan;
+					worldFromTan.col<2>() = normal;
+
+					Mat33f tanFromWorld = worldFromTan.transpose();
+
+					vec3 tsEye = toGlm(tanFromWorld * eye);
+					vec3 tsLight = toGlm(tanFromWorld * lightDirection);
+					vec3 tsHalf = toGlm(tanFromWorld * half);
+
+					pixelColor = surfaceModel.shade(tsEye, tsLight, tsHalf) * max(0.f, dot(normal,lightDirection));
+				}
+
+				accumColor += pixelColor;
+			}
+
+			img->pixel(j, i) = fromGlm(accumColor) * (lightIntensity / nSamples);
+		}
+	}
+
+	return img;
+}
+
+auto renderLightingRow(uint32_t imgSize, const SurfaceMaterial& surfaceModel, float lightIntensity)
+{
+	const vector<Vec3f> lightDirArray = {
+		Vec3f(0,0,1),
+		normalize(Vec3f(1,0,1)),
+		Vec3f(1,0,0),
+		normalize(Vec3f(1,0,-1))
+	};
+
+	vector<shared_ptr<Image3f>> tiles;
+	tiles.reserve(lightDirArray.size());
+
+	for (int tile = 0; tile < lightDirArray.size(); ++tile)
+	{
+		auto& lightDir = lightDirArray[tile];
+
+		std::cout << "Rendering tile " << tile << "... ";
+		auto t0 = chrono::system_clock::now();
+
+		auto render = renderSphereTile(imgSize, surfaceModel, lightDir, lightIntensity);
+
+		auto dt = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - t0);
+		std::cout << (dt.count() / 1000.f) << "s" << std::endl;
+
+		tiles.push_back(render);
+	}
+
+	auto rowImage = std::make_shared<Image3f>(Vec2u(imgSize * lightDirArray.size(), imgSize));
+	composeRow(tiles, *rowImage);
+	return rowImage;
+}
+
+auto renderReferenceChart(const vec3& f0, float r, float lightIntensity, int scatteringOrder)
+{
+	const uint32_t tileSize = 512;
+	cout << "Rendering Heitz reference tiles\n";
+	HeitzSchlick gtModel(r, scatteringOrder, f0);
+	auto HeitzReference = renderLightingRow(tileSize, gtModel, lightIntensity);
+	save2sRGB(*HeitzReference, "HeitzReference.png");
+
+	vector<shared_ptr<SurfaceMaterial>> testedMaterials = {
+		make_shared<GGXSmithConductor>(r, scatteringOrder, f0),
+		make_shared<HillConductor>(r, scatteringOrder, f0),
+		make_shared<KullaConductor>(r, scatteringOrder, f0),
+		make_shared<DirectionalConductor>(r, scatteringOrder, f0),
+		make_shared<TurquinConductor>(r, scatteringOrder, f0)
+	};
+
+	vector<shared_ptr<Image3f>> rows;
+
+	for (auto& material : testedMaterials)
+	{
+		cout << "Rendering " << material->NameTag() << endl;
+		auto testRow = renderLightingRow(tileSize, *material, lightIntensity);
+		stringstream ss;
+		ss << "Row-" << material->NameTag() << ".png";
+		save2sRGB(*testRow, ss.str());
+		auto halfAndHalf = make_shared<Image3f>(HeitzReference->size());
+		topAndBottom(*testRow, *HeitzReference, *halfAndHalf);
+		ss.clear();
+		ss << "Half-" << material->NameTag() << ".png";
+		rows.push_back(halfAndHalf);
+	}
+
+	auto fullChart = std::make_shared<Image3f>(Vec2u(HeitzReference->width(), HeitzReference->height() * rows.size()));
+	composeColumn(rows, *fullChart);
+
+	return fullChart;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -318,39 +446,13 @@ int main(int _argc, const char** _argv) {
 	// Useful colors
 	const vec3 copper(0.95f, 0.64f, 0.54f);
 
-	/*auto img = renderHalfSphere<HeitzSchlick, HillConductor>(512, copper, { 0,1,0 }, 4.f, 0, 0.875f);
-	save2sRGB(*img, "Heitz-Hill_0875.png");
-	img = renderHalfSphere<HeitzSchlick, DirectionalConductor>(512, copper, { 0,1,0 }, 4.f, 0, 0.875f);
-	save2sRGB(*img, "Heitz-Directional_0875.png");*/
-
-	std::vector<float> roughnessList = { 0.125f, 0.5f, 0.75f, 1.f };
-	auto dirImages = iterateRoughness([=](auto r) {
-		return renderHalfSphere<HeitzSchlick, DirectionalConductor>(512, copper, { 0,1,0 }, 4.f, 0, r);
+	std::vector<float> roughnessList = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f, 0.95f, 1.f };
+	iterateRoughness([=](auto r) {
+		auto chart = renderReferenceChart(copper, r, 1.f, 0);
+		stringstream ss; ss << "Copper-r" << int(1000 * r) << ".png";
+		save2sRGB(*chart, ss.str());
+		return chart;
 		}, roughnessList);
-	auto topRow = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512));
-	save2sRGB(*topRow, "Heitz-Dir.png");
-	composeRow(dirImages, *topRow);
-
-	dirImages = iterateRoughness([=](auto r) {
-		return renderHalfSphere<HeitzSchlick, HillConductor>(512, copper, { 0,1,0 }, 4.f, 0, r);
-		}, roughnessList);
-	auto bottomRow = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512));
-	save2sRGB(*bottomRow, "Heitz-Hill.png");
-	composeRow(dirImages, *bottomRow);
-
-	auto imageAccum = std::make_shared<Image3f>(Vec2u(512 * dirImages.size(), 512 * 2));
-	composeColumn({ topRow, bottomRow }, *imageAccum);
-	save2sRGB(*imageAccum, "Dir-Hill.png");
-
-	
-	//renderHalfSpheres<HeitzRoughMirror, KullaContyMirror>("_Heitz-Kulla.png", 0, 0);
-	//renderHalfSpheres<HeitzSchlick, HillConductor>("_Heitz-Schlick.png", 0, 2);
-	//renderDisneySlices<GGXSmithMirror>("_GGX.png", 0, 1);
-	//renderMetalSpheres<GGXSmithMirror>("_GGX.png", 0, 1);
-	//renderDisneySlices<KullaContyMirror>("_KC.png", 0, 0);
-	//renderMetalSpheres<KullaContyMirror>("_KC.png", 0, 1);
-	//renderDisneySlices<HeitzRoughMirror>("_heitz.png", 0, 3);
-	//renderMetalSpheres<HeitzRoughMirror>("_heitz.png", 0, 3);
 
 	return 0;
 }
