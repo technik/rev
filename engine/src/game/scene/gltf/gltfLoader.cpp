@@ -267,7 +267,7 @@ namespace rev::game {
 			{
 				if (!gltfImage.uri.empty()) // Load image from file
 				{
-					images.push_back(Image<>::load(assetFolder + "/"+ gltfImage.uri, 4, false, isSRGB[imgNdx]));
+					images.push_back(Image4u8::load(assetFolder + "/"+ gltfImage.uri, isSRGB[imgNdx]));
 				}
 				else // Load from memory
 				{

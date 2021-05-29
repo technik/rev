@@ -18,9 +18,13 @@ if (MSVC)
 endif()
 
 # Libraries
-add_subdirectory(engine/lib/benchmark)
-set_target_properties(benchmark PROPERTIES FOLDER benchmarks)
-set_target_properties(benchmark_main PROPERTIES FOLDER benchmarks)
+if(REV_BUILD_BENCHMARK)
+	set(BENCHMARK_ENABLE_GTEST_TESTS FALSE)
+	set(BENCHMARK_ENABLE_INSTALL FALSE)
+	add_subdirectory(engine/lib/benchmark)
+	set_target_properties(benchmark PROPERTIES FOLDER benchmarks)
+	set_target_properties(benchmark_main PROPERTIES FOLDER benchmarks)
+endif()
 
 # Find GLSL compiler
 find_package(Vulkan REQUIRED)

@@ -20,6 +20,8 @@
 #pragma once
 
 #include <string>
+
+#include <core/tools/log.h>
 #include <graphics/backend/Vulkan/renderContextVulkan.h>
 
 namespace rev::gfx {
@@ -37,8 +39,11 @@ namespace rev::gfx {
 		case vk::Format::eR8G8B8A8Srgb:
 		case vk::Format::eR8G8B8A8Unorm:
 			return sizeof(uint8_t) * 4;
+		case vk::Format::eR8G8B8Srgb:
+		case vk::Format::eR8G8B8Unorm:
+			return sizeof(uint8_t) * 3;
 		default:
-			assert(false && "Unsupported texture format");
+			core::CheckError(false, "Unsupported texture format");
 			return 0;
 		}
 	}
