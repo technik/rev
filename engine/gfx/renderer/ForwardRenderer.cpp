@@ -22,16 +22,16 @@
 #include "ForwardPass.h"
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/fileSystem/fileSystem.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
+#include <gfx/debug/debugGUI.h>
+#include <gfx/debug/imgui.h>
 #include "graphics/driver/renderTarget.h"
 #include "graphics/scene/renderScene.h"
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/backend/device.h>
-#include <graphics/backend/texture2d.h>
-#include <graphics/backend/textureSampler.h>
+#include <gfx/scene/renderObj.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/scene/renderMesh.h>
+#include <gfx/backend/device.h>
+#include <gfx/backend/texture2d.h>
+#include <gfx/backend/textureSampler.h>
 #include <math/algebra/vector.h>
 
 namespace rev::gfx {

@@ -22,7 +22,7 @@
 #include "component.h"
 #include "sceneNode.h"
 #include "transform/transform.h"
-#include <graphics/scene/camera.h>
+#include <gfx/scene/camera.h>
 
 namespace rev { namespace game {
 

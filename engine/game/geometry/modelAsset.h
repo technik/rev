@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <graphics/scene/renderGeom.h>
+#include <gfx/scene/renderGeom.h>
 
 namespace rev { namespace game {
 

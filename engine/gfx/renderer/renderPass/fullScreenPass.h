@@ -19,11 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/backend/device.h>
-#include <graphics/backend/gpuTypes.h>
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/shaders/shaderCodeFragment.h>
+#include <gfx/backend/device.h>
+#include <gfx/backend/gpuTypes.h>
+#include <gfx/backend/commandBuffer.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/shaders/shaderCodeFragment.h>
 
 namespace rev::gfx {
 

@@ -22,7 +22,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "gpuBuffer.h"
-#include <graphics/Texture.h>
+#include <gfx/Texture.h>
 #include <math/algebra/vector.h>
 
 namespace rev::gfx {

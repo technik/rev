@@ -21,8 +21,8 @@
 
 #include "../sceneNode.h"
 #include "../meshRenderer.h"
-#include <graphics/scene/Material.h>
-#include <graphics/Texture.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Texture.h>
 
 #include <memory>
 #include <string>

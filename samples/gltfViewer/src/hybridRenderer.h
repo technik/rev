@@ -20,8 +20,8 @@
 #pragma once
 
 #include <math/algebra/vector.h>
-#include <graphics/backend/frameBuffer.h>
-#include <graphics/scene/renderGeom.h>
+#include <gfx/backend/frameBuffer.h>
+#include <gfx/scene/renderGeom.h>
 #include <vector>
 
 namespace rev::gfx {

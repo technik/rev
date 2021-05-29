@@ -19,13 +19,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /*#include "DeferredRenderer.h"
-#include <graphics/renderGraph/frameBufferCache.h>
-#include <graphics/scene/camera.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/renderScene.h>
-#include <graphics/shaders/shaderCodeFragment.h>
+#include <gfx/renderGraph/frameBufferCache.h>
+#include <gfx/scene/camera.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/scene/renderMesh.h>
+#include <gfx/scene/renderObj.h>
+#include <gfx/scene/renderScene.h>
+#include <gfx/shaders/shaderCodeFragment.h>
 #include <math/algebra/vector.h>
 #include <math/algebra/matrix.h>
 

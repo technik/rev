@@ -5,7 +5,7 @@
 
 #include <game/scene/sceneNode.h>
 #include <game/application/base3dApplication.h>
-#include <graphics/scene/camera.h>
+#include <gfx/scene/camera.h>
 
 #include "Renderer.h"
 

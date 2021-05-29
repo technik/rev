@@ -21,9 +21,9 @@
 
 #include <core/platform/osHandler.h>
 
-#include <graphics/backend/Vulkan/gpuBuffer.h>
-#include <graphics/scene/Material.h>
-#include <graphics/Image.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Image.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>

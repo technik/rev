@@ -19,7 +19,7 @@
 
 #include <core/platform/osHandler.h>
 #include <core/platform/cmdLineParser.h>
-#include <graphics/Image.h>
+#include <gfx/Image.h>
 
 #include "Materials.h"
 #include "ImageOperations.h"

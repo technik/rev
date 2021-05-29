@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/Image.h>
+#include <gfx/Image.h>
 #include <math/algebra/vector.h>
 #include <math/linear.h>
 

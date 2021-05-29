@@ -21,14 +21,14 @@
 
 #include <core/platform/fileSystem/FolderWatcher.h>
 #include <game/scene/meshRenderer.h>
-#include <graphics/backend/DescriptorSet.h>
-#include <graphics/backend/FrameBufferManager.h>
-#include <graphics/backend/rasterPipeline.h>
-#include <graphics/backend/Vulkan/gpuBuffer.h>
-#include <graphics/backend/Vulkan/renderContextVulkan.h>
-#include <graphics/RasterHeap.h>
-#include <graphics/scene/Material.h>
-#include <graphics/Texture.h>
+#include <gfx/backend/DescriptorSet.h>
+#include <gfx/backend/FrameBufferManager.h>
+#include <gfx/backend/rasterPipeline.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/RasterHeap.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Texture.h>
 
 #include "RenderPass.h"
 

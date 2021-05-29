@@ -21,7 +21,7 @@
 /*#include "EnvironmentProbe.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
-#include <graphics/Image.h>
+#include <gfx/Image.h>
 #include <memory>
 #include <vector>
 #include <core/string_util.h>

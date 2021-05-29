@@ -20,7 +20,7 @@
 #pragma once
 
 #include <memory>
-#include <graphics/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
 
 namespace rev::gfx
 {

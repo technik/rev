@@ -25,7 +25,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "renderContextVulkan.h"
-#include <graphics/Image.h>
+#include <gfx/Image.h>
 
 #include <chrono>
 #include <thread>

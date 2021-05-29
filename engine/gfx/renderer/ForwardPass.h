@@ -19,11 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <memory>
-#include <graphics/renderer/RenderItem.h>
-#include <graphics/renderer/material/material.h>
-#include <graphics/scene/Light.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderObj.h>
+#include <gfx/renderer/RenderItem.h>
+#include <gfx/renderer/material/material.h>
+#include <gfx/scene/Light.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/scene/renderObj.h>
 #include <map>
 #include <unordered_map>
 

@@ -20,11 +20,11 @@
 /*#include "ShadowMapPass.h"
 
 #include <core/platform/fileSystem/file.h>
-#include <graphics/scene/camera.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderMesh.h>
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/renderScene.h>
+#include <gfx/scene/camera.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/scene/renderMesh.h>
+#include <gfx/scene/renderObj.h>
+#include <gfx/scene/renderScene.h>
 #include <math/algebra/affineTransform.h>
 #include <string>
 

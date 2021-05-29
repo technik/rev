@@ -19,12 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <graphics/renderer/RenderItem.h>
-#include <graphics/renderer/renderPass/geometryPass.h>
-#include <graphics/renderer/renderPass/fullScreenPass.h>
-#include <graphics/renderer/ShadowMapPass.h>
-#include <graphics/renderGraph/renderGraph.h>
-#include <graphics/renderGraph/frameBufferCache.h>
+#include <gfx/renderer/RenderItem.h>
+#include <gfx/renderer/renderPass/geometryPass.h>
+#include <gfx/renderer/renderPass/fullScreenPass.h>
+#include <gfx/renderer/ShadowMapPass.h>
+#include <gfx/renderGraph/renderGraph.h>
+#include <gfx/renderGraph/frameBufferCache.h>
 #include <random>
 #include <vector>
 

@@ -21,15 +21,33 @@ endif()
 if(REV_BUILD_BENCHMARK)
 	set(BENCHMARK_ENABLE_GTEST_TESTS FALSE)
 	set(BENCHMARK_ENABLE_INSTALL FALSE)
-	add_subdirectory(engine/lib/benchmark)
-	set_target_properties(benchmark PROPERTIES FOLDER benchmarks)
-	set_target_properties(benchmark_main PROPERTIES FOLDER benchmarks)
+	add_subdirectory(include/benchmark)
+	set_target_properties(benchmark PROPERTIES FOLDER libs)
+	set_target_properties(benchmark_main PROPERTIES FOLDER libs)
 endif()
 
-# Find GLSL compiler
+# Find Vulkan and GLSL compiler
 find_package(Vulkan REQUIRED)
 set(VULKAN_BIN_DIR ${Vulkan_INCLUDE_DIR}/../bin/)
 set(GLSLANGVALIDATOR ${VULKAN_BIN_DIR}glslc.exe)
+
+# ImGui source
+set(ImGui_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/)
+set(ImGui_SRC 
+	${ImGui_ROOT}imgui.cpp
+	${ImGui_ROOT}imgui_demo.cpp
+	${ImGui_ROOT}imgui_draw.cpp
+	${ImGui_ROOT}imgui_tables.cpp
+	${ImGui_ROOT}imgui_widgets.cpp
+	${ImGui_ROOT}backends/imgui_impl_vulkan.cpp
+	${ImGui_ROOT}backends/imgui_impl_vulkan.h
+	${ImGui_ROOT}backends/imgui_impl_win32.cpp
+	${ImGui_ROOT}backends/imgui_impl_win32.h)
+add_library(ImGui STATIC ${ImGui_SRC})
+target_include_directories(ImGui PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui
+	${Vulkan_INCLUDE_DIRS})
+set_target_properties(ImGui PROPERTIES FOLDER libs)
 
 add_subdirectory(engine)
 

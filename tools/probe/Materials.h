@@ -21,7 +21,7 @@
 
 #include "Heitz/MicrosurfaceScattering.h"
 #include <math/algebra/vector.h>
-#include <graphics/ImageSampler.h>
+#include <gfx/ImageSampler.h>
 
 rev::math::Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples);
 

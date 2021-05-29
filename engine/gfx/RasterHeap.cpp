@@ -19,9 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "RasterHeap.h"
 
-#include <graphics/backend/Vulkan/gpuBuffer.h>
-#include <graphics/backend/Vulkan/renderContextVulkan.h>
-#include <graphics/backend/Vulkan/vulkanAllocator.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/vulkanAllocator.h>
 
 using namespace rev::math;
 

@@ -21,12 +21,12 @@
 #include <memory>
 #include <math/algebra/affineTransform.h>
 #include <math/geometry/aabb.h>
-#include <graphics/renderer/renderPass/geometryPass.h>
-#include <graphics/shaders/shaderCodeFragment.h>
-#include <graphics/scene/renderGeom.h>
-#include <graphics/scene/renderObj.h>
-#include <graphics/scene/Light.h>
-#include <graphics/renderer/RenderItem.h>
+#include <gfx/renderer/renderPass/geometryPass.h>
+#include <gfx/shaders/shaderCodeFragment.h>
+#include <gfx/scene/renderGeom.h>
+#include <gfx/scene/renderObj.h>
+#include <gfx/scene/Light.h>
+#include <gfx/renderer/RenderItem.h>
 #include <unordered_map>
 #include <vector>
 

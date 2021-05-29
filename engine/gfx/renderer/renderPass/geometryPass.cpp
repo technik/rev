@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include "geometryPass.h"
 #include <math/algebra/matrix.h>
-#include <graphics/renderer/material/material.h>
+#include <gfx/renderer/material/material.h>
 
 using namespace rev::math;
 

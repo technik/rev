@@ -20,7 +20,7 @@
 #pragma once
 
 #include <math/algebra/vector.h>
-#include <graphics/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
 #include <chrono>
 #include <memory>
 

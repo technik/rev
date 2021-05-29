@@ -29,7 +29,7 @@
 #include <Windows.h>
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
-#include <graphics/types.h>
+#include <gfx/types.h>
 
 namespace rev::gfx
 {

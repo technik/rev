@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 #include <vector>
-#include <graphics/scene/animation/animation.h>
+#include <gfx/scene/animation/animation.h>
 #include <game/scene/transform/transform.h>
 #include <game/scene/sceneNode.h>
 #include <memory>

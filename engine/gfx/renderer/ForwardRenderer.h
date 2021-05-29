@@ -21,9 +21,9 @@
 #include <memory>
 #include "ForwardPass.h"
 #include "ShadowMapPass.h"
-#include <graphics/renderer/RenderItem.h>
-#include <graphics/renderer/renderPass/fullScreenPass.h>
-#include <graphics/renderer/renderPass/zPrePass.h>
+#include <gfx/renderer/RenderItem.h>
+#include <gfx/renderer/renderPass/fullScreenPass.h>
+#include <gfx/renderer/renderPass/zPrePass.h>
 
 namespace rev::gfx {
 

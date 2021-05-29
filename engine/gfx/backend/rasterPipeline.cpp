@@ -22,7 +22,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <graphics/types.h>
+#include <gfx/types.h>
 
 namespace rev::gfx
 {

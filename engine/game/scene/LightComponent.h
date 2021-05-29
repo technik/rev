@@ -21,8 +21,8 @@
 #include "component.h"
 #include "transform/transform.h"
 #include "sceneNode.h"
-#include <graphics/scene/Light.h>
-#include <graphics/scene/renderScene.h>
+#include <gfx/scene/Light.h>
+#include <gfx/scene/renderScene.h>
 #include <memory>
 #include <cmath>
 

@@ -20,7 +20,7 @@
 #pragma once
 
 #include <vector>
-#include <graphics/Image.h>
+#include <gfx/Image.h>
 
 // save the diff of each pixel (a-b) into aMinusB
 void diff(const rev::gfx::Image3f& a, const rev::gfx::Image3f& b, rev::gfx::Image3f& aMinusB, float scale = 1.f);

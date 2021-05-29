@@ -3,16 +3,16 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa
 //----------------------------------------------------------------------------------------------------------------------
 // Little shadertoy implementation
-#include <graphics/backend/commandBuffer.h>
-#include <graphics/backend/device.h>
-#include <graphics/backend/gpuTypes.h>
-#include <graphics/backend/OpenGL/deviceOpenGLWindows.h>
-#include <graphics/renderer/renderPass/fullScreenPass.h>
-#include <graphics/renderGraph/renderGraph.h>
-#include <graphics/renderGraph/frameBufferCache.h>
+#include <gfx/backend/commandBuffer.h>
+#include <gfx/backend/device.h>
+#include <gfx/backend/gpuTypes.h>
+#include <gfx/backend/OpenGL/deviceOpenGLWindows.h>
+#include <gfx/renderer/renderPass/fullScreenPass.h>
+#include <gfx/renderGraph/renderGraph.h>
+#include <gfx/renderGraph/frameBufferCache.h>
 #include <game/application/base3dApplication.h>
-#include <graphics/debug/debugGUI.h>
-#include <graphics/debug/imgui.h>
+#include <gfx/debug/debugGUI.h>
+#include <gfx/debug/imgui.h>
 
 #include <core/platform/cmdLineParser.h>
 

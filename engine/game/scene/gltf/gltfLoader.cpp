@@ -26,12 +26,12 @@
 #include <core/platform/fileSystem/file.h>
 #include <game/scene/meshRenderer.h>
 #include <game/scene/transform/transform.h>
-#include <graphics/backend/Vulkan/gpuBuffer.h>
-#include <graphics/backend/Vulkan/renderContextVulkan.h>
-#include <graphics/backend/Vulkan/vulkanAllocator.h>
-#include <graphics/RasterHeap.h>
-#include <graphics/Image.h>
-#include <graphics/scene/Material.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/vulkanAllocator.h>
+#include <gfx/RasterHeap.h>
+#include <gfx/Image.h>
+#include <gfx/scene/Material.h>
 
 /*
 #include <core/tasks/threadPool.h>
@@ -43,9 +43,9 @@
 #include <game/scene/LightComponent.h>
 #include <game/scene/camera.h>
 #include <game/scene/transform/flyby.h>
-#include <graphics/scene/animation/skinning.h>
-#include <graphics/renderer/material/Effect.h>
-#include <graphics/renderer/material/material.h>
+#include <gfx/scene/animation/skinning.h>
+#include <gfx/renderer/material/Effect.h>
+#include <gfx/renderer/material/material.h>
 #include <vector>*/
 
 using Json = nlohmann::json;

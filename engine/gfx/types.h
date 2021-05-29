@@ -22,7 +22,7 @@
 #include <string>
 
 #include <core/tools/log.h>
-#include <graphics/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
 
 namespace rev::gfx {
 

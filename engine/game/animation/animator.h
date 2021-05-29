@@ -22,7 +22,7 @@
 #include <game/scene/component.h>
 #include <game/scene/sceneNode.h>
 #include <game/scene/transform/transform.h>
-#include <graphics/scene/animation/animation.h>
+#include <gfx/scene/animation/animation.h>
 #include <memory>
 
 namespace rev::game {
