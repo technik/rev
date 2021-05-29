@@ -30,12 +30,13 @@ set_target_properties(revMath PROPERTIES FOLDER rev)
 
 # graphics
 file(GLOB_RECURSE GFX_SOURCE_FILES "gfx/*.cpp" "gfx/*.h" "gfx/*.inl")
+GroupSources(gfx src)
 add_library(revGfx STATIC ${GFX_SOURCE_FILES})
+target_include_directories(revGfx PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_include_directories (revGfx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} "../include")
 target_link_libraries(revGfx LINK_PRIVATE revMath revCore ImGui)
-set_target_properties(revGfx PROPERTIES FOLDER rev)
-target_include_directories(revGfx PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(revGfx LINK_PRIVATE ${Vulkan_LIBRARY})
+set_target_properties(revGfx PROPERTIES FOLDER rev)
 
 # game
 file(GLOB_RECURSE GAME_SOURCE_FILES "game/*.cpp" "game/*.h" "game/*.inl")

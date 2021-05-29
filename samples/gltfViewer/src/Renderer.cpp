@@ -191,7 +191,7 @@ namespace rev
 				m_frameConstants);
 
 			// Draw all instances in a single batch
-			m_uiRenderPass->drawGeometry(cmd, scene.m_sceneInstances, scene.m_rasterData);
+			m_uiRenderPass->drawGeometry(cmd, scene.m_sceneInstances.m_instanceMeshes, scene.m_sceneInstances.m_meshes, scene.m_rasterData);
 
 			m_doubleBufferNdx ^= 1;
 		}
@@ -334,7 +334,7 @@ namespace rev
 	void Renderer::createRenderPasses()
 	{
 		// HDR geometry pass
-		m_hdrLightPass = std::make_unique<RenderPass>(
+		m_hdrLightPass = std::make_unique<gfx::RenderPass>(
 			m_ctxt->createRenderPass({ m_hdrLightBuffer->format(), m_zBuffer->format() }),
 			*m_frameBuffers);
 		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
@@ -343,7 +343,7 @@ namespace rev
 		m_hdrLightPass->setClearColor(-math::Vec4f::ones());
 
 		// UI Render pass
-		m_uiRenderPass = std::make_unique<RenderPass>(
+		m_uiRenderPass = std::make_unique<gfx::RenderPass>(
 			m_ctxt->createRenderPass({ m_ctxt->swapchainFormat() }),
 			*m_frameBuffers);
 	}

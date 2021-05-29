@@ -27,10 +27,9 @@
 #include <gfx/backend/Vulkan/gpuBuffer.h>
 #include <gfx/backend/Vulkan/renderContextVulkan.h>
 #include <gfx/RasterHeap.h>
+#include <gfx/renderer/RenderPass.h>
 #include <gfx/scene/Material.h>
 #include <gfx/Texture.h>
-
-#include "RenderPass.h"
 
 namespace rev
 {
@@ -134,8 +133,8 @@ namespace rev
 			float bloom;
 		} m_postProConstants;
 
-		std::unique_ptr<RenderPass> m_uiRenderPass;
-		std::unique_ptr<RenderPass> m_hdrLightPass;
+		std::unique_ptr<gfx::RenderPass> m_uiRenderPass;
+		std::unique_ptr<gfx::RenderPass> m_hdrLightPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
