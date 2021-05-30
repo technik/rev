@@ -27,18 +27,18 @@ namespace rev::gfx
 {
 	FullScreenPass::FullScreenPass(
 		std::string_view fragmentShader,
-		const std::vector<vk::Format>& attachmentFormats,
+		vk::Format attachmentFormats,
 		gfx::FrameBufferManager& fbManager,
 		vk::DescriptorSetLayout descriptorSetLayout,
 		size_t pushConstantsSize
 	)
 	{
-		m_renderPass = std::make_unique<RenderPass>(RenderContext().createRenderPass(attachmentFormats), fbManager);
+		m_renderPass = std::make_unique<RenderPass>(RenderContext().createRenderPass({ attachmentFormats }), fbManager);
 
 		// Create shader pipeline
 		auto device = RenderContext().device();
 		// // Full screen pipeline
-		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, pushConstantsSize);
+		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, (uint32_t)pushConstantsSize);
 		vk::PipelineLayoutCreateInfo postLayoutInfo({},
 			1, & descriptorSetLayout, // Descriptor sets
 			1, &postProPushRange); // Push constants

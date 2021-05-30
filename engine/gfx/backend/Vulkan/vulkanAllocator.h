@@ -61,7 +61,6 @@ namespace rev::gfx {
 
 		// If data is not null, its contents will be copied into the dst texture, and its format is expected to be the same as gpuFormat
 		std::shared_ptr<Texture> createTexture(
-			RenderContextVulkan& rc,
 			const char* debugName,
 			const math::Vec2u& size,
 			vk::Format gpuFormat,

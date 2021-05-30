@@ -34,7 +34,7 @@ namespace rev::gfx {
 	public:
 		FullScreenPass(
 			std::string_view fragmentShader,
-			const std::vector<vk::Format>& attachmentFormats,
+			vk::Format attachmentFormats,
 			gfx::FrameBufferManager& fbManager,
 			vk::DescriptorSetLayout descriptorSetLayout,
 			size_t pushConstantsSize);

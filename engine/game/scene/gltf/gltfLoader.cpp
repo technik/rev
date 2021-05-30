@@ -309,7 +309,6 @@ namespace rev::game {
 				}
 
 				auto texture = rc.allocator().createTexture(
-					rc,
 					gltfTexture.name.c_str(),
 					image->size(),
 					image->format(),

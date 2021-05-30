@@ -221,7 +221,6 @@ namespace rev::gfx {
 	}
 
 	auto VulkanAllocator::createTexture(
-		RenderContextVulkan& rc,
 		const char* debugName,
 		const math::Vec2u& imageSize,
 		vk::Format gpuFormat,
@@ -233,7 +232,7 @@ namespace rev::gfx {
 		vk::ImageUsageFlags usage,
 		uint32_t graphicsQueueFamily) ->std::shared_ptr<Texture>
 	{
-
+		auto& rc = RenderContext();
 		// Create a staging buffer
 		size_t bufferSize = GetPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
 		auto buffer = createBufferForMapping(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, graphicsQueueFamily);

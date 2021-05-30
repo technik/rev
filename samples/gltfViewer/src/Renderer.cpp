@@ -223,7 +223,7 @@ namespace rev
 		m_uiRenderPass->render(cmd);
 
 		// Finish ImGui
-		ImGui_ImplVulkan_NewFrame();
+		//ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
 		m_uiRenderPass->end(cmd);
@@ -420,7 +420,6 @@ namespace rev
 	{
 		auto image = gfx::Image4f::load("shaders/ibl_brdf.hdr");
 		m_iblLUT = m_ctxt->allocator().createTexture(
-			*m_ctxt,
 			"IBL LUT",
 			image->size(),
 			vk::Format::eR32G32B32A32Sfloat,
