@@ -69,7 +69,7 @@ vec3 directLight(
 	//vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
 	vec3 Fms = specularColor * (1 - Ei) / Ei;
 
-	vec3 kD = diffuseColor - (Ei3.x * specularColor + Ei3.y);
+	vec3 kD = max(vec3(0), diffuseColor - (Ei3.x * specularColor + Ei3.y));
 	vec3 diffuse = kD / PI;
 	return (specularSS * (1+Fms) + diffuse) * lightColor * ndl;
 }
@@ -97,7 +97,7 @@ vec3 envLight(
 	vec3 Favg = specularColor + (1-specularColor)/21;
 	vec3 Fms = FssEss*Favg/(1-(1-Ess)*Favg);
 
-	return (FssEss * radiance + Fms*Ems * irradiance) *  mix(diffuseColor, vec3(1.0), ao);
+	return (FssEss * radiance + (Fms*Ems + diffuseColor) * irradiance) *  mix(diffuseColor, vec3(1.0), ao);
 }
 
 void main()
