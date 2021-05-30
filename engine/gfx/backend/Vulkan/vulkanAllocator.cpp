@@ -51,7 +51,13 @@ namespace rev::gfx {
 		return vulkanProperties;
 	}
 
-	void VulkanAllocator::transitionImageLayout(vk::CommandBuffer cmd, vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth)
+	void VulkanAllocator::transitionImageLayout(
+		vk::CommandBuffer cmd,
+		vk::Image image,
+		vk::ImageLayout oldLayout,
+		vk::ImageLayout newLayout,
+		bool isDepth,
+		vk::DependencyFlags dependencies)
 	{
 		vk::ImageMemoryBarrier barrier;
 		barrier.oldLayout = oldLayout;
@@ -107,6 +113,16 @@ namespace rev::gfx {
 			barrier.srcAccessMask = vk::AccessFlagBits::eShaderWrite;
 			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 		}
+		else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
+		{
+			srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+			dstStageMask = vk::PipelineStageFlagBits::eTransfer
+				| vk::PipelineStageFlagBits::eFragmentShader
+				| vk::PipelineStageFlagBits::eComputeShader;
+
+			barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentRead;
+			barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite | vk::AccessFlagBits::eShaderWrite;
+		}
 		else
 		{
 			assert(false && "Unsupported layout transition");
@@ -115,7 +131,7 @@ namespace rev::gfx {
 		cmd.pipelineBarrier(
 			srcStageMask,
 			dstStageMask,
-			{},
+			dependencies,
 			{}, // Memory barriers
 			{}, // Buffer mem
 			barrier); // Image barriers
@@ -233,7 +249,7 @@ namespace rev::gfx {
 		// Transition image to copyDst
 		{
 			auto scopedCmd = rc.getScopedCmdBuffer(rc.graphicsQueue());
-			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, false);
+			transitionImageLayout(scopedCmd.cmd, image->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, false);
 
 			// Copy texture data to it through a staging buffer
 			vk::BufferImageCopy region{};
@@ -247,7 +263,7 @@ namespace rev::gfx {
 			scopedCmd.cmd.copyBufferToImage(buffer->buffer(), image->image(), vk::ImageLayout::eTransferDstOptimal, region);
 
 			// Trasition the final image into general layout
-			transitionImageLayout(scopedCmd.cmd, image->image(), gpuFormat, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+			transitionImageLayout(scopedCmd.cmd, image->image(), vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, false);
 		}
 		m_device.waitIdle();
 

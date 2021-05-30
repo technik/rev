@@ -22,6 +22,7 @@
 #include <core/platform/osHandler.h>
 
 #include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/renderer/renderPass/fullScreenPass.h>
 #include <gfx/scene/Material.h>
 #include <gfx/Image.h>
 
@@ -34,6 +35,14 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace rev
 {
+	//---------------------------------------------------------------------------------------------------------------------
+	Renderer::Renderer()
+	{}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	Renderer::~Renderer()
+	{}
+
 	//---------------------------------------------------------------------------------------------------------------------
 	size_t Renderer::init(
 		gfx::RenderContextVulkan& ctxt,
@@ -54,29 +63,22 @@ namespace rev
 		const size_t maxSceneTextures = scene.m_textures.size();
 
 		createRenderTargets();
-		createRenderPasses();
 		createDescriptorLayouts(maxSceneTextures);
+		createRenderPasses();
 		createShaderPipelines();
 		loadIBLLUT();
-
-		// Full screen vertices
-		auto& alloc = m_ctxt->allocator();
-		m_fullScreenIndices = alloc.createGpuBuffer(
-			3 * sizeof(uint32_t),
-			vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-			ctxt.graphicsQueueFamily());
-		uint32_t indices[3] = { 0, 1, 2 };
-		size_t streamToken = alloc.asyncTransfer(*m_fullScreenIndices, indices, 3);
 
 		// Allocate matrix buffers
 		m_mtxBuffers.resize(2);
 		const size_t maxNumInstances = scene.m_sceneInstances.numInstances();
 		const size_t maxNumMaterials = scene.m_materials.size();
 
+		auto& alloc = ctxt.allocator();
 		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
 
 		// Allocate materials buffer
+		size_t streamToken = 0;
 		if (!scene.m_materials.empty())
 		{
 			m_materialsBuffer = alloc.createGpuBuffer(
@@ -107,8 +109,6 @@ namespace rev
 		auto device = m_ctxt->device();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
-		device.destroyPipelineLayout(m_postProcessPipelineLayout);
-		device.destroyRenderPass(m_uiRenderPass->vkPass());
 		device.destroyRenderPass(m_hdrLightPass->vkPass());
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
@@ -191,7 +191,7 @@ namespace rev
 				m_frameConstants);
 
 			// Draw all instances in a single batch
-			m_uiRenderPass->drawGeometry(cmd, scene.m_sceneInstances.m_instanceMeshes, scene.m_sceneInstances.m_meshes, scene.m_rasterData);
+			m_hdrLightPass->drawGeometry(cmd, scene.m_sceneInstances.m_instanceMeshes, scene.m_sceneInstances.m_meshes, scene.m_rasterData);
 
 			m_doubleBufferNdx ^= 1;
 		}
@@ -205,34 +205,22 @@ namespace rev
 		auto cmd = m_ctxt->getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
-		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
-
-		m_uiRenderPass->setColorTargets({ &m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd) });
-		m_uiRenderPass->setClearColor(m_frameConstants.ambientColor);
-		m_uiRenderPass->begin(cmd, m_windowSize);
-
 		m_postProConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
 		m_postProConstants.ambientColor = m_frameConstants.ambientColor;
 		m_postProConstants.renderFlags = {};
 		m_postProConstants.bloom = 0.f;
 
-		// Post-process HDR image
-		m_postProPipeline->bind(cmd);
-		
-		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-			m_postProcessPipelineLayout,
-			0, m_postProDescriptorSets.getDescriptor(0), {});
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+		m_uiRenderPass->begin(
+			cmd,
+			m_windowSize,
+			m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
+			m_postProConstants.ambientColor,
+			m_postProDescriptorSets.getDescriptor(0));
 
-		cmd.pushConstants<PostProPushConstants>(
-			m_postProcessPipelineLayout,
-			vk::ShaderStageFlagBits::eFragment,
-			0,
-			m_postProConstants);
 
-		cmd.bindIndexBuffer(m_fullScreenIndices->buffer(), {}, vk::IndexType::eUint32);
-
-		cmd.drawIndexed(3, 1, 0, 0, 0);
-
+		m_uiRenderPass->pushConstants(cmd, m_postProConstants);
+		m_uiRenderPass->render(cmd);
 
 		// Finish ImGui
 		ImGui_ImplVulkan_NewFrame();
@@ -240,7 +228,7 @@ namespace rev
 
 		m_uiRenderPass->end(cmd);
 
-		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
 
 		cmd.end();
 
@@ -343,9 +331,12 @@ namespace rev
 		m_hdrLightPass->setClearColor(-math::Vec4f::ones());
 
 		// UI Render pass
-		m_uiRenderPass = std::make_unique<gfx::RenderPass>(
-			m_ctxt->createRenderPass({ m_ctxt->swapchainFormat() }),
-			*m_frameBuffers);
+		m_uiRenderPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
+			"../shaders/postPro.frag.spv",
+			{ m_ctxt->swapchainFormat() },
+			* m_frameBuffers,
+			m_postProDescriptorSets.layout(),
+			sizeof(PostProPushConstants)));
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -381,29 +372,10 @@ namespace rev
 			"../shaders/gbuffer.frag.spv",
 			true);
 
-		// Full screen pipeline
-		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, sizeof(PostProPushConstants));
-		auto postProDescLayout = m_postProDescriptorSets.layout();
-		vk::PipelineLayoutCreateInfo postLayoutInfo({},
-			1, & postProDescLayout, // Descriptor sets
-			1, & postProPushRange); // Push constants
-		m_postProcessPipelineLayout = device.createPipelineLayout(postLayoutInfo);
-		// 
-		// Intentionally empty bindings. Full screen generates all vertices on the fly
-		gfx::RasterPipeline::VertexBindings fullScreenBindings;
-		m_postProPipeline = std::make_unique<gfx::RasterPipeline>(
-			fullScreenBindings,
-			m_postProcessPipelineLayout,
-			m_uiRenderPass->vkPass(),
-			"../shaders/fullScreen.vert.spv",
-			"../shaders/postPro.frag.spv",
-			false
-			);
-
 		// Set up shader reload
 		m_shaderWatcher->listen([this](auto paths) {
 			m_gBufferPipeline->invalidate();
-			m_postProPipeline->invalidate();
+			m_uiRenderPass->invalidateShaders();
 			});
 	}
 
@@ -427,8 +399,8 @@ namespace rev
 			m_ctxt->graphicsQueueFamily());
 
 		// Transition new images to general layout
-		m_ctxt->transitionImageLayout(m_hdrLightBuffer->image(), m_hdrLightBuffer->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
-		m_ctxt->transitionImageLayout(m_zBuffer->image(), m_zBuffer->format(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
+		m_ctxt->transitionImageLayout(m_hdrLightBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
+		m_ctxt->transitionImageLayout(m_zBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

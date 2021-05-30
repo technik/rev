@@ -92,7 +92,7 @@ namespace rev::gfx
 
 		// Render passes and frame buffers
 		vk::RenderPass createRenderPass(const std::vector<vk::Format>& attachmentFormats);
-		void transitionImageLayout(vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
+		void transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
 
 		// Alloc
 		VulkanAllocator& allocator() { return m_alloc; }

@@ -19,44 +19,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <gfx/backend/device.h>
-#include <gfx/backend/gpuTypes.h>
-#include <gfx/backend/commandBuffer.h>
-#include <gfx/scene/renderGeom.h>
-#include <gfx/shaders/shaderCodeFragment.h>
+#include <memory>
+#include <string_view>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/renderer/RenderPass.h>
 
 namespace rev::gfx {
+
+	class FrameBufferManager;
+	class RasterPipeline;
 
 	class FullScreenPass
 	{
 	public:
 		FullScreenPass(
-			gfx::Device&,
-			ShaderCodeFragment* code = nullptr,
-			Pipeline::DepthTest depthTest = Pipeline::DepthTest::Gequal,
-			bool writeDepth = true,
-			Pipeline::BlendMode blend= Pipeline::BlendMode::Write);
+			std::string_view fragmentShader,
+			const std::vector<vk::Format>& attachmentFormats,
+			gfx::FrameBufferManager& fbManager,
+			vk::DescriptorSetLayout descriptorSetLayout,
+			size_t pushConstantsSize);
 		~FullScreenPass();
 
-		void setPassCode(ShaderCodeFragment* code);
+		void begin(
+			const vk::CommandBuffer cmd,
+			const math::Vec2u& targetSize,
+			const ImageBuffer& colorTargets,
+			const math::Vec3f& clearColor,
+			vk::DescriptorSet descriptor);
 
-		void render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out);
+		template<class PushConstants>
+		void pushConstants(vk::CommandBuffer cmd, const PushConstants& pc)
+		{
+			cmd.pushConstants<PushConstants>(
+				m_pipelineLayout,
+				vk::ShaderStageFlagBits::eFragment,
+				0,
+				pc);
+		}
 
-		bool isOk() const { return m_pipeline.isValid(); }
+		void render(const vk::CommandBuffer cmd);
+		void end(const vk::CommandBuffer cmd);
+
+		void onResize(const math::Vec2u& size);
+		void invalidateShaders();
+
+		auto vkPass() const { return m_renderPass->vkPass(); }
 
 	private:
-		gfx::Device& m_device;
-		RenderGeom m_quad;
-
-		ShaderCodeFragment* m_baseCode = nullptr;
-		ShaderCodeFragment* m_passCode = nullptr;
-		ShaderCodeFragment* m_completeCode;
-
-		Pipeline::Descriptor m_pipelineDesc;
-		Pipeline m_pipeline;
-
-		using ShaderListener = ShaderCodeFragment::ReloadListener;
-		std::vector<std::shared_ptr<ShaderListener>> m_shaderListeners;
+		size_t m_streamingToken;
+		std::unique_ptr<RenderPass> m_renderPass;
+		vk::PipelineLayout m_pipelineLayout;
+		std::unique_ptr<RasterPipeline> m_pipeline;
+		std::shared_ptr<GPUBuffer> m_fullScreenIndexBuffer;
+		math::Vec2u m_targetSize;
 	};
 
 }

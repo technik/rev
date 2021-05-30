@@ -36,6 +36,7 @@ namespace rev
 	namespace gfx
 	{
 		class RenderContextVulkan;
+		class FullScreenPass;
 	}
 
 	class Renderer
@@ -54,6 +55,9 @@ namespace rev
 			math::Vec3f ambientColor;
 			math::Vec3f lightColor;
 		};
+
+		Renderer();
+		~Renderer();
 
 		size_t init(
 			gfx::RenderContextVulkan& ctxt,
@@ -95,16 +99,13 @@ namespace rev
 		gfx::DescriptorSetLayout m_postProDescriptorSets;
 
 		vk::PipelineLayout m_gbufferPipelineLayout;
-		vk::PipelineLayout m_postProcessPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
-		std::unique_ptr<gfx::RasterPipeline> m_postProPipeline;
 
 		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
 
 		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
 		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
-		std::shared_ptr<gfx::GPUBuffer> m_fullScreenIndices;
 		std::shared_ptr<gfx::Texture> m_iblLUT;
 
 		struct FramePushConstants
@@ -133,8 +134,8 @@ namespace rev
 			float bloom;
 		} m_postProConstants;
 
-		std::unique_ptr<gfx::RenderPass> m_uiRenderPass;
 		std::unique_ptr<gfx::RenderPass> m_hdrLightPass;
+		std::unique_ptr<gfx::FullScreenPass> m_uiRenderPass;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;

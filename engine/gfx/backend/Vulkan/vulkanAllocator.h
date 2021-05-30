@@ -107,7 +107,13 @@ namespace rev::gfx {
 			copyToGPUInternal(dst, dstOffset, (const void*)src, count * sizeof(T));
 		}
 
-		void transitionImageLayout(vk::CommandBuffer cmd, vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth);
+		void transitionImageLayout(
+			vk::CommandBuffer cmd,
+			vk::Image image,
+			vk::ImageLayout oldLayout,
+			vk::ImageLayout newLayout,
+			bool isDepth,
+			vk::DependencyFlags dependencies = {});
 
 	private:
 		enum MemoryProperties

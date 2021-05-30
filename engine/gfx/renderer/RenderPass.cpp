@@ -131,6 +131,18 @@ namespace rev::gfx
 		}
 	}
 
+	void RenderPass::setColorTarget(const ImageBuffer& colorTarget)
+	{
+		// Invalidate frame buffer
+		m_fb = vk::Framebuffer{};
+
+		m_colorTargets.clear();
+		m_colorViews.clear();
+
+		m_colorTargets.push_back(colorTarget.image());
+		m_colorViews.push_back(colorTarget.view());
+	}
+
 	void RenderPass::setDepthTarget(const ImageBuffer& depthTarget)
 	{
 		// Invalidate frame buffer

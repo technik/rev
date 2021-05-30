@@ -28,12 +28,15 @@ namespace rev::gfx
 {
 	class RasterHeap;
 
-	struct RenderPass
+	class RenderPass
 	{
+	public:
 		RenderPass(vk::RenderPass vkPass, gfx::FrameBufferManager& fbManager)
 			: m_vkPass(vkPass)
 			, m_fbManager(fbManager)
 		{}
+
+		virtual ~RenderPass() = default;
 
 		vk::RenderPass vkPass() const { return m_vkPass; }
 
@@ -48,6 +51,7 @@ namespace rev::gfx
 		void setClearColor(const math::Vec3f& c);
 
 		void setColorTargets(const std::vector<const gfx::ImageBuffer*>& colorTargets);
+		void setColorTarget(const gfx::ImageBuffer& colorTarget); // Specialization for single target
 
 		void setDepthTarget(const gfx::ImageBuffer& depthTarget);
 

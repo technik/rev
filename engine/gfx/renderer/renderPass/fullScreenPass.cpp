@@ -18,104 +18,103 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/*#include "fullScreenPass.h"
+#include "fullScreenPass.h"
 
-namespace rev::gfx {
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/rasterPipeline.h>
 
-	FullScreenPass::FullScreenPass(gfx::Device& device, ShaderCodeFragment* code, Pipeline::DepthTest depthTest, bool writeDepth, Pipeline::BlendMode blend)
-		: m_device(device)
+namespace rev::gfx
+{
+	FullScreenPass::FullScreenPass(
+		std::string_view fragmentShader,
+		const std::vector<vk::Format>& attachmentFormats,
+		gfx::FrameBufferManager& fbManager,
+		vk::DescriptorSetLayout descriptorSetLayout,
+		size_t pushConstantsSize
+	)
 	{
-		// Create a full screen quad
-		m_quad = rev::gfx::RenderGeom::quad({2.f, 2.f});
+		m_renderPass = std::make_unique<RenderPass>(RenderContext().createRenderPass(attachmentFormats), fbManager);
 
-		// Configure pipeline options
-		m_pipelineDesc.raster.witeDepth = writeDepth;
-		m_pipelineDesc.raster.depthTest = depthTest;
-		m_pipelineDesc.raster.blendMode = blend;
+		// Create shader pipeline
+		auto device = RenderContext().device();
+		// // Full screen pipeline
+		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, pushConstantsSize);
+		vk::PipelineLayoutCreateInfo postLayoutInfo({},
+			1, & descriptorSetLayout, // Descriptor sets
+			1, &postProPushRange); // Push constants
+		m_pipelineLayout = device.createPipelineLayout(postLayoutInfo);
+		
+		// Intentionally empty bindings. Full screen generates all vertices on the fly
+		RasterPipeline::VertexBindings fullScreenBindings;
+		m_pipeline = std::make_unique<gfx::RasterPipeline>(
+			fullScreenBindings,
+			m_pipelineLayout,
+			m_renderPass->vkPass(),
+			"../shaders/fullScreen.vert.spv",
+			fragmentShader,
+			false
+			);
 
-		// Common pass code
-		m_baseCode = new ShaderCodeFragment(R"(
-#ifdef VTX_SHADER
-	layout(location = 0) in vec3 vertex;
-
-	void main ( void )
-	{
-		gl_Position = vec4(vertex.xy, -1.0, 1.0);
-	}
-#endif
-
-#ifdef PXL_SHADER
-out lowp vec3 outColor;
-
-vec3 shade();
-
-void main (void) {	
-	outColor = shade();
-}
-#endif
-)");
-		// Initialize pipeline on start
-		if(code)
-			setPassCode(code);
+		// Create full screen vertices
+		auto& alloc = RenderContext().allocator();
+		m_fullScreenIndexBuffer = alloc.createGpuBuffer(
+			3 * sizeof(uint32_t),
+			vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+			RenderContext().graphicsQueueFamily());
+		uint32_t indices[3] = { 0, 1, 2 };
+		m_streamingToken = alloc.asyncTransfer(*m_fullScreenIndexBuffer, indices, 3);
 	}
 
 	FullScreenPass::~FullScreenPass()
 	{
-		if(m_completeCode)
-			delete m_completeCode;
-		if(m_baseCode)
-			delete m_baseCode;
-		if(m_passCode)
-			delete m_passCode;
+		m_pipeline = nullptr;
+		auto device = RenderContext().device();
+		device.destroyPipelineLayout(m_pipelineLayout);
+		device.destroyRenderPass(m_renderPass->vkPass());
 	}
 
-	void FullScreenPass::setPassCode(ShaderCodeFragment* code)
+	void FullScreenPass::begin(
+		const vk::CommandBuffer cmd,
+		const math::Vec2u& targetSize,
+		const ImageBuffer& colorTarget,
+		const math::Vec3f& clearColor,
+		vk::DescriptorSet descriptor)
 	{
-		assert(code);
-		m_pipeline = Pipeline(); // Invalidate pipeline
+		m_renderPass->setColorTarget(colorTarget);
+		m_renderPass->setClearColor(clearColor);
 
-		if(code != m_passCode)
-		{
-			m_passCode = code;
-			m_shaderListeners.push_back(code->onReload(
-				[this](ShaderCodeFragment& reloadedCode) {
-					this->setPassCode(&reloadedCode);
-				})
-			);
-			m_completeCode = new ShaderCodeFragment(m_baseCode, m_passCode);
-		}
+		RenderContext().allocator().transitionImageLayout(cmd,
+			colorTarget.image(),
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eGeneral,
+			false);
+		//, vk::DependencyFlagBits::eViewLocal
+		// Post-process HDR image
+		m_renderPass->begin(cmd, targetSize);
+		m_pipeline->bind(cmd);
 
-		// Prepare code
-		Pipeline::ShaderModule::Descriptor stageDesc;
-		m_completeCode->collapse(stageDesc.code);
-
-		// Vertex shader
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Vertex;
-		auto vtxShader = m_device.createShaderModule(stageDesc);
-		if(vtxShader.id == Pipeline::InvalidId)
-			return;
-
-		// Pixel shader
-		stageDesc.stage = Pipeline::ShaderModule::Descriptor::Pixel;
-		auto pxlShader = m_device.createShaderModule(stageDesc);
-		if(pxlShader.id == Pipeline::InvalidId)
-			return;
-
-		// Link pipeline
-		m_pipelineDesc.vtxShader = vtxShader;
-		m_pipelineDesc.pxlShader = pxlShader;
-		m_pipeline = m_device.createPipeline(m_pipelineDesc);
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+			m_pipelineLayout,
+			0, descriptor, {});
 	}
 
-	void FullScreenPass::render(const CommandBuffer::UniformBucket& passUniforms, CommandBuffer& out)
+	void FullScreenPass::render(const vk::CommandBuffer cmd)
 	{
-		if(!m_pipeline.isValid())
+		if (!RenderContext().allocator().isTransferFinished(m_streamingToken))
 			return;
 
-		out.setPipeline(m_pipeline);
-		out.setUniformData(passUniforms);
-		out.setVertexData(m_quad.getVao());
-		out.drawTriangles(6, CommandBuffer::IndexType::U16, nullptr);
+		cmd.bindIndexBuffer(m_fullScreenIndexBuffer->buffer(), {}, vk::IndexType::eUint32);
+
+		cmd.drawIndexed(3, 1, 0, 0, 0);
 	}
 
-}*/
+	void FullScreenPass::end(const vk::CommandBuffer cmd)
+	{
+		m_renderPass->end(cmd);
+	}
+
+	void FullScreenPass::invalidateShaders()
+	{
+		m_pipeline->invalidate();
+	}
+}

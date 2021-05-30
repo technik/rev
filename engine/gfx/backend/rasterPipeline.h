@@ -53,8 +53,8 @@ namespace rev::gfx
 			const VertexBindings& vtxFormat,
 			vk::PipelineLayout layout,
 			vk::RenderPass passDesc,
-			std::string vtxShaderFilename,
-			std::string pxlShaderFilename,
+			std::string_view vtxShaderFilename,
+			std::string_view pxlShaderFilename,
 			bool depthTest,
 			bool blend = false
 		);

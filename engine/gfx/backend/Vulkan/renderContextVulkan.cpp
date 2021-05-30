@@ -479,33 +479,7 @@ namespace rev::gfx {
 		auto res = m_device.acquireNextImageKHR(m_swapchain.m_vkSwapchain, uint64_t(-1), s);
 
 		m_swapchain.frameIndex = res.value;
-		auto& nextImage = m_swapchain.currentImage();
-
-		// Transition image to general layout before use
-		auto clearRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
-		vk::ImageMemoryBarrier presentToTransferBarrier(
-			vk::AccessFlagBits::eColorAttachmentRead,
-			vk::AccessFlagBits::eTransferWrite | vk::AccessFlagBits::eShaderWrite,
-			vk::ImageLayout::eUndefined,
-			vk::ImageLayout::eGeneral,
-			m_queueFamilies.present.value(),
-			m_queueFamilies.graphics.value(),
-			nextImage->image(),
-			clearRange);
-
-		cmd.pipelineBarrier(
-			// Wait for
-			vk::PipelineStageFlagBits::eColorAttachmentOutput,
-			// Before
-			vk::PipelineStageFlagBits::eTransfer // Clear or blit
-			| vk::PipelineStageFlagBits::eFragmentShader // Raster
-			| vk::PipelineStageFlagBits::eComputeShader, // Compute
-			vk::DependencyFlagBits::eViewLocal,
-			0, nullptr, // Memory barriers
-			0, nullptr, // Buffer memory barriers
-			1, &presentToTransferBarrier);
-
-		return *nextImage;
+		return *m_swapchain.currentImage();
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -514,6 +488,7 @@ namespace rev::gfx {
 		auto cmd = getNewRenderCmdBuffer();
 		// TODO: Maybe can just record this command once on creation and reuse it.
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
 
 		// Transition swapchain image layout to presentable
 		auto imageRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
@@ -533,7 +508,7 @@ namespace rev::gfx {
 			| vk::PipelineStageFlagBits::eComputeShader, // Compute
 			// Before
 			vk::PipelineStageFlagBits::eColorAttachmentOutput,
-			vk::DependencyFlagBits::eViewLocal,
+			{},//vk::DependencyFlagBits::eViewLocal,
 			0, nullptr, // Memory barriers
 			0, nullptr, // Buffer memory barriers
 			1, &transferToPresentBarrier);
@@ -635,12 +610,12 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::transitionImageLayout(vk::Image image, vk::Format imageFormat, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth)
+	void RenderContextVulkan::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bool isDepth)
 	{
 		auto cmd = getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 
-		allocator().transitionImageLayout(cmd, image, imageFormat, oldLayout, newLayout, isDepth);
+		allocator().transitionImageLayout(cmd, image, oldLayout, newLayout, isDepth);
 
 		cmd.end();
 		vk::SubmitInfo submitInfo(
