@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2019 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,56 +17,11 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//----------------------------------------------------------------------------------------------------------------------
-// File system interface
 #pragma once
 
-#include <filesystem>
-#include <vector>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
 
-#ifdef _WIN32
-#include "windows/fileSystemWindows.h"
-#endif // _WIN32
-#ifdef ANDROID
-#include <android/asset_manager.h>
-#endif // ANDROID
-
-namespace rev {
-	namespace core {
-
-		class File;
-
-#ifdef _WIN32
-		class FileSystem : public FileSystemBase {
-#else
-		class FileSystem {
-#endif
-		public:
-#ifdef ANDROID
-			static void init(AAssetManager* _mgr);
-			static void end();
-#endif // ANDROID
-#ifdef _WIN32
-			static void init();
-			static void end();
-			static FileSystem*	get();
-
-			void registerPath(const std::filesystem::path& path);
-			// Returns nullptr if the file doesn't exist in any of the registered paths, or the working directory
-			std::shared_ptr<File> readFile(const std::filesystem::path& filename) const;
-
-			// TODO: Scoped filesystem access with temporary sets of overriding paths?
-
-#endif // _WIN32
-		private:
-			FileSystem() = default;
-			~FileSystem() = default;
-
-			std::vector<std::filesystem::path> m_registedPaths;
-
-#ifdef _WIN32
-			static FileSystem*	sInstance;
-#endif // _WIN32
-		};
-	}
-}	// namespace rev
+namespace rev::gfx
+{
+	void initImGui(vk::RenderPass renderPass);
+}

@@ -54,7 +54,7 @@ namespace rev
 		struct PushConstants
 		{
 			math::Vec4f time;
-		};
+		} m_frameConstants;
 
 	private:
 		void loadNoiseTextures();

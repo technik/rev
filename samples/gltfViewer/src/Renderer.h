@@ -83,7 +83,6 @@ namespace rev
 		void renderPostProPass();
 
 		// Init ImGui
-		void initImGui();
 		bool renderFlag(uint32_t flag) const { return (m_frameConstants.renderFlags & flag) > 0; }
 
 	private:

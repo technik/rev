@@ -57,6 +57,7 @@ namespace rev::gfx
 
 		// Create full screen vertices
 		auto& alloc = RenderContext().allocator();
+		alloc.reserveStreamingBuffer(3 * sizeof(uint32_t));
 		m_fullScreenIndexBuffer = alloc.createGpuBuffer(
 			3 * sizeof(uint32_t),
 			vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,

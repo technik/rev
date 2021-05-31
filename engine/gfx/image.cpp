@@ -25,6 +25,7 @@
 #include "Image.h"
 #include <cstdint>
 #include <core/platform/fileSystem/file.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <core/string_util.h>
 #include <math/linear.h>
 
@@ -168,8 +169,8 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	std::shared_ptr<Image<uint8_t, 3>> Image<uint8_t, 3>::load(std::string_view _name, bool srgb)
 	{
-		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size(), srgb);
+		auto file = core::FileSystem::get()->readFile(_name.data());
+		return loadFromMemory(file->buffer(), file->size(), srgb);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -244,8 +245,8 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	std::shared_ptr<Image4u8> Image4u8::load(std::string_view _name, bool srgb)
 	{
-		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size(), srgb);
+		auto file = core::FileSystem::get()->readFile(_name.data());
+		return loadFromMemory(file->buffer(), file->size(), srgb);
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -303,8 +304,8 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	std::shared_ptr<Image3f> Image3f::load(std::string_view _name)
 	{
-		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size());
+		auto file = core::FileSystem::get()->readFile(_name.data());
+		return loadFromMemory(file->buffer(), file->size());
 	}
 
 	//----------------------------------------------------------------------------------------------
@@ -362,8 +363,8 @@ namespace rev::gfx
 	//----------------------------------------------------------------------------------------------
 	std::shared_ptr<Image4f> Image4f::load(std::string_view _name)
 	{
-		core::File file(_name.data());
-		return loadFromMemory(file.buffer(), file.size());
+		auto file = core::FileSystem::get()->readFile(_name.data());
+		return loadFromMemory(file->buffer(), file->size());
 	}
 
 	//----------------------------------------------------------------------------------------------

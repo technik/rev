@@ -22,8 +22,10 @@
 
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/FolderWatcher.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <gfx/renderer/renderPass/fullScreenPass.h>
 #include <gfx/Image.h>
+#include <gfx/ImGui.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_win32.h>
@@ -50,6 +52,9 @@ namespace rev
 
 	bool ShaderToy::init()
 	{
+		core::FileSystem::get()->registerPath("assets");
+		core::FileSystem::get()->registerPath("shaders");
+
 		// Create semaphore
 		auto device = RenderContext().device();
 		m_imageAvailableSemaphore = device.createSemaphore({});
@@ -69,6 +74,8 @@ namespace rev
 			m_descSetLayout.layout(),
 			sizeof(PushConstants));
 
+		initImGui(m_fullScreenFilter->vkPass());
+
 		// Blue noise
 		m_noisePermutations = std::uniform_int_distribution<unsigned>(0, NumBlueNoiseTextures - 1);
 		loadNoiseTextures();
@@ -77,7 +84,10 @@ namespace rev
 		m_descSetLayout.writeArrayTextureToDescriptor(0, "Blue Noise", m_blueNoise);
 
 		// Create shader pipelines
-		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
+		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("shaders"));
+		m_shaderWatcher->listen([=](auto) {
+			m_fullScreenFilter->invalidateShaders();
+			});
 
 		return true;
 	}
@@ -138,15 +148,28 @@ namespace rev
 		// ImGui
 		ImGui_ImplWin32_NewFrame();
 		ImGui_ImplVulkan_NewFrame();
+
 		auto& io = ImGui::GetIO();
 		io.DisplaySize = { windowSize.x(), windowSize.y() };
 		auto mousePos = input::PointingInput::get()->touchPosition();
 		io.MousePos = { (float)mousePos.x(), (float)mousePos.y() };
 
+		ImGui::NewFrame();
+
+		if (ImGui::Begin("debug window"))
+		{
+			if (ImGui::CollapsingHeader("Options"))
+			{
+			}
+		}
+		ImGui::End();
+		ImGui::Render();
+
 		// Render passes
 		auto cmd = RenderContext().getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 		
+		m_frameConstants.time = m_timeVector;
 		m_fullScreenFilter->begin(
 			cmd,
 			renderContext().windowSize(),
@@ -154,7 +177,21 @@ namespace rev
 			Vec3f(0),
 			m_descSetLayout.getDescriptor(0));
 
+		m_fullScreenFilter->pushConstants(cmd, m_frameConstants);
+		m_fullScreenFilter->render(cmd);
+
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+
+		m_fullScreenFilter->end(cmd);
+
+		cmd.end();
+
+		vk::PipelineStageFlags waitFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		vk::SubmitInfo submitInfo(
+			1, &m_imageAvailableSemaphore, &waitFlags, // wait
+			1, &cmd, // commands
+			1, &RenderContext().readyToPresentSemaphore()); // signal
+		RenderContext().graphicsQueue().submit(submitInfo);
 
 		RenderContext().swapchainPresent();
 	}

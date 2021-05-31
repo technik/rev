@@ -24,6 +24,7 @@
 
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/fileSystem/file.h>
+#include <core/tools/log.h>
 
 #include <gfx/types.h>
 
@@ -93,7 +94,17 @@ namespace rev::gfx
 	vk::Pipeline RasterPipeline::tryLoad()
 	{
 		vk::ShaderModule vtxModule = loadShaderModule(m_vtxShader);
+		if (!vtxModule)
+		{
+			core::LogMessage("Unable to load shader " + m_vtxShader);
+			return vk::Pipeline();
+		}
 		vk::ShaderModule pxlModule = loadShaderModule(m_pxlShader);
+		if (!pxlModule)
+		{
+			core::LogMessage("Unable to load shader " + m_pxlShader);
+			return vk::Pipeline();
+		}
 
 		// Create shader stages
 		auto vtxStage = vk::PipelineShaderStageCreateInfo({}, vk::ShaderStageFlagBits::eVertex, vtxModule, "main");

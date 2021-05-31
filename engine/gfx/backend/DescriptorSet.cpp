@@ -102,6 +102,11 @@ namespace rev::gfx
 		vk::WriteDescriptorSet writeInfo;
 		writeInfo.dstSet = getDescriptor(descNdx);
 		writeInfo.dstArrayElement = 0;
+
+		assert(m_textureArrayBindings.find(name) != m_textureArrayBindings.end());
+		auto [binding, numTextures] = m_textureArrayBindings.at(name);
+		assert(numTextures == textureArray.size());
+
 		if (textureArray.size() > 0)
 		{
 			std::vector<vk::DescriptorImageInfo> texInfo(textureArray.size());
@@ -113,7 +118,7 @@ namespace rev::gfx
 				texInfo[i].sampler = texture.sampler;
 			}
 			writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-			writeInfo.dstBinding = 3;
+			writeInfo.dstBinding = binding;
 			writeInfo.descriptorCount = (uint32_t)textureArray.size();
 			writeInfo.pImageInfo = texInfo.data();
 			RenderContext().device().updateDescriptorSets(writeInfo, {});

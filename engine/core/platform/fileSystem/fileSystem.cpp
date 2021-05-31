@@ -55,7 +55,7 @@ namespace rev {
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		File* FileSystem::readFile(const std::filesystem::path& filename) const
+		std::shared_ptr<File> FileSystem::readFile(const std::filesystem::path& filename) const
 		{
 			if (filename.is_relative())
 			{
@@ -65,14 +65,14 @@ namespace rev {
 					auto fullPath = path / filename;
 					if (std::filesystem::exists(fullPath))
 					{
-						return new File(fullPath.string());
+						return std::make_shared<File>(fullPath.string());
 					}
 				}
 			}
 			// Finally, try just the unmodified path (either absolute or relative)
 			if (std::filesystem::exists(filename))
 			{
-				return new File(filename.string());
+				return std::make_shared<File>(filename.string());
 			}
 			return nullptr;
 		}

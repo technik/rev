@@ -25,13 +25,11 @@
 #include <gfx/renderer/renderPass/fullScreenPass.h>
 #include <gfx/scene/Material.h>
 #include <gfx/Image.h>
+#include <gfx/ImGui.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_win32.h>
-
-// Imgui windows handler
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace rev
 {
@@ -95,7 +93,7 @@ namespace rev
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
 		renderBufferUpdates.send();
 
-		initImGui();
+		gfx::initImGui(m_uiRenderPass->vkPass());
 
 		return streamToken;
 	}
@@ -431,70 +429,5 @@ namespace rev
 			vk::ImageUsageFlagBits::eSampled,
 			m_ctxt->graphicsQueueFamily()
 		);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	void Renderer::initImGui()
-	{
-		ImGui::CreateContext();
-
-		auto& rc = *m_ctxt;
-		auto nativeWindow = rc.nativeWindow();
-		ImGui_ImplWin32_Init(&nativeWindow);
-
-		vk::DescriptorPoolSize pool_sizes[] =
-		{
-			{ vk::DescriptorType::eSampler, 1000 },
-			{ vk::DescriptorType::eCombinedImageSampler, 1000 },
-			{ vk::DescriptorType::eSampledImage, 1000 },
-			{ vk::DescriptorType::eStorageImage, 1000 },
-			{ vk::DescriptorType::eUniformTexelBuffer, 1000 },
-			{ vk::DescriptorType::eStorageTexelBuffer, 1000 },
-			{ vk::DescriptorType::eUniformBuffer, 1000 },
-			{ vk::DescriptorType::eStorageBuffer, 1000 },
-			{ vk::DescriptorType::eUniformBufferDynamic, 1000 },
-			{ vk::DescriptorType::eStorageBufferDynamic, 1000 },
-			{ vk::DescriptorType::eInputAttachment, 1000 }
-		};
-
-		vk::DescriptorPoolCreateInfo pool_info = {};
-		pool_info.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-		pool_info.pPoolSizes = pool_sizes;
-
-		ImGui_ImplVulkan_InitInfo initInfo{};
-		initInfo.Instance = rc.instance();
-		initInfo.Device = rc.device();
-		initInfo.PhysicalDevice = rc.physicalDevice();
-		initInfo.Queue = rc.graphicsQueue();
-		initInfo.QueueFamily = rc.graphicsQueueFamily();
-		initInfo.Subpass = 0;
-		initInfo.ImageCount = 2;
-		initInfo.MinImageCount = 2;
-		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-		initInfo.DescriptorPool = rc.device().createDescriptorPool(pool_info);
-
-		ImGui_ImplVulkan_Init(&initInfo, m_uiRenderPass->vkPass());
-
-		auto& os = *core::OSHandler::get();
-		os += [=](MSG msg) {
-			// ImGui handler
-			ImGui_ImplWin32_WndProcHandler(nativeWindow, msg.message, msg.wParam, msg.lParam);
-			return false;
-		};
-
-		// Init font
-		auto cmd = m_ctxt->getNewRenderCmdBuffer();
-		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
-		ImGui_ImplVulkan_CreateFontsTexture(cmd);
-
-		cmd.end();
-
-		vk::SubmitInfo submitInfo(
-			0, nullptr, nullptr, // wait
-			1, &cmd, // commands
-			0, nullptr); // signal
-		m_ctxt->graphicsQueue().submit(submitInfo);
 	}
 }
