@@ -22,7 +22,9 @@
 #include <core/platform/osHandler.h>
 
 #include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/rasterPipeline.h>
 #include <gfx/renderer/renderPass/fullScreenPass.h>
+#include <gfx/renderer/RasterQueue.h>
 #include <gfx/scene/Material.h>
 #include <gfx/Image.h>
 #include <gfx/ImGui.h>
@@ -31,7 +33,7 @@
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_win32.h>
 
-namespace rev
+namespace rev::gfx
 {
 	//---------------------------------------------------------------------------------------------------------------------
 	Renderer::Renderer()
@@ -42,10 +44,10 @@ namespace rev
 	{}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	size_t Renderer::init(
+	void Renderer::init(
 		gfx::RenderContextVulkan& ctxt,
 		const math::Vec2u& windowSize,
-		const SceneDesc& scene)
+		const Budget& limits)
 	{
 		m_windowSize = windowSize;
 
@@ -58,44 +60,20 @@ namespace rev
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
-		const size_t maxSceneTextures = scene.m_textures.size();
-
 		createRenderTargets();
-		createDescriptorLayouts(maxSceneTextures);
+		createDescriptorLayouts(limits.maxTexturesPerBatch);
 		createRenderPasses();
 		createShaderPipelines();
 		loadIBLLUT();
 
-		// Allocate matrix buffers
-		m_mtxBuffers.resize(2);
-		const size_t maxNumInstances = scene.m_sceneInstances.numInstances();
-		const size_t maxNumMaterials = scene.m_materials.size();
-
-		auto& alloc = ctxt.allocator();
-		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
-		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
-
-		// Allocate materials buffer
-		size_t streamToken = 0;
-		if (!scene.m_materials.empty())
-		{
-			m_materialsBuffer = alloc.createGpuBuffer(
-				sizeof(gfx::PBRMaterial) * maxNumMaterials,
-				vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
-				m_ctxt->graphicsQueueFamily());
-			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
-		}
-
 		// Update descriptor sets
-		fillConstantDescriptorSets(scene);
+		fillConstantDescriptorSets();
 
 		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
 		renderBufferUpdates.send();
 
 		gfx::initImGui(m_uiRenderPass->vkPass());
-
-		return streamToken;
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -133,7 +111,7 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::render(SceneDesc& scene, bool geometryReady)
+	void Renderer::render(SceneDesc& scene)
 	{
 		if (m_windowSize.x() == 0 || m_windowSize.y() == 0)
 			return; // Don't try to render while minimized
@@ -142,7 +120,7 @@ namespace rev
 		m_shaderWatcher->update();
 
 		// Render passes
-		renderGeometryPass(scene, geometryReady);
+		renderGeometryPass(scene);
 		renderPostProPass();
 
 		// Swapchain update
@@ -150,7 +128,7 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::renderGeometryPass(SceneDesc& scene, bool geometryReady)
+	void Renderer::renderGeometryPass(SceneDesc& scene)
 	{
 
 		// Update frame state
@@ -166,30 +144,62 @@ namespace rev
 		auto cmd = scope.cmd;
 		m_hdrLightPass->begin(cmd, m_windowSize);
 
-		if (geometryReady)
+		std::vector<RasterQueue::Draw> draws;
+		std::vector<RasterQueue::Batch> batches;
+
+		// Bind pipeline
+		m_gBufferPipeline->bind(cmd);
+
+		// Frame set up
+		cmd.pushConstants<FramePushConstants>(
+			m_gbufferPipelineLayout,
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			0,
+			m_frameConstants);
+
+		// Update descriptor set with this frame's matrices
+		cmd.bindDescriptorSets(
+			vk::PipelineBindPoint::eGraphics,
+			m_gbufferPipelineLayout,
+			0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
+
+		// Render opaque geometry
+		for(const auto& queue : scene.m_opaqueGeometry)
 		{
-			// Update per instance model matrices
-			auto mtxDst = m_ctxt->allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
-			scene.m_sceneInstances.updatePoses(mtxDst);
-			m_ctxt->allocator().unmapBuffer(mtxDst);
+			// Get queue draw batches
+			draws.clear();
+			batches.clear();
+			queue->getDrawBatches(draws, batches);
 
-			// Bind pipeline
-			m_gBufferPipeline->bind(cmd);
+			for (const auto& batch : batches)
+			{
+				// Update per batch descriptor set
+				DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
+				batchUpdate.addStorageBuffer("worldMtx", batch.worldMatrices);
+				batchUpdate.addStorageBuffer("materials", batch.materials);
+				batchUpdate.send();
 
-			// Update descriptor set with this frame's matrices
-			cmd.bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics,
-				m_gbufferPipelineLayout,
-				0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
+				m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
 
-			cmd.pushConstants<FramePushConstants>(
-				m_gbufferPipelineLayout,
-				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-				0,
-				m_frameConstants);
+				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
+				cmd.bindVertexBuffers(0, {
+					batch.positionBinding.first->buffer(),
+					batch.normalsBinding.first->buffer(),
+					batch.tangentsBinding.first->buffer(),
+					batch.texCoordBinding.first->buffer()
+					}, {
+					batch.positionBinding.first->offset() + batch.positionBinding.second,
+					batch.normalsBinding.first->offset() + batch.normalsBinding.second,
+					batch.tangentsBinding.first->offset() + batch.tangentsBinding.second,
+					batch.texCoordBinding.first->offset() + batch.texCoordBinding.second
+					});
 
-			// Draw all instances in a single batch
-			m_hdrLightPass->drawGeometry(cmd, scene.m_sceneInstances.m_instanceMeshes, scene.m_sceneInstances.m_meshes, scene.m_rasterData);
+				for (uint32_t i = batch.firstDraw; i < batch.endDraw; ++i)
+				{
+					auto& draw = draws[i];
+					cmd.drawIndexed(draw.numIndices, draw.numInstances, draw.indexOffset, draw.vtxOffset, draw.instanceOffset);
+				}
+			}
 
 			m_doubleBufferNdx ^= 1;
 		}
@@ -282,12 +292,12 @@ namespace rev
 	void Renderer::createDescriptorLayouts(size_t numTextures)
 	{
 		// Geometry pass
-		m_geometryDescriptorSets.addStorageBuffer("World mtx", 0, vk::ShaderStageFlagBits::eVertex);
-		m_geometryDescriptorSets.addStorageBuffer("Materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+		m_geometryDescriptorSets.addStorageBuffer("worldMtx", 0, vk::ShaderStageFlagBits::eVertex);
+		m_geometryDescriptorSets.addStorageBuffer("materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
-		m_geometryDescriptorSets.addTexture("IBL texture", 2, vk::ShaderStageFlagBits::eFragment);
+		m_geometryDescriptorSets.addTexture("iblLUT", 2, vk::ShaderStageFlagBits::eFragment);
 		assert(numTextures < std::numeric_limits<uint32_t>::max());
-		m_geometryDescriptorSets.addTextureArray("Textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+		m_geometryDescriptorSets.addTextureArray("textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
 
 		constexpr uint32_t numSwapchainImages = 2;
 		m_geometryDescriptorSets.close(numSwapchainImages);
@@ -298,7 +308,7 @@ namespace rev
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::fillConstantDescriptorSets(const SceneDesc& scene)
+	void Renderer::fillConstantDescriptorSets()
 	{
 		auto device = m_ctxt->device();
 
@@ -306,13 +316,8 @@ namespace rev
 		{
 			gfx::DescriptorSetUpdate frameUpdate(m_geometryDescriptorSets, frameNdx);
 
-			frameUpdate.addStorageBuffer("World mtx", m_mtxBuffers[frameNdx]);
-			frameUpdate.addStorageBuffer("Materials", m_materialsBuffer);
-			frameUpdate.addTexture("IBL texture", m_iblLUT);
+			frameUpdate.addTexture("iblLUT", m_iblLUT);
 			frameUpdate.send();
-
-			// Material textures
-			m_geometryDescriptorSets.writeArrayTextureToDescriptor(frameNdx, "Textures", scene.m_textures);
 		}
 	}
 

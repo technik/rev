@@ -19,12 +19,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/Vulkan.h>
 
 #include <map>
 
 namespace rev::gfx
 {
+	class GPUBuffer;
+	class ImageBuffer;
+	class Texture;
+
 	class DescriptorSetLayout
 	{
 	public:
