@@ -20,7 +20,6 @@
 #pragma once
 
 #include <gfx/renderer/RenderPass.h>
-#include <gfx/RasterHeap.h>
 
 using namespace rev::math;
 
@@ -150,28 +149,6 @@ namespace rev::gfx
 
 		m_depthTarget = depthTarget.image();
 		m_depthView = depthTarget.view();
-	}
-
-	void RenderPass::drawGeometry(
-		vk::CommandBuffer cmd,
-		const std::vector<size_t>& instanceMeshes,
-		const std::vector<std::pair<size_t,size_t>>& meshes,
-		const RasterHeap& rasterData)
-	{
-		// Draw all instances in a single batch
-		rasterData.bindBuffers(cmd);
-		for (size_t i = 0; i < instanceMeshes.size(); ++i)
-		{
-			assert(i < std::numeric_limits<uint32_t>::max());
-
-			auto meshNdx = instanceMeshes[i];
-			auto& mesh = meshes[meshNdx];
-			for (size_t primitiveId = mesh.first; primitiveId != mesh.second; ++primitiveId)
-			{
-				auto& primitive = rasterData.getPrimitiveById(primitiveId);
-				cmd.drawIndexed(primitive.numIndices, 1, primitive.indexOffset, primitive.vtxOffset, (uint32_t)i);
-			}
-		}
 	}
 
 	void RenderPass::refreshFrameBuffer(const math::Vec2u& targetSize)

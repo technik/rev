@@ -57,12 +57,6 @@ namespace rev::gfx
 
 		void end(vk::CommandBuffer cmd) { cmd.endRenderPass(); }
 
-		void drawGeometry(
-			vk::CommandBuffer cmd,
-			const std::vector<size_t>& instanceMeshes,
-			const std::vector<std::pair<size_t, size_t>>& meshes,
-			const RasterHeap& rasterData);
-
 	private:
 
 		void refreshFrameBuffer(const math::Vec2u& targetSize);

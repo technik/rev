@@ -156,14 +156,24 @@ namespace rev::gfx {
 
 		m_vtxPosOffset = 0;
 		alloc.asyncTransfer(*m_vtxBuffer, m_vtxPositions.data(), numVertices, m_vtxPosOffset);
-		m_normalsOffset = numVertices * sizeof(Vec3f);
+		m_normalsOffset = uint32_t(numVertices * sizeof(Vec3f));
 		alloc.asyncTransfer(*m_vtxBuffer, m_vtxNormals.data(), numVertices, m_normalsOffset);
-		m_tangentsOffset = numVertices * sizeof(Vec3f) + m_normalsOffset;
+		m_tangentsOffset = uint32_t(numVertices * sizeof(Vec3f)) + m_normalsOffset;
 		alloc.asyncTransfer(*m_vtxBuffer, m_vtxTangents.data(), numVertices, m_tangentsOffset);
-		m_texCoordOffset = numVertices * sizeof(Vec4f) + m_tangentsOffset;
+		m_texCoordOffset = uint32_t(numVertices * sizeof(Vec4f)) + m_tangentsOffset;
 		alloc.asyncTransfer(*m_vtxBuffer, m_textureCoords.data(), numVertices, m_texCoordOffset);
 
-		return alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), m_indices.size(), 0);
+		auto streamToken = alloc.asyncTransfer(*m_indexBuffer, m_indices.data(), m_indices.size(), 0);
+
+		// Materials
+		if (!m_materials.empty())
+		{
+			m_materialsBuffer = alloc.createGpuBuffer(
+				sizeof(gfx::PBRMaterial) * m_materials.size(),
+				vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
+				RenderContext().graphicsQueueFamily());
+			streamToken = alloc.asyncTransfer(*m_materialsBuffer, m_materials.data(), m_materials.size());
+		}
 
 		// Get rid of local data
 		m_vtxPositions.clear();
@@ -171,24 +181,17 @@ namespace rev::gfx {
 		m_vtxTangents.clear();
 		m_textureCoords.clear();
 		m_indices.clear();
+		m_materials.clear();
+
+		return streamToken;
 	}
 
-	void RasterHeap::bindBuffers(vk::CommandBuffer cmd) const
+	void RasterHeap::getVertexBindings(VtxBinding& pos, VtxBinding& normal, VtxBinding& tangent, VtxBinding& uvs)
 	{
-		cmd.bindVertexBuffers(0,
-			std::array{
-				m_vtxBuffer->buffer(),
-				m_vtxBuffer->buffer(),
-				m_vtxBuffer->buffer(),
-				m_vtxBuffer->buffer() },
-			{
-				m_vtxBuffer->offset() + m_vtxPosOffset,
-				m_vtxBuffer->offset() + m_normalsOffset,
-				m_vtxBuffer->offset() + m_tangentsOffset,
-				m_vtxBuffer->offset() + m_texCoordOffset
-			});
-
-		cmd.bindIndexBuffer(m_indexBuffer->buffer(), m_indexBuffer->offset(), vk::IndexType::eUint32);
+		pos = { m_vtxBuffer.get(), m_vtxPosOffset };
+		normal = { m_vtxBuffer.get(), m_normalsOffset };
+		tangent = { m_vtxBuffer.get(), m_tangentsOffset };
+		uvs = { m_vtxBuffer.get(), m_texCoordOffset };
 	}
 
 	bool RasterHeap::isClosed() const

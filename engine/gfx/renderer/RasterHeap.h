@@ -21,10 +21,9 @@
 
 #include <cstdint>
 #include <math/algebra/vector.h>
-
-namespace vk {
-	class CommandBuffer;
-}
+#include <gfx/renderer/RasterQueue.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Texture.h>
 
 namespace rev::gfx
 {
@@ -32,7 +31,7 @@ namespace rev::gfx
 	class RenderContextVulkan;
 	class VulkanAllocator;
 
-	// Utility to create a bunch of
+	// Utility to create a bunch of rasterization primitives that share vertex and index buffers
 	class RasterHeap
 	{
 	public:
@@ -43,6 +42,14 @@ namespace rev::gfx
 			uint32_t numIndices;
 			uint32_t materialNdx;
 		};
+
+		struct Mesh
+		{
+			uint32_t firstPrimitive;
+			uint32_t endPrimitive;
+		};
+
+		using VtxBinding = RasterQueue::VtxBinding;
 
 	public:
 		RasterHeap() = default;
@@ -62,8 +69,28 @@ namespace rev::gfx
 			uint32_t numIndices,
 			const uint32_t* indices
 		);
-
 		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
+
+		__forceinline size_t addMesh(const Mesh& mesh)
+		{
+			m_meshes.push_back(mesh);
+			return m_meshes.size() - 1;
+		}
+
+		__forceinline const auto& mesh(size_t i) const { return m_meshes[i]; }
+
+		void addMaterial(const PBRMaterial material)
+		{
+			m_materials.push_back(material);
+		}
+
+		void addTexture(const std::shared_ptr<Texture>& texture)
+		{
+			m_textures.push_back(texture);
+		}
+
+		const auto& textures() const { return m_textures; }
+		const auto materialsBuffer() const { return m_materialsBuffer; }
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, new primitives can no longer be added to the heap.
@@ -74,7 +101,8 @@ namespace rev::gfx
 		);
 
 		// Bind data buffers for draw.
-		void bindBuffers(vk::CommandBuffer cmd) const;
+		GPUBuffer* indexBuffer() const { return m_indexBuffer.get(); }
+		void getVertexBindings(VtxBinding& pos, VtxBinding& normal, VtxBinding& tangent, VtxBinding& uvs);
 
 	private:
 		bool isClosed() const;
@@ -86,11 +114,17 @@ namespace rev::gfx
 		std::vector<math::Vec2f> m_textureCoords;
 		std::vector<uint32_t> m_indices;
 
+		std::vector<PBRMaterial> m_materials;
+
+		// CPU permanent data
+		std::vector<Mesh> m_meshes;
 		std::vector<Primitive> m_primitives;
 
 		// GPU data
 		std::shared_ptr<GPUBuffer> m_vtxBuffer;
 		std::shared_ptr<GPUBuffer> m_indexBuffer;
-		size_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
+		std::shared_ptr<GPUBuffer> m_materialsBuffer;
+		std::vector<std::shared_ptr<Texture>> m_textures;
+		uint32_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
 	};
 }

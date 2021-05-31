@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "DescriptorSet.h"
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
 
 namespace rev::gfx
 {
@@ -85,7 +86,7 @@ namespace rev::gfx
 
 		auto poolInfo = vk::DescriptorPoolCreateInfo({}, numDescriptorBindings);
 		poolInfo.pPoolSizes = poolSize.data();
-		poolInfo.poolSizeCount = poolSize.size();
+		poolInfo.poolSizeCount = (uint32_t)poolSize.size();
 
 		m_pool = RenderContext().device().createDescriptorPool(poolInfo);
 	}

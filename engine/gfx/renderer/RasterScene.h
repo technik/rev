@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,46 +19,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "../sceneNode.h"
-#include <gfx/renderer/RasterScene.h>
-#include <gfx/scene/Material.h>
-#include <gfx/Texture.h>
-#include <game/scene/sceneNode.h>
+#include <gfx/renderer/RasterQueue.h>
+#include <gfx/renderer/RasterHeap.h>
+#include <math/algebra/matrix.h>
 
-#include <memory>
-#include <string>
 #include <vector>
-
-namespace fx::gltf { struct Document; }
 
 namespace rev::gfx
 {
-	class RenderContextVulkan;
-	class VulkanAllocator;
 	class GPUBuffer;
-	class RasterHeap;
-}
 
-namespace rev::game {
-
-	class GltfLoader
+	class RasterScene : public RasterQueue
 	{
 	public:
-		GltfLoader(gfx::RenderContextVulkan&);
-		~GltfLoader();
+		RasterScene();
+		~RasterScene();
 
-		/// Load a gltf scene
-		/// filePath must contain folder, file name and extension
-		/// \return root node of the loaded asset
-		std::shared_ptr<SceneNode> load(const std::string& filePath, gfx::RasterScene& scene);
+		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
+
+		// Invalidates the order of renderables
+		void addInstance(const math::Mat44f& worldMtx, uint32_t meshNdx);
+		void clearInstances();
+
+		gfx::RasterHeap m_geometry;
 
 	private:
-		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, gfx::RasterScene& meshes);
+		void refreshMatrixBuffer();
 
-		gfx::RenderContextVulkan& m_renderContext;
-		gfx::VulkanAllocator& m_alloc;
-
-		std::string m_assetsFolder;
+		std::vector<uint32_t> m_instanceMeshNdx;
+		std::vector<math::Mat44f> m_instanceWorldMtx;
+		std::shared_ptr<GPUBuffer> m_worldMtxBuffer;
 	};
 
+	inline RasterScene::RasterScene()
+	{}
+
+	inline RasterScene::~RasterScene()
+	{}
 }

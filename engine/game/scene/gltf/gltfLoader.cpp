@@ -29,24 +29,9 @@
 #include <gfx/backend/Vulkan/gpuBuffer.h>
 #include <gfx/backend/Vulkan/renderContextVulkan.h>
 #include <gfx/backend/Vulkan/vulkanAllocator.h>
-#include <gfx/RasterHeap.h>
+#include <gfx/renderer/RasterScene.h>
 #include <gfx/Image.h>
 #include <gfx/scene/Material.h>
-
-/*
-#include <core/tasks/threadPool.h>
-#include <core/tools/log.h>
-#include <core/string_util.h>
-#include <nlohmann/json.hpp>
-#include <game/animation/skeleton.h>
-#include <game/resources/load.h>
-#include <game/scene/LightComponent.h>
-#include <game/scene/camera.h>
-#include <game/scene/transform/flyby.h>
-#include <gfx/scene/animation/skinning.h>
-#include <gfx/renderer/material/Effect.h>
-#include <gfx/renderer/material/material.h>
-#include <vector>*/
 
 using Json = nlohmann::json;
 
@@ -215,11 +200,8 @@ namespace rev::game {
 			return result;
 		}
 
-		std::vector<gfx::PBRMaterial> loadMaterials(const gltf::Document& document)
+		void loadMaterials(const gltf::Document& document, gfx::RasterScene& scene)
 		{
-			std::vector<gfx::PBRMaterial> result;
-			result.reserve(document.materials.size());
-
 			for (auto& gltfMaterial : document.materials)
 			{
 				PBRMaterial material;
@@ -232,10 +214,8 @@ namespace rev::game {
 				material.emissiveTexture = gltfMaterial.emissiveTexture.index;
 				material.normalTexture = gltfMaterial.normalTexture.index;
 
-				result.push_back(material);
+				scene.m_geometry.addMaterial(material);
 			}
-
-			return result;
 		}
 
 		auto loadImages(const std::string assetFolder, const gltf::Document& document)
@@ -282,11 +262,12 @@ namespace rev::game {
 			return images;
 		}
 
-		auto loadTextures(const gltf::Document& document, const std::vector<std::shared_ptr<Image<>>>& images)
+		void loadTextures(
+			const gltf::Document& document,
+			const std::vector<std::shared_ptr<Image<>>>& images,
+			gfx::RasterScene& scene)
 		{
 			auto& rc = RenderContext();
-
-			std::vector<std::shared_ptr<gfx::Texture>> textures;
 
 			for (auto& gltfTexture : document.textures)
 			{
@@ -320,10 +301,9 @@ namespace rev::game {
 					vk::ImageUsageFlagBits::eSampled,
 					rc.graphicsQueueFamily()
 				);
-				textures.push_back(texture);
-			}
 
-			return textures;
+				scene.m_geometry.addTexture(texture);
+			}
 		}
 	}
 
@@ -343,10 +323,8 @@ namespace rev::game {
 	}
 
 	//----------------------------------------------------------------------------------------------
-	auto GltfLoader::load(const std::string& filePath, RasterHeap& rasterDataDst) -> LoadResult
+	std::shared_ptr<SceneNode> GltfLoader::load(const std::string& filePath, gfx::RasterScene& scene)
 	{
-		LoadResult result{};
-
 		// Open file
 		m_assetsFolder = filesystem::path(filePath).parent_path().string();
 
@@ -359,20 +337,11 @@ namespace rev::game {
 		{
 			std::cout << "Unable to load scene " << filePath << " with " << document.buffers.size() << " buffers." << endl
 				<< "Only scenes with exactly one buffer are supported." << endl;
-			return result;
+			return nullptr;
 		}
 
-		// Load buffers (temporary - will be replaced by RasterHeap's internal data upload).
-		const auto& gltfBuffer = document.buffers[0];
-		result.m_gpuData = m_alloc.createGpuBuffer(gltfBuffer.byteLength,
-			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
-			m_renderContext.graphicsQueueFamily());
-
-		m_alloc.reserveStreamingBuffer(gltfBuffer.byteLength);
-		result.asyncLoadToken = m_alloc.asyncTransfer(*result.m_gpuData, gltfBuffer.data.data(), gltfBuffer.data.size());
-
 		// Load node tree
-		result.rootNode = loadNodes(document, result.meshInstances);
+		auto rootNode = loadNodes(document, scene);
 
 		// Load meshes
 		for(const auto& mesh : document.meshes)
@@ -380,8 +349,8 @@ namespace rev::game {
 			if (mesh.primitives.empty())
 				continue;
 
-			size_t firstPrimitive = size_t(-1);
-			size_t lastPrimitive = 0;
+			uint32_t firstPrimitive = -1;
+			uint32_t lastPrimitive = 0;
 			// Iterate over the mesh's primitives
 			for (auto& primitive : mesh.primitives)
 			{
@@ -394,7 +363,7 @@ namespace rev::game {
 				// Locate index data
 				auto indices = loadIndices(document, primitive.indices, gltf::BufferView::TargetType::ElementArrayBuffer);
 
-				auto p = rasterDataDst.addPrimitiveData(
+				auto p = (uint32_t)scene.m_geometry.addPrimitiveData(
 					(uint32_t)vtxPos.size(),
 					vtxPos.data(),
 					vtxNormal.data(),
@@ -405,19 +374,19 @@ namespace rev::game {
 				lastPrimitive = p;
 			}
 
-			result.meshInstances.addMesh(firstPrimitive, lastPrimitive + 1);
+			scene.m_geometry.addMesh({ firstPrimitive, lastPrimitive + 1 });
 		}
 
 		// Load resources
-		result.materials = loadMaterials(document);
+		loadMaterials(document, scene);
 		auto images = loadImages(m_assetsFolder, document);
-		result.textures = loadTextures(document, images);
+		loadTextures(document, images, scene);
 		// Load materials
-		return result;
+		return rootNode;
 	}
 
 	//----------------------------------------------------------------------------------------------
-	shared_ptr<SceneNode> GltfLoader::loadNodes(const gltf::Document& _document, MeshRenderer& meshes)
+	shared_ptr<SceneNode> GltfLoader::loadNodes(const gltf::Document& _document, gfx::RasterScene& meshes)
 	{
 		vector<shared_ptr<SceneNode>> sceneNodes;
 		for (auto& nodeDesc : _document.nodes)
@@ -454,7 +423,7 @@ namespace rev::game {
 			// Optional node mesh
 			if (nodeDesc.mesh >= 0)
 			{
-				meshes.addInstance(node->component<Transform>(), nodeDesc.mesh);
+				meshes.addInstance(node->component<Transform>()->matrix(), nodeDesc.mesh);
 			}
 		}
 

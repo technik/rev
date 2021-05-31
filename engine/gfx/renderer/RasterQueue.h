@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,46 +19,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "../sceneNode.h"
-#include <gfx/renderer/RasterScene.h>
-#include <gfx/scene/Material.h>
-#include <gfx/Texture.h>
-#include <game/scene/sceneNode.h>
-
+#include <cstdint>
 #include <memory>
-#include <string>
+#include <utility>
 #include <vector>
 
-namespace fx::gltf { struct Document; }
+#include <gfx/backend/Vulkan/Vulkan.h>
+#include <gfx/Texture.h>
 
 namespace rev::gfx
 {
-	class RenderContextVulkan;
-	class VulkanAllocator;
 	class GPUBuffer;
-	class RasterHeap;
-}
 
-namespace rev::game {
-
-	class GltfLoader
+	// Utility to create a bunch of
+	class RasterQueue
 	{
 	public:
-		GltfLoader(gfx::RenderContextVulkan&);
-		~GltfLoader();
+		struct Draw
+		{
+			uint32_t numIndices;
+			uint32_t indexOffset;
+			uint32_t vtxOffset;
+			uint32_t numInstances;
+			uint32_t instanceOffset;
+			uint32_t materialIndex;
+		};
 
-		/// Load a gltf scene
-		/// filePath must contain folder, file name and extension
-		/// \return root node of the loaded asset
-		std::shared_ptr<SceneNode> load(const std::string& filePath, gfx::RasterScene& scene);
+		using VtxBinding = std::pair<GPUBuffer*, uint32_t>;
 
-	private:
-		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, gfx::RasterScene& meshes);
+		struct Batch
+		{
+			uint32_t firstDraw;
+			uint32_t endDraw;
 
-		gfx::RenderContextVulkan& m_renderContext;
-		gfx::VulkanAllocator& m_alloc;
+			vk::IndexType indexType;
 
-		std::string m_assetsFolder;
+			GPUBuffer* indexBuffer;
+			VtxBinding positionBinding;
+			VtxBinding normalsBinding;
+			VtxBinding tangentsBinding;
+			VtxBinding texCoordBinding;
+
+			std::shared_ptr<GPUBuffer> worldMatrices;
+			std::shared_ptr<GPUBuffer> materials;
+			std::vector<std::shared_ptr<Texture>> textures;
+		};
+
+		virtual void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) = 0;
 	};
-
 }
