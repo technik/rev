@@ -50,7 +50,7 @@ namespace rev::gfx
 			fullScreenBindings,
 			m_pipelineLayout,
 			m_renderPass->vkPass(),
-			"../shaders/fullScreen.vert.spv",
+			"fullScreen.vert.spv",
 			fragmentShader,
 			false
 			);

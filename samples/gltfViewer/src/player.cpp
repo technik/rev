@@ -8,6 +8,7 @@
 #include "player.h"
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
+#include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/fileSystem/FolderWatcher.h>
 #include <core/platform/cmdLineParser.h>
 #include <core/tools/log.h>
@@ -47,6 +48,7 @@ namespace rev {
 	bool Player::init()
 	{
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
+		core::FileSystem::get()->registerPath("../shaders/");
 
 		// Load scene geometry
 		loadScene(m_options.scene);

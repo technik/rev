@@ -65,7 +65,7 @@ namespace rev {
 					auto fullPath = path / filename;
 					if (std::filesystem::exists(fullPath))
 					{
-						return new File(filename.string());
+						return new File(fullPath.string());
 					}
 				}
 			}

@@ -22,6 +22,9 @@
 #include <fstream>
 #include <iostream>
 
+#include <core/platform/fileSystem/fileSystem.h>
+#include <core/platform/fileSystem/file.h>
+
 #include <gfx/types.h>
 
 namespace rev::gfx
@@ -208,17 +211,14 @@ namespace rev::gfx
 	vk::ShaderModule RasterPipeline::loadShaderModule(const std::string& fileName)
 	{
 		// Load shader file
-		std::ifstream spirvFile(fileName, std::ios::binary | std::ios::ate);
-		if (!spirvFile.is_open())
+		auto spirvFile = core::FileSystem::get()->readFile(fileName);
+		if (!spirvFile)
 			return vk::ShaderModule(); // Invalid by default
 
-		size_t size = spirvFile.tellg();
-		std::vector<char> byteCode(size);
-		spirvFile.seekg(std::ios::beg);
-		spirvFile.read(byteCode.data(), size);
+		size_t size = spirvFile->size();
 
 		// Compile spirv
-		vk::ShaderModuleCreateInfo moduleInfo({}, size, (const uint32_t*)byteCode.data());
+		vk::ShaderModuleCreateInfo moduleInfo({}, spirvFile->size(), spirvFile->buffer<uint32_t>());
 		return RenderContext().device().createShaderModule(moduleInfo);
 	}
 }

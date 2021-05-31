@@ -368,8 +368,8 @@ namespace rev
 			geometryBindings,
 			m_gbufferPipelineLayout,
 			m_hdrLightPass->vkPass(),
-			"../shaders/gbuffer.vert.spv",
-			"../shaders/gbuffer.frag.spv",
+			"gbuffer.vert.spv",
+			"gbuffer.frag.spv",
 			true);
 
 		// Set up shader reload
