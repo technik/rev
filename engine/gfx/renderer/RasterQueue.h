@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <gfx/backend/Vulkan/Vulkan.h>
+#include <gfx/Texture.h>
 
 namespace rev::gfx
 {
@@ -61,7 +62,7 @@ namespace rev::gfx
 
 			std::shared_ptr<GPUBuffer> worldMatrices;
 			std::shared_ptr<GPUBuffer> materials;
-			std::shared_ptr<GPUBuffer> textures;
+			std::vector<std::shared_ptr<Texture>> textures;
 		};
 
 		virtual void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) = 0;

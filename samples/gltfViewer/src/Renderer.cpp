@@ -177,9 +177,9 @@ namespace rev::gfx
 				DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
 				batchUpdate.addStorageBuffer("worldMtx", batch.worldMatrices);
 				batchUpdate.addStorageBuffer("materials", batch.materials);
-				batchUpdate.addStorageBuffer("textures", batch.textures);
-
 				batchUpdate.send();
+
+				m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
 
 				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
 				cmd.bindVertexBuffers(0, {

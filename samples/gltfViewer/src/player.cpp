@@ -64,7 +64,7 @@ namespace rev {
 
 		// Init renderer
 		gfx::Renderer::Budget rendererLimits;
-		rendererLimits.maxTexturesPerBatch = m_loadedScene->m_geometry.numTextures();
+		rendererLimits.maxTexturesPerBatch = (uint32_t)m_loadedScene->m_geometry.textures().size();
 		m_renderer.init(
 			renderContext(),
 			renderContext().windowSize(),

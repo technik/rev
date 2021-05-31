@@ -89,7 +89,8 @@ namespace rev::gfx
 			m_textures.push_back(texture);
 		}
 
-		uint32_t numTextures() const { return (uint32_t)m_textures.size(); }
+		const auto& textures() const { return m_textures; }
+		const auto materialsBuffer() const { return m_materialsBuffer; }
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, new primitives can no longer be added to the heap.
@@ -124,7 +125,6 @@ namespace rev::gfx
 		std::shared_ptr<GPUBuffer> m_indexBuffer;
 		std::shared_ptr<GPUBuffer> m_materialsBuffer;
 		std::vector<std::shared_ptr<Texture>> m_textures;
-		std::shared_ptr<GPUBuffer> m_Buffer;
 		uint32_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
 	};
 }
