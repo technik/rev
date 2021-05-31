@@ -20,7 +20,6 @@
 #pragma once
 
 #include <gfx/renderer/RenderPass.h>
-#include <gfx/RasterHeap.h>
 
 using namespace rev::math;
 

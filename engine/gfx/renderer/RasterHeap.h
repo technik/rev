@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <math/algebra/vector.h>
 #include <gfx/renderer/RasterQueue.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Texture.h>
 
 namespace rev::gfx
 {
@@ -67,6 +69,7 @@ namespace rev::gfx
 			uint32_t numIndices,
 			const uint32_t* indices
 		);
+		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
 
 		__forceinline size_t addMesh(const Mesh& mesh)
 		{
@@ -76,7 +79,16 @@ namespace rev::gfx
 
 		__forceinline const auto& mesh(size_t i) const { return m_meshes[i]; }
 
-		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
+		void addMaterial(const PBRMaterial material)
+		{
+			m_materials.push_back(material);
+		}
+
+		void addTexture(const std::shared_ptr<Texture>& texture)
+		{
+			m_textures.push_back(texture);
+		}
+
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, new primitives can no longer be added to the heap.
@@ -100,6 +112,8 @@ namespace rev::gfx
 		std::vector<math::Vec2f> m_textureCoords;
 		std::vector<uint32_t> m_indices;
 
+		std::vector<PBRMaterial> m_materials;
+
 		// CPU permanent data
 		std::vector<Mesh> m_meshes;
 		std::vector<Primitive> m_primitives;
@@ -107,6 +121,9 @@ namespace rev::gfx
 		// GPU data
 		std::shared_ptr<GPUBuffer> m_vtxBuffer;
 		std::shared_ptr<GPUBuffer> m_indexBuffer;
-		size_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
+		std::shared_ptr<GPUBuffer> m_materialsBuffer;
+		std::vector<std::shared_ptr<Texture>> m_textures;
+		std::shared_ptr<GPUBuffer> m_Buffer;
+		uint32_t m_vtxPosOffset, m_normalsOffset, m_tangentsOffset, m_texCoordOffset;
 	};
 }

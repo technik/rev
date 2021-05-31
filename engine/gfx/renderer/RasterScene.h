@@ -21,29 +21,30 @@
 
 #include <gfx/renderer/RasterQueue.h>
 #include <gfx/renderer/RasterHeap.h>
-#include <gfx/scene/Material.h>
-#include <gfx/Texture.h>
 #include <math/algebra/matrix.h>
 
 #include <vector>
 
 namespace rev::gfx
 {
+	class GPUBuffer;
+
 	class RasterScene : public RasterQueue
 	{
 	public:
 		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
 
 		// Invalidates the order of renderables
-		void addInstance(const math::Mat44f& worldMtx, size_t meshNdx);
+		void addInstance(const math::Mat44f& worldMtx, uint32_t meshNdx);
 		void clearInstances();
 
 		gfx::RasterHeap m_geometry;
-		std::vector<gfx::PBRMaterial> m_materials;
-		std::vector<std::shared_ptr<gfx::Texture>> m_textures;
 
 	private:
+		void refreshMatrixBuffer();
+
 		std::vector<uint32_t> m_instanceMeshNdx;
 		std::vector<math::Mat44f> m_instanceWorldMtx;
+		std::shared_ptr<GPUBuffer> m_worldMtxBuffer;
 	};
 }

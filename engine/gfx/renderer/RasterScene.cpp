@@ -1,10 +1,15 @@
 
 #include <gfx/renderer/RasterScene.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+#include <gfx/backend/Vulkan/vulkanAllocator.h>
 
 namespace rev::gfx
 {
 	void RasterScene::getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches)
 	{
+		refreshMatrixBuffer();
+
 		assert(draws.empty());
 		// Count on having at least one primitive per mesh
 		draws.reserve(m_instanceMeshNdx.size());
@@ -31,7 +36,7 @@ namespace rev::gfx
 
 		auto& batch = batches.emplace_back();
 		batch.firstDraw = 0;
-		batch.endDraw = draws.size();
+		batch.endDraw = (uint32_t)draws.size();
 		batch.indexType = vk::IndexType::eUint32;
 		batch.indexBuffer = m_geometry.indexBuffer();
 		m_geometry.getVertexBindings(
@@ -40,29 +45,9 @@ namespace rev::gfx
 			batch.tangentsBinding,
 			batch.texCoordBinding
 		);
-
-		// Update per instance model matrices if there has been any change
-		auto mtxDst = m_ctxt->allocator().mapBuffer<math::Mat44f>(*m_mtxBuffers[m_doubleBufferNdx]);
-		scene.m_sceneInstances.updatePoses(mtxDst);
-		m_ctxt->allocator().unmapBuffer(mtxDst);
-
-		auto& alloc = ctxt.allocator();
-		m_mtxBuffers[0] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
-		m_mtxBuffers[1] = alloc.createBufferForMapping(sizeof(math::Mat44f) * maxNumInstances, vk::BufferUsageFlagBits::eStorageBuffer, m_ctxt->graphicsQueueFamily());
-
-		// Allocate materials buffer
-		size_t streamToken = 0;
-		if (!scene.m_materials.empty())
-		{
-			m_materialsBuffer = alloc.createGpuBuffer(
-				sizeof(gfx::PBRMaterial) * maxNumMaterials,
-				vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
-				m_ctxt->graphicsQueueFamily());
-			streamToken = alloc.asyncTransfer(*m_materialsBuffer, scene.m_materials.data(), scene.m_materials.size());
-		}
 	}
 
-	void RasterScene::addInstance(const math::Mat44f& worldMtx, size_t meshNdx)
+	void RasterScene::addInstance(const math::Mat44f& worldMtx, uint32_t meshNdx)
 	{
 		m_instanceWorldMtx.push_back(worldMtx);
 		m_instanceMeshNdx.push_back(meshNdx);
@@ -72,5 +57,23 @@ namespace rev::gfx
 	{
 		m_instanceWorldMtx.clear();
 		m_instanceMeshNdx.clear();
+		m_worldMtxBuffer = nullptr;
+	}
+
+	void RasterScene::refreshMatrixBuffer()
+	{
+		if (!m_worldMtxBuffer && !m_instanceWorldMtx.empty())
+		{
+			auto& rc = RenderContext();
+			auto& alloc = rc.allocator();
+			m_worldMtxBuffer = alloc.createBufferForMapping(
+				sizeof(math::Mat44f) * m_instanceWorldMtx.size(),
+				vk::BufferUsageFlagBits::eStorageBuffer,
+				rc.graphicsQueueFamily());
+
+			auto mtxDst = alloc.mapBuffer<math::Mat44f>(*m_worldMtxBuffer);
+			memcpy(mtxDst, m_instanceWorldMtx.data(), sizeof(math::Mat44f) * m_instanceWorldMtx.size());
+			alloc.unmapBuffer(mtxDst);
+		}
 	}
 }
