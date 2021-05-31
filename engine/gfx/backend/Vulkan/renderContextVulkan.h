@@ -19,11 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.hpp>
+#include <gfx/backend/Vulkan/Vulkan.h>
 #include <vector>
 #include <optional>
 

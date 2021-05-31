@@ -19,61 +19,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <gfx/backend/Vulkan/renderContextVulkan.h>
-#include <gfx/backend/FrameBufferManager.h>
+#include <gfx/renderer/RasterQueue.h>
+#include <gfx/renderer/RasterHeap.h>
+#include <gfx/scene/Material.h>
+#include <gfx/Texture.h>
+#include <math/algebra/matrix.h>
 
 #include <vector>
 
 namespace rev::gfx
 {
-	class RasterHeap;
-
-	class RenderPass
+	class RasterScene : public RasterQueue
 	{
 	public:
-		RenderPass(vk::RenderPass vkPass, gfx::FrameBufferManager& fbManager)
-			: m_vkPass(vkPass)
-			, m_fbManager(fbManager)
-		{}
+		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
 
-		virtual ~RenderPass() = default;
+		// Invalidates the order of renderables
+		void addInstance(const math::Mat44f& worldMtx, size_t meshNdx);
+		void clearInstances();
 
-		vk::RenderPass vkPass() const { return m_vkPass; }
-
-		void begin(vk::CommandBuffer cmd, const math::Vec2u& targetSize);
-
-		void setClearDepth(float depth);
-
-		void setClearColor(const std::vector<math::Vec4f>& colors);
-
-		void setClearColor(const math::Vec4f& c);
-
-		void setClearColor(const math::Vec3f& c);
-
-		void setColorTargets(const std::vector<const gfx::ImageBuffer*>& colorTargets);
-		void setColorTarget(const gfx::ImageBuffer& colorTarget); // Specialization for single target
-
-		void setDepthTarget(const gfx::ImageBuffer& depthTarget);
-
-		void end(vk::CommandBuffer cmd) { cmd.endRenderPass(); }
+		gfx::RasterHeap m_geometry;
+		std::vector<gfx::PBRMaterial> m_materials;
+		std::vector<std::shared_ptr<gfx::Texture>> m_textures;
 
 	private:
-
-		void refreshFrameBuffer(const math::Vec2u& targetSize);
-
-		vk::RenderPass m_vkPass;
-		gfx::FrameBufferManager& m_fbManager;
-
-		bool m_clearColor = false;
-		bool m_clearZ = false;
-
-		std::vector<vk::Image> m_colorTargets;
-		std::vector<vk::ImageView> m_colorViews;
-		std::optional<vk::Image> m_depthTarget;
-		std::optional<vk::ImageView> m_depthView;
-
-		vk::Framebuffer m_fb;
-		vk::ClearDepthStencilValue m_clearDepth;
-		std::vector<vk::ClearColorValue> m_clearColors;
+		std::vector<uint32_t> m_instanceMeshNdx;
+		std::vector<math::Mat44f> m_instanceWorldMtx;
 	};
 }

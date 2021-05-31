@@ -19,61 +19,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <gfx/backend/Vulkan/renderContextVulkan.h>
-#include <gfx/backend/FrameBufferManager.h>
-
+#include <cstdint>
+#include <memory>
+#include <utility>
 #include <vector>
+
+#include <gfx/backend/Vulkan/Vulkan.h>
 
 namespace rev::gfx
 {
-	class RasterHeap;
+	class GPUBuffer;
 
-	class RenderPass
+	// Utility to create a bunch of
+	class RasterQueue
 	{
 	public:
-		RenderPass(vk::RenderPass vkPass, gfx::FrameBufferManager& fbManager)
-			: m_vkPass(vkPass)
-			, m_fbManager(fbManager)
-		{}
+		struct Draw
+		{
+			uint32_t numIndices;
+			uint32_t indexOffset;
+			uint32_t vtxOffset;
+			uint32_t numInstances;
+			uint32_t instanceOffset;
+			uint32_t materialIndex;
+		};
 
-		virtual ~RenderPass() = default;
+		using VtxBinding = std::pair<GPUBuffer*, uint32_t>;
 
-		vk::RenderPass vkPass() const { return m_vkPass; }
+		struct Batch
+		{
+			uint32_t firstDraw;
+			uint32_t endDraw;
 
-		void begin(vk::CommandBuffer cmd, const math::Vec2u& targetSize);
+			vk::IndexType indexType;
 
-		void setClearDepth(float depth);
+			GPUBuffer* indexBuffer;
+			VtxBinding positionBinding;
+			VtxBinding normalsBinding;
+			VtxBinding tangentsBinding;
+			VtxBinding texCoordBinding;
 
-		void setClearColor(const std::vector<math::Vec4f>& colors);
+			std::shared_ptr<GPUBuffer> worldMatrices;
+			std::shared_ptr<GPUBuffer> materials;
+			std::shared_ptr<GPUBuffer> textures;
+		};
 
-		void setClearColor(const math::Vec4f& c);
-
-		void setClearColor(const math::Vec3f& c);
-
-		void setColorTargets(const std::vector<const gfx::ImageBuffer*>& colorTargets);
-		void setColorTarget(const gfx::ImageBuffer& colorTarget); // Specialization for single target
-
-		void setDepthTarget(const gfx::ImageBuffer& depthTarget);
-
-		void end(vk::CommandBuffer cmd) { cmd.endRenderPass(); }
-
-	private:
-
-		void refreshFrameBuffer(const math::Vec2u& targetSize);
-
-		vk::RenderPass m_vkPass;
-		gfx::FrameBufferManager& m_fbManager;
-
-		bool m_clearColor = false;
-		bool m_clearZ = false;
-
-		std::vector<vk::Image> m_colorTargets;
-		std::vector<vk::ImageView> m_colorViews;
-		std::optional<vk::Image> m_depthTarget;
-		std::optional<vk::ImageView> m_depthView;
-
-		vk::Framebuffer m_fb;
-		vk::ClearDepthStencilValue m_clearDepth;
-		std::vector<vk::ClearColorValue> m_clearColors;
+		virtual void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) = 0;
 	};
 }

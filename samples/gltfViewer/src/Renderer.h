@@ -20,34 +20,26 @@
 #pragma once
 
 #include <core/platform/fileSystem/FolderWatcher.h>
-#include <game/scene/meshRenderer.h>
 #include <gfx/backend/DescriptorSet.h>
-#include <gfx/backend/FrameBufferManager.h>
-#include <gfx/backend/rasterPipeline.h>
-#include <gfx/backend/Vulkan/gpuBuffer.h>
-#include <gfx/backend/Vulkan/renderContextVulkan.h>
-#include <gfx/RasterHeap.h>
+#include <gfx/backend/Vulkan/Vulkan.h>
 #include <gfx/renderer/RenderPass.h>
-#include <gfx/scene/Material.h>
-#include <gfx/Texture.h>
+#include <math/algebra/matrix.h>
 
-namespace rev
+namespace rev::gfx
 {
-	namespace gfx
-	{
-		class RenderContextVulkan;
-		class FullScreenPass;
-	}
+	class FrameBufferManager;
+	class GPUBuffer;
+	class RasterPipeline;
+	class RenderContextVulkan;
+	class FullScreenPass;
+	class RasterQueue;
 
 	class Renderer
 	{
 	public:
 		struct SceneDesc
 		{
-			game::MeshRenderer m_sceneInstances;
-			gfx::RasterHeap m_rasterData;
-			std::vector<gfx::PBRMaterial> m_materials;
-			std::vector<std::shared_ptr<gfx::Texture>> m_textures;
+			std::vector<std::shared_ptr<RasterQueue>> m_opaqueGeometry;
 
 			math::Mat44f proj;
 			math::Mat44f view;
@@ -56,13 +48,18 @@ namespace rev
 			math::Vec3f lightColor;
 		};
 
+		struct RendererBudget
+		{
+			uint32_t maxTexturesPerBatch;
+		};
+
 		Renderer();
 		~Renderer();
 
-		size_t init(
+		void init(
 			gfx::RenderContextVulkan& ctxt,
 			const math::Vec2u& windowSize,
-			const SceneDesc& scene
+			const RendererBudget& limits
 		);
 		void end();
 		void onResize(const math::Vec2u& windowSize);
@@ -71,7 +68,7 @@ namespace rev
 
 	private:
 		void createDescriptorLayouts(size_t numTextures);
-		void fillConstantDescriptorSets(const SceneDesc& scene);
+		void fillConstantDescriptorSets();
 		void createRenderPasses();
 		void createShaderPipelines();
 		void createRenderTargets();
@@ -103,8 +100,6 @@ namespace rev
 		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
 
-		std::vector<std::shared_ptr<gfx::GPUBuffer>> m_mtxBuffers;
-		std::shared_ptr<gfx::GPUBuffer> m_materialsBuffer;
 		std::shared_ptr<gfx::Texture> m_iblLUT;
 
 		struct FramePushConstants
