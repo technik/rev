@@ -63,7 +63,7 @@ namespace rev {
 		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
 
 		// Init renderer
-		gfx::Renderer::Budget rendererLimits;
+		gfx::DeferredRenderer::Budget rendererLimits;
 		rendererLimits.maxTexturesPerBatch = (uint32_t)m_loadedScene->m_geometry.textures().size();
 		m_renderer.init(
 			renderContext(),

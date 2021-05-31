@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,90 +19,119 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <gfx/renderer/RenderItem.h>
-#include <gfx/renderer/renderPass/geometryPass.h>
-#include <gfx/renderer/renderPass/fullScreenPass.h>
-#include <gfx/renderer/ShadowMapPass.h>
-#include <gfx/renderGraph/renderGraph.h>
-#include <gfx/renderGraph/frameBufferCache.h>
-#include <random>
-#include <vector>
+#include <core/platform/fileSystem/FolderWatcher.h>
+#include <gfx/backend/DescriptorSet.h>
+#include <gfx/backend/Vulkan/Vulkan.h>
+#include <gfx/renderer/RenderPass.h>
+#include <math/algebra/matrix.h>
 
-namespace rev::gfx {
+namespace rev::gfx
+{
+	class FrameBufferManager;
+	class GPUBuffer;
+	class RasterPipeline;
+	class RenderContextVulkan;
+	class FullScreenPass;
+	class RasterQueue;
 
-	class Camera;
-	class RenderPass;
-	class RenderScene;
-
-	/*class DeferredRenderer
+	class DeferredRenderer
 	{
 	public:
-		void init(Device& device, const math::Vec2u& _size, FrameBuffer target);
+		struct SceneDesc
+		{
+			std::vector<std::shared_ptr<RasterQueue>> m_opaqueGeometry;
 
-		void render	(const RenderScene&, const Camera& pov);
-		void onResizeTarget(const math::Vec2u& _newSize);
+			math::Mat44f proj;
+			math::Mat44f view;
+			math::Vec3f lightDir;
+			math::Vec3f ambientColor;
+			math::Vec3f lightColor;
+		};
+
+		struct Budget
+		{
+			uint32_t maxTexturesPerBatch;
+		};
+
+		DeferredRenderer();
+		~DeferredRenderer();
+
+		void init(
+			gfx::RenderContextVulkan& ctxt,
+			const math::Vec2u& windowSize,
+			const Budget& limits
+		);
+		void end();
+		void onResize(const math::Vec2u& windowSize);
+		void render(SceneDesc& scene);
+		void updateUI();
 
 	private:
-		void createRenderPasses(gfx::FrameBuffer target);
-		void loadNoiseTextures();
-		void collapseSceneRenderables(const RenderScene&, const Camera& eye);
-		void sortVisibleQueue();
+		void createDescriptorLayouts(size_t numTextures);
+		void fillConstantDescriptorSets();
+		void createRenderPasses();
+		void createShaderPipelines();
+		void createRenderTargets();
+		void destroyRenderTargets();
+		void destroyFrameBuffers();
+		void loadIBLLUT();
+
+		void renderGeometryPass(SceneDesc& scene);
+		void renderPostProPass();
+
+		// Init ImGui
+		bool renderFlag(uint32_t flag) const { return (m_frameConstants.renderFlags & flag) > 0; }
 
 	private:
-		Device*		m_device = nullptr;
+		gfx::RenderContextVulkan* m_ctxt;
+		math::Vec2u m_windowSize;
+		vk::Viewport m_viewport;
+		vk::Rect2D m_renderArea;
 
-		// Debug utils
-		bool m_lockCulling = false;
+		// Vulkan objects to move into rev::gfx
+		vk::Semaphore m_imageAvailableSemaphore;
+		uint32_t m_doubleBufferNdx = 0;
+		gfx::DescriptorSetLayout m_geometryDescriptorSets;
+		gfx::DescriptorSetLayout m_postProDescriptorSets;
 
-		// Render state
-		math::Frustum m_cullingFrustum;
-		math::Mat44f m_cullingViewMtx;
-		math::AABB m_visibleVolume;
-		float m_expositionValue = 0.f;
-		math::Vec2u m_viewportSize;
-		math::Vec2u m_shadowSize;
-		FrameBuffer m_targetFb;
-		std::unique_ptr<FrameBufferCache> m_fbCache;
+		vk::PipelineLayout m_gbufferPipelineLayout;
+		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 
-		// Noise
-		static constexpr unsigned NumBlueNoiseTextures = 64;
-		rev::gfx::Texture2d m_blueNoise[NumBlueNoiseTextures];
-		std::default_random_engine m_rng;
-		std::uniform_int_distribution<unsigned> m_noisePermutations;
+		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
+		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
 
-		// Geometry arrays
-		std::vector<RenderItem> m_renderQueue;
-		std::vector<RenderItem> m_visibleQueue;
-		std::vector<RenderItem> m_opaqueQueue;
-		std::vector<RenderItem> m_alphaMaskQueue;
-		std::vector<RenderItem> m_emissiveQueue;
-		std::vector<RenderItem> m_emissiveMaskQueue;
-		std::vector<RenderItem> m_transparentQueue;
+		std::shared_ptr<gfx::Texture> m_iblLUT;
 
-		// Geometry pass
-		Pipeline::RasterOptions m_rasterOptions;
-		std::unique_ptr<GeometryPass>	m_gBufferPass = nullptr;
-		std::unique_ptr<GeometryPass>	m_gBufferMaskedPass = nullptr;
-		std::unique_ptr<GeometryPass>	m_gTransparentPass = nullptr;
-		std::unique_ptr<FullScreenPass>	m_bgPass;
-		std::unique_ptr<FullScreenPass>	m_hdrPass;
-		std::unique_ptr<FullScreenPass>	m_aoSamplePass;
-		std::unique_ptr<ShadowMapPass>	m_shadowPass;
+		struct FramePushConstants
+		{
+			math::Mat44f proj;
+			math::Mat44f view;
+			math::Vec3f lightDir;
+			math::Vec3f ambientColor;
+			math::Vec3f lightColor;
 
-		// Shadow pass
-		// SSAO pass
-		// Lighting pass
-		Texture2d			m_brdfIbl;
-		FullScreenPass*		m_lightingPass = nullptr;
+			uint32_t renderFlags = 0;
+			// Material override parameters
+			math::Vec3f overrideBaseColor = { 0.7f, 0.7f, 0.7f };
+			float overrideMetallic = 0.f;
+			float overrideRoughness = 0.75f;
+			float overrideClearCoat = 0.f;
 
-		// Shadow map(s)
-		// SSAO map F32 / RGB32
-		// SSAO blur map
-		// G-Buffer:
-		//	Normals buffer -> RGB32
-		//	Depth map -> F32
-		//	Albedo, metallic, roughness -> RGB8
-		//	Emissive -> RGB32
-	};*/
+		} m_frameConstants;
 
-}	// namespace rev::gfx
+		struct PostProPushConstants
+		{
+			uint32_t renderFlags;
+			math::Vec3f ambientColor;
+			math::Vec2f windowSize;
+			float exposure = 1.f;
+			float bloom;
+		} m_postProConstants;
+
+		std::unique_ptr<gfx::RenderPass> m_hdrLightPass;
+		std::unique_ptr<gfx::FullScreenPass> m_uiRenderPass;
+
+		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
+		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
+	};
+}

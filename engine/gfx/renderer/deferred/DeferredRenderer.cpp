@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,517 +18,418 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/*#include "DeferredRenderer.h"
-#include <gfx/renderGraph/frameBufferCache.h>
-#include <gfx/scene/camera.h>
-#include <gfx/scene/renderGeom.h>
-#include <gfx/scene/renderMesh.h>
-#include <gfx/scene/renderObj.h>
-#include <gfx/scene/renderScene.h>
-#include <gfx/shaders/shaderCodeFragment.h>
-#include <math/algebra/vector.h>
-#include <math/algebra/matrix.h>
+#include <gfx/backend/Vulkan/gpuBuffer.h>
+#include <gfx/backend/rasterPipeline.h>
+#include <gfx/renderer/deferred/DeferredRenderer.h>
+#include <gfx/renderer/renderPass/fullScreenPass.h>
+#include <gfx/renderer/RasterQueue.h>
+#include <gfx/Image.h>
+#include <gfx/ImGui.h>
 
-#include <sstream>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_vulkan.h>
+#include <imgui/backends/imgui_impl_win32.h>
 
-using namespace rev::math;
+namespace rev::gfx
+{
+	//---------------------------------------------------------------------------------------------------------------------
+	DeferredRenderer::DeferredRenderer()
+	{}
 
-namespace rev::gfx {
+	//---------------------------------------------------------------------------------------------------------------------
+	DeferredRenderer::~DeferredRenderer()
+	{}
 
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::init(Device& device, const math::Vec2u& size, FrameBuffer target)
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::init(
+		gfx::RenderContextVulkan& ctxt,
+		const math::Vec2u& windowSize,
+		const Budget& limits)
 	{
-		m_targetFb = target;
-		m_device = &device;
-		m_fbCache = std::make_unique<FrameBufferCache>(device);
-		m_viewportSize = size;
-		const unsigned shadowBufferSize = 1024;
-		m_shadowSize = Vec2u(shadowBufferSize, shadowBufferSize);
-		createRenderPasses(target);
+		m_windowSize = windowSize;
 
-		// Load ibl texture
-		auto iblImg = Image::load("shaders/ibl_brdf.hdr", 4);
-		TextureSampler::Descriptor samplerDesc;
-		samplerDesc.filter = TextureSampler::MinFilter::Linear;
-		samplerDesc.wrapS = TextureSampler::Wrap::Clamp;
-		samplerDesc.wrapT = TextureSampler::Wrap::Clamp;
+		m_ctxt = &ctxt;
 
-		Texture2d::Descriptor ibl_desc;
-		ibl_desc.mipLevels = 1;
-		ibl_desc.sRGB = false;
-		ibl_desc.pixelFormat = iblImg->format();
-		ibl_desc.size = iblImg->size();
-		ibl_desc.sampler = device.createTextureSampler(samplerDesc);
-		ibl_desc.srcImages.emplace_back(std::move(iblImg));
+		m_frameBuffers = std::make_unique<gfx::FrameBufferManager>(ctxt.device());
 
-		m_brdfIbl = device.createTexture2d(ibl_desc);
+		auto device = ctxt.device();
 
-		// Blue noise
-		m_noisePermutations = std::uniform_int_distribution<unsigned>(0, NumBlueNoiseTextures - 1);
-		loadNoiseTextures();
-	}
+		// Create semaphores
+		m_imageAvailableSemaphore = device.createSemaphore({});
 
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::render(const RenderScene& scene, const Camera& eye)
-	{
-		// TODO: maybe move the actual ownership of the framegraph to whoever calls the renderer.
-		// That way, keeping the graph alive is the caller´s decision, and so graphcs can be cached, etc.
-		RenderGraph frameGraph(*m_device);
+		createRenderTargets();
+		createDescriptorLayouts(limits.maxTexturesPerBatch);
+		createRenderPasses();
+		createShaderPipelines();
+		loadIBLLUT();
 
-		ImGui::Begin("Deferred renderer");
+		// Update descriptor sets
+		fillConstantDescriptorSets();
 
-		// --- Cull visible renderables
-		ImGui::Text("Renderables: %d", scene.renderables().size());
-		float aspectRatio = float(m_viewportSize.x()) / m_viewportSize.y();
+		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
+		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		renderBufferUpdates.send();
 
-		// Culling config must happen before actual culling in collapseSceneRenderables
-		ImGui::Checkbox("Lock culling", &m_lockCulling);
-		Mat44f view = eye.view();
-		if (!m_lockCulling)
-		{
-			m_cullingFrustum = eye.frustum(aspectRatio);
-			m_cullingViewMtx = view;
-		}
-
-		// Cull visible objects renderQ -> visible
-		collapseSceneRenderables(scene, eye);// Consolidate renderables into geometry (i.e. extracts geom from renderObj)
-		ImGui::Text("Visible: %d", m_visibleQueue.size());
-		sortVisibleQueue();
-
-		// Classify visible objects into separate render queues
-		m_opaqueQueue.clear();
-		m_alphaMaskQueue.clear();
-		m_emissiveMaskQueue.clear();
-		m_transparentQueue.clear();
-		m_emissiveQueue.clear();
-		
-		for (auto& renderItem : m_visibleQueue)
-		{
-			AABB viewSpaceBB = (view * renderItem.world) * renderItem.geom->bbox();
-			if (viewSpaceBB.min().z() < 0)
-			{
-				switch (renderItem.material->transparency())
-				{
-					case Material::Transparency::Opaque:
-					{
-						if (renderItem.material->isEmissive())
-							m_emissiveQueue.push_back(renderItem);
-						else
-							m_opaqueQueue.push_back(renderItem);
-						break;
-					}
-					case Material::Transparency::Mask:
-					{
-						if (renderItem.material->isEmissive())
-							m_emissiveMaskQueue.push_back(renderItem);
-						else
-							m_alphaMaskQueue.push_back(renderItem);
-						break;
-					}
-					case Material::Transparency::Blend:
-					{
-						m_transparentQueue.push_back(renderItem);
-						break;
-					}
-				}
-			}
-		}
-
-		bool useEmissive = !m_emissiveQueue.empty();
-		auto viewMtx = eye.view();
-		auto projMtx = eye.projection(aspectRatio);
-
-		// G-Buffer pass with emissive
-		RenderGraph::BufferResource depth, normals, pbr, albedo, hdr; // G-Pass outputs
-		if (useEmissive)
-		{
-			frameGraph.addPass("Emissive clear",
-				m_viewportSize,
-				// Pass definition
-				[&](RenderGraph::IPassBuilder& pass) {
-					hdr = pass.write(BufferFormat::RGBA32);
-				},
-				// Pass evaluation
-				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-				{
-					// Clear depth
-					dst.clearDepth(0.f);
-					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
-					dst.clear(Clear::All);
-				});
-		}
-
-		// G-Buffer pass
-		frameGraph.addPass("G-Buffer",
-			m_viewportSize,
-			// Pass definition
-			[&](RenderGraph::IPassBuilder& pass) {
-				normals = pass.write(BufferFormat::RGBA8);
-				albedo = pass.write(BufferFormat::sRGBA8);
-				pbr = pass.write(BufferFormat::RGBA8);
-				depth = pass.write(BufferFormat::depth32);
-			},
-			// Pass evaluation
-				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				// Clear depth
-				dst.clearDepth(0.f);
-				dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
-				dst.clear(Clear::All);
-
-				m_gBufferPass->render(viewMtx, projMtx, m_opaqueQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading, dst);
-				m_gBufferMaskedPass->render(viewMtx, projMtx, m_alphaMaskQueue, m_rasterOptions, Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaMask, dst);
-			});
-
-		if (useEmissive)
-		{
-			frameGraph.addPass("G-Buffer + emissive",
-				m_viewportSize,
-				// Pass definition
-				[&](RenderGraph::IPassBuilder& pass) {
-					normals = pass.write(normals);
-					albedo = pass.write(albedo);
-					pbr = pass.write(pbr);
-					depth = pass.write(depth);
-					hdr = pass.write(hdr);
-				},
-				// Pass evaluation
-					[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-				{
-					m_gBufferPass->render(viewMtx, projMtx, m_emissiveQueue, m_rasterOptions,
-						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive,
-						dst);
-					auto maskedOptions = m_rasterOptions;
-					maskedOptions.alphaMask = true;
-					m_gBufferMaskedPass->render(viewMtx, projMtx, m_emissiveMaskQueue, maskedOptions,
-						Material::Flags::Normals | Material::Flags::Shading | Material::Flags::Emissive | Material::Flags::AlphaMask,
-						dst);
-				});
-		}
-
-		// AO pass
-		RenderGraph::BufferResource ao; // G-Pass outputs
-		frameGraph.addPass("AO-Sample",
-			m_viewportSize/2u,
-			// Pass definition
-			[&](RenderGraph::IPassBuilder& pass) {
-				ao = pass.write(BufferFormat::R8);
-				pass.read(normals, 0);
-				pass.read(depth, 1);
-			},
-			// Pass evaluation
-				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				// Clear depth
-				dst.clearColor(Vec4f::ones());
-				dst.clear(Clear::Color);
-
-				auto projection = eye.projection(aspectRatio);
-				Mat44f invView = eye.world().matrix();
-
-				CommandBuffer::UniformBucket uniforms;
-				uniforms.addParam(0, projection);
-				uniforms.addParam(1, invView);
-				uniforms.addParam(2, math::Vec4f(
-					float(m_viewportSize.x()), float(m_viewportSize.y()), // G-buffer size
-					float(m_viewportSize.x()/2), float(m_viewportSize.y()/2) // AO buffer size
-				));
-				// Textures
-				uniforms.addParam(7, inputTextures[0]);
-				uniforms.addParam(8, inputTextures[1]);
-				unsigned noiseTextureNdx = m_noisePermutations(m_rng); // New noise permutation for primary light
-				uniforms.addParam(9, m_blueNoise[noiseTextureNdx]);
-
-				m_aoSamplePass->render(uniforms, dst);
-			});
-
-		// Optional shadow pass
-		const bool useShadows = !scene.lights().empty() && scene.lights()[0]->castShadows;
-		RenderGraph::BufferResource shadows;
-		if (useShadows)
-		{
-			frameGraph.addPass("Sky shadow",
-				m_shadowSize,
-				[&](RenderGraph::IPassBuilder& pass)
-				{
-					shadows = pass.write(BufferFormat::depth32);
-				},
-				[&](const Texture2d*, size_t, CommandBuffer& dst)
-				{
-					auto prevMetrics = dst.metrics();
-					dst.clearDepth(0.f);
-					dst.clear(Clear::Depth);
-					auto& light = *scene.lights()[0];
-					m_shadowPass->render(m_renderQueue, m_visibleVolume, aspectRatio, eye, light, dst);
-					
-					// Debug metrics
-					if (ImGui::CollapsingHeader("Shadow pass metrics:"))
-					{
-						(dst.metrics() - prevMetrics).draw();
-					}
-				});
-		}
-
-		// Environment light pass
-		frameGraph.addPass("Light pass",
-			m_viewportSize,
-			// Pass definition
-			[&](RenderGraph::IPassBuilder& pass) {
-			//hdr = pass.write(BufferFormat::RGBA32);
-				if (useEmissive)
-					hdr = pass.write(hdr);
-				else
-					hdr = pass.write(BufferFormat::RGBA32); // Should write to hdr
-
-				pass.read(normals, 0);
-				pass.read(albedo, 1);
-				pass.read(pbr, 2);
-				pass.read(depth, 3);
-				pass.read(ao, 4);
-				// TODO: Shadows enabled? read them!
-				if (useShadows)
-					pass.read(shadows, 5);
-			},
-			// Pass evaluation
-			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				if (!useEmissive)
-				{
-					dst.clearColor(Vec4f(0.f,0.f,0.f,1.f));
-					dst.clear(Clear::Color);
-				}
-
-				// Light-pass
-				if (auto env = scene.environment())
-				{
-					CommandBuffer::UniformBucket envUniforms;
-					auto projection = eye.projection(aspectRatio);
-					Mat44f invView = eye.world().matrix();
-					envUniforms.addParam(0, projection);
-					envUniforms.addParam(1, invView);
-					envUniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-
-					envUniforms.addParam(4, env->texture());
-					envUniforms.addParam(5, m_brdfIbl);
-					envUniforms.addParam(6, (float)env->numLevels());
-
-					envUniforms.addParam(7, inputTextures[0]);
-					envUniforms.addParam(8, inputTextures[3]);
-					envUniforms.addParam(9, inputTextures[2]);
-					envUniforms.addParam(10, inputTextures[1]);
-					envUniforms.addParam(13, inputTextures[4]);
-
-					if (useShadows)
-					{
-						math::Mat44f shadowProj = m_shadowPass->shadowProj();
-						envUniforms.addParam(11, inputTextures[5]);
-						envUniforms.addParam(12, shadowProj);
-					}
-
-					m_lightingPass->render(envUniforms, dst);
-
-					// Background
-					// Uniforms
-					CommandBuffer::UniformBucket bgUniforms;
-					bgUniforms.mat4s.push_back({ 0, invView });
-					bgUniforms.mat4s.push_back({ 1, projection });
-					bgUniforms.vec4s.push_back({ 2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f) });
-					bgUniforms.textures.push_back({ 7, env->texture() });
-					// Render
-					m_bgPass->render(bgUniforms, dst);
-				}
-			});
-
-		// Transparent pass
-		frameGraph.addPass("Transparent",
-			m_viewportSize,
-			[&](RenderGraph::IPassBuilder& pass) {
-				hdr = pass.write(hdr);
-				pass.read(depth, 0);
-			},
-			[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				auto maskedOptions = m_rasterOptions;
-				maskedOptions.blendMode = Pipeline::BlendMode::Additive;
-				m_gTransparentPass->render(viewMtx, projMtx, m_transparentQueue, maskedOptions,
-					Material::Flags::Normals | Material::Flags::Shading | Material::Flags::AlphaBlend,
-					dst);
-			});
-
-		frameGraph.addPass("hdr",
-			m_viewportSize,
-			// Pass definition
-			[&](RenderGraph::IPassBuilder& pass) {
-				//hdr = pass.write(BufferFormat::RGBA32);
-				pass.read(hdr, 0); // Should write to hdr
-				pass.write(m_targetFb); // Hack: Doesn´t really write to it. But we need it bound in the fb
-			},
-			// Pass evaluation
-				[&](const Texture2d* inputTextures, size_t nInputTextures, CommandBuffer& dst)
-			{
-				CommandBuffer::UniformBucket uniforms;
-				uniforms.addParam(2, math::Vec4f(float(m_viewportSize.x()), float(m_viewportSize.y()), 0.f, 0.f));
-				uniforms.addParam(3, powf(2.f, eye.exposure()));
-				uniforms.addParam(4, inputTextures[0]);
-
-				m_hdrPass->render(uniforms, dst);
-			});
-
-
-		// Record passes
-		frameGraph.build(*m_fbCache);
-		CommandBuffer frameCommands;
-
-		frameGraph.evaluate(frameCommands);
-		// Submit
-		m_device->renderQueue().submitCommandBuffer(frameCommands);
-
-		ImGui::Separator();
-		ImGui::Text("Global performance counters");
-		m_device->renderQueue().drawPerformanceCounters();
-
-		ImGui::End();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::onResizeTarget(const math::Vec2u& _newSize)
-	{
-		// Skip it for now
-		m_fbCache->deallocateResources();
-		m_viewportSize = _newSize;
-		m_shadowSize.x() = std::min(2048u, _newSize.y() * 2);
-		m_shadowSize.y() = m_shadowSize.x();
-	}
-
-	//----------------------------------------------------------------------------------------------
-	void DeferredRenderer::createRenderPasses(gfx::FrameBuffer target)
-	{
-		m_rasterOptions.cullBack = true;
-		m_rasterOptions.depthTest = Pipeline::DepthTest::Gequal;
-
-		ShaderCodeFragment* gBufferCode = ShaderCodeFragment::loadFromFile("shaders/gbuffer.fx");
-		m_gBufferPass = std::make_unique<GeometryPass>(*m_device, gBufferCode);
-		ShaderCodeFragment* gBufferMaskedCode = new ShaderCodeFragment(new ShaderCodeFragment("#define ALPHA_MASK\n"), gBufferCode);
-		m_gBufferMaskedPass = std::make_unique<GeometryPass>(*m_device, gBufferMaskedCode);
-
-		// Shadow pass
-		m_shadowPass = std::make_unique<ShadowMapPass>(*m_device, m_shadowSize);
-
-		// Lighting pass
-		m_lightingPass = new FullScreenPass(*m_device, ShaderCodeFragment::loadFromFile("shaders/lightPass.fx"), Pipeline::DepthTest::Less, false, Pipeline::BlendMode::Additive);
-
-		// Background pass
-		m_bgPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/sky.fx"), Pipeline::DepthTest::Gequal, false);
-
-		m_aoSamplePass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/aoSample.fx"), Pipeline::DepthTest::Less, false);
-
-		// Transparent
-		ShaderCodeFragment* fwdCode = ShaderCodeFragment::loadFromFile("shaders/forward.fx");
-		m_gTransparentPass = std::make_unique<GeometryPass>(*m_device, fwdCode);
-
-		// HDR pass
-		m_hdrPass = std::make_unique<FullScreenPass>(*m_device, ShaderCodeFragment::loadFromFile("shaders/hdr.fx"));
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void DeferredRenderer::loadNoiseTextures()
-	{
-		// Noise texture sampler
-		TextureSampler::Descriptor noiseSamplerDesc;
-		noiseSamplerDesc.filter = TextureSampler::MinFilter::Nearest;
-		noiseSamplerDesc.wrapS = TextureSampler::Wrap::Repeat;
-		noiseSamplerDesc.wrapT = TextureSampler::Wrap::Repeat;
-
-		rev::gfx::Texture2d::Descriptor m_noiseDesc;
-		m_noiseDesc.sampler = m_device->createTextureSampler(noiseSamplerDesc);
-		m_noiseDesc.depth = false;
-		m_noiseDesc.mipLevels = 1;
-		m_noiseDesc.pixelFormat.channel = Image::ChannelFormat::Byte;
-		m_noiseDesc.pixelFormat.numChannels = 4;
-		m_noiseDesc.size = Vec2u(64, 64);
-		m_noiseDesc.sRGB = false;
-
-		std::string imageName = "../data/blueNoise/LDR_RGBA_00.png";
-		auto digitPos = imageName.find("00");
-		for (unsigned i = 0; i < NumBlueNoiseTextures; ++i)
-		{
-#if 0
-			// Create a brand new noise texture
-			Vec4f * noise = new Vec4f[64 * 64];
-			std::uniform_real_distribution<float> noiseDistrib;
-			for (int i = 0; i < 64 * 64; ++i)
-			{
-				noise[i].x() = noiseDistrib(m_rng);
-				noise[i].y() = noiseDistrib(m_rng);
-				noise[i].z() = noiseDistrib(m_rng);
-				noise[i].w() = noiseDistrib(m_rng);
-			}
-			m_noiseDesc.srcImages.emplace_back(new rev::gfx::Image(m_noiseDesc.size, noise));
-			m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
-#else
-			// Load image from file
-			imageName[digitPos] = (i / 10) + '0';
-			imageName[digitPos+1] = (i % 10) + '0';
-			auto image = Image::load(imageName, 0);
-			m_noiseDesc.srcImages.clear();
-			if (image)
-			{
-				m_noiseDesc.srcImages.push_back(std::move(image));
-				m_blueNoise[i] = m_device->createTexture2d(m_noiseDesc);
-			}
-#endif
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	void DeferredRenderer::collapseSceneRenderables(const RenderScene& scene, const Camera& eye)
-	{
-		m_renderQueue.clear();
-		m_visibleQueue.clear();
-		// Keep visible volume AABB
-		float minShadowDistance;
-		m_visibleVolume.clear();
-
-		// Cull renderables in view space for maximun compactness
-		for(auto obj : scene.renderables())
-		{			
-			if(!obj->visible)
-				continue;
-			auto viewFromObj = m_cullingViewMtx * obj->transform;
-
-			for(auto mesh : obj->mesh->mPrimitives)
-			{
-				assert(mesh.first && mesh.second);
-				auto renderItem = RenderItem{ obj->transform, &*mesh.first, &*mesh.second };
-				m_renderQueue.push_back(renderItem);
-
-				AABB viewSpaceBB = viewFromObj * renderItem.geom->bbox();
-				if (math::intersect(m_cullingFrustum, viewSpaceBB))
-				{
-					m_visibleQueue.push_back(renderItem);
-					m_visibleVolume.add(viewSpaceBB);
-				}
-			}
-		}
-
-		// Clamp visible volume to the view frustum visibility range
-		m_visibleVolume = m_visibleVolume.intersection(m_cullingFrustum.boundingBox());
+		gfx::initImGui(m_uiRenderPass->vkPass());
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void DeferredRenderer::sortVisibleQueue()
+	void DeferredRenderer::end()
 	{
-		Vec3f viewDir = -m_cullingViewMtx.transpose().col<2>().xyz();
+		destroyFrameBuffers();
+		destroyRenderTargets();
 
-		std::sort(m_visibleQueue.begin(), m_visibleQueue.end(), [=](const RenderItem& a, const RenderItem& b) {
-			Vec3f aCenter = a.world.block<3, 3, 0, 0>() * a.geom->bbox().center();
-			Vec3f bCenter = b.world.block<3, 3, 0, 0>() * b.geom->bbox().center();
-			float da = dot(aCenter, viewDir);
-			float db = dot(bCenter, viewDir);
-
-			bool result = da < db;
-			return result;
-		});
+		auto device = m_ctxt->device();
+		m_gBufferPipeline.reset();
+		device.destroyPipelineLayout(m_gbufferPipelineLayout);
+		device.destroyRenderPass(m_hdrLightPass->vkPass());
+		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
-} // namespace rev::gfx*/
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::onResize(const math::Vec2u& intendedSize)
+	{
+		if (intendedSize.x() == 0 || intendedSize.y() == 0)
+			return; // Avoid recreating an empty swap chain
+
+		m_windowSize = m_ctxt->resizeSwapchain(intendedSize);
+		createRenderTargets();
+		
+		// Update render passes
+		m_hdrLightPass->setDepthTarget(*m_zBuffer);
+		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
+
+		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
+		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		renderBufferUpdates.send();
+
+		// Invalidate frame buffers
+		m_frameBuffers->clear();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::render(SceneDesc& scene)
+	{
+		if (m_windowSize.x() == 0 || m_windowSize.y() == 0)
+			return; // Don't try to render while minimized
+
+		// Watch for shader reload
+		m_shaderWatcher->update();
+
+		// Render passes
+		renderGeometryPass(scene);
+		renderPostProPass();
+
+		// Swapchain update
+		m_ctxt->swapchainPresent();
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::renderGeometryPass(SceneDesc& scene)
+	{
+
+		// Update frame state
+		m_frameConstants.lightColor = scene.lightColor;
+		m_frameConstants.ambientColor = scene.ambientColor;
+		m_frameConstants.lightDir = normalize(scene.lightDir);
+		float aspect = float(m_windowSize.x()) / m_windowSize.y();
+		m_frameConstants.proj = scene.proj;
+		m_frameConstants.view = scene.view;
+
+		// Render geometry if the scene is loaded
+		auto scope = m_ctxt->getScopedCmdBuffer(m_ctxt->graphicsQueue());
+		auto cmd = scope.cmd;
+		m_hdrLightPass->begin(cmd, m_windowSize);
+
+		std::vector<RasterQueue::Draw> draws;
+		std::vector<RasterQueue::Batch> batches;
+
+		// Bind pipeline
+		m_gBufferPipeline->bind(cmd);
+
+		// Frame set up
+		cmd.pushConstants<FramePushConstants>(
+			m_gbufferPipelineLayout,
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			0,
+			m_frameConstants);
+
+		// Update descriptor set with this frame's matrices
+		cmd.bindDescriptorSets(
+			vk::PipelineBindPoint::eGraphics,
+			m_gbufferPipelineLayout,
+			0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
+
+		// Render opaque geometry
+		for(const auto& queue : scene.m_opaqueGeometry)
+		{
+			// Get queue draw batches
+			draws.clear();
+			batches.clear();
+			queue->getDrawBatches(draws, batches);
+
+			for (const auto& batch : batches)
+			{
+				// Update per batch descriptor set
+				DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
+				batchUpdate.addStorageBuffer("worldMtx", batch.worldMatrices);
+				batchUpdate.addStorageBuffer("materials", batch.materials);
+				batchUpdate.send();
+
+				m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
+
+				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
+				cmd.bindVertexBuffers(0, {
+					batch.positionBinding.first->buffer(),
+					batch.normalsBinding.first->buffer(),
+					batch.tangentsBinding.first->buffer(),
+					batch.texCoordBinding.first->buffer()
+					}, {
+					batch.positionBinding.first->offset() + batch.positionBinding.second,
+					batch.normalsBinding.first->offset() + batch.normalsBinding.second,
+					batch.tangentsBinding.first->offset() + batch.tangentsBinding.second,
+					batch.texCoordBinding.first->offset() + batch.texCoordBinding.second
+					});
+
+				for (uint32_t i = batch.firstDraw; i < batch.endDraw; ++i)
+				{
+					auto& draw = draws[i];
+					cmd.drawIndexed(draw.numIndices, draw.numInstances, draw.indexOffset, draw.vtxOffset, draw.instanceOffset);
+				}
+			}
+
+			m_doubleBufferNdx ^= 1;
+		}
+
+		m_hdrLightPass->end(cmd);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::renderPostProPass()
+	{
+		auto cmd = m_ctxt->getNewRenderCmdBuffer();
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		m_postProConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
+		m_postProConstants.ambientColor = m_frameConstants.ambientColor;
+		m_postProConstants.renderFlags = {};
+		m_postProConstants.bloom = 0.f;
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+		m_uiRenderPass->begin(
+			cmd,
+			m_windowSize,
+			m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
+			m_postProConstants.ambientColor,
+			m_postProDescriptorSets.getDescriptor(0));
+
+
+		m_uiRenderPass->pushConstants(cmd, m_postProConstants);
+		m_uiRenderPass->render(cmd);
+
+		// Finish ImGui
+		//ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+
+		m_uiRenderPass->end(cmd);
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
+
+		cmd.end();
+
+		vk::PipelineStageFlags waitFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		vk::SubmitInfo submitInfo(
+			1, &m_imageAvailableSemaphore, &waitFlags, // wait
+			1, &cmd, // commands
+			1, &m_ctxt->readyToPresentSemaphore()); // signal
+		m_ctxt->graphicsQueue().submit(submitInfo);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	constexpr uint32_t RF_OVERRIDE_MATERIAL = 1<<0;
+	constexpr uint32_t RF_ENV_PROBE = 1 << 1;
+	constexpr uint32_t RF_DISABLE_AO = 1 << 2;
+	constexpr uint32_t RF_NO_NORMAL_MAP = 1<<3;
+
+	void DeferredRenderer::updateUI()
+	{
+		if (ImGui::CollapsingHeader("Renderer"))
+		{
+			// Render flags
+			bool overrideMaterial = renderFlag(RF_OVERRIDE_MATERIAL);
+			ImGui::Checkbox("Override Material", &overrideMaterial);
+			bool useEnvProbe = renderFlag(RF_ENV_PROBE);
+			ImGui::Checkbox("Env. Probe", &useEnvProbe);
+			bool enableAO = !renderFlag(RF_DISABLE_AO);
+			ImGui::Checkbox("Enable AO", &enableAO);
+			bool enableNormalMaps = !renderFlag(RF_NO_NORMAL_MAP);
+			ImGui::Checkbox("Normal Maps", &enableNormalMaps);
+
+			m_frameConstants.renderFlags =
+				(overrideMaterial ? RF_OVERRIDE_MATERIAL : 0) |
+				(useEnvProbe ? RF_ENV_PROBE : 0) |
+				(!enableAO ? RF_DISABLE_AO : 0) |
+				(!enableNormalMaps ? RF_NO_NORMAL_MAP : 0);
+
+			if (overrideMaterial)
+			{
+				ImGui::ColorPicker3("Base Color", m_frameConstants.overrideBaseColor.data());
+				ImGui::SliderFloat("Metallic", &m_frameConstants.overrideMetallic, 0.f, 1.f);
+				ImGui::SliderFloat("Roughness", &m_frameConstants.overrideRoughness, 0.f, 1.f);
+				ImGui::SliderFloat("Clear Coat", &m_frameConstants.overrideClearCoat, 0.f, 1.f);
+			}
+
+			float fStops = log2f(m_postProConstants.exposure);
+			ImGui::SliderFloat("Exposure", &fStops, -3.f, 3.f);
+			m_postProConstants.exposure = powf(2.f, fStops);
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::createDescriptorLayouts(size_t numTextures)
+	{
+		// Geometry pass
+		m_geometryDescriptorSets.addStorageBuffer("worldMtx", 0, vk::ShaderStageFlagBits::eVertex);
+		m_geometryDescriptorSets.addStorageBuffer("materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+
+		m_geometryDescriptorSets.addTexture("iblLUT", 2, vk::ShaderStageFlagBits::eFragment);
+		assert(numTextures < std::numeric_limits<uint32_t>::max());
+		m_geometryDescriptorSets.addTextureArray("textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+
+		constexpr uint32_t numSwapchainImages = 2;
+		m_geometryDescriptorSets.close(numSwapchainImages);
+
+		// Post process passes
+		m_postProDescriptorSets.addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
+		m_postProDescriptorSets.close(1);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::fillConstantDescriptorSets()
+	{
+		auto device = m_ctxt->device();
+
+		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
+		{
+			gfx::DescriptorSetUpdate frameUpdate(m_geometryDescriptorSets, frameNdx);
+
+			frameUpdate.addTexture("iblLUT", m_iblLUT);
+			frameUpdate.send();
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::createRenderPasses()
+	{
+		// HDR geometry pass
+		m_hdrLightPass = std::make_unique<gfx::RenderPass>(
+			m_ctxt->createRenderPass({ m_hdrLightBuffer->format(), m_zBuffer->format() }),
+			*m_frameBuffers);
+		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_hdrLightPass->setDepthTarget(*m_zBuffer);
+		m_hdrLightPass->setClearDepth(0.f);
+		m_hdrLightPass->setClearColor(-math::Vec4f::ones());
+
+		// UI Render pass
+		m_uiRenderPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
+			"../shaders/postPro.frag.spv",
+			{ m_ctxt->swapchainFormat() },
+			* m_frameBuffers,
+			m_postProDescriptorSets.layout(),
+			sizeof(PostProPushConstants)));
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::createShaderPipelines()
+	{
+		auto device = m_ctxt->device();
+
+		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
+
+		// G-Buffer pipeline
+		vk::PushConstantRange camerasPushRange(
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			0, sizeof(FramePushConstants));
+
+		auto descriptorSetLayout = m_geometryDescriptorSets.layout();
+		vk::PipelineLayoutCreateInfo layoutInfo({},
+			1, & descriptorSetLayout, // Descriptor sets
+			1, &camerasPushRange); // Push constants
+
+		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);
+
+		gfx::RasterPipeline::VertexBindings geometryBindings;
+		geometryBindings.addAttribute<math::Vec3f>(0); // Vertex position
+		geometryBindings.addAttribute<math::Vec3f>(1); // Normals
+		geometryBindings.addAttribute<math::Vec4f>(2); // Tangents
+		geometryBindings.addAttribute<math::Vec2f>(3); // UVs
+
+		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
+			geometryBindings,
+			m_gbufferPipelineLayout,
+			m_hdrLightPass->vkPass(),
+			"gbuffer.vert.spv",
+			"gbuffer.frag.spv",
+			true);
+
+		// Set up shader reload
+		m_shaderWatcher->listen([this](auto paths) {
+			m_gBufferPipeline->invalidate();
+			m_uiRenderPass->invalidateShaders();
+			});
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::createRenderTargets()
+	{
+		auto windowSize = m_ctxt->windowSize();
+		auto& alloc = m_ctxt->allocator();
+
+		m_hdrLightBuffer = alloc.createImageBuffer(
+			"HDR light",
+			windowSize,
+			vk::Format::eR32G32B32A32Sfloat,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
+			m_ctxt->graphicsQueueFamily());
+		m_zBuffer = alloc.createDepthBuffer(
+			"Depth",
+			windowSize,
+			vk::Format::eD32Sfloat,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
+			m_ctxt->graphicsQueueFamily());
+
+		// Transition new images to general layout
+		m_ctxt->transitionImageLayout(m_hdrLightBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
+		m_ctxt->transitionImageLayout(m_zBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::destroyRenderTargets()
+	{
+		m_hdrLightBuffer = nullptr;
+		m_zBuffer = nullptr;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::destroyFrameBuffers()
+	{
+		m_frameBuffers->clear();
+	}
+
+	void DeferredRenderer::loadIBLLUT()
+	{
+		auto image = gfx::Image4f::load("shaders/ibl_brdf.hdr");
+		m_iblLUT = m_ctxt->allocator().createTexture(
+			"IBL LUT",
+			image->size(),
+			vk::Format::eR32G32B32A32Sfloat,
+			vk::SamplerAddressMode::eClampToEdge,
+			vk::SamplerAddressMode::eClampToEdge,
+			false,
+			0,
+			image->data(),
+			vk::ImageUsageFlagBits::eSampled,
+			m_ctxt->graphicsQueueFamily()
+		);
+	}
+}

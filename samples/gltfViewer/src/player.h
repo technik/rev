@@ -7,8 +7,7 @@
 #include <game/application/base3dApplication.h>
 #include <gfx/scene/camera.h>
 #include <gfx/renderer/RasterScene.h>
-
-#include "Renderer.h"
+#include <gfx/renderer/deferred/DeferredRenderer.h>
 
 namespace rev {
 
@@ -57,7 +56,7 @@ namespace rev {
 
 		// Scene
 		std::shared_ptr<game::SceneNode> m_sceneRoot;
-		gfx::Renderer::SceneDesc m_sceneGraphics;
+		gfx::DeferredRenderer::SceneDesc m_sceneGraphics;
 		std::shared_ptr<gfx::RasterScene> m_loadedScene;
 		float m_bgColor{};
 
@@ -65,7 +64,7 @@ namespace rev {
 		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
 
-		gfx::Renderer m_renderer;
+		gfx::DeferredRenderer m_renderer;
 		size_t m_sceneLoadStreamToken{};
 	};
 
