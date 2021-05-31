@@ -6,6 +6,7 @@
 #include <game/scene/sceneNode.h>
 #include <game/application/base3dApplication.h>
 #include <gfx/scene/camera.h>
+#include <gfx/renderer/RasterScene.h>
 
 #include "Renderer.h"
 
@@ -56,16 +57,15 @@ namespace rev {
 
 		// Scene
 		std::shared_ptr<game::SceneNode> m_sceneRoot;
-		Renderer::SceneDesc m_sceneGraphics;
+		gfx::Renderer::SceneDesc m_sceneGraphics;
+		std::shared_ptr<gfx::RasterScene> m_loadedScene;
 		float m_bgColor{};
 
 		// Camera options
 		gfx::Camera*						mFlybyCam = nullptr;
 		game::FlyBy*						m_flyby;
 
-		Renderer m_renderer;
-
-	private:
+		gfx::Renderer m_renderer;
 		size_t m_sceneLoadStreamToken{};
 	};
 

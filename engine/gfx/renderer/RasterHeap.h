@@ -89,6 +89,7 @@ namespace rev::gfx
 			m_textures.push_back(texture);
 		}
 
+		uint32_t numTextures() const { return (uint32_t)m_textures.size(); }
 
 		// Pack data buffers and submits all data to the GPU.
 		// After this point, new primitives can no longer be added to the heap.

@@ -32,6 +32,9 @@ namespace rev::gfx
 	class RasterScene : public RasterQueue
 	{
 	public:
+		RasterScene();
+		~RasterScene();
+
 		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
 
 		// Invalidates the order of renderables
@@ -47,4 +50,10 @@ namespace rev::gfx
 		std::vector<math::Mat44f> m_instanceWorldMtx;
 		std::shared_ptr<GPUBuffer> m_worldMtxBuffer;
 	};
+
+	inline RasterScene::RasterScene()
+	{}
+
+	inline RasterScene::~RasterScene()
+	{}
 }

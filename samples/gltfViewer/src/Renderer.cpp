@@ -47,7 +47,7 @@ namespace rev::gfx
 	void Renderer::init(
 		gfx::RenderContextVulkan& ctxt,
 		const math::Vec2u& windowSize,
-		const RendererBudget& limits)
+		const Budget& limits)
 	{
 		m_windowSize = windowSize;
 
@@ -111,7 +111,7 @@ namespace rev::gfx
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::render(SceneDesc& scene, bool geometryReady)
+	void Renderer::render(SceneDesc& scene)
 	{
 		if (m_windowSize.x() == 0 || m_windowSize.y() == 0)
 			return; // Don't try to render while minimized
@@ -120,7 +120,7 @@ namespace rev::gfx
 		m_shaderWatcher->update();
 
 		// Render passes
-		renderGeometryPass(scene, geometryReady);
+		renderGeometryPass(scene);
 		renderPostProPass();
 
 		// Swapchain update
@@ -128,7 +128,7 @@ namespace rev::gfx
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void Renderer::renderGeometryPass(SceneDesc& scene, bool geometryReady)
+	void Renderer::renderGeometryPass(SceneDesc& scene)
 	{
 
 		// Update frame state

@@ -48,7 +48,7 @@ namespace rev::gfx
 			math::Vec3f lightColor;
 		};
 
-		struct RendererBudget
+		struct Budget
 		{
 			uint32_t maxTexturesPerBatch;
 		};
@@ -59,11 +59,11 @@ namespace rev::gfx
 		void init(
 			gfx::RenderContextVulkan& ctxt,
 			const math::Vec2u& windowSize,
-			const RendererBudget& limits
+			const Budget& limits
 		);
 		void end();
 		void onResize(const math::Vec2u& windowSize);
-		void render(SceneDesc& scene, bool geometryReady);
+		void render(SceneDesc& scene);
 		void updateUI();
 
 	private:
@@ -76,7 +76,7 @@ namespace rev::gfx
 		void destroyFrameBuffers();
 		void loadIBLLUT();
 
-		void renderGeometryPass(SceneDesc& scene, bool geometryReady);
+		void renderGeometryPass(SceneDesc& scene);
 		void renderPostProPass();
 
 		// Init ImGui

@@ -63,14 +63,13 @@ namespace rev {
 		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
 
 		// Init renderer
-		auto sceneStream = m_renderer.init(
+		gfx::Renderer::Budget rendererLimits;
+		rendererLimits.maxTexturesPerBatch = m_loadedScene->m_geometry.numTextures();
+		m_renderer.init(
 			renderContext(),
 			renderContext().windowSize(),
-			m_sceneGraphics
+			rendererLimits
 		);
-
-		if (sceneStream)
-			m_sceneLoadStreamToken = sceneStream;
 
 		return true;
 	}
@@ -94,14 +93,12 @@ namespace rev {
 		if (scene.empty()) // Early out
 			return;
 
+		m_loadedScene = std::make_shared<gfx::RasterScene>();
 		GltfLoader gltfLoader(renderContext());
-		auto loadRes = gltfLoader.load(scene, m_sceneGraphics.m_rasterData);
-		m_sceneGraphics.m_sceneInstances = std::move(loadRes.meshInstances);
-		m_sceneGraphics.m_materials = std::move(loadRes.materials);
-		m_sceneGraphics.m_textures = std::move(loadRes.textures);
+		auto rootNode = gltfLoader.load(scene, *m_loadedScene);
 
-		m_sceneRoot->addChild(loadRes.rootNode);
-		m_sceneLoadStreamToken = m_sceneGraphics.m_rasterData.closeAndSubmit(renderContext(), renderContext().allocator());
+		m_sceneRoot->addChild(rootNode);
+		m_sceneLoadStreamToken = m_loadedScene->m_geometry.closeAndSubmit(renderContext(), renderContext().allocator());
 	}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -140,7 +137,15 @@ namespace rev {
 		io.MousePos = { (float)mousePos.x(), (float)mousePos.y() };
 		updateUI(dt.count());
 
-		m_renderer.render(m_sceneGraphics, renderContext().allocator().isTransferFinished(m_sceneLoadStreamToken));
+		if (m_sceneGraphics.m_opaqueGeometry.empty())
+		{
+			if (RenderContext().allocator().isTransferFinished(m_sceneLoadStreamToken))
+			{
+				m_sceneGraphics.m_opaqueGeometry.push_back(m_loadedScene);
+			}
+		}
+
+		m_renderer.render(m_sceneGraphics);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

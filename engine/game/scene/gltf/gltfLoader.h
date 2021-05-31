@@ -20,16 +20,16 @@
 #pragma once
 
 #include "../sceneNode.h"
-#include "../meshRenderer.h"
+#include <gfx/renderer/RasterScene.h>
 #include <gfx/scene/Material.h>
 #include <gfx/Texture.h>
+#include <game/scene/sceneNode.h>
 
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace fx::gltf { struct Document; }
-namespace rev::game { class SceneNode; }
 
 namespace rev::gfx
 {
@@ -47,24 +47,13 @@ namespace rev::game {
 		GltfLoader(gfx::RenderContextVulkan&);
 		~GltfLoader();
 
-		struct LoadResult
-		{
-			std::shared_ptr<SceneNode> rootNode;
-			std::shared_ptr<gfx::GPUBuffer> m_gpuData;
-			MeshRenderer meshInstances;
-			std::vector<gfx::PBRMaterial> materials;
-			std::vector<std::shared_ptr<gfx::Texture>> textures;
-
-			size_t asyncLoadToken;
-		};
-
 		/// Load a gltf scene
 		/// filePath must contain folder, file name and extension
 		/// \return root node of the loaded asset
-		LoadResult load(const std::string& filePath, gfx::RasterHeap& rasterDataDst);
+		std::shared_ptr<SceneNode> load(const std::string& filePath, gfx::RasterScene& scene);
 
 	private:
-		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, MeshRenderer& meshes);
+		std::shared_ptr<SceneNode> loadNodes(const fx::gltf::Document&, gfx::RasterScene& meshes);
 
 		gfx::RenderContextVulkan& m_renderContext;
 		gfx::VulkanAllocator& m_alloc;
