@@ -59,7 +59,8 @@ namespace rev::gfx
 		void init(
 			gfx::RenderContextVulkan& ctxt,
 			const math::Vec2u& windowSize,
-			const Budget& limits
+			const Budget& limits,
+			const core::FolderWatcher::path& shadersFolder
 		);
 		void end();
 		void onResize(const math::Vec2u& windowSize);
@@ -133,5 +134,7 @@ namespace rev::gfx
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
+
+		core::FolderWatcher::path m_shadersFolder;
 	};
 }

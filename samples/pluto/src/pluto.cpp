@@ -5,7 +5,7 @@
 #include <thread>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "player.h"
+#include "pluto.h"
 #include <math/algebra/vector.h>
 #include <core/platform/fileSystem/file.h>
 #include <core/platform/fileSystem/fileSystem.h>
@@ -29,29 +29,29 @@ using namespace rev::math;
 using namespace rev::gfx;
 using namespace rev::game;
 
-namespace rev {
+namespace rev
+{
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::CommandLineOptions::registerOptions(core::CmdLineParser& args)
+	void Pluto::CommandLineOptions::registerOptions(core::CmdLineParser& args)
 	{
 		args.addOption("env", &environment);
-		args.addOption("scene", &scene);
 		args.addOption("fov", &fov);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::getCommandLineOptions(core::CmdLineParser& args)
+	void Pluto::getCommandLineOptions(core::CmdLineParser& args)
 	{
 		m_options.registerOptions(args);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::init()
+	bool Pluto::init()
 	{
-		m_sceneRoot = std::make_shared<SceneNode>("scene root");
-		core::FileSystem::get()->registerPath("../shaders/");
+		core::FileSystem::get()->registerPath("./shaders");
+		core::FileSystem::get()->registerPath("./data");
 
-		// Load scene geometry
-		loadScene(m_options.scene);
+		// Create scene geometry
+		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 
 		// Create camera
 		createCamera();
@@ -64,47 +64,31 @@ namespace rev {
 
 		// Init renderer
 		gfx::DeferredRenderer::Budget rendererLimits;
-		rendererLimits.maxTexturesPerBatch = (uint32_t)m_loadedScene->m_geometry.textures().size();
+		rendererLimits.maxTexturesPerBatch = (uint32_t)16;
 		m_renderer.init(
 			renderContext(),
 			renderContext().windowSize(),
 			rendererLimits,
-			"../shaders/"
+			"./shaders"
 		);
 
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::end()
+	void Pluto::end()
 	{
 		m_renderer.end();
 	}
 
-#ifdef _WIN32
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::onResize()
+	void Pluto::onResize()
 	{
 		m_renderer.onResize(windowSize());
 	}
-#endif // _WIN32
-
-	//------------------------------------------------------------------------------------------------------------------
-	void Player::loadScene(const std::string& scene)
-	{
-		if (scene.empty()) // Early out
-			return;
-
-		m_loadedScene = std::make_shared<gfx::RasterScene>();
-		GltfLoader gltfLoader(renderContext());
-		auto rootNode = gltfLoader.load(scene, *m_loadedScene);
-
-		m_sceneRoot->addChild(rootNode);
-		m_sceneLoadStreamToken = m_loadedScene->m_geometry.closeAndSubmit(renderContext(), renderContext().allocator());
-	}
 
 		//------------------------------------------------------------------------------------------------------------------
-	void Player::createCamera()
+	void Pluto::createCamera()
 	{	
 		// Create flyby camera
 		auto cameraNode = m_sceneRoot->createChild("Flyby cam");
@@ -115,7 +99,7 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool Player::updateLogic(TimeDelta dt)
+	bool Pluto::updateLogic(TimeDelta dt)
 	{
 		// TODO: Play animations
 		m_sceneRoot->update(dt.count());
@@ -123,7 +107,7 @@ namespace rev {
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::render(TimeDelta dt)
+	void Pluto::render(TimeDelta dt)
 	{
 		Vec2f windowSize = { (float)renderContext().windowSize().x(), (float)renderContext().windowSize().y() };
 		float aspect = windowSize.x() / windowSize.y();
@@ -139,19 +123,11 @@ namespace rev {
 		io.MousePos = { (float)mousePos.x(), (float)mousePos.y() };
 		updateUI(dt.count());
 
-		if (m_sceneGraphics.m_opaqueGeometry.empty())
-		{
-			if (RenderContext().allocator().isTransferFinished(m_sceneLoadStreamToken))
-			{
-				m_sceneGraphics.m_opaqueGeometry.push_back(m_loadedScene);
-			}
-		}
-
 		m_renderer.render(m_sceneGraphics);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void Player::updateUI(float dt)
+	void Pluto::updateUI(float dt)
 	{
 		ImGui::NewFrame();
 

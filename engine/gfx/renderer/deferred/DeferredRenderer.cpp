@@ -44,8 +44,10 @@ namespace rev::gfx
 	void DeferredRenderer::init(
 		gfx::RenderContextVulkan& ctxt,
 		const math::Vec2u& windowSize,
-		const Budget& limits)
+		const Budget& limits,
+		const core::FolderWatcher::path& shadersFolder)
 	{
+		m_shadersFolder = shadersFolder;
 		m_windowSize = windowSize;
 
 		m_ctxt = &ctxt;
@@ -344,7 +346,7 @@ namespace rev::gfx
 	{
 		auto device = m_ctxt->device();
 
-		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("../shaders"));
+		m_shaderWatcher = std::make_unique<core::FolderWatcher>(m_shadersFolder);
 
 		// G-Buffer pipeline
 		vk::PushConstantRange camerasPushRange(
@@ -418,7 +420,7 @@ namespace rev::gfx
 
 	void DeferredRenderer::loadIBLLUT()
 	{
-		auto image = gfx::Image4f::load("shaders/ibl_brdf.hdr");
+		auto image = gfx::Image4f::load("ibl_brdf.hdr");
 		m_iblLUT = m_ctxt->allocator().createTexture(
 			"IBL LUT",
 			image->size(),
