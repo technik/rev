@@ -372,7 +372,7 @@ namespace rev
 		// Use a sphere as a preliminary density function
 		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
-			const float radius = 0.4f;
+			const float radius = 0.4f * size.x();
 			return radius - norm(pos - center);
 		};
 
@@ -448,7 +448,7 @@ namespace rev
 
 		for(auto& v : vertexPositions)
 		{
-			normals.push_back(normalize(v));
+			normals.push_back(normalize(v-center));
 			uvs.push_back({ v.x(), v.y() });
 		}
 

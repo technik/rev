@@ -71,7 +71,7 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_scene = std::make_shared<gfx::RasterScene>();
-		ProceduralTerrain::generateMarchingCubes(Vec3f(2.f), 16, *m_scene);
+		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 64, *m_scene);
 		m_geometryStreamToken = m_scene->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
 
 		// Create camera
