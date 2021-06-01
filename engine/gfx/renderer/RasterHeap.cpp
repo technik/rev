@@ -90,7 +90,8 @@ namespace rev::gfx {
 		const Vec4f* tangents,
 		const Vec2f* uvs,
 		uint32_t numIndices,
-		const uint32_t* indices)
+		const uint32_t* indices,
+		uint32_t materialNdx)
 	{
 		assert(!isClosed());
 
@@ -127,6 +128,7 @@ namespace rev::gfx {
 		primitive.vtxOffset = (uint32_t)numVerticesBefore;
 		primitive.indexOffset = (uint32_t)numIndicesBefore;
 		primitive.numIndices = numIndices;
+		primitive.materialNdx = materialNdx;
 
 		return m_primitives.size() - 1;
 	}

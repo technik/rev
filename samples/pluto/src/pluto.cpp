@@ -71,8 +71,8 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_scene = std::make_shared<gfx::RasterScene>();
-		ProceduralTerrain::generateMarchingCubes(Vec3f(2.f), 8, *m_scene);
-		m_sceneGraphics.m_opaqueGeometry.push_back(m_scene);
+		ProceduralTerrain::generateMarchingCubes(Vec3f(2.f), 2, *m_scene);
+		m_geometryStreamToken = m_scene->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
 
 		// Create camera
 		createCamera();
@@ -143,6 +143,14 @@ namespace rev
 		auto mousePos = input::PointingInput::get()->touchPosition();
 		io.MousePos = { (float)mousePos.x(), (float)mousePos.y() };
 		updateUI(dt.count());
+
+		if (m_sceneGraphics.m_opaqueGeometry.empty())
+		{
+			if (RenderContext().allocator().isTransferFinished(m_geometryStreamToken))
+			{
+				m_sceneGraphics.m_opaqueGeometry.push_back(m_scene);
+			}
+		}
 
 		m_renderer.render(m_sceneGraphics);
 	}

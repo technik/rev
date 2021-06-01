@@ -369,7 +369,8 @@ namespace rev::game {
 					vtxNormal.data(),
 					vtxTangents.empty() ? nullptr : vtxTangents.data(),
 					texCoord.data(),
-					(uint32_t)indices.size(), indices.data());
+					(uint32_t)indices.size(), indices.data(),
+					primitive.material);
 				firstPrimitive = min(firstPrimitive, p);
 				lastPrimitive = p;
 			}

@@ -67,7 +67,8 @@ namespace rev::gfx
 			const math::Vec4f* tangents,
 			const math::Vec2f* uvs,
 			uint32_t numIndices,
-			const uint32_t* indices
+			const uint32_t* indices,
+			uint32_t material
 		);
 		__forceinline const Primitive& getPrimitiveById(size_t primitiveId) const { return m_primitives[primitiveId]; }
 
@@ -79,9 +80,10 @@ namespace rev::gfx
 
 		__forceinline const auto& mesh(size_t i) const { return m_meshes[i]; }
 
-		void addMaterial(const PBRMaterial material)
+		uint32_t addMaterial(const PBRMaterial material)
 		{
 			m_materials.push_back(material);
+			return uint32_t(m_materials.size() - 1);
 		}
 
 		void addTexture(const std::shared_ptr<Texture>& texture)

@@ -106,8 +106,7 @@ namespace rev::gfx
 
 		assert(m_textureArrayBindings.find(name) != m_textureArrayBindings.end());
 		auto [binding, numTextures] = m_textureArrayBindings.at(name);
-		assert(numTextures == textureArray.size());
-
+		
 		if (textureArray.size() > 0)
 		{
 			std::vector<vk::DescriptorImageInfo> texInfo(textureArray.size());

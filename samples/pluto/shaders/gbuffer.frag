@@ -34,7 +34,7 @@ layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 1) readonly buffer _Material { PBRMaterial materials[]; };
 layout(set = 0, binding = 2) uniform sampler2D iblLUT;
-layout(set = 0, binding = 3) uniform sampler2D textures[];
+//layout(set = 0, binding = 3) uniform sampler2D textures[];
 
 #include "pushConstants.glsl"
 
@@ -110,20 +110,20 @@ void main()
 	if(material.baseColorTexture >= 0)
 	{
 		uint index = material.baseColorTexture;
-		material.baseColor_a *= texture(nonuniformEXT(textures[index]), vPxlTexCoord);
+		//material.baseColor_a *= texture(nonuniformEXT(textures[index]), vPxlTexCoord);
 	}
 	if(material.pbrTexture >= 0)
 	{
 		uint index = material.pbrTexture;
-		vec2 metalRough = texture(textures[nonuniformEXT(index)], vPxlTexCoord).bg;
-		material.metalness *= metalRough.x;//*metalRough.x;
-		material.roughness *= metalRough.y;//*metalRough.y;
+		//vec2 metalRough = texture(textures[nonuniformEXT(index)], vPxlTexCoord).bg;
+		//material.metalness *= metalRough.x;//*metalRough.x;
+		//material.roughness *= metalRough.y;//*metalRough.y;
 	}
 	float ao = 1.0;
 	if(material.aoTexture >= 0 && !renderFlag(RF_DISABLE_AO))
 	{
 		uint index = material.aoTexture;
-		ao = texture(textures[nonuniformEXT(index)], vPxlTexCoord).x;
+		//ao = texture(textures[nonuniformEXT(index)], vPxlTexCoord).x;
 	}
 	if(material.normalTexture >= 0 && !renderFlag(RF_NO_NORMAL_MAP))
     {
@@ -134,10 +134,10 @@ void main()
         mat3 modelFromTangent = mat3(tan, wsBitangent, normal);
 
         uint txtId = material.normalTexture;
-        vec3 tsNormal = texture(textures[nonuniformEXT(txtId)], vPxlTexCoord).xyz;
-        tsNormal = tsNormal + vec3(0,0,1e-2);
-        tsNormal = normalize(tsNormal * 255.0 - 127.0);
-        normal = normalize(modelFromTangent * tsNormal);
+        //vec3 tsNormal = texture(textures[nonuniformEXT(txtId)], vPxlTexCoord).xyz;
+        //tsNormal = tsNormal + vec3(0,0,1e-2);
+        //tsNormal = normalize(tsNormal * 255.0 - 127.0);
+        //normal = normalize(modelFromTangent * tsNormal);
         //material.baseColor_a.xyz = normal;
     }
 
@@ -175,7 +175,7 @@ void main()
 	if(material.emissiveTexture >= 0)
 	{
 		uint index = material.emissiveTexture;
-		pxlColor += texture(textures[index], vPxlTexCoord).xyz;
+		//pxlColor += texture(textures[index], vPxlTexCoord).xyz;
 	}
 
     outColor = vec4(pxlColor, 1.0);

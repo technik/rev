@@ -20,6 +20,8 @@
 #include "ProceduralTerrain.h"
 
 #include <math/algebra/vector.h>
+#include <gfx/Image.h>
+#include <gfx/Texture.h>
 #include <vector>
 
 using namespace rev::gfx;
@@ -368,14 +370,14 @@ namespace rev
 	void ProceduralTerrain::generateMarchingCubes(Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene)
 	{
 		// Use a sphere as a preliminary density function
-		auto density = [](const Vec3f& pos) {
-			const float radius = 0.8f;
-			return radius - norm(pos);
+		Vec3f center = size * 0.5f;
+		auto density = [=](const Vec3f& pos) {
+			const float radius = 0.4f;
+			return radius - norm(pos - center);
 		};
 
 		// Iterate over the volume with marching cubes
 		Vec3f cubeSide = size / float(resolution);
-		Vec3f startPos = size * -0.5f;
 
 		vector<Vec3f> vertexPositions;
 		vector<uint32_t> indices;
@@ -411,9 +413,9 @@ namespace rev
 					int numVertices = 0;
 					for(int e = 0; e < 12; ++e)
 					{
-						if (edgeFlags & e)
+						if (edgeFlags & (1<<e))
 						{
-							edgeToVertex[i] = numVertices++;
+							edgeToVertex[e] = numVertices++;
 							Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
 							Vec3f vtxTo = cellMin + edgeTo[e] * cubeSide;
 							Vec3f midVtx = (vtxFrom + vtxTo) * 0.5f; // TODO: Linear interpolation
@@ -421,7 +423,7 @@ namespace rev
 						}
 						else
 						{
-							edgeToVertex[i] = -1;
+							edgeToVertex[e] = -1;
 						}
 					}
 
@@ -432,10 +434,44 @@ namespace rev
 						if (edgeIndices[3 * edge] == -1)
 							break;
 
-						indices.push_back(edgeToVertex[edgeIndices[edge]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3*edge+0]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3*edge+1]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3*edge+2]] + vertexOffset);
 					}
 				}
 			}
 		}
+
+		// Create other vertex attributes
+		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
+		vector<Vec3f> normals; normals.reserve(vertexPositions.size());
+
+		for(auto& v : vertexPositions)
+		{
+			normals.push_back(normalize(v));
+			uvs.push_back({ v.x(), v.y() });
+		}
+
+		PBRMaterial defaultMaterial;
+		auto materialNdx = dstScene.m_geometry.addMaterial(defaultMaterial);
+
+		auto primitive = dstScene.m_geometry.addPrimitiveData(vertexPositions.size(),
+			vertexPositions.data(), normals.data(), nullptr, uvs.data(),
+			indices.size(), indices.data(), materialNdx);
+
+		auto whiteImage = gfx::Image4u8(Vec2u(32), false);
+		auto whiteTexture = RenderContext().allocator().createTexture("white", Vec2u(32), whiteImage.format(),
+			vk::SamplerAddressMode::eRepeat,
+			vk::SamplerAddressMode::eRepeat,
+			false, 1, whiteImage.data(),
+			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			RenderContext().graphicsQueueFamily());
+		dstScene.m_geometry.addTexture(whiteTexture);
+
+		RasterHeap::Mesh mesh;
+		mesh.firstPrimitive = primitive;
+		mesh.endPrimitive = primitive + 1;
+		auto meshNdx = dstScene.m_geometry.addMesh(mesh);
+		dstScene.addInstance(Mat44f::identity(), meshNdx);
 	}
 }

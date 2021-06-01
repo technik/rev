@@ -49,6 +49,7 @@ namespace rev {
 	{
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		core::FileSystem::get()->registerPath("../shaders/");
+		core::FileSystem::get()->registerPath("./shaders/");
 
 		// Load scene geometry
 		loadScene(m_options.scene);

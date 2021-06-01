@@ -79,6 +79,7 @@ namespace rev {
 		game::FlyBy*						m_flyby;
 
 		gfx::DeferredRenderer m_renderer;
+		size_t m_geometryStreamToken{};
 	};
 
 }	// namespace rev

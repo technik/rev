@@ -175,10 +175,12 @@ namespace rev::gfx
 				// Update per batch descriptor set
 				DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
 				batchUpdate.addStorageBuffer("worldMtx", batch.worldMatrices);
-				batchUpdate.addStorageBuffer("materials", batch.materials);
+				if(batch.materials)
+					batchUpdate.addStorageBuffer("materials", batch.materials);
 				batchUpdate.send();
 
-				m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
+				if(batch.textures.size() > 0)
+					m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
 
 				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
 				cmd.bindVertexBuffers(0, {

@@ -25,9 +25,9 @@ namespace rev::gfx
 {
 	struct alignas(16) PBRMaterial
 	{
-		math::Vec4f baseColor_a; // base color + alpha coverage
-		float metalness;
-		float roughness;
+		math::Vec4f baseColor_a = math::Vec4f(1.f); // base color + alpha coverage
+		float metalness = 1.f;
+		float roughness = 1.f;
 		int32_t baseColorTexture = -1;
 		int32_t pbrTexture = -1;
 		int32_t emissiveTexture = -1;
