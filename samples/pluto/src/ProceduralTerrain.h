@@ -19,66 +19,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <game/scene/sceneNode.h>
-#include <game/application/base3dApplication.h>
-#include <gfx/scene/camera.h>
 #include <gfx/renderer/RasterScene.h>
-#include <gfx/renderer/deferred/DeferredRenderer.h>
+#include <math/algebra/vector.h>
 
-namespace rev {
-
-	namespace game {
-		class FlyBy;
-		class Orbit;
-	}
-
-	class Pluto : public game::Base3dApplication
+namespace rev
+{
+	class ProceduralTerrain
 	{
 	public:
-		virtual std::string name() { return "gltf viewer"; }
-
-		Pluto() = default;
-		Pluto(const Pluto&) = delete;
-		Pluto& operator=(const Pluto&) = delete;
-
-	private:
-
-		struct CommandLineOptions
-		{
-			std::string environment;
-			float fov = 45.f;
-
-			void registerOptions(core::CmdLineParser&);
-		} m_options;
-
-		// Extension interface
-		// Life cycle
-		void getCommandLineOptions(core::CmdLineParser&) override;
-		bool init() override;
-		void end() override;
-		// Main loop
-		bool updateLogic(TimeDelta logicDt) override;
-		void render(TimeDelta renderDt) override;
-		// Events
-		void onResize() override;
-
-		// Common components
-		void updateUI(float dt);
-
-	private:
-		void createCamera();
-
-		// Scene
-		std::shared_ptr<game::SceneNode> m_sceneRoot;
-		gfx::DeferredRenderer::SceneDesc m_sceneGraphics;
-		std::shared_ptr<gfx::RasterScene> m_scene;
-		float m_bgColor{};
-
-		// Camera options
-		gfx::Camera*						mFlybyCam = nullptr;
-		game::FlyBy*						m_flyby;
-
-		gfx::DeferredRenderer m_renderer;
+		// Generate a procedural piece of terrain using marching cubes
+		// and stores it into the dstScene
+		static void generateMarchingCubes(math::Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene);
 	};
-
-}	// namespace rev
+}
