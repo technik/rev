@@ -246,6 +246,13 @@ namespace rev {
 				return { m[0] * x[0], m[1] * x[1], m[2] * x[2] };
 			}
 
+			void operator+=(Vector x)
+			{
+				m[0] += x[0];
+				m[1] += x[1];
+				m[2] += x[2];
+			}
+
 			// Compile time accessors
 			template<size_t i>
 			float& getComponent()

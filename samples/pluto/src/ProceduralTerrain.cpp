@@ -24,6 +24,8 @@
 #include <gfx/Texture.h>
 #include <vector>
 
+#include <math/noise.h>
+
 using namespace rev::gfx;
 using namespace rev::math;
 using namespace std;
@@ -373,7 +375,7 @@ namespace rev
 		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
 			const float radius = 0.4f * size.x();
-			return radius - norm(pos - center);
+			return max(0.f, radius - norm(pos)) * SNoise::simplex(pos.x() * 2, pos.y() * 4);
 		};
 
 		// Iterate over the volume with marching cubes
@@ -399,7 +401,7 @@ namespace rev
 					Vec3f corners[8];
 					for (int c = 0; c < 8; ++c)
 					{
-						corners[c] = cellMin + cornerMask[c] * cubeSide;
+						corners[c] = cellMin + cornerMask[c] * cubeSide - center;
 						bool sample = density(corners[c]) > 0.f;
 						cubeIndex |= sample ? (1 << c) : 0;
 					}
@@ -419,7 +421,7 @@ namespace rev
 							Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
 							Vec3f vtxTo = cellMin + edgeTo[e] * cubeSide;
 							Vec3f midVtx = (vtxFrom + vtxTo) * 0.5f; // TODO: Linear interpolation
-							vertexPositions.push_back(midVtx);
+							vertexPositions.push_back(midVtx - center);
 						}
 						else
 						{
@@ -444,19 +446,20 @@ namespace rev
 
 		// Create other vertex attributes
 		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
-		vector<Vec3f> normals; normals.reserve(vertexPositions.size());
+		//vector<Vec3f> normals; normals.reserve(vertexPositions.size());
 
 		for(auto& v : vertexPositions)
 		{
-			normals.push_back(normalize(v-center));
+			//normals.push_back(normalize(v));
 			uvs.push_back({ v.x(), v.y() });
 		}
 
 		PBRMaterial defaultMaterial;
+		defaultMaterial.baseColor_a = math::Vec4f(0.3f);
 		auto materialNdx = dstScene.m_geometry.addMaterial(defaultMaterial);
 
 		auto primitive = dstScene.m_geometry.addPrimitiveData(vertexPositions.size(),
-			vertexPositions.data(), normals.data(), nullptr, uvs.data(),
+			vertexPositions.data(), nullptr, nullptr, uvs.data(),
 			indices.size(), indices.data(), materialNdx);
 
 		auto whiteImage = gfx::Image4u8(Vec2u(32), false);
