@@ -375,7 +375,7 @@ namespace rev
 		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
 			const float radius = 0.4f * size.x();
-			return max(0.f, radius - norm(pos)) * SNoise::simplex(pos.x() * 2, pos.y() * 4);
+			return max(0.f, radius - norm(pos)) * simplexNoise(pos.x() * 2, pos.y() * 4);
 		};
 
 		// Iterate over the volume with marching cubes

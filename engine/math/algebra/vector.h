@@ -308,7 +308,7 @@ namespace rev {
         //--------------------------------------------------------------------------------------------------------------
         // Dot product
         template<class T, size_t n, class Derived1, class Derived2>
-        T dot(const VectorExpr<T, n, Derived1>& a, const VectorExpr<T, n, Derived2>& b)
+        __forceinline T dot(const VectorExpr<T, n, Derived1>& a, const VectorExpr<T, n, Derived2>& b)
         {
             T result(0);
             for (size_t i = 0; i < n; ++i)

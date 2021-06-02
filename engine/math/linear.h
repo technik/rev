@@ -27,6 +27,11 @@ namespace rev::math
 	template<class T>
 	concept Scalar = std::integral<T> || std::floating_point<T>;
 
+	__forceinline int fastFloor(std::floating_point auto x)
+	{
+		return x >= 0.f ? int(x) : int(x) - 1;
+	}
+
 	// Generic operands
 	template<class T>
 	auto lerp(const T& a, const T& b, float x)

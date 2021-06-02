@@ -12,19 +12,15 @@
 #include <random>
 
 namespace rev::math {
-	class SNoise
+
+	// 2D Simplex noise
+	float simplexNoise(float _x, float _y);
+
+	__forceinline float simplexNoise(const math::Vec2f& v)
 	{
-	public:
-		// Simplex noise
-		//static void		setSimplexSeed(int _seed);
-		static float	simplex(float _x, float _y);	// 2D simplex noise
-	private:
-		static int	fastFloor(double _x);
-
-		static Vec2f	grad2[12];
-		static unsigned char p[256];
-	};
-
+		return simplexNoise(v.x(), v.y());
+	}
+	
 	class RandomGenerator
 	{
 	public:
