@@ -71,8 +71,10 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_scene = std::make_shared<gfx::RasterScene>();
-		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 256, *m_scene);
+		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 8, *m_scene);
 		m_geometryStreamToken = m_scene->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
+		m_sceneGraphics.m_materials = m_scene->m_geometry.materialsBuffer();
+		m_sceneGraphics.m_worldMatrices = m_scene->getWorldMtxBuffer();// m_worldMtxBuffer;
 
 		// Create camera
 		createCamera();
@@ -82,6 +84,8 @@ namespace rev
 		m_sceneGraphics.ambientColor = Vec3f(0.5f, 222/255.f, 1.f);
 		m_sceneGraphics.lightColor = Vec3f(1.f, 1.f, 1.f);
 		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
+
+
 
 		// Init renderer
 		gfx::DeferredRenderer::Budget rendererLimits;

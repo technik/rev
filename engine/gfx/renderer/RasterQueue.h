@@ -60,8 +60,6 @@ namespace rev::gfx
 			VtxBinding tangentsBinding;
 			VtxBinding texCoordBinding;
 
-			std::shared_ptr<GPUBuffer> worldMatrices;
-			std::shared_ptr<GPUBuffer> materials;
 			std::vector<std::shared_ptr<Texture>> textures;
 		};
 

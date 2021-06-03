@@ -36,6 +36,7 @@ namespace rev::gfx
 		~RasterScene();
 
 		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
+		auto getWorldMtxBuffer() { refreshMatrixBuffer(); return m_worldMtxBuffer; }
 
 		// Invalidates the order of renderables
 		void addInstance(const math::Mat44f& worldMtx, uint32_t meshNdx);

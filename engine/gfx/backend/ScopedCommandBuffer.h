@@ -30,9 +30,10 @@ namespace rev::gfx {
 	class ScopedCommandBuffer
 	{
 	public:
-		ScopedCommandBuffer(vk::CommandBuffer c, vk::Queue queue)
+		ScopedCommandBuffer(vk::CommandBuffer c, vk::Queue queue, vk::Semaphore waitForSemaphore = vk::Semaphore())
 			: cmd(c)
 			, m_submitQueue(queue)
+			, m_waitSemaphore(waitForSemaphore)
 		{
 			cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 		}
@@ -55,8 +56,20 @@ namespace rev::gfx {
 			{
 				cmd.end();
 
+				uint32_t waitSemaphoreCount = 0;
+				vk::Semaphore* waitSemaphores = nullptr;
+				vk::PipelineStageFlags waitStages = {};
+
+				if (m_waitSemaphore)
+				{
+					waitSemaphoreCount = 1;
+					waitSemaphores = &m_waitSemaphore;
+
+					waitStages |= vk::PipelineStageFlagBits::eColorAttachmentOutput;
+				}
+
 				vk::SubmitInfo submitInfo(
-					0, nullptr, nullptr, // wait
+					waitSemaphoreCount, waitSemaphores, &waitStages, // wait
 					1, &cmd, // commands
 					0, nullptr); // signal
 				m_submitQueue.submit(submitInfo);
@@ -69,6 +82,7 @@ namespace rev::gfx {
 
 		vk::CommandBuffer cmd;
 		vk::Queue m_submitQueue;
+		vk::Semaphore m_waitSemaphore;
 	};
 
 }

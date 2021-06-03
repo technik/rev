@@ -84,7 +84,7 @@ namespace rev::gfx
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
 		auto transferQueue() const { return m_transferQueue; }
 		vk::CommandBuffer getNewRenderCmdBuffer();
-		ScopedCommandBuffer getScopedCmdBuffer(vk::Queue submitQueue);
+		ScopedCommandBuffer getScopedCmdBuffer(vk::Queue submitQueue, vk::Semaphore waitForSemaphore = vk::Semaphore());
 
 		// Render passes and frame buffers
 		vk::RenderPass createRenderPass(const std::vector<vk::Format>& attachmentFormats);

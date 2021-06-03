@@ -40,8 +40,6 @@ namespace rev::gfx
 		batch.indexType = vk::IndexType::eUint32;
 		batch.indexBuffer = m_geometry.indexBuffer();
 		batch.textures = m_geometry.textures();
-		batch.materials = m_geometry.materialsBuffer();
-		batch.worldMatrices = m_worldMtxBuffer;
 		m_geometry.getVertexBindings(
 			batch.positionBinding,
 			batch.normalsBinding,

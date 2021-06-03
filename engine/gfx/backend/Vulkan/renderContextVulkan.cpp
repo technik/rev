@@ -565,9 +565,9 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	ScopedCommandBuffer RenderContextVulkan::getScopedCmdBuffer(vk::Queue submitQueue)
+	ScopedCommandBuffer RenderContextVulkan::getScopedCmdBuffer(vk::Queue submitQueue, vk::Semaphore waitForSemaphore)
 	{
-		return ScopedCommandBuffer(getNewRenderCmdBuffer(), submitQueue);
+		return ScopedCommandBuffer(getNewRenderCmdBuffer(), submitQueue, waitForSemaphore);
 	}
 
 	//--------------------------------------------------------------------------------------------------

@@ -129,7 +129,6 @@ namespace rev::gfx
 	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::renderGeometryPass(SceneDesc& scene)
 	{
-
 		// Update frame state
 		m_frameConstants.lightColor = scene.lightColor;
 		m_frameConstants.ambientColor = scene.ambientColor;
@@ -138,13 +137,17 @@ namespace rev::gfx
 		m_frameConstants.proj = scene.proj;
 		m_frameConstants.view = scene.view;
 
+		// Update per batch descriptor set
+		DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
+		batchUpdate.addStorageBuffer("worldMtx", scene.m_worldMatrices);
+		if (scene.m_materials)
+			batchUpdate.addStorageBuffer("materials", scene.m_materials);
+		batchUpdate.send();
+
 		// Render geometry if the scene is loaded
 		auto scope = m_ctxt->getScopedCmdBuffer(m_ctxt->graphicsQueue());
 		auto cmd = scope.cmd;
 		m_hdrLightPass->begin(cmd, m_windowSize);
-
-		std::vector<RasterQueue::Draw> draws;
-		std::vector<RasterQueue::Batch> batches;
 
 		// Bind pipeline
 		m_gBufferPipeline->bind(cmd);
@@ -163,6 +166,8 @@ namespace rev::gfx
 			0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
 
 		// Render opaque geometry
+		std::vector<RasterQueue::Draw> draws;
+		std::vector<RasterQueue::Batch> batches;
 		for(const auto& queue : scene.m_opaqueGeometry)
 		{
 			// Get queue draw batches
@@ -172,13 +177,6 @@ namespace rev::gfx
 
 			for (const auto& batch : batches)
 			{
-				// Update per batch descriptor set
-				DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
-				batchUpdate.addStorageBuffer("worldMtx", batch.worldMatrices);
-				if(batch.materials)
-					batchUpdate.addStorageBuffer("materials", batch.materials);
-				batchUpdate.send();
-
 				if(batch.textures.size() > 0)
 					m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
 
@@ -211,22 +209,23 @@ namespace rev::gfx
 	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::renderPostProPass()
 	{
-		auto cmd = m_ctxt->getNewRenderCmdBuffer();
-		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
-
 		m_postProConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
 		m_postProConstants.ambientColor = m_frameConstants.ambientColor;
 		m_postProConstants.renderFlags = {};
 		m_postProConstants.bloom = 0.f;
 
+		auto cmd = m_ctxt->getNewRenderCmdBuffer();
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		auto& swapchainImage = m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
+
 		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
 		m_uiRenderPass->begin(
 			cmd,
 			m_windowSize,
-			m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
+			swapchainImage,
 			m_postProConstants.ambientColor,
 			m_postProDescriptorSets.getDescriptor(0));
-
 
 		m_uiRenderPass->pushConstants(cmd, m_postProConstants);
 		m_uiRenderPass->render(cmd);

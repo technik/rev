@@ -40,6 +40,8 @@ namespace rev::gfx
 		struct SceneDesc
 		{
 			std::vector<std::shared_ptr<RasterQueue>> m_opaqueGeometry;
+			std::shared_ptr<GPUBuffer> m_worldMatrices;
+			std::shared_ptr<GPUBuffer> m_materials;
 
 			math::Mat44f proj;
 			math::Mat44f view;
@@ -91,6 +93,7 @@ namespace rev::gfx
 
 		// Vulkan objects to move into rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
+		vk::Semaphore m_renderGeometrySemaphore;
 		uint32_t m_doubleBufferNdx = 0;
 		gfx::DescriptorSetLayout m_geometryDescriptorSets;
 		gfx::DescriptorSetLayout m_postProDescriptorSets;
