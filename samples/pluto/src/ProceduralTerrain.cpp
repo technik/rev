@@ -24,6 +24,7 @@
 #include <gfx/Texture.h>
 #include <vector>
 
+#include <math/geometry/aabb.h>
 #include <math/noise.h>
 
 using namespace rev::gfx;
@@ -382,33 +383,21 @@ namespace rev
 		{0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 		{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} };
 
-	// Generate a procedural piece of terrain using marching cubes
-	// and stores it into the dstScene
-	void ProceduralTerrain::generateMarchingCubes(Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene)
+	template<class Op>
+	void marchingCubes(const AABB& bounds, const Vec3u& resolution, Op& density, std::vector<Vec3f>& vertexPositions, std::vector<uint32_t>& indices)
 	{
-		// Use a sphere as a preliminary density function
-		Vec3f center = size * 0.5f;
-		auto density = [=](const Vec3f& pos) {
-			const float radius = 0.4f * size.x();
-			//return max(0.f, radius - norm(pos));// *simplexNoise(pos.x() * 2, pos.y() * 4);
-			return radius - norm(pos) + simplexNoise(pos.x() * 2, pos.y() * 4) * 0.2f;
-		};
-
-		// Iterate over the volume with marching cubes
-		Vec3f cubeSide = size / float(resolution);
-
-		vector<Vec3f> vertexPositions;
-		vector<uint32_t> indices;
+		Vec3f size = bounds.size();
+		Vec3f cubeSide = { size.x() / resolution.x(), size.y() / resolution.y(), size.z() / resolution.z() };
 
 		// Iterate over the volume
 		Vec3f cellMin;
-		for(uint32_t i = 0; i < resolution; ++i) // x
+		for (uint32_t i = 0; i < resolution.x(); ++i) // x
 		{
 			cellMin.x() = i * cubeSide.x();
-			for (uint32_t j = 0; j < resolution; ++j) // y
+			for (uint32_t j = 0; j < resolution.y(); ++j) // y
 			{
 				cellMin.y() = j * cubeSide.y();
-				for (uint32_t k = 0; k < resolution; ++k)
+				for (uint32_t k = 0; k < resolution.z(); ++k)
 				{
 					cellMin.z() = k * cubeSide.z();
 					// Compute cell corners and evaluate density
@@ -418,7 +407,7 @@ namespace rev
 					float cornerSamples[8];
 					for (int c = 0; c < 8; ++c)
 					{
-						corners[c] = cellMin + cornerMask[c] * cubeSide - center;
+						corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
 						cornerSamples[c] = density(corners[c]);
 						bool sample = cornerSamples[c] > 0.f;
 						cubeIndex |= sample ? (1 << c) : 0;
@@ -431,16 +420,16 @@ namespace rev
 					auto vertexOffset = vertexPositions.size();
 					int edgeToVertex[12] = {}; // TODO: Precompute this mapping to a table
 					int numVertices = 0;
-					for(int e = 0; e < 12; ++e)
+					for (int e = 0; e < 12; ++e)
 					{
-						if (edgeFlags & (1<<e))
+						if (edgeFlags & (1 << e))
 						{
 							edgeToVertex[e] = numVertices++;
 							Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
 							float weightFrom = cornerSamples[edgeCorners[e][0]];
 							float weightTo = cornerSamples[edgeCorners[e][1]];
-							Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom-weightTo)); // TODO: Linear interpolation
-							vertexPositions.push_back(midVtx - center);
+							Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
+							vertexPositions.push_back(midVtx);
 						}
 						else
 						{
@@ -455,13 +444,34 @@ namespace rev
 						if (edgeIndices[3 * edge] == -1)
 							break;
 
-						indices.push_back(edgeToVertex[edgeIndices[3*edge+0]] + vertexOffset);
-						indices.push_back(edgeToVertex[edgeIndices[3*edge+1]] + vertexOffset);
-						indices.push_back(edgeToVertex[edgeIndices[3*edge+2]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 0]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 1]] + vertexOffset);
+						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 2]] + vertexOffset);
 					}
 				}
 			}
 		}
+	}
+
+	// Generate a procedural piece of terrain using marching cubes
+	// and stores it into the dstScene
+	void ProceduralTerrain::generateMarchingCubes(Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene)
+	{
+		// Use a sphere as a preliminary density function
+		Vec3f center = size * 0.5f;
+		auto density = [=](const Vec3f& pos) {
+			const float radius = 0.4f * size.x();
+			//return max(0.f, radius - norm(pos));// *simplexNoise(pos.x() * 2, pos.y() * 4);
+			return radius - norm(pos) + simplexNoise(pos.x() * 2, pos.y() * 4) * 0.12f;
+		};
+
+		// Iterate over the volume with marching cubes
+		Vec3f cubeSide = size / float(resolution);
+
+		vector<Vec3f> vertexPositions;
+		vector<uint32_t> indices;
+
+		marchingCubes(AABB(-size * 0.5f, size * 0.5f), Vec3u(resolution), density, vertexPositions, indices);
 
 		// Create other vertex attributes
 		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
