@@ -44,6 +44,21 @@ namespace rev
 			{1.f, 0.f, 1.f}
 		};
 
+		uint8_t edgeCorners[12][2] = {
+			{0, 1}, // From, to
+			{1, 2},
+			{2, 3},
+			{3, 0},
+			{4, 5},
+			{5, 6},
+			{6, 7},
+			{7, 4},
+			{0, 4},
+			{1, 5},
+			{2, 6},
+			{3, 7}
+		};
+
 		Vec3f edgeFrom[12] = {
 			{0.f, 0.f, 0.f},
 			{0.f, 1.f, 0.f},
@@ -59,19 +74,19 @@ namespace rev
 			{1.f, 0.f, 0.f}
 		};
 
-		Vec3f edgeTo[12] = {
+		Vec3f edgeDir[12] = {
 			{0.f, 1.f, 0.f},
-			{1.f, 1.f, 0.f},
 			{1.f, 0.f, 0.f},
-			{0.f, 0.f, 0.f},
-			{0.f, 1.f, 1.f},
-			{1.f, 1.f, 1.f},
-			{1.f, 0.f, 1.f},
+			{0.f, -1.f, 0.f},
+			{-1.f, 0.f, 0.f},
+			{0.f, 1.f, 0.f},
+			{1.f, 0.f, 0.f},
+			{0.f, -1.f, 0.f},
+			{-1.f, 0.f, 0.f},
 			{0.f, 0.f, 1.f},
 			{0.f, 0.f, 1.f},
-			{0.f, 1.f, 1.f},
-			{1.f, 1.f, 1.f},
-			{1.f, 0.f, 1.f}
+			{0.f, 0.f, 1.f},
+			{0.f, 0.f, 1.f}
 		};
 	}
 
@@ -375,7 +390,8 @@ namespace rev
 		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
 			const float radius = 0.4f * size.x();
-			return max(0.f, radius - norm(pos)) * simplexNoise(pos.x() * 2, pos.y() * 4);
+			//return max(0.f, radius - norm(pos));// *simplexNoise(pos.x() * 2, pos.y() * 4);
+			return radius - norm(pos) + simplexNoise(pos.x() * 2, pos.y() * 4) * 0.2f;
 		};
 
 		// Iterate over the volume with marching cubes
@@ -399,10 +415,12 @@ namespace rev
 
 					int cubeIndex = 0;
 					Vec3f corners[8];
+					float cornerSamples[8];
 					for (int c = 0; c < 8; ++c)
 					{
 						corners[c] = cellMin + cornerMask[c] * cubeSide - center;
-						bool sample = density(corners[c]) > 0.f;
+						cornerSamples[c] = density(corners[c]);
+						bool sample = cornerSamples[c] > 0.f;
 						cubeIndex |= sample ? (1 << c) : 0;
 					}
 
@@ -419,8 +437,9 @@ namespace rev
 						{
 							edgeToVertex[e] = numVertices++;
 							Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
-							Vec3f vtxTo = cellMin + edgeTo[e] * cubeSide;
-							Vec3f midVtx = (vtxFrom + vtxTo) * 0.5f; // TODO: Linear interpolation
+							float weightFrom = cornerSamples[edgeCorners[e][0]];
+							float weightTo = cornerSamples[edgeCorners[e][1]];
+							Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom-weightTo)); // TODO: Linear interpolation
 							vertexPositions.push_back(midVtx - center);
 						}
 						else
