@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ProceduralTerrain.h"
 
+#include <core/tools/profiler.h>
 #include <math/algebra/vector.h>
 #include <gfx/Image.h>
 #include <gfx/Texture.h>
@@ -457,6 +458,7 @@ namespace rev
 	// and stores it into the dstScene
 	void ProceduralTerrain::generateMarchingCubes(Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene)
 	{
+		core::ScopedStopWatch probe("Generate terrain");
 		// Use a sphere as a preliminary density function
 		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
@@ -471,7 +473,10 @@ namespace rev
 		vector<Vec3f> vertexPositions;
 		vector<uint32_t> indices;
 
-		marchingCubes(AABB(-size * 0.5f, size * 0.5f), Vec3u(resolution), density, vertexPositions, indices);
+		{
+			core::ScopedStopWatch cubes("Marching Cubes");
+			marchingCubes(AABB(-size * 0.5f, size * 0.5f), Vec3u(resolution), density, vertexPositions, indices);
+		}
 
 		// Create other vertex attributes
 		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
