@@ -17,25 +17,22 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
+#include "profiler.h"
 
-#include <string>
-#include <string_view>
-#include <chrono>
+#include <iostream>
 
 namespace rev::core
 {
-	// Captures the execution duration of a scope and outputs a message
-	// to cout on destruction.
-	class ScopedStopWatch
-	{
-	public:
-		ScopedStopWatch(std::string_view tag);
-		~ScopedStopWatch();
+	using namespace std::chrono;
 
-	private:
-		using clock = std::chrono::high_resolution_clock;
-		std::string m_tag;
-		clock::time_point m_t0;
-	};
+	ScopedStopWatch::ScopedStopWatch(std::string_view tag)
+		: m_tag(tag)
+		, m_t0(clock::now())
+	{}
+
+	ScopedStopWatch::~ScopedStopWatch()
+	{
+		auto dt = clock::now() - m_t0;
+		std::cout << m_tag << " duration: " << duration_cast<milliseconds>(dt) << "ms\n";
+	}
 }
