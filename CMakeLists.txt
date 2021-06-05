@@ -64,6 +64,6 @@ add_subdirectory(samples/GltfViewer)
 
 if(REV_BUILD_TEST)
 	enable_testing()
-	include_directories(engine/src)
+	include_directories(engine)
 	add_subdirectory(test/unit/math)
 endif()
