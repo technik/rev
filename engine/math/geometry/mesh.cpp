@@ -40,8 +40,14 @@ namespace rev::math
 			Vec3f v0 = positions[i0];
 			Vec3f v1 = positions[i1];
 			Vec3f v2 = positions[i2];
+
+			Vec3f e1 = Vec3f(v1 - v0);
+			Vec3f e2 = Vec3f(v2 - v0);
 				// Compute triangle normal
-			Vec3f triNormal = normalize(cross(Vec3f(v1 - v0), Vec3f(v2 - v0)));
+			Vec3f triNormal = cross(e1, e2);
+			if (triNormal == Vec3f::zero())
+				continue; // Ignore degenerate triangles
+			triNormal = normalize(triNormal);
 
 			// And contribute it to each vertex
 			normals[i0] += triNormal;

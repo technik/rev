@@ -28,6 +28,8 @@
 #include <math/geometry/aabb.h>
 #include <math/noise.h>
 
+#include <limits>
+
 using namespace rev::gfx;
 using namespace rev::math;
 using namespace std;
@@ -414,6 +416,7 @@ namespace rev
 				Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
 				float weightFrom = cornerSamples[edgeCorners[e][0]];
 				float weightTo = cornerSamples[edgeCorners[e][1]];
+				//Vec3f midVtx = vtxFrom + edgeDir[e] * cubeSide * 0.5f;// (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
 				Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
 				vertexPositions.push_back(midVtx);
 			}
@@ -491,8 +494,13 @@ namespace rev
 	void ProceduralTerrain::generateMarchingCubes(const AABB& bounds, float meanH, uint32_t gridSide, uint32_t gridHeight, gfx::RasterScene& dstScene)
 	{
 		core::ScopedStopWatch probe("Generate terrain");
+		
+		assert(uint64_t(gridSide) * gridSide * gridHeight < std::numeric_limits<uint32_t>::max());
+
 		// Use a sphere as a preliminary density function
 		auto density = [=](const Vec3f& pos) {
+			//const float radius = 0.4f * bounds.size().x();
+			//return radius - norm(pos);
 			float h = meanH - pos.y();
 
 			float d = h / 10;
@@ -526,15 +534,14 @@ namespace rev
 
 		// De-duplicate vertices
 		{
-			core::ScopedStopWatch probe("Deduplicate vertices");
+			core::ScopedStopWatch probe("Weld identical vertices");
 			std::vector<uint32_t> vertexDict(vertexPositions.size());
-			int faceMaxIndices = gridSide * gridHeight * 8;
-			for (int i = 1; i < vertexPositions.size(); ++i)
+			int faceMaxIndices = gridSide * gridHeight * 12;
+			for (int i = 0; i < vertexPositions.size(); ++i)
 			{
 				vertexDict[i] = i;
 				auto v = vertexPositions[i];
-				int farthestRepeat = max(0, i - faceMaxIndices);
-				for (int j = i - 1; j >= farthestRepeat; --j)
+				for (int j = i-1 ; j >= 0; --j)
 				{
 					if (vertexPositions[j] == v)
 					{
@@ -543,10 +550,23 @@ namespace rev
 					}
 				}
 			}
-			for (auto& index : indices)
+			// De-duplicate indices and remove degenerate triangles
+			std::vector<uint32_t> cleanIndices;
+			cleanIndices.reserve(indices.size());
+			for (int i = 0; i < indices.size() / 3; ++i)
 			{
-				index = vertexDict[index];
+				auto i0 = indices[3 * i + 0];
+				auto i1 = indices[3 * i + 1];
+				auto i2 = indices[3 * i + 2];
+
+				if (i0 == i1 || i0 == i2)
+					continue; // Skip degenerate triangles
+
+				cleanIndices.push_back(i0);
+				cleanIndices.push_back(i1);
+				cleanIndices.push_back(i2);
 			}
+			indices = std::move(cleanIndices);
 		}
 
 		// Create other vertex attributes
