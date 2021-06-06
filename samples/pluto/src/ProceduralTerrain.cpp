@@ -479,10 +479,10 @@ namespace rev
 			float h = meanH - pos.y();
 
 			float d = h / 10;
-			const float baseScale = 1/64.f;
-			Vec2f x = { pos.x() * baseScale, pos.z() * baseScale};
+			const float baseScale = 1 / 64.f;
+			Vec2f x = { pos.x() * baseScale, pos.z() * baseScale };
 			float k = 1.f;
-			for (size_t i = 0; i < 4; ++i)
+			for (size_t i = 0; i < 5; ++i)
 			{
 				d += k * simplexNoise(x);
 				x = { x.x() * 2.f, x.y() * 2.f };
@@ -493,7 +493,7 @@ namespace rev
 
 		// Iterate over the volume with marching cubes
 		Vec3f size = bounds.size();
-		Vec3f cubeSide = { size.x() / gridSide, size.y() / gridSide, size.z() / gridHeight};
+		Vec3f cubeSide = { size.x() / gridSide, size.y() / gridHeight, size.z() / gridSide };
 
 		vector<Vec3f> vertexPositions;
 		vector<uint32_t> indices;
@@ -502,9 +502,31 @@ namespace rev
 			core::ScopedStopWatch cubes("Marching Cubes");
 			marchingCubes(
 				bounds,
-				Vec3u(gridSide,gridSide,gridHeight),
+				Vec3u(gridSide, gridHeight, gridSide),
 				density,
 				vertexPositions, indices);
+		}
+
+		// De-duplicate vertices
+		std::vector<uint32_t> vertexDict(vertexPositions.size());
+		int faceMaxIndices = gridSide * gridHeight * 8;
+		for (int i = 1; i < vertexPositions.size(); ++i)
+		{
+			vertexDict[i] = i;
+			auto v = vertexPositions[i];
+			int farthestRepeat = max(0, i - faceMaxIndices);
+			for (int j = i - 1; j >= farthestRepeat; --j)
+			{
+				if (vertexPositions[j] == v)
+				{
+					vertexDict[i] = vertexDict[j];
+					break;
+				}
+			}
+		}
+		for (auto& index : indices)
+		{
+			index = vertexDict[index];
 		}
 
 		// Create other vertex attributes

@@ -71,9 +71,9 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
-		float cellSide = 256.f;
+		float cellSide = 128.f;
 		float cellHeight = 64.f;
-		float meanHeight = 20.f;
+		float meanHeight = 40.f;
 		math::AABB cellBounds(
 			Vec3f{ -cellSide * 0.5f, -meanHeight, -cellSide * 0.5f },
 			Vec3f{ cellSide * 0.5f, cellHeight - meanHeight, cellSide * 0.5f });
