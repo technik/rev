@@ -21,6 +21,7 @@
 
 #include <gfx/renderer/RasterScene.h>
 #include <math/algebra/vector.h>
+#include <math/geometry/aabb.h>
 
 namespace rev
 {
@@ -29,6 +30,6 @@ namespace rev
 	public:
 		// Generate a procedural piece of terrain using marching cubes
 		// and stores it into the dstScene
-		static void generateMarchingCubes(math::Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene);
+		static void generateMarchingCubes(const math::AABB& bounds, float meanH, uint32_t gridSide, uint32_t gridHeight, gfx::RasterScene& dstScene);
 	};
 }

@@ -71,7 +71,13 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
-		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 16, *m_opaqueGeometry);
+		float cellSide = 256.f;
+		float cellHeight = 64.f;
+		float meanHeight = 20.f;
+		math::AABB cellBounds(
+			Vec3f{ -cellSide * 0.5f, -meanHeight, -cellSide * 0.5f },
+			Vec3f{ cellSide * 0.5f, cellHeight - meanHeight, cellSide * 0.5f });
+		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, 256, 64, *m_opaqueGeometry);
 		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
 		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 
@@ -80,7 +86,7 @@ namespace rev
 		m_sceneRoot->init();
 
 		// Lighting state
-		m_sceneGraphics.ambientColor = Vec3f(0.5f, 222/255.f, 1.f);
+		m_sceneGraphics.ambientColor = Vec3f(0.5f/255, 16/255.f, 20.f/255);
 		m_sceneGraphics.lightColor = Vec3f(1.f, 1.f, 1.f);
 		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
 

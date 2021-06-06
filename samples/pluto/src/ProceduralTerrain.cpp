@@ -384,6 +384,58 @@ namespace rev
 		{0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 		{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} };
 
+	void marchSingleCube(
+		const Vec3f* corners,
+		const float* cornerSamples,
+		const Vec3f& cellMin,
+		const Vec3f& cubeSide,
+		std::vector<Vec3f>& vertexPositions,
+		std::vector<uint32_t>& indices)
+	{
+		int cubeIndex = 0;
+		for (int c = 0; c < 8; ++c)
+		{
+			bool sample = cornerSamples[c] > 0.f;
+			cubeIndex |= sample ? (1 << c) : 0;
+		}
+
+		int edgeFlags = edgeTable[cubeIndex];
+		if (edgeFlags == 0)
+			return;
+
+		auto vertexOffset = vertexPositions.size();
+		int edgeToVertex[12] = {}; // TODO: Precompute this mapping to a table
+		int numVertices = 0;
+		for (int e = 0; e < 12; ++e)
+		{
+			if (edgeFlags & (1 << e))
+			{
+				edgeToVertex[e] = numVertices++;
+				Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
+				float weightFrom = cornerSamples[edgeCorners[e][0]];
+				float weightTo = cornerSamples[edgeCorners[e][1]];
+				Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
+				vertexPositions.push_back(midVtx);
+			}
+			else
+			{
+				edgeToVertex[e] = -1;
+			}
+		}
+
+		// Compute edges
+		auto edgeIndices = triTable[cubeIndex];
+		for (int edge = 0; edge < 5; ++edge)
+		{
+			if (edgeIndices[3 * edge] == -1)
+				break;
+
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 0]] + vertexOffset);
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 1]] + vertexOffset);
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 2]] + vertexOffset);
+		}
+	}
+
 	template<class Op>
 	void marchingCubes(const AABB& bounds, const Vec3u& resolution, Op& density, std::vector<Vec3f>& vertexPositions, std::vector<uint32_t>& indices)
 	{
@@ -403,52 +455,15 @@ namespace rev
 					cellMin.z() = k * cubeSide.z();
 					// Compute cell corners and evaluate density
 
-					int cubeIndex = 0;
 					Vec3f corners[8];
 					float cornerSamples[8];
 					for (int c = 0; c < 8; ++c)
 					{
 						corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
 						cornerSamples[c] = density(corners[c]);
-						bool sample = cornerSamples[c] > 0.f;
-						cubeIndex |= sample ? (1 << c) : 0;
 					}
 
-					int edgeFlags = edgeTable[cubeIndex];
-					if (edgeFlags == 0)
-						continue;
-
-					auto vertexOffset = vertexPositions.size();
-					int edgeToVertex[12] = {}; // TODO: Precompute this mapping to a table
-					int numVertices = 0;
-					for (int e = 0; e < 12; ++e)
-					{
-						if (edgeFlags & (1 << e))
-						{
-							edgeToVertex[e] = numVertices++;
-							Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
-							float weightFrom = cornerSamples[edgeCorners[e][0]];
-							float weightTo = cornerSamples[edgeCorners[e][1]];
-							Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
-							vertexPositions.push_back(midVtx);
-						}
-						else
-						{
-							edgeToVertex[e] = -1;
-						}
-					}
-
-					// Compute edges
-					auto edgeIndices = triTable[cubeIndex];
-					for (int edge = 0; edge < 5; ++edge)
-					{
-						if (edgeIndices[3 * edge] == -1)
-							break;
-
-						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 0]] + vertexOffset);
-						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 1]] + vertexOffset);
-						indices.push_back(edgeToVertex[edgeIndices[3 * edge + 2]] + vertexOffset);
-					}
+					marchSingleCube(corners, cornerSamples, cellMin + bounds.min(), cubeSide, vertexPositions, indices);
 				}
 			}
 		}
@@ -456,26 +471,40 @@ namespace rev
 
 	// Generate a procedural piece of terrain using marching cubes
 	// and stores it into the dstScene
-	void ProceduralTerrain::generateMarchingCubes(Vec3f size, uint32_t resolution, gfx::RasterScene& dstScene)
+	void ProceduralTerrain::generateMarchingCubes(const AABB& bounds, float meanH, uint32_t gridSide, uint32_t gridHeight, gfx::RasterScene& dstScene)
 	{
 		core::ScopedStopWatch probe("Generate terrain");
 		// Use a sphere as a preliminary density function
-		Vec3f center = size * 0.5f;
 		auto density = [=](const Vec3f& pos) {
-			const float radius = 0.4f * size.x();
-			//return max(0.f, radius - norm(pos));// *simplexNoise(pos.x() * 2, pos.y() * 4);
-			return radius - norm(pos) + simplexNoise(pos.x() * 2, pos.y() * 4) * 0.12f;
+			float h = meanH - pos.y();
+
+			float d = h / 10;
+			const float baseScale = 1/64.f;
+			Vec2f x = { pos.x() * baseScale, pos.z() * baseScale};
+			float k = 1.f;
+			for (size_t i = 0; i < 4; ++i)
+			{
+				d += k * simplexNoise(x);
+				x = { x.x() * 2.f, x.y() * 2.f };
+				k *= 0.5f;
+			}
+			return d;
 		};
 
 		// Iterate over the volume with marching cubes
-		Vec3f cubeSide = size / float(resolution);
+		Vec3f size = bounds.size();
+		Vec3f cubeSide = { size.x() / gridSide, size.y() / gridSide, size.z() / gridHeight};
 
 		vector<Vec3f> vertexPositions;
 		vector<uint32_t> indices;
 
 		{
 			core::ScopedStopWatch cubes("Marching Cubes");
-			marchingCubes(AABB(-size * 0.5f, size * 0.5f), Vec3u(resolution), density, vertexPositions, indices);
+			marchingCubes(
+				bounds,
+				Vec3u(gridSide,gridSide,gridHeight),
+				density,
+				vertexPositions, indices);
 		}
 
 		// Create other vertex attributes
@@ -489,7 +518,9 @@ namespace rev
 		}
 
 		PBRMaterial defaultMaterial;
-		defaultMaterial.baseColor_a = math::Vec4f(0.3f);
+		defaultMaterial.baseColor_a = math::Vec4f(14.f/255, 47.f/255,20.f/255,1.f);
+		defaultMaterial.metalness = 0.f;
+		defaultMaterial.roughness = 1.f;
 		auto materialNdx = dstScene.m_geometry.addMaterial(defaultMaterial);
 
 		auto primitive = dstScene.m_geometry.addPrimitiveData(vertexPositions.size(),
