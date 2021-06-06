@@ -68,10 +68,6 @@ namespace rev::gfx
 		// Update descriptor sets
 		fillConstantDescriptorSets();
 
-		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
-		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
-		renderBufferUpdates.send();
-
 		gfx::initImGui(m_uiRenderPass->vkPass());
 	}
 
@@ -101,7 +97,7 @@ namespace rev::gfx
 		m_hdrLightPass->setDepthTarget(*m_zBuffer);
 		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
 
-		gfx::DescriptorSetUpdate renderBufferUpdates(m_postProDescriptorSets, 0);
+		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
 		renderBufferUpdates.send();
 
@@ -137,13 +133,6 @@ namespace rev::gfx
 		m_frameConstants.proj = scene.proj;
 		m_frameConstants.view = scene.view;
 
-		// Update per batch descriptor set
-		DescriptorSetUpdate batchUpdate(m_geometryDescriptorSets, m_doubleBufferNdx);
-		batchUpdate.addStorageBuffer("worldMtx", scene.m_worldMatrices);
-		if (scene.m_materials)
-			batchUpdate.addStorageBuffer("materials", scene.m_materials);
-		batchUpdate.send();
-
 		// Render geometry if the scene is loaded
 		auto scope = m_ctxt->getScopedCmdBuffer(m_ctxt->graphicsQueue());
 		auto cmd = scope.cmd;
@@ -159,11 +148,11 @@ namespace rev::gfx
 			0,
 			m_frameConstants);
 
-		// Update descriptor set with this frame's matrices
+		// Update descriptor set with this frame's constants
 		cmd.bindDescriptorSets(
 			vk::PipelineBindPoint::eGraphics,
 			m_gbufferPipelineLayout,
-			0, m_geometryDescriptorSets.getDescriptor(m_doubleBufferNdx), {});
+			0, m_geomFrameDescriptors->getDescriptor(0), {});
 
 		// Render opaque geometry
 		std::vector<RasterQueue::Draw> draws;
@@ -177,8 +166,11 @@ namespace rev::gfx
 
 			for (const auto& batch : batches)
 			{
-				if(batch.textures.size() > 0)
-					m_geometryDescriptorSets.writeArrayTextureToDescriptor(m_doubleBufferNdx, "textures", batch.textures);
+				// Update descriptor set
+				cmd.bindDescriptorSets(
+					vk::PipelineBindPoint::eGraphics,
+					m_gbufferPipelineLayout,
+					0, batch.descriptorSet , {});
 
 				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
 				cmd.bindVertexBuffers(0, {
@@ -225,7 +217,7 @@ namespace rev::gfx
 			m_windowSize,
 			swapchainImage,
 			m_postProConstants.ambientColor,
-			m_postProDescriptorSets.getDescriptor(0));
+			m_postProDescriptors->getDescriptor(0));
 
 		m_uiRenderPass->pushConstants(cmd, m_postProConstants);
 		m_uiRenderPass->render(cmd);
@@ -291,20 +283,26 @@ namespace rev::gfx
 	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::createDescriptorLayouts(size_t numTextures)
 	{
-		// Geometry pass
-		m_geometryDescriptorSets.addStorageBuffer("worldMtx", 0, vk::ShaderStageFlagBits::eVertex);
-		m_geometryDescriptorSets.addStorageBuffer("materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
-
-		m_geometryDescriptorSets.addTexture("iblLUT", 2, vk::ShaderStageFlagBits::eFragment);
+		// --- Geometry pass ---
+		// Geometry batches
+		m_geomBatchDescriptorLayout = std::make_shared<DescriptorSetLayout>();
+		m_geomBatchDescriptorLayout->addStorageBuffer("worldMtx", 0, vk::ShaderStageFlagBits::eVertex);
+		m_geomBatchDescriptorLayout->addStorageBuffer("materials", 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 		assert(numTextures < std::numeric_limits<uint32_t>::max());
-		m_geometryDescriptorSets.addTextureArray("textures", 3, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+		m_geomBatchDescriptorLayout->addTextureArray("textures", 2, (uint32_t)numTextures, vk::ShaderStageFlagBits::eFragment);
+		m_geomBatchDescriptorLayout->close();
 
-		constexpr uint32_t numSwapchainImages = 2;
-		m_geometryDescriptorSets.close(numSwapchainImages);
+		// Frame constants
+		m_geomFrameDescriptorLayout = std::make_shared<DescriptorSetLayout>();
+		m_geomFrameDescriptorLayout->addTexture("iblLUT", 0, vk::ShaderStageFlagBits::eFragment);
+		m_geomFrameDescriptorLayout->close();
+		m_geomFrameDescriptors = std::make_shared <DescriptorSetPool>(m_geomFrameDescriptorLayout, 1);
 
 		// Post process passes
-		m_postProDescriptorSets.addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
-		m_postProDescriptorSets.close(1);
+		m_postProDescriptorLayout = std::make_shared<DescriptorSetLayout>();
+		m_postProDescriptorLayout->addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
+		m_postProDescriptorLayout->close();
+		m_postProDescriptors = std::make_shared <DescriptorSetPool>(m_postProDescriptorLayout, 1);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -312,13 +310,15 @@ namespace rev::gfx
 	{
 		auto device = m_ctxt->device();
 
-		for (int frameNdx = 0; frameNdx < 2; ++frameNdx)
-		{
-			gfx::DescriptorSetUpdate frameUpdate(m_geometryDescriptorSets, frameNdx);
+		// Geometry
+		gfx::DescriptorSetUpdate geomFrameUpdates(*m_geomFrameDescriptors, 0);
+		geomFrameUpdates.addTexture("iblLUT", m_iblLUT);
+		geomFrameUpdates.send();
 
-			frameUpdate.addTexture("iblLUT", m_iblLUT);
-			frameUpdate.send();
-		}
+		// HDR light
+		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
+		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		renderBufferUpdates.send();
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ namespace rev::gfx
 			"../shaders/postPro.frag.spv",
 			{ m_ctxt->swapchainFormat() },
 			* m_frameBuffers,
-			m_postProDescriptorSets.layout(),
+			m_postProDescriptorLayout->layout(),
 			sizeof(PostProPushConstants)));
 	}
 
@@ -354,9 +354,9 @@ namespace rev::gfx
 			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			0, sizeof(FramePushConstants));
 
-		auto descriptorSetLayout = m_geometryDescriptorSets.layout();
+		vk::DescriptorSetLayout descriptorSetLayouts[2] = { m_geomFrameDescriptorLayout->layout(), m_geomBatchDescriptorLayout->layout() };
 		vk::PipelineLayoutCreateInfo layoutInfo({},
-			1, & descriptorSetLayout, // Descriptor sets
+			2, descriptorSetLayouts, // Descriptor sets
 			1, &camerasPushRange); // Push constants
 
 		m_gbufferPipelineLayout = device.createPipelineLayout(layoutInfo);

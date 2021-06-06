@@ -70,11 +70,10 @@ namespace rev
 
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
-		m_scene = std::make_shared<gfx::RasterScene>();
-		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 256, *m_scene);
-		m_geometryStreamToken = m_scene->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
-		m_sceneGraphics.m_materials = m_scene->m_geometry.materialsBuffer();
-		m_sceneGraphics.m_worldMatrices = m_scene->getWorldMtxBuffer();// m_worldMtxBuffer;
+		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
+		ProceduralTerrain::generateMarchingCubes(Vec3f(4.f), 16, *m_opaqueGeometry);
+		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
+		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 
 		// Create camera
 		createCamera();
@@ -85,8 +84,6 @@ namespace rev
 		m_sceneGraphics.lightColor = Vec3f(1.f, 1.f, 1.f);
 		m_sceneGraphics.lightDir = normalize(Vec3f(1.f, 1.f, 1.f));
 
-
-
 		// Init renderer
 		gfx::DeferredRenderer::Budget rendererLimits;
 		rendererLimits.maxTexturesPerBatch = (uint32_t)16;
@@ -96,6 +93,8 @@ namespace rev
 			rendererLimits,
 			"./shaders"
 		);
+
+		m_opaqueGeometry->updateDescriptorSet(m_renderer.batchDescriptorLayout());
 
 		return true;
 	}
@@ -152,7 +151,7 @@ namespace rev
 		{
 			if (RenderContext().allocator().isTransferFinished(m_geometryStreamToken))
 			{
-				m_sceneGraphics.m_opaqueGeometry.push_back(m_scene);
+				m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 			}
 		}
 

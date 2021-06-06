@@ -8,8 +8,6 @@ namespace rev::gfx
 {
 	void RasterScene::getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches)
 	{
-		refreshMatrixBuffer();
-
 		assert(draws.empty());
 		// Count on having at least one primitive per mesh
 		draws.reserve(m_instanceMeshNdx.size());
@@ -40,6 +38,7 @@ namespace rev::gfx
 		batch.indexType = vk::IndexType::eUint32;
 		batch.indexBuffer = m_geometry.indexBuffer();
 		batch.textures = m_geometry.textures();
+		batch.descriptorSet = m_descriptorSet->getDescriptor(0);
 		m_geometry.getVertexBindings(
 			batch.positionBinding,
 			batch.normalsBinding,
@@ -61,7 +60,23 @@ namespace rev::gfx
 		m_worldMtxBuffer = nullptr;
 	}
 
-	void RasterScene::refreshMatrixBuffer()
+	void RasterScene::updateDescriptorSet(const std::shared_ptr<DescriptorSetLayout> layout)
+	{
+		if (!m_descriptorSet)
+		{
+			m_descriptorSet = std::make_shared<DescriptorSetPool>(layout, 1);
+		}
+
+		uploadMatrixBuffer();
+
+		DescriptorSetUpdate geometryUpdate(*m_descriptorSet, 0);
+		geometryUpdate.addStorageBuffer("worldMtx", m_worldMtxBuffer);
+		geometryUpdate.addStorageBuffer("materials", m_geometry.materialsBuffer());
+		geometryUpdate.send();
+		m_descriptorSet->writeArrayTextureToDescriptor(0, "textures", m_geometry.textures());
+	}
+
+	void RasterScene::uploadMatrixBuffer()
 	{
 		if (!m_worldMtxBuffer && !m_instanceWorldMtx.empty())
 		{

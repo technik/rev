@@ -40,8 +40,6 @@ namespace rev::gfx
 		struct SceneDesc
 		{
 			std::vector<std::shared_ptr<RasterQueue>> m_opaqueGeometry;
-			std::shared_ptr<GPUBuffer> m_worldMatrices;
-			std::shared_ptr<GPUBuffer> m_materials;
 
 			math::Mat44f proj;
 			math::Mat44f view;
@@ -68,6 +66,7 @@ namespace rev::gfx
 		void onResize(const math::Vec2u& windowSize);
 		void render(SceneDesc& scene);
 		void updateUI();
+		auto batchDescriptorLayout() const { return m_geomBatchDescriptorLayout; }
 
 	private:
 		void createDescriptorLayouts(size_t numTextures);
@@ -95,8 +94,12 @@ namespace rev::gfx
 		vk::Semaphore m_imageAvailableSemaphore;
 		vk::Semaphore m_renderGeometrySemaphore;
 		uint32_t m_doubleBufferNdx = 0;
-		gfx::DescriptorSetLayout m_geometryDescriptorSets;
-		gfx::DescriptorSetLayout m_postProDescriptorSets;
+
+		std::shared_ptr<gfx::DescriptorSetLayout> m_geomFrameDescriptorLayout;
+		std::shared_ptr<gfx::DescriptorSetLayout> m_geomBatchDescriptorLayout;
+		std::shared_ptr<gfx::DescriptorSetLayout> m_postProDescriptorLayout;
+		std::shared_ptr<gfx::DescriptorSetPool> m_geomFrameDescriptors;
+		std::shared_ptr<gfx::DescriptorSetPool> m_postProDescriptors;
 
 		vk::PipelineLayout m_gbufferPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;

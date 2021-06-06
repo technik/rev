@@ -63,15 +63,17 @@ namespace rev
 		m_frameBuffers = std::make_unique<FrameBufferManager>(RenderContext().device());
 
 		// Create descriptor layout
-		m_descSetLayout.addTextureArray("Blue Noise", 0, (uint32_t)NumBlueNoiseTextures, vk::ShaderStageFlagBits::eFragment);
-		m_descSetLayout.close(1);
+		m_descSetLayout = std::make_shared<DescriptorSetLayout>();
+		m_descSetLayout->addTextureArray("Blue Noise", 0, (uint32_t)NumBlueNoiseTextures, vk::ShaderStageFlagBits::eFragment);
+		m_descSetLayout->close();
+		m_descSets = std::make_shared<DescriptorSetPool>(m_descSetLayout, 1);
 
 		// Create render pass
 		m_fullScreenFilter = std::make_unique<FullScreenPass>(
 			m_shaderFileName,
 			RenderContext().swapchainFormat(),
 			*m_frameBuffers,
-			m_descSetLayout.layout(),
+			m_descSetLayout->layout(),
 			sizeof(PushConstants));
 
 		initImGui(m_fullScreenFilter->vkPass());
@@ -81,7 +83,7 @@ namespace rev
 		loadNoiseTextures();
 
 		// Update descriptors
-		m_descSetLayout.writeArrayTextureToDescriptor(0, "Blue Noise", m_blueNoise);
+		m_descSets->writeArrayTextureToDescriptor(0, "Blue Noise", m_blueNoise);
 
 		// Create shader pipelines
 		m_shaderWatcher = std::make_unique<core::FolderWatcher>(core::FolderWatcher::path("shaders"));
@@ -175,7 +177,7 @@ namespace rev
 			renderContext().windowSize(),
 			RenderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
 			Vec3f(0),
-			m_descSetLayout.getDescriptor(0));
+			m_descSets->getDescriptor(0));
 
 		m_fullScreenFilter->pushConstants(cmd, m_frameConstants);
 		m_fullScreenFilter->render(cmd);

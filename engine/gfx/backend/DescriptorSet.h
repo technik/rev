@@ -40,23 +40,11 @@ namespace rev::gfx
 
 		void addTextureArray(const std::string& name, uint32_t bindingPos, uint32_t numTextures, vk::ShaderStageFlags shaderStages);
 
-		void close(uint32_t poolSize);
-
-		inline vk::DescriptorSet getDescriptor(uint32_t index) const
-		{
-			return m_descriptorSets[index];
-		}
+		void close();
 
 		inline auto layout() const { return m_vkLayout; }
 
-		// Immediate write
-		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string& name, const std::vector<std::shared_ptr<Texture>>& textureArray);
-
 	private:
-
-		void createDescriptorPool(uint32_t numDescriptorSets);
-
-		void createDescriptors(uint32_t numDescriptors);
 
 		std::vector<vk::DescriptorSetLayoutBinding> m_bindings;
 		std::map<std::string, uint32_t> m_storageBufferBindings;
@@ -67,6 +55,33 @@ namespace rev::gfx
 		uint32_t m_numImages = 0;
 		uint32_t m_numStorageBuffers = 0;
 		vk::DescriptorSetLayout m_vkLayout;
+
+		friend class DescriptorSetUpdate;
+		friend class DescriptorSetPool;
+	};
+	
+	class DescriptorSetPool
+	{
+	public:
+		DescriptorSetPool(const std::shared_ptr<DescriptorSetLayout>&, uint32_t poolSize);
+
+		inline vk::DescriptorSet getDescriptor(uint32_t index) const
+		{
+			return m_descriptorSets[index];
+		}
+
+		inline auto layout() const { return m_layout->layout(); }
+
+		// Immediate write
+		void writeArrayTextureToDescriptor(uint32_t descNdx, const std::string& name, const std::vector<std::shared_ptr<Texture>>& textureArray);
+
+	private:
+
+		void createDescriptorPool(uint32_t numDescriptorSets);
+
+		void createDescriptors(uint32_t numDescriptors);
+
+		std::shared_ptr<const DescriptorSetLayout> m_layout;
 		vk::DescriptorPool m_pool;
 		std::vector<vk::DescriptorSet> m_descriptorSets;
 
@@ -77,7 +92,7 @@ namespace rev::gfx
 	class DescriptorSetUpdate
 	{
 	public:
-		DescriptorSetUpdate(DescriptorSetLayout& layout, uint32_t descNdx) : m_layout(layout), m_descNdx(descNdx) {}
+		DescriptorSetUpdate(DescriptorSetPool& pool, uint32_t descNdx) : m_pool(pool), m_descNdx(descNdx) {}
 
 		void addStorageBuffer(const std::string& name, std::shared_ptr<GPUBuffer> buffer);
 
@@ -87,7 +102,7 @@ namespace rev::gfx
 		void send() const;
 
 	private:
-		DescriptorSetLayout& m_layout;
+		DescriptorSetPool& m_pool;
 		uint32_t m_descNdx;
 		std::map<uint32_t, std::shared_ptr<GPUBuffer>> m_bufferWrites;
 		std::map<uint32_t, std::shared_ptr<Texture>> m_textureWrites;

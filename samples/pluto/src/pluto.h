@@ -71,7 +71,7 @@ namespace rev {
 		// Scene
 		std::shared_ptr<game::SceneNode> m_sceneRoot;
 		gfx::DeferredRenderer::SceneDesc m_sceneGraphics;
-		std::shared_ptr<gfx::RasterScene> m_scene;
+		std::shared_ptr<gfx::RasterScene> m_opaqueGeometry;
 		float m_bgColor{};
 
 		// Camera options

@@ -24,6 +24,7 @@
 #include <math/algebra/vector.h>
 
 #include <random>
+#include <memory>
 
 namespace rev
 {
@@ -63,7 +64,8 @@ namespace rev
 		math::Vec4f m_timeVector;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;
 
-		gfx::DescriptorSetLayout m_descSetLayout;
+		std::shared_ptr<gfx::DescriptorSetLayout> m_descSetLayout;
+		std::shared_ptr<gfx::DescriptorSetPool> m_descSets;
 		std::unique_ptr<gfx::FullScreenPass> m_fullScreenFilter;
 		vk::Semaphore m_imageAvailableSemaphore;
 		std::shared_ptr<gfx::RasterPipeline> m_rasterCode;

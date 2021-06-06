@@ -20,6 +20,10 @@ namespace rev::math {
 	{
 		return simplexNoise(v.x(), v.y());
 	}
+
+	float perlinNoise(float x);
+	float perlinNoise(float x, float y);
+	float perlinNoise(float x, float y, float z);
 	
 	class RandomGenerator
 	{

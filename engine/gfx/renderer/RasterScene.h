@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include <gfx/backend/DescriptorSet.h>
 #include <gfx/renderer/RasterQueue.h>
 #include <gfx/renderer/RasterHeap.h>
 #include <math/algebra/matrix.h>
@@ -36,20 +37,23 @@ namespace rev::gfx
 		~RasterScene();
 
 		void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) override;
-		auto getWorldMtxBuffer() { refreshMatrixBuffer(); return m_worldMtxBuffer; }
 
 		// Invalidates the order of renderables
 		void addInstance(const math::Mat44f& worldMtx, uint32_t meshNdx);
 		void clearInstances();
 
+		void updateDescriptorSet(const std::shared_ptr<DescriptorSetLayout>);
+
 		gfx::RasterHeap m_geometry;
 
+
 	private:
-		void refreshMatrixBuffer();
+		void uploadMatrixBuffer();
 
 		std::vector<uint32_t> m_instanceMeshNdx;
 		std::vector<math::Mat44f> m_instanceWorldMtx;
 		std::shared_ptr<GPUBuffer> m_worldMtxBuffer;
+		std::shared_ptr<DescriptorSetPool> m_descriptorSet;
 	};
 
 	inline RasterScene::RasterScene()

@@ -61,6 +61,7 @@ namespace rev::gfx
 			VtxBinding texCoordBinding;
 
 			std::vector<std::shared_ptr<Texture>> textures;
+			vk::DescriptorSet descriptorSet;
 		};
 
 		virtual void getDrawBatches(std::vector<Draw>& draws, std::vector<Batch>& batches) = 0;
