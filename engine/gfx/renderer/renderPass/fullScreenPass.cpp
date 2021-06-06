@@ -88,8 +88,8 @@ namespace rev::gfx
 			colorTarget.image(),
 			vk::ImageLayout::eUndefined,
 			vk::ImageLayout::eGeneral,
-			false,//);
-			vk::DependencyFlagBits::eViewLocal);
+			false);
+			//vk::DependencyFlagBits::eViewLocal);
 		// Post-process HDR image
 		m_renderPass->begin(cmd, targetSize);
 		m_pipeline->bind(cmd);

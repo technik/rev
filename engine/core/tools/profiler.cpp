@@ -33,6 +33,9 @@ namespace rev::core
 	ScopedStopWatch::~ScopedStopWatch()
 	{
 		auto dt = clock::now() - m_t0;
-		std::cout << m_tag << " duration: " << duration_cast<milliseconds>(dt) << "ms\n";
+		if(duration_cast<milliseconds>(dt).count() < 50)
+			std::cout << m_tag << " duration: " << duration_cast<microseconds>(dt) << "\n";
+		else
+			std::cout << m_tag << " duration: " << duration_cast<milliseconds>(dt) << "\n";
 	}
 }

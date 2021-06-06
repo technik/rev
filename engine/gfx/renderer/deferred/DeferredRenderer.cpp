@@ -170,7 +170,7 @@ namespace rev::gfx
 				cmd.bindDescriptorSets(
 					vk::PipelineBindPoint::eGraphics,
 					m_gbufferPipelineLayout,
-					0, batch.descriptorSet , {});
+					1, batch.descriptorSet , {});
 
 				cmd.bindIndexBuffer(batch.indexBuffer->buffer(), batch.indexBuffer->offset(), batch.indexType);
 				cmd.bindVertexBuffers(0, {
