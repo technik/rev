@@ -450,20 +450,37 @@ namespace rev
 			for (uint32_t j = 0; j < resolution.y(); ++j) // y
 			{
 				cellMin.y() = j * cubeSide.y();
+				cellMin.z() = 0;
+
+				Vec3f corners[8];
+				float cornerSamples[8];
+
+				// Initialize 4 corners
+				for (int c = 0; c < 4; ++c)
+				{
+					corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
+					cornerSamples[c] = density(corners[c]);
+				}
+
 				for (uint32_t k = 0; k < resolution.z(); ++k)
 				{
 					cellMin.z() = k * cubeSide.z();
-					// Compute cell corners and evaluate density
 
-					Vec3f corners[8];
-					float cornerSamples[8];
-					for (int c = 0; c < 8; ++c)
+					// Compute new cell corners and evaluate density
+					for (int c = 4; c < 8; ++c)
 					{
 						corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
 						cornerSamples[c] = density(corners[c]);
 					}
 
 					marchSingleCube(corners, cornerSamples, cellMin + bounds.min(), cubeSide, vertexPositions, indices);
+
+					// Copy corners for next cell
+					for (int c = 0; c < 4; ++c)
+					{
+						corners[c] = corners[c+4];
+						cornerSamples[c] = cornerSamples[c+4];
+					}
 				}
 			}
 		}
@@ -508,34 +525,35 @@ namespace rev
 		}
 
 		// De-duplicate vertices
-		std::vector<uint32_t> vertexDict(vertexPositions.size());
-		int faceMaxIndices = gridSide * gridHeight * 8;
-		for (int i = 1; i < vertexPositions.size(); ++i)
 		{
-			vertexDict[i] = i;
-			auto v = vertexPositions[i];
-			int farthestRepeat = max(0, i - faceMaxIndices);
-			for (int j = i - 1; j >= farthestRepeat; --j)
+			core::ScopedStopWatch probe("Deduplicate vertices");
+			std::vector<uint32_t> vertexDict(vertexPositions.size());
+			int faceMaxIndices = gridSide * gridHeight * 8;
+			for (int i = 1; i < vertexPositions.size(); ++i)
 			{
-				if (vertexPositions[j] == v)
+				vertexDict[i] = i;
+				auto v = vertexPositions[i];
+				int farthestRepeat = max(0, i - faceMaxIndices);
+				for (int j = i - 1; j >= farthestRepeat; --j)
 				{
-					vertexDict[i] = vertexDict[j];
-					break;
+					if (vertexPositions[j] == v)
+					{
+						vertexDict[i] = vertexDict[j];
+						break;
+					}
 				}
 			}
-		}
-		for (auto& index : indices)
-		{
-			index = vertexDict[index];
+			for (auto& index : indices)
+			{
+				index = vertexDict[index];
+			}
 		}
 
 		// Create other vertex attributes
 		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
-		//vector<Vec3f> normals; normals.reserve(vertexPositions.size());
 
 		for(auto& v : vertexPositions)
 		{
-			//normals.push_back(normalize(v));
 			uvs.push_back({ v.x(), v.y() });
 		}
 

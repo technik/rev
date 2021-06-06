@@ -77,7 +77,7 @@ namespace rev
 		math::AABB cellBounds(
 			Vec3f{ -cellSide * 0.5f, -meanHeight, -cellSide * 0.5f },
 			Vec3f{ cellSide * 0.5f, cellHeight - meanHeight, cellSide * 0.5f });
-		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, 256, 64, *m_opaqueGeometry);
+		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, 128, 32, *m_opaqueGeometry);
 		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
 		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 
