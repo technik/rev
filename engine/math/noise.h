@@ -24,6 +24,16 @@ namespace rev::math {
 	float perlinNoise(float x);
 	float perlinNoise(float x, float y);
 	float perlinNoise(float x, float y, float z);
+
+	__forceinline float perlinNoise(const math::Vec2f& v)
+	{
+		return perlinNoise(v.x(), v.y());
+	}
+
+	__forceinline float perlinNoise(const math::Vec3f& v)
+	{
+		return perlinNoise(v.x(), v.y(), v.z());
+	}
 	
 	class RandomGenerator
 	{

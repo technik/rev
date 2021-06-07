@@ -67,6 +67,22 @@ namespace rev::math
 			49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
 			138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
 		};
+
+		float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+		float lerp(float t, float a, float b) { return a + t * (b - a); }
+		float grad(int hash, float x, float y, float z)
+		{
+			// CONVERT LO 4 BITS OF HASH CODE INTO 12 GRADIENT DIRECTIONS.
+			int h = hash & 15;
+			float u = h < 8 ? x : y;
+			float v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+		}
+		float grad(int hash, float x, float y)
+		{
+			// CONVERT LO 2 BITS OF HASH CODE INTO 4 GRADIENT DIRECTIONS.
+			return ((hash & 2) == 0) ? (((hash & 1) == 0) ? x : -x) : (((hash & 1) == 0) ? y : -y);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -97,9 +113,9 @@ namespace rev::math
 
 		int ii = i & 255;
 		int jj = j & 255;
-		int gi0 = sSimplexPerm512[ii + sSimplexPerm512[jj]] % 12;
-		int gi1 = sSimplexPerm512[ii + i1 + sSimplexPerm512[jj + j1]] % 12;
-		int gi2 = sSimplexPerm512[ii + 1 + sSimplexPerm512[jj + 1]] % 12;
+		int gi0 = sSimplexPerm512[(ii + sSimplexPerm512[jj]) & 255] % 12;
+		int gi1 = sSimplexPerm512[(ii + i1 + sSimplexPerm512[jj + j1]) & 255] % 12;
+		int gi2 = sSimplexPerm512[(ii + 1 + sSimplexPerm512[jj + 1])&255] % 12;
 
 		float t0 = 0.5f - x0*x0 - y0*y0;
 		float n0, n1, n2; // Noise contributions from the three corners
@@ -136,6 +152,80 @@ namespace rev::math
 		}
 
 		return float(70.f * (n0 + n1 + n2));
+	}
+
+	// Perlin noise, 
+	// http://mrl.nyu.edu/~perlin/noise/
+	float perlinNoise(float x, float y)
+	{
+		float fx = floorf(x);
+		float fy = floorf(y);
+
+		int X = int(fx) & 255;
+		int Y = int(fy) & 255;
+
+		x -= fx;
+		y -= fy;
+
+		float u = fade(x);
+		float v = fade(y);
+
+		int A = sSimplexPerm512[X] + Y;
+		int B = sSimplexPerm512[X + 1] + Y;
+
+		// Add contributions from all eight corners
+		return lerp(v,
+					lerp(u,
+						grad(sSimplexPerm512[A], x, y),
+						grad(sSimplexPerm512[B], x - 1.f, y - 1.f)),
+					lerp(u,
+						grad(sSimplexPerm512[A + 1], x, y),
+						grad(sSimplexPerm512[B + 1], x - 1.f, y - 1.f)));
+	}
+
+	// Perlin noise, 
+	// http://mrl.nyu.edu/~perlin/noise/
+	float perlinNoise(float x, float y, float z)
+	{
+		float fx = floorf(x);
+		float fy = floorf(y);
+		float fz = floorf(z);
+
+		int X = int(fx) & 255;
+		int Y = int(fy) & 255;
+		int Z = int(fz) & 255;
+
+		x -= fx;
+		y -= fy;
+		z -= fz;
+
+		float u = fade(x);
+		float v = fade(y);
+		float w = fade(z);
+
+		int A = sSimplexPerm512[X] + Y;
+		int AA = sSimplexPerm512[A] + Z;
+		int AB = sSimplexPerm512[A + 1] + Z;
+		int B = sSimplexPerm512[X + 1] + Y;
+		int BA = sSimplexPerm512[B] + Z;
+		int BB = sSimplexPerm512[B + 1] + Z;
+
+		// Add contributions from all eight corners
+		return lerp(w,
+			lerp(v,
+				lerp(u,
+					grad(sSimplexPerm512[AA], x, y, z),
+					grad(sSimplexPerm512[BA], x - 1.f, y, z)),
+				lerp(u,
+					grad(sSimplexPerm512[AB], x, y - 1.f, z),
+					grad(sSimplexPerm512[BB], x - 1.f, y - 1.f, z))),
+			lerp(v,
+				lerp(u,
+					grad(sSimplexPerm512[AA + 1], x, y, z - 1.f),
+					grad(sSimplexPerm512[BA + 1], x - 1.f, y, z - 1.f)),
+				lerp(u,
+					grad(sSimplexPerm512[AB + 1], x, y - 1.f, z - 1.f),
+					grad(sSimplexPerm512[BB + 1], x - 1.f, y - 1.f, z - 1.f))));
 	}
 
 }	// namespace rev::math

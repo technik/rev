@@ -71,15 +71,11 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
-		float cellSide = 128.f;
-		float cellHeight = 64.f;
-		float meanHeight = 40.f;
-		math::AABB cellBounds(
-			Vec3f{ -cellSide * 0.5f, -meanHeight, -cellSide * 0.5f },
-			Vec3f{ cellSide * 0.5f, cellHeight - meanHeight, cellSide * 0.5f });
-
-		uint32_t gridSide = 128;
-		uint32_t gridHeight = 32;
+		float cellSide = 256.f;
+		Vec3f cellHalfSize = Vec3f(cellSide, 64.f, cellSide);
+		math::AABB cellBounds(-cellHalfSize, cellHalfSize);
+		uint32_t gridSide = 512;
+		uint32_t gridHeight = 64;
 		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, gridSide, gridHeight, *m_opaqueGeometry);
 		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
 		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
@@ -125,7 +121,7 @@ namespace rev
 	{	
 		// Create flyby camera
 		auto cameraNode = m_sceneRoot->createChild("Flyby cam");
-		m_flyby = cameraNode->addComponent<FlyBy>(2.f, 1.f);
+		m_flyby = cameraNode->addComponent<FlyBy>(20.f, 1.f);
 		cameraNode->addComponent<Transform>()->xForm.position() = math::Vec3f { 0.0f, 0.f, 9.f };
 		auto camComponent = cameraNode->addComponent<game::Camera>(math::Pi/5, 0.01f, 5000.f);
 		mFlybyCam = &*camComponent->cam();

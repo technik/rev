@@ -445,8 +445,27 @@ namespace rev
 		Vec3f size = bounds.size();
 		Vec3f cubeSide = { size.x() / resolution.x(), size.y() / resolution.y(), size.z() / resolution.z() };
 
-		// Iterate over the volume
+		// Pre-evaluate all densities
+		int numCorners = (resolution.x() + 1) * (resolution.y() + 1) * (resolution.z() + 1);
+		std::vector<float> sampledDensity; sampledDensity.reserve(numCorners);
 		Vec3f cellMin;
+		for (uint32_t i = 0; i <= resolution.x(); ++i) // x
+		{
+			cellMin.x() = i * cubeSide.x();
+			for (uint32_t j = 0; j <= resolution.y(); ++j) // y
+			{
+				cellMin.y() = j * cubeSide.y();
+				for (uint32_t k = 0; k <= resolution.z(); ++k)
+				{
+					cellMin.z() = k * cubeSide.z();
+
+					Vec3f samplePosition = cellMin + bounds.min();
+					sampledDensity.push_back(density(samplePosition));
+				}
+			}
+		}
+
+		// Iterate over the volume
 		for (uint32_t i = 0; i < resolution.x(); ++i) // x
 		{
 			cellMin.x() = i * cubeSide.x();
@@ -462,7 +481,9 @@ namespace rev
 				for (int c = 0; c < 4; ++c)
 				{
 					corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
-					cornerSamples[c] = density(corners[c]);
+					Vec3u cornerPos = Vec3u(i,j,0) + Vec3u(cornerMask[c].x(), cornerMask[c].y(), cornerMask[c].z());
+					int sampleIndex = cornerPos.z() + (resolution.z()+1) * (cornerPos.y() + (resolution.y()+1) * cornerPos.x());
+					cornerSamples[c] = sampledDensity[sampleIndex];
 				}
 
 				for (uint32_t k = 0; k < resolution.z(); ++k)
@@ -473,7 +494,9 @@ namespace rev
 					for (int c = 4; c < 8; ++c)
 					{
 						corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
-						cornerSamples[c] = density(corners[c]);
+						Vec3u cornerPos = Vec3u(i, j, k) + Vec3u(cornerMask[c].x(), cornerMask[c].y(), cornerMask[c].z());
+						int sampleIndex = cornerPos.z() + (resolution.z() + 1) * (cornerPos.y() + (resolution.y() + 1) * cornerPos.x());
+						cornerSamples[c] = sampledDensity[sampleIndex];
 					}
 
 					marchSingleCube(corners, cornerSamples, cellMin + bounds.min(), cubeSide, vertexPositions, indices);
@@ -501,16 +524,15 @@ namespace rev
 		auto density = [=](const Vec3f& pos) {
 			//const float radius = 0.4f * bounds.size().x();
 			//return radius - norm(pos);
-			float h = meanH - pos.y();
 
-			float d = h / 10;
+			float d = -pos.y() / 20;
 			const float baseScale = 1 / 64.f;
-			Vec2f x = { pos.x() * baseScale, pos.z() * baseScale };
+			Vec3f x = pos * baseScale;
 			float k = 1.f;
 			for (size_t i = 0; i < 5; ++i)
 			{
-				d += k * simplexNoise(x);
-				x = { x.x() * 2.f, x.y() * 2.f };
+				d += k * perlinNoise(x);
+				x = x * 2.f;
 				k *= 0.5f;
 			}
 			return d;
@@ -534,7 +556,7 @@ namespace rev
 
 		// De-duplicate vertices
 		{
-			core::ScopedStopWatch probe("Weld identical vertices");
+			/*core::ScopedStopWatch probe("Weld identical vertices");
 			std::vector<uint32_t> vertexDict(vertexPositions.size());
 			int faceMaxIndices = gridSide * gridHeight * 12;
 			for (int i = 0; i < vertexPositions.size(); ++i)
@@ -567,7 +589,11 @@ namespace rev
 				cleanIndices.push_back(i2);
 			}
 			indices = std::move(cleanIndices);
+			*/
 		}
+
+		std::cout << "Num vertices: " << vertexPositions.size() << std::endl;
+		std::cout << "Num indices: " << indices.size() << std::endl;
 
 		// Create other vertex attributes
 		vector<Vec2f> uvs; uvs.reserve(vertexPositions.size());
