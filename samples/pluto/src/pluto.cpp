@@ -72,7 +72,8 @@ namespace rev
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
 		float cellSide = 256.f;
-		Vec3f cellHalfSize = Vec3f(cellSide, 64.f, cellSide);
+		float cellHeight = 64.f;
+		Vec3f cellHalfSize = Vec3f(cellSide, cellHeight, cellSide);
 		math::AABB cellBounds(-cellHalfSize, cellHalfSize);
 		uint32_t gridSide = 512;
 		uint32_t gridHeight = 64;

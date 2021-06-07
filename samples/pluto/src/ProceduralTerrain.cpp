@@ -24,6 +24,7 @@
 #include <gfx/Image.h>
 #include <gfx/Texture.h>
 #include <vector>
+#include <map>
 
 #include <math/geometry/aabb.h>
 #include <math/noise.h>
@@ -387,6 +388,8 @@ namespace rev
 		{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} };
 
 	void marchSingleCube(
+		std::unordered_map<uint32_t, uint32_t>& vertexDictionary,
+		const Vec3u& cubeIndices,
 		const Vec3f* corners,
 		const float* cornerSamples,
 		const Vec3f& cellMin,
@@ -405,20 +408,42 @@ namespace rev
 		if (edgeFlags == 0)
 			return;
 
-		auto vertexOffset = vertexPositions.size();
-		int edgeToVertex[12] = {}; // TODO: Precompute this mapping to a table
-		int numVertices = 0;
+		int edgeToVertex[12] = {};
 		for (int e = 0; e < 12; ++e)
 		{
 			if (edgeFlags & (1 << e))
 			{
-				edgeToVertex[e] = numVertices++;
-				Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
-				float weightFrom = cornerSamples[edgeCorners[e][0]];
-				float weightTo = cornerSamples[edgeCorners[e][1]];
-				//Vec3f midVtx = vtxFrom + edgeDir[e] * cubeSide * 0.5f;// (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
-				Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo)); // TODO: Linear interpolation
-				vertexPositions.push_back(midVtx);
+				assert(cubeIndices.x() < 1023);
+				assert(cubeIndices.y() < 1023);
+				assert(cubeIndices.z() < 1023);
+				uint32_t orientKey = (e > 7) ? 2 : (e & 1); // 0:x,1:y:2:z
+				uint32_t vtxKey = orientKey << 30;
+				Vec3u cubeNdxOffset = cubeIndices + Vec3u(
+					((e & 3) == 2 || (e == 11)) ? 1 : 0,
+					((e & 3) == 1 || (e == 10)) ? 1 : 0,
+					(e & 4) ? 1 : 0);
+				vtxKey |= cubeNdxOffset.x() << 20;
+				vtxKey |= cubeNdxOffset.y() << 10;
+				vtxKey |= cubeNdxOffset.z();
+
+				auto iter = vertexDictionary.find(vtxKey);
+				if (iter == vertexDictionary.end())
+				{
+					// Compute the edge's vertex
+					Vec3f vtxFrom = cellMin + edgeFrom[e] * cubeSide;
+					float weightFrom = cornerSamples[edgeCorners[e][0]];
+					float weightTo = cornerSamples[edgeCorners[e][1]];
+					Vec3f midVtx = vtxFrom + edgeDir[e] * (cubeSide * weightFrom / (weightFrom - weightTo));
+					// Add vertex to the dictionary
+					edgeToVertex[e] = vertexPositions.size();
+					vertexPositions.push_back(midVtx);
+					vertexDictionary.insert({ vtxKey, edgeToVertex[e] });
+				}
+				else
+				{
+					edgeToVertex[e] = iter->second;
+				}
+
 			}
 			else
 			{
@@ -433,9 +458,9 @@ namespace rev
 			if (edgeIndices[3 * edge] == -1)
 				break;
 
-			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 0]] + vertexOffset);
-			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 1]] + vertexOffset);
-			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 2]] + vertexOffset);
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 0]]);
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 1]]);
+			indices.push_back(edgeToVertex[edgeIndices[3 * edge + 2]]);
 		}
 	}
 
@@ -465,6 +490,9 @@ namespace rev
 			}
 		}
 
+		std::unordered_map<uint32_t, uint32_t> vertexDictionary;
+		vertexDictionary.reserve(numCorners);
+
 		// Iterate over the volume
 		for (uint32_t i = 0; i < resolution.x(); ++i) // x
 		{
@@ -491,15 +519,16 @@ namespace rev
 					cellMin.z() = k * cubeSide.z();
 
 					// Compute new cell corners and evaluate density
+					Vec3u cubeIndices = Vec3u(i, j, k);
 					for (int c = 4; c < 8; ++c)
 					{
 						corners[c] = cellMin + bounds.min() + cornerMask[c] * cubeSide;
-						Vec3u cornerPos = Vec3u(i, j, k) + Vec3u(cornerMask[c].x(), cornerMask[c].y(), cornerMask[c].z());
+						Vec3u cornerPos = cubeIndices + Vec3u(cornerMask[c].x(), cornerMask[c].y(), cornerMask[c].z());
 						int sampleIndex = cornerPos.z() + (resolution.z() + 1) * (cornerPos.y() + (resolution.y() + 1) * cornerPos.x());
 						cornerSamples[c] = sampledDensity[sampleIndex];
 					}
 
-					marchSingleCube(corners, cornerSamples, cellMin + bounds.min(), cubeSide, vertexPositions, indices);
+					marchSingleCube(vertexDictionary, cubeIndices, corners, cornerSamples, cellMin + bounds.min(), cubeSide, vertexPositions, indices);
 
 					// Copy corners for next cell
 					for (int c = 0; c < 4; ++c)
@@ -552,44 +581,6 @@ namespace rev
 				Vec3u(gridSide, gridHeight, gridSide),
 				density,
 				vertexPositions, indices);
-		}
-
-		// De-duplicate vertices
-		{
-			/*core::ScopedStopWatch probe("Weld identical vertices");
-			std::vector<uint32_t> vertexDict(vertexPositions.size());
-			int faceMaxIndices = gridSide * gridHeight * 12;
-			for (int i = 0; i < vertexPositions.size(); ++i)
-			{
-				vertexDict[i] = i;
-				auto v = vertexPositions[i];
-				for (int j = i-1 ; j >= 0; --j)
-				{
-					if (vertexPositions[j] == v)
-					{
-						vertexDict[i] = vertexDict[j];
-						break;
-					}
-				}
-			}
-			// De-duplicate indices and remove degenerate triangles
-			std::vector<uint32_t> cleanIndices;
-			cleanIndices.reserve(indices.size());
-			for (int i = 0; i < indices.size() / 3; ++i)
-			{
-				auto i0 = indices[3 * i + 0];
-				auto i1 = indices[3 * i + 1];
-				auto i2 = indices[3 * i + 2];
-
-				if (i0 == i1 || i0 == i2)
-					continue; // Skip degenerate triangles
-
-				cleanIndices.push_back(i0);
-				cleanIndices.push_back(i1);
-				cleanIndices.push_back(i2);
-			}
-			indices = std::move(cleanIndices);
-			*/
 		}
 
 		std::cout << "Num vertices: " << vertexPositions.size() << std::endl;
