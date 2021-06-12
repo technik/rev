@@ -19,10 +19,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "Vulkan/renderContextVulkan.h"
+
+#include <string>
+#include <vector>
+
 namespace rev::gfx
 {
 	class ComputePipeline
 	{
 	public:
+		ComputePipeline(
+			vk::PipelineLayout layout,
+			std::string_view shaderFilename
+		);
+
+		~ComputePipeline();
+
+		void bind(const vk::CommandBuffer& cmdBuf);
+		void bindDescriptorSets(
+			const vk::CommandBuffer& cmdBuf,
+			const vk::ArrayProxy<const vk::DescriptorSet>& descSets,
+			uint32_t firstSet = 0);
+
+		bool reload();
+		void invalidate()
+		{
+			m_invalidated = true;
+		}
+
+	private:
+		void clearPipeline();
+		vk::Pipeline tryLoad();
+		vk::ShaderModule loadShaderModule(const std::string& fileName);
+
+	private:
+		// Permanent state
+		vk::PipelineLayout m_layout;
+		std::string m_shader;
+
+		vk::Pipeline m_vkPipeline;
+		bool m_invalidated = false;
 	};
 }

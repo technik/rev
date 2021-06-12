@@ -27,7 +27,7 @@
 namespace rev :: gfx
 {
 	namespace {
-		bool sIsWindowClassRegistered = false;
+		bool gIsWindowClassRegistered = false;
 
 		//------------------------------------------------------------------------------------------
 		LRESULT CALLBACK WindowProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
@@ -46,30 +46,28 @@ namespace rev :: gfx
 
 		//------------------------------------------------------------------------------------------
 		bool registerClass(bool useCursor) {
-			if(sIsWindowClassRegistered)
+			if (gIsWindowClassRegistered)
 				return true;
 
-			HINSTANCE moduleHandle = GetModuleHandle(NULL);
-			// -- Register a new window class --
-			WNDCLASS winClass = {
-				CS_OWNDC | CS_HREDRAW | CS_VREDRAW, // Class style
-				WindowProc,
-				0,
-				0,
-				moduleHandle,
-				NULL,	// Default icon
-				useCursor ? ::LoadCursor(NULL, IDC_ARROW) : NULL,	// No cursor shape
-				NULL,
-				NULL,
-				"RevWindowClass" };
+			HINSTANCE processInstance = GetModuleHandle(NULL);
 
-			if(!RegisterClass(&winClass))
+			// -- Register a new window class --
+			WNDCLASSEX winClass = {};
+			winClass.cbSize = sizeof(WNDCLASSEX);
+			winClass.style - CS_OWNDC | CS_HREDRAW | CS_VREDRAW; // Class style
+			winClass.lpfnWndProc = WindowProc;
+			winClass.hInstance = processInstance;
+			winClass.hCursor = useCursor ? ::LoadCursor(NULL, IDC_ARROW) : NULL;
+			winClass.hIcon = NULL;	// Default icon // ::LoadIcon(hInst, NULL);
+			winClass.lpszClassName = "RevWindowClass";
+
+			if (!RegisterClassEx(&winClass))
 			{
 				auto error = GetLastError();
 				std::cout << "Failed to register window class. Error code: " << error << "\n";
 				return false;
 			}
-			sIsWindowClassRegistered = true;
+			gIsWindowClassRegistered = true;
 			return true;
 		}
 	}
