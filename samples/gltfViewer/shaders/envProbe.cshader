@@ -1,0 +1,9 @@
+// HLSL Compute shader to pre-process Environment probes
+
+// Declare input and output image views
+// Declare input and output resolutions ? Output resolution can be derived from dispatch size
+
+void main()
+{
+
+}

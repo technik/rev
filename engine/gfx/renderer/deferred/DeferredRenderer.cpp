@@ -45,10 +45,12 @@ namespace rev::gfx
 		gfx::RenderContextVulkan& ctxt,
 		const math::Vec2u& windowSize,
 		const Budget& limits,
-		const core::FolderWatcher::path& shadersFolder)
+		const core::FolderWatcher::path& shadersFolder,
+		std::shared_ptr<EnvironmentProbe> envProbe)
 	{
 		m_shadersFolder = shadersFolder;
 		m_windowSize = windowSize;
+		m_envProbe = envProbe;
 
 		m_ctxt = &ctxt;
 
@@ -254,7 +256,14 @@ namespace rev::gfx
 			bool overrideMaterial = renderFlag(RF_OVERRIDE_MATERIAL);
 			ImGui::Checkbox("Override Material", &overrideMaterial);
 			bool useEnvProbe = renderFlag(RF_ENV_PROBE);
-			ImGui::Checkbox("Env. Probe", &useEnvProbe);
+			if (m_envProbe)
+			{
+				ImGui::Checkbox("Env. Probe", &useEnvProbe);
+			}
+			else
+			{
+				useEnvProbe = false;
+			}
 			bool enableAO = !renderFlag(RF_DISABLE_AO);
 			ImGui::Checkbox("Enable AO", &enableAO);
 			bool enableNormalMaps = !renderFlag(RF_NO_NORMAL_MAP);
@@ -295,12 +304,14 @@ namespace rev::gfx
 		// Frame constants
 		m_geomFrameDescriptorLayout = std::make_shared<DescriptorSetLayout>();
 		m_geomFrameDescriptorLayout->addTexture("iblLUT", 0, vk::ShaderStageFlagBits::eFragment);
+		m_geomFrameDescriptorLayout->addTexture("envProbe", 1, vk::ShaderStageFlagBits::eFragment);
 		m_geomFrameDescriptorLayout->close();
 		m_geomFrameDescriptors = std::make_shared <DescriptorSetPool>(m_geomFrameDescriptorLayout, 1);
 
 		// Post process passes
 		m_postProDescriptorLayout = std::make_shared<DescriptorSetLayout>();
 		m_postProDescriptorLayout->addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
+		m_geomFrameDescriptorLayout->addTexture("envProbe", 1, vk::ShaderStageFlagBits::eFragment);
 		m_postProDescriptorLayout->close();
 		m_postProDescriptors = std::make_shared <DescriptorSetPool>(m_postProDescriptorLayout, 1);
 	}
@@ -313,11 +324,15 @@ namespace rev::gfx
 		// Geometry
 		gfx::DescriptorSetUpdate geomFrameUpdates(*m_geomFrameDescriptors, 0);
 		geomFrameUpdates.addTexture("iblLUT", m_iblLUT);
+		if (m_envProbe)
+			geomFrameUpdates.addTexture("envProbe", m_envProbe->texture());
 		geomFrameUpdates.send();
 
 		// HDR light
 		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
+		if (m_envProbe)
+			geomFrameUpdates.addTexture("envProbe", m_envProbe->texture());
 		renderBufferUpdates.send();
 	}
 

@@ -30,5 +30,13 @@ namespace rev::gfx
 		std::shared_ptr<ImageBuffer> image; // GPU memory
 		vk::Format format; // vkFormat
 		vk::Sampler sampler; // vkSampler
+
+		static std::shared_ptr<Texture> loadFromMemory(
+			const char* fileName,
+			vk::SamplerAddressMode wrapS,
+			vk::SamplerAddressMode wrapT,
+			bool generateMipmaps,
+			bool hdr,
+			bool sRGB);
 	};
 }

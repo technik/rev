@@ -17,33 +17,22 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#ifndef _PUSH_CONSTANTS_GLSL_
-#define _PUSH_CONSTANTS_GLSL_
+#include "EnvironmentProbe.h"
+#include <gfx/backend/Vulkan/vulkanAllocator.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
 
-layout(push_constant,scalar) uniform Constants
+namespace rev::gfx
 {
-    mat4 proj;
-    mat4 view;
-	vec3 lightDir;
-	vec3 ambientColor;
-	vec3 lightColor;
-
-	uint renderFlags;
-	// Material override parameters
-	vec3 overrideBaseColor;
-	float overrideMetallic;
-	float overrideRoughness;
-	float overrideClearCoat;
-} frameInfo;
-
-#define RF_OVERRIDE_MATERIAL (1<<0)
-#define RF_ENV_PROBE (1<<1)
-#define RF_DISABLE_AO (1 << 2)
-#define RF_NO_NORMAL_MAP (1<<3)
-
-bool renderFlag(uint flag)
-{
-	return (frameInfo.renderFlags & flag) > 0;
+	std::shared_ptr<EnvironmentProbe> EnvironmentProbe::LoadProbe(std::string_view imageName, uint32_t numLevels, uint32_t maxResolution)
+	{
+		// Load image file
+		// For now, just load the image and sample from it using spherical lat-long unwrap
+		auto texture = Texture::loadFromMemory(imageName.data(), vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eClampToEdge, false, true, false);
+		 
+		// TODO:
+		// Run compute pipeline on it
+		// Copy SH back from it?
+		// Compose the texture
+		return std::shared_ptr<EnvironmentProbe>(new EnvironmentProbe(texture, 1, math::Vec4f::zero()));
+	}
 }
-
-#endif // _PUSH_CONSTANTS_GLSL_

@@ -23,6 +23,7 @@
 #include <gfx/backend/DescriptorSet.h>
 #include <gfx/backend/Vulkan/Vulkan.h>
 #include <gfx/renderer/RenderPass.h>
+#include <gfx/renderer/EnvironmentProbe.h>
 #include <math/algebra/matrix.h>
 
 namespace rev::gfx
@@ -60,7 +61,8 @@ namespace rev::gfx
 			gfx::RenderContextVulkan& ctxt,
 			const math::Vec2u& windowSize,
 			const Budget& limits,
-			const core::FolderWatcher::path& shadersFolder
+			const core::FolderWatcher::path& shadersFolder,
+			std::shared_ptr<EnvironmentProbe> envProbe
 		);
 		void end();
 		void onResize(const math::Vec2u& windowSize);
@@ -137,6 +139,7 @@ namespace rev::gfx
 
 		std::unique_ptr<gfx::RenderPass> m_hdrLightPass;
 		std::unique_ptr<gfx::FullScreenPass> m_uiRenderPass;
+		std::shared_ptr<EnvironmentProbe> m_envProbe;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;

@@ -17,33 +17,40 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#ifndef _PUSH_CONSTANTS_GLSL_
-#define _PUSH_CONSTANTS_GLSL_
+#pragma once
 
-layout(push_constant,scalar) uniform Constants
+#include <gfx/backend/Vulkan/Vulkan.h>
+#include <gfx/Texture.h>
+#include <math/algebra/vector.h>
+
+namespace rev::gfx
 {
-    mat4 proj;
-    mat4 view;
-	vec3 lightDir;
-	vec3 ambientColor;
-	vec3 lightColor;
+	class EnvironmentProbe
+	{
+	public:
+		~EnvironmentProbe() = default;
 
-	uint renderFlags;
-	// Material override parameters
-	vec3 overrideBaseColor;
-	float overrideMetallic;
-	float overrideRoughness;
-	float overrideClearCoat;
-} frameInfo;
+		std::shared_ptr<Texture> texture() const { return m_cubemapTexture; }
+		uint32_t numMipmaps() const { return m_numMipmaps; }
 
-#define RF_OVERRIDE_MATERIAL (1<<0)
-#define RF_ENV_PROBE (1<<1)
-#define RF_DISABLE_AO (1 << 2)
-#define RF_NO_NORMAL_MAP (1<<3)
+		// Cos-weighted incoming radiance baked into spherical harmonics.
+		// w: Band 0, xyz: Band 1.
+		const math::Vec4f& SHIrradiance() const { return m_shIrradiance;  }
 
-bool renderFlag(uint flag)
-{
-	return (frameInfo.renderFlags & flag) > 0;
+		// Load probe from an HDR file
+		static std::shared_ptr<EnvironmentProbe> LoadProbe(std::string_view imageName, uint32_t numLevels, uint32_t maxResolution);
+	private:
+		EnvironmentProbe(
+			std::shared_ptr<Texture> texture,
+			uint32_t numMipmaps,
+			math::Vec4f shIrradiance)
+			: m_cubemapTexture(texture)
+			, m_numMipmaps(numMipmaps)
+			, m_shIrradiance(shIrradiance)
+		{}
+
+		std::shared_ptr<Texture> m_cubemapTexture;
+		uint32_t m_numMipmaps;
+		math::Vec4f m_shIrradiance;
+	};
 }
-
-#endif // _PUSH_CONSTANTS_GLSL_

@@ -57,7 +57,7 @@ float pureMirrorBRDF(float ndh, float ndl, float ndv, float r)
     float a = r*r;
 	float D = D_GGX(ndh, a);
 	float G = V_SmithGGXCorrelated(ndv, ndl, a);
-	return D*G* ndl;
+	return D*G;
 }
 
 vec3 specularBRDF(vec3 specularColor, float ndh, float ndl, float ndv, float hdv, float r)

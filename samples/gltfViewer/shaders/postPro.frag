@@ -30,6 +30,7 @@ layout(location = 0) in vec2 vPxlTexCoord;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0, rgba32f) uniform image2D HDRLight;
+layout(set = 0, binding = 1) uniform sampler2D envProbe;
 
 layout(push_constant,scalar) uniform Constants
 {
@@ -39,6 +40,13 @@ layout(push_constant,scalar) uniform Constants
 	float exposure;
 	float bloom;
 } pushC;
+
+#define RF_ENV_PROBE (1<<1)
+
+bool renderFlag(uint flag)
+{
+	return (pushC.renderFlags & flag) > 0;
+}
 
 void main()
 {

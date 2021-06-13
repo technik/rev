@@ -54,6 +54,13 @@ namespace rev {
 		// Load scene geometry
 		loadScene(m_options.scene);
 
+		// Load environment
+		std::shared_ptr<EnvironmentProbe> envProbe;
+		if (!m_options.environment.empty())
+		{
+			envProbe = EnvironmentProbe::LoadProbe(m_options.environment, 0, 512);
+		}
+
 		// Create camera
 		createCamera();
 		m_sceneRoot->init();
@@ -70,8 +77,11 @@ namespace rev {
 			renderContext(),
 			renderContext().windowSize(),
 			rendererLimits,
-			"../shaders/"
+			"../shaders/",
+			envProbe
 		);
+
+		m_loadedScene->updateDescriptorSet(m_renderer.batchDescriptorLayout());
 
 		return true;
 	}
