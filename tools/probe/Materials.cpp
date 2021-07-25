@@ -26,6 +26,33 @@
 using namespace std::numbers;
 using namespace rev::math;
 
+// Eric Heitz 2018 - Sampling the distribution of visible normals
+// Input Ve: view direction
+// Input alpha_x, alpha_y: roughness parameters
+// Input U1, U2: uniform random numbers
+// Output Ne: normal sampled with PDF D_Ve(Ne) = G1(Ve) * max(0, dot(Ve, Ne)) * D(Ne) / Ve.z
+vec3 sampleGGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float U2)
+{
+    // Section 3.2: transforming the view direction to the hemisphere configuration
+    vec3 Vh = normalize(vec3(alpha_x * Ve.x, alpha_y * Ve.y, Ve.z));
+    // Section 4.1: orthonormal basis (with special case if cross product is zero)
+    float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
+    vec3 T1 = lensq > 0 ? vec3(-Vh.y, Vh.x, 0) * glm::inversesqrt(lensq) : vec3(1, 0, 0);
+    vec3 T2 = cross(Vh, T1);
+    // Section 4.2: parameterization of the projected area
+    float r = sqrt(U1);
+    float phi = 2.0 * pi * U2;
+    float t1 = r * cos(phi);
+    float t2 = r * sin(phi);
+    float s = 0.5 * (1.0 + Vh.z);
+    t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
+    // Section 4.3: reprojection onto hemisphere
+    vec3 Nh = t1 * T1 + t2 * T2 + Vh * vec3(sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)));
+    // Section 3.4: transforming the normal back to the ellipsoid configuration
+    vec3 Ne = normalize(vec3(alpha_x * Nh.x, alpha_y * Nh.y, std::max<float>(0.0, Nh.z)));
+    return Ne;
+}
+
 // Integrate Fresnel modulated directional albedo components
 // res = directionalFresnel(r, ndv, N);
 // where ndv = dot(normal, w), then
@@ -52,68 +79,38 @@ Vec2f directionalFresnel(float roughness, float ndv, uint32_t numSamples)
 	}
 
 	Vec3f V;
+    ndv = max(ndv, 1e-5f);
 	V.x() = sqrt(1.0f - ndv * ndv); // sin
 	V.y() = 0;
 	V.z() = ndv; // cos
 
-	float A = 0;
-	float B = 0;
+    float brdfBias = 0; // Red channel
+    float brdfScale = 0; // Green channel
 
-	if (roughness == 1)
-	{
-		for (uint32_t i = 0; i < numSamples; i++)
-		{
-			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
-			Vec3f H = ImportanceSampleGGX_r1(Xi);
-			Vec3f L = 2.f * dot(V, H) * H - V;
+    float G1V = GeometrySmithGGXPrediv(V.z(), roughness);
+    float invG1V = 1.f / G1V;
 
-			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-			float NoH = H.z();
-			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
+    float alpha = roughness * roughness;
+    for (uint32_t i = 0; i < numSamples; ++i)
+    {
+        // TODO: Stratify the samples
+		Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
+        vec3 halfGlm = sampleGGXVNDF(toGlm(V), alpha, alpha, Xi.x(), Xi.y());
+        Vec3f half = fromGlm(halfGlm);
+        float HdV = max(0,dot(half, V));
+        vec3 light = glm::reflect(toGlm(-V), halfGlm);
+        if (light.z <= 0)
+            continue;
+        float G2 = SmithGGXCorrelatedG2Prediv(V.z(), light.z, alpha) * 2 * light.z;
+        //float spec = GeometrySmithGGX(light.z, roughness); // use uncorrelated Smith
+        float spec = G2 * invG1V; // use correlate Smith
 
-			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-			{
-				// GGX Geometry schlick
-				float G2_over_ndv = 2 * ndl / (ndl + ndv);
+        float fresnelTerm = pow(1 - HdV, 5.f);
 
-				float G_Vis = G2_over_ndv * VoH / (NoH);
-				float Fc = powf(1 - VoH, 5);
-				A += (1 - Fc) * G_Vis;
-				B += Fc * G_Vis;
-			}
-		}
-	}
-	else
-	{
-		float alpha = roughness * roughness;
-
-		for (uint32_t i = 0; i < numSamples; i++)
-		{
-			Vec2f Xi = Hammersley(i, numSamples) + Vec2f(0.5f / numSamples, 0.5f / numSamples);
-			Vec3f H = ImportanceSampleGGX(Xi, roughness);
-			Vec3f L = 2 * dot(V, H) * H - V;
-
-			float ndl = rev::math::clamp(L.z(), 0.f, 1.f);
-			float NoH = H.z();
-			float VoH = rev::math::clamp(dot(V, H), 0.f, 1.f);
-
-			if (ndl > 0) // TODO: Re-write this using the distribution of visible normals
-			{
-				// GGX Geometry schlick
-				float G2;
-				if (ndv == 0)
-					G2 = SmithGGXCorrelatedG2_overNdv_ndv0(alpha);
-				else
-					G2 = SmithGGXCorrelatedG2_over_ndv(ndv, ndl, alpha);
-
-				float G_Vis = G2 * VoH / NoH;
-				float Fc = powf(1 - VoH, 5);
-				A += (1 - Fc) * G_Vis;
-				B += Fc * G_Vis;
-			}
-		}
-	}
-	return Vec2f(A / numSamples, B / numSamples);
+        brdfScale += spec * (1 - fresnelTerm);
+        brdfBias += spec * fresnelTerm;
+    }
+    return Vec2f(brdfScale * (1.f / numSamples), brdfBias * (1.f / numSamples));
 }
 
 // PBR math
@@ -238,9 +235,9 @@ vec3 HillConductor::ms(
 	const vec3& light,
 	const vec3& half) const
 {
-	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 16);
 	float Eo = Eo3.x() + Eo3.y();
-	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 16);
 	float Ei = Ei3.x() + Ei3.y();
 	float compE = compEavg(m_roughness);
 	float Eavg = 1 - compE;
@@ -259,9 +256,9 @@ vec3 KullaConductor::ms(
 	const vec3& light,
 	const vec3& half) const
 {
-	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 16);
 	float Eo = Eo3.x() + Eo3.y();
-	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 16);
 	float Ei = Ei3.x() + Ei3.y();
 	float compE = compEavg(m_roughness);
 	float Eavg = 1 - compE;
@@ -282,9 +279,9 @@ vec3 DirectionalConductor::ms(
 	const vec3& light,
 	const vec3& half) const
 {
-	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 16);
 	float Eo = Eo3.x() + Eo3.y();
-	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 16);
 	float Ei = Ei3.x() + Ei3.y();
 	float compE = compEavg(m_roughness);
 	float Eavg = 1 - compE;
@@ -294,7 +291,7 @@ vec3 DirectionalConductor::ms(
 	vec3 Favg = (20.f * m_F0 + 1.f) / 21.f;
 	vec3 Fo = Eo3.x() * m_F0 + Eo3.y();
 	vec3 Fi = Ei3.x() * m_F0 + Ei3.y();
-	vec3 Fms = Fi*Fo * Eavg / (1.f - Favg * compE);
+	vec3 Fms = Fi*Favg * Eavg / (1.f - Favg * compE);
 
 	return Fms * fms;
 }
@@ -305,9 +302,9 @@ vec3 TurquinConductor::ms(
 	const vec3& light,
 	const vec3& half) const
 {
-	//Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 64);
+	//Vec2f Eo3 = directionalFresnel(m_roughness, eye.z, 16);
 	//float Eo = Eo3.x() + Eo3.y();
-	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 64);
+	Vec2f Ei3 = directionalFresnel(m_roughness, light.z, 16);
 	float Ei = Ei3.x() + Ei3.y();
 	//float compE = compEavg(m_roughness);
 	//float Eavg = 1 - compE;

@@ -109,6 +109,22 @@ namespace rev::math {
 		return 2 * ndv * ndl / (GL + GV);
 	}
 
+    inline float SmithGGXCorrelatedG2Prediv(float ndv, float ndl, float alpha)
+    {
+        float a2 = alpha * alpha;
+        float GV = ndv * sqrt(a2 + (1 - a2) * ndl * ndl);
+        float GL = ndl * sqrt(a2 + (1 - a2) * ndv * ndv);
+        return 0.5 / (GL + GV);
+    }
+
+    inline float SmithGGXCorrelatedG2_over_NdVNdL(float ndv, float ndl, float alpha)
+    {
+        float a2 = alpha * alpha;
+        float GV = ndv * sqrt(a2 + (1 - a2) * ndl * ndl);
+        float GL = ndl * sqrt(a2 + (1 - a2) * ndv * ndv);
+        return 2 / (GL + GV);
+    }
+
 	inline float SmithGGXCorrelatedG2_over_ndv(float ndv, float ndl, float alpha)
 	{
 		float a2 = alpha * alpha;
@@ -117,6 +133,38 @@ namespace rev::math {
 		return 2 * ndl / (GL + GV);
 	}
 
+    inline float GeometrySmithGGX(float NdotV, float roughness)
+    {
+        float num = 2*NdotV;
+        float alpha = roughness * roughness;
+        float denom = sqrt(lerp(NdotV * NdotV, 1.f, alpha * alpha)) + NdotV;
+
+        return num / denom;
+    }
+
+    inline float GeometrySmithGGXPrediv(float NdotV, float roughness)
+    {
+        float alpha = roughness * roughness;
+        float denom = sqrt(lerp(NdotV * NdotV, 1.f, alpha * alpha)) + NdotV;
+
+        return 1 / denom;
+    }
+
+    inline float InvGeometrySmithGGXPrediv(float NdotV, float roughness)
+    {
+        float alpha = roughness * roughness;
+        float denom = sqrt(lerp(NdotV, 1.f, alpha)) + NdotV;
+
+        return denom;
+    }
+
+    inline float InvGeometrySmithGGX(float NdotV, float roughness)
+    {
+        float alpha = roughness * roughness;
+        float denom = sqrt(lerp(NdotV* NdotV, 1.f, alpha* alpha)) + NdotV;
+
+        return denom / NdotV;
+    }
 
 	inline float SmithGGXCorrelatedG2_a1(float ndv, float ndl)
 	{

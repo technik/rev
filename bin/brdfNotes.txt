@@ -1,0 +1,25 @@
+// Notes in BRDF integration
+// Analitical solutions to boundary conditions
+// Looking for expresions of the form:
+s = f0*a + (1-f0)*b
+// or
+s = f0*c + b, where c = a-b
+
+// when r = 0, the response is just normal Fresnel:
+s = f0 + (1-f0)(hdl^5) // a=1, b=hdl^5
+// for f0=1, perfect energy conservation
+
+// When r=1, D(w,r) = 1/Pi
+// Note: We care slightly less about this approx. This is high roughness, and we're losing a lot of
+// energy to ms anyway. So compensation is more important thant ss accuracy
+G2 = 2NL*NV / (NL+NV)
+
+// So, int(brdf),r=1
+a = 1/2Pi * int(ndl/(ndl+ndv) dl)
+int(ndl/(ndl+ndv) dl) = 2pi*ndv*log(ndv+ndl)-ndl + C1, theta [0,pi/2]
+a = ndv*log(ndv/(ndv+1)) + 1 // range [ndv=0->1, ndv=1->~0.3]
+
+// Boundary conditions for ndv = 1. Integral is now radially symmetric.
+
+
+\\ gameshare2\T10users\carferna\presentations\CarPaintBRDF.pptx

@@ -19,6 +19,7 @@
 
 #include <core/platform/osHandler.h>
 #include <core/platform/cmdLineParser.h>
+#include <core/tools/profiler.h>
 #include <gfx/Image.h>
 
 #include "Materials.h"
@@ -433,6 +434,44 @@ auto renderReferenceChart(const vec3& f0, float r, float lightIntensity, int sca
 	return fullChart;
 }
 
+void plotBrdfIntegral(int resolution, const char* fileName)
+{
+    std::ofstream dataJson(string(fileName) + ".json");
+    auto brdfImage = Image3f(Vec2u(resolution, resolution));
+    auto eAvg = Image3f(Vec2u(resolution, resolution));
+
+    dataJson << "[\n";
+    const int numSamples = 128;
+    auto t0 = chrono::system_clock::now();
+
+    for (int j = 0; j < resolution; ++j) // Vertical axis, roughness
+    {
+        float alpha = j / (resolution - 1.f);
+        float r = sqrt(alpha);
+        //dataJson << "\t[";
+        for (int i = 0; i < resolution; ++i) // Horizontal axis, ndv
+        {
+            float ndv = i / (resolution - 1.f);
+            Vec2f dirFresnel = directionalFresnel(r, ndv, numSamples);
+            //dataJson << "[" << dirFresnel.x() << "," << dirFresnel.y() << "]";
+            //if (i < resolution - 1)
+             //   dataJson << ", ";
+            //brdfImage.pixel(i, j) = Vec3f(dirFresnel.x, dirFresnel.y(), 0.f);
+            brdfImage.pixel(i, j) = Vec3f(dirFresnel.x(), dirFresnel.y(), 0.f);
+            eAvg.pixel(i, j) = Vec3f(dirFresnel.x() + dirFresnel.y());
+        }
+        //dataJson << "]";
+        //if (j < resolution - 1)
+        //    dataJson << ",";
+        //dataJson << "\n";
+    }
+    auto dt = chrono::duration_cast<chrono::nanoseconds>(chrono::system_clock::now() - t0);
+    std::cout << "Computing the brdf image tool about " << dt << "\n";
+    dataJson << "]";
+    saveLinear(brdfImage, string(fileName) + "brdfBias.png");
+    saveLinear(eAvg, string(fileName) + "eAvg.png");
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv) {
 	// Parse arguments
@@ -443,13 +482,20 @@ int main(int _argc, const char** _argv) {
 	// Create a grapics device, so we can use all openGL features
 	rev::core::OSHandler::startUp();
 
+    {
+        rev::core::ScopedStopWatch sw("brdf image");
+        plotBrdfIntegral(512, "alpha512");
+    }
+
 	// Useful colors
-	const vec3 copper(0.95f, 0.64f, 0.54f);
+    const vec3 copper(0.95f, 0.64f, 0.54f);
+    const vec3 plastic(0.4f);
+    const vec3 white(1.f);
 
 	std::vector<float> roughnessList = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f, 0.95f, 1.f };
 	iterateRoughness([=](auto r) {
-		auto chart = renderReferenceChart(copper, r, 1.f, 0);
-		stringstream ss; ss << "Copper-r" << int(1000 * r) << ".png";
+		auto chart = renderReferenceChart(white, r, 1.f, 0);
+		stringstream ss; ss << "white-r" << int(1000 * r) << ".png";
 		save2sRGB(*chart, ss.str());
 		return chart;
 		}, roughnessList);
