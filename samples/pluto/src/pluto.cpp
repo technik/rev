@@ -97,7 +97,8 @@ namespace rev
 			renderContext(),
 			renderContext().windowSize(),
 			rendererLimits,
-			"./shaders"
+			"./shaders",
+            nullptr
 		);
 
 		m_opaqueGeometry->updateDescriptorSet(m_renderer.batchDescriptorLayout());
