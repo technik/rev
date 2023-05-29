@@ -48,64 +48,6 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::createWindow(
-		math::Vec2i& position,
-		math::Vec2u& size,
-		const char* name,
-		bool fullScreen,
-		bool showCursor)
-	{
-		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
-
-		if(fullScreen)
-		{
-			size = { 
-				(uint32_t)GetSystemMetrics(SM_CXSCREEN),
-				(uint32_t)GetSystemMetrics(SM_CYSCREEN) };
-		}
-
-		auto wnd = rev::gfx::createWindow(
-			position, size,
-			name,
-			fullScreen, showCursor, true);
-		m_windowSize = size;
-		m_nativeWindowHandle = wnd;
-
-		// Hook up window resizing callback
-		*core::OSHandler::get() += [&](MSG _msg) {
-			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
-			{
-				// Get new rectangle size without borders
-				RECT clientSurface;
-				GetClientRect(_msg.hwnd, &clientSurface);
-				m_windowSize = math::Vec2u(clientSurface.right, clientSurface.bottom);
-
-				m_onResize(m_windowSize);
-				return true;
-			}
-			if (_msg.message == WM_DPICHANGED)
-			{
-				const RECT* recommendedSurface = reinterpret_cast<const RECT*>(_msg.lParam);
-				m_windowSize = math::Vec2u(
-					recommendedSurface->right - recommendedSurface->left,
-					recommendedSurface->bottom - recommendedSurface->top);
-				SetWindowPos(wnd,
-					NULL,
-					recommendedSurface->left,
-					recommendedSurface->top,
-					m_windowSize.x(),
-					m_windowSize.y(),
-					SWP_NOZORDER | SWP_NOACTIVATE);
-
-				m_onResize(m_windowSize);
-				return true;
-			}
-
-			return false;
-		};
-	}
-
-	//--------------------------------------------------------------------------------------------------
 	bool RenderContextVulkan::initVulkan(
 		const char* applicationName,
 		uint32_t numAppDeviceExtensions, const char** appDeviceExtensionNames,
@@ -154,7 +96,7 @@ namespace rev::gfx {
 
 	bool RenderContextVulkan::createSwapchain(bool vSync)
 	{
-		if (!m_nativeWindowHandle)
+		if (!RenderContext().nativeWindow())
 			return false;
 		
 		initSurface();
@@ -251,7 +193,7 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::initSurface()
 	{
-		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), m_nativeWindowHandle);
+		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), RenderContext().nativeWindow());
 		m_surface = m_vkInstance.createWin32SurfaceKHR(surfaceInfo);
 		assert(m_surface);
 	}
@@ -352,7 +294,7 @@ namespace rev::gfx {
 		if (!m_physicalDevice.getSurfaceSupportKHR(m_queueFamilies.present.value(), m_surface))
 			return false;
 
-		m_swapchain.init(m_device, m_surface, targetFormat, m_windowSize, targetPresentMode, m_queueFamilies.present.value());
+		m_swapchain.init(m_device, m_surface, targetFormat, RenderContext().windowSize(), targetPresentMode, m_queueFamilies.present.value());
 
 		// Create render sync semaphores
 		m_renderFinishedSemaphore = m_device.createSemaphore({});
@@ -553,7 +495,7 @@ namespace rev::gfx {
 		};
 
 		m_swapchain.resize(clampedSize);
-		m_windowSize = clampedSize;
+		// m_windowSize = clampedSize; // Should this go into the base context somewhere?
 
 		return clampedSize;
 	}
@@ -589,7 +531,7 @@ namespace rev::gfx {
 			info.storeOp = vk::AttachmentStoreOp::eStore;
 
 			vk::AttachmentReference reference;
-			reference.attachment = attachmentInfo.size() - 1;
+			reference.attachment = uint32_t(attachmentInfo.size() - 1);
 			reference.layout = vk::ImageLayout::eGeneral; // TODO: eColorOptimal/eDepthOptimal?
 
 			if (info.format == vk::Format::eD32Sfloat)
@@ -599,7 +541,7 @@ namespace rev::gfx {
 		}
 
 		vk::SubpassDescription subpass;
-		subpass.colorAttachmentCount = colorReferences.size();
+		subpass.colorAttachmentCount = (uint32_t)colorReferences.size();
 		subpass.pColorAttachments = colorReferences.data();
 		subpass.pDepthStencilAttachment = depthReferences.empty() ? nullptr : depthReferences.data();
 		subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;

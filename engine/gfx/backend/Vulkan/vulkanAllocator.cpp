@@ -232,7 +232,7 @@ namespace rev::gfx {
 		vk::ImageUsageFlags usage,
 		uint32_t graphicsQueueFamily) ->std::shared_ptr<Texture>
 	{
-		auto& rc = RenderContext();
+		auto& rc = RenderContextVk();
 		// Create a staging buffer
 		size_t bufferSize = GetPixelSize(gpuFormat) * imageSize.x() * imageSize.y();
 		auto buffer = createBufferForMapping(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, graphicsQueueFamily);

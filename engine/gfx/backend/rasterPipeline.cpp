@@ -76,7 +76,7 @@ namespace rev::gfx
 		vk::Pipeline newPipeline = tryLoad();
 		if (newPipeline)
 		{
-			RenderContext().device().waitIdle();
+			RenderContextVk().device().waitIdle();
 			clearPipeline();
 			m_vkPipeline = newPipeline;
 			return true;
@@ -88,7 +88,7 @@ namespace rev::gfx
 	void RasterPipeline::clearPipeline()
 	{
 		if (m_vkPipeline)
-			RenderContext().device().destroyPipeline(m_vkPipeline);
+			RenderContextVk().device().destroyPipeline(m_vkPipeline);
 	}
 
 	vk::Pipeline RasterPipeline::tryLoad()
@@ -205,7 +205,7 @@ namespace rev::gfx
 		pipelineInfo.setPDynamicState(&dynamicStateInfo);
 		pipelineInfo.setPColorBlendState(&blendingInfo);
 
-		auto device = RenderContext().device();
+		auto device = RenderContextVk().device();
 		auto newPipeline = device.createGraphicsPipeline({}, pipelineInfo);
 
 		// Clean up
@@ -230,6 +230,6 @@ namespace rev::gfx
 
 		// Compile spirv
 		vk::ShaderModuleCreateInfo moduleInfo({}, spirvFile->size(), spirvFile->buffer<uint32_t>());
-		return RenderContext().device().createShaderModule(moduleInfo);
+		return RenderContextVk().device().createShaderModule(moduleInfo);
 	}
 }

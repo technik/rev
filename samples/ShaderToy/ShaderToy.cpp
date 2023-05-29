@@ -56,11 +56,11 @@ namespace rev
 		core::FileSystem::get()->registerPath("shaders");
 
 		// Create semaphore
-		auto device = RenderContext().device();
+		auto device = RenderContextVk().device();
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
 		m_timeVector = Vec4f::zero();
-		m_frameBuffers = std::make_unique<FrameBufferManager>(RenderContext().device());
+		m_frameBuffers = std::make_unique<FrameBufferManager>(RenderContextVk().device());
 
 		// Create descriptor layout
 		m_descSetLayout = std::make_shared<DescriptorSetLayout>();
@@ -71,7 +71,7 @@ namespace rev
 		// Create render pass
 		m_fullScreenFilter = std::make_unique<FullScreenPass>(
 			m_shaderFileName,
-			RenderContext().swapchainFormat(),
+			RenderContextVk().swapchainFormat(),
 			*m_frameBuffers,
 			m_descSetLayout->layout(),
 			sizeof(PushConstants));
@@ -109,7 +109,7 @@ namespace rev
 			auto image = Image4u8::load(imageName, false);
 			if (image)
 			{
-				m_blueNoise[i] = RenderContext().allocator().createTexture("blue noise", Vec2u(64, 64),
+				m_blueNoise[i] = RenderContextVk().allocator().createTexture("blue noise", Vec2u(64, 64),
 					image->format(),
 					vk::SamplerAddressMode::eRepeat,
 					vk::SamplerAddressMode::eRepeat,
@@ -117,7 +117,7 @@ namespace rev
 					1,
 					image->data(),
 					vk::ImageUsageFlagBits::eSampled,
-					RenderContext().graphicsQueueFamily()
+					RenderContextVk().graphicsQueueFamily()
 				);
 			}
 		}
@@ -140,7 +140,7 @@ namespace rev
 
 	void ShaderToy::render(TimeDelta dt)
 	{
-		Vec2f windowSize = { (float)renderContext().windowSize().x(), (float)renderContext().windowSize().y() };
+		Vec2f windowSize = { (float)RenderContext().windowSize().x(), (float)RenderContext().windowSize().y() };
 		if (windowSize.x() == 0 || windowSize.y() == 0)
 			return; // Don't try to render while minimized
 
@@ -168,14 +168,14 @@ namespace rev
 		ImGui::Render();
 
 		// Render passes
-		auto cmd = RenderContext().getNewRenderCmdBuffer();
+		auto cmd = RenderContextVk().getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 		
 		m_frameConstants.time = m_timeVector;
 		m_fullScreenFilter->begin(
 			cmd,
-			renderContext().windowSize(),
-			RenderContext().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
+			RenderContext().windowSize(),
+			RenderContextVk().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
 			Vec3f(0),
 			m_descSets->getDescriptor(0));
 
@@ -192,9 +192,9 @@ namespace rev
 		vk::SubmitInfo submitInfo(
 			1, &m_imageAvailableSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
-			1, &RenderContext().readyToPresentSemaphore()); // signal
-		RenderContext().graphicsQueue().submit(submitInfo);
+			1, &RenderContextVk().readyToPresentSemaphore()); // signal
+		RenderContextVk().graphicsQueue().submit(submitInfo);
 
-		RenderContext().swapchainPresent();
+		RenderContextVk().swapchainPresent();
 	}
 }

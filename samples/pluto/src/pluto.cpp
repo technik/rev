@@ -78,7 +78,7 @@ namespace rev
 		uint32_t gridSide = 512;
 		uint32_t gridHeight = 64;
 		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, gridSide, gridHeight, *m_opaqueGeometry);
-		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContext(), RenderContext().allocator());
+		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContextVk(), RenderContextVk().allocator());
 		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 
 		// Create camera
@@ -94,8 +94,8 @@ namespace rev
 		gfx::DeferredRenderer::Budget rendererLimits;
 		rendererLimits.maxTexturesPerBatch = (uint32_t)16;
 		m_renderer.init(
-			renderContext(),
-			renderContext().windowSize(),
+			RenderContextVk(),
+			RenderContext().windowSize(),
 			rendererLimits,
 			"./shaders",
             nullptr
@@ -140,7 +140,7 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void Pluto::render(TimeDelta dt)
 	{
-		Vec2f windowSize = { (float)renderContext().windowSize().x(), (float)renderContext().windowSize().y() };
+		Vec2f windowSize = { (float)RenderContext().windowSize().x(), (float)RenderContext().windowSize().y() };
 		float aspect = windowSize.x() / windowSize.y();
 
 		m_sceneGraphics.proj = mFlybyCam->projection(aspect);
@@ -156,7 +156,7 @@ namespace rev
 
 		if (m_sceneGraphics.m_opaqueGeometry.empty())
 		{
-			if (RenderContext().allocator().isTransferFinished(m_geometryStreamToken))
+			if (RenderContextVk().allocator().isTransferFinished(m_geometryStreamToken))
 			{
 				m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);
 			}

@@ -605,12 +605,12 @@ namespace rev
 			indices.size(), indices.data(), materialNdx);
 
 		auto whiteImage = gfx::Image4u8(Vec2u(32), false);
-		auto whiteTexture = RenderContext().allocator().createTexture("white", Vec2u(32), whiteImage.format(),
+		auto whiteTexture = RenderContextVk().allocator().createTexture("white", Vec2u(32), whiteImage.format(),
 			vk::SamplerAddressMode::eRepeat,
 			vk::SamplerAddressMode::eRepeat,
 			false, 1, whiteImage.data(),
 			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-			RenderContext().graphicsQueueFamily());
+			RenderContextVk().graphicsQueueFamily());
 		dstScene.m_geometry.addTexture(whiteTexture);
 
 		RasterHeap::Mesh mesh;

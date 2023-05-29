@@ -33,10 +33,10 @@ namespace rev::gfx
 		size_t pushConstantsSize
 	)
 	{
-		m_renderPass = std::make_unique<RenderPass>(RenderContext().createRenderPass({ attachmentFormats }), fbManager);
+		m_renderPass = std::make_unique<RenderPass>(RenderContextVk().createRenderPass({ attachmentFormats }), fbManager);
 
 		// Create shader pipeline
-		auto device = RenderContext().device();
+		auto device = RenderContextVk().device();
 		// // Full screen pipeline
 		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, (uint32_t)pushConstantsSize);
 		vk::PipelineLayoutCreateInfo postLayoutInfo({},
@@ -56,12 +56,12 @@ namespace rev::gfx
 			);
 
 		// Create full screen vertices
-		auto& alloc = RenderContext().allocator();
+		auto& alloc = RenderContextVk().allocator();
 		alloc.reserveStreamingBuffer(3 * sizeof(uint32_t));
 		m_fullScreenIndexBuffer = alloc.createGpuBuffer(
 			3 * sizeof(uint32_t),
 			vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-			RenderContext().graphicsQueueFamily());
+			RenderContextVk().graphicsQueueFamily());
 		uint32_t indices[3] = { 0, 1, 2 };
 		m_streamingToken = alloc.asyncTransfer(*m_fullScreenIndexBuffer, indices, 3);
 	}
@@ -69,7 +69,7 @@ namespace rev::gfx
 	FullScreenPass::~FullScreenPass()
 	{
 		m_pipeline = nullptr;
-		auto device = RenderContext().device();
+		auto device = RenderContextVk().device();
 		device.destroyPipelineLayout(m_pipelineLayout);
 		device.destroyRenderPass(m_renderPass->vkPass());
 	}
@@ -84,7 +84,7 @@ namespace rev::gfx
 		m_renderPass->setColorTarget(colorTarget);
 		m_renderPass->setClearColor(clearColor);
 
-		RenderContext().allocator().transitionImageLayout(cmd,
+		RenderContextVk().allocator().transitionImageLayout(cmd,
 			colorTarget.image(),
 			vk::ImageLayout::eUndefined,
 			vk::ImageLayout::eGeneral,
@@ -101,7 +101,7 @@ namespace rev::gfx
 
 	void FullScreenPass::render(const vk::CommandBuffer cmd)
 	{
-		if (!RenderContext().allocator().isTransferFinished(m_streamingToken))
+		if (!RenderContextVk().allocator().isTransferFinished(m_streamingToken))
 			return;
 
 		cmd.bindIndexBuffer(m_fullScreenIndexBuffer->buffer(), {}, vk::IndexType::eUint32);

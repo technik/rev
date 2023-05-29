@@ -80,7 +80,7 @@ namespace rev::gfx
 	{
 		if (!m_worldMtxBuffer && !m_instanceWorldMtx.empty())
 		{
-			auto& rc = RenderContext();
+			auto& rc = RenderContextVk();
 			auto& alloc = rc.allocator();
 			m_worldMtxBuffer = alloc.createBufferForMapping(
 				sizeof(math::Mat44f) * m_instanceWorldMtx.size(),

@@ -74,8 +74,8 @@ namespace rev {
 		gfx::DeferredRenderer::Budget rendererLimits;
 		rendererLimits.maxTexturesPerBatch = (uint32_t)m_loadedScene->m_geometry.textures().size();
 		m_renderer.init(
-			renderContext(),
-			renderContext().windowSize(),
+			RenderContextVk(),
+			RenderContext().windowSize(),
 			rendererLimits,
 			"../shaders/",
 			envProbe
@@ -107,11 +107,11 @@ namespace rev {
 			return;
 
 		m_loadedScene = std::make_shared<gfx::RasterScene>();
-		GltfLoader gltfLoader(renderContext());
+		GltfLoader gltfLoader(RenderContextVk());
 		auto rootNode = gltfLoader.load(scene, *m_loadedScene);
 
 		m_sceneRoot->addChild(rootNode);
-		m_sceneLoadStreamToken = m_loadedScene->m_geometry.closeAndSubmit(renderContext(), renderContext().allocator());
+		m_sceneLoadStreamToken = m_loadedScene->m_geometry.closeAndSubmit(RenderContextVk(), RenderContextVk().allocator());
 	}
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace rev {
 	//------------------------------------------------------------------------------------------------------------------
 	void Player::render(TimeDelta dt)
 	{
-		Vec2f windowSize = { (float)renderContext().windowSize().x(), (float)renderContext().windowSize().y() };
+		Vec2f windowSize = { (float)RenderContext().windowSize().x(), (float)RenderContext().windowSize().y() };
 		float aspect = windowSize.x() / windowSize.y();
 
 		m_sceneGraphics.proj = mFlybyCam->projection(aspect);
@@ -152,7 +152,7 @@ namespace rev {
 
 		if (m_sceneGraphics.m_opaqueGeometry.empty())
 		{
-			if (RenderContext().allocator().isTransferFinished(m_sceneLoadStreamToken))
+			if (RenderContextVk().allocator().isTransferFinished(m_sceneLoadStreamToken))
 			{
 				m_sceneGraphics.m_opaqueGeometry.push_back(m_loadedScene);
 			}

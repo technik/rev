@@ -27,37 +27,14 @@
 #include <math/algebra/vector.h>
 #include "vulkanAllocator.h"
 #include "../ScopedCommandBuffer.h"
+#include "../Context.h"
 
 namespace rev::gfx
 {
-	class RenderContextVulkan;
-
-	RenderContextVulkan& RenderContext();
-
-	class RenderContextVulkan
+	class RenderContextVulkan : public Context
 	{
 	public:
-		RenderContextVulkan()
-		{
-			assert(!s_instance);
-			s_instance = this;
-		}
 		~RenderContextVulkan();
-
-		// Window
-		// If full screen is enabled, size and position will be updated to
-		// the actual screen resolution and position used
-		void createWindow(
-			math::Vec2i& position,
-			math::Vec2u& size,
-			const char* name,
-			bool fullScreen,
-			bool showCursor);
-
-		auto nativeWindow() const { return m_nativeWindowHandle; }
-		const math::Vec2u& windowSize() const { return m_windowSize; }
-		auto& onResize() { return m_onResize; };
-		using ResizeDelegate = std::shared_ptr<core::Event<math::Vec2u>::Listener>;
 
 		// Vulkan
 		bool initVulkan(
@@ -77,6 +54,7 @@ namespace rev::gfx
 		vk::Format swapchainFormat() const { return m_swapchain.m_imageFormat; }
 
 		// Device, Queues and Commands
+		auto vkInstance() const { return m_vkInstance; }
 		auto device() const { return m_device; }
 		auto physicalDevice() const { return m_physicalDevice; }
 		auto instance() const { return m_vkInstance; }
@@ -101,8 +79,6 @@ namespace rev::gfx
 
 		const Properties properties() const { m_properties; }
 
-		__forceinline static RenderContextVulkan* singleton() { return s_instance; }
-
 	private:
 		bool createInstance(const char* applicationName);
 		void getPhysicalDevice();
@@ -116,11 +92,6 @@ namespace rev::gfx
 		inline static RenderContextVulkan* s_instance = nullptr;
 
 	private:
-		// Window
-		HWND m_nativeWindowHandle { NULL };
-		core::Event<math::Vec2u> m_onResize;
-		math::Vec2u m_windowSize { 0, 0 };
-
 		// Device
 		vk::Instance m_vkInstance;
 		vk::PhysicalDevice m_physicalDevice;
@@ -207,9 +178,5 @@ namespace rev::gfx
 		VulkanAllocator m_alloc;
 	};
 
-	__forceinline RenderContextVulkan& RenderContext()
-	{
-		assert(RenderContextVulkan::singleton());
-		return *RenderContextVulkan::singleton();
-	}
+	inline auto& RenderContextVk() { return static_cast<RenderContextVulkan&>(RenderContext()); }
 }

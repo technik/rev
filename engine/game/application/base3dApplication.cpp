@@ -101,9 +101,13 @@ namespace rev::game {
 			lastTime = t;
 		}
 		// Wait for the GPU to catch up before destroying stuff
-		renderContext().device().waitIdle();
+		RenderContextVk().device().waitIdle();
 		end();
 		core::FileSystem::end();
+	}
+
+	const math::Vec2u& Base3dApplication::windowSize() const {
+		return RenderContext().windowSize();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -120,18 +124,19 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics()
 	{
-		m_renderContext.createWindow(
+		Context::init(name().c_str(), Context::GfxAPI::Vulkan);
+		RenderContext().createWindow(
 			m_options.windowPosition, m_options.windowSize,
 			name().c_str(),
 			m_options.fullScreen, true);
 
-		m_resizeDelegate = m_renderContext.onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
+		m_resizeDelegate = RenderContext().onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
 
-		if (!m_renderContext.initVulkan(name().c_str()))
+		if (!RenderContextVk().initVulkan(name().c_str()))
 		{
 			return false;
 		}
 
-		return m_renderContext.createSwapchain(true);
+		return RenderContextVk().createSwapchain(true);
 	}
 }

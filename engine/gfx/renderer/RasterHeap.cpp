@@ -129,7 +129,7 @@ namespace rev::gfx {
 			m_materialsBuffer = alloc.createGpuBuffer(
 				sizeof(gfx::PBRMaterial) * m_materials.size(),
 				vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst,
-				RenderContext().graphicsQueueFamily());
+				RenderContextVk().graphicsQueueFamily());
 			streamToken = alloc.asyncTransfer(*m_materialsBuffer, m_materials.data(), m_materials.size());
 		}
 

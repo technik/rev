@@ -60,16 +60,17 @@ namespace rev::gfx
 		pool_info.pPoolSizes = pool_sizes;
 
 		ImGui_ImplVulkan_InitInfo initInfo{};
-		initInfo.Instance = rc.instance();
-		initInfo.Device = rc.device();
-		initInfo.PhysicalDevice = rc.physicalDevice();
-		initInfo.Queue = rc.graphicsQueue();
-		initInfo.QueueFamily = rc.graphicsQueueFamily();
+		auto& vkCtxt = static_cast<RenderContextVulkan&>(rc);
+		initInfo.Instance = vkCtxt.vkInstance();
+		initInfo.Device = vkCtxt.device();
+		initInfo.PhysicalDevice = vkCtxt.physicalDevice();
+		initInfo.Queue = vkCtxt.graphicsQueue();
+		initInfo.QueueFamily = vkCtxt.graphicsQueueFamily();
 		initInfo.Subpass = 0;
 		initInfo.ImageCount = 2;
 		initInfo.MinImageCount = 2;
 		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-		initInfo.DescriptorPool = rc.device().createDescriptorPool(pool_info);
+		initInfo.DescriptorPool = vkCtxt.device().createDescriptorPool(pool_info);
 
 		ImGui_ImplVulkan_Init(&initInfo, renderPass);
 
@@ -81,7 +82,7 @@ namespace rev::gfx
 		};
 
 		// Init font
-		auto cmd = gfx::RenderContext().getNewRenderCmdBuffer();
+		auto cmd = vkCtxt.getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
 		ImGui_ImplVulkan_CreateFontsTexture(cmd);
 
@@ -91,6 +92,6 @@ namespace rev::gfx
 			0, nullptr, nullptr, // wait
 			1, &cmd, // commands
 			0, nullptr); // signal
-		gfx::RenderContext().graphicsQueue().submit(submitInfo);
+		vkCtxt.graphicsQueue().submit(submitInfo);
 	}
 }

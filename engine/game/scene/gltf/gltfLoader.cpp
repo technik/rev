@@ -267,7 +267,7 @@ namespace rev::game {
 			const std::vector<std::shared_ptr<Image<>>>& images,
 			gfx::RasterScene& scene)
 		{
-			auto& rc = RenderContext();
+			auto& rc = RenderContextVk();
 
 			for (auto& gltfTexture : document.textures)
 			{

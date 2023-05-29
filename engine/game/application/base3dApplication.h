@@ -58,8 +58,7 @@ namespace rev::game {
 		void run(int argc, const char** argv);
 
 	protected:
-		const math::Vec2u& windowSize() const { return m_renderContext.windowSize(); }
-		gfx::RenderContextVulkan& renderContext() { return m_renderContext; }
+		const math::Vec2u& windowSize() const;
 
 	private: // Extension interface
 		// Life cycle
@@ -78,7 +77,6 @@ namespace rev::game {
 
 	private:
 		std::chrono::high_resolution_clock m_appTime;
-		gfx::RenderContextVulkan m_renderContext;
 		CommandLineOptions m_options;
 		gfx::RenderContextVulkan::ResizeDelegate m_resizeDelegate;
 	};
