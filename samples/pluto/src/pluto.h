@@ -35,7 +35,7 @@ namespace rev {
 	class Pluto : public game::Base3dApplication
 	{
 	public:
-		virtual std::string name() { return "gltf viewer"; }
+		virtual std::string name() { return "Pluto"; }
 
 		Pluto() = default;
 		Pluto(const Pluto&) = delete;

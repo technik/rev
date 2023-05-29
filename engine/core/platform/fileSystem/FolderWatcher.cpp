@@ -50,9 +50,12 @@ namespace rev::core {
 	{
 		list.clear();
 
-		for(auto& file : fs::directory_iterator(m_watchedPath))
+		if (fs::exists(m_watchedPath) && fs::is_directory(m_watchedPath))
 		{
-			list.emplace_back(file.path(), file.last_write_time());
+			for(auto& file : fs::directory_iterator(m_watchedPath))
+			{
+				list.emplace_back(file.path(), file.last_write_time());
+			}
 		}
 	}
 
