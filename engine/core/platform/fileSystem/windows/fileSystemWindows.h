@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <cstdint>
 
+#include <string>
 #include <core/event.h>
 #include <map>
 
