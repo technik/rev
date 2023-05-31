@@ -128,17 +128,18 @@ namespace rev::game {
 		{
 			return false;
 		}
+
+		if (!RenderContextVk().initVulkan(name().c_str()))
+		{
+			return false;
+		}
+
 		RenderContext().createWindow(
 			m_options.windowPosition, m_options.windowSize,
 			name().c_str(),
 			m_options.fullScreen, true);
 
 		m_resizeDelegate = RenderContext().onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
-
-		if (!RenderContextVk().initVulkan(name().c_str()))
-		{
-			return false;
-		}
 
 		return RenderContextVk().createSwapchain(true);
 	}
