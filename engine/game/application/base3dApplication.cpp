@@ -129,11 +129,6 @@ namespace rev::game {
 			return false;
 		}
 
-		if (!RenderContextVk().initVulkan(name().c_str()))
-		{
-			return false;
-		}
-
 		RenderContext().createWindow(
 			m_options.windowPosition, m_options.windowSize,
 			name().c_str(),

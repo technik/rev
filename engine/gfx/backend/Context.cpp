@@ -99,7 +99,16 @@ namespace rev::gfx
         }
         case GfxAPI::Vulkan:
         {
-			s_instance = new RenderContextVulkan();
+			auto vkContext = new RenderContextVulkan();
+			if (vkContext->initVulkan(appName))
+			{
+				s_instance = vkContext;
+			}
+			else
+			{
+				delete vkContext;
+				return false;
+			}
             break;
         }
         }
