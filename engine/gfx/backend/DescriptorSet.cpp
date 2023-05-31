@@ -59,7 +59,7 @@ namespace rev::gfx
 		assert(!m_vkLayout);
 		vk::DescriptorSetLayoutCreateInfo setLayoutInfo({}, m_bindings);
 
-		auto device = RenderContextVk().device();
+		auto device = RenderContextVk().nativeDevice();
 		m_vkLayout = device.createDescriptorSetLayout(setLayoutInfo);
 	}
 
@@ -92,14 +92,14 @@ namespace rev::gfx
 		poolInfo.pPoolSizes = poolSize.data();
 		poolInfo.poolSizeCount = (uint32_t)poolSize.size();
 
-		m_pool = RenderContextVk().device().createDescriptorPool(poolInfo);
+		m_pool = RenderContextVk().nativeDevice().createDescriptorPool(poolInfo);
 	}
 
 	void DescriptorSetPool::createDescriptors(uint32_t numDescriptors)
 	{
 		std::vector<vk::DescriptorSetLayout> setLayouts(numDescriptors, m_layout->m_vkLayout);
 		vk::DescriptorSetAllocateInfo setInfo(m_pool, setLayouts);
-		m_descriptorSets = RenderContextVk().device().allocateDescriptorSets(setInfo);
+		m_descriptorSets = RenderContextVk().nativeDevice().allocateDescriptorSets(setInfo);
 	}
 
 	void DescriptorSetPool::writeArrayTextureToDescriptor(uint32_t descNdx, const std::string& name, const std::vector<std::shared_ptr<Texture>>& textureArray)
@@ -125,7 +125,7 @@ namespace rev::gfx
 			writeInfo.dstBinding = binding;
 			writeInfo.descriptorCount = (uint32_t)textureArray.size();
 			writeInfo.pImageInfo = texInfo.data();
-			RenderContextVk().device().updateDescriptorSets(writeInfo, {});
+			RenderContextVk().nativeDevice().updateDescriptorSets(writeInfo, {});
 		}
 	}
 	
@@ -214,6 +214,6 @@ namespace rev::gfx
 		}
 
 		// Write all
-		RenderContextVk().device().updateDescriptorSets(writes, {});
+		RenderContextVk().nativeDevice().updateDescriptorSets(writes, {});
 	}
 }

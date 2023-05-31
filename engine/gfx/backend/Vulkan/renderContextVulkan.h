@@ -55,7 +55,7 @@ namespace rev::gfx
 
 		// Device, Queues and Commands
 		auto vkInstance() const { return m_vkInstance; }
-		auto device() const { return m_device; }
+		auto nativeDevice() const { return m_device; }
 		auto physicalDevice() const { return m_physicalDevice; }
 		auto instance() const { return m_vkInstance; }
 		auto graphicsQueue() const { return m_gfxQueue; }

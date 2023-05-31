@@ -101,7 +101,7 @@ namespace rev::game {
 			lastTime = t;
 		}
 		// Wait for the GPU to catch up before destroying stuff
-		RenderContextVk().device().waitIdle();
+		RenderContextVk().nativeDevice().waitIdle();
 		end();
 		core::FileSystem::end();
 	}
@@ -124,7 +124,10 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics()
 	{
-		Context::init(name().c_str(), Context::GfxAPI::Vulkan);
+		if (!Context::init(name().c_str(), Context::GfxAPI::Vulkan))
+		{
+			return false;
+		}
 		RenderContext().createWindow(
 			m_options.windowPosition, m_options.windowSize,
 			name().c_str(),

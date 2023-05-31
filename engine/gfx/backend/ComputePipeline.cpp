@@ -66,7 +66,7 @@ namespace rev::gfx
 		vk::Pipeline newPipeline = tryLoad();
 		if (newPipeline)
 		{
-			RenderContextVk().device().waitIdle();
+			RenderContextVk().nativeDevice().waitIdle();
 			clearPipeline();
 			m_vkPipeline = newPipeline;
 			return true;
@@ -78,7 +78,7 @@ namespace rev::gfx
 	void ComputePipeline::clearPipeline()
 	{
 		if (m_vkPipeline)
-			RenderContextVk().device().destroyPipeline(m_vkPipeline);
+			RenderContextVk().nativeDevice().destroyPipeline(m_vkPipeline);
 	}
 
 	vk::Pipeline ComputePipeline::tryLoad()
@@ -99,7 +99,7 @@ namespace rev::gfx
 		pipelineInfo.setLayout(m_layout);
 		pipelineInfo.setStage(shaderStage);
 
-		auto device = RenderContextVk().device();
+		auto device = RenderContextVk().nativeDevice();
 		auto newPipeline = device.createComputePipeline({}, pipelineInfo);
 
 		// Clean up
@@ -123,6 +123,6 @@ namespace rev::gfx
 
 		// Compile spirv
 		vk::ShaderModuleCreateInfo moduleInfo({}, spirvFile->size(), spirvFile->buffer<uint32_t>());
-		return RenderContextVk().device().createShaderModule(moduleInfo);
+		return RenderContextVk().nativeDevice().createShaderModule(moduleInfo);
 	}
 }

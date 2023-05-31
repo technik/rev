@@ -36,7 +36,7 @@ namespace rev::gfx
 		m_renderPass = std::make_unique<RenderPass>(RenderContextVk().createRenderPass({ attachmentFormats }), fbManager);
 
 		// Create shader pipeline
-		auto device = RenderContextVk().device();
+		auto device = RenderContextVk().nativeDevice();
 		// // Full screen pipeline
 		vk::PushConstantRange postProPushRange(vk::ShaderStageFlagBits::eFragment, 0, (uint32_t)pushConstantsSize);
 		vk::PipelineLayoutCreateInfo postLayoutInfo({},
@@ -69,7 +69,7 @@ namespace rev::gfx
 	FullScreenPass::~FullScreenPass()
 	{
 		m_pipeline = nullptr;
-		auto device = RenderContextVk().device();
+		auto device = RenderContextVk().nativeDevice();
 		device.destroyPipelineLayout(m_pipelineLayout);
 		device.destroyRenderPass(m_renderPass->vkPass());
 	}

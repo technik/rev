@@ -54,9 +54,9 @@ namespace rev::gfx
 
 		m_ctxt = &ctxt;
 
-		m_frameBuffers = std::make_unique<gfx::FrameBufferManager>(ctxt.device());
+		m_frameBuffers = std::make_unique<gfx::FrameBufferManager>(ctxt.nativeDevice());
 
-		auto device = ctxt.device();
+		auto device = ctxt.nativeDevice();
 
 		// Create semaphores
 		m_imageAvailableSemaphore = device.createSemaphore({});
@@ -79,7 +79,7 @@ namespace rev::gfx
 		destroyFrameBuffers();
 		destroyRenderTargets();
 
-		auto device = m_ctxt->device();
+		auto device = m_ctxt->nativeDevice();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
 		device.destroyRenderPass(m_hdrLightPass->vkPass());
@@ -319,7 +319,7 @@ namespace rev::gfx
 	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::fillConstantDescriptorSets()
 	{
-		auto device = m_ctxt->device();
+		auto device = m_ctxt->nativeDevice();
 
 		// Geometry
 		gfx::DescriptorSetUpdate geomFrameUpdates(*m_geomFrameDescriptors, 0);
@@ -360,7 +360,7 @@ namespace rev::gfx
 	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::createShaderPipelines()
 	{
-		auto device = m_ctxt->device();
+		auto device = m_ctxt->nativeDevice();
 
 		m_shaderWatcher = std::make_unique<core::FolderWatcher>(m_shadersFolder);
 
