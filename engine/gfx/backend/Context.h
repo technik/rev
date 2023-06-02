@@ -19,10 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #include <cassert>
 #include <core/event.h>
 #include <math/algebra/vector.h>
@@ -87,7 +83,7 @@ namespace rev::gfx
 		inline static Context* s_instance = nullptr;
 
 		// Window management
-		HWND m_nativeWindowHandle{ NULL };
+		void* m_nativeWindowHandle {}; // HWND is internally a regular pointer, so we use one here to avoid including windows headers in an engine header
 		core::Event<math::Vec2u> m_onResize;
 		math::Vec2u m_windowSize{ 0, 0 };
 

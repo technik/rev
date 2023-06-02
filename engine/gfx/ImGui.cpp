@@ -17,6 +17,11 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 #include "ImGui.h"
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
@@ -35,7 +40,7 @@ namespace rev::gfx
 		ImGui::CreateContext();
 
 		auto& rc = gfx::RenderContext();
-		auto nativeWindow = rc.nativeWindow();
+		auto nativeWindow = (HWND)rc.nativeWindow();
 		ImGui_ImplWin32_Init(&nativeWindow);
 
 		vk::DescriptorPoolSize pool_sizes[] =

@@ -17,6 +17,10 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 #include "renderContextVulkan.h"
 #include "../Windows/windowsPlatform.h"
 #include <core/platform/osHandler.h>
@@ -193,7 +197,7 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::initSurface()
 	{
-		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), RenderContext().nativeWindow());
+		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), (HWND)RenderContext().nativeWindow());
 		m_surface = m_vkInstance.createWin32SurfaceKHR(surfaceInfo);
 		assert(m_surface);
 	}
