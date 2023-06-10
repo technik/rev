@@ -24,6 +24,7 @@
 
 #include <wrl.h>
 #include <core/tools/log.h>
+#include <core/string_util.h>
 
 template<class T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -59,22 +60,38 @@ namespace rev::gfx
         CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&dxgiFactory));
 
         // Iterate over available adapters
-        ComPtr<IDXGIAdapter1> dxgiAdapter1;
+        ComPtr<IDXGIAdapter1> dxgiAdapter;
         
         if(dxgiFactory->EnumAdapterByGpuPreference(0,
             DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-            IID_PPV_ARGS(&dxgiAdapter1)) == DXGI_ERROR_NOT_FOUND)
+            IID_PPV_ARGS(&dxgiAdapter)) == DXGI_ERROR_NOT_FOUND)
         {
+            std::cout << "Unable to find graphics adapter\n";
             return false;
         }
 
-        // TODO: Get device info
-        //DXGI_ADAPTER_DESC1 adapterDesc;
-        //dxgiAdapter1->GetDesc1(&adapterDesc);
-        //std::wstring descMsg = adapterDesc.Description;
-        //std::cout << descMsg << std::endl;
+        if (!SUCCEEDED(dxgiAdapter.As(&m_dxgiAdapter)))
+        {
+            std::cout << "Unsupported API level\n";
+            return false;
+        }
 
-        dxgiAdapter1.As(&m_dxgiAdapter);
+        // Get device info
+        DXGI_ADAPTER_DESC2 adapterDesc;
+        m_dxgiAdapter->GetDesc2(&adapterDesc);
+
+        // Report device information
+        std::cout << "Using graphics adapter: " << core::fromWString(adapterDesc.Description) << "\n";
+
+        size_t videoMemory = adapterDesc.DedicatedVideoMemory;
+        size_t GB = videoMemory >> 30;
+        size_t MB = videoMemory >> 20 & 0x3ff;
+
+        std::cout << "Dedicated video memory:";
+        if (GB > 0) std::cout << " " << GB << "GB";
+        if (MB > 0) std::cout << " " << MB << "MB";
+        std::cout << "\n";
+
         return true;
     }
 

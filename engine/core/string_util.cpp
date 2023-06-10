@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2018 Carmelo J Fdez-Aguera
+// Copyright 2023 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,36 +17,29 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
+#include "string_util.h"
 
-#include <string>
+#include <codecvt>
+#include <locale>
 
-namespace rev {
-	namespace core {
+namespace rev::core {
 
-		//--------------------------------------------------------------------------------------------------
-		inline std::string getFileExtension(const std::string& _s) {
-			auto pos = _s.rfind('.');
-			if (pos == std::string::npos)
-				return "";
-			else
-				return _s.substr(pos+1);
-		}
+	//--------------------------------------------------------------------------------------------------
+	// https://stackoverflow.com/questions/4804298/how-to-convert-wstring-into-string
+	std::wstring toWString(const std::string& s)
+	{
+		using convert_typeX = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_typeX, wchar_t> converterX;
+		
+		return converterX.from_bytes(s);
+	}
 
-		//--------------------------------------------------------------------------------------------------
-		inline std::string getPathFolder(const std::string& path)
-		{
-			auto pos = path.find_last_of("\\/");
-			if (pos != std::string::npos)
-				return path.substr(0, pos+1);
-
-			return "";
-		}
-
-		//--------------------------------------------------------------------------------------------------
-		std::wstring toWString(const std::string& s);
-
-		//--------------------------------------------------------------------------------------------------
-		std::string fromWString(const std::wstring& ws);
+	//--------------------------------------------------------------------------------------------------
+	std::string fromWString(const std::wstring& ws)
+	{
+		using convert_typeX = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_typeX, wchar_t> converterX;
+		
+		return converterX.to_bytes(ws);
 	}
 }

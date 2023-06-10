@@ -56,6 +56,16 @@ namespace rev::gfx
 		// Device, Queues and Commands
 		auto& device() const { return *m_device; }
 
+		struct SwapChainOptions
+		{
+			// refresh rate
+			// vsync?
+			// full screen
+			// Hdr
+		};
+
+		void initSwapChain(SwapChainOptions&);
+
 		// Singleton
 		static bool init(const char* applicationName, GfxAPI backendAPI = GfxAPI::Vulkan);
 		static void end();
