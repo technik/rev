@@ -67,7 +67,7 @@ namespace rev::gfx
 		ImGui_ImplVulkan_InitInfo initInfo{};
 		auto& vkCtxt = static_cast<RenderContextVulkan&>(rc);
 		initInfo.Instance = vkCtxt.vkInstance();
-		initInfo.Device = vkCtxt.device();
+		initInfo.Device = vkCtxt.nativeDevice();
 		initInfo.PhysicalDevice = vkCtxt.physicalDevice();
 		initInfo.Queue = vkCtxt.graphicsQueue();
 		initInfo.QueueFamily = vkCtxt.graphicsQueueFamily();
@@ -75,7 +75,7 @@ namespace rev::gfx
 		initInfo.ImageCount = 2;
 		initInfo.MinImageCount = 2;
 		initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-		initInfo.DescriptorPool = vkCtxt.device().createDescriptorPool(pool_info);
+		initInfo.DescriptorPool = vkCtxt.nativeDevice().createDescriptorPool(pool_info);
 
 		ImGui_ImplVulkan_Init(&initInfo, renderPass);
 

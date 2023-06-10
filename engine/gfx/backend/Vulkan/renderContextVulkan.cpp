@@ -93,7 +93,7 @@ namespace rev::gfx {
 		createLogicalDevice();
 
 		// Init vulkan allocator
-		m_alloc = VulkanAllocator(m_device, m_physicalDevice, m_vkInstance, m_transferQueue, m_queueFamilies.transfer.value());
+		m_alloc = VulkanAllocator(m_vkDevice, m_physicalDevice, m_vkInstance, m_transferQueue, m_queueFamilies.transfer.value());
 
 		return true;
 	}
@@ -298,17 +298,17 @@ namespace rev::gfx {
 		if (!m_physicalDevice.getSurfaceSupportKHR(m_queueFamilies.present.value(), m_surface))
 			return false;
 
-		m_swapchain.init(m_device, m_surface, targetFormat, RenderContext().windowSize(), targetPresentMode, m_queueFamilies.present.value());
+		m_swapchain.init(m_vkDevice, m_surface, targetFormat, RenderContext().windowSize(), targetPresentMode, m_queueFamilies.present.value());
 
 		// Create render sync semaphores
-		m_renderFinishedSemaphore = m_device.createSemaphore({});
-		m_presentLayoutSemaphore = m_device.createSemaphore({});
+		m_renderFinishedSemaphore = m_vkDevice.createSemaphore({});
+		m_presentLayoutSemaphore = m_vkDevice.createSemaphore({});
 
 		// Prepare per frame data
 		m_frameData.reserve(m_swapchain.imageBuffers.size());
 		for (auto& img : m_swapchain.imageBuffers)
 		{
-			m_frameData.emplace_back(m_device, m_queueFamilies.present.value());
+			m_frameData.emplace_back(m_vkDevice, m_queueFamilies.present.value());
 		}
 
 		return true;
@@ -329,12 +329,12 @@ namespace rev::gfx {
 
 		// Specify required extensions
 		vk::DeviceCreateInfo deviceInfo({}, queueCreateInfo, m_layers, m_requiredDeviceExtensions);
-		m_device = m_physicalDevice.createDevice(deviceInfo);
-		assert(m_device);
+		m_vkDevice = m_physicalDevice.createDevice(deviceInfo);
+		assert(m_vkDevice);
 
 		// Retrieve command queues
-		m_gfxQueue = m_device.getQueue(m_queueFamilies.graphics.value(), 0);
-		m_transferQueue = m_device.getQueue(m_queueFamilies.transfer.value(), 0);
+		m_gfxQueue = m_vkDevice.getQueue(m_queueFamilies.graphics.value(), 0);
+		m_transferQueue = m_vkDevice.getQueue(m_queueFamilies.transfer.value(), 0);
 		assert(m_gfxQueue);
 		assert(m_transferQueue);
 	}
@@ -346,14 +346,14 @@ namespace rev::gfx {
 
 		if(m_swapchain.imageBuffers.size() > 0)
 		{
-			m_device.destroySemaphore(m_renderFinishedSemaphore);
-			m_device.destroySemaphore(m_presentLayoutSemaphore);
+			m_vkDevice.destroySemaphore(m_renderFinishedSemaphore);
+			m_vkDevice.destroySemaphore(m_presentLayoutSemaphore);
 
 			for (auto& image : m_swapchain.imageBuffers)
 			{
-				m_device.destroyImageView(image->view());
+				m_vkDevice.destroyImageView(image->view());
 			}
-			m_device.destroySwapchainKHR(m_swapchain.m_vkSwapchain);
+			m_vkDevice.destroySwapchainKHR(m_swapchain.m_vkSwapchain);
 		}
 
 		if(m_surface)
@@ -361,7 +361,7 @@ namespace rev::gfx {
 			m_vkInstance.destroySurfaceKHR(m_surface);
 		}
 
-		m_device.destroy();
+		m_vkDevice.destroy();
 		// Destroy debug messenger
 		if (m_debugMessenger)
 		{
@@ -422,7 +422,7 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	const ImageBuffer& RenderContextVulkan::swapchainAquireNextImage(vk::Semaphore s, vk::CommandBuffer cmd)
 	{
-		auto res = m_device.acquireNextImageKHR(m_swapchain.m_vkSwapchain, uint64_t(-1), s);
+		auto res = m_vkDevice.acquireNextImageKHR(m_swapchain.m_vkSwapchain, uint64_t(-1), s);
 
 		m_swapchain.frameIndex = res.value;
 		return *m_swapchain.currentImage();
@@ -486,7 +486,7 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	math::Vec2u RenderContextVulkan::resizeSwapchain(const math::Vec2u& imageSize)
 	{
-		m_device.waitIdle();
+		m_vkDevice.waitIdle();
 
 		// Find out current device capabilities. Needed to move across different dpi surfaces
 		vk::SurfaceCapabilitiesKHR capabilities;
@@ -552,7 +552,7 @@ namespace rev::gfx {
 
 		auto passInfo = vk::RenderPassCreateInfo({}, attachmentInfo, subpass);
 
-		return m_device.createRenderPass(passInfo);
+		return m_vkDevice.createRenderPass(passInfo);
 	}
 
 	//--------------------------------------------------------------------------------------------------

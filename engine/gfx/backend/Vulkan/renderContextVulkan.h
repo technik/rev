@@ -55,7 +55,7 @@ namespace rev::gfx
 
 		// Device, Queues and Commands
 		auto vkInstance() const { return m_vkInstance; }
-		auto device() const { return m_device; }
+		auto nativeDevice() const { return m_vkDevice; }
 		auto physicalDevice() const { return m_physicalDevice; }
 		auto instance() const { return m_vkInstance; }
 		auto graphicsQueue() const { return m_gfxQueue; }
@@ -95,7 +95,7 @@ namespace rev::gfx
 		// Device
 		vk::Instance m_vkInstance;
 		vk::PhysicalDevice m_physicalDevice;
-		vk::Device m_device;
+		vk::Device m_vkDevice;
 		Properties m_properties;
 		std::vector<const char*> m_requiredDeviceExtensions;
 		std::vector<const char*> m_layers;

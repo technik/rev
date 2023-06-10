@@ -58,9 +58,10 @@ if(REV_BUILD_TOOLS)
 endif()
 
 # Compile sample projects
-add_subdirectory(samples/Pluto)
+add_subdirectory(samples/pluto)
 add_subdirectory(samples/ShaderToy)
-add_subdirectory(samples/GltfViewer)
+add_subdirectory(samples/gltfViewer)
+add_subdirectory(samples/racer)
 
 if(REV_BUILD_TEST)
 	enable_testing()

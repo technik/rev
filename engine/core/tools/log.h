@@ -23,7 +23,7 @@ namespace rev { namespace core {
 
 	__forceinline void LogMessage(std::string_view message)
 	{
-		std::cout << "Error: " << message << std::endl;
+		std::cout << message << std::endl;
 	}
 
 }}	// namespace rev::core

@@ -23,6 +23,7 @@
 #include "Windows/windowsPlatform.h"
 #include <core/platform/osHandler.h>
 #include "./Vulkan/renderContextVulkan.h"
+#include "./DX12/ContextDX12.h"
 
 namespace rev::gfx
 {
@@ -95,11 +96,30 @@ namespace rev::gfx
         {
         case GfxAPI::DX12:
         {
+			auto context12 = new ContextDX12();
+			if (context12->init(true))
+			{
+				s_instance = context12;
+			}
+			else
+			{
+				delete context12;
+				return false;
+			}
             break;
         }
         case GfxAPI::Vulkan:
         {
-			s_instance = new RenderContextVulkan();
+			auto vkContext = new RenderContextVulkan();
+			if (vkContext->initVulkan(appName))
+			{
+				s_instance = vkContext;
+			}
+			else
+			{
+				delete vkContext;
+				return false;
+			}
             break;
         }
         }

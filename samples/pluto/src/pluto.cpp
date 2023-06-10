@@ -71,12 +71,12 @@ namespace rev
 		// Create scene geometry
 		m_sceneRoot = std::make_shared<SceneNode>("scene root");
 		m_opaqueGeometry = std::make_shared<gfx::RasterScene>();
-		float cellSide = 256.f;
-		float cellHeight = 64.f;
+		float cellSide = 64;
+		float cellHeight = 32.f;
 		Vec3f cellHalfSize = Vec3f(cellSide, cellHeight, cellSide);
 		math::AABB cellBounds(-cellHalfSize, cellHalfSize);
-		uint32_t gridSide = 512;
-		uint32_t gridHeight = 64;
+		uint32_t gridSide = 128;
+		uint32_t gridHeight = 32;
 		ProceduralTerrain::generateMarchingCubes(cellBounds, 0.f, gridSide, gridHeight, *m_opaqueGeometry);
 		m_geometryStreamToken = m_opaqueGeometry->m_geometry.closeAndSubmit(RenderContextVk(), RenderContextVk().allocator());
 		m_sceneGraphics.m_opaqueGeometry.push_back(m_opaqueGeometry);

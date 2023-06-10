@@ -56,11 +56,11 @@ namespace rev
 		core::FileSystem::get()->registerPath("shaders");
 
 		// Create semaphore
-		auto device = RenderContextVk().device();
+		auto device = RenderContextVk().nativeDevice();
 		m_imageAvailableSemaphore = device.createSemaphore({});
 
 		m_timeVector = Vec4f::zero();
-		m_frameBuffers = std::make_unique<FrameBufferManager>(RenderContextVk().device());
+		m_frameBuffers = std::make_unique<FrameBufferManager>(RenderContextVk().nativeDevice());
 
 		// Create descriptor layout
 		m_descSetLayout = std::make_shared<DescriptorSetLayout>();
