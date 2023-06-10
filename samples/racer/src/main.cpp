@@ -3,12 +3,12 @@
 // Created by Carmelo J. Fdez-Agüera Tortosa
 //----------------------------------------------------------------------------------------------------------------------
 // Engine's default player's entry point
-#include "pluto.h"
+#include "racer.h"
 
 //--------------------------------------------------------------------------------------------------------------
 int main(int _argc, const char** _argv)
 {
-	rev::Pluto game;
+	rev::Racer game;
 	game.run(_argc, _argv);
 
 	return 0;

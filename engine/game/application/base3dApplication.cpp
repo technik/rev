@@ -26,6 +26,9 @@
 #include <core/platform/fileSystem/fileSystem.h>
 #include <core/platform/osHandler.h>
 
+#include <gfx/backend/Context.h>
+#include <gfx/backend/Vulkan/renderContextVulkan.h>
+
 #include <input/pointingInput.h>
 #include <input/keyboard/keyboardInput.h>
 
@@ -40,6 +43,7 @@ namespace rev::game {
 		args.addOption("w", &windowSize.x());
 		args.addOption("h", &windowSize.y());
 		args.addFlag("fullscreen", fullScreen);
+		args.addFlag("dx12", useDX12);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -59,7 +63,7 @@ namespace rev::game {
 		arguments.parse(argc, argv);
 		// Init engine
 		initEngineCore();
-		if (!initGraphics())
+		if (!initGraphics(m_options.useDX12))
 			return;
 		// Init application
 		init();
@@ -122,9 +126,9 @@ namespace rev::game {
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Base3dApplication::initGraphics()
+	bool Base3dApplication::initGraphics(bool useDX12)
 	{
-		if (!Context::init(name().c_str(), Context::GfxAPI::Vulkan))
+		if (!Context::init(name().c_str(), useDX12 ? Context::GfxAPI::DX12 : Context::GfxAPI::Vulkan))
 		{
 			return false;
 		}

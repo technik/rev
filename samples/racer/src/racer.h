@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
 // Revolution Engine
 //--------------------------------------------------------------------------------------------------
-// Copyright 2019 Carmelo J Fdez-Aguera
+// Copyright 2021 Carmelo J Fdez-Aguera
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,70 +19,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include <math/algebra/vector.h>
-#include <gfx/backend/Context.h>
-#include <chrono>
-#include <memory>
+#include <game/application/base3dApplication.h>
 
-namespace rev::core {
-	class CmdLineParser;
-}
+namespace rev {
 
-namespace rev::gfx {
-	class Device;
-}
+	namespace game {
+		class FlyBy;
+		class Orbit;
+	}
 
-namespace rev::game {
-
-	class Base3dApplication
+	class Racer : public game::Base3dApplication
 	{
-	protected:
-		Base3dApplication() = default;
-		using TimeDelta = std::chrono::duration<float>;
+	public:
+		virtual std::string name() { return "Racer"; }
+
+		Racer() = default;
+
+	private:
 
 		struct CommandLineOptions
 		{
-			math::Vec2i windowPosition { 100, 150 };
-			math::Vec2u windowSize { 640, 480 };
-			bool fullScreen{ false };
-			bool useDX12 = false;
-
 			void registerOptions(core::CmdLineParser&);
-		};
+		} m_options;
 
-		const CommandLineOptions& initOptions() const { m_options; }
-
-	public:
-		virtual ~Base3dApplication();
-		virtual std::string name() { return "rev application"; }
-
-		void run(int argc, const char** argv);
-
-	protected:
-		const math::Vec2u& windowSize() const;
-
-	private: // Extension interface
+		// Extension interface
 		// Life cycle
-		virtual void getCommandLineOptions(core::CmdLineParser&) {}
-		virtual bool init() { return true; }
-		virtual void end() {}
+		void getCommandLineOptions(core::CmdLineParser&) override;
+		bool init() override;
+		void end() override;
 		// Main loop
-		virtual bool updateLogic(TimeDelta logicDt) = 0;
-		virtual void render(TimeDelta renderDt) = 0;
+		bool updateLogic(TimeDelta logicDt) override;
+		void render(TimeDelta renderDt) override;
 		// Events
-		virtual void onResize() {}
+		void onResize() override;
 
 	private:
-		Base3dApplication(const Base3dApplication&) = delete;
-		Base3dApplication& operator=(const Base3dApplication&) = delete;
-
-		void initEngineCore();
-		bool initGraphics(bool useDX12);
-
-	private:
-		std::chrono::high_resolution_clock m_appTime;
-		CommandLineOptions m_options;
-		gfx::Context::ResizeDelegate m_resizeDelegate;
 	};
 
-}
+}	// namespace rev

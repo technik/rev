@@ -36,6 +36,7 @@ target_include_directories(revGfx PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_include_directories (revGfx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} "../include")
 target_link_libraries(revGfx LINK_PRIVATE revMath revCore ImGui)
 target_link_libraries(revGfx LINK_PRIVATE ${Vulkan_LIBRARY})
+target_link_libraries(revGfx LINK_PRIVATE "d3d12.lib" "dxgi.lib" "d3dcompiler.lib")
 set_target_properties(revGfx PROPERTIES FOLDER rev)
 
 # game
