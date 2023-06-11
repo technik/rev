@@ -39,5 +39,6 @@ namespace rev::gfx
         bool initLogicalDevice(bool breakOnValidation);
 
         ComPtr<IDXGIAdapter4> m_dxgiAdapter;
+        ComPtr<IDXGIFactory6> m_dxgiFactory;
     };
 }

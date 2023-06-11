@@ -49,20 +49,18 @@ namespace rev::gfx
     bool ContextDX12::initPhysicalDevice(bool useValidationLayers)
     {
         // Create device factory
-        ComPtr<IDXGIFactory6> dxgiFactory;
-
         UINT factoryFlags = 0;
         if (useValidationLayers)
         {
             factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
 
-        CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&dxgiFactory));
+        CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&m_dxgiFactory));
 
         // Iterate over available adapters
         ComPtr<IDXGIAdapter1> dxgiAdapter;
         
-        if(dxgiFactory->EnumAdapterByGpuPreference(0,
+        if(m_dxgiFactory->EnumAdapterByGpuPreference(0,
             DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
             IID_PPV_ARGS(&dxgiAdapter)) == DXGI_ERROR_NOT_FOUND)
         {
