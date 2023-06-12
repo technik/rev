@@ -26,6 +26,7 @@
 namespace rev::gfx
 {
 	class Device;
+	class CommandQueue;
 
 	// A graphics context is an API independent utility for grouping low level graphics infrastructure
 	class Context
@@ -38,15 +39,25 @@ namespace rev::gfx
 			Vulkan
 		};
 
+		struct SwapChainOptions
+		{
+			bool vSync;
+			bool hdr;
+			bool fullScreen;
+			// refresh rate?
+		};
+
 		// Window management
 		// If full screen is enabled, size and position will be updated to
 		// the actual screen resolution and position used
-		void createWindow(
+		bool createWindow(
 			math::Vec2i& position,
 			math::Vec2u& size,
 			const char* name,
-			bool fullScreen,
-			bool showCursor);
+			bool showCursor,
+			SwapChainOptions& swapChainDesc);
+
+		void destroyWindow() {} // TODO
 
 		auto nativeWindow() const { return m_nativeWindowHandle; }
 		const math::Vec2u& windowSize() const { return m_windowSize; }
@@ -56,22 +67,27 @@ namespace rev::gfx
 		// Device, Queues and Commands
 		auto& device() const { return *m_device; }
 
-		struct SwapChainOptions
-		{
-			// refresh rate
-			// vsync?
-			// full screen
-			// Hdr
-		};
-
-		void initSwapChain(SwapChainOptions&);
+		virtual CommandQueue& GfxQueue() const = 0;
+		virtual CommandQueue& AsyncComputeQueue() const = 0;
+		virtual CommandQueue& CopyQueue() const = 0;
 
 		// Singleton
-		static bool init(const char* applicationName, GfxAPI backendAPI = GfxAPI::Vulkan);
-		static void end();
+		static bool initSingleton(const char* applicationName, GfxAPI backendAPI = GfxAPI::Vulkan);
+		static void endSingleton();
+
 		__forceinline static Context* singleton() { return s_instance; }
 
+		struct DeviceInfo
+		{
+			std::string name;
+			size_t dediactedVideoMemory = 0;
+			bool vSyncOffSupport = false;
+		};
+
+		const DeviceInfo& deviceInfo() const { return m_deviceInfo; }
+
 	protected:
+		virtual void end() = 0;
 
 		virtual ~Context()
 		{
@@ -83,6 +99,14 @@ namespace rev::gfx
 		{
 			assert(!s_instance);
 		}
+
+		virtual bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) = 0;
+		virtual math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) = 0; // Returns the actual size the swapchain was resized to
+		virtual void destroySwapChain() = 0;
+
+		// API device
+		Device* m_device = nullptr;
+		DeviceInfo m_deviceInfo;
 
 	private:
 
@@ -96,9 +120,6 @@ namespace rev::gfx
 		void* m_nativeWindowHandle {}; // HWND is internally a regular pointer, so we use one here to avoid including windows headers in an engine header
 		core::Event<math::Vec2u> m_onResize;
 		math::Vec2u m_windowSize{ 0, 0 };
-
-		// API device
-		Device* m_device = nullptr;
 	};
 
 	__forceinline Context& RenderContext()

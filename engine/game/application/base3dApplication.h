@@ -79,6 +79,8 @@ namespace rev::game {
 		void initEngineCore();
 		bool initGraphics(bool useDX12);
 
+		void endGraphics();
+
 	private:
 		std::chrono::high_resolution_clock m_appTime;
 		CommandLineOptions m_options;

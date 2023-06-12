@@ -19,6 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
+#include "CommandQueue.h"
+
 namespace rev::gfx
 {
 	// Entry point to the graphics API
@@ -33,6 +35,8 @@ namespace rev::gfx
 		};
 
 		virtual ~Device() {};
+
+		virtual CommandQueue* createCommandQueue(CommandQueue::Info) = 0;
 	};
 
 } // namespace rev::gfx

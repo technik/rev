@@ -104,9 +104,12 @@ namespace rev::game {
 			accumTime = std::min(maxCarryOverTime, accumTime); // Clamp max carry over
 			lastTime = t;
 		}
+
 		// Wait for the GPU to catch up before destroying stuff
-		RenderContextVk().nativeDevice().waitIdle();
-		end();
+		end(); // End derived application
+
+		// Shutdown systems
+		endGraphics();
 		core::FileSystem::end();
 	}
 
@@ -128,18 +131,34 @@ namespace rev::game {
 	//------------------------------------------------------------------------------------------------
 	bool Base3dApplication::initGraphics(bool useDX12)
 	{
-		if (!Context::init(name().c_str(), useDX12 ? Context::GfxAPI::DX12 : Context::GfxAPI::Vulkan))
+		if (!Context::initSingleton(name().c_str(), useDX12 ? Context::GfxAPI::DX12 : Context::GfxAPI::Vulkan))
 		{
 			return false;
 		}
 
-		RenderContext().createWindow(
+		Context::SwapChainOptions swpOptions{};
+		swpOptions.fullScreen = m_options.fullScreen;
+		swpOptions.vSync = true;
+
+		if (RenderContext().createWindow(
 			m_options.windowPosition, m_options.windowSize,
 			name().c_str(),
-			m_options.fullScreen, true);
+			true, 
+			swpOptions))
+		{
+			m_resizeDelegate = RenderContext().onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
-		m_resizeDelegate = RenderContext().onResize() += [this](math::Vec2u imgSize) { this->onResize(); };
-
-		return RenderContextVk().createSwapchain(true);
+	//------------------------------------------------------------------------------------------------
+	void Base3dApplication::endGraphics()
+	{
+		RenderContext().destroyWindow();
+		Context::endSingleton();
 	}
 }

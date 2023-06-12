@@ -17,46 +17,44 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
+#include "CommandQueueDX12.h"
 
-#include "../Context.h"
-
-#include <dxgi1_6.h>
-#include <wrl.h>
-
-template<class T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include "dx12Util.h"
 
 namespace rev::gfx
 {
-    class CommandQueueDX12;
-    class DeviceDX12;
-
-    class ContextDX12 : public Context
+    CommandQueueDX12::CommandQueueDX12(ID3D12Device2& device, Info info)
     {
-    public:
-        bool init(bool useValidationLayers);
-        void end() override;
+        D3D12_COMMAND_QUEUE_DESC desc = {};
+        switch (info.type)
+        {
+        case Type::Graphics:
+            desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            break;
+        case Type::Compute:
+            desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+            break;
+        case Type::Copy:
+            desc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+            break;
+        }
 
-        CommandQueue& GfxQueue() const override;
-        CommandQueue& AsyncComputeQueue() const override;
-        CommandQueue& CopyQueue() const override;
+        switch (info.priority)
+        {
+        case Priority::RealTime:
+            desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
+            break;
+        case Priority::High:
+            desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+            break;
+        case Priority::Normal:
+            desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+            break;
+        }
 
-        bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) override;
-        math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // returns the actual size the swapchain was resized to
-        void destroySwapChain() override;
+        desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+        desc.NodeMask = 0;
 
-    private:        
-        bool initPhysicalDevice(bool useValidationLayers);
-        bool initLogicalDevice(bool breakOnValidation);
-
-        ComPtr<IDXGIAdapter4> m_dxgiAdapter;
-        ComPtr<IDXGIFactory6> m_dxgiFactory;
-
-        CommandQueueDX12* m_GfxQueue{};
-        CommandQueueDX12* m_AsyncComputeQueue{};
-        CommandQueueDX12* m_CopyQueue{};
-
-        DeviceDX12* m_device12{};
-    };
+        ThrowIfFailed(device.CreateCommandQueue(&desc, IID_PPV_ARGS(&m_d3d12CommandQueue)));
+    }
 }

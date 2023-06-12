@@ -43,8 +43,10 @@ namespace rev::gfx
 			uint32_t numLayers = 0, const char** layerNames = nullptr);
 
 		// Swapchain
-		bool createSwapchain(bool vSync);
-		math::Vec2u resizeSwapchain(const math::Vec2u& imageSize); // Returns the actual size the swapchain was resized to
+		bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) override;
+		math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // Returns the actual size the swapchain was resized to
+		void destroySwapChain() override {};
+
 		auto& swapchainImageView(size_t i) const { return *m_swapchain.imageBuffers[i]; }
 		auto nSwapChainImages() const { return m_swapchain.imageBuffers.size(); }
 		const ImageBuffer& swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
@@ -79,11 +81,15 @@ namespace rev::gfx
 
 		const Properties properties() const { m_properties; }
 
+		CommandQueue& GfxQueue() const override;
+		CommandQueue& AsyncComputeQueue() const override;
+		CommandQueue& CopyQueue() const override;
+
 	private:
+		void end() override {}
 		bool createInstance(const char* applicationName);
 		void getPhysicalDevice();
 		void initSurface();
-		bool initSwapChain(bool vSync);
 		void createLogicalDevice();
 		void deinit();
 

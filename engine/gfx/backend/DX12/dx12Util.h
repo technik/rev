@@ -19,44 +19,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "../Context.h"
-
+#include "d3dx12.h"
 #include <dxgi1_6.h>
 #include <wrl.h>
+#include <exception>
 
 template<class T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-namespace rev::gfx
+// From DXSampleHelper.h 
+// Source: https://github.com/Microsoft/DirectX-Graphics-Samples
+inline void ThrowIfFailed(HRESULT hr)
 {
-    class CommandQueueDX12;
-    class DeviceDX12;
-
-    class ContextDX12 : public Context
-    {
-    public:
-        bool init(bool useValidationLayers);
-        void end() override;
-
-        CommandQueue& GfxQueue() const override;
-        CommandQueue& AsyncComputeQueue() const override;
-        CommandQueue& CopyQueue() const override;
-
-        bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) override;
-        math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // returns the actual size the swapchain was resized to
-        void destroySwapChain() override;
-
-    private:        
-        bool initPhysicalDevice(bool useValidationLayers);
-        bool initLogicalDevice(bool breakOnValidation);
-
-        ComPtr<IDXGIAdapter4> m_dxgiAdapter;
-        ComPtr<IDXGIFactory6> m_dxgiFactory;
-
-        CommandQueueDX12* m_GfxQueue{};
-        CommandQueueDX12* m_AsyncComputeQueue{};
-        CommandQueueDX12* m_CopyQueue{};
-
-        DeviceDX12* m_device12{};
-    };
+	if (FAILED(hr))
+	{
+		throw std::exception();
+	}
 }

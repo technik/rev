@@ -20,12 +20,28 @@
 #pragma once
 
 #include "../Device.h"
+#include "../Context.h"
+
+#include "dx12Util.h"
 
 namespace rev::gfx
 {
+    class CommandQueueDX12;
+
     class DeviceDX12 : public Device
     {
     public:
-        //
+        bool init(IDXGIAdapter4* physicalDevice, bool breakOnValidation);
+        void end() {}
+        ComPtr<IDXGISwapChain4> initSwapChain(void* nativeWindowHandle,
+            const math::Vec2u& resolution,
+            IDXGIFactory6& dxgiFactory,
+            CommandQueueDX12& commandQueue,
+            const Context::SwapChainOptions& swapChainOptions);
+
+        CommandQueue* createCommandQueue(CommandQueue::Info) override;
+
+    private:
+        ComPtr<ID3D12Device2> m_d3d12Device;
     };
 }

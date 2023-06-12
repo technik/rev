@@ -98,15 +98,6 @@ namespace rev::gfx {
 		return true;
 	}
 
-	bool RenderContextVulkan::createSwapchain(bool vSync)
-	{
-		if (!RenderContext().nativeWindow())
-			return false;
-		
-		initSurface();
-		return initSwapChain(vSync);
-	}
-
 	//--------------------------------------------------------------------------------------------------
 	bool RenderContextVulkan::createInstance(const char* applicationName)
 	{
@@ -192,6 +183,14 @@ namespace rev::gfx {
 
 		assert(m_physicalDevice);
 		m_queueFamilies = getDeviceQueueFamilies(m_physicalDevice);
+
+		m_deviceInfo.dediactedVideoMemory = maxDiscreteMemorySize;
+
+		// Check VSync support here
+		m_deviceInfo.vSyncOffSupport = false;
+		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
+		if (std::find(presentModes.begin(), presentModes.end(), vk::PresentModeKHR::eImmediate) != presentModes.end())
+			m_deviceInfo.vSyncOffSupport = true;
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -274,7 +273,7 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	bool RenderContextVulkan::initSwapChain(bool vSync)
+	bool RenderContextVulkan::createSwapChain(const SwapChainOptions& swapChainDesc, const math::Vec2u& imageSize)
 	{
 		// sRGB support here
 		auto surfaceFormats = m_physicalDevice.getSurfaceFormatsKHR(m_surface);
@@ -288,17 +287,13 @@ namespace rev::gfx {
 				return false;
 		}
 
-		// Check VSync support here
-		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
-		auto targetPresentMode = vSync ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eImmediate;
-		if (std::find(presentModes.begin(), presentModes.end(), targetPresentMode) == presentModes.end())
-			return false;
-
 		// Must check device support before attempting to create the surface
 		if (!m_physicalDevice.getSurfaceSupportKHR(m_queueFamilies.present.value(), m_surface))
 			return false;
 
+		auto targetPresentMode = swapChainDesc.vSync ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eImmediate;
 		m_swapchain.init(m_vkDevice, m_surface, targetFormat, RenderContext().windowSize(), targetPresentMode, m_queueFamilies.present.value());
+
 
 		// Create render sync semaphores
 		m_renderFinishedSemaphore = m_vkDevice.createSemaphore({});
@@ -484,7 +479,7 @@ namespace rev::gfx {
 	}
 
 	//--------------------------------------------------------------------------------------------------
-	math::Vec2u RenderContextVulkan::resizeSwapchain(const math::Vec2u& imageSize)
+	math::Vec2u RenderContextVulkan::resizeSwapChain(const math::Vec2u& imageSize)
 	{
 		m_vkDevice.waitIdle();
 

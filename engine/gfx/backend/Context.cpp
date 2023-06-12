@@ -25,19 +25,21 @@
 #include "./Vulkan/renderContextVulkan.h"
 #include "./DX12/ContextDX12.h"
 
+#include <iostream>
+
 namespace rev::gfx
 {
     //------------------------------------------------------------------------------------------------------------------
-    void Context::createWindow(
+    bool Context::createWindow(
         math::Vec2i& position,
         math::Vec2u& size,
         const char* name,
-        bool fullScreen,
-        bool showCursor)
+		bool showCursor,
+		SwapChainOptions& swapChainDesc)
 	{
 		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 
-		if (fullScreen)
+		if (swapChainDesc.fullScreen)
 		{
 			size = {
 				(uint32_t)GetSystemMetrics(SM_CXSCREEN),
@@ -47,18 +49,20 @@ namespace rev::gfx
 		auto wnd = rev::gfx::createWindow(
 			position, size,
 			name,
-			fullScreen, showCursor, true);
+			swapChainDesc.fullScreen, showCursor, true);
 		m_windowSize = size;
 		m_nativeWindowHandle = wnd;
 
 		// Hook up window resizing callback
-		*core::OSHandler::get() += [&](MSG _msg) {
+		*core::OSHandler::get() += [wnd,this](MSG _msg) {
 			if (_msg.message == WM_SIZING || _msg.message == WM_SIZE)
 			{
 				// Get new rectangle size without borders
 				RECT clientSurface;
 				GetClientRect(_msg.hwnd, &clientSurface);
 				m_windowSize = math::Vec2u(clientSurface.right, clientSurface.bottom);
+
+				m_windowSize = resizeSwapChain(m_windowSize);
 
 				m_onResize(m_windowSize);
 				return true;
@@ -77,16 +81,20 @@ namespace rev::gfx
 					m_windowSize.y(),
 					SWP_NOZORDER | SWP_NOACTIVATE);
 
+				m_windowSize = resizeSwapChain(m_windowSize);
+
 				m_onResize(m_windowSize);
 				return true;
 			}
 
 			return false;
 		};
+
+		return createSwapChain(swapChainDesc, m_windowSize);
 	}
 
     //------------------------------------------------------------------------------------------------------------------
-    bool Context::init(const char* appName, GfxAPI backendAPI)
+    bool Context::initSingleton(const char* appName, GfxAPI backendAPI)
     {
         // init the singleton
         assert(!s_instance); // Trying to initialize multiple times
@@ -124,12 +132,26 @@ namespace rev::gfx
         }
         }
 
+		// Dump device info
+		std::cout << "Using graphics adapter: " << s_instance->m_deviceInfo.name << "\n";
+
+		size_t GB = s_instance->m_deviceInfo.dediactedVideoMemory >> 30;
+		size_t MB = s_instance->m_deviceInfo.dediactedVideoMemory >> 20 & 0x3ff;
+
+		std::cout << "Dedicated video memory:";
+		if (GB > 0) std::cout << " " << GB << "GB";
+		if (MB > 0) std::cout << " " << MB << "MB";
+		std::cout << "\n";
+		std::cout << "Supports unlocked framerate: " << s_instance->m_deviceInfo.vSyncOffSupport << "\n";
+
 		return true;
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    void Context::end()
+    void Context::endSingleton()
     {
+		s_instance->end();
+
         delete s_instance->m_device;
 
         // clear the singleton

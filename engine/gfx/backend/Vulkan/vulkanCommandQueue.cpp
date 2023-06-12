@@ -17,46 +17,14 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#pragma once
-
-#include "../Context.h"
-
-#include <dxgi1_6.h>
-#include <wrl.h>
-
-template<class T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include "vulkanCommandQueue.h"
 
 namespace rev::gfx
 {
-    class CommandQueueDX12;
-    class DeviceDX12;
+    //-----------------------------------------------------------------------------------------------
+    VulkanCommandQueue::VulkanCommandQueue(
+        uint32_t queueFamily
+    ) : m_queueFamily(queueFamily)
+    {}
 
-    class ContextDX12 : public Context
-    {
-    public:
-        bool init(bool useValidationLayers);
-        void end() override;
-
-        CommandQueue& GfxQueue() const override;
-        CommandQueue& AsyncComputeQueue() const override;
-        CommandQueue& CopyQueue() const override;
-
-        bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) override;
-        math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // returns the actual size the swapchain was resized to
-        void destroySwapChain() override;
-
-    private:        
-        bool initPhysicalDevice(bool useValidationLayers);
-        bool initLogicalDevice(bool breakOnValidation);
-
-        ComPtr<IDXGIAdapter4> m_dxgiAdapter;
-        ComPtr<IDXGIFactory6> m_dxgiFactory;
-
-        CommandQueueDX12* m_GfxQueue{};
-        CommandQueueDX12* m_AsyncComputeQueue{};
-        CommandQueueDX12* m_CopyQueue{};
-
-        DeviceDX12* m_device12{};
-    };
-}
+} // rev::gfx

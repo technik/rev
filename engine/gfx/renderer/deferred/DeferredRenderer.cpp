@@ -87,12 +87,11 @@ namespace rev::gfx
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
-	void DeferredRenderer::onResize(const math::Vec2u& intendedSize)
+	void DeferredRenderer::onResize(const math::Vec2u& newSize)
 	{
-		if (intendedSize.x() == 0 || intendedSize.y() == 0)
+		if (newSize.x() == 0 || newSize.y() == 0)
 			return; // Avoid recreating an empty swap chain
 
-		m_windowSize = m_ctxt->resizeSwapchain(intendedSize);
 		createRenderTargets();
 		
 		// Update render passes

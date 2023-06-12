@@ -27,7 +27,7 @@ namespace rev::gfx
 	class DeviceVulkan : public Device
 	{
 	public:
-		bool init();
+		CommandQueue* createCommandQueue(CommandQueue::Info) override;
 	};
 
 } // namespace rev::gfx

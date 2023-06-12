@@ -19,15 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ContextDX12.h"
 
-#include "d3dx12.h"
-#include <dxgi1_6.h>
-
-#include <wrl.h>
 #include <core/tools/log.h>
 #include <core/string_util.h>
 
-template<class T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include "CommandQueueDX12.h"
+#include "DeviceDX12.h"
 
 namespace rev::gfx
 {
@@ -43,7 +39,29 @@ namespace rev::gfx
             return false;
         }
 
+        // Create command queues
+        m_GfxQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Graphics, CommandQueue::Priority::RealTime }));
+        m_AsyncComputeQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Compute, CommandQueue::Priority::High }));
+        m_CopyQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Copy, CommandQueue::Priority::Normal }));
+
         return true;
+    }
+
+    void ContextDX12::end()
+    {
+        // TODO
+        // Assert no pending swapchains (or end them?)
+        // Assert no pending work on queues (or wait?)
+        // Destroy command queues
+        delete m_GfxQueue;
+        delete m_AsyncComputeQueue;
+        delete m_CopyQueue;
+        
+        // Shutdown device
+        m_device12->end();
+        delete m_device12;
+        m_device12 = nullptr;
+        m_device = nullptr; // Clean base class accessor
     }
 
     bool ContextDX12::initPhysicalDevice(bool useValidationLayers)
@@ -79,85 +97,41 @@ namespace rev::gfx
         m_dxgiAdapter->GetDesc2(&adapterDesc);
 
         // Report device information
-        std::cout << "Using graphics adapter: " << core::fromWString(adapterDesc.Description) << "\n";
-
-        size_t videoMemory = adapterDesc.DedicatedVideoMemory;
-        size_t GB = videoMemory >> 30;
-        size_t MB = videoMemory >> 20 & 0x3ff;
-
-        std::cout << "Dedicated video memory:";
-        if (GB > 0) std::cout << " " << GB << "GB";
-        if (MB > 0) std::cout << " " << MB << "MB";
-        std::cout << "\n";
+        m_deviceInfo.name = core::fromWString(adapterDesc.Description);
+        m_deviceInfo.dediactedVideoMemory = adapterDesc.DedicatedVideoMemory;
+        
+        // Check for vSync off support
+        bool allowTearing = false;
+        if (FAILED(m_dxgiFactory->CheckFeatureSupport(
+            DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+            &allowTearing, sizeof(allowTearing))))
+        {
+            allowTearing = FALSE;
+        }
+        m_deviceInfo.vSyncOffSupport = allowTearing;
 
         return true;
     }
 
     bool ContextDX12::initLogicalDevice(bool breakOnValidation)
     {
-        if (breakOnValidation)
+        m_device12 = new DeviceDX12();
+        if (!m_device12->init(m_dxgiAdapter.Get(), breakOnValidation))
         {
-
-            ComPtr<ID3D12Debug> spDebugController0;
-            ComPtr<ID3D12Debug1> spDebugController1;
-            if (!SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0))))
-            {
-                return false;
-            }
-            if (!SUCCEEDED(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1))))
-            {
-                return false;
-            }
-            spDebugController1->SetEnableGPUBasedValidation(true);
-            spDebugController1->EnableDebugLayer();
-        }
-
-        ComPtr<ID3D12Device2> d3d12Device;
-        auto hRes = D3D12CreateDevice(m_dxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&d3d12Device));
-        if (!SUCCEEDED(hRes))
-        {
+            delete m_device12;
             return false;
         }
 
-        if (breakOnValidation)
-        {
-            ComPtr<ID3D12InfoQueue> pInfoQueue;
-            if (SUCCEEDED(d3d12Device->QueryInterface(IID_PPV_ARGS(&pInfoQueue))))
-            {
-                pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-                pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-                pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
-
-                //D3D12_MESSAGE_CATEGORY Categories[] = {};
-                D3D12_MESSAGE_SEVERITY Severities[] =
-                {
-                    D3D12_MESSAGE_SEVERITY_INFO
-                };
-
-                // Suppress individual messages by their ID
-                //D3D12_MESSAGE_ID DenyIds[] = {};
-
-                D3D12_INFO_QUEUE_FILTER NewFilter = {};
-                //NewFilter.DenyList.NumCategories = _countof(Categories);
-                //NewFilter.DenyList.pCategoryList = Categories;
-                NewFilter.DenyList.NumSeverities = _countof(Severities);
-                NewFilter.DenyList.pSeverityList = Severities;
-                //NewFilter.DenyList.NumIDs = _countof(DenyIds);
-                //NewFilter.DenyList.pIDList = DenyIds;
-
-                if (!SUCCEEDED(pInfoQueue->PushStorageFilter(&NewFilter)))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                std::cout << "Unable to set dx12 validation\n";
-
-                return true;
-            }
-        }
-
         return true;
+    }
+
+    //------------------------------------------------------------------------------------
+    bool ContextDX12::createSwapChain(const SwapChainOptions& desc, const math::Vec2u& imageSize)
+    {
+        return m_device12->initSwapChain(nativeWindow(),
+            imageSize,
+            *m_dxgiFactory.Get(),
+            *m_GfxQueue,
+            desc);
     }
 }
