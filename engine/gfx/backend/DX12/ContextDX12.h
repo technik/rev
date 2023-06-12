@@ -20,6 +20,7 @@
 #pragma once
 
 #include "../Context.h"
+#include "CommandQueueDX12.h"
 
 #include <dxgi1_6.h>
 #include <wrl.h>
@@ -29,7 +30,6 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace rev::gfx
 {
-    class CommandQueueDX12;
     class DeviceDX12;
 
     class ContextDX12 : public Context
@@ -38,13 +38,13 @@ namespace rev::gfx
         bool init(bool useValidationLayers);
         void end() override;
 
-        CommandQueue& GfxQueue() const override;
-        CommandQueue& AsyncComputeQueue() const override;
-        CommandQueue& CopyQueue() const override;
+        CommandQueue& GfxQueue() const override { return *m_GfxQueue; }
+        CommandQueue& AsyncComputeQueue() const override { return *m_AsyncComputeQueue; }
+        CommandQueue& CopyQueue() const override { return *m_CopyQueue; }
 
         bool createSwapChain(const SwapChainOptions&, const math::Vec2u& imageSize) override;
-        math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // returns the actual size the swapchain was resized to
-        void destroySwapChain() override;
+        math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override { return imageSize; } // returns the actual size the swapchain was resized to
+        void destroySwapChain() override {}
 
     private:        
         bool initPhysicalDevice(bool useValidationLayers);
