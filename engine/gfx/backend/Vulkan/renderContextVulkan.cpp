@@ -22,6 +22,7 @@
 #include <Windows.h>
 
 #include "renderContextVulkan.h"
+#include "vulkanCommandQueue.h"
 #include "../Windows/windowsPlatform.h"
 #include <core/platform/osHandler.h>
 
@@ -93,7 +94,7 @@ namespace rev::gfx {
 		createLogicalDevice();
 
 		// Init vulkan allocator
-		m_alloc = VulkanAllocator(m_vkDevice, m_physicalDevice, m_vkInstance, m_transferQueue, m_queueFamilies.transfer.value());
+		m_alloc = VulkanAllocator(m_vkDevice, m_physicalDevice, m_vkInstance, m_transferQueue->nativeQueue(), m_queueFamilies.transfer.value());
 
 		return true;
 	}
@@ -190,7 +191,9 @@ namespace rev::gfx {
 		m_deviceInfo.vSyncOffSupport = false;
 		auto presentModes = m_physicalDevice.getSurfacePresentModesKHR(m_surface);
 		if (std::find(presentModes.begin(), presentModes.end(), vk::PresentModeKHR::eImmediate) != presentModes.end())
+		{
 			m_deviceInfo.vSyncOffSupport = true;
+		}
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -313,14 +316,13 @@ namespace rev::gfx {
 	void RenderContextVulkan::createLogicalDevice()
 	{
 		constexpr float TopPriority = 1.f;
+		constexpr float AsyncPriority = 0.5f;
 		constexpr float LowPriority = 0.f;
 		// Create one graphics queue with full priority
 		auto graphicsQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.graphics.value(), 1, &TopPriority);
+		auto asyncQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.compute.value(), 1, &AsyncPriority);
 		auto transferQueues = vk::DeviceQueueCreateInfo({}, m_queueFamilies.transfer.value(), 1, &LowPriority);
-		// TODO: Add dedicated queues for transfer and async compute, etc (maybe more than one)
-		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues };
-		if (m_queueFamilies.graphics.value() != m_queueFamilies.transfer.value())
-			queueCreateInfo.push_back(transferQueues);
+		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfo = { graphicsQueues, asyncQueues, transferQueues };
 
 		// Specify required extensions
 		vk::DeviceCreateInfo deviceInfo({}, queueCreateInfo, m_layers, m_requiredDeviceExtensions);
@@ -328,15 +330,22 @@ namespace rev::gfx {
 		assert(m_vkDevice);
 
 		// Retrieve command queues
-		m_gfxQueue = m_vkDevice.getQueue(m_queueFamilies.graphics.value(), 0);
-		m_transferQueue = m_vkDevice.getQueue(m_queueFamilies.transfer.value(), 0);
+		// TODO: How do we know these are the right indices? indices into the descs? indices into each family?
+		m_gfxQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.graphics.value(), 0));
+		m_computeQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.compute.value(), 0));
+		m_transferQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.transfer.value(), 0));
 		assert(m_gfxQueue);
+		assert(m_computeQueue);
 		assert(m_transferQueue);
 	}
 
 	//--------------------------------------------------------------------------------------------------
 	void RenderContextVulkan::deinit()
 	{
+		delete m_gfxQueue;
+		delete m_computeQueue;
+		delete m_transferQueue;
+
 		m_frameData.clear(); // Free vulkan objects used per frame
 
 		if(m_swapchain.imageBuffers.size() > 0)
@@ -471,7 +480,8 @@ namespace rev::gfx {
 			1, &m_renderFinishedSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &m_presentLayoutSemaphore); // signal
-		m_gfxQueue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
+		assert(false, "unimplemented");
+		//m_gfxQueue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
 
 		// Present image 
 		auto presentInfo = vk::PresentInfoKHR(
@@ -479,8 +489,9 @@ namespace rev::gfx {
 			1, &m_swapchain.m_vkSwapchain,
 			&m_swapchain.frameIndex);
 
-		auto res = m_gfxQueue.presentKHR(presentInfo);
-		assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
+		assert(false, "unimplemented");
+		//auto res = m_gfxQueue.presentKHR(presentInfo);
+		//assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
 
 		// Prepare next frame data for use
 		m_frameDataNdx++;
@@ -573,7 +584,26 @@ namespace rev::gfx {
 			0, nullptr, nullptr, // wait
 			1, &cmd, // commands
 			0, nullptr); // signal
-		graphicsQueue().submit(submitInfo);
+		assert(false, "unimplemented");
+		//graphicsQueue().submit(submitInfo);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	CommandQueue& RenderContextVulkan::GfxQueue() const
+	{
+		return *m_gfxQueue;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	CommandQueue& RenderContextVulkan::AsyncComputeQueue() const
+	{
+		return *m_computeQueue;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	CommandQueue& RenderContextVulkan::CopyQueue() const
+	{
+		return *m_transferQueue;
 	}
 
 	//--------------------------------------------------------------------------------------------------

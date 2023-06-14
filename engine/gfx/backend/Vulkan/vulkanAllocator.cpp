@@ -25,6 +25,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "renderContextVulkan.h"
+#include "vulkanCommandQueue.h"
 #include <gfx/Image.h>
 
 #include <chrono>
@@ -247,7 +248,7 @@ namespace rev::gfx {
 
 		// Transition image to copyDst
 		{
-			auto scopedCmd = rc.getScopedCmdBuffer(rc.graphicsQueue());
+			auto scopedCmd = rc.getScopedCmdBuffer(static_cast<VulkanCommandQueue&>(rc.GfxQueue()).nativeQueue());
 			transitionImageLayout(scopedCmd.cmd, image->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, false);
 
 			// Copy texture data to it through a staging buffer

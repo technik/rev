@@ -28,6 +28,7 @@
 #include <imgui/backends/imgui_impl_win32.h>
 
 #include <core/platform/osHandler.h>
+#include <gfx/backend/Vulkan/vulkanCommandQueue.h>
 
 // Imgui windows handler
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -69,7 +70,7 @@ namespace rev::gfx
 		initInfo.Instance = vkCtxt.vkInstance();
 		initInfo.Device = vkCtxt.nativeDevice();
 		initInfo.PhysicalDevice = vkCtxt.physicalDevice();
-		initInfo.Queue = vkCtxt.graphicsQueue();
+		initInfo.Queue = static_cast<VulkanCommandQueue&>(vkCtxt.GfxQueue()).nativeQueue();
 		initInfo.QueueFamily = vkCtxt.graphicsQueueFamily();
 		initInfo.Subpass = 0;
 		initInfo.ImageCount = 2;
@@ -97,6 +98,6 @@ namespace rev::gfx
 			0, nullptr, nullptr, // wait
 			1, &cmd, // commands
 			0, nullptr); // signal
-		vkCtxt.graphicsQueue().submit(submitInfo);
+		static_cast<VulkanCommandQueue&>(vkCtxt.GfxQueue()).nativeQueue().submit(submitInfo);
 	}
 }

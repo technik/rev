@@ -23,8 +23,8 @@ namespace rev::gfx
 {
     //-----------------------------------------------------------------------------------------------
     VulkanCommandQueue::VulkanCommandQueue(
-        uint32_t queueFamily
-    ) : m_queueFamily(queueFamily)
+        vk::Queue nativeQueue
+    ) : m_vkQueue(nativeQueue)
     {}
 
 } // rev::gfx

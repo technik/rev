@@ -31,6 +31,8 @@
 
 namespace rev::gfx
 {
+	class VulkanCommandQueue;
+
 	class RenderContextVulkan : public Context
 	{
 	public:
@@ -60,9 +62,7 @@ namespace rev::gfx
 		auto nativeDevice() const { return m_vkDevice; }
 		auto physicalDevice() const { return m_physicalDevice; }
 		auto instance() const { return m_vkInstance; }
-		auto graphicsQueue() const { return m_gfxQueue; }
 		auto graphicsQueueFamily() const { return m_queueFamilies.graphics.value(); }
-		auto transferQueue() const { return m_transferQueue; }
 		vk::CommandBuffer getNewRenderCmdBuffer();
 		ScopedCommandBuffer getScopedCmdBuffer(vk::Queue submitQueue, vk::Semaphore waitForSemaphore = vk::Semaphore());
 
@@ -154,8 +154,9 @@ namespace rev::gfx
 			}
 		} m_queueFamilies;
 		QueueFamilies getDeviceQueueFamilies(const vk::PhysicalDevice& device);
-		vk::Queue m_gfxQueue;
-		vk::Queue m_transferQueue;
+		VulkanCommandQueue* m_gfxQueue{};
+		VulkanCommandQueue* m_computeQueue{};
+		VulkanCommandQueue* m_transferQueue{};
 
 		// Commands
 		struct FrameInfo

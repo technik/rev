@@ -29,7 +29,7 @@ namespace rev::gfx
     {
     public:
         VulkanCommandQueue(
-            uint32_t queueFamily
+            vk::Queue nativeQueue
         );
         ~VulkanCommandQueue() {}
 
@@ -45,7 +45,6 @@ namespace rev::gfx
     private:
         // Command queue
         vk::Queue m_vkQueue;
-        uint32_t m_queueFamily;
 
         // Command allocator/pool
         struct CommandSubmission

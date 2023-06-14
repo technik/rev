@@ -18,6 +18,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#include <gfx/backend/Vulkan/vulkanCommandQueue.h>
 #include <gfx/backend/Vulkan/gpuBuffer.h>
 #include <gfx/backend/rasterPipeline.h>
 #include <gfx/renderer/deferred/DeferredRenderer.h>
@@ -135,7 +136,7 @@ namespace rev::gfx
 		m_frameConstants.view = scene.view;
 
 		// Render geometry if the scene is loaded
-		auto scope = m_ctxt->getScopedCmdBuffer(m_ctxt->graphicsQueue());
+		auto scope = m_ctxt->getScopedCmdBuffer(static_cast<VulkanCommandQueue&>(m_ctxt->GfxQueue()).nativeQueue());
 		auto cmd = scope.cmd;
 		m_hdrLightPass->begin(cmd, m_windowSize);
 
@@ -238,7 +239,7 @@ namespace rev::gfx
 			1, &m_imageAvailableSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &m_ctxt->readyToPresentSemaphore()); // signal
-		m_ctxt->graphicsQueue().submit(submitInfo);
+		static_cast<VulkanCommandQueue&>(m_ctxt->GfxQueue()).nativeQueue().submit(submitInfo);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
