@@ -106,7 +106,7 @@ namespace rev::gfx
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 2;
+        swapChainDesc.BufferCount = kNumSwapChainBuffers;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -145,5 +145,37 @@ namespace rev::gfx
     CommandQueue* DeviceDX12::createCommandQueue(CommandQueue::Info desc)
     {
         return new CommandQueueDX12(*m_d3d12Device.Get(), desc);
+    }
+
+    ComPtr<ID3D12DescriptorHeap> DeviceDX12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors)
+    {
+        ComPtr<ID3D12DescriptorHeap> descriptorHeap;
+
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+        desc.NumDescriptors = numDescriptors;
+        desc.Type = type;
+
+        ThrowIfFailed(m_d3d12Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap)));
+
+        return descriptorHeap;
+    }
+
+    void DeviceDX12::UpdateRenderTargetViews(ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap)
+    {
+        auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+        for (int i = 0; i < kNumSwapChainBuffers; ++i)
+        {
+            ComPtr<ID3D12Resource> backBuffer;
+            ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+            m_d3d12Device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+
+            m_BackBuffers[i] = backBuffer;
+
+            rtvHandle.Offset(rtvDescriptorSize);
+        }
     }
 }

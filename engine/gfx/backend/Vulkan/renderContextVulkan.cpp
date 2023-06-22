@@ -228,9 +228,9 @@ namespace rev::gfx {
 	void RenderContextVulkan::SwapChainInfo::resize(const math::Vec2u& imageSize)
 	{
 		// Destroy image views
-		for (auto& buffer: imageBuffers)
-			m_device.destroyImageView(buffer->view());
-		imageBuffers.clear();
+		for (auto& buffer: m_imageBuffers)
+			m_device.destroyImageView(buffer.view());
+		m_imageBuffers.clear();
 		// Destroy the swapchain
 		m_device.destroySwapchainKHR(m_vkSwapchain);
 
@@ -259,8 +259,8 @@ namespace rev::gfx {
 		m_vkSwapchain = m_device.createSwapchainKHR(surfaceInfo);
 		auto images = m_device.getSwapchainImagesKHR(m_vkSwapchain);
 
-		assert(imageBuffers.empty());
-		imageBuffers.reserve(images.size());
+		assert(m_imageBuffers.empty());
+		m_imageBuffers.reserve(images.size());
 		for (auto image : images) {
 			vk::ImageViewCreateInfo viewInfo({},
 				image,
@@ -270,7 +270,7 @@ namespace rev::gfx {
 				vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 			auto view = m_device.createImageView(viewInfo);
 
-			imageBuffers.emplace_back(new ImageBuffer(image, view, m_imageFormat));
+			m_imageBuffers.emplace_back(image, view, m_imageFormat);
 		}
 		return true;
 	}
@@ -303,8 +303,8 @@ namespace rev::gfx {
 		m_presentLayoutSemaphore = m_vkDevice.createSemaphore({});
 
 		// Prepare per frame data
-		m_frameData.reserve(m_swapchain.imageBuffers.size());
-		for (auto& img : m_swapchain.imageBuffers)
+		m_frameData.reserve(m_swapchain.m_imageBuffers.size());
+		for (auto& img : m_swapchain.m_imageBuffers)
 		{
 			m_frameData.emplace_back(m_vkDevice, m_queueFamilies.present.value());
 		}
@@ -348,14 +348,14 @@ namespace rev::gfx {
 
 		m_frameData.clear(); // Free vulkan objects used per frame
 
-		if(m_swapchain.imageBuffers.size() > 0)
+		if(m_swapchain.m_imageBuffers.size() > 0)
 		{
 			m_vkDevice.destroySemaphore(m_renderFinishedSemaphore);
 			m_vkDevice.destroySemaphore(m_presentLayoutSemaphore);
 
-			for (auto& image : m_swapchain.imageBuffers)
+			for (auto& image : m_swapchain.m_imageBuffers)
 			{
-				m_vkDevice.destroyImageView(image->view());
+				m_vkDevice.destroyImageView(image.view());
 			}
 			m_vkDevice.destroySwapchainKHR(m_swapchain.m_vkSwapchain);
 		}
@@ -439,7 +439,7 @@ namespace rev::gfx {
 		auto res = m_vkDevice.acquireNextImageKHR(m_swapchain.m_vkSwapchain, uint64_t(-1), s);
 
 		m_swapchain.frameIndex = res.value;
-		return *m_swapchain.currentImage();
+		return m_swapchain.currentImage();
 	}
 
 	//--------------------------------------------------------------------------------------------------
@@ -459,7 +459,7 @@ namespace rev::gfx {
 			vk::ImageLayout::ePresentSrcKHR,
 			m_queueFamilies.graphics.value(),
 			m_queueFamilies.present.value(),
-			m_swapchain.currentImage()->image(),
+			m_swapchain.currentImage().image(),
 			imageRange);
 		cmd.pipelineBarrier(
 			// Wait for

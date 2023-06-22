@@ -49,8 +49,8 @@ namespace rev::gfx
 		math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override; // Returns the actual size the swapchain was resized to
 		void destroySwapChain() override {};
 
-		auto& swapchainImageView(size_t i) const { return *m_swapchain.imageBuffers[i]; }
-		auto nSwapChainImages() const { return m_swapchain.imageBuffers.size(); }
+		auto& swapchainImageView(size_t i) const { return m_swapchain.m_imageBuffers[i]; }
+		auto nSwapChainImages() const { return m_swapchain.m_imageBuffers.size(); }
 		const ImageBuffer& swapchainAquireNextImage(vk::Semaphore signal, vk::CommandBuffer cmd);
 		const vk::Semaphore& readyToPresentSemaphore() const { return m_renderFinishedSemaphore; }
 		auto currentFrameIndex() const { return m_swapchain.frameIndex; }
@@ -113,10 +113,10 @@ namespace rev::gfx
 			vk::SurfaceKHR m_surface;
 			vk::SwapchainKHR m_vkSwapchain;
 			vk::Format m_imageFormat;
-			std::vector<std::unique_ptr<ImageBuffer>> imageBuffers;
+			std::vector<ImageBuffer> m_imageBuffers;
 			uint32_t frameIndex;
 
-			const auto& currentImage() const { return imageBuffers[frameIndex]; }
+			const auto& currentImage() const { return m_imageBuffers[frameIndex]; }
 
 			bool init(
 				vk::Device device,

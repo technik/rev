@@ -42,6 +42,12 @@ namespace rev::gfx
         CommandQueue* createCommandQueue(CommandQueue::Info) override;
 
     private:
+        ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors);
+        void UpdateRenderTargetViews(ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap);
+
         ComPtr<ID3D12Device2> m_d3d12Device;
+
+        static constexpr inline int32_t kNumSwapChainBuffers = 2;
+        ComPtr<ID3D12Resource> m_BackBuffers[kNumSwapChainBuffers] = {};
     };
 }
