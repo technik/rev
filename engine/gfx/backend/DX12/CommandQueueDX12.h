@@ -22,22 +22,52 @@
 #include "../CommandQueue.h"
 #include "dx12Util.h"
 
+#include <queue>
+#include <memory>
+
 namespace rev::gfx
 {
+	class CommandListDX12 : public CommandList
+	{
+	public:
+		CommandListDX12(ComPtr<ID3D12GraphicsCommandList2> nativeCmdList, ComPtr<ID3D12CommandAllocator> allocator)
+			: m_commandList(nativeCmdList)
+			, m_allocator(allocator)
+		{}
+
+		ComPtr<ID3D12GraphicsCommandList2> m_commandList;
+		ComPtr<ID3D12CommandAllocator> m_allocator;
+		uint64_t m_submissionFenceId = 0; // 0 means not submitted
+	};
+
 	class CommandQueueDX12 : public CommandQueue
 	{
 	public:
 		CommandQueueDX12(ID3D12Device2& device, Info type);
+		~CommandQueueDX12();
 
 		// ---- Synchronization ----
-		/// \return the fence value the CPU must wait for to reach this sync point.
-		uint64_t signalFence(Fence&) override;
+		bool isFenceComplete(uint64_t fenceValue) override;
+		void refreshInFlightWork();
 
 		// Run commands
-		void executeCommandList(CommandList& list) override;
+		CommandList& getCommandList() override;
+		uint64_t submitCommandList(CommandList& list) override;
 
 		ID3D12CommandQueue& nativeQueue() const { return *m_d3d12CommandQueue.Get(); }
+
 	private:
+		std::vector<std::unique_ptr<CommandListDX12>> m_freeCmdLists;
+		std::vector<std::unique_ptr<CommandListDX12>> m_inFlightCmdLists;
+
+		std::unique_ptr<CommandListDX12> createCommandList();
+
+		ID3D12Device2& m_device;
 		ComPtr<ID3D12CommandQueue> m_d3d12CommandQueue;
+
+		D3D12_COMMAND_LIST_TYPE                     m_CommandListType;
+		Microsoft::WRL::ComPtr<ID3D12Fence>         m_d3d12Fence;
+		uint64_t                                    m_nextFenceValue;
+		uint64_t                                    m_completedFenceValue;
 	};
 }

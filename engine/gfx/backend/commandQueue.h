@@ -22,8 +22,8 @@
 
 namespace rev::gfx
 {
-	class Fence;
-	class CommandList;
+	class CommandList
+	{};
 
 	class CommandQueue
 	{
@@ -40,6 +40,7 @@ namespace rev::gfx
 			Compute,
 			Copy
 		};
+
 		enum Priority
 		{
 			Normal,
@@ -55,9 +56,17 @@ namespace rev::gfx
 
 		// ---- Synchronization ----
 		/// \return the fence value the CPU must wait for to reach this sync point.
-		virtual uint64_t signalFence(Fence&) = 0;
+		// TODO: The API below implies single queue behavior. Synchronization between queues is not possible
+		// like this without going through the CPU.
+		virtual bool isFenceComplete(uint64_t fenceValue) = 0;
+		void waitForFenceValue(uint64_t fenceValue);
+		void flush(); // Awful API. Can we do better?
 
-		// Run commands
-		virtual void executeCommandList(CommandList& list) = 0;
+		// Command list allocation and recording
+		// Get a command list ready to record commands to, that can be submitted for this queue
+		// For now, all command lists are single use only.
+		virtual CommandList& getCommandList() = 0;
+		/// \return the fence value signaled after submitting a command queue
+		virtual uint64_t submitCommandList(CommandList& list) = 0;
 	};
 }

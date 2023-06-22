@@ -36,11 +36,12 @@ namespace rev::gfx
         auto nativeQueue() const { return m_vkQueue; }
 
         // ---- Synchronization ----
-        /// \return the fence value the CPU must wait for to reach this sync point.
-        uint64_t signalFence(Fence&) override;
-
+        virtual bool isFenceComplete(uint64_t fenceValue) = 0;
+        void WaitForFenceValue(uint64_t fenceValue);
+        void Flush();
         // Run commands
-        void executeCommandList(CommandList& list) override;
+        CommandList& getCommandList() override;
+        uint64_t submitCommandList(CommandList& list) override;
 
     private:
         // Command queue
