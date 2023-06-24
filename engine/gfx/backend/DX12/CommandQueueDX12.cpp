@@ -44,9 +44,6 @@ namespace rev::gfx
 
         switch (info.priority)
         {
-        case Priority::RealTime:
-            desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
-            break;
         case Priority::High:
             desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
             break;

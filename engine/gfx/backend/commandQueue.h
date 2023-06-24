@@ -44,8 +44,7 @@ namespace rev::gfx
 		enum Priority
 		{
 			Normal,
-			High,
-			RealTime
+			High
 		};
 
 		struct Info

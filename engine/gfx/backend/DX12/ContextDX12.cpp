@@ -40,7 +40,7 @@ namespace rev::gfx
         }
 
         // Create command queues
-        m_GfxQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Graphics, CommandQueue::Priority::RealTime }));
+        m_GfxQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Graphics, CommandQueue::Priority::High }));
         m_AsyncComputeQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Compute, CommandQueue::Priority::High }));
         m_CopyQueue = static_cast<CommandQueueDX12*>(m_device12->createCommandQueue({ CommandQueue::Type::Copy, CommandQueue::Priority::Normal }));
 
