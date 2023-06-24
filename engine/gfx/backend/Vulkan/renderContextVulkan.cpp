@@ -186,6 +186,13 @@ namespace rev::gfx {
 		m_queueFamilies = getDeviceQueueFamilies(m_physicalDevice);
 
 		m_deviceInfo.dediactedVideoMemory = maxDiscreteMemorySize;
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	void RenderContextVulkan::initSurface()
+	{
+		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), (HWND)RenderContext().nativeWindow());
+		m_surface = m_vkInstance.createWin32SurfaceKHR(surfaceInfo);
 
 		// Check VSync support here
 		m_deviceInfo.vSyncOffSupport = false;
@@ -194,13 +201,6 @@ namespace rev::gfx {
 		{
 			m_deviceInfo.vSyncOffSupport = true;
 		}
-	}
-
-	//--------------------------------------------------------------------------------------------------
-	void RenderContextVulkan::initSurface()
-	{
-		auto surfaceInfo = vk::Win32SurfaceCreateInfoKHR({}, GetModuleHandle(nullptr), (HWND)RenderContext().nativeWindow());
-		m_surface = m_vkInstance.createWin32SurfaceKHR(surfaceInfo);
 		assert(m_surface);
 	}
 
@@ -278,6 +278,11 @@ namespace rev::gfx {
 	//--------------------------------------------------------------------------------------------------
 	bool RenderContextVulkan::createSwapChain(const SwapChainOptions& swapChainDesc, const math::Vec2u& imageSize)
 	{
+		if (!m_surface)
+		{
+			initSurface();
+		}
+
 		// sRGB support here
 		auto surfaceFormats = m_physicalDevice.getSurfaceFormatsKHR(m_surface);
 		auto targetFormat = vk::Format::eR8G8B8A8Srgb;
@@ -480,8 +485,9 @@ namespace rev::gfx {
 			1, &m_renderFinishedSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &m_presentLayoutSemaphore); // signal
-		assert(false && "unimplemented");
-		//m_gfxQueue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
+
+		auto queue = static_cast<VulkanCommandQueue&>(GfxQueue()).nativeQueue();
+		queue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
 
 		// Present image 
 		auto presentInfo = vk::PresentInfoKHR(
@@ -489,9 +495,8 @@ namespace rev::gfx {
 			1, &m_swapchain.m_vkSwapchain,
 			&m_swapchain.frameIndex);
 
-		assert(false && "unimplemented");
-		//auto res = m_gfxQueue.presentKHR(presentInfo);
-		//assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
+		auto res = queue.presentKHR(presentInfo);
+		assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
 
 		// Prepare next frame data for use
 		m_frameDataNdx++;
@@ -584,8 +589,8 @@ namespace rev::gfx {
 			0, nullptr, nullptr, // wait
 			1, &cmd, // commands
 			0, nullptr); // signal
-		assert(false && "unimplemented");
-		//graphicsQueue().submit(submitInfo);
+
+		static_cast<VulkanCommandQueue&>(GfxQueue()).nativeQueue().submit(submitInfo);
 	}
 
 	//--------------------------------------------------------------------------------------------------
