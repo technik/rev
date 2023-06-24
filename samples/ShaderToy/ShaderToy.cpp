@@ -23,6 +23,7 @@
 #include <core/platform/cmdLineParser.h>
 #include <core/platform/fileSystem/FolderWatcher.h>
 #include <core/platform/fileSystem/fileSystem.h>
+#include <gfx/backend/Vulkan/vulkanCommandQueue.h>
 #include <gfx/renderer/renderPass/fullScreenPass.h>
 #include <gfx/Image.h>
 #include <gfx/ImGui.h>
@@ -193,7 +194,7 @@ namespace rev
 			1, &m_imageAvailableSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &RenderContextVk().readyToPresentSemaphore()); // signal
-		RenderContextVk().graphicsQueue().submit(submitInfo);
+		static_cast<VulkanCommandQueue&>(RenderContextVk().GfxQueue()).nativeQueue().submit(submitInfo);
 
 		RenderContextVk().swapchainPresent();
 	}

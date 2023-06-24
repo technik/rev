@@ -331,9 +331,9 @@ namespace rev::gfx {
 
 		// Retrieve command queues
 		// TODO: How do we know these are the right indices? indices into the descs? indices into each family?
-		m_gfxQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.graphics.value(), 0));
-		m_computeQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.compute.value(), 0));
-		m_transferQueue = new VulkanCommandQueue(m_vkDevice.getQueue(m_queueFamilies.transfer.value(), 0));
+		m_gfxQueue = new VulkanCommandQueue(m_vkDevice, m_queueFamilies.graphics.value());
+		m_computeQueue = new VulkanCommandQueue(m_vkDevice, m_queueFamilies.compute.value());
+		m_transferQueue = new VulkanCommandQueue(m_vkDevice, m_queueFamilies.transfer.value());
 		assert(m_gfxQueue);
 		assert(m_computeQueue);
 		assert(m_transferQueue);
@@ -480,7 +480,7 @@ namespace rev::gfx {
 			1, &m_renderFinishedSemaphore, &waitFlags, // wait
 			1, &cmd, // commands
 			1, &m_presentLayoutSemaphore); // signal
-		assert(false, "unimplemented");
+		assert(false && "unimplemented");
 		//m_gfxQueue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
 
 		// Present image 
@@ -489,7 +489,7 @@ namespace rev::gfx {
 			1, &m_swapchain.m_vkSwapchain,
 			&m_swapchain.frameIndex);
 
-		assert(false, "unimplemented");
+		assert(false && "unimplemented");
 		//auto res = m_gfxQueue.presentKHR(presentInfo);
 		//assert(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR);
 
@@ -584,7 +584,7 @@ namespace rev::gfx {
 			0, nullptr, nullptr, // wait
 			1, &cmd, // commands
 			0, nullptr); // signal
-		assert(false, "unimplemented");
+		assert(false && "unimplemented");
 		//graphicsQueue().submit(submitInfo);
 	}
 

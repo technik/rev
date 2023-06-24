@@ -62,11 +62,12 @@ namespace rev::gfx
 		void waitForFenceValue(uint64_t fenceValue);
 		void flush(); // Awful API. Can we do better?
 
-		// Command list allocation and recording
+		// Command list allocation and submission
 		// Get a command list ready to record commands to, that can be submitted for this queue
 		// For now, all command lists are single use only.
 		virtual CommandList& getCommandList() = 0;
 		/// \return the fence value signaled after submitting a command queue
 		virtual uint64_t submitCommandList(CommandList& list) = 0;
+		virtual void refreshInFlightWork() = 0;
 	};
 }

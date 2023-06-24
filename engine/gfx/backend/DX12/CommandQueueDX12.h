@@ -48,7 +48,7 @@ namespace rev::gfx
 
 		// ---- Synchronization ----
 		bool isFenceComplete(uint64_t fenceValue) override;
-		void refreshInFlightWork();
+		void refreshInFlightWork() override;
 
 		// Run commands
 		CommandList& getCommandList() override;

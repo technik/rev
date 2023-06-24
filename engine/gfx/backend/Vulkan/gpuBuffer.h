@@ -65,7 +65,7 @@ namespace rev::gfx
 		vk::Image image() const { return m_deviceImage; }
 
 		// Disable copy
-		ImageBuffer(const ImageBuffer&) = delete;
+		//ImageBuffer(const ImageBuffer&) = delete;
 
 	private:
 		vk::Image m_deviceImage;

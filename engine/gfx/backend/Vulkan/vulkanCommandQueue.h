@@ -25,47 +25,50 @@
 
 namespace rev::gfx
 {
+    class VulkanCommandList : public CommandList
+    {
+    public:
+        VulkanCommandList(vk::CommandBuffer nativeCmdList, vk::CommandPool allocator)
+            : m_commandList(nativeCmdList)
+            , m_allocator(allocator)
+        {}
+
+        vk::CommandBuffer m_commandList;
+        vk::CommandPool m_allocator;
+        vk::Fence m_fence;
+        uint64_t m_submissionFenceId = 0; // 0 means not submitted
+    };
+
     class VulkanCommandQueue : public CommandQueue
     {
     public:
         VulkanCommandQueue(
-            vk::Queue nativeQueue
+            vk::Device device,
+            uint32_t familyIndex
         );
-        ~VulkanCommandQueue() {}
+        ~VulkanCommandQueue();
 
         auto nativeQueue() const { return m_vkQueue; }
 
         // ---- Synchronization ----
-        virtual bool isFenceComplete(uint64_t fenceValue) = 0;
-        void WaitForFenceValue(uint64_t fenceValue);
-        void Flush();
+        bool isFenceComplete(uint64_t fenceValue) override;
+        void refreshInFlightWork() override;
+
         // Run commands
         CommandList& getCommandList() override;
         uint64_t submitCommandList(CommandList& list) override;
 
     private:
-        // Command queue
+        std::vector<std::unique_ptr<VulkanCommandList>> m_freeCmdLists;
+        std::vector<std::unique_ptr<VulkanCommandList>> m_inFlightCmdLists;
+
+        std::unique_ptr<VulkanCommandList> createCommandList();
+
+        vk::Device m_device;
         vk::Queue m_vkQueue;
+        int32_t m_familyIndex;
 
-        // Command allocator/pool
-        struct CommandSubmission
-        {
-            uint64_t finishTime;
-        };
-
-        // Note: Command pools are GPU side allocators, and so can not be reused until execution of finishes of
-        // all command buffers that allocate from it. Command buffers on the other side, are CPU side and can be
-        // reused immediately after sumbission. In order to simplify usage of the command queue, we only expose
-        // command buffers to the user, and keep a 1:1 mapping with command pools until submission. Once
-        // Submitted, the command buffer will immediately be available in the queue again, but the associated
-        // command pool will remain bloked until GPU side execution completes.
-        std::queue<vk::CommandBuffer> m_commandBufferQueue; // This should really be a ring buffer
-        std::queue<vk::CommandPool> m_commandPoolQueue; // This should also be a ring buffer
-        std::vector<std::pair<vk::CommandBuffer, vk::CommandPool>> m_bufferToPoolMap;
-
-        // Synchronization semaphore
-        vk::Semaphore m_timeline;
-        uint64_t m_lastSignaledValue = 0;
-        uint64_t m_lastSubmisionValue = 0;
+        uint64_t    m_nextFenceValue = 1;
+        uint64_t    m_completedFenceValue = 0;
     };
 }
