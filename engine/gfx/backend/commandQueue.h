@@ -32,7 +32,7 @@ namespace rev::gfx
 	class CommandList
 	{
 	public:
-		virtual void resourceBarrier();
+		virtual void resourceBarrier() {};
 	};
 
 	class CommandQueue

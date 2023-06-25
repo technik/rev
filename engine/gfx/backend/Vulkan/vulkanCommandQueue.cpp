@@ -53,6 +53,7 @@ namespace rev::gfx
         return fenceValue <= m_completedFenceValue;
     }
 
+    //-----------------------------------------------------------------------------------------------
     void VulkanCommandQueue::refreshInFlightWork()
     {
         // Early out if cmd lists are already available
@@ -60,9 +61,10 @@ namespace rev::gfx
             return;
 
         // Test which cmd lists have finished since we last checked
-        for (auto riter = m_inFlightCmdLists.rbegin(); riter != m_inFlightCmdLists.rend(); ++riter)
+        int i = m_inFlightCmdLists.size() - 1;
+        while (i >= 0)
         {
-            auto& cmdLst = *riter;
+            auto& cmdLst = m_inFlightCmdLists[i];
             if (m_completedFenceValue > cmdLst->m_submissionFenceId || // Early out to avoid querying the API
                 m_device.getFenceStatus(cmdLst->m_fence) == vk::Result::eSuccess) // work is done
             {
@@ -77,6 +79,8 @@ namespace rev::gfx
                 std::swap(cmdLst, m_inFlightCmdLists.back());
                 m_inFlightCmdLists.pop_back();
             }
+
+            --i;
         }
     }
 

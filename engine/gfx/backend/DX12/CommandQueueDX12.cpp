@@ -24,6 +24,7 @@
 
 namespace rev::gfx
 {
+    //-----------------------------------------------------------------------------------------------
     CommandQueueDX12::CommandQueueDX12(ID3D12Device2& device, Info info)
         : m_device(device)
     {
@@ -63,6 +64,7 @@ namespace rev::gfx
         ThrowIfFailed(device.CreateFence(m_completedFenceValue, D3D12_FENCE_FLAG_SHARED, IID_PPV_ARGS(&m_d3d12Fence)));
     }
 
+    //-----------------------------------------------------------------------------------------------
     CommandQueueDX12::~CommandQueueDX12()
     {
         refreshInFlightWork();
@@ -70,7 +72,7 @@ namespace rev::gfx
         assert(m_inFlightCmdLists.empty());
     }
 
-
+    //-----------------------------------------------------------------------------------------------
     bool CommandQueueDX12::isFenceComplete(uint64_t fenceValue)
     {
         if (fenceValue <= m_completedFenceValue)
@@ -80,6 +82,7 @@ namespace rev::gfx
         return fenceValue <= m_completedFenceValue;
     }
 
+    //-----------------------------------------------------------------------------------------------
     uint64_t CommandQueueDX12::submitCommandList(CommandList& list)
     {
         auto& cmdList12 = static_cast<CommandListDX12&>(list);
@@ -96,6 +99,7 @@ namespace rev::gfx
         return fenceValue;
     }
 
+    //-----------------------------------------------------------------------------------------------
     CommandList& CommandQueueDX12::getCommandList()
     {
         std::unique_ptr<CommandListDX12> cmdList12;
@@ -121,6 +125,7 @@ namespace rev::gfx
         return *m_inFlightCmdLists.back();
     }
 
+    //-----------------------------------------------------------------------------------------------
     std::unique_ptr<CommandListDX12> CommandQueueDX12::createCommandList()
     {
         ComPtr<ID3D12CommandAllocator> allocator;
@@ -132,6 +137,7 @@ namespace rev::gfx
         return std::make_unique<CommandListDX12>(commandList, allocator);
     }
 
+    //-----------------------------------------------------------------------------------------------
     void CommandQueueDX12::refreshInFlightWork()
     {
         // Early out if cmd lists are already available
@@ -140,20 +146,22 @@ namespace rev::gfx
 
         // Test which cmd lists have finished since we last checked
         m_completedFenceValue = m_d3d12Fence->GetCompletedValue();
-        for (auto riter = m_inFlightCmdLists.rbegin(); riter != m_inFlightCmdLists.rend(); ++riter)
+        int i = m_inFlightCmdLists.size() - 1;
+        while(i >= 0)
         {
-            auto& cmdLst = *riter;
-            if (cmdLst->m_submissionFenceId <= m_completedFenceValue) // work is done
+            if (auto& cmdLst = m_inFlightCmdLists[i]; cmdLst->m_submissionFenceId <= m_completedFenceValue) // work is done
             {
                 cmdLst->m_submissionFenceId = 0; // reset submission
 
-                // Need to reset the native cmdlist here?
+                // Reset the native cmdlist
                 ThrowIfFailed(cmdLst->m_commandList->Reset(cmdLst->m_allocator.Get(), nullptr));
 
                 m_freeCmdLists.push_back(std::move(cmdLst));
                 std::swap(cmdLst, m_inFlightCmdLists.back());
                 m_inFlightCmdLists.pop_back();
             }
+
+            --i;
         }
     }
 }

@@ -20,6 +20,8 @@
 #pragma once
 
 #include <cassert>
+#include <string>
+
 #include <core/event.h>
 #include <math/algebra/vector.h>
 
