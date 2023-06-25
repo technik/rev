@@ -99,12 +99,18 @@ namespace rev::gfx
 
 		std::shared_ptr<gfx::DescriptorSetLayout> m_geomFrameDescriptorLayout;
 		std::shared_ptr<gfx::DescriptorSetLayout> m_geomBatchDescriptorLayout;
+		std::shared_ptr<gfx::DescriptorSetLayout> m_lightingDescriptorLayout;
 		std::shared_ptr<gfx::DescriptorSetLayout> m_postProDescriptorLayout;
 		std::shared_ptr<gfx::DescriptorSetPool> m_geomFrameDescriptors;
+		std::shared_ptr<gfx::DescriptorSetPool> m_lightingDescriptors;
 		std::shared_ptr<gfx::DescriptorSetPool> m_postProDescriptors;
 
 		vk::PipelineLayout m_gbufferPipelineLayout;
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
+		vk::PipelineLayout m_lightingPipelineLayout;
+		std::unique_ptr<gfx::RasterPipeline> m_lightingPipeline;
+		vk::PipelineLayout m_postPipelineLayout;
+		std::unique_ptr<gfx::RasterPipeline> m_postPipeline;
 
 		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_baseColorMetalnessBuffer;
@@ -130,6 +136,12 @@ namespace rev::gfx
 
 		} m_frameConstants;
 
+		struct LightingPushConstants
+		{
+			math::Vec3f lightDir;
+			math::Vec3f lightColor;
+		};
+
 		struct PostProPushConstants
 		{
 			uint32_t renderFlags;
@@ -140,8 +152,11 @@ namespace rev::gfx
 		} m_postProConstants;
 
 		std::unique_ptr<gfx::RenderPass> m_gBufferPass;
-		std::unique_ptr<gfx::FullScreenPass> m_uiRenderPass;
+		std::unique_ptr<gfx::FullScreenPass> m_lightingPass;
+		std::unique_ptr<gfx::FullScreenPass> m_postPass; // Combined post process effects
 		std::shared_ptr<EnvironmentProbe> m_envProbe;
+
+		static constexpr vk::Format m_HDRFormat = vk::Format::eR16G16B16A16Sfloat;
 
 		std::unique_ptr<core::FolderWatcher> m_shaderWatcher;
 		std::unique_ptr<gfx::FrameBufferManager> m_frameBuffers;

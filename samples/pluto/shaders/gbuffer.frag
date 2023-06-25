@@ -30,7 +30,9 @@ layout(location = 1) in vec4 vPxlWorldPos;
 layout(location = 2) in vec4 vPxlWorldTan;
 layout(location = 3) in vec2 vPxlTexCoord;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outHDRColor;
+layout(location = 1) out vec4 outBaseColorMetal;
+layout(location = 2) out ivec4 outNormalPBR;
 
 layout(set = 0, binding = 0) uniform sampler2D iblLUT;
 
@@ -179,5 +181,5 @@ void main()
 		//pxlColor += texture(textures[index], vPxlTexCoord).xyz;
 	}
 
-    outColor = vec4(pxlColor, 1.0);
+    outHDRColor = vec4(pxlColor, 1.0);
 }

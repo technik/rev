@@ -27,14 +27,12 @@ namespace rev::gfx
 {
 	void RenderPass::begin(vk::CommandBuffer cmd, const Vec2u& targetSize)
 	{
-		assert(m_clearColors.size() >= m_colorTargets.size());
-
 		refreshFrameBuffer(targetSize); // Refresh frame buffer
 
 		// Clear color attachments
 		if (m_clearColor)
 		{
-			for (uint32_t i = 0; i < m_colorTargets.size(); ++i)
+			for (uint32_t i = 0; i < m_colorTargets.size() && i < m_clearColors.size(); ++i)
 			{
 				auto clearColorRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
 				cmd.clearColorImage(

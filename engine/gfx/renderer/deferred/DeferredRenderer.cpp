@@ -71,7 +71,7 @@ namespace rev::gfx
 		// Update descriptor sets
 		fillConstantDescriptorSets();
 
-		gfx::initImGui(m_uiRenderPass->vkPass());
+		gfx::initImGui(m_postPass->vkPass());
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -215,21 +215,21 @@ namespace rev::gfx
 		auto& swapchainImage = m_ctxt->swapchainAquireNextImage(m_imageAvailableSemaphore, cmd);
 
 		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
-		m_uiRenderPass->begin(
+		m_postPass->begin(
 			cmd,
 			m_windowSize,
 			swapchainImage,
 			m_postProConstants.ambientColor,
 			m_postProDescriptors->getDescriptor(0));
 
-		m_uiRenderPass->pushConstants(cmd, m_postProConstants);
-		m_uiRenderPass->render(cmd);
+		m_postPass->pushConstants(cmd, m_postProConstants);
+		m_postPass->render(cmd);
 
 		// Finish ImGui
 		//ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 
-		m_uiRenderPass->end(cmd);
+		m_postPass->end(cmd);
 
 		m_ctxt->allocator().transitionImageLayout(cmd, m_hdrLightBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
 
@@ -305,14 +305,21 @@ namespace rev::gfx
 		// Frame constants
 		m_geomFrameDescriptorLayout = std::make_shared<DescriptorSetLayout>();
 		m_geomFrameDescriptorLayout->addTexture("iblLUT", 0, vk::ShaderStageFlagBits::eFragment);
-		m_geomFrameDescriptorLayout->addTexture("envProbe", 1, vk::ShaderStageFlagBits::eFragment);
 		m_geomFrameDescriptorLayout->close();
 		m_geomFrameDescriptors = std::make_shared <DescriptorSetPool>(m_geomFrameDescriptorLayout, 1);
 
-		// Post process passes
+		// --- Lighting pass ---
+		m_lightingDescriptorLayout = std::make_shared<DescriptorSetLayout>();
+		m_lightingDescriptorLayout->addTexture("hdrColor", 0, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addTexture("baseColorMetal", 1, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addTexture("normalPBR", 2, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addTexture("depth", 3, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->close();
+		m_lightingDescriptors = std::make_shared<DescriptorSetPool>(m_lightingDescriptorLayout, 1);
+
+		// --- Post process pass ---
 		m_postProDescriptorLayout = std::make_shared<DescriptorSetLayout>();
 		m_postProDescriptorLayout->addImage("HDR Light", 0, vk::ShaderStageFlagBits::eFragment);
-		m_geomFrameDescriptorLayout->addTexture("envProbe", 1, vk::ShaderStageFlagBits::eFragment);
 		m_postProDescriptorLayout->close();
 		m_postProDescriptors = std::make_shared <DescriptorSetPool>(m_postProDescriptorLayout, 1);
 	}
@@ -342,20 +349,34 @@ namespace rev::gfx
 	{
 		// HDR geometry pass
 		m_gBufferPass = std::make_unique<gfx::RenderPass>(
-			m_ctxt->createRenderPass({ m_hdrLightBuffer->format(), m_zBuffer->format() }),
+			m_ctxt->createRenderPass({ 
+				m_hdrLightBuffer->format(),
+				m_baseColorMetalnessBuffer->format(),
+				m_normalPBRBuffer->format(),
+				m_zBuffer->format() }),
 			*m_frameBuffers);
-		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get(), m_baseColorMetalnessBuffer.get(), m_normalPBRBuffer.get() });
 		m_gBufferPass->setDepthTarget(*m_zBuffer);
 		m_gBufferPass->setClearDepth(0.f);
 		m_gBufferPass->setClearColor(-math::Vec4f::ones());
 
+		// Lighting pass
+		m_lightingPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
+			"../shaders/postPro.frag.spv",
+			{ m_HDRFormat },
+			*m_frameBuffers,
+			m_lightingDescriptorLayout->layout(),
+			sizeof(LightingPushConstants)
+		));
+
 		// UI Render pass
-		m_uiRenderPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
+		m_postPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
 			"../shaders/postPro.frag.spv",
 			{ m_ctxt->swapchainFormat() },
 			* m_frameBuffers,
 			m_postProDescriptorLayout->layout(),
-			sizeof(PostProPushConstants)));
+			sizeof(PostProPushConstants)
+		));
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -394,7 +415,8 @@ namespace rev::gfx
 		// Set up shader reload
 		m_shaderWatcher->listen([this](auto paths) {
 			m_gBufferPipeline->invalidate();
-			m_uiRenderPass->invalidateShaders();
+			m_lightingPass->invalidateShaders();
+			m_postPass->invalidateShaders();
 			});
 	}
 
@@ -407,7 +429,7 @@ namespace rev::gfx
 		m_hdrLightBuffer = alloc.createImageBuffer(
 			"HDR light",
 			windowSize,
-			vk::Format::eR32G32B32A32Sfloat,
+			m_HDRFormat,
 			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 		m_zBuffer = alloc.createDepthBuffer(
@@ -432,6 +454,8 @@ namespace rev::gfx
 		// Transition new images to general layout
 		m_ctxt->transitionImageLayout(m_hdrLightBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
 		m_ctxt->transitionImageLayout(m_zBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, true);
+		m_ctxt->transitionImageLayout(m_baseColorMetalnessBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
+		m_ctxt->transitionImageLayout(m_normalPBRBuffer->image(), vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, false);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -439,6 +463,8 @@ namespace rev::gfx
 	{
 		m_hdrLightBuffer = nullptr;
 		m_zBuffer = nullptr;
+		m_normalPBRBuffer = nullptr;
+		m_normalPBRBuffer = nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
