@@ -49,28 +49,24 @@ namespace rev::gfx
 
     private:
 
-        class SwapChain
+        class SwapChain12 : public SwapChain
         {
         public:
-            SwapChain(DeviceDX12* device,
+            SwapChain12(DeviceDX12* device,
                 void* window,
                 IDXGIFactory6& dxgiFactory,
                 CommandQueueDX12& commandQueue, 
                 const SwapChainOptions&, const math::Vec2u& imageSize);
-            void resize(const math::Vec2u& imageSize);
+
+            void resize(const math::Vec2u& imageSize) override;
 
             // Returns the fence value signaled after present
-            uint64_t present(CommandQueueDX12& gfxQueue);
-
-            const ImageResource& backBuffer() const { return m_buffers[m_backBufferIndex]; }
+            uint64_t present(CommandQueue& gfxQueue) override;
 
         private:
             void UpdateResourceViews();
-            static constexpr size_t kNumSwapChainBuffers = 2;
-
-            int m_backBufferIndex = 0;
+            
             ComPtr<IDXGISwapChain4> m_nativeSwapChain;
-            ImageResource m_buffers[kNumSwapChainBuffers];
             unsigned m_rtvDescriptorSize;
         };
 

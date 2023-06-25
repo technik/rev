@@ -22,6 +22,7 @@
 #include <cassert>
 #include <string>
 
+#include "Device.h"
 #include <core/event.h>
 #include <math/algebra/vector.h>
 
@@ -29,6 +30,23 @@ namespace rev::gfx
 {
 	class Device;
 	class CommandQueue;
+
+	class SwapChain
+	{
+	public:
+		virtual void resize(const math::Vec2u& imageSize) = 0;
+
+		// Returns the fence value signaled after present
+		virtual uint64_t present(CommandQueue& gfxQueue) = 0;
+
+		const ImageResource& backBuffer() const { return m_buffers[m_backBufferIndex]; }
+
+	protected:
+		static constexpr size_t kNumSwapChainBuffers = 2;
+
+		int m_backBufferIndex = 0;
+		ImageResource m_buffers[kNumSwapChainBuffers];
+	};
 
 	// A graphics context is an API independent utility for grouping low level graphics infrastructure
 	class Context

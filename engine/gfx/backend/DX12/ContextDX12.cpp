@@ -129,7 +129,7 @@ namespace rev::gfx
     //------------------------------------------------------------------------------------
     bool ContextDX12::createSwapChain(const SwapChainOptions& desc, const math::Vec2u& imageSize)
     {
-        m_swapChain = std::make_unique<SwapChain>(
+        m_swapChain = std::make_unique<SwapChain12>(
             m_device12,
             nativeWindow(),
             *m_dxgiFactory.Get(),
@@ -140,7 +140,7 @@ namespace rev::gfx
     }
 
     //------------------------------------------------------------------------------------
-    ContextDX12::SwapChain::SwapChain(DeviceDX12* device,
+    ContextDX12::SwapChain12::SwapChain12(DeviceDX12* device,
         void* nativeWindowHandle,
         IDXGIFactory6& dxgiFactory,
         CommandQueueDX12& commandQueue,
@@ -183,20 +183,20 @@ namespace rev::gfx
     }
 
     //------------------------------------------------------------------------------------
-    void ContextDX12::SwapChain::resize(const math::Vec2u& imageSize)
+    void ContextDX12::SwapChain12::resize(const math::Vec2u& imageSize)
     {
         assert(false && "Not implemented");
     }
 
     //------------------------------------------------------------------------------------
-    uint64_t ContextDX12::SwapChain::present(CommandQueueDX12& gfxQueue)
+    uint64_t ContextDX12::SwapChain12::present(CommandQueue& gfxQueue)
     {
         assert(false && "Not implemented");
         return -1;
     }
 
     //------------------------------------------------------------------------------------
-    void ContextDX12::SwapChain::UpdateResourceViews()
+    void ContextDX12::SwapChain12::UpdateResourceViews()
     {
         auto& device12 = static_cast<DeviceDX12&>(RenderContext().device());
 
