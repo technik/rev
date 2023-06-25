@@ -135,6 +135,7 @@ namespace rev::gfx
 			vk::PresentModeKHR m_presentMode;
 			vk::Device m_device;
 		} m_swapchain;
+
 		vk::Semaphore m_renderFinishedSemaphore;
 		vk::Semaphore m_presentLayoutSemaphore;
 

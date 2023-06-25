@@ -61,7 +61,7 @@ namespace rev::gfx
             void resize(const math::Vec2u& imageSize) override;
 
             // Returns the fence value signaled after present
-            uint64_t present(CommandQueue& gfxQueue) override;
+            void present() override;
 
         private:
             void UpdateResourceViews();

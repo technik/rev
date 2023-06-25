@@ -189,10 +189,9 @@ namespace rev::gfx
     }
 
     //------------------------------------------------------------------------------------
-    uint64_t ContextDX12::SwapChain12::present(CommandQueue& gfxQueue)
+    void ContextDX12::SwapChain12::present()
     {
-        assert(false && "Not implemented");
-        return -1;
+        m_nativeSwapChain->Present(1, 0);
     }
 
     //------------------------------------------------------------------------------------

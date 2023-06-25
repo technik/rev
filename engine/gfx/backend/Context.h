@@ -37,7 +37,7 @@ namespace rev::gfx
 		virtual void resize(const math::Vec2u& imageSize) = 0;
 
 		// Returns the fence value signaled after present
-		virtual uint64_t present(CommandQueue& gfxQueue) = 0;
+		virtual void present() = 0;
 
 		const ImageResource& backBuffer() const { return m_buffers[m_backBufferIndex]; }
 

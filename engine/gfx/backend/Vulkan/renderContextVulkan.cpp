@@ -487,6 +487,7 @@ namespace rev::gfx {
 			1, &m_presentLayoutSemaphore); // signal
 
 		auto queue = static_cast<VulkanCommandQueue&>(GfxQueue()).nativeQueue();
+		
 		queue.submit(submitInfo, m_frameData[m_frameDataNdx].renderFence);
 
 		// Present image 
