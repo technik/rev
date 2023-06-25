@@ -42,12 +42,12 @@ namespace rev::gfx
 
 		void begin(vk::CommandBuffer cmd, const math::Vec2u& targetSize);
 
+		void resetClearDepth() { m_clearZ = false; }
 		void setClearDepth(float depth);
 
+		void resetClearColor() { m_clearColor = false; }
 		void setClearColor(const std::vector<math::Vec4f>& colors);
-
 		void setClearColor(const math::Vec4f& c);
-
 		void setClearColor(const math::Vec3f& c);
 
 		void setColorTargets(const std::vector<const gfx::ImageBuffer*>& colorTargets);

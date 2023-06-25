@@ -81,6 +81,7 @@ namespace rev::gfx
 		void loadIBLLUT();
 
 		void renderGeometryPass(SceneDesc& scene);
+		void renderLightingPass();
 		void renderPostProPass();
 
 		// Init ImGui
@@ -113,6 +114,7 @@ namespace rev::gfx
 		std::unique_ptr<gfx::RasterPipeline> m_postPipeline;
 
 		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
+		std::shared_ptr<gfx::ImageBuffer> m_emissiveBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_baseColorMetalnessBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_normalPBRBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
@@ -138,9 +140,12 @@ namespace rev::gfx
 
 		struct LightingPushConstants
 		{
+			uint32_t renderFlags;
+			math::Vec2f windowSize;
 			math::Vec3f lightDir;
 			math::Vec3f lightColor;
-		};
+			math::Vec3f ambientColor;
+		} m_lightingConstants;
 
 		struct PostProPushConstants
 		{

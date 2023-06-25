@@ -88,7 +88,7 @@ namespace rev::gfx
 
 	void RenderPass::setClearColor(const std::vector<Vec4f>& colors)
 	{
-		m_clearColor = true;
+		m_clearColor = !colors.empty();
 		m_clearColors.reserve(colors.size());
 		m_clearColors.clear();
 

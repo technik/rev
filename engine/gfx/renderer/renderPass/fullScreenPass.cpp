@@ -78,11 +78,14 @@ namespace rev::gfx
 		const vk::CommandBuffer cmd,
 		const math::Vec2u& targetSize,
 		const ImageBuffer& colorTarget,
-		const math::Vec3f& clearColor,
+		const math::Vec3f* clearColor,
 		vk::DescriptorSet descriptor)
 	{
 		m_renderPass->setColorTarget(colorTarget);
-		m_renderPass->setClearColor(clearColor);
+		if (clearColor)
+			m_renderPass->setClearColor(*clearColor);
+		else
+			m_renderPass->resetClearColor();
 
 		RenderContextVk().allocator().transitionImageLayout(cmd,
 			colorTarget.image(),

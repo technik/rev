@@ -44,7 +44,7 @@ namespace rev::gfx {
 			const vk::CommandBuffer cmd,
 			const math::Vec2u& targetSize,
 			const ImageBuffer& colorTargets,
-			const math::Vec3f& clearColor,
+			const math::Vec3f* clearColor,
 			vk::DescriptorSet descriptor);
 
 		template<class PushConstants>

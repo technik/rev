@@ -177,7 +177,7 @@ namespace rev
 			cmd,
 			RenderContext().windowSize(),
 			RenderContextVk().swapchainAquireNextImage(m_imageAvailableSemaphore, cmd),
-			Vec3f(0),
+			nullptr,
 			m_descSets->getDescriptor(0));
 
 		m_fullScreenFilter->pushConstants(cmd, m_frameConstants);

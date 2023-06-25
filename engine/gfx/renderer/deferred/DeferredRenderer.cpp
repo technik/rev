@@ -98,7 +98,7 @@ namespace rev::gfx
 		
 		// Update render passes
 		m_gBufferPass->setDepthTarget(*m_zBuffer);
-		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_gBufferPass->setColorTargets({ m_emissiveBuffer.get(), m_baseColorMetalnessBuffer.get(), m_normalPBRBuffer.get() });
 
 		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
@@ -202,6 +202,45 @@ namespace rev::gfx
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
+	void DeferredRenderer::renderLightingPass()
+	{
+		m_lightingConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
+		m_lightingConstants.lightDir = m_frameConstants.lightDir;
+		m_lightingConstants.lightColor = m_frameConstants.lightColor;
+
+		auto cmd = m_ctxt->getNewRenderCmdBuffer();
+		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_emissiveBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+		m_ctxt->allocator().transitionImageLayout(cmd, m_baseColorMetalnessBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+		m_ctxt->allocator().transitionImageLayout(cmd, m_normalPBRBuffer->image(), vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, false);
+		m_lightingPass->begin(
+			cmd,
+			m_windowSize,
+			*m_hdrLightBuffer,
+			nullptr,
+			m_lightingDescriptors->getDescriptor(0));
+
+		m_lightingPass->pushConstants(cmd, m_lightingConstants);
+		m_lightingPass->render(cmd);
+
+		m_lightingPass->end(cmd);
+
+		m_ctxt->allocator().transitionImageLayout(cmd, m_emissiveBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
+		m_ctxt->allocator().transitionImageLayout(cmd, m_baseColorMetalnessBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
+		m_ctxt->allocator().transitionImageLayout(cmd, m_normalPBRBuffer->image(), vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eGeneral, false);
+
+		cmd.end();
+
+		vk::PipelineStageFlags waitFlags = {};
+		vk::SubmitInfo submitInfo(
+			0, nullptr, &waitFlags, // wait
+			1, &cmd, // commands
+			0, nullptr); // signal
+		static_cast<VulkanCommandQueue&>(m_ctxt->GfxQueue()).nativeQueue().submit(submitInfo);
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------
 	void DeferredRenderer::renderPostProPass()
 	{
 		m_postProConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
@@ -219,7 +258,7 @@ namespace rev::gfx
 			cmd,
 			m_windowSize,
 			swapchainImage,
-			m_postProConstants.ambientColor,
+			&m_postProConstants.ambientColor,
 			m_postProDescriptors->getDescriptor(0));
 
 		m_postPass->pushConstants(cmd, m_postProConstants);
@@ -426,12 +465,20 @@ namespace rev::gfx
 		auto windowSize = m_ctxt->windowSize();
 		auto& alloc = m_ctxt->allocator();
 
+		m_emissiveBuffer = alloc.createImageBuffer(
+			"HDR light",
+			windowSize,
+			m_HDRFormat,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
+			m_ctxt->graphicsQueueFamily());
+
 		m_hdrLightBuffer = alloc.createImageBuffer(
 			"HDR light",
 			windowSize,
 			m_HDRFormat,
 			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
+
 		m_zBuffer = alloc.createDepthBuffer(
 			"Depth",
 			windowSize,
@@ -462,6 +509,7 @@ namespace rev::gfx
 	void DeferredRenderer::destroyRenderTargets()
 	{
 		m_hdrLightBuffer = nullptr;
+		m_emissiveBuffer = nullptr;
 		m_zBuffer = nullptr;
 		m_normalPBRBuffer = nullptr;
 		m_normalPBRBuffer = nullptr;
