@@ -107,6 +107,8 @@ namespace rev::gfx
 		std::unique_ptr<gfx::RasterPipeline> m_gBufferPipeline;
 
 		std::shared_ptr<gfx::ImageBuffer> m_hdrLightBuffer;
+		std::shared_ptr<gfx::ImageBuffer> m_baseColorMetalnessBuffer;
+		std::shared_ptr<gfx::ImageBuffer> m_normalPBRBuffer;
 		std::shared_ptr<gfx::ImageBuffer> m_zBuffer;
 
 		std::shared_ptr<gfx::Texture> m_iblLUT;
@@ -137,7 +139,7 @@ namespace rev::gfx
 			float bloom;
 		} m_postProConstants;
 
-		std::unique_ptr<gfx::RenderPass> m_hdrLightPass;
+		std::unique_ptr<gfx::RenderPass> m_gBufferPass;
 		std::unique_ptr<gfx::FullScreenPass> m_uiRenderPass;
 		std::shared_ptr<EnvironmentProbe> m_envProbe;
 

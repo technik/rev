@@ -83,7 +83,7 @@ namespace rev::gfx
 		auto device = m_ctxt->nativeDevice();
 		m_gBufferPipeline.reset();
 		device.destroyPipelineLayout(m_gbufferPipelineLayout);
-		device.destroyRenderPass(m_hdrLightPass->vkPass());
+		device.destroyRenderPass(m_gBufferPass->vkPass());
 		device.destroySemaphore(m_imageAvailableSemaphore);
 	}
 
@@ -97,8 +97,8 @@ namespace rev::gfx
 		createRenderTargets();
 		
 		// Update render passes
-		m_hdrLightPass->setDepthTarget(*m_zBuffer);
-		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_gBufferPass->setDepthTarget(*m_zBuffer);
+		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get() });
 
 		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
@@ -139,7 +139,7 @@ namespace rev::gfx
 		// Render geometry if the scene is loaded
 		auto scope = m_ctxt->getScopedCmdBuffer(static_cast<VulkanCommandQueue&>(m_ctxt->GfxQueue()).nativeQueue());
 		auto cmd = scope.cmd;
-		m_hdrLightPass->begin(cmd, m_windowSize);
+		m_gBufferPass->begin(cmd, m_windowSize);
 
 		// Bind pipeline
 		m_gBufferPipeline->bind(cmd);
@@ -198,7 +198,7 @@ namespace rev::gfx
 			m_doubleBufferNdx ^= 1;
 		}
 
-		m_hdrLightPass->end(cmd);
+		m_gBufferPass->end(cmd);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------
@@ -341,13 +341,13 @@ namespace rev::gfx
 	void DeferredRenderer::createRenderPasses()
 	{
 		// HDR geometry pass
-		m_hdrLightPass = std::make_unique<gfx::RenderPass>(
+		m_gBufferPass = std::make_unique<gfx::RenderPass>(
 			m_ctxt->createRenderPass({ m_hdrLightBuffer->format(), m_zBuffer->format() }),
 			*m_frameBuffers);
-		m_hdrLightPass->setColorTargets({ m_hdrLightBuffer.get() });
-		m_hdrLightPass->setDepthTarget(*m_zBuffer);
-		m_hdrLightPass->setClearDepth(0.f);
-		m_hdrLightPass->setClearColor(-math::Vec4f::ones());
+		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get() });
+		m_gBufferPass->setDepthTarget(*m_zBuffer);
+		m_gBufferPass->setClearDepth(0.f);
+		m_gBufferPass->setClearColor(-math::Vec4f::ones());
 
 		// UI Render pass
 		m_uiRenderPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
@@ -386,7 +386,7 @@ namespace rev::gfx
 		m_gBufferPipeline = std::make_unique<gfx::RasterPipeline>(
 			geometryBindings,
 			m_gbufferPipelineLayout,
-			m_hdrLightPass->vkPass(),
+			m_gBufferPass->vkPass(),
 			"gbuffer.vert.spv",
 			"gbuffer.frag.spv",
 			true);
@@ -415,6 +415,18 @@ namespace rev::gfx
 			windowSize,
 			vk::Format::eD32Sfloat,
 			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
+			m_ctxt->graphicsQueueFamily());
+		m_baseColorMetalnessBuffer = alloc.createImageBuffer(
+			"BaseColorMetal",
+			windowSize,
+			vk::Format::eR8G8B8A8Srgb,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
+			m_ctxt->graphicsQueueFamily());
+		m_normalPBRBuffer = alloc.createImageBuffer(
+			"normalPBR",
+			windowSize,
+			vk::Format::eR16G16B16A16Sint,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 
 		// Transition new images to general layout
