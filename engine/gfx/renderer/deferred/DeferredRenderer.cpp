@@ -93,6 +93,7 @@ namespace rev::gfx
 		if (newSize.x() == 0 || newSize.y() == 0)
 			return; // Avoid recreating an empty swap chain
 
+		m_windowSize = newSize;
 		createRenderTargets();
 		
 		// Update render passes
