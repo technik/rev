@@ -22,8 +22,18 @@
 
 namespace rev::gfx
 {
+	enum class ResourceState
+	{
+		Present,
+		SRV,
+		UAV,
+	};
+
 	class CommandList
-	{};
+	{
+	public:
+		virtual void resourceBarrier();
+	};
 
 	class CommandQueue
 	{

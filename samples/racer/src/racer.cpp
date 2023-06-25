@@ -21,6 +21,8 @@
 #include <thread>
 
 #include "racer.h"
+#include <gfx/backend/Context.h>
+#include <gfx/backend/commandQueue.h>
 
 namespace rev
 {
@@ -60,6 +62,17 @@ namespace rev
 	//------------------------------------------------------------------------------------------------------------------
 	void Racer::render(TimeDelta dt)
 	{
+		auto& gfxQueue = gfx::RenderContext().GfxQueue();
+		auto& cmdLst = gfxQueue.getCommandList();
+
+		// Get the back buffer
+		cmdLst.resourceBarrier();
+
+		// Clear
+		
+		gfxQueue.submitCommandList(cmdLst);
+
+		// Present
 	}
 
 }	// namespace rev

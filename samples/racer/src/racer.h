@@ -54,6 +54,7 @@ namespace rev {
 		void onResize() override;
 
 	private:
+
 	};
 
 }	// namespace rev
