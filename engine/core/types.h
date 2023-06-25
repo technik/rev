@@ -19,31 +19,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
-#include "CommandQueue.h"
+#include <cstdint>
 
-namespace rev::gfx
+namespace core
 {
+    template<class Tag, class Handle = uint32_t>
+    struct TypedHandle
+    {
+        static constexpr Handle kInvalidId = Handle(-1);
 
-	class ImageResource
-	{
-	public:
-		//
-	};
+        Handle id = kInvalidId;
 
-	// Entry point to the graphics API
-	class Device
-	{
-	public:
-		// Graphics API
-		enum class GfxAPI
-		{
-			DX12,
-			Vulkan
-		};
+        bool isValid() const { return id != kInvalidId; }
+    };
 
-		virtual ~Device() {};
+    // Memory size literal
+    constexpr inline unsigned long long operator "" _Kb(unsigned long long x)
+    {
+        return x * 1024;
+    }
 
-		virtual CommandQueue* createCommandQueue(CommandQueue::Info) = 0;
-	};
+    constexpr inline unsigned long long operator "" _Mb(unsigned long long x)
+    {
+        return x * 1024_Kb;
+    }
 
-} // namespace rev::gfx
+    constexpr inline unsigned long long operator "" _Gb(unsigned long long x)
+    {
+        return x * 1024_Mb;
+    }
+}

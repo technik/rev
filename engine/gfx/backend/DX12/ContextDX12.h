@@ -46,7 +46,15 @@ namespace rev::gfx
         math::Vec2u resizeSwapChain(const math::Vec2u& imageSize) override { return imageSize; } // returns the actual size the swapchain was resized to
         void destroySwapChain() override {}
 
-    private:        
+    private:
+
+        class SwapChain
+        {
+        public:
+            SwapChain(const SwapChainOptions&, const math::Vec2u& imageSize);
+            void resize(const math::Vec2u& imageSize);
+        };
+
         bool initPhysicalDevice(bool useValidationLayers);
         bool initLogicalDevice(bool breakOnValidation);
 
