@@ -20,6 +20,7 @@
 #pragma once
 
 #include "../Context.h"
+#include "../Device.h"
 #include "CommandQueueDX12.h"
 
 #include <dxgi1_6.h>
@@ -51,9 +52,29 @@ namespace rev::gfx
         class SwapChain
         {
         public:
-            SwapChain(const SwapChainOptions&, const math::Vec2u& imageSize);
+            SwapChain(DeviceDX12* device,
+                void* window,
+                IDXGIFactory6& dxgiFactory,
+                CommandQueueDX12& commandQueue, 
+                const SwapChainOptions&, const math::Vec2u& imageSize);
             void resize(const math::Vec2u& imageSize);
+
+            // Returns the fence value signaled after present
+            uint64_t present(CommandQueueDX12& gfxQueue);
+
+            const ImageResource& backBuffer() const { return m_buffers[m_backBufferIndex]; }
+
+        private:
+            void UpdateResourceViews();
+            static constexpr size_t kNumSwapChainBuffers = 2;
+
+            int m_backBufferIndex = 0;
+            ComPtr<IDXGISwapChain4> m_nativeSwapChain;
+            ImageResource m_buffers[kNumSwapChainBuffers];
+            unsigned m_rtvDescriptorSize;
         };
+
+        std::unique_ptr<SwapChain> m_swapChain;
 
         bool initPhysicalDevice(bool useValidationLayers);
         bool initLogicalDevice(bool breakOnValidation);

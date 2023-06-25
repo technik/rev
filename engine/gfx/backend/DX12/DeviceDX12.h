@@ -33,21 +33,40 @@ namespace rev::gfx
     public:
         bool init(IDXGIAdapter4* physicalDevice, bool breakOnValidation);
         void end() {}
-        ComPtr<IDXGISwapChain4> initSwapChain(void* nativeWindowHandle,
-            const math::Vec2u& resolution,
-            IDXGIFactory6& dxgiFactory,
-            CommandQueueDX12& commandQueue,
-            const Context::SwapChainOptions& swapChainOptions);
 
         CommandQueue* createCommandQueue(CommandQueue::Info) override;
 
+        // Resource management
+        ID3D12Resource* getNative(GPUResource handle) { return m_nativeResources[handle.id].Get(); }
+        GPUResource registerResource(const ComPtr<ID3D12Resource>&);
+        void releaseResource(GPUResource);
+
+        // Descriptor management
+        SRV createSRV(GPUResource resource);
+        UAV createUAV(GPUResource resource);
+        RTV createRTV(GPUResource resource);
+
+        void destroy(SRV);
+        void destroy(UAV);
+        void destroy(RTV);
+
+        auto& nativeDevice() const { return *m_d3d12Device.Get(); }
+
     private:
         ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors);
-        void UpdateRenderTargetViews(ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap);
 
         ComPtr<ID3D12Device2> m_d3d12Device;
 
-        static constexpr inline int32_t kNumSwapChainBuffers = 2;
-        ComPtr<ID3D12Resource> m_BackBuffers[kNumSwapChainBuffers] = {};
+        // TODO: Add generation counter?
+        std::vector<ComPtr<ID3D12Resource>> m_nativeResources;
+        ComPtr<ID3D12DescriptorHeap> m_globalDescHeap;
+        ComPtr<ID3D12DescriptorHeap> m_globalRTVHeap;
+        static constexpr size_t m_maxRTVs = 2; // Back-buffers only for now
+        static constexpr size_t m_maxDescriptors = 4; // Back-buffers only for now
+        int m_numRTVs = 0;
+        int m_numDescs = 0;
+
+        unsigned m_rtvDescriptorSize;
+        unsigned m_descriptorSize;
     };
 }

@@ -63,14 +63,14 @@ namespace rev
 	void Racer::render(TimeDelta dt)
 	{
 		auto& gfxQueue = gfx::RenderContext().GfxQueue();
-		auto& cmdLst = gfxQueue.getCommandList();
+		//auto& cmdLst = gfxQueue.getCommandList();
 
 		// Get the back buffer
-		cmdLst.resourceBarrier();
+		//cmdLst.resourceBarrier();
 
 		// Clear
 		
-		gfxQueue.submitCommandList(cmdLst);
+		//gfxQueue.submitCommandList(cmdLst);
 
 		// Present
 	}

@@ -90,56 +90,10 @@ namespace rev::gfx
             }
         }
 
+        m_globalDescHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_maxDescriptors);
+        m_globalRTVHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_maxRTVs);
+
         return true;
-    }
-
-    ComPtr<IDXGISwapChain4> DeviceDX12::initSwapChain(void* nativeWindowHandle,
-        const math::Vec2u& resolution,
-        IDXGIFactory6& dxgiFactory,
-        CommandQueueDX12& commandQueue,
-        const Context::SwapChainOptions& swapChainOptions)
-    {
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width = resolution.x();
-        swapChainDesc.Height = resolution.y();
-        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // TODO: Support HDR
-        swapChainDesc.Stereo = FALSE;
-        swapChainDesc.SampleDesc = { 1, 0 };
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = kNumSwapChainBuffers;
-        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-        swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        // It is recommended to always allow tearing if tearing support is available.
-        swapChainDesc.Flags = swapChainOptions.vSync ? 0 : DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-
-        ComPtr<IDXGISwapChain1> swapChain1;
-        HWND hWnd = (HWND)nativeWindowHandle;
-        if (FAILED(dxgiFactory.CreateSwapChainForHwnd(
-            &commandQueue.nativeQueue(),
-            hWnd,
-            &swapChainDesc,
-            nullptr,
-            nullptr,
-            &swapChain1)))
-        {
-            return nullptr;
-        }
-
-        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-        // will be handled manually.
-        if (FAILED(dxgiFactory.MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER)))
-        {
-            return nullptr;
-        }
-
-        ComPtr<IDXGISwapChain4> dxgiSwapChain4;
-        if (FAILED(swapChain1.As(&dxgiSwapChain4)))
-        {
-            return nullptr;
-        }
-
-        return dxgiSwapChain4;
     }
 
     CommandQueue* DeviceDX12::createCommandQueue(CommandQueue::Info desc)
@@ -160,22 +114,78 @@ namespace rev::gfx
         return descriptorHeap;
     }
 
-    void DeviceDX12::UpdateRenderTargetViews(ComPtr<IDXGISwapChain4> swapChain, ComPtr<ID3D12DescriptorHeap> descriptorHeap)
+    GPUResource DeviceDX12::registerResource(const ComPtr<ID3D12Resource>& dx12res)
     {
-        auto rtvDescriptorSize = m_d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-        for (int i = 0; i < kNumSwapChainBuffers; ++i)
+        // Reuse slots if possible
+        for (int i = 0; i < m_nativeResources.size(); ++i)
         {
-            ComPtr<ID3D12Resource> backBuffer;
-            ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
-            m_d3d12Device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
-
-            m_BackBuffers[i] = backBuffer;
-
-            rtvHandle.Offset(rtvDescriptorSize);
+            if (!m_nativeResources[i]) // found empty slot
+            {
+                m_nativeResources[i] = dx12res;
+                return GPUResource(i);
+            }
         }
+
+        // No valid slots found. Grow the queue
+        m_nativeResources.push_back(dx12res);
+        return GPUResource((uint32_t(m_nativeResources.size() - 1)));
+    }
+
+    void DeviceDX12::releaseResource(GPUResource handle)
+    {
+        assert(handle.isValid());
+        m_nativeResources[handle.id] = nullptr;
+    }
+
+    // Descriptor management
+    SRV DeviceDX12::createSRV(GPUResource resource)
+    {
+        auto baseDesc = m_globalDescHeap->GetCPUDescriptorHandleForHeapStart();
+        auto desc = CD3DX12_CPU_DESCRIPTOR_HANDLE(baseDesc, m_numDescs, m_descriptorSize);
+
+        assert(m_numDescs < m_maxDescriptors);
+        m_d3d12Device->CreateShaderResourceView(getNative(resource), nullptr, desc);
+
+        return SRV(m_numDescs++);
+    }
+
+    UAV DeviceDX12::createUAV(GPUResource resource)
+    {
+        auto baseDesc = m_globalDescHeap->GetCPUDescriptorHandleForHeapStart();
+        auto desc = CD3DX12_CPU_DESCRIPTOR_HANDLE(baseDesc, m_numDescs, m_descriptorSize);
+
+        assert(m_numDescs < m_maxDescriptors);
+        m_d3d12Device->CreateUnorderedAccessView(getNative(resource), nullptr, nullptr, desc);
+
+        return UAV(m_numDescs++);
+    }
+
+    RTV DeviceDX12::createRTV(GPUResource resource)
+    {
+        auto baseDesc = m_globalRTVHeap->GetCPUDescriptorHandleForHeapStart();
+        auto desc = CD3DX12_CPU_DESCRIPTOR_HANDLE(baseDesc, m_numRTVs, m_rtvDescriptorSize);
+
+        assert(m_numRTVs < m_maxRTVs);
+        m_d3d12Device->CreateRenderTargetView(getNative(resource), nullptr, desc);
+
+        return RTV(m_numRTVs++);
+    }
+
+    void DeviceDX12::destroy(SRV)
+    {
+        assert(m_numDescs);
+        m_numDescs--;
+    }
+
+    void DeviceDX12::destroy(UAV)
+    {
+        assert(m_numDescs);
+        m_numDescs--;
+    }
+
+    void DeviceDX12::destroy(RTV rtv)
+    {
+        assert(m_numRTVs);
+        m_numRTVs--;
     }
 }

@@ -21,7 +21,7 @@
 
 #include <cstdint>
 
-namespace core
+namespace rev::core
 {
     template<class Tag, class Handle = uint32_t>
     struct TypedHandle
@@ -31,6 +31,7 @@ namespace core
         Handle id = kInvalidId;
 
         bool isValid() const { return id != kInvalidId; }
+        void clear() { id = kInvalidId; }
     };
 
     // Memory size literal

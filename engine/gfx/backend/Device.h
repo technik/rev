@@ -20,14 +20,29 @@
 #pragma once
 
 #include "CommandQueue.h"
+#include "core/types.h"
 
 namespace rev::gfx
 {
+	struct UAVHandleTag;
+	struct SRVHandleTag;
+	struct RTVHandleTag;
+	struct GPUResourceHandleTag;
+
+	using UAV = core::TypedHandle<UAVHandleTag>;
+	using SRV = core::TypedHandle<SRVHandleTag>;
+	using RTV = core::TypedHandle<RTVHandleTag>;
+	using GPUResource = core::TypedHandle<GPUResourceHandleTag>;
 
 	class ImageResource
 	{
 	public:
-		//
+		// Internal resource views
+		UAV uav;
+		RTV rtv;
+		SRV srv;
+
+		GPUResource resource;
 	};
 
 	// Entry point to the graphics API
