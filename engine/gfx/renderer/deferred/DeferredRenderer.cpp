@@ -100,6 +100,15 @@ namespace rev::gfx
 		m_gBufferPass->setDepthTarget(*m_zBuffer);
 		m_gBufferPass->setColorTargets({ m_emissiveBuffer.get(), m_baseColorMetalnessBuffer.get(), m_normalPBRBuffer.get() });
 
+		// Lighting
+		gfx::DescriptorSetUpdate lightingUpdates(*m_lightingDescriptors, 0);
+		lightingUpdates.addImage("hdrColor", m_emissiveBuffer);
+		lightingUpdates.addImage("baseColorMetal", m_baseColorMetalnessBuffer);
+		lightingUpdates.addImage("normalPBR", m_normalPBRBuffer);
+		lightingUpdates.addImage("depth", m_zBuffer);
+		lightingUpdates.send();
+
+		// Post Process
 		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
 		renderBufferUpdates.send();
@@ -119,6 +128,7 @@ namespace rev::gfx
 
 		// Render passes
 		renderGeometryPass(scene);
+		renderLightingPass();
 		renderPostProPass();
 
 		// Swapchain update
@@ -207,6 +217,7 @@ namespace rev::gfx
 		m_lightingConstants.windowSize = math::Vec2f((float)m_windowSize.x(), (float)m_windowSize.y());
 		m_lightingConstants.lightDir = m_frameConstants.lightDir;
 		m_lightingConstants.lightColor = m_frameConstants.lightColor;
+		m_lightingConstants.ambientColor = m_frameConstants.ambientColor;
 
 		auto cmd = m_ctxt->getNewRenderCmdBuffer();
 		cmd.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
@@ -349,10 +360,10 @@ namespace rev::gfx
 
 		// --- Lighting pass ---
 		m_lightingDescriptorLayout = std::make_shared<DescriptorSetLayout>();
-		m_lightingDescriptorLayout->addTexture("hdrColor", 0, vk::ShaderStageFlagBits::eFragment);
-		m_lightingDescriptorLayout->addTexture("baseColorMetal", 1, vk::ShaderStageFlagBits::eFragment);
-		m_lightingDescriptorLayout->addTexture("normalPBR", 2, vk::ShaderStageFlagBits::eFragment);
-		m_lightingDescriptorLayout->addTexture("depth", 3, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addImage("hdrColor", 0, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addImage("baseColorMetal", 1, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addImage("normalPBR", 2, vk::ShaderStageFlagBits::eFragment);
+		m_lightingDescriptorLayout->addImage("depth", 3, vk::ShaderStageFlagBits::eFragment);
 		m_lightingDescriptorLayout->close();
 		m_lightingDescriptors = std::make_shared<DescriptorSetPool>(m_lightingDescriptorLayout, 1);
 
@@ -375,7 +386,15 @@ namespace rev::gfx
 			geomFrameUpdates.addTexture("envProbe", m_envProbe->texture());
 		geomFrameUpdates.send();
 
-		// HDR light
+		// Lighting
+		gfx::DescriptorSetUpdate lightingUpdates(*m_lightingDescriptors, 0);
+		lightingUpdates.addImage("hdrColor", m_emissiveBuffer);
+		lightingUpdates.addImage("baseColorMetal", m_baseColorMetalnessBuffer);
+		lightingUpdates.addImage("normalPBR", m_normalPBRBuffer);
+		lightingUpdates.addImage("depth", m_zBuffer);
+		lightingUpdates.send();
+
+		// Post Process
 		gfx::DescriptorSetUpdate renderBufferUpdates(*m_postProDescriptors, 0);
 		renderBufferUpdates.addImage("HDR Light", m_hdrLightBuffer);
 		if (m_envProbe)
@@ -389,19 +408,19 @@ namespace rev::gfx
 		// HDR geometry pass
 		m_gBufferPass = std::make_unique<gfx::RenderPass>(
 			m_ctxt->createRenderPass({ 
-				m_hdrLightBuffer->format(),
+				m_emissiveBuffer->format(),
 				m_baseColorMetalnessBuffer->format(),
 				m_normalPBRBuffer->format(),
 				m_zBuffer->format() }),
 			*m_frameBuffers);
-		m_gBufferPass->setColorTargets({ m_hdrLightBuffer.get(), m_baseColorMetalnessBuffer.get(), m_normalPBRBuffer.get() });
+		m_gBufferPass->setColorTargets({ m_emissiveBuffer.get(), m_baseColorMetalnessBuffer.get(), m_normalPBRBuffer.get() });
 		m_gBufferPass->setDepthTarget(*m_zBuffer);
 		m_gBufferPass->setClearDepth(0.f);
 		m_gBufferPass->setClearColor(-math::Vec4f::ones());
 
 		// Lighting pass
 		m_lightingPass = std::unique_ptr<gfx::FullScreenPass>(new gfx::FullScreenPass(
-			"../shaders/postPro.frag.spv",
+			"../shaders/lighting.frag.spv",
 			{ m_HDRFormat },
 			*m_frameBuffers,
 			m_lightingDescriptorLayout->layout(),
@@ -469,33 +488,33 @@ namespace rev::gfx
 			"HDR light",
 			windowSize,
 			m_HDRFormat,
-			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 
 		m_hdrLightBuffer = alloc.createImageBuffer(
 			"HDR light",
 			windowSize,
 			m_HDRFormat,
-			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 
 		m_zBuffer = alloc.createDepthBuffer(
 			"Depth",
 			windowSize,
 			vk::Format::eD32Sfloat,
-			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
 			m_ctxt->graphicsQueueFamily());
 		m_baseColorMetalnessBuffer = alloc.createImageBuffer(
 			"BaseColorMetal",
 			windowSize,
 			vk::Format::eR8G8B8A8Srgb,
-			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 		m_normalPBRBuffer = alloc.createImageBuffer(
 			"normalPBR",
 			windowSize,
 			vk::Format::eR16G16B16A16Sint,
-			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
+			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 
 		// Transition new images to general layout

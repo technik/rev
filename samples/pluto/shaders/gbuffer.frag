@@ -144,6 +144,8 @@ void main()
         //material.baseColor_a.xyz = normal;
     }
 
+	material.baseColor_a.xyz = vec3(0,1,0);
+
 	if(renderFlag(RF_OVERRIDE_MATERIAL))
 	{
 		material.baseColor_a.xyz = frameInfo.overrideBaseColor.xyz;
@@ -181,5 +183,6 @@ void main()
 		//pxlColor += texture(textures[index], vPxlTexCoord).xyz;
 	}
 
+	outBaseColorMetal = vec4(pxlColor, 1.0);
     outHDRColor = vec4(pxlColor, 1.0);
 }

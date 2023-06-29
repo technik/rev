@@ -49,12 +49,13 @@ void main()
 		pushC.windowSize.y * vPxlTexCoord.y);
 
 	// Read from the G-Buffer
-	vec4 litColor = imageLoad(HDRLight, pixelPos);
+	vec3 litColor = imageLoad(HDRLight, pixelPos).rgb;
+	//vec3 litColor = imageLoad(baseColorMetal, pixelPos).rgb;
 
-	if(litColor.w < 0) // composite with the sky
+	if(litColor.x < 0) // composite with the sky
 	{
-		litColor = vec4(pushC.ambientColor, 1);
+		litColor = pushC.ambientColor;
 	}
 
-	outColor = litColor;
+	outColor = vec4(litColor, 1);
 }

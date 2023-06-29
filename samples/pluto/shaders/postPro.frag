@@ -47,43 +47,13 @@ void main()
 		pushC.windowSize.y * vPxlTexCoord.y);
 
 	// Gather slight bloom
-	vec4 hdrColor = vec4(0);
-	int bloomWin = 0;
-	ivec2 minPos = max(pixelPos-bloomWin, ivec2(0));
-	ivec2 maxPos = min(pixelPos+bloomWin, ivec2(pushC.windowSize-1));
-
-	//if(bloomWin == 0)
-	{
-		vec4 bloomColor = imageLoad(HDRLight, pixelPos);
-		if(bloomColor.w < 0)
-		{
-			bloomColor = vec4(pushC.ambientColor,1);
-		}
-		hdrColor += bloomColor;
-	}
-	if(bloomWin > 0)
-	{
-		for(int j = minPos.y; j <= maxPos.y; ++j)
-		{
-			for(int i = minPos.x; i <= maxPos.x; ++i)
-			{
-				if(ivec2(i,j) == pixelPos)
-					continue;
-				float distance = 100 * (float(abs(i-pixelPos.x) * abs(j-pixelPos.y))) / pushC.windowSize.y;
-				float weight = exp(-distance);
-
-				vec4 bloomColor = imageLoad(HDRLight, ivec2(i, j));
-				if(bloomColor.w < 0)
-				{
-					bloomColor = vec4(pushC.ambientColor,1);
-				}
-				vec4 delta = weight * pow(bloomColor, vec4(2));
-				//delta = pow(delta, vec4(2)); 
-				hdrColor += 0.001 * delta;
-			}
-		}
-	}
+	vec4 hdrColor = imageLoad(HDRLight, pixelPos);
+	
+	// Exposure
 	hdrColor *= pushC.exposure;
+
+	// Tone mapping
 	vec4 toneMapped = hdrColor / (1 + hdrColor);
+	toneMapped.a = 1;
 	outColor = toneMapped;
 }
