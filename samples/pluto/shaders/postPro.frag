@@ -29,12 +29,12 @@ layout(location = 0) in vec2 vPxlTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0, rgba32f) uniform image2D HDRLight;
+layout(set = 0, binding = 0, rgba32f) readonly uniform image2D HDRLight;
 
 layout(push_constant,scalar) uniform Constants
 {
-	uint renderFlags;
 	vec3 ambientColor;
+	uint renderFlags;
 	vec2 windowSize;
 	float exposure;
 	float bloom;

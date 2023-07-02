@@ -507,7 +507,7 @@ namespace rev::gfx
 		m_baseColorMetalnessBuffer = alloc.createImageBuffer(
 			"BaseColorMetal",
 			windowSize,
-			vk::Format::eR8G8B8A8Srgb,
+			vk::Format::eR8G8B8A8Snorm,
 			vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage,
 			m_ctxt->graphicsQueueFamily());
 		m_normalPBRBuffer = alloc.createImageBuffer(

@@ -149,8 +149,9 @@ namespace rev::gfx
 
 		struct PostProPushConstants
 		{
-			uint32_t renderFlags;
 			math::Vec3f ambientColor;
+			uint32_t renderFlags;
+
 			math::Vec2f windowSize;
 			float exposure = 1.f;
 			float bloom;

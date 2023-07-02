@@ -412,21 +412,19 @@ namespace rev::gfx {
 		auto deviceFamilies = device.getQueueFamilyProperties();
 		for (uint32_t i = 0; i < deviceFamilies.size(); ++i)
 		{
-			std::cout << "Queue family " << i << "{";
 			auto& family = deviceFamilies[i];
 			if (family.queueFlags & vk::QueueFlagBits::eGraphics)
 			{
-				std::cout << " graphics";
 				result.graphics = i;
+				continue;
 			}
 			if (family.queueFlags & vk::QueueFlagBits::eCompute)
 			{
-				std::cout << " compute";
 				result.compute = i;
+				continue;
 			}
 			if (family.queueFlags & vk::QueueFlagBits::eTransfer)
 			{
-				std::cout << "Transfer";
 				result.transfer = i;
 			}
 		}
